@@ -12,6 +12,7 @@ Requires `packing:read` or `packing:write` scope. The Packing addon is listed as
 
 | Tool | Description |
 |---|---|
+| `list_packing_items` | List the packing items the user may see (another member's personal items stay hidden), with the trip's bags and who looks after each category. Narrow it with `category`, `bag_id` (`null` for the items in no bag) or `status` (`open`, `packed`); `group_by` (`category` or `bag`) only says how the list is meant to be shown. |
 | `create_packing_item` | Add an item to the packing checklist with optional category. |
 | `update_packing_item` | Rename an item, change its category, or count how many of it are already packed. |
 | `set_packing_item_sharing` | Move an item between the three sharing tiers: `common` puts it in the pool the whole trip packs from, `personal` keeps it to its owner, `shared` covers the trip members in `recipient_ids`. Only the item's owner may change this. |
@@ -52,15 +53,16 @@ Requires `atlas:read` or `atlas:write` scope.
 
 | Tool | Description |
 |---|---|
-| `mark_country_visited` | Mark a country as visited using its ISO 3166-1 alpha-2 code (e.g. `"FR"`, `"JP"`). |
-| `unmark_country_visited` | Remove a country from your visited list. |
+| `mark_country_visited` | Mark a country as visited using its ISO 3166-1 alpha-2 code (e.g. `"FR"`, `"JP"`). The answer's `after` says where the country stands now and how many countries count as visited. |
+| `unmark_country_visited` | Remove a country from your visited list. The answer's `after` says where the country stands now (a country your trips put on the map stays) and how many countries count as visited. |
 | `get_atlas_stats` | Get atlas statistics — visited country counts, region counts, and continent breakdown. |
 | `list_visited_regions` | List all manually visited sub-country regions for the current user. |
 | `locate_atlas_region` | Resolve a coordinate to the country and region codes the Atlas map can highlight, which is where the pair `mark_region_visited` expects comes from. A point outside every bundled polygon answers with `null` fields rather than an error. For a postal address use `reverse_geocode` instead. |
-| `mark_region_visited` | Mark a sub-country region as visited (e.g. `"US-CA"`). |
-| `unmark_region_visited` | Remove a region from the visited list. Removing the last region of a country also removes the country, unless it was marked visited itself. |
+| `mark_region_visited` | Mark a sub-country region as visited (e.g. `"US-CA"`). The answer's `after` also counts the visited regions of that country. On all four mark tools `after` is left out when the atlas cannot be read back; the change itself stands. |
+| `unmark_region_visited` | Remove a region from the visited list. Removing the last region of a country also removes the country, unless it was marked visited itself. The answer's `after` says where that country stands now, how many countries count as visited and how many of its regions are left. |
 | `get_country_atlas_places` | Get places saved in the user's atlas for a specific country. |
 | `create_bucket_list_item` | Add a destination to your personal bucket list with optional coordinates, country code, target date and `region_code` (a state or province, hatched on the Atlas map). The same destination for the same target date is rejected as a duplicate. |
+| `list_bucket_list` | List your bucket list: every wish with its id, name, country and region, target date, notes and when it was reached. The ids are what `update_bucket_list_item` and `delete_bucket_list_item` take. |
 | `update_bucket_list_item` | Update a bucket list item (name, notes, coordinates, target date). |
 | `delete_bucket_list_item` | Remove an item from your bucket list. |
 
@@ -72,12 +74,13 @@ The addon alone is not enough. Collab has five sub-features an admin switches on
 
 | Sub-feature | Tools it gates | Resource it gates |
 |---|---|---|
-| Notes | `create_collab_note`, `update_collab_note`, `delete_collab_note` | `trek://trips/{tripId}/collab-notes` |
+| Notes | `list_collab_notes`, `create_collab_note`, `update_collab_note`, `delete_collab_note` | `trek://trips/{tripId}/collab-notes` |
 | Polls | `list_collab_polls`, `create_collab_poll`, `vote_collab_poll`, `close_collab_poll`, `delete_collab_poll` | `trek://trips/{tripId}/collab/polls` |
 | Chat | `list_collab_messages`, `send_collab_message`, `delete_collab_message`, `react_collab_message` | `trek://trips/{tripId}/collab/messages` |
 
 | Tool | Description |
 |---|---|
+| `list_collab_notes` | List the shared notes of a trip, pinned first, with their category, colour, link and files. |
 | `create_collab_note` | Create a shared note visible to all trip members. Supports title, content, category, and color. |
 | `update_collab_note` | Edit a collab note's content, category, color, or pin status. |
 | `delete_collab_note` | Delete a collab note. |
@@ -101,6 +104,7 @@ Requires `collections:read` or `collections:write` scope.
 | `get_collection` | Get one collection with its members, labels, and all saved places, including the average rating and each member's vote. |
 | `available_collection_users` | List users who can still be invited to a collection (excludes current members and guests). |
 | `find_place_in_collections` | Answer whether a place is already on one of your lists, across the whole library in one call, naming each list and the status the place has there. Identify the place by `google_place_id` / `google_ftid` from `search_place` or by `lat` + `lng`; a name alone is never matched. |
+| `get_collection_items` | Read saved places and labels by their own ids across every list you can see, without loading whole lists: each place with its status, labels, rating and notes, and the lists they sit in with their colour, size, labels, members (names and roles only) and whether you may delete places from them. Saved place ids are not trip place ids. Ids you cannot see are left out. |
 | `create_collection` | Create a new saved-place collection owned by the user. |
 | `update_collection` | Update a collection's name, description, colour, icon, cover, links, or sort order. Owner/admin only. |
 | `delete_collection` | Permanently delete a collection and all its saved places. Owner only, and it cannot be undone. |
@@ -192,7 +196,8 @@ Requires `journey:read` or `journey:write` scope.
 | `delete_journey` | Delete a journey. |
 | `add_journey_trip` | Link an existing trip to a journey. |
 | `remove_journey_trip` | Remove a trip from a journey. |
-| `list_journey_entries` | List all entries in a journey (date, text, mood, linked trip). |
+| `list_journey_entries` | List the entries of a journey in reading order (date, text, mood, linked trip), with the journey's id and title. `from` and `to` (`YYYY-MM-DD`, both included) keep only the entries of those days. |
+| `get_journey_entry` | One journal entry by its id, as `list_journey_entries` answers it (photos included), with the id and title of its journey. |
 | `create_journey_entry` | Add an entry with date (required), optional title, story text, time of day, location name, mood, and sort order. `is_draft: true` creates it as a draft that the journey share link leaves out. |
 | `update_journey_entry` | Edit a journey entry's title, story, date, time of day, place, coordinates, weather, tags, mood, pros/cons list or visibility. `stats_excluded: true` keeps the entry but takes it off the route and out of `get_journey_stats`; `dismissed: true` waves a trip-derived suggestion away without deleting it, so the trip sync does not offer it again. `is_draft` turns the entry into a draft or publishes it. |
 | `delete_journey_entry` | Remove an entry from a journey. |
@@ -211,6 +216,19 @@ Requires `journey:read` or `journey:write` scope.
 | `delete_journey_share_link` | Revoke the public share link for a journey. Requires `journey:share`. |
 | `list_journey_recorded_days` | The days of recorded route a journey keeps: zone, distance, pieces, gaps, modes, whether the day was still running, and whose recording it is, without the geometry. Readable without a Dawarich connection. |
 | `delete_journey_recorded_day` | Drop the recorded route a journey keeps for one day. Entries and texts stay, and Dawarich keeps its own recording. Needs edit access. |
+| `get_book` | The journey's photo book from the Studio, without its document: version, title, page format and every page with its id, role, photos and first words. Page and element ids for the tools below come from here. Any member may read it. |
+| `describe_book_page` | One page of the book in words: every element with its id, frame in millimetres and photo or text, then the findings (overlaps, content in the fold or past the trim, empty frames, low print resolution, words past their frame). |
+| `list_book_layouts` | The layouts a page can take: templates for double spreads and single pages, photo grids, and the book's own saved layouts, with what each does to what is on the page. |
+| `create_book` | Lay down a blank book (cover, first page, one double spread, last page, back) for a journey that has none, in a page format of your choice. Needs edit access. |
+| `add_book_pages` | Add up to 10 empty double spreads, always between the first and the last page, optionally on a template or tied to an entry. Needs edit access. |
+| `move_book_page` | Move one double spread to another place between the first and the last page; the answer says where it stood. A move to where the page already is changes nothing. Needs edit access. |
+| `delete_book_pages` | Delete up to 10 double spreads. The cover, first, last and back pages stay. Needs edit access. |
+| `edit_book_page` | Change one page with up to 20 operations, all or nothing: a layout, a gallery photo into a frame, its crop and look, swapping photos, texts and captions, moving and resizing, removing, the page colour. Locked elements are left alone, and photos come only from the journey's gallery. Needs edit access. |
+| `set_book_cover` | The cover's layout, photo, title and subtitle. Needs edit access. |
+| `suggest_book_photos` | Photos of the journey's gallery for a page or the cover, grouped by day and place, best first: near duplicates (bursts and near-identical pictures) are folded onto the sharpest, and possibly blurry or low-resolution photos are named rather than picked. Narrow it to one entry or day. Sharpness and likeness are measured once per photo in the background; it cannot judge faces or what a photo shows. Any member may use it. |
+| `restore_book_page` | Put the pages an earlier change answered under `previous_spreads` back as they were, all in one call, only while the book is still at the version that change answered. Photos must be in the gallery or the book, and locked elements stay as they are. Meant for undo. Needs edit access. |
+
+Every book write is one save of the whole book against its version: nothing is written when any part is refused, and every member's open Studio is told the book changed, the asking one included.
 
 ### Dawarich _(Dawarich addon required)_
 
@@ -297,7 +315,7 @@ These tools work without an open browser. The external assistant chooses places 
 | `calculate_roadtrip` | Calculated days, arrivals, departures, automatic pauses, driving warnings and range warnings; optional geometry. A booking's terminals and a hire car's desks come back as stops carrying `carrier` (its role, type and timetable); their `assignmentId` and `placeId` are synthetic negative numbers that belong to no assignment and no place, so never pass them to the assignment or place tools. With `roadtrip_hotel_bookends` on, a day after a booked night starts at that stay and a day before one ends there: those stops carry `bookend` (phase, accommodation, reservation, check-in and check-out flags, the check-out time as a label), the stay's real `placeId` and a synthetic negative `assignmentId`, and cannot be reordered, edited or given via points | `trips:read` |
 | `get_roadtrip_settings` | Shared driving preferences for the specified trip; a missing `roadtrip_hotel_bookends` means off | `trips:read` |
 | `update_roadtrip_settings` | Patch shared trip driving preferences, preserving other settings | `trips:write` |
-| `search_roadtrip_corridor` | Fuel, charging, rest areas, campsites, food, sights or hotels along a day | `trips:read` |
+| `search_roadtrip_corridor` | Fuel, charging, rest areas, campsites, food, sights or hotels along a day, each hit with the two stops of the day it lies between (`between`) | `trips:read` |
 | `update_route_via` | Move an existing routing handle and optionally change its outgoing leg | `trips:write` |
 | `list_route_vias` | A day's via points, or the whole trip's together with its followed tracks | `trips:read` |
 | `add_route_via`, `add_route_vias` | Add one via point, or a whole chain on one day. With `roadtrip_hotel_bookends` on, a via after the last stop of a day that ends at a booked night is kept but not used, because the drive to the hotel keeps its own road | `trips:write` |
@@ -321,7 +339,7 @@ The via tools manage scenic detours and followed tracks. `list_day_boundaries`, 
 
 `get_roadtrip_hazards` takes `tripId`. It does not reroute the trip. The shared `roadtrip_show_hazards` setting controls the online map overlay.
 
-Google Maps directions links can be reviewed with `preview_google_maps_route` and saved with `import_google_maps_route`. Import creates places and visits together in the supplied order, with trip access and place/day permission checks. Unresolved stops must be omitted from the confirmed input. The Google road geometry is not copied.
+Google Maps directions links can be reviewed with `preview_google_maps_route` and saved with `import_google_maps_route`. Import creates places and visits together in the supplied order, with trip access and place/day permission checks, and answers with the ids of the places and visits it created (`place_ids`, `assignment_ids`). Unresolved stops must be omitted from the confirmed input. The Google road geometry is not copied.
 
 `get_roadtrip_charging_info` accepts tripId and placeId. It requires trip access and the Road trip addon. It reports matching failures, unavailable feeds, freshness, known free capacity and unknown status counts separately. Published tariff components include currency, tax handling and conditions; they do not estimate a user's roaming price. Data source: [MobiData BW OCPDB](https://api.mobidata-bw.de/), with per-source attribution from its public source registry.
 

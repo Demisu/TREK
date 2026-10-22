@@ -221,22 +221,22 @@ describe('describeToolCall', () => {
     const gone = describeToolCall('delete_day_note', 'tc-8', { dayId: 31, noteId: 41 }, hinted(true, false, null));
     expect(gone).toMatchObject({ verbKey: 'genericRemove', subject: 'Rail pass', dayId: 31 });
     expect(gone.rows).toEqual([{ op: 'add', labelKey: 'day', before: null, after: 'Arrival' }]);
-    const vacay = describeToolCall(
-      'toggle_vacay_entry',
-      'tc-9',
-      { date: '2026-07-01', half: true },
-      hinted(false, false, 'vacay'),
-    );
-    expect(vacay).toMatchObject({ subject: 'toggle vacay entry', domain: 'vacay', undoable: false });
-    expect(vacay.rows).toEqual([
-      { op: 'add', labelKey: 'day', before: null, after: '2026-07-01' },
-      { op: 'add', labelKey: 'field', field: 'half', before: null, after: '✓' },
-    ]);
+    // A tool of an addon without a card of its own: named by its words, its arguments as rows, its part of TREK.
+    const year = describeToolCall('add_vacay_year', 'tc-9', { year: 2027 }, hinted(false, true, 'vacay'));
+    expect(year).toMatchObject({ verbKey: 'genericCreate', domain: 'vacay', undoable: false });
+    // A vacation day has a card of its own, even before its lookup ran: the day, in the vacation planner.
+    const vacay = describeToolCall('toggle_vacay_entry', 'tc-10', { date: '2026-07-01', half: true }, ctx);
+    expect(vacay).toMatchObject({ verbKey: 'addVacationDay', subject: 'Wed 1 Jul', domain: 'vacay', undoable: false });
+    expect(vacay.rows).toEqual([]);
     // Without hints the name still tells a removal from an addition.
     expect(describe_('create_collab_poll', { question: 'Where?' }).verbKey).toBe('genericCreate');
     expect(describe_('unmark_country_visited', {}).verbKey).toBe('genericRemove');
-    expect(appliedChange('toggle_vacay_entry', 'tc-9', {}, { ok: true }, null, null)).toMatchObject({
+    expect(appliedChange('add_vacay_year', 'tc-9', {}, { years: [2026, 2027] }, null, null)).toMatchObject({
       entity: 'other',
+    });
+    expect(appliedChange('toggle_vacay_entry', 'tc-10', {}, { action: 'added' }, null, null)).toMatchObject({
+      entity: 'vacay',
+      ids: [],
     });
   });
 
@@ -483,7 +483,8 @@ describe('the cards of tours', () => {
       verbKey: 'importTour',
       subject: 'ridge.gpx',
       rows: [{ op: 'add', labelKey: 'type', before: null, after: 'bike' }],
-      undoable: false,
+      // A file of one track can be taken back once it is in; the receipt says whether this one was.
+      undoable: true,
     });
     expect(describe_('import_tour_gpx', { gpx }).subject).toBe('Ridge walk');
     expect(describe_('import_tour_gpx', { gpx: '<gpx><name>Open' }).subject).toBe('GPX');
@@ -596,25 +597,22 @@ describe('the cards of tours', () => {
   });
 
   it('ASTPRV-031: a package names its ids first; a place id of a tool outside the trip is no trip place', () => {
-    const groups = FOREIGN_ID_GROUPS as Set<string>;
-    const saved = { ...ctx, hintOf: () => ({ destructive: false, creates: true, group: 'collections' }) };
-    const add = () => describeToolCall('add_collection_place', 'tc-31', { placeId: 12 }, saved);
-    // Place 12 is the trip's Nishiki Market until the collections say their ids are their own.
-    expect(add()).toMatchObject({ subject: 'Nishiki Market', placeIds: [12], domain: 'collections' });
-    groups.add('collections');
-    try {
-      const outside = add();
-      expect(outside).toMatchObject({ subject: 'add collection place', placeIds: [] });
-      expect(outside.rows).toEqual([{ op: 'add', labelKey: 'field', field: 'placeId', before: null, after: '12' }]);
-      const named = withCards(
-        'add_collection_place',
-        { nameArg: (key, value) => (key === 'placeId' ? `Saved place ${value}` : null) },
-        null,
-        add,
-      );
-      expect(named).toMatchObject({ subject: 'Saved place 12', rows: [], placeIds: [] });
-    } finally {
-      groups.delete('collections');
-    }
+    const hinted = (group: string) => ({ ...ctx, hintOf: () => ({ destructive: false, creates: true, group }) });
+    const add = (group: string) => describeToolCall('add_collection_place', 'tc-31', { placeId: 12 }, hinted(group));
+    // Place 12 is the trip's Nishiki Market for a tool of a group whose ids are the trip's.
+    expect(FOREIGN_ID_GROUPS.has('tours')).toBe(false);
+    expect(add('tours')).toMatchObject({ subject: 'Nishiki Market', placeIds: [12], domain: 'tours' });
+    // The collections say their place ids are their own.
+    expect(FOREIGN_ID_GROUPS.has('collections')).toBe(true);
+    const outside = add('collections');
+    expect(outside).toMatchObject({ subject: 'add collection place', placeIds: [] });
+    expect(outside.rows).toEqual([{ op: 'add', labelKey: 'field', field: 'placeId', before: null, after: '12' }]);
+    const named = withCards(
+      'add_collection_place',
+      { nameArg: (key, value) => (key === 'placeId' ? `Saved place ${value}` : null) },
+      null,
+      () => add('collections'),
+    );
+    expect(named).toMatchObject({ subject: 'Saved place 12', rows: [], placeIds: [] });
   });
 });

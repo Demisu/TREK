@@ -13,14 +13,15 @@
  * booking file attached in the chat (the extractor, an external binary, is
  * stubbed on the booking import), the cards a search and a weather lookup
  * make (the place search and the forecast are stubbed on their services), a
- * found place suggested for a day without the model, mentions, and an answer
- * shared in the trip chat.
+ * found place suggested for a day without the model, mentions, an answer
+ * shared in the trip chat, and a vacation day held with its calendar card.
  */
 import { buildApp } from '../../src/bootstrap';
 import { AssistantMessages } from '../../src/db/entities/AssistantMessages.entity';
 import { AssistantThreads } from '../../src/db/entities/AssistantThreads.entity';
 import { AssistantToolCalls } from '../../src/db/entities/AssistantToolCalls.entity';
 import { CollabMessages } from '../../src/db/entities/CollabMessages.entity';
+import { CollabPolls } from '../../src/db/entities/CollabPolls.entity';
 import { DayAssignments } from '../../src/db/entities/DayAssignments.entity';
 import { Places } from '../../src/db/entities/Places.entity';
 import { Reservations } from '../../src/db/entities/Reservations.entity';
@@ -32,6 +33,9 @@ import { BookingImportService } from '../../src/nest/booking-import/booking-impo
 import { MapsService } from '../../src/nest/maps/maps.service';
 import { PermissionsService } from '../../src/nest/permissions/permissions.service';
 import { WeatherService } from '../../src/nest/weather/weather.service';
+import { tourRouteCard } from '../helpers/assistant-tour-cards';
+import { makeBudgetItem } from '../helpers/factories/budget';
+import { makeCollabMessage } from '../helpers/factories/collab';
 import { makePlace } from '../helpers/factories/places';
 import { countRows, deleteRows, findRow, updateRows } from '../helpers/factories/rows';
 import { setAddonEnabled, setCollabFeature } from '../helpers/factories/settings';
@@ -985,7 +989,7 @@ describe('Trip assistant e2e', () => {
     const t = await travelerWithTrip();
     const { turn, toolCallId, threadId } = await proposePlace(t, 'Sanjusangen-do');
     const proposing = Number(ofType(turn.chunks, 'start')[0].messageId.slice('msg-'.length));
-    const built = { kind: 'tourRoute' } as TrekCard;
+    const built: TrekCard = tourRouteCard();
     const applied = vi.spyOn(nestApp.get(AssistantCardContext), 'appliedCard').mockReturnValue(built);
     provider.script = [say('Added it.')];
     try {
@@ -1036,5 +1040,170 @@ describe('Trip assistant e2e', () => {
       type: 'data-trek-card',
       data: { toolCallId: 'call_later', card: null },
     });
+  });
+
+  it('ASTE2E-023: a vacation day is held on its month with the days left, applied, and told to the own tabs', async () => {
+    await setAddonEnabled(orm, 'vacay', true);
+    const t = await travelerWithTrip();
+    provider.script = [callTools({ id: 'call_day', name: 'toggle_vacay_entry', args: { date: '2026-06-12' } })];
+    const turn = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId: null, text: 'Take Friday off' });
+    const [held] = ofType(turn.chunks, 'tool-approval-request');
+    const [change] = ofType(turn.chunks, 'data-trek-change');
+    expect(change.data).toMatchObject({ toolCallId: held.toolCallId, verbKey: 'addVacationDay', domain: 'vacay' });
+    const card = change.data.card;
+    if (card?.kind !== 'vacay') throw new Error('the held day has no vacation card');
+    expect(card.months).toEqual([{ year: 2026, month: 6 }]);
+    expect(card.proposal).toMatchObject({ date: '2026-06-12', personId: t.userId, outcome: 'add', periodYear: 2026 });
+    expect(card.balances.map((balance) => balance.personId)).toEqual([t.userId]);
+    expect(card.tripDates).toEqual(['2026-06-11', '2026-06-12']);
+
+    const threadId = ofType(turn.chunks, 'data-trek-thread')[0].data.threadId;
+    provider.script = [say('Friday is off.')];
+    broadcasts.broadcastToUser.mockClear();
+    const decided = await post(`${t.base}/threads/${threadId}/decisions`, t.userId, {
+      ...CTX,
+      decisions: [{ toolCallId: held.toolCallId, approved: true }],
+    });
+    expect(decided.status).toBe(200);
+    expect(ofType(decided.chunks, 'data-trek-applied')[0].data).toMatchObject({
+      toolCallId: held.toolCallId,
+      entity: 'vacay',
+      ids: [],
+      undoUntil: null,
+    });
+    // The applied card follows the tool's answer, which took the day as the held card foresaw.
+    const [receipt] = ofType(decided.chunks, 'data-trek-card');
+    expect(receipt.data).toMatchObject({
+      toolCallId: held.toolCallId,
+      card: { kind: 'vacay', proposal: { date: '2026-06-12', outcome: 'add', deltas: [{ days: 1 }] } },
+    });
+    expect(broadcasts.broadcastToUser).toHaveBeenCalledWith(t.userId, { type: 'vacay:update' }, undefined);
+    const shown = await get(`${t.base}/threads/${threadId}`, t.userId);
+    expect(shown.status).toBe(200);
+  });
+
+  it('ASTE2E-ATLAS-001: a country mark is held with its flag and counter, applied with the exact count, and told to the own tabs', async () => {
+    await setAddonEnabled(orm, 'atlas', true);
+    const t = await travelerWithTrip();
+    provider.script = [callTools({ id: 'call_jp', name: 'mark_country_visited', args: { country_code: 'jp' } })];
+    const turn = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId: null, text: 'I have been to Japan' });
+    const [held] = ofType(turn.chunks, 'tool-approval-request');
+    const [change] = ofType(turn.chunks, 'data-trek-change');
+    expect(change.data).toMatchObject({
+      toolCallId: held.toolCallId,
+      verbKey: 'genericCreate',
+      subject: 'Japan',
+      tool: 'mark_country_visited',
+      domain: 'atlas',
+    });
+    const card = change.data.card;
+    if (card?.kind !== 'atlasCountry' || !card.change?.countries) throw new Error('the held mark has no atlas card');
+    const before = card.change.countries.before;
+    expect(card).toMatchObject({ code: 'JP', status: null, change: { op: 'mark', after: 'visited' } });
+    expect(card.change.countries.after).toBe(before + 1);
+
+    const threadId = ofType(turn.chunks, 'data-trek-thread')[0].data.threadId;
+    provider.script = [say('Japan is on your map.')];
+    broadcasts.broadcastToUser.mockClear();
+    const decided = await post(`${t.base}/threads/${threadId}/decisions`, t.userId, {
+      ...CTX,
+      decisions: [{ toolCallId: held.toolCallId, approved: true }],
+    });
+    expect(decided.status).toBe(200);
+    expect(ofType(decided.chunks, 'data-trek-applied')[0].data).toMatchObject({
+      toolCallId: held.toolCallId,
+      entity: 'atlas',
+      ids: [],
+    });
+    const [receipt] = ofType(decided.chunks, 'data-trek-card');
+    expect(receipt.data).toMatchObject({
+      toolCallId: held.toolCallId,
+      card: { kind: 'atlasCountry', change: { after: 'visited', countries: { before, after: before + 1 } } },
+    });
+    expect(broadcasts.broadcastToUser).toHaveBeenCalledWith(t.userId, { type: 'atlas:changed' }, undefined);
+    const shown = await get(`${t.base}/threads/${threadId}`, t.userId);
+    expect(shown.status).toBe(200);
+  });
+
+  it('ASTE2E-COLLAB-001: a poll is held as the card the Collab tab draws, started on approval, with its applied card', async () => {
+    const t = await travelerWithTrip();
+    const question = 'Where do we eat on Friday?';
+    const args = { question, options: ['Trattoria', 'Night market'] };
+    provider.script = [callTools({ id: 'call_poll', name: 'create_collab_poll', args })];
+    const turn = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId: null, text: 'Ask the group' });
+    const [change] = ofType(turn.chunks, 'data-trek-change');
+    expect(change.data).toMatchObject({
+      toolCallId: 'call_poll',
+      verbKey: 'genericCreate',
+      tool: 'create_collab_poll',
+      domain: 'collab',
+      subject: question,
+      undoable: true,
+    });
+    const held = { kind: 'collabPolls', polls: [{ pollId: null, change: 'create', question }] };
+    expect(change.data.card).toMatchObject(held);
+    expect(await countRows(orm, CollabPolls, { trip: t.tripId })).toBe(0);
+
+    const threadId = ofType(turn.chunks, 'data-trek-thread')[0].data.threadId;
+    provider.script = [say('The poll is up.')];
+    const decided = await post(`${t.base}/threads/${threadId}/decisions`, t.userId, {
+      ...CTX,
+      decisions: [{ toolCallId: 'call_poll', approved: true }],
+    });
+    expect(decided.status).toBe(200);
+    const poll = await findRow(orm, CollabPolls, { trip: t.tripId });
+    expect(poll?.question).toBe(question);
+    const [applied] = ofType(decided.chunks, 'data-trek-applied');
+    expect(applied.data).toMatchObject({ entity: 'collab_poll', ids: [poll?.id] });
+    expect(ofType(decided.chunks, 'data-trek-card')[0].data).toMatchObject({
+      toolCallId: 'call_poll',
+      card: { kind: 'collabPolls', polls: [{ pollId: poll?.id, change: 'create', question }] },
+    });
+    expect(broadcasts.broadcast).toHaveBeenCalledWith(t.tripId, 'collab:poll:created', expect.anything());
+  });
+
+  it('ASTE2E-COLLAB-002: a chat read shows the last messages as a card beside the answer, kept with it', async () => {
+    const t = await travelerWithTrip();
+    await makeCollabMessage(orm, t.tripId, t.userId, { text: 'Shall we take the early train?' });
+    provider.script = [
+      callTools({ id: 'call_chat', name: 'list_collab_messages', args: {} }),
+      say('Anna asked about the train.'),
+    ];
+    const turn = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId: null, text: 'What is new in the chat?' });
+    const [shownCard] = ofType(turn.chunks, 'data-trek-card');
+    expect(shownCard.data).toMatchObject({
+      toolCallId: 'call_chat',
+      card: { kind: 'collabChat', earlier: 0, messages: [{ text: 'Shall we take the early train?', change: 'none' }] },
+    });
+    const threadId = ofType(turn.chunks, 'data-trek-thread')[0].data.threadId;
+    const kept = await get(`${t.base}/threads/${threadId}`, t.userId);
+    const parts = (kept.body.messages as Array<{ parts: AssistantMessagePart[] }>).flatMap((message) => message.parts);
+    expect(parts.filter((part) => part.type === 'data-trek-card')).toHaveLength(1);
+  });
+
+  it('ASTE2E-BUD-001: an expense list shows its expenses as a card beside the answer, kept with it', async () => {
+    const t = await travelerWithTrip();
+    await makeBudgetItem(orm, t.tripId, { name: 'Ramen', category: 'food', total_price: 24 });
+    provider.script = [
+      callTools({ id: 'call_costs', name: 'list_budget_items', args: {} }),
+      say('One expense so far.'),
+    ];
+    const turn = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId: null, text: 'What did we spend?' });
+    const [shownCard] = ofType(turn.chunks, 'data-trek-card');
+    expect(shownCard.data).toMatchObject({
+      toolCallId: 'call_costs',
+      card: {
+        kind: 'expenses',
+        offset: 0,
+        more: 0,
+        rows: [{ name: 'Ramen', category: 'food', amount: { amount: 24 }, change: 'none' }],
+      },
+    });
+    const threadId = ofType(turn.chunks, 'data-trek-thread')[0].data.threadId;
+    const kept = await get(`${t.base}/threads/${threadId}`, t.userId);
+    const parts = (kept.body.messages as Array<{ parts: AssistantMessagePart[] }>).flatMap((message) => message.parts);
+    const keptCards = parts.filter((part) => part.type === 'data-trek-card');
+    expect(keptCards).toHaveLength(1);
+    expect(keptCards[0]).toMatchObject({ data: { toolCallId: 'call_costs', card: { kind: 'expenses' } } });
   });
 });

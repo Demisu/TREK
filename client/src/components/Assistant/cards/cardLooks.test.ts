@@ -11,7 +11,9 @@ import {
   ASSISTANT_CHANGE_VERB_KEYS,
   type AssistantApplied,
   type AssistantChangeVerbKey,
+  type TrekCard,
   type TrekCardKind,
+  type TrekCardOf,
   trekCardSchema,
 } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
@@ -32,6 +34,10 @@ import type { CardLook } from './cardTypes';
 import { CARD_VIEWS } from './cardViews';
 
 const KINDS = trekCardSchema.options.map((option) => option.shape.kind.value) as TrekCardKind[];
+/** A vacation card cut down to its kind: the layout and map rules read nothing else of it. */
+const VACAY = { kind: 'vacay' } as TrekCard;
+/** A day route cut down to its kind, for the same reason. */
+const DAY_ROUTE = { kind: 'dayRoute' } as TrekCardOf<'dayRoute'>;
 
 describe('cardLooks', () => {
   it('FE-AI-LOOK-001: every verb is named by its own key', () => {
@@ -46,17 +52,22 @@ describe('cardLooks', () => {
     expect(STEP_LOOKS.get_trip_summary?.stepKey).toBe('assistant.step.reading');
   });
 
-  it('FE-AI-LOOK-003: only a place, a stop, a note and a booking show on the map, as before the cards', () => {
+  it('FE-AI-LOOK-003: a place, a stop, a note, a booking and a stay show on the map; a kept note never', () => {
     const onMap = Object.entries(ENTITY_LOOK).flatMap(([entity, look]) => (look.onMap ? [entity] : []));
-    expect(onMap.sort()).toEqual(['assignment', 'day_note', 'place', 'reservation']);
-    expect(Object.values(ENTITY_LOOK).every((look) => !look.open)).toBe(true);
+    // The core's own; a part of TREK may add its entities (a stay shows its place).
+    expect(onMap).toEqual(expect.arrayContaining(['assignment', 'day_note', 'place', 'reservation', 'accommodation']));
+    expect(onMap).not.toContain('memory');
+    expect(onMap).not.toContain('other');
+    for (const entity of ['place', 'assignment', 'day_note', 'memory', 'other'] as const) {
+      expect(ENTITY_LOOK[entity].open).toBeUndefined();
+    }
   });
 
   it('FE-AI-LOOK-004: every kind has a look and a view; a pending view groups by kind and gives way to nothing', () => {
     expect(Object.keys(CARD_LOOKS).sort()).toEqual([...KINDS].sort());
     expect(Object.keys(CARD_VIEWS).sort()).toEqual([...KINDS].sort());
-    expect(CARD_RULES.group({ kind: 'vacay' })).toBe('vacay');
-    expect(CARD_RULES.yieldsToChange({ kind: 'expenses' }, { kind: 'payments' })).toBe(false);
+    expect(CARD_RULES.group(VACAY)).toBe('vacay');
+    expect(CARD_RULES.yieldsToChange({ kind: 'costPerPerson' } as TrekCard, VACAY)).toBe(false);
   });
 
   it('FE-AI-LOOK-005: a kind draws its lines and points on the map through its look', () => {
@@ -66,10 +77,10 @@ describe('cardLooks', () => {
       ],
       ghosts: (): GhostPoint[] => [{ id: 'via', lat: 45.1, lng: 7.2, name: 'Col', variant: 'point' }],
     };
-    expect(look.lines?.({ kind: 'dayRoute' }, 'before')).toEqual([
+    expect(look.lines?.(DAY_ROUTE, 'before')).toEqual([
       { id: 'day:before', lines: [[[45.1, 7.2]]], color: 'var(--accent)', dashed: true },
     ]);
-    expect(look.ghosts?.({ kind: 'dayRoute' })[0]?.variant).toBe('point');
+    expect(look.ghosts?.(DAY_ROUTE)[0]?.variant).toBe('point');
   });
 
   it("FE-AI-LOOK-006: the layout rules and the map read a kind's look, nothing for one that says nothing", () => {
@@ -78,19 +89,17 @@ describe('cardLooks', () => {
     route.yieldsToChange = (_answer, change) => change.kind === 'dayRoute';
     route.lines = (_card, use) => [{ id: `day:${use}`, lines: [], color: 'var(--accent)' }];
     try {
-      expect(CARD_RULES.group({ kind: 'dayRoute' })).toBe('routes');
-      expect(CARD_RULES.yieldsToChange({ kind: 'dayRoute' }, { kind: 'dayRoute' })).toBe(true);
-      expect(CARD_MAP_LOOK.lines({ kind: 'dayRoute' }, 'look')).toEqual([
-        { id: 'day:look', lines: [], color: 'var(--accent)' },
-      ]);
+      expect(CARD_RULES.group(DAY_ROUTE)).toBe('routes');
+      expect(CARD_RULES.yieldsToChange(DAY_ROUTE, DAY_ROUTE)).toBe(true);
+      expect(CARD_MAP_LOOK.lines(DAY_ROUTE, 'look')).toEqual([{ id: 'day:look', lines: [], color: 'var(--accent)' }]);
     } finally {
       delete route.group;
       delete route.yieldsToChange;
       delete route.lines;
     }
-    expect(CARD_MAP_LOOK.lines({ kind: 'dayRoute' }, 'look')).toEqual([]);
-    expect(CARD_MAP_LOOK.ghosts({ kind: 'vacay' })).toEqual([]);
-    expect(CARD_MAP_LOOK.hidesEffectGhost({ kind: 'vacay' })).toBe(false);
+    expect(CARD_MAP_LOOK.lines(DAY_ROUTE, 'look')).toEqual([]);
+    expect(CARD_MAP_LOOK.ghosts(VACAY)).toEqual([]);
+    expect(CARD_MAP_LOOK.hidesEffectGhost(VACAY)).toBe(false);
   });
 
   it('FE-AI-LOOK-007: a verb or entity only a newer server knows looks like a plain update or an other', () => {

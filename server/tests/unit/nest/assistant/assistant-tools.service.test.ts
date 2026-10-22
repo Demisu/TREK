@@ -72,7 +72,7 @@ beforeAll(async () => {
   orm = app.get(MikroORM);
   registry = app.get(McpRegistryService);
   tools = app.get(AssistantToolsService);
-  await Promise.all(['packing', 'budget'].map((addon) => setAddonEnabled(orm, addon, true)));
+  await Promise.all(['packing', 'budget', 'collections'].map((addon) => setAddonEnabled(orm, addon, true)));
   const { user } = await makeUser(orm);
   listed = await listRaw(user.id);
 });
@@ -180,6 +180,37 @@ describe('the assistant tool catalog', () => {
       'take_over_journey_day_stays',
     ];
     expect(journey.map(groupOfTool)).toEqual(journey.map(() => 'journey'));
+  });
+
+  it('ASTTOOL-020: the Studio book tools sit in the journey group but no trip chat is offered them, the undo restore least of all', () => {
+    const bookTools = [
+      'get_book',
+      'describe_book_page',
+      'list_book_layouts',
+      'create_book',
+      'add_book_pages',
+      'move_book_page',
+      'delete_book_pages',
+      'edit_book_page',
+      'set_book_cover',
+      'restore_book_page',
+    ];
+    const entries = bookTools.map((name) => registry.list().find((e) => e.kind === 'tool' && e.name === name));
+    expect(entries.map((entry) => entry && [entry.className, groupOf(entry)])).toEqual(
+      bookTools.map(() => ['JourneyBookMcp', 'journey']),
+    );
+    expect(bookTools.filter((name) => isOfferedTool(name))).toEqual([]);
+    expect(ASSISTANT_DENIED_TOOLS.restore_book_page).toMatch(/undo target only/);
+    expect(bookTools.slice(0, -1).map((name) => ASSISTANT_DENIED_TOOLS[name])).toEqual(
+      bookTools.slice(0, -1).map(() => expect.stringMatching(/Studio chat only/)),
+    );
+  });
+
+  it('ASTTOOL-021: the book photo picker reads in the journey group and waits for the Studio chat like the other book tools', () => {
+    const entry = registry.list().find((e) => e.kind === 'tool' && e.name === 'suggest_book_photos');
+    expect(entry && [entry.className, groupOf(entry)]).toEqual(['JourneyBookPhotosMcp', 'journey']);
+    expect(isOfferedTool('suggest_book_photos')).toBe(false);
+    expect(ASSISTANT_DENIED_TOOLS.suggest_book_photos).toMatch(/Studio chat only/);
   });
 
   it('ASTTOOL-017: the hike tools come with the tours, the proposal runs at once and the writes are cards of a tour', () => {

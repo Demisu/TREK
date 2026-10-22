@@ -62,7 +62,7 @@ describe('mergeDomains', () => {
     expect(ASSISTANT_UNDO_MAP.create_city_walk?.tool).toBe('delete_place');
     expect(ASSISTANT_UNDO_MAP.create_city_walk?.args({}, { tour: { place_id: 9 } }, null)).toEqual({ placeId: 9 });
     expect(TOOL_CARDS.update_tour?.undo).toBeUndefined();
-    expect(CARD_PROMPT_LINES).toEqual([]);
+    expect(CARD_PROMPT_LINES).toEqual(DOMAINS.flatMap((d) => d.prompt ?? []));
   });
 
   it('ASTREG-002: two packages may fill different fields of one tool, never the same one', () => {

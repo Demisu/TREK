@@ -64,9 +64,9 @@ vi.mock('./cardViews', async (importOriginal) => {
 
 const TRIP = 4;
 const INITIAL = useAssistantStore.getState();
-const ROUTE: TrekCard = { kind: 'tourRoute' };
-const LIST: TrekCard = { kind: 'tourList' };
-const BROKEN: TrekCard = { kind: 'dayRoute' };
+const ROUTE = { kind: 'tourRoute' } as TrekCard;
+const LIST = { kind: 'tourList' } as TrekCard;
+const BROKEN = { kind: 'dayRoute' } as TrekCard;
 
 function preview(toolCallId: string, subject: string): AssistantChangePreview {
   return {

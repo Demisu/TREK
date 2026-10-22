@@ -5,7 +5,7 @@
  * ask for a change only for someone who may make it, and the answer's own
  * when none is left for a reader.
  */
-import type { AssistantMessage } from '@trek/shared';
+import type { AssistantMessage, TrekCard } from '@trek/shared';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { followUpsFor } from './assistantFollowUpRules';
@@ -19,7 +19,7 @@ const answer: AssistantMessage = {
   parts: [
     { type: 'text', text: 'Here is your year.' },
     { type: 'tool-call', toolCallId: 'r1', toolName: 'get_vacay_plan', args: {}, result: {} },
-    { type: 'data-trek-card', data: { toolCallId: 'r1', card: { kind: 'vacay' } } },
+    { type: 'data-trek-card', data: { toolCallId: 'r1', card: { kind: 'vacay' } as TrekCard } },
   ],
 };
 

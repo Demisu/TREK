@@ -71,8 +71,8 @@ describe('assistantMessages: cards in an answer', () => {
     expect(messages[0]?.parts.map((p) => p.type)).toEqual(['data-trek-weather']);
   });
 
-  const ROUTE: TrekCard = { kind: 'tourRoute' };
-  const LIST: TrekCard = { kind: 'tourList' };
+  const ROUTE = { kind: 'tourRoute' } as TrekCard;
+  const LIST = { kind: 'tourList' } as TrekCard;
   const cardsOf = (message: AssistantMessage | undefined) =>
     message?.parts.flatMap((p) => (p.type === 'data-trek-card' ? [p.data] : [])) ?? [];
 

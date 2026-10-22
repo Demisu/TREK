@@ -30,9 +30,13 @@ describe('assistantShowOnMap', () => {
 
   it('FE-ASSIST-SHOW-003: no target where nothing shows on the map; a place without a spot opens the planner', () => {
     expect(showOnMapTarget(applied('packing', [2], null))).toBeNull();
-    expect(showOnMapTarget(applied('tour', [2], 3))).toBeNull();
+    expect(showOnMapTarget(applied('tour', [], 3))).toBeNull();
     expect(showOnMapTarget(applied('memory', [], null))).toBeNull();
     expect(searchOf(applied('place', [], null))).toBe('');
+  });
+
+  it('FE-ASSIST-SHOW-005: an applied tour goes to its line on the plan, by the place it is', () => {
+    expect(searchOf(applied('tour', [2], 3))).toBe('?place=2');
   });
 
   it('FE-ASSIST-SHOW-004: a tab of the trip goes as ?tab= with what the tab reads beside it', () => {

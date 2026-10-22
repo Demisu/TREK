@@ -304,8 +304,8 @@ describe('messageBlocks: found places and weather', () => {
 });
 
 describe('messageBlocks: cards', () => {
-  const ROUTE: TrekCard = { kind: 'tourRoute' };
-  const LIST: TrekCard = { kind: 'tourList' };
+  const ROUTE = { kind: 'tourRoute' } as TrekCard;
+  const LIST = { kind: 'tourList' } as TrekCard;
   const card = (toolCallId: string, value: TrekCard | null): AssistantMessagePart => ({
     type: 'data-trek-card',
     data: { toolCallId, card: value },

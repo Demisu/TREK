@@ -17,6 +17,8 @@ vi.mock('./cardViews', async (importOriginal) => {
   const { createElement } = await import('react');
   const views = {
     ...actual.CARD_VIEWS,
+    // A kind left without a view, whatever its package draws.
+    vacay: {},
     tourList: {
       Block: function Block({ cards }: { cards: readonly { toolCallId: string }[] }) {
         return createElement('p', null, `${cards.length} tour lists`);
@@ -50,12 +52,12 @@ afterEach(() => vi.restoreAllMocks());
 
 describe('AssistantCardBlock', () => {
   it('FE-AI-CARDBLOCK-001: the kind draws the whole block', () => {
-    render(<AssistantCardBlock block={block({ kind: 'tourList' }, 2)} message={MESSAGE} />);
+    render(<AssistantCardBlock block={block({ kind: 'tourList' } as TrekCard, 2)} message={MESSAGE} />);
     expect(screen.getByText('2 tour lists')).toBeInTheDocument();
   });
 
   it('FE-AI-CARDBLOCK-002: a kind not drawn yet shows nothing', () => {
-    const { container } = render(<AssistantCardBlock block={block({ kind: 'vacay' })} message={MESSAGE} />);
+    const { container } = render(<AssistantCardBlock block={block({ kind: 'vacay' } as TrekCard)} message={MESSAGE} />);
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -63,7 +65,7 @@ describe('AssistantCardBlock', () => {
     const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
     const { container } = render(
       <div>
-        <AssistantCardBlock block={block({ kind: 'tourRoute' })} message={MESSAGE} />
+        <AssistantCardBlock block={block({ kind: 'tourRoute' } as TrekCard)} message={MESSAGE} />
         <span>the answer</span>
       </div>
     );
