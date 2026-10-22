@@ -15,10 +15,15 @@ const { routeWalkingTour, routeCityWalk, enrichTourElevations, createTour, detai
 
 vi.mock('./tourRouting', () => ({ routeWalkingTour, routeCityWalk, enrichTourElevations }));
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
+vi.mock('../../../repo/tourDraftRepo', async () => ({
+  tourDraftRepo: (await import('../../../../tests/helpers/fakeTourDraftRepo')).fakeTourDraftRepo,
+}));
 vi.mock('../useTourPermissions', () => ({ useTourPermissions: () => ({ canEdit: true, canAssign: true }) }));
 
+import { draftStore } from '../../../../tests/helpers/fakeTourDraftRepo';
+import type { DerivedTourDraft } from './tourPlannerDraft';
 import type { TourRouteResult, WalkFerryCrossing } from './tourRouting';
-import { useTourPlanner, type DerivedTourDraft } from './useTourPlanner';
+import { useTourPlanner } from './useTourPlanner';
 
 // FE-TOUR-WALK-FERRY-001 to FE-TOUR-WALK-FERRY-003: a city walk the router can only join by boat (CW-12).
 
@@ -93,6 +98,7 @@ describe('useTourPlanner, a city walk across the water (CW-12)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     localStorage.clear();
+    draftStore.clear();
     routeWalkingTour.mockReset();
     routeCityWalk.mockReset().mockResolvedValue(routedWith(crossing(false)));
     enrichTourElevations.mockReset().mockImplementation(async (line: [number, number][]) => heights(line));

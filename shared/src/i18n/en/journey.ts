@@ -220,7 +220,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX Tracks',
   'journey.settings.recordings': 'Recorded days',
   'journey.settings.showTripTracks': 'Show all trip GPX tracks',
-  'journey.settings.showTripTracksHint': 'Draws the recorded routes from the linked trips on the map.',
+  'journey.settings.showTripTracksHint': 'Draws the planned routes (GPX tracks) from the linked trips on the map.',
   'journey.settings.autoPrepare': 'Prepare recorded days automatically',
   'journey.settings.autoPrepareHint':
     'While a linked trip runs, the stays from your Dawarich wait at their day for review. Editors with their own connection get theirs. Nothing is written to the journal on its own.',
@@ -891,5 +891,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Recorded days and the stays taken from them, on days with a published entry. They show where and when you were, your accommodation too.',
   'journey.share.needsMap': 'Share the map to switch this on',
+  'journey.editor.tags': 'Tags',
 };
 export default journey;

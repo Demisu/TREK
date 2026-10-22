@@ -4,7 +4,7 @@ const dawarich: TranslationStrings = {
   // ── Connection ─────────────────────────────────────────────────────────────
   'dawarich.title': 'Dawarich',
   'dawarich.intro':
-    'Həqiqətən haralara getdiyinizi görmək üçün öz Dawarich instansiyanızı qoşun. TREK məlumatları oxuyaraq gündəlik qeydləri, məkanlar və ölkələr təklif edir — siz təsdiqləyənədək heç nə əlavə edilmir və Dawarich-ə heç nə geri yazılmır.',
+    'Həqiqətən haralara getdiyinizi görmək üçün öz Dawarich instansiyanızı qoşun. TREK məlumatları oxuyaraq gündəlik qeydləri, məkanlar və ölkələr təklif edir; siz təsdiqləyənədək heç nə əlavə edilmir və Dawarich-ə heç nə geri yazılmır.',
   'dawarich.url': 'İnstansiya ünvanı',
   'dawarich.apiKey': 'API açarı',
   'dawarich.apiKeyPlaceholder': 'Dawarich API açarınızı yapışdırın',

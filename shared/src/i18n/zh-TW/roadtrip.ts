@@ -221,8 +221,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.checking': '正在用公路旅行的路徑服務檢查這條路…',
   'roadtrip.alt.standIn': '避開專用的路徑服務沒有回應這一段，因此由主要路徑服務繪製。正在重新詢問避開專用的路徑服務。',
   'roadtrip.day': '第 {number} 天',
-  'roadtrip.quietDay.empty': '尚無停靠點 — 拖到這裡',
-  'roadtrip.quietDay.one': '目前只有 {name} — 把停靠點拖到這裡',
+  'roadtrip.quietDay.empty': '尚無停靠點，拖到這裡',
+  'roadtrip.quietDay.one': '目前只有 {name}，把停靠點拖到這裡',
   'roadtrip.leg.driveText': '{distance}，{time}',
   'roadtrip.day.stopCount': '{count} 個停靠點',
   'roadtrip.day.fold': '摺疊',
@@ -299,5 +299,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.checkIn': '入住',
   'roadtrip.bookend.afterCheckOut': '退房後才出發',
   'roadtrip.bookend.noVia': '往返住宿地點的路段無法加入途經點。請改在那裡新增一個停靠點。',
+  'roadtrip.stay.untilHint':
+    '因為這次停留設有結束時間，所以在 {time} 出發。開啟後選擇「移除結束時間」，即可改為設定停留時長。',
 };
 export default roadtrip;

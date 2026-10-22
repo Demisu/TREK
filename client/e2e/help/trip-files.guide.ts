@@ -3,6 +3,7 @@ import { captureGuide, captureHero, typeInto, beat, settle, VIEWPORT, type Guide
 import { seededTrip, ensureFilesFixtures, filesPdfFixture, filesImageFixture, drawPdf } from './fixtures'
 import { openTrip, modal, dialog } from './trip-shared'
 import { ensureNextcloudFolder, NEXTCLOUD_CONNECTION, NEXTCLOUD_DOCUMENTS, NEXTCLOUD_FOLDER, resetDocSync, toggleAddon } from './external'
+import { ensureNextcloudBinding } from './fixtures-trip-files'
 import { tripFilesContext, tripFilesGuides } from '../../src/help/contexts/tripFiles'
 import type { HelpGuide } from '../../src/help/types'
 
@@ -118,6 +119,17 @@ const bindingCard = (page: Page) => dialog(page).locator('article').first()
 const syncNow = (page: Page) => bindingCard(page).getByRole('button', { name: 'Sync now' })
 /** A healthy binding is a green dot beside the store's name, named In sync by its tooltip. */
 const inSync = (page: Page) => bindingCard(page).getByRole('img', { name: 'In sync' })
+/** One lane of the flow bar, a toggle named by its caption. */
+const lane = (page: Page, name: string) => bindingCard(page).getByRole('button', { name, exact: true })
+/** The fold under the flow bar; only the owner or an administrator gets it. */
+const settingsFold = (page: Page) => bindingCard(page).getByRole('button', { name: 'Settings', exact: true })
+/** What the fold opens: the rows of settings on their tinted panel (`space-y-3`, DocSyncBinding.tsx). */
+const settingsPanel = (page: Page) => bindingCard(page).locator('div.space-y-3').first()
+/** One settings row, the label with its hint on the left and its control on the right. */
+const settingsRow = (page: Page, label: string) =>
+  settingsPanel(page).locator('div.flex.items-center.justify-between').filter({ hasText: label }).first()
+/** A CustomSelect's menu is a portal `group`, named after the option it shows. */
+const selectMenu = (page: Page, current: string) => page.getByRole('group', { name: current })
 
 interface ApiFile {
   id: number
@@ -173,6 +185,15 @@ async function untrashFile(page: Page, name: string): Promise<void> {
 }
 
 const only = (target: (p: Page) => Locator) => ({ target })
+
+/** Unbind the trip, take the pulled documents out and put the folder back to its two. */
+async function resetStore(page: Page): Promise<void> {
+  const { tripId } = seededTrip()
+  await resetDocSync(page.request, tripId)
+  await removeFiles(page, NEXTCLOUD_DOCUMENTS)
+  // The run pushed the trip's own documents into the folder; back to its two.
+  await ensureNextcloudFolder(drawPdf)
+}
 
 const SCRIPTS: Record<string, GuideScript> = {
   'files-upload': {
@@ -570,13 +591,67 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
     ],
-    cleanup: async p => {
+    cleanup: resetStore,
+  },
+  'files-sync-settings': {
+    guide: guide('files-sync-settings'),
+    // Bound through the API with the dialog's own defaults, so the guide opens
+    // on the card; how the binding is made is files-sync's story.
+    start: async p => {
       const { tripId } = seededTrip()
-      await resetDocSync(p.request, tripId)
-      await removeFiles(p, NEXTCLOUD_DOCUMENTS)
-      // The run pushed the trip's own documents into the folder; back to its two.
-      await ensureNextcloudFolder(drawPdf)
+      await ensureNextcloudBinding(p.request, tripId)
+      await openFiles(p)
+      await expect(syncButton(p)).toBeVisible({ timeout: 20_000 })
     },
+    steps: [
+      {
+        target: syncButton,
+        act: async p => {
+          await syncButton(p).click()
+          await expect(syncTitle(p)).toBeVisible({ timeout: 20_000 })
+          // The only binding is selected by itself.
+          await expect(bindingCard(p)).toBeVisible({ timeout: 30_000 })
+          await expect(lane(p, 'Out to the store')).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 })
+          await settle(p)
+        },
+      },
+      {
+        target: p => lane(p, 'Out to the store'),
+        act: async p => {
+          await lane(p, 'Out to the store').click()
+          await expect(lane(p, 'Out to the store')).toHaveAttribute('aria-pressed', 'false', { timeout: 20_000 })
+          await expect(bindingCard(p).getByText(/^Only coming in\./)).toBeVisible({ timeout: 20_000 })
+          await settle(p)
+        },
+      },
+      {
+        target: settingsFold,
+        act: async p => {
+          await settingsFold(p).click()
+          await expect(settingsFold(p)).toHaveAttribute('aria-expanded', 'true')
+          await expect(settingsRow(p, 'When a document is deleted')).toBeVisible({ timeout: 20_000 })
+          await settle(p)
+        },
+      },
+      {
+        // The menu open in the picture, so both choices the text names show.
+        prepare: async p => {
+          await settingsRow(p, 'When a document is deleted').getByRole('button').first().click()
+          await expect(selectMenu(p, 'Keep both copies').getByRole('button', { name: 'Move to recycle bin' })).toBeVisible({ timeout: 20_000 })
+          await settle(p)
+        },
+        target: p => settingsRow(p, 'When a document is deleted'),
+        act: async p => {
+          await selectMenu(p, 'Keep both copies').getByRole('button', { name: 'Move to recycle bin' }).click()
+          await expect(settingsRow(p, 'When a document is deleted')).toContainText('Move to recycle bin', { timeout: 20_000 })
+          await dropFocus(p)
+          await settle(p)
+        },
+      },
+      // The two rows under it; the step only reads them, nothing is changed.
+      only(settingsPanel),
+    ],
+    cleanup: resetStore,
   },
 }
 
@@ -588,7 +663,7 @@ test.beforeAll(async ({ request }) => {
   await ensureFilesFixtures(request)
   // A store on offer puts Document sync beside the trash icon for the trip's
   // owner, which is how bullet 6 of the screen text describes the bar; on for
-  // the whole file, so the hero and all seven guides show the same bar.
+  // the whole file, so the hero and every guide show the same bar.
   await toggleAddon(request, 'nextcloud', true)
 })
 

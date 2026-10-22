@@ -3,6 +3,7 @@ import { type LucideIcon, CalendarOff, AlertCircle, Building2, Unlink, ArrowRigh
 import { useVacayStore } from '../../store/vacayStore'
 import { useTranslation } from '../../i18n'
 import CustomSelect from '../shared/CustomSelect'
+import ConfirmDialog from '../shared/ConfirmDialog'
 import { useSchoolHolidayCountries } from './useSchoolHolidayCountries'
 import type { VacayHolidayCalendar } from '../../types'
 import {
@@ -23,7 +24,7 @@ export default function VacaySettings({ onClose }: VacaySettingsProps) {
 
   // Available countries with localized names, the calendars by type, weekend days, dissolving
   const {
-    countries, publicHolidayCalendars, schoolHolidayCalendars, weekendDays, toggleWeekendDay, dissolveFusion,
+    countries, publicHolidayCalendars, schoolHolidayCalendars, weekendDays, toggleWeekendDay, dissolveFusion, confirmingDissolve, askDissolve, cancelDissolve,
   } = useVacaySettings({ language, loadCountries: true })
 
   const { countries: schoolHolidayCountries, error: schoolCountryError } = useSchoolHolidayCountries()
@@ -263,7 +264,7 @@ export default function VacaySettings({ onClose }: VacaySettingsProps) {
             </div>
             <div className="px-4 py-3 border-t border-t-[rgba(239,68,68,0.1)]">
               <button type="button"
-                onClick={() => dissolveFusion(onClose)}
+                onClick={askDissolve}
                 className="w-full px-3 py-2 text-xs font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
               >
                 {t('vacay.dissolveAction')}
@@ -272,6 +273,14 @@ export default function VacaySettings({ onClose }: VacaySettingsProps) {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        isOpen={confirmingDissolve}
+        onClose={cancelDissolve}
+        onConfirm={() => dissolveFusion(onClose)}
+        title={t('vacay.dissolve')}
+        message={t('vacay.dissolveHint')}
+        confirmLabel={t('vacay.dissolveAction')}
+      />
     </div>
   )
 }

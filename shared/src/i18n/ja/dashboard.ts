@@ -204,5 +204,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': '日数は必須です',
   'dashboard.tripChangeNeedsConnection':
     '日程、日数、通貨、カバー画像の変更には接続が必要です。名前、説明、リマインダーはオフラインでも変更できます。',
+  'dashboard.ics.enable': 'カレンダー購読を有効にする',
+  'dashboard.ics.enableHint':
+    'リンクを知っている人なら誰でもログインなしで読める秘密のリンクを作成します。いつでもオフにできます。',
+  'dashboard.ics.regenerate': '再生成',
+  'dashboard.ics.turnOff': 'オフにする',
+  'dashboard.ics.manageHint':
+    '再生成すると新しいリンクが作られ、古いリンクは無効になります。オフにするとリンクは完全に無効になります。',
+  'dashboard.ics.addGoogle': 'Google カレンダーに追加',
+  'dashboard.ics.addApple': 'Apple カレンダー / Outlook に追加',
+  'dashboard.ics.copyManually': 'またはリンクを手動でコピー',
+  'dashboard.ics.pasteFromUrl': '「URL から」に貼り付け',
 };
 export default dashboard;

@@ -34,5 +34,7 @@ const notifications: TranslationStrings = {
   'notifications.test.tripText': 'Testmeddelande för resan "{trip}".',
   'notifications.countLabel': 'meddelanden',
   'notifications.countLabel.one': 'meddelande',
+  'notifications.deleteAllConfirmTitle': 'Radera alla aviseringar?',
+  'notifications.deleteAllConfirmText': 'Alla aviseringar tas bort permanent. Det går inte att ångra.',
 };
 export default notifications;

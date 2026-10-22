@@ -85,7 +85,7 @@ You can invite other TREK users to fuse their Vacay plan with yours. Once a user
 
 To invite someone, click the **+** icon in the **Persons** panel in the sidebar, choose a user, and send the invite. The recipient receives a notification and must accept before the fusion takes effect.
 
-To undo a fusion, open Settings and use the **Dissolve** action. Each user's logged entries return to their own separate plan.
+To undo a fusion, open Settings and use the **Dissolve** action and confirm it in the window that asks. Each user's logged entries return to their own separate plan.
 
 ## Sharing your calendar (view only)
 

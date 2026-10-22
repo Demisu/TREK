@@ -199,7 +199,7 @@ describe('MFilesTab', () => {
     vi.mocked(filesApi.toggleStar).mockRejectedValue(new Error('boom'))
     const { planner } = renderTab()
     fireEvent.click(screen.getAllByRole('button', { name: 'files.star' })[0])
-    await waitFor(() => expect(planner.toast.error).toHaveBeenCalledWith('files.toast.assignError'))
+    await waitFor(() => expect(planner.toast.error).toHaveBeenCalledWith('files.toast.starError'))
   })
 
   it('FE-MOB-FTAB-010: opening a media row puts it in the lightbox at its media index', () => {

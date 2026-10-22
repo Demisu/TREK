@@ -31,7 +31,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'Přidat backend',
   'storage.backends.usedBy': 'Používá: {categories}',
   'storage.backends.unused': 'Nepřiřazeno k žádné kategorii',
-  'storage.backends.envReadOnly': 'Definováno proměnnou prostředí — pouze pro čtení',
+  'storage.backends.envReadOnly': 'Definováno proměnnou prostředí (pouze pro čtení)',
   'storage.source.built-in': 'Vestavěné',
   'storage.source.env': 'Prostředí',
   'storage.source.settings': 'Nastavení',

@@ -59,7 +59,7 @@ describe('HelpPanel', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /Create a trip/ })[0])
     expect(screen.getByRole('heading', { level: 1, name: 'Create a trip' })).toBeInTheDocument()
     expect(screen.getByText(/Click Create New Trip\./)).toBeInTheDocument()
-    expect(screen.getByText(/takes over the boarding pass/)).toBeInTheDocument()
+    expect(screen.getByText(/shown in the boarding pass at the top/)).toBeInTheDocument()
     expect(screen.getByText(/Dates can be changed later/)).toBeInTheDocument()
     // A picture for every step.
     expect(screen.getAllByRole('button', { name: /Step \d of/ })).toHaveLength(5)
@@ -122,7 +122,7 @@ describe('HelpPanel', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Create a trip' })).toBeInTheDocument()
   })
 
-  it('lists the sub-screens of a screen folded on its overview and in the nav, and offers the way into the screen', () => {
+  it('lists the sub-screens of a screen open on its overview and in the nav, and offers the way into the screen', () => {
     render(
       <>
         <HelpButton />
@@ -131,24 +131,33 @@ describe('HelpPanel', () => {
       </>,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Help for this screen' }))
-    // Folded: the names are listed in one line, the cards are not there yet.
-    const nav = screen.getByRole('navigation', { name: 'Help' })
-    const fold = screen.getAllByRole('button', { name: /Sub-screens/ }).find(b => !nav.contains(b))!
-    expect(fold).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByRole('button', { name: /Appearance.*guides/ })).toBeNull()
-    fireEvent.click(fold)
-    expect(fold).toHaveAttribute('aria-expanded', 'true')
+    // In view straight away: each sub-screen holds guides of its own, and a fold hid them.
     fireEvent.click(screen.getByRole('button', { name: /Appearance.*guides/ }))
     expect(useHelpStore.getState().browseId).toBe('settings-appearance')
     expect(screen.getByRole('heading', { level: 1, name: 'Appearance' })).toBeInTheDocument()
-    // On a tab, the nav lists its siblings with the shown one marked, and the header leads into the tab.
-    // The nav folds them too; open it, then the siblings are listed with the shown one marked.
+    // On a tab, the nav lists its siblings, open, with the shown one marked, and the header leads into the tab.
     // (The overview entry is also named "Appearance"; the sibling rows are the ones under "Sub-screens".)
-    fireEvent.click(within(nav).getByRole('button', { name: /Sub-screens/ }))
+    const nav = screen.getByRole('navigation', { name: 'Help' })
+    expect(within(nav).getByRole('button', { name: /Sub-screens/ })).toHaveAttribute('aria-expanded', 'true')
     const rows = within(nav).getAllByRole('button', { name: 'Appearance' })
     expect(rows.some(b => b.getAttribute('aria-current') === 'page')).toBe(true)
     expect(within(nav).getByRole('button', { name: 'Map' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Go to Appearance' })).toHaveAttribute('href', '/settings?tab=appearance')
+  })
+
+  it('links each docs page once, however many of its sections the screen names', () => {
+    render(
+      <>
+        <HelpButton />
+        <HelpAnchor id="trip-tour-planner" />
+        <HelpPanel />
+      </>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Help for this screen' }))
+    const hrefs = screen.getAllByRole('link').map(a => a.getAttribute('href') ?? '').filter(h => h.startsWith('/help/'))
+    const pages = hrefs.map(h => h.split('#')[0])
+    expect(pages.length).toBeGreaterThan(0)
+    expect(new Set(pages).size).toBe(pages.length)
   })
 
   it('says so when nothing matches', async () => {

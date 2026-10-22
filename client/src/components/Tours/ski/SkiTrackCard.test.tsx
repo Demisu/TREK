@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { SkiTrackCard } from './SkiTrackCard';
 import type { SkiClassification } from './useSkiClassification';
 
-// FE-TOUR-SKI-CARD-001 to FE-TOUR-SKI-CARD-004
+// FE-TOUR-SKI-CARD-001 to FE-TOUR-SKI-CARD-005
 
 const tour = {
   place_id: 21,
@@ -38,6 +38,12 @@ describe('SkiTrackCard (SKI-02)', () => {
     expect(screen.getByText('tours.ski.timeUnknown')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'tours.ski.infoLabel' })).toHaveAccessibleDescription('tours.ski.info');
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('FE-TOUR-SKI-CARD-005: says the recorded time of a track that has one, not that it is not worked out', () => {
+    render(<SkiTrackCard ski={classification({ tour: { ...tour, duration: 95 } as TourListItem })} />);
+    expect(screen.getByText('tours.durationMinutes')).toBeInTheDocument();
+    expect(screen.queryByText('tours.ski.timeUnknown')).toBeNull();
   });
 
   it('FE-TOUR-SKI-CARD-002: Change opens the dialog, and is dimmed for someone who may not edit', () => {

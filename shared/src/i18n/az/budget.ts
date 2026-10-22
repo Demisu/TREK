@@ -232,6 +232,7 @@ const budget: TranslationStrings = {
   'costs.receiptsNeedConnection':
     'Qəbzlərin yüklənməsi üçün bağlantı lazımdır. Xərci oflayn saxlamaq üçün yeni qəbzləri silin və ya yenidən onlayn olduqda saxlayın.',
   'costs.paymentQueued': 'Siz oflaynsınız. Ödəniş saxlanıldı və TREK yenidən onlayn olduqda görünəcək.',
+  'costs.confirm.deleteBodyReceipts': '"{name}" həmişəlik silinəcək. Qəbz faylları Fayllarda qalır.',
 };
 
 export default budget;

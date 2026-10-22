@@ -70,5 +70,8 @@ const files: TranslationStrings = {
     'Para quitar este vínculo hace falta conexión. Vuelve a intentarlo cuando TREK esté de nuevo en línea.',
   'files.placeFilesNeedConnection':
     'Los archivos necesitan conexión para subirse. Quita los nuevos para guardar el lugar sin conexión, o guarda cuando vuelvas a estar en línea.',
+  'files.maxSize': 'Máx. {count} MB',
+  'files.maxSize.one': 'Máx. {count} MB',
+  'files.toast.starError': 'No se pudo cambiar la estrella',
 };
 export default files;

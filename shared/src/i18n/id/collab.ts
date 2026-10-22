@@ -101,5 +101,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Lampirkan gambar',
   'collab.chat.attachedImage': 'Gambar terlampir',
   'collab.chat.closeImage': 'Tutup gambar',
+  'collab.notes.categoryInUse':
+    'Masih ada catatan yang memakai kategori ini. Pindahkan atau hapus catatan tersebut dulu agar kategori bisa dihapus.',
+  'collab.notes.categoriesLocalHint':
+    'Kategori tanpa catatan hanya disimpan di browser ini. Anggota lain baru melihatnya setelah ada catatan yang memakainya.',
 };
 export default collab;

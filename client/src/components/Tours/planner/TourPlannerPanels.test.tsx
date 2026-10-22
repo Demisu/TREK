@@ -9,6 +9,7 @@ import { analyzeRouteGeometry } from '../../../utils/routeGeometry'
 import type { TourPlannerController } from './useTourPlanner'
 import type { PaddleChecklist } from '../paddle/usePaddleChecklist'
 import type { Day } from '../../../types'
+import { toggleTourPlacing } from '../../../store/tourPlaceToolStore'
 import { publishTourFerrataCrossings } from '../../../store/tourFerrataCrossingStore'
 import { TourPlannerRail, TourPlannerToursRail } from './TourPlannerPanels'
 import { hikePlannerDefaults } from '../../../../tests/helpers/tourPlannerStub'
@@ -695,7 +696,14 @@ describe('TourPlannerRail', () => {
     expect(screen.getAllByLabelText('More actions')).toHaveLength(2)
     expect(screen.getAllByLabelText('More actions').every(element => element.getAttribute('aria-disabled') === 'true')).toBe(true)
     expect(screen.getAllByLabelText('Remove waypoint').every(element => element.getAttribute('aria-disabled') === 'true')).toBe(true)
-    expect(within(screen.getByRole('status')).getByLabelText('Saving…')).toBeInTheDocument()
+    expect(within(screen.getByTestId('tour-planner-status')).getByLabelText('Saving…')).toBeInTheDocument()
+  })
+
+  it('TOUR-PLANNER-RAIL-005B: the routing badge says walking only for a walking tour', () => {
+    const { rerender } = render(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, status: 'routing', tourType: 'hike' })} />)
+    expect(within(screen.getByTestId('tour-planner-status')).getByLabelText('Calculating walking route…')).toBeInTheDocument()
+    rerender(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, status: 'routing', tourType: 'bike' })} />)
+    expect(within(screen.getByTestId('tour-planner-status')).getByLabelText('Calculating route…')).toBeInTheDocument()
   })
 
   it('TOUR-PLANNER-RAIL-006: places the safety note beside Save and numbers rows like map pins', () => {
@@ -739,19 +747,24 @@ describe('TourPlannerRail', () => {
     )
   })
 
-  it('TOUR-PLANNER-RAIL-007: acknowledges alpine routing once per planner session', () => {
+  it('TOUR-PLANNER-RAIL-007: acknowledges alpine routing once per planner session, also after the rail mounts again', () => {
     const setDifficulty = vi.fn()
-    const controller = planner({ mode: { type: 'new-draft' }, setMaxHikingDifficulty: setDifficulty })
-    render(<TourPlannerRail planner={controller} />)
+    const acknowledge = vi.fn()
+    const controller = planner({ mode: { type: 'new-draft' }, setMaxHikingDifficulty: setDifficulty, acknowledgeAlpine: acknowledge })
+    const { unmount } = render(<TourPlannerRail planner={controller} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Maximum trail difficulty' }))
-    fireEvent.click(screen.getByRole('button', { name: /T4 — Alpine hiking/ }))
+    fireEvent.click(screen.getByRole('button', { name: /T4: Alpine hiking/ }))
     expect(screen.getByRole('heading', { name: 'Enable alpine routing?' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Enable alpine routing' }))
     expect(setDifficulty).toHaveBeenCalledWith(4)
+    expect(acknowledge).toHaveBeenCalledOnce()
+    unmount()
 
+    // The planner remembers the answer, so a rail that mounts anew does not ask again.
+    render(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, setMaxHikingDifficulty: setDifficulty, alpineAcknowledged: true })} />)
     fireEvent.click(screen.getByRole('button', { name: 'Maximum trail difficulty' }))
-    fireEvent.click(screen.getByRole('button', { name: /T5 — Demanding alpine hiking/ }))
+    fireEvent.click(screen.getByRole('button', { name: /T5: Demanding alpine hiking/ }))
     expect(screen.queryByRole('heading', { name: 'Enable alpine routing?' })).not.toBeInTheDocument()
     expect(setDifficulty).toHaveBeenLastCalledWith(5)
   })
@@ -761,7 +774,7 @@ describe('TourPlannerRail', () => {
     render(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, setMaxHikingDifficulty: setDifficulty })} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Maximum trail difficulty' }))
-    fireEvent.click(screen.getByRole('button', { name: /T4 — Alpine hiking/ }))
+    fireEvent.click(screen.getByRole('button', { name: /T4: Alpine hiking/ }))
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(setDifficulty).not.toHaveBeenCalled()
   })
@@ -780,17 +793,17 @@ describe('TourPlannerRail', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Maximum trail difficulty' }))
 
     for (const label of [
-      'T1 — Hiking',
-      'T2 — Mountain hiking',
-      'T3 — Demanding mountain hiking',
-      'T4 — Alpine hiking',
-      'T5 — Demanding alpine hiking',
-      'T6 — Difficult alpine hiking',
+      'T1: Hiking',
+      'T2: Mountain hiking',
+      'T3: Demanding mountain hiking',
+      'T4: Alpine hiking',
+      'T5: Demanding alpine hiking',
+      'T6: Difficult alpine hiking',
     ]) expect(screen.getByRole('button', { name: label })).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'T3 — Demanding mountain hiking' }))
+    fireEvent.click(screen.getByRole('button', { name: 'T3: Demanding mountain hiking' }))
     expect(setDifficulty).toHaveBeenCalledWith(3)
-    expect(screen.getByRole('status')).toHaveTextContent(/T3 routes may include exposed/)
+    expect(screen.getAllByRole('status').some(el => /T3 routes may include exposed/.test(el.textContent ?? ''))).toBe(true)
   })
 
   it('TOUR-PLANNER-RAIL-009: neutral shows only the Plan new entry and new-draft guidance hides after the first waypoint', () => {
@@ -806,7 +819,10 @@ describe('TourPlannerRail', () => {
 
     rerender(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' } })} />)
     expect(screen.queryByRole('button', { name: 'Plan new tour' })).not.toBeInTheDocument()
+    expect(screen.getByTestId('tour-planner-empty-state')).toHaveTextContent('Click the map to set points.')
+    act(() => { toggleTourPlacing() })
     expect(screen.getByTestId('tour-planner-empty-state')).toHaveTextContent('Turn on Add point and click the map.')
+    act(() => { toggleTourPlacing() })
     expect(screen.getByTestId('tour-planner-empty-state')).toHaveTextContent('From two points on, TREK works out the route.')
     rerender(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, waypoints: [{ id: 'first', lat: 48, lng: 11, role: 'start' }] })} />)
     expect(screen.queryByTestId('tour-planner-empty-state')).not.toBeInTheDocument()

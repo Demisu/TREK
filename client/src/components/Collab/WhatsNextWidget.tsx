@@ -60,9 +60,9 @@ export default function WhatsNextWidget({ tripMembers = [] }: WhatsNextWidgetPro
       const dayAssignments = assignments[String(day.id)] || []
       for (const a of dayAssignments) {
         if (!a.place) continue
-        // Include: today (future times) + all future days
+        // Include: today (not started yet, or still running) + all future days
         const isFutureDay = day.date > nowDate
-        const isTodayFuture = day.date === nowDate && (!a.place.place_time || a.place.place_time >= nowTime)
+        const isTodayFuture = day.date === nowDate && (!a.place.place_time || a.place.place_time >= nowTime || (!!a.place.end_time && a.place.end_time >= nowTime))
         if (isFutureDay || isTodayFuture) {
           items.push({
             id: a.id,

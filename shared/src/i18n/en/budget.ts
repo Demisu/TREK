@@ -210,6 +210,7 @@ const budget: TranslationStrings = {
   'costs.receiptsNeedConnection':
     'Receipts need a connection to upload. Remove the new ones to save the expense offline, or save once you are back online.',
   'costs.paymentQueued': 'You are offline. The payment is saved and shows up once TREK is back online.',
+  'costs.confirm.deleteBodyReceipts': '"{name}" will be permanently deleted. Its receipt files stay in Files.',
 };
 
 export default budget;

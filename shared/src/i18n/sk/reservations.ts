@@ -274,5 +274,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'Súbory potrebujú na nahratie pripojenie. Odstráň nové, aby si rezerváciu uložil offline, alebo ulož, keď budeš znova online.',
   'reservations.needsConnection': 'Na toto je potrebné pripojenie. Skús to znova, keď bude TREK opäť online.',
+  'reservations.exportCsvFiltered': 'Exportovať zobrazené riadky, {shown} z {total} (CSV)',
 };
 export default reservations;

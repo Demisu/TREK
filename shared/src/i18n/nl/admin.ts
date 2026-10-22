@@ -42,7 +42,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Gebruiker bewerken',
   'admin.newPassword': 'Nieuw wachtwoord',
   'admin.newPasswordHint': 'Laat leeg om het huidige wachtwoord te behouden',
-  'admin.deleteUser': 'Gebruiker "{name}" verwijderen? Alle reizen worden permanent verwijderd.',
+  'admin.deleteUser':
+    'Gebruiker "{name}" verwijderen? Het account en alle reizen en dagboeken van deze gebruiker worden definitief verwijderd, ook reizen die met andere leden zijn gedeeld; zij verliezen de toegang. Reizen van anderen blijven bestaan.',
   'admin.deleteUserTitle': 'Gebruiker verwijderen',
   'admin.newPasswordPlaceholder': 'Nieuw wachtwoord invoeren…',
   'admin.toast.loadError': 'Beheergegevens laden mislukt',
@@ -193,9 +194,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.transitousHint':
     'GTFS-feeds van de community. Gratis en zonder sleutel, met de beste dekking in Europa.',
   'admin.transitProvider.googleHint':
-    "Gebruikt de Google-sleutel hierboven, voor regio's zonder Transitous-data. Wordt per zoekopdracht afgerekend — zolang er geen sleutel is, wordt Transitous gebruikt.",
+    "Gebruikt de Google-sleutel hierboven, voor regio's zonder Transitous-data. Wordt per zoekopdracht afgerekend; zolang er geen sleutel is, wordt Transitous gebruikt.",
   'admin.transitProvider.noKeyWarning':
-    'Google is geselecteerd, maar er is geen Google-sleutel ingesteld — het ov-zoeken gebruikt nog steeds Transitous. Voeg hierboven een sleutel toe bij API-sleutels.',
+    'Google is geselecteerd, maar er is geen Google-sleutel ingesteld; het ov-zoeken gebruikt nog steeds Transitous. Voeg hierboven een sleutel toe bij API-sleutels.',
   'admin.transitProvider.personalKeyWarning':
     'Alleen je eigen Google-sleutel is ingesteld, dus het zoeken van andere leden valt nog steeds terug op Transitous. Sla de sleutel hierboven op als beheerder om hem instantiebreed toe te passen.',
   'admin.placeShadow.title': 'Logboek van plaatszoekopdrachten',
@@ -723,8 +724,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Nog geen auditregistraties.',
   'admin.audit.refresh': 'Vernieuwen',
   'admin.audit.loadMore': 'Meer laden',
-  'admin.audit.showing': '{count} geladen · {total} totaal',
-  'admin.audit.showing.one': '{count} geladen · {total} totaal',
+  'admin.audit.showing': '{count} geladen, {total} totaal',
+  'admin.audit.showing.one': '{count} geladen, {total} totaal',
   'admin.audit.col.time': 'Tijd',
   'admin.audit.col.user': 'Gebruiker',
   'admin.audit.col.action': 'Actie',
@@ -941,5 +942,37 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.origin.auto': 'Automatisch',
   'admin.paddleRegions.origin.autoHint':
     'TREK heeft deze regio zelf geladen voor een peddeltocht die daar gepland wordt.',
+  'admin.mfa.reset': '2FA resetten',
+  'admin.mfa.resetHint':
+    'Schakelt tweestapsverificatie voor deze gebruiker uit, bijvoorbeeld na verlies van de telefoon. De gebruiker wordt overal afgemeld en kan het na inloggen met het wachtwoord opnieuw instellen.',
+  'admin.mfa.resetConfirm': 'Tweestapsverificatie voor {name} uitschakelen?',
+  'admin.mfa.resetDone': 'Tweestapsverificatie is gereset',
+  'admin.danger.title': 'Gevarenzone',
+  'admin.rotateJwt.title': 'JWT-geheim roteren',
+  'admin.rotateJwt.hint': 'Genereert een nieuw JWT-ondertekeningsgeheim. Alle actieve sessies worden direct ongeldig.',
+  'admin.rotateJwt.confirm': 'Roteren en uitloggen',
+  'admin.rotateJwt.warning': 'Let op: hiermee worden alle sessies ongeldig en word je uitgelogd.',
+  'admin.rotateJwt.body':
+    'Er wordt direct een nieuw JWT-geheim aangemaakt. Alle ingelogde gebruikers, jij inbegrepen, worden uitgelogd en moeten opnieuw inloggen.',
+  'admin.oidcDisplayNamePlaceholder': 'bijv. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery-URL (optioneel)',
+  'admin.oidcDiscoveryUrlHint':
+    'Overschrijft de automatisch samengestelde discovery-URL. Nodig bij providers zoals Authentik, waar het eindpunt niet op {path} staat.',
+  'admin.smtp.skipTls': 'TLS-certificaatcontrole overslaan',
+  'admin.smtp.skipTlsHint': 'Inschakelen voor zelfondertekende certificaten op lokale mailservers',
+  'admin.demoBaseline.title': 'Demo-uitgangspunt',
+  'admin.demoBaseline.hint':
+    'Slaat de huidige staat op als uurlijks resetpunt. Alle reizen en instellingen van de beheerder blijven behouden.',
+  'admin.demoBaseline.button': 'Uitgangspunt opslaan',
+  'admin.demoBaseline.saved': 'Uitgangspunt opgeslagen! Resets herstellen deze staat.',
+  'admin.demoBaseline.failed': 'Uitgangspunt opslaan mislukt',
+  'admin.invite.deleteTitle': 'Uitnodigingslink verwijderen',
+  'admin.invite.deleteConfirm':
+    'Deze uitnodigingslink verwijderen? Wie hem nog niet heeft gebruikt, kan er niet meer mee registreren.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Sjabloon verwijderen',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Sjabloon "{name}" met alle categorieën en items verwijderen?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Categorie verwijderen',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Categorie "{name}" en alle items erin verwijderen?',
+  'admin.rotateJwt.button': 'Vernieuwen',
 };
 export default admin;

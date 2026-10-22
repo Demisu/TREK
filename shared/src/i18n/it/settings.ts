@@ -118,7 +118,7 @@ const settings: TranslationStrings = {
   'settings.mcp.clientConfigHint':
     'Sostituisci <your_token> con un token API dalla lista sottostante. Il percorso di npx potrebbe dover essere adattato per il tuo sistema (es. C:\\PROGRA~1\\nodejs\\npx.cmd su Windows).',
   'settings.mcp.clientConfigHintOAuth':
-    'Replace <your_client_id> and <your_client_secret> with the credentials shown in the OAuth 2.1 client you created above. mcp-remote will open your browser to complete the authorization the first time you connect. The path to npx may need to be adjusted for your system (e.g. C:PROGRA~1\nodejs\npx.cmd on Windows).',
+    "Sostituisci <your_client_id> e <your_client_secret> con le credenziali mostrate nel client OAuth 2.1 che hai creato sopra. Al primo collegamento mcp-remote aprirà il browser per completare l'autorizzazione. Il percorso di npx potrebbe dover essere adattato per il tuo sistema (es. C:\\PROGRA~1\\nodejs\\npx.cmd su Windows).",
   'settings.mcp.copy': 'Copia',
   'settings.mcp.copied': 'Copiato!',
   'settings.mcp.apiTokens': 'Token API',
@@ -136,7 +136,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Crea token',
   'settings.mcp.modal.createdTitle': 'Token creato',
   'settings.mcp.modal.createdWarning':
-    'Questo token verrà mostrato solo una volta. Copialo e salvalo ora — non può essere recuperato.',
+    'Questo token verrà mostrato solo una volta. Copialo e salvalo ora: non può essere recuperato.',
   'settings.mcp.modal.done': 'Fatto',
   'settings.mcp.toast.created': 'Token creato',
   'settings.mcp.toast.createError': 'Impossibile creare il token',
@@ -178,14 +178,14 @@ const settings: TranslationStrings = {
     'Un URI per riga. HTTPS, HTTP di loopback o uno schema privato come myapp://. Corrispondenza esatta, tranne la porta di loopback.',
   'settings.oauth.modal.scopes': 'Ambiti consentiti',
   'settings.oauth.modal.scopesHint':
-    "list_trips e get_trip_summary sono sempre disponibili — nessun ambito richiesto. Permettono all'IA di scoprire gli ID viaggio necessari.",
+    "list_trips e get_trip_summary sono sempre disponibili: nessun ambito richiesto. Permettono all'IA di scoprire gli ID viaggio necessari.",
   'settings.oauth.modal.selectAll': 'Seleziona tutto',
   'settings.oauth.modal.deselectAll': 'Deseleziona tutto',
   'settings.oauth.modal.creating': 'Registrazione…',
   'settings.oauth.modal.create': 'Registra client',
   'settings.oauth.modal.createdTitle': 'Client registrato',
   'settings.oauth.modal.createdWarning':
-    'Il segreto client viene mostrato una sola volta. Copialo ora — non può essere recuperato.',
+    'Il segreto client viene mostrato una sola volta. Copialo ora: non può essere recuperato.',
   'settings.oauth.toast.createError': 'Impossibile registrare il client OAuth',
   'settings.oauth.toast.deleted': 'Client OAuth eliminato',
   'settings.oauth.toast.deleteError': 'Impossibile eliminare il client OAuth',
@@ -251,7 +251,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Elimina account',
   'settings.deleteAccountTitle': 'Eliminare il tuo account?',
   'settings.deleteAccountWarning':
-    'Il tuo account e tutti i tuoi viaggi, luoghi e file verranno eliminati in modo permanente. Questa azione non può essere annullata.',
+    "Il tuo account e tutti i viaggi, i diari, i luoghi e i file di cui sei proprietario verranno eliminati definitivamente, compresi i viaggi condivisi con altri membri, che ne perderanno l'accesso. I viaggi di proprietà di altri restano e tu ne vieni rimosso. Questa azione non può essere annullata.",
   'settings.deleteAccountConfirm': 'Elimina in modo permanente',
   'settings.deleteBlockedTitle': 'Eliminazione impossibile',
   'settings.deleteBlockedMessage':
@@ -353,7 +353,7 @@ const settings: TranslationStrings = {
   'settings.webPush.failed': 'Non è stato possibile attivare il push su questo dispositivo.',
   'settings.currency': 'Valuta di visualizzazione',
   'settings.currencyHint':
-    'Gli importi in Costi vengono mostrati convertiti in questa valuta solo per la visualizzazione — gli importi originali restano invariati.',
+    'Gli importi in Costi vengono mostrati convertiti in questa valuta solo per la visualizzazione; gli importi originali restano invariati.',
   'settings.currencyTrip': 'Valuta del viaggio',
   'settings.placeLanguage': 'Nomi dei luoghi',
   'settings.placeLanguageApp': 'Come l’app',
@@ -361,7 +361,7 @@ const settings: TranslationStrings = {
     'La lingua in cui rispondono la ricerca dei luoghi, i suggerimenti e gli indirizzi. Se un luogo non ha un nome in quella lingua, viene mostrato il nome locale.',
   'settings.passkey.title': 'Passkey',
   'settings.passkey.description':
-    'Accedi più velocemente e in modo resistente al phishing con una passkey — la tua impronta digitale, il volto, il PIN o una chiave hardware. La tua password resta come riserva.',
+    'Accedi più velocemente e in modo resistente al phishing con una passkey: la tua impronta digitale, il volto, il PIN o una chiave hardware. La tua password resta come riserva.',
   'settings.passkey.notConfigured':
     'Le passkey sono abilitate ma non ancora completamente configurate su questo server. Chiedi al tuo amministratore di impostare il dominio WebAuthn.',
   'settings.passkey.add': 'Aggiungi una passkey',
@@ -527,10 +527,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Lavora solo con i dati in cache e metti in coda le tue modifiche. Disattiva per riconnetterti e sincronizzare.',
   'settings.offline.mode.active':
-    'La modalità offline è attiva — le tue modifiche sono in coda e verranno sincronizzate quando la disattivi.',
+    'La modalità offline è attiva: le tue modifiche sono in coda e verranno sincronizzate quando la disattivi.',
   'settings.offline.prepare.title': "Prepara per l'offline",
   'settings.offline.prepare.hint':
-    'Scarica tutto ciò che ti serve — dati del viaggio, documenti e tile della mappa — prima di perdere la connessione.',
+    'Scarica tutto ciò che ti serve (dati del viaggio, documenti e tile della mappa) prima di perdere la connessione.',
   'settings.offline.prepare.button': "Scarica per l'uso offline",
   'settings.offline.prepare.running': 'Download in corso…',
   'settings.offline.prepare.done': "Pronto per l'uso offline",
@@ -603,7 +603,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'Mostra sempre i percorsi delle prenotazioni',
   'settings.alwaysShowRoutesHint':
     'Mostra automaticamente sulla mappa il percorso di ogni volo, treno e altra prenotazione, senza doverlo attivare singolarmente.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Cosa può leggere questa chiave',
@@ -647,7 +646,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Impossibile copiare. Seleziona il testo e copialo a mano.',
   'settings.apiKeys.modal.createTitle': 'Crea chiave API',
   'settings.apiKeys.modal.name': 'Nome',
-  'settings.apiKeys.modal.namePlaceholder': 'ad es. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'es. Dashboard di casa',
   'settings.apiKeys.modal.nameHint': 'Solo per te, per riconoscere la chiave in seguito.',
   'settings.apiKeys.modal.creating': 'Creazione...',
   'settings.apiKeys.modal.create': 'Crea',
@@ -655,6 +654,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Copia la chiave adesso. Viene mostrata una sola volta e non può essere recuperata in seguito.',
   'settings.apiKeys.modal.done': 'Fatto',
+  'settings.mcp.deprecated': 'Obsoleto',
+  'settings.offline.cache.dateRange': 'dal {start} al {end}',
 };
 
 export default settings;

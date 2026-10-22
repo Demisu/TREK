@@ -71,6 +71,28 @@ export interface InviteStatus {
   labelKey: 'admin.invite.usedUp' | 'admin.invite.expired' | 'admin.invite.active'
 }
 
+/**
+ * The grey line under an invite link: uses, expiry, the trip it adds to and who made it,
+ * one comma-joined sentence fragment so both admin shells print the same thing.
+ */
+export function inviteMeta(
+  invite: {
+    used_count: number
+    max_uses: number
+    expires_at?: string | null
+    trip_title?: string | null
+    created_by_name?: string | null
+  },
+  t: (key: string, params?: Record<string, string | number>) => string,
+  locale: string,
+): string {
+  const parts = [`${invite.used_count}/${invite.max_uses === 0 ? '∞' : invite.max_uses} ${t('admin.invite.uses')}`]
+  if (invite.expires_at) parts.push(`${t('admin.invite.expiresAt')} ${new Date(invite.expires_at).toLocaleDateString(locale)}`)
+  if (invite.trip_title) parts.push(t('admin.invite.boundTo', { trip: invite.trip_title }))
+  parts.push(`${t('admin.invite.createdBy')} ${invite.created_by_name ?? ''}`)
+  return parts.join(', ')
+}
+
 /** Where an invite link stands: expired, used up (max_uses 0 is unlimited) or still active. */
 export function inviteStatus(
   invite: { expires_at?: string | null; max_uses: number; used_count: number },

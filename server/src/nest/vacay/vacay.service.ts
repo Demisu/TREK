@@ -687,7 +687,7 @@ export class VacayService {
   // Invitations
   // -------------------------------------------------------------------------
 
-  async sendInvite(planId: number, inviterId: number, inviterUsername: string, inviterEmail: string, targetUserId: number): Promise<void> {
+  async sendInvite(planId: number, inviterId: number, inviterUsername: string, targetUserId: number): Promise<void> {
     if (targetUserId === inviterId) throw new DomainError(400, 'Cannot invite yourself');
 
     // The picker no longer offers guests, but the id arrives from the client, so the
@@ -719,7 +719,7 @@ export class VacayService {
     // nothing the module graph does not already give — NotificationsModule
     // reaches nothing in this direction — and it hid the edge while handing the
     // send a second NotificationsService built outside the container.
-    this.notifications.send({ event: 'vacay_invite', actorId: inviterId, scope: 'user', targetId: targetUserId, params: { actor: inviterEmail, planId: String(planId) } }).catch(() => {});
+    this.notifications.send({ event: 'vacay_invite', actorId: inviterId, scope: 'user', targetId: targetUserId, params: { actor: inviterUsername, planId: String(planId) } }).catch(() => {});
   }
 
   async acceptInvite(userId: number, planId: number, socketId: string | undefined): Promise<void> {
@@ -912,7 +912,7 @@ export class VacayService {
     return { outgoing, incoming };
   }
 
-  async shareCalendar(ownerId: number, ownerEmail: string, targetUserId: number, socketId?: string): Promise<void> {
+  async shareCalendar(ownerId: number, ownerUsername: string, targetUserId: number, socketId?: string): Promise<void> {
     if (targetUserId === ownerId) throw new DomainError(400, 'Cannot share with yourself');
 
     const targetOk = await this.shares.existsInvitableUser(targetUserId);
@@ -934,7 +934,7 @@ export class VacayService {
       this.realtime.broadcastToUser(ownerId, { type: 'vacay:share', from: { id: ownerId } }, socketId);
     } catch { /* websocket not available */ }
 
-    this.notifications.send({ event: 'vacay_share', actorId: ownerId, scope: 'user', targetId: targetUserId, params: { actor: ownerEmail } }).catch(() => {});
+    this.notifications.send({ event: 'vacay_share', actorId: ownerId, scope: 'user', targetId: targetUserId, params: { actor: ownerUsername } }).catch(() => {});
   }
 
   /**

@@ -2,7 +2,8 @@ import { test, expect, type APIResponse, type Locator, type Page } from '@playwr
 import { readFileSync } from 'node:fs'
 import { clearNotices } from '../screenshots/shot'
 import { captureGuide, captureHero, dismissReleaseNotice, beat, typeInto, settle, VIEWPORT, type GuideScript } from './guide'
-import { ensureExtraTrips, ensureJourneyFixtures, filesImageFixture, JOURNEY_TITLE, SECOND_JOURNEY, SPARE_TRIP } from './fixtures'
+import { ensureExtraTrips, ensureJourneyFixtures, filesImageFixture, SECOND_JOURNEY, SPARE_TRIP } from './fixtures'
+import { connectJournalDawarich, releaseJournalDawarich, STAY_DAY, writtenEntryIds } from './fixtures-journey'
 import { journeyGuides, journeyContext, journalGuides, journalContext, studioGuides, studioContext } from '../../src/help/contexts/journey'
 import type { HelpGuide } from '../../src/help/types'
 
@@ -344,6 +345,109 @@ async function unlinkTrip(page: Page, title: string): Promise<void> {
   await answer(res, `unlink "${title}"`)
 }
 
+/** The fixtures leave every entry published; null is not a value the column takes, false is. */
+async function clearDraft(page: Page, title: string): Promise<void> {
+  const entry = await journalEntry(page, title)
+  await answer(await page.request.patch(`/api/journeys/entries/${entry.id}`, { data: { is_draft: false } }), `publish "${title}" again`)
+}
+
+async function setJourney(page: Page, data: Record<string, boolean>): Promise<void> {
+  await answer(await page.request.patch(`/api/journeys/${journeyId}`, { data }), `update the journey with ${JSON.stringify(data)}`)
+}
+
+// ── The map and a recorded day ────────────────────────────────────────────────
+
+/** The frosted switches at the top of the map: Plan, Recorded, Entries, Photos and the key. */
+const layerBar = (page: Page) => page.getByRole('group', { name: 'Map layers' })
+
+/**
+ * A hollow plan pin inside the map's frame. The map keeps the pins it drew
+ * outside the view in the DOM as well, and the plan pins carry no class of
+ * their own, only their 22 × 28 drawing, so the one in view is marked for the
+ * step and found by the mark.
+ */
+const PIN_MARK = 'data-help-plan-pin'
+/** A pin of either map engine: Leaflet's, or the vector map's. */
+const MARKERS = ':is(.leaflet-marker-icon, .maplibregl-marker, .mapboxgl-marker)'
+const planPin = (page: Page) => page.locator(`[${PIN_MARK}]`)
+
+/**
+ * The plan pins lie below the entry pins on purpose, and in the Japan journey
+ * most planned places carry an entry on the same spot, so a pin is only taken
+ * when its own centre is what a click there would hit. The layer is also drawn
+ * anew on every moveend, which drops a mark set while the first fit still
+ * moves the map, so the pin must be found at the same place twice in a row.
+ */
+async function markPlanPin(page: Page): Promise<void> {
+  // Zoomed out over the whole trip, the plan pins gather into discs and the one
+  // left alone sits under an entry pin; each zoom step pulls them apart.
+  for (let zoom = 0; zoom < 2; zoom++) {
+    if (await findPlanPin(page, 6_000).then(() => true, () => false)) return
+    // The map's own + in its corner; it carries no name, only the sign.
+    await mapPanel(page).getByRole('button', { name: '+', exact: true }).click()
+    await page.waitForTimeout(800)
+  }
+  await findPlanPin(page, 20_000)
+}
+
+/** Mark a plan pin that lies well inside the frame and that nothing covers, once the map holds still. */
+async function findPlanPin(page: Page, timeout: number): Promise<void> {
+  let last = ''
+  await expect
+    .poll(
+      async () => {
+        const found = await mapPanel(page).evaluate((aside, { attr, markers }) => {
+          for (const old of Array.from(document.querySelectorAll(`[${attr}]`))) old.removeAttribute(attr)
+          const frame = aside.getBoundingClientRect()
+          const pins = Array.from(aside.querySelectorAll(markers)).filter(el => el.querySelector('svg[viewBox="0 0 22 28"]'))
+          for (const el of pins) {
+            const r = el.getBoundingClientRect()
+            // Clear of the layer bar at the top and the edges, so the card it opens has room.
+            if (!(r.left > frame.left + 80 && r.right < frame.right - 80 && r.top > frame.top + 140 && r.bottom < frame.bottom - 80)) continue
+            const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
+            if (!hit || !el.contains(hit)) continue
+            el.setAttribute(attr, '')
+            return `${Math.round(r.left)}:${Math.round(r.top)}`
+          }
+          return ''
+        }, { attr: PIN_MARK, markers: MARKERS })
+        const steady = found !== '' && found === last
+        last = found
+        return steady
+      },
+      { timeout, intervals: [400], message: 'no plan pin inside the journey map that an entry pin does not cover' },
+    )
+    .toBe(true)
+}
+
+/** One day of the timeline, by the date it carries, and its header row. */
+const dayBlock = (page: Page, date = STAY_DAY) => page.locator(`[data-day="${date}"]`)
+const dayHeader = (page: Page, date = STAY_DAY) => dayBlock(page, date).locator(':scope > div').first()
+/** The folded row of the day's stays and the button that opens it. */
+const stayRowToggle = (page: Page) => dayBlock(page).getByRole('button', { name: /stays? from Dawarich/ })
+/** The dialog a recorded day opens in: the shared DialogShell, titled with the day. */
+const dayDialog = (page: Page, button: RegExp | string) =>
+  page.getByRole('dialog').filter({ has: page.getByRole('button', { name: button }) }).last()
+const recordingDialog = (page: Page) => dayDialog(page, 'Keep route')
+const SUBMIT = /^Take over \d+ drafts?$/
+const importDialog = (page: Page) => dayDialog(page, SUBMIT)
+
+/** The entries a recorded-day guide found, so its cleanup deletes only what it wrote. */
+let entriesBefore = new Set<number>()
+
+/** Dawarich connected with the stays waiting, then the journal scrolled to the stay day. */
+async function openRecordedDay(page: Page): Promise<void> {
+  await connectJournalDawarich(page.request, journeyId)
+  entriesBefore = await writtenEntryIds(page.request, journeyId)
+  await openJournal(page)
+  await expect(dayBlock(page)).toBeVisible({ timeout: 20_000 })
+  await expect(dayBlock(page).getByTestId('journey-day-recording')).toBeVisible({ timeout: 20_000 })
+  await dayHeader(page).evaluate(el => el.scrollIntoView({ block: 'start' }))
+  await settle(page)
+}
+
+const releaseRecordedDay = (page: Page) => releaseJournalDawarich(page.request, journeyId, entriesBefore)
+
 // ── Studio ────────────────────────────────────────────────────────────────────
 
 const rail = (page: Page) => page.locator('.st-rail')
@@ -560,6 +664,45 @@ const SCRIPTS: Record<string, GuideScript> = {
     ],
   },
 
+  'entry-draft': {
+    guide: guide('entry-draft'),
+    start: async p => {
+      await clearDraft(p, ASAKUSA)
+      await openJournal(p)
+    },
+    cleanup: p => clearDraft(p, ASAKUSA),
+    steps: [
+      {
+        prepare: async p => {
+          await editEntry(p, ASAKUSA)
+          await editor(p).getByRole('button', { name: 'Draft', exact: true }).scrollIntoViewIfNeeded()
+          await settle(p)
+        },
+        // The row with the label and its hint, the switch at its end.
+        target: p => editor(p).getByRole('button', { name: 'Draft', exact: true }).locator('xpath=..'),
+        hover: p => editor(p).getByRole('button', { name: 'Draft', exact: true }).hover(),
+        act: async p => {
+          const toggle = editor(p).getByRole('button', { name: 'Draft', exact: true })
+          await toggle.click()
+          await expect(toggle).toHaveAttribute('aria-pressed', 'true')
+          await beat(p, 400)
+        },
+      },
+      {
+        target: p => editor(p).getByRole('button', { name: 'Save', exact: true }),
+        act: async p => {
+          await editor(p).getByRole('button', { name: 'Save', exact: true }).click()
+          await expect(editor(p)).toHaveCount(0, { timeout: 15_000 })
+          const badge = entryCard(p, ASAKUSA).getByText('Draft', { exact: true })
+          await expect(badge).toBeVisible({ timeout: 15_000 })
+          await entryCard(p, ASAKUSA).evaluate(el => el.scrollIntoView({ block: 'center' }))
+          await blurFocus(p)
+          await settle(p)
+        },
+      },
+    ],
+  },
+
   suggestions: {
     guide: guide('suggestions'),
     start: openJournal,
@@ -671,11 +814,32 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
       {
+        // The day count between the two round buttons at the foot of the timeline.
         prepare: async p => {
           await p.getByPlaceholder('Search this journey').fill('')
           await settle(p)
         },
-        target: p => p.getByRole('button', { name: /^(Hide|Show) suggestions$/ }).first(),
+        target: p => p.getByRole('button', { name: 'Jump to a day' }),
+        act: async p => {
+          await p.getByRole('button', { name: 'Jump to a day' }).click()
+          await expect(p.getByRole('menu')).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        // The first day opened onto its entries, so the picture shows both levels.
+        prepare: async p => {
+          await p.getByRole('menu').getByRole('button', { name: 'Expand' }).first().click()
+          await settle(p)
+        },
+        target: p => p.getByRole('menu'),
+        hover: p => p.getByRole('menu').getByRole('menuitem').nth(1).hover(),
+        act: async p => {
+          await p.getByRole('menu').getByRole('menuitem').nth(1).click()
+          await expect(p.getByRole('menu')).toHaveCount(0)
+          await p.waitForTimeout(800) // the smooth scroll
+          await settle(p)
+        },
       },
     ],
   },
@@ -692,11 +856,263 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
       {
+        // Upload and, with Immich or Synology connected, a button per library, at the right of the toolbar.
+        target: p => p.getByRole('button', { name: 'Upload', exact: true }).first(),
+      },
+      {
         prepare: async p => {
           await p.getByRole('button', { name: 'Timeline', exact: true }).first().click()
           await settle(p)
+          await p.waitForTimeout(600) // the map tiles
         },
         target: mapPanel,
+      },
+    ],
+  },
+
+  'journey-map-layers': {
+    guide: guide('journey-map-layers'),
+    start: openJournal,
+    steps: [
+      {
+        target: layerBar,
+        // Plan off and on again: the switch is remembered in this browser, and the next guide finds it on.
+        act: async p => {
+          const plan = p.getByTestId('journey-map-layer-plan')
+          await plan.click()
+          await expect(plan).toHaveAttribute('aria-pressed', 'false')
+          await beat(p, 600)
+          await plan.click()
+          await expect(plan).toHaveAttribute('aria-pressed', 'true')
+          await settle(p)
+        },
+      },
+      {
+        prepare: async p => {
+          await p.getByTestId('journey-map-key-button').click()
+          await expect(p.getByTestId('journey-map-key')).toBeVisible()
+          await settle(p)
+        },
+        target: p => p.getByTestId('journey-map-key'),
+        hover: p => p.getByTestId('journey-map-key-button').hover(),
+        act: async p => {
+          await p.getByTestId('journey-map-key-button').click()
+          await expect(p.getByTestId('journey-map-key')).toHaveCount(0)
+          await settle(p)
+        },
+      },
+      {
+        prepare: markPlanPin,
+        target: planPin,
+        act: async p => {
+          await planPin(p).click()
+          await expect(mapPanel(p).getByText('Planned', { exact: true }).first()).toBeVisible({ timeout: 10_000 })
+          await settle(p)
+        },
+      },
+    ],
+  },
+
+  // ── A recorded day (Dawarich) ───────────────────────────────────────────
+  'journey-keep-route': {
+    guide: guide('journey-keep-route'),
+    start: openRecordedDay,
+    cleanup: releaseRecordedDay,
+    steps: [
+      {
+        target: p => dayBlock(p).getByTestId('journey-day-recording'),
+        act: async p => {
+          await dayBlock(p).getByTestId('journey-day-recording').click()
+          // The dialog reads the day from Dawarich first; the button waits for the preview.
+          await expect(recordingDialog(p).getByRole('button', { name: 'Keep route' })).toBeEnabled({ timeout: 60_000 })
+          await settle(p)
+          await p.waitForTimeout(600) // the sketch's tiles
+        },
+      },
+      {
+        target: recordingDialog,
+      },
+      {
+        target: p => recordingDialog(p).getByRole('button', { name: 'Keep route' }),
+        act: async p => {
+          await recordingDialog(p).getByRole('button', { name: 'Keep route' }).click()
+          // Saved, the dialog closes; should it stay, its button reads Already kept and the X closes it.
+          const kept = p.getByRole('button', { name: 'Already kept' })
+          await expect.poll(async () => (await p.getByRole('button', { name: 'Keep route' }).count()) === 0 || (await kept.count()) > 0, { timeout: 30_000 }).toBe(true)
+          if (await anyDialog(p).count()) await closeDialog(p)
+          // A kept day shows its distance in the header instead of the Dawarich mark.
+          await expect(dayBlock(p).getByTestId('journey-day-recording')).toContainText(/\d/, { timeout: 15_000 })
+          await dayHeader(p).evaluate(el => el.scrollIntoView({ block: 'center' }))
+          await blurFocus(p)
+          await settle(p)
+          await p.waitForTimeout(600) // the map draws the route
+        },
+      },
+    ],
+  },
+
+  'journey-day-stays': {
+    guide: guide('journey-day-stays'),
+    start: async p => {
+      await openRecordedDay(p)
+      await expect(stayRowToggle(p)).toBeVisible({ timeout: 20_000 })
+      await stayRowToggle(p).evaluate(el => el.scrollIntoView({ block: 'center' }))
+      await settle(p)
+    },
+    cleanup: releaseRecordedDay,
+    steps: [
+      {
+        target: stayRowToggle,
+        act: async p => {
+          await stayRowToggle(p).click()
+          await expect(stayRowToggle(p)).toHaveAttribute('aria-expanded', 'true')
+          await expect(dayBlock(p).getByRole('button', { name: 'Write a journal entry' }).first()).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        target: p => dayBlock(p).getByRole('button', { name: 'Write a journal entry' }).first(),
+        act: async p => {
+          const before = (await writtenEntryIds(p.request, journeyId)).size
+          await dayBlock(p).getByRole('button', { name: 'Write a journal entry' }).first().click()
+          await expect.poll(async () => (await writtenEntryIds(p.request, journeyId)).size, { timeout: 15_000 }).toBeGreaterThan(before)
+          await settle(p)
+        },
+      },
+      {
+        target: p => dayBlock(p).getByRole('button', { name: 'Not a place I visited' }).first(),
+        act: async p => {
+          const rows = dayBlock(p).getByRole('button', { name: 'Not a place I visited' })
+          const before = await rows.count()
+          await rows.first().click()
+          await expect.poll(() => rows.count(), { timeout: 15_000 }).toBeLessThan(before)
+          await blurFocus(p)
+          await settle(p)
+        },
+      },
+    ],
+  },
+
+  // Nothing is written: Take over turns the stays into drafts for good, and a
+  // stay taken over is never offered again, so a second run would find none.
+  'journey-take-over-day': {
+    guide: guide('journey-take-over-day'),
+    start: async p => {
+      await openRecordedDay(p)
+      await expect(stayRowToggle(p)).toBeVisible({ timeout: 20_000 })
+      await stayRowToggle(p).evaluate(el => el.scrollIntoView({ block: 'center' }))
+      await settle(p)
+    },
+    cleanup: releaseRecordedDay,
+    steps: [
+      {
+        target: p => dayBlock(p).getByRole('button', { name: 'Take over day', exact: true }),
+        act: async p => {
+          await dayBlock(p).getByRole('button', { name: 'Take over day', exact: true }).click()
+          await expect(importDialog(p).locator('[data-stay-id]').first()).toBeVisible({ timeout: 60_000 })
+          await settle(p)
+          await p.waitForTimeout(600) // the day's map
+        },
+      },
+      {
+        prepare: async p => {
+          await importDialog(p).locator('[data-stay-id]').first().scrollIntoViewIfNeeded()
+          await markGroup(p, importDialog(p).locator('[data-stay-id]'))
+        },
+        target: groupMark,
+        hover: p => importDialog(p).locator('[data-stay-id] input').first().hover(),
+        act: async p => {
+          await unmarkGroup(p)
+          await typeInto(p, importDialog(p).locator('[data-stay-id] input').first(), 'Morning on the bridge')
+          await beat(p, 400)
+        },
+      },
+      {
+        target: p => importDialog(p).getByRole('group', { name: 'Stays' }),
+        act: async p => {
+          await importDialog(p).getByRole('group', { name: 'Stays' }).getByRole('button', { name: 'Day report' }).click()
+          await expect(importDialog(p).getByRole('button', { name: /^Take over 1 draft$/ })).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        prepare: async p => {
+          await importDialog(p).getByRole('button', { name: SUBMIT }).scrollIntoViewIfNeeded()
+          await settle(p)
+        },
+        target: p => importDialog(p).getByRole('button', { name: SUBMIT }),
+        act: async p => {
+          await importDialog(p).getByRole('button', { name: 'Cancel', exact: true }).click()
+          await expect(importDialog(p)).toHaveCount(0)
+          await settle(p)
+        },
+      },
+    ],
+  },
+
+  'journey-auto-prepare': {
+    guide: guide('journey-auto-prepare'),
+    start: async p => {
+      await connectJournalDawarich(p.request, journeyId)
+      entriesBefore = await writtenEntryIds(p.request, journeyId)
+      await openJournal(p)
+    },
+    cleanup: releaseRecordedDay,
+    steps: [
+      { target: settingsButton, act: openSettings },
+      {
+        prepare: async p => {
+          await dialog(p).getByText('Recorded days', { exact: true }).scrollIntoViewIfNeeded()
+          await settle(p)
+        },
+        // The label sits in a row of its own, so the section with its switch is two levels up.
+        target: p => dialog(p).getByText('Recorded days', { exact: true }).locator('xpath=../..'),
+        hover: p => dialog(p).getByRole('button', { name: 'Prepare recorded days automatically' }).hover(),
+        act: async p => {
+          const toggle = dialog(p).getByRole('button', { name: 'Prepare recorded days automatically' })
+          await toggle.click()
+          await expect(toggle).toHaveAttribute('aria-pressed', 'true', { timeout: 15_000 })
+          await settle(p)
+        },
+      },
+      {
+        // Switching on fetches at once; the line says when, with Fetch now beside it.
+        prepare: async p => {
+          await expect(dialog(p).getByTestId('journey-prep-status')).toBeVisible({ timeout: 30_000 })
+          // Fetch now shows only while a linked trip has days left to prepare; the fetch it starts first has to end.
+          await expect(dialog(p).getByRole('button', { name: 'Fetching…' })).toHaveCount(0, { timeout: 60_000 })
+          await settle(p)
+        },
+        target: p => dialog(p).getByTestId('journey-prep-status'),
+        act: closeDialog,
+      },
+    ],
+  },
+
+  'photo-location': {
+    guide: guide('photo-location'),
+    start: async p => {
+      await setJourney(p, { photo_location: false })
+      await openJournal(p)
+    },
+    cleanup: p => setJourney(p, { photo_location: false }),
+    steps: [
+      { target: settingsButton, act: openSettings },
+      {
+        prepare: async p => {
+          await dialog(p).getByRole('button', { name: 'Place entries from their photos' }).scrollIntoViewIfNeeded()
+          await settle(p)
+        },
+        // The row with the label, its hint and the switch.
+        target: p => dialog(p).getByRole('button', { name: 'Place entries from their photos' }).locator('xpath=..'),
+        hover: p => dialog(p).getByRole('button', { name: 'Place entries from their photos' }).hover(),
+        act: async p => {
+          const toggle = dialog(p).getByRole('button', { name: 'Place entries from their photos' })
+          await toggle.click()
+          await expect(toggle).toHaveAttribute('aria-pressed', 'true', { timeout: 15_000 })
+          await beat(p, 400)
+          await closeDialog(p)
+        },
       },
     ],
   },
@@ -718,8 +1134,6 @@ const SCRIPTS: Record<string, GuideScript> = {
     ],
   },
 
-  // The spare trip gets stations on its days first: a trip without places adds
-  // nothing to the journal, and the result would show no change at all.
   'journey-status': {
     guide: guide('journey-status'),
     start: openJournal,
@@ -744,6 +1158,8 @@ const SCRIPTS: Record<string, GuideScript> = {
       }
     },
   },
+  // The spare trip gets stations on its days first: a trip without places adds
+  // nothing to the journal, and the result would show no change at all.
   'link-trip': {
     guide: guide('link-trip'),
     start: async p => {

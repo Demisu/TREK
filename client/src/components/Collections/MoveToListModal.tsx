@@ -7,7 +7,7 @@ import type { TranslationFn } from '../../types'
 
 interface MoveToListModalProps {
   mode: 'move' | 'copy'
-  /** Candidate target lists (owned, excluding the current one). */
+  /** Candidate target lists (owned or shared with edit rights, excluding the current one). */
   lists: Collection[]
   /** Number of selected places. */
   count: number
@@ -70,8 +70,8 @@ export default function MoveToListModal({ mode, lists, count, onPick, onClose, t
             autoFocus
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder={t('collections.copyToTripSearch')}
-            aria-label={t('collections.copyToTripSearch')}
+            placeholder={t('collections.searchLists')}
+            aria-label={t('collections.searchLists')}
             className={`${INPUT} ps-8`}
           />
         </div>

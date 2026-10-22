@@ -300,7 +300,7 @@ describe('ToursSidebar', () => {
 
     await waitFor(() => expect(toast.success).toHaveBeenCalledWith('1 tour imported'))
     expect(importCall).toHaveBeenCalledOnce()
-    expect(toast.info).toHaveBeenCalledWith('Imported with caution — elevation/metrics incomplete')
+    expect(toast.info).toHaveBeenCalledWith('Imported, but the file has no complete elevation data')
     vi.restoreAllMocks()
   })
 

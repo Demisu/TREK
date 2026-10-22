@@ -28,6 +28,9 @@ vi.mock('./tourRouting', () => ({ routeWalkingTour, routeCityWalk, enrichTourEle
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
 vi.mock('./roundHikeRouting', () => ({ findRoundHikes, MAX_ROUND_ASKS: 12 }));
 vi.mock('../../../repo/paddleRouteRepo', () => ({ paddleRouteRepo: { plan: paddlePlan, forget: paddleForget } }));
+vi.mock('../../../repo/tourDraftRepo', async () => ({
+  tourDraftRepo: (await import('../../../../tests/helpers/fakeTourDraftRepo')).fakeTourDraftRepo,
+}));
 vi.mock('../useTourPermissions', () => ({
   useTourPermissions: ({ canEdit = true, canAssign = true }: { canEdit?: boolean; canAssign?: boolean }) => ({
     canEdit,
@@ -35,6 +38,7 @@ vi.mock('../useTourPermissions', () => ({
   }),
 }));
 
+import { draftStore } from '../../../../tests/helpers/fakeTourDraftRepo';
 import { useTourPlanner } from './useTourPlanner';
 
 /** The value, or a failure saying it is missing instead of a later undefined. */
@@ -107,6 +111,7 @@ describe('useTourPlanner route tools', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     localStorage.clear();
+    draftStore.clear();
     routeWalkingTour.mockReset().mockResolvedValue(routed);
     routeCityWalk.mockReset().mockResolvedValue(routed);
     paddlePlan.mockReset().mockImplementation(async (_trip: number, legs: LegAsked[]) => onWater(legs));
@@ -400,8 +405,9 @@ describe('useTourPlanner route tools', () => {
       expect(result.current.tourType).toBe('kayak');
       expect(result.current.paddle).toMatchObject({ boatType: 'sup', waterContext: 'river', speedKmh: 3 });
 
-      localStorage.setItem('tour-draft-32', JSON.stringify({ version: 6, name: 'Old', waypoints: [] }));
+      draftStore.setItem('tour-draft-32', JSON.stringify({ version: 6, name: 'Old', waypoints: [] }));
       const old = renderHook(() => useTourPlanner({ tripId: 32 }));
+      await act(async () => {});
       expect(old.result.current.tourType).toBe('hike');
       expect(old.result.current.name).toBe('Old');
     });

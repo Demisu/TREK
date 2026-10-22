@@ -31,7 +31,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'Arka uç ekle',
   'storage.backends.usedBy': 'Kullanan: {categories}',
   'storage.backends.unused': 'Herhangi bir kategoriye atanmamış',
-  'storage.backends.envReadOnly': 'Bir ortam değişkeni tarafından tanımlanmış — salt okunur',
+  'storage.backends.envReadOnly': 'Bir ortam değişkeni tarafından tanımlanmış (salt okunur)',
   'storage.source.built-in': 'Yerleşik',
   'storage.source.env': 'Ortam',
   'storage.source.settings': 'Ayarlar',

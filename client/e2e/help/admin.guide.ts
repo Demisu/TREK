@@ -2,6 +2,7 @@ import { test, expect, type Page, type Locator } from '@playwright/test'
 import { clearNotices } from '../screenshots/shot'
 import { captureGuide, captureHero, dismissReleaseNotice, beat, typeInto, settle, VIEWPORT, type GuideScript } from './guide'
 import { ensureAdminFixtures, pluginPackage } from './fixtures'
+import { deleteUser, resetDefaults } from './fixtures-admin'
 import { toggleAddon } from './external'
 import { adminContext, adminTabContexts, adminGuides } from '../../src/help/contexts/admin'
 import type { HelpGuide } from '../../src/help/types'
@@ -44,6 +45,12 @@ const block = (page: Page, title: string) => page.locator('h3').filter({ hasText
 const modal = (page: Page) => page.locator('.trek-modal-backdrop').last()
 /** A row of the user table by its username. */
 const userRow = (page: Page, username: string) => page.locator('table tbody tr').filter({ hasText: username }).first()
+/** A labelled field of the Map card on User Defaults: its label and everything under it. */
+const mapField = (page: Page, label: string) => section(page, /^Map$/).locator('label').filter({ hasText: label }).first().locator('xpath=..')
+/** The Map engine row's label, which also holds its reset link once the engine is set. */
+const engineLabel = (page: Page) => section(page, /^Map$/).locator('label').filter({ hasText: 'Map engine' }).first()
+/** The TREK Places API card at the top of API Keys, found by its pill. */
+const trekApiCard = (page: Page) => page.getByText('Recommended default', { exact: true }).first().locator('xpath=ancestor::div[contains(@class,"rounded-[14px]")][1]')
 /** An addon tile by the addon's name. */
 const tile = (page: Page, name: string) => page.locator('h4').filter({ hasText: new RegExp(`^${name}$`) }).first().locator('xpath=ancestor::article[1]')
 
@@ -97,6 +104,8 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
     ],
+    // Back to the seed's two accounts, so the Users hero and the next run look the same.
+    cleanup: p => deleteUser(p.request, 'lena'),
   },
   'edit-user': {
     guide: guide('edit-user'),
@@ -181,11 +190,11 @@ const SCRIPTS: Record<string, GuideScript> = {
   },
 
   // ── User Defaults ────────────────────────────────────────────────────────
-  'default-map': {
-    guide: guide('default-map'),
+  'default-user-settings': {
+    guide: guide('default-user-settings'),
     start: opener('admin-defaults'),
     steps: [
-      only(p => section(p, /^Map$/)),
+      only(p => section(p, 'Default User Settings')),
       {
         // The reset link only exists next to a field an admin has set.
         prepare: async p => {
@@ -197,7 +206,69 @@ const SCRIPTS: Record<string, GuideScript> = {
         target: p => section(p, 'Default User Settings').locator('label').filter({ hasText: 'Color Mode' }).locator('xpath=..'),
         act: async p => {
           await section(p, 'Default User Settings').locator('button').filter({ hasText: /^reset$/ }).first().click()
+          await expect(section(p, 'Default User Settings').locator('button').filter({ hasText: /^reset$/ })).toHaveCount(0, { timeout: 10_000 })
           await settle(p)
+        },
+      },
+    ],
+    cleanup: p => resetDefaults(p.request, ['dark_mode']),
+  },
+  'default-map': {
+    guide: guide('default-map'),
+    start: opener('admin-defaults'),
+    steps: [
+      // The field and the CARTO key under it; the 16:10 frame takes in both.
+      only(p => mapField(p, 'Map Template')),
+      {
+        // Mapbox draws every row the step names (style, token, 3D, quality).
+        prepare: async p => {
+          await section(p, /^Map$/).getByRole('button', { name: 'Mapbox (3D)', exact: true }).click()
+          await expect(section(p, /^Map$/).getByText('High-quality mode', { exact: true })).toBeVisible({ timeout: 10_000 })
+          await settle(p)
+        },
+        target: p => section(p, /^Map$/).getByRole('button', { name: 'Mapbox (3D)', exact: true }).locator('xpath=ancestor::div[contains(@class,"divide-y")][1]'),
+      },
+      {
+        // The engine was set in step 2, so its label now carries the reset link.
+        prepare: async p => {
+          await expect(engineLabel(p).locator('button').filter({ hasText: /^reset$/ })).toBeVisible({ timeout: 10_000 })
+        },
+        target: p => engineLabel(p),
+        act: async p => {
+          await engineLabel(p).locator('button').filter({ hasText: /^reset$/ }).click()
+          await expect(engineLabel(p).locator('button').filter({ hasText: /^reset$/ })).toHaveCount(0, { timeout: 10_000 })
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: p => resetDefaults(p.request, ['map_provider', 'mapbox_style', 'maplibre_style']),
+  },
+  'own-routing-engine': {
+    guide: guide('own-routing-engine'),
+    start: opener('admin-defaults'),
+    // Typed, never committed: the field saves on blur only when the value changed,
+    // and emptying it first leaves the saved value (none) as it was.
+    steps: [
+      {
+        prepare: async p => {
+          await typeInto(p, p.getByLabel('Own routing engine', { exact: true }), 'https://osrm.example.org')
+          await beat(p, 300)
+        },
+        target: p => p.getByLabel('Own routing engine', { exact: true }).locator('xpath=..'),
+        act: async p => {
+          await p.getByLabel('Own routing engine', { exact: true }).fill('')
+          await p.getByLabel('Own routing engine', { exact: true }).blur()
+        },
+      },
+      {
+        prepare: async p => {
+          await typeInto(p, p.getByLabel('Own Valhalla instance', { exact: true }), 'https://valhalla.example.org')
+          await beat(p, 300)
+        },
+        target: p => p.getByLabel('Own Valhalla instance', { exact: true }).locator('xpath=..'),
+        act: async p => {
+          await p.getByLabel('Own Valhalla instance', { exact: true }).fill('')
+          await p.getByLabel('Own Valhalla instance', { exact: true }).blur()
         },
       },
     ],
@@ -209,15 +280,19 @@ const SCRIPTS: Record<string, GuideScript> = {
     start: opener('admin-config'),
     steps: [
       {
-        target: p => section(p, 'Packing Templates').getByRole('button', { name: 'New Template' }),
-        act: async p => {
+        // The composer with the name typed and the tick beside it.
+        prepare: async p => {
           await section(p, 'Packing Templates').getByRole('button', { name: 'New Template' }).click()
           const input = p.getByPlaceholder('Template name (e.g. Beach Holiday)')
           await expect(input).toBeVisible()
           await typeInto(p, input, 'City Break')
           await beat(p, 300)
-          // Leave the seed as it is: the second icon next to the field discards the draft.
-          await input.locator('xpath=..').locator('button').nth(1).click()
+        },
+        target: p => p.getByPlaceholder('Template name (e.g. Beach Holiday)').locator('xpath=..'),
+        act: async p => {
+          // Leave the seed as it is: Cancel beside the field discards the draft.
+          const input = p.getByPlaceholder('Template name (e.g. Beach Holiday)')
+          await input.locator('xpath=..').getByRole('button', { name: 'Cancel' }).click()
           await expect(input).toHaveCount(0)
         },
       },
@@ -250,10 +325,12 @@ const SCRIPTS: Record<string, GuideScript> = {
           await expect(p.getByPlaceholder('Category name')).toHaveCount(0)
         },
       },
+      // Edit and Delete are always on the row; the pointer rests on Edit.
       {
         target: p => section(p, /^Categories$/).getByText('Restaurant', { exact: true }).first().locator('xpath=ancestor::div[contains(@class,"group")][1]'),
         hover: async p => {
-          await section(p, /^Categories$/).getByText('Restaurant', { exact: true }).first().hover()
+          await section(p, /^Categories$/).getByText('Restaurant', { exact: true }).first()
+            .locator('xpath=ancestor::div[contains(@class,"group")][1]').getByRole('button', { name: 'Edit' }).hover()
         },
       },
     ],
@@ -301,6 +378,15 @@ const SCRIPTS: Record<string, GuideScript> = {
       only(p => section(p, 'Require two-factor authentication (2FA)')),
     ],
   },
+  'admin-passkeys': {
+    guide: guide('admin-passkeys'),
+    start: opener('admin-settings'),
+    steps: [
+      // Not flipped: the switch saves at once, and the seed keeps passkeys off.
+      only(p => section(p, 'Passkey login').getByRole('button', { name: 'Enable passkey login' }).locator('xpath=ancestor::div[contains(@class,"divide-y")][1]')),
+      only(p => section(p, 'Passkey login')),
+    ],
+  },
   oidc: {
     guide: guide('oidc'),
     start: opener('admin-settings'),
@@ -313,14 +399,15 @@ const SCRIPTS: Record<string, GuideScript> = {
     guide: guide('instance-keys'),
     start: opener('admin-settings'),
     steps: [
-      only(p => block(p, 'Google Maps API Key')),
+      only(p => trekApiCard(p)),
       {
         prepare: async p => {
           const details = p.locator('details').filter({ hasText: 'What the key may be used for' })
           if (!(await details.evaluate(el => (el as HTMLDetailsElement).open))) await details.locator('summary').click()
           await settle(p)
         },
-        target: p => p.locator('details').filter({ hasText: 'What the key may be used for' }),
+        // The whole Google block: key, Test and the fold opened under it.
+        target: p => block(p, 'Google Maps API Key'),
       },
       only(p => block(p, 'Unsplash API Key')),
     ],
@@ -329,8 +416,8 @@ const SCRIPTS: Record<string, GuideScript> = {
     guide: guide('places-transit'),
     start: opener('admin-settings'),
     steps: [
-      only(p => block(p, 'Place search provider')),
       only(p => block(p, 'Transit Provider')),
+      only(p => block(p, 'Place search provider')),
     ],
   },
   'file-types': {
@@ -338,6 +425,29 @@ const SCRIPTS: Record<string, GuideScript> = {
     start: opener('admin-settings'),
     steps: [
       only(p => section(p, 'Allowed File Types')),
+    ],
+  },
+  'rotate-jwt-secret': {
+    guide: guide('rotate-jwt-secret'),
+    start: opener('admin-settings'),
+    steps: [
+      {
+        target: p => section(p, 'Danger Zone').getByRole('button', { name: 'Rotate', exact: true }),
+        act: async p => {
+          await section(p, 'Danger Zone').getByRole('button', { name: 'Rotate', exact: true }).click()
+          await expect(modal(p)).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        target: p => modal(p).locator('> [role="presentation"], > div').first(),
+        // Never confirmed: rotating would sign the run itself out.
+        hover: async p => { await modal(p).getByRole('button', { name: 'Rotate & Log out' }).hover() },
+        act: async p => {
+          await modal(p).getByRole('button', { name: 'Cancel' }).click()
+          await expect(modal(p)).toHaveCount(0)
+        },
+      },
     ],
   },
 
@@ -452,6 +562,8 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
       only(p => section(p, /^Categories$/)),
+      // Nothing changed, so the button is still greyed; the bar is what the step names.
+      only(p => p.getByRole('button', { name: 'Save changes' }).locator('xpath=..')),
       only(p => section(p, /^Health$/)),
     ],
   },
@@ -472,6 +584,17 @@ const SCRIPTS: Record<string, GuideScript> = {
     steps: [
       only(p => section(p, 'Admin Ntfy')),
       only(p => section(p, 'Admin Ntfy').getByRole('button', { name: 'Send test ntfy' })),
+      // The admin matrix: the card whose title is the tab's own name.
+      only(p => section(p, /^Notifications$/)),
+    ],
+  },
+  'notification-defaults': {
+    guide: guide('notification-defaults'),
+    start: opener('admin-notifications'),
+    steps: [
+      only(p => p.locator('#notif-defaults')),
+      // Hovered, not clicked: the tooltip names the next state and the seed keeps its defaults.
+      only(p => p.locator('#notif-defaults button[data-state]').first()),
     ],
   },
 
@@ -480,8 +603,8 @@ const SCRIPTS: Record<string, GuideScript> = {
     guide: guide('mcp-tokens-admin'),
     start: opener('admin-mcp-tokens'),
     steps: [
-      only(p => p.locator('h2, h3').filter({ hasText: 'API Tokens' }).first().locator('xpath=ancestor::section[1]')),
       only(p => p.locator('h2, h3').filter({ hasText: 'OAuth Sessions' }).first().locator('xpath=ancestor::section[1]')),
+      only(p => p.locator('h2, h3').filter({ hasText: 'API Tokens' }).first().locator('xpath=ancestor::section[1]')),
     ],
   },
 

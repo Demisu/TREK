@@ -244,8 +244,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Vältimismarsruutija ei vastanud selle lõigu kohta, seega joonistas selle põhimarsruutija. Päringut korratakse.',
   'roadtrip.day': 'Päev {number}',
-  'roadtrip.quietDay.empty': 'Peatusi veel pole — lohista üks siia',
-  'roadtrip.quietDay.one': 'Seni ainult {name} — lohista siia peatus',
+  'roadtrip.quietDay.empty': 'Peatusi veel pole, lohista üks siia',
+  'roadtrip.quietDay.one': 'Seni ainult {name}, lohista siia peatus',
   'roadtrip.leg.driveText': '{distance} ajaga {time}',
   'roadtrip.day.stopCount': '{count} peatust',
   'roadtrip.day.stopCount.one': '{count} peatus',
@@ -329,5 +329,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Lahkub pärast väljaregistreerimist',
   'roadtrip.bookend.noVia':
     'Sõidul peatumiskohta või sealt ära ei saa olla vahepunkti. Lisa selle asemel sinna peatus.',
+  'roadtrip.stay.untilHint':
+    'Väljasõit kell {time}, sest sellel külastusel on lõppaeg. Ava see ja vali Eemalda lõppaeg, et määrata hoopis peatuse kestus.',
 };
 export default roadtrip;

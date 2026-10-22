@@ -109,7 +109,7 @@ export function StayBadge({ stay, onEdit }: { stay: StayReading; onEdit?: () => 
         </>
       )}
       faint={!text}
-      tooltip={onEdit ? t('roadtrip.stop.stay') : undefined}
+      tooltip={onEdit ? (stay.until ? t('roadtrip.stay.untilHint', { time: formatClockTime(stay.until, is12h) }) : t('roadtrip.stop.stay')) : undefined}
       onActivate={onEdit}
       ariaLabel={onEdit
         ? text || until ? `${t('roadtrip.stop.stay')}: ${[text, until].filter(Boolean).join(' ')}` : t('roadtrip.stay.add')

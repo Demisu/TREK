@@ -28,6 +28,12 @@ const templateButtons = (name: string) => rowButtons(name, '[data-row="template"
 const categoryButtons = (name: string) => rowButtons(name, '[data-row="category"]');
 const itemButtons = (name: string) => rowButtons(name, '[data-row="item"]');
 
+/** Answers the confirm dialog a template or category delete opens; its button is the last 'Delete' on the page. */
+async function confirmDelete(user: ReturnType<typeof userEvent.setup>) {
+  const buttons = await screen.findAllByRole('button', { name: 'Delete' });
+  await user.click(buttons[buttons.length - 1]);
+}
+
 /** Expands the single fixture template and waits for its content. */
 async function expandBeachTrip(user: ReturnType<typeof userEvent.setup>, firstChild: string) {
   await screen.findByText('Beach Trip');
@@ -63,7 +69,7 @@ describe('PackingTemplateManager', () => {
     await screen.findByText('Beach Trip');
     expect(screen.getByText('City Break')).toBeInTheDocument();
     // tmpl1 has 2 categories and 5 items
-    expect(screen.getByText(/2 categories · 5 items/i)).toBeInTheDocument();
+    expect(screen.getByText(/2 categories, 5 items/i)).toBeInTheDocument();
   });
 
   it('FE-ADMIN-PKG-004: clicking "+" shows create input', async () => {
@@ -173,6 +179,9 @@ describe('PackingTemplateManager', () => {
 
     // Template rows carry [chevron, name, edit, delete]
     await user.click(templateButtons('Beach Trip')[3]);
+    expect(deleteCalled).toBe(false);
+    expect(screen.getByText('Delete the template "Beach Trip" with all its categories and items?')).toBeInTheDocument();
+    await confirmDelete(user);
     await waitFor(() => expect(deleteCalled).toBe(true));
     await waitFor(() => expect(screen.queryByText('Beach Trip')).not.toBeInTheDocument());
     expect(screen.getByText('City Break')).toBeInTheDocument();
@@ -304,6 +313,8 @@ describe('PackingTemplateManager', () => {
     expect(screen.getByText('T-shirt')).toBeInTheDocument();
 
     await user.click(categoryButtons('Clothing')[2]);
+    expect(screen.getByText('T-shirt')).toBeInTheDocument();
+    await confirmDelete(user);
 
     await waitFor(() => {
       expect(screen.queryByText('Clothing')).not.toBeInTheDocument();
@@ -529,10 +540,12 @@ describe('PackingTemplateManager', () => {
     await expandBeachTrip(user, 'Clothing');
 
     await user.click(templateButtons('Beach Trip')[3]);
+    await confirmDelete(user);
     expect(await screen.findByText('Failed to delete template')).toBeInTheDocument();
     expect(screen.getByText('Clothing')).toBeInTheDocument();
 
     await user.click(templateButtons('Beach Trip')[3]);
+    await confirmDelete(user);
     await screen.findByText('Template deleted');
     await waitFor(() => expect(screen.queryByText('Clothing')).not.toBeInTheDocument());
     expect(screen.getByText('No templates created yet')).toBeInTheDocument();
@@ -636,6 +649,7 @@ describe('PackingTemplateManager', () => {
     await expandBeachTrip(user, 'Clothing');
 
     await user.click(categoryButtons('Clothing')[2]);
+    await confirmDelete(user);
 
     expect(await screen.findByText('Failed to delete category')).toBeInTheDocument();
     expect(screen.getByText('Clothing')).toBeInTheDocument();

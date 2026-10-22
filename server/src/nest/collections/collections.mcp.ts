@@ -501,7 +501,7 @@ export class CollectionsMcp {
     // of two where an unexpected throw escaped to the SDK instead of isError.
     try {
       const me = await this.users.findUsernameEmail(ctx.userId);
-      await this.collections.sendInvite(collection_id, ctx.userId, me?.username ?? '', me?.email ?? '', user_id, role);
+      await this.collections.sendInvite(collection_id, ctx.userId, me?.username ?? '', user_id, role);
       return ok({ success: true });
     } catch (err) {
       return fail(err);

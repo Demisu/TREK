@@ -43,5 +43,6 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted.one': 'Nie udało się wyznaczyć {count} odcinka tego dnia',
   'map.overview.dayUnrouted.few': 'Nie udało się wyznaczyć {count} odcinków tego dnia',
   'map.overview.dayUnrouted.many': 'Nie udało się wyznaczyć {count} odcinków tego dnia',
+  'map.baseLayer.topo': 'Topograficzna',
 };
 export default map;

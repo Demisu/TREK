@@ -88,7 +88,8 @@ const admin: TranslationStrings = {
   'admin.editUser': '사용자 편집',
   'admin.newPassword': '새 비밀번호',
   'admin.newPasswordHint': '비워두면 현재 비밀번호 유지',
-  'admin.deleteUser': '사용자 "{name}"을(를) 삭제할까요? 모든 여행이 영구 삭제됩니다.',
+  'admin.deleteUser':
+    '사용자 "{name}"을(를) 삭제할까요? 계정과 본인이 소유한 모든 여행 및 저널이 영구적으로 삭제되며, 다른 멤버와 공유 중인 여행도 포함되어 해당 멤버는 접근할 수 없게 됩니다. 다른 사람이 소유한 여행은 유지됩니다.',
   'admin.deleteUserTitle': '사용자 삭제',
   'admin.newPasswordPlaceholder': '새 비밀번호 입력…',
   'admin.toast.loadError': '관리자 데이터 불러오기 실패',
@@ -236,7 +237,7 @@ const admin: TranslationStrings = {
   'admin.transitProvider.googleHint':
     '위의 Google 키를 사용하여 Transitous에 데이터가 없는 지역을 처리합니다. 검색당 과금되며, 키가 없으면 Transitous를 사용합니다.',
   'admin.transitProvider.noKeyWarning':
-    'Google이 선택되었지만 Google 키가 설정되지 않았습니다 — 대중교통 검색은 여전히 Transitous를 사용합니다. 위의 API 키에서 키를 추가하세요.',
+    'Google이 선택되었지만 Google 키가 설정되지 않았습니다; 대중교통 검색은 여전히 Transitous를 사용합니다. 위의 API 키에서 키를 추가하세요.',
   'admin.transitProvider.personalKeyWarning':
     '본인의 Google 키만 설정되어 있어 다른 멤버의 검색은 여전히 Transitous로 대체됩니다. 인스턴스 전체에 적용하려면 관리자로 위에서 키를 저장하세요.',
   'admin.placeShadow.title': '장소 검색 기록',
@@ -726,7 +727,7 @@ const admin: TranslationStrings = {
   'admin.audit.empty': '아직 감사 항목이 없습니다.',
   'admin.audit.refresh': '새로 고침',
   'admin.audit.loadMore': '더 불러오기',
-  'admin.audit.showing': '{count}개 불러옴 · 총 {total}개',
+  'admin.audit.showing': '{count}개 불러옴, 총 {total}개',
   'admin.audit.col.time': '시간',
   'admin.audit.col.user': '사용자',
   'admin.audit.col.action': '작업',
@@ -874,5 +875,36 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': '거절',
   'admin.paddleRegions.origin.auto': '자동',
   'admin.paddleRegions.origin.autoHint': 'TREK이 그곳에서 계획된 패들 투어를 위해 이 지역을 스스로 불러왔습니다.',
+  'admin.mfa.reset': '2FA 초기화',
+  'admin.mfa.resetHint':
+    '이 사용자의 2단계 인증을 해제합니다. 예를 들어 휴대폰을 분실한 경우에 사용합니다. 모든 기기에서 로그아웃되며, 비밀번호로 로그인한 뒤 다시 설정할 수 있습니다.',
+  'admin.mfa.resetConfirm': '{name}의 2단계 인증을 해제할까요?',
+  'admin.mfa.resetDone': '2단계 인증이 초기화되었습니다',
+  'admin.danger.title': '위험 구역',
+  'admin.rotateJwt.title': 'JWT 시크릿 교체',
+  'admin.rotateJwt.hint': '새 JWT 서명 시크릿을 생성합니다. 활성 세션이 모두 즉시 무효화됩니다.',
+  'admin.rotateJwt.confirm': '교체 후 로그아웃',
+  'admin.rotateJwt.warning': '경고: 모든 세션이 무효화되며 본인도 로그아웃됩니다.',
+  'admin.rotateJwt.body':
+    '새 JWT 시크릿이 즉시 생성됩니다. 본인을 포함해 로그인한 모든 사용자가 로그아웃되며 다시 로그인해야 합니다.',
+  'admin.oidcDisplayNamePlaceholder': '예: Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery URL (선택 사항)',
+  'admin.oidcDiscoveryUrlHint':
+    '자동으로 만들어지는 Discovery URL을 덮어씁니다. 엔드포인트가 {path}에 없는 Authentik 같은 제공자에 필요합니다.',
+  'admin.smtp.skipTls': 'TLS 인증서 검사 건너뛰기',
+  'admin.smtp.skipTlsHint': '로컬 메일 서버에서 자체 서명 인증서를 사용할 때 켜세요',
+  'admin.demoBaseline.title': '데모 기준 상태',
+  'admin.demoBaseline.hint': '현재 상태를 매시간 초기화 기준점으로 저장합니다. 관리자의 모든 여행과 설정이 유지됩니다.',
+  'admin.demoBaseline.button': '기준 상태 저장',
+  'admin.demoBaseline.saved': '기준 상태를 저장했습니다. 앞으로 초기화하면 이 상태로 돌아갑니다.',
+  'admin.demoBaseline.failed': '기준 상태를 저장하지 못했습니다',
+  'admin.invite.deleteTitle': '초대 링크 삭제',
+  'admin.invite.deleteConfirm':
+    '이 초대 링크를 삭제할까요? 아직 사용하지 않은 사람은 더 이상 이 링크로 가입할 수 없습니다.',
+  'admin.packingTemplates.deleteTemplateTitle': '템플릿 삭제',
+  'admin.packingTemplates.deleteTemplateConfirm': '템플릿 "{name}"을(를) 모든 카테고리와 항목과 함께 삭제할까요?',
+  'admin.packingTemplates.deleteCategoryTitle': '카테고리 삭제',
+  'admin.packingTemplates.deleteCategoryConfirm': '카테고리 "{name}"을(를) 모든 항목과 함께 삭제할까요?',
+  'admin.rotateJwt.button': '교체',
 };
 export default admin;

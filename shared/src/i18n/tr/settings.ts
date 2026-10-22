@@ -298,7 +298,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Hesabı sil',
   'settings.deleteAccountTitle': 'Hesabınız silinsin mi?',
   'settings.deleteAccountWarning':
-    'Hesabınız ve tüm gezileriniz, yerleriniz ve dosyalarınız kalıcı olarak silinecek. Bu eylem geri alınamaz.',
+    'Hesabınız ile sahibi olduğunuz tüm geziler, günlükler, yerler ve dosyalar kalıcı olarak silinir; diğer üyelerle paylaşılan geziler de buna dahildir ve bu üyeler erişimi kaybeder. Başkalarına ait geziler kalır, siz ise bunlardan çıkarılırsınız. Bu işlem geri alınamaz.',
   'settings.deleteAccountConfirm': 'Kalıcı olarak sil',
   'settings.deleteBlockedTitle': 'Silme mümkün değil',
   'settings.deleteBlockedMessage':
@@ -351,7 +351,7 @@ const settings: TranslationStrings = {
   'settings.oauth.badge.machine': 'makine',
   'settings.currency': 'Görüntüleme para birimi',
   'settings.currencyHint':
-    'Maliyetler bölümündeki tutarlar yalnızca görüntüleme amacıyla bu para birimine çevrilerek gösterilir — orijinal tutarlar değişmez.',
+    'Maliyetler bölümündeki tutarlar yalnızca görüntüleme amacıyla bu para birimine çevrilerek gösterilir; orijinal tutarlar değişmez.',
   'settings.currencyTrip': 'Gezi para birimi',
   'settings.placeLanguage': 'Yer adları',
   'settings.placeLanguageApp': 'Uygulamayla aynı',
@@ -359,7 +359,7 @@ const settings: TranslationStrings = {
     'Yer aramasının, önerilerin ve adreslerin yanıt verdiği dil. Bir yerin bu dilde adı yoksa yerel adı gösterilir.',
   'settings.passkey.title': 'Passkey’ler',
   'settings.passkey.description':
-    'Passkey ile daha hızlı ve kimlik avına dayanıklı şekilde oturum açın — parmak iziniz, yüzünüz, PIN’iniz veya bir donanım anahtarı. Şifreniz yedek olarak kalır.',
+    'Passkey ile daha hızlı ve kimlik avına dayanıklı şekilde oturum açın: parmak iziniz, yüzünüz, PIN’iniz veya bir donanım anahtarı. Şifreniz yedek olarak kalır.',
   'settings.passkey.notConfigured':
     'Passkey’ler etkin ancak bu sunucuda henüz tam olarak yapılandırılmadı. WebAuthn alan adını ayarlaması için yöneticinize başvurun.',
   'settings.passkey.add': 'Passkey ekle',
@@ -525,10 +525,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Yalnızca önbelleğe alınmış verilerle çalışın ve değişikliklerinizi sıraya alın. Yeniden bağlanıp senkronize etmek için kapatın.',
   'settings.offline.mode.active':
-    'Çevrimdışı mod açık — değişiklikleriniz sıraya alındı ve kapattığınızda senkronize edilecek.',
+    'Çevrimdışı mod açık: değişiklikleriniz sıraya alındı ve kapattığınızda senkronize edilecek.',
   'settings.offline.prepare.title': 'Çevrimdışı için hazırlan',
   'settings.offline.prepare.hint':
-    'Bağlantınızı kaybetmeden önce ihtiyacınız olan her şeyi — gezi verileri, belgeler ve harita kutucukları — indirin.',
+    'Bağlantınızı kaybetmeden önce ihtiyacınız olan her şeyi (gezi verileri, belgeler ve harita kutucukları) indirin.',
   'settings.offline.prepare.button': 'Çevrimdışı kullanım için indir',
   'settings.offline.prepare.running': 'İndiriliyor…',
   'settings.offline.prepare.done': 'Çevrimdışı kullanıma hazır',
@@ -601,7 +601,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'Rezervasyon rotalarını her zaman göster',
   'settings.alwaysShowRoutesHint':
     'Haritada her uçuş, tren ve diğer rezervasyonun rotasını, tek tek açmaya gerek kalmadan otomatik olarak gösterir.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Bu anahtar neleri okuyabilir',
@@ -645,13 +644,15 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Kopyalanamadı. Metni seçip elle kopyala.',
   'settings.apiKeys.modal.createTitle': 'API anahtarı oluştur',
   'settings.apiKeys.modal.name': 'Ad',
-  'settings.apiKeys.modal.namePlaceholder': 'örn. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'örn. Ev panosu',
   'settings.apiKeys.modal.nameHint': 'Yalnızca senin için, anahtarı sonradan tanıyabilmen için.',
   'settings.apiKeys.modal.creating': 'Oluşturuluyor...',
   'settings.apiKeys.modal.create': 'Oluştur',
   'settings.apiKeys.modal.createdTitle': 'API anahtarı oluşturuldu',
   'settings.apiKeys.modal.createdWarning': 'Anahtarı şimdi kopyala. Yalnızca bir kez gösterilir ve sonradan alınamaz.',
   'settings.apiKeys.modal.done': 'Tamam',
+  'settings.mcp.deprecated': 'Kullanımdan kalkıyor',
+  'settings.offline.cache.dateRange': '{start} ile {end} arası',
 };
 
 export default settings;

@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { PlannableTourType, TourListItem } from '@trek/shared'
-import { AlertTriangle, ArrowLeft, Circle, History, Loader2, MapPin, Mountain, Plus, Redo2, RotateCcw, Route, Save, Trash2, Undo2 } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, History, Loader2, MapPin, Mountain, Plus, Redo2, Route, Trash2, Undo2 } from 'lucide-react'
 import type { Day } from '../../../types'
 import { useTranslation } from '../../../i18n'
 import { useSettingsStore } from '../../../store/settingsStore'
 import { useTourFerrataCrossingStore } from '../../../store/tourFerrataCrossingStore'
 import { formatDistance, formatElevation } from '../../../utils/units'
 import ConfirmDialog from '../../shared/ConfirmDialog'
-import { DialogButton, NEUTRAL_TINT, fs } from '../../shared/DialogShell'
+import { NEUTRAL_TINT, fs } from '../../shared/DialogShell'
 import EmptyState from '../../shared/EmptyState'
 import { useToast } from '../../shared/Toast'
 import { Tooltip } from '../../shared/Tooltip'
@@ -41,7 +41,9 @@ import { TourStageOverview } from '../stages/TourStageOverview'
 import { useTourStageRail } from '../stages/useTourStageRail'
 import { useTripStore } from '../../../store/tripStore'
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry'
-import type { TourPlannerController, TourPlannerStatus } from './useTourPlanner'
+import type { TourPlannerController } from './useTourPlanner'
+import { RailStatusBadges } from './TourRailStatus'
+import type { Translate } from './railStatusText'
 import { useTourPermissions, type TourPermissionProps } from '../useTourPermissions'
 import TourConversionSection from '../conversion/TourConversionSection'
 import type { GpxConversion } from '../conversion/useGpxConversion'
@@ -51,6 +53,7 @@ import { TourAddMenu } from './TourAddMenu'
 import { type AssignTourToDay, useTourDayAssignment } from '../useTourDayAssignment'
 import WandererMark from '../wanderer/WandererMark'
 import { TourGpxExportBarButton } from '../TourGpxExportButton'
+import { plannerShareFacts, tourShareFactsOf } from '../tourShareText'
 import { TourSaveToCollectionBarButton } from '../collection/TourSaveToCollectionButton'
 import { TourRemoteChangeNotice, TourRevisionConflictDialog } from './TourRevisionNotice'
 import { WalkImportDraftNotice } from '../walk/WalkImportDialog'
@@ -59,6 +62,8 @@ import { WalkRoutePendingNotice } from '../walk/WalkRoutePending'
 import TourListFilterMenu, { TourFilterEmpty } from '../TourListFilterMenu'
 import { TourScopeSummary } from '../TourScopeSummary'
 import { useTourListFilters } from '../useTourListFilters'
+import { useTourUndoShortcut } from './useTourUndoShortcut'
+import { TourEditorRailFooter } from './TourEditorRailFooter'
 import { TourPoiSearchCard } from '../poi/TourPoiSearchCard'
 import { BikeWaysCard } from '../bike/BikeWaysCard'
 import { RunWaysCard } from '../run/RunWaysCard'
@@ -68,19 +73,8 @@ import { HikeWaysCard } from '../hike/HikeWaysCard'
 import { SkiPlannerSummary } from '../ski/SkiRouteSummary'
 import { walkTimeFields } from '../walk/walkTimeFields'
 
-const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
-  dirty: 'tours.planner.status.dirty',
-  routing: 'tours.planner.status.routing',
-  'routing-failed': 'tours.planner.status.routingFailed',
-  'enriching-elevation': 'tours.planner.status.elevation',
-  'elevation-failed': 'tours.planner.status.elevationFailed',
-  saving: 'tours.planner.status.saving',
-}
-
 /** The tinted head band both rails open with, like every panel head in the planner. */
 export const RAIL_HEAD = 'flex flex-none items-start gap-2 border-b border-edge-faint px-3 py-2.5'
-
-type Translate = (key: string, params?: Record<string, string | number | null>) => string
 
 function profileFocusLabel(focus: RouteProfileFocus, t: Translate, unit: 'metric' | 'imperial'): string {
   return t('tours.planner.inspector.profileFocus', {
@@ -136,85 +130,6 @@ function FerrataCrossingBadges() {
         )
       })}
     </div>
-  )
-}
-
-/** A status as a small round icon beside the title, its words in the tooltip and for a screen reader. */
-function StatusDot({ label, tone, children }: { label: string; tone: 'neutral' | 'info' | 'warning'; children: ReactNode }) {
-  const look = tone === 'warning' ? 'text-warning' : tone === 'info' ? 'text-info' : 'text-content-muted'
-  return (
-    <Tooltip label={label}>
-      <span aria-label={label} className={`grid h-[20px] w-[20px] flex-none place-items-center rounded-full bg-surface-card shadow-sm ring-1 ring-inset ring-edge-faint ${look}`}>
-        {children}
-      </span>
-    </Tooltip>
-  )
-}
-
-/** Whether the head offers to try again; a paddle leg that failed has its own actions on its row (PAD-11). */
-function retryable(planner: TourPlannerController): boolean {
-  // A point no way reaches stays unreachable until it moves, a walk's leg no way joins too; asking again changes nothing.
-  if (planner.error === 'paddle-route' || planner.error === 'unreachable' || planner.error === 'walk-gap') return false
-  return planner.status === 'routing-failed' || planner.status === 'elevation-failed'
-}
-
-/** The status in words; a paddle tour with legs the router could not plan says how many (PAD-11). */
-function statusText(planner: TourPlannerController, key: string, t: Translate): string {
-  if (planner.error === 'paddle-route') return t('tours.paddle.status.unrouted', { count: planner.paddleRoute?.failures.length ?? 1 })
-  if (planner.unreachable) return t('tours.planner.status.unreachable', { point: planner.unreachable.unreachable + 1 })
-  return t(key)
-}
-
-/**
- * What the editor is doing right now, as icon badges beside the head's title:
- * a restored draft, routing or saving, and a failure with its retry. Nothing
- * when there is nothing to say.
- */
-/** The status badge's words: a failed save (or the conflict that refused it) first, else what the editor is doing. */
-function statusLabelOf(planner: TourPlannerController, statusKey: string | null | undefined, t: Translate) {
-  if (planner.error === 'conflict') return t('tours.revision.conflictTitle')
-  if (planner.error === 'save') return t('tours.planner.status.saveFailed')
-  return statusKey ? statusText(planner, statusKey, t) : null
-}
-
-function RailStatusBadges({ planner }: { planner: TourPlannerController }) {
-  const { t } = useTranslation()
-  const statusKey = planner.isSaving ? STATUS_KEY.saving : STATUS_KEY[planner.status]
-  const restored = planner.draftRestored && planner.hasUnsavedChanges
-  const onFerrata = useTourFerrataCrossingStore(state => state.crossings.length > 0)
-  const failed = planner.error === 'save' || planner.error === 'conflict'
-  const canRetry = retryable(planner)
-  if (!restored && !statusKey && !failed && !onFerrata) return null
-  const warning = planner.error != null || canRetry
-  const statusLabel = statusLabelOf(planner, statusKey, t)
-  const busy = planner.isSaving || planner.status === 'routing' || planner.status === 'enriching-elevation'
-  return (
-    <span role="status" data-testid="tour-planner-status" className="ms-1.5 flex flex-none items-center gap-1">
-      {restored && (
-        <StatusDot label={t('tours.planner.restored')} tone="info">
-          <RotateCcw size={11} strokeWidth={2.2} />
-        </StatusDot>
-      )}
-      {onFerrata && (
-        <StatusDot label={t('tours.ferrata.crossingShort')} tone="warning">
-          <Route size={11} strokeWidth={2.2} />
-        </StatusDot>
-      )}
-      {statusLabel && (
-        <StatusDot label={statusLabel} tone={warning ? 'warning' : 'neutral'}>
-          {warning
-            ? <AlertTriangle size={11} strokeWidth={2.2} />
-            : busy ? <Loader2 size={11} strokeWidth={2.2} className="animate-spin" /> : <Circle size={7} strokeWidth={3} />}
-        </StatusDot>
-      )}
-      {canRetry && (
-        <button type="button" onClick={planner.retry}
-          className="inline-flex h-[20px] items-center rounded-full bg-accent px-2 font-semibold text-accent-text shadow-sm transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-          style={fs(10.5)}>
-          {t('tours.planner.retry')}
-        </button>
-      )}
-    </span>
   )
 }
 
@@ -321,7 +236,7 @@ function GpxViewRail({
         <div className={RAIL_HEAD} style={{ background: NEUTRAL_TINT }}>
           <BarButton
             label={t('tours.planner.backToTours')}
-            onClick={() => planner.returnToNeutral()}
+            onClick={() => planner.returnToNeutral({ keepView: true })}
             className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
           >
             <ArrowLeft size={16} strokeWidth={2} />
@@ -333,7 +248,7 @@ function GpxViewRail({
           />
           {tour.place_id > 0 && (
             <>
-              <TourGpxExportBarButton target={{ tripId: planner.tripId, placeId: tour.place_id, name: tour.name, revision: tour.revision }} unsaved={false} />
+              <TourGpxExportBarButton target={{ tripId: planner.tripId, placeId: tour.place_id, name: tour.name, revision: tour.revision, facts: tourShareFactsOf(tour, analysis) }} unsaved={false} />
               <TourSaveToCollectionBarButton target={{ tripId: planner.tripId, placeId: tour.place_id, name: tour.name }} unsaved={false} />
             </>
           )}
@@ -424,19 +339,25 @@ export function TourPlannerRail({ planner,
   const { t } = useTranslation()
   const [confirmDiscard, setConfirmDiscard] = useState(false)
   const [pendingDifficulty, setPendingDifficulty] = useState<1 | 2 | 3 | 4 | 5 | 6 | null>(null)
-  const alpineAcknowledged = useRef(false)
   const isSaving = planner.isSaving
   // Nothing in the editor changes while the viewer may not edit or a save is in flight.
   const locked = !canEdit || isSaving
   const requestClose = () => {
     if (isSaving) return
     if (planner.hasUnsavedChanges) setConfirmDiscard(true)
-    else planner.returnToNeutral()
+    else planner.returnToNeutral({ keepView: true })
   }
   const changeDifficulty = (value: 1 | 2 | 3 | 4 | 5 | 6) => {
-    if (value >= 4 && !alpineAcknowledged.current) setPendingDifficulty(value)
+    if (value >= 4 && !planner.alpineAcknowledged) setPendingDifficulty(value)
     else planner.setMaxHikingDifficulty(value)
   }
+  useTourUndoShortcut({
+    enabled: !locked && (planner.mode.type === 'new-draft' || planner.mode.type === 'edit-saved'),
+    canUndo: planner.canUndo,
+    canRedo: planner.canRedo,
+    undo: planner.undo,
+    redo: planner.redo,
+  })
 
   if (planner.mode.type === 'neutral')
     return <NeutralRail planner={planner} canEdit={canEdit} onOpenWanderer={onOpenWanderer}
@@ -457,10 +378,7 @@ export function TourPlannerRail({ planner,
           <RailTitle title={t(isSavedEdit ? 'tours.planner.editTitle' : 'tours.planner.newTitle')} aside={<RailStatusBadges planner={planner} />} />
           {planner.mode.type === 'edit-saved' && planner.mode.placeId > 0 && (
             <>
-              <TourGpxExportBarButton
-                target={{ tripId: planner.tripId, placeId: planner.mode.placeId, name: planner.name }}
-                unsaved={planner.hasUnsavedChanges}
-              />
+              <TourGpxExportBarButton target={{ tripId: planner.tripId, placeId: planner.mode.placeId, name: planner.name, facts: plannerShareFacts(planner) }} unsaved={planner.hasUnsavedChanges} />
               <TourSaveToCollectionBarButton
                 target={{ tripId: planner.tripId, placeId: planner.mode.placeId, name: planner.name }}
                 unsaved={planner.hasUnsavedChanges}
@@ -515,22 +433,12 @@ export function TourPlannerRail({ planner,
           <TourDetailsSection planner={planner} locked={locked} onDifficultyChange={changeDifficulty} />
         </div>
 
-        <div className="flex flex-none flex-col gap-2 border-t border-edge-faint px-3 py-3">
-          {planner.isPaddle && <PaddleSafetyRow />}
-          <div className="grid grid-cols-[auto_1fr] gap-2 [&>button]:justify-center">
-            <DialogButton icon={<RotateCcw size={14} strokeWidth={2} />} onClick={requestClose} disabled={isSaving || (!planner.hasUnsavedChanges && !isSavedEdit)}>
-              {t('common.discard')}
-            </DialogButton>
-            <DialogButton variant="primary" icon={<Save size={14} strokeWidth={2} />} onClick={() => { if (canEdit && !isSaving) void planner.save() }} disabled={locked || !planner.canSave}>
-              {t('common.save')}
-            </DialogButton>
-          </div>
-        </div>
+        <TourEditorRailFooter planner={planner} canEdit={canEdit} locked={locked} isSavedEdit={isSavedEdit} onDiscard={requestClose} />
 
         <ConfirmDialog
           isOpen={confirmDiscard && !isSaving}
           onClose={() => setConfirmDiscard(false)}
-          onConfirm={planner.returnToNeutral}
+          onConfirm={() => planner.returnToNeutral({ keepView: true })}
           title={t('tours.planner.discardTitle')}
           message={t('tours.planner.discardBody')}
           confirmLabel={t('tours.planner.discardChanges')}
@@ -542,7 +450,7 @@ export function TourPlannerRail({ planner,
           onClose={() => setPendingDifficulty(null)}
           onConfirm={() => {
             if (canEdit && !isSaving && pendingDifficulty !== null) {
-              alpineAcknowledged.current = true
+              planner.acknowledgeAlpine()
               planner.setMaxHikingDifficulty(pendingDifficulty)
             }
             setPendingDifficulty(null)

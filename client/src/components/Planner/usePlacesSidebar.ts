@@ -21,6 +21,7 @@ import { plannedPlaceIds, plannedPlaceIdsForDay, type PlannedAccommodation } fro
 import type { MenuEntry } from './planParts'
 import { useListImport, type ListImportProvider } from './useListImport'
 import { usePlacesPool, type PlacesFilter } from './usePlacesPool'
+import { usePlacesColumnFileImport } from './usePlacesColumnFileImport'
 
 /** Stable identity — a fresh [] default would invalidate the planned memo on every render. */
 const NO_ACCOMMODATIONS: PlannedAccommodation[] = []
@@ -63,12 +64,16 @@ export interface PlacesSidebarProps {
   initialScrollTop?: number
   onScrollTopChange?: (top: number) => void
   /**
-  * With the Tours addon on, file import belongs to Tours mode, list import
-  * stays here, and the "Tracks" chip is hidden because tracks are tours.
+   * With the Tours addon on, a route or track file picked or dropped here goes
+   * into the Tours import preview, a file of points only still into the places
+   * import, list import stays here, and the "Tracks" chip is hidden because
+   * tracks are tours.
    */
   toursEnabled?: boolean
   /** Places that are tours (a `tours` facet row exists) — hidden from the pool entirely while tours is on. */
   excludePlaceIds?: Set<number>
+  /** The place ids of tours imported from this column, so the pool leaves them out at once. */
+  onToursChanged?: (placeIds?: number[]) => void | Promise<void>
 }
 
 /**
@@ -96,8 +101,9 @@ export function usePlacesSidebar(props: PlacesSidebarProps) {
   const canEditPlaces = can('place_edit', trip)
   const collectionsEnabled = useAddonStore((s) => s.isEnabled('collections'))
 
-  const [fileImportOpen, setFileImportOpen] = useState(false)
-  const [sidebarDropFile, setSidebarDropFile] = useState<File | null>(null)
+  const fileImport = usePlacesColumnFileImport({
+    tripId, toursEnabled: !!props.toursEnabled, canEdit: canEditPlaces, onToursChanged: props.onToursChanged,
+  })
   const [sidebarDragOver, setSidebarDragOver] = useState(false)
   const sidebarDragCounter = useRef(0)
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
@@ -110,14 +116,14 @@ export function usePlacesSidebar(props: PlacesSidebarProps) {
   }, [])
 
   const handleSidebarDragEnter = (e: React.DragEvent) => {
-    if (!canEditPlaces || props.toursEnabled) return
+    if (!canEditPlaces) return
     e.preventDefault()
     sidebarDragCounter.current++
     setSidebarDragOver(true)
   }
 
   const handleSidebarDragOver = (e: React.DragEvent) => {
-    if (!canEditPlaces || props.toursEnabled) return
+    if (!canEditPlaces) return
     e.preventDefault()
   }
 
@@ -130,15 +136,14 @@ export function usePlacesSidebar(props: PlacesSidebarProps) {
     e.preventDefault()
     sidebarDragCounter.current = 0
     setSidebarDragOver(false)
-    if (!canEditPlaces || props.toursEnabled) return
-    const f = e.dataTransfer.files[0]
-    if (!f) return
-    setSidebarDropFile(f)
-    setFileImportOpen(true)
+    if (!canEditPlaces) return
+    fileImport.takeFiles(Array.from(e.dataTransfer.files))
   }
 
   const listImport = useListImport({ tripId, t, toast, loadTrip, pushUndo })
-  const availableListImportProviders: ListImportProvider[] = ['google', 'naver']
+  // The Naver option follows its add-on; Google lists need no switch.
+  const naverListEnabled = useAddonStore((st) => st.isEnabled('naver_list_import'))
+  const availableListImportProviders: ListImportProvider[] = naverListEnabled ? ['google', 'naver'] : ['google']
   const hasMultipleListImportProviders = availableListImportProviders.length > 1
 
   const {
@@ -286,7 +291,10 @@ export function usePlacesSidebar(props: PlacesSidebarProps) {
   return {
     ...props,
     t, toast, ctxMenu, trip, canEditPlaces,
-    fileImportOpen, setFileImportOpen, sidebarDropFile, setSidebarDropFile,
+    fileImportOpen: fileImport.placesImportOpen, setFileImportOpen: fileImport.setPlacesImportOpen,
+    fileImportFiles: fileImport.placesImportFiles, closeFileImport: fileImport.closePlacesImport,
+    sidebarDropFile: fileImport.placesImportFiles[0] ?? null,
+    pickImportFile: fileImport.pickFile, tourFileImport: fileImport.tourImport,
     sidebarDragOver, handleSidebarDragEnter, handleSidebarDragOver, handleSidebarDragLeave, handleSidebarDrop,
     scrollContainerRef, onScrollTopChange,
     listImportOpen: listImport.open, setListImportOpen: listImport.setOpen,

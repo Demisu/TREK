@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from 'react'
-import { ArrowRight, Bell, Check, Trash2, X } from 'lucide-react'
+import { ArrowRight, Bell, Check, Mail, Trash2, X } from 'lucide-react'
 import { useTranslation } from '../../../i18n'
 import type { InAppNotification } from '../../../store/inAppNotificationStore'
 import { compactTime, useNotificationItemActions } from '../../../components/Notifications/useNotificationItemActions'
@@ -16,7 +16,7 @@ interface MNotificationRowProps {
  */
 export default function MNotificationRow({ notification }: MNotificationRowProps) {
   const { t } = useTranslation()
-  const { handleRespond, handleNavigate, markRead, deleteNotification } = useNotificationItemActions(notification)
+  const { handleRespond, handleNavigate, markRead, markUnread, deleteNotification } = useNotificationItemActions(notification)
 
   const title = t(notification.title_key, notification.title_params)
   const body = t(notification.text_key, notification.text_params)
@@ -92,6 +92,16 @@ export default function MNotificationRow({ notification }: MNotificationRowProps
             {compactTime(notification.created_at, t('common.justNow'))}
           </span>
         </div>
+        {notification.is_read && (
+          <button
+            type="button"
+            aria-label={t('notifications.markUnread')}
+            onClick={e => { e.stopPropagation(); markUnread(notification.id) }}
+            className="flex h-7 w-7 items-center justify-center rounded-full text-m-faint active:bg-[color:var(--m-ic)]"
+          >
+            <Mail size={14} strokeWidth={2} />
+          </button>
+        )}
         <button
           type="button"
           aria-label={t('notifications.delete')}

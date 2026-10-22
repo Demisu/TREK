@@ -248,5 +248,6 @@ const budget: TranslationStrings = {
   'costs.receiptsNeedConnection':
     'يحتاج رفع الإيصالات إلى اتصال. أزل الإيصالات الجديدة لحفظ المصروف دون اتصال، أو احفظ عندما تعود متصلاً.',
   'costs.paymentQueued': 'أنت غير متصل. تم حفظ الدفعة وستظهر عندما يعود TREK للاتصال.',
+  'costs.confirm.deleteBodyReceipts': 'سيتم حذف "{name}" نهائيًا. تبقى ملفات إيصالاته في الملفات.',
 };
 export default budget;

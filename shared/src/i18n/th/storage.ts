@@ -38,7 +38,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'เพิ่มแบ็กเอนด์',
   'storage.backends.usedBy': 'ใช้โดย: {categories}',
   'storage.backends.unused': 'ไม่ได้รับมอบหมายให้อยู่ในหมวดหมู่ใด ๆ',
-  'storage.backends.envReadOnly': 'กำหนดโดยตัวแปรสภาพแวดล้อม — อ่านอย่างเดียว',
+  'storage.backends.envReadOnly': 'กำหนดโดยตัวแปรสภาพแวดล้อม (อ่านอย่างเดียว)',
   'storage.source.built-in': 'บิวท์อิน',
   'storage.source.env': 'สิ่งแวดล้อม',
   'storage.source.settings': 'การตั้งค่า',

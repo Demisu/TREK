@@ -36,5 +36,8 @@ const notifications: TranslationStrings = {
   'notifications.countLabel.one': 'powiadomienie',
   'notifications.countLabel.few': 'powiadomienia',
   'notifications.countLabel.many': 'powiadomień',
+  'notifications.deleteAllConfirmTitle': 'Usunąć wszystkie powiadomienia?',
+  'notifications.deleteAllConfirmText':
+    'Wszystkie powiadomienia zostaną usunięte na stałe. Tej operacji nie można cofnąć.',
 };
 export default notifications;

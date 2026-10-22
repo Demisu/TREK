@@ -4,7 +4,7 @@ const dawarich: TranslationStrings = {
   // ── Connection ─────────────────────────────────────────────────────────────
   'dawarich.title': 'Dawarich',
   'dawarich.intro':
-    'Hubungkan instans Dawarich milikmu sendiri untuk melihat ke mana kamu benar-benar pergi. TREK membacanya dan mengusulkan entri jurnal, tempat, dan negara — tidak ada yang ditambahkan sebelum kamu mengonfirmasinya, dan tidak ada yang ditulis kembali ke Dawarich.',
+    'Hubungkan instans Dawarich milikmu sendiri untuk melihat ke mana kamu benar-benar pergi. TREK membacanya dan mengusulkan entri jurnal, tempat, dan negara; tidak ada yang ditambahkan sebelum kamu mengonfirmasinya, dan tidak ada yang ditulis kembali ke Dawarich.',
   'dawarich.url': 'Alamat instans',
   'dawarich.apiKey': 'Kunci API',
   'dawarich.apiKeyPlaceholder': 'Tempelkan kunci API Dawarich milikmu',

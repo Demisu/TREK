@@ -1357,7 +1357,7 @@ export class CollectionsService {
   // -------------------------------------------------------------------------
 
   async sendInvite(
-    collectionId: number, inviterId: number, inviterUsername: string, inviterEmail: string, targetUserId: number,
+    collectionId: number, inviterId: number, inviterUsername: string, targetUserId: number,
     role: 'viewer' | 'editor' | 'admin' = 'editor',
   ): Promise<void> {
     if (!(await this.isOwner(inviterId, collectionId))) throw new DomainError(403, 'Not allowed');
@@ -1380,7 +1380,7 @@ export class CollectionsService {
     // nothing the module graph does not already give — NotificationsModule
     // reaches nothing in this direction — and it hid the edge while handing the
     // send a second NotificationsService built outside the container.
-    this.notifications.send({ event: 'collection_invite', actorId: inviterId, scope: 'user', targetId: targetUserId, params: { actor: inviterEmail, collectionId: String(collectionId) } }).catch(() => {});
+    this.notifications.send({ event: 'collection_invite', actorId: inviterId, scope: 'user', targetId: targetUserId, params: { actor: inviterUsername, collectionId: String(collectionId) } }).catch(() => {});
   }
 
   async acceptInvite(userId: number, collectionId: number, socketId: string | undefined): Promise<void> {

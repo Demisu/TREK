@@ -227,8 +227,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'ตัวคำนวณเส้นทางแบบหลีกเลี่ยงไม่ตอบสำหรับช่วงนี้ ตัวคำนวณเส้นทางหลักจึงวาดแทน กำลังถามอีกครั้ง',
   'roadtrip.day': 'วันที่ {number}',
-  'roadtrip.quietDay.empty': 'ยังไม่มีจุดแวะ — วางจุดแวะที่นี่',
-  'roadtrip.quietDay.one': 'ตอนนี้มีเพียง {name} — วางจุดแวะที่นี่',
+  'roadtrip.quietDay.empty': 'ยังไม่มีจุดแวะ วางจุดแวะที่นี่',
+  'roadtrip.quietDay.one': 'ตอนนี้มีเพียง {name} วางจุดแวะที่นี่',
   'roadtrip.leg.driveText': '{distance} ใน {time}',
   'roadtrip.day.stopCount': 'แวะ {count} จุด',
   'roadtrip.day.fold': 'ยุบ',
@@ -305,6 +305,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.checkIn': 'เช็คอิน',
   'roadtrip.bookend.afterCheckOut': 'ออกหลังเช็คเอาท์',
   'roadtrip.bookend.noVia': 'ไม่มีจุดผ่านบนเส้นทางไปหรือกลับจากที่พักของคุณ ให้เพิ่มจุดแวะที่นั่นแทน',
+  'roadtrip.stay.untilHint':
+    'ออกเดินทางเวลา {time} เพราะการแวะนี้มีเวลาสิ้นสุด เปิดแล้วเลือกลบเวลาสิ้นสุดเพื่อกำหนดระยะเวลาพักแทน',
 };
 
 export default roadtrip;

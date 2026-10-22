@@ -4,7 +4,7 @@ const dawarich: TranslationStrings = {
   // ── Connection ─────────────────────────────────────────────────────────────
   'dawarich.title': 'Dawarich',
   'dawarich.intro':
-    'Pripojte svoju vlastnú inštanciu Dawarich a uvidíte, kde ste skutočne boli. TREK ju prečíta a navrhne záznamy do denníka, miesta a krajiny — nič sa nepridá, kým to nepotvrdíte, a do Dawarichu sa nič nezapisuje.',
+    'Pripojte svoju vlastnú inštanciu Dawarich a uvidíte, kde ste skutočne boli. TREK ju prečíta a navrhne záznamy do denníka, miesta a krajiny; nič sa nepridá, kým to nepotvrdíte, a do Dawarichu sa nič nezapisuje.',
   'dawarich.url': 'Adresa inštancie',
   'dawarich.apiKey': 'API kľúč',
   'dawarich.apiKeyPlaceholder': 'Vložte svoj API kľúč Dawarich',

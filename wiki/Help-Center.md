@@ -62,7 +62,13 @@ including from inside a guide. Clearing it puts you back where you were.
 ### The screen switcher
 
 **Screens** lists every screen that has help, so you can read about one screen while standing on
-another. Screens with sub-screens fold; the one you are actually on is marked **This screen**.
+another. Screens with sub-screens fold, two levels at most: the trip with its columns and tabs, and
+**Tours** with its list, its map and one screen per kind of tour. The one you are actually on is
+marked **Current**.
+
+A screen's overview shows its sub-screens as cards right under its title, each with the number of
+guides it holds, and the navigation lists the screens next to the one on show. The wiki pages that
+go with a screen are listed once, at the foot of its overview.
 
 ### Asking a person
 

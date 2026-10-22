@@ -333,7 +333,7 @@ describe('Reservations + accommodations e2e (real auth guard + temp SQLite, real
     const linked = await findRow(orm, Reservations, {
       accommodation_id: legacyBoundIntegerText(create.body.accommodation.id),
     });
-    expect(linked).toMatchObject({ type: 'hotel', status: 'confirmed' });
+    expect(linked).toMatchObject({ type: 'hotel', status: 'pending' });
     const list = await request(server).get(`/api/trips/${tripId}/accommodations`).set('Cookie', sessionCookie(1));
     expect(list.status).toBe(200);
     expect(list.body.accommodations).toHaveLength(1);

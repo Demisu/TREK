@@ -32,6 +32,7 @@ function renderDetail(r: Reservation, props: Partial<BookingDetailHostProps> = {
 }
 
 beforeEach(() => {
+  Object.defineProperty(window, 'isSecureContext', { value: true, configurable: true, writable: true });
   onClose.mockClear();
   toasts.length = 0;
   resetAllStores();
@@ -137,6 +138,22 @@ describe('BookingDetailDialog', () => {
     renderDetail(buildReservation({ title: 'Odd link', url: 'call the hotel' }));
     expect(screen.getByText('call the hotel')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'call the hotel' })).toBeNull();
+  });
+
+  it('FE-PLANNER-BKDETAIL-008b: on a plain-http page the code still copies through the textarea fallback', async () => {
+    const user = userEvent.setup();
+    Object.defineProperty(window, 'isSecureContext', { value: false, configurable: true, writable: true });
+    const exec = vi.fn(() => true);
+    (document as unknown as { execCommand: unknown }).execCommand = exec;
+    try {
+      renderDetail(buildReservation({ title: 'Dinner', confirmation_number: 'XYZ9' }));
+      await user.click(screen.getByRole('button', { name: 'Copy booking code' }));
+      expect(exec).toHaveBeenCalledWith('copy');
+      await waitFor(() => expect(toasts).toContainEqual({ message: 'Copied', type: 'success' }));
+    } finally {
+      Object.defineProperty(window, 'isSecureContext', { value: true, configurable: true, writable: true });
+      delete (document as unknown as { execCommand?: unknown }).execCommand;
+    }
   });
 
   it('FE-PLANNER-BKDETAIL-008: the booking code copies to the clipboard and says so', async () => {

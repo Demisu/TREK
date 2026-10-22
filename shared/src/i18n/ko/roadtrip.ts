@@ -311,5 +311,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.checkIn': '체크인',
   'roadtrip.bookend.afterCheckOut': '체크아웃 후 출발',
   'roadtrip.bookend.noVia': '숙소를 오가는 구간에는 경유지를 둘 수 없습니다. 대신 그곳에 정차 지점을 추가하세요.',
+  'roadtrip.stay.untilHint':
+    '이 방문에는 종료 시각이 있어 {time}에 출발합니다. 체류 시간을 설정하려면 열어서 종료 시각 삭제를 선택하세요.',
 };
 export default roadtrip;

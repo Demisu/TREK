@@ -203,7 +203,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX 트랙',
   'journey.settings.recordings': '기록된 날',
   'journey.settings.showTripTracks': '여행의 모든 GPX 트랙 표시',
-  'journey.settings.showTripTracksHint': '연결된 여행의 기록된 경로를 지도에 그립니다.',
+  'journey.settings.showTripTracksHint': '연결된 여행의 계획된 경로(GPX 트랙)를 지도에 그립니다.',
   'journey.settings.autoPrepare': '기록된 날을 자동으로 준비',
   'journey.settings.autoPrepareHint':
     '연결된 여행이 진행되는 동안 Dawarich의 머문 곳이 해당 날짜에서 확인을 기다립니다. 자기 연결이 있는 편집자는 각자의 머문 곳을 받습니다. 일지에는 아무것도 저절로 기록되지 않습니다.',
@@ -859,5 +859,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     '게시된 항목이 있는 날의 기록과 거기서 가져온 머문 곳. 숙소를 포함해 언제 어디에 있었는지 보여줍니다.',
   'journey.share.needsMap': '이 기능을 켜려면 지도를 공유하세요',
+  'journey.editor.tags': '태그',
 };
 export default journey;

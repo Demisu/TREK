@@ -97,7 +97,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Επεξεργασία Χρήστη',
   'admin.newPassword': 'Νέος Κωδικός',
   'admin.newPasswordHint': 'Αφήστε κενό για να διατηρηθεί ο τρέχων κωδικός',
-  'admin.deleteUser': 'Διαγραφή χρήστη "{name}"; Όλα τα ταξίδια θα διαγραφούν μόνιμα.',
+  'admin.deleteUser':
+    'Διαγραφή του χρήστη "{name}"; Ο λογαριασμός του και όλα τα ταξίδια και τα ημερολόγια που του ανήκουν θα διαγραφούν οριστικά, μαζί με τα ταξίδια που μοιράζεται με άλλα μέλη, τα οποία θα χάσουν την πρόσβαση. Τα ταξίδια που ανήκουν σε άλλους παραμένουν.',
   'admin.deleteUserTitle': 'Διαγραφή χρήστη',
   'admin.newPasswordPlaceholder': 'Εισάγετε νέο κωδικό…',
   'admin.toast.loadError': 'Αποτυχία φόρτωσης δεδομένων διαχείρισης',
@@ -249,9 +250,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.transitousHint':
     'Κοινοτικές ροές GTFS. Δωρεάν και χωρίς κλειδί, με την καλύτερη κάλυψη στην Ευρώπη.',
   'admin.transitProvider.googleHint':
-    'Χρησιμοποιεί το παραπάνω κλειδί Google, για περιοχές χωρίς δεδομένα στο Transitous. Χρεώνεται ανά αναζήτηση — όσο δεν υπάρχει κλειδί, χρησιμοποιείται το Transitous.',
+    'Χρησιμοποιεί το παραπάνω κλειδί Google, για περιοχές χωρίς δεδομένα στο Transitous. Χρεώνεται ανά αναζήτηση, όσο δεν υπάρχει κλειδί, χρησιμοποιείται το Transitous.',
   'admin.transitProvider.noKeyWarning':
-    'Έχει επιλεγεί το Google, αλλά δεν έχει ρυθμιστεί κλειδί Google — η αναζήτηση μέσων μεταφοράς εξακολουθεί να χρησιμοποιεί το Transitous. Προσθέστε κλειδί στα Κλειδιά API παραπάνω.',
+    'Έχει επιλεγεί το Google, αλλά δεν έχει ρυθμιστεί κλειδί Google, η αναζήτηση μέσων μεταφοράς εξακολουθεί να χρησιμοποιεί το Transitous. Προσθέστε κλειδί στα Κλειδιά API παραπάνω.',
   'admin.transitProvider.personalKeyWarning':
     'Έχει οριστεί μόνο το δικό σας κλειδί Google, οπότε η αναζήτηση των υπόλοιπων μελών επιστρέφει στο Transitous. Αποθηκεύστε το κλειδί παραπάνω ως διαχειριστής για να ισχύει σε όλη την εγκατάσταση.',
   'admin.placeShadow.title': 'Αρχείο αναζητήσεων τόπων',
@@ -791,8 +792,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Δεν υπάρχουν εγγραφές ελέγχου ακόμη.',
   'admin.audit.refresh': 'Ανανέωση',
   'admin.audit.loadMore': 'Φόρτωση περισσότερων',
-  'admin.audit.showing': '{count} φορτώθηκαν · {total} σύνολο',
-  'admin.audit.showing.one': '{count} φορτώθηκε · {total} σύνολο',
+  'admin.audit.showing': '{count} φορτώθηκαν, {total} σύνολο',
+  'admin.audit.showing.one': '{count} φορτώθηκε, {total} σύνολο',
   'admin.audit.col.time': 'Ώρα',
   'admin.audit.col.user': 'Χρήστης',
   'admin.audit.col.action': 'Ενέργεια',
@@ -959,5 +960,39 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.origin.auto': 'Αυτόματα',
   'admin.paddleRegions.origin.autoHint':
     'Το TREK φόρτωσε μόνο του αυτή την περιοχή για μια διαδρομή κανό που σχεδιάζεται εκεί.',
+  'admin.mfa.reset': 'Επαναφορά 2FA',
+  'admin.mfa.resetHint':
+    'Απενεργοποιεί τον έλεγχο ταυτότητας δύο παραγόντων για αυτόν τον χρήστη, για παράδειγμα μετά από απώλεια του τηλεφώνου. Αποσυνδέεται παντού και μπορεί να τον ρυθμίσει ξανά αφού συνδεθεί με τον κωδικό του.',
+  'admin.mfa.resetConfirm': 'Απενεργοποίηση του ελέγχου ταυτότητας δύο παραγόντων για τον/την {name};',
+  'admin.mfa.resetDone': 'Ο έλεγχος ταυτότητας δύο παραγόντων επαναφέρθηκε',
+  'admin.danger.title': 'Επικίνδυνη ζώνη',
+  'admin.rotateJwt.title': 'Εναλλαγή μυστικού JWT',
+  'admin.rotateJwt.hint': 'Δημιουργεί νέο μυστικό υπογραφής JWT. Όλες οι ενεργές συνεδρίες θα ακυρωθούν αμέσως.',
+  'admin.rotateJwt.confirm': 'Εναλλαγή και αποσύνδεση',
+  'admin.rotateJwt.warning': 'Προσοχή, αυτό θα ακυρώσει όλες τις συνεδρίες και θα σας αποσυνδέσει.',
+  'admin.rotateJwt.body':
+    'Ένα νέο μυστικό JWT θα δημιουργηθεί αμέσως. Όλοι οι συνδεδεμένοι χρήστες, και εσείς, θα αποσυνδεθούν και θα χρειαστεί να συνδεθούν ξανά.',
+  'admin.oidcDisplayNamePlaceholder': 'π.χ. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'URL ανακάλυψης (προαιρετικό)',
+  'admin.oidcDiscoveryUrlHint':
+    'Αντικαθιστά το URL ανακάλυψης που δημιουργείται αυτόματα. Απαραίτητο για παρόχους όπως το Authentik, όπου το endpoint δεν βρίσκεται στο {path}.',
+  'admin.smtp.skipTls': 'Παράλειψη ελέγχου πιστοποιητικού TLS',
+  'admin.smtp.skipTlsHint':
+    'Ενεργοποιήστε το για αυτο-υπογεγραμμένα πιστοποιητικά σε τοπικούς διακομιστές αλληλογραφίας',
+  'admin.demoBaseline.title': 'Βάση επαναφοράς demo',
+  'admin.demoBaseline.hint':
+    'Αποθηκεύστε την τρέχουσα κατάσταση ως ωριαίο σημείο επαναφοράς. Όλα τα ταξίδια και οι ρυθμίσεις διαχειριστή θα διατηρηθούν.',
+  'admin.demoBaseline.button': 'Αποθήκευση βάσης',
+  'admin.demoBaseline.saved': 'Η βάση αποθηκεύτηκε! Οι επαναφορές θα επιστρέφουν σε αυτήν την κατάσταση.',
+  'admin.demoBaseline.failed': 'Αποτυχία αποθήκευσης της βάσης',
+  'admin.invite.deleteTitle': 'Διαγραφή συνδέσμου πρόσκλησης',
+  'admin.invite.deleteConfirm':
+    'Διαγραφή αυτού του συνδέσμου πρόσκλησης; Όσοι δεν τον έχουν χρησιμοποιήσει ακόμη δεν θα μπορούν πλέον να εγγραφούν μέσω αυτού.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Διαγραφή προτύπου',
+  'admin.packingTemplates.deleteTemplateConfirm':
+    'Διαγραφή του προτύπου "{name}" με όλες τις κατηγορίες και τα στοιχεία του;',
+  'admin.packingTemplates.deleteCategoryTitle': 'Διαγραφή κατηγορίας',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Διαγραφή της κατηγορίας "{name}" και όλων των στοιχείων της;',
+  'admin.rotateJwt.button': 'Εναλλαγή',
 };
 export default admin;

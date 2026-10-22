@@ -206,5 +206,16 @@ const dashboard: TranslationStrings = {
   'dashboard.useUnsplashPhoto': 'Dùng ảnh Unsplash của {photographer}',
   'dashboard.tripChangeNeedsConnection':
     'Đổi ngày, số ngày, tiền tệ hoặc ảnh bìa cần có kết nối. Tên, mô tả và lời nhắc có thể đổi khi ngoại tuyến.',
+  'dashboard.ics.enable': 'Bật đăng ký lịch',
+  'dashboard.ics.enableHint':
+    'Tạo một liên kết bí mật mà ai có liên kết đều có thể đọc mà không cần đăng nhập. Bạn có thể tắt bất cứ lúc nào.',
+  'dashboard.ics.regenerate': 'Tạo lại',
+  'dashboard.ics.turnOff': 'Tắt',
+  'dashboard.ics.manageHint':
+    'Tạo lại sẽ sinh liên kết mới và vô hiệu hóa liên kết cũ. Tắt sẽ vô hiệu hóa hoàn toàn liên kết.',
+  'dashboard.ics.addGoogle': 'Thêm vào Google Calendar',
+  'dashboard.ics.addApple': 'Thêm vào Lịch Apple / Outlook',
+  'dashboard.ics.copyManually': 'Hoặc sao chép liên kết thủ công',
+  'dashboard.ics.pasteFromUrl': 'dán vào “Từ URL”',
 };
 export default dashboard;

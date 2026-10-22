@@ -21,13 +21,14 @@ vi.mock('./wanderer/WandererBrowserRail', () => ({ default: () => <p>wanderer tr
 const planner = {} as TourPlannerController;
 const conversion = {} as GpxConversion;
 const recordedTrack = {} as RecordedTrack;
+const tourPlaceIds: ReadonlySet<number> = new Set([7, 9]);
 
 function wanderer(overrides: Partial<WandererBrowser>): WandererBrowser {
   return { open: false, enabled: true, openBrowser: vi.fn(), ...overrides } as unknown as WandererBrowser;
 }
 
 function workspace(browser: WandererBrowser): TourWorkspaceRailParts {
-  return { tourPlanner: planner, wandererBrowser: browser, tourConversion: conversion, recordedTrack };
+  return { tourPlanner: planner, wandererBrowser: browser, tourConversion: conversion, recordedTrack, tourPlaceIds };
 }
 
 describe('TourWorkspaceRail', () => {
@@ -71,5 +72,11 @@ describe('TourWorkspaceRail', () => {
     seen.rail.length = 0;
     render(<TourWorkspaceRail workspace={parts} canEdit canAssign />);
     expect(seen.rail[seen.rail.length - 1]?.skiClassification).toBe(skiClassification);
+  });
+
+  it("PR1-10: hands the trip's tours on, so Trip places never offers one as a stop", () => {
+    seen.rail.length = 0;
+    render(<TourWorkspaceRail workspace={workspace(wanderer({}))} canEdit canAssign />);
+    expect(seen.rail[seen.rail.length - 1]?.tourPlaceIds).toBe(tourPlaceIds);
   });
 });

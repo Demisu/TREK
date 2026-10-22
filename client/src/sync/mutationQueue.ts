@@ -14,9 +14,10 @@ import { getOfflinePrefs } from './offlinePrefs'
 import { randomId } from '../utils/randomId'
 import type { QueuedMutation } from '../db/offlineDb'
 import type { Table } from 'dexie'
-import { roadtripPreferencesResponseSchema, assignmentSchema, tourCreateResponseSchema, tourVisitListResponseSchema, type TourCreateResponse } from '@trek/shared'
+import { roadtripPreferencesResponseSchema, assignmentSchema, tourCreateResponseSchema, tourDraftResponseSchema, tourVisitListResponseSchema, type TourCreateResponse } from '@trek/shared'
 import { cacheAssignment } from '../db/cacheAssignment'
 import { replaceAssignmentVisits } from '../db/cacheTourVisits'
+import { cacheTourDraft } from '../db/cacheTourDrafts'
 import type { Assignment, AssignmentParticipant, BudgetItem, BudgetItemMember, Day, DayNote, Reservation, Trip, TripFile } from '../types'
 
 // Map Dexie table names used in `resource` field → actual Dexie tables.
@@ -674,6 +675,10 @@ export const mutationQueue = {
           if (mutation.resource === 'roadtripPreferences') {
             const saved = roadtripPreferencesResponseSchema.parse(response.data)
             await offlineDb.roadtripPreferences.put(saved)
+          }
+          // The planner's draft as the account now holds it, or none after a discard.
+          if (mutation.resource === 'tourDrafts') {
+            await cacheTourDraft(mutation.tripId, mutation.method === 'DELETE' ? null : tourDraftResponseSchema.parse(response.data).draft)
           }
           // Apply canonical server response to Dexie
           // The plan's own rows have no table the generic branches below would

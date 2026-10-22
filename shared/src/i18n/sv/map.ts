@@ -38,5 +38,6 @@ const map: TranslationStrings = {
   'map.overview.unrouted.one': '{count} delsträcka kunde inte beräknas, så avstånden är ofullständiga.',
   'map.overview.dayUnrouted': '{count} delsträckor för den här dagen kunde inte beräknas',
   'map.overview.dayUnrouted.one': '{count} delsträcka för den här dagen kunde inte beräknas',
+  'map.baseLayer.topo': 'Topografisk',
 };
 export default map;

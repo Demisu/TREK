@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { AlertTriangle, CheckCircle, ExternalLink, Fingerprint, Trash2 } from 'lucide-react'
+import { AlertTriangle, CheckCircle, ExternalLink, Fingerprint, ShieldOff, Trash2 } from 'lucide-react'
 import { useAdminUserActions } from '../../../components/Admin/useAdminUserActions'
 import type { TranslationFn } from '../../../types'
 import type { useAdmin } from '../../../pages/admin/useAdmin'
 import MSheet from '../../components/MSheet'
 import MSegmented from '../../components/MSegmented'
+import MAdminResetMfaSheet from './MAdminResetMfaSheet'
 import { MAdminButton, MAdminField, MAdminInput, MAdminSecretInput, MAdminSheetFrame } from './MAdminUi'
 import { NO_AUTOFILL } from '../../../utils/noAutofill'
 
@@ -41,6 +42,7 @@ export default function MAdminSheets({ admin, t }: MAdminSheetsProps) {
 
   const [showResetPasskeys, setShowResetPasskeys] = useState(false)
   const [resettingPk, setResettingPk] = useState(false)
+  const [showResetMfa, setShowResetMfa] = useState(false)
 
   const userActions = useAdminUserActions(admin, t)
   const { rotateJwt } = userActions
@@ -166,6 +168,12 @@ export default function MAdminSheets({ admin, t }: MAdminSheetsProps) {
                     <Fingerprint size={12} strokeWidth={2.2} />
                     {t('admin.passkey.reset')}
                   </MAdminButton>
+                  {editingUser.id !== currentUser?.id && (
+                    <MAdminButton variant="ghost" className="text-[color:var(--m-st-danger)]" onClick={() => setShowResetMfa(true)}>
+                      <ShieldOff size={12} strokeWidth={2.2} />
+                      {t('admin.mfa.reset')}
+                    </MAdminButton>
+                  )}
                   <MAdminButton
                     variant="danger"
                     disabled={editingUser.id === currentUser?.id}
@@ -184,6 +192,15 @@ export default function MAdminSheets({ admin, t }: MAdminSheetsProps) {
           )}
         </MAdminSheetFrame>
       </MSheet>
+
+      {/* Reset two-factor confirm */}
+      <MAdminResetMfaSheet
+        open={showResetMfa}
+        onClose={() => setShowResetMfa(false)}
+        user={editingUser}
+        onReset={userActions.resetMfa}
+        t={t}
+      />
 
       {/* How to update */}
       <MSheet open={showUpdateModal} onClose={() => setShowUpdateModal(false)} ariaLabel={t('admin.update.howTo')}>
@@ -269,9 +286,9 @@ export default function MAdminSheets({ admin, t }: MAdminSheetsProps) {
       </MSheet>
 
       {/* Rotate JWT confirm */}
-      <MSheet open={showRotateJwtModal} onClose={() => setShowRotateJwtModal(false)} ariaLabel="Rotate JWT Secret">
+      <MSheet open={showRotateJwtModal} onClose={() => setShowRotateJwtModal(false)} ariaLabel={t('admin.rotateJwt.title')}>
         <MAdminSheetFrame
-          title="Rotate JWT Secret"
+          title={t('admin.rotateJwt.title')}
           onClose={() => setShowRotateJwtModal(false)}
           footer={
             <>
@@ -279,7 +296,7 @@ export default function MAdminSheets({ admin, t }: MAdminSheetsProps) {
                 {t('common.cancel')}
               </MAdminButton>
               <MAdminButton variant="danger" busy={rotatingJwt} onClick={rotateJwt}>
-                Rotate &amp; Log out
+                {t('admin.rotateJwt.confirm')}
               </MAdminButton>
             </>
           }
@@ -290,11 +307,10 @@ export default function MAdminSheets({ admin, t }: MAdminSheetsProps) {
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-[0.8125rem] font-bold text-m-ink">
-                Warning, this will invalidate all sessions and log you out.
+                {t('admin.rotateJwt.warning')}
               </p>
               <p className="mt-1 font-geist text-[0.625rem] leading-relaxed text-m-muted">
-                A new JWT secret will be generated immediately. Every logged-in user — including you — will be signed
-                out and will need to log in again.
+                {t('admin.rotateJwt.body')}
               </p>
             </div>
           </div>

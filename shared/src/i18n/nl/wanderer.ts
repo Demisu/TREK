@@ -15,7 +15,7 @@ const wanderer: TranslationStrings = {
   'wanderer.test.button': 'Verbinding testen',
   'wanderer.test.ok': 'Gekoppeld.',
   'wanderer.test.okCount': 'Gekoppeld. Je kunt {count} van je wandelroutes importeren.',
-  'wanderer.test.okCount.one': 'Gekoppeld. Je kunt {count} van je wandelroutes importeren.',
+  'wanderer.test.okCount.one': 'Gekoppeld. Je kunt {count} wandelroute importeren.',
   'wanderer.disconnect': 'Ontkoppelen',
   'wanderer.saved': 'wanderer-koppeling opgeslagen',
   'wanderer.disconnected': 'wanderer-koppeling verwijderd',

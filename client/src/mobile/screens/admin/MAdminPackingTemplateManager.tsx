@@ -3,6 +3,7 @@ import { usePackingTemplateAdmin } from '../../../components/Admin/usePackingTem
 import { useTranslation } from '../../../i18n'
 import { Plus, Trash2, Edit2, Package, X, Check, ChevronDown, ChevronRight, FolderPlus } from 'lucide-react'
 import { MAdminButton, MAdminCard, MAdminCardHead, MAdminInput } from './MAdminUi'
+import MConfirmSheet from '../settings/MConfirmSheet'
 
 // Small round icon action button in the mobile admin idiom (flat --m-ic circle).
 function PkIconBtn({
@@ -56,8 +57,8 @@ export default function MAdminPackingTemplateManager() {
     editingTemplate, setEditingTemplate, editTemplateName, setEditTemplateName, editingCatId, setEditingCatId,
     editCatName, setEditCatName, editingItemId, setEditingItemId, editItemName, setEditItemName, addingCategory,
     setAddingCategory, newCatName, setNewCatName, addingItemToCatId, setAddingItemToCatId, newItemName,
-    setNewItemName, addItemRef, toggleExpand, handleCreateTemplate, handleDeleteTemplate, handleRenameTemplate,
-    handleAddCategory, handleRenameCategory, handleDeleteCategory, handleAddItem, handleRenameItem, handleDeleteItem,
+    setNewItemName, addItemRef, toggleExpand, handleCreateTemplate, deleteTarget, setDeleteTarget, requestDeleteTemplate, requestDeleteCategory, confirmDelete, handleRenameTemplate,
+    handleAddCategory, handleRenameCategory, handleAddItem, handleRenameItem, handleDeleteItem,
   } = usePackingTemplateAdmin({ genericDeleteErrors: true })
   const { t } = useTranslation()
 
@@ -129,7 +130,7 @@ export default function MAdminPackingTemplateManager() {
                   <button type="button" className="min-w-0 flex-1 text-start" onClick={() => toggleExpand(tmpl.id)}>
                     <div className="truncate text-[0.8125rem] font-bold text-m-ink">{tmpl.name}</div>
                     <div className="mt-[1px] font-geist text-[0.59375rem] text-m-faint">
-                      {tmpl.category_count} {t('admin.packingTemplates.categories', { count: tmpl.category_count })} · {tmpl.item_count} {t('admin.packingTemplates.items', { count: tmpl.item_count })}
+                      {tmpl.category_count} {t('admin.packingTemplates.categories', { count: tmpl.category_count })}, {tmpl.item_count} {t('admin.packingTemplates.items', { count: tmpl.item_count })}
                     </div>
                   </button>
                 )}
@@ -140,7 +141,7 @@ export default function MAdminPackingTemplateManager() {
                 <PkIconBtn
                   ariaLabel={t('common.delete')}
                   variant="danger"
-                  onClick={() => handleDeleteTemplate(tmpl.id)}
+                  onClick={() => requestDeleteTemplate(tmpl.id)}
                 ><Trash2 size={14} /></PkIconBtn>
               </div>
 
@@ -181,7 +182,7 @@ export default function MAdminPackingTemplateManager() {
                             size={28}
                             variant="danger"
                             ariaLabel={t('common.delete')}
-                            onClick={() => handleDeleteCategory(cat.id)}
+                            onClick={() => requestDeleteCategory(cat.id)}
                           ><Trash2 size={13} /></PkIconBtn>
                         </div>
 
@@ -273,6 +274,16 @@ export default function MAdminPackingTemplateManager() {
           ))}
         </div>
       )}
+      <MConfirmSheet
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        title={t(deleteTarget?.kind === 'category' ? 'admin.packingTemplates.deleteCategoryTitle' : 'admin.packingTemplates.deleteTemplateTitle')}
+        message={t(deleteTarget?.kind === 'category' ? 'admin.packingTemplates.deleteCategoryConfirm' : 'admin.packingTemplates.deleteTemplateConfirm', { name: deleteTarget?.name ?? '' })}
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
+        danger
+        onConfirm={() => void confirmDelete()}
+      />
     </MAdminCard>
   )
 }

@@ -90,7 +90,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Chỉnh sửa người dùng',
   'admin.newPassword': 'Mật khẩu mới',
   'admin.newPasswordHint': 'Để trống để giữ mật khẩu hiện tại',
-  'admin.deleteUser': 'Xóa người dùng "{name}"? Tất cả các chuyến đi sẽ bị xóa vĩnh viễn.',
+  'admin.deleteUser':
+    'Xóa người dùng "{name}"? Tài khoản và mọi chuyến đi, nhật ký do họ sở hữu sẽ bị xóa vĩnh viễn, kể cả các chuyến đi chia sẻ với thành viên khác, những người này sẽ mất quyền truy cập. Các chuyến đi do người khác sở hữu vẫn được giữ lại.',
   'admin.deleteUserTitle': 'Xóa người dùng',
   'admin.newPasswordPlaceholder': 'Nhập mật khẩu mới…',
   'admin.toast.loadError': 'Không tải được dữ liệu quản trị viên',
@@ -241,9 +242,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.transitousHint':
     'Nguồn GTFS cộng đồng. Miễn phí và không cần khóa, phủ sóng tốt nhất ở châu Âu.',
   'admin.transitProvider.googleHint':
-    'Dùng khóa Google ở trên, cho những khu vực Transitous không có dữ liệu. Tính phí theo mỗi lượt tìm kiếm — khi chưa đặt khóa thì vẫn dùng Transitous.',
+    'Dùng khóa Google ở trên, cho những khu vực Transitous không có dữ liệu. Tính phí theo mỗi lượt tìm kiếm; khi chưa đặt khóa thì vẫn dùng Transitous.',
   'admin.transitProvider.noKeyWarning':
-    'Đã chọn Google, nhưng chưa cấu hình khóa Google — tìm kiếm giao thông vẫn dùng Transitous. Thêm khóa ở mục Khóa API phía trên.',
+    'Đã chọn Google, nhưng chưa cấu hình khóa Google; tìm kiếm giao thông vẫn dùng Transitous. Thêm khóa ở mục Khóa API phía trên.',
   'admin.transitProvider.personalKeyWarning':
     'Chỉ khóa Google của riêng bạn được đặt, nên tìm kiếm của các thành viên khác vẫn quay về Transitous. Lưu khóa ở trên với quyền quản trị để áp dụng cho toàn bộ máy chủ.',
   'admin.placeShadow.title': 'Nhật ký tìm kiếm địa điểm',
@@ -780,7 +781,7 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Chưa có mục kiểm toán nào.',
   'admin.audit.refresh': 'Làm mới',
   'admin.audit.loadMore': 'Tải thêm',
-  'admin.audit.showing': '{count} đã tải · tổng cộng {total}',
+  'admin.audit.showing': '{count} đã tải, tổng cộng {total}',
   'admin.audit.col.time': 'Thời gian',
   'admin.audit.col.user': 'người dùng',
   'admin.audit.col.action': 'Hoạt động',
@@ -919,5 +920,36 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'Từ chối',
   'admin.paddleRegions.origin.auto': 'Tự động',
   'admin.paddleRegions.origin.autoHint': 'TREK đã tự tải vùng này cho một chuyến chèo thuyền được lên kế hoạch ở đó.',
+  'admin.mfa.reset': 'Đặt lại 2FA',
+  'admin.mfa.resetHint':
+    'Tắt xác thực hai yếu tố của người dùng này, ví dụ khi mất điện thoại. Họ bị đăng xuất ở mọi nơi và có thể thiết lập lại sau khi đăng nhập bằng mật khẩu.',
+  'admin.mfa.resetConfirm': 'Tắt xác thực hai yếu tố của {name}?',
+  'admin.mfa.resetDone': 'Đã đặt lại xác thực hai yếu tố',
+  'admin.danger.title': 'Vùng nguy hiểm',
+  'admin.rotateJwt.title': 'Xoay vòng khóa bí mật JWT',
+  'admin.rotateJwt.hint': 'Tạo khóa bí mật ký JWT mới. Tất cả phiên đang hoạt động sẽ bị vô hiệu hóa ngay lập tức.',
+  'admin.rotateJwt.confirm': 'Xoay vòng và đăng xuất',
+  'admin.rotateJwt.warning': 'Cảnh báo: thao tác này sẽ vô hiệu hóa mọi phiên và đăng xuất cả bạn.',
+  'admin.rotateJwt.body':
+    'Khóa bí mật JWT mới sẽ được tạo ngay. Mọi người dùng đang đăng nhập, kể cả bạn, sẽ bị đăng xuất và phải đăng nhập lại.',
+  'admin.oidcDisplayNamePlaceholder': 'ví dụ: Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery URL (tùy chọn)',
+  'admin.oidcDiscoveryUrlHint':
+    'Ghi đè discovery URL được tạo tự động. Cần cho các nhà cung cấp như Authentik, nơi endpoint không nằm ở {path}.',
+  'admin.smtp.skipTls': 'Bỏ qua kiểm tra chứng chỉ TLS',
+  'admin.smtp.skipTlsHint': 'Bật khi máy chủ thư cục bộ dùng chứng chỉ tự ký',
+  'admin.demoBaseline.title': 'Mốc gốc của bản demo',
+  'admin.demoBaseline.hint':
+    'Lưu trạng thái hiện tại làm điểm đặt lại hằng giờ. Mọi chuyến đi và cài đặt của quản trị viên sẽ được giữ lại.',
+  'admin.demoBaseline.button': 'Lưu mốc gốc',
+  'admin.demoBaseline.saved': 'Đã lưu mốc gốc! Các lần đặt lại sẽ khôi phục về trạng thái này.',
+  'admin.demoBaseline.failed': 'Không thể lưu mốc gốc',
+  'admin.invite.deleteTitle': 'Xóa liên kết mời',
+  'admin.invite.deleteConfirm': 'Xóa liên kết mời này? Ai chưa dùng sẽ không thể đăng ký bằng liên kết này nữa.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Xóa mẫu',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Xóa mẫu "{name}" cùng tất cả danh mục và mục trong đó?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Xóa danh mục',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Xóa danh mục "{name}" và tất cả mục trong đó?',
+  'admin.rotateJwt.button': 'Quay',
 };
 export default admin;

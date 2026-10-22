@@ -1,15 +1,16 @@
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { captureGuide, captureHero, beat, typeInto, settle, VIEWPORT, type GuideScript } from './guide'
-import { ensureUsers, seededTrip, ADMIN_USERS } from './fixtures'
+import { ensureUsers, seededTrip, ADMIN_USERS, JOURNEY_TITLE } from './fixtures'
 import { openTrip, openTripOnDay, modal } from './trip-shared'
 import { tripContext, tripGuides } from '../../src/help/contexts/trip'
 import type { HelpGuide } from '../../src/help/types'
 
 /**
  * Actions for the trip frame, keyed by the ids in `src/help/contexts/trip.ts`:
- * the people of the trip (the Share dialog), the columns and the undo. They run
- * on the seeded "Autumn in Japan"; what a guide creates (a member, a guest, a
- * link) it leaves for the next one or takes away again in `cleanup`.
+ * the trip's Settings (people, sharing, the linked journal), the columns and
+ * the undo. They run on the seeded "Autumn in Japan"; what a guide creates (a
+ * member, a guest, a link, a linked journal) it leaves for the next one or
+ * takes away again in `cleanup`.
  */
 
 const guide = (id: string): HelpGuide => {
@@ -18,9 +19,18 @@ const guide = (id: string): HelpGuide => {
   return g
 }
 
-/** A section of the Share dialog by the words it opens with (its label, or the title of a link card). */
+/**
+ * A part of the Settings dialog by the words it opens with: a DialogSection
+ * (its label) or a LinkCard (its title). The areas around them are sections
+ * too, but they open with the area's own name, so they never match.
+ */
 const block = (page: Page, opening: RegExp) => modal(page).locator('section').filter({ hasText: opening }).first()
 const inviteBlock = (page: Page) => block(page, /^Invite User/)
+const accessBlock = (page: Page) => block(page, /^Access\s*\d/)
+/** An area in the dialog's list on the left; each carries the area's name as its label. */
+const area = (page: Page, name: 'People' | 'Sharing' | 'Journal') => modal(page).getByRole('button', { name, exact: true })
+/** The Trip settings pill beside the trip's name. */
+const settingsPill = (page: Page) => page.getByRole('button', { name: 'Trip settings', exact: true })
 /**
  * The days column's fold tab: the one button straight inside the column's
  * frame, which sits 10px in from the left. Its name is Collapse while the
@@ -28,18 +38,35 @@ const inviteBlock = (page: Page) => block(page, /^Invite User/)
  * elsewhere (the day cards fold with Collapse, the first tab is Plan).
  */
 const leftToggle = (page: Page) => page.locator('div[style*="left: 10px"][style*="top: 10px"] > button').first()
+const leftDivider = (page: Page) => page.getByRole('separator', { name: 'Panel width' }).first()
 
-async function openShare(page: Page): Promise<void> {
-  await openTrip(page)
-  await page.getByRole('button', { name: 'Share', exact: true }).click()
+async function clickSettings(page: Page): Promise<void> {
+  await settingsPill(page).click()
   await expect(modal(page)).toBeVisible()
-  await expect(modal(page).getByRole('heading', { name: 'Share Trip' })).toBeVisible()
+  await expect(modal(page).getByRole('heading', { name: 'Trip settings' })).toBeVisible()
+  await settle(page)
+}
+
+async function openSettings(page: Page): Promise<void> {
+  await openTrip(page)
+  await clickSettings(page)
+}
+
+async function pickArea(page: Page, name: 'Sharing' | 'Journal'): Promise<void> {
+  await area(page, name).click()
+  await expect(area(page, name)).toHaveAttribute('aria-current', 'page')
   await settle(page)
 }
 
 const closeModal = async (page: Page): Promise<void> => {
   await page.keyboard.press('Escape')
   await expect(modal(page)).toHaveCount(0)
+}
+
+/** Take the journal off the trip again; a trip without one answers that too, which is fine. */
+async function unlinkJournal(page: Page): Promise<void> {
+  const { tripId } = seededTrip()
+  await page.request.delete(`/api/trips/${tripId}/journal`)
 }
 
 const only = (target: (p: Page) => Locator) => ({ target })
@@ -50,12 +77,8 @@ const SCRIPTS: Record<string, GuideScript> = {
     start: p => openTrip(p),
     steps: [
       {
-        target: p => p.getByRole('button', { name: 'Share', exact: true }),
-        act: async p => {
-          await p.getByRole('button', { name: 'Share', exact: true }).click()
-          await expect(modal(p).getByRole('heading', { name: 'Share Trip' })).toBeVisible()
-          await settle(p)
-        },
+        target: settingsPill,
+        act: clickSettings,
       },
       {
         prepare: async p => {
@@ -67,17 +90,20 @@ const SCRIPTS: Record<string, GuideScript> = {
         target: inviteBlock,
         act: async p => {
           await modal(p).getByRole('button', { name: 'Invite', exact: true }).click()
-          await expect(block(p, /^Access\s*\d/).getByText('mara', { exact: true })).toBeVisible({ timeout: 15_000 })
+          await expect(accessBlock(p).getByText('mara', { exact: true })).toBeVisible({ timeout: 15_000 })
           await settle(p)
         },
       },
-      only(p => block(p, /^Access\s*\d/)),
+      only(accessBlock),
     ],
     cleanup: closeModal,
   },
   'trip-invite-link': {
     guide: guide('trip-invite-link'),
-    start: openShare,
+    start: async p => {
+      await openSettings(p)
+      await pickArea(p, 'Sharing')
+    },
     steps: [
       {
         target: p => modal(p).getByRole('button', { name: 'Create invite link' }),
@@ -88,6 +114,7 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
       only(p => block(p, /^Trip invite link/)),
+      // The row with Regenerate and Disable.
       only(p => modal(p).getByRole('button', { name: 'Regenerate' }).locator('xpath=..')),
     ],
     cleanup: async p => {
@@ -98,7 +125,7 @@ const SCRIPTS: Record<string, GuideScript> = {
   },
   'add-guest': {
     guide: guide('add-guest'),
-    start: openShare,
+    start: openSettings,
     steps: [
       only(p => block(p, /^Guests/)),
       {
@@ -109,7 +136,7 @@ const SCRIPTS: Record<string, GuideScript> = {
         target: p => modal(p).getByPlaceholder('Guest name').locator('xpath=..'),
         act: async p => {
           await modal(p).getByRole('button', { name: 'Add guest' }).click()
-          await expect(modal(p).getByText('Aunt Lise')).toBeVisible({ timeout: 15_000 })
+          await expect(block(p, /^Guests/).getByText('Aunt Lise', { exact: true })).toBeVisible({ timeout: 15_000 })
           await settle(p)
         },
       },
@@ -118,13 +145,26 @@ const SCRIPTS: Record<string, GuideScript> = {
   },
   'public-link': {
     guide: guide('public-link'),
-    start: openShare,
+    start: openSettings,
     steps: [
       {
+        target: p => area(p, 'Sharing'),
+        act: p => pickArea(p, 'Sharing'),
+      },
+      {
+        // The first row of chips: Map & Plan, Bookings, Packing, Costs, Chat.
         target: p => modal(p).getByRole('button', { name: 'Map & Plan' }).locator('xpath=..'),
         act: async p => {
-          await modal(p).getByRole('button', { name: 'Bookings', exact: true }).click()
-          await beat(p, 300)
+          await modal(p).getByRole('button', { name: 'Packing', exact: true }).click()
+          await expect(modal(p).getByRole('button', { name: 'Packing', exact: true })).toHaveAttribute('aria-pressed', 'true')
+          await settle(p)
+        },
+      },
+      {
+        // Options with its two chips; the pointer on the first shows what it leaves out.
+        target: p => modal(p).getByRole('button', { name: 'Travel & stays only' }).locator('xpath=../..'),
+        hover: async p => {
+          await modal(p).getByRole('button', { name: 'Travel & stays only' }).hover()
         },
       },
       {
@@ -143,16 +183,65 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
     ],
+    // The chips live in the dialog until a link is saved, and the link is gone again.
     cleanup: closeModal,
   },
   'transfer-ownership': {
     guide: guide('transfer-ownership'),
-    start: openShare,
+    start: openSettings,
     steps: [
       only(p => modal(p).getByRole('button', { name: 'Make owner' }).first()),
       only(p => modal(p).getByRole('button', { name: 'Leave trip' })),
     ],
     cleanup: closeModal,
+  },
+  'link-journal': {
+    guide: guide('link-journal'),
+    start: async p => {
+      await unlinkJournal(p)
+      await openSettings(p)
+    },
+    steps: [
+      {
+        target: p => area(p, 'Journal'),
+        act: async p => {
+          await pickArea(p, 'Journal')
+          await expect(modal(p).getByRole('button', { name: 'Link a journal' })).toBeVisible({ timeout: 15_000 })
+        },
+      },
+      {
+        target: p => modal(p).getByRole('button', { name: 'Link a journal' }),
+        act: async p => {
+          await modal(p).getByRole('button', { name: 'Link a journal' }).click()
+          await modal(p).getByRole('button', { name: 'Choose a journal' }).click()
+          // The select's list is rendered outside the dialog.
+          await p.getByRole('button', { name: JOURNEY_TITLE, exact: true }).last().click()
+          await expect(modal(p).getByText('Access for trip members', { exact: true })).toBeVisible({ timeout: 15_000 })
+          await settle(p)
+        },
+      },
+      {
+        // The heading row (Everyone can read / Nobody) and a row per person.
+        target: p => modal(p).getByText('Access for trip members', { exact: true }).locator('xpath=../..'),
+        act: async p => {
+          const edit = modal(p).getByRole('radio', { name: 'Edit' }).first()
+          await edit.click()
+          await expect(edit).toHaveAttribute('aria-checked', 'true')
+          await settle(p)
+        },
+      },
+      {
+        target: p => modal(p).getByRole('button', { name: 'Link journal', exact: true }),
+        act: async p => {
+          await modal(p).getByRole('button', { name: 'Link journal', exact: true }).click()
+          await expect(modal(p).getByText('Linked', { exact: true })).toBeVisible({ timeout: 15_000 })
+          await closeModal(p)
+          await expect(p.getByRole('button', { name: 'Journal', exact: true })).toBeVisible({ timeout: 15_000 })
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: unlinkJournal,
   },
   'collapse-columns': {
     guide: guide('collapse-columns'),
@@ -176,7 +265,29 @@ const SCRIPTS: Record<string, GuideScript> = {
       },
       {
         // The divider is invisible until hovered; the hover shows it.
-        target: p => p.locator('div[style*="col-resize"]').first(),
+        target: leftDivider,
+        // Out to a wider column and back again, so the loop ends where it began.
+        clip: async (p, frame) => {
+          const box = await leftDivider(p).boundingBox()
+          if (!box) throw new Error('the days column has no divider')
+          const x = box.x + box.width / 2
+          const y = box.y + box.height / 2
+          await p.mouse.move(x, y)
+          for (let i = 0; i < 3; i++) await frame()
+          await p.mouse.down()
+          for (let i = 1; i <= 16; i++) {
+            await p.mouse.move(x + (140 * i) / 16, y, { steps: 2 })
+            await frame()
+          }
+          for (let i = 0; i < 4; i++) await frame()
+          for (let i = 1; i <= 16; i++) {
+            await p.mouse.move(x + 140 - (140 * i) / 16, y, { steps: 2 })
+            await frame()
+          }
+          await p.mouse.up()
+          await p.waitForTimeout(300)
+          for (let i = 0; i < 3; i++) await frame()
+        },
       },
     ],
   },
@@ -205,7 +316,7 @@ const SCRIPTS: Record<string, GuideScript> = {
         target: p => p.getByRole('button', { name: 'Undo' }),
         act: async p => {
           await p.getByRole('button', { name: 'Undo' }).click()
-          await expect(p.getByRole('button', { name: 'Undo' })).toBeDisabled({ timeout: 15_000 })
+          await expect(p.getByText(/^Undone: /).first()).toBeVisible({ timeout: 15_000 })
           await settle(p)
         },
       },

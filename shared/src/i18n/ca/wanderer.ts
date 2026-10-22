@@ -15,7 +15,7 @@ const wanderer: TranslationStrings = {
   'wanderer.test.button': 'Prova la connexió',
   'wanderer.test.ok': 'Connectat.',
   'wanderer.test.okCount': 'Connectat. Pots importar {count} dels teus senders.',
-  'wanderer.test.okCount.one': 'Connectat. Pots importar {count} dels teus senders.',
+  'wanderer.test.okCount.one': 'Connectat. Pots importar {count} sender.',
   'wanderer.disconnect': 'Desconnecta',
   'wanderer.saved': 'Connexió amb wanderer desada',
   'wanderer.disconnected': 'Connexió amb wanderer eliminada',

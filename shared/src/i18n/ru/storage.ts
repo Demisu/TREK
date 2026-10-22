@@ -32,7 +32,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'Добавить бэкенд',
   'storage.backends.usedBy': 'Используется в: {categories}',
   'storage.backends.unused': 'Не назначен ни одной категории',
-  'storage.backends.envReadOnly': 'Определено переменной окружения — только для чтения',
+  'storage.backends.envReadOnly': 'Определено переменной окружения (только для чтения)',
   'storage.source.built-in': 'Встроенный',
   'storage.source.env': 'Окружение',
   'storage.source.settings': 'Настройки',

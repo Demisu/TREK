@@ -106,5 +106,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Bifoga bilder',
   'collab.chat.attachedImage': 'Bifogad bild',
   'collab.chat.closeImage': 'Stäng bild',
+  'collab.notes.categoryInUse':
+    'Anteckningar använder fortfarande den här kategorin. Flytta eller ta bort dem först, så kan kategorin tas bort.',
+  'collab.notes.categoriesLocalHint':
+    'En kategori utan anteckningar sparas bara i den här webbläsaren. Andra medlemmar ser den först när en anteckning använder den.',
 };
 export default collab;

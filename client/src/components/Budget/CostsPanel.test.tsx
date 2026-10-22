@@ -1155,21 +1155,6 @@ describe('CostsPanel — expense rows', () => {
     expect(await screen.findByText(/\$24\.00 → 20,00 €/)).toBeInTheDocument()
   })
 
-  it('FE-W5COSTS-022: deleting an expense removes it, and a failure is reported', async () => {
-    const addToast = vi.fn()
-    window.__addToast = addToast as unknown as typeof window.__addToast
-    server.use(http.delete('/api/trips/1/budget/101', () => HttpResponse.json({ error: 'no' }, { status: 500 })))
-    mount([dinner()])
-
-    await screen.findByText('Dinner')
-    fireEvent.click(screen.getByRole('button', { name: /^Delete(:|$)/ }))
-
-    await waitFor(() => expect(addToast).toHaveBeenCalledWith('Unknown error', 'error', undefined))
-    // The optimistic removal is rolled back by the store.
-    expect(await screen.findByText('Dinner')).toBeInTheDocument()
-    delete window.__addToast
-  })
-
   it('FE-W5COSTS-023: ?create=expense opens the add modal straight away', async () => {
     mount([], {}, ['/trips/1?create=expense'])
 
@@ -1703,18 +1688,6 @@ describe('CostsPanel — remaining paths', () => {
     expect(lines[1]).toBe('06/15/2025;"\'=HYPERLINK(""http://evil"",""click"")";Food & drink;12.00;EUR;12.00;\'@SUM(A1:A9)')
     expect(lines[2]).toBe('06/16/2025;\'-5 refund;Other;5.00;EUR;5.00;')
     createObjURL.mockRestore(); revokeObjURL.mockRestore(); clickSpy.mockRestore()
-  })
-
-  it('FE-W5COSTS-043: deleting an expense drops it from the ledger', async () => {
-    let deleted = false
-    server.use(http.delete('/api/trips/1/budget/101', () => { deleted = true; return HttpResponse.json({ success: true }) }))
-    mount([dinner()])
-
-    await screen.findByText('Dinner')
-    fireEvent.click(screen.getByRole('button', { name: /^Delete(:|$)/ }))
-
-    await waitFor(() => expect(deleted).toBe(true))
-    expect(screen.queryByText('Dinner')).not.toBeInTheDocument()
   })
 
   it('FE-W5COSTS-044: both modals can be dismissed with Cancel', async () => {

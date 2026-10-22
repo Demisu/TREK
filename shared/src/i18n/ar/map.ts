@@ -46,5 +46,6 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted.two': 'تعذّر حساب مرحلتين من هذا اليوم',
   'map.overview.dayUnrouted.few': 'تعذّر حساب {count} مراحل من هذا اليوم',
   'map.overview.dayUnrouted.many': 'تعذّر حساب {count} مرحلة من هذا اليوم',
+  'map.baseLayer.topo': 'طبوغرافية',
 };
 export default map;

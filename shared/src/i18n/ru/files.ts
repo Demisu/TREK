@@ -75,5 +75,10 @@ const files: TranslationStrings = {
     'Чтобы убрать эту привязку, нужно подключение. Попробуйте ещё раз, когда TREK снова будет онлайн.',
   'files.placeFilesNeedConnection':
     'Для загрузки файлов нужно подключение. Уберите новые, чтобы сохранить место офлайн, или сохраните, когда снова будете онлайн.',
+  'files.maxSize': 'Макс. {count} МБ',
+  'files.maxSize.one': 'Макс. {count} МБ',
+  'files.maxSize.few': 'Макс. {count} МБ',
+  'files.maxSize.many': 'Макс. {count} МБ',
+  'files.toast.starError': 'Не удалось изменить звёздочку',
 };
 export default files;

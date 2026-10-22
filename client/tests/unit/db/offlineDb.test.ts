@@ -358,6 +358,20 @@ describe('offlineDb — clearTripData', () => {
     expect(await offlineDb.tourStationVisits.get([81, 'stop-01'])).toMatchObject({ trip_id: 2 });
   });
 
+  it("takes the trip's cached tour draft with it, and leaves another trip its own", async () => {
+    await upsertTrip(makeTrip(1));
+    await upsertTrip(makeTrip(2));
+    await offlineDb.tourDrafts.bulkPut([
+      { tripId: 1, draft: { payload: '{"name":"One"}', updated_at: '2026-10-22 09:00:00' } },
+      { tripId: 2, draft: { payload: '{"name":"Two"}', updated_at: '2026-10-22 09:00:00' } },
+    ]);
+
+    await clearTripData(1);
+
+    expect(await offlineDb.tourDrafts.get(1)).toBeUndefined();
+    expect((await offlineDb.tourDrafts.get(2))?.draft.payload).toBe('{"name":"Two"}');
+  });
+
   it('preserves unsynced, conflicting and parked failed writes (#1135)', async () => {
     await upsertTrip(makeTrip(1));
     await offlineDb.mutationQueue.bulkPut([

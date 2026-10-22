@@ -69,5 +69,8 @@ const files: TranslationStrings = {
   'files.linkNeedsConnection': 'Retirer ce lien nécessite une connexion. Réessaie quand TREK sera de nouveau en ligne.',
   'files.placeFilesNeedConnection':
     'Les fichiers ont besoin d’une connexion pour être envoyés. Retire les nouveaux pour enregistrer le lieu hors ligne, ou enregistre une fois de nouveau en ligne.',
+  'files.maxSize': 'Max {count} Mo',
+  'files.maxSize.one': 'Max {count} Mo',
+  'files.toast.starError': "Impossible de modifier l'étoile",
 };
 export default files;

@@ -231,5 +231,6 @@ const budget: TranslationStrings = {
   'costs.receiptsNeedConnection':
     'Paragony wymagają połączenia do przesłania. Usuń nowe, aby zapisać wydatek offline, albo zapisz po powrocie online.',
   'costs.paymentQueued': 'Jesteś offline. Płatność została zapisana i pojawi się, gdy TREK znów będzie online.',
+  'costs.confirm.deleteBodyReceipts': '"{name}" zostanie trwale usunięty. Pliki jego paragonów pozostaną w Plikach.',
 };
 export default budget;

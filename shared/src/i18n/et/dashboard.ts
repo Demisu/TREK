@@ -222,5 +222,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'Päevade arv on kohustuslik',
   'dashboard.tripChangeNeedsConnection':
     'Kuupäevade, päevade arvu, valuuta või kaanepildi muutmiseks on vaja ühendust. Nime, kirjeldust ja meeldetuletust saab muuta ka võrguühenduseta.',
+  'dashboard.ics.enable': 'Lülita kalendri tellimus sisse',
+  'dashboard.ics.enableHint':
+    'Loob salajase lingi, mida saab sisselogimata lugeda igaüks, kellel see on. Selle saab igal ajal välja lülitada.',
+  'dashboard.ics.regenerate': 'Loo uuesti',
+  'dashboard.ics.turnOff': 'Lülita välja',
+  'dashboard.ics.manageHint':
+    'Uuesti loomine teeb uue lingi ja vana kaotab kehtivuse. Väljalülitamine keelab lingi täielikult.',
+  'dashboard.ics.addGoogle': 'Lisa Google’i kalendrisse',
+  'dashboard.ics.addApple': 'Lisa Apple’i kalendrisse / Outlooki',
+  'dashboard.ics.copyManually': 'Või kopeeri link käsitsi',
+  'dashboard.ics.pasteFromUrl': 'kleebi väljale „URL-ist“',
 };
 export default dashboard;

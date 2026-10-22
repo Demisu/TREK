@@ -65,10 +65,13 @@ export function useFileManager({ files = [], onUpload, onDelete, onUpdate, place
   }, [showTrash, loadTrash])
 
   const handleStar = async (fileId: number) => {
+    if (!can('file_edit', trip)) return
     try {
       await fileRepo.toggleStar(tripId, fileId)
       refreshFiles()
-    } catch { /* */ }
+    } catch (err) {
+      toast.error(translateApiError(t, err, 'files.toast.starError'))
+    }
   }
 
   const handleRestore = trash.restore
@@ -167,7 +170,7 @@ export function useFileManager({ files = [], onUpload, onDelete, onUpdate, place
   return {
     files, places, days, assignments, reservations, tripId, allowedFileTypes,
     uploading, filterType, setFilterType, lightboxIndex, setLightboxIndex,
-    showTrash, trashFiles, loadingTrash, toast, can, trip, t, locale,
+    showTrash, trashFiles, loadingTrash, toast, can, trip, t, locale, maxUploadMb,
     toggleTrash, refreshFiles, handleStar, handleRestore, handlePermanentDelete, handleEmptyTrash,
     previewFile, setPreviewFile, previewFileUrl, assignFileId, setAssignFileId,
     getRootProps, getInputProps, isDragActive, handlePaste, filteredFiles, handleDelete,

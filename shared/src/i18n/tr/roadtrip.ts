@@ -251,8 +251,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Kaçınma motoru bu etap için yanıt vermedi, bu yüzden ana motor çizdi. Kaçınma motoruna yeniden soruluyor.',
   'roadtrip.day': '{number}. gün',
-  'roadtrip.quietDay.empty': 'Henüz mola yok — buraya bırakın',
-  'roadtrip.quietDay.one': 'Şimdilik yalnızca {name} — buraya bir mola bırakın',
+  'roadtrip.quietDay.empty': 'Henüz mola yok, buraya bırakın',
+  'roadtrip.quietDay.one': 'Şimdilik yalnızca {name}, buraya bir mola bırakın',
   'roadtrip.leg.driveText': '{time} içinde {distance}',
   'roadtrip.day.stopCount': '{count} mola',
   'roadtrip.day.stopCount.one': '{count} mola',
@@ -335,5 +335,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Çıkış saatinden sonra hareket',
   'roadtrip.bookend.noVia':
     'Konaklama yerinize giden ya da oradan çıkan yola ara nokta konamaz. Bunun yerine oraya bir mola ekleyin.',
+  'roadtrip.stay.untilHint':
+    'Bu ziyaretin bitiş saati olduğu için {time} saatinde yola çıkılır. Bunun yerine kalış süresi belirlemek için açıp Bitiş saatini kaldır seçeneğini seçin.',
 };
 export default roadtrip;

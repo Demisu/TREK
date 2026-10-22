@@ -1,15 +1,20 @@
 import { test, expect, type Page, type Locator } from '@playwright/test'
-import { captureGuide, captureHero, beat, typeInto, settle, VIEWPORT, type GuideScript } from './guide'
-import { seededTrip, gpxFixture, ensureTrack } from './fixtures'
+import { captureGuide, captureHero, beat, typeInto, settle, dragLoop, VIEWPORT, type GuideScript } from './guide'
+import { seededTrip, gpxFixture } from './fixtures'
 import { openTrip, modal, dialog, confirmDialog } from './trip-shared'
+import { disconnectDawarich } from './external'
+import { ensureDawarichStays, undoDawarichStays, setTours } from './fixtures-trip-places'
 import { tripPlacesContext, tripPlacesGuides } from '../../src/help/contexts/tripPlaces'
 import type { HelpGuide } from '../../src/help/types'
 
 /**
  * Actions for the places column of a trip, keyed by the ids in
  * `src/help/contexts/tripPlaces.ts`. They run on the seeded "Autumn in Japan"
- * with one walk imported up front, so the Tracks filter exists; what a guide
- * creates it takes away again in `cleanup`, so the next one starts the same.
+ * with the Tours add-on on, as on every install: the column has the Places and
+ * Tours switch, no Import file and no Tracks filter. The file import is
+ * pictured with Tours off, and the Dawarich stays with a connection, each for
+ * its own guide only; what a guide creates or switches it takes back again in
+ * `cleanup`, so the next one starts the same.
  */
 
 const guide = (id: string): HelpGuide => {
@@ -38,15 +43,27 @@ const addButton = (page: Page) => page.getByRole('button', { name: /^(Add Place\
  */
 const head = (page: Page) =>
   page.getByRole('button', { name: 'Import Places' }).locator('xpath=ancestor::div[contains(@class,"flex-col")][1]')
-/** The import button's menu: Import file and the list import. */
+/** The list import's entry: List Import, Google List while Google is the only list provider. */
+const LIST_IMPORT = /^(Google List|List Import)$/
+/** The import button's menu: the list import, and Import file where Tours is off. */
 const importMenu = (page: Page) =>
-  page.locator('.trek-popover-enter').filter({ has: page.getByRole('button', { name: 'Import file' }) }).last()
-/** The Show dropdown (All, Unplanned, Planned, Tracks) and the list it opens. */
+  page.locator('.trek-popover-enter').filter({ has: page.getByRole('button', { name: LIST_IMPORT }) }).last()
+/** The Show dropdown (All, Unplanned, Planned; Tracks only with Tours off) and the list it opens. */
 const showTrigger = (page: Page) => head(page).getByRole('button', { name: 'Show', exact: true })
 const showList = (page: Page) => page.getByTestId('places-filter').locator('xpath=..')
-/** The category filter: a tag button whose list sits right after it. */
+/**
+ * The icon filters of the row: each a button whose list sits right after it
+ * (the Tooltip clones the button rather than wrapping it) and opens across the
+ * whole row.
+ */
+const listOf = (trigger: Locator) => trigger.locator('xpath=following-sibling::div[1]')
 const categoryTrigger = (page: Page) => head(page).getByRole('button', { name: 'Categories', exact: true })
-const categoryList = (page: Page) => categoryTrigger(page).locator('xpath=following-sibling::div[1]')
+const categoryList = (page: Page) => listOf(categoryTrigger(page))
+const ratingTrigger = (page: Page) => head(page).getByRole('button', { name: 'Filter by rating', exact: true })
+const ratingList = (page: Page) => listOf(ratingTrigger(page))
+/** Only there once the trip spans two countries or regions; the seed's Tokyo and Kyoto do. */
+const localityTrigger = (page: Page) => head(page).getByRole('button', { name: 'Filter by country or region', exact: true })
+const localityList = (page: Page) => listOf(localityTrigger(page))
 const searchBox = (page: Page) => head(page).getByPlaceholder('Search', { exact: true })
 /** The selection bar at the foot of the column, found by its delete action. */
 const selectionBar = (page: Page) => page.getByRole('button', { name: 'Delete selected' }).locator('xpath=..')
@@ -62,8 +79,32 @@ const column = (page: Page) => searchBox(page).locator('xpath=ancestor::div[cont
 
 async function createSpare(page: Page): Promise<void> {
   const { tripId } = seededTrip()
+  // A guide that failed before its cleanup left one behind; two rows of one name would confuse every step.
+  await deleteByName(page, SPARE.name)
   const created = await page.request.post(`/api/trips/${tripId}/places`, { data: SPARE })
   if (!created.ok()) throw new Error(`could not create the spare place: ${created.status()} ${await created.text()}`)
+}
+
+/**
+ * The country and region filter shows once the places lie in two regions or more,
+ * and the regions come from the Atlas, which looks them up in the background the
+ * first time its regions are asked for. Ask, then wait until two have come back.
+ */
+async function resolveRegions(page: Page): Promise<void> {
+  const { tripId } = seededTrip()
+  await page.request.get('/api/addons/atlas/regions')
+  await expect
+    .poll(
+      async () => {
+        const body = (await (await page.request.get(`/api/trips/${tripId}/places`)).json()) as
+          | { places?: { region_name?: string | null }[] }
+          | { region_name?: string | null }[]
+        const places = Array.isArray(body) ? body : (body.places ?? [])
+        return new Set(places.map(x => x.region_name).filter(Boolean)).size
+      },
+      { timeout: 120_000, intervals: [2_000] },
+    )
+    .toBeGreaterThan(1)
 }
 
 async function deleteByName(page: Page, ...names: string[]): Promise<void> {
@@ -86,7 +127,13 @@ const closeModal = async (page: Page): Promise<void> => {
 const only = (target: (p: Page) => Locator) => ({ target })
 
 const sortTrigger = (page: Page) => head(page).getByRole('button', { name: 'Sort by', exact: true })
-const sortList = (page: Page) => sortTrigger(page).locator('xpath=following-sibling::div[1]')
+const sortList = (page: Page) => listOf(sortTrigger(page))
+/** The day headers of the plan; their accessible name starts with the number. */
+const dayHeader = (page: Page, n: number) => page.getByRole('button', { name: new RegExp(`^${n} .*Day ${n} `) })
+/** The Dawarich panel on top of the list: its header, and the actions of its rows. */
+const dawarichHeader = (page: Page) => page.getByRole('button', { name: /From Dawarich/ })
+const stayAction = (page: Page, label: 'Add as a place' | 'Not a place I visited') =>
+  page.getByRole('button', { name: label, exact: true }).first()
 /** A name no index knows, so the search comes back empty and offers Add by hand. */
 const HANDMADE = { name: 'Kissaten Hoshizora Ura', phone: '+81 75 000 1234', email: 'hello@hoshizora.example' }
 
@@ -234,9 +281,9 @@ const SCRIPTS: Record<string, GuideScript> = {
     },
     steps: [
       {
-        target: p => p.getByRole('button', { name: /^1 .*Day 1 / }),
+        target: p => dayHeader(p, 1),
         act: async p => {
-          await p.getByRole('button', { name: /^1 .*Day 1 / }).click()
+          await dayHeader(p, 1).click()
           await expect(p.getByRole('button', { name: 'Add to the open day' })).toBeVisible()
           await settle(p)
         },
@@ -270,11 +317,14 @@ const SCRIPTS: Record<string, GuideScript> = {
           await settle(p)
         },
         target: p => row(p, SPARE.name),
-        dropTo: p => p.getByRole('button', { name: /^2 .*Day 2 / }).locator('xpath=..'),
-        act: async p => {
-          await row(p, SPARE.name).dragTo(p.getByRole('button', { name: /^2 .*Day 2 / }))
+        dropTo: p => dayHeader(p, 2).locator('xpath=..'),
+        // The gesture is the point of the step, so it also comes as a loop: the
+        // row leaves the column and lands on the Day 2 card.
+        clip: async (p, frame) => {
+          await dragLoop(p, row(p, SPARE.name), dayHeader(p, 2), frame)
           await expect(p.locator('.dp-row[role="button"]').filter({ hasText: SPARE.name }).first()).toBeVisible({ timeout: 15_000 })
           await settle(p)
+          for (let i = 0; i < 4; i++) await frame()
         },
       },
     ],
@@ -284,6 +334,7 @@ const SCRIPTS: Record<string, GuideScript> = {
     guide: guide('filter-places'),
     start: async p => {
       await createSpare(p)
+      await resolveRegions(p)
       await openTrip(p)
     },
     steps: [
@@ -325,9 +376,33 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
       {
-        prepare: async p => { await p.getByRole('button', { name: 'Filter by rating' }).click(); await beat(p, 300) },
-        target: p => p.getByRole('button', { name: 'Filter by rating' }),
-        act: async p => { await p.getByRole('button', { name: 'Filter by rating' }).click() },
+        // The list of floors, open: 5+ down to 1+ is what the step reads out.
+        prepare: async p => {
+          await ratingTrigger(p).click()
+          await expect(ratingList(p)).toBeVisible()
+          await beat(p, 300)
+        },
+        target: ratingList,
+        // The lists close on a second click of their trigger.
+        act: async p => {
+          await ratingTrigger(p).click()
+          await expect(ratingList(p)).toHaveCount(0)
+          await settle(p)
+        },
+      },
+      {
+        // Countries with their regions under them, each with its count.
+        prepare: async p => {
+          await localityTrigger(p).click()
+          await expect(localityList(p)).toBeVisible()
+          await beat(p, 300)
+        },
+        target: localityList,
+        act: async p => {
+          await localityTrigger(p).click()
+          await expect(localityList(p)).toHaveCount(0)
+          await settle(p)
+        },
       },
     ],
     cleanup: p => deleteByName(p, SPARE.name),
@@ -421,7 +496,11 @@ const SCRIPTS: Record<string, GuideScript> = {
   },
   'import-places-file': {
     guide: guide('import-places-file'),
-    start: p => openTrip(p),
+    // Import file is only in the menu of an install with the Tours add-on off.
+    start: async p => {
+      await setTours(p.request, false)
+      await openTrip(p)
+    },
     steps: [
       {
         prepare: async p => {
@@ -455,7 +534,10 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
     ],
-    cleanup: p => deleteByName(p, 'Arashiyama loop', 'Togetsukyo Bridge', 'Okochi Sanso Villa'),
+    cleanup: async p => {
+      await deleteByName(p, 'Arashiyama loop', 'Togetsukyo Bridge', 'Okochi Sanso Villa')
+      await setTours(p.request, true)
+    },
   },
   'import-places-list': {
     guide: guide('import-places-list'),
@@ -467,10 +549,10 @@ const SCRIPTS: Record<string, GuideScript> = {
           await expect(importMenu(p)).toBeVisible()
           await beat(p, 300)
         },
-        // Google List while Google is the only list provider, List Import once Naver is on too.
-        target: p => importMenu(p).getByRole('button', { name: /^(Google List|List Import)$/ }),
+        // With Tours on, the list import is the menu's only entry.
+        target: p => importMenu(p).getByRole('button', { name: LIST_IMPORT }),
         act: async p => {
-          await importMenu(p).getByRole('button', { name: /^(Google List|List Import)$/ }).click()
+          await importMenu(p).getByRole('button', { name: LIST_IMPORT }).click()
           await expect(listImportDialog(p)).toBeVisible()
           await settle(p)
         },
@@ -492,14 +574,69 @@ const SCRIPTS: Record<string, GuideScript> = {
       }
     },
   },
+  'dawarich-stays': {
+    guide: guide('dawarich-stays'),
+    // Connected for this guide only: while it is, the panel heads the column in
+    // every picture, and the other guides of this screen do not show it.
+    start: async p => {
+      await ensureDawarichStays(p.request, seededTrip().tripId)
+      await openTrip(p)
+      await expect(dawarichHeader(p)).toBeVisible({ timeout: 30_000 })
+    },
+    steps: [
+      {
+        target: dawarichHeader,
+        act: async p => {
+          await dawarichHeader(p).click()
+          await expect(stayAction(p, 'Add as a place')).toBeVisible({ timeout: 15_000 })
+          await settle(p)
+        },
+      },
+      {
+        // The first stay's button; the frame shows its row and the day above it.
+        target: p => stayAction(p, 'Add as a place'),
+        act: async p => {
+          await stayAction(p, 'Add as a place').click()
+          await expect(modal(p).locator('#dawarich-accept-name')).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        target: dialog,
+        act: async p => {
+          const name = await modal(p).locator('#dawarich-accept-name').inputValue()
+          await modal(p).getByRole('button', { name: 'Add place', exact: true }).click()
+          await expect(modal(p)).toHaveCount(0, { timeout: 15_000 })
+          await expect(row(p, name)).toBeVisible({ timeout: 20_000 })
+          await settle(p)
+        },
+      },
+      {
+        target: p => stayAction(p, 'Not a place I visited'),
+        act: async p => {
+          await stayAction(p, 'Not a place I visited').click()
+          await expect(p.getByRole('button', { name: /^Show \d+ already dealt with$/ })).toBeVisible({ timeout: 15_000 })
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: async p => {
+      await undoDawarichStays(p.request, seededTrip().tripId)
+      await disconnectDawarich(p.request)
+    },
+  },
 }
 
 // ── Run ───────────────────────────────────────────────────────────────────────
 
 test.describe.configure({ mode: 'serial' })
 
-test.beforeAll(async ({ request }) => {
-  await ensureTrack(request, seededTrip().tripId, 'kyoto-walk')
+test.afterAll(async ({ request }) => {
+  // Instance-wide, and a guide that fails never reaches its cleanup: Tours back
+  // on, as on every install, and Dawarich off, so its panel on top of the places
+  // list does not ride into the pictures of the files after this one.
+  await setTours(request, true)
+  await disconnectDawarich(request)
 })
 
 test('every registered places guide has a script, and only those', async () => {
@@ -513,6 +650,8 @@ test('hero: trip-places', async ({ page }) => {
 
 for (const id of tripPlacesContext.guides) {
   test(`pictures: ${id}`, async ({ page }) => {
+    // Dawarich: a recording to upload and a check of the trip's dates first.
+    if (id === 'dawarich-stays') test.slow()
     await page.setViewportSize(VIEWPORT)
     await captureGuide(page, SCRIPTS[id])
   })

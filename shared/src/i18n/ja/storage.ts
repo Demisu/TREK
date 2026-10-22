@@ -32,7 +32,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'バックエンドを追加',
   'storage.backends.usedBy': '使用中: {categories}',
   'storage.backends.unused': 'どのカテゴリにも割り当てられていません',
-  'storage.backends.envReadOnly': '環境変数で定義されています — 読み取り専用',
+  'storage.backends.envReadOnly': '環境変数で定義されています（読み取り専用）',
   'storage.source.built-in': '組み込み',
   'storage.source.env': '環境変数',
   'storage.source.settings': '設定',

@@ -32,5 +32,7 @@ const notifications: TranslationStrings = {
   'notifications.versionAvailable.title': '有可用更新',
   'notifications.versionAvailable.text': 'TREK {version} 現已推出。',
   'notifications.versionAvailable.button': '查看詳情',
+  'notifications.deleteAllConfirmTitle': '刪除所有通知？',
+  'notifications.deleteAllConfirmText': '所有通知將被永久刪除，且無法復原。',
 };
 export default notifications;

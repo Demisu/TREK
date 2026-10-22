@@ -33,7 +33,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'Προσθήκη backend',
   'storage.backends.usedBy': 'Χρησιμοποιείται από: {categories}',
   'storage.backends.unused': 'Δεν έχει ανατεθεί σε καμία κατηγορία',
-  'storage.backends.envReadOnly': 'Ορίζεται από μεταβλητή περιβάλλοντος — μόνο για ανάγνωση',
+  'storage.backends.envReadOnly': 'Ορίζεται από μεταβλητή περιβάλλοντος (μόνο για ανάγνωση)',
   'storage.source.built-in': 'Ενσωματωμένο',
   'storage.source.env': 'Περιβάλλον',
   'storage.source.settings': 'Ρυθμίσεις',

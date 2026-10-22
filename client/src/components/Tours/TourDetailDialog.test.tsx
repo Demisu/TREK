@@ -14,6 +14,11 @@ import { tourRepo } from '../../repo/tourRepo'
 vi.mock('../../../../server/src/config', () => { throw new Error('Config initialization is forbidden in client tests') })
 vi.mock('../../../../server/src/db/database', () => { throw new Error('Legacy database imports are forbidden in client tests') })
 vi.mock('better-sqlite3', () => { throw new Error('SQLite imports are forbidden in client tests') })
+vi.mock('./bike/BikeWaysCard', () => ({
+  BikeWaysView: (props: { route: unknown[] | null; bikeProfile: string | null | undefined; active: boolean }) => (
+    <div data-testid="bike-ways-view" data-profile={String(props.bikeProfile)} data-points={props.route?.length ?? 0} data-active={String(props.active)} />
+  ),
+}))
 
 const place = buildPlace({
   id: 42,
@@ -114,6 +119,17 @@ describe('TourDetailDialog', () => {
     expect(screen.getByText('Bring water')).toBeInTheDocument()
     expect(screen.queryByText('Opening Hours')).not.toBeInTheDocument()
     expect(screen.queryByText('Participants')).not.toBeInTheDocument()
+  })
+
+  it('a bike tour carries its surfaces and ways on the Plan tab, a hike does not', () => {
+    const { unmount } = render(<TourDetailDialog {...defaultProps} />)
+    expect(screen.queryByTestId('bike-ways-view')).not.toBeInTheDocument()
+    unmount()
+    render(<TourDetailDialog {...defaultProps} tour={{ ...tour, tour_type: 'bike', bike_profile: 'road' }} />)
+    const card = screen.getByTestId('bike-ways-view')
+    expect(card).toHaveAttribute('data-profile', 'road')
+    expect(card).toHaveAttribute('data-points', '3')
+    expect(card).toHaveAttribute('data-active', 'true')
   })
 
   it('RS-01: shows Tour description and opens the classified HTTPS information link without fetching it', () => {

@@ -285,8 +285,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Маршрутизатор обхода не ответил для этого участка, поэтому его нарисовал основной маршрутизатор. Маршрутизатор обхода запрашивается снова.',
   'roadtrip.day': 'День {number}',
-  'roadtrip.quietDay.empty': 'Остановок пока нет — перетащите сюда',
-  'roadtrip.quietDay.one': 'Пока только {name} — перетащите сюда остановку',
+  'roadtrip.quietDay.empty': 'Остановок пока нет, перетащите сюда',
+  'roadtrip.quietDay.one': 'Пока только {name}, перетащите сюда остановку',
   'roadtrip.leg.driveText': '{distance} за {time}',
   'roadtrip.day.stopCount': '{count} остановки',
   'roadtrip.day.stopCount.one': '{count} остановка',
@@ -377,5 +377,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Отъезд позже расчётного часа',
   'roadtrip.bookend.noVia':
     'На маршрут до места проживания или от него нельзя поставить промежуточную точку. Добавьте там остановку.',
+  'roadtrip.stay.untilHint':
+    'Выезд в {time}, потому что у этого визита есть время окончания. Откройте его и выберите «Удалить время окончания», чтобы задать длительность остановки.',
 };
 export default roadtrip;

@@ -266,5 +266,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'Dosyaların yüklenmesi için bağlantı gerekir. Rezervasyonu çevrimdışı kaydetmek için yenilerini kaldır ya da tekrar çevrimiçi olduğunda kaydet.',
   'reservations.needsConnection': 'Bunun için bağlantı gerekiyor. TREK yeniden çevrimiçi olduğunda tekrar dene.',
+  'reservations.exportCsvFiltered': 'Gösterilen {total} satırdan {shown} tanesini dışa aktar (CSV)',
 };
 export default reservations;

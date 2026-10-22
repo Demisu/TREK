@@ -15,7 +15,7 @@ const wanderer: TranslationStrings = {
   'wanderer.test.button': 'Verbindung testen',
   'wanderer.test.ok': 'Verbunden.',
   'wanderer.test.okCount': 'Verbunden. Du kannst {count} deiner Trails importieren.',
-  'wanderer.test.okCount.one': 'Verbunden. Du kannst {count} deiner Trails importieren.',
+  'wanderer.test.okCount.one': 'Verbunden. Du kannst {count} Trail importieren.',
   'wanderer.disconnect': 'Trennen',
   'wanderer.saved': 'wanderer-Verbindung gespeichert',
   'wanderer.disconnected': 'wanderer-Verbindung entfernt',

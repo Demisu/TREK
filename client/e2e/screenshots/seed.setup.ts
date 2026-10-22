@@ -2,6 +2,7 @@ import { test as setup, expect } from '@playwright/test'
 import { writeFileSync, mkdirSync } from 'node:fs'
 import path from 'node:path'
 import { seedDemoData } from './seed'
+import { ensureShowcase } from '../help/showcase'
 import { E2E_BASE_URL, E2E_SEED_FILE } from '../../playwright.config'
 
 /**
@@ -28,6 +29,10 @@ setup('seed the demo trip', async ({ page, playwright }) => {
       extraHTTPHeaders: token ? { Authorization: `Bearer ${token}` } : {},
     }),
   )
+
+  // The other trips with covers, places and the bookings ahead, so the
+  // dashboard and the lists around the seeded trip look lived in.
+  await ensureShowcase(page.request)
 
   expect(result.tripId, 'trip was created').toBeTruthy()
   expect(result.placeIds.length, 'places were created').toBeGreaterThan(0)

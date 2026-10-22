@@ -38,7 +38,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'Lisa taustsüsteem',
   'storage.backends.usedBy': 'Kasutavad: {categories}',
   'storage.backends.unused': 'Pole määratud ühelegi kategooriale',
-  'storage.backends.envReadOnly': 'Määratud keskkonnamuutujaga — ainult lugemiseks',
+  'storage.backends.envReadOnly': 'Määratud keskkonnamuutujaga (ainult lugemiseks)',
   'storage.source.built-in': 'Sisseehitatud',
   'storage.source.env': 'Keskkond',
   'storage.source.settings': 'Seaded',

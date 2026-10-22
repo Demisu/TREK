@@ -97,9 +97,9 @@ describe('JourneyShareSection', () => {
     render(<JourneyShareSection journeyId={JOURNEY_ID} />)
 
     const timeline = await screen.findByRole('button', { name: 'Timeline' })
-    expect(timeline.className).toContain('bg-zinc-900')
-    expect(screen.getByRole('button', { name: 'Map' }).className).toContain('bg-zinc-900')
-    expect(screen.getByRole('button', { name: 'Gallery' }).className).not.toContain('bg-zinc-900')
+    expect(timeline.className).toContain('bg-accent')
+    expect(screen.getByRole('button', { name: 'Map' }).className).toContain('bg-accent')
+    expect(screen.getByRole('button', { name: 'Gallery' }).className).not.toContain('bg-accent')
     // The state is said, not only shown (#2604).
     expect(timeline).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('button', { name: 'Gallery' })).toHaveAttribute('aria-pressed', 'false')
@@ -140,7 +140,7 @@ describe('JourneyShareSection', () => {
 
     await waitFor(() => expect(bodies).toHaveLength(1))
     expect(bodies[0]).toEqual({ share_timeline: true, share_gallery: true, share_map: true })
-    expect(screen.getByRole('button', { name: 'Gallery' }).className).toContain('bg-zinc-900')
+    expect(screen.getByRole('button', { name: 'Gallery' }).className).toContain('bg-accent')
   })
 
   it('FE-JRN-SHARE-008: reverts the toggle when the update request fails', async () => {
@@ -156,7 +156,7 @@ describe('JourneyShareSection', () => {
     await waitFor(() => {
       expect(toastSpy).toHaveBeenCalledWith('Failed to update', 'error', undefined)
     })
-    expect(screen.getByRole('button', { name: 'Timeline' }).className).toContain('bg-zinc-900')
+    expect(screen.getByRole('button', { name: 'Timeline' }).className).toContain('bg-accent')
   })
 
   it('FE-JRN-SHARE-009: deleting the link returns to the create state', async () => {

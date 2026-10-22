@@ -180,6 +180,16 @@ describe('the unfolded tour in the list', () => {
     expect(onOpenStage).toHaveBeenCalledWith(TOUR, 'stop-hut');
   });
 
+  it('FE-TOUR-STAGE-OVERVIEW-015: Escape closes the day menu of a stage', async () => {
+    seed();
+    render(<TourStageOverview id="stages" tripId={9} tour={TOUR} days={DAYS} canAssign />);
+    const items = await screen.findAllByTestId('tour-stage-item');
+    await userEvent.click(within(items[1]).getByTestId('tour-stage-day'));
+    expect(await screen.findByText('Day 2')).toBeInTheDocument();
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByText('Day 2')).toBeNull());
+  });
+
   it('FE-TOUR-STAGE-OVERVIEW-008: who may not change the days sees the day without a menu and no way to open', async () => {
     seed();
     render(<TourStageOverview id="stages" tripId={9} tour={TOUR} days={DAYS} canAssign={false} />);

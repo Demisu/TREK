@@ -36,5 +36,6 @@ const map: TranslationStrings = {
   'map.attribution': 'เครดิตแผนที่',
   'map.overview.unrouted': 'มี {count} ช่วงที่คำนวณเส้นทางไม่ได้ ระยะทางจึงไม่ครบถ้วน',
   'map.overview.dayUnrouted': 'มี {count} ช่วงของวันนี้ที่คำนวณเส้นทางไม่ได้',
+  'map.baseLayer.topo': 'ภูมิประเทศ',
 };
 export default map;

@@ -65,12 +65,12 @@ export default function MAdminNotificationsSection({ admin, t }: MAdminNotificat
             ))}
           <MAdminRow
             first
-            title="Skip TLS certificate check"
-            hint="Enable for self-signed certificates on local mail servers"
+            title={t('admin.smtp.skipTls')}
+            hint={t('admin.smtp.skipTlsHint')}
             trailing={
               <MToggle
                 checked={smtpValues.smtp_skip_tls_verify === 'true'}
-                ariaLabel="Skip TLS certificate check"
+                ariaLabel={t('admin.smtp.skipTls')}
                 onChange={(v) => setSmtpValues((prev) => ({ ...prev, smtp_skip_tls_verify: v ? 'true' : 'false' }))}
               />
             }

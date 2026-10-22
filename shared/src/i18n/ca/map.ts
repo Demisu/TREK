@@ -39,5 +39,6 @@ const map: TranslationStrings = {
   'map.overview.unrouted.one': 'No s’ha pogut calcular {count} tram, per això les distàncies són incompletes.',
   'map.overview.dayUnrouted': 'No s’han pogut calcular {count} trams d’aquest dia',
   'map.overview.dayUnrouted.one': 'No s’ha pogut calcular {count} tram d’aquest dia',
+  'map.baseLayer.topo': 'Topogràfic',
 };
 export default map;

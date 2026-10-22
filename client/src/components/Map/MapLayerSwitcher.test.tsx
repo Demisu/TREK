@@ -276,12 +276,12 @@ describe('TourMapLayerSwitcher piste switch (SKI-01)', () => {
     expect(key).toHaveAccessibleName('Piste key')
   })
 
-  it('FE-COMP-MAPLAYER-023: a piste source that stopped answering shows the warning badge, says so, and hides the key', async () => {
+  it('FE-COMP-MAPLAYER-023: a piste source that stopped answering shows the warning badge, says so, and keeps the key readable', async () => {
     render(<TourMapLayerSwitcher active="default" onChange={() => {}} layers={{ overlays: [pisteOverlay({ active: true, status: 'down' })] }} />)
     const toggle = screen.getByRole('button', { name: 'Pistes, cross-country trails and lifts' })
     expect(toggle).toHaveAttribute('data-status', 'down')
     expect(toggle).toHaveTextContent('!')
-    expect(screen.queryByTestId('piste-key-button')).toBeNull()
+    expect(screen.getByTestId('piste-key-button')).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('Pistes are not loading. The map and your route still work.')
     fireEvent.mouseEnter(toggle)
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Pistes are not loading.')

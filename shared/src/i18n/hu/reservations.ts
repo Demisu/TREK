@@ -268,5 +268,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'A fájlok feltöltéséhez kapcsolat kell. Távolítsd el az újakat, hogy offline mentsd a foglalást, vagy ments, amikor újra online vagy.',
   'reservations.needsConnection': 'Ehhez kapcsolat kell. Próbáld újra, amint a TREK újra online lesz.',
+  'reservations.exportCsvFiltered': 'A megjelenített {shown} sor exportálása a(z) {total} közül (CSV)',
 };
 export default reservations;

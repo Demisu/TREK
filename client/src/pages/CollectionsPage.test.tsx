@@ -62,6 +62,7 @@ function makeHook(overrides: Record<string, unknown> = {}) {
     categories: [],
     collections: [{ id: 1, name: 'Test', is_owner: true }],
     ownedLists: [{ id: 1, name: 'Test', is_owner: true }],
+    writableLists: [{ id: 1, name: 'Test', is_owner: true }],
     sharedLists: [],
     activeCollection: { id: 1, name: 'Test', is_owner: true, color: '#6366f1' },
     isAllSaved: false,

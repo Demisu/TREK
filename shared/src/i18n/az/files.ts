@@ -81,6 +81,9 @@ const files: TranslationStrings = {
     'Bu əlaqəni silmək üçün bağlantı lazımdır. TREK yenidən onlayn olduqda bir daha cəhd edin.',
   'files.placeFilesNeedConnection':
     'Faylları yükləmək üçün bağlantı lazımdır. Məkanı oflayn saxlamaq üçün yeni faylları silin və ya yenidən onlayn olduqda saxlayın.',
+  'files.maxSize': 'Maks. {count} MB',
+  'files.maxSize.one': 'Maks. {count} MB',
+  'files.toast.starError': 'Ulduz dəyişdirilə bilmədi',
 };
 
 export default files;

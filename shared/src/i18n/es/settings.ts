@@ -136,7 +136,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Crear token',
   'settings.mcp.modal.createdTitle': 'Token creado',
   'settings.mcp.modal.createdWarning':
-    'Este token solo se mostrará una vez. Cópialo y guárdalo ahora — no se podrá recuperar.',
+    'Este token solo se mostrará una vez. Cópialo y guárdalo ahora: no se podrá recuperar.',
   'settings.mcp.modal.done': 'Listo',
   'settings.mcp.toast.created': 'Token creado',
   'settings.mcp.toast.createError': 'Error al crear el token',
@@ -178,14 +178,14 @@ const settings: TranslationStrings = {
     'Un URI por línea. HTTPS, HTTP de bucle local o un esquema propio de la aplicación (myapp://). Coincidencia exacta, excepto el puerto de bucle local.',
   'settings.oauth.modal.scopes': 'Ámbitos permitidos',
   'settings.oauth.modal.scopesHint':
-    'list_trips y get_trip_summary siempre están disponibles — sin ámbito requerido. Permiten a la IA descubrir los IDs de viaje necesarios.',
+    'list_trips y get_trip_summary siempre están disponibles: sin ámbito requerido. Permiten a la IA descubrir los IDs de viaje necesarios.',
   'settings.oauth.modal.selectAll': 'Seleccionar todo',
   'settings.oauth.modal.deselectAll': 'Deseleccionar todo',
   'settings.oauth.modal.creating': 'Registrando…',
   'settings.oauth.modal.create': 'Registrar cliente',
   'settings.oauth.modal.createdTitle': 'Cliente registrado',
   'settings.oauth.modal.createdWarning':
-    'El secreto del cliente solo se muestra una vez. Cópielo ahora — no se puede recuperar.',
+    'El secreto del cliente solo se muestra una vez. Cópielo ahora: no se puede recuperar.',
   'settings.oauth.toast.createError': 'Error al registrar el cliente OAuth',
   'settings.oauth.toast.deleted': 'Cliente OAuth eliminado',
   'settings.oauth.toast.deleteError': 'Error al eliminar el cliente OAuth',
@@ -243,7 +243,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Eliminar cuenta',
   'settings.deleteAccountTitle': '¿Eliminar tu cuenta?',
   'settings.deleteAccountWarning':
-    'Tu cuenta y todos tus viajes, lugares y archivos se eliminarán permanentemente. Esta acción no se puede deshacer.',
+    'Tu cuenta y todos los viajes, diarios, lugares y archivos que posees se eliminarán de forma permanente, incluidos los viajes compartidos con otros miembros, que perderán el acceso. Los viajes de otras personas se conservan y se te elimina de ellos. Esta acción no se puede deshacer.',
   'settings.deleteAccountConfirm': 'Eliminar permanentemente',
   'settings.deleteBlockedTitle': 'No es posible eliminarla',
   'settings.deleteBlockedMessage':
@@ -355,7 +355,7 @@ const settings: TranslationStrings = {
   'settings.webPush.failed': 'No se pudo activar push en este dispositivo.',
   'settings.currency': 'Moneda de visualización',
   'settings.currencyHint':
-    'Los importes en Costes se muestran convertidos a esta moneda solo a efectos de visualización — los importes originales no se modifican.',
+    'Los importes en Costes se muestran convertidos a esta moneda solo a efectos de visualización; los importes originales no se modifican.',
   'settings.currencyTrip': 'Moneda del viaje',
   'settings.placeLanguage': 'Nombres de lugares',
   'settings.placeLanguageApp': 'Igual que la app',
@@ -532,7 +532,7 @@ const settings: TranslationStrings = {
     'El modo offline está activado: tus cambios están en cola y se sincronizarán cuando lo desactives.',
   'settings.offline.prepare.title': 'Prepárate para estar offline',
   'settings.offline.prepare.hint':
-    'Descarga todo lo que necesitas —datos del viaje, documentos y mosaicos del mapa— antes de perder la conexión.',
+    'Descarga todo lo que necesitas (datos del viaje, documentos y mosaicos del mapa) antes de perder la conexión.',
   'settings.offline.prepare.button': 'Descargar para uso offline',
   'settings.offline.prepare.running': 'Descargando…',
   'settings.offline.prepare.done': 'Listo para usar offline',
@@ -605,7 +605,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'Mostrar siempre las rutas de reserva',
   'settings.alwaysShowRoutesHint':
     'Muestra automáticamente en el mapa la ruta de cada vuelo, tren y otra reserva, sin necesidad de activarla una por una.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Qué puede leer esta clave',
@@ -649,7 +648,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'No se pudo copiar. Selecciona el texto y cópialo a mano.',
   'settings.apiKeys.modal.createTitle': 'Crear clave API',
   'settings.apiKeys.modal.name': 'Nombre',
-  'settings.apiKeys.modal.namePlaceholder': 'p. ej. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'p. ej. Panel de casa',
   'settings.apiKeys.modal.nameHint': 'Solo para ti, para que reconozcas la clave más adelante.',
   'settings.apiKeys.modal.creating': 'Creando...',
   'settings.apiKeys.modal.create': 'Crear',
@@ -657,6 +656,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Copia la clave ahora. Se muestra una sola vez y no se puede recuperar después.',
   'settings.apiKeys.modal.done': 'Listo',
+  'settings.mcp.deprecated': 'Obsoleto',
+  'settings.offline.cache.dateRange': 'del {start} al {end}',
 };
 
 export default settings;

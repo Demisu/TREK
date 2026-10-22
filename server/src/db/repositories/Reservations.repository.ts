@@ -8,6 +8,23 @@ import type { DayAssignmentRow } from './day-assignment-rows';
 import { TrekRepository } from './_shared/trek-repository';
 import type { DB } from '../kysely/db';
 import { ROADTRIP_RESERVATION_TYPES } from '@trek/shared';
+import type {
+  PublicApiAccommodationKyselyDB,
+  PublicApiAccommodationRow,
+  PublicApiReservationKyselyDB,
+  PublicApiScheduledReservationRow,
+  PublicApiUnplannedPlaceKyselyDB,
+  PublicApiUnplannedPlaceRow,
+  PublicApiUnscheduledReservationRow,
+} from './reservation-public-api-rows';
+
+// The public API row types moved to their own module; re-exported so callers keep one import path.
+export type {
+  PublicApiAccommodationRow,
+  PublicApiScheduledReservationRow,
+  PublicApiUnplannedPlaceRow,
+  PublicApiUnscheduledReservationRow,
+};
 
 /**
  * RS18/RR1's shared joined projection — `SELECT r.*, d.day_number, p.name as
@@ -353,81 +370,6 @@ export interface SharePublicAccommodationRow {
 }
 
 type SharePublicAccommodationKyselyDB = ReservationVisibilityKyselyDB & Pick<DB, 'day_accommodations' | 'places'>;
-
-/**
- * `public-api.service.ts::reservationsByDay` (Task 5's `// Task 2` pickup)
- * — `SELECT day_id, type, title, location, reservation_time,
- * reservation_end_time, status, notes FROM reservations WHERE trip_id = ?
- * AND day_id IS NOT NULL ORDER BY day_id ASC, reservation_time ASC`.
- */
-export interface PublicApiScheduledReservationRow {
-  day_id: number;
-  type: string | null;
-  title: string | null;
-  location: string | null;
-  reservation_time: string | null;
-  reservation_end_time: string | null;
-  status: string | null;
-  notes: string | null;
-}
-
-/**
- * `public-api.service.ts::buildUnscheduledReservations` (Task 5's `// Task
- * 2` pickup) — the same 7 columns minus `day_id`, `WHERE trip_id = ? AND
- * day_id IS NULL ORDER BY reservation_time ASC, id ASC`.
- */
-export type PublicApiUnscheduledReservationRow = Omit<PublicApiScheduledReservationRow, 'day_id'>;
-
-type PublicApiReservationKyselyDB = Pick<DB, 'reservations'>;
-
-/**
- * `public-api.service.ts::buildAccommodations` (Task 5's `// Task 3`
- * pickup) — `SELECT p.name, p.address, p.lat, p.lng, ds.date AS start_date,
- * de.date AS end_date, a.check_in, a.check_out, a.notes FROM
- * day_accommodations a LEFT JOIN places p ON p.id = a.place_id LEFT JOIN
- * days ds ON ds.id = a.start_day_id LEFT JOIN days de ON de.id =
- * a.end_day_id WHERE a.trip_id = ? ORDER BY ds.date ASC`.
- */
-export interface PublicApiAccommodationRow {
-  name: string | null;
-  address: string | null;
-  lat: number | null;
-  lng: number | null;
-  start_date: string | null;
-  end_date: string | null;
-  check_in: string | null;
-  check_out: string | null;
-  notes: string | null;
-}
-
-type PublicApiAccommodationKyselyDB = Pick<DB, 'day_accommodations' | 'places' | 'days'>;
-
-/**
- * `public-api.service.ts::buildUnplannedPlaces` (Task 5's `// Task 3`
- * pickup — "the whole statement stays raw rather than splitting the
- * places/day_assignments reads from the one 3d-table predicate", the
- * method's own comment) — `SELECT p.name, p.address, p.lat, p.lng,
- * p.place_time, p.end_time, p.duration_minutes, p.notes, p.transport_mode,
- * c.name AS category FROM places p LEFT JOIN categories c ON c.id =
- * p.category_id WHERE p.trip_id = ? AND NOT EXISTS (SELECT 1 FROM
- * day_assignments da WHERE da.place_id = p.id) AND NOT EXISTS (SELECT 1
- * FROM day_accommodations a WHERE a.place_id = p.id) ORDER BY
- * p.created_at ASC, p.id ASC`.
- */
-export interface PublicApiUnplannedPlaceRow {
-  name: string;
-  address: string | null;
-  lat: number | null;
-  lng: number | null;
-  place_time: string | null;
-  end_time: string | null;
-  duration_minutes: number | null;
-  notes: string | null;
-  transport_mode: string | null;
-  category: string | null;
-}
-
-type PublicApiUnplannedPlaceKyselyDB = Pick<DB, 'places' | 'categories' | 'day_assignments' | 'day_accommodations'>;
 
 /**
  * Plan 3h Task 4 (`AirportsService.backfillFlightEndpoints`, AIR1) —
@@ -778,7 +720,8 @@ export class ReservationsRepository extends TrekRepository<Reservations> {
       location: null,
       confirmation_number: input.confirmation_number,
       notes: input.notes,
-      status: 'confirmed',
+      // A stay without a confirmation number is not a confirmed booking yet.
+      status: input.confirmation_number ? 'confirmed' : 'pending',
       type: 'hotel',
       accommodation_id: input.accommodation_id,
       metadata: input.metadata,
@@ -821,6 +764,16 @@ export class ReservationsRepository extends TrekRepository<Reservations> {
       })
       .where({ id })
       .execute('run');
+  }
+
+  /** A pending hotel booking turns confirmed once its stay gets a confirmation number; other statuses stay. */
+  async confirmIfPending(id: number): Promise<void> {
+    await this.kysely<ReservationsByAccommodationKyselyDB>()
+      .updateTable('reservations')
+      .set({ status: 'confirmed' })
+      .where('id', '=', id)
+      .where('status', '=', 'pending')
+      .execute();
   }
 
   /**

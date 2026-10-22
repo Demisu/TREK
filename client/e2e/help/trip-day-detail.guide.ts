@@ -22,7 +22,10 @@ const guide = (id: string): HelpGuide => {
 /** The name the rename guide gives day 5, and takes away again. */
 const DAY_NAME = 'Arrival in Kyoto'
 
-/** The panel itself: the only `fixed z-50` in the client. */
+/**
+ * The panel itself. PageSidebar's drawer is `fixed z-50` too, but it is
+ * `lg:hidden` and never on screen at the pictures' width.
+ */
 const panel = (page: Page) => page.locator('div.fixed.z-50')
 /** A day's header in the days column; its name is number, weather, title, date. */
 const dayHeader = (page: Page, n: number) => page.getByRole('button', { name: new RegExp(`^${n} .*Day ${n} `) })
@@ -58,6 +61,13 @@ const bookings = (page: Page) => block(page, 'Reservations')
 const bookingRow = (page: Page, title: string) => panel(page).getByRole('button', { name: title })
 /** The booking a row opens, named by its title. */
 const bookingDetail = (page: Page, title: string) => page.getByRole('dialog', { name: title })
+/**
+ * The stay's Reservation box: a button named by the booking's title and its
+ * status (the code in it is aria-hidden). The pencil and the X beside the
+ * name are named Edit accommodation and Remove, so the title picks the box.
+ */
+const stayBooking = (page: Page, name: string) =>
+  stayCard(page, name).getByRole('button', { name: new RegExp(`^${name}`) })
 
 /**
  * Select a day by its title rather than by the middle of its header: a day with
@@ -114,6 +124,17 @@ async function restoreTokyoStay(page: Page): Promise<void> {
       confirmation: 'GRC-7731',
     },
   })
+}
+
+/** The Hotel booking a stay made for itself; the accommodation route created it confirmed. */
+async function setStayBookingStatus(page: Page, name: string, status: 'pending' | 'confirmed'): Promise<void> {
+  const { tripId } = seededTrip()
+  const res = await page.request.get(`/api/trips/${tripId}/reservations`)
+  const body = (await res.json()) as { reservations?: { id: number; type: string; title: string }[] }
+  const booking = (body.reservations ?? []).find(r => r.type === 'hotel' && r.title === name)
+  if (!booking) throw new Error(`the Hotel booking of "${name}" is missing`)
+  const put = await page.request.put(`/api/trips/${tripId}/reservations/${booking.id}`, { data: { status } })
+  if (!put.ok()) throw new Error(`could not set "${name}" to ${status}: ${put.status()} ${await put.text()}`)
 }
 
 /**
@@ -281,10 +302,10 @@ const SCRIPTS: Record<string, GuideScript> = {
     steps: [
       only(p => stayCard(p, TOKYO_HOTEL)),
       {
-        // Neither the pencil nor the × carries a label; the icon is the handle.
-        target: p => stayCard(p, TOKYO_HOTEL).locator('button:has(svg.lucide-pencil)'),
+        // The pencil and the X are RoundActions named by their tooltips.
+        target: p => stayCard(p, TOKYO_HOTEL).getByRole('button', { name: 'Edit accommodation', exact: true }),
         act: async p => {
-          await stayCard(p, TOKYO_HOTEL).locator('button:has(svg.lucide-pencil)').click()
+          await stayCard(p, TOKYO_HOTEL).getByRole('button', { name: 'Edit accommodation', exact: true }).click()
           await expect(picker(p).getByText('Edit accommodation')).toBeVisible()
           await settle(p)
         },
@@ -311,10 +332,48 @@ const SCRIPTS: Record<string, GuideScript> = {
         // Deliberately not performed: the × removes the stay without a question,
         // and with it the seed's hotel booking and the stop it put on the day.
         prepare: async p => { await stayCard(p, TOKYO_HOTEL).hover() },
-        target: p => stayCard(p, TOKYO_HOTEL).locator('button:has(svg.lucide-x)'),
+        target: p => stayCard(p, TOKYO_HOTEL).getByRole('button', { name: 'Remove', exact: true }),
       },
     ],
     cleanup: restoreTokyoStay,
+  },
+  'confirm-stay-booking': {
+    guide: guide('confirm-stay-booking'),
+    start: async p => {
+      // The night was booked confirmed; the guide starts from a pending one.
+      await setStayBookingStatus(p, TOKYO_HOTEL, 'pending')
+      await openDay(p, 1)
+      await expect(stayBooking(p, TOKYO_HOTEL)).toContainText('Pending', { timeout: 15_000 })
+    },
+    steps: [
+      only(p => stayBooking(p, TOKYO_HOTEL)),
+      {
+        prepare: async p => {
+          await stayBooking(p, TOKYO_HOTEL).click()
+          await expect(bookingDetail(p, TOKYO_HOTEL)).toBeVisible()
+          await settle(p)
+        },
+        target: p => bookingDetail(p, TOKYO_HOTEL),
+      },
+      {
+        target: p => bookingDetail(p, TOKYO_HOTEL).getByRole('button', { name: 'Set to Confirmed', exact: true }),
+        act: async p => {
+          await bookingDetail(p, TOKYO_HOTEL).getByRole('button', { name: 'Set to Confirmed', exact: true }).click()
+          await expect(bookingDetail(p, TOKYO_HOTEL).getByRole('button', { name: 'Set to Pending', exact: true })).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        target: p => bookingDetail(p, TOKYO_HOTEL).getByRole('button', { name: 'Close', exact: true }),
+        act: async p => {
+          await bookingDetail(p, TOKYO_HOTEL).getByRole('button', { name: 'Close', exact: true }).click()
+          await expect(bookingDetail(p, TOKYO_HOTEL)).toHaveCount(0)
+          await expect(stayBooking(p, TOKYO_HOTEL)).toContainText('Confirmed')
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: p => setStayBookingStatus(p, TOKYO_HOTEL, 'confirmed'),
   },
   'day-bookings': {
     guide: guide('day-bookings'),

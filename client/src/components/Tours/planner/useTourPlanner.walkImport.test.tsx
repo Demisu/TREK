@@ -15,10 +15,15 @@ const { routeWalkingTour, routeCityWalk, enrichTourElevations, createTour, detai
 
 vi.mock('./tourRouting', () => ({ routeWalkingTour, routeCityWalk, enrichTourElevations }));
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
+vi.mock('../../../repo/tourDraftRepo', async () => ({
+  tourDraftRepo: (await import('../../../../tests/helpers/fakeTourDraftRepo')).fakeTourDraftRepo,
+}));
 vi.mock('../useTourPermissions', () => ({ useTourPermissions: () => ({ canEdit: true, canAssign: true }) }));
 
+import { draftStore } from '../../../../tests/helpers/fakeTourDraftRepo';
+import type { DerivedTourDraft } from './tourPlannerDraft';
 import { validDraft } from './tourPlannerDraft';
-import { useTourPlanner, type DerivedTourDraft } from './useTourPlanner';
+import { useTourPlanner } from './useTourPlanner';
 
 // FE-TOUR-WALK-IMPORT-PLANNER-001 to FE-TOUR-WALK-IMPORT-PLANNER-004: a walk read from a Google Maps link,
 // opened as a new draft with its stop names, routed on foot by TREK and saved like any other walk (CW-07).
@@ -85,12 +90,13 @@ async function settle() {
   });
 }
 
-const storedDraft = (tripId: number) => JSON.parse(localStorage.getItem(`tour-draft-${tripId}`) ?? 'null') as unknown;
+const storedDraft = (tripId: number) => JSON.parse(draftStore.getItem(`tour-draft-${tripId}`) ?? 'null') as unknown;
 
 describe('useTourPlanner, a walk read from Google Maps (CW-07)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     localStorage.clear();
+    draftStore.clear();
     routeWalkingTour.mockReset().mockResolvedValue(routed);
     routeCityWalk.mockReset().mockResolvedValue(routed);
     enrichTourElevations.mockReset().mockResolvedValue(enriched);
@@ -148,7 +154,7 @@ describe('useTourPlanner, a walk read from Google Maps (CW-07)', () => {
     expect(result.current.mode).toEqual({ type: 'edit-saved', placeId: 51 });
   });
 
-  it('FE-TOUR-WALK-IMPORT-PLANNER-003: the source is kept with the unsaved draft across a reload, and forgotten when it is thrown away', () => {
+  it('FE-TOUR-WALK-IMPORT-PLANNER-003: the source is kept with the unsaved draft across a reload, and forgotten when it is thrown away', async () => {
     const first = renderHook(() => useTourPlanner({ tripId: 32 }));
     act(() => {
       first.result.current.startDerivedTour(FROM_GOOGLE);
@@ -157,6 +163,7 @@ describe('useTourPlanner, a walk read from Google Maps (CW-07)', () => {
     first.unmount();
 
     const reloaded = renderHook(() => useTourPlanner({ tripId: 32 }));
+    await act(async () => {});
     expect(reloaded.result.current.draftSource).toBe('google_maps');
     expect(reloaded.result.current.waypoints[0]?.name).toBe('Igreja de Santa Clara');
     act(() => reloaded.result.current.returnToNeutral());

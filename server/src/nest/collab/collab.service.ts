@@ -858,7 +858,7 @@ export class CollabService {
     // reaches nothing in this direction — and it hid the edge while handing the
     // send a second NotificationsService built outside the container.
     const title = await this.tripsRepo.getTitle(tripId);
-    const params: Record<string, string> = { trip: title || 'Untitled', actor: actor.email, tripId: String(tripId) };
+    const params: Record<string, string> = { trip: title || 'Untitled', actor: actor.username, tripId: String(tripId) };
     if (preview !== undefined) params.preview = preview;
     this.notifications
       .send({ event: 'collab_message', actorId: actor.id, scope: 'trip', targetId: Number(tripId), params })

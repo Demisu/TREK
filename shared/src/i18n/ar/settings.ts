@@ -136,7 +136,7 @@ const settings: TranslationStrings = {
   'settings.mcp.clientConfigHint':
     'استبدل <your_token> برمز API من القائمة أدناه. قد يحتاج مسار npx إلى ضبط وفق نظامك (مثلاً C:\\PROGRA~1\\nodejs\\npx.cmd على Windows).',
   'settings.mcp.clientConfigHintOAuth':
-    'استبدل <your_client_id> و<your_client_secret> ببيانات الاعتماد المعروضة في عميل OAuth 2.1 الذي أنشأته أعلاه. سيفتح mcp-remote متصفحك لإتمام التفويض في أول اتصال. قد يحتاج مسار npx إلى تعديل حسب نظامك (مثال: C:PROGRA~1\nodejs\npx.cmd على Windows).',
+    'استبدل <your_client_id> و<your_client_secret> ببيانات الاعتماد المعروضة في عميل OAuth 2.1 الذي أنشأته أعلاه. سيفتح mcp-remote متصفحك لإتمام التفويض في أول اتصال. قد يحتاج مسار npx إلى تعديل حسب نظامك (مثال: C:\\PROGRA~1\\nodejs\\npx.cmd على Windows).',
   'settings.mcp.copy': 'نسخ',
   'settings.mcp.copied': 'تم النسخ!',
   'settings.mcp.apiTokens': 'رموز API',
@@ -152,7 +152,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.creating': 'جارٍ الإنشاء…',
   'settings.mcp.modal.create': 'إنشاء الرمز',
   'settings.mcp.modal.createdTitle': 'تم إنشاء الرمز',
-  'settings.mcp.modal.createdWarning': 'سيُعرض هذا الرمز مرة واحدة فقط. انسخه واحفظه الآن — لا يمكن استرداده.',
+  'settings.mcp.modal.createdWarning': 'سيُعرض هذا الرمز مرة واحدة فقط. انسخه واحفظه الآن: لا يمكن استرداده.',
   'settings.mcp.modal.done': 'تم',
   'settings.mcp.toast.created': 'تم إنشاء الرمز',
   'settings.mcp.toast.createError': 'فشل إنشاء الرمز',
@@ -193,13 +193,13 @@ const settings: TranslationStrings = {
     'عنوان URI واحد لكل سطر. يُسمح بـ HTTPS أو HTTP محلي أو مخطط تطبيق خاص (myapp://). يُطبق تطابق دقيق، باستثناء منفذ العنوان المحلي.',
   'settings.oauth.modal.scopes': 'النطاقات المسموح بها',
   'settings.oauth.modal.scopesHint':
-    'list_trips وget_trip_summary متاحان دائماً — لا يُطلب نطاق. يساعدان الذكاء الاصطناعي في اكتشاف معرّفات الرحلات.',
+    'list_trips وget_trip_summary متاحان دائماً: لا يُطلب نطاق. يساعدان الذكاء الاصطناعي في اكتشاف معرّفات الرحلات.',
   'settings.oauth.modal.selectAll': 'تحديد الكل',
   'settings.oauth.modal.deselectAll': 'إلغاء تحديد الكل',
   'settings.oauth.modal.creating': 'جارٍ التسجيل…',
   'settings.oauth.modal.create': 'تسجيل العميل',
   'settings.oauth.modal.createdTitle': 'تم تسجيل العميل',
-  'settings.oauth.modal.createdWarning': 'يُعرض سر العميل مرة واحدة فقط. انسخه الآن — لا يمكن استرداده.',
+  'settings.oauth.modal.createdWarning': 'يُعرض سر العميل مرة واحدة فقط. انسخه الآن: لا يمكن استرداده.',
   'settings.oauth.toast.createError': 'فشل تسجيل عميل OAuth',
   'settings.oauth.toast.deleted': 'تم حذف عميل OAuth',
   'settings.oauth.toast.deleteError': 'فشل حذف عميل OAuth',
@@ -260,7 +260,8 @@ const settings: TranslationStrings = {
   'settings.mustChangePassword': 'يجب عليك تغيير كلمة المرور قبل المتابعة. يرجى تعيين كلمة مرور جديدة أدناه.',
   'settings.deleteAccount': 'حذف الحساب',
   'settings.deleteAccountTitle': 'هل تريد حذف حسابك؟',
-  'settings.deleteAccountWarning': 'سيتم حذف حسابك وجميع رحلاتك وأماكنك وملفاتك نهائيًا. لا يمكن التراجع عن ذلك.',
+  'settings.deleteAccountWarning':
+    'سيتم حذف حسابك وكل رحلة ومفكرة سفر ومكان وملف تملكه نهائيًا، بما في ذلك الرحلات المشتركة مع أعضاء آخرين، وسيفقدون الوصول إليها. الرحلات التي يملكها آخرون تبقى، وتتم إزالتك منها. لا يمكن التراجع عن هذا الإجراء.',
   'settings.deleteAccountConfirm': 'حذف نهائي',
   'settings.deleteBlockedTitle': 'الحذف غير ممكن',
   'settings.deleteBlockedMessage': 'أنت المسؤول الوحيد. قم بترقية مستخدم آخر إلى مسؤول قبل حذف حسابك.',
@@ -337,8 +338,7 @@ const settings: TranslationStrings = {
   'settings.about.supporter.tier.budgetTraveller': 'Budget Traveller', // en-fallback
   'settings.about.supporter.tier.hostelBunkmate': 'Hostel Bunkmate', // en-fallback
   'settings.currency': 'عملة العرض',
-  'settings.currencyHint':
-    'تُعرض المبالغ في التكاليف محوّلة إلى هذه العملة للعرض فقط — تبقى المبالغ الأصلية دون تغيير.',
+  'settings.currencyHint': 'تُعرض المبالغ في التكاليف محوّلة إلى هذه العملة للعرض فقط؛ تبقى المبالغ الأصلية دون تغيير.',
   'settings.currencyTrip': 'عملة الرحلة',
   'settings.placeLanguage': 'أسماء الأماكن',
   'settings.placeLanguageApp': 'مثل لغة التطبيق',
@@ -346,7 +346,7 @@ const settings: TranslationStrings = {
     'اللغة التي يجيب بها البحث عن الأماكن والاقتراحات والعناوين. إذا لم يكن للمكان اسم بهذه اللغة، يُعرض اسمه المحلي.',
   'settings.passkey.title': 'مفاتيح المرور',
   'settings.passkey.description':
-    'سجّل الدخول بشكل أسرع وأكثر مقاومة للتصيّد باستخدام مفتاح مرور — ببصمة إصبعك أو وجهك أو رمز PIN أو مفتاح أمان مادي. تبقى كلمة المرور كنسخة احتياطية.',
+    'سجّل الدخول بشكل أسرع وأكثر مقاومة للتصيّد باستخدام مفتاح مرور: ببصمة إصبعك أو وجهك أو رمز PIN أو مفتاح أمان مادي. تبقى كلمة المرور كنسخة احتياطية.',
   'settings.passkey.notConfigured':
     'مفاتيح المرور مفعّلة لكنها لم تُهيّأ بالكامل على هذا الخادم بعد. اطلب من المسؤول تعيين نطاق WebAuthn.',
   'settings.passkey.add': 'إضافة مفتاح مرور',
@@ -512,10 +512,9 @@ const settings: TranslationStrings = {
   'settings.offline.mode.force': 'فرض وضع عدم الاتصال',
   'settings.offline.mode.forceHint':
     'اعمل من البيانات المخزّنة مؤقتًا فقط وضع تغييراتك في قائمة الانتظار. أوقفه لإعادة الاتصال والمزامنة.',
-  'settings.offline.mode.active': 'وضع عدم الاتصال مفعّل — تغييراتك في قائمة الانتظار وستتم مزامنتها عند إيقافه.',
+  'settings.offline.mode.active': 'وضع عدم الاتصال مفعّل: تغييراتك في قائمة الانتظار وستتم مزامنتها عند إيقافه.',
   'settings.offline.prepare.title': 'التحضير للعمل دون اتصال',
-  'settings.offline.prepare.hint':
-    'نزّل كل ما تحتاجه — بيانات الرحلة والمستندات وبلاطات الخريطة — قبل أن تفقد الاتصال.',
+  'settings.offline.prepare.hint': 'نزّل كل ما تحتاجه (بيانات الرحلة والمستندات وبلاطات الخريطة) قبل أن تفقد الاتصال.',
   'settings.offline.prepare.button': 'تنزيل للاستخدام دون اتصال',
   'settings.offline.prepare.running': 'جارٍ التنزيل…',
   'settings.offline.prepare.done': 'جاهز للاستخدام دون اتصال',
@@ -607,7 +606,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'إظهار مسارات الحجوزات دائمًا',
   'settings.alwaysShowRoutesHint':
     'يعرض تلقائيًا مسار كل رحلة طيران وقطار وحجز آخر على الخريطة، دون الحاجة إلى تفعيله لكل عنصر على حدة.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'ما يمكن لهذا المفتاح قراءته',
@@ -662,13 +660,15 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'تعذّر النسخ. حدّد النص وانسخه يدويًا.',
   'settings.apiKeys.modal.createTitle': 'إنشاء مفتاح API',
   'settings.apiKeys.modal.name': 'الاسم',
-  'settings.apiKeys.modal.namePlaceholder': 'مثال: Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'مثال: لوحة المنزل',
   'settings.apiKeys.modal.nameHint': 'لك وحدك، لتتعرّف على المفتاح لاحقًا.',
   'settings.apiKeys.modal.creating': 'جارٍ الإنشاء...',
   'settings.apiKeys.modal.create': 'إنشاء',
   'settings.apiKeys.modal.createdTitle': 'تم إنشاء مفتاح API',
   'settings.apiKeys.modal.createdWarning': 'انسخ المفتاح الآن. يُعرض مرة واحدة فقط ولا يمكن استرجاعه لاحقًا.',
   'settings.apiKeys.modal.done': 'تم',
+  'settings.mcp.deprecated': 'مهجور',
+  'settings.offline.cache.dateRange': 'من {start} إلى {end}',
 };
 
 export default settings;

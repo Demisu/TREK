@@ -97,7 +97,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Upraviť používateľa',
   'admin.newPassword': 'Nové heslo',
   'admin.newPasswordHint': 'Ponechajte prázdne pre zachovanie súčasného hesla',
-  'admin.deleteUser': 'Odstrániť používateľa „{name}“? Všetky cesty budú natrvalo odstránené.',
+  'admin.deleteUser':
+    'Odstrániť používateľa "{name}"? Jeho účet a všetky cesty a denníky, ktoré vlastní, sa natrvalo odstránia, vrátane ciest zdieľaných s ďalšími členmi, ktorí k nim stratia prístup. Cesty vlastnené inými zostanú.',
   'admin.deleteUserTitle': 'Odstrániť používateľa',
   'admin.newPasswordPlaceholder': 'Zadajte nové heslo…',
   'admin.toast.loadError': 'Nepodarilo sa načítať dáta administrácie',
@@ -244,9 +245,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.google': 'Google',
   'admin.transitProvider.transitousHint': 'Komunitné GTFS zdroje. Zdarma a bez kľúča, s najlepším pokrytím v Európe.',
   'admin.transitProvider.googleHint':
-    'Používa kľúč Google uvedený vyššie, pre regióny, pre ktoré Transitous nemá dáta. Účtuje sa za každé vyhľadávanie — kým nie je nastavený kľúč, používa sa Transitous.',
+    'Používa kľúč Google uvedený vyššie, pre regióny, pre ktoré Transitous nemá dáta. Účtuje sa za každé vyhľadávanie; kým nie je nastavený kľúč, používa sa Transitous.',
   'admin.transitProvider.noKeyWarning':
-    'Je vybraný Google, ale nie je nastavený žiadny kľúč Google — vyhľadávanie dopravy stále používa Transitous. Pridajte kľúč v sekcii API kľúče vyššie.',
+    'Je vybraný Google, ale nie je nastavený žiadny kľúč Google; vyhľadávanie dopravy stále používa Transitous. Pridajte kľúč v sekcii API kľúče vyššie.',
   'admin.transitProvider.personalKeyWarning':
     'Je nastavený len váš vlastný kľúč Google, takže ostatným členom sa vyhľadávanie dopravy stále vracia k Transitous. Uložte kľúč vyššie ako správca, aby platil pre celú inštanciu.',
   'admin.placeShadow.title': 'Záznam vyhľadávania miest',
@@ -793,9 +794,9 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Zatiaľ žiadne záznamy auditu.',
   'admin.audit.refresh': 'Obnoviť',
   'admin.audit.loadMore': 'Načítať ďalšie',
-  'admin.audit.showing': 'Načítaných {count} záznamov · celkom {total}',
-  'admin.audit.showing.one': 'Načítaný {count} záznam · celkom {total}',
-  'admin.audit.showing.few': 'Načítané {count} záznamy · celkom {total}',
+  'admin.audit.showing': 'Načítaných {count} záznamov, celkom {total}',
+  'admin.audit.showing.one': 'Načítaný {count} záznam, celkom {total}',
+  'admin.audit.showing.few': 'Načítané {count} záznamy, celkom {total}',
   'admin.audit.col.time': 'Čas',
   'admin.audit.col.user': 'Používateľ',
   'admin.audit.col.action': 'Akcia',
@@ -950,5 +951,37 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'Zamietnuť',
   'admin.paddleRegions.origin.auto': 'Automaticky',
   'admin.paddleRegions.origin.autoHint': 'TREK načítal tento región sám pre vodácku trasu, ktorá sa tam plánuje.',
+  'admin.mfa.reset': 'Resetovať 2FA',
+  'admin.mfa.resetHint':
+    'Vypne pre tohto používateľa dvojfaktorové overenie, napríklad po strate telefónu. Bude odhlásený všade a po prihlásení heslom si ho môže nastaviť znova.',
+  'admin.mfa.resetConfirm': 'Vypnúť dvojfaktorové overenie pre používateľa {name}?',
+  'admin.mfa.resetDone': 'Dvojfaktorové overenie bolo resetované',
+  'admin.danger.title': 'Nebezpečná zóna',
+  'admin.rotateJwt.title': 'Obnoviť tajný kľúč JWT',
+  'admin.rotateJwt.hint': 'Vygeneruje nový podpisový kľúč JWT. Všetky aktívne relácie budú okamžite zneplatnené.',
+  'admin.rotateJwt.confirm': 'Obnoviť a odhlásiť',
+  'admin.rotateJwt.warning': 'Pozor, tým sa zneplatnia všetky relácie a budete odhlásení.',
+  'admin.rotateJwt.body':
+    'Okamžite sa vygeneruje nový kľúč JWT. Všetci prihlásení používatelia, vrátane vás, budú odhlásení a budú sa musieť znova prihlásiť.',
+  'admin.oidcDisplayNamePlaceholder': 'napr. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery URL (voliteľné)',
+  'admin.oidcDiscoveryUrlHint':
+    'Prepíše automaticky zostavenú discovery URL. Nutné pri poskytovateľoch ako Authentik, kde koncový bod nie je na {path}.',
+  'admin.smtp.skipTls': 'Preskočiť kontrolu certifikátu TLS',
+  'admin.smtp.skipTlsHint': 'Zapnite pri certifikátoch s vlastným podpisom na lokálnych poštových serveroch',
+  'admin.demoBaseline.title': 'Základ dema',
+  'admin.demoBaseline.hint':
+    'Uloží aktuálny stav ako bod hodinového obnovenia. Všetky cesty a nastavenia správcu zostanú zachované.',
+  'admin.demoBaseline.button': 'Uložiť základ',
+  'admin.demoBaseline.saved': 'Základ uložený! Obnovenia sa vrátia k tomuto stavu.',
+  'admin.demoBaseline.failed': 'Základ sa nepodarilo uložiť',
+  'admin.invite.deleteTitle': 'Odstrániť pozývací odkaz',
+  'admin.invite.deleteConfirm':
+    'Odstrániť tento pozývací odkaz? Kto ho ešte nepoužil, sa cez neho už nebude môcť zaregistrovať.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Odstrániť šablónu',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Odstrániť šablónu "{name}" so všetkými kategóriami a položkami?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Odstrániť kategóriu',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Odstrániť kategóriu "{name}" a všetky jej položky?',
+  'admin.rotateJwt.button': 'Obnoviť',
 };
 export default admin;

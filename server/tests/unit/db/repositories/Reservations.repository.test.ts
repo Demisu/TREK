@@ -1015,3 +1015,20 @@ describe('ReservationsRepository — public-api.service.ts reads', () => {
     expect(typed.map((p) => p.name)).toEqual([unplanned.name]);
   });
 });
+
+describe('ReservationsRepository — confirmIfPending', () => {
+  it('RES-CONFIRM-001: confirms a pending booking and leaves any other status alone', async () => {
+    const { user } = createUser(testDb);
+    const trip = createTrip(testDb, user.id, { start_date: '2026-06-01', end_date: '2026-06-05' });
+    const pending = createReservation(testDb, trip.id, { title: 'Pending hotel', type: 'hotel' });
+    await setReservation(pending.id, { status: 'pending' });
+    const cancelled = createReservation(testDb, trip.id, { title: 'Cancelled hotel', type: 'hotel' });
+    await setReservation(cancelled.id, { status: 'cancelled' });
+
+    await reservationsRepo.confirmIfPending(pending.id);
+    await reservationsRepo.confirmIfPending(cancelled.id);
+
+    expect((await findRow(await orm(), Reservations, { id: pending.id }))?.status).toBe('confirmed');
+    expect((await findRow(await orm(), Reservations, { id: cancelled.id }))?.status).toBe('cancelled');
+  });
+});

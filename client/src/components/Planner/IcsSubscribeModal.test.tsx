@@ -42,9 +42,9 @@ describe.each([['phone', true], ['desktop', false]] as const)('IcsSubscribeModal
     const gate = new Promise<void>(res => { release = res; });
     server.use(http.get(TOKEN_URL, async () => { await gate; return HttpResponse.json({ feed_url: null }); }));
     render(<IcsSubscribeModal {...defaultProps} />);
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
     release!();
-    await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument());
   });
 
   it('FE-PLANNER-ICS-002: renders title and description in the header', async () => {

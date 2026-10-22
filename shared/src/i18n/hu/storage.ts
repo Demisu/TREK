@@ -33,7 +33,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'Backend hozzáadása',
   'storage.backends.usedBy': 'Használja: {categories}',
   'storage.backends.unused': 'Nincs kategóriához rendelve',
-  'storage.backends.envReadOnly': 'Környezeti változó definiálja — csak olvasható',
+  'storage.backends.envReadOnly': 'Környezeti változó definiálja (csak olvasható)',
   'storage.source.built-in': 'Beépített',
   'storage.source.env': 'Környezet',
   'storage.source.settings': 'Beállítások',

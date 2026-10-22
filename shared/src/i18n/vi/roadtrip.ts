@@ -236,8 +236,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Máy chủ định tuyến tránh đường không phản hồi cho chặng này, nên máy chính đã vẽ nó. Đang hỏi lại máy chủ định tuyến tránh đường.',
   'roadtrip.day': 'Ngày {number}',
-  'roadtrip.quietDay.empty': 'Chưa có điểm dừng — thả vào đây',
-  'roadtrip.quietDay.one': 'Hiện chỉ có {name} — thả một điểm dừng vào đây',
+  'roadtrip.quietDay.empty': 'Chưa có điểm dừng, thả vào đây',
+  'roadtrip.quietDay.one': 'Hiện chỉ có {name}, thả một điểm dừng vào đây',
   'roadtrip.leg.driveText': '{distance} trong {time}',
   'roadtrip.day.stopCount': '{count} điểm dừng',
   'roadtrip.day.fold': 'Thu gọn',
@@ -318,5 +318,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Khởi hành sau giờ trả phòng',
   'roadtrip.bookend.noVia':
     'Không thể đặt điểm trung gian trên chặng đi hoặc về nơi lưu trú. Hãy thêm một điểm dừng ở đó.',
+  'roadtrip.stay.untilHint':
+    'Khởi hành lúc {time} vì lượt ghé này có giờ kết thúc. Hãy mở nó và chọn Xóa giờ kết thúc để đặt thời gian lưu lại thay thế.',
 };
 export default roadtrip;

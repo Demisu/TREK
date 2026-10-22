@@ -197,7 +197,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX 軌跡',
   'journey.settings.recordings': '已記錄的日子',
   'journey.settings.showTripTracks': '顯示所有行程的 GPX 軌跡',
-  'journey.settings.showTripTracksHint': '在地圖上繪製關聯行程中的已記錄路線。',
+  'journey.settings.showTripTracksHint': '在地圖上繪製已連結行程的規劃路線(GPX 軌跡)。',
   'journey.settings.autoPrepare': '自動準備記錄的日子',
   'journey.settings.autoPrepareHint':
     '連結的行程進行期間，你 Dawarich 中的停留點會在對應的日子等待查看。有自己連線的編輯者會收到各自的停留點。不會自動寫入日誌。',
@@ -839,5 +839,6 @@ const journey: TranslationStrings = {
   'journey.share.recordings': '記錄的路線',
   'journey.share.recordingsHint': '有已發布日記的日子的記錄，以及從中取用的停留點。會顯示你何時去過哪裡，也包括住處。',
   'journey.share.needsMap': '分享地圖後才能開啟',
+  'journey.editor.tags': '標籤',
 };
 export default journey;

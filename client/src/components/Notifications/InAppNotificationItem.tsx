@@ -1,8 +1,7 @@
 import React from 'react'
-import { User, Check, X, ArrowRight, Trash2, CheckCheck } from 'lucide-react'
+import { User, Check, X, ArrowRight, Trash2, CheckCheck, Mail } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import type { InAppNotification } from '../../store/inAppNotificationStore'
-import { useSettingsStore } from '../../store/settingsStore'
 import { compactTime, useNotificationItemActions } from './useNotificationItemActions'
 
 function relativeTime(dateStr: string, locale: string): string {
@@ -16,10 +15,7 @@ interface NotificationItemProps {
 
 export default function InAppNotificationItem({ notification, onClose }: NotificationItemProps): React.ReactElement {
   const { t, locale } = useTranslation()
-  const { settings } = useSettingsStore()
-  const darkMode = settings.dark_mode
-  const dark = darkMode === true || darkMode === 'dark' || (darkMode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-  const { responding, handleRespond, handleNavigate, markRead, deleteNotification } =
+  const { responding, handleRespond, handleNavigate, markRead, markUnread, deleteNotification } =
     useNotificationItemActions(notification, onClose)
 
   const titleText = t(notification.title_key, notification.title_params)
@@ -29,10 +25,7 @@ export default function InAppNotificationItem({ notification, onClose }: Notific
 
   return (
     <div
-      className="relative px-4 py-3 transition-colors border-b border-edge-secondary"
-      style={{
-        background: notification.is_read ? 'transparent' : (dark ? 'rgba(99,102,241,0.07)' : 'rgba(99,102,241,0.05)'),
-      }}
+      className={`relative px-4 py-3 transition-colors border-b border-edge-secondary ${notification.is_read ? '' : 'bg-accent-subtle'}`}
     >
 
       <div className="flex gap-3 items-start">
@@ -46,8 +39,7 @@ export default function InAppNotificationItem({ notification, onClose }: Notific
             />
           ) : (
             <div
-              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-content-muted"
-              style={{ background: dark ? '#27272a' : '#f1f5f9' }}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-content-muted bg-surface-tertiary"
             >
               {notification.sender_username
                 ? notification.sender_username.charAt(0).toUpperCase()
@@ -67,14 +59,21 @@ export default function InAppNotificationItem({ notification, onClose }: Notific
               <span className="text-xs me-1 text-content-faint">
                 {relativeTime(notification.created_at, locale)}
               </span>
-              {!notification.is_read && (
+              {notification.is_read ? (
+                <button type="button"
+                  onClick={() => markUnread(notification.id)}
+                  title={t('notifications.markUnread')}
+                  aria-label={t('notifications.markUnread')}
+                  className="p-1 rounded transition-colors text-content-faint hover:bg-surface-hover hover:text-content focus-visible:bg-surface-hover focus-visible:text-content"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                </button>
+              ) : (
                 <button type="button"
                   onClick={() => markRead(notification.id)}
                   title={t('notifications.markRead')}
-                  className="p-1 rounded transition-colors"
-                  style={{ color: 'var(--text-faint)' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-primary)' }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-faint)' }}
+                  aria-label={t('notifications.markRead')}
+                  className="p-1 rounded transition-colors text-content-faint hover:bg-surface-hover hover:text-content focus-visible:bg-surface-hover focus-visible:text-content"
                 >
                   <CheckCheck className="w-3.5 h-3.5" />
                 </button>
@@ -82,10 +81,8 @@ export default function InAppNotificationItem({ notification, onClose }: Notific
               <button type="button"
                 onClick={() => deleteNotification(notification.id)}
                 title={t('notifications.delete')}
-                className="p-1 rounded transition-colors"
-                style={{ color: 'var(--text-faint)' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#ef4444' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-faint)' }}
+                aria-label={t('notifications.delete')}
+                className="p-1 rounded transition-colors text-content-faint hover:bg-danger-soft hover:text-danger focus-visible:bg-danger-soft focus-visible:text-danger"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -102,19 +99,11 @@ export default function InAppNotificationItem({ notification, onClose }: Notific
               <button type="button"
                 onClick={() => handleRespond('positive')}
                 disabled={responding || notification.response !== null}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors"
-                style={{
-                  background: notification.response === 'positive'
-                    ? 'var(--text-primary)'
-                    : (dark ? '#27272a' : '#f1f5f9'),
-                  color: notification.response === 'positive'
-                    ? '#fff'
-                    : notification.response === 'negative'
-                      ? 'var(--text-faint)'
-                      : 'var(--text-secondary)',
-                  opacity: notification.response === 'negative' ? 0.5 : 1,
-                  cursor: notification.response !== null || responding ? 'default' : 'pointer',
-                }}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                  notification.response === 'positive'
+                    ? 'bg-content text-surface'
+                    : `bg-surface-tertiary ${notification.response === 'negative' ? 'text-content-faint opacity-50' : 'text-content-secondary'}`
+                } ${notification.response !== null || responding ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 <Check className="w-3 h-3" />
                 {t(notification.positive_text_key)}
@@ -122,19 +111,11 @@ export default function InAppNotificationItem({ notification, onClose }: Notific
               <button type="button"
                 onClick={() => handleRespond('negative')}
                 disabled={responding || notification.response !== null}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors"
-                style={{
-                  background: notification.response === 'negative'
-                    ? '#ef4444'
-                    : (dark ? '#27272a' : '#f1f5f9'),
-                  color: notification.response === 'negative'
-                    ? '#fff'
-                    : notification.response === 'positive'
-                      ? 'var(--text-faint)'
-                      : 'var(--text-secondary)',
-                  opacity: notification.response === 'positive' ? 0.5 : 1,
-                  cursor: notification.response !== null || responding ? 'default' : 'pointer',
-                }}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                  notification.response === 'negative'
+                    ? 'bg-danger text-white'
+                    : `bg-surface-tertiary ${notification.response === 'positive' ? 'text-content-faint opacity-50' : 'text-content-secondary'}`
+                } ${notification.response !== null || responding ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 <X className="w-3 h-3" />
                 {t(notification.negative_text_key)}
@@ -146,10 +127,7 @@ export default function InAppNotificationItem({ notification, onClose }: Notific
           {notification.type === 'navigate' && notification.navigate_text_key && notification.navigate_target && (
             <button type="button"
               onClick={handleNavigate}
-              className="flex items-center gap-1 mt-2 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors"
-              style={{ background: dark ? '#27272a' : '#f1f5f9', color: 'var(--text-secondary)' }}
-              onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
-              onMouseLeave={e => e.currentTarget.style.background = dark ? '#27272a' : '#f1f5f9'}
+              className="flex items-center gap-1 mt-2 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors bg-surface-tertiary text-content-secondary hover:bg-surface-hover focus-visible:bg-surface-hover"
             >
               <ArrowRight className="w-3 h-3" />
               {t(notification.navigate_text_key)}

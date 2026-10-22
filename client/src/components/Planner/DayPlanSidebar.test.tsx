@@ -1957,7 +1957,7 @@ describe('DayPlanSidebar', () => {
     await waitFor(() => expect(screen.getByText('Remove time?')).toBeInTheDocument())
 
     // Click Confirm
-    const confirmBtn = screen.getByRole('button', { name: /confirm/i })
+    const confirmBtn = screen.getByRole('button', { name: /remove time & move/i })
     await user.click(confirmBtn)
 
     await waitFor(() => expect(setAssignmentTimesStub()).toHaveBeenCalled())
@@ -2233,7 +2233,7 @@ describe('DayPlanSidebar', () => {
       // Modal should appear
       await waitFor(() => expect(screen.getByText('Remove time?')).toBeInTheDocument())
       // Click Confirm
-      const confirmBtn = screen.getByRole('button', { name: /confirm/i })
+      const confirmBtn = screen.getByRole('button', { name: /remove time & move/i })
       await user.click(confirmBtn)
       await waitFor(() => expect(setAssignmentTimesStub()).toHaveBeenCalled())
     }
@@ -2762,38 +2762,10 @@ describe('DayPlanSidebar', () => {
     fireEvent.dragStart(dragRow(screen.getAllByText('Long flight')[0]), { dataTransfer: emptyDataTransfer })
     fireEvent.drop(dayHeader('Day 1'), { dataTransfer: { getData: vi.fn(() => '') } })
     // Day 1 sits before the span end, so only the start moves.
-    expect(updateReservation).toHaveBeenLastCalledWith(1, 400, { day_id: 9, end_day_id: 12 })
+    expect(updateReservation).toHaveBeenLastCalledWith(1, 400, { day_id: 9, end_day_id: 12, reservation_time: '2025-06-01T10:00:00' })
   })
 
-  it('FE-PLANNER-DAYPLAN-117: dragging a span end before its start collapses it, otherwise it just shortens', () => {
-    const updateReservation = vi.fn(async () => ({} as Reservation))
-    stubTripActions({ updateReservation })
-    const days = [9, 10, 11, 12].map((id, i) => buildDay({ id, date: `2025-06-0${i + 1}`, title: `Day ${i + 1}` }))
-    const flight = buildReservation({ id: 400, type: 'flight', title: 'Long flight', day_id: 10, end_day_id: 12, reservation_time: '2025-06-02T10:00:00' })
-    render(<DayPlanSidebar {...makeDefaultProps({ days, reservations: [flight] })} />)
-    const endRow = () => dragRow(screen.getAllByText('Long flight')[2])
-    fireEvent.dragStart(endRow(), { dataTransfer: emptyDataTransfer })
-    fireEvent.drop(dayHeader('Day 3'), { dataTransfer: { getData: vi.fn(() => '') } })
-    expect(updateReservation).toHaveBeenLastCalledWith(1, 400, { day_id: 10, end_day_id: 11 })
-
-    fireEvent.dragStart(endRow(), { dataTransfer: emptyDataTransfer })
-    fireEvent.drop(dayHeader('Day 1'), { dataTransfer: { getData: vi.fn(() => '') } })
-    expect(updateReservation).toHaveBeenLastCalledWith(1, 400, { day_id: 9, end_day_id: 9 })
-  })
-
-  it('FE-PLANNER-DAYPLAN-118: a single-day booking dragged to another day moves wholesale', () => {
-    const updateReservation = vi.fn(async () => ({} as Reservation))
-    stubTripActions({ updateReservation })
-    const days = [
-      buildDay({ id: 10, date: '2025-06-01', title: 'Day 1' }),
-      buildDay({ id: 11, date: '2025-06-02', title: 'Day 2' }),
-    ]
-    const dinner = buildReservation({ id: 401, type: 'train', title: 'Regional train', day_id: 10, reservation_time: '2025-06-01T10:00:00' })
-    render(<DayPlanSidebar {...makeDefaultProps({ days, reservations: [dinner] })} />)
-    fireEvent.dragStart(dragRow(screen.getByText('Regional train')), { dataTransfer: emptyDataTransfer })
-    fireEvent.drop(dayHeader('Day 2'), { dataTransfer: { getData: vi.fn(() => '') } })
-    expect(updateReservation).toHaveBeenCalledWith(1, 401, { day_id: 11, end_day_id: 11 })
-  })
+  // FE-PLANNER-DAYPLAN-117 and 118 run against the helper itself in DayPlanSidebar.multiDayMove.test.ts.
 
   it('FE-PLANNER-DAYPLAN-119: only a genuine multi-day rental with known days shows the active badge', () => {
     const days = [
@@ -3225,7 +3197,7 @@ describe('DayPlanSidebar', () => {
     fireEvent.dragStart(dragRow(screen.getByText('Afternoon Place')), { dataTransfer: emptyDataTransfer })
     fireEvent.drop(dragRow(screen.getByText('Morning Place')), { dataTransfer: { getData: vi.fn(() => '') } })
     await waitFor(() => expect(screen.getByText('Remove time?')).toBeInTheDocument())
-    await user.click(screen.getByRole('button', { name: /confirm/i }))
+    await user.click(screen.getByRole('button', { name: /remove time & move/i }))
     await waitFor(() => expect(mockToast.error).toHaveBeenCalledWith('locked'))
     expect(onReorder).not.toHaveBeenCalled()
   })
@@ -4657,7 +4629,7 @@ describe('DayPlanSidebar', () => {
     fireEvent.dragStart(dragRow(screen.getByText('Afternoon Place')), { dataTransfer: emptyDataTransfer })
     fireEvent.drop(dragRow(screen.getByText('Morning Place')), { dataTransfer: { getData: vi.fn(() => '') } })
     await waitFor(() => expect(screen.getByText('Remove time?')).toBeInTheDocument())
-    await user.click(screen.getByRole('button', { name: /confirm/i }))
+    await user.click(screen.getByRole('button', { name: /remove time & move/i }))
     await waitFor(() => expect(setAssignmentTimesStub()).toHaveBeenCalledWith(1, 10, 12, { place_time: null, end_time: null }))
     await waitFor(() => expect(onReorder).toHaveBeenCalledWith(10, [12, 11]))
     // The booking keeps its slot in the rebuilt order.
@@ -4685,7 +4657,7 @@ describe('DayPlanSidebar', () => {
     const upBtn = dragRow(screen.getByText('Evening Place')).querySelectorAll('.reorder-buttons button')[0]
     await user.click(upBtn)
     await waitFor(() => expect(screen.getByText('Remove time?')).toBeInTheDocument())
-    await user.click(screen.getByRole('button', { name: /confirm/i }))
+    await user.click(screen.getByRole('button', { name: /remove time & move/i }))
     await waitFor(() => expect(setAssignmentTimesStub()).toHaveBeenCalledWith(1, 10, 12, { place_time: null, end_time: null }))
     await waitFor(() => expect(onReorder).toHaveBeenCalledWith(10, [11, 12]))
     // The stop really moves past the booking: the bus lands behind both places
@@ -5018,27 +4990,27 @@ describe('DayPlanSidebar remaining branches', () => {
     expect(await screen.findByText('Night bus')).toBeInTheDocument()
   })
 
-  it('FE-W5DPS-005: the place menu offers Save to collection only with the addon on', async () => {
+  it('FE-W5DPS-005: Save to collection needs the addon, and a tour row keeps the tour', async () => {
     const user = userEvent.setup()
-    const place = buildPlace({ id: 1, name: 'Louvre' })
-    const assignments = { '10': [buildAssignment({ id: 11, day_id: 10, order_index: 0, place })] }
-    const { unmount } = render(<DayPlanSidebar {...makeDefaultProps({ days: [day], places: [place], assignments })} />)
-
+    const places = [buildPlace({ id: 1, name: 'Louvre' }), buildPlace({ id: 2, name: 'Ridge walk' })]
+    const rows = places.map((place, i) => buildAssignment({ id: 11 + i, day_id: 10, order_index: i, place }))
+    const props = makeDefaultProps({ days: [day], places, assignments: { 10: rows }, tourPlaceIds: new Set([2]) })
+    const { unmount } = render(<DayPlanSidebar {...props} />)
     fireEvent.contextMenu(dragRow(screen.getByText('Louvre')))
     expect(contextMenu().queryByText(/save to/i)).not.toBeInTheDocument()
     unmount()
-
-    seedStore(useAddonStore, {
-      addons: [{ id: 'collections', name: 'Collections', type: 'trip', icon: '', enabled: true }],
-      loaded: true,
-    })
-    render(<DayPlanSidebar {...makeDefaultProps({ days: [day], places: [place], assignments })} />)
-
+    const addon = (id: string) => ({ id, name: id, type: 'trip' as const, icon: '', enabled: true })
+    seedStore(useAddonStore, { addons: [addon('collections'), addon('tours')], loaded: true })
+    render(<DayPlanSidebar {...props} />)
     fireEvent.contextMenu(dragRow(screen.getByText('Louvre')))
     await user.click(contextMenu().getByText(/save to/i))
-
     const { useSaveToCollectionStore } = await import('../../store/saveToCollectionStore')
-    expect(useSaveToCollectionStore.getState().target).not.toBeNull()
+    const picker = () => useSaveToCollectionStore.getState()
+    expect(picker()).toMatchObject({ target: { name: 'Louvre', source_place_id: 1 }, tour: null })
+    act(() => picker().close())
+    fireEvent.contextMenu(dragRow(screen.getByText('Ridge walk')))
+    await user.click(contextMenu().getByText(/save to/i))
+    expect(picker()).toMatchObject({ target: null, tour: { tripId: 1, placeId: 2, name: 'Ridge walk' } })
   })
 
   it('FE-W5DPS-006: a hotel-change day lists the departing stay before the arriving one', async () => {

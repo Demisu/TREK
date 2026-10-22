@@ -81,14 +81,20 @@ export class RoadtripHazardsService {
       'https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=dwd:Warnungen_Gemeinden_vereinigt&outputFormat=application/json&srsName=CRS:84&count=500',
     );
     const hazards: RoadtripHazard[] = [];
+    // The feed can carry one feature id on several warnings. The first keeps it, so a
+    // warning hidden by its id stays hidden; the others get their place in the feed.
+    const ids = new Set<string>();
     let partial = Number(feed.numberMatched) > feed.features.length;
     for (const [index, feature] of feed.features.entries()) {
       try {
         const props = dwdProperties.parse(feature.properties);
         if (Date.parse(props.EXPIRES) <= Date.now()) continue;
+        const own = `dwd-${feature.id ?? index}`;
+        const id = ids.has(own) ? `${own}-${index}` : own;
+        ids.add(id);
         hazards.push(
           roadtripHazardSchema.parse({
-            id: `dwd-${feature.id ?? index}`,
+            id,
             source: 'DWD',
             title: props.HEADLINE,
             description: props.DESCRIPTION ?? '',

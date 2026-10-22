@@ -10,9 +10,9 @@ import type { SkiClassification } from './useSkiClassification';
 /**
  * SKI-02: a ski track in the planner's rail: its discipline on a tinted tile,
  * a cross-country technique as a badge beside it, and the ski time said as
- * not worked out rather than left blank or filled with a hike's estimate. The
- * classification changes in a dialog; a viewer who may not edit sees the
- * action dimmed. Distance and heights are the inspector's below, as recorded.
+ * not worked out rather than left blank or filled with a hike's estimate (the
+ * recorded time when the track has one). The classification changes in a
+ * dialog; a viewer who may not edit sees the action dimmed. Distance and heights are the inspector's below, as recorded.
  */
 export function SkiTrackCard({ ski }: { ski: SkiClassification }) {
   const { t } = useTranslation();
@@ -56,7 +56,17 @@ export function SkiTrackCard({ ski }: { ski: SkiClassification }) {
               {t('common.change')}
             </CardAction>
           </div>
-          <RailFacts facts={[{ label: t('tours.ski.time'), value: t('tours.ski.timeUnknown') }]} />
+          <RailFacts
+            facts={[
+              {
+                label: t('tours.ski.time'),
+                value:
+                  tour.duration != null
+                    ? t('tours.durationMinutes', { count: Math.max(1, Math.round(tour.duration)) })
+                    : t('tours.ski.timeUnknown'),
+              },
+            ]}
+          />
         </div>
       </RailCard>
       <SkiClassifyDialog ski={ski} />

@@ -188,7 +188,11 @@ describe('DayPlanSidebar drag data', () => {
     fireEvent.drop(document.querySelectorAll('[data-dp="day-body"]')[1], {
       dataTransfer: { getData: vi.fn(() => '') },
     });
-    expect(updateReservation).toHaveBeenCalledWith(1, 402, { day_id: 11, end_day_id: 11 });
+    expect(updateReservation).toHaveBeenCalledWith(1, 402, {
+      day_id: 11,
+      end_day_id: 11,
+      reservation_time: '2025-06-02T22:00:00',
+    });
     expect(window.__dragData).toBeNull();
   });
 });

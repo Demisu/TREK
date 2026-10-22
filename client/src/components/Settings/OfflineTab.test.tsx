@@ -191,8 +191,8 @@ describe('OfflineTab', () => {
     await waitFor(() => expect(within(cacheCard).getByText('Paris')).toBeInTheDocument());
     const titles = within(cacheCard).getAllByText(/^(Paris|Tokyo)$/).map(el => el.textContent);
     expect(titles).toEqual(['Paris', 'Tokyo']);
-    expect(within(cacheCard).getByText(/Jun 1, 2025 – Jun 5, 2025/)).toHaveTextContent('7');
-    expect(within(cacheCard).getByText(/Sep 1, 2025 – Sep 15, 2025/)).toHaveTextContent('3');
+    expect(within(cacheCard).getByText('Jun 1, 2025 to Jun 5, 2025, 7 places, 2 files')).toBeInTheDocument();
+    expect(within(cacheCard).getByText('Sep 1, 2025 to Sep 15, 2025, 3 places, 1 file')).toBeInTheDocument();
     expect(within(stat('Cached trips')).getByText('2')).toBeInTheDocument();
     // Never synced → the time column shows a dash.
     expect(within(cacheCard).getAllByText('—')).toHaveLength(2);
@@ -204,7 +204,8 @@ describe('OfflineTab', () => {
 
     const cacheCard = card('Offline cache');
     await waitFor(() => expect(within(cacheCard).getByText('Someday')).toBeInTheDocument());
-    expect(within(cacheCard).getByText(/— – —/)).toBeInTheDocument();
+    // No dates: the row names only what is stored, with its nouns.
+    expect(within(cacheCard).getByText(/^\d+ places?, \d+ files?$/)).toBeInTheDocument();
   });
 
   it('FE-COMP-OFFLINETAB-005: a sync-meta row without its trip in Dexie is dropped', async () => {
@@ -315,7 +316,7 @@ describe('OfflineTab', () => {
     await screen.findByText('No trips cached yet. Connect to the internet to sync.');
     await user.click(screen.getByRole('button', { name: 'Download for offline use' }));
 
-    expect(await screen.findByText('Documents · 1/4 · Paris')).toBeInTheDocument();
+    expect(await screen.findByText('Documents: 1/4, Paris')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Downloading…' })).toBeDisabled();
 
     await act(async () => { release(); });
@@ -336,7 +337,7 @@ describe('OfflineTab', () => {
     await screen.findByText('No trips cached yet. Connect to the internet to sync.');
     await user.click(screen.getByRole('button', { name: 'Download for offline use' }));
 
-    const label = await screen.findByText('Map tiles · 0/0');
+    const label = await screen.findByText('Map tiles: 0/0');
     const bar = label.previousElementSibling?.firstElementChild as HTMLElement;
     expect(bar).toHaveStyle({ width: '100%' });
     await act(async () => { release(); });
@@ -355,7 +356,7 @@ describe('OfflineTab', () => {
     await screen.findByText('No trips cached yet. Connect to the internet to sync.');
     await user.click(screen.getByRole('button', { name: 'Download for offline use' }));
 
-    const label = await screen.findByText('Trip data · 1/4');
+    const label = await screen.findByText('Trip data: 1/4');
     const bar = label.previousElementSibling?.firstElementChild as HTMLElement;
     expect(bar).toHaveStyle({ width: '25%' });
     await act(async () => { release(); });
@@ -443,7 +444,7 @@ describe('OfflineTab', () => {
     // switch has to read "off" rather than promising storage that never happens.
     const toggle = await screen.findByRole('button', { name: 'Tokyo' });
     expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    expect(screen.getAllByText(/Not stored · Finished/)).toHaveLength(2);
+    expect(screen.getAllByText(/Not stored\. Finished/)).toHaveLength(2);
 
     await user.click(toggle);
     await waitFor(() => expect(h.syncAll).toHaveBeenCalledTimes(1));

@@ -9,8 +9,6 @@ const tours: TranslationStrings = {
   'tours.empty.title': 'Noch keine Touren',
   'tours.empty.body': 'Plane eine Tour oder importiere eine GPX- oder KML-Datei.',
   'tours.addToDay': 'Zum Tag hinzufügen',
-  'tours.addToDay.comingSoon': 'Ordne Touren über die Tourenliste einem Reisetag zu.',
-  'tours.addToDay.pickDay': 'Tag auswählen',
   'tours.badge.wanderer': 'wanderer',
   'tours.badge.gpx': 'GPX-Import',
   'tours.badge.planned': 'in TREK geplant',
@@ -19,7 +17,7 @@ const tours: TranslationStrings = {
   'tours.badgeShort.wanderer': 'wanderer',
   'tours.caution.badge': 'mit Vorsicht verwenden',
   'tours.caution.tooltip': 'Höhendaten oder Streckenwerte unvollständig – mit Vorsicht importiert',
-  'tours.import.caution': 'Mit Vorsicht importiert – Höhendaten oder Streckenwerte unvollständig',
+  'tours.import.caution': 'Importiert, aber die Datei enthält keine vollständigen Höhendaten',
   'tours.import.success': '{count} Touren importiert',
   'tours.import.success.one': '{count} Tour importiert',
   'tours.import.noTrackIn': 'Keine Strecke oder Route in {name} gefunden',
@@ -93,7 +91,6 @@ const tours: TranslationStrings = {
   'tours.detail.maxAltitude': 'Höchster Punkt',
   'tours.detail.ascent': 'Aufstieg',
   'tours.detail.descent': 'Abstieg',
-  'tours.detail.source': 'Quelle',
   'tours.detail.navigationHint': 'Die Navigation führt zum Startpunkt, nicht entlang der Tour.',
   'tours.planner.title': 'Tour planen',
   'tours.planner.newTour': 'Neue Tour planen',
@@ -166,12 +163,12 @@ const tours: TranslationStrings = {
   'tours.planner.tripTours': 'Touren dieser Reise',
   'tours.planner.safetyNote': 'TREK hilft bei der Planung, bewertet aber nicht die Sicherheit einer Route.',
   'tours.planner.maxDifficulty': 'Maximale Wegschwierigkeit',
-  'tours.planner.difficulty.t1': 'T1 – Wandern',
-  'tours.planner.difficulty.t2': 'T2 – Bergwandern',
-  'tours.planner.difficulty.t3': 'T3 – Anspruchsvolles Bergwandern',
-  'tours.planner.difficulty.t4': 'T4 – Alpinwandern',
-  'tours.planner.difficulty.t5': 'T5 – Anspruchsvolles Alpinwandern',
-  'tours.planner.difficulty.t6': 'T6 – Schwieriges Alpinwandern',
+  'tours.planner.difficulty.t1': 'T1: Wandern',
+  'tours.planner.difficulty.t2': 'T2: Bergwandern',
+  'tours.planner.difficulty.t3': 'T3: Anspruchsvolles Bergwandern',
+  'tours.planner.difficulty.t4': 'T4: Alpinwandern',
+  'tours.planner.difficulty.t5': 'T5: Anspruchsvolles Alpinwandern',
+  'tours.planner.difficulty.t6': 'T6: Schwieriges Alpinwandern',
   'tours.planner.difficulty.t3Warning':
     'T3-Routen können ausgesetzte oder technisch anspruchsvolle Bergwege enthalten. Trittsicherheit und Schwindelfreiheit sind erforderlich.',
   'tours.planner.difficulty.alpineTitle': 'Alpine Routenplanung aktivieren?',
@@ -693,6 +690,12 @@ const tours: TranslationStrings = {
   'tours.gpxExport.shareReady':
     'Die GPX-Datei ist bereit. Tippe noch einmal auf Teilen, um den Teilen-Dialog zu öffnen.',
   'tours.gpxExport.shareFailed': 'Teilen hat nicht geklappt. Die GPX-Datei lässt sich weiterhin herunterladen.',
+  'tours.gpxExport.shareTour': 'Tour teilen',
+  'tours.gpxExport.shareTourSaveFirst': 'Speichere die Tour zuerst, um sie zu teilen',
+  'tours.gpxExport.shareCopied': 'Die Tourdaten wurden in die Zwischenablage kopiert.',
+  'tours.gpxExport.shareCopyFailed': 'Die Tourdaten ließen sich nicht kopieren.',
+  'tours.gpxExport.shareDuration': 'Dauer: {time}',
+  'tours.gpxExport.shareTrip': 'Reise: {name}',
   'tours.revision.remoteTitle': 'Diese Tour wurde woanders gespeichert',
   'tours.revision.remoteBody':
     'Jemand, oder du auf einem anderen Gerät, hat sie gespeichert, während du sie bearbeitest. Deine Änderungen bleiben, bis du entscheidest.',
@@ -1514,6 +1517,20 @@ const tours: TranslationStrings = {
   'tours.dayTime.nextItem': 'der nächste Eintrag',
   'tours.dayTime.formHint': 'Leer gelassen, wird das Ende berechnet: {time}, der Start plus die Tourzeit von {total}.',
   'tours.dayTime.formNoStart': 'Mit einer Startzeit wird das Ende aus der Tourzeit von {total} berechnet.',
+  'tours.poi.categoriesLimit':
+    'Du kannst höchstens {count} Arten gleichzeitig suchen. Entferne eine, um eine andere hinzuzufügen.',
+  'tours.poi.categoriesLimit.one':
+    'Du kannst höchstens {count} Art gleichzeitig suchen. Entferne sie, um eine andere hinzuzufügen.',
+  'tours.import.fileTooLarge': 'Die Datei ist zu groß. Tourdateien dürfen höchstens {maxMb} MB groß sein.',
+  'tours.planner.nothingToSave': 'Noch nichts zu speichern. Ändere zuerst die Tour.',
+  'tours.detail.openInTours': 'Im Tab Touren öffnen',
+  'tours.planner.status.routingGeneric': 'Route wird berechnet…',
+  'tours.planner.emptyHintPlacing':
+    'Klicke auf die Karte, um Punkte zu setzen. Ab zwei Punkten berechnet TREK die Route.',
+  'tours.ski.drawStraight': 'Gerade zeichnen',
+  'tours.horse.routes.stale': 'Die Liste zeigt den Kartenausschnitt, den du durchsucht hast. Suche für diesen erneut.',
+  'tours.horse.dialog.adoptGapHint':
+    'Schließe die Lücke zuerst mit einem manuellen Abschnitt oder wähle einen Abschnitt, der dort beginnt, wo dein Ritt endet.',
 };
 
 export default tours;

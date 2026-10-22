@@ -222,5 +222,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'O número de dias é obrigatório',
   'dashboard.tripChangeNeedsConnection':
     'Mudar as datas, o número de dias, a moeda ou a capa precisa de conexão. Nome, descrição e lembrete podem ser alterados offline.',
+  'dashboard.ics.enable': 'Ativar assinatura do calendário',
+  'dashboard.ics.enableHint':
+    'Cria um link secreto que qualquer pessoa com ele pode ler sem fazer login. Você pode desativá-lo a qualquer momento.',
+  'dashboard.ics.regenerate': 'Gerar novamente',
+  'dashboard.ics.turnOff': 'Desativar',
+  'dashboard.ics.manageHint':
+    'Gerar novamente cria um novo link e invalida o antigo. Desativar desabilita o link por completo.',
+  'dashboard.ics.addGoogle': 'Adicionar ao Google Agenda',
+  'dashboard.ics.addApple': 'Adicionar ao Calendário da Apple / Outlook',
+  'dashboard.ics.copyManually': 'Ou copie um link manualmente',
+  'dashboard.ics.pasteFromUrl': 'cole em “Do URL”',
 };
 export default dashboard;

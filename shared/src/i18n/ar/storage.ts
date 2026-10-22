@@ -31,7 +31,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'إضافة واجهة خلفية',
   'storage.backends.usedBy': 'مستخدَمة بواسطة: {categories}',
   'storage.backends.unused': 'غير مخصّصة لأي فئة',
-  'storage.backends.envReadOnly': 'محدَّدة بواسطة متغيّر بيئة — للقراءة فقط',
+  'storage.backends.envReadOnly': 'محدَّدة بواسطة متغيّر بيئة (للقراءة فقط)',
   'storage.source.built-in': 'مدمجة',
   'storage.source.env': 'البيئة',
   'storage.source.settings': 'الإعدادات',

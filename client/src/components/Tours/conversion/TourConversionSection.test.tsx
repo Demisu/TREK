@@ -88,6 +88,30 @@ describe('useGpxConversion', () => {
     expect(routing.route).toHaveBeenLastCalledWith(expect.any(Array), expect.any(AbortSignal), 3);
   });
 
+  it('routes an ungraded hike again with every path allowed when T3 finds no way, and plans it with that grade', async () => {
+    const ungraded = { ...imported, max_hiking_difficulty: null };
+    routing.route.mockResolvedValueOnce(null);
+    const startDerivedTour = vi.fn().mockReturnValue(true);
+    const { result } = renderHook(() =>
+      useGpxConversion(
+        planner({
+          startDerivedTour,
+          mode: { type: 'view-gpx', placeId: ungraded.place_id, tour: ungraded },
+          readOnlyGpxTour: { tour: ungraded, routeGeometry: null },
+        } as Partial<TourPlannerController>)
+      )
+    );
+    await act(async () => {
+      await result.current.analyze();
+    });
+    expect(routing.route.mock.calls.map((call) => call[2])).toEqual([3, 6]);
+    expect(result.current.status).toBe('ready');
+    act(() => {
+      result.current.adopt('new');
+    });
+    expect(startDerivedTour).toHaveBeenCalledWith(expect.objectContaining({ difficulty: 6 }));
+  });
+
   it('PR1-05A: says so when no route is found, and stays retryable', async () => {
     routing.route.mockResolvedValueOnce(null);
     const { result } = renderHook(() => useGpxConversion(planner()));

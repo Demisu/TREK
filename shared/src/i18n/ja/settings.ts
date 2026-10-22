@@ -280,7 +280,8 @@ const settings: TranslationStrings = {
   'settings.mustChangePassword': '続行するにはパスワード変更が必要です。',
   'settings.deleteAccount': 'アカウント削除',
   'settings.deleteAccountTitle': 'アカウントを削除しますか？',
-  'settings.deleteAccountWarning': 'すべてのデータが完全に削除されます。',
+  'settings.deleteAccountWarning':
+    'アカウントと、あなたが所有するすべての旅行、ジャーナル、場所、ファイルが完全に削除されます。他のメンバーと共有している旅行も含まれ、そのメンバーはアクセスできなくなります。他の人が所有する旅行は残り、あなたはそこから外されます。この操作は元に戻せません。',
   'settings.deleteAccountConfirm': '完全に削除',
   'settings.deleteBlockedTitle': '削除できません',
   'settings.deleteBlockedMessage': '唯一の管理者です。別のユーザーを管理者にしてください。',
@@ -498,10 +499,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.force': 'オフラインモードを強制',
   'settings.offline.mode.forceHint':
     'キャッシュ済みのデータのみで作業し、変更はキューに保存します。オフにすると再接続して同期します。',
-  'settings.offline.mode.active': 'オフラインモードがオンです — 変更はキューに保存され、オフにすると同期されます。',
+  'settings.offline.mode.active': 'オフラインモードがオンです：変更はキューに保存され、オフにすると同期されます。',
   'settings.offline.prepare.title': 'オフラインの準備',
   'settings.offline.prepare.hint':
-    '接続が切れる前に、必要なもの — 旅行データ、ドキュメント、地図タイル — をすべてダウンロードします。',
+    '接続が切れる前に、必要なもの（旅行データ、ドキュメント、地図タイル）をすべてダウンロードします。',
   'settings.offline.prepare.button': 'オフライン用にダウンロード',
   'settings.offline.prepare.running': 'ダウンロード中…',
   'settings.offline.prepare.done': 'オフラインで利用できます',
@@ -568,7 +569,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': '予約ルートを常に表示',
   'settings.alwaysShowRoutesHint':
     'フライトや電車などすべての予約のルートを、個別にオンにしなくても地図上に自動的に表示します。',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'このキーが読み取れる範囲',
@@ -609,7 +609,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'コピーできませんでした。テキストを選択して手動でコピーしてください。',
   'settings.apiKeys.modal.createTitle': 'API キーを作成',
   'settings.apiKeys.modal.name': '名前',
-  'settings.apiKeys.modal.namePlaceholder': '例: Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': '例: 自宅ダッシュボード',
   'settings.apiKeys.modal.nameHint': 'あとで見分けるための、あなた用の名前です。',
   'settings.apiKeys.modal.creating': '作成中...',
   'settings.apiKeys.modal.create': '作成',
@@ -617,6 +617,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     '今すぐキーをコピーしてください。表示は一度きりで、あとから取得はできません。',
   'settings.apiKeys.modal.done': '完了',
+  'settings.mcp.deprecated': '非推奨',
+  'settings.offline.cache.dateRange': '{start}から{end}',
 };
 
 export default settings;

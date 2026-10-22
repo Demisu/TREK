@@ -42,6 +42,12 @@ export interface PlacesFileImportOptions {
   /** The desktop dialog's opening: each one starts clean, with a file dropped on the sidebar already chosen. */
   open?: boolean;
   initialFile?: File | null;
+  /**
+   * Several files chosen before the opening, which the places column hands on
+   * when the Tours import found no line in them; wins over `initialFile`. The
+   * phone's step reads it too, with `open` set while it is given.
+   */
+  initialFiles?: readonly File[] | null;
 }
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
@@ -77,6 +83,7 @@ export function usePlacesFileImport({
   variant,
   open,
   initialFile,
+  initialFiles,
 }: PlacesFileImportOptions) {
   const [files, setFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -111,28 +118,24 @@ export function usePlacesFileImport({
   };
 
   // When the dialog opens, reset state and pre-load any file dropped from the sidebar.
-  const prepareOpening = useEffectEvent((file: File | null | undefined) => {
+  const prepareOpening = useEffectEvent((chosen: readonly File[]) => {
     setIsDragOver(false);
     setLoading(false);
     setSummary(null);
-    if (file) {
+    const valid: File[] = [];
+    let firstError = '';
+    for (const file of chosen) {
       const err = validateFile(file);
-      if (err) {
-        setFiles([]);
-        setError(err);
-      } else {
-        setFiles([file]);
-        setError('');
-      }
-    } else {
-      setFiles([]);
-      setError('');
+      if (err) firstError = firstError || err;
+      else valid.push(file);
     }
+    setFiles(valid);
+    setError(firstError);
   });
   useEffect(() => {
     if (!open) return;
-    prepareOpening(initialFile);
-  }, [open, initialFile]);
+    prepareOpening(initialFiles ?? (initialFile ? [initialFile] : []));
+  }, [open, initialFile, initialFiles]);
 
   const selectFiles = (incoming: File[]) => {
     if (incoming.length === 0) return;

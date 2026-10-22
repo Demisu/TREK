@@ -66,8 +66,8 @@ describe('Tours English and German copy', () => {
       expect(params(toursText(de, key)), key).toEqual(params(toursText(en, key)))
     }
     for (let level = 1; level <= 6; level++) {
-      expect(en[`tours.planner.difficulty.t${level}`]).toMatch(new RegExp(`^T${level} `))
-      expect(de[`tours.planner.difficulty.t${level}`]).toMatch(new RegExp(`^T${level} `))
+      expect(en[`tours.planner.difficulty.t${level}`]).toMatch(new RegExp(`^T${level}: `))
+      expect(de[`tours.planner.difficulty.t${level}`]).toMatch(new RegExp(`^T${level}: `))
     }
     expect(de['tours.planner.safetyNote']).toMatch(/Sicherheit/)
     expect(de['tours.planner.difficulty.t3Warning']).toMatch(/Trittsicherheit/)

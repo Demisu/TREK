@@ -212,7 +212,8 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX-Tracks',
   'journey.settings.recordings': 'Aufgezeichnete Tage',
   'journey.settings.showTripTracks': 'Alle GPX-Tracks der Reisen anzeigen',
-  'journey.settings.showTripTracksHint': 'Zeichnet die aufgezeichneten Routen der verknüpften Reisen auf die Karte.',
+  'journey.settings.showTripTracksHint':
+    'Zeichnet die geplanten Routen (GPX-Tracks) der verknüpften Reisen auf der Karte.',
   'journey.settings.autoPrepare': 'Aufgezeichnete Tage automatisch vorbereiten',
   'journey.settings.autoPrepareHint':
     'Solange eine verknüpfte Reise läuft, warten die Aufenthalte aus deinem Dawarich an ihrem Tag auf deine Prüfung. Mitschreibende mit eigener Verbindung bekommen ihre eigenen. Ins Journal wird nichts von selbst geschrieben.',
@@ -910,5 +911,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Aufgezeichnete Tage und die daraus übernommenen Aufenthalte, an Tagen mit veröffentlichtem Eintrag. Sie zeigen, wo und wann du warst, auch deine Unterkunft.',
   'journey.share.needsMap': 'Teile die Karte, um das einzuschalten',
+  'journey.editor.tags': 'Tags', // same-as-en
 };
 export default journey;

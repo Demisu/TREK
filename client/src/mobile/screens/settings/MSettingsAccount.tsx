@@ -368,7 +368,7 @@ function MPasskeysCard({ demoMode }: { demoMode?: boolean }): React.ReactElement
                     </div>
                     <p className="m-0 mt-[2px] font-geist text-[0.625rem] text-m-faint">
                       {t('settings.passkey.added')}: {fmtDate(c.created_at) || '—'}
-                      {' · '}
+                      {', '}
                       {c.last_used_at
                         ? `${t('settings.passkey.lastUsed')}: ${fmtDate(c.last_used_at)}`
                         : t('settings.passkey.neverUsed')}

@@ -204,7 +204,36 @@ describe('createAccommodation', () => {
     const reservation = await linkedReservation(accom.id);
     expect(reservation).not.toBeNull();
     expect(reservation.type).toBe('hotel');
-    expect(reservation.status).toBe('confirmed');
+    expect(reservation.status).toBe('pending');
+  });
+
+  it('DAY-SVC-020a — the linked reservation is confirmed with a confirmation number, and a later number confirms a pending one', async () => {
+    const { user } = createUser(testDb);
+    const trip = createTrip(testDb, user.id);
+    const day = createDay(testDb, trip.id);
+    const place = createPlace(testDb, trip.id, { name: 'City Hotel' });
+
+    const withNumber = await svc.createAccommodation(trip.id, {
+      place_id: place.id,
+      start_day_id: day.id,
+      end_day_id: day.id,
+      confirmation: 'ABC123',
+    });
+    const numberedId = withNumber.accommodation?.id ?? 0;
+    expect((await linkedReservation(numberedId))?.status).toBe('confirmed');
+
+    const bare = await svc.createAccommodation(trip.id, {
+      place_id: place.id,
+      start_day_id: day.id,
+      end_day_id: day.id,
+    });
+    const bareId = bare.accommodation?.id ?? 0;
+    expect((await linkedReservation(bareId))?.status).toBe('pending');
+    const existing = await svc.getAccommodation(bareId, trip.id);
+    // The stay was created a line above, so a miss here is the test's own failure.
+    if (!existing) throw new Error('the bare stay was not found');
+    await svc.updateAccommodation(bareId, existing, { confirmation: 'XYZ' });
+    expect((await linkedReservation(bareId))?.status).toBe('confirmed');
   });
 
   it('ACC-005 — titles the partner reservation "Hotel" when the stay has no place', async () => {

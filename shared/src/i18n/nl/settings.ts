@@ -117,7 +117,7 @@ const settings: TranslationStrings = {
   'settings.mcp.clientConfigHint':
     'Vervang <your_token> door een API-token uit de onderstaande lijst. Het pad naar npx moet mogelijk worden aangepast voor jouw systeem (bijv. C:\\PROGRA~1\\nodejs\\npx.cmd op Windows).',
   'settings.mcp.clientConfigHintOAuth':
-    'Replace <your_client_id> and <your_client_secret> with the credentials shown in the OAuth 2.1 client you created above. mcp-remote will open your browser to complete the authorization the first time you connect. The path to npx may need to be adjusted for your system (e.g. C:PROGRA~1\nodejs\npx.cmd on Windows).',
+    'Vervang <your_client_id> en <your_client_secret> door de gegevens die worden getoond in de hierboven aangemaakte OAuth 2.1-client. Bij de eerste verbinding opent mcp-remote je browser om de autorisatie te voltooien. Het pad naar npx moet mogelijk worden aangepast voor jouw systeem (bijv. C:\\PROGRA~1\\nodejs\\npx.cmd op Windows).',
   'settings.mcp.copy': 'Kopiëren',
   'settings.mcp.copied': 'Gekopieerd!',
   'settings.mcp.apiTokens': 'API-tokens',
@@ -135,7 +135,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Token aanmaken',
   'settings.mcp.modal.createdTitle': 'Token aangemaakt',
   'settings.mcp.modal.createdWarning':
-    'Dit token wordt slechts één keer getoond. Kopieer en bewaar het nu — het kan niet worden hersteld.',
+    'Dit token wordt slechts één keer getoond. Kopieer en bewaar het nu: het kan niet worden hersteld.',
   'settings.mcp.modal.done': 'Klaar',
   'settings.mcp.toast.created': 'Token aangemaakt',
   'settings.mcp.toast.createError': 'Token aanmaken mislukt',
@@ -177,14 +177,14 @@ const settings: TranslationStrings = {
     'Eén URI per regel. HTTPS, loopback-HTTP of een eigen app-schema (myapp://). Exacte overeenkomst, behalve de poort van een loopback-URI.',
   'settings.oauth.modal.scopes': 'Toegestane rechten',
   'settings.oauth.modal.scopesHint':
-    "list_trips en get_trip_summary zijn altijd beschikbaar — geen recht vereist. Ze helpen de AI trip-ID's te ontdekken.",
+    "list_trips en get_trip_summary zijn altijd beschikbaar: geen recht vereist. Ze helpen de AI trip-ID's te ontdekken.",
   'settings.oauth.modal.selectAll': 'Alles selecteren',
   'settings.oauth.modal.deselectAll': 'Alles deselecteren',
   'settings.oauth.modal.creating': 'Registreren…',
   'settings.oauth.modal.create': 'Client registreren',
   'settings.oauth.modal.createdTitle': 'Client geregistreerd',
   'settings.oauth.modal.createdWarning':
-    'Het clientgeheim wordt slechts eenmalig getoond. Kopieer het nu — het kan niet worden hersteld.',
+    'Het clientgeheim wordt slechts eenmalig getoond. Kopieer het nu: het kan niet worden hersteld.',
   'settings.oauth.toast.createError': 'OAuth-client kon niet worden geregistreerd',
   'settings.oauth.toast.deleted': 'OAuth-client verwijderd',
   'settings.oauth.toast.deleteError': 'OAuth-client kon niet worden verwijderd',
@@ -252,7 +252,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Account verwijderen',
   'settings.deleteAccountTitle': 'Account verwijderen?',
   'settings.deleteAccountWarning':
-    'Je account en al je reizen, plaatsen en bestanden worden permanent verwijderd. Deze actie kan niet ongedaan worden gemaakt.',
+    'Je account en alle reizen, dagboeken, plaatsen en bestanden die van jou zijn worden definitief verwijderd, ook reizen die met andere leden zijn gedeeld; zij verliezen de toegang. Reizen van anderen blijven bestaan en jij wordt eruit verwijderd. Deze actie kan niet ongedaan worden gemaakt.',
   'settings.deleteAccountConfirm': 'Permanent verwijderen',
   'settings.deleteBlockedTitle': 'Verwijderen niet mogelijk',
   'settings.deleteBlockedMessage':
@@ -354,7 +354,7 @@ const settings: TranslationStrings = {
   'settings.webPush.failed': 'Push kon niet worden ingeschakeld op dit apparaat.',
   'settings.currency': 'Weergavevaluta',
   'settings.currencyHint':
-    'Bedragen onder Onkosten worden alleen ter weergave naar deze valuta omgerekend — de oorspronkelijke bedragen blijven ongewijzigd.',
+    'Bedragen onder Onkosten worden alleen ter weergave naar deze valuta omgerekend; de oorspronkelijke bedragen blijven ongewijzigd.',
   'settings.currencyTrip': 'Valuta van de reis',
   'settings.placeLanguage': 'Plaatsnamen',
   'settings.placeLanguageApp': 'Zelfde als de app',
@@ -362,7 +362,7 @@ const settings: TranslationStrings = {
     'De taal waarin zoeken naar plaatsen, suggesties en adressen antwoorden. Heeft een plaats geen naam in die taal, dan wordt de lokale naam getoond.',
   'settings.passkey.title': 'Passkeys',
   'settings.passkey.description':
-    'Log sneller en phishingbestendig in met een passkey — je vingerafdruk, gezicht, pincode of een hardwaresleutel. Je wachtwoord blijft als back-up bestaan.',
+    'Log sneller en phishingbestendig in met een passkey: je vingerafdruk, gezicht, pincode of een hardwaresleutel. Je wachtwoord blijft als back-up bestaan.',
   'settings.passkey.notConfigured':
     'Passkeys zijn ingeschakeld maar nog niet volledig geconfigureerd op deze server. Vraag je beheerder om het WebAuthn-domein in te stellen.',
   'settings.passkey.add': 'Een passkey toevoegen',
@@ -528,10 +528,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Werk alleen met gecachte gegevens en zet je wijzigingen in de wachtrij. Schakel uit om opnieuw te verbinden en te synchroniseren.',
   'settings.offline.mode.active':
-    'Offlinemodus staat aan — je wijzigingen staan in de wachtrij en worden gesynchroniseerd zodra je hem uitschakelt.',
+    'Offlinemodus staat aan: je wijzigingen staan in de wachtrij en worden gesynchroniseerd zodra je hem uitschakelt.',
   'settings.offline.prepare.title': 'Voorbereiden op offline',
   'settings.offline.prepare.hint':
-    'Download alles wat je nodig hebt — reisgegevens, documenten en kaarttegels — voordat je je verbinding verliest.',
+    'Download alles wat je nodig hebt (reisgegevens, documenten en kaarttegels) voordat je je verbinding verliest.',
   'settings.offline.prepare.button': 'Downloaden voor offline gebruik',
   'settings.offline.prepare.running': 'Downloaden…',
   'settings.offline.prepare.done': 'Klaar voor offline gebruik',
@@ -605,7 +605,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'Boekingsroutes altijd tonen',
   'settings.alwaysShowRoutesHint':
     'Toont automatisch de route van elke vlucht, trein en andere boeking op de kaart, zonder dat u dit per boeking hoeft in te schakelen.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Wat deze sleutel mag lezen',
@@ -650,7 +649,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Kopiëren is mislukt. Selecteer de tekst en kopieer hem handmatig.',
   'settings.apiKeys.modal.createTitle': 'API-sleutel aanmaken',
   'settings.apiKeys.modal.name': 'Naam',
-  'settings.apiKeys.modal.namePlaceholder': 'bijv. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'bijv. Dashboard thuis',
   'settings.apiKeys.modal.nameHint': 'Alleen voor jou, zodat je de sleutel later herkent.',
   'settings.apiKeys.modal.creating': 'Aanmaken...',
   'settings.apiKeys.modal.create': 'Aanmaken',
@@ -658,6 +657,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Kopieer de sleutel nu. Hij wordt één keer getoond en kan later niet worden opgehaald.',
   'settings.apiKeys.modal.done': 'Klaar',
+  'settings.mcp.deprecated': 'Verouderd',
+  'settings.offline.cache.dateRange': '{start} tot {end}',
 };
 
 export default settings;

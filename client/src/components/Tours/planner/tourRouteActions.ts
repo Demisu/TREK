@@ -214,7 +214,7 @@ function dropPaddleOnly<T extends RoutePoint>(point: T): T {
 }
 
 /**
- * PAD-03: the leg after this point carried as a portage, or paddled again. At
+ * PAD-03: the leg after this point carried as a portage, or planned on the water again. At
  * the last point there is no leg yet: the portage waits for the next point.
  */
 export function togglePortageLeg<T extends RoutePoint>(points: readonly T[], id: string): T[] {
@@ -228,10 +228,13 @@ export function togglePortageLeg<T extends RoutePoint>(points: readonly T[], id:
     copy[index] = (carryNext ? own : { ...point, carryNext: true }) as T;
     return copy;
   }
-  copy[index] = {
-    ...point,
-    fixedLeg: isPortage(point.fixedLeg) ? freeLegBetween(point, next) : portageLegBetween(point, next),
-  };
+  if (isPortage(point.fixedLeg)) {
+    // Paddled again means planned on the water again, not drawn by hand: the leg keeps no line of its own.
+    const { fixedLeg: _portage, ...routed } = point;
+    copy[index] = routed as T;
+    return copy;
+  }
+  copy[index] = { ...point, fixedLeg: portageLegBetween(point, next) };
   return copy;
 }
 

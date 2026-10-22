@@ -39,7 +39,7 @@ type Place =
   | { kind: 'covered'; region: RegionRef }
   | { kind: 'held'; row: PaddleRegionRow }
   | { kind: 'catalogue'; region: GeofabrikRegion }
-  | { kind: 'none'; reason: 'no_extract' | 'catalog_unavailable' };
+  | { kind: 'none'; reason: 'off' | 'no_extract' | 'catalog_unavailable' };
 
 function areaOf(box: { south: number; west: number; north: number; east: number }): number {
   return (box.north - box.south) * (box.east - box.west);
@@ -130,7 +130,9 @@ export class PaddleRegionLoadService {
    * request filed is whole on its own and stays when a later place fails
    */
   async load(user: User, request: PaddleRegionLoadRequest): Promise<PaddleRegionLoadState[]> {
-    const places = await Promise.all(request.points.map((point) => this.placeOf(point)));
+    // With downloads switched off nothing new is ever loaded, so Geofabrik is not asked at all.
+    const downloads = (await this.settings()).mode !== 'off';
+    const places = await Promise.all(request.points.map((point) => this.placeOf(point, downloads)));
     const decided = new Map<string, PaddleRegionLoadState>();
     // One after the other: two places in one region must not both add it or file it.
     const answers: PaddleRegionLoadState[] = [];
@@ -145,7 +147,7 @@ export class PaddleRegionLoadService {
     return answers;
   }
 
-  private async placeOf(point: PaddleRoutePoint): Promise<Place> {
+  private async placeOf(point: PaddleRoutePoint, downloads: boolean): Promise<Place> {
     const covering = await this.routing.regionsCovering(point.lat, point.lng);
     const held = (await this.regions.aroundPoint(point.lat, point.lng)).filter((row) => {
       const boundary = decodeJson(PADDLE_REGION_BOUNDARY, row.boundary, row.id);
@@ -158,6 +160,7 @@ export class PaddleRegionLoadService {
     if (coveringRow) return { kind: 'covered', region: { id: coveringRow.id, name: coveringRow.name } };
     const row = smallest(held, rowArea);
     if (row) return { kind: 'held', row };
+    if (!downloads) return { kind: 'none', reason: 'off' };
     let catalogue: Map<string, GeofabrikRegion>;
     try {
       catalogue = await this.geofabrik.regions();

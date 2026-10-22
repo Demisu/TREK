@@ -104,7 +104,7 @@ export function usePackingList({ tripId, items, openImportSignal = 0, addCategor
     return groups
   }, [viewItems, filter, sort, locale, t])
 
-  const { checked: abgehakt, pct: fortschritt } = packingProgress(viewItems)
+  const { checked: abgehakt, pct: fortschritt, total: viewTotal } = packingProgress(viewItems)
 
   // A category dropped onto another takes its place; the slice reorders
   // optimistically and rolls back with a toast of its own.
@@ -220,7 +220,7 @@ export function usePackingList({ tripId, items, openImportSignal = 0, addCategor
     handleSetSharing, handleCloneItem, handleJoinItem, handleLeaveItem,
     tripId, items, inlineHeader, t, canEdit, isAdmin, font, reorderPackingItems,
     filter, setFilter, sort, setSort, addingCategory, setAddingCategory, newCatName, setNewCatName,
-    tripMembers, categoryAssignees, handleSetAssignees, allCategories, gruppiert, abgehakt, fortschritt, moveCategory,
+    tripMembers, categoryAssignees, handleSetAssignees, allCategories, gruppiert, abgehakt, fortschritt, viewTotal, moveCategory,
     handleAddItemToCategory, handleAddNewCategory, handleRenameCategory, handleDeleteCategory, handleDeleteItem, handleClearChecked,
     bagTrackingEnabled, bags, unassignedWeightGrams, serverWeightsFresh, newBagName, setNewBagName, showAddBag, setShowAddBag, showBagModal, setShowBagModal,
     handleCreateBag, handleCreateBagByName, handleDeleteBag, handleUpdateBag, handleSetBagMembers,

@@ -220,7 +220,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX-треки',
   'journey.settings.recordings': 'Записані дні',
   'journey.settings.showTripTracks': 'Показувати всі GPX-треки подорожей',
-  'journey.settings.showTripTracksHint': 'Малює на карті записані маршрути зі зв’язаних подорожей.',
+  'journey.settings.showTripTracksHint': "Малює на мапі заплановані маршрути (треки GPX) пов'язаних подорожей.",
   'journey.settings.autoPrepare': 'Автоматично готувати записані дні',
   'journey.settings.autoPrepareHint':
     "Поки пов'язана подорож триває, зупинки з твого Dawarich чекають на перевірку біля свого дня. Редактори з власним підключенням отримують свої. До журналу нічого не записується саме.",
@@ -952,5 +952,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Записані дні та взяті з них зупинки, у дні з опублікованим записом. Вони показують, де і коли ви були, зокрема ваше житло.',
   'journey.share.needsMap': 'Відкрийте доступ до карти, щоб увімкнути це',
+  'journey.editor.tags': 'Теги',
 };
 export default journey;

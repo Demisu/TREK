@@ -160,6 +160,8 @@ export function useAdmin() {
   const [invites, setInvites] = useState<any[]>([])
   const [inviteTrips, setInviteTrips] = useState<{ id: number; title: string }[]>([])
   const [showCreateInvite, setShowCreateInvite] = useState<boolean>(false)
+  // The invite whose delete waits for the admin's answer in the shell's confirm.
+  const [inviteToDelete, setInviteToDelete] = useState<number | null>(null)
   const [inviteForm, setInviteForm] = useState<{ max_uses: number; expires_in_days: number | ''; trip_id: number | '' }>({ max_uses: 1, expires_in_days: 7, trip_id: '' })
 
   // File types
@@ -480,6 +482,7 @@ export function useAdmin() {
   }
 
   const handleDeleteInvite = async (id: number) => {
+    setInviteToDelete(null)
     try {
       await adminApi.deleteInvite(id)
       setInvites(prev => prev.filter(i => i.id !== id))
@@ -547,9 +550,9 @@ export function useAdmin() {
   const saveDemoBaseline = async () => {
     try {
       await adminApi.saveDemoBaseline()
-      toast.success('Baseline saved! Resets will restore to this state.')
+      toast.success(t('admin.demoBaseline.saved'))
     } catch (e: unknown) {
-      toast.error((e as { response?: { data?: { error?: string } } }).response?.data?.error || 'Failed to save baseline')
+      toast.error((e as { response?: { data?: { error?: string } } }).response?.data?.error || t('admin.demoBaseline.failed'))
     }
   }
 
@@ -603,6 +606,7 @@ export function useAdmin() {
     passkeyLogin, setPasskeyLogin, passkeyConfigured,
     webauthnRpId, setWebauthnRpId, webauthnOrigins, setWebauthnOrigins, savingWebauthn, handleSaveWebauthn,
     invites, setInvites, inviteTrips, showCreateInvite, setShowCreateInvite, inviteForm, setInviteForm,
+    inviteToDelete, setInviteToDelete,
     allowedFileTypes, setAllowedFileTypes, savingFileTypes, setSavingFileTypes,
     smtpValues, setSmtpValues, smtpLoaded,
     mapsKey, setMapsKey, weatherKey, setWeatherKey, unsplashKey, setUnsplashKey,

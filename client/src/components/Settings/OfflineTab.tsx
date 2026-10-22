@@ -15,7 +15,7 @@ import { RefreshCw, Trash2, Database, CloudOff, Download, Check, GitMerge, Map a
 import Section from './Section'
 import ToggleSwitch from './ToggleSwitch'
 import { SettingRow, SettingRows, SettingsHint, StatusPill, SETTINGS_BUTTON, SETTINGS_BUTTON_DANGER } from './settingsKit'
-import { useOfflineSettings, offlineNoticeKey, isOfflineNoticeWarning } from './useOfflineSettings'
+import { useOfflineSettings, offlineNoticeKey, isOfflineNoticeWarning, offlineProgressLabel, offlineRowMeta } from './useOfflineSettings'
 import { useTranslation } from '../../i18n'
 import CustomSelect from '../shared/CustomSelect'
 import ConfirmDialog from '../shared/ConfirmDialog'
@@ -34,7 +34,7 @@ function conflictName(m: QueuedMutation): string {
 }
 
 export default function OfflineTab(): React.ReactElement {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const {
     offline, forced,
     rows, allTrips, pendingCount, failedCount, conflicts,
@@ -45,12 +45,7 @@ export default function OfflineTab(): React.ReactElement {
   } = useOfflineSettings()
   const [confirmClear, setConfirmClear] = useState(false)
 
-  const formatDate = (d: string | null | undefined) =>
-    d ? new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'
-
-  const progressLabel = progress
-    ? `${t(`settings.offline.prepare.phase.${progress.phase === 'done' ? 'trips' : progress.phase}`)} · ${progress.current}/${progress.total}`
-    : ''
+  const progressLabel = offlineProgressLabel(progress, t)
 
   return (
     <div>
@@ -102,7 +97,7 @@ export default function OfflineTab(): React.ReactElement {
                     />
                   </div>
                   <div className="mt-1.5 font-geist tabular-nums text-content-muted" style={fs(11)}>
-                    {progressLabel}{progress.label ? ` · ${progress.label}` : ''}
+                    {progressLabel}
                   </div>
                 </div>
               )}
@@ -191,7 +186,7 @@ export default function OfflineTab(): React.ReactElement {
                       </div>
                       <div className={on ? 'text-success' : 'text-content-faint'} style={fs(11.5)}>
                         {on ? t('settings.offline.storage.tripOn') : t('settings.offline.storage.tripOff')}
-                        {!dateEligible && ` · ${t('settings.offline.storage.tripFinished')}`}
+                        {!dateEligible && `. ${t('settings.offline.storage.tripFinished')}`}
                       </div>
                     </div>
                     <ToggleSwitch on={on} onToggle={() => handleToggleTrip(trip)} label={trip.title} />
@@ -260,8 +255,7 @@ export default function OfflineTab(): React.ReactElement {
                     {trip.title}
                   </span>
                   <span className="truncate font-geist tabular-nums text-content-faint" style={fs(11.5)}>
-                    {formatDate(trip.start_date)} – {formatDate(trip.end_date)}
-                    {' · '}{placeCount}{' · '}{fileCount}
+                    {offlineRowMeta({ trip, placeCount, fileCount }, t, locale)}
                   </span>
                 </div>
                 <span className="flex-none font-geist tabular-nums text-content-muted" style={fs(11.5)}>

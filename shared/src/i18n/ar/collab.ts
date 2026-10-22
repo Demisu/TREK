@@ -126,5 +126,8 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'إرفاق صور',
   'collab.chat.attachedImage': 'صورة مرفقة',
   'collab.chat.closeImage': 'إغلاق الصورة',
+  'collab.notes.categoryInUse': 'ما زالت ملاحظات تستخدم هذه الفئة. انقلها أو احذفها أولاً لتتمكن من إزالة الفئة.',
+  'collab.notes.categoriesLocalHint':
+    'الفئة التي لا تحتوي على ملاحظات تُحفظ في هذا المتصفح فقط. يراها الأعضاء الآخرون عندما تستخدمها ملاحظة.',
 };
 export default collab;

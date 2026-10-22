@@ -294,8 +294,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'لم يستجب محرك التجنب لهذه المرحلة، لذلك رسمها المحرك الرئيسي. يجري سؤال محرك التجنب مرة أخرى الآن.',
   'roadtrip.day': 'اليوم {number}',
-  'roadtrip.quietDay.empty': 'لا توجد محطات بعد — أفلِت واحدة هنا',
-  'roadtrip.quietDay.one': 'حتى الآن {name} فقط — أفلِت محطة هنا',
+  'roadtrip.quietDay.empty': 'لا توجد محطات بعد، أفلِت واحدة هنا',
+  'roadtrip.quietDay.one': 'حتى الآن {name} فقط، أفلِت محطة هنا',
   'roadtrip.leg.driveText': '{distance} خلال {time}',
   'roadtrip.day.stopCount': '{count} محطة',
   'roadtrip.day.stopCount.zero': 'لا توجد محطات',
@@ -390,5 +390,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.checkIn': 'تسجيل الوصول',
   'roadtrip.bookend.afterCheckOut': 'الانطلاق بعد موعد تسجيل المغادرة',
   'roadtrip.bookend.noVia': 'لا يمكن وضع نقطة عبور على الطريق من مكان إقامتك أو إليه. أضف توقفاً هناك بدلاً من ذلك.',
+  'roadtrip.stay.untilHint':
+    'المغادرة عند {time} لأن لهذه الزيارة وقت انتهاء. افتحها واختر إزالة وقت الانتهاء لتحديد مدة إقامة بدلًا منه.',
 };
 export default roadtrip;

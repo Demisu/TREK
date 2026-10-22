@@ -264,8 +264,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Smerovač pre obchádzky na tento úsek neodpovedal, preto ho nakreslil hlavný smerovač. Požiadavka sa opakuje.',
   'roadtrip.day': 'Deň {number}',
-  'roadtrip.quietDay.empty': 'Zatiaľ žiadne zastávky — presuňte sem jednu',
-  'roadtrip.quietDay.one': 'Zatiaľ len {name} — presuňte sem zastávku',
+  'roadtrip.quietDay.empty': 'Zatiaľ žiadne zastávky, presuňte sem jednu',
+  'roadtrip.quietDay.one': 'Zatiaľ len {name}, presuňte sem zastávku',
   'roadtrip.leg.driveText': '{distance} za {time}',
   'roadtrip.day.stopCount': '{count} zastávok',
   'roadtrip.day.stopCount.one': '{count} zastávka',
@@ -351,5 +351,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Odchod po check-oute',
   'roadtrip.bookend.noVia':
     'Na jazde do ubytovania ani z neho nemôže byť prejazdový bod. Namiesto toho tam pridajte zastávku.',
+  'roadtrip.stay.untilHint':
+    'Odchod je o {time}, pretože táto návšteva má čas konca. Otvorte ju a zvoľte Odstrániť čas konca, aby ste namiesto toho nastavili dĺžku pobytu.',
 };
 export default roadtrip;

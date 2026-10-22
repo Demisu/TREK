@@ -7,6 +7,7 @@ import {
   EyeOff,
   Fingerprint,
   RefreshCw,
+  ShieldOff,
   UserCog,
   UserPlus,
 } from 'lucide-react';
@@ -97,6 +98,7 @@ function PasswordInput({
 export default function AdminUserModals({ admin, t }: AdminUserModalsProps): React.ReactElement {
   const {
     editingUser,
+    currentUser,
     setEditingUser,
     editForm,
     setEditForm,
@@ -113,11 +115,13 @@ export default function AdminUserModals({ admin, t }: AdminUserModalsProps): Rea
     handleCreateUser,
     handleSaveUser,
   } = admin;
-  const { rotateJwt, resetPasskeys } = useAdminUserActions(admin, t);
+  const { rotateJwt, resetPasskeys, resetMfa } = useAdminUserActions(admin, t);
   const [showCreatePw, setShowCreatePw] = React.useState(false);
   const [showEditPw, setShowEditPw] = React.useState(false);
   // The user whose passkeys wait for the admin's answer in the confirm dialog.
   const [passkeyResetUser, setPasskeyResetUser] = React.useState<typeof editingUser>(null);
+  // Same for the two-factor reset; an admin turns off their own 2FA in Settings, not here.
+  const [mfaResetUser, setMfaResetUser] = React.useState<typeof editingUser>(null);
   const uid = useId();
   const createId = `${uid}-create`;
   const editId = `${uid}-edit`;
@@ -297,6 +301,23 @@ export default function AdminUserModals({ admin, t }: AdminUserModalsProps): Rea
                 </button>
               </div>
             </DialogSection>
+            {editingUser && editingUser.id !== currentUser?.id && (
+              <DialogSection label={t('admin.mfa.reset')}>
+                <div className="flex flex-wrap items-center gap-3 rounded-[12px] border border-edge-faint bg-surface-secondary px-3.5 py-3">
+                  <p className="m-0 min-w-0 flex-1 basis-52 leading-snug text-content-muted" style={fs(12, 'body')}>
+                    {t('admin.mfa.resetHint')}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setMfaResetUser(editingUser)}
+                    className={`${SETTINGS_BUTTON_DANGER} flex-none`}
+                    style={fs(12.5, 'body')}
+                  >
+                    <ShieldOff size={14} /> {t('admin.mfa.reset')}
+                  </button>
+                </div>
+              </DialogSection>
+            )}
           </>
         )}
       </DialogShell>
@@ -398,7 +419,7 @@ docker run -d --name trek \\
             tint={DANGER_TINT}
             labelId={rotateId}
             onClose={() => setShowRotateJwtModal(false)}
-            title="Rotate JWT Secret"
+            title={t('admin.rotateJwt.title')}
           />
         }
         footer={
@@ -419,18 +440,17 @@ docker run -d --name trek \\
               ) : (
                 <RefreshCw className="h-3.5 w-3.5" />
               )}
-              Rotate &amp; Log out
+              {t('admin.rotateJwt.confirm')}
             </button>
           </DialogFooter>
         }
       >
         <div className="flex flex-col gap-1.5">
           <p className="m-0 font-semibold text-content" style={fs(13.5, 'body')}>
-            Warning, this will invalidate all sessions and log you out.
+            {t('admin.rotateJwt.warning')}
           </p>
           <p className="m-0 leading-normal text-content-muted" style={fs(12.5, 'body')}>
-            A new JWT secret will be generated immediately. Every logged-in user — including you — will be signed out
-            and will need to log in again.
+            {t('admin.rotateJwt.body')}
           </p>
         </div>
       </DialogShell>
@@ -445,6 +465,19 @@ docker run -d --name trek \\
         title={t('admin.passkey.reset')}
         message={passkeyResetUser ? t('admin.passkey.resetConfirm', { name: passkeyResetUser.username }) : ''}
         confirmLabel={t('admin.passkey.reset')}
+        danger
+      />
+
+      <ConfirmDialog
+        isOpen={mfaResetUser !== null}
+        onClose={() => setMfaResetUser(null)}
+        onConfirm={async () => {
+          if (!mfaResetUser) return;
+          await resetMfa(mfaResetUser);
+        }}
+        title={t('admin.mfa.reset')}
+        message={mfaResetUser ? t('admin.mfa.resetConfirm', { name: mfaResetUser.username }) : ''}
+        confirmLabel={t('admin.mfa.reset')}
         danger
       />
     </>

@@ -81,7 +81,10 @@ export function tileUrls(templates: readonly TileTemplate[], tiles: ReadonlyArra
   return [...new Set(urls)];
 }
 
-/** Fetches the URLs a few at a time and reports progress from 0 to 1. A failed tile is skipped, not retried. */
+/** How long one tile may take: a tile server that never answers must not hold the whole share below 1. */
+export const TILE_TIMEOUT_MS = 15_000;
+
+/** Fetches the URLs a few at a time and reports progress from 0 to 1. A failed or stalled tile is skipped, not retried. */
 export async function prefetchTiles(
   urls: readonly string[],
   signal: AbortSignal,
@@ -94,10 +97,17 @@ export async function prefetchTiles(
   const worker = async () => {
     while (next < urls.length && !signal.aborted) {
       const url = urls[next++];
+      const attempt = new AbortController();
+      const stop = () => attempt.abort();
+      signal.addEventListener('abort', stop);
+      const timer = setTimeout(stop, TILE_TIMEOUT_MS);
       try {
-        await fetch(url, { signal, mode: 'cors', cache: 'force-cache' });
+        await fetch(url, { signal: attempt.signal, mode: 'cors', cache: 'force-cache' });
       } catch {
-        // A missing tile only means the map loads that one itself later.
+        // A missing or stalled tile only means the map loads that one itself later.
+      } finally {
+        clearTimeout(timer);
+        signal.removeEventListener('abort', stop);
       }
       done++;
       onProgress(done / total);

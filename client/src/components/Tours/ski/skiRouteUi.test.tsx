@@ -156,7 +156,7 @@ describe('ski leg rows (SKI-02)', () => {
     expect(screen.getByText('Schwarze Wand')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'tours.ski.fix.raiseDifficulty' }));
     expect(onChoice).toHaveBeenCalledWith({ ...choice, options: { max_difficulty: 'advanced' } });
-    fireEvent.click(screen.getByRole('button', { name: 'tours.paddle.drawStraight' }));
+    fireEvent.click(screen.getByRole('button', { name: 'tours.ski.drawStraight' }));
     expect(onDrawStraight).toHaveBeenCalled();
   });
 

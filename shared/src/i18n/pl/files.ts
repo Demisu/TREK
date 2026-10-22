@@ -76,5 +76,10 @@ const files: TranslationStrings = {
     'Usunięcie tego powiązania wymaga połączenia. Spróbuj ponownie, gdy TREK znów będzie online.',
   'files.placeFilesNeedConnection':
     'Pliki wymagają połączenia, aby je przesłać. Usuń nowe, aby zapisać miejsce offline, albo zapisz, gdy znów będziesz online.',
+  'files.maxSize': 'Maks. {count} MB',
+  'files.maxSize.one': 'Maks. {count} MB',
+  'files.maxSize.few': 'Maks. {count} MB',
+  'files.maxSize.many': 'Maks. {count} MB',
+  'files.toast.starError': 'Nie udało się zmienić gwiazdki',
 };
 export default files;

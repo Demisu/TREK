@@ -279,8 +279,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Silnik omijania nie odpowiedział dla tego odcinka, więc narysował go silnik główny. Silnik omijania jest pytany ponownie.',
   'roadtrip.day': 'Dzień {number}',
-  'roadtrip.quietDay.empty': 'Brak przystanków — upuść tutaj',
-  'roadtrip.quietDay.one': 'Na razie tylko {name} — upuść tutaj przystanek',
+  'roadtrip.quietDay.empty': 'Brak przystanków, upuść tutaj',
+  'roadtrip.quietDay.one': 'Na razie tylko {name}, upuść tutaj przystanek',
   'roadtrip.leg.driveText': '{distance} w {time}',
   'roadtrip.day.stopCount': '{count} przystanku',
   'roadtrip.day.stopCount.one': '{count} przystanek',
@@ -368,5 +368,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Wyjazd po godzinie wymeldowania',
   'roadtrip.bookend.noVia':
     'Na trasie do noclegu ani z niego nie można dodać punktu pośredniego. Dodaj tam zamiast tego postój.',
+  'roadtrip.stay.untilHint':
+    'Wyjazd o {time}, bo ta wizyta ma godzinę zakończenia. Otwórz ją i wybierz Usuń godzinę zakończenia, aby ustawić czas pobytu.',
 };
 export default roadtrip;

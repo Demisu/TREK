@@ -44,6 +44,7 @@ const map: TranslationStrings = {
   'map.overview.unrouted.one': '{count} marşrut hissəsini hesablamaq mümkün olmadığından məsafələr tam deyil.',
   'map.overview.dayUnrouted': 'Bu günün {count} marşrut hissəsini hesablamaq mümkün olmadı',
   'map.overview.dayUnrouted.one': 'Bu günün {count} marşrut hissəsini hesablamaq mümkün olmadı',
+  'map.baseLayer.topo': 'Topoqrafik',
 };
 
 export default map;

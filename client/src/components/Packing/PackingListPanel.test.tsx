@@ -92,6 +92,17 @@ describe('PackingListPanel', () => {
     expect(screen.getByText(/1 of 2 packed/i)).toBeInTheDocument();
   });
 
+  it('FE-COMP-PACKING-006b: the progress total counts the open list only, not my list as well', () => {
+    const items = [
+      buildPackingItem({ name: 'Item1', checked: 1 }),
+      buildPackingItem({ name: 'Item2', checked: 0 }),
+      buildPackingItem({ name: 'Mine1', checked: 0, is_private: 1 }),
+      buildPackingItem({ name: 'Mine2', checked: 0, is_private: 1 }),
+    ];
+    render(<PackingListPanel tripId={1} items={items} />);
+    expect(screen.getByText(/1 of 2 packed/i)).toBeInTheDocument();
+  });
+
   it('FE-COMP-PACKING-007: shows progress bar for packed items', () => {
     const items = [
       buildPackingItem({ name: 'Item1', checked: 1 }),

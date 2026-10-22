@@ -41,5 +41,6 @@ const map: TranslationStrings = {
     'Per {count} tratta non è stato possibile calcolare il percorso, quindi le distanze sono incomplete.',
   'map.overview.dayUnrouted': 'Per {count} tratte di questo giorno non è stato possibile calcolare il percorso',
   'map.overview.dayUnrouted.one': 'Per {count} tratta di questo giorno non è stato possibile calcolare il percorso',
+  'map.baseLayer.topo': 'Topografica',
 };
 export default map;

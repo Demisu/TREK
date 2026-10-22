@@ -34,5 +34,7 @@ const notifications: TranslationStrings = {
   'notifications.versionAvailable.title': 'Elérhető frissítés',
   'notifications.versionAvailable.text': 'A TREK {version} már elérhető.',
   'notifications.versionAvailable.button': 'Részletek megtekintése',
+  'notifications.deleteAllConfirmTitle': 'Törlöd az összes értesítést?',
+  'notifications.deleteAllConfirmText': 'Minden értesítés véglegesen törlődik. Ez nem vonható vissza.',
 };
 export default notifications;

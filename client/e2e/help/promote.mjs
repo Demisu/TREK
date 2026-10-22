@@ -43,6 +43,30 @@ async function picture(src, dest, width) {
   files++
 }
 
+// A step's loop: its frames, at the width of a step picture, as one animated
+// WebP that loops forever. The first frame rests a little and the last one
+// long enough to read the result before it starts again.
+const FRAME_MS = 80
+const FIRST_MS = 600
+const LAST_MS = 1600
+
+async function animation(srcDir, dest) {
+  const frames = readdirSync(srcDir).filter(f => f.endsWith('.png')).sort()
+  if (frames.length < 2) return
+  for (const f of frames) before += statSync(path.join(srcDir, f)).size
+  if (dry) {
+    console.log(`  ${path.relative(SRC, srcDir)} → ${path.relative(DEST, dest)} (${frames.length} frames)`)
+    return
+  }
+  const buffers = await Promise.all(
+    frames.map(f => sharp(path.join(srcDir, f)).resize({ width: STEP_WIDTH, withoutEnlargement: true }).png().toBuffer()),
+  )
+  const delay = frames.map((_, i) => (i === 0 ? FIRST_MS : i === frames.length - 1 ? LAST_MS : FRAME_MS))
+  await sharp(buffers, { join: { animated: true } }).webp({ quality: 78, effort: 5, loop: 0, delay }).toFile(dest)
+  after += statSync(dest).size
+  files++
+}
+
 mkdirSync(DEST, { recursive: true })
 
 for (const dir of readdirSync(SRC)) {
@@ -51,6 +75,11 @@ for (const dir of readdirSync(SRC)) {
   const to = path.join(DEST, dir)
   mkdirSync(to, { recursive: true })
   for (const file of readdirSync(from)) {
+    const loop = /^step-(\d+)-loop$/.exec(file)
+    if (loop) {
+      await animation(path.join(from, file), path.join(to, `step-${loop[1]}.loop.webp`))
+      continue
+    }
     if (path.extname(file) !== '.png') continue
     const width = file.startsWith('step-') ? STEP_WIDTH : FRAME_WIDTH
     await picture(path.join(from, file), path.join(to, file.replace(/\.png$/, '.webp')), width)

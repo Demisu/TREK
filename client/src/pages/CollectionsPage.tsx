@@ -415,7 +415,7 @@ function CollectionsPageDesktop(): React.ReactElement {
       {c.listPickerMode && (
         <MoveToListModal
           mode={c.listPickerMode}
-          lists={c.ownedLists.filter(l => l.id !== c.activeId)}
+          lists={c.writableLists.filter(l => l.id !== c.activeId)}
           count={c.selectedIds.length}
           onPick={c.listPickerMode === 'move' ? c.handleMoveToList : c.handleDuplicateToList}
           onClose={() => c.setListPickerMode(null)}

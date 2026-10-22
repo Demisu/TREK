@@ -160,7 +160,7 @@ export class VacayController {
       throw new HttpException({ error: 'user_id required' }, 400);
     }
     const plan = await this.vacay.getActivePlan(user.id);
-    await this.vacay.sendInvite(plan.id, user.id, user.username, user.email, body.user_id as number);
+    await this.vacay.sendInvite(plan.id, user.id, user.username, body.user_id as number);
     return { success: true };
   }
 
@@ -338,7 +338,7 @@ export class VacayController {
     if (!body.user_id) {
       throw new HttpException({ error: 'user_id required' }, 400);
     }
-    await this.vacay.shareCalendar(user.id, user.email, Number.parseInt(String(body.user_id)), socketId);
+    await this.vacay.shareCalendar(user.id, user.username, Number.parseInt(String(body.user_id)), socketId);
     return { success: true };
   }
 

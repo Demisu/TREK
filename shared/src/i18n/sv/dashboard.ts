@@ -222,5 +222,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'Antalet dagar måste anges',
   'dashboard.tripChangeNeedsConnection':
     'Nya datum, ett annat antal dagar, en annan valuta eller en ny omslagsbild kräver en anslutning. Namn, beskrivning och påminnelse kan ändras offline.',
+  'dashboard.ics.enable': 'Aktivera kalenderprenumeration',
+  'dashboard.ics.enableHint':
+    'Skapar en hemlig länk som alla som har den kan läsa utan att logga in. Du kan stänga av den när som helst.',
+  'dashboard.ics.regenerate': 'Skapa ny',
+  'dashboard.ics.turnOff': 'Stäng av',
+  'dashboard.ics.manageHint':
+    'Att skapa ny länk ger en ny länk och gör den gamla ogiltig. Att stänga av inaktiverar länken helt.',
+  'dashboard.ics.addGoogle': 'Lägg till i Google Kalender',
+  'dashboard.ics.addApple': 'Lägg till i Apple Kalender / Outlook',
+  'dashboard.ics.copyManually': 'Eller kopiera en länk manuellt',
+  'dashboard.ics.pasteFromUrl': 'klistra in i “Från URL”',
 };
 export default dashboard;

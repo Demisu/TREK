@@ -70,5 +70,8 @@ const files: TranslationStrings = {
     'Deze koppeling verwijderen heeft een verbinding nodig. Probeer het opnieuw zodra TREK weer online is.',
   'files.placeFilesNeedConnection':
     'Bestanden hebben een verbinding nodig om te uploaden. Verwijder de nieuwe om de plek offline op te slaan, of sla op zodra je weer online bent.',
+  'files.maxSize': 'Max. {count} MB',
+  'files.maxSize.one': 'Max. {count} MB',
+  'files.toast.starError': 'De ster kon niet worden gewijzigd',
 };
 export default files;

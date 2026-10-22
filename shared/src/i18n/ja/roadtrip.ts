@@ -315,5 +315,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.checkIn': 'チェックイン',
   'roadtrip.bookend.afterCheckOut': 'チェックアウト後に出発',
   'roadtrip.bookend.noVia': '宿泊先との間の区間には経由地を置けません。代わりにそこへ立ち寄り先を追加してください。',
+  'roadtrip.stay.untilHint':
+    'この訪問には終了時刻があるため、{time} に出発します。滞在時間を設定するには、開いて「終了時刻を削除」を選んでください。',
 };
 export default roadtrip;

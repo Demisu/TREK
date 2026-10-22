@@ -120,6 +120,7 @@ import type { TodoItemsTable } from './TodoItems.table';
 import type { TourActivitiesTable } from './TourActivities.table';
 import type { TourActivityExclusionsTable } from './TourActivityExclusions.table';
 import type { TourChangeStepsTable } from './TourChangeSteps.table';
+import type { TourDraftsTable } from './TourDrafts.table';
 import type { TourObstacleReviewsTable } from './TourObstacleReviews.table';
 import type { TourPackingLinksTable } from './TourPackingLinks.table';
 import type { TourSourceHintsTable } from './TourSourceHints.table';
@@ -280,6 +281,7 @@ export interface DB {
   tour_activities: TourActivitiesTable;
   tour_activity_exclusions: TourActivityExclusionsTable;
   tour_change_steps: TourChangeStepsTable;
+  tour_drafts: TourDraftsTable;
   tour_obstacle_reviews: TourObstacleReviewsTable;
   tour_packing_links: TourPackingLinksTable;
   tour_source_hints: TourSourceHintsTable;

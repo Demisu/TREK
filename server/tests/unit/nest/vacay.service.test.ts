@@ -916,7 +916,7 @@ describe('getAvailableUsers', () => {
 
     // The picker is only a list. The id comes back from the client, and the MCP
     // tools reach the same two methods, so refusing has to happen here.
-    const invited = await asLegacyResult(svc.sendInvite(plan.id, owner.id, 'owner', 'owner@example.test', guest.id));
+    const invited = await asLegacyResult(svc.sendInvite(plan.id, owner.id, 'owner', guest.id));
     expect(invited.error).toBe('User not found');
     const shared = await asLegacyResult(svc.shareCalendar(owner.id, 'owner@example.test', guest.id));
     expect(shared.error).toBe('User not found');

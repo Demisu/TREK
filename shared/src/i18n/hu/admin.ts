@@ -41,7 +41,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Felhasználó szerkesztése',
   'admin.newPassword': 'Új jelszó',
   'admin.newPasswordHint': 'Hagyd üresen a jelenlegi jelszó megtartásához',
-  'admin.deleteUser': '"{name}" felhasználó törlése? Minden utazás véglegesen törlődik.',
+  'admin.deleteUser':
+    'Törlöd a(z) "{name}" felhasználót? A fiókja, valamint minden általa birtokolt utazás és napló véglegesen törlődik, azokat az utazásokat is beleértve, amelyeket más tagokkal osztott meg; ők elveszítik a hozzáférést. Mások utazásai megmaradnak.',
   'admin.deleteUserTitle': 'Felhasználó törlése',
   'admin.newPasswordPlaceholder': 'Új jelszó megadása…',
   'admin.toast.loadError': 'Nem sikerült betölteni az admin adatokat',
@@ -193,9 +194,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.transitousHint':
     'Közösségi GTFS adatforrások. Ingyenes és kulcs nélküli, Európában a legjobb lefedettséggel.',
   'admin.transitProvider.googleHint':
-    'A fenti Google-kulcsot használja azokhoz a régiókhoz, amelyekhez a Transitousnak nincs adata. Keresésenként számlázódik – amíg nincs kulcs, a Transitous fut.',
+    'A fenti Google-kulcsot használja azokhoz a régiókhoz, amelyekhez a Transitousnak nincs adata. Keresésenként számlázódik; amíg nincs kulcs, a Transitous fut.',
   'admin.transitProvider.noKeyWarning':
-    'A Google van kiválasztva, de nincs beállítva Google-kulcs – a közlekedési keresés továbbra is a Transitous-t használja. Adj hozzá kulcsot a fenti API-kulcsoknál.',
+    'A Google van kiválasztva, de nincs beállítva Google-kulcs; a közlekedési keresés továbbra is a Transitous-t használja. Adj hozzá kulcsot a fenti API-kulcsoknál.',
   'admin.transitProvider.personalKeyWarning':
     'Csak a saját Google-kulcsod van beállítva, így a többi tag keresése továbbra is a Transitous-ra esik vissza. Mentsd a kulcsot fent adminként, hogy az egész példányra érvényes legyen.',
   'admin.placeShadow.title': 'Helykeresési napló',
@@ -701,8 +702,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Még nincsenek audit bejegyzések.',
   'admin.audit.refresh': 'Frissítés',
   'admin.audit.loadMore': 'Továbbiak betöltése',
-  'admin.audit.showing': '{count} betöltve · {total} összesen',
-  'admin.audit.showing.one': '{count} betöltve · {total} összesen',
+  'admin.audit.showing': '{count} betöltve, {total} összesen',
+  'admin.audit.showing.one': '{count} betöltve, {total} összesen',
   'admin.audit.col.time': 'Időpont',
   'admin.audit.col.user': 'Felhasználó',
   'admin.audit.col.action': 'Művelet',
@@ -949,5 +950,37 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'Elutasítás',
   'admin.paddleRegions.origin.auto': 'Automatikus',
   'admin.paddleRegions.origin.autoHint': 'A TREK magától töltötte be ezt a régiót egy ott tervezett evezős túrához.',
+  'admin.mfa.reset': '2FA visszaállítása',
+  'admin.mfa.resetHint':
+    'Kikapcsolja a felhasználó kétlépcsős hitelesítését, például elveszett telefon esetén. Mindenhonnan kijelentkezik, és a jelszavával való belépés után újra beállíthatja.',
+  'admin.mfa.resetConfirm': 'Kikapcsolod {name} kétlépcsős hitelesítését?',
+  'admin.mfa.resetDone': 'A kétlépcsős hitelesítés visszaállítva',
+  'admin.danger.title': 'Veszélyzóna',
+  'admin.rotateJwt.title': 'JWT-titok cseréje',
+  'admin.rotateJwt.hint': 'Új JWT-aláírási titkot hoz létre. Az összes aktív munkamenet azonnal érvénytelenné válik.',
+  'admin.rotateJwt.confirm': 'Csere és kijelentkezés',
+  'admin.rotateJwt.warning': 'Figyelem: ez az összes munkamenetet érvényteleníti, és téged is kijelentkeztet.',
+  'admin.rotateJwt.body':
+    'Azonnal új JWT-titok jön létre. Minden bejelentkezett felhasználó, te is, kijelentkezik, és újra be kell lépnie.',
+  'admin.oidcDisplayNamePlaceholder': 'pl. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery URL (opcionális)',
+  'admin.oidcDiscoveryUrlHint':
+    'Felülírja az automatikusan képzett discovery URL-t. Olyan szolgáltatóknál szükséges, mint az Authentik, ahol a végpont nem a következő címen van: {path}.',
+  'admin.smtp.skipTls': 'TLS-tanúsítvány ellenőrzésének kihagyása',
+  'admin.smtp.skipTlsHint': 'Kapcsold be helyi levelezőszervereken lévő önaláírt tanúsítványokhoz',
+  'admin.demoBaseline.title': 'Demó alapállapot',
+  'admin.demoBaseline.hint':
+    'Az aktuális állapotot menti óránkénti visszaállítási pontként. Az adminisztrátor összes utazása és beállítása megmarad.',
+  'admin.demoBaseline.button': 'Alapállapot mentése',
+  'admin.demoBaseline.saved': 'Alapállapot mentve! A visszaállítások erre az állapotra térnek vissza.',
+  'admin.demoBaseline.failed': 'Az alapállapot mentése sikertelen',
+  'admin.invite.deleteTitle': 'Meghívó link törlése',
+  'admin.invite.deleteConfirm': 'Törlöd ezt a meghívó linket? Aki még nem használta, már nem tud vele regisztrálni.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Sablon törlése',
+  'admin.packingTemplates.deleteTemplateConfirm':
+    'Törlöd a(z) "{name}" sablont az összes kategóriájával és elemével együtt?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Kategória törlése',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Törlöd a(z) "{name}" kategóriát és az összes elemét?',
+  'admin.rotateJwt.button': 'Megújítás',
 };
 export default admin;

@@ -111,5 +111,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Připojit obrázky',
   'collab.chat.attachedImage': 'Připojený obrázek',
   'collab.chat.closeImage': 'Zavřít obrázek',
+  'collab.notes.categoryInUse':
+    'Tuto kategorii ještě používají poznámky. Nejdřív je přesuňte nebo smažte, pak půjde kategorie odebrat.',
+  'collab.notes.categoriesLocalHint':
+    'Kategorie bez poznámek se ukládá jen v tomto prohlížeči. Ostatní členové ji uvidí, až ji použije nějaká poznámka.',
 };
 export default collab;

@@ -23,6 +23,7 @@ import { getCached, fetchPhoto } from '../../services/photoService'
 import type { TourListItem } from '@trek/shared'
 import type { Accommodation, Place, Reservation, Settings } from '../../types'
 import { PHONE_QUERY } from '../../mobile/useIsPhone'
+import { makeActions, type PlannerActions } from '../../../tests/helpers/plannerActions'
 
 // ── Router ────────────────────────────────────────────────────────────────────
 // Only useParams/useNavigate/useSearchParams are consumed by the hook, so the
@@ -89,65 +90,7 @@ vi.mock('../../services/photoService', () => ({
 
 // ── Store fixtures ────────────────────────────────────────────────────────────
 
-interface PlannerActions {
-  loadTrip: ReturnType<typeof vi.fn>
-  loadReservations: ReturnType<typeof vi.fn>
-  loadBudgetItems: ReturnType<typeof vi.fn>
-  loadFiles: ReturnType<typeof vi.fn>
-  refreshDays: ReturnType<typeof vi.fn>
-  setAssignmentTimes: ReturnType<typeof vi.fn>
-  setAssignmentNotes: ReturnType<typeof vi.fn>
-  addPlace: ReturnType<typeof vi.fn>
-  updatePlace: ReturnType<typeof vi.fn>
-  deletePlace: ReturnType<typeof vi.fn>
-  deletePlacesMany: ReturnType<typeof vi.fn>
-  updatePlacesMany: ReturnType<typeof vi.fn>
-  addFile: ReturnType<typeof vi.fn>
-  assignPlaceToDay: ReturnType<typeof vi.fn>
-  removeAssignment: ReturnType<typeof vi.fn>
-  reorderAssignments: ReturnType<typeof vi.fn>
-  reorderDays: ReturnType<typeof vi.fn>
-  insertDay: ReturnType<typeof vi.fn>
-  appendDatedDay: ReturnType<typeof vi.fn>
-  deleteDay: ReturnType<typeof vi.fn>
-  updateDayTitle: ReturnType<typeof vi.fn>
-  addReservation: ReturnType<typeof vi.fn>
-  updateReservation: ReturnType<typeof vi.fn>
-  deleteReservation: ReturnType<typeof vi.fn>
-  setSelectedDay: ReturnType<typeof vi.fn>
-}
-
 let actions: PlannerActions
-
-function makeActions(): PlannerActions {
-  return {
-    loadTrip: vi.fn(async () => undefined),
-    loadReservations: vi.fn(async () => undefined),
-    loadBudgetItems: vi.fn(async () => undefined),
-    loadFiles: vi.fn(async () => undefined),
-    refreshDays: vi.fn(async () => undefined),
-    setAssignmentTimes: vi.fn(async () => undefined),
-    setAssignmentNotes: vi.fn(async () => undefined),
-    addPlace: vi.fn(async () => ({ id: 900, name: 'New' })),
-    updatePlace: vi.fn(async () => undefined),
-    deletePlace: vi.fn(async () => undefined),
-    deletePlacesMany: vi.fn(async () => undefined),
-    updatePlacesMany: vi.fn(async () => undefined),
-    addFile: vi.fn(async () => undefined),
-    assignPlaceToDay: vi.fn(async () => ({ id: 555 })),
-    removeAssignment: vi.fn(async () => undefined),
-    reorderAssignments: vi.fn(async () => undefined),
-    reorderDays: vi.fn(async () => undefined),
-    insertDay: vi.fn(async () => undefined),
-    appendDatedDay: vi.fn(async () => ({ id: 99, date: '2026-06-04' })),
-    deleteDay: vi.fn(async () => undefined),
-    updateDayTitle: vi.fn(async () => undefined),
-    addReservation: vi.fn(async () => ({ id: 77 })),
-    updateReservation: vi.fn(async () => ({ id: 77 })),
-    deleteReservation: vi.fn(async () => undefined),
-    setSelectedDay: vi.fn(() => undefined),
-  }
-}
 
 const toasts: Array<{ message: string; type: string }> = []
 
@@ -3102,6 +3045,23 @@ describe('useTripPlanner: deleting a day', () => {
     act(() => { result.current.setShowDayDetail(third) })
     act(() => { useTripStore.setState({ days: [first, second] }) })
     expect(result.current.showDayDetail).toBeNull()
+  })
+
+  it('FE-TP-HOOK-130a: the day details come back when the place card closes, not after another panel opened', async () => {
+    seedDays({ places: [buildPlace({ id: 70 })] } as Partial<TripStoreState>)
+    const { result } = await renderPlanner()
+    const [first, second] = useTripStore.getState().days
+
+    act(() => { result.current.setShowDayDetail(first) })
+    act(() => { result.current.handlePlaceClick(70) })
+    expect(result.current.showDayDetail).toBeNull()
+    act(() => { result.current.handlePlaceClick(null) })
+    expect(result.current.showDayDetail?.id).toBe(first.id)
+
+    act(() => { result.current.handlePlaceClick(70) })
+    act(() => { result.current.setShowDayDetail(second) })
+    act(() => { result.current.handlePlaceClick(null) })
+    expect(result.current.showDayDetail?.id).toBe(second.id)
   })
 
   it('FE-TP-HOOK-131: undo steps on the deleted day are dropped, the others stay', async () => {

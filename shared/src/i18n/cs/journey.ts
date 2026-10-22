@@ -209,7 +209,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Stopy GPX',
   'journey.settings.recordings': 'Zaznamenané dny',
   'journey.settings.showTripTracks': 'Zobrazit všechny GPX stopy z cest',
-  'journey.settings.showTripTracksHint': 'Vykreslí na mapě zaznamenané trasy z propojených cest.',
+  'journey.settings.showTripTracksHint': 'Vykreslí na mapě plánované trasy (stopy GPX) propojených cest.',
   'journey.settings.autoPrepare': 'Automaticky připravovat zaznamenané dny',
   'journey.settings.autoPrepareHint':
     'Dokud propojená cesta probíhá, čekají pobyty z tvého Dawarich u svého dne na kontrolu. Editoři s vlastním připojením dostanou své. Do deníku se nic nezapíše samo.',
@@ -915,5 +915,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Zaznamenané dny a zastávky z nich převzaté, u dnů se zveřejněným záznamem. Ukazují, kde a kdy jste byli, i vaše ubytování.',
   'journey.share.needsMap': 'Pro zapnutí sdílejte mapu',
+  'journey.editor.tags': 'Štítky',
 };
 export default journey;

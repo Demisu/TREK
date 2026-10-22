@@ -224,7 +224,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Token yarat',
   'settings.mcp.modal.createdTitle': 'Token yaradıldı',
   'settings.mcp.modal.createdWarning':
-    'Bu token yalnız bir dəfə göstəriləcək. İndi kopyalayıb təhlükəsiz yerdə saxlayın — sonradan bərpa edilə bilməz.',
+    'Bu token yalnız bir dəfə göstəriləcək. İndi kopyalayıb təhlükəsiz yerdə saxlayın: sonradan bərpa edilə bilməz.',
   'settings.mcp.modal.done': 'Hazır',
   'settings.mcp.toast.created': 'Token yaradıldı',
   'settings.mcp.toast.createError': 'Token yaratmaq mümkün olmadı',
@@ -269,15 +269,14 @@ const settings: TranslationStrings = {
     'Hər sətirdə bir URI. HTTPS, geri dövrəli HTTP və ya şəxsi tətbiq sxemi (myapp://). Geri dövrəli URI-nin portu istisna olmaqla tam uyğunlaşdırılır.',
   'settings.oauth.modal.scopes': 'İcazə verilən sahələr',
   'settings.oauth.modal.scopesHint':
-    'list_trips və get_trip_summary həmişə əlçatandır — əlavə icazə sahəsi tələb olunmur. Bunlar AI-a digər alətlər üçün lazım olan səyahət ID-lərini tapmağa imkan verir.',
+    'list_trips və get_trip_summary həmişə əlçatandır: əlavə icazə sahəsi tələb olunmur. Bunlar AI-a digər alətlər üçün lazım olan səyahət ID-lərini tapmağa imkan verir.',
   'settings.oauth.modal.selectAll': 'Hamısını seç',
   'settings.oauth.modal.deselectAll': 'Bütün seçimləri ləğv et',
   'settings.oauth.modal.creating': 'Qeydiyyatdan keçirilir…',
   'settings.oauth.modal.create': 'Müştərini qeydiyyatdan keçir',
   'settings.oauth.modal.createdTitle': 'Müştəri qeydiyyatdan keçirildi',
   'settings.oauth.modal.createdWarning':
-    'Müştəri sirri yalnız bir dəfə göstərilir. İndi kopyalayın — sonradan bərpa edilə bilməz.',
-
+    'Müştəri sirri yalnız bir dəfə göstərilir. İndi kopyalayın: sonradan bərpa edilə bilməz.',
   'settings.oauth.toast.createError': 'OAuth müştərisini qeydiyyatdan keçirmək mümkün olmadı',
   'settings.oauth.toast.deleted': 'OAuth müştərisi silindi',
   'settings.oauth.toast.deleteError': 'OAuth müştərisini silmək mümkün olmadı',
@@ -350,7 +349,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Hesabı sil',
   'settings.deleteAccountTitle': 'Hesabınız silinsin?',
   'settings.deleteAccountWarning':
-    'Hesabınız və bütün səyahətləriniz, məkanlarınız və fayllarınız həmişəlik silinəcək. Bu əməliyyatı geri qaytarmaq mümkün deyil.',
+    'Hesabınız və sahib olduğunuz bütün səyahətlər, jurnallar, məkanlar və fayllar, o cümlədən digər üzvlərlə paylaşılan səyahətlər həmişəlik silinəcək, həmin üzvlər onlara girişi itirəcək. Başqalarına məxsus səyahətlər qalır, siz isə onlardan çıxarılırsınız. Bu əməliyyat geri qaytarıla bilməz.',
   'settings.deleteAccountConfirm': 'Həmişəlik sil',
   'settings.deleteBlockedTitle': 'Silmək mümkün deyil',
   'settings.deleteBlockedMessage':
@@ -401,7 +400,7 @@ const settings: TranslationStrings = {
 
   'settings.currency': 'Göstərilən valyuta',
   'settings.currencyHint':
-    'Xərclər bölməsindəki məbləğlər yalnız göstərilmək üçün bu valyutaya çevrilir — ilkin məbləğlər dəyişmir.',
+    'Xərclər bölməsindəki məbləğlər yalnız göstərilmək üçün bu valyutaya çevrilir; ilkin məbləğlər dəyişmir.',
   'settings.currencyTrip': 'Səyahət valyutası',
   'settings.placeLanguage': 'Məkan adları',
   'settings.placeLanguageApp': 'Tətbiqlə eyni',
@@ -410,7 +409,7 @@ const settings: TranslationStrings = {
 
   'settings.passkey.title': 'Keçid açarları',
   'settings.passkey.description':
-    'Keçid açarı ilə daha sürətli və fişinqə davamlı şəkildə daxil olun — barmaq izi, üz, PIN və ya fiziki təhlükəsizlik açarından istifadə edin. Parolunuz ehtiyat giriş üsulu kimi qalır.',
+    'Keçid açarı ilə daha sürətli və fişinqə davamlı şəkildə daxil olun: barmaq izi, üz, PIN və ya fiziki təhlükəsizlik açarından istifadə edin. Parolunuz ehtiyat giriş üsulu kimi qalır.',
   'settings.passkey.notConfigured':
     'Keçid açarları aktivdir, lakin bu serverdə hələ tam konfiqurasiya edilməyib. Administratorunuzdan WebAuthn domenini təyin etməsini istəyin.',
   'settings.passkey.add': 'Keçid açarı əlavə et',
@@ -581,11 +580,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Yalnız keşlənmiş məlumatlarla işləyin və dəyişikliklərinizi növbəyə əlavə edin. Yenidən qoşulmaq və sinxronlaşdırmaq üçün deaktiv edin.',
   'settings.offline.mode.active':
-    'Oflayn rejim aktivdir — dəyişiklikləriniz növbəyə əlavə edilib və rejimi deaktiv etdikdə sinxronlaşdırılacaq.',
-
+    'Oflayn rejim aktivdir: dəyişiklikləriniz növbəyə əlavə edilib və rejimi deaktiv etdikdə sinxronlaşdırılacaq.',
   'settings.offline.prepare.title': 'Oflayn istifadə üçün hazırla',
   'settings.offline.prepare.hint':
-    'Bağlantını itirməzdən əvvəl lazım olan hər şeyi — səyahət məlumatlarını, sənədləri və xəritə plitələrini — endirin.',
+    'Bağlantını itirməzdən əvvəl lazım olan hər şeyi (səyahət məlumatlarını, sənədləri və xəritə plitələrini) endirin.',
   'settings.offline.prepare.button': 'Oflayn istifadə üçün endir',
   'settings.offline.prepare.running': 'Endirilir…',
   'settings.offline.prepare.done': 'Oflayn istifadə üçün hazırdır',
@@ -655,8 +653,7 @@ const settings: TranslationStrings = {
 
   'settings.alwaysShowRoutes': 'Rezervasiya marşrutlarını həmişə göstər',
   'settings.alwaysShowRoutesHint':
-    'Hər uçuş, qatar və digər rezervasiyanın marşrutunu xəritədə avtomatik göstərin — hər biri üçün ayrıca aktivləşdirməyə ehtiyac yoxdur.',
-
+    'Hər uçuş, qatar və digər rezervasiyanın marşrutunu xəritədə avtomatik göstərin, hər biri üçün ayrıca aktivləşdirməyə ehtiyac yoxdur.',
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Bu açarın oxuya biləcəyi məlumatlar',
@@ -703,7 +700,7 @@ const settings: TranslationStrings = {
 
   'settings.apiKeys.modal.createTitle': 'API açarı yarat',
   'settings.apiKeys.modal.name': 'Ad',
-  'settings.apiKeys.modal.namePlaceholder': 'məs. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'məs. Ev paneli',
   'settings.apiKeys.modal.nameHint': 'Açarı daha sonra tanımağınız üçün yalnız sizə görünən ad.',
   'settings.apiKeys.modal.creating': 'Yaradılır...',
   'settings.apiKeys.modal.create': 'Yarat',
@@ -711,6 +708,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Açarı indi kopyalayın. O, yalnız bir dəfə göstərilir və sonradan bərpa edilə bilməz.',
   'settings.apiKeys.modal.done': 'Hazır',
+  'settings.mcp.deprecated': 'Köhnəlmiş',
+  'settings.offline.cache.dateRange': '{start} tarixindən {end} tarixinədək',
 };
 
 export default settings;

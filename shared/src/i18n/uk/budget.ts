@@ -232,5 +232,6 @@ const budget: TranslationStrings = {
   'costs.receiptsNeedConnection':
     "Для завантаження чеків потрібне з'єднання. Видаліть нові, щоб зберегти витрату офлайн, або збережіть, коли знову будете онлайн.",
   'costs.paymentQueued': "Ви офлайн. Платіж збережено, і він з'явиться, коли TREK знову буде онлайн.",
+  'costs.confirm.deleteBodyReceipts': '«{name}» буде видалено назавжди. Файли його чеків залишаться у розділі «Файли».',
 };
 export default budget;

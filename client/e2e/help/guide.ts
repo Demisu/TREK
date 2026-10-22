@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 import { PICTURE_DAY_ISO } from '../dates'
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, rmSync } from 'node:fs'
 import path from 'node:path'
 import type { HelpGuide } from '../../src/help/types'
 
@@ -44,9 +44,36 @@ export const VIEWPORT = { width: 1920, height: 1080 }
  */
 export const PICTURE_DAY = new Date(`${PICTURE_DAY_ISO}T09:00:00.000Z`)
 
-/** Put the page on the day the pictures are taken on. Call before navigating. */
+/** Where each page's pinned clock stands; it only ever moves on. */
+const pinnedAt = new WeakMap<Page, number>()
+const ticking = new WeakSet<Page>()
+
+/**
+ * Move the pinned clock on, a few seconds by default, and never back. A
+ * Leaflet pan timed from `+new Date()` ends on the next frame, and a wait
+ * measured with `Date.now()` sees its time pass.
+ */
+export async function nudgeClock(page: Page, ms = 5_000): Promise<void> {
+  const at = (pinnedAt.get(page) ?? PICTURE_DAY.getTime()) + ms
+  pinnedAt.set(page, at)
+  await page.clock.setFixedTime(new Date(at))
+}
+
+/**
+ * Put the page on the day the pictures are taken on. Call before navigating.
+ * The clock then moves a second on each second: the public Valhalla is asked
+ * at most once a second, timed with `Date.now()`, and on a clock that stands
+ * still that second never passes and a tour's route waits for good.
+ */
 async function pinClock(page: Page): Promise<void> {
-  await page.clock.setFixedTime(PICTURE_DAY)
+  if (!pinnedAt.has(page)) pinnedAt.set(page, PICTURE_DAY.getTime())
+  await page.clock.setFixedTime(new Date(pinnedAt.get(page) as number))
+  if (ticking.has(page)) return
+  ticking.add(page)
+  const tick = setInterval(() => {
+    nudgeClock(page, 1_000).catch(() => clearInterval(tick))
+  }, 1_000)
+  page.once('close', () => clearInterval(tick))
 }
 
 export interface StepAction {
@@ -67,6 +94,17 @@ export interface StepAction {
   dropTo?: (page: Page) => Locator
   /** What the step does. */
   act?: (page: Page) => Promise<void>
+  /**
+   * A short loop of the step, for a gesture a still cannot show (a drag, a
+   * route being drawn). Do the gesture and call `frame()` wherever a frame
+   * belongs; the loop is cut from the same window as the still, with the
+   * step's number in its corner and a drawn pointer, since a headless
+   * screenshot has none. When set it replaces `act`: what the loop shows is
+   * what the step does. It is recorded only while the step is registered
+   * under `clips`; a browser drag shows no dragged row in a recording, so such
+   * steps keep the still with its arrow and run the gesture unrecorded.
+   */
+  clip?: (page: Page, frame: () => Promise<void>) => Promise<void>
 }
 
 export interface GuideScript {
@@ -146,19 +184,30 @@ export async function captureGuide(page: Page, script: GuideScript): Promise<voi
       else await target.hover()
       await settle(page)
       box = (await target.boundingBox()) ?? box
+      let shot: Box
       if (step.dropTo) {
         const dest = step.dropTo(page)
         await expect(dest, `guide "${guide.id}" step ${n}: drop target`).toBeVisible()
         const to = await dest.boundingBox()
         if (!to) throw new Error(`guide "${guide.id}" step ${n}: drop target has no box`)
         await ringDrag(page, box, to, n)
-        await page.screenshot({ path: path.join(dir, `step-${n}.png`), clip: frameFor(union(box, to)) })
+        shot = frameFor(union(box, to))
+        await page.screenshot({ path: path.join(dir, `step-${n}.png`), clip: shot })
       } else {
-        const frame = frameFor(box)
-        await ring(page, box, n, frame)
-        await page.screenshot({ path: path.join(dir, `step-${n}.png`), clip: frame })
+        shot = frameFor(box)
+        await ring(page, box, n, shot)
+        await page.screenshot({ path: path.join(dir, `step-${n}.png`), clip: shot })
       }
       await unring(page)
+      if (step.clip) {
+        // Only a step the guide registers under `clips` is recorded; the others do the gesture unrecorded.
+        if (guide.media.clips?.includes(n)) {
+          await recordLoop(page, path.join(dir, `step-${n}-loop`), shot, n, step.clip, `guide "${guide.id}" step ${n}`)
+        } else {
+          await step.clip(page, async () => undefined)
+        }
+        continue
+      }
     }
     await step.act?.(page)
   }
@@ -397,6 +446,96 @@ async function ringDrag(page: Page, from: Box, to: Box, n: number): Promise<void
     },
     { from, to, n },
   )
+}
+
+// ── Loops ────────────────────────────────────────────────────────────────────
+
+/**
+ * The usual body of a drag loop: a short rest on the item, the press, a glide
+ * to the destination in even steps with a frame each, the release, a rest on
+ * the result. Libraries that wait for a few pixels of movement before a drag
+ * starts (dnd-kit, react-beautiful-dnd) get them from the first small steps.
+ */
+export async function dragLoop(page: Page, from: Locator, to: Locator, frame: () => Promise<void>, steps = 24): Promise<void> {
+  const a = await from.boundingBox()
+  const b = await to.boundingBox()
+  if (!a || !b) throw new Error('dragLoop: the item or the destination has no box')
+  const start = { x: a.x + a.width / 2, y: a.y + a.height / 2 }
+  const end = { x: b.x + b.width / 2, y: b.y + b.height / 2 }
+  await page.mouse.move(start.x - 30, start.y + 20)
+  for (let i = 1; i <= 4; i++) {
+    await page.mouse.move(start.x - 30 + (30 * i) / 4, start.y + 20 - (20 * i) / 4)
+    await frame()
+  }
+  await page.mouse.down()
+  for (const nudge of [4, 8, 12]) await page.mouse.move(start.x + nudge, start.y + nudge)
+  await frame()
+  for (let i = 1; i <= steps; i++) {
+    const k = i / steps
+    const ease = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2
+    await page.mouse.move(start.x + (end.x - start.x) * ease, start.y + (end.y - start.y) * ease, { steps: 2 })
+    await frame()
+  }
+  await page.mouse.up()
+  await page.waitForTimeout(400)
+  for (let i = 0; i < 3; i++) await frame()
+}
+
+/**
+ * Record a step's loop as numbered PNG frames; promote.mjs turns the directory
+ * into `step-<n>.loop.webp`. The frames carry the step's number in the corner,
+ * like the still, and a drawn pointer that follows the mouse.
+ */
+async function recordLoop(
+  page: Page,
+  dir: string,
+  shot: Box,
+  n: number,
+  clip: NonNullable<StepAction['clip']>,
+  label: string,
+): Promise<void> {
+  rmSync(dir, { recursive: true, force: true })
+  mkdirSync(dir, { recursive: true })
+  await page.evaluate(
+    ({ shot, n }) => {
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#111827'
+      const accentText = getComputedStyle(document.documentElement).getPropertyValue('--accent-text').trim() || '#ffffff'
+      const layer = document.createElement('div')
+      layer.id = 'trek-help-loop'
+      Object.assign(layer.style, { position: 'fixed', inset: '0', pointerEvents: 'none', zIndex: '2147483647' })
+      const badge = document.createElement('div')
+      Object.assign(badge.style, {
+        position: 'absolute', left: `${shot.x + 10}px`, top: `${shot.y + 10}px`, width: '28px', height: '28px',
+        borderRadius: '999px', background: accent, color: accentText, textAlign: 'center',
+        font: '700 13px/28px Poppins, system-ui, sans-serif', boxShadow: '0 0 0 2px rgba(255,255,255,0.92), 0 2px 8px rgba(0,0,0,0.25)',
+      })
+      badge.textContent = String(n)
+      const pointer = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      pointer.setAttribute('width', '24')
+      pointer.setAttribute('height', '24')
+      pointer.setAttribute('viewBox', '0 0 24 24')
+      pointer.innerHTML = '<path d="M4 2 L4 19 L8.5 14.8 L11.6 21.5 L14.4 20.2 L11.3 13.6 L17.5 13.6 Z" fill="#111827" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>'
+      Object.assign(pointer.style, { position: 'absolute', left: '-40px', top: '-40px', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.35))' })
+      layer.append(badge, pointer)
+      document.body.appendChild(layer)
+      document.addEventListener('mousemove', e => {
+        pointer.style.left = `${e.clientX - 4}px`
+        pointer.style.top = `${e.clientY - 2}px`
+      }, { capture: true })
+      document.addEventListener('pointermove', e => {
+        pointer.style.left = `${e.clientX - 4}px`
+        pointer.style.top = `${e.clientY - 2}px`
+      }, { capture: true })
+    },
+    { shot, n },
+  )
+  let count = 0
+  await clip(page, async () => {
+    await page.screenshot({ path: path.join(dir, `${String(count).padStart(4, '0')}.png`), clip: shot })
+    count++
+  })
+  await page.evaluate(() => document.getElementById('trek-help-loop')?.remove())
+  if (count < 2) throw new Error(`${label}: a loop needs at least two frames, got ${count}`)
 }
 
 async function unring(page: Page): Promise<void> {

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { CalendarDays, Copy, FolderOpen, Pencil, RefreshCw, Route as RouteIcon, Wallet } from 'lucide-react'
+import { CalendarDays, Copy, FolderOpen, Pencil, RefreshCw, MapPin, Route as RouteIcon, Wallet } from 'lucide-react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkBreaks from 'remark-breaks'
@@ -17,6 +17,7 @@ import { Tooltip } from '../../shared/Tooltip'
 import PluginFrame from '../../Plugins/PluginFrame'
 import { PluginCardFooter } from '../../Plugins/PluginContributions'
 import { formatMoney, formatTime } from '../../../utils/formatters'
+import { copyText } from '../../../utils/clipboard'
 import { fmtTransitDuration } from '../transitDisplay'
 import { parseMeta, displayTitle } from './bookingsModel'
 import { formatDay, type BookingFacts } from './bookingFacts'
@@ -101,12 +102,8 @@ export default function BookingDetailDialog(p: BookingDetailDialogProps) {
   const hasDetails = !!(facts.place || facts.accommodation || facts.linked || facts.url)
 
   const copyCode = async () => {
-    try {
-      await navigator.clipboard.writeText(r.confirmation_number || '')
-      toast.success(t('common.copied'))
-    } catch {
-      toast.error(t('reservations.copyFailed'))
-    }
+    if (await copyText(r.confirmation_number || '')) toast.success(t('common.copied'))
+    else toast.error(t('reservations.copyFailed'))
   }
   const rename = async () => {
     const title = name.trim()
@@ -162,7 +159,7 @@ export default function BookingDetailDialog(p: BookingDetailDialogProps) {
   const footer = (p.onShowOnMap || p.onChangeRoute || p.canEdit || p.onEdit) && (
     <DialogFooter>
       {p.onShowOnMap && (
-        <DialogButton onClick={p.onShowOnMap} aria-pressed={!!p.onMap} active={!!p.onMap} icon={<RouteIcon size={14} strokeWidth={2} />}>
+        <DialogButton onClick={p.onShowOnMap} aria-pressed={!!p.onMap} active={!!p.onMap} icon={facts.endpoints.length >= 2 ? <RouteIcon size={14} strokeWidth={2} /> : <MapPin size={14} strokeWidth={2} />}>
           {t('mobileTrip.onMap')}
         </DialogButton>
       )}

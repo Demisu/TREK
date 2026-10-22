@@ -252,8 +252,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'De vermijdingsrouter gaf voor dit traject geen antwoord, dus de hoofdrouter heeft het getekend. De vermijdingsrouter wordt opnieuw gevraagd.',
   'roadtrip.day': 'Dag {number}',
-  'roadtrip.quietDay.empty': 'Nog geen stops — laat er hier een vallen',
-  'roadtrip.quietDay.one': 'Voorlopig alleen {name} — laat hier een stop vallen',
+  'roadtrip.quietDay.empty': 'Nog geen stops, laat er hier een vallen',
+  'roadtrip.quietDay.one': 'Voorlopig alleen {name}, laat hier een stop vallen',
   'roadtrip.leg.driveText': '{distance} in {time}',
   'roadtrip.day.stopCount': '{count} stops',
   'roadtrip.day.stopCount.one': '{count} stop',
@@ -338,5 +338,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Vertrek na het uitchecken',
   'roadtrip.bookend.noVia':
     'Geen tussenpunt op de rit naar of van je verblijf. Voeg daar in plaats daarvan een stop toe.',
+  'roadtrip.stay.untilHint':
+    'Vertrek om {time}, want dit bezoek heeft een eindtijd. Open het en kies Eindtijd verwijderen om in plaats daarvan een verblijfsduur in te stellen.',
 };
 export default roadtrip;

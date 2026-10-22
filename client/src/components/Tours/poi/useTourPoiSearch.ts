@@ -157,6 +157,9 @@ export function useTourPoiSearch(planner: TourPoiPlanner) {
   return {
     offered: TOUR_POI_CATEGORIES_BY_TYPE[type],
     categories,
+    /** All the kinds that may be ticked at once are ticked; one more needs one to be dropped. */
+    categoryLimitReached: categories.length >= TOUR_POI_MAX_CATEGORIES,
+    categoryLimit: TOUR_POI_MAX_CATEGORIES,
     toggleCategory,
     /** CW-05: a city walk's themes; none for any other type. */
     themes: type === 'walk' ? WALK_THEME_KEYS : [],

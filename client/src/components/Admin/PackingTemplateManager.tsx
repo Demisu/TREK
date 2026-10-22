@@ -2,6 +2,7 @@ import { useTranslation } from '../../i18n'
 import { Plus, Trash2, Pencil, Package, X, Check, ChevronRight, FolderPlus, Loader2 } from 'lucide-react'
 import { fs } from '../shared/DialogShell'
 import { Tooltip } from '../shared/Tooltip'
+import ConfirmDialog from '../shared/ConfirmDialog'
 import { COMPOSER } from '../Packing/packingPopoverStyles'
 import { SettingRows, SettingsCard, SettingsHint, StatusPill, SETTINGS_BUTTON_PRIMARY, SETTINGS_ICON_BUTTON } from '../Settings/settingsKit'
 import { type TemplateItem, usePackingTemplateAdmin } from './usePackingTemplateAdmin'
@@ -17,13 +18,13 @@ const SMALL_ICON_BUTTON = 'grid h-7 w-7 flex-none place-items-center rounded-[8p
 /** An item's actions show while the pointer or the focus is on its row. */
 const REVEAL = 'opacity-0 focus-visible:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100'
 
-/** "2× · 300 g · Backpack": what a template item brings along besides its name (#1131). */
+/** "2×, 300 g, Backpack": what a template item brings along besides its name (#1131). */
 function templateItemMeta(item: TemplateItem): string {
   const parts: string[] = []
   if ((item.quantity ?? 1) > 1) parts.push(`${item.quantity}×`)
   if (item.weight_grams) parts.push(item.weight_grams >= 1000 ? `${(item.weight_grams / 1000).toFixed(1)} kg` : `${item.weight_grams} g`)
   if (item.bag_name) parts.push(item.bag_name)
-  return parts.join(' · ')
+  return parts.join(', ')
 }
 
 export default function PackingTemplateManager() {
@@ -32,8 +33,8 @@ export default function PackingTemplateManager() {
     editingTemplate, setEditingTemplate, editTemplateName, setEditTemplateName, editingCatId, setEditingCatId,
     editCatName, setEditCatName, editingItemId, setEditingItemId, editItemName, setEditItemName, addingCategory,
     setAddingCategory, newCatName, setNewCatName, addingItemToCatId, setAddingItemToCatId, newItemName,
-    setNewItemName, addItemRef, toggleExpand, handleCreateTemplate, handleDeleteTemplate, handleRenameTemplate,
-    handleAddCategory, handleRenameCategory, handleDeleteCategory, handleAddItem, handleRenameItem, handleDeleteItem,
+    setNewItemName, addItemRef, toggleExpand, handleCreateTemplate, deleteTarget, setDeleteTarget, requestDeleteTemplate, requestDeleteCategory, confirmDelete, handleRenameTemplate,
+    handleAddCategory, handleRenameCategory, handleAddItem, handleRenameItem, handleDeleteItem,
   } = usePackingTemplateAdmin()
   const { t } = useTranslation()
 
@@ -109,14 +110,14 @@ export default function PackingTemplateManager() {
                     <button type="button" onClick={() => toggleExpand(tmpl.id)} className="min-w-0 flex-1 truncate text-start font-semibold text-content" style={fs(13, 'body')}>{tmpl.name}</button>
                   )}
                   <span className="max-sm:hidden">
-                    <StatusPill>{tmpl.category_count} {t('admin.packingTemplates.categories', { count: tmpl.category_count })} · {tmpl.item_count} {t('admin.packingTemplates.items', { count: tmpl.item_count })}</StatusPill>
+                    <StatusPill>{tmpl.category_count} {t('admin.packingTemplates.categories', { count: tmpl.category_count })}, {tmpl.item_count} {t('admin.packingTemplates.items', { count: tmpl.item_count })}</StatusPill>
                   </span>
                   <Tooltip label={t('common.rename')}>
                     <button type="button" onClick={() => { setEditingTemplate(tmpl.id); setEditTemplateName(tmpl.name) }}
                       aria-label={t('common.rename')} className={SETTINGS_ICON_BUTTON}><Pencil size={14} strokeWidth={2} /></button>
                   </Tooltip>
                   <Tooltip label={t('common.delete')}>
-                    <button type="button" onClick={() => handleDeleteTemplate(tmpl.id)}
+                    <button type="button" onClick={() => requestDeleteTemplate(tmpl.id)}
                       aria-label={t('common.delete')} className={`${SETTINGS_ICON_BUTTON} hover:!text-danger`}><Trash2 size={14} strokeWidth={2} /></button>
                   </Tooltip>
                 </div>
@@ -149,7 +150,7 @@ export default function PackingTemplateManager() {
                                 aria-label={t('common.rename')} className={SMALL_ICON_BUTTON}><Pencil size={12} strokeWidth={2} /></button>
                             </Tooltip>
                             <Tooltip label={t('common.delete')}>
-                              <button type="button" onClick={() => handleDeleteCategory(cat.id)}
+                              <button type="button" onClick={() => requestDeleteCategory(cat.id)}
                                 aria-label={t('common.delete')} className={`${SMALL_ICON_BUTTON} hover:!text-danger`}><Trash2 size={12} strokeWidth={2} /></button>
                             </Tooltip>
                           </div>
@@ -243,6 +244,15 @@ export default function PackingTemplateManager() {
           })}
         </SettingRows>
       )}
+      <ConfirmDialog
+        isOpen={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void confirmDelete()}
+        title={t(deleteTarget?.kind === 'category' ? 'admin.packingTemplates.deleteCategoryTitle' : 'admin.packingTemplates.deleteTemplateTitle')}
+        message={t(deleteTarget?.kind === 'category' ? 'admin.packingTemplates.deleteCategoryConfirm' : 'admin.packingTemplates.deleteTemplateConfirm', { name: deleteTarget?.name ?? '' })}
+        confirmLabel={t('common.delete')}
+        danger
+      />
     </SettingsCard>
   )
 }

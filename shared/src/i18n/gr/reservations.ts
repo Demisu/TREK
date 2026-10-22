@@ -269,5 +269,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'Τα αρχεία χρειάζονται σύνδεση για να ανέβουν. Αφαίρεσε τα νέα για να αποθηκεύσεις την κράτηση εκτός σύνδεσης ή αποθήκευσε όταν είσαι ξανά online.',
   'reservations.needsConnection': 'Αυτό χρειάζεται σύνδεση. Δοκίμασε ξανά μόλις το TREK συνδεθεί ξανά.',
+  'reservations.exportCsvFiltered': 'Εξαγωγή των {shown} από {total} εμφανιζόμενων γραμμών (CSV)',
 };
 export default reservations;

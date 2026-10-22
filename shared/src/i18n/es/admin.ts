@@ -42,7 +42,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Editar usuario',
   'admin.newPassword': 'Nueva contraseña',
   'admin.newPasswordHint': 'Déjalo vacío para mantener la contraseña actual',
-  'admin.deleteUser': '¿Eliminar al usuario "{name}"? Todos sus viajes se borrarán permanentemente.',
+  'admin.deleteUser':
+    '¿Eliminar al usuario "{name}"? Su cuenta y todos los viajes y diarios que posee se eliminarán de forma permanente, incluidos los viajes compartidos con otros miembros, que perderán el acceso. Los viajes de otras personas se conservan.',
   'admin.deleteUserTitle': 'Eliminar usuario',
   'admin.newPasswordPlaceholder': 'Introduce una nueva contraseña…',
   'admin.toast.loadError': 'No se pudieron cargar los datos de administración',
@@ -705,8 +706,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Aún no hay entradas de auditoría.',
   'admin.audit.refresh': 'Actualizar',
   'admin.audit.loadMore': 'Cargar más',
-  'admin.audit.showing': '{count} cargados · {total} en total',
-  'admin.audit.showing.one': '{count} cargado · {total} en total',
+  'admin.audit.showing': '{count} cargados, {total} en total',
+  'admin.audit.showing.one': '{count} cargado, {total} en total',
   'admin.audit.col.time': 'Fecha y hora',
   'admin.audit.col.user': 'Usuario',
   'admin.audit.col.action': 'Acción',
@@ -950,5 +951,39 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.origin.auto': 'Automático',
   'admin.paddleRegions.origin.autoHint':
     'TREK cargó esta región por su cuenta para una ruta en kayak planificada allí.',
+  'admin.mfa.reset': 'Restablecer 2FA',
+  'admin.mfa.resetHint':
+    'Desactiva la autenticación en dos factores de este usuario, por ejemplo tras perder el móvil. Se cierra su sesión en todas partes y podrá volver a configurarla después de iniciar sesión con su contraseña.',
+  'admin.mfa.resetConfirm': '¿Desactivar la autenticación en dos factores de {name}?',
+  'admin.mfa.resetDone': 'Autenticación en dos factores restablecida',
+  'admin.danger.title': 'Zona de peligro',
+  'admin.rotateJwt.title': 'Rotar secreto JWT',
+  'admin.rotateJwt.hint':
+    'Genera un nuevo secreto de firma JWT. Todas las sesiones activas se invalidarán de inmediato.',
+  'admin.rotateJwt.confirm': 'Rotar y cerrar sesión',
+  'admin.rotateJwt.warning': 'Atención: esto invalidará todas las sesiones y cerrará la tuya.',
+  'admin.rotateJwt.body':
+    'Se generará un nuevo secreto JWT de inmediato. Todos los usuarios con sesión iniciada, tú incluido, serán desconectados y tendrán que volver a iniciar sesión.',
+  'admin.oidcDisplayNamePlaceholder': 'p. ej. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'URL de descubrimiento (opcional)',
+  'admin.oidcDiscoveryUrlHint':
+    'Sustituye la URL de descubrimiento generada automáticamente. Necesaria para proveedores como Authentik, donde el endpoint no está en {path}.',
+  'admin.smtp.skipTls': 'Omitir la comprobación del certificado TLS',
+  'admin.smtp.skipTlsHint': 'Actívalo para certificados autofirmados en servidores de correo locales',
+  'admin.demoBaseline.title': 'Línea base de la demo',
+  'admin.demoBaseline.hint':
+    'Guarda el estado actual como punto de restablecimiento cada hora. Se conservarán todos los viajes y ajustes del administrador.',
+  'admin.demoBaseline.button': 'Guardar línea base',
+  'admin.demoBaseline.saved': '¡Línea base guardada! Los restablecimientos volverán a este estado.',
+  'admin.demoBaseline.failed': 'No se pudo guardar la línea base',
+  'admin.invite.deleteTitle': 'Eliminar enlace de invitación',
+  'admin.invite.deleteConfirm':
+    '¿Eliminar este enlace de invitación? Quien aún no lo haya usado ya no podrá registrarse con él.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Eliminar plantilla',
+  'admin.packingTemplates.deleteTemplateConfirm':
+    '¿Eliminar la plantilla "{name}" con todas sus categorías y elementos?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Eliminar categoría',
+  'admin.packingTemplates.deleteCategoryConfirm': '¿Eliminar la categoría "{name}" y todos sus elementos?',
+  'admin.rotateJwt.button': 'Renovar',
 };
 export default admin;

@@ -306,6 +306,19 @@ export function useTripPlanner() {
   // the panel along instead of leaving it on a day that is gone.
   const showDayDetail = dayDetail && days.some(d => d.id === dayDetail.id) ? dayDetail : null
   const [dayDetailCollapsed, setDayDetailCollapsed] = useState(false)
+  // Opening a place closes the day details; they come back when the place card closes, unless the traveller
+  // opened another panel in between. The place handler reads the open day from a ref synced after commit.
+  const stashedDayDetailRef = useRef<Day | null>(null)
+  const showDayDetailRef = useRef<Day | null>(null)
+  useEffect(() => {
+    showDayDetailRef.current = showDayDetail
+    if (showDayDetail) stashedDayDetailRef.current = null
+    else if (!selectedPlaceId && stashedDayDetailRef.current) {
+      const stashed = stashedDayDetailRef.current
+      stashedDayDetailRef.current = null
+      if (days.some(d => d.id === stashed.id)) setShowDayDetail(stashed)
+    }
+  }, [showDayDetail, selectedPlaceId, days])
   // The day's "+" can ask for a new stay: the details panel opens on that day and
   // takes the request once, then hands it back so a later opening stays plain.
   const [stayPickerDayId, setStayPickerDayId] = useState<number | null>(null)
@@ -481,7 +494,7 @@ export function useTripPlanner() {
     } else {
       setSelectedPlaceId(placeId)
     }
-    if (placeId) { setShowDayDetail(null); setLeftCollapsed(false); setRightCollapsed(false) }
+    if (placeId) { if (showDayDetailRef.current) stashedDayDetailRef.current = showDayDetailRef.current; setShowDayDetail(null); setLeftCollapsed(false); setRightCollapsed(false) }
   }, [selectAssignment, setSelectedPlaceId])
 
   const handleMarkerClick = useCallback((placeId?: number) => {

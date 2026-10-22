@@ -171,7 +171,11 @@ export function TourStageOverview({ id, tripId, tour, days, canAssign, onOpenSta
       role="presentation"
       data-testid="tour-stage-overview"
       onClick={(event) => event.stopPropagation()}
-      onKeyDown={(event) => event.stopPropagation()}
+      // Escape still goes on: a stage's day menu is portalled but bubbles through here,
+      // and it closes on the Escape that reaches the document.
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape') event.stopPropagation();
+      }}
       className="mt-2 cursor-default rounded-xl bg-surface-secondary p-1 ring-1 ring-inset ring-edge-faint"
     >
       {saved.status === 'error' && <TourNotice>{t('tours.stages.loadFailed')}</TourNotice>}

@@ -167,14 +167,14 @@ export default function MCollabChat({ planner }: MCollabChatProps) {
                 {images.previews.map((url, i) => (
                   <div key={url} className="relative">
                     <img src={url} alt="" className="h-14 w-14 rounded-lg object-cover" />
-                    <button type="button" aria-label="Remove image" onClick={() => images.remove(i)} className="absolute -end-1 -top-1 h-4 w-4 rounded-full bg-m-ink text-[10px] text-m-bg">×</button>
+                    <button type="button" aria-label={t('places.removeImage')} onClick={() => images.remove(i)} className="absolute -end-1 -top-1 h-4 w-4 rounded-full bg-m-ink text-[10px] text-m-bg">×</button>
                   </div>
                 ))}
               </div>
             )}
             <div className="flex items-end gap-2">
             <input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple hidden onChange={e => { if (e.target.files) addImageFiles(e.target.files); e.currentTarget.value = '' }} />
-            <button type="button" aria-label="Attach images" onClick={() => imageInputRef.current?.click()} className="flex h-[42px] w-[42px] flex-none items-center justify-center rounded-full text-m-muted">
+            <button type="button" aria-label={t('collab.chat.attachImages')} onClick={() => imageInputRef.current?.click()} className="flex h-[42px] w-[42px] flex-none items-center justify-center rounded-full text-m-muted">
               <ImagePlus size={18} strokeWidth={2.2} />
             </button>
             <textarea

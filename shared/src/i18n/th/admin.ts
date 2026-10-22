@@ -89,7 +89,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'แก้ไขผู้ใช้',
   'admin.newPassword': 'รหัสผ่านใหม่',
   'admin.newPasswordHint': 'เว้นว่างไว้เพื่อเก็บรหัสผ่านปัจจุบัน',
-  'admin.deleteUser': 'ลบผู้ใช้ "{name}" หรือไม่ การเดินทางทั้งหมดจะถูกลบอย่างถาวร',
+  'admin.deleteUser':
+    'ลบผู้ใช้ "{name}" หรือไม่ บัญชีและทริปกับบันทึกการเดินทางทั้งหมดที่ผู้ใช้เป็นเจ้าของจะถูกลบถาวร รวมถึงทริปที่แชร์กับสมาชิกคนอื่น ซึ่งสมาชิกเหล่านั้นจะเข้าถึงไม่ได้อีก ทริปที่คนอื่นเป็นเจ้าของจะยังอยู่',
   'admin.deleteUserTitle': 'ลบผู้ใช้',
   'admin.newPasswordPlaceholder': 'ป้อนรหัสผ่านใหม่...',
   'admin.toast.loadError': 'โหลดข้อมูลผู้ดูแลระบบไม่สำเร็จ',
@@ -686,7 +687,7 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'ยังไม่มีรายการตรวจสอบ',
   'admin.audit.refresh': 'รีเฟรช',
   'admin.audit.loadMore': 'โหลดเพิ่ม',
-  'admin.audit.showing': '{count} โหลดแล้ว · รวม {total}',
+  'admin.audit.showing': '{count} โหลดแล้ว, รวม {total}',
   'admin.audit.col.time': 'เวลา',
   'admin.audit.col.user': 'ผู้ใช้',
   'admin.audit.col.action': 'การดำเนินการ',
@@ -803,9 +804,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.google': 'Google',
   'admin.transitProvider.transitousHint': 'ฟีด GTFS จากชุมชน ฟรีและไม่ต้องใช้คีย์ โดยครอบคลุมยุโรปได้ดีที่สุด',
   'admin.transitProvider.googleHint':
-    'ใช้คีย์ Google API ด้านบนสำหรับภูมิภาคที่ Transitous ไม่มีข้อมูล คิดค่าบริการต่อการค้นหา — จะใช้ Transitous เมื่อยังไม่ได้ตั้งค่าคีย์',
+    'ใช้คีย์ Google API ด้านบนสำหรับภูมิภาคที่ Transitous ไม่มีข้อมูล คิดค่าบริการต่อการค้นหา; จะใช้ Transitous เมื่อยังไม่ได้ตั้งค่าคีย์',
   'admin.transitProvider.noKeyWarning':
-    'เลือก Google แล้ว แต่ยังไม่ได้ตั้งค่าคีย์ Google API — การค้นหาการขนส่งยังใช้ Transitous อยู่ เพิ่มคีย์ในส่วนคีย์ API ด้านบน',
+    'เลือก Google แล้ว แต่ยังไม่ได้ตั้งค่าคีย์ Google API; การค้นหาการขนส่งยังใช้ Transitous อยู่ เพิ่มคีย์ในส่วนคีย์ API ด้านบน',
   'admin.transitProvider.personalKeyWarning':
     'ตั้งค่าเฉพาะคีย์ Google ของคุณเอง จึงทำให้การค้นหาของสมาชิกคนอื่นยังกลับไปใช้ Transitous บันทึกคีย์ด้านบนในฐานะผู้ดูแลเพื่อใช้กับทั้งอินสแตนซ์',
   'admin.placeShadow.title': 'บันทึกการค้นหาสถานที่',
@@ -883,5 +884,36 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'ปฏิเสธ',
   'admin.paddleRegions.origin.auto': 'อัตโนมัติ',
   'admin.paddleRegions.origin.autoHint': 'TREK โหลดภูมิภาคนี้เองสำหรับทริปพายเรือที่วางแผนไว้ที่นั่น',
+  'admin.mfa.reset': 'รีเซ็ต 2FA',
+  'admin.mfa.resetHint':
+    'ปิดการรับรองความถูกต้องด้วยสองปัจจัยของผู้ใช้รายนี้ เช่น หลังโทรศัพท์หาย ผู้ใช้จะถูกออกจากระบบทุกที่ และตั้งค่าใหม่ได้หลังเข้าสู่ระบบด้วยรหัสผ่าน',
+  'admin.mfa.resetConfirm': 'ปิดการรับรองความถูกต้องด้วยสองปัจจัยของ {name} หรือไม่',
+  'admin.mfa.resetDone': 'รีเซ็ตการรับรองความถูกต้องด้วยสองปัจจัยแล้ว',
+  'admin.danger.title': 'โซนอันตราย',
+  'admin.rotateJwt.title': 'หมุนเวียนรหัสลับ JWT',
+  'admin.rotateJwt.hint': 'สร้างรหัสลับสำหรับลงนาม JWT ใหม่ เซสชันที่ใช้งานอยู่ทั้งหมดจะถูกยกเลิกทันที',
+  'admin.rotateJwt.confirm': 'หมุนเวียนและออกจากระบบ',
+  'admin.rotateJwt.warning': 'คำเตือน การดำเนินการนี้จะทำให้ทุกเซสชันใช้ไม่ได้และคุณจะถูกออกจากระบบ',
+  'admin.rotateJwt.body':
+    'ระบบจะสร้างรหัสลับ JWT ใหม่ทันที ผู้ใช้ที่เข้าสู่ระบบอยู่ทุกคน รวมถึงคุณ จะถูกออกจากระบบและต้องเข้าสู่ระบบใหม่',
+  'admin.oidcDisplayNamePlaceholder': 'เช่น Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery URL (ไม่บังคับ)',
+  'admin.oidcDiscoveryUrlHint':
+    'ใช้แทน discovery URL ที่สร้างอัตโนมัติ จำเป็นสำหรับผู้ให้บริการอย่าง Authentik ที่ endpoint ไม่ได้อยู่ที่ {path}',
+  'admin.smtp.skipTls': 'ข้ามการตรวจสอบใบรับรอง TLS',
+  'admin.smtp.skipTlsHint': 'เปิดใช้เมื่อเมลเซิร์ฟเวอร์ภายในใช้ใบรับรองที่ลงนามเอง',
+  'admin.demoBaseline.title': 'เบสไลน์เดโม',
+  'admin.demoBaseline.hint':
+    'บันทึกสถานะปัจจุบันเป็นจุดรีเซ็ตทุกชั่วโมง ทริปและการตั้งค่าของผู้ดูแลทั้งหมดจะถูกเก็บไว้',
+  'admin.demoBaseline.button': 'บันทึกเบสไลน์',
+  'admin.demoBaseline.saved': 'บันทึกเบสไลน์แล้ว! การรีเซ็ตจะกลับมาที่สถานะนี้',
+  'admin.demoBaseline.failed': 'บันทึกเบสไลน์ไม่สำเร็จ',
+  'admin.invite.deleteTitle': 'ลบลิงก์เชิญ',
+  'admin.invite.deleteConfirm': 'ลบลิงก์เชิญนี้หรือไม่ ผู้ที่ยังไม่ได้ใช้จะสมัครด้วยลิงก์นี้ไม่ได้อีก',
+  'admin.packingTemplates.deleteTemplateTitle': 'ลบเทมเพลต',
+  'admin.packingTemplates.deleteTemplateConfirm': 'ลบเทมเพลต "{name}" พร้อมทุกหมวดหมู่และรายการหรือไม่',
+  'admin.packingTemplates.deleteCategoryTitle': 'ลบหมวดหมู่',
+  'admin.packingTemplates.deleteCategoryConfirm': 'ลบหมวดหมู่ "{name}" และรายการทั้งหมดในหมวดนี้หรือไม่',
+  'admin.rotateJwt.button': 'หมุน',
 };
 export default admin;

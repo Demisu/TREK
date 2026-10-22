@@ -260,5 +260,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'Вкажіть кількість днів',
   'dashboard.tripChangeNeedsConnection':
     'Зміна дат, кількості днів, валюти чи обкладинки потребує зʼєднання. Назву, опис і нагадування можна змінити й офлайн.',
+  'dashboard.ics.enable': 'Увімкнути підписку на календар',
+  'dashboard.ics.enableHint':
+    'Створює секретне посилання, яке може відкрити без входу будь-хто, хто його має. Його можна вимкнути будь-коли.',
+  'dashboard.ics.regenerate': 'Створити заново',
+  'dashboard.ics.turnOff': 'Вимкнути',
+  'dashboard.ics.manageHint':
+    'Повторне створення дає нове посилання, а старе перестає працювати. Вимкнення повністю деактивує посилання.',
+  'dashboard.ics.addGoogle': 'Додати до Google Календаря',
+  'dashboard.ics.addApple': 'Додати до Календаря Apple / Outlook',
+  'dashboard.ics.copyManually': 'Або скопіюйте посилання вручну',
+  'dashboard.ics.pasteFromUrl': 'вставте в поле «За URL»',
 };
 export default dashboard;

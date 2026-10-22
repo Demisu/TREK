@@ -85,7 +85,7 @@ export default function PasskeysSection({ demoMode }: { demoMode?: boolean }): R
                     </div>
                     <p className="m-0 mt-0.5 truncate tabular-nums text-content-faint" style={fs(11.5)}>
                       {t('settings.passkey.added')}: {fmtDate(c.created_at) || '—'}
-                      {' · '}
+                      {', '}
                       {c.last_used_at
                         ? `${t('settings.passkey.lastUsed')}: ${fmtDate(c.last_used_at)}`
                         : t('settings.passkey.neverUsed')}

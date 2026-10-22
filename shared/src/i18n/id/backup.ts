@@ -68,5 +68,6 @@ const backup: TranslationStrings = {
     'Semua data saat ini (perjalanan, tempat, pengguna, unggahan) akan digantikan secara permanen oleh cadangan ini. Tindakan ini tidak dapat dibatalkan.',
   'backup.restoreTip': 'Tips: Buat cadangan kondisi saat ini sebelum memulihkan.',
   'backup.restoreConfirm': 'Ya, pulihkan',
+  'backup.auto.hourHintTz': 'Waktu lokal server (format {format}), zona waktu {timezone}',
 };
 export default backup;

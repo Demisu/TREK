@@ -17,6 +17,9 @@ const { routeWalkingTour, routeRun, enrichTourElevations, createTour, detailTour
 vi.mock('./tourRouting', () => ({ routeWalkingTour, routeRun, enrichTourElevations }));
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
 vi.mock('../../../repo/paddleRouteRepo', () => ({ paddleRouteRepo: { plan: paddlePlan, forget: vi.fn() } }));
+vi.mock('../../../repo/tourDraftRepo', async () => ({
+  tourDraftRepo: (await import('../../../../tests/helpers/fakeTourDraftRepo')).fakeTourDraftRepo,
+}));
 vi.mock('../useTourPermissions', () => ({
   useTourPermissions: ({ canEdit = true, canAssign = true }: { canEdit?: boolean; canAssign?: boolean }) => ({
     canEdit,
@@ -24,6 +27,7 @@ vi.mock('../useTourPermissions', () => ({
   }),
 }));
 
+import { draftStore } from '../../../../tests/helpers/fakeTourDraftRepo';
 import { validDraft } from './tourPlannerDraft';
 import { useTourPlanner } from './useTourPlanner';
 
@@ -97,6 +101,7 @@ describe('useTourPlanner, multi-day tours (MDT-01)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     localStorage.clear();
+    draftStore.clear();
     routeWalkingTour.mockReset().mockResolvedValue(routed);
     routeRun.mockReset().mockResolvedValue(routed);
     enrichTourElevations.mockReset().mockResolvedValue(enriched);
@@ -250,7 +255,7 @@ describe('useTourPlanner, multi-day tours (MDT-01)', () => {
   it('FE-TOUR-STAGES-008: the draft kept between visits holds the stage ends, and one with a broken mark is dropped', async () => {
     const { result } = await plannedHike(69);
     act(() => result.current.stages.toggleStageEnd(result.current.waypoints[1].id));
-    const draft = JSON.parse(localStorage.getItem('tour-draft-69') || 'null');
+    const draft = JSON.parse(draftStore.getItem('tour-draft-69') || 'null');
     expect(draft.waypoints[1].stageEnd).toBe(true);
     expect(validDraft(draft)).toBe(true);
     draft.waypoints[1].stageEnd = 'yes';

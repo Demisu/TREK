@@ -2,7 +2,7 @@ import type { HelpContext, HelpGuide } from '../types'
 
 /**
  * Help for the Atlas addon (`/atlas`): the world map of visited countries,
- * regions and the bucket list. The step actions that produce the pictures live
+ * regions and the bucket list, and with the Tours addon the tour activities. The step actions that produce the pictures live
  * in `e2e/help/atlas.guide.ts`, keyed by the same ids.
  */
 
@@ -38,10 +38,21 @@ export const atlasGuides: HelpGuide[] = [
     icon: 'search',
     size: 'quick',
     steps: 2,
-    tips: 1,
+    tips: 2,
     media: { steps: true, result: true },
     docs: { slug: ATLAS, anchor: 'statistics' },
-    related: ['stats', 'planned-countries'],
+    related: ['country-places', 'search-place', 'planned-countries'],
+  },
+  {
+    id: 'country-places',
+    context: 'atlas',
+    icon: 'mapPin',
+    size: 'quick',
+    steps: 3,
+    tips: 2,
+    media: { steps: true, result: false },
+    docs: { slug: ATLAS, anchor: 'a-countrys-places' },
+    related: ['country-details', 'stats'],
   },
   {
     id: 'planned-countries',
@@ -60,7 +71,7 @@ export const atlasGuides: HelpGuide[] = [
     icon: 'regions',
     size: 'guide',
     steps: 3,
-    tips: 2,
+    tips: 3,
     media: { steps: true, result: true },
     docs: { slug: ATLAS, anchor: 'sub-national-regions' },
     related: ['search-place', 'mark-country'],
@@ -71,7 +82,7 @@ export const atlasGuides: HelpGuide[] = [
     icon: 'landmark',
     size: 'guide',
     steps: 3,
-    tips: 1,
+    tips: 2,
     media: { steps: true, result: true },
     docs: { slug: ATLAS, anchor: 'marking-countries-as-visited' },
     related: ['regions', 'bucket-place'],
@@ -96,7 +107,7 @@ export const atlasGuides: HelpGuide[] = [
     tips: 1,
     media: { steps: true, result: true },
     docs: { slug: ATLAS, anchor: 'bucket-list' },
-    related: ['bucket-country'],
+    related: ['bucket-country', 'dawarich-wishes'],
   },
   {
     id: 'stats',
@@ -107,7 +118,18 @@ export const atlasGuides: HelpGuide[] = [
     tips: 2,
     media: { steps: true, result: false },
     docs: { slug: ATLAS, anchor: 'statistics' },
-    related: ['country-details'],
+    related: ['country-details', 'tour-activity-stats'],
+  },
+  {
+    id: 'tour-activity-stats',
+    context: 'atlas',
+    icon: 'footprints',
+    size: 'guide',
+    steps: 6,
+    tips: 3,
+    media: { steps: true, result: true },
+    docs: { slug: ATLAS, anchor: 'tour-activities' },
+    related: ['stats'],
   },
   {
     id: 'dawarich-countries',

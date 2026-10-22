@@ -27,14 +27,22 @@ export const confirmDialog = (page: Page) => confirmBackdrop(page).locator('.tre
 export const portalDialog = (page: Page, contains: Locator): Locator =>
   page.locator('div[role="presentation"]').filter({ has: contains }).last()
 
+/**
+ * The trip page has loaded: its header carries the Trip settings pill, which
+ * every tab shows. (Share moved into that pill's dialog in v5, so it is no
+ * longer a button of its own up there.)
+ */
+export async function tripReady(page: Page): Promise<void> {
+  await expect(page.getByRole('button', { name: 'Trip settings', exact: true })).toBeVisible({ timeout: 30_000 })
+}
+
 export async function openTrip(page: Page, opts: { tab?: string; day?: number | null } = {}): Promise<void> {
   const { tripId } = seededTrip()
   const { tab, day = 1 } = opts
   await page.goto(`/trips/${tripId}${tab ? `?tab=${tab}` : ''}`)
   await clearNotices(page)
   await dismissReleaseNotice(page)
-  // Exact: the Lists tab carries a Shared button, which the loose name also matches.
-  await expect(page.getByRole('button', { name: 'Share', exact: true })).toBeVisible({ timeout: 30_000 })
+  await tripReady(page)
   await settle(page)
   await untilTranslated(page)
   if (!tab && day) {
@@ -62,7 +70,7 @@ async function untilTranslated(page: Page): Promise<void> {
     await page.reload()
     await clearNotices(page)
     await dismissReleaseNotice(page)
-    await expect(page.getByRole('button', { name: 'Share', exact: true })).toBeVisible({ timeout: 30_000 })
+    await tripReady(page)
     await settle(page)
   }
   await expect(rawKey(page), 'the page shows i18n keys instead of text').toHaveCount(0)

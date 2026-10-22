@@ -255,8 +255,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'L’encaminador d’evitació no ha respost per a aquest tram, així que l’ha dibuixat l’encaminador principal. S’està tornant a consultar l’encaminador d’evitació.',
   'roadtrip.day': 'Dia {number}',
-  'roadtrip.quietDay.empty': 'Encara sense parades: deixa’n una aquí',
-  'roadtrip.quietDay.one': 'De moment només {name}: deixa una parada aquí',
+  'roadtrip.quietDay.empty': "Encara sense parades, deixa'n una aquí",
+  'roadtrip.quietDay.one': 'De moment només {name}, deixa una parada aquí',
   'roadtrip.leg.driveText': '{distance} en {time}',
   'roadtrip.day.stopCount': '{count} parades',
   'roadtrip.day.stopCount.one': '{count} parada',
@@ -342,5 +342,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Marxa després de l’hora de sortida',
   'roadtrip.bookend.noVia':
     'No es pot posar cap punt de pas al trajecte fins al teu allotjament o des d’ell. Afegeix-hi una parada.',
+  'roadtrip.stay.untilHint':
+    "Se surt a les {time} perquè aquesta visita té hora de fi. Obre-la i tria Elimina l'hora de fi per fixar una durada d'estada.",
 };
 export default roadtrip;

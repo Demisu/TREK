@@ -246,8 +246,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'The avoidance router did not answer for this leg, so the main router drew it. It is being asked again.',
   'roadtrip.day': 'Day {number}',
-  'roadtrip.quietDay.empty': 'No stops yet — drop one here',
-  'roadtrip.quietDay.one': 'Only {name} so far — drop a stop here',
+  'roadtrip.quietDay.empty': 'No stops yet, drop one here',
+  'roadtrip.quietDay.one': 'Only {name} so far, drop a stop here',
   'roadtrip.leg.driveText': '{distance} in {time}',
   'roadtrip.day.stopCount': '{count} stops',
   'roadtrip.day.stopCount.one': '{count} stop',
@@ -330,5 +330,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.checkIn': 'Check-in',
   'roadtrip.bookend.afterCheckOut': 'Leaves after check-out',
   'roadtrip.bookend.noVia': 'No via point on the drive to or from your stay. Add a stop there instead.',
+  'roadtrip.stay.untilHint':
+    'Leaves at {time} because this visit has an end time. Open it and choose Remove end time to set a stay length instead.',
 };
 export default roadtrip;

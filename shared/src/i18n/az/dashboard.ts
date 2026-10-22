@@ -225,5 +225,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'Günlərin sayı tələb olunur',
   'dashboard.tripChangeNeedsConnection':
     'Tarixləri, günlərin sayını, valyutanı və ya üz şəklini dəyişmək üçün bağlantı lazımdır. Adı, təsviri və xatırlatmanı oflayn da dəyişə bilərsiniz.',
+  'dashboard.ics.enable': 'Təqvim abunəliyini aktivləşdir',
+  'dashboard.ics.enableHint':
+    'Hər kəsin daxil olmadan oxuya biləcəyi gizli keçid yaradır. İstənilən vaxt söndürə bilərsiniz.',
+  'dashboard.ics.regenerate': 'Yenidən yarat',
+  'dashboard.ics.turnOff': 'Söndür',
+  'dashboard.ics.manageHint':
+    'Yenidən yaratmaq yeni keçid yaradır və köhnəsini etibarsız edir. Söndürmək keçidi tamamilə deaktiv edir.',
+  'dashboard.ics.addGoogle': 'Google Təqvimə əlavə et',
+  'dashboard.ics.addApple': 'Apple Təqvimə / Outlook-a əlavə et',
+  'dashboard.ics.copyManually': 'Və ya keçidi əllə kopyalayın',
+  'dashboard.ics.pasteFromUrl': '“URL-dən” sahəsinə yapışdırın',
 };
 export default dashboard;

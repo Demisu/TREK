@@ -106,6 +106,11 @@ function CategoryPicker({ search }: { search: TourPoiSearch }) {
             />
           );
         })}
+        {search.categoryLimitReached && (
+          <p className="m-0 px-2.5 py-1.5 text-content-muted" style={fs(11, 'body')} role="status">
+            {t('tours.poi.categoriesLimit', { count: search.categoryLimit })}
+          </p>
+        )}
       </PopoverListPanel>
     </>
   );
@@ -357,6 +362,10 @@ export function TourPoiSearchCard({ planner }: { planner: TourPlannerController 
             search.status === 'loading' ? 'tours.poi.searching' : search.answer ? 'tours.poi.again' : 'tours.poi.search'
           )}
         </button>
+        {/* The size is set either way: the line stays hidden while the answer is current, so it only shows once it speaks. */}
+        <p role="status" className={search.outdated ? 'm-0 text-content-muted' : 'sr-only'} style={fs(11, 'body')}>
+          {search.outdated ? t('tours.poi.outdated') : ''}
+        </p>
         {insertion.outcome && (
           <OutcomeNotice
             outcome={insertion.outcome}

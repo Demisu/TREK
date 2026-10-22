@@ -46,16 +46,19 @@ describe('useFerrataAdopt', () => {
     const done = vi.fn();
     const { result } = renderHook(() => useFerrataAdopt(p as never, true, done));
     result.current?.(group);
-    expect(p.appendFixedLeg).toHaveBeenCalledWith({
-      kind: 'ferrata',
-      ref: group.id.replace(/^group\//, ''),
-      name: 'Via Test',
-      geometry: [
-        [47.43, 11.05],
-        [47.432, 11.05],
-        [47.434, 11.05],
-      ],
-    });
+    expect(p.appendFixedLeg).toHaveBeenCalledWith(
+      {
+        kind: 'ferrata',
+        ref: group.id.replace(/^group\//, ''),
+        name: 'Via Test',
+        geometry: [
+          [47.43, 11.05],
+          [47.432, 11.05],
+          [47.434, 11.05],
+        ],
+      },
+      null
+    );
     expect(p.addWaypoint).not.toHaveBeenCalled();
     expect(done).toHaveBeenCalledOnce();
   });
@@ -67,6 +70,20 @@ describe('useFerrataAdopt', () => {
     const leg = p.appendFixedLeg.mock.calls[0]?.[0] as { geometry: [number, number][] };
     expect(leg.geometry[0]).toEqual([47.434, 11.05]);
     expect(leg.geometry[leg.geometry.length - 1]).toEqual([47.43, 11.05]);
+  });
+
+  it('FE-HOOK-FERRATAADOPT-005: with a stop inside the route selected the ferrata goes in after it; with the last one it goes on the end', () => {
+    const stops = [
+      { id: 'a', lat: 47.4, lng: 11.05, role: 'start' },
+      { id: 'b', lat: 47.45, lng: 11.05, role: 'via' },
+      { id: 'c', lat: 47.5, lng: 11.05, role: 'end' },
+    ];
+    const inside = planner({ waypoints: stops, selectedWaypointId: 'a' });
+    renderHook(() => useFerrataAdopt(inside as never, true, vi.fn())).result.current?.(group);
+    expect(inside.appendFixedLeg.mock.calls[0]?.[1]).toBe('a');
+    const end = planner({ waypoints: stops, selectedWaypointId: 'c' });
+    renderHook(() => useFerrataAdopt(end as never, true, vi.fn())).result.current?.(group);
+    expect(end.appendFixedLeg.mock.calls[0]?.[1]).toBeNull();
   });
 
   it('FE-HOOK-FERRATAADOPT-003: from a GPX view it starts a new tour first; pieces that do not join go on as two plain ends', () => {

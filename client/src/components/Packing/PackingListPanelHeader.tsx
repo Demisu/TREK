@@ -7,7 +7,7 @@ import { PackingTemplateOption } from './PackingTemplateOption'
 
 export function PackingHeader(S: PackingState) {
   const {
-    inlineHeader, t, items, abgehakt, fortschritt, canEdit, isAdmin,
+    inlineHeader, t, items, abgehakt, fortschritt, viewTotal, canEdit, isAdmin,
     showSaveTemplate, saveTemplateName, setSaveTemplateName, handleSaveAsTemplate, setShowSaveTemplate,
     setShowImportModal, handleClearChecked, availableTemplates, templateDropdownRef,
     showTemplateDropdown, setShowTemplateDropdown, applyingTemplate, handleApplyTemplate,
@@ -22,7 +22,7 @@ export function PackingHeader(S: PackingState) {
             <h2 style={{ margin: 0, fontSize: 'calc(18px * var(--fs-scale-subtitle, 1))', fontWeight: 700, color: 'var(--text-primary)' }}>{t('packing.title')}</h2>
             {items.length > 0 && (
               <p style={{ margin: '2px 0 0', fontSize: 'calc(12.5px * var(--fs-scale-body, 1))', color: 'var(--text-faint)' }}>
-                {t('packing.progress', { packed: abgehakt, total: items.length, percent: fortschritt })}
+                {t('packing.progress', { packed: abgehakt, total: viewTotal, percent: fortschritt })}
               </p>
             )}
           </div>

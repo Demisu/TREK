@@ -119,7 +119,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Crea el token',
   'settings.mcp.modal.createdTitle': 'Token creat',
   'settings.mcp.modal.createdWarning':
-    "Aquest token només es mostrarà un cop. Copia'l i desa'l ara — no es podrà recuperar.",
+    "Aquest token només es mostrarà un cop. Copia'l i desa'l ara: no es podrà recuperar.",
   'settings.mcp.modal.done': 'A punt',
   'settings.mcp.toast.created': 'Token creat',
   'settings.mcp.toast.createError': 'Error en crear el token',
@@ -161,14 +161,14 @@ const settings: TranslationStrings = {
     'Un URI per línia. HTTPS, HTTP en bucle local o un esquema propi com myapp://. Coincidència exacta, excepte el port en bucle local.',
   'settings.oauth.modal.scopes': 'Àmbits permesos',
   'settings.oauth.modal.scopesHint':
-    'list_trips i get_trip_summary sempre estan disponibles — sense àmbit requerit. Permeten a la IA descobrir els IDs de viatge necessaris.',
+    'list_trips i get_trip_summary sempre estan disponibles: sense àmbit requerit. Permeten a la IA descobrir els IDs de viatge necessaris.',
   'settings.oauth.modal.selectAll': 'Selecciona-ho tot',
   'settings.oauth.modal.deselectAll': 'Deselecciona-ho tot',
   'settings.oauth.modal.creating': 'Registrant…',
   'settings.oauth.modal.create': 'Registra el client',
   'settings.oauth.modal.createdTitle': 'Client registrat',
   'settings.oauth.modal.createdWarning':
-    "El secret del client només es mostra un cop. Copia'l ara — no es pot recuperar.",
+    "El secret del client només es mostra un cop. Copia'l ara: no es pot recuperar.",
   'settings.oauth.toast.createError': 'Error en registrar el client OAuth',
   'settings.oauth.toast.deleted': 'Client OAuth eliminat',
   'settings.oauth.toast.deleteError': 'Error en eliminar el client OAuth',
@@ -226,7 +226,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Elimina el compte',
   'settings.deleteAccountTitle': 'Vols eliminar el teu compte?',
   'settings.deleteAccountWarning':
-    "El teu compte i tots els teus viatges, llocs i fitxers s'eliminaran permanentment. Aquesta acció no es pot desfer.",
+    "El teu compte i tots els viatges, diaris, llocs i fitxers que tens seran eliminats definitivament, també els viatges compartits amb altres membres, que en perdran l'accés. Els viatges d'altres persones es mantenen i tu en seràs eliminat. Aquesta acció no es pot desfer.",
   'settings.deleteAccountConfirm': 'Elimina permanentment',
   'settings.deleteBlockedTitle': 'No és possible eliminar-lo',
   'settings.deleteBlockedMessage':
@@ -362,7 +362,7 @@ const settings: TranslationStrings = {
     'Quan el lector estàndard no pugui llegir un fitxer, reintenta-ho automàticament amb IA.',
   'settings.currency': 'Divisa de visualització',
   'settings.currencyHint':
-    'Els imports a Despeses es mostren convertits a aquesta divisa només per a la visualització — els imports originals no es modifiquen.',
+    'Els imports a Despeses es mostren convertits a aquesta divisa només per a la visualització; els imports originals no es modifiquen.',
   'settings.airtrail.title': 'AirTrail',
   'settings.airtrail.hint': "Connecta't a la teva instància d'AirTrail per importar vols automàticament.",
   'settings.airtrail.url': 'URL de la instància',
@@ -503,10 +503,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Treballa només amb dades de la memòria cau i posa en cua els teus canvis. Desactiva-ho per tornar-te a connectar i sincronitzar.',
   'settings.offline.mode.active':
-    'El mode fora de línia està activat — els teus canvis estan a la cua i es sincronitzaran quan el desactivis.',
+    'El mode fora de línia està activat: els teus canvis estan a la cua i es sincronitzaran quan el desactivis.',
   'settings.offline.prepare.title': "Preparar per a l'ús fora de línia",
   'settings.offline.prepare.hint':
-    'Descarrega tot el que necessitis — dades del viatge, documents i tessel·les de mapes — abans de perdre la connexió.',
+    'Descarrega tot el que necessitis (dades del viatge, documents i tessel·les de mapes) abans de perdre la connexió.',
   'settings.offline.prepare.button': 'Descarregar per a ús fora de línia',
   'settings.offline.prepare.running': 'Descarregant…',
   'settings.offline.prepare.done': "Llest per a l'ús fora de línia",
@@ -605,8 +605,7 @@ const settings: TranslationStrings = {
     'La llengua en què responen la cerca de llocs, els suggeriments i les adreces. Si un lloc no té nom en aquesta llengua, se’n mostra el nom local.',
   'settings.alwaysShowRoutes': 'Mostra sempre les rutes de reserva',
   'settings.alwaysShowRoutesHint':
-    'Dibuixa automàticament al mapa la ruta de cada vol, tren i altra reserva — no cal activar-la una per una.',
-
+    'Dibuixa automàticament al mapa la ruta de cada vol, tren i altra reserva, no cal activar-la una per una.',
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Què pot llegir aquesta clau',
@@ -651,13 +650,15 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': "No s'ha pogut copiar. Selecciona el text i copia'l a mà.",
   'settings.apiKeys.modal.createTitle': 'Crea una clau API',
   'settings.apiKeys.modal.name': 'Nom',
-  'settings.apiKeys.modal.namePlaceholder': 'p. ex. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'p. ex. Tauler de casa',
   'settings.apiKeys.modal.nameHint': 'Només per a tu, perquè reconeguis la clau més endavant.',
   'settings.apiKeys.modal.creating': "S'està creant...",
   'settings.apiKeys.modal.create': 'Crea',
   'settings.apiKeys.modal.createdTitle': 'Clau API creada',
   'settings.apiKeys.modal.createdWarning': 'Copia la clau ara. Només es mostra un cop i no es pot recuperar després.',
   'settings.apiKeys.modal.done': 'Fet',
+  'settings.mcp.deprecated': 'Obsolet',
+  'settings.offline.cache.dateRange': 'del {start} al {end}',
 };
 
 export default settings;

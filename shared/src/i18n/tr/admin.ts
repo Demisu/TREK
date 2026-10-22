@@ -94,7 +94,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Kullanıcıyı Düzenle',
   'admin.newPassword': 'Yeni Şifre',
   'admin.newPasswordHint': 'Mevcut şifreyi korumak için boş bırakın',
-  'admin.deleteUser': '"{name}" kullanıcısı silinsin mi? Tüm geziler kalıcı olarak silinecek.',
+  'admin.deleteUser':
+    '"{name}" kullanıcısı silinsin mi? Hesabı ile sahibi olduğu tüm geziler ve günlükler kalıcı olarak silinir; diğer üyelerle paylaşılan geziler de buna dahildir ve bu üyeler erişimi kaybeder. Başkalarına ait geziler kalır.',
   'admin.deleteUserTitle': 'Kullanıcıyı sil',
   'admin.newPasswordPlaceholder': 'Yeni şifreyi girin…',
   'admin.toast.loadError': 'Yönetici verileri yüklenemedi',
@@ -246,9 +247,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.google': 'Google',
   'admin.transitProvider.transitousHint': "Topluluk GTFS akışları. Ücretsiz ve anahtarsız, Avrupa'da en iyi kapsama.",
   'admin.transitProvider.googleHint':
-    "Transitous'un verisi olmayan bölgeler için yukarıdaki Google anahtarını kullanır. Arama başına ücretlendirilir — anahtar ayarlanmadığı sürece Transitous kullanılır.",
+    "Transitous'un verisi olmayan bölgeler için yukarıdaki Google anahtarını kullanır. Arama başına ücretlendirilir; anahtar ayarlanmadığı sürece Transitous kullanılır.",
   'admin.transitProvider.noKeyWarning':
-    'Google seçili, ancak yapılandırılmış bir Google anahtarı yok — toplu taşıma araması hâlâ Transitous kullanıyor. Yukarıdaki API Anahtarları bölümünden bir anahtar ekleyin.',
+    'Google seçili, ancak yapılandırılmış bir Google anahtarı yok; toplu taşıma araması hâlâ Transitous kullanıyor. Yukarıdaki API Anahtarları bölümünden bir anahtar ekleyin.',
   'admin.transitProvider.personalKeyWarning':
     "Yalnızca kendi Google anahtarınız ayarlı, bu yüzden diğer üyelerin araması hâlâ Transitous'a düşüyor. Tüm kuruluma uygulamak için anahtarı yukarıda yönetici olarak kaydedin.",
   'admin.placeShadow.title': 'Yer arama günlüğü',
@@ -778,8 +779,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Henüz denetim girişi yok.',
   'admin.audit.refresh': 'Yenile',
   'admin.audit.loadMore': 'Daha fazlasını yükle',
-  'admin.audit.showing': '{count} yüklendi · {total} toplam',
-  'admin.audit.showing.one': '{count} yüklendi · {total} toplam',
+  'admin.audit.showing': '{count} yüklendi, {total} toplam',
+  'admin.audit.showing.one': '{count} yüklendi, {total} toplam',
   'admin.audit.col.time': 'Zaman',
   'admin.audit.col.user': 'Kullanıcı',
   'admin.audit.col.action': 'Aksiyon',
@@ -941,5 +942,37 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'Reddet',
   'admin.paddleRegions.origin.auto': 'Otomatik',
   'admin.paddleRegions.origin.autoHint': 'TREK bu bölgeyi orada planlanan bir kürek turu için kendiliğinden yükledi.',
+  'admin.mfa.reset': '2FA’yı sıfırla',
+  'admin.mfa.resetHint':
+    'Bu kullanıcının iki faktörlü kimlik doğrulamasını kapatır, örneğin telefon kaybedildiğinde. Kullanıcının tüm oturumları kapatılır ve parolasıyla giriş yaptıktan sonra yeniden kurabilir.',
+  'admin.mfa.resetConfirm': '{name} için iki faktörlü kimlik doğrulama kapatılsın mı?',
+  'admin.mfa.resetDone': 'İki faktörlü kimlik doğrulama sıfırlandı',
+  'admin.danger.title': 'Tehlikeli Bölge',
+  'admin.rotateJwt.title': 'JWT sırrını yenile',
+  'admin.rotateJwt.hint': 'Yeni bir JWT imzalama sırrı oluşturur. Tüm etkin oturumlar hemen geçersiz kılınır.',
+  'admin.rotateJwt.confirm': 'Yenile ve çıkış yap',
+  'admin.rotateJwt.warning': 'Uyarı: bu işlem tüm oturumları geçersiz kılar ve sizi de oturumdan çıkarır.',
+  'admin.rotateJwt.body':
+    'Yeni bir JWT sırrı hemen oluşturulur. Siz dahil oturum açmış tüm kullanıcıların oturumu kapatılır ve yeniden giriş yapmaları gerekir.',
+  'admin.oidcDisplayNamePlaceholder': 'örn. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery URL (isteğe bağlı)',
+  'admin.oidcDiscoveryUrlHint':
+    'Otomatik oluşturulan discovery URL’sinin yerine geçer. Uç noktanın {path} adresinde olmadığı Authentik gibi sağlayıcılar için gereklidir.',
+  'admin.smtp.skipTls': 'TLS sertifika denetimini atla',
+  'admin.smtp.skipTlsHint': 'Yerel posta sunucularındaki kendinden imzalı sertifikalar için etkinleştirin',
+  'admin.demoBaseline.title': 'Demo Başlangıç Durumu',
+  'admin.demoBaseline.hint':
+    'Geçerli durumu saatlik sıfırlama noktası olarak kaydeder. Yöneticinin tüm gezileri ve ayarları korunur.',
+  'admin.demoBaseline.button': 'Başlangıç Durumunu Kaydet',
+  'admin.demoBaseline.saved': 'Başlangıç durumu kaydedildi! Sıfırlamalar bu duruma dönecek.',
+  'admin.demoBaseline.failed': 'Başlangıç durumu kaydedilemedi',
+  'admin.invite.deleteTitle': 'Davet bağlantısını sil',
+  'admin.invite.deleteConfirm': 'Bu davet bağlantısı silinsin mi? Henüz kullanmamış olanlar artık bununla kaydolamaz.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Şablonu sil',
+  'admin.packingTemplates.deleteTemplateConfirm':
+    '"{name}" şablonu tüm kategorileri ve öğeleriyle birlikte silinsin mi?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Kategoriyi sil',
+  'admin.packingTemplates.deleteCategoryConfirm': '"{name}" kategorisi ve tüm öğeleri silinsin mi?',
+  'admin.rotateJwt.button': 'Döndür',
 };
 export default admin;

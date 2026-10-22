@@ -12,9 +12,14 @@ const { routeWalkingTour, routeRun, enrichTourElevations, createTour, detailTour
 
 vi.mock('./tourRouting', () => ({ routeWalkingTour, routeRun, enrichTourElevations }));
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
+vi.mock('../../../repo/tourDraftRepo', async () => ({
+  tourDraftRepo: (await import('../../../../tests/helpers/fakeTourDraftRepo')).fakeTourDraftRepo,
+}));
 vi.mock('../useTourPermissions', () => ({ useTourPermissions: () => ({ canEdit: true, canAssign: true }) }));
 
-import { useTourPlanner, type DerivedTourDraft } from './useTourPlanner';
+import { draftStore } from '../../../../tests/helpers/fakeTourDraftRepo';
+import type { DerivedTourDraft } from './tourPlannerDraft';
+import { useTourPlanner } from './useTourPlanner';
 
 // FE-TOUR-RUN-001 to FE-TOUR-RUN-010
 
@@ -76,6 +81,7 @@ describe("useTourPlanner, a run at the runner's own pace (RUN-01)", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     localStorage.clear();
+    draftStore.clear();
     routeWalkingTour.mockReset().mockResolvedValue(routed);
     routeRun.mockReset().mockResolvedValue(routed);
     enrichTourElevations.mockReset().mockResolvedValue(enriched);
@@ -180,19 +186,20 @@ describe("useTourPlanner, a run at the runner's own pace (RUN-01)", () => {
     );
   });
 
-  it('FE-TOUR-RUN-006: a draft comes back as a run with its pace, and a new tour starts as a hike without one', () => {
+  it('FE-TOUR-RUN-006: a draft comes back as a run with its pace, and a new tour starts as a hike without one', async () => {
     const first = renderHook(() => useTourPlanner({ tripId: 76 }));
     act(() => {
       first.result.current.setTourType('run');
       first.result.current.runPace.setPace(345);
     });
     first.unmount();
-    expect(JSON.parse(localStorage.getItem('tour-draft-76') || 'null')).toMatchObject({
+    expect(JSON.parse(draftStore.getItem('tour-draft-76') || 'null')).toMatchObject({
       tourType: 'run',
       runProfile: 'running',
       runPaceSecondsPerKm: 345,
     });
     const again = renderHook(() => useTourPlanner({ tripId: 76 }));
+    await act(async () => {});
     expect(again.result.current.tourType).toBe('run');
     expect(again.result.current.runPace.paceSecondsPerKm).toBe(345);
     act(() => again.result.current.startNewTour(true));

@@ -1,6 +1,6 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
 import { captureGuide, captureHero, beat, typeInto, settle, VIEWPORT, type GuideScript } from './guide'
-import { dotted } from '../dates'
+import { day } from '../dates'
 import { seededTrip, ensureBookingsFixtures, bookingPdfFixture, bookingEmlFixture, BOOKING_EML, HOTEL_TO_BOOK, UNATTACHED_FILE } from './fixtures'
 import { openTrip, modal, portalDialog, importSteps, importTask, dismissImportTask, deleteTripFiles } from './trip-shared'
 import { requireExtractor, allowEmlUploads } from './external'
@@ -53,6 +53,29 @@ const viewSwitch = (page: Page) => page.getByRole('group', { name: 'View', exact
 const viewButton = (page: Page, name: 'Cards' | 'List' | 'Timeline') => viewSwitch(page).getByRole('button', { name, exact: true })
 
 // ── Timeline and detail ───────────────────────────────────────────────────────
+
+/** The sliders after the view icons: Group by and Sort by, or the timeline's lanes. */
+const viewOptionsButton = (page: Page) => toolbar(page).getByRole('button', { name: 'View options', exact: true })
+/** The view options panel is a menu like the filter's; only one is open at a time. */
+const viewMenu = (page: Page) => page.getByRole('menu')
+/** An item of the panel. Type stands under Group by and Sort by alike, so the first is Group by's. */
+const viewItem = (page: Page, name: string) => viewMenu(page).getByRole('button', { name, exact: true }).first()
+const exportButton = (page: Page) => toolbar(page).getByRole('button', { name: /^Export (as spreadsheet|the \d+ of \d+ shown rows) \(CSV\)$/ })
+/** A section's heading in Cards: a button with the label and its count, folding the section. */
+const sectionHead = (page: Page, label: string) =>
+  page.locator('button[aria-expanded]').filter({ hasText: new RegExp(String.raw`^${label}\s*\d+$`) })
+
+async function openViewOptions(page: Page): Promise<void> {
+  if (!(await viewMenu(page).isVisible().catch(() => false))) await viewOptionsButton(page).click()
+  await expect(viewMenu(page)).toBeVisible()
+  await beat(page, 300)
+}
+
+/** The bar's buttons toggle their panel; a second click puts it away. */
+async function closeViewOptions(page: Page): Promise<void> {
+  if (await viewMenu(page).isVisible().catch(() => false)) await viewOptionsButton(page).click()
+  await expect(viewMenu(page)).toHaveCount(0)
+}
 
 /** Trip | Day above the chart. */
 const zoom = (page: Page) => page.getByRole('group', { name: 'Zoom', exact: true })
@@ -128,12 +151,14 @@ async function chooseIn(page: Page, field: RegExp, option: RegExp, search?: stri
 
 /**
  * Set a date without touching the calendar: every date field has a keyboard
- * button beside it that swaps in a DD.MM.YYYY box, which is one fill instead of
- * a month of grid cells that move with the trip's dates.
+ * button beside it that swaps in a text box, which is one fill instead of a
+ * month of grid cells that move with the trip's dates. The box's placeholder
+ * follows the locale (MM/DD/YYYY in en-US), but it takes an ISO date in every
+ * locale, so the value is `day(offset)` and the box is found by its name.
  */
 async function setDate(page: Page, nth: number, value: string): Promise<void> {
   await modal(page).getByRole('button', { name: 'Enter date manually' }).nth(nth).click()
-  const box = modal(page).getByPlaceholder('DD.MM.YYYY')
+  const box = modal(page).getByRole('textbox', { name: 'Enter date manually' })
   await box.fill(value)
   await box.press('Enter')
   await expect(box).toHaveCount(0)
@@ -248,6 +273,53 @@ const SCRIPTS: Record<string, GuideScript> = {
       await clearPanelState(p)
     },
   },
+  'group-sort-bookings': {
+    guide: guide('group-sort-bookings'),
+    start: openBookings,
+    steps: [
+      {
+        target: viewOptionsButton,
+        act: async p => {
+          await openViewOptions(p)
+          await expect(viewItem(p, 'No grouping')).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        prepare: openViewOptions,
+        target: p => viewItem(p, 'Type'),
+        act: async p => {
+          await viewItem(p, 'Type').click()
+          await expect(sectionHead(p, 'Tour')).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        prepare: openViewOptions,
+        target: p => viewItem(p, 'Title'),
+        act: async p => {
+          await viewItem(p, 'Title').click()
+          // The direction row under the four reads the order now in force.
+          await expect(viewItem(p, 'A to Z')).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        prepare: async p => {
+          await closeViewOptions(p)
+          await settle(p)
+        },
+        target: p => sectionHead(p, 'Tour'),
+        act: async p => {
+          await sectionHead(p, 'Tour').click()
+          await expect(sectionHead(p, 'Tour')).toHaveAttribute('aria-expanded', 'false')
+          await expect(bookingCard(p, 'Kyoto Cycling Tour')).toHaveCount(0)
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: clearPanelState,
+  },
   'create-booking': {
     guide: guide('create-booking'),
     start: openBookings,
@@ -277,9 +349,9 @@ const SCRIPTS: Record<string, GuideScript> = {
       },
       {
         prepare: async p => {
-          await setDate(p, 0, dotted(-2))
+          await setDate(p, 0, day(-2))
           await timeBox(p).nth(0).fill('16:30')
-          await setDate(p, 1, dotted(-2))
+          await setDate(p, 1, day(-2))
           await timeBox(p).nth(1).fill('20:00')
           await settle(p)
         },
@@ -402,6 +474,35 @@ const SCRIPTS: Record<string, GuideScript> = {
       },
     ],
     cleanup: p => restore(p, 'teamLab Planets timed entry'),
+  },
+  'booking-on-map': {
+    guide: guide('booking-on-map'),
+    start: openBookings,
+    steps: [
+      {
+        target: p => bookingCard(p, VIEWED.title),
+        act: async p => {
+          // The title, not the middle of the card, which may be the address link.
+          await bookingCard(p, VIEWED.title).getByText(VIEWED.title, { exact: true }).click()
+          await expect(detail(p, VIEWED.title)).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        target: p => detail(p, VIEWED.title).getByRole('button', { name: 'On map', exact: true }),
+        act: async p => {
+          await detail(p, VIEWED.title).getByRole('button', { name: 'On map', exact: true }).click()
+          await expect(detail(p, VIEWED.title)).toHaveCount(0)
+          // The tab goes and the plan opens on the tour's day with its place selected.
+          await expect(p.getByRole('heading', { name: 'Bookings', exact: true, level: 2 })).toHaveCount(0)
+          await expect(p.getByText('Fushimi Inari Taisha').first()).toBeVisible({ timeout: 20_000 })
+          // The map flies to the place and the tiles land after it.
+          await p.waitForTimeout(1200)
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: clearPanelState,
   },
   'booking-travelers': {
     guide: guide('booking-travelers'),
@@ -625,6 +726,41 @@ const SCRIPTS: Record<string, GuideScript> = {
           await expect(resultsChip(p)).toHaveCount(0)
           await expect(bookingCard(p, 'Fushimi Inari night walk')).toBeVisible()
           await expect(bookingCard(p, 'Haneda Airport P4')).toBeVisible()
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: clearPanelState,
+  },
+  'export-bookings-csv': {
+    guide: guide('export-bookings-csv'),
+    start: openBookings,
+    steps: [
+      {
+        prepare: async p => {
+          await typeInto(p, searchBox(p), 'Kyoto')
+          await expect(resultsChip(p)).toBeVisible()
+          await settle(p)
+        },
+        target: p => searchBox(p).locator('xpath=..'),
+        act: settle,
+      },
+      {
+        prepare: openViewOptions,
+        target: p => viewItem(p, 'Title'),
+        act: async p => {
+          await viewItem(p, 'Title').click()
+          await expect(viewItem(p, 'A to Z')).toBeVisible()
+          await closeViewOptions(p)
+          await settle(p)
+        },
+      },
+      {
+        target: exportButton,
+        act: async p => {
+          const download = p.waitForEvent('download')
+          await exportButton(p).click()
+          expect((await download).suggestedFilename()).toMatch(/-bookings\.csv$/)
           await settle(p)
         },
       },

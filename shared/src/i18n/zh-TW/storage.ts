@@ -30,7 +30,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': '新增後端',
   'storage.backends.usedBy': '使用者：{categories}',
   'storage.backends.unused': '未指定任何分類',
-  'storage.backends.envReadOnly': '由環境變數定義 — 唯讀',
+  'storage.backends.envReadOnly': '由環境變數定義（唯讀）',
   'storage.source.built-in': '內建',
   'storage.source.env': '環境',
   'storage.source.settings': '設定',

@@ -37,5 +37,7 @@ const notifications: TranslationStrings = {
   'notifications.countLabel.two': 'إشعاران',
   'notifications.countLabel.few': 'إشعارات',
   'notifications.countLabel.many': 'إشعارًا',
+  'notifications.deleteAllConfirmTitle': 'حذف كل الإشعارات؟',
+  'notifications.deleteAllConfirmText': 'ستُحذف كل الإشعارات نهائيًا. لا يمكن التراجع عن ذلك.',
 };
 export default notifications;

@@ -21,7 +21,7 @@ in a script.
 | Result picture | `guide.media.result` | the full frame after the last step, pointer parked in the corner |
 | Hero (screen overview) | `captureHero` | the full frame of the screen as the reader finds it |
 | Output | `promote.mjs` | PNG → WebP quality 84; steps 1440 px wide, heroes and results 1920 px; into `public/help-media/<guide-id>/step-<n>.webp`, `result.webp`, `ctx/<screen-id>.webp` |
-| No videos | | stills only, by decision |
+| Loops | `StepAction.clip`, `dragLoop`, `promote.mjs` | stills are the format. A step whose motion a still cannot show (a route being drawn, a shaping point pulled, a flyover, the compass turning) also gets a short silent loop: frames of the still's window with the step's number and a drawn pointer, joined into `step-<n>.loop.webp` (1440 px, 80 ms a frame, the last held 1.6 s). Register the step under `clips` in the context row; only those are recorded. A browser drag (day plan, lists, road trip) stays a still with its arrow, since a recording leaves the dragged row out. The panel plays it in place of the still, except under reduced motion. No videos with sound, no screen recordings |
 
 The app's own appearance is the default theme, English, light mode, the seeded
 demo data (`e2e/screenshots/seed.ts`) plus the fixtures in `fixtures.ts`. Do not

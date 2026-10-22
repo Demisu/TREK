@@ -26,8 +26,12 @@ vi.mock('../../../repo/tourRepo', () => ({
   tourRepo: { create: createTour, detail: detailTour, update: updateTour, savedLine },
 }));
 vi.mock('../../../repo/skiRouteRepo', () => ({ skiRouteRepo: { plan: planSki } }));
+vi.mock('../../../repo/tourDraftRepo', async () => ({
+  tourDraftRepo: (await import('../../../../tests/helpers/fakeTourDraftRepo')).fakeTourDraftRepo,
+}));
 vi.mock('../useTourPermissions', () => ({ useTourPermissions: () => ({ canEdit: true, canAssign: true }) }));
 
+import { draftStore } from '../../../../tests/helpers/fakeTourDraftRepo';
 import { useTourPlanner } from './useTourPlanner';
 
 // FE-TOUR-SKI-PLAN-001 to FE-TOUR-SKI-PLAN-009
@@ -126,6 +130,7 @@ describe('useTourPlanner, a ski and winter tour (SKI-02)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     localStorage.clear();
+    draftStore.clear();
     routeWalkingTour.mockReset();
     planSki.mockReset().mockImplementation(pisteLegs);
     enrichTourElevations.mockReset().mockImplementation(heightsAlong);
@@ -271,6 +276,8 @@ describe('useTourPlanner, a ski and winter tour (SKI-02)', () => {
     first.unmount();
 
     const again = renderHook(() => useTourPlanner({ tripId: 86 }));
+    // The draft now lives on the account, so it is laid in once its read is back.
+    await act(async () => {});
     expect(again.result.current.tourType).toBe('ski');
     expect(again.result.current.ski.choice).toEqual({ discipline: 'touring', technique: null });
     act(() => again.result.current.returnToNeutral());

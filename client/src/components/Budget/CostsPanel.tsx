@@ -26,6 +26,8 @@ import { useSettlementForm } from './useSettlementForm'
 import { usePercentSplit, type CustomSplitUnit } from './usePercentSplit'
 import { useExpenseForm } from './useExpenseForm'
 import { ReceiptPreviewModal } from './ReceiptPreviewModal'
+import { useExpenseDeleteConfirm } from './useExpenseDeleteConfirm'
+import { FlowPills } from './FlowPills'
 import type { BudgetParticipantFinal, ReceiptLine } from '@trek/shared'
 import type { BudgetItem, BudgetItemReceipt } from '../../types'
 import type { TripMember } from './BudgetPanelMemberChips'
@@ -81,6 +83,7 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
   const curOf = useCallback((e: BudgetItem) => (e.currency || tripCurrency), [tripCurrency])
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<BudgetItem | null>(null)
+  const deleteConfirm = useExpenseDeleteConfirm(budgetItems, handleDelete)
   const [previewReceipts, setPreviewReceipts] = useState<{ receipts: BudgetItemReceipt[]; initialIndex: number } | null>(null)
   // One note open at a time: two expanded rows next to each other read as a mess,
   // and the point of the collapse is that the list stays scannable.
@@ -310,7 +313,7 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
               <CostsTable items={filtered} base={base} canEdit={canEdit}
                 baseTotal={baseTotal} toBase={booked} currencyOf={curOf} fmt={v => fmt(v)} personName={personName}
                 onUpdate={updateFromTable} onAdd={addFromTable}
-                onOpen={e => { setEditing(e); setModalOpen(true) }} onDelete={id => void handleDelete(id)} />
+                onOpen={e => { setEditing(e); setModalOpen(true) }} onDelete={deleteConfirm.askById} />
             )
           ) : dayGroups.length === 0 ? (
             search ? (
@@ -392,6 +395,8 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
           onClose={() => { setEditingSettlement(null); setAddingPayment(false) }}
           onSaved={() => { setEditingSettlement(null); setAddingPayment(false); loadSettlement() }} />
       )}
+
+      {deleteConfirm.dialog}
 
       {previewReceipts && (
         <ReceiptPreviewModal
@@ -744,7 +749,7 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
           </div>
         </div>
       </div>
-      {canEdit && RowActions({ onEdit: () => { setEditing(e); setModalOpen(true) }, onDelete: () => handleDelete(e.id), deleteLabel: t('common.delete'), name: e.name })}
+      {canEdit && RowActions({ onEdit: () => { setEditing(e); setModalOpen(true) }, onDelete: () => deleteConfirm.ask(e), deleteLabel: t('common.delete'), name: e.name })}
       </div>
     )
   }
@@ -1026,20 +1031,6 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
 }
 
 // ── pure subcomponents ─────────────────────────────────────────────────────
-function FlowPills({ ids, lead, Avatar, name }: { ids: number[]; lead: string; Avatar: (p: { id: number; size?: number }) => React.JSX.Element; name: (id: number) => string }) {
-  const uniq = Array.from(new Set(ids))
-  return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-      <span className="text-content-faint">{lead}</span>
-      {uniq.map(id => (
-        <span key={id} className="bg-surface-secondary border border-edge text-content" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, paddingBlock: 3, paddingInline: '3px 10px', borderRadius: 999, fontSize: 'calc(12px * var(--fs-scale-body, 1))', fontWeight: 600 }}>
-          <Avatar id={id} size={18} />{name(id)}
-        </span>
-      ))}
-    </span>
-  )
-}
-
 // Add or edit a settle-up payment (from / to / amount / currency). Reachable inline
 // from the ledger row and from a manual "Add payment" button, so recording "I sent
 // money to X" works the same whether or not there's an outstanding expense behind it.

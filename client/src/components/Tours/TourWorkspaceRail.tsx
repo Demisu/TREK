@@ -20,8 +20,11 @@ export interface TourWorkspaceRailParts {
   paddleChecklist?: PaddleChecklist;
   /** The classification of the ski track in view (SKI-02). */
   skiClassification?: SkiClassification;
-  /** The trip's tours, never offered as a stop of another tour (PR1-10). */
-  tourPlaceIds?: ReadonlySet<number>;
+  /**
+   * The trip's tours, never offered as a stop of another tour (PR1-10). Required,
+   * so a workspace that forgets to hand them on does not offer every tour as a stop.
+   */
+  tourPlaceIds: ReadonlySet<number>;
 }
 
 /** The tours workspace's left rail: the tour editor, or the wanderer trails while those are browsed. */

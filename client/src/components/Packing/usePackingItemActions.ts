@@ -2,7 +2,12 @@ import { useState } from 'react';
 
 import { useTripStore, type TripStoreState } from '../../store/tripStore';
 import type { PackingItem } from '../../types';
-import { isLastCustomItemInCategory, isPackingPlaceholder, type PackingView } from './packingListModel';
+import {
+  isLastCustomItemInCategory,
+  isPackingPlaceholder,
+  packingViewItems,
+  type PackingView,
+} from './packingListModel';
 import { PACKING_PLACEHOLDER_NAME } from './packingListPanel.constants';
 import { newItemSharing } from './packingListPanel.helpers';
 
@@ -128,10 +133,10 @@ export function usePackingItemActions({
     if (failed) toast.error(t('packing.toast.deleteError'));
   };
 
-  /** Removes every checked item of the trip, not only those of the active view. */
+  /** Removes the checked items of the open view only, the ones the button's count names. */
   const clearChecked = async () => {
     let failed = false;
-    for (const item of items.filter((i) => i.checked)) {
+    for (const item of packingViewItems(items, view).filter((i) => i.checked)) {
       try {
         await deletePackingItem(tripId, item.id);
       } catch {

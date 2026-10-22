@@ -21,8 +21,12 @@ vi.mock('./tourRouting', async (importOriginal) => ({
   enrichTourElevations,
 }));
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
+vi.mock('../../../repo/tourDraftRepo', async () => ({
+  tourDraftRepo: (await import('../../../../tests/helpers/fakeTourDraftRepo')).fakeTourDraftRepo,
+}));
 vi.mock('../useTourPermissions', () => ({ useTourPermissions: () => ({ canEdit: true, canAssign: true }) }));
 
+import { draftStore } from '../../../../tests/helpers/fakeTourDraftRepo';
 import { sectionLeg, withSectionAppended } from '../horse/horseSection';
 import { useTourPlanner } from './useTourPlanner';
 
@@ -71,6 +75,7 @@ describe('useTourPlanner, rides on horseback (HOR-01)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     localStorage.clear();
+    draftStore.clear();
     routeWalkingTour.mockReset();
     routeBikeTour.mockReset();
     enrichTourElevations.mockReset().mockImplementation(async (line: [number, number][]) => heights(line));

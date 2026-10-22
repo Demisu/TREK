@@ -3,6 +3,7 @@ import { Places } from '../../db/entities/Places.entity';
 import { TourActivities } from '../../db/entities/TourActivities.entity';
 import { TourActivityExclusions } from '../../db/entities/TourActivityExclusions.entity';
 import { TourChangeSteps } from '../../db/entities/TourChangeSteps.entity';
+import { TourDrafts } from '../../db/entities/TourDrafts.entity';
 import { TourObstacleReviews } from '../../db/entities/TourObstacleReviews.entity';
 import { TourPackingLinks } from '../../db/entities/TourPackingLinks.entity';
 import { TourSourceHints } from '../../db/entities/TourSourceHints.entity';
@@ -44,6 +45,8 @@ import { TourChangeSaveService } from './tour-change-save.service';
 import { TourChangeUndoMcp } from './tour-change-undo.mcp';
 import { TourChangeUndoService } from './tour-change-undo.service';
 import { TourChangeMcp } from './tour-change.mcp';
+import { TourDraftsController } from './tour-drafts.controller';
+import { TourDraftsService } from './tour-drafts.service';
 import { TourGpxExportService } from './tour-gpx-export.service';
 import { TourHorseRoutesController } from './tour-horse-routes.controller';
 import { TourHorseRoutesService } from './tour-horse-routes.service';
@@ -106,7 +109,9 @@ import { Module } from '@nestjs/common';
  * and who sees which of its items stay PackingService's. The optional watch
  * over a user's own wanderer snapshots (WAN-02) reads through WandererService,
  * keeps its hints in this domain's own rows, tells the user through
- * NotificationsService and runs hourly on SchedulingModule's registrar.
+ * NotificationsService and runs hourly on SchedulingModule's registrar. The
+ * planner's unsaved draft lives on the account, one per user and trip, in this
+ * domain's own rows.
  */
 @Module({
   imports: [
@@ -148,6 +153,7 @@ import { Module } from '@nestjs/common';
       TourPackingLinks,
       TourStationVisits,
       TourChangeSteps,
+      TourDrafts,
       TourActivities,
       TourActivityExclusions,
       Places,
@@ -160,6 +166,7 @@ import { Module } from '@nestjs/common';
     TourTakeOverController,
     TourActivitiesController,
     TourActivityStatsController,
+    TourDraftsController,
     TourPoiSearchController,
     TourSkiController,
     TourTrailGradeController,
@@ -193,6 +200,7 @@ import { Module } from '@nestjs/common';
     TourChangePreviewService,
     TourChangeSaveService,
     TourChangeUndoService,
+    TourDraftsService,
     TourActivitiesService,
     TourActivityStatsService,
     CollectionToursService,

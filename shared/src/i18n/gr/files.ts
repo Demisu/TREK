@@ -69,5 +69,8 @@ const files: TranslationStrings = {
     'Η αφαίρεση αυτής της σύνδεσης χρειάζεται σύνδεση στο διαδίκτυο. Δοκίμασε ξανά μόλις το TREK συνδεθεί ξανά.',
   'files.placeFilesNeedConnection':
     'Τα αρχεία χρειάζονται σύνδεση για να μεταφορτωθούν. Αφαίρεσε τα νέα για να αποθηκεύσεις το μέρος εκτός σύνδεσης ή αποθήκευσε μόλις συνδεθείς ξανά.',
+  'files.maxSize': 'Μέγ. {count} MB',
+  'files.maxSize.one': 'Μέγ. {count} MB',
+  'files.toast.starError': 'Δεν ήταν δυνατή η αλλαγή του αστεριού',
 };
 export default files;

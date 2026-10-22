@@ -204,7 +204,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Traces GPX',
   'journey.settings.recordings': 'Dies enregistrats',
   'journey.settings.showTripTracks': 'Mostra totes les traces GPX dels viatges',
-  'journey.settings.showTripTracksHint': 'Dibuixa al mapa les rutes enregistrades dels viatges enllaçats.',
+  'journey.settings.showTripTracksHint': 'Dibuixa al mapa les rutes planificades (traces GPX) dels viatges enllaçats.',
   'journey.settings.autoPrepare': 'Prepara automàticament els dies enregistrats',
   'journey.settings.autoPrepareHint':
     "Mentre un viatge enllaçat està en curs, les estades del teu Dawarich esperen al seu dia que les revisis. Els editors amb connexió pròpia reben les seves. No s'escriu res al diari sol.",
@@ -905,5 +905,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     "Dies enregistrats i les parades que se'n treuen, en els dies amb una entrada publicada. Mostren on i quan eres, també el teu allotjament.",
   'journey.share.needsMap': 'Comparteix el mapa per activar-ho',
+  'journey.editor.tags': 'Etiquetes',
 };
 export default journey;

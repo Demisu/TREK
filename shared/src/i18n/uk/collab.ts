@@ -116,5 +116,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Додати зображення',
   'collab.chat.attachedImage': 'Додане зображення',
   'collab.chat.closeImage': 'Закрити зображення',
+  'collab.notes.categoryInUse':
+    'Нотатки досі використовують цю категорію. Спершу перенесіть або видаліть їх, тоді категорію можна буде прибрати.',
+  'collab.notes.categoriesLocalHint':
+    'Категорія без нотаток зберігається лише в цьому браузері. Інші учасники побачать її, коли її почне використовувати нотатка.',
 };
 export default collab;

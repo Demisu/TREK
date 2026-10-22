@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
-import { Search, Plus, X, Upload, FileDown, ListPlus, Check, Star, CalendarPlus, CalendarDays, ChevronDown, Tag, Globe2, ArrowDownUp } from 'lucide-react'
+import { Search, Plus, X, Upload, Loader2, FileDown, ListPlus, Check, Star, CalendarPlus, CalendarDays, ChevronDown, Tag, Globe2, ArrowDownUp } from 'lucide-react'
 import { Tooltip } from '../shared/Tooltip'
 import { ContextMenu, useContextMenu } from '../shared/ContextMenu'
 import { NEUTRAL_TINT, fs } from '../shared/DialogShell'
@@ -50,14 +50,20 @@ function BandButton({ label, onClick, on = false, lit = false, ariaPressed, aria
   )
 }
 
-export function PlacesDropOverlay({ t }: SidebarState) {
+/** A file dragged over the column, and while the Tours import reads one dropped or picked here. */
+export function PlacesDropOverlay({ t, tourFileImport }: SidebarState) {
+  const reading = tourFileImport.importing
   return (
     <div
       className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed border-accent"
       style={{ background: tintOf('var(--accent)', 12) }}
     >
-      <Upload size={28} strokeWidth={1.5} className="text-accent" />
-      <span className="font-semibold text-accent" style={fs(13, 'body')}>{t('places.sidebarDrop')}</span>
+      {reading
+        ? <Loader2 size={28} strokeWidth={1.5} className="animate-spin text-accent" />
+        : <Upload size={28} strokeWidth={1.5} className="text-accent" />}
+      <span role={reading ? 'status' : undefined} className="font-semibold text-accent" style={fs(13, 'body')}>
+        {t(reading ? 'tours.import.importing' : 'places.sidebarDrop')}
+      </span>
     </div>
   )
 }
@@ -400,7 +406,7 @@ function LocalityFilterDropdown(S: SidebarState) {
 }
 
 function AddRow(S: SidebarState) {
-  const { onAddPlace, onAddPlaceToSelectedDay, selectedDayId, t, setFileImportOpen, setListImportOpen, hasMultipleListImportProviders, toursEnabled } = S
+  const { onAddPlace, onAddPlaceToSelectedDay, selectedDayId, t, pickImportFile, setListImportOpen, hasMultipleListImportProviders } = S
   const dayOpen = selectedDayId != null
   const split = dayOpen && !!onAddPlaceToSelectedDay
   const { ref: rowRef, width: rowWidth } = useElementSize<HTMLDivElement>()
@@ -410,7 +416,8 @@ function AddRow(S: SidebarState) {
   const addLabel = t(dayOpen ? 'places.addPlaceShort' : 'places.addPlace')
   const importMenu = useContextMenu()
   const importItems = [
-    ...(!toursEnabled ? [{ label: t('places.importFile'), icon: FileDown, onClick: () => setFileImportOpen(true) }] : []),
+    // With Tours on this opens the Tours file picker: a track is a tour now, and points still reach the places import.
+    { label: t('places.importFile'), icon: FileDown, onClick: pickImportFile },
     { label: t(hasMultipleListImportProviders ? 'places.importList' : 'places.importGoogleList'), icon: ListPlus, onClick: () => setListImportOpen(true) },
   ]
   return (

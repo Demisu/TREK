@@ -83,7 +83,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'ユーザーを編集',
   'admin.newPassword': '新しいパスワード',
   'admin.newPasswordHint': '空欄の場合は現在のパスワードを維持',
-  'admin.deleteUser': 'ユーザー「{name}」を削除しますか？すべての旅行が完全に削除されます。',
+  'admin.deleteUser':
+    'ユーザー「{name}」を削除しますか？アカウントと、本人が所有するすべての旅行とジャーナルが完全に削除されます。他のメンバーと共有している旅行も含まれ、そのメンバーはアクセスできなくなります。他の人が所有する旅行は残ります。',
   'admin.deleteUserTitle': 'ユーザー削除',
   'admin.newPasswordPlaceholder': '新しいパスワードを入力…',
   'admin.toast.loadError': '管理データの読み込みに失敗しました',
@@ -729,7 +730,7 @@ const admin: TranslationStrings = {
   'admin.audit.empty': '監査ログはまだありません。',
   'admin.audit.refresh': '更新',
   'admin.audit.loadMore': 'さらに読み込む',
-  'admin.audit.showing': '{count}件表示 · 全{total}件',
+  'admin.audit.showing': '{count}件表示、全{total}件',
   'admin.audit.col.time': '時刻',
   'admin.audit.col.user': 'ユーザー',
   'admin.audit.col.action': '操作',
@@ -880,5 +881,38 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': '却下する',
   'admin.paddleRegions.origin.auto': '自動',
   'admin.paddleRegions.origin.autoHint': 'この地域は、そこで計画されたパドルツアーのためにTREKが自動で読み込みました。',
+  'admin.mfa.reset': '2FAをリセット',
+  'admin.mfa.resetHint':
+    'このユーザーの二要素認証をオフにします（スマートフォンを紛失した場合など）。すべての場所からサインアウトされ、パスワードでサインインした後に再設定できます。',
+  'admin.mfa.resetConfirm': '{name} の二要素認証をオフにしますか？',
+  'admin.mfa.resetDone': '二要素認証をリセットしました',
+  'admin.danger.title': '危険ゾーン',
+  'admin.rotateJwt.title': 'JWTシークレットをローテーション',
+  'admin.rotateJwt.hint':
+    '新しい JWT 署名シークレットを生成します。すべてのアクティブなセッションは直ちに無効になります。',
+  'admin.rotateJwt.confirm': 'ローテーションしてログアウト',
+  'admin.rotateJwt.warning': '注意: すべてのセッションが無効になり、あなたもログアウトされます。',
+  'admin.rotateJwt.body':
+    '新しい JWT シークレットが直ちに生成されます。あなたを含め、ログイン中のすべてのユーザーがサインアウトされ、再度ログインが必要になります。',
+  'admin.oidcDisplayNamePlaceholder': '例: Google、Authentik、Keycloak',
+  'admin.oidcDiscoveryUrl': 'ディスカバリー URL（任意）',
+  'admin.oidcDiscoveryUrlHint':
+    '自動生成されるディスカバリー URL を上書きします。エンドポイントが {path} にない Authentik などのプロバイダーで必要です。',
+  'admin.smtp.skipTls': 'TLS 証明書の検証をスキップ',
+  'admin.smtp.skipTlsHint': 'ローカルのメールサーバーで自己署名証明書を使う場合にオンにします',
+  'admin.demoBaseline.title': 'デモの基準状態',
+  'admin.demoBaseline.hint': '現在の状態を毎時のリセット地点として保存します。管理者の旅行と設定はすべて保持されます。',
+  'admin.demoBaseline.button': '基準状態を保存',
+  'admin.demoBaseline.saved': '基準状態を保存しました。以降のリセットではこの状態に戻ります。',
+  'admin.demoBaseline.failed': '基準状態を保存できませんでした',
+  'admin.invite.deleteTitle': '招待リンクを削除',
+  'admin.invite.deleteConfirm':
+    'この招待リンクを削除しますか？まだ使っていない人は、このリンクで登録できなくなります。',
+  'admin.packingTemplates.deleteTemplateTitle': 'テンプレートを削除',
+  'admin.packingTemplates.deleteTemplateConfirm':
+    'テンプレート「{name}」を、すべてのカテゴリーと項目ごと削除しますか？',
+  'admin.packingTemplates.deleteCategoryTitle': 'カテゴリーを削除',
+  'admin.packingTemplates.deleteCategoryConfirm': 'カテゴリー「{name}」を、すべての項目ごと削除しますか？',
+  'admin.rotateJwt.button': '更新',
 };
 export default admin;

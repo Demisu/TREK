@@ -86,6 +86,7 @@ const UNNUMBERED = [
   'Migration20200101046170_a_journey_entry_remembers_the_stays_it_came_from',
   'Migration20200101046180_journeys_can_prepare_recorded_days',
   'Migration20200101046190_a_journey_share_can_show_its_plan_and_recordings',
+  'Migration20200101046200_a_tour_draft_lives_on_the_account',
 ];
 // The last step the positional runner ever had; planLegacyBaseline refuses a
 // schema_version past it.

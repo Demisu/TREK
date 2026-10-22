@@ -68,5 +68,6 @@ const backup: TranslationStrings = {
     'Všechna aktuální data (cesty, místa, uživatelé, nahrané soubory) budou trvale nahrazena zálohou. Tuto akci nelze vrátit.',
   'backup.restoreTip': 'Tip: Před obnovením vytvořte zálohu aktuálního stavu.',
   'backup.restoreConfirm': 'Ano, obnovit',
+  'backup.auto.hourHintTz': 'Místní čas serveru (formát {format}), časové pásmo {timezone}',
 };
 export default backup;

@@ -389,7 +389,7 @@ export default function MAdminSettingsSection({ admin, t }: MAdminSettingsSectio
               type="text"
               value={oidcConfig.display_name}
               onChange={(e) => setOidcConfig((c) => ({ ...c, display_name: e.target.value }))}
-              placeholder="z.B. Google, Authentik, Keycloak"
+              placeholder={t('admin.oidcDisplayNamePlaceholder')}
             />
           </MAdminField>
           <MAdminField label={t('admin.oidcIssuer')} hint={t('admin.oidcIssuerHint')}>
@@ -400,7 +400,7 @@ export default function MAdminSettingsSection({ admin, t }: MAdminSettingsSectio
               placeholder="https://accounts.google.com"
             />
           </MAdminField>
-          <MAdminField label="Discovery URL" hint="Override the auto-constructed discovery URL. Required for providers like Authentik where the endpoint is not at <issuer>/.well-known/openid-configuration.">
+          <MAdminField label={t('admin.oidcDiscoveryUrl')} hint={t('admin.oidcDiscoveryUrlHint', { path: '<issuer>/.well-known/openid-configuration' })}>
             <MAdminInput
               type="url"
               value={oidcConfig.discovery_url}
@@ -408,14 +408,14 @@ export default function MAdminSettingsSection({ admin, t }: MAdminSettingsSectio
               placeholder="https://auth.example.com/application/o/trek/.well-known/openid-configuration"
             />
           </MAdminField>
-          <MAdminField label="Client ID">
+          <MAdminField label={t('settings.oauth.clientId')}>
             <MAdminInput
               type="text"
               value={oidcConfig.client_id}
               onChange={(e) => setOidcConfig((c) => ({ ...c, client_id: e.target.value }))}
             />
           </MAdminField>
-          <MAdminField label="Client Secret">
+          <MAdminField label={t('settings.oauth.clientSecret')}>
             <MAdminInput
               type="password"
               value={oidcConfig.client_secret}
@@ -433,16 +433,16 @@ export default function MAdminSettingsSection({ admin, t }: MAdminSettingsSectio
       <MAdminCard className="border-[color:color-mix(in_srgb,var(--m-st-danger)_28%,transparent)]">
         <div className="mb-1 flex items-center gap-2 text-[color:var(--m-st-danger)]">
           <AlertTriangle size={14} strokeWidth={2.2} />
-          <span className="text-[0.875rem] font-extrabold">Danger Zone</span>
+          <span className="text-[0.875rem] font-extrabold">{t('admin.danger.title')}</span>
         </div>
         <MAdminRow
           first
-          title="Rotate JWT Secret"
-          hint="Generate a new JWT signing secret. All active sessions will be invalidated immediately."
+          title={t('admin.rotateJwt.title')}
+          hint={t('admin.rotateJwt.hint')}
           trailing={
             <MAdminButton variant="danger" onClick={() => setShowRotateJwtModal(true)}>
               <RefreshCw size={12} strokeWidth={2.2} />
-              Rotate
+              {t('admin.rotateJwt.button')}
             </MAdminButton>
           }
         />

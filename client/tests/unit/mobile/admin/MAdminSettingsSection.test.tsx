@@ -468,7 +468,7 @@ describe('MAdminSettingsSection', () => {
     const user = userEvent.setup();
     render(<OidcHarness />);
 
-    await user.type(screen.getByPlaceholderText('z.B. Google, Authentik, Keycloak'), 'Authentik');
+    await user.type(screen.getByPlaceholderText('e.g. Google, Authentik, Keycloak'), 'Authentik');
     await user.type(screen.getByPlaceholderText('https://accounts.google.com'), 'https://idp');
     await user.type(
       screen.getByPlaceholderText(
@@ -479,7 +479,7 @@ describe('MAdminSettingsSection', () => {
     await user.type(unlabelledInput('text'), 'trek');
     await user.type(unlabelledInput('password'), 's3cr3t');
 
-    expect(screen.getByPlaceholderText('z.B. Google, Authentik, Keycloak')).toHaveValue('Authentik');
+    expect(screen.getByPlaceholderText('e.g. Google, Authentik, Keycloak')).toHaveValue('Authentik');
     expect(screen.getByPlaceholderText('https://accounts.google.com')).toHaveValue('https://idp');
     expect(
       screen.getByPlaceholderText(

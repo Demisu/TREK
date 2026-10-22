@@ -204,7 +204,8 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX-nyomvonalak',
   'journey.settings.recordings': 'Rögzített napok',
   'journey.settings.showTripTracks': 'Az utazások összes GPX-nyomvonalának megjelenítése',
-  'journey.settings.showTripTracksHint': 'A kapcsolt utazások rögzített útvonalait rajzolja a térképre.',
+  'journey.settings.showTripTracksHint':
+    'A térképen megrajzolja a kapcsolt utazások tervezett útvonalait (GPX-nyomvonalak).',
   'journey.settings.autoPrepare': 'Rögzített napok automatikus előkészítése',
   'journey.settings.autoPrepareHint':
     'Amíg egy kapcsolt utazás tart, a Dawarich tartózkodásaid a napjuknál várnak ellenőrzésre. A saját kapcsolattal rendelkező szerkesztők a sajátjukat kapják. A naplóba semmi nem kerül magától.',
@@ -900,5 +901,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Rögzített napok és a belőlük átvett megállók azokon a napokon, amelyekhez közzétett bejegyzés tartozik. Megmutatják, hol és mikor jártál, a szállásodat is.',
   'journey.share.needsMap': 'Oszd meg a térképet a bekapcsoláshoz',
+  'journey.editor.tags': 'Címkék',
 };
 export default journey;

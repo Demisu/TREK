@@ -1,5 +1,5 @@
 import type { TourListItem, TourVisitStatus } from '@trek/shared';
-import { Check, CheckCheck, Redo2, SkipForward, Undo2 } from 'lucide-react';
+import { Check, CheckCheck, Info, Redo2, SkipForward, Undo2 } from 'lucide-react';
 import { useTranslation } from '../../../i18n';
 import { useTourVisitStore } from '../../../store/tourVisitStore';
 import type { Assignment, AssignmentsMap, Day } from '../../../types';
@@ -10,7 +10,7 @@ import { stationMarkNote, stationRingClass } from '../planner/stationMarks';
 import { StationPills, StationShield } from '../planner/stationParts';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import { TourDayRowPill } from '../TourDayRowFacts';
-import { CardAction } from '../tourParts';
+import { CardAction, TourNotice } from '../tourParts';
 import { StationScheduleLine } from './StationSchedule';
 import { useWalkDay } from './useWalkDay';
 import { useLinkedPlaceOf, useWalkSchedule } from './useWalkSchedule';
@@ -164,7 +164,10 @@ function WalkStationsNotes({
   return (
     <>
       {unread && quiet(t('tours.walk.stationsUnread'))}
-      {any && fromDay && quiet(t('tours.walk.visit.fromDay'))}
+      {/* A card with a frame of its own: how to check stops off is easy to miss as a quiet line. */}
+      {any && fromDay && (
+        <TourNotice icon={<Info size={13} strokeWidth={2} />}>{t('tours.walk.visit.fromDay')}</TourNotice>
+      )}
       {any && notSynced && quiet(t('tours.walk.visit.notSynced'))}
     </>
   );

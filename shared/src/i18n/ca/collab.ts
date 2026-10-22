@@ -106,5 +106,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Adjunta imatges',
   'collab.chat.attachedImage': 'Imatge adjunta',
   'collab.chat.closeImage': 'Tanca la imatge',
+  'collab.notes.categoryInUse':
+    'Encara hi ha notes que fan servir aquesta categoria. Mou-les o elimina-les primer per poder-la treure.',
+  'collab.notes.categoriesLocalHint':
+    "Una categoria sense notes només es desa en aquest navegador. Els altres membres la veuran quan una nota l'utilitzi.",
 };
 export default collab;

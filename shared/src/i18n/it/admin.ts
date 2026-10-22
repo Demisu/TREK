@@ -41,7 +41,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Modifica Utente',
   'admin.newPassword': 'Nuova Password',
   'admin.newPasswordHint': 'Lascia vuoto per mantenere la password attuale',
-  'admin.deleteUser': 'Eliminare l\'utente "{name}"? Tutti i viaggi verranno eliminati in modo permanente.',
+  'admin.deleteUser':
+    'Eliminare l\'utente "{name}"? Il suo account e tutti i viaggi e i diari di cui è proprietario verranno eliminati definitivamente, compresi i viaggi condivisi con altri membri, che ne perderanno l\'accesso. I viaggi di proprietà di altri restano.',
   'admin.deleteUserTitle': 'Elimina utente',
   'admin.newPasswordPlaceholder': 'Inserisci nuova password…',
   'admin.toast.loadError': 'Impossibile caricare i dati di amministrazione',
@@ -695,8 +696,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Nessuna voce di audit.',
   'admin.audit.refresh': 'Aggiorna',
   'admin.audit.loadMore': 'Carica altro',
-  'admin.audit.showing': '{count} caricati · {total} totali',
-  'admin.audit.showing.one': '{count} caricato · {total} totali',
+  'admin.audit.showing': '{count} caricati, {total} totali',
+  'admin.audit.showing.one': '{count} caricato, {total} totali',
   'admin.audit.col.time': 'Ora',
   'admin.audit.col.user': 'Utente',
   'admin.audit.col.action': 'Azione',
@@ -943,5 +944,38 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'Rifiuta',
   'admin.paddleRegions.origin.auto': 'Automatico',
   'admin.paddleRegions.origin.autoHint': 'TREK ha caricato questa regione da solo per un giro in canoa pianificato lì.',
+  'admin.mfa.reset': 'Reimposta 2FA',
+  'admin.mfa.resetHint':
+    "Disattiva l'autenticazione a due fattori per questo utente, ad esempio dopo la perdita del telefono. L'utente viene disconnesso ovunque e può configurarla di nuovo dopo aver effettuato l'accesso con la password.",
+  'admin.mfa.resetConfirm': "Disattivare l'autenticazione a due fattori per {name}?",
+  'admin.mfa.resetDone': 'Autenticazione a due fattori reimpostata',
+  'admin.danger.title': 'Zona pericolosa',
+  'admin.rotateJwt.title': 'Ruota il secret JWT',
+  'admin.rotateJwt.hint':
+    'Genera un nuovo secret di firma JWT. Tutte le sessioni attive verranno invalidate immediatamente.',
+  'admin.rotateJwt.confirm': 'Ruota ed esci',
+  'admin.rotateJwt.warning': 'Attenzione: questo invaliderà tutte le sessioni e ti disconnetterà.',
+  'admin.rotateJwt.body':
+    'Verrà generato subito un nuovo secret JWT. Tutti gli utenti connessi, tu compreso, verranno disconnessi e dovranno accedere di nuovo.',
+  'admin.oidcDisplayNamePlaceholder': 'es. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'URL di discovery (facoltativo)',
+  'admin.oidcDiscoveryUrlHint':
+    "Sostituisce l'URL di discovery generato automaticamente. Necessario per provider come Authentik, dove l'endpoint non si trova in {path}.",
+  'admin.smtp.skipTls': 'Salta il controllo del certificato TLS',
+  'admin.smtp.skipTlsHint': 'Attivalo per i certificati autofirmati sui server di posta locali',
+  'admin.demoBaseline.title': 'Baseline della demo',
+  'admin.demoBaseline.hint':
+    "Salva lo stato attuale come punto di ripristino orario. Tutti i viaggi e le impostazioni dell'amministratore verranno conservati.",
+  'admin.demoBaseline.button': 'Salva baseline',
+  'admin.demoBaseline.saved': 'Baseline salvata! I ripristini torneranno a questo stato.',
+  'admin.demoBaseline.failed': 'Impossibile salvare la baseline',
+  'admin.invite.deleteTitle': 'Elimina link di invito',
+  'admin.invite.deleteConfirm':
+    "Eliminare questo link di invito? Chi non l'ha ancora usato non potrà più registrarsi con esso.",
+  'admin.packingTemplates.deleteTemplateTitle': 'Elimina modello',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Eliminare il modello "{name}" con tutte le sue categorie e voci?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Elimina categoria',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Eliminare la categoria "{name}" e tutte le sue voci?',
+  'admin.rotateJwt.button': 'Rinnova',
 };
 export default admin;

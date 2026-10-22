@@ -211,5 +211,6 @@ const budget: TranslationStrings = {
   'costs.receiptsNeedConnection':
     'Fişlerin yüklenmesi için bağlantı gerekir. Harcamayı çevrimdışı kaydetmek için yenilerini kaldırın ya da tekrar çevrimiçi olduğunuzda kaydedin.',
   'costs.paymentQueued': 'Çevrimdışısınız. Ödeme kaydedildi ve TREK yeniden çevrimiçi olduğunda görünecek.',
+  'costs.confirm.deleteBodyReceipts': '"{name}" kalıcı olarak silinecek. Fiş dosyaları Dosyalar içinde kalır.',
 };
 export default budget;

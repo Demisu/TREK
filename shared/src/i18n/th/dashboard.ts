@@ -203,5 +203,14 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'ต้องระบุจำนวนวัน',
   'dashboard.tripChangeNeedsConnection':
     'การเปลี่ยนวันที่ จำนวนวัน สกุลเงิน หรือภาพปกต้องใช้การเชื่อมต่อ ส่วนชื่อ คำอธิบาย และการแจ้งเตือนเปลี่ยนแบบออฟไลน์ได้',
+  'dashboard.ics.enable': 'เปิดการสมัครรับปฏิทิน',
+  'dashboard.ics.enableHint': 'สร้างลิงก์ลับที่ใครก็ตามที่มีลิงก์สามารถอ่านได้โดยไม่ต้องเข้าสู่ระบบ คุณปิดได้ทุกเมื่อ',
+  'dashboard.ics.regenerate': 'สร้างใหม่',
+  'dashboard.ics.turnOff': 'ปิด',
+  'dashboard.ics.manageHint': 'การสร้างใหม่จะได้ลิงก์ใหม่และลิงก์เดิมจะใช้ไม่ได้อีก การปิดจะปิดใช้งานลิงก์ทั้งหมด',
+  'dashboard.ics.addGoogle': 'เพิ่มใน Google Calendar',
+  'dashboard.ics.addApple': 'เพิ่มใน Apple Calendar / Outlook',
+  'dashboard.ics.copyManually': 'หรือคัดลอกลิงก์ด้วยตนเอง',
+  'dashboard.ics.pasteFromUrl': 'วางใน “จาก URL”',
 };
 export default dashboard;

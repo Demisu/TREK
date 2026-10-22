@@ -33,5 +33,7 @@ const notifications: TranslationStrings = {
   'notifications.test.tripText': 'Testteavitus reisile "{trip}".',
   'notifications.countLabel': 'teavitust',
   'notifications.countLabel.one': 'teavitus',
+  'notifications.deleteAllConfirmTitle': 'Kas kustutada kõik teavitused?',
+  'notifications.deleteAllConfirmText': 'Kõik teavitused kustutatakse jäädavalt. Seda ei saa tagasi võtta.',
 };
 export default notifications;

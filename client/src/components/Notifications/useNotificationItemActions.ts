@@ -16,12 +16,12 @@ export function compactTime(dateStr: string, justNow: string): string {
 /**
  * What one in-app notification can do, behind both lists (the desktop bell's item and
  * the phone row render their own markup over this): answer a yes or no question once,
- * follow its link (marking it read first), mark it read and delete it.
+ * follow its link (marking it read first), mark it read or unread and delete it.
  */
 export function useNotificationItemActions(notification: InAppNotification, onClose?: () => void) {
   const navigate = useNavigate();
   const [responding, setResponding] = useState(false);
-  const { markRead, deleteNotification, respondToBoolean } = useInAppNotificationStore();
+  const { markRead, markUnread, deleteNotification, respondToBoolean } = useInAppNotificationStore();
 
   const handleRespond = async (response: 'positive' | 'negative') => {
     if (responding || notification.response !== null) return;
@@ -38,5 +38,5 @@ export function useNotificationItemActions(notification: InAppNotification, onCl
     }
   };
 
-  return { responding, handleRespond, handleNavigate, markRead, deleteNotification };
+  return { responding, handleRespond, handleNavigate, markRead, markUnread, deleteNotification };
 }

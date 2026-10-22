@@ -106,5 +106,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Képek csatolása',
   'collab.chat.attachedImage': 'Csatolt kép',
   'collab.chat.closeImage': 'Kép bezárása',
+  'collab.notes.categoryInUse':
+    'Még vannak jegyzetek, amelyek ezt a kategóriát használják. Előbb helyezd át vagy töröld őket, utána eltávolítható.',
+  'collab.notes.categoriesLocalHint':
+    'A jegyzet nélküli kategória csak ebben a böngészőben tárolódik. A többi tag akkor látja, amikor egy jegyzet használja.',
 };
 export default collab;

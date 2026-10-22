@@ -267,5 +267,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'Els fitxers necessiten connexió per pujar-se. Treu els nous per desar la reserva sense connexió, o desa quan tornis a estar en línia.',
   'reservations.needsConnection': 'Això necessita connexió. Torna-ho a provar quan TREK torni a estar en línia.',
+  'reservations.exportCsvFiltered': 'Exporta les {shown} de {total} files mostrades (CSV)',
 };
 export default reservations;

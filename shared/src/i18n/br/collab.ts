@@ -106,5 +106,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Anexar imagens',
   'collab.chat.attachedImage': 'Imagem anexada',
   'collab.chat.closeImage': 'Fechar imagem',
+  'collab.notes.categoryInUse':
+    "Notennoù a implij c'hoazh ar rummad-mañ. Fiñvit pe dilamit anezho da gentañ evit lemel ar rummad.",
+  'collab.notes.categoriesLocalHint':
+    "Ur rummad hep notenn n'eo enrollet nemet er merdeer-mañ. An izili all a wel anezhañ pa vo implijet gant ur note.",
 };
 export default collab;

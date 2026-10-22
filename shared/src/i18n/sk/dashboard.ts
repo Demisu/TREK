@@ -240,5 +240,15 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'Počet dní je povinný',
   'dashboard.tripChangeNeedsConnection':
     'Zmena termínu, počtu dní, meny alebo titulného obrázka potrebuje pripojenie. Názov, popis a pripomienku môžeš zmeniť aj offline.',
+  'dashboard.ics.enable': 'Zapnúť odber kalendára',
+  'dashboard.ics.enableHint':
+    'Vytvorí tajný odkaz, ktorý si môže prečítať ktokoľvek, kto ho má, bez prihlásenia. Kedykoľvek ho môžete vypnúť.',
+  'dashboard.ics.regenerate': 'Vygenerovať znova',
+  'dashboard.ics.turnOff': 'Vypnúť',
+  'dashboard.ics.manageHint': 'Nové vygenerovanie vytvorí nový odkaz a starý zneplatní. Vypnutie odkaz úplne zakáže.',
+  'dashboard.ics.addGoogle': 'Pridať do Kalendára Google',
+  'dashboard.ics.addApple': 'Pridať do Kalendára Apple / Outlooku',
+  'dashboard.ics.copyManually': 'Alebo skopírujte odkaz ručne',
+  'dashboard.ics.pasteFromUrl': 'vložte do „Z adresy URL“',
 };
 export default dashboard;

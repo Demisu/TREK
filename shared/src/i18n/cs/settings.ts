@@ -133,7 +133,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Vytvořit token',
   'settings.mcp.modal.createdTitle': 'Token vytvořen',
   'settings.mcp.modal.createdWarning':
-    'Tento token bude zobrazen pouze jednou. Zkopírujte a uložte ho nyní — nelze ho obnovit.',
+    'Tento token bude zobrazen pouze jednou. Zkopírujte a uložte ho nyní: nelze ho obnovit.',
   'settings.mcp.modal.done': 'Hotovo',
   'settings.mcp.toast.created': 'Token vytvořen',
   'settings.mcp.toast.createError': 'Nepodařilo se vytvořit token',
@@ -175,14 +175,14 @@ const settings: TranslationStrings = {
     'Jedno URI na řádek. HTTPS, HTTP na loopbacku nebo vlastní schéma aplikace (myapp://). Přesná shoda, kromě portu u loopback URI.',
   'settings.oauth.modal.scopes': 'Povolená oprávnění',
   'settings.oauth.modal.scopesHint':
-    'list_trips a get_trip_summary jsou vždy dostupné — bez požadovaného oprávnění. Umožňují AI zjistit potřebná ID výletů.',
+    'list_trips a get_trip_summary jsou vždy dostupné: bez požadovaného oprávnění. Umožňují AI zjistit potřebná ID výletů.',
   'settings.oauth.modal.selectAll': 'Vybrat vše',
   'settings.oauth.modal.deselectAll': 'Zrušit výběr',
   'settings.oauth.modal.creating': 'Registrování…',
   'settings.oauth.modal.create': 'Zaregistrovat klienta',
   'settings.oauth.modal.createdTitle': 'Klient zaregistrován',
   'settings.oauth.modal.createdWarning':
-    'Tajný klíč klienta se zobrazí pouze jednou. Zkopírujte ho nyní — nelze ho obnovit.',
+    'Tajný klíč klienta se zobrazí pouze jednou. Zkopírujte ho nyní: nelze ho obnovit.',
   'settings.oauth.toast.createError': 'Registrace klienta OAuth se nezdařila',
   'settings.oauth.toast.deleted': 'Klient OAuth smazán',
   'settings.oauth.toast.deleteError': 'Smazání klienta OAuth se nezdařilo',
@@ -248,7 +248,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Smazat účet',
   'settings.deleteAccountTitle': 'Smazat váš účet?',
   'settings.deleteAccountWarning':
-    'Váš účet a všechny vaše cesty, místa a soubory budou trvale smazány. Tuto akci nelze vrátit.',
+    'Váš účet a všechny cesty, deníky, místa a soubory, které vlastníte, budou trvale smazány, včetně cest sdílených s dalšími členy, kteří k nim ztratí přístup. Cesty vlastněné jinými zůstanou a vy z nich budete odebráni. Tuto akci nelze vrátit zpět.',
   'settings.deleteAccountConfirm': 'Smazat natrvalo',
   'settings.deleteBlockedTitle': 'Účet nelze smazat',
   'settings.deleteBlockedMessage':
@@ -346,7 +346,7 @@ const settings: TranslationStrings = {
   'settings.webPush.failed': 'Push se pro toto zařízení nepodařilo zapnout.',
   'settings.currency': 'Zobrazovaná měna',
   'settings.currencyHint':
-    'Částky v Nákladech se do této měny přepočítávají pouze pro zobrazení – původní částky zůstávají beze změny.',
+    'Částky v Nákladech se do této měny přepočítávají pouze pro zobrazení; původní částky zůstávají beze změny.',
   'settings.currencyTrip': 'Měna cesty',
   'settings.placeLanguage': 'Názvy míst',
   'settings.placeLanguageApp': 'Stejně jako aplikace',
@@ -354,7 +354,7 @@ const settings: TranslationStrings = {
     'Jazyk, ve kterém odpovídá vyhledávání míst, návrhy a adresy. Pokud místo v tomto jazyce název nemá, zobrazí se jeho místní název.',
   'settings.passkey.title': 'Přístupové klíče',
   'settings.passkey.description':
-    'Přihlašujte se rychleji a s ochranou proti phishingu pomocí přístupového klíče — otiskem prstu, obličejem, PINem nebo hardwarovým klíčem. Vaše heslo zůstává jako záloha.',
+    'Přihlašujte se rychleji a s ochranou proti phishingu pomocí přístupového klíče: otiskem prstu, obličejem, PINem nebo hardwarovým klíčem. Vaše heslo zůstává jako záloha.',
   'settings.passkey.notConfigured':
     'Přístupové klíče jsou povoleny, ale na tomto serveru zatím nejsou plně nastaveny. Požádejte správce o nastavení domény WebAuthn.',
   'settings.passkey.add': 'Přidat přístupový klíč',
@@ -520,10 +520,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Pracujte pouze s daty z mezipaměti a změny se zařadí do fronty. Vypnutím se znovu připojíte a synchronizujete.',
   'settings.offline.mode.active':
-    'Offline režim je zapnutý — vaše změny jsou ve frontě a synchronizují se, jakmile jej vypnete.',
+    'Offline režim je zapnutý: vaše změny jsou ve frontě a synchronizují se, jakmile jej vypnete.',
   'settings.offline.prepare.title': 'Příprava na offline',
   'settings.offline.prepare.hint':
-    'Stáhněte si vše potřebné — data cest, dokumenty a mapové dlaždice — než ztratíte připojení.',
+    'Stáhněte si vše potřebné (data cest, dokumenty a mapové dlaždice) než ztratíte připojení.',
   'settings.offline.prepare.button': 'Stáhnout pro offline použití',
   'settings.offline.prepare.running': 'Stahování…',
   'settings.offline.prepare.done': 'Připraveno pro offline použití',
@@ -600,7 +600,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'Vždy zobrazovat trasy rezervací',
   'settings.alwaysShowRoutesHint':
     'Automaticky zobrazí na mapě trasu každého letu, vlaku a jiné rezervace, aniž byste ji museli zapínat jednotlivě.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Co smí tento klíč číst',
@@ -646,7 +645,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Kopírování se nepodařilo. Označ text a zkopíruj ho ručně.',
   'settings.apiKeys.modal.createTitle': 'Vytvořit klíč API',
   'settings.apiKeys.modal.name': 'Název',
-  'settings.apiKeys.modal.namePlaceholder': 'např. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'např. Domácí panel',
   'settings.apiKeys.modal.nameHint': 'Jen pro tebe, abys klíč později poznal.',
   'settings.apiKeys.modal.creating': 'Vytváří se...',
   'settings.apiKeys.modal.create': 'Vytvořit',
@@ -654,6 +653,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Zkopíruj klíč hned teď. Zobrazí se jen jednou a později ho už nelze získat.',
   'settings.apiKeys.modal.done': 'Hotovo',
+  'settings.mcp.deprecated': 'Zastaralé',
+  'settings.offline.cache.dateRange': '{start} až {end}',
 };
 
 export default settings;

@@ -31,7 +31,7 @@ export function DayPlanSidebarTimeConfirmModal({ timeConfirm, setTimeConfirm, co
       onConfirm={confirmTimeRemoval}
       title={t('dayplan.confirmRemoveTimeTitle')}
       message={timeConfirm ? t('dayplan.confirmRemoveTimeBody', { time: timeConfirm.time }) : ''}
-      confirmLabel={t('common.confirm')}
+      confirmLabel={t('dayplan.confirmRemoveTimeAction')}
       cancelLabel={t('common.cancel')}
     />
   )

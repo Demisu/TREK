@@ -39,5 +39,6 @@ const map: TranslationStrings = {
   'map.overview.unrouted.one': '{count} σκέλος δεν μπόρεσε να υπολογιστεί, οπότε οι αποστάσεις είναι ελλιπείς.',
   'map.overview.dayUnrouted': '{count} σκέλη αυτής της ημέρας δεν μπόρεσαν να υπολογιστούν',
   'map.overview.dayUnrouted.one': '{count} σκέλος αυτής της ημέρας δεν μπόρεσε να υπολογιστεί',
+  'map.baseLayer.topo': 'Τοπογραφικός',
 };
 export default map;

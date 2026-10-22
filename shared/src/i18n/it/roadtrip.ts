@@ -253,8 +253,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Il router delle esclusioni non ha risposto per questa tratta, quindi l’ha disegnata il router principale. Il router delle esclusioni viene interrogato di nuovo.',
   'roadtrip.day': 'Giorno {number}',
-  'roadtrip.quietDay.empty': 'Ancora nessuna sosta: trascinane una qui',
-  'roadtrip.quietDay.one': 'Finora solo {name}: trascina qui una sosta',
+  'roadtrip.quietDay.empty': 'Ancora nessuna sosta, trascinane una qui',
+  'roadtrip.quietDay.one': 'Finora solo {name}, trascina qui una sosta',
   'roadtrip.leg.driveText': '{distance} in {time}',
   'roadtrip.day.stopCount': '{count} soste',
   'roadtrip.day.stopCount.one': '{count} sosta',
@@ -340,5 +340,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Partenza dopo il check-out',
   'roadtrip.bookend.noVia':
     'Nessun punto di passaggio sul tragitto verso o dal tuo alloggio. Aggiungi invece una sosta in quel punto.',
+  'roadtrip.stay.untilHint':
+    'Si riparte alle {time} perché questa visita ha un orario di fine. Aprila e scegli Rimuovi orario di fine per impostare invece una durata di sosta.',
 };
 export default roadtrip;

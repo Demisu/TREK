@@ -38,5 +38,6 @@ const map: TranslationStrings = {
   'map.overview.unrouted.one': '{count} szakaszt nem sikerült kiszámítani, ezért a távolságok hiányosak.',
   'map.overview.dayUnrouted': 'Ennek a napnak {count} szakaszát nem sikerült kiszámítani',
   'map.overview.dayUnrouted.one': 'Ennek a napnak {count} szakaszát nem sikerült kiszámítani',
+  'map.baseLayer.topo': 'Topográfiai',
 };
 export default map;

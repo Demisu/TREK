@@ -887,7 +887,7 @@ describe('MSettingsAccount – passkeys', () => {
 
     const second = screen.getByText('Passkey').closest('li') as HTMLElement;
     expect(within(second).getByText('This device')).toBeInTheDocument();
-    expect(second.textContent).toContain('Added: — · Never used');
+    expect(second.textContent).toContain('Added: —, Never used');
 
     // Empty timestamp and a full ISO timestamp both go through fmtDate.
     expect((screen.getByText('Yubikey').closest('li') as HTMLElement).textContent).toContain('Added: —');

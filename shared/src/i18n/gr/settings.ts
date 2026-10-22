@@ -198,7 +198,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Δημιουργία Token',
   'settings.mcp.modal.createdTitle': 'Το Token δημιουργήθηκε',
   'settings.mcp.modal.createdWarning':
-    'Αυτό το token θα εμφανιστεί μόνο μία φορά. Αντιγράψτε και αποθηκεύστε το τώρα — δεν μπορεί να ανακτηθεί.',
+    'Αυτό το token θα εμφανιστεί μόνο μία φορά. Αντιγράψτε και αποθηκεύστε το τώρα: δεν μπορεί να ανακτηθεί.',
   'settings.mcp.modal.done': 'Ολοκληρώθηκε',
   'settings.mcp.toast.created': 'Το token δημιουργήθηκε',
   'settings.mcp.toast.createError': 'Αποτυχία δημιουργίας token',
@@ -240,14 +240,14 @@ const settings: TranslationStrings = {
     'Ένα URI ανά γραμμή. HTTPS, HTTP σε loopback ή ιδιωτικό σχήμα εφαρμογής (myapp://). Ακριβής αντιστοίχιση, εκτός από τη θύρα σε loopback URI.',
   'settings.oauth.modal.scopes': 'Επιτρεπόμενα Scopes',
   'settings.oauth.modal.scopesHint':
-    'Τα list_trips και get_trip_summary είναι πάντα διαθέσιμα — δεν απαιτείται scope. Επιτρέπουν στο AI να εντοπίζει τα trip IDs που χρειάζονται για τη χρήση οποιουδήποτε άλλου εργαλείου.',
+    'Τα list_trips και get_trip_summary είναι πάντα διαθέσιμα: δεν απαιτείται scope. Επιτρέπουν στο AI να εντοπίζει τα trip IDs που χρειάζονται για τη χρήση οποιουδήποτε άλλου εργαλείου.',
   'settings.oauth.modal.selectAll': 'Επιλογή όλων',
   'settings.oauth.modal.deselectAll': 'Απο-επιλογή όλων',
   'settings.oauth.modal.creating': 'Καταχώρηση…',
   'settings.oauth.modal.create': 'Καταχώρηση Πελάτη',
   'settings.oauth.modal.createdTitle': 'Ο Πελάτης Καταχωρήθηκε',
   'settings.oauth.modal.createdWarning':
-    'Το client secret εμφανίζεται μόνο μία φορά. Αντιγράψτε το τώρα — δεν μπορεί να ανακτηθεί.',
+    'Το client secret εμφανίζεται μόνο μία φορά. Αντιγράψτε το τώρα: δεν μπορεί να ανακτηθεί.',
   'settings.oauth.toast.createError': 'Αποτυχία καταχώρησης πελάτη OAuth',
   'settings.oauth.toast.deleted': 'Ο πελάτης OAuth διαγράφηκε',
   'settings.oauth.toast.deleteError': 'Αποτυχία διαγραφής πελάτη OAuth',
@@ -315,7 +315,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Διαγραφή λογαριασμού',
   'settings.deleteAccountTitle': 'Διαγραφή του λογαριασμού σας;',
   'settings.deleteAccountWarning':
-    'Ο λογαριασμός σας και όλα τα ταξίδια, οι τόποι και τα αρχεία σας θα διαγραφούν μόνιμα. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.',
+    'Ο λογαριασμός σας και όλα τα ταξίδια, τα ημερολόγια, οι τοποθεσίες και τα αρχεία που σας ανήκουν θα διαγραφούν οριστικά, μαζί με τα ταξίδια που μοιράζεστε με άλλα μέλη, τα οποία θα χάσουν την πρόσβαση. Τα ταξίδια που ανήκουν σε άλλους παραμένουν και αφαιρείστε από αυτά. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.',
   'settings.deleteAccountConfirm': 'Μόνιμη διαγραφή',
   'settings.deleteBlockedTitle': 'Η διαγραφή δεν είναι δυνατή',
   'settings.deleteBlockedMessage':
@@ -363,7 +363,7 @@ const settings: TranslationStrings = {
   'settings.mfa.demoBlocked': 'Δεν είναι διαθέσιμο σε λειτουργία demo',
   'settings.currency': 'Νόμισμα εμφάνισης',
   'settings.currencyHint':
-    'Τα ποσά στα Κόστη εμφανίζονται σε αυτό το νόμισμα μόνο για λόγους προβολής — τα αρχικά ποσά δεν αλλάζουν.',
+    'Τα ποσά στα Κόστη εμφανίζονται σε αυτό το νόμισμα μόνο για λόγους προβολής, τα αρχικά ποσά δεν αλλάζουν.',
   'settings.currencyTrip': 'Νόμισμα ταξιδιού',
   'settings.placeLanguage': 'Ονόματα μερών',
   'settings.placeLanguageApp': 'Ίδια με την εφαρμογή',
@@ -371,7 +371,7 @@ const settings: TranslationStrings = {
     'Η γλώσσα στην οποία απαντούν η αναζήτηση μερών, οι προτάσεις και οι διευθύνσεις. Όταν ένα μέρος δεν έχει όνομα σε αυτή τη γλώσσα, εμφανίζεται το τοπικό του όνομα.',
   'settings.passkey.title': 'Passkeys',
   'settings.passkey.description':
-    'Συνδεθείτε πιο γρήγορα και με προστασία από phishing χρησιμοποιώντας ένα passkey — το δαχτυλικό σας αποτύπωμα, το πρόσωπό σας, ένα PIN ή ένα κλειδί υλικού. Ο κωδικός σας παραμένει ως εφεδρεία.',
+    'Συνδεθείτε πιο γρήγορα και με προστασία από phishing χρησιμοποιώντας ένα passkey: το δαχτυλικό σας αποτύπωμα, το πρόσωπό σας, ένα PIN ή ένα κλειδί υλικού. Ο κωδικός σας παραμένει ως εφεδρεία.',
   'settings.passkey.notConfigured':
     'Τα passkeys είναι ενεργοποιημένα αλλά δεν έχουν διαμορφωθεί πλήρως σε αυτόν τον server ακόμη. Ζητήστε από τον διαχειριστή σας να ορίσει τον τομέα WebAuthn.',
   'settings.passkey.add': 'Προσθήκη passkey',
@@ -538,10 +538,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Εργαστείτε μόνο με τα αποθηκευμένα δεδομένα και τοποθετήστε τις αλλαγές σας σε ουρά. Απενεργοποιήστε το για επανασύνδεση και συγχρονισμό.',
   'settings.offline.mode.active':
-    'Η λειτουργία εκτός σύνδεσης είναι ενεργή — οι αλλαγές σας βρίσκονται σε ουρά και θα συγχρονιστούν όταν την απενεργοποιήσετε.',
+    'Η λειτουργία εκτός σύνδεσης είναι ενεργή: οι αλλαγές σας βρίσκονται σε ουρά και θα συγχρονιστούν όταν την απενεργοποιήσετε.',
   'settings.offline.prepare.title': 'Προετοιμασία για εκτός σύνδεσης',
   'settings.offline.prepare.hint':
-    'Κατεβάστε όλα όσα χρειάζεστε — δεδομένα ταξιδιού, έγγραφα και πλακίδια χάρτη — πριν χάσετε τη σύνδεση.',
+    'Κατεβάστε όλα όσα χρειάζεστε (δεδομένα ταξιδιού, έγγραφα και πλακίδια χάρτη) πριν χάσετε τη σύνδεση.',
   'settings.offline.prepare.button': 'Λήψη για χρήση εκτός σύνδεσης',
   'settings.offline.prepare.running': 'Λήψη…',
   'settings.offline.prepare.done': 'Έτοιμο για χρήση εκτός σύνδεσης',
@@ -617,7 +617,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'Πάντα εμφάνιση διαδρομών κράτησης',
   'settings.alwaysShowRoutesHint':
     'Εμφανίζει αυτόματα στον χάρτη τη διαδρομή κάθε πτήσης, τρένου και άλλης κράτησης, χωρίς να χρειάζεται να την ενεργοποιείτε μία προς μία.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Τι μπορεί να διαβάσει αυτό το κλειδί',
@@ -663,7 +662,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Η αντιγραφή απέτυχε. Επίλεξε το κείμενο και αντίγραψέ το χειροκίνητα.',
   'settings.apiKeys.modal.createTitle': 'Δημιουργία κλειδιού API',
   'settings.apiKeys.modal.name': 'Όνομα',
-  'settings.apiKeys.modal.namePlaceholder': 'π.χ. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'π.χ. Πίνακας σπιτιού',
   'settings.apiKeys.modal.nameHint': 'Μόνο για σένα, για να αναγνωρίζεις το κλειδί αργότερα.',
   'settings.apiKeys.modal.creating': 'Δημιουργία...',
   'settings.apiKeys.modal.create': 'Δημιουργία',
@@ -671,6 +670,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Αντίγραψε το κλειδί τώρα. Εμφανίζεται μία φορά και δεν μπορεί να ανακτηθεί αργότερα.',
   'settings.apiKeys.modal.done': 'Έτοιμο',
+  'settings.mcp.deprecated': 'Απαρχαιωμένο',
+  'settings.offline.cache.dateRange': 'από {start} έως {end}',
 };
 
 export default settings;

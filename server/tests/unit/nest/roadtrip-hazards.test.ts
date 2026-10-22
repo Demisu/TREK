@@ -33,6 +33,22 @@ describe('roadtrip hazard sources', () => {
     await service.read();
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
+  it('gives warnings that share a feature id an id of their own, the first keeping it', async () => {
+    const warning = (headline: string) => ({
+      id: 'Warnungen_Gemeinden_vereinigt.DEU-1',
+      geometry: polygon,
+      properties: { HEADLINE: headline, SENT: '2026-01-01T00:00:00Z', EXPIRES: '2099-01-01T00:00:00Z' },
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => feed(url.includes('dwd.de') ? [warning('Rain'), warning('Wind')] : [])),
+    );
+    const saved = await new RoadtripHazardsService().read();
+    expect(saved.hazards.map((hazard) => hazard.id)).toEqual([
+      'dwd-Warnungen_Gemeinden_vereinigt.DEU-1',
+      'dwd-Warnungen_Gemeinden_vereinigt.DEU-1-1',
+    ]);
+  });
   it('drops expired warnings and marks malformed records as incomplete', async () => {
     vi.stubGlobal(
       'fetch',

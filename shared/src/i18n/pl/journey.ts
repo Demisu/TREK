@@ -214,7 +214,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Ślady GPX',
   'journey.settings.recordings': 'Zapisane dni',
   'journey.settings.showTripTracks': 'Pokaż wszystkie ślady GPX z podróży',
-  'journey.settings.showTripTracksHint': 'Rysuje na mapie zapisane trasy z powiązanych podróży.',
+  'journey.settings.showTripTracksHint': 'Rysuje na mapie zaplanowane trasy (ślady GPX) powiązanych podróży.',
   'journey.settings.autoPrepare': 'Automatycznie przygotowuj zarejestrowane dni',
   'journey.settings.autoPrepareHint':
     'Dopóki powiązana podróż trwa, postoje z twojego Dawarich czekają przy swoim dniu na przejrzenie. Edytorzy z własnym połączeniem dostają swoje. Nic nie trafia do dziennika samo.',
@@ -946,5 +946,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Nagrane dni i przejęte z nich postoje, w dniach z opublikowanym wpisem. Pokazują, gdzie i kiedy byłeś, także nocleg.',
   'journey.share.needsMap': 'Udostępnij mapę, aby to włączyć',
+  'journey.editor.tags': 'Tagi',
 };
 export default journey;

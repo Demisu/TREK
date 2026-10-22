@@ -8,6 +8,7 @@ import { usePermissionsStore } from '../../store/permissionsStore';
 import { placesApi } from '../../api/client';
 import { installTouchDragBridge } from '../../utils/touchDragBridge';
 import { resetAllStores, seedStore } from '../../../tests/helpers/store';
+import { useAddonStore } from '../../store/addonStore';
 import { buildUser, buildTrip, buildPlace, buildCategory, buildDay, buildAssignment } from '../../../tests/helpers/factories';
 import { server } from '../../../tests/helpers/msw/server';
 import PlacesSidebar from './PlacesSidebar';
@@ -48,6 +49,7 @@ beforeEach(() => {
   resetAllStores();
   seedStore(useAuthStore, { user: buildUser(), isAuthenticated: true });
   seedStore(useTripStore, { trip: buildTrip({ id: 1 }) });
+  seedStore(useAddonStore, { addons: [{ id: 'naver_list_import', name: 'Naver', type: 'integration', icon: '', enabled: true }], loaded: true });
 });
 
 type User = ReturnType<typeof userEvent.setup>;

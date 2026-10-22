@@ -260,5 +260,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'Cần có kết nối để tải tệp lên. Gỡ các tệp mới để lưu đặt chỗ khi ngoại tuyến, hoặc lưu khi bạn trực tuyến trở lại.',
   'reservations.needsConnection': 'Thao tác này cần kết nối. Hãy thử lại khi TREK trực tuyến trở lại.',
+  'reservations.exportCsvFiltered': 'Xuất {shown} trong {total} dòng đang hiển thị (CSV)',
 };
 export default reservations;

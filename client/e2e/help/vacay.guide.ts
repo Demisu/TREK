@@ -1,7 +1,11 @@
-import { test, expect, request as apiRequest, type APIRequestContext, type Page, type Locator } from '@playwright/test'
+import { test, expect, type Page, type Locator } from '@playwright/test'
 import { captureGuide, captureHero, dismissReleaseNotice, beat, typeInto, settle, VIEWPORT, type GuideScript, type StepAction } from './guide'
-import { E2E_BASE_URL } from '../../playwright.config'
-import { monthName, year } from '../dates'
+import { monthName, monthsAhead, year } from '../dates'
+import {
+  PARTNER, ensureFused, ensureSeparate, clearPartnerDays, requestFusionFromPartner, clearFusionRequest,
+  shareWithAdmin, unshareWithAdmin, ownColor, setOwnColor, ensurePublicCalendar, calendarColors,
+  restoreCalendarColors, companyHolidayFraction, setCompanyHoliday,
+} from './fixtures-vacay'
 import { vacayGuides, vacayContext } from '../../src/help/contexts/vacay'
 import type { HelpGuide } from '../../src/help/types'
 
@@ -10,7 +14,9 @@ import type { HelpGuide } from '../../src/help/types'
  * They run in the order the context lists them and build on each other: the
  * year the calendar shows gets a few logged days, company holidays and a
  * public-holiday calendar as the run goes on, which is what a lived-in plan
- * looks like anyway.
+ * looks like anyway. The guides about planning together fuse the seeded
+ * member mira into the plan through the API (`fixtures-vacay.ts`) and split
+ * it again in their cleanup, so every other guide finds a plan of one.
  */
 
 const YEAR = year()
@@ -18,6 +24,22 @@ const YEAR = year()
 const NEXT_MONTH = monthName(1)
 /** What the entitlement guide sets: not the seed's 30, so the change shows. */
 const ENTITLEMENT = '28'
+
+/**
+ * Weekdays of the next month from the 10th on. A fixed day number fell on a
+ * weekend in some months, and Block Weekends (on by default) ignores the
+ * click there, so the picture showed an empty cell under a step that says it
+ * fills.
+ */
+const WORKDAYS: number[] = Array.from({ length: 19 }, (_, i) => i + 10).filter(d => {
+  const weekday = new Date(`${monthsAhead(1, d)}T12:00:00Z`).getUTCDay()
+  return weekday !== 0 && weekday !== 6
+})
+const [LOG_DAY, HALF_DAY, COMP_DAY, , PARTNER_DAY] = WORKDAYS
+/** The `YYYY-MM-DD` of a day number in the next month. */
+const nextMonthDate = (n: number): string => monthsAhead(1, n)
+/** The day the company-holiday guides mark, whole and then half. */
+const CHRISTMAS_EVE = `${YEAR}-12-24`
 
 const guide = (id: string): HelpGuide => {
   const g = vacayGuides.find(x => x.id === id)
@@ -66,6 +88,9 @@ const day = (page: Page, month: string, n: number) => monthCard(page, month).get
 const sideCard = (page: Page, label: string) => page.locator('.vg-card').filter({ hasText: label }).first()
 /** The settings dialog. */
 const settings = (page: Page) => page.locator('.trek-modal-backdrop')
+/** The window Dissolve opens before it splits the plan; it stacks on top of Settings. */
+const dissolveConfirm = (page: Page) =>
+  page.locator('.trek-modal-enter').filter({ hasText: 'Separate calendars again' }).filter({ has: page.getByRole('button', { name: 'Cancel' }) }).last()
 /** The invite and share forms: small dialogs portalled to the body. */
 const dialog = (page: Page) => page.locator('.trek-backdrop-enter').last()
 /** A settings row by its label: icon, label, hint and, for a toggle, its switch. */
@@ -167,64 +192,6 @@ const settingsCloseStep: StepAction = {
   act: closeSettings,
 }
 
-// ── A calendar shared with the admin ──────────────────────────────────────────
-
-/**
- * The seeded member whose calendar the share-calendar guide shows as shared
- * with the admin. Not jonas: the admin shares with jonas in the same guide,
- * and two rows named jonas would hide which one is incoming.
- */
-const SHARER = { username: 'mira', email: 'mira@example.com', password: 'DemoSeed12345!' }
-
-/**
- * A request context acting as the member. Its own context with a bearer
- * token: a login on the page's context would put the member's session cookie
- * on the admin's requests.
- */
-async function asMember(member: typeof SHARER): Promise<APIRequestContext> {
-  const anon = await apiRequest.newContext({ baseURL: E2E_BASE_URL, storageState: undefined })
-  const login = await anon.post('/api/auth/login', { data: { email: member.email, password: member.password } })
-  const token = login.ok() ? ((await login.json()) as { token?: string }).token : undefined
-  await anon.dispose()
-  if (!token) throw new Error(`could not log in as ${member.username}: ${login.status()}`)
-  return apiRequest.newContext({
-    baseURL: E2E_BASE_URL,
-    storageState: undefined,
-    extraHTTPHeaders: { Authorization: `Bearer ${token}` },
-  })
-}
-
-/** The member shares her calendar with the admin, as she would from her own Vacay. */
-async function shareWithAdmin(page: Page): Promise<void> {
-  const me = await page.request.get('/api/auth/me')
-  const adminId = ((await me.json()) as { user: { id: number } }).user.id
-  const member = await asMember(SHARER)
-  try {
-    const res = await member.post('/api/addons/vacay/shares', { data: { user_id: adminId } })
-    // A retried guide finds the share from its first attempt still there.
-    if (!res.ok() && !(await res.text()).includes('Already shared')) {
-      throw new Error(`could not share ${SHARER.username}'s calendar with the admin: ${res.status()}`)
-    }
-  } finally {
-    await member.dispose()
-  }
-}
-
-/** Take back what shareWithAdmin did: the share and the notification it sent the admin. */
-async function unshareWithAdmin(page: Page): Promise<void> {
-  const shares = (await (await page.request.get('/api/addons/vacay/shares')).json()) as { incoming: { id: number; username: string }[] }
-  for (const s of shares.incoming.filter(x => x.username === SHARER.username)) {
-    const res = await page.request.delete(`/api/addons/vacay/shares/${s.id}`)
-    if (!res.ok()) throw new Error(`could not remove ${SHARER.username}'s share: ${res.status()}`)
-  }
-  const inbox = (await (await page.request.get('/api/notifications/in-app?limit=50')).json()) as {
-    notifications: { id: number; title_key: string; sender_username: string | null }[]
-  }
-  for (const n of inbox.notifications.filter(x => x.title_key === 'notif.vacay_share.title' && x.sender_username === SHARER.username)) {
-    await page.request.delete(`/api/notifications/in-app/${n.id}`)
-  }
-}
-
 /**
  * Pick an option in a CustomSelect: open it, filter, click the match inside
  * the open menu. Scoped to the menu on purpose: a calendar row already set to
@@ -233,12 +200,28 @@ async function unshareWithAdmin(page: Page): Promise<void> {
  */
 async function pick(page: Page, trigger: Locator, text: string): Promise<void> {
   await trigger.click()
-  const search = page.getByPlaceholder('...')
+  // The menu's filter field; its placeholder is the app's "Search".
+  const search = page.getByPlaceholder('Search', { exact: true }).last()
   await search.waitFor({ state: 'visible', timeout: 5_000 })
   await typeInto(page, search, text)
   const menu = search.locator('xpath=../..')
   await menu.getByRole('button', { name: text, exact: true }).first().click()
 }
+
+/** A row of the Persons card (a fused person or a pending invite) by its name. */
+const personRow = (page: Page, name: string): Locator => cardRow(page, 'Persons', name)
+/** Your own row in Persons, the one with the "you" badge. */
+const ownPersonRow = (page: Page): Locator =>
+  sideCard(page, 'Persons').locator('.group').filter({ has: page.getByText('you', { exact: true }) }).first()
+/** The first holiday calendar row in Settings: colour square, label, country, region and bin. */
+const calendarRow = (page: Page): Locator => settings(page).getByPlaceholder('Label (optional)').first().locator('xpath=../..')
+/** The Fusion Request dialog, which opens by itself while an invite waits for an answer. */
+const fusionDialog = (page: Page): Locator => page.getByRole('dialog', { name: 'Fusion Request' })
+
+/** What a guide has to put back, read in its start and used in its cleanup. */
+let savedColor = ''
+let savedCalendarColors = new Map<number, string>()
+let christmasEveBefore: number | null = null
 
 const SCRIPTS: Record<string, GuideScript> = {
   'log-day': {
@@ -247,16 +230,16 @@ const SCRIPTS: Record<string, GuideScript> = {
     steps: [
       { target: p => toolbar(p).getByRole('button').first() },
       {
-        target: p => day(p, NEXT_MONTH, 14),
-        act: async p => { await day(p, NEXT_MONTH, 14).click(); await beat(p, 600) },
+        target: p => day(p, NEXT_MONTH, LOG_DAY),
+        act: async p => { await day(p, NEXT_MONTH, LOG_DAY).click(); await beat(p, 600) },
       },
       {
-        target: p => day(p, NEXT_MONTH, 14),
+        target: p => day(p, NEXT_MONTH, LOG_DAY),
         act: async p => {
-          await day(p, NEXT_MONTH, 14).click()
+          await day(p, NEXT_MONTH, LOG_DAY).click()
           await beat(p, 600)
           // Leave the day logged for the after-picture and the guides that follow.
-          await day(p, NEXT_MONTH, 14).click()
+          await day(p, NEXT_MONTH, LOG_DAY).click()
           await toTop(p)
         },
       },
@@ -272,8 +255,8 @@ const SCRIPTS: Record<string, GuideScript> = {
         act: async p => { await p.getByRole('button', { name: 'Half day' }).click() },
       },
       {
-        target: p => day(p, NEXT_MONTH, 15),
-        act: async p => { await day(p, NEXT_MONTH, 15).click(); await settle(p) },
+        target: p => day(p, NEXT_MONTH, HALF_DAY),
+        act: async p => { await day(p, NEXT_MONTH, HALF_DAY).click(); await settle(p) },
       },
       {
         target: p => p.getByRole('button', { name: 'Half day' }),
@@ -291,9 +274,9 @@ const SCRIPTS: Record<string, GuideScript> = {
         act: async p => { await p.getByRole('button', { name: 'Comp / Flex' }).click() },
       },
       {
-        target: p => day(p, NEXT_MONTH, 16),
+        target: p => day(p, NEXT_MONTH, COMP_DAY),
         act: async p => {
-          await day(p, NEXT_MONTH, 16).click()
+          await day(p, NEXT_MONTH, COMP_DAY).click()
           await settle(p)
           await p.getByRole('button', { name: 'Comp / Flex' }).click()
           await toTop(p)
@@ -404,6 +387,42 @@ const SCRIPTS: Record<string, GuideScript> = {
     ],
   },
 
+  'half-company-holiday': {
+    guide: guide('half-company-holiday'),
+    // A full run finds Christmas Eve a whole company holiday from the guide
+    // before; the click with Half day on then converts it in place.
+    start: async p => {
+      christmasEveBefore = await companyHolidayFraction(p, YEAR, CHRISTMAS_EVE)
+      await openVacay(p)
+    },
+    steps: [
+      {
+        target: p => p.getByRole('button', { name: 'Company Holiday' }),
+        act: async p => { await p.getByRole('button', { name: 'Company Holiday' }).click() },
+      },
+      {
+        target: p => p.getByRole('button', { name: 'Half day' }),
+        act: async p => {
+          await p.getByRole('button', { name: 'Half day' }).click()
+          await expect(p.getByRole('button', { name: 'Half day' })).toHaveAttribute('aria-pressed', 'true')
+        },
+      },
+      {
+        target: p => day(p, 'December', 24),
+        act: async p => {
+          await day(p, 'December', 24).click()
+          await settle(p)
+          // Both switches back, so the next guide starts on plain vacation. The page
+          // stays where it is: the half-filled cell is what the result shows.
+          await p.getByRole('button', { name: 'Half day' }).click()
+          await toolbar(p).getByRole('button').first().click()
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: async p => { await setCompanyHoliday(p, YEAR, CHRISTMAS_EVE, christmasEveBefore) },
+  },
+
   'public-holidays': {
     guide: guide('public-holidays'),
     start: openVacay,
@@ -412,7 +431,8 @@ const SCRIPTS: Record<string, GuideScript> = {
         // The whole row, as in company-holidays step 1: name and switch together.
         prepare: openSettings,
         target: p => settingRow(p, 'Public Holidays'),
-        act: async p => { await toggleRow(p, 'Public Holidays').click(); await settle(p) },
+        // switchOn rather than a click: a guide run on its own may find it on already.
+        act: async p => { await switchOn(p, 'Public Holidays') },
       },
       {
         // The step is about the country and the region, so the picture shows
@@ -432,7 +452,7 @@ const SCRIPTS: Record<string, GuideScript> = {
       {
         prepare: openSettings,
         target: p => settingRow(p, 'School Holidays'),
-        act: async p => { await toggleRow(p, 'School Holidays').click(); await settle(p) },
+        act: async p => { await switchOn(p, 'School Holidays') },
       },
       {
         // The last Add calendar: the public-holiday one above it is the first.
@@ -442,6 +462,40 @@ const SCRIPTS: Record<string, GuideScript> = {
       },
       settingsCloseStep,
     ],
+  },
+
+  'edit-holiday-calendar': {
+    guide: guide('edit-holiday-calendar'),
+    start: async p => {
+      await ensurePublicCalendar(p)
+      savedCalendarColors = await calendarColors(p)
+      await openVacay(p)
+    },
+    steps: [
+      {
+        prepare: openSettings,
+        target: calendarRow,
+        hover: parkPointer,
+      },
+      {
+        // The swatches open before the picture, so it shows what the click offers.
+        prepare: async p => {
+          await calendarRow(p).getByTitle('Color').click()
+          await expect(calendarRow(p).locator('div[style*="display: grid"] > button').first()).toBeVisible()
+        },
+        target: p => calendarRow(p).getByTitle('Color'),
+        act: async p => {
+          await calendarRow(p).locator('div[style*="display: grid"] > button').nth(1).click()
+          await settle(p)
+        },
+      },
+      {
+        // The bin is the row's last button, after the colour square and the two lists.
+        target: p => calendarRow(p).locator('button').last(),
+        act: closeSettings,
+      },
+    ],
+    cleanup: async p => { await restoreCalendarColors(p, savedCalendarColors) },
   },
 
   weekends: {
@@ -494,6 +548,30 @@ const SCRIPTS: Record<string, GuideScript> = {
     ],
   },
 
+  'person-color': {
+    guide: guide('person-color'),
+    start: async p => {
+      savedColor = await ownColor(p)
+      await openVacay(p)
+    },
+    steps: [
+      {
+        target: p => ownPersonRow(p).getByTitle('Change color'),
+        act: async p => { await ownPersonRow(p).getByTitle('Change color').click(); await settle(p) },
+      },
+      {
+        target: p => dialog(p).getByRole('group', { name: 'Color' }),
+        act: async p => {
+          // One that is not the current colour, or the pick would change nothing.
+          await dialog(p).getByRole('group', { name: 'Color' }).getByRole('button', { pressed: false }).nth(4).click()
+          await expect(p.getByRole('dialog', { name: 'Change color' })).toBeHidden()
+          await toTop(p)
+        },
+      },
+    ],
+    cleanup: async p => { await setOwnColor(p, savedColor) },
+  },
+
   invite: {
     guide: guide('invite'),
     start: openVacay,
@@ -526,6 +604,101 @@ const SCRIPTS: Record<string, GuideScript> = {
     ],
   },
 
+  'answer-fusion-request': {
+    guide: guide('answer-fusion-request'),
+    start: async p => {
+      await requestFusionFromPartner(p)
+      await openVacay(p)
+      await expect(fusionDialog(p)).toBeVisible()
+    },
+    steps: [
+      { target: p => fusionDialog(p).locator('header').first(), hover: parkPointer },
+      { target: p => fusionDialog(p).locator('ul').first(), hover: parkPointer },
+      {
+        target: p => fusionDialog(p).locator('footer'),
+        hover: async p => { await fusionDialog(p).getByRole('button', { name: 'Accept & Fuse' }).hover() },
+        // Declined, so the admin's plan stays as the guides that follow expect it.
+        act: async p => {
+          await fusionDialog(p).getByRole('button', { name: 'Decline' }).click()
+          await expect(fusionDialog(p)).toBeHidden()
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: clearFusionRequest,
+  },
+
+  'log-for-partner': {
+    guide: guide('log-for-partner'),
+    start: async p => {
+      await ensureFused(p)
+      await openVacay(p)
+      await expect(personRow(p, PARTNER.username)).toBeVisible()
+    },
+    steps: [
+      {
+        target: p => personRow(p, PARTNER.username),
+        act: async p => {
+          await personRow(p, PARTNER.username).click()
+          await expect(toolbar(p).getByRole('button').first()).toContainText(PARTNER.username)
+        },
+      },
+      { target: p => toolbar(p).getByRole('button').first() },
+      {
+        target: p => day(p, NEXT_MONTH, PARTNER_DAY),
+        act: async p => {
+          await day(p, NEXT_MONTH, PARTNER_DAY).click()
+          await settle(p)
+          await ownPersonRow(p).click()
+          await toTop(p)
+        },
+      },
+    ],
+    cleanup: async p => {
+      await clearPartnerDays(p, YEAR, [nextMonthDate(PARTNER_DAY)])
+      await ensureSeparate(p)
+    },
+  },
+
+  'dissolve-fusion': {
+    guide: guide('dissolve-fusion'),
+    start: async p => {
+      await ensureFused(p)
+      await openVacay(p)
+      await expect(personRow(p, PARTNER.username)).toBeVisible()
+    },
+    steps: [
+      {
+        target: p => p.getByRole('button', { name: 'Settings' }),
+        act: openSettings,
+      },
+      {
+        // The whole red section: its name, the people in the plan and the button.
+        target: p => settings(p).getByText('Dissolve Fusion', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+        hover: async p => { await settings(p).getByRole('button', { name: 'Dissolve', exact: true }).hover() },
+        act: async p => {
+          await settings(p).getByRole('button', { name: 'Dissolve', exact: true }).click()
+          await expect(dissolveConfirm(p)).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        // The window asks first; its Dissolve splits the plan.
+        target: dissolveConfirm,
+        hover: async p => { await dissolveConfirm(p).getByRole('button', { name: 'Dissolve', exact: true }).hover() },
+        act: async p => {
+          await dissolveConfirm(p).getByRole('button', { name: 'Dissolve', exact: true }).click()
+          await expect(settings(p)).toBeHidden()
+          await expect(personRow(p, PARTNER.username)).toBeHidden()
+          await p.evaluate(() => { (document.activeElement as HTMLElement | null)?.blur() })
+          await toTop(p)
+        },
+      },
+    ],
+    // Already separate after the last step; this covers a run that failed before it.
+    cleanup: ensureSeparate,
+  },
+
   'share-calendar': {
     guide: guide('share-calendar'),
     start: openVacay,
@@ -553,7 +726,7 @@ const SCRIPTS: Record<string, GuideScript> = {
         // the socket; a reload is the fallback should that message not come.
         prepare: async p => {
           await shareWithAdmin(p)
-          const incoming = cardRow(p, 'Shared Calendars', SHARER.username)
+          const incoming = cardRow(p, 'Shared Calendars', PARTNER.username)
           if (!(await incoming.waitFor({ state: 'visible', timeout: 8_000 }).then(() => true, () => false))) await openVacay(p)
           await expect(incoming).toBeVisible()
         },

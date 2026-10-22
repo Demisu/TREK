@@ -68,5 +68,8 @@ const files: TranslationStrings = {
   'files.linkNeedsConnection': 'A hivatkozás eltávolításához kapcsolat kell. Próbáld újra, amikor a TREK ismét online.',
   'files.placeFilesNeedConnection':
     'A fájlok feltöltéséhez kapcsolat kell. Távolítsd el az újakat, hogy a helyet offline mentsd, vagy ments, amikor újra online vagy.',
+  'files.maxSize': 'Legfeljebb {count} MB',
+  'files.maxSize.one': 'Legfeljebb {count} MB',
+  'files.toast.starError': 'A csillagot nem sikerült módosítani',
 };
 export default files;

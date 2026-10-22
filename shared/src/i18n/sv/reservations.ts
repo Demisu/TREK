@@ -265,5 +265,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'Filer behöver en anslutning för att laddas upp. Ta bort de nya för att spara bokningen offline, eller spara när du är online igen.',
   'reservations.needsConnection': 'Det här kräver en anslutning. Försök igen när TREK är online igen.',
+  'reservations.exportCsvFiltered': 'Exportera de {shown} av {total} visade raderna (CSV)',
 };
 export default reservations;

@@ -27,6 +27,9 @@ export interface Template {
   created_by_name: string;
 }
 
+/** What waits for the admin's answer in the shell's confirm: a whole template or a category with items. */
+export type PackingDeleteTarget = { kind: 'template' | 'category'; id: number; name: string };
+
 interface Options {
   /** The phone shell toasts the generic admin delete error for categories and items. */
   genericDeleteErrors?: boolean;
@@ -118,6 +121,33 @@ export function usePackingTemplateAdmin({ genericDeleteErrors = false }: Options
     } catch {
       toast.error(t('admin.packingTemplates.createError'));
     }
+  };
+
+  // A template takes every category and item with it and a category its items, so both ask
+  // first; an empty category and a single item go at once, as in the packing list.
+  const [deleteTarget, setDeleteTarget] = useState<PackingDeleteTarget | null>(null);
+
+  const requestDeleteTemplate = (id: number) => {
+    const tpl = templates.find((tp) => tp.id === id);
+    if (tpl) setDeleteTarget({ kind: 'template', id, name: tpl.name });
+  };
+
+  const requestDeleteCategory = (catId: number) => {
+    const cat = categories.find((c) => c.id === catId);
+    if (!cat) return;
+    if (!items.some((i) => i.category_id === catId)) {
+      void handleDeleteCategory(catId);
+      return;
+    }
+    setDeleteTarget({ kind: 'category', id: catId, name: cat.name });
+  };
+
+  const confirmDelete = async () => {
+    const target = deleteTarget;
+    setDeleteTarget(null);
+    if (!target) return;
+    if (target.kind === 'template') await handleDeleteTemplate(target.id);
+    else await handleDeleteCategory(target.id);
   };
 
   const handleDeleteTemplate = async (id: number) => {
@@ -255,6 +285,11 @@ export function usePackingTemplateAdmin({ genericDeleteErrors = false }: Options
     toggleExpand,
     handleCreateTemplate,
     handleDeleteTemplate,
+    deleteTarget,
+    setDeleteTarget,
+    requestDeleteTemplate,
+    requestDeleteCategory,
+    confirmDelete,
     handleRenameTemplate,
     handleAddCategory,
     handleRenameCategory,

@@ -32,7 +32,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'Lägg till backend',
   'storage.backends.usedBy': 'Används av: {categories}',
   'storage.backends.unused': 'Inte tilldelad någon kategori',
-  'storage.backends.envReadOnly': 'Definierad av en miljövariabel — skrivskyddad',
+  'storage.backends.envReadOnly': 'Definierad av en miljövariabel (skrivskyddad)',
   'storage.source.built-in': 'Inbyggd',
   'storage.source.env': 'Miljö',
   'storage.source.settings': 'Inställningar',

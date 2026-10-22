@@ -38,5 +38,6 @@ const map: TranslationStrings = {
   'map.overview.unrouted.one': 'No se pudo calcular {count} tramo, así que las distancias están incompletas.',
   'map.overview.dayUnrouted': 'No se pudieron calcular {count} tramos de este día',
   'map.overview.dayUnrouted.one': 'No se pudo calcular {count} tramo de este día',
+  'map.baseLayer.topo': 'Topográfico',
 };
 export default map;

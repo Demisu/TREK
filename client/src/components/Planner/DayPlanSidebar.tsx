@@ -30,8 +30,8 @@ import { useTripStore } from '../../store/tripStore'
 import { useCanDo } from '../../store/permissionsStore'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useAddonStore } from '../../store/addonStore'
-import { useSaveToCollectionStore } from '../../store/saveToCollectionStore'
-import { placeToSaveTarget } from '../Collections/saveTarget'
+import { openSaveToCollection } from '../Collections/saveTarget'
+import { computeMultiDayMove as computeMultiDayMoveIn, getDayOrder as getDayOrderIn, type SpanPhase } from './DayPlanSidebar.multiDayMove'
 import { useTranslation } from '../../i18n'
 import { routeModeIcon, useRouteModeOptions } from './routeModes'
 import { Tooltip } from '../shared/Tooltip'
@@ -419,21 +419,10 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
     return t(`reservations.span.${phase === 'start' ? 'start' : phase === 'end' ? 'end' : 'ongoing'}`)
   }
 
-  const getDayOrder = (day: (typeof days)[number]) => (day as any).day_number ?? days.indexOf(day)
+  const getDayOrder = (day: (typeof days)[number]) => getDayOrderIn(days, day)
 
-  const computeMultiDayMove = (r: Reservation, targetDayId: number, phase: 'single' | 'start' | 'middle' | 'end') => {
-    const startId = r.day_id ?? targetDayId
-    const endId = r.end_day_id ?? startId
-    const order = (id: number) => { const d = days.find(x => x.id === id); return d ? getDayOrder(d) : 0 }
-    if (phase === 'single' || startId === endId) return { day_id: targetDayId, end_day_id: targetDayId }
-    if (phase === 'start') {
-      if (order(targetDayId) > order(endId)) return { day_id: targetDayId, end_day_id: targetDayId }
-      return { day_id: targetDayId, end_day_id: endId }
-    }
-    // phase === 'end'
-    if (order(targetDayId) < order(startId)) return { day_id: targetDayId, end_day_id: targetDayId }
-    return { day_id: startId, end_day_id: targetDayId }
-  }
+  const computeMultiDayMove = (r: Reservation, targetDayId: number, phase: SpanPhase) =>
+    computeMultiDayMoveIn(days, r, targetDayId, phase)
 
   // A booking pinned to a stop on another day shows at that stop only (#2604).
   const stopDays = stopDayIds(assignments)
@@ -1880,7 +1869,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                             onClick: () => { tripActions.setAssignmentRouteExcluded(tripId, day.id, assignment.id, !assignment.route_excluded).catch((err: unknown) => toast.error(err instanceof Error ? err.message : t('common.unknownError'))) },
                           },
                           safeHttpUrl(place.website) && { label: t('inspector.website'), icon: ExternalLink, onClick: () => window.open(safeHttpUrl(place.website)!, '_blank', 'noopener,noreferrer') },
-                          collectionsEnabled && { label: t('inspector.saveToCollection'), icon: Bookmark, onClick: () => useSaveToCollectionStore.getState().open(placeToSaveTarget(place)) },
+                          collectionsEnabled && { label: t('inspector.saveToCollection'), icon: Bookmark, onClick: () => openSaveToCollection(place, !!isTourPlace, tripId) },
                           { divider: true },
                           canEditPlaces &&
                             onDeletePlace &&
@@ -2126,10 +2115,10 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                             {/* The row's own controls, with room between them so each is its own target. */}
                             <div className="dp-row-actions flex flex-none items-center gap-2.5 ps-1">
                             {canEditDays && <div className="reorder-buttons" style={{ flexShrink: 0, display: 'flex', gap: 1, transition: 'opacity 0.15s' }}>
-                              <button type="button" onClick={moveUp} disabled={idx === 0} aria-label={t('dayplan.moveUp')} className="flex text-content-faint hover:text-content disabled:cursor-default disabled:text-edge">
+                              <button type="button" onClick={moveUp} disabled={idx === 0} aria-label={t('dayplan.moveUp')} className="flex text-content-faint hover:text-content disabled:cursor-default disabled:opacity-30">
                                 <ChevronUp size={12} strokeWidth={2} />
                               </button>
-                              <button type="button" onClick={moveDown} disabled={idx === merged.length - 1} aria-label={t('dayplan.moveDown')} className="flex text-content-faint hover:text-content disabled:cursor-default disabled:text-edge">
+                              <button type="button" onClick={moveDown} disabled={idx === merged.length - 1} aria-label={t('dayplan.moveDown')} className="flex text-content-faint hover:text-content disabled:cursor-default disabled:opacity-30">
                                 <ChevronDown size={12} strokeWidth={2} />
                               </button>
                             </div>}
@@ -2515,8 +2504,8 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                           </div>
                         {canEditDays && <div className="dp-note-actions flex flex-none items-center">
                           <div className="reorder-buttons" style={{ flexShrink: 0, display: 'flex', gap: 1, transition: 'opacity 0.15s' }}>
-                            <button type="button" onClick={e => { e.stopPropagation(); void moveNote(day.id, note.id, 'up') }} disabled={noteIdx === 0} aria-label={t('dayplan.moveUp')} className="flex text-content-faint hover:text-content disabled:cursor-default disabled:text-edge"><ChevronUp size={12} strokeWidth={2} /></button>
-                            <button type="button" onClick={e => { e.stopPropagation(); void moveNote(day.id, note.id, 'down') }} disabled={noteIdx === merged.length - 1} aria-label={t('dayplan.moveDown')} className="flex text-content-faint hover:text-content disabled:cursor-default disabled:text-edge"><ChevronDown size={12} strokeWidth={2} /></button>
+                            <button type="button" onClick={e => { e.stopPropagation(); void moveNote(day.id, note.id, 'up') }} disabled={noteIdx === 0} aria-label={t('dayplan.moveUp')} className="flex text-content-faint hover:text-content disabled:cursor-default disabled:opacity-30"><ChevronUp size={12} strokeWidth={2} /></button>
+                            <button type="button" onClick={e => { e.stopPropagation(); void moveNote(day.id, note.id, 'down') }} disabled={noteIdx === merged.length - 1} aria-label={t('dayplan.moveDown')} className="flex text-content-faint hover:text-content disabled:cursor-default disabled:opacity-30"><ChevronDown size={12} strokeWidth={2} /></button>
                           </div>
                           <MoreButton label={t('files.menu')} size={24} items={[
                             { label: t('common.edit'), icon: Pencil, onClick: () => openEditNote(day.id, note) },

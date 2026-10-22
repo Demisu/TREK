@@ -134,7 +134,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Создать токен',
   'settings.mcp.modal.createdTitle': 'Токен создан',
   'settings.mcp.modal.createdWarning':
-    'Этот токен будет показан только один раз. Скопируйте и сохраните его сейчас — восстановить его будет невозможно.',
+    'Этот токен будет показан только один раз. Скопируйте и сохраните его сейчас: восстановить его будет невозможно.',
   'settings.mcp.modal.done': 'Готово',
   'settings.mcp.toast.created': 'Токен создан',
   'settings.mcp.toast.createError': 'Не удалось создать токен',
@@ -176,14 +176,14 @@ const settings: TranslationStrings = {
     'Один URI на строку. HTTPS, локальный HTTP или собственная схема приложения (myapp://). Требуется точное совпадение, кроме порта локального URI.',
   'settings.oauth.modal.scopes': 'Разрешённые области доступа',
   'settings.oauth.modal.scopesHint':
-    'list_trips и get_trip_summary всегда доступны — область не требуется. Они помогают ИИ находить нужные ID поездок.',
+    'list_trips и get_trip_summary всегда доступны: область не требуется. Они помогают ИИ находить нужные ID поездок.',
   'settings.oauth.modal.selectAll': 'Выбрать все',
   'settings.oauth.modal.deselectAll': 'Снять выбор',
   'settings.oauth.modal.creating': 'Регистрация…',
   'settings.oauth.modal.create': 'Зарегистрировать клиента',
   'settings.oauth.modal.createdTitle': 'Клиент зарегистрирован',
   'settings.oauth.modal.createdWarning':
-    'Секрет клиента отображается только один раз. Скопируйте его сейчас — его нельзя будет восстановить.',
+    'Секрет клиента отображается только один раз. Скопируйте его сейчас: его нельзя будет восстановить.',
   'settings.oauth.toast.createError': 'Не удалось зарегистрировать клиент OAuth',
   'settings.oauth.toast.deleted': 'Клиент OAuth удалён',
   'settings.oauth.toast.deleteError': 'Не удалось удалить клиент OAuth',
@@ -251,7 +251,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Удалить аккаунт',
   'settings.deleteAccountTitle': 'Удалить ваш аккаунт?',
   'settings.deleteAccountWarning':
-    'Ваш аккаунт и все поездки, места и файлы будут безвозвратно удалены. Это действие нельзя отменить.',
+    'Ваш аккаунт и все принадлежащие вам поездки, журналы, места и файлы будут удалены безвозвратно, включая поездки, к которым есть доступ у других участников: они потеряют доступ. Поездки других владельцев останутся, а вы будете из них исключены. Это действие нельзя отменить.',
   'settings.deleteAccountConfirm': 'Удалить безвозвратно',
   'settings.deleteBlockedTitle': 'Удаление невозможно',
   'settings.deleteBlockedMessage':
@@ -353,7 +353,7 @@ const settings: TranslationStrings = {
   'settings.webPush.failed': 'Не удалось включить push на этом устройстве.',
   'settings.currency': 'Валюта отображения',
   'settings.currencyHint':
-    'Суммы в разделе «Расходы» отображаются в этой валюте только для просмотра — исходные суммы не изменяются.',
+    'Суммы в разделе «Расходы» отображаются в этой валюте только для просмотра; исходные суммы не изменяются.',
   'settings.currencyTrip': 'Валюта поездки',
   'settings.placeLanguage': 'Названия мест',
   'settings.placeLanguageApp': 'Как в приложении',
@@ -361,7 +361,7 @@ const settings: TranslationStrings = {
     'Язык, на котором отвечают поиск мест, подсказки и адреса. Если у места нет названия на этом языке, показывается местное название.',
   'settings.passkey.title': 'Passkeys',
   'settings.passkey.description':
-    'Входите быстрее и с защитой от фишинга с помощью passkey — отпечатка пальца, лица, PIN-кода или аппаратного ключа. Ваш пароль остаётся как резервный способ.',
+    'Входите быстрее и с защитой от фишинга с помощью passkey: отпечатка пальца, лица, PIN-кода или аппаратного ключа. Ваш пароль остаётся как резервный способ.',
   'settings.passkey.notConfigured':
     'Passkeys включены, но ещё не полностью настроены на этом сервере. Попросите администратора задать домен WebAuthn.',
   'settings.passkey.add': 'Добавить passkey',
@@ -531,10 +531,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Работайте только с кэшированными данными, а ваши изменения ставятся в очередь. Выключите, чтобы снова подключиться и синхронизировать.',
   'settings.offline.mode.active':
-    'Офлайн-режим включён — ваши изменения поставлены в очередь и синхронизируются, когда вы его выключите.',
+    'Офлайн-режим включён: ваши изменения поставлены в очередь и синхронизируются, когда вы его выключите.',
   'settings.offline.prepare.title': 'Подготовка к работе офлайн',
   'settings.offline.prepare.hint':
-    'Скачайте всё необходимое — данные поездок, документы и тайлы карты — до того, как потеряете соединение.',
+    'Скачайте всё необходимое (данные поездок, документы и тайлы карты) до того, как потеряете соединение.',
   'settings.offline.prepare.button': 'Скачать для работы офлайн',
   'settings.offline.prepare.running': 'Скачивание…',
   'settings.offline.prepare.done': 'Готово к работе офлайн',
@@ -616,8 +616,7 @@ const settings: TranslationStrings = {
   'settings.pluginActivity.columns.status': 'Результат',
   'settings.alwaysShowRoutes': 'Всегда показывать маршруты бронирований',
   'settings.alwaysShowRoutesHint':
-    'Автоматически показывает на карте маршрут для каждого рейса, поезда и другого бронирования — без необходимости включать это отдельно для каждого элемента.',
-
+    'Автоматически показывает на карте маршрут для каждого рейса, поезда и другого бронирования, без необходимости включать это отдельно для каждого элемента.',
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Что этот ключ может читать',
@@ -666,7 +665,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Не удалось скопировать. Выделите текст и скопируйте его вручную.',
   'settings.apiKeys.modal.createTitle': 'Создать ключ API',
   'settings.apiKeys.modal.name': 'Название',
-  'settings.apiKeys.modal.namePlaceholder': 'например, Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'например, Домашняя панель',
   'settings.apiKeys.modal.nameHint': 'Только для вас, чтобы позже узнать ключ.',
   'settings.apiKeys.modal.creating': 'Создание...',
   'settings.apiKeys.modal.create': 'Создать',
@@ -674,6 +673,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Скопируйте ключ сейчас. Он показывается один раз, позже получить его нельзя.',
   'settings.apiKeys.modal.done': 'Готово',
+  'settings.mcp.deprecated': 'Устарело',
+  'settings.offline.cache.dateRange': 'с {start} по {end}',
 };
 
 export default settings;

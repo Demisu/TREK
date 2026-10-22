@@ -24,7 +24,7 @@ export default function AdminNotificationsPanel({ t, toast }: { t: (k: string) =
     return card(
       <div className="flex items-center gap-2 text-content-faint" style={fs(12, 'body')}>
         <Loader2 size={14} className="animate-spin" />
-        <span>Loading…</span>
+        <span>{t('common.loading')}</span>
       </div>,
     )
   }
@@ -43,7 +43,7 @@ export default function AdminNotificationsPanel({ t, toast }: { t: (k: string) =
         {/* The channel names over their columns */}
         <div className="grid items-end gap-1 border-b border-edge-faint px-3.5 pb-2 pt-2.5" style={{ gridTemplateColumns: columns }}>
           <span className="font-geist font-bold uppercase tracking-[.08em] text-content-faint" style={fs(9.5)}>
-            {saving ? 'Saving…' : null}
+            {saving ? t('common.saving') : null}
           </span>
           {visibleChannels.map(ch => (
             <span key={ch} className={EYEBROW} style={fs(9.5)}>{channelName(ch)}</span>

@@ -11,6 +11,7 @@ const trips: TranslationStrings = {
   'trips.reminderDays': 'päeva',
   'trips.reminderCustom': 'Kohandatud',
   'trips.reminderDaysBefore': 'päeva enne väljumist',
-  'trips.reminderDisabledHint': 'Reisimeeldetuletused on keelatud. Luba need jaotises Haldus > Seaded > Teavitused.',
+  'trips.reminderDisabledHint':
+    'Reisimeeldetuletused on keelatud. Luba need jaotises Haldus > Teavitused > Reisi meeldetuletused.',
 };
 export default trips;

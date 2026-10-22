@@ -104,7 +104,7 @@ describe('VacayController (parity with the legacy /api/addons/vacay route)', () 
     it('sends an invite', async () => {
       const sendInvite = vi.fn().mockReturnValue({});
       expect(await makeController({ ...planBase, sendInvite }).invite(user, { user_id: 2 })).toEqual({ success: true });
-      expect(sendInvite).toHaveBeenCalledWith(10, 1, 'u', 'u@example.test', 2);
+      expect(sendInvite).toHaveBeenCalledWith(10, 1, 'u', 2);
     });
 
     it('maps an acceptInvite error', () => {
@@ -281,7 +281,7 @@ describe('VacayController (parity with the legacy /api/addons/vacay route)', () 
       expect(await makeController({ shareCalendar }).share(user, { user_id: '2' }, 'sock-1')).toEqual({
         success: true,
       });
-      expect(shareCalendar).toHaveBeenCalledWith(1, 'u@example.test', 2, 'sock-1');
+      expect(shareCalendar).toHaveBeenCalledWith(1, 'u', 2, 'sock-1');
     });
 
     it('GET /shares/available-users wraps the user list', async () => {

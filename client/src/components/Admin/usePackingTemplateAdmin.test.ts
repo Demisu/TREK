@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { adminApi } from '../../api/client';
 import { usePackingTemplateAdmin } from './usePackingTemplateAdmin';
 
-// FE-HOOK-PACKTPL-001 to FE-HOOK-PACKTPL-014
+// FE-HOOK-PACKTPL-001 to FE-HOOK-PACKTPL-017
 
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 vi.mock('../shared/Toast', () => ({ useToast: () => toast }));
@@ -238,5 +238,38 @@ describe('usePackingTemplateAdmin', () => {
     await act(() => result.current.handleDeleteItem(100));
     expect(adminApi.deleteTemplateItem).toHaveBeenCalledWith(1, 100);
     expect(result.current.items).toEqual([]);
+  });
+
+  it('FE-HOOK-PACKTPL-015: asking to delete a template waits for the answer before anything is sent', async () => {
+    const { result } = await expanded();
+    act(() => result.current.requestDeleteTemplate(1));
+    expect(result.current.deleteTarget).toEqual({ kind: 'template', id: 1, name: 'Beach' });
+    expect(adminApi.deletePackingTemplate).not.toHaveBeenCalled();
+
+    await act(() => result.current.confirmDelete());
+    expect(adminApi.deletePackingTemplate).toHaveBeenCalledWith(1);
+    expect(result.current.deleteTarget).toBeNull();
+    expect(result.current.templates).toEqual([]);
+  });
+
+  it('FE-HOOK-PACKTPL-016: a category that holds items asks first; cancelling sends nothing', async () => {
+    const { result } = await expanded();
+    act(() => result.current.requestDeleteCategory(10));
+    expect(result.current.deleteTarget).toEqual({ kind: 'category', id: 10, name: 'Clothes' });
+    act(() => result.current.setDeleteTarget(null));
+    expect(adminApi.deleteTemplateCategory).not.toHaveBeenCalled();
+
+    act(() => result.current.requestDeleteCategory(10));
+    await act(() => result.current.confirmDelete());
+    expect(adminApi.deleteTemplateCategory).toHaveBeenCalledWith(1, 10);
+    expect(result.current.categories).toEqual([]);
+  });
+
+  it('FE-HOOK-PACKTPL-017: an empty category goes at once, nothing is lost', async () => {
+    vi.mocked(adminApi.getPackingTemplate).mockResolvedValue({ categories: [CAT], items: [] });
+    const { result } = await expanded();
+    await act(async () => result.current.requestDeleteCategory(10));
+    expect(result.current.deleteTarget).toBeNull();
+    expect(adminApi.deleteTemplateCategory).toHaveBeenCalledWith(1, 10);
   });
 });

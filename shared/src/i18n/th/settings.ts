@@ -187,7 +187,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'สร้างโทเค็น',
   'settings.mcp.modal.createdTitle': 'สร้างโทเค็นแล้ว',
   'settings.mcp.modal.createdWarning':
-    'โทเค็นนี้จะแสดงเพียงครั้งเดียวเท่านั้น คัดลอกและจัดเก็บทันที — ไม่สามารถกู้คืนได้',
+    'โทเค็นนี้จะแสดงเพียงครั้งเดียวเท่านั้น คัดลอกและจัดเก็บทันที: ไม่สามารถกู้คืนได้',
   'settings.mcp.modal.done': 'เสร็จแล้ว',
   'settings.mcp.toast.created': 'สร้างโทเค็นแล้ว',
   'settings.mcp.toast.createError': 'ไม่สามารถสร้างโทเค็นได้',
@@ -235,7 +235,7 @@ const settings: TranslationStrings = {
   'settings.oauth.modal.creating': 'กำลังลงทะเบียน...',
   'settings.oauth.modal.create': 'ลงทะเบียนไคลเอ็นต์',
   'settings.oauth.modal.createdTitle': 'ลงทะเบียนไคลเอ็นต์แล้ว',
-  'settings.oauth.modal.createdWarning': 'รหัสลับไคลเอ็นต์จะแสดงเพียงครั้งเดียว คัดลอกทันที — ไม่สามารถกู้คืนได้',
+  'settings.oauth.modal.createdWarning': 'รหัสลับไคลเอ็นต์จะแสดงเพียงครั้งเดียว คัดลอกทันที: ไม่สามารถกู้คืนได้',
   'settings.oauth.toast.createError': 'ลงทะเบียนไคลเอ็นต์ OAuth ไม่สำเร็จ',
   'settings.oauth.toast.deleted': 'ลบไคลเอ็นต์ OAuth แล้ว',
   'settings.oauth.toast.deleteError': 'ลบไคลเอ็นต์ OAuth ไม่สำเร็จ',
@@ -302,7 +302,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'ลบบัญชี',
   'settings.deleteAccountTitle': 'ลบบัญชีของคุณ?',
   'settings.deleteAccountWarning':
-    'บัญชีของคุณ การเดินทาง สถานที่ และไฟล์ทั้งหมดของคุณจะถูกลบอย่างถาวร การดำเนินการนี้ไม่สามารถยกเลิกได้',
+    'บัญชีของคุณและทริป บันทึกการเดินทาง สถานที่ และไฟล์ทั้งหมดที่คุณเป็นเจ้าของจะถูกลบถาวร รวมถึงทริปที่แชร์กับสมาชิกคนอื่น ซึ่งสมาชิกเหล่านั้นจะเข้าถึงไม่ได้อีก ทริปที่คนอื่นเป็นเจ้าของจะยังอยู่ และคุณจะถูกนำออกจากทริปเหล่านั้น การดำเนินการนี้ไม่สามารถย้อนกลับได้',
   'settings.deleteAccountConfirm': 'ลบอย่างถาวร',
   'settings.deleteBlockedTitle': 'ไม่สามารถลบได้',
   'settings.deleteBlockedMessage':
@@ -347,7 +347,7 @@ const settings: TranslationStrings = {
   'settings.mfa.demoBlocked': 'ไม่สามารถใช้ได้ในโหมดสาธิต',
   'settings.currency': 'แสดงสกุลเงิน',
   'settings.currencyHint':
-    'จำนวนเงินในต้นทุนจะแสดงแปลงเป็นสกุลเงินนี้เพื่อแสดงเท่านั้น — จำนวนเงินเดิมไม่มีการเปลี่ยนแปลง',
+    'จำนวนเงินในต้นทุนจะแสดงแปลงเป็นสกุลเงินนี้เพื่อแสดงเท่านั้น; จำนวนเงินเดิมไม่มีการเปลี่ยนแปลง',
   'settings.currencyTrip': 'สกุลเงินการเดินทาง',
   'settings.placeLanguage': 'ชื่อสถานที่',
   'settings.placeLanguageApp': 'เหมือนกับแอป',
@@ -513,10 +513,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.force': 'บังคับโหมดออฟไลน์',
   'settings.offline.mode.forceHint':
     'ทำงานจากข้อมูลแคชเท่านั้นและจัดคิวการเปลี่ยนแปลงของคุณ ปิดเพื่อเชื่อมต่อและซิงค์อีกครั้ง',
-  'settings.offline.mode.active': 'โหมดออฟไลน์เปิดอยู่ — การเปลี่ยนแปลงของคุณอยู่ในคิวและจะซิงค์เมื่อคุณปิด',
+  'settings.offline.mode.active': 'โหมดออฟไลน์เปิดอยู่: การเปลี่ยนแปลงของคุณอยู่ในคิวและจะซิงค์เมื่อคุณปิด',
   'settings.offline.prepare.title': 'เตรียมความพร้อมสำหรับออฟไลน์',
   'settings.offline.prepare.hint':
-    'ดาวน์โหลดทุกสิ่งที่คุณต้องการ - ข้อมูลการเดินทาง เอกสาร และไทล์แผนที่ - ก่อนที่คุณจะขาดการเชื่อมต่อ',
+    'ดาวน์โหลดทุกสิ่งที่คุณต้องการ (ข้อมูลการเดินทาง เอกสาร และไทล์แผนที่) ก่อนที่คุณจะขาดการเชื่อมต่อ',
   'settings.offline.prepare.button': 'ดาวน์โหลดเพื่อใช้แบบออฟไลน์',
   'settings.offline.prepare.running': 'กำลังดาวน์โหลด...',
   'settings.offline.prepare.done': 'พร้อมสำหรับการใช้งานแบบออฟไลน์',
@@ -573,7 +573,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'แสดงเส้นทางการจองเสมอ',
   'settings.alwaysShowRoutesHint':
     'วาดเส้นทางโดยอัตโนมัติสำหรับทุกเที่ยวบิน รถไฟ และการจองอื่นๆ บนแผนที่ โดยไม่จำเป็นต้องเปิดเส้นทางต่อรายการ',
-
   // Public API keys (Settings -> Integrations)
   'settings.apiKeys.title': 'คีย์ API',
   'settings.apiKeys.description':
@@ -591,7 +590,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.docsHint': 'ส่งคีย์เป็น "Authorization: Bearer ..." หรือ "X-API-Key: ..." ไปที่ /api/v1',
   'settings.apiKeys.modal.createTitle': 'สร้างคีย์ API',
   'settings.apiKeys.modal.name': 'ชื่อ',
-  'settings.apiKeys.modal.namePlaceholder': 'เช่น ดาวาริช',
+  'settings.apiKeys.modal.namePlaceholder': 'เช่น แดชบอร์ดที่บ้าน',
   'settings.apiKeys.modal.nameHint': 'สำหรับคุณเท่านั้น ดังนั้นคุณจะจำกุญแจได้ในภายหลัง',
   'settings.apiKeys.modal.creating': 'กำลังสร้าง...',
   'settings.apiKeys.modal.create': 'สร้าง',
@@ -630,6 +629,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.limitReached':
     'คุณมีคีย์ {count} อัน ซึ่งเป็นจำนวนสูงสุดที่บัญชีหนึ่งมีได้ ลบคีย์ที่ไม่ได้ใช้ออกเพื่อสร้างคีย์ใหม่',
   'settings.apiKeys.copyFailed': 'ไม่สามารถคัดลอกได้ เลือกข้อความและคัดลอกด้วยตนเอง',
+  'settings.mcp.deprecated': 'เลิกใช้แล้ว',
+  'settings.offline.cache.dateRange': '{start} ถึง {end}',
 };
 
 export default settings;

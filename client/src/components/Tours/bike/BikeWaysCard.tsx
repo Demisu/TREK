@@ -1,3 +1,4 @@
+import type { BikeProfile } from '@trek/shared';
 import { AlertTriangle, Layers, Loader2, RefreshCw, WifiOff } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from '../../../i18n';
@@ -141,34 +142,38 @@ function UnpavedNotice({ ways }: { ways: RouteWays }) {
   );
 }
 
+/** What the card reads: a tour's own line, whether it is current, and the profile that decides the extras. */
+export interface BikeWaysSubject {
+  tripId: number | string;
+  route: [number, number][] | null;
+  bikeProfile: BikeProfile | null | undefined;
+  /** False while there is no bike tour to read, or the editor is not open on one. */
+  active: boolean;
+}
+
 /**
- * BIK-01 to BIK-05: what the bike tour being planned runs on, its surfaces and
- * its kinds of way, and on a mountain bike tour the trail grades. Read off the
- * router's description of the route as OpenStreetMap maps it; where the data
- * says nothing the card says unknown. Nothing here changes the tour.
+ * BIK-01 to BIK-05: what a bike tour runs on, its surfaces and its kinds of
+ * way, and on a mountain bike tour the trail grades. Read off the router's
+ * description of the route as OpenStreetMap maps it; where the data says
+ * nothing the card says unknown. Nothing here changes the tour. The editor's
+ * card and the tour's detail card on the Plan tab are this same view.
  */
-export function BikeWaysCard({ planner }: { planner: TourPlannerController }) {
+export function BikeWaysView({ tripId, route, bikeProfile, active }: BikeWaysSubject) {
   const { t } = useTranslation();
-  const editing = planner.mode.type === 'new-draft' || planner.mode.type === 'edit-saved';
-  const route = planner.routeCurrent ? planner.route : null;
-  const state = useRouteWays({
-    tripId: planner.tripId,
-    active: planner.isBike && editing,
-    route,
-    matching: 'bike',
-    withGrades: planner.bikeProfile === 'mtb',
-  });
+  const state = useRouteWays({ tripId, active, route, matching: 'bike', withGrades: bikeProfile === 'mtb' });
   const { ways } = state;
   const unpaved = useMemo(() => (ways ? unpavedShareOf(ways) : null), [ways]);
-  if (!planner.isBike || !editing || state.status === 'idle') return null;
+  if (!active || state.status === 'idle') return null;
   return (
     <RailCard
       icon={<Layers size={14} strokeWidth={2} />}
       title={t('tours.bike.ways.title')}
       foldId="bike-ways"
       aside={
-        unpaved ? (
-          <SoftPill tone="warning">{t('tours.bike.ways.unpavedBadge', { share: percent(unpaved) })}</SoftPill>
+        unpaved !== null ? (
+          <SoftPill tone={unpaved > 0 ? 'warning' : 'neutral'}>
+            {t('tours.bike.ways.unpavedBadge', { share: percent(unpaved) })}
+          </SoftPill>
         ) : undefined
       }
     >
@@ -176,7 +181,7 @@ export function BikeWaysCard({ planner }: { planner: TourPlannerController }) {
         <RouteWaysProgress state={state} />
         {ways && (
           <>
-            {planner.bikeProfile === 'road' && <UnpavedNotice ways={ways} />}
+            {bikeProfile === 'road' && <UnpavedNotice ways={ways} />}
             <SurfaceSection ways={ways} />
             <WaySection ways={ways} />
             {state.grades && <TrailSection ways={ways} grades={state.grades} onRetry={state.retry} />}
@@ -185,5 +190,18 @@ export function BikeWaysCard({ planner }: { planner: TourPlannerController }) {
         )}
       </div>
     </RailCard>
+  );
+}
+
+/** The planner rail's card: the tour being edited, its line once it is current. */
+export function BikeWaysCard({ planner }: { planner: TourPlannerController }) {
+  const editing = planner.mode.type === 'new-draft' || planner.mode.type === 'edit-saved';
+  return (
+    <BikeWaysView
+      tripId={planner.tripId}
+      route={planner.routeCurrent ? planner.route : null}
+      bikeProfile={planner.bikeProfile}
+      active={planner.isBike && editing}
+    />
   );
 }

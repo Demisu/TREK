@@ -48,12 +48,11 @@ import TrackColorPicker from '../shared/TrackColorPicker';
 import { markdownLinkComponents } from '../shared/markdownLink';
 import { TourDayRowAvatar } from './TourDayRowFacts';
 import { TourGpxExportButton } from './TourGpxExportButton';
+import { TourTypeSections } from './TourTypeSections';
 import TourActivitySection from './activity/TourActivitySection';
 import type { PlanValues } from './activity/planComparison';
 import { TourSaveToCollectionButton } from './collection/TourSaveToCollectionButton';
 import { TourPackingSection } from './packing/TourPackingSection';
-import { PaddleCheckSection } from './paddle/PaddleCheckSection';
-import { PaddleWindSection } from './paddle/PaddleWindCard';
 import { TourProvenanceBlock } from './provenance/TourProvenanceSection';
 import { RunHeadPills } from './run/RunHeadPills';
 import { SkiHeadPill } from './ski/skiMarks';
@@ -74,10 +73,10 @@ import {
   tourWebsitePresentation,
   type TourPlannedTimes,
 } from './tourPresentation';
+import { tourShareFactsOf } from './tourShareText';
 import { useTourDayAssignment } from './useTourDayAssignment';
 import { useTourPermissions, type TourPermissionProps } from './useTourPermissions';
 import { WalkRoutePendingHint } from './walk/WalkRoutePending';
-import { WalkStationsCard } from './walk/WalkStations';
 import { walkTimeFields } from './walk/walkTimeFields';
 
 interface TourDetailDialogProps extends TourPermissionProps {
@@ -183,11 +182,6 @@ function TourDetailMeasures({
       )}
     </div>
   );
-}
-
-/** Where a tour starts, the place its wind is asked for (PAD-08). */
-function placeStart(place: Place): { lat: number; lng: number } | null {
-  return place.lat != null && place.lng != null ? { lat: place.lat, lng: place.lng } : null;
 }
 
 type Translate = (key: string, params?: Record<string, unknown>) => string;
@@ -682,7 +676,13 @@ export default function TourDetailDialog({
       {/* A tour written here offline has no server copy to export until it syncs. */}
       {analysis && place.id > 0 && (
         <TourGpxExportButton
-          target={{ tripId: place.trip_id, placeId: place.id, name: place.name, revision: tour.revision }}
+          target={{
+            tripId: place.trip_id,
+            placeId: place.id,
+            name: place.name,
+            revision: tour.revision,
+            facts: tourShareFactsOf(tour, analysis),
+          }}
         />
       )}
       {place.id > 0 && (
@@ -702,6 +702,7 @@ export default function TourDetailDialog({
 
   return (
     <DetailShell
+      testId="tour-detail"
       header={header}
       footer={footer}
       onClose={onClose}
@@ -746,19 +747,16 @@ export default function TourDetailDialog({
           placeId={place.id}
         />
       )}
-      {tour.tour_type === 'walk' && (
-        <WalkStationsCard
-          tour={tour}
-          tripId={place.trip_id}
-          assignment={assignment}
-          canMark={canAssign}
-          days={days}
-          assignments={assignments}
-          route={analysis?.routeCoordinates ?? null}
-        />
-      )}
-      {tour.tour_type === 'kayak' && <PaddleCheckSection tour={tour} />}
-      {tour.tour_type === 'kayak' && <PaddleWindSection placeId={place.id} start={placeStart(place)} />}
+      <TourTypeSections
+        tour={tour}
+        place={place}
+        assignment={assignment}
+        canAssign={canAssign}
+        days={days}
+        assignments={assignments}
+        route={analysis?.routeCoordinates ?? null}
+        measured={!!analysis}
+      />
       {/* A tour written here offline has no server copy to assign a recording to until it syncs. */}
       {place.id > 0 && (
         <TourActivitySection

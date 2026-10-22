@@ -533,7 +533,7 @@ export default function MCollections() {
 
       <MCollListPickerSheet
         mode={c.listPickerMode}
-        lists={c.ownedLists.filter(l => l.id !== c.activeId)}
+        lists={c.writableLists.filter(l => l.id !== c.activeId)}
         count={c.selectedIds.length}
         onPick={id => (c.listPickerMode === 'move' ? c.handleMoveToList(id) : c.handleDuplicateToList(id))}
         onClose={() => c.setListPickerMode(null)}

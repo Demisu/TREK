@@ -221,6 +221,7 @@ const budget: TranslationStrings = {
   'costs.receiptsNeedConnection':
     'Účtenky potrebujú na nahratie pripojenie. Odstráňte nové, aby ste výdavok uložili offline, alebo uložte, keď budete znova online.',
   'costs.paymentQueued': 'Ste offline. Platba je uložená a zobrazí sa, keď bude TREK znova online.',
+  'costs.confirm.deleteBodyReceipts': '"{name}" bude natrvalo odstránené. Súbory jeho dokladov zostanú v Súboroch.',
 };
 
 export default budget;

@@ -15,7 +15,7 @@ const wanderer: TranslationStrings = {
   'wanderer.test.button': 'Test connection',
   'wanderer.test.ok': 'Connected.',
   'wanderer.test.okCount': 'Connected. You can import {count} of your trails.',
-  'wanderer.test.okCount.one': 'Connected. You can import {count} of your trails.',
+  'wanderer.test.okCount.one': 'Connected. You can import {count} trail.',
   'wanderer.disconnect': 'Disconnect',
   'wanderer.saved': 'wanderer connection saved',
   'wanderer.disconnected': 'wanderer connection removed',

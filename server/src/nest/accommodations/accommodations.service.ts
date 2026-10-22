@@ -808,6 +808,16 @@ export class AccommodationsService {
     return await this.dayAccommodationsRepo.findInTrip(idNum, tripIdNum);
   }
 
+  /**
+   * Writes a stay's times and confirmation number onto one linked booking. A number
+   * also confirms the booking when it was still pending, and that has to come after
+   * the write, so both steps stay together here for each booking.
+   */
+  private async syncLinkedReservation(id: number, metadata: string, confirmation: string | null): Promise<void> {
+    await this.reservationsRepo.setMetadataAndConfirmation(id, metadata, confirmation);
+    if (confirmation) await this.reservationsRepo.confirmIfPending(id);
+  }
+
   async updateAccommodation(
     id: string | number,
     existing: DayAccommodation,
@@ -862,11 +872,7 @@ export class AccommodationsService {
         if (newCheckIn) meta.check_in_time = newCheckIn;
         if (newCheckInEnd) meta.check_in_end_time = newCheckInEnd;
         if (newCheckOut) meta.check_out_time = newCheckOut;
-        await this.reservationsRepo.setMetadataAndConfirmation(
-          res.id,
-          encodeJson(RESERVATION_METADATA, meta),
-          newConfirmation || null,
-        );
+        await this.syncLinkedReservation(res.id, encodeJson(RESERVATION_METADATA, meta), newConfirmation || null);
       }
       return moved;
     });

@@ -502,7 +502,7 @@ describe('AdminSettingsTab', () => {
     render(<OidcHarness />);
     const oidc = card(/single sign-on/i);
 
-    fireEvent.change(within(oidc).getByPlaceholderText('z.B. Google, Authentik, Keycloak'), {
+    fireEvent.change(within(oidc).getByPlaceholderText('e.g. Google, Authentik, Keycloak'), {
       target: { value: 'Authentik' },
     });
     fireEvent.change(within(oidc).getByPlaceholderText('https://accounts.google.com'), {

@@ -129,7 +129,7 @@ export class TripMembersService {
         actorId: actor.id,
         scope: 'user',
         targetId: targetUserId,
-        params: { trip: tripTitle, actor: actor.email, invitee: inviteeEmail, tripId: String(tripId) },
+        params: { trip: tripTitle, actor: actor.username, invitee: inviteeEmail, tripId: String(tripId) },
       })
       .catch(() => {});
   }

@@ -176,7 +176,7 @@ const settings: TranslationStrings = {
   'settings.mcp.clientConfigHint':
     'Thay thế <your_token> bằng mã thông báo API từ danh sách bên dưới. Đường dẫn đến npx có thể cần được điều chỉnh cho hệ thống của bạn (ví dụ: C:\\PROGRA~1\\nodejs\\npx.cmd trên Windows).',
   'settings.mcp.clientConfigHintOAuth':
-    'Thay thế <your_client_id> và <your_client_secret> bằng thông tin xác thực được hiển thị trong ứng dụng khách OAuth 2.1 mà bạn đã tạo ở trên. mcp-remote sẽ mở trình duyệt của bạn để hoàn tất việc ủy ​​quyền vào lần đầu tiên bạn kết nối. Đường dẫn đến npx có thể cần được điều chỉnh cho hệ thống của bạn (ví dụ: C:PROGRA~1\nodejs\npx.cmd trên Windows).',
+    'Thay thế <your_client_id> và <your_client_secret> bằng thông tin xác thực được hiển thị trong ứng dụng khách OAuth 2.1 mà bạn đã tạo ở trên. mcp-remote sẽ mở trình duyệt của bạn để hoàn tất việc ủy ​​quyền vào lần đầu tiên bạn kết nối. Đường dẫn đến npx có thể cần được điều chỉnh cho hệ thống của bạn (ví dụ: C:\\PROGRA~1\\nodejs\\npx.cmd trên Windows).',
   'settings.mcp.copy': 'Sao chép',
   'settings.mcp.copied': 'Đã sao chép!',
   'settings.mcp.apiTokens': 'API Mã thông báo',
@@ -194,7 +194,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Tạo mã thông báo',
   'settings.mcp.modal.createdTitle': 'Đã tạo mã thông báo',
   'settings.mcp.modal.createdWarning':
-    'Mã thông báo này sẽ chỉ được hiển thị một lần. Sao chép và lưu trữ ngay bây giờ - không thể phục hồi được.',
+    'Mã thông báo này sẽ chỉ được hiển thị một lần. Sao chép và lưu trữ ngay bây giờ: không thể phục hồi được.',
   'settings.mcp.modal.done': 'Xong',
   'settings.mcp.toast.created': 'Đã tạo mã thông báo',
   'settings.mcp.toast.createError': 'Không tạo được mã thông báo',
@@ -236,14 +236,14 @@ const settings: TranslationStrings = {
     'Một URI trên mỗi dòng. HTTPS, HTTP loopback hoặc lược đồ ứng dụng riêng (myapp://). Đối sánh chính xác, ngoại trừ cổng của URI loopback.',
   'settings.oauth.modal.scopes': 'Phạm vi được phép',
   'settings.oauth.modal.scopesHint':
-    'list_trips và get_trip_summary luôn có sẵn — không yêu cầu phạm vi. Họ cho phép AI khám phá ID chuyến đi cần thiết để sử dụng bất kỳ công cụ nào khác.',
+    'list_trips và get_trip_summary luôn có sẵn: không yêu cầu phạm vi. Họ cho phép AI khám phá ID chuyến đi cần thiết để sử dụng bất kỳ công cụ nào khác.',
   'settings.oauth.modal.selectAll': 'Chọn tất cả',
   'settings.oauth.modal.deselectAll': 'Bỏ chọn tất cả',
   'settings.oauth.modal.creating': 'Đang đăng ký…',
   'settings.oauth.modal.create': 'Đăng ký khách hàng',
   'settings.oauth.modal.createdTitle': 'Khách hàng đã đăng ký',
   'settings.oauth.modal.createdWarning':
-    'Bí mật của khách hàng chỉ được hiển thị một lần. Sao chép nó ngay bây giờ - nó không thể phục hồi được.',
+    'Bí mật của khách hàng chỉ được hiển thị một lần. Sao chép nó ngay bây giờ: nó không thể phục hồi được.',
   'settings.oauth.toast.createError': 'Không thể đăng ký ứng dụng khách OAuth',
   'settings.oauth.toast.deleted': 'OAuth khách hàng đã bị xóa',
   'settings.oauth.toast.deleteError': 'Không xóa được ứng dụng khách OAuth',
@@ -311,7 +311,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Xóa tài khoản',
   'settings.deleteAccountTitle': 'Xóa tài khoản của bạn?',
   'settings.deleteAccountWarning':
-    'Tài khoản của bạn và tất cả các chuyến đi, địa điểm và tệp của bạn sẽ bị xóa vĩnh viễn. Không thể hoàn tác hành động này.',
+    'Tài khoản của bạn và mọi chuyến đi, nhật ký, địa điểm và tệp bạn sở hữu sẽ bị xóa vĩnh viễn, kể cả các chuyến đi chia sẻ với thành viên khác, những người này sẽ mất quyền truy cập. Các chuyến đi do người khác sở hữu vẫn được giữ lại và bạn sẽ bị gỡ khỏi đó. Không thể hoàn tác thao tác này.',
   'settings.deleteAccountConfirm': 'Xóa vĩnh viễn',
   'settings.deleteBlockedTitle': 'Không thể xóa',
   'settings.deleteBlockedMessage':
@@ -358,7 +358,7 @@ const settings: TranslationStrings = {
   'settings.mfa.demoBlocked': 'Không có sẵn ở chế độ demo',
   'settings.currency': 'Tiền tệ hiển thị',
   'settings.currencyHint':
-    'Số tiền trong Chi phí chỉ được quy đổi sang loại tiền tệ này để hiển thị — số tiền gốc không thay đổi.',
+    'Số tiền trong Chi phí chỉ được quy đổi sang loại tiền tệ này để hiển thị; số tiền gốc không thay đổi.',
   'settings.currencyTrip': 'Tiền tệ của chuyến đi',
   'settings.placeLanguage': 'Tên địa điểm',
   'settings.placeLanguageApp': 'Giống ứng dụng',
@@ -366,7 +366,7 @@ const settings: TranslationStrings = {
     'Ngôn ngữ dùng cho tìm kiếm địa điểm, gợi ý và địa chỉ. Nếu địa điểm không có tên bằng ngôn ngữ đó, tên địa phương sẽ được hiển thị.',
   'settings.passkey.title': 'Mật mã',
   'settings.passkey.description':
-    'Đăng nhập nhanh hơn và chống lừa đảo bằng mật mã — vân tay, khuôn mặt, PIN hoặc khóa phần cứng của bạn. Mật khẩu của bạn vẫn là bản sao lưu.',
+    'Đăng nhập nhanh hơn và chống lừa đảo bằng mật mã: vân tay, khuôn mặt, PIN hoặc khóa phần cứng của bạn. Mật khẩu của bạn vẫn là bản sao lưu.',
   'settings.passkey.notConfigured':
     'Mật mã đã được bật nhưng chưa được định cấu hình đầy đủ trên máy chủ này. Hãy yêu cầu quản trị viên của bạn đặt miền WebAuthn.',
   'settings.passkey.add': 'Thêm mật mã',
@@ -527,10 +527,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Chỉ làm việc với dữ liệu trong bộ nhớ đệm và đưa các thay đổi của bạn vào hàng đợi. Tắt để kết nối lại và đồng bộ hóa.',
   'settings.offline.mode.active':
-    'Chế độ ngoại tuyến đang bật — các thay đổi của bạn đã được đưa vào hàng đợi và sẽ đồng bộ hóa khi bạn tắt nó.',
+    'Chế độ ngoại tuyến đang bật: các thay đổi của bạn đã được đưa vào hàng đợi và sẽ đồng bộ hóa khi bạn tắt nó.',
   'settings.offline.prepare.title': 'Chuẩn bị cho ngoại tuyến',
   'settings.offline.prepare.hint':
-    'Tải xuống mọi thứ bạn cần — dữ liệu chuyến đi, tài liệu và ô bản đồ — trước khi bạn mất kết nối.',
+    'Tải xuống mọi thứ bạn cần (dữ liệu chuyến đi, tài liệu và ô bản đồ) trước khi bạn mất kết nối.',
   'settings.offline.prepare.button': 'Tải xuống để dùng ngoại tuyến',
   'settings.offline.prepare.running': 'Đang tải xuống…',
   'settings.offline.prepare.done': 'Sẵn sàng dùng ngoại tuyến',
@@ -598,7 +598,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'Luôn hiển thị tuyến đường đặt chỗ',
   'settings.alwaysShowRoutesHint':
     'Tự động hiển thị trên bản đồ tuyến đường của mỗi chuyến bay, tàu hỏa và đặt chỗ khác, không cần bật riêng từng mục.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Khóa này được phép đọc gì',
@@ -638,7 +637,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Không thể sao chép. Hãy chọn đoạn văn bản và sao chép thủ công.',
   'settings.apiKeys.modal.createTitle': 'Tạo khóa API',
   'settings.apiKeys.modal.name': 'Tên',
-  'settings.apiKeys.modal.namePlaceholder': 'ví dụ Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'ví dụ: Bảng điều khiển ở nhà',
   'settings.apiKeys.modal.nameHint': 'Chỉ dành cho bạn, để nhận ra khóa này về sau.',
   'settings.apiKeys.modal.creating': 'Đang tạo...',
   'settings.apiKeys.modal.create': 'Tạo',
@@ -646,6 +645,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Hãy sao chép khóa ngay. Khóa chỉ hiện một lần và không thể lấy lại sau này.',
   'settings.apiKeys.modal.done': 'Xong',
+  'settings.mcp.deprecated': 'Không còn được khuyến nghị',
+  'settings.offline.cache.dateRange': '{start} đến {end}',
 };
 
 export default settings;

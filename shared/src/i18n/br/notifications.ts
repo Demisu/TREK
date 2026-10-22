@@ -34,5 +34,7 @@ const notifications: TranslationStrings = {
   'notifications.versionAvailable.title': 'Atualização disponível',
   'notifications.versionAvailable.text': 'TREK {version} já está disponível.',
   'notifications.versionAvailable.button': 'Ver detalhes',
+  'notifications.deleteAllConfirmTitle': 'Excluir todas as notificações?',
+  'notifications.deleteAllConfirmText': 'Todas as notificações serão removidas de vez. Isso não pode ser desfeito.',
 };
 export default notifications;

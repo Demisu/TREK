@@ -1039,6 +1039,9 @@ describe('CollabNotes', () => {
     if (xButtons.length > 1) {
       // Click the last X button which should be the file delete
       await user.click(xButtons[xButtons.length - 1] as HTMLElement);
+      // Taking the file off only marks it; the delete goes out with Save.
+      expect(deleteCalled).toBe(false);
+      await user.click(screen.getByRole('button', { name: 'Save' }));
       await waitFor(() => expect(deleteCalled).toBe(true));
     }
   });
@@ -1626,12 +1629,16 @@ describe('CollabNotes details', () => {
     });
     server.use(
       http.delete('/api/trips/1/collab/notes/3/files/9', () => new HttpResponse(null, { status: 500 })),
+      // The removal goes out after the note's own save, so that save has to succeed first.
+      http.put('/api/trips/1/collab/notes/3', () => HttpResponse.json({ note: buildNote({ id: 3, title: 'Has file' }) })),
     );
     render(<CollabNotes {...defaultProps} />);
     await screen.findByText('Has file');
     await noteAction(user, 'Edit');
     const chip = (await screen.findByText('plan.pdf')).closest('div')!;
     await user.click(chip.querySelector('button')!);
+    // Taking the file off only marks it; the removal goes out with Save.
+    await user.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(addToast).toHaveBeenCalledWith('Error', 'error', undefined));
     expect(filesChanged).toBe(1);
   });

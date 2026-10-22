@@ -122,7 +122,7 @@ export default function MFilesTab({ planner, shell }: MTabScreenProps) {
       await fileRepo.toggleStar(planner.tripId, file.id)
       planner.tripActions.loadFiles(planner.tripId)
     } catch {
-      planner.toast.error(t('files.toast.assignError'))
+      planner.toast.error(t('files.toast.starError'))
     }
   }
 
@@ -293,7 +293,7 @@ function FileRow({ file, planner, onOpen, onStar, onMenu }: {
         </div>
       </button>
 
-      <button
+      {planner.can('file_edit', planner.trip) && <button
         type="button"
         onClick={e => { e.stopPropagation(); onStar() }}
         aria-label={starred ? t('files.unstar') : t('files.star')}
@@ -302,7 +302,7 @@ function FileRow({ file, planner, onOpen, onStar, onMenu }: {
         }`}
       >
         <Star size={13} strokeWidth={2.4} fill={starred ? 'currentColor' : 'none'} />
-      </button>
+      </button>}
       <button
         type="button"
         onClick={e => { e.stopPropagation(); onMenu() }}

@@ -127,7 +127,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.creating': '创建中…',
   'settings.mcp.modal.create': '创建令牌',
   'settings.mcp.modal.createdTitle': '令牌已创建',
-  'settings.mcp.modal.createdWarning': '此令牌只会显示一次，请立即复制并妥善保存——无法找回。',
+  'settings.mcp.modal.createdWarning': '此令牌只会显示一次，请立即复制并妥善保存：无法找回。',
   'settings.mcp.modal.done': '完成',
   'settings.mcp.toast.created': '令牌已创建',
   'settings.mcp.toast.createError': '创建令牌失败',
@@ -167,13 +167,13 @@ const settings: TranslationStrings = {
     '每行一个 URI。支持 HTTPS、回环 HTTP 或自定义应用协议（myapp://）。要求精确匹配，回环 URI 的端口除外。',
   'settings.oauth.modal.scopes': '允许的权限范围',
   'settings.oauth.modal.scopesHint':
-    'list_trips 和 get_trip_summary 始终可用——无需权限范围。它们帮助 AI 发现所需的行程 ID。',
+    'list_trips 和 get_trip_summary 始终可用：无需权限范围。它们帮助 AI 发现所需的行程 ID。',
   'settings.oauth.modal.selectAll': '全选',
   'settings.oauth.modal.deselectAll': '取消全选',
   'settings.oauth.modal.creating': '注册中…',
   'settings.oauth.modal.create': '注册客户端',
   'settings.oauth.modal.createdTitle': '客户端已注册',
-  'settings.oauth.modal.createdWarning': '客户端密钥仅显示一次。请立即复制——无法恢复。',
+  'settings.oauth.modal.createdWarning': '客户端密钥仅显示一次。请立即复制：无法恢复。',
   'settings.oauth.toast.createError': '注册 OAuth 客户端失败',
   'settings.oauth.toast.deleted': 'OAuth 客户端已删除',
   'settings.oauth.toast.deleteError': '删除 OAuth 客户端失败',
@@ -239,7 +239,8 @@ const settings: TranslationStrings = {
   'settings.passwordChanged': '密码修改成功',
   'settings.deleteAccount': '删除账户',
   'settings.deleteAccountTitle': '确定删除账户？',
-  'settings.deleteAccountWarning': '你的账户以及所有旅行、地点和文件将被永久删除。此操作无法撤销。',
+  'settings.deleteAccountWarning':
+    '你的账号以及你拥有的所有行程、日志、地点和文件将被永久删除，包括与其他成员共享的行程，这些成员将失去访问权限。他人拥有的行程会保留，你会被移出这些行程。此操作无法撤销。',
   'settings.deleteAccountConfirm': '永久删除',
   'settings.deleteBlockedTitle': '无法删除',
   'settings.deleteBlockedMessage': '你是唯一的管理员。请先将其他用户提升为管理员，然后再删除账户。',
@@ -336,7 +337,7 @@ const settings: TranslationStrings = {
   'settings.placeLanguageHint': '地点搜索、建议和地址所使用的语言。如果某个地点没有该语言的名称，则显示其当地名称。',
   'settings.passkey.title': '通行密钥',
   'settings.passkey.description':
-    '使用通行密钥更快登录，并能抵御钓鱼攻击——通过指纹、面容、PIN 或硬件密钥验证。你的密码仍可作为备用方式。',
+    '使用通行密钥更快登录，并能抵御钓鱼攻击：通过指纹、面容、PIN 或硬件密钥验证。你的密码仍可作为备用方式。',
   'settings.passkey.notConfigured': '通行密钥已启用，但此服务器尚未完成完整配置。请联系管理员设置 WebAuthn 域名。',
   'settings.passkey.add': '添加通行密钥',
   'settings.passkey.addTitle': '添加通行密钥',
@@ -486,9 +487,9 @@ const settings: TranslationStrings = {
   'settings.offline.mode.title': '离线模式',
   'settings.offline.mode.force': '强制离线模式',
   'settings.offline.mode.forceHint': '仅使用缓存数据工作，并将你的更改排入队列。关闭以重新连接并同步。',
-  'settings.offline.mode.active': '离线模式已开启——你的更改已排入队列，将在你关闭它时同步。',
+  'settings.offline.mode.active': '离线模式已开启：你的更改已排入队列，将在你关闭它时同步。',
   'settings.offline.prepare.title': '为离线做准备',
-  'settings.offline.prepare.hint': '在失去连接之前，下载你所需的一切——行程数据、文档和地图瓦片。',
+  'settings.offline.prepare.hint': '在失去连接之前，下载你所需的一切：行程数据、文档和地图瓦片。',
   'settings.offline.prepare.button': '下载以供离线使用',
   'settings.offline.prepare.running': '下载中…',
   'settings.offline.prepare.done': '已可离线使用',
@@ -550,7 +551,6 @@ const settings: TranslationStrings = {
   'settings.pluginActivity.columns.status': '结果',
   'settings.alwaysShowRoutes': '始终显示预订路线',
   'settings.alwaysShowRoutesHint': '自动在地图上显示每个航班、火车和其他预订的路线,无需逐个手动开启。',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': '此密钥可读取的内容',
@@ -588,13 +588,15 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': '无法复制。请选中文本后手动复制。',
   'settings.apiKeys.modal.createTitle': '创建 API 密钥',
   'settings.apiKeys.modal.name': '名称',
-  'settings.apiKeys.modal.namePlaceholder': '例如 Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': '例如 家庭仪表板',
   'settings.apiKeys.modal.nameHint': '仅供你自己识别，方便日后辨认这个密钥。',
   'settings.apiKeys.modal.creating': '创建中...',
   'settings.apiKeys.modal.create': '创建',
   'settings.apiKeys.modal.createdTitle': 'API 密钥已创建',
   'settings.apiKeys.modal.createdWarning': '请立即复制密钥。它只显示一次，之后无法再次获取。',
   'settings.apiKeys.modal.done': '完成',
+  'settings.mcp.deprecated': '已弃用',
+  'settings.offline.cache.dateRange': '{start} 至 {end}',
 };
 
 export default settings;

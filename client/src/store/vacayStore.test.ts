@@ -423,3 +423,12 @@ describe('vacayStore year selection', () => {
     expect(useVacayStore.getState().selectedYear).toBe(current);
   });
 });
+
+describe('incoming fusion invites', () => {
+  it('FE-STORE-VCY-INV-001: the plan response username becomes owner_username', async () => {
+    const { normalizeIncomingInvites } = await import('./vacayStore');
+    expect(normalizeIncomingInvites([{ id: 1, plan_id: 7, username: 'Ada', email: 'a@x.y', created_at: null }]))
+      .toEqual([{ plan_id: 7, owner_username: 'Ada' }]);
+    expect(normalizeIncomingInvites(undefined)).toEqual([]);
+  });
+});

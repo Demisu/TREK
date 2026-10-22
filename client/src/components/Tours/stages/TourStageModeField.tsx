@@ -47,7 +47,7 @@ export function TourStageModeField({ planner, locked }: { planner: TourPlannerCo
         />
       </fieldset>
       {stages.multiDay && stages.endCount === 0 && (
-        <TourNotice role="status" icon={<Moon size={13} strokeWidth={2} />}>
+        <TourNotice tone="warning" role="status" icon={<Moon size={13} strokeWidth={2} />}>
           {t('tours.stages.emptyHint')}
         </TourNotice>
       )}

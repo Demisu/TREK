@@ -227,5 +227,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'Ο αριθμός ημερών είναι υποχρεωτικός',
   'dashboard.tripChangeNeedsConnection':
     'Η αλλαγή ημερομηνιών, αριθμού ημερών, νομίσματος ή εξωφύλλου χρειάζεται σύνδεση. Το όνομα, η περιγραφή και η υπενθύμιση αλλάζουν και εκτός σύνδεσης.',
+  'dashboard.ics.enable': 'Ενεργοποίηση συνδρομής ημερολογίου',
+  'dashboard.ics.enableHint':
+    'Δημιουργεί έναν μυστικό σύνδεσμο που μπορεί να διαβάσει οποιοσδήποτε τον έχει, χωρίς σύνδεση. Μπορείτε να τον απενεργοποιήσετε οποιαδήποτε στιγμή.',
+  'dashboard.ics.regenerate': 'Επαναδημιουργία',
+  'dashboard.ics.turnOff': 'Απενεργοποίηση',
+  'dashboard.ics.manageHint':
+    'Η επαναδημιουργία φτιάχνει νέο σύνδεσμο και ακυρώνει τον παλιό. Η απενεργοποίηση καταργεί εντελώς τον σύνδεσμο.',
+  'dashboard.ics.addGoogle': 'Προσθήκη στο Ημερολόγιο Google',
+  'dashboard.ics.addApple': 'Προσθήκη στο Ημερολόγιο Apple / Outlook',
+  'dashboard.ics.copyManually': 'Ή αντιγράψτε έναν σύνδεσμο χειροκίνητα',
+  'dashboard.ics.pasteFromUrl': 'επικολλήστε στο «Από URL»',
 };
 export default dashboard;

@@ -28,6 +28,7 @@ vi.mock('../../store/settingsStore', () => ({ useSettingsStore: (selector: (stor
 vi.mock('../Map/MapViewAuto', () => ({ MapViewAuto: () => null }))
 vi.mock('../../repo/tourRepo', () => ({ tourRepo: { importGpx: state.importGpx, previewGpx: state.previewGpx, create: state.create, update: state.update, detail: state.detail } }))
 vi.mock('../../repo/tourPackingLinkRepo', () => ({ tourPackingLinkRepo: { read: () => Promise.resolve(null), link: vi.fn(), unlink: vi.fn() } }))
+vi.mock('../../repo/tourDraftRepo', () => ({ tourDraftRepo: { read: () => Promise.resolve(null), keep: vi.fn(), flush: vi.fn(), forget: () => Promise.resolve() } }))
 vi.mock('./planner/tourRouting', () => ({ routeWalkingTour: state.route, enrichTourElevations: state.elevation }))
 vi.mock('../../i18n', () => ({ useTranslation: () => ({ t: (key: string) => key, locale: 'en' }), translateApiError: () => 'error' }))
 vi.mock('../shared/Toast', () => ({ useToast: () => ({ success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn() }) }))

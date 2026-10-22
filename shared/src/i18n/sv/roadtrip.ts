@@ -248,8 +248,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Undvikandemotorn svarade inte för den här sträckan, så huvudmotorn ritade den. Undvikandemotorn tillfrågas igen.',
   'roadtrip.day': 'Dag {number}',
-  'roadtrip.quietDay.empty': 'Inga stopp än – släpp ett här',
-  'roadtrip.quietDay.one': 'Hittills bara {name} – släpp ett stopp här',
+  'roadtrip.quietDay.empty': 'Inga stopp än, släpp ett här',
+  'roadtrip.quietDay.one': 'Hittills bara {name}, släpp ett stopp här',
   'roadtrip.leg.driveText': '{distance} på {time}',
   'roadtrip.day.stopCount': '{count} stopp',
   'roadtrip.day.stopCount.one': '{count} stopp',
@@ -333,5 +333,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Avresa efter utcheckning',
   'roadtrip.bookend.noVia':
     'Ingen mellanpunkt på resan till eller från ditt boende. Lägg till ett stopp där i stället.',
+  'roadtrip.stay.untilHint':
+    'Avfärd {time} eftersom besöket har en sluttid. Öppna det och välj Ta bort sluttid för att ange en vistelsetid i stället.',
 };
 export default roadtrip;

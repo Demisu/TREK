@@ -76,7 +76,7 @@ function ListState({ library }: { library: TourLibrary }) {
         {t('common.loading')}
       </p>
     );
-  if (list && list.tours.length === 0)
+  if (list && list.tours.length === 0 && listStatus !== 'loading')
     return (
       <p className="m-0 py-4 text-center text-content-muted" style={fs(12.5, 'body')}>
         {list.trips.length === 0 ? t('tours.library.noTrips') : t('tours.library.empty')}
@@ -102,7 +102,16 @@ function ListFilters({ library }: { library: TourLibrary }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 rounded-[10px] border border-edge bg-surface-input px-2.5 py-2">
-        <Search size={13} strokeWidth={2.2} className="flex-none text-content-faint" />
+        {library.listStatus === 'loading' ? (
+          <Loader2
+            size={13}
+            strokeWidth={2.2}
+            className="flex-none animate-spin text-content-faint"
+            data-testid="tour-library-searching"
+          />
+        ) : (
+          <Search size={13} strokeWidth={2.2} className="flex-none text-content-faint" />
+        )}
         <label htmlFor={searchId} className="sr-only">
           {t('tours.library.search')}
         </label>
@@ -241,6 +250,7 @@ export function TourLibraryDialog({ library }: { library: TourLibrary }) {
             <ul
               className={`m-0 flex max-h-[420px] list-none flex-col gap-0.5 overflow-y-auto py-0 pe-2 ps-0 transition-opacity [scrollbar-gutter:stable] ${library.listStatus === 'loading' ? 'opacity-60' : ''}`}
               data-testid="tour-library-list"
+              aria-busy={library.listStatus === 'loading'}
             >
               {library.list.tours.map((tour) => (
                 <LibraryRow

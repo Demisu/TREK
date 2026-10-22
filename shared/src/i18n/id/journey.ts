@@ -198,7 +198,8 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Jalur GPX',
   'journey.settings.recordings': 'Hari yang terekam',
   'journey.settings.showTripTracks': 'Tampilkan semua jalur GPX perjalanan',
-  'journey.settings.showTripTracksHint': 'Menggambar rute terekam dari perjalanan yang tertaut pada peta.',
+  'journey.settings.showTripTracksHint':
+    'Menggambar rute yang direncanakan (jejak GPX) dari perjalanan tertaut di peta.',
   'journey.settings.autoPrepare': 'Siapkan hari yang terekam secara otomatis',
   'journey.settings.autoPrepareHint':
     'Selama perjalanan yang ditautkan berlangsung, persinggahan dari Dawarich-mu menunggu di harinya untuk ditinjau. Editor dengan koneksi sendiri mendapatkan miliknya. Tidak ada yang ditulis ke jurnal dengan sendirinya.',
@@ -876,5 +877,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Hari terekam dan persinggahan yang diambil darinya, pada hari yang punya catatan terbit. Menunjukkan di mana dan kapan kamu berada, termasuk penginapanmu.',
   'journey.share.needsMap': 'Bagikan peta untuk mengaktifkan ini',
+  'journey.editor.tags': 'Tag',
 };
 export default journey;

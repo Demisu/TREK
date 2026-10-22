@@ -297,7 +297,7 @@ function ApiTokensTab({ S }: { S: IntegrationsState }) {
                   <span className="font-geist">{token.token_prefix}...</span>
                   <span className="tabular-nums">{t('settings.mcp.tokenCreatedAt')} {new Date(token.created_at).toLocaleDateString(locale)}</span>
                   {token.last_used_at && (
-                    <span className="tabular-nums">· {t('settings.mcp.tokenUsedAt')} {new Date(token.last_used_at).toLocaleDateString(locale)}</span>
+                    <span className="tabular-nums">{t('settings.mcp.tokenUsedAt')} {new Date(token.last_used_at).toLocaleDateString(locale)}</span>
                   )}
                 </p>
               </div>
@@ -334,7 +334,7 @@ function IntegrationsMcpSection({ S }: { S: IntegrationsState }) {
             label: (
               <>
                 {t('settings.mcp.apiTokens')}
-                <StatusPill tone="warning">Deprecated</StatusPill>
+                <StatusPill tone="warning">{t('settings.mcp.deprecated')}</StatusPill>
               </>
             ),
           },

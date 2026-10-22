@@ -1,6 +1,7 @@
 import React from 'react'
 import { ContextMenu } from '../shared/ContextMenu'
 import FileImportModal from './FileImportModal'
+import TourGpxPreviewDialog from '../Tours/TourGpxPreviewDialog'
 import ConfirmDialog from '../shared/ConfirmDialog'
 import { usePlacesSidebar, type PlacesSidebarProps } from './usePlacesSidebar'
 import { PlacesDropOverlay, PlacesHeader } from './PlacesSidebarHeader'
@@ -20,7 +21,7 @@ const PlacesSidebar = React.memo(function PlacesSidebar(props: PlacesSidebarProp
   const {
     sidebarDragOver, handleSidebarDragEnter, handleSidebarDragOver, handleSidebarDragLeave, handleSidebarDrop,
     selectMode, filtered, t, dayPickerPlace, listImportOpen,
-    fileImportOpen, setFileImportOpen, sidebarDropFile, setSidebarDropFile, tripId, pushUndo,
+    fileImportOpen, fileImportFiles, closeFileImport, tourFileImport, tripId, pushUndo,
     ctxMenu, isMobile, pendingDeleteIds, setPendingDeleteIds, onBulkDeleteConfirm,
     categories, selectedIds, exitSelectMode, onBulkChangeCategory, categoryPickerOpen, setCategoryPickerOpen,
     collectionsEnabled, saveToListOpen, setSaveToListOpen, days,
@@ -41,7 +42,7 @@ const PlacesSidebar = React.memo(function PlacesSidebar(props: PlacesSidebarProp
       className="relative flex h-full flex-col"
       style={{ fontFamily: 'var(--font-system)' }}
     >
-      {!dragDisabled && sidebarDragOver && <PlacesDropOverlay {...S} />}
+      {((!dragDisabled && sidebarDragOver) || tourFileImport.importing) && <PlacesDropOverlay {...S} />}
       <PlacesHeader {...S} />
 
       {/* No count line: the show filter in the head carries the number. */}
@@ -76,11 +77,13 @@ const PlacesSidebar = React.memo(function PlacesSidebar(props: PlacesSidebarProp
       {listImportOpen && <ListImportModal {...S} />}
       <FileImportModal
         isOpen={fileImportOpen}
-        onClose={() => { setFileImportOpen(false); setSidebarDropFile(null) }}
+        onClose={closeFileImport}
         tripId={tripId}
         pushUndo={pushUndo}
-        initialFile={sidebarDropFile}
+        initialFiles={fileImportFiles}
       />
+      {/* With Tours on, a route or track file from this column lands in the Tours preview. */}
+      <TourGpxPreviewDialog gpxImport={tourFileImport} />
       <ContextMenu menu={ctxMenu.menu} onClose={ctxMenu.close} />
       {categoryPickerOpen && (
         <PlacesBulkCategoryModal

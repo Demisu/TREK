@@ -116,5 +116,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Dołącz obrazy',
   'collab.chat.attachedImage': 'Załączony obraz',
   'collab.chat.closeImage': 'Zamknij obraz',
+  'collab.notes.categoryInUse':
+    'Ta kategoria jest nadal używana przez notatki. Najpierw je przenieś lub usuń, wtedy będzie można ją usunąć.',
+  'collab.notes.categoriesLocalHint':
+    'Kategoria bez notatek jest zapisywana tylko w tej przeglądarce. Inni członkowie zobaczą ją, gdy użyje jej jakaś notatka.',
 };
 export default collab;

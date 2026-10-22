@@ -65,5 +65,7 @@ const files: TranslationStrings = {
   'files.linkNeedsConnection': 'Menghapus tautan ini butuh koneksi. Coba lagi setelah TREK kembali online.',
   'files.placeFilesNeedConnection':
     'File butuh koneksi untuk diunggah. Hapus file baru untuk menyimpan tempat secara offline, atau simpan setelah kamu online lagi.',
+  'files.maxSize': 'Maks. {count} MB',
+  'files.toast.starError': 'Gagal mengubah bintang',
 };
 export default files;

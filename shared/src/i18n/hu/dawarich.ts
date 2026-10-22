@@ -4,7 +4,7 @@ const dawarich: TranslationStrings = {
   // ── Connection ─────────────────────────────────────────────────────────────
   'dawarich.title': 'Dawarich',
   'dawarich.intro':
-    'Kapcsold össze a saját Dawarich-példányodat, és lásd, merre jártál valójában. A TREK kiolvassa, és naplóbejegyzéseket, helyeket és országokat javasol — semmi nem kerül be, amíg meg nem erősíted, és a Dawarichba semmit nem ír vissza.',
+    'Kapcsold össze a saját Dawarich-példányodat, és lásd, merre jártál valójában. A TREK kiolvassa, és naplóbejegyzéseket, helyeket és országokat javasol; semmi nem kerül be, amíg meg nem erősíted, és a Dawarichba semmit nem ír vissza.',
   'dawarich.url': 'A példány címe',
   'dawarich.apiKey': 'API-kulcs',
   'dawarich.apiKeyPlaceholder': 'Illeszd be a Dawarich API-kulcsodat',

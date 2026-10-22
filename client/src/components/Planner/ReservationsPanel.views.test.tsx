@@ -232,6 +232,14 @@ describe('ReservationsPanel views', () => {
     expect(screen.queryByRole('menu')).toBeNull();
   });
 
+  it('FE-PLANNER-RESVIEW-014b: with a search in force the export button says it exports only the shown rows', async () => {
+    const user = userEvent.setup();
+    renderPanel();
+    expect(screen.getByRole('button', { name: 'Export as spreadsheet (CSV)' })).toBeInTheDocument();
+    await user.type(screen.getByRole('textbox', { name: 'Search' }), 'gion');
+    expect(screen.getByRole('button', { name: 'Export the 1 of 2 shown rows (CSV)' })).toBeInTheDocument();
+  });
+
   it('FE-PLANNER-RESVIEW-014: search narrows the cards, counts the results and clears again', async () => {
     const user = userEvent.setup();
     renderPanel();
@@ -239,7 +247,7 @@ describe('ReservationsPanel views', () => {
     await user.type(search, 'gion');
     expect(screen.queryByRole('article', { name: 'LH 716' })).toBeNull();
     expect(screen.getByRole('article', { name: 'Kaiseki dinner' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /1 of 2/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '1 of 2' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Clear' }));
     expect(search).toHaveValue('');
     await user.type(search, 'zzz');
@@ -247,7 +255,7 @@ describe('ReservationsPanel views', () => {
     await user.keyboard('{Escape}');
     expect(search).toHaveValue('');
     await user.type(search, 'abc123');
-    await user.click(screen.getByRole('button', { name: /1 of 2/ }));
+    await user.click(screen.getByRole('button', { name: '1 of 2' }));
     expect(search).toHaveValue('');
   });
 

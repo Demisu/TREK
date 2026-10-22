@@ -190,4 +190,20 @@ describe('Request body ceiling', () => {
       .send({ name: 'x'.repeat(200 * 1024) });
     expect(copy.status).toBe(413);
   });
+
+  // The planner's unsaved draft carries the same points and fixed legs as the
+  // tour it becomes, so its write takes the tour ceiling as well.
+  it('MISC-015: a tour draft over 100kb reaches the router, one past the tour ceiling is refused', async () => {
+    const kept = await request(app)
+      .put('/api/trips/5/tour-draft')
+      .set('Content-Type', 'application/json')
+      .send({ payload: 'x'.repeat(300 * 1024) });
+    expect(kept.status).not.toBe(413);
+
+    const huge = await request(app)
+      .put('/api/trips/5/tour-draft')
+      .set('Content-Type', 'application/json')
+      .send({ payload: 'x'.repeat(TOUR_WRITE_MAX_BYTES + 1) });
+    expect(huge.status).toBe(413);
+  });
 });

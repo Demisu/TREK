@@ -256,8 +256,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Ο δρομολογητής αποφυγής δεν απάντησε για αυτό το σκέλος, οπότε το σχεδίασε ο κύριος δρομολογητής. Ο δρομολογητής αποφυγής ερωτάται ξανά.',
   'roadtrip.day': 'Ημέρα {number}',
-  'roadtrip.quietDay.empty': 'Καμία στάση ακόμη — αφήστε μία εδώ',
-  'roadtrip.quietDay.one': 'Μέχρι στιγμής μόνο {name} — αφήστε μια στάση εδώ',
+  'roadtrip.quietDay.empty': 'Καμία στάση ακόμη, αφήστε μία εδώ',
+  'roadtrip.quietDay.one': 'Μέχρι στιγμής μόνο {name}, αφήστε μια στάση εδώ',
   'roadtrip.leg.driveText': '{distance} σε {time}',
   'roadtrip.day.stopCount': '{count} στάσεις',
   'roadtrip.day.stopCount.one': '{count} στάση',
@@ -343,5 +343,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Αναχώρηση μετά το check-out',
   'roadtrip.bookend.noVia':
     'Δεν μπαίνει ενδιάμεσο σημείο στη διαδρομή προς ή από το κατάλυμα. Προσθέστε εκεί μια στάση.',
+  'roadtrip.stay.untilHint':
+    'Αναχώρηση στις {time}, επειδή αυτή η επίσκεψη έχει ώρα λήξης. Ανοίξτε την και επιλέξτε Αφαίρεση ώρας λήξης για να ορίσετε διάρκεια παραμονής.',
 };
 export default roadtrip;

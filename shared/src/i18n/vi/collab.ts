@@ -101,5 +101,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Đính kèm ảnh',
   'collab.chat.attachedImage': 'Ảnh đính kèm',
   'collab.chat.closeImage': 'Đóng ảnh',
+  'collab.notes.categoryInUse':
+    'Vẫn còn ghi chú dùng danh mục này. Hãy chuyển hoặc xóa các ghi chú đó trước để gỡ danh mục.',
+  'collab.notes.categoriesLocalHint':
+    'Danh mục không có ghi chú chỉ được lưu trong trình duyệt này. Các thành viên khác sẽ thấy nó khi có ghi chú dùng đến.',
 };
 export default collab;

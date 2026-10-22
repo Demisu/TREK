@@ -48,8 +48,14 @@ interface NotificationState {
   total: number
   isLoading: boolean
   hasMore: boolean
+  /** The filter the loaded pages were fetched with, so the next page continues the same list. */
+  unreadOnly: boolean
 
-  fetchNotifications: (reset?: boolean) => Promise<void>
+  /**
+   * Loads a page. A reset starts the list over with the given filter (default: all) and always
+   * runs, replacing a load that is still in flight; a following page keeps the current filter.
+   */
+  fetchNotifications: (reset?: boolean, unreadOnly?: boolean) => Promise<void>
   fetchUnreadCount: () => Promise<void>
   markRead: (id: number) => Promise<void>
   markUnread: (id: number) => Promise<void>
@@ -64,32 +70,44 @@ interface NotificationState {
 
 const PAGE_SIZE = 20
 
+// Newest reset wins: a slower, older response must not overwrite the list of a filter the user has left.
+let fetchSeq = 0
+
 export const useInAppNotificationStore = create<NotificationState>((set, get) => ({
   notifications: [],
   unreadCount: 0,
   total: 0,
   isLoading: false,
   hasMore: false,
+  unreadOnly: false,
 
-  fetchNotifications: async (reset = false) => {
+  fetchNotifications: async (reset = false, unreadOnly) => {
     const { notifications, isLoading } = get()
-    if (isLoading) return
+    if (isLoading && !reset) return
 
+    const filter = reset ? (unreadOnly ?? false) : get().unreadOnly
+    const seq = ++fetchSeq
     set({ isLoading: true })
     try {
-      const offset = reset ? 0 : notifications.length
-      const data = await inAppNotificationsApi.list({ limit: PAGE_SIZE, offset })
+      // The server pages the filtered list. Rows marked read since they were loaded are still held
+      // here but have left that list, so an unread-only page continues after the rows still unread.
+      const offset = reset ? 0 : (filter ? notifications.filter(n => !n.is_read).length : notifications.length)
+      const data = await inAppNotificationsApi.list({ limit: PAGE_SIZE, offset, ...(filter ? { unread_only: true } : {}) })
+      if (seq !== fetchSeq) return
       const normalized = (data.notifications as unknown as RawNotification[]).map(normalizeNotification)
 
+      const known = new Set(notifications.map(n => n.id))
+      const merged = reset ? normalized : [...notifications, ...normalized.filter(n => !known.has(n.id))]
       set({
-        notifications: reset ? normalized : [...notifications, ...normalized],
+        notifications: merged,
         total: data.total,
         unreadCount: data.unread_count,
-        hasMore: (reset ? normalized.length : notifications.length + normalized.length) < data.total,
+        hasMore: offset + normalized.length < data.total,
+        unreadOnly: filter,
         isLoading: false,
       })
     } catch {
-      set({ isLoading: false })
+      if (seq === fetchSeq) set({ isLoading: false })
     }
   },
 

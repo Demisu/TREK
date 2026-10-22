@@ -3,6 +3,8 @@ import { captureGuide, captureHero, settle, typeInto, VIEWPORT, type GuideScript
 import { seededTrip, ensureMapFixtures } from './fixtures'
 import { openTrip, openTripOnDay, selectDay, modal, dialog } from './trip-shared'
 import { ensureDawarichConnection, disconnectDawarich } from './external'
+import { ensureToursFixtures } from './tour-fixtures'
+import { ensureTourOnDay, removeTourFromDay, tourNames, type TourOnDay } from './fixtures-trip-map'
 import { tripMapContext, tripMapGuides } from '../../src/help/contexts/tripMap'
 import type { HelpGuide } from '../../src/help/types'
 
@@ -10,7 +12,8 @@ import type { HelpGuide } from '../../src/help/types'
  * Actions for the map in the middle of a trip's plan, keyed by the ids in
  * `src/help/contexts/tripMap.ts`. They run on the seeded "Autumn in Japan"
  * with the Tokyo to Kyoto train added up front, so the bulk booking-route
- * toggle has a second route to draw inside the frame; what a guide changes it
+ * toggle has a second route to draw inside the frame, and with the two Kyoto
+ * tours of the Tours fixtures, one of them on a day; what a guide changes it
  * puts back in `cleanup`, so the next one starts the same.
  */
 
@@ -91,6 +94,65 @@ const compassPill = (page: Page) => resetNorth(page).locator('xpath=..')
  */
 const bookingDetail = (page: Page) => dialog(page)
 const bookingDetailClose = (page: Page) => bookingDetail(page).getByRole('button', { name: 'Close', exact: true })
+/**
+ * The part of a tour's line that takes the click: TrackLines lays an invisible
+ * 14 px line over every track, and nothing else on the map is drawn at that
+ * width with no opacity, so this is the set of the trip's tours on the map.
+ */
+const tourLines = (page: Page) => page.locator('#trek-map path[stroke-width="14"][stroke-opacity="0"]')
+/**
+ * The tour's card over the foot of the map. DetailShell carries no test id, so
+ * it is found by its head band: a `header` holding the Close and a tour's name.
+ */
+const tourCard = (page: Page) =>
+  page.locator('header')
+    .filter({ has: page.getByRole('button', { name: 'Close', exact: true }) })
+    .filter({ hasText: new RegExp(tourNames().map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')) })
+    .locator('xpath=..')
+/** The right column's switch between the places list and the tours list. */
+const toursTab = (page: Page) => page.getByRole('tablist', { name: 'Add view' }).getByRole('tab', { name: 'Tours' })
+const placesTab = (page: Page) => page.getByRole('tablist', { name: 'Add view' }).getByRole('tab', { name: 'Places' })
+const tourRow = (page: Page, name: string) =>
+  page.getByRole('listbox', { name: 'Tours' }).getByRole('option').filter({ hasText: name }).first()
+const hideOnMap = (page: Page, name: string) => tourRow(page, name).getByRole('button', { name: 'Hide on the map' })
+
+/**
+ * A point on a tour's line the pointer can take hold of: in the open part of
+ * the map, and with the line's own hit path on top there, so a click lands on
+ * the tour rather than on a pin or a column. Walks each line at twenty points
+ * and maps them out of the SVG's space into the page's. Zooms out a notch and
+ * tries again where the frame holds none, at most three times.
+ */
+async function tourLinePoint(page: Page): Promise<{ index: number; x: number; y: number }> {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const box = await map(page).boundingBox()
+    if (!box) throw new Error('the map has no box')
+    const bounds = { left: box.x + 430, right: box.x + box.width - 430, top: box.y + 140, bottom: box.y + box.height - 220 }
+    const hit = await tourLines(page).evaluateAll((paths, b) => {
+      for (let i = 0; i < paths.length; i++) {
+        const path = paths[i] as SVGPathElement
+        const ctm = path.getScreenCTM()
+        const length = path.getTotalLength()
+        if (!ctm || !length) continue
+        for (let k = 1; k < 20; k++) {
+          const p = path.getPointAtLength((length * k) / 20)
+          const x = ctm.a * p.x + ctm.c * p.y + ctm.e
+          const y = ctm.b * p.x + ctm.d * p.y + ctm.f
+          if (x < b.left || x > b.right || y < b.top || y > b.bottom) continue
+          if (document.elementFromPoint(x, y) === path) return { index: i, x, y }
+        }
+      }
+      return null
+    }, bounds)
+    if (hit) return hit
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await page.mouse.wheel(0, 100)
+    await page.waitForTimeout(600)
+    await settle(page)
+  }
+  throw new Error('no tour line in the open part of the map')
+}
+
 /** A row of the places column. */
 const row = (page: Page, name: string) => page.getByRole('option').filter({ hasText: name }).first()
 /**
@@ -303,6 +365,10 @@ async function deleteByName(page: Page, ...names: string[]): Promise<void> {
 let bubble = 0
 let pin = 0
 let found = ''
+/** The tour on a day (from the fixtures), and the one whose line the tour guide clicked. */
+let tourOnDay: TourOnDay | null = null
+let line = { index: 0, x: 0, y: 0 }
+let clickedTour = ''
 
 const NEW_PLACE = 'Lunch stop'
 
@@ -708,6 +774,80 @@ const SCRIPTS: Record<string, GuideScript> = {
       await p.evaluate(id => sessionStorage.removeItem(`trip-dawarich-${id}`), tripId)
     },
   },
+  'tour-map-lines': {
+    guide: guide('tour-map-lines'),
+    // On the day that holds a tour: the map frames the day, its route runs to
+    // the tour and on from it, and both Kyoto tours lie inside the frame.
+    start: async p => {
+      if (!tourOnDay) throw new Error('no tour on a day: ensureTourOnDay did not run')
+      await openTripOnDay(p, tourOnDay.day)
+      await foldDayDetails(p)
+      await expect.poll(() => tourLines(p).count(), { timeout: 30_000 }).toBeGreaterThan(0)
+      await settle(p)
+    },
+    steps: [
+      {
+        prepare: async p => {
+          line = await tourLinePoint(p)
+        },
+        target: p => tourLines(p).nth(line.index),
+        // The line's box is mostly empty map; the pointer goes onto the line itself.
+        hover: p => p.mouse.move(line.x, line.y),
+      },
+      {
+        // The click is the preparation, the card it opens is the picture.
+        prepare: async p => {
+          await p.mouse.click(line.x, line.y)
+          await expect(tourCard(p)).toBeVisible({ timeout: 15_000 })
+          const text = await tourCard(p).innerText()
+          clickedTour = tourNames().find(n => text.includes(n)) ?? tourOnDay?.name ?? ''
+          await settle(p)
+        },
+        target: tourCard,
+        act: async p => {
+          await tourCard(p).getByRole('button', { name: 'Close', exact: true }).click()
+          await expect(tourCard(p)).toHaveCount(0)
+          await settle(p)
+        },
+      },
+      {
+        // The whole map: the day's route running to the tour and on from it,
+        // with the pointer parked on an empty spot so no card is in the way.
+        target: map,
+        hover: async p => {
+          const box = await map(p).boundingBox()
+          if (!box) throw new Error('the map has no box')
+          await p.mouse.move(box.x + EMPTY.x, box.y + EMPTY.y)
+        },
+      },
+      {
+        prepare: async p => {
+          await toursTab(p).click()
+          await expect(tourRow(p, clickedTour)).toBeVisible({ timeout: 20_000 })
+          // The eye only comes out while the pointer is on the row.
+          await tourRow(p, clickedTour).hover()
+          await expect(hideOnMap(p, clickedTour)).toBeVisible()
+          await settle(p)
+        },
+        target: p => hideOnMap(p, clickedTour),
+        act: async p => {
+          const before = await tourLines(p).count()
+          await hideOnMap(p, clickedTour).click()
+          await expect(tourRow(p, clickedTour).getByRole('button', { name: 'Show on the map' })).toBeVisible()
+          await expect.poll(() => tourLines(p).count(), { timeout: 10_000 }).toBeLessThan(before)
+          await settle(p)
+        },
+      },
+    ],
+    // Hidden tours are kept in this browser, per user and trip, under
+    // `trek:hidden-tours:`; the Tours list is page state and goes with the page.
+    cleanup: async p => {
+      await p.evaluate(() => {
+        for (const key of Object.keys(localStorage)) if (key.startsWith('trek:hidden-tours:')) localStorage.removeItem(key)
+      })
+      if (await placesTab(p).isVisible().catch(() => false)) await placesTab(p).click()
+    },
+  },
 
   'map-compass': {
     guide: guide('map-compass'),
@@ -748,6 +888,38 @@ const SCRIPTS: Record<string, GuideScript> = {
           await settle(p)
         },
         target: compassPill,
+        // The loop: the map turning from north to the still's 35°, the arrow
+        // leaning with it, and a pointer dragging sideways as a right-button
+        // turn would. The camera is moved by the map's own API, a notch a
+        // frame, for the reason the still's preparation gives.
+        clip: async (p, frame) => {
+          const box = await glCanvas(p).boundingBox()
+          if (!box) throw new Error('the GL map has no box')
+          const x = box.x + EMPTY.x
+          const y = box.y + EMPTY.y
+          const turnTo = async (bearing: number) => {
+            await p.evaluate(b => {
+              const m = (window as unknown as { __trek_map?: TrekGlMap }).__trek_map
+              if (!m) throw new Error('no GL map on the page')
+              m.easeTo({ bearing: b, pitch: 0, duration: 0 })
+            }, bearing)
+            await p.waitForFunction(() => {
+              const m = (window as unknown as { __trek_map?: TrekGlMap }).__trek_map
+              return !!m && !m.isMoving()
+            })
+            // Two frames, so the canvas has painted the new bearing before the shot.
+            await p.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))))
+          }
+          await turnTo(0)
+          await p.mouse.move(x, y)
+          for (let i = 0; i < 3; i++) await frame()
+          for (let i = 1; i <= 14; i++) {
+            await p.mouse.move(x + (120 * i) / 14, y)
+            await turnTo((35 * i) / 14)
+            await frame()
+          }
+          for (let i = 0; i < 4; i++) await frame()
+        },
       },
       {
         target: compassPill,
@@ -775,6 +947,9 @@ test.describe.configure({ mode: 'serial' })
 
 test.beforeAll(async ({ request }) => {
   await ensureMapFixtures(request)
+  // The Kyoto city walk and the Fushimi Inari hike, and one of them on a day.
+  await ensureToursFixtures(request)
+  tourOnDay = await ensureTourOnDay(request)
   // The recorded route: the addon on, the signed-in user connected to the
   // Dawarich from media.env, the synthetic recording of the trip uploaded.
   await ensureDawarichConnection(request)
@@ -790,6 +965,8 @@ test.afterAll(async ({ request }) => {
   // run after this one would find a GL canvas instead.
   await disconnectDawarich(request)
   await request.post('/api/settings/bulk', { data: { settings: { map_provider: 'leaflet' } } })
+  // Only what ensureTourOnDay added itself; a tour the Tours fixtures put on a day stays.
+  await removeTourFromDay(request, tourOnDay)
 })
 
 test('every registered map guide has a script, and only those', async () => {

@@ -178,12 +178,12 @@ export default function MAdmin() {
       {demoMode && (
         <div className="mb-3 flex items-center gap-[10px] rounded-2xl border border-[color:color-mix(in_srgb,var(--m-st-pending)_28%,transparent)] bg-[color:color-mix(in_srgb,var(--m-st-pending)_10%,transparent)] px-[14px] py-3">
           <div className="min-w-0 flex-1">
-            <div className="text-[0.78125rem] font-extrabold text-m-ink">Demo Baseline</div>
+            <div className="text-[0.78125rem] font-extrabold text-m-ink">{t('admin.demoBaseline.title')}</div>
             <div className="font-geist text-[0.625rem] leading-relaxed text-m-muted">
-              Save current state as the hourly reset point. All admin trips and settings will be preserved.
+              {t('admin.demoBaseline.hint')}
             </div>
           </div>
-          <MAdminButton onClick={saveDemoBaseline}>Save Baseline</MAdminButton>
+          <MAdminButton onClick={saveDemoBaseline}>{t('admin.demoBaseline.button')}</MAdminButton>
         </div>
       )}
 

@@ -3,6 +3,7 @@ import { captureGuide, captureHero, beat, typeInto, settle, VIEWPORT, type Guide
 import { day, long, short } from '../dates'
 import { seededTrip, ensureCostsFixtures } from './fixtures'
 import { openTrip, modal } from './trip-shared'
+import { RAMEN, RECEIPT_FILE, receiptFixture, removeReceiptFiles } from './fixtures-trip-costs'
 import { tripCostsContext, tripCostsGuides } from '../../src/help/contexts/tripCosts'
 import type { HelpGuide } from '../../src/help/types'
 
@@ -83,15 +84,14 @@ const categoryList = (page: Page) => page.getByRole('group', { name: 'Category',
 /** The bar's button; the editor's own save carries the same words, so it is scoped to the modal. */
 const addExpense = (page: Page) => page.getByRole('button', { name: 'Add expense' }).first()
 const saveExpense = (page: Page) => modal(page).getByRole('button', { name: 'Add expense' })
-const settleButtons = (page: Page) => card(page, 'Settle up').getByRole('button', { name: 'Settle', exact: true })
+/** Every Settle button of the card; each is named "Settle: <from> → <to>, <amount>". */
+const settleButtons = (page: Page) => card(page, 'Settle up').getByRole('button', { name: /^Settle: / })
 /**
- * One suggested transfer in the Settle up card, by the initial on its first
- * avatar ("J" for jonas; the names are only in the tooltip). The card lists the
- * flows in whatever order the settlement endpoint returns them, so taking the
- * first Settle button would settle whichever transfer happened to come first.
+ * The Settle button of jonas's transfer. The card lists the flows in whatever
+ * order the settlement endpoint returns them, so taking the first Settle button
+ * would settle whichever transfer happened to come first.
  */
-const settleRow = (page: Page, initial: string) =>
-  card(page, 'Settle up').locator(`xpath=.//div[span[1][normalize-space(.)="${initial}"]]/..`)
+const settleJonas = (page: Page) => card(page, 'Settle up').getByRole('button', { name: /^Settle: jonas → / })
 
 // ── The bar's filters ────────────────────────────────────────────────────────
 const searchBox = (page: Page) => page.getByPlaceholder('Search expenses…')
@@ -342,7 +342,7 @@ const SCRIPTS: Record<string, GuideScript> = {
             .locator('xpath=ancestor::div[2]')
             .getByRole('checkbox', { name: /jonas/ })
             .click()
-          await expect(amounts(p).first()).toHaveValue('2100.00')
+          await expect(amounts(p).first()).toHaveValue(/^2100(\.00)?$/)
           await settle(p)
         },
         target: p => block(p, 'Split').getByPlaceholder('Item name').first().locator('xpath=ancestor::div[2]'),
@@ -420,6 +420,72 @@ const SCRIPTS: Record<string, GuideScript> = {
       },
     ],
     cleanup: p => deleteExpenses(p, UPGRADE),
+  },
+
+  'expense-receipts': {
+    guide: guide('expense-receipts'),
+    start: async p => {
+      await createExpense(p, RAMEN)
+      await openCosts(p)
+    },
+    steps: [
+      {
+        target: p => rowActions(p, RAMEN.name).getByRole('button', { name: 'Edit' }),
+        act: async p => {
+          await rowActions(p, RAMEN.name).getByRole('button', { name: 'Edit' }).click()
+          await expect(block(p, 'Receipts & Invoices')).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        // The picker is the system's own window, which no screenshot shows: the
+        // file goes straight into the hidden input behind Attach, and the
+        // picture is of the section with the file listed under it.
+        prepare: async p => {
+          const section = block(p, 'Receipts & Invoices')
+          await section.locator('input[type="file"]').setInputFiles(await receiptFixture())
+          await expect(section.getByText(RECEIPT_FILE)).toBeVisible()
+          await settle(p)
+        },
+        target: p => block(p, 'Receipts & Invoices'),
+      },
+      {
+        target: p => modal(p).getByRole('button', { name: 'Save', exact: true }),
+        act: async p => {
+          await modal(p).getByRole('button', { name: 'Save', exact: true }).click()
+          await expect(modal(p)).toHaveCount(0, { timeout: 20_000 })
+          await dropFocus(p)
+          await expect(expRow(p, RAMEN.name).getByRole('button', { name: 'View receipt' })).toBeVisible({ timeout: 20_000 })
+          await settle(p)
+        },
+      },
+      {
+        target: p => expRow(p, RAMEN.name).getByRole('button', { name: 'View receipt' }),
+        act: async p => {
+          await expRow(p, RAMEN.name).getByRole('button', { name: 'View receipt' }).click()
+          const img = p.getByRole('img', { name: RECEIPT_FILE })
+          await expect(img).toBeVisible({ timeout: 20_000 })
+          await expect.poll(() => img.evaluate(el => (el as HTMLImageElement).naturalWidth), { timeout: 20_000 }).toBeGreaterThan(0)
+          await settle(p)
+        },
+      },
+      {
+        // The preview's white panel: the file's name, Open in new tab and
+        // Download in its head, the receipt under them.
+        target: p => p.getByRole('button', { name: 'Open in new tab' }).locator('xpath=ancestor::div[3]'),
+        act: async p => {
+          await p.keyboard.press('Escape')
+          await expect(p.getByRole('img', { name: RECEIPT_FILE })).toHaveCount(0)
+          await dropFocus(p)
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: async p => {
+      await closeModal(p)
+      await deleteExpenses(p, RAMEN.name)
+      await removeReceiptFiles(p.request)
+    },
   },
 
   'filter-costs': {
@@ -502,9 +568,9 @@ const SCRIPTS: Record<string, GuideScript> = {
     steps: [
       only(p => card(p, 'Settle up')),
       {
-        target: p => settleRow(p, 'J').getByRole('button', { name: 'Settle', exact: true }),
+        target: settleJonas,
         act: async p => {
-          await settleRow(p, 'J').getByRole('button', { name: 'Settle', exact: true }).click()
+          await settleJonas(p).click()
           await expect(settleButtons(p)).toHaveCount(1, { timeout: 15_000 })
           await expect(newPayRow(p)).toBeVisible({ timeout: 15_000 })
           await settle(p)
@@ -524,6 +590,7 @@ const SCRIPTS: Record<string, GuideScript> = {
           await card(p, 'Settle up').getByRole('button', { name: 'Add payment' }).click()
           await expect(p.getByRole('dialog', { name: 'Add payment' })).toBeVisible()
           await modal(p).locator('input[inputmode="decimal"]').first().fill('5000')
+          await typeInto(p, modal(p).getByPlaceholder('Paid in cash, by bank transfer…'), 'Cash, at the ryokan')
           await settle(p)
         },
         target: p => p.getByRole('dialog', { name: 'Add payment' }),

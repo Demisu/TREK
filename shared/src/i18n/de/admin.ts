@@ -42,7 +42,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Benutzer bearbeiten',
   'admin.newPassword': 'Neues Passwort',
   'admin.newPasswordHint': 'Leer lassen, um das Passwort nicht zu ändern',
-  'admin.deleteUser': 'Benutzer "{name}" löschen? Alle Reisen werden unwiderruflich gelöscht.',
+  'admin.deleteUser':
+    'Benutzer "{name}" löschen? Das Konto sowie alle Reisen und Journale, die dem Benutzer gehören, werden endgültig gelöscht, auch Reisen, die mit anderen Mitgliedern geteilt sind; diese verlieren den Zugriff. Reisen anderer bleiben erhalten.',
   'admin.deleteUserTitle': 'Benutzer löschen',
   'admin.newPasswordPlaceholder': 'Neues Passwort eingeben…',
   'admin.toast.loadError': 'Fehler beim Laden der Admin-Daten',
@@ -193,9 +194,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.transitousHint':
     'Community-GTFS-Feeds. Kostenlos und ohne Schlüssel, mit der besten Abdeckung in Europa.',
   'admin.transitProvider.googleHint':
-    'Nutzt den obigen Google-Schlüssel, für Regionen ohne Transitous-Daten. Wird pro Suche abgerechnet – solange kein Schlüssel gesetzt ist, wird Transitous verwendet.',
+    'Nutzt den obigen Google-Schlüssel, für Regionen ohne Transitous-Daten. Wird pro Suche abgerechnet; solange kein Schlüssel gesetzt ist, wird Transitous verwendet.',
   'admin.transitProvider.noKeyWarning':
-    'Google ist ausgewählt, aber es ist kein Google-Schlüssel hinterlegt — die ÖPNV-Suche nutzt weiterhin Transitous. Trage oben unter API-Schlüssel einen Schlüssel ein.',
+    'Google ist ausgewählt, aber es ist kein Google-Schlüssel hinterlegt; die ÖPNV-Suche nutzt weiterhin Transitous. Trage oben unter API-Schlüssel einen Schlüssel ein.',
   'admin.transitProvider.personalKeyWarning':
     'Es ist nur dein eigener Google-Schlüssel gesetzt, daher fällt die Suche der anderen Mitglieder weiterhin auf Transitous zurück. Speichere den Schlüssel oben als Admin, damit er instanzweit gilt.',
   'admin.placeShadow.title': 'Ortssuche protokollieren',
@@ -723,8 +724,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Noch keine Audit-Einträge.',
   'admin.audit.refresh': 'Aktualisieren',
   'admin.audit.loadMore': 'Mehr laden',
-  'admin.audit.showing': '{count} geladen · {total} gesamt',
-  'admin.audit.showing.one': '{count} geladen · {total} gesamt',
+  'admin.audit.showing': '{count} geladen, {total} gesamt',
+  'admin.audit.showing.one': '{count} geladen, {total} gesamt',
   'admin.audit.col.time': 'Zeit',
   'admin.audit.col.user': 'Benutzer',
   'admin.audit.col.action': 'Aktion',
@@ -940,5 +941,37 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.origin.auto': 'Automatisch',
   'admin.paddleRegions.origin.autoHint':
     'TREK hat diese Region selbst geladen, für eine Paddeltour, die dort geplant wird.',
+  'admin.mfa.reset': '2FA zurücksetzen',
+  'admin.mfa.resetHint':
+    'Schaltet die Zwei-Faktor-Authentifizierung für diesen Benutzer ab, zum Beispiel nach dem Verlust des Handys. Die Person wird überall abgemeldet und kann sie nach der Anmeldung mit dem Passwort neu einrichten.',
+  'admin.mfa.resetConfirm': 'Zwei-Faktor-Authentifizierung für {name} abschalten?',
+  'admin.mfa.resetDone': 'Zwei-Faktor-Authentifizierung zurückgesetzt',
+  'admin.danger.title': 'Gefahrenzone',
+  'admin.rotateJwt.title': 'JWT-Secret erneuern',
+  'admin.rotateJwt.hint': 'Erzeugt ein neues JWT-Signatur-Secret. Alle aktiven Sitzungen werden sofort ungültig.',
+  'admin.rotateJwt.confirm': 'Erneuern und abmelden',
+  'admin.rotateJwt.warning': 'Achtung, dadurch werden alle Sitzungen ungültig und du wirst abgemeldet.',
+  'admin.rotateJwt.body':
+    'Es wird sofort ein neues JWT-Secret erzeugt. Alle angemeldeten Benutzer, du eingeschlossen, werden abgemeldet und müssen sich neu anmelden.',
+  'admin.oidcDisplayNamePlaceholder': 'z. B. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery-URL (optional)',
+  'admin.oidcDiscoveryUrlHint':
+    'Überschreibt die automatisch gebildete Discovery-URL. Nötig bei Anbietern wie Authentik, bei denen der Endpunkt nicht unter {path} liegt.',
+  'admin.smtp.skipTls': 'TLS-Zertifikatsprüfung überspringen',
+  'admin.smtp.skipTlsHint': 'Aktivieren bei selbstsignierten Zertifikaten auf lokalen Mailservern',
+  'admin.demoBaseline.title': 'Demo-Ausgangszustand',
+  'admin.demoBaseline.hint':
+    'Speichert den aktuellen Stand als stündlichen Rücksetzpunkt. Alle Admin-Reisen und -Einstellungen bleiben erhalten.',
+  'admin.demoBaseline.button': 'Ausgangszustand speichern',
+  'admin.demoBaseline.saved': 'Ausgangszustand gespeichert! Zurücksetzungen stellen diesen Stand wieder her.',
+  'admin.demoBaseline.failed': 'Ausgangszustand konnte nicht gespeichert werden',
+  'admin.invite.deleteTitle': 'Einladungslink löschen',
+  'admin.invite.deleteConfirm':
+    'Diesen Einladungslink löschen? Wer ihn noch nicht benutzt hat, kann sich damit nicht mehr registrieren.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Vorlage löschen',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Vorlage "{name}" mit allen Kategorien und Einträgen löschen?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Kategorie löschen',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Kategorie "{name}" und alle ihre Einträge löschen?',
+  'admin.rotateJwt.button': 'Erneuern',
 };
 export default admin;

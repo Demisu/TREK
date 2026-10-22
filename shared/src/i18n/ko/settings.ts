@@ -185,7 +185,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': '토큰 만들기',
   'settings.mcp.modal.createdTitle': '토큰이 생성되었습니다',
   'settings.mcp.modal.createdWarning':
-    '이 토큰은 한 번만 표시됩니다. 지금 복사하여 저장하세요 — 다시 복구할 수 없습니다.',
+    '이 토큰은 한 번만 표시됩니다. 지금 복사하여 저장하세요: 다시 복구할 수 없습니다.',
   'settings.mcp.modal.done': '완료',
   'settings.mcp.toast.created': '토큰이 생성되었습니다',
   'settings.mcp.toast.createError': '토큰 생성 실패',
@@ -227,14 +227,14 @@ const settings: TranslationStrings = {
     '한 줄에 URI 하나. HTTPS, 루프백 HTTP 또는 앱 전용 스킴(myapp://)을 쓸 수 있습니다. 루프백 URI의 포트를 빼고 정확히 일치해야 합니다.',
   'settings.oauth.modal.scopes': '허용 권한 범위',
   'settings.oauth.modal.scopesHint':
-    'list_trips 및 get_trip_summary는 항상 사용 가능합니다 — 권한 범위 불필요. AI가 다른 도구를 사용하는 데 필요한 여행 ID를 찾을 수 있습니다.',
+    'list_trips 및 get_trip_summary는 항상 사용 가능합니다: 권한 범위 불필요. AI가 다른 도구를 사용하는 데 필요한 여행 ID를 찾을 수 있습니다.',
   'settings.oauth.modal.selectAll': '전체 선택',
   'settings.oauth.modal.deselectAll': '전체 해제',
   'settings.oauth.modal.creating': '등록 중…',
   'settings.oauth.modal.create': '클라이언트 등록',
   'settings.oauth.modal.createdTitle': '클라이언트가 등록되었습니다',
   'settings.oauth.modal.createdWarning':
-    '클라이언트 시크릿은 한 번만 표시됩니다. 지금 복사하세요 — 다시 복구할 수 없습니다.',
+    '클라이언트 시크릿은 한 번만 표시됩니다. 지금 복사하세요: 다시 복구할 수 없습니다.',
   'settings.oauth.toast.createError': 'OAuth 클라이언트 등록 실패',
   'settings.oauth.toast.deleted': 'OAuth 클라이언트가 삭제되었습니다',
   'settings.oauth.toast.deleteError': 'OAuth 클라이언트 삭제 실패',
@@ -294,7 +294,8 @@ const settings: TranslationStrings = {
   'settings.mustChangePassword': '계속하기 전에 비밀번호를 변경해야 합니다. 아래에서 새 비밀번호를 설정하세요.',
   'settings.deleteAccount': '계정 삭제',
   'settings.deleteAccountTitle': '계정을 삭제할까요?',
-  'settings.deleteAccountWarning': '계정과 모든 여행, 장소, 파일이 영구 삭제됩니다. 이 작업은 취소할 수 없습니다.',
+  'settings.deleteAccountWarning':
+    '계정과 본인이 소유한 모든 여행, 저널, 장소, 파일이 영구적으로 삭제되며, 다른 멤버와 공유 중인 여행도 포함되어 해당 멤버는 접근할 수 없게 됩니다. 다른 사람이 소유한 여행은 유지되고 본인은 그 여행에서 제외됩니다. 이 작업은 되돌릴 수 없습니다.',
   'settings.deleteAccountConfirm': '영구 삭제',
   'settings.deleteBlockedTitle': '삭제 불가',
   'settings.deleteBlockedMessage': '유일한 관리자입니다. 계정을 삭제하기 전에 다른 사용자를 관리자로 승격하세요.',
@@ -511,10 +512,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     '캐시된 데이터만 사용하고 변경 사항을 대기열에 넣습니다. 다시 연결하여 동기화하려면 끄세요.',
   'settings.offline.mode.active':
-    '오프라인 모드가 켜져 있습니다 — 변경 사항이 대기열에 있으며 모드를 끄면 동기화됩니다.',
+    '오프라인 모드가 켜져 있습니다: 변경 사항이 대기열에 있으며 모드를 끄면 동기화됩니다.',
   'settings.offline.prepare.title': '오프라인 준비',
   'settings.offline.prepare.hint':
-    '연결이 끊기기 전에 필요한 모든 것 — 여행 데이터, 문서, 지도 타일 — 을 다운로드하세요.',
+    '연결이 끊기기 전에 필요한 모든 것 (여행 데이터, 문서, 지도 타일) 을 다운로드하세요.',
   'settings.offline.prepare.button': '오프라인 사용을 위해 다운로드',
   'settings.offline.prepare.running': '다운로드 중…',
   'settings.offline.prepare.done': '오프라인 사용 준비 완료',
@@ -581,7 +582,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': '예약 경로 항상 표시',
   'settings.alwaysShowRoutesHint':
     '항공편, 기차 등 모든 예약의 경로를 개별적으로 켤 필요 없이 지도에 자동으로 표시합니다.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': '이 키가 읽을 수 있는 항목',
@@ -621,13 +621,15 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': '복사하지 못했습니다. 텍스트를 선택해 직접 복사하세요.',
   'settings.apiKeys.modal.createTitle': 'API 키 만들기',
   'settings.apiKeys.modal.name': '이름',
-  'settings.apiKeys.modal.namePlaceholder': '예: Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': '예: 집 대시보드',
   'settings.apiKeys.modal.nameHint': '나중에 키를 알아보기 위한, 본인용 이름입니다.',
   'settings.apiKeys.modal.creating': '만드는 중...',
   'settings.apiKeys.modal.create': '만들기',
   'settings.apiKeys.modal.createdTitle': 'API 키를 만들었습니다',
   'settings.apiKeys.modal.createdWarning': '지금 키를 복사하세요. 한 번만 표시되며 나중에 다시 확인할 수 없습니다.',
   'settings.apiKeys.modal.done': '완료',
+  'settings.mcp.deprecated': '지원 중단 예정',
+  'settings.offline.cache.dateRange': '{start}부터 {end}까지',
 };
 
 export default settings;

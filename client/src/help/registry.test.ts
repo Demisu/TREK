@@ -23,6 +23,19 @@ import { tripTransportsGuides } from './contexts/tripTransports'
 import { tripMapGuides } from './contexts/tripMap'
 import { tripDayDetailGuides } from './contexts/tripDayDetail'
 import { tripPlaceGuides } from './contexts/tripPlace'
+import { notificationsGuides } from './contexts/notifications'
+import { tripToursGuides } from './contexts/tripTours'
+import { tripTourDetailGuides } from './contexts/tripTourDetail'
+import { tripTourPlannerGuides } from './contexts/tripTourPlanner'
+import { tripTourImportGuides } from './contexts/tripTourImport'
+import { tripTourMapGuides } from './contexts/tripTourMap'
+import { tripTourStagesGuides } from './contexts/tripTourStages'
+import { tripTourHikeGuides } from './contexts/tripTourHike'
+import { tripTourWalkGuides } from './contexts/tripTourWalk'
+import { tripTourBikeGuides } from './contexts/tripTourBike'
+import { tripTourSkiGuides } from './contexts/tripTourSki'
+import { tripTourPaddleGuides } from './contexts/tripTourPaddle'
+import { tripTourHorseGuides } from './contexts/tripTourHorse'
 import {
   HELP_CONTEXTS, HELP_GUIDES, getHelpContext, getHelpGuide, guidesFor, allHelpGuides,
   ctxKey, ctxBulletKey, guideKey, guideStepKey, guideTipKey, helpMedia, docsRoute,
@@ -105,6 +118,9 @@ describe('help registry: structure', () => {
       tripMapGuides,
       tripDayDetailGuides,
       tripPlaceGuides,
+      tripToursGuides, tripTourDetailGuides, tripTourPlannerGuides, tripTourImportGuides, tripTourMapGuides, tripTourStagesGuides,
+      tripTourHikeGuides, tripTourWalkGuides, tripTourBikeGuides, tripTourSkiGuides, tripTourPaddleGuides, tripTourHorseGuides,
+      notificationsGuides,
     ]
     const ids = lists.flat().map(g => g.id)
     const dupes = ids.filter((id, i) => ids.indexOf(id) !== i)
@@ -156,6 +172,10 @@ describe('help registry: every promised picture is on disk', () => {
         for (let n = 1; n <= guide.steps; n++) expect(onDisk(helpMedia.step(guide.id, n)), helpMedia.step(guide.id, n)).toBe(true)
       }
       if (guide.media.result) expect(onDisk(helpMedia.result(guide.id)), helpMedia.result(guide.id)).toBe(true)
+      for (const n of guide.media.clips ?? []) {
+        expect(n >= 1 && n <= guide.steps, `${guide.id}: clip for a step it does not have`).toBe(true)
+        expect(onDisk(helpMedia.clip(guide.id, n)), helpMedia.clip(guide.id, n)).toBe(true)
+      }
     }
   })
 })

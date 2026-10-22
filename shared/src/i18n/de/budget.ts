@@ -210,5 +210,6 @@ const budget: TranslationStrings = {
   'costs.receiptsNeedConnection':
     'Belege brauchen zum Hochladen eine Verbindung. Entferne die neuen, um die Ausgabe offline zu speichern, oder speichere, sobald du wieder online bist.',
   'costs.paymentQueued': 'Du bist offline. Die Zahlung ist gespeichert und erscheint, sobald TREK wieder online ist.',
+  'costs.confirm.deleteBodyReceipts': '"{name}" wird endgültig gelöscht. Die Belegdateien bleiben in Dateien erhalten.',
 };
 export default budget;

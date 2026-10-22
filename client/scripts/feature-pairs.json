@@ -368,6 +368,12 @@
       "mobile": ["src/mobile/screens/trip/sheets/ImpListStep.tsx"]
     },
     {
+      "feature": "Places column file routing between the Tours and places imports",
+      "hooks": ["src/components/Planner/usePlacesColumnFileImport.ts"],
+      "desktop": ["src/components/Planner/usePlacesSidebar.ts"],
+      "mobile": ["src/mobile/screens/trip/sheets/MImportSheet.tsx"]
+    },
+    {
       "feature": "GPX/KML/KMZ file import into places",
       "hooks": ["src/components/Planner/usePlacesFileImport.ts"],
       "desktop": ["src/components/Planner/FileImportModal.tsx"],
@@ -920,6 +926,7 @@
     }
   ],
   "mobileOnly": {
+    "src/mobile/screens/admin/MAdminResetMfaSheet.tsx": "Markup only; the 2FA reset confirm that MAdminSheets opens, with the reset handed in through props from its useAdminUserActions.",
     "src/mobile/screens/admin/MAdminUi.tsx": "Phone only admin UI primitives (button, card, field, input, secret input, sheet frame).",
     "src/mobile/screens/atlas/MAtlasSearch.tsx": "Phone full screen country search overlay; options, suggestions and selection come through props from MAtlas.",
     "src/mobile/screens/atlas/MAtlasStatsCard.tsx": "Markup only; renders the AtlasStats that MAtlas passes in.",
@@ -968,7 +975,6 @@
     "src/mobile/screens/trip/sheets/MBookingFilesCosts.tsx": "Phone booking sheet footer that composes PlFileAttach and MLinkedCosts.",
     "src/mobile/screens/trip/sheets/MBrowseActionsSheet.tsx": "Phone action sheet for a pool place that calls planner handlers and the shared placeToSaveTarget.",
     "src/mobile/screens/trip/sheets/MDaysSheet.tsx": "Button based day reorder sheet over planner.handleReorderDays; the desktop reorders by drag.",
-    "src/mobile/screens/trip/sheets/MImportSheet.tsx": "Menu that routes to ImpFileStep and ImpListStep, with no logic of its own.",
     "src/mobile/screens/trip/sheets/MLinkedCosts.tsx": "Already shares useExpenseLinks with the desktop BookingCostsSection; only markup and a search filter are local.",
     "src/mobile/screens/trip/sheets/MMehrSheet.tsx": "Phone dock overflow menu that only opens tabs and sheets.",
     "src/mobile/screens/trip/sheets/MTripSheetUi.tsx": "Phone sheet UI primitives (eyebrow, headers, stat boxes, action circles) and a time display helper.",

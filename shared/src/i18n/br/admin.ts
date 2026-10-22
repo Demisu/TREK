@@ -41,7 +41,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Editar usuário',
   'admin.newPassword': 'Nova senha',
   'admin.newPasswordHint': 'Deixe em branco para manter a senha atual',
-  'admin.deleteUser': 'Excluir o usuário "{name}"? Todas as viagens serão excluídas permanentemente.',
+  'admin.deleteUser':
+    'Excluir o usuário "{name}"? A conta e todas as viagens e diários que ele possui serão excluídos permanentemente, inclusive as viagens compartilhadas com outros membros, que perderão o acesso. As viagens de outras pessoas permanecem.',
   'admin.deleteUserTitle': 'Excluir usuário',
   'admin.newPasswordPlaceholder': 'Digite a nova senha…',
   'admin.toast.loadError': 'Falha ao carregar dados do admin',
@@ -190,9 +191,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.transitousHint':
     'Feeds GTFS da comunidade. Gratuito e sem chave, com a melhor cobertura na Europa.',
   'admin.transitProvider.googleHint':
-    'Usa a chave do Google acima, para regiões sem dados no Transitous. Cobrado por busca — o Transitous é usado enquanto nenhuma chave estiver configurada.',
+    'Usa a chave do Google acima, para regiões sem dados no Transitous. Cobrado por busca; o Transitous é usado enquanto nenhuma chave estiver configurada.',
   'admin.transitProvider.noKeyWarning':
-    'O Google está selecionado, mas nenhuma chave do Google está configurada — a busca de transporte ainda usa o Transitous. Adicione uma chave em Chaves de API acima.',
+    'O Google está selecionado, mas nenhuma chave do Google está configurada; a busca de transporte ainda usa o Transitous. Adicione uma chave em Chaves de API acima.',
   'admin.transitProvider.personalKeyWarning':
     'Apenas a sua própria chave do Google está definida, então a busca dos outros membros ainda cai no Transitous. Salve a chave acima como admin para aplicá-la a toda a instância.',
   'admin.placeShadow.title': 'Registo de pesquisas de locais',
@@ -688,8 +689,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Nenhum registro de auditoria.',
   'admin.audit.refresh': 'Atualizar',
   'admin.audit.loadMore': 'Carregar mais',
-  'admin.audit.showing': '{count} carregados · {total} no total',
-  'admin.audit.showing.one': '{count} carregado · {total} no total',
+  'admin.audit.showing': '{count} carregados, {total} no total',
+  'admin.audit.showing.one': '{count} carregado, {total} no total',
   'admin.audit.col.time': 'Hora',
   'admin.audit.col.user': 'Usuário',
   'admin.audit.col.action': 'Ação',
@@ -931,5 +932,38 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'Recusar',
   'admin.paddleRegions.origin.auto': 'Automático',
   'admin.paddleRegions.origin.autoHint': 'O TREK carregou esta região sozinho para um passeio de remo planejado ali.',
+  'admin.mfa.reset': 'Redefinir 2FA',
+  'admin.mfa.resetHint':
+    'Desativa a autenticação em dois fatores deste usuário, por exemplo após a perda do celular. Ele é desconectado de todos os lugares e pode configurá-la novamente depois de entrar com a senha.',
+  'admin.mfa.resetConfirm': 'Desativar a autenticação em dois fatores de {name}?',
+  'admin.mfa.resetDone': 'Autenticação em dois fatores redefinida',
+  'admin.danger.title': 'Zona de perigo',
+  'admin.rotateJwt.title': 'Rotacionar segredo JWT',
+  'admin.rotateJwt.hint':
+    'Gere um novo segredo de assinatura JWT. Todas as sessões ativas serão invalidadas imediatamente.',
+  'admin.rotateJwt.confirm': 'Rotacionar e sair',
+  'admin.rotateJwt.warning': 'Atenção: isso invalidará todas as sessões e desconectará você.',
+  'admin.rotateJwt.body':
+    'Um novo segredo JWT será gerado imediatamente. Todos os usuários conectados, inclusive você, serão desconectados e precisarão entrar novamente.',
+  'admin.oidcDisplayNamePlaceholder': 'ex.: Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'URL de descoberta (opcional)',
+  'admin.oidcDiscoveryUrlHint':
+    'Substitui a URL de descoberta construída automaticamente. Necessária para provedores como o Authentik, em que o endpoint não fica em {path}.',
+  'admin.smtp.skipTls': 'Ignorar a verificação do certificado TLS',
+  'admin.smtp.skipTlsHint': 'Ative para certificados autoassinados em servidores de e-mail locais',
+  'admin.demoBaseline.title': 'Linha de base da demo',
+  'admin.demoBaseline.hint':
+    'Salve o estado atual como ponto de redefinição de hora em hora. Todas as viagens e configurações do administrador serão preservadas.',
+  'admin.demoBaseline.button': 'Salvar linha de base',
+  'admin.demoBaseline.saved': 'Linha de base salva! As redefinições voltarão a este estado.',
+  'admin.demoBaseline.failed': 'Falha ao salvar a linha de base',
+  'admin.invite.deleteTitle': 'Excluir link de convite',
+  'admin.invite.deleteConfirm':
+    'Excluir este link de convite? Quem ainda não o usou não poderá mais se cadastrar com ele.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Excluir modelo',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Excluir o modelo "{name}" com todas as suas categorias e itens?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Excluir categoria',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Excluir a categoria "{name}" e todos os seus itens?',
+  'admin.rotateJwt.button': 'Renovar',
 };
 export default admin;

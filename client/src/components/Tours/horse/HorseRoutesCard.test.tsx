@@ -114,6 +114,7 @@ describe('HorseRoutesCard (HOR-01)', () => {
     // The map moved: the routes shown are from another view, and can be looked for again.
     act(() => publishTourMapViewport({ ...VIEW, north: 47.31 }));
     expect(await screen.findByRole('button', { name: 'Search this view' })).toBeInTheDocument();
+    expect(screen.getByText('The list shows the view you searched. Search again for this one.')).toBeInTheDocument();
   });
 
   it('FE-HORSE-CARD-003: says why it found nothing, and lets a failed search be asked again', async () => {
@@ -168,6 +169,10 @@ describe('HorseRoutesCard (HOR-01)', () => {
     expect(within(dialog).getByTestId('horse-section-gap')).toHaveTextContent('5.6 km');
     const adopt = within(dialog).getByTestId('horse-section-adopt');
     expect(adopt).toBeDisabled();
+    expect(adopt).toHaveAttribute(
+      'title',
+      'Join the gap with a manual section first, or pick a section that starts where your ride ends.'
+    );
     fireEvent.click(within(dialog).getByRole('button', { name: 'Join with a manual section' }));
     expect(adopt).toBeEnabled();
     // Another direction is another gap: the switch goes off again.

@@ -161,10 +161,10 @@ describe('free legs (P2A-04)', () => {
 describe('portages and locks (PAD-03, PAD-07)', () => {
   const LOCK = { wait_minutes: 10, transit_minutes: null };
 
-  it('carries the leg after a point and paddles it again on the second press', () => {
+  it('carries the leg after a point and plans it on the water again on the second press', () => {
     const carried = togglePortageLeg(alignFreeLegs([A, B, C], true), 'a');
     expect(carried[0].fixedLeg).toEqual(portageLegBetween(A, B));
-    expect(togglePortageLeg(carried, 'a')[0].fixedLeg).toEqual(freeLegBetween(A, B));
+    expect(togglePortageLeg(carried, 'a')[0]).not.toHaveProperty('fixedLeg');
   });
 
   it('asks for a portage at the last point and draws it to the point set next', () => {

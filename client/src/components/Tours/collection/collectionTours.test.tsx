@@ -11,14 +11,16 @@ import { useAddonStore } from '../../../store/addonStore';
 import { useAuthStore } from '../../../store/authStore';
 import { ALL_SAVED, useCollectionStore } from '../../../store/collectionStore';
 import { useCollectionTourStore } from '../../../store/collectionTourStore';
+import { useSaveToCollectionStore } from '../../../store/saveToCollectionStore';
 import { CollectionTourTakeOverDialog, KeptPointsStrip } from './CollectionTourTakeOverDialog';
 import { ActiveCollectionTours, CollectionToursSection } from './CollectionToursSection';
 import { SaveTourToCollectionDialog } from './SaveTourToCollectionDialog';
 import { TourSaveToCollectionBarButton, TourSaveToCollectionButton } from './TourSaveToCollectionButton';
+import TourSaveToCollectionHost from './TourSaveToCollectionHost';
 import { useCollectionTourTakeOver } from './useCollectionTourTakeOver';
 import { useSaveTourToCollection } from './useSaveTourToCollection';
 
-// FE-COLLECTION-TOURS-001 to FE-COLLECTION-TOURS-017
+// FE-COLLECTION-TOURS-001 to FE-COLLECTION-TOURS-020
 
 vi.mock('../../Map/MapViewAuto', () => ({
   MapViewAuto: ({ route }: { route: Array<Array<[number, number]>> }) => (
@@ -214,6 +216,46 @@ describe('TourSaveToCollectionButton', () => {
     );
     expect(screen.queryByTestId('tour-keep-in-collection')).toBeNull();
     expect(screen.queryByTestId('tour-bar-keep-in-collection')).toBeNull();
+  });
+});
+
+describe('TourSaveToCollectionHost', () => {
+  beforeEach(() => useSaveToCollectionStore.setState({ target: null, tour: null }));
+
+  it('FE-COLLECTION-TOURS-018: useSaveTourToCollection can start open and reads the lists at once', async () => {
+    const { result } = renderHook(() => useSaveTourToCollection(target, { startOpen: true }), { wrapper });
+    expect(result.current.open).toBe(true);
+    await waitFor(() => expect(result.current.status).toBe('ready'));
+    expect(result.current.listId).toBe(2);
+    expect(result.current.name).toBe('Ridge');
+  });
+
+  it('FE-COLLECTION-TOURS-019: shows nothing until a row opens a tour, then keeps it with its route', async () => {
+    const save = vi.spyOn(collectionToursRepo, 'save').mockResolvedValue({ tour: kept() });
+    render(<TourSaveToCollectionHost />);
+    expect(screen.queryByTestId('keep-tour-confirm')).toBeNull();
+    act(() => useSaveToCollectionStore.getState().openTour(target));
+    expect(await screen.findByTestId('keep-tour-list-2')).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByDisplayValue('Ridge')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('keep-tour-confirm'));
+    await waitFor(() =>
+      expect(save).toHaveBeenCalledWith(2, { source_trip_id: 5, source_place_id: 11, name: 'Ridge' })
+    );
+    await waitFor(() => expect(useSaveToCollectionStore.getState().tour).toBeNull());
+    expect(screen.queryByTestId('keep-tour-confirm')).toBeNull();
+    expect(useSaveToCollectionStore.getState().target).toBeNull();
+  });
+
+  it('FE-COLLECTION-TOURS-020: cancelling writes nothing and clears the tour, the next row opens afresh', async () => {
+    const save = vi.spyOn(collectionToursRepo, 'save');
+    render(<TourSaveToCollectionHost />);
+    act(() => useSaveToCollectionStore.getState().openTour(target));
+    await screen.findByTestId('keep-tour-list-2');
+    fireEvent.click(screen.getByText('Cancel'));
+    await waitFor(() => expect(useSaveToCollectionStore.getState().tour).toBeNull());
+    expect(save).not.toHaveBeenCalled();
+    act(() => useSaveToCollectionStore.getState().openTour({ tripId: 5, placeId: 12, name: 'Valley' }));
+    expect(await screen.findByDisplayValue('Valley')).toBeInTheDocument();
   });
 });
 

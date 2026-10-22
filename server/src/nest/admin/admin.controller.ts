@@ -600,7 +600,7 @@ export class AdminController {
         actorId: user.id,
         scope: body.scope ?? 'user',
         targetId: body.targetId ?? user.id,
-        params: { actor: user.email, ...(body.params ?? {}) },
+        params: { actor: user.username, ...(body.params ?? {}) },
         inApp: body.inApp,
       } as unknown as Parameters<NotificationsService['send']>[0]);
       return { success: true };

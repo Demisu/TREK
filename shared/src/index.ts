@@ -70,6 +70,7 @@ export * from './tours/tour-library.schema';
 export * from './tours/collection-tour.schema';
 export * from './tours/tour-packing-link.schema';
 export * from './tours/tour-packing-link';
+export * from './tours/tour-draft.schema';
 export * from './tours/tour-poi-search.schema';
 export * from './tours/tour-trail-grade.schema';
 export * from './tours/tour-walk.schema';

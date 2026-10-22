@@ -2,6 +2,7 @@ import { useId, useState } from 'react'
 import { Plus, Tags, Trash2 } from 'lucide-react'
 import { NOTE_COLORS } from './CollabNotes.constants'
 import { EditableCatName } from './CollabNotesEditableCatName'
+import { originalCategoryName } from './CollabNotes.helpers'
 import { DialogButton, DialogFooter, DialogHeader, DialogSection, DialogShell, DialogTile, FooterSpacer, NEUTRAL_TINT, fs } from '../shared/DialogShell'
 import { INPUT } from '../shared/dialogParts'
 import { Tooltip } from '../shared/Tooltip'
@@ -11,13 +12,18 @@ interface CategorySettingsModalProps {
   onClose: () => void
   categories: string[]
   categoryColors: Record<string, string>
-  onSave: (colors: Record<string, string>) => void
+  onSave: (colors: Record<string, string>, renames: Record<string, string>) => void | Promise<void>
   onRenameCategory: (oldName: string, newName: string) => Promise<void>
   t: (key: string) => string
 }
 
 export function CategorySettingsModal({ onClose, categories, categoryColors, onSave, onRenameCategory, t }: CategorySettingsModalProps) {
-  const [localColors, setLocalColors] = useState({ ...categoryColors })
+  // One list of rows: the colours known so far plus every category a note still uses.
+  const [localColors, setLocalColors] = useState<Record<string, string>>(() => {
+    const seeded = { ...categoryColors }
+    for (const cat of categories) if (!seeded[cat]) seeded[cat] = NOTE_COLORS[0].value
+    return seeded
+  })
   const [renames, setRenames] = useState<Record<string, string>>({}) // { oldName: newName }
   const [newCatName, setNewCatName] = useState('')
   const labelId = useId()
@@ -60,12 +66,13 @@ export function CategorySettingsModal({ onClose, categories, categoryColors, onS
     } catch {
       return
     }
-    await onSave(localColors)
+    await onSave(localColors, renames)
     onClose()
   }
 
-  // Merge existing categories from notes with saved colors
-  const allCats = [...new Set([...categories, ...Object.keys(localColors)])]
+  const allCats = Object.keys(localColors)
+  // A category that notes still use cannot be removed here; those notes would only bring it back.
+  const inUse = (cat: string) => categories.includes(originalCategoryName(cat, renames))
 
   return (
     <DialogShell
@@ -120,9 +127,10 @@ export function CategorySettingsModal({ onClose, categories, categoryColors, onS
                     })}
                   </div>
                   {/* Delete */}
-                  <Tooltip label={t('collab.notes.delete')}>
+                  <Tooltip label={inUse(cat) ? t('collab.notes.categoryInUse') : t('collab.notes.delete')}>
                     <button type="button" onClick={() => handleRemoveCategory(cat)} aria-label={t('collab.notes.delete')}
-                      className="grid h-7 w-7 flex-none place-items-center rounded-full text-content-faint hover:bg-surface-card hover:text-danger">
+                      disabled={inUse(cat)}
+                      className="grid h-7 w-7 flex-none place-items-center rounded-full text-content-faint hover:bg-surface-card hover:text-danger disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-content-faint">
                       <Trash2 size={13} />
                     </button>
                   </Tooltip>
@@ -142,6 +150,7 @@ export function CategorySettingsModal({ onClose, categories, categoryColors, onS
             <Plus size={16} />
           </button>
         </div>
+        <p className="m-0 mt-2 text-content-faint" style={fs(11.5)}>{t('collab.notes.categoriesLocalHint')}</p>
       </DialogSection>
 
     </DialogShell>

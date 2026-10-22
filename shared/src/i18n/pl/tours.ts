@@ -9,8 +9,6 @@ const tours: TranslationStrings = {
   'tours.empty.title': 'Nie ma jeszcze wycieczek',
   'tours.empty.body': 'Zaplanuj wycieczkę lub zaimportuj plik GPX albo KML, aby rozpocząć.',
   'tours.addToDay': 'Dodaj do dnia',
-  'tours.addToDay.comingSoon': 'Przypisz wycieczki do dnia podróży z listy wycieczek.',
-  'tours.addToDay.pickDay': 'Wybierz dzień',
   'tours.badge.wanderer': 'wanderer',
   'tours.badge.gpx': 'Import GPX',
   'tours.badge.planned': 'zaplanowano w TREK',
@@ -19,7 +17,7 @@ const tours: TranslationStrings = {
   'tours.badgeShort.wanderer': 'wanderer',
   'tours.caution.badge': 'korzystaj ostrożnie',
   'tours.caution.tooltip': 'Niepełne dane wysokościowe lub parametry – import z zastrzeżeniami',
-  'tours.import.caution': 'Import z zastrzeżeniami – niepełne dane wysokościowe lub parametry',
+  'tours.import.caution': 'Zaimportowano, ale plik nie zawiera pełnych danych o wysokości',
   'tours.import.success': 'Zaimportowano {count} wycieczki',
   'tours.import.success.one': 'Zaimportowano {count} wycieczkę',
   'tours.import.success.few': 'Zaimportowano {count} wycieczki',
@@ -100,7 +98,6 @@ const tours: TranslationStrings = {
   'tours.detail.maxAltitude': 'Maksymalna wysokość n.p.m.',
   'tours.detail.ascent': 'Suma podejść',
   'tours.detail.descent': 'Suma zejść',
-  'tours.detail.source': 'Źródło',
   'tours.detail.navigationHint': 'Nawigacja otwiera punkt początkowy szlaku; nie prowadzi wzdłuż trasy.',
   'tours.planner.title': 'Zaplanuj wycieczkę',
   'tours.planner.newTour': 'Zaplanuj nową wycieczkę',
@@ -174,12 +171,12 @@ const tours: TranslationStrings = {
   'tours.planner.tripTours': 'Wycieczki w tej podróży',
   'tours.planner.safetyNote': 'Wyznaczanie trasy pomaga w planowaniu, ale nie gwarantuje bezpieczeństwa.',
   'tours.planner.maxDifficulty': 'Maksymalna trudność szlaku',
-  'tours.planner.difficulty.t1': 'T1 – Turystyka piesza',
-  'tours.planner.difficulty.t2': 'T2 – Turystyka górska',
-  'tours.planner.difficulty.t3': 'T3 – Wymagająca turystyka górska',
-  'tours.planner.difficulty.t4': 'T4 – Turystyka wysokogórska',
-  'tours.planner.difficulty.t5': 'T5 – Wymagająca turystyka wysokogórska',
-  'tours.planner.difficulty.t6': 'T6 – Trudna turystyka wysokogórska',
+  'tours.planner.difficulty.t1': 'T1: Turystyka piesza',
+  'tours.planner.difficulty.t2': 'T2: Turystyka górska',
+  'tours.planner.difficulty.t3': 'T3: Wymagająca turystyka górska',
+  'tours.planner.difficulty.t4': 'T4: Turystyka wysokogórska',
+  'tours.planner.difficulty.t5': 'T5: Wymagająca turystyka wysokogórska',
+  'tours.planner.difficulty.t6': 'T6: Trudna turystyka wysokogórska',
   'tours.planner.difficulty.t3Warning':
     'Trasy T3 mogą obejmować eksponowane lub wymagające technicznie szlaki górskie, na których konieczne są pewny krok i odporność na lęk wysokości.',
   'tours.planner.difficulty.alpineTitle': 'Włączyć trasy wysokogórskie?',
@@ -694,6 +691,12 @@ const tours: TranslationStrings = {
   'tours.gpxExport.shareReady':
     'Plik GPX jest gotowy. Stuknij jeszcze raz Udostępnij, aby otworzyć okno udostępniania.',
   'tours.gpxExport.shareFailed': 'Udostępnianie nie powiodło się. Plik GPX nadal można pobrać.',
+  'tours.gpxExport.shareTour': 'Udostępnij trasę',
+  'tours.gpxExport.shareTourSaveFirst': 'Najpierw zapisz trasę, aby ją udostępnić',
+  'tours.gpxExport.shareCopied': 'Szczegóły trasy skopiowano do schowka.',
+  'tours.gpxExport.shareCopyFailed': 'Nie udało się skopiować szczegółów trasy.',
+  'tours.gpxExport.shareDuration': 'Czas: {time}',
+  'tours.gpxExport.shareTrip': 'Podróż: {name}',
   'tours.revision.remoteTitle': 'Ta trasa została zapisana gdzie indziej',
   'tours.revision.remoteBody':
     'Ktoś, albo ty na innym urządzeniu, zapisał ją podczas twojej edycji. Twoje zmiany zostają, dopóki nie zdecydujesz.',
@@ -1535,5 +1538,22 @@ const tours: TranslationStrings = {
   'tours.dayTime.nextItem': 'następny punkt',
   'tours.dayTime.formHint': 'Puste pole: koniec zostanie wyliczony, {time}, czyli start plus czas trasy {total}.',
   'tours.dayTime.formNoStart': 'Po podaniu startu koniec zostanie wyliczony z czasu trasy {total}.',
+  'tours.poi.categoriesLimit':
+    'Możesz szukać jednocześnie maksymalnie {count} rodzajów. Odznacz jeden, aby dodać inny.',
+  'tours.poi.categoriesLimit.one':
+    'Możesz szukać jednocześnie maksymalnie {count} rodzaju. Odznacz go, aby dodać inny.',
+  'tours.poi.categoriesLimit.few':
+    'Możesz szukać jednocześnie maksymalnie {count} rodzajów. Odznacz jeden, aby dodać inny.',
+  'tours.poi.categoriesLimit.many':
+    'Możesz szukać jednocześnie maksymalnie {count} rodzajów. Odznacz jeden, aby dodać inny.',
+  'tours.import.fileTooLarge': 'Plik jest za duży. Pliki wycieczek mogą mieć maksymalnie {maxMb} MB.',
+  'tours.planner.nothingToSave': 'Nie ma jeszcze nic do zapisania. Najpierw zmień wycieczkę.',
+  'tours.detail.openInTours': 'Otwórz na karcie Wycieczki',
+  'tours.planner.status.routingGeneric': 'Obliczanie trasy…',
+  'tours.planner.emptyHintPlacing': 'Kliknij mapę, aby ustawić punkty. Od dwóch punktów TREK wyznacza trasę.',
+  'tours.ski.drawStraight': 'Rysuj prosto',
+  'tours.horse.routes.stale': 'Lista pokazuje widok, który przeszukano. Wyszukaj ponownie w tym widoku.',
+  'tours.horse.dialog.adoptGapHint':
+    'Najpierw połącz lukę odcinkiem ręcznym albo wybierz odcinek, który zaczyna się tam, gdzie kończy się twoja trasa.',
 };
 export default tours;

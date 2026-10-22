@@ -180,7 +180,7 @@ const settings: TranslationStrings = {
   'settings.mcp.clientConfigHint':
     'Replace <your_token> with an API token from the list below. The path to npx may need to be adjusted for your system (e.g. C:\\PROGRA~1\\nodejs\\npx.cmd on Windows).',
   'settings.mcp.clientConfigHintOAuth':
-    'Replace <your_client_id> and <your_client_secret> with the credentials shown in the OAuth 2.1 client you created above. mcp-remote will open your browser to complete the authorization the first time you connect. The path to npx may need to be adjusted for your system (e.g. C:PROGRA~1\nodejs\npx.cmd on Windows).',
+    'Replace <your_client_id> and <your_client_secret> with the credentials shown in the OAuth 2.1 client you created above. mcp-remote will open your browser to complete the authorization the first time you connect. The path to npx may need to be adjusted for your system (e.g. C:\\PROGRA~1\\nodejs\\npx.cmd on Windows).',
   'settings.mcp.copy': 'Copy',
   'settings.mcp.copied': 'Copied!',
   'settings.mcp.apiTokens': 'API Tokens',
@@ -198,7 +198,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Create Token',
   'settings.mcp.modal.createdTitle': 'Token Created',
   'settings.mcp.modal.createdWarning':
-    'This token will only be shown once. Copy and store it now — it cannot be recovered.',
+    'This token will only be shown once. Copy and store it now: it cannot be recovered.',
   'settings.mcp.modal.done': 'Done',
   'settings.mcp.toast.created': 'Token created',
   'settings.mcp.toast.createError': 'Failed to create token',
@@ -240,13 +240,13 @@ const settings: TranslationStrings = {
     'One URI per line. HTTPS, loopback HTTP, or a private app scheme (myapp://). Matched exactly, except for the port of a loopback URI.',
   'settings.oauth.modal.scopes': 'Allowed Scopes',
   'settings.oauth.modal.scopesHint':
-    'list_trips and get_trip_summary are always available — no scope required. They let the AI discover trip IDs needed to use any other tool.',
+    'list_trips and get_trip_summary are always available: no scope required. They let the AI discover trip IDs needed to use any other tool.',
   'settings.oauth.modal.selectAll': 'Select all',
   'settings.oauth.modal.deselectAll': 'Deselect all',
   'settings.oauth.modal.creating': 'Registering…',
   'settings.oauth.modal.create': 'Register Client',
   'settings.oauth.modal.createdTitle': 'Client Registered',
-  'settings.oauth.modal.createdWarning': 'The client secret is shown only once. Copy it now — it cannot be recovered.',
+  'settings.oauth.modal.createdWarning': 'The client secret is shown only once. Copy it now: it cannot be recovered.',
   'settings.oauth.toast.createError': 'Failed to register OAuth client',
   'settings.oauth.toast.deleted': 'OAuth client deleted',
   'settings.oauth.toast.deleteError': 'Failed to delete OAuth client',
@@ -314,7 +314,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Delete account',
   'settings.deleteAccountTitle': 'Delete your account?',
   'settings.deleteAccountWarning':
-    'Your account and all your trips, places, and files will be permanently deleted. This action cannot be undone.',
+    'Your account and every trip, journey, place and file you own will be permanently deleted, including trips shared with other members, who lose access to them. Trips owned by others stay, and you are removed from them. This action cannot be undone.',
   'settings.deleteAccountConfirm': 'Delete permanently',
   'settings.deleteBlockedTitle': 'Deletion not possible',
   'settings.deleteBlockedMessage':
@@ -359,7 +359,7 @@ const settings: TranslationStrings = {
   'settings.mfa.demoBlocked': 'Not available in demo mode',
   'settings.currency': 'Display currency',
   'settings.currencyHint':
-    'Amounts in Costs are shown converted to this currency for display only — the original amounts are unchanged.',
+    'Amounts in Costs are shown converted to this currency for display only; the original amounts are unchanged.',
   'settings.currencyTrip': 'Trip currency',
   'settings.placeLanguage': 'Place names',
   'settings.placeLanguageApp': 'Same as the app',
@@ -367,7 +367,7 @@ const settings: TranslationStrings = {
     'The language place search, suggestions and addresses answer in. Where a place has no name in that language, its local name is shown.',
   'settings.passkey.title': 'Passkeys',
   'settings.passkey.description':
-    'Sign in faster and phishing-resistant with a passkey — your fingerprint, face, PIN, or a hardware key. Your password stays as a backup.',
+    'Sign in faster and phishing-resistant with a passkey: your fingerprint, face, PIN, or a hardware key. Your password stays as a backup.',
   'settings.passkey.notConfigured':
     'Passkeys are enabled but not fully configured on this server yet. Ask your administrator to set the WebAuthn domain.',
   'settings.passkey.add': 'Add a passkey',
@@ -527,10 +527,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.force': 'Force offline mode',
   'settings.offline.mode.forceHint':
     'Work from cached data only and queue your changes. Turn off to reconnect and sync.',
-  'settings.offline.mode.active': 'Offline mode is on — your changes are queued and will sync when you turn it off.',
+  'settings.offline.mode.active': 'Offline mode is on: your changes are queued and will sync when you turn it off.',
   'settings.offline.prepare.title': 'Prepare for offline',
   'settings.offline.prepare.hint':
-    'Download everything you need — trip data, documents and map tiles — before you lose connection.',
+    'Download everything you need (trip data, documents and map tiles) before you lose connection.',
   'settings.offline.prepare.button': 'Download for offline use',
   'settings.offline.prepare.running': 'Downloading…',
   'settings.offline.prepare.done': 'Ready for offline use',
@@ -592,8 +592,7 @@ const settings: TranslationStrings = {
   'settings.offline.banner.conflicts.one': 'Conflicts: {count}',
   'settings.alwaysShowRoutes': 'Always show booking routes',
   'settings.alwaysShowRoutesHint':
-    'Automatically draw the route for every flight, train and other booking on the map — no need to switch it on per item.',
-
+    'Automatically draw the route for every flight, train and other booking on the map, no need to switch it on per item.',
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'What this key may read',
@@ -636,13 +635,15 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Could not copy. Select the text and copy it by hand.',
   'settings.apiKeys.modal.createTitle': 'Create API key',
   'settings.apiKeys.modal.name': 'Name',
-  'settings.apiKeys.modal.namePlaceholder': 'e.g. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'e.g. Home dashboard',
   'settings.apiKeys.modal.nameHint': 'Only for you, so you recognise the key later.',
   'settings.apiKeys.modal.creating': 'Creating...',
   'settings.apiKeys.modal.create': 'Create',
   'settings.apiKeys.modal.createdTitle': 'API key created',
   'settings.apiKeys.modal.createdWarning': 'Copy the key now. It is shown once and cannot be retrieved later.',
   'settings.apiKeys.modal.done': 'Done',
+  'settings.mcp.deprecated': 'Deprecated',
+  'settings.offline.cache.dateRange': '{start} to {end}',
 };
 
 export default settings;

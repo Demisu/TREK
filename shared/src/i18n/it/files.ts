@@ -71,5 +71,8 @@ const files: TranslationStrings = {
     'Rimuovere questo collegamento richiede una connessione. Riprova quando TREK sarà di nuovo online.',
   'files.placeFilesNeedConnection':
     'I file richiedono una connessione per essere caricati. Rimuovi quelli nuovi per salvare il luogo offline, oppure salva quando sei di nuovo online.',
+  'files.maxSize': 'Massimo {count} MB',
+  'files.maxSize.one': 'Massimo {count} MB',
+  'files.toast.starError': 'Impossibile cambiare la stella',
 };
 export default files;

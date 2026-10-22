@@ -8,6 +8,13 @@ describe('placeLocality', () => {
     expect(placeLocality({ country_code: 'fr', region_name: 'Île-de-France' }, 'en')).toEqual({ country: 'France', region: 'Île-de-France' })
   })
 
+  it('FE-UTIL-LOCALITY-002a: a last address part that is not a country name is not taken for one', () => {
+    expect(placeLocality({ address: 'Shibuya City, Tokyo' }, 'en')).toEqual({ country: null, region: null })
+    expect(placeLocality({ address: 'Kyoto Station, Kyoto' }, 'en')).toEqual({ country: null, region: null })
+    expect(placeLocality({ address: '1 Main St, Springfield, USA' }, 'en')).toEqual({ country: 'United States', region: null })
+    expect(placeLocality({ address: 'Pariser Platz, Berlin, Germany' }, 'de')).toEqual({ country: 'Deutschland', region: null })
+  })
+
   it('FE-UTIL-LOCALITY-002: an unresolved place falls back to the country its address ends on', () => {
     expect(placeLocality({ address: 'Pariser Platz, 10117 Berlin, Germany' }, 'en')).toEqual({ country: 'Germany', region: null })
     expect(placeLocality({ address: 'Mildred-Harnack-Straße 11, 10243 Berlin' }, 'en')).toEqual({ country: null, region: null })

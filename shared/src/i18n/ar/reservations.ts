@@ -292,5 +292,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'يحتاج رفع الملفات إلى اتصال. أزل الملفات الجديدة لحفظ الحجز دون اتصال، أو احفظ عندما تعود متصلاً.',
   'reservations.needsConnection': 'يتطلب هذا اتصالاً. حاول مرة أخرى عندما يعود TREK للاتصال.',
+  'reservations.exportCsvFiltered': 'تصدير الصفوف المعروضة ({shown} من {total}) (CSV)',
 };
 export default reservations;

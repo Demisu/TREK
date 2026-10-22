@@ -43,5 +43,6 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted.one': 'Не вдалося прокласти {count} відрізок цього дня',
   'map.overview.dayUnrouted.few': 'Не вдалося прокласти {count} відрізки цього дня',
   'map.overview.dayUnrouted.many': 'Не вдалося прокласти {count} відрізків цього дня',
+  'map.baseLayer.topo': 'Топо',
 };
 export default map;

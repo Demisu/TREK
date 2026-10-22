@@ -38,5 +38,6 @@ const map: TranslationStrings = {
   'map.overview.unrouted.one': '{count} lõigu marsruuti ei saanud arvutada, seega on vahemaad puudulikud.',
   'map.overview.dayUnrouted': 'Selle päeva {count} lõigu marsruuti ei saanud arvutada',
   'map.overview.dayUnrouted.one': 'Selle päeva {count} lõigu marsruuti ei saanud arvutada',
+  'map.baseLayer.topo': 'Topograafiline',
 };
 export default map;

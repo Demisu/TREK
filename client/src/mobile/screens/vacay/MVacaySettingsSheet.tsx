@@ -3,6 +3,7 @@ import { ArrowRightLeft, Building2, Calendar, CalendarRange, CalendarX, ChevronD
 import MSheet from '../../components/MSheet'
 import MIconBtn from '../../components/MIconBtn'
 import MToggle from '../../components/MToggle'
+import ConfirmDialog from '../../../components/shared/ConfirmDialog'
 import { useVacayStore } from '../../../store/vacayStore'
 import { useTranslation } from '../../../i18n'
 import { useSchoolHolidayCountries } from '../../../components/Vacay/useSchoolHolidayCountries'
@@ -32,7 +33,7 @@ export default function MVacaySettingsSheet({ open, onClose }: MVacaySettingsShe
   const [showAddForm, setShowAddForm] = useState(false)
   const [showAddSchoolForm, setShowAddSchoolForm] = useState(false)
   const {
-    countries, publicHolidayCalendars, schoolHolidayCalendars, weekendDays, toggleWeekendDay, dissolveFusion,
+    countries, publicHolidayCalendars, schoolHolidayCalendars, weekendDays, toggleWeekendDay, dissolveFusion, confirmingDissolve, askDissolve, cancelDissolve,
   } = useVacaySettings({ language, loadCountries: open })
 
   const { countries: schoolHolidayCountries, error: schoolCountryError } = useSchoolHolidayCountries(open)
@@ -251,7 +252,7 @@ export default function MVacaySettingsSheet({ open, onClose }: MVacaySettingsShe
             </div>
             <button
               type="button"
-              onClick={() => dissolveFusion(onClose)}
+              onClick={askDissolve}
               className="mt-[10px] w-full rounded-xl bg-[#D6273B] p-[11px] text-center text-[0.78125rem] font-bold text-white"
             >
               {t('vacay.dissolveAction')}
@@ -259,6 +260,14 @@ export default function MVacaySettingsSheet({ open, onClose }: MVacaySettingsShe
           </div>
         )}
       </div>
+      <ConfirmDialog
+        isOpen={confirmingDissolve}
+        onClose={cancelDissolve}
+        onConfirm={() => dissolveFusion(onClose)}
+        title={t('vacay.dissolve')}
+        message={t('vacay.dissolveHint')}
+        confirmLabel={t('vacay.dissolveAction')}
+      />
     </MSheet>
   )
 }

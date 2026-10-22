@@ -24,7 +24,7 @@ import {
 } from '../../sync/offlinePrefs'
 import { useNetworkMode } from '../../hooks/useNetworkMode'
 import type { SyncMeta, QueuedMutation } from '../../db/offlineDb'
-import type { Trip } from '../../types'
+import type { TranslationFn, Trip } from '../../types'
 
 /**
  * The trips the per-trip switches cover: the server's list plus the trips still
@@ -46,6 +46,33 @@ export interface CachedTripRow {
   meta: SyncMeta
   placeCount: number
   fileCount: number
+}
+
+/** "Trip data: 1/4, Paris": the phase, how far it is and the item being fetched. */
+export function offlineProgressLabel(progress: PrepareProgress | null, t: TranslationFn): string {
+  if (!progress) return ''
+  const phase = t(`settings.offline.prepare.phase.${progress.phase === 'done' ? 'trips' : progress.phase}`)
+  return `${phase}: ${progress.current}/${progress.total}${progress.label ? `, ${progress.label}` : ''}`
+}
+
+/**
+ * What a cached trip row says under its title: the dates in the app's language, then how
+ * many places and files are stored, each with its noun so a bare number is never left
+ * to guess at. A trip without dates leaves the range out.
+ */
+export function offlineRowMeta(
+  row: Pick<CachedTripRow, 'trip' | 'placeCount' | 'fileCount'>,
+  t: TranslationFn,
+  locale: string,
+): string {
+  const fmt = (d: string | null | undefined) =>
+    d ? new Date(d).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' }) : ''
+  const start = fmt(row.trip.start_date)
+  const end = fmt(row.trip.end_date)
+  const range = start && end ? t('settings.offline.cache.dateRange', { start, end }) : start || end
+  return [range, t('places.count', { count: row.placeCount }), t('files.count', { count: row.fileCount })]
+    .filter(Boolean)
+    .join(', ')
 }
 
 /** How a trip's storage switch should read, and why. */

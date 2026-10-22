@@ -278,5 +278,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'Для загрузки файлов нужно подключение. Удалите новые, чтобы сохранить бронирование офлайн, или сохраните, когда снова будете онлайн.',
   'reservations.needsConnection': 'Для этого нужно подключение. Попробуйте ещё раз, когда TREK снова будет онлайн.',
+  'reservations.exportCsvFiltered': 'Экспортировать показанные строки: {shown} из {total} (CSV)',
 };
 export default reservations;

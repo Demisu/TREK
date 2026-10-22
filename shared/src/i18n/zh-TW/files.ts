@@ -64,5 +64,7 @@ const files: TranslationStrings = {
   'files.uploadNeedsConnection': '上傳需要網路連線。請在 TREK 恢復連線後再試一次。',
   'files.linkNeedsConnection': '移除此連結需要網路連線。請在 TREK 恢復連線後再試一次。',
   'files.placeFilesNeedConnection': '檔案需要網路連線才能上傳。移除新檔案即可離線儲存此地點，或在恢復連線後再儲存。',
+  'files.maxSize': '最大 {count} MB',
+  'files.toast.starError': '無法變更星號',
 };
 export default files;

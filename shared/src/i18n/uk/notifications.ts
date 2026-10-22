@@ -36,5 +36,7 @@ const notifications: TranslationStrings = {
   'notifications.versionAvailable.title': 'Доступне оновлення',
   'notifications.versionAvailable.text': 'TREK {version} тепер доступний.',
   'notifications.versionAvailable.button': 'Докладніше',
+  'notifications.deleteAllConfirmTitle': 'Видалити всі сповіщення?',
+  'notifications.deleteAllConfirmText': 'Усі сповіщення буде видалено назавжди. Цю дію неможливо скасувати.',
 };
 export default notifications;

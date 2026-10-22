@@ -194,7 +194,7 @@ describe('usePackingItemActions', () => {
     expect(toast.error).toHaveBeenCalledWith('packing.toast.deleteError');
   });
 
-  it('FE-PACK-ITEMACT-010: clearing removes every checked item of the trip, in both views', async () => {
+  it('FE-PACK-ITEMACT-010: clearing removes the checked items of the open view and leaves the other view alone', async () => {
     const items = [
       buildPackingItem({ id: 1, checked: 1 }),
       buildPackingItem({ id: 2, checked: 0 }),
@@ -204,7 +204,7 @@ describe('usePackingItemActions', () => {
     await act(async () => {
       await result.current.clearChecked();
     });
-    expect(acts.deletePackingItem.mock.calls.map((c) => c[1])).toEqual([1, 3]);
+    expect(acts.deletePackingItem.mock.calls.map((c) => c[1])).toEqual([1]);
     expect(toast.error).not.toHaveBeenCalled();
     acts.deletePackingItem.mockRejectedValueOnce(new Error('x'));
     await act(async () => {

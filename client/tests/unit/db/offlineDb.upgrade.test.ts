@@ -55,6 +55,7 @@ const HISTORY: Record<number, StoreSpec> = {
   10: { budgetSettlements: 'tripId' },
   11: { ferrataTiles: '[tripId+tile], tripId, fetchedAt' },
   12: { tourStationVisits: '[assignment_id+station_key], trip_id, assignment_id' },
+  13: { tourDrafts: 'tripId' },
 };
 
 const HISTORY_VERSIONS = Object.keys(HISTORY)
@@ -134,6 +135,7 @@ function rowsAt(version: number): Record<string, Record<string, unknown>> {
     budgetSettlements: { tripId: 1, base: 'EUR', settlement: { balances: [], flows: [] } },
     ferrataTiles: { tripId: 1, tile: '930:236', fetchedAt: 11, ferratas: [] },
     tourStationVisits: { assignment_id: 71, station_key: 'stop-01', status: 'visited', trip_id: 1 },
+    tourDrafts: { tripId: 1, draft: { payload: '{"version":11}', updated_at: '2026-10-22 09:00:00' } },
   };
   const tables = schemaAt(version);
   return Object.fromEntries(Object.entries(all).filter(([table]) => table in tables));
@@ -324,6 +326,22 @@ const UPGRADE_CASES: Record<number, UpgradeCase> = {
       expect(await db.tourStationVisits.where('assignment_id').equals(71).count()).toBe(2);
       expect(await db.tourStationVisits.get([71, 'stop-01'])).toMatchObject({ status: 'visited' });
       expect(await db.tourStationVisits.get([72, 'stop-01'])).toMatchObject({ status: 'visited' });
+    },
+  },
+  13: {
+    intent: 'adds the account draft of the Tours planner per trip and keeps the visits of the city walks',
+    check: async (db) => {
+      expect(await db.tourStationVisits.get([71, 'stop-01'])).toMatchObject({ status: 'visited' });
+      await db.table('tourDrafts').bulkPut([
+        { tripId: 3, draft: { payload: '{"name":"A"}', updated_at: '2026-10-22 09:00:00' } },
+        { tripId: 4, draft: { payload: '{"name":"B"}', updated_at: '2026-10-22 09:00:00' } },
+      ]);
+      // One draft per trip: a second one replaces the first.
+      await db
+        .table('tourDrafts')
+        .put({ tripId: 3, draft: { payload: '{"name":"C"}', updated_at: '2026-10-22 09:01:00' } });
+      expect(await db.tourDrafts.count()).toBe(2);
+      expect((await db.tourDrafts.get(3))?.draft.payload).toBe('{"name":"C"}');
     },
   },
 };

@@ -224,7 +224,7 @@ export default function BackupPanel() {
               {autoSettings.interval !== 'hourly' && (
                 <SettingRow
                   label={t('backup.auto.hour')}
-                  hint={<>{t('backup.auto.hourHint', { format: is12h ? '12h' : '24h' })}{serverTimezone ? ` (Timezone: ${serverTimezone})` : ''}</>}
+                  hint={serverTimezone ? t('backup.auto.hourHintTz', { format: is12h ? '12h' : '24h', timezone: serverTimezone }) : t('backup.auto.hourHint', { format: is12h ? '12h' : '24h' })}
                   control={
                     <div className="w-40">
                       <CustomSelect

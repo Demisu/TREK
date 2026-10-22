@@ -70,5 +70,8 @@ const files: TranslationStrings = {
     'Per treure aquest enllaç cal connexió. Torna-ho a provar quan TREK torni a estar en línia.',
   'files.placeFilesNeedConnection':
     'Els fitxers necessiten connexió per pujar-se. Treu els nous per desar el lloc sense connexió, o desa quan tornis a estar en línia.',
+  'files.maxSize': 'Màx. {count} MB',
+  'files.maxSize.one': 'Màx. {count} MB',
+  'files.toast.starError': "No s'ha pogut canviar l'estrella",
 };
 export default files;

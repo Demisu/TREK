@@ -15,6 +15,10 @@ export function RouteHitBand({
   return (
     <Polyline
       positions={positions}
+      // Leaflet hands a path's click to the map as well unless the path says not to;
+      // stopping the DOM event does not reach that, and the map's click would add a
+      // point at the end of the tour under the shaping point (as TrackLines does).
+      bubblingMouseEvents={false}
       pathOptions={{
         color: 'transparent',
         weight: 20,

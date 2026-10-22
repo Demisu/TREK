@@ -70,7 +70,7 @@ export function SkiLegFailureRow({
           ))}
           <button type="button" disabled={disabled} onClick={onDrawStraight} className={ACTION} style={fs(10.5)}>
             <Spline size={11} strokeWidth={2.2} aria-hidden="true" />
-            {t('tours.paddle.drawStraight')}
+            {t('tours.ski.drawStraight')}
           </button>
         </span>
       </div>

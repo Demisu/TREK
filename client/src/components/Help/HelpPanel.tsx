@@ -93,7 +93,7 @@ export default function HelpPanel(): React.ReactElement | null {
         onClick={closeHelp}
       >
         <div
-          className="trek-help-dialog relative w-[min(1520px,100%)] h-[min(960px,100%)] grid grid-cols-1 md:grid-cols-[320px_minmax(0,1fr)] rounded-2xl border border-edge bg-surface-card shadow-modal overflow-hidden"
+          className="trek-help-dialog relative w-[min(1520px,100%)] h-[min(960px,100%)] grid grid-cols-1 md:grid-cols-[380px_minmax(0,1fr)] xl:grid-cols-[440px_minmax(0,1fr)] rounded-2xl border border-edge bg-surface-card shadow-modal overflow-hidden"
           role="dialog"
           aria-modal="true"
           aria-label={t('help.center.title')}

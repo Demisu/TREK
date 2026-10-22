@@ -34,5 +34,7 @@ const notifications: TranslationStrings = {
   'notifications.test.tripText': 'Δοκιμαστική ειδοποίηση για το ταξίδι «{trip}».',
   'notifications.countLabel': 'ειδοποιήσεις',
   'notifications.countLabel.one': 'ειδοποίηση',
+  'notifications.deleteAllConfirmTitle': 'Διαγραφή όλων των ειδοποιήσεων;',
+  'notifications.deleteAllConfirmText': 'Όλες οι ειδοποιήσεις διαγράφονται οριστικά. Αυτό δεν μπορεί να αναιρεθεί.',
 };
 export default notifications;

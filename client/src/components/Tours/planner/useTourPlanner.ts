@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { hikingPreferencesOf, isClosedLoop, paddleSpeedKmhSchema, tourWebsiteSchema, type BikeProfile, type HikingPreferences, type PlannableTourType, type RunProfile, type TourCreateResponse, type TourFixedLeg, type TourListItem, type TourMaxHikingDifficulty } from '@trek/shared'
+import { hikingPreferencesOf, isClosedLoop, paddleSpeedKmhSchema, tourWebsiteSchema, type BikeProfile, type HikingPreferences, type PlannableTourType, type RunProfile, type TourCreateResponse, type TourListItem, type TourMaxHikingDifficulty } from '@trek/shared'
 import { paddleRouteRepo } from '../../../repo/paddleRouteRepo'
 import { tourRepo } from '../../../repo/tourRepo'
 import { randomId } from '../../../utils/randomId'
 import { analyzeRouteGeometry, type RouteProfileFocus } from '../../../utils/routeGeometry'
-import { closeLoop, reverseRoute, toggleFreeLeg, withPointAppended } from './tourRouteActions'
-import { holdsHorseSection } from '../horse/horseLegs'
 import { hasCompleteElevation, useTourRoute } from './useTourRoute'
-import { normalizePlannerWaypoints, plannerWaypointsOf, ridablePoints, routeInputsKey, sameWaypointSnapshot, savedWaypointsOf, unlinkedPoint, withSavedKeys, type TourPlannerWaypoint } from './tourPlannerWaypoints'
+import { normalizePlannerWaypoints, plannerWaypointsOf, ridablePoints, routeInputsKey, sameWaypointSnapshot, savedWaypointsOf, withSavedKeys, type TourPlannerWaypoint } from './tourPlannerWaypoints'
 import { openedTourFields, tourPlannerFacts } from './tourPlannerFacts'
 import { usePlannerHistory } from './usePlannerHistory'
 import { useTourDraftStorage } from './useTourDraftStorage'
@@ -17,48 +15,19 @@ import { useLegVariants } from './useLegVariants'
 import { useRoundHikes } from './useRoundHikes'
 import { useTourMapView } from './useTourMapView'
 import { DEFAULT_ROUTING_CHOICES, useRoutingChoices, type RoutingChoices } from './useRoutingChoices'
-import type { DraftPayload, DraftSource } from './tourPlannerDraft'
+import { draftChoices, type DerivedTourDraft, type DraftPayload, type DraftSource } from './tourPlannerDraft'
 import { paddleEstimateOf } from './paddlePlanOf'
 import { adoptChangedPoints } from './paddleRouting'
-import { NO_PADDLE_FIELDS, paddleFieldsOf, usePaddleFields, type PaddleFieldValues } from './usePaddleFields'
+import { NO_PADDLE_FIELDS, paddleFieldsOf, usePaddleFields } from './usePaddleFields'
 import { useTourPermissions, type TourPermissionProps } from '../useTourPermissions'
 import { useRunPace } from '../run/useRunPace'
-import { NO_SKI_CHOICE, type SkiChoice } from '../ski/skiChoice'
+import { NO_SKI_CHOICE } from '../ski/skiChoice'
 import { savedSkiSeed } from '../ski/savedSkiRoute'
 import { useSkiFields } from '../ski/useSkiFields'
 import { lostStageEnds } from '../stages/tourStages'
 import { useTourStages } from '../stages/useTourStages'
 import { useWalkFerries, useWalkStays } from '../walk/useWalkFerries'
-
-/** What a tour planned from an import starts with. */
-export interface DerivedTourDraft {
-  name: string
-  description?: string | null
-  website?: string | null
-  difficulty: TourMaxHikingDifficulty
-  /** The control points in order; a city walk's stop keeps the name it came with (CW-07). */
-  points: Array<{ lat: number; lng: number; name?: string | null }>
-  /** The import the points were taken from; absent for a link read from outside the trip (CW-07). */
-  sourcePlaceId?: number
-  /**
-   * Plan the import over in place, keeping its id, days and notes (the server
-   * keeps the recorded track to go back to), rather than as a new tour beside it.
-   */
-  inPlace: boolean
-  /** P2C-03: the import's revision, which a save planned over in place names. */
-  revision?: number
-  /** A paddle import stays a paddle tour, with its boat and water, and a bike or run import its type with its profile. */
-  tourType?: PlannableTourType
-  paddle?: PaddleFieldValues
-  bikeProfile?: BikeProfile
-  runProfile?: RunProfile
-  /** RUN-01: a run planned over keeps the pace it was planned at, so the runner need not type it again. */
-  runPaceSecondsPerKm?: number | null
-  /** SKI-02: a ski import planned over keeps its discipline and technique. */
-  ski?: SkiChoice
-  /** CW-07: where the points came from, said in the planner until the draft is saved. */
-  source?: DraftSource
-}
+import { useWaypointCommands } from './useWaypointCommands'
 
 export type TourPlannerStatus =
   | 'empty'
@@ -130,34 +99,30 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const { canEdit, canAssign } = useTourPermissions({ tripId, canEdit: editPermission, canAssign: assignPermission })
   const editPermissionRef = useRef(canEdit)
   editPermissionRef.current = canEdit
-  const draftStorage = useTourDraftStorage(tripId)
-  const { restored, keep: keepDraft, forget: forgetDraft } = draftStorage
-
-  const [name, setNameState] = useState(restored?.name ?? '')
-  const [description, setDescriptionState] = useState(restored?.description ?? '')
-  const [website, setWebsiteState] = useState(restored?.website ?? '')
-  const [plannedDurationMinutes, setPlannedDurationMinutesState] = useState<number | null>(restored?.plannedDurationMinutes ?? null)
-  const [breakAdditionalMinutes, setBreakAdditionalMinutesState] = useState<number | null>(restored?.breakAdditionalMinutes ?? null)
-  const [waypoints, setWaypoints] = useState<TourPlannerWaypoint[]>(restored?.waypoints ?? [])
+  const [name, setNameState] = useState('')
+  const [description, setDescriptionState] = useState('')
+  const [website, setWebsiteState] = useState('')
+  const [plannedDurationMinutes, setPlannedDurationMinutesState] = useState<number | null>(null)
+  const [breakAdditionalMinutes, setBreakAdditionalMinutesState] = useState<number | null>(null)
+  const [waypoints, setWaypoints] = useState<TourPlannerWaypoint[]>([])
   // MF-08, BIK-01, RUN-01: what the route is planned with besides its points and type.
-  const routingChoices = useRoutingChoices({ difficulty: restored?.maxHikingDifficulty, preferences: restored?.hikingPreferences,
-    bikeProfile: restored?.bikeProfile, runProfile: restored?.runProfile })
+  const routingChoices = useRoutingChoices(DEFAULT_ROUTING_CHOICES)
   const { ref: choicesRef, load: loadChoices } = routingChoices
   const { difficulty: maxHikingDifficulty, preferences: hikingPreferences, bikeProfile, runProfile } = routingChoices.choices
-  const [tourType, setTourTypeState] = useState<PlannableTourType>(restored?.tourType ?? 'hike')
-  const [selectedWaypointId, setSelectedWaypointId] = useState<string | null>(restored?.waypoints[0]?.id ?? null)
+  const [tourType, setTourTypeState] = useState<PlannableTourType>('hike')
+  const [selectedWaypointId, setSelectedWaypointId] = useState<string | null>(null)
   const history = usePlannerHistory<HistoryEntry>()
   const { record: recordStep, clear: clearHistory } = history
-  const revision = useTourRevisionGuard(restored?.baseRevision ?? null)
+  const revision = useTourRevisionGuard(null)
   const { adopt: adoptRevision, refuse: refuseRevision, baseRef: revisionBaseRef } = revision
-  const [status, setStatus] = useState<TourPlannerStatus>(restored?.waypoints.length ? 'dirty' : 'empty')
+  const [status, setStatus] = useState<TourPlannerStatus>('empty')
   const [error, setError] = useState<string | null>(null)
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(Boolean(restored))
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [draftRestored, setDraftRestored] = useState(Boolean(restored))
-  const [editingPlaceId, setEditingPlaceId] = useState<number | null>(restored?.editingPlaceId ?? null)
-  const [derivedFromPlaceId, setDerivedFromPlaceId] = useState<number | null>(restored?.derivedFromPlaceId ?? null)
-  const [draftSource, setDraftSource] = useState<DraftSource | null>(restored?.draftSource ?? null)
+  const [draftRestored, setDraftRestored] = useState(false)
+  const [editingPlaceId, setEditingPlaceId] = useState<number | null>(null)
+  const [derivedFromPlaceId, setDerivedFromPlaceId] = useState<number | null>(null)
+  const [draftSource, setDraftSource] = useState<DraftSource | null>(null)
   // CW-11: the open walk was saved with its stations only; its way is planned here and kept by the next save.
   const [routePending, setRoutePending] = useState(false)
   const [openingTourId, setOpeningTourId] = useState<number | null>(null)
@@ -170,6 +135,9 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const [routeProfileFocus, setRouteProfileFocus] = useState<RouteProfileFocus | null>(null)
   const [newDraftGeneration, setNewDraftGeneration] = useState(0)
   const [mapFocusKey, setMapFocusKey] = useState(0)
+  // Asked once while the planner lives, not each time its rail mounts again (a tab switch).
+  const [alpineAcknowledged, setAlpineAcknowledged] = useState(false)
+  const acknowledgeAlpine = useCallback(() => setAlpineAcknowledged(true), [])
   // MDT-01: stage ends the last change of the points could not keep. Said until the user's next change,
   // undo or redo, or another draft, so a point the router lays in afterwards does not take the notice away.
   const [stageLoss, setStageLoss] = useState(0)
@@ -237,11 +205,11 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     return true
   }, [invalidateDetailRequest])
 
-  const paddle = usePaddleFields(restored?.paddle ?? NO_PADDLE_FIELDS, markEdited)
-  const runPace = useRunPace(restored?.runPaceSecondsPerKm ?? null, markEdited)
+  const paddle = usePaddleFields(NO_PADDLE_FIELDS, markEdited)
+  const runPace = useRunPace(null, markEdited)
   const loadRunPace = runPace.load
   // SKI-02: a ski tour's discipline and technique, nothing chosen until the traveller picks.
-  const ski = useSkiFields(restored?.ski ?? NO_SKI_CHOICE, markEdited)
+  const ski = useSkiFields(NO_SKI_CHOICE, markEdited)
   const loadSki = ski.load
   const loadPaddle = paddle.load
   const paddleBoat = paddle.boatType
@@ -330,107 +298,10 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const setBikeProfile = useCallback((profile: BikeProfile) => setRoutingChoice({ bikeProfile: profile }), [setRoutingChoice])
   const setRunProfile = useCallback((profile: RunProfile) => setRoutingChoice({ runProfile: profile }), [setRoutingChoice])
 
-  const addWaypoint = useCallback((lat: number, lng: number) => {
-    if (!editPermissionRef.current) return
-    const id = randomId()
-    commitWaypoints(current => withPointAppended<TourPlannerWaypoint>(current, { id, lat, lng, role: 'end' }))
-    setSelectedWaypointId(id)
-  }, [commitWaypoints])
-
-  /**
-   * A fixed leg onto the end of the tour, as one step of the history: a
-   * waypoint at the line's start that carries it, and one at its end.
-   */
-  const appendFixedLeg = useCallback((leg: TourFixedLeg) => {
-    if (!editPermissionRef.current) return
-    const first = leg.geometry[0]
-    const last = leg.geometry[leg.geometry.length - 1]
-    if (!first || !last) return
-    const startId = randomId()
-    const endId = randomId()
-    commitWaypoints(current => [
-      ...current,
-      { id: startId, lat: Number(first[0]), lng: Number(first[1]), role: 'via', fixedLeg: leg },
-      { id: endId, lat: Number(last[0]), lng: Number(last[1]), role: 'end' },
-    ])
-    setSelectedWaypointId(endId)
-  }, [commitWaypoints])
-
-  const setWaypointPosition = useCallback((id: string, lat: number, lng: number) => {
-    if (!editPermissionRef.current || saveInFlightRef.current || !Number.isFinite(lat) || !Number.isFinite(lng)) return false
-    const current = waypointsRef.current.find(point => point.id === id)
-    if (!current) return false
-    if (current.lat === lat && current.lng === lng) return true
-    const points = waypointsRef.current
-    // HOR-01: a ride's point at a horse route section stays where the route has it.
-    if (tourTypeRef.current === 'horse' && holdsHorseSection(points, id)) return false
-    // In a loop the start and the way back are one spot: moving either moves both.
-    const loopEnds = isClosedLoop(points) && (id === points[0].id || id === points[points.length - 1].id)
-      ? new Set([points[0].id, points[points.length - 1].id])
-      : new Set([id])
-    // A point moved stands for no place any more (PR1-10): it is where the hand put it.
-    commitWaypoints(list => list.map(point => loopEnds.has(point.id) ? unlinkedPoint({ ...point, lat, lng }) : point))
-    return true
-  }, [commitWaypoints])
-
-  /** PR1-01: the tour taken back from its last point to its start, as one step. */
-  const returnToStart = useCallback(() => {
-    if (!editPermissionRef.current || saveInFlightRef.current) return
-    commitWaypoints(current => closeLoop(current, randomId()))
-  }, [commitWaypoints])
-
-  /** PR1-02: the tour the other way round, as one step. */
-  const reverse = useCallback(() => {
-    if (!editPermissionRef.current || saveInFlightRef.current) return
-    commitWaypoints(current => reverseRoute(current))
-  }, [commitWaypoints])
-
-  /** PAD-03/PAD-07: a paddler's change to the control points (a portage, a lock), as one step. */
-  const editPaddlePoints = useCallback((change: (current: TourPlannerWaypoint[]) => TourPlannerWaypoint[]) => {
-    if (!editPermissionRef.current || saveInFlightRef.current || tourTypeRef.current !== 'kayak') return
-    commitWaypoints(change)
-  }, [commitWaypoints])
-
-  /** P2A-04: the leg after this waypoint drawn by hand, or routed again (a paddle tour's on the water). */
-  const toggleWaypointFreeLeg = useCallback((id: string) => {
-    if (!editPermissionRef.current || saveInFlightRef.current) return
-    commitWaypoints(current => toggleFreeLeg(current, id))
-  }, [commitWaypoints])
-
-  const removeWaypoint = useCallback((id: string) => {
-    if (!editPermissionRef.current) return
-    commitWaypoints(current => current.filter(point => point.id !== id))
-    setSelectedWaypointId(current => current === id ? null : current)
-  }, [commitWaypoints])
-
-  const moveWaypoint = useCallback((id: string, direction: -1 | 1) => {
-    commitWaypoints(current => {
-      const index = current.findIndex(point => point.id === id)
-      const target = index + direction
-      if (index < 0 || target < 0 || target >= current.length) return current
-      const next = [...current]
-      ;[next[index], next[target]] = [next[target], next[index]]
-      return next
-    })
-  }, [commitWaypoints])
-
-  const reorderWaypoint = useCallback(
-    (id: string, targetId: string, placement: 'before' | 'after') => {
-      if (!editPermissionRef.current || saveInFlightRef.current || id === targetId) return;
-      commitWaypoints((current) => {
-        const fromIndex = current.findIndex((point) => point.id === id);
-        const targetIndex = current.findIndex((point) => point.id === targetId);
-        if (fromIndex < 0 || targetIndex < 0) return current;
-        const next = [...current];
-        const [moved] = next.splice(fromIndex, 1);
-        const targetAfterRemoval = next.findIndex((point) => point.id === targetId);
-        const insertIndex = targetAfterRemoval + (placement === 'after' ? 1 : 0);
-        next.splice(insertIndex, 0, moved);
-        return next;
-      });
-    },
-    [commitWaypoints]
-  );
+  const { addWaypoint, appendFixedLeg, setWaypointPosition, returnToStart, reverse, editPaddlePoints,
+    toggleWaypointFreeLeg, removeWaypoint, moveWaypoint, reorderWaypoint } = useWaypointCommands({
+    commitWaypoints, editPermissionRef, saveInFlightRef, waypointsRef, tourTypeRef, setSelectedWaypointId,
+  })
 
   /** A snapshot of the history put back: the route and what it depends on. */
   const restoreStep = useCallback((entry: HistoryEntry) => {
@@ -549,7 +420,42 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     plannedTotalMinutes, plannedTotalInvalid, savedDurationSeconds, savedBreakAdditionalMinutes, typeFields, stationStays,
     runPaceMissing, runPaceInvalid, skiMissing } = facts
 
-  const returnToNeutral = useCallback(() => {
+  // The account's draft, once its read is back, laid in as it was left; not over anything begun meanwhile.
+  const restoreDraft = useCallback((draft: DraftPayload) => {
+    if (saveInFlightRef.current || draftRevisionRef.current !== 0 || readOnlyGpxTourRef.current) return
+    const type = draft.tourType ?? 'hike'
+    setNameState(draft.name)
+    setDescriptionState(draft.description ?? '')
+    setWebsiteState(draft.website ?? '')
+    setPlannedDurationMinutesState(draft.plannedDurationMinutes ?? null)
+    setBreakAdditionalMinutesState(draft.breakAdditionalMinutes ?? null)
+    waypointsRef.current = draft.waypoints
+    setWaypoints(draft.waypoints)
+    setSelectedWaypointId(draft.waypoints[0]?.id ?? null)
+    tourTypeRef.current = type
+    setTourTypeState(type)
+    loadChoices(draftChoices(draft))
+    loadPaddle(draft.paddle ?? NO_PADDLE_FIELDS)
+    loadRunPace(draft.runPaceSecondsPerKm ?? null)
+    loadSki(draft.ski ?? NO_SKI_CHOICE)
+    adoptRevision(draft.baseRevision ?? null)
+    const editing = draft.editingPlaceId ?? null
+    setEditingPlaceId(editing)
+    editingPlaceIdRef.current = editing
+    setDerivedFromPlaceId(draft.derivedFromPlaceId ?? null)
+    setDraftSource(draft.draftSource ?? null)
+    setStatus(draft.waypoints.length ? 'dirty' : 'empty')
+    setHasUnsavedChanges(true)
+    setDraftRestored(true)
+    setMapFocusKey(key => key + 1)
+  }, [adoptRevision, loadChoices, loadPaddle, loadRunPace, loadSki])
+  const { keep: keepDraft, forget: forgetDraft } = useTourDraftStorage(tripId, restoreDraft)
+
+  /**
+   * Back to nothing open. The map is framed on the trip again unless `keepView` says the traveller
+   * is only leaving the tour they were looking at, whose view is then theirs to keep.
+   */
+  const returnToNeutral = useCallback((options?: { keepView?: boolean }) => {
     if (saveInFlightRef.current) return
     invalidateDetailRequest()
     interruptRouting()
@@ -590,7 +496,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     setNewTourConfirmationOpen(false)
     setElevationProfileExpanded(true)
     setNewDraftGeneration(generation => generation + 1)
-    setMapFocusKey(key => key + 1)
+    if (!options?.keepView) setMapFocusKey(key => key + 1)
   }, [adoptRevision, clearHistory, clearRoute, invalidateDetailRequest, interruptRouting, loadChoices, loadPaddle, loadRunPace, loadSki, forgetDraft])
 
   const forgetDeletedTour = useCallback((placeId: number) => {
@@ -614,7 +520,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       setNewTourConfirmationOpen(true)
       return
     }
-    returnToNeutral()
+    returnToNeutral({ keepView: true })
     setHasUnsavedChanges(true)
   }, [editingPlaceId, hasUnsavedChanges, name, returnToNeutral, waypoints.length]
   )
@@ -667,7 +573,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     if (elevationProfileExpanded) setRouteProfileFocus(null)
     setElevationProfileExpanded(expanded => !expanded)
   }, [elevationProfileExpanded])
-  const discard = useCallback(() => returnToNeutral(), [returnToNeutral])
+  const discard = useCallback(() => returnToNeutral({ keepView: true }), [returnToNeutral])
 
   const viewGpxTour = useCallback((tour: TourListItem, routeGeometry: string | null) => {
     if (saveInFlightRef.current) return
@@ -943,6 +849,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     draftSource,
     newTourConfirmationOpen, cancelNewTour, forgetDeletedTour,
     elevationProfileExpanded, toggleElevationProfile, newDraftGeneration, draftRestored, mapFocusKey,
+    alpineAcknowledged, acknowledgeAlpine,
     editingPlaceId, openingTourId, openTour, routePending,
     saveOutcome, hasUnsavedChanges, canSave, save, discard, returnToNeutral, revision,
   }

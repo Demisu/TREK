@@ -14,8 +14,12 @@ const { routeWalkingTour, routeBikeTour, enrichTourElevations, createTour, detai
 
 vi.mock('./tourRouting', () => ({ routeWalkingTour, routeBikeTour, enrichTourElevations }));
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
+vi.mock('../../../repo/tourDraftRepo', async () => ({
+  tourDraftRepo: (await import('../../../../tests/helpers/fakeTourDraftRepo')).fakeTourDraftRepo,
+}));
 vi.mock('../useTourPermissions', () => ({ useTourPermissions: () => ({ canEdit: true, canAssign: true }) }));
 
+import { draftStore } from '../../../../tests/helpers/fakeTourDraftRepo';
 import { useTourPlanner } from './useTourPlanner';
 
 // FE-TOUR-BIKE-001 to FE-TOUR-BIKE-005
@@ -78,6 +82,7 @@ describe('useTourPlanner, bike tours (BIK-01)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     localStorage.clear();
+    draftStore.clear();
     routeWalkingTour.mockReset().mockResolvedValue(routed);
     routeBikeTour.mockReset().mockResolvedValue(routed);
     enrichTourElevations.mockReset().mockResolvedValue(enriched);
@@ -115,7 +120,7 @@ describe('useTourPlanner, bike tours (BIK-01)', () => {
     });
     await settle();
     act(() => result.current.setBikeProfile('road'));
-    expect(JSON.parse(localStorage.getItem('tour-draft-52') || 'null')).toMatchObject({
+    expect(JSON.parse(draftStore.getItem('tour-draft-52') || 'null')).toMatchObject({
       version: 11,
       tourType: 'bike',
       bikeProfile: 'road',

@@ -1,7 +1,8 @@
 import { test, expect, type Page, type Locator } from '@playwright/test'
-import { captureGuide, captureHero, beat, settle, VIEWPORT, type GuideScript } from './guide'
+import { captureGuide, captureHero, beat, settle, typeInto, VIEWPORT, type GuideScript } from './guide'
 import { seededTrip, coverFixture, ensureTrack, ensureDaysFixtures, ensurePlaceFixtures, PLACE_WEBSITE, RATED_PLACE } from './fixtures'
 import { openTrip, selectDay, modal, dialog } from './trip-shared'
+import { ensurePlacePhoto, removePlacePhoto, PHOTO_FILE, PHOTO_PLACE } from './fixtures-trip-place'
 import { long } from '../dates'
 import { tripPlaceContext, tripPlaceGuides } from '../../src/help/contexts/tripPlace'
 import type { HelpGuide } from '../../src/help/types'
@@ -35,6 +36,13 @@ const LIST = 'Kyoto shortlist'
 /** The list's row in the picker: its name, then the status chip once the place is in it. */
 const LIST_ROW = new RegExp(`^${LIST}(?: (?:Idea|Planned|Visited))?$`)
 const UPLOADED = 'cover-fixture.jpg'
+/**
+ * The place whose hours and contact details the guide types in: the TREK index
+ * gives it no hours (its OpenStreetMap tag is a shape the parser rejects, see
+ * OSM_PLACES), so it is the market a traveller corrects by hand.
+ */
+const HOURS_PLACE = 'Nishiki Market'
+const HOURS_CONTACT = { phone: '+81 75 211 3882', email: 'info@kyoto-nishiki.or.jp' }
 
 /** The card itself: the scroll body's parent holds head, body and footer. */
 const card = (page: Page) => page.getByTestId('inspector-scroll').locator('xpath=..')
@@ -55,7 +63,7 @@ const participants = (page: Page) => section(page, 'Participants')
 const member = (page: Page, name: string) => participants(page).getByRole('button', { name: new RegExp(name) })
 const addMember = (page: Page) => participants(page).getByRole('button', { name: 'Add', exact: true })
 /** "Files" while the place has none, "<n> files" once it has. */
-const filesToggle = (page: Page) => card(page).getByRole('button', { name: /^(Files|\d+ files)$/ })
+const filesToggle = (page: Page) => card(page).getByRole('button', { name: /^(Files|\d+ files?)$/ })
 /** The booking strip opens the booking; it is a button named after it. */
 const bookingStrip = (page: Page) => card(page).getByRole('button', { name: `Open booking: ${BOOKING}` })
 /** The booking the strip opens, named by its title. Its form is one Edit further. */
@@ -77,10 +85,20 @@ const weekday = (offset: number) => long(offset).split(',')[0]
 const hoursRow = (page: Page) => card(page).locator('button:has(svg.lucide-clock)')
 /** The hours block: the row and, once unfolded, the week in its place. */
 const hoursBox = (page: Page) => section(page, 'Opening Hours')
+/** The round picture in the head; its name says whether a picture of your own is set. */
+const avatar = (page: Page) => card(page).getByRole('button', { name: /^(Upload image|Change image)$/ })
+/** The popover the picture opens when the place has photos among its files. */
+const imageChooser = (page: Page) => page.getByRole('dialog', { name: 'Choose a picture' })
+/** The place form's hours editor, found by its remove button (only there while editing). */
+const hoursEditor = (page: Page) =>
+  modal(page).getByRole('button', { name: 'Remove opening hours' }).locator('xpath=ancestor::section[1]')
 
-/** The card's own X, the one in its head; the day panel over the map has another. */
+/**
+ * The card's own X, the one in its head; the day panel over the map has another.
+ * By name: the red X on a custom picture is in the head as well.
+ */
 async function closeCard(page: Page): Promise<void> {
-  await head(page).locator('button:has(svg.lucide-x)').click()
+  await head(page).getByRole('button', { name: 'Close', exact: true }).click()
   await expect(card(page)).toHaveCount(0)
 }
 
@@ -291,7 +309,7 @@ const SCRIPTS: Record<string, GuideScript> = {
         act: p => openPlace(p, 'Arashiyama Bamboo Grove'),
       },
       {
-        target: p => card(p).getByRole('button', { name: /^(Upload image|Change image)$/ }),
+        target: avatar,
         act: async p => {
           await card(p).locator('input[accept*="image/jpeg"]').setInputFiles(await coverFixture())
           await expect(card(p).getByRole('button', { name: 'Remove image' })).toBeVisible({ timeout: 30_000 })
@@ -302,6 +320,111 @@ const SCRIPTS: Record<string, GuideScript> = {
       only(p => row(p, 'Arashiyama Bamboo Grove')),
     ],
     cleanup: p => patchPlace(p, 'Arashiyama Bamboo Grove', { image_url: null }),
+  },
+  'place-image-from-file': {
+    guide: guide('place-image-from-file'),
+    // Attached before the trip opens, so the files are in the store the card reads.
+    start: async p => {
+      await ensurePlacePhoto(p.request)
+      await openTrip(p, { day: null })
+    },
+    steps: [
+      {
+        prepare: async p => {
+          await openPlace(p, PHOTO_PLACE)
+          await expect(filesToggle(p)).toHaveText(/\d+ files?$/)
+        },
+        target: p => section(p, 'Files'),
+      },
+      {
+        target: avatar,
+        act: async p => {
+          await avatar(p).click()
+          await expect(imageChooser(p)).toBeVisible()
+          // The thumbnails load as blobs one request later.
+          await expect(imageChooser(p).locator('img').first()).toBeVisible({ timeout: 20_000 })
+          await settle(p)
+        },
+      },
+      {
+        target: p => imageChooser(p).getByRole('button', { name: PHOTO_FILE, exact: true }),
+        act: async p => {
+          await imageChooser(p).getByRole('button', { name: PHOTO_FILE, exact: true }).click()
+          await expect(imageChooser(p)).toHaveCount(0)
+          await expect(card(p).getByRole('button', { name: 'Remove image' })).toBeVisible({ timeout: 30_000 })
+          await settle(p)
+        },
+      },
+      only(head),
+    ],
+    cleanup: p => removePlacePhoto(p.request),
+  },
+  'place-own-hours': {
+    guide: guide('place-own-hours'),
+    start: async p => {
+      await openTrip(p, { day: null })
+      await openPlace(p, HOURS_PLACE)
+    },
+    steps: [
+      {
+        target: p => footer(p).getByRole('button', { name: 'Edit', exact: true }),
+        act: async p => {
+          await footer(p).getByRole('button', { name: 'Edit', exact: true }).click()
+          await expect(modal(p).getByLabel('Phone', { exact: true })).toBeVisible()
+          await modal(p).getByLabel('Phone', { exact: true }).scrollIntoViewIfNeeded()
+          await settle(p)
+        },
+      },
+      {
+        target: p => modal(p).getByLabel('E-mail', { exact: true }).locator('xpath=ancestor::div[.//label[normalize-space()="Phone"]][1]'),
+        act: async p => {
+          await typeInto(p, modal(p).getByLabel('Phone', { exact: true }), HOURS_CONTACT.phone)
+          await typeInto(p, modal(p).getByLabel('E-mail', { exact: true }), HOURS_CONTACT.email)
+        },
+      },
+      {
+        // The week only exists once Add opening hours is clicked, and the picture
+        // is of the week, with Monday filled in the way the text says.
+        prepare: async p => {
+          // Hours the details column looked up open the week by themselves; only
+          // without them is there an Add opening hours to click.
+          const add = modal(p).getByRole('button', { name: 'Add opening hours' })
+          if (await add.isVisible().catch(() => false)) await add.click()
+          await expect(hoursEditor(p)).toBeVisible()
+          await modal(p).getByRole('textbox', { name: 'Monday opens' }).fill('10:00')
+          await modal(p).getByRole('textbox', { name: 'Monday closes' }).fill('18:00')
+          await p.keyboard.press('Tab')
+          await hoursEditor(p).scrollIntoViewIfNeeded()
+          await settle(p)
+        },
+        target: hoursEditor,
+      },
+      {
+        target: p => modal(p).getByRole('button', { name: 'Remove opening hours' }).locator('xpath=ancestor::div[contains(@class, "gap-1")][1]'),
+        act: async p => {
+          await modal(p).getByRole('button', { name: "Use Monday's hours for every day" }).click()
+          await expect(modal(p).getByRole('textbox', { name: 'Sunday opens' })).toHaveValue(/10/)
+          // A market day off, so the week in the result is not seven equal lines.
+          await modal(p).getByRole('switch', { name: 'Wednesday: Closed' }).click()
+          await expect(modal(p).getByRole('switch', { name: 'Wednesday: Closed' })).toHaveAttribute('aria-checked', 'true')
+          await settle(p)
+        },
+      },
+      {
+        target: p => modal(p).getByRole('button', { name: 'Update', exact: true }),
+        act: async p => {
+          await modal(p).getByRole('button', { name: 'Update', exact: true }).click()
+          await expect(modal(p)).toHaveCount(0)
+          await expect(hoursRow(p)).toBeVisible({ timeout: 20_000 })
+          await expect(card(p).getByRole('link', { name: HOURS_CONTACT.email })).toBeVisible()
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: async p => {
+      await closeModal(p)
+      await patchPlace(p, HOURS_PLACE, { phone: '', email: '', opening_hours: '' })
+    },
   },
   'place-day-assign': {
     guide: guide('place-day-assign'),

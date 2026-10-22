@@ -366,6 +366,8 @@ function NoteFormSheet({ open, target, categories, colorMap, canUploadFiles, onC
   const [website, setWebsite] = useState('')
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [existingFiles, setExistingFiles] = useState<CollabNoteFile[]>([])
+  // Files taken off go with Save, so closing the sheet leaves the note as it was.
+  const [removedFileIds, setRemovedFileIds] = useState<number[]>([])
   const [submitting, setSubmitting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -379,6 +381,7 @@ function NoteFormSheet({ open, target, categories, colorMap, canUploadFiles, onC
     setWebsite(note?.website || '')
     setPendingFiles([])
     setExistingFiles(note?.attachments || [])
+    setRemovedFileIds([])
   }, [open, note])
 
   const canSubmit = title.trim().length > 0 && !submitting
@@ -397,6 +400,9 @@ function NoteFormSheet({ open, target, categories, colorMap, canUploadFiles, onC
         website: website.trim() || null,
         pendingFiles,
       })
+      if (note) {
+        for (const fileId of removedFileIds) await onDeleteExistingFile(note.id, fileId)
+      }
       onClose()
     } catch {
       // onSubmit already surfaced a toast
@@ -450,7 +456,7 @@ function NoteFormSheet({ open, target, categories, colorMap, canUploadFiles, onC
               <button
                 key={cat}
                 type="button"
-                onClick={() => setCategory(cat)}
+                onClick={() => setCategory(prev => (prev === cat ? null : cat))}
                 className="rounded-full px-3 py-[5px] font-geist text-[0.6875rem] font-bold"
                 style={{
                   border: `1.5px solid ${active ? c : 'var(--m-rowbr)'}`,
@@ -525,10 +531,9 @@ function NoteFormSheet({ open, target, categories, colorMap, canUploadFiles, onC
                   {f.original_name.length > 20 ? `${f.original_name.slice(0, 17)}...` : f.original_name}
                   <button
                     type="button"
-                    onClick={async () => {
-                      if (!note) return
-                      const removed = await onDeleteExistingFile(note.id, f.id)
-                      if (removed) setExistingFiles(prev => prev.filter(x => x.id !== f.id))
+                    onClick={() => {
+                      setExistingFiles(prev => prev.filter(x => x.id !== f.id))
+                      setRemovedFileIds(prev => [...prev, f.id])
                     }}
                     aria-label={t('collab.notes.removeFile', { name: f.original_name })}
                     className="text-[color:var(--m-st-danger)]"

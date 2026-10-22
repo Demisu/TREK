@@ -50,7 +50,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Редагувати користувача',
   'admin.newPassword': 'Новий пароль',
   'admin.newPasswordHint': 'Залиште порожнім, щоб зберегти поточний пароль',
-  'admin.deleteUser': 'Видалити користувача «{name}»? Усі подорожі будуть безповоротно видалені.',
+  'admin.deleteUser':
+    'Видалити користувача "{name}"? Його акаунт і всі поїздки та журнали, якими він володіє, буде остаточно видалено, зокрема поїздки, спільні з іншими учасниками, які втратять доступ. Поїздки, що належать іншим, залишаться.',
   'admin.deleteUserTitle': 'Видалити користувача',
   'admin.newPasswordPlaceholder': 'Введіть новий пароль…',
   'admin.toast.loadError': 'Не вдалося завантажити дані адміністрування',
@@ -201,9 +202,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.transitousHint':
     'Спільнотні GTFS-стрічки. Безкоштовно та без ключа, з найкращим покриттям у Європі.',
   'admin.transitProvider.googleHint':
-    'Використовує наведений вище ключ Google для регіонів, де Transitous не має даних. Оплата за кожен пошук — доки ключ не задано, використовується Transitous.',
+    'Використовує наведений вище ключ Google для регіонів, де Transitous не має даних. Оплата за кожен пошук; доки ключ не задано, використовується Transitous.',
   'admin.transitProvider.noKeyWarning':
-    'Вибрано Google, але ключ Google не налаштовано — пошук транспорту досі використовує Transitous. Додайте ключ у розділі «Ключі API» вище.',
+    'Вибрано Google, але ключ Google не налаштовано; пошук транспорту досі використовує Transitous. Додайте ключ у розділі «Ключі API» вище.',
   'admin.transitProvider.personalKeyWarning':
     'Задано лише ваш власний ключ Google, тож пошук інших учасників усе одно повертається до Transitous. Збережіть ключ вище як адміністратор, щоб він діяв для всієї інсталяції.',
   'admin.placeShadow.title': 'Журнал пошуку місць',
@@ -743,10 +744,10 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Записів аудиту поки немає.',
   'admin.audit.refresh': 'Оновити',
   'admin.audit.loadMore': 'Завантажити ще',
-  'admin.audit.showing': 'Завантажено {count} запису · всього {total}',
-  'admin.audit.showing.one': 'Завантажено {count} запис · всього {total}',
-  'admin.audit.showing.few': 'Завантажено {count} записи · всього {total}',
-  'admin.audit.showing.many': 'Завантажено {count} записів · всього {total}',
+  'admin.audit.showing': 'Завантажено {count} запису, всього {total}',
+  'admin.audit.showing.one': 'Завантажено {count} запис, всього {total}',
+  'admin.audit.showing.few': 'Завантажено {count} записи, всього {total}',
+  'admin.audit.showing.many': 'Завантажено {count} записів, всього {total}',
   'admin.audit.col.time': 'Час',
   'admin.audit.col.user': 'Користувач',
   'admin.audit.col.action': 'Дія',
@@ -975,5 +976,37 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'Відхилити',
   'admin.paddleRegions.origin.auto': 'Автоматично',
   'admin.paddleRegions.origin.autoHint': 'TREK завантажив цей регіон сам для сплаву, який там планується.',
+  'admin.mfa.reset': 'Скинути 2FA',
+  'admin.mfa.resetHint':
+    'Вимикає двофакторну автентифікацію користувача, наприклад після втрати телефона. Його буде виведено з акаунта всюди, а після входу з паролем він зможе налаштувати її знову.',
+  'admin.mfa.resetConfirm': 'Вимкнути двофакторну автентифікацію для {name}?',
+  'admin.mfa.resetDone': 'Двофакторну автентифікацію скинуто',
+  'admin.danger.title': 'Небезпечна зона',
+  'admin.rotateJwt.title': 'Змінити секрет JWT',
+  'admin.rotateJwt.hint': 'Створює новий секрет підпису JWT. Усі активні сеанси буде негайно анульовано.',
+  'admin.rotateJwt.confirm': 'Змінити й вийти',
+  'admin.rotateJwt.warning': 'Увага: усі сеанси буде анульовано, і ви також вийдете з системи.',
+  'admin.rotateJwt.body':
+    'Новий секрет JWT буде створено негайно. Усіх користувачів, які ввійшли, зокрема й вас, буде виведено з системи, і їм доведеться увійти знову.',
+  'admin.oidcDisplayNamePlaceholder': 'наприклад, Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery URL (необов’язково)',
+  'admin.oidcDiscoveryUrlHint':
+    'Замінює автоматично сформований discovery URL. Потрібен для провайдерів на кшталт Authentik, де кінцева точка розташована не за адресою {path}.',
+  'admin.smtp.skipTls': 'Пропустити перевірку сертифіката TLS',
+  'admin.smtp.skipTlsHint': 'Увімкніть для самопідписаних сертифікатів на локальних поштових серверах',
+  'admin.demoBaseline.title': 'Базовий стан демо',
+  'admin.demoBaseline.hint':
+    'Зберігає поточний стан як точку щогодинного скидання. Усі поїздки й налаштування адміністратора буде збережено.',
+  'admin.demoBaseline.button': 'Зберегти базовий стан',
+  'admin.demoBaseline.saved': 'Базовий стан збережено! Скидання повертатиме до цього стану.',
+  'admin.demoBaseline.failed': 'Не вдалося зберегти базовий стан',
+  'admin.invite.deleteTitle': 'Видалити запрошення за посиланням',
+  'admin.invite.deleteConfirm':
+    'Видалити це запрошення за посиланням? Ті, хто ще не скористався ним, більше не зможуть зареєструватися.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Видалити шаблон',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Видалити шаблон "{name}" з усіма категоріями та пунктами?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Видалити категорію',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Видалити категорію "{name}" і всі її пункти?',
+  'admin.rotateJwt.button': 'Оновити',
 };
 export default admin;

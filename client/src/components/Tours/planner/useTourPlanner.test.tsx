@@ -16,8 +16,12 @@ const { routeWalkingTour, enrichTourElevations, createTour, detailTour, updateTo
 
 vi.mock('./tourRouting', () => ({ routeWalkingTour, enrichTourElevations }))
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }))
+vi.mock('../../../repo/tourDraftRepo', async () => ({
+  tourDraftRepo: (await import('../../../../tests/helpers/fakeTourDraftRepo')).fakeTourDraftRepo,
+}))
 vi.mock('../useTourPermissions', () => ({ useTourPermissions: ({ canEdit = true, canAssign = true }: { canEdit?: boolean; canAssign?: boolean }) => ({ canEdit, canAssign }) }))
 
+import { draftStore } from '../../../../tests/helpers/fakeTourDraftRepo'
 import { useTourPlanner } from './useTourPlanner'
 import { hikingTimeMinutes } from '@trek/shared'
 import { analyzeRouteGeometry } from '../../../utils/routeGeometry'
@@ -61,6 +65,7 @@ describe('useTourPlanner', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     localStorage.clear()
+    draftStore.clear()
     routeWalkingTour.mockReset().mockResolvedValue(routed)
     enrichTourElevations.mockReset().mockResolvedValue(enriched)
     createTour.mockReset()
@@ -96,7 +101,7 @@ describe('useTourPlanner', () => {
     expect(result.current.maxHikingDifficulty).toBe(3)
     expect(result.current.derivedFromPlaceId).toBe(14)
     // The draft keeps where it came from across a reload.
-    expect(JSON.parse(localStorage.getItem('tour-draft-7') ?? '{}').derivedFromPlaceId).toBe(14)
+    expect(JSON.parse(draftStore.getItem('tour-draft-7') ?? '{}').derivedFromPlaceId).toBe(14)
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(450)
@@ -223,7 +228,7 @@ describe('useTourPlanner', () => {
     expect(result.current.waypoints[1]).toMatchObject({ lat: 48.03, lng: 11.04 })
   })
 
-  it('RC-08: preserves a dragged coordinate through draft recovery', () => {
+  it('RC-08: preserves a dragged coordinate through draft recovery', async () => {
     const first = renderHook(() => useTourPlanner({ tripId: 75 }))
     act(() => {
       first.result.current.addWaypoint(48, 11)
@@ -235,6 +240,7 @@ describe('useTourPlanner', () => {
     first.unmount()
 
     const recovered = renderHook(() => useTourPlanner({ tripId: 75 }))
+    await act(async () => {})
     expect(recovered.result.current.waypoints[1]).toMatchObject({ id: waypoint.id, lat: 48.15, lng: 11.16 })
   })
 
@@ -353,7 +359,7 @@ describe('useTourPlanner', () => {
     }))
   })
 
-  it('RS-01: restores informational metadata from draft and blocks an unsafe website', () => {
+  it('RS-01: restores informational metadata from draft and blocks an unsafe website', async () => {
     const first = renderHook(() => useTourPlanner({ tripId: 71 }))
     act(() => {
       first.result.current.addWaypoint(48, 11)
@@ -367,6 +373,7 @@ describe('useTourPlanner', () => {
     first.unmount()
 
     const recovered = renderHook(() => useTourPlanner({ tripId: 71 }))
+    await act(async () => {})
     expect(recovered.result.current.description).toBe('Restored description')
     expect(recovered.result.current.website).toBe('https://example.org/route')
     expect(recovered.result.current.plannedDurationMinutes).toBe(95)
@@ -537,7 +544,7 @@ describe('useTourPlanner', () => {
     ]);
   });
 
-  it('RC-07: preserves an earlier waypoint move through draft recovery', () => {
+  it('RC-07: preserves an earlier waypoint move through draft recovery', async () => {
     const first = renderHook(() => useTourPlanner({ tripId: 78 }));
     act(() => {
       first.result.current.addWaypoint(48, 11);
@@ -549,13 +556,14 @@ describe('useTourPlanner', () => {
     act(() => first.result.current.reorderWaypoint(ids[2], ids[0], 'before'));
     expect(first.result.current.waypoints.map((point) => point.id)).toEqual([ids[2], ids[0], ids[1]]);
     expect(first.result.current.waypoints.map((point) => point.role)).toEqual(['start', 'via', 'end']);
-    const storedRaw = localStorage.getItem('tour-draft-78');
+    const storedRaw = draftStore.getItem('tour-draft-78');
     if (storedRaw === null) throw new Error('expected a stored tour draft');
     const stored = JSON.parse(storedRaw) as { waypoints: { id: string }[] };
     expect(stored.waypoints.map((point) => point.id)).toEqual([ids[2], ids[0], ids[1]]);
 
     first.unmount();
     const recovered = renderHook(() => useTourPlanner({ tripId: 78 }));
+    await act(async () => {})
     expect(recovered.result.current.waypoints.map((point) => point.id)).toEqual([ids[2], ids[0], ids[1]]);
     expect(recovered.result.current.waypoints.map((point) => point.role)).toEqual(['start', 'via', 'end']);
   });
@@ -714,7 +722,7 @@ describe('useTourPlanner', () => {
     }))
   })
 
-  it('RS-01: restores informational metadata from draft and blocks an unsafe website', () => {
+  it('RS-01: restores informational metadata from draft and blocks an unsafe website', async () => {
     const first = renderHook(() => useTourPlanner({ tripId: 71 }))
     act(() => {
       first.result.current.addWaypoint(48, 11)
@@ -726,6 +734,7 @@ describe('useTourPlanner', () => {
     first.unmount()
 
     const recovered = renderHook(() => useTourPlanner({ tripId: 71 }))
+    await act(async () => {})
     expect(recovered.result.current.description).toBe('Restored description')
     expect(recovered.result.current.website).toBe('https://example.org/route')
     act(() => recovered.result.current.setWebsite('http://example.org/route'))
@@ -761,10 +770,39 @@ describe('useTourPlanner', () => {
 
     act(() => result.current.viewGpxTour({ ...savedTour, has_waypoints: false }, '[[48,11],[48.01,11.02]]'))
     expect(result.current.mapFocusKey).toBe(initialFocusKey + 2)
+
+    // Leaving a tour keeps the view the traveller had; a plain return to neutral frames the trip again.
+    act(() => result.current.discard())
+    expect(result.current.mapFocusKey).toBe(initialFocusKey + 2)
+    act(() => result.current.startNewTour(true))
+    expect(result.current.mapFocusKey).toBe(initialFocusKey + 2)
+    act(() => result.current.returnToNeutral({ keepView: true }))
+    expect(result.current.mapFocusKey).toBe(initialFocusKey + 2)
+    act(() => result.current.returnToNeutral())
+    expect(result.current.mapFocusKey).toBe(initialFocusKey + 3)
   })
 
-  it('TOUR-PLANNER-002: restores a trip-scoped local draft without changing stable ids', () => {
-    localStorage.setItem('tour-draft-8', JSON.stringify({
+  it("puts a fixed leg after the named stop, or after the end of that stop's own fixed leg, else on the end", () => {
+    const { result } = renderHook(() => useTourPlanner({ tripId: 8 }))
+    act(() => {
+      result.current.addWaypoint(48, 11)
+      result.current.addWaypoint(48.1, 11)
+      result.current.addWaypoint(48.2, 11)
+    })
+    const ids = result.current.waypoints.map(point => point.id)
+    const leg = { kind: 'ferrata' as const, ref: 'x', name: 'X', geometry: [[48.05, 11], [48.06, 11]] as [number, number][] }
+    act(() => result.current.appendFixedLeg(leg, ids[0]))
+    const lats = () => result.current.waypoints.map(point => point.lat)
+    expect(lats()).toEqual([48, 48.05, 48.06, 48.1, 48.2])
+    // The first stop now ends nothing but the new leg starts at the second point, which keeps its fixed leg.
+    act(() => result.current.appendFixedLeg({ ...leg, geometry: [[48.15, 11], [48.16, 11]] }, result.current.waypoints[1].id))
+    expect(lats()).toEqual([48, 48.05, 48.06, 48.15, 48.16, 48.1, 48.2])
+    act(() => result.current.appendFixedLeg({ ...leg, geometry: [[48.3, 11], [48.31, 11]] }))
+    expect(lats().slice(-2)).toEqual([48.3, 48.31])
+  })
+
+  it('TOUR-PLANNER-002: restores a trip-scoped account draft without changing stable ids', async () => {
+    draftStore.setItem('tour-draft-8', JSON.stringify({
       version: 1,
       name: 'Recovered ridge',
       waypoints: [
@@ -774,7 +812,10 @@ describe('useTourPlanner', () => {
     }))
 
     const { result } = renderHook(() => useTourPlanner({ tripId: 8 }))
+    expect(result.current.name).toBe('')
+    await act(async () => {})
     expect(result.current.name).toBe('Recovered ridge')
+    expect(result.current.draftRestored).toBe(true)
     expect(result.current.waypoints.map(point => [point.id, point.role])).toEqual([
       ['stable-a', 'start'], ['stable-b', 'end'],
     ])
@@ -821,7 +862,7 @@ describe('useTourPlanner', () => {
     expect(result.current.routeAnalysis?.distanceIndexedProfileSamples).toHaveLength(2)
     await act(async () => { await result.current.save() })
     expect(createTour).toHaveBeenCalledWith(10, expect.objectContaining({ route_geometry: enriched }))
-    expect(localStorage.getItem('tour-draft-10')).toBeNull()
+    expect(draftStore.getItem('tour-draft-10')).toBeNull()
     expect(result.current.status).toBe('saved')
     expect(result.current.canUndo).toBe(false)
     expect(result.current.canRedo).toBe(false)
@@ -891,7 +932,7 @@ describe('useTourPlanner', () => {
     expect(result.current.name).toBe('Newer ridge edit')
     expect(result.current.hasUnsavedChanges).toBe(true)
     expect(result.current.canUndo).toBe(true)
-    expect(JSON.parse(localStorage.getItem('tour-draft-101') || 'null')).toMatchObject({ name: 'Newer ridge edit' })
+    expect(JSON.parse(draftStore.getItem('tour-draft-101') || 'null')).toMatchObject({ name: 'Newer ridge edit' })
 
     await act(async () => {
       pending.resolve({ tour: { ...savedTour, name: 'Submitted ridge' }, waypoints: [] })
@@ -902,8 +943,8 @@ describe('useTourPlanner', () => {
     expect(result.current.hasUnsavedChanges).toBe(true)
     expect(result.current.canUndo).toBe(true)
     expect(result.current.saveOutcome).toBeNull()
-    expect(localStorage.getItem('tour-draft-101')).not.toBeNull()
-    expect(JSON.parse(localStorage.getItem('tour-draft-101') || 'null')).toMatchObject({ name: 'Newer ridge edit' })
+    expect(draftStore.getItem('tour-draft-101')).not.toBeNull()
+    expect(JSON.parse(draftStore.getItem('tour-draft-101') || 'null')).toMatchObject({ name: 'Newer ridge edit' })
     expect(onSaved).toHaveBeenCalledOnce()
     expect(result.current.isSaving).toBe(false)
   })
@@ -964,7 +1005,7 @@ describe('useTourPlanner', () => {
     expect(result.current.hasUnsavedChanges).toBe(true)
     expect(result.current.error).toBeNull()
     expect(result.current.status).toBe('ready')
-    expect(JSON.parse(localStorage.getItem('tour-draft-103') || 'null')).toMatchObject({ name: 'Latest name' })
+    expect(JSON.parse(draftStore.getItem('tour-draft-103') || 'null')).toMatchObject({ name: 'Latest name' })
     expect(result.current.isSaving).toBe(false)
   })
 
@@ -1112,13 +1153,13 @@ describe('useTourPlanner', () => {
     let openDraftRequest!: Promise<boolean>
     act(() => { openDraftRequest = draftPlanner.result.current.openTour(savedTour) })
     act(() => draftPlanner.result.current.startNewTour())
-    const draftRecovery = localStorage.getItem('tour-draft-132')
+    const draftRecovery = draftStore.getItem('tour-draft-132')
     await act(async () => {
       draftRequest.resolve({ tour: savedTour, waypoints: [] })
       expect(await openDraftRequest).toBe(false)
     })
     expect(draftPlanner.result.current.mode).toEqual({ type: 'new-draft' })
-    expect(localStorage.getItem('tour-draft-132')).toBe(draftRecovery)
+    expect(draftStore.getItem('tour-draft-132')).toBe(draftRecovery)
     expect(draftPlanner.result.current.editingPlaceId).toBeNull()
   })
 
@@ -1224,7 +1265,7 @@ describe('useTourPlanner', () => {
     act(() => result.current.viewGpxTour({ ...savedTour, has_waypoints: false }, geometry))
     act(() => result.current.setRouteProfileFocus(focus))
     expect(result.current.routeProfileFocus).toEqual(focus)
-    expect(localStorage.getItem('tour-draft-141')).toBeNull()
+    expect(draftStore.getItem('tour-draft-141')).toBeNull()
 
     act(() => result.current.toggleElevationProfile())
     expect(result.current.elevationProfileExpanded).toBe(false)
@@ -1257,7 +1298,7 @@ describe('useTourPlanner', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(450) })
     expect(result.current.enrichedGeometry).toEqual(replacementGeometry)
     expect(result.current.routeProfileFocus).toBeNull()
-    expect(JSON.parse(localStorage.getItem('tour-draft-142') || '{}')).not.toHaveProperty('routeProfileFocus')
+    expect(JSON.parse(draftStore.getItem('tour-draft-142') || '{}')).not.toHaveProperty('routeProfileFocus')
   })
 
   it('clears derived route state when deleting below two waypoints', async () => {
@@ -1289,7 +1330,7 @@ describe('useTourPlanner', () => {
     expect(result.current.maxHikingDifficulty).toBe(4)
     expect(result.current.hasUnsavedChanges).toBe(true)
     expect(result.current.canUndo).toBe(true)
-    expect(JSON.parse(localStorage.getItem('tour-draft-143') || 'null')).toMatchObject({
+    expect(JSON.parse(draftStore.getItem('tour-draft-143') || 'null')).toMatchObject({
       name: 'Keep this draft', maxHikingDifficulty: 4, waypoints: [{ lat: 48, lng: 11, role: 'start' }],
     })
   })
@@ -1417,11 +1458,11 @@ describe('useTourPlanner', () => {
     expect(result.current.name).toBe('Undo ridge')
     expect(result.current.maxHikingDifficulty).toBe(5)
     expect(result.current.canSave).toBe(false)
-    expect(JSON.parse(localStorage.getItem('tour-draft-148') || 'null')?.waypoints).toHaveLength(1)
+    expect(JSON.parse(draftStore.getItem('tour-draft-148') || 'null')?.waypoints).toHaveLength(1)
   })
 
   it('restores a one-waypoint draft without routed or elevation output', async () => {
-    localStorage.setItem('tour-draft-149', JSON.stringify({
+    draftStore.setItem('tour-draft-149', JSON.stringify({
       version: 2,
       name: 'Recovered incomplete ridge',
       waypoints: [{ id: 'only-point', lat: 48, lng: 11, role: 'start' }],
@@ -1441,14 +1482,14 @@ describe('useTourPlanner', () => {
     expect(result.current.durationSeconds).toBeNull()
     expect(result.current.canSave).toBe(false)
     expect(routeWalkingTour).not.toHaveBeenCalled()
-    expect(localStorage.getItem('tour-draft-149')).not.toBeNull()
+    expect(draftStore.getItem('tour-draft-149')).not.toBeNull()
   })
 
   it('TOUR-PLANNER-009: persists a changed routing difficulty in the recoverable draft', () => {
     const { result } = renderHook(() => useTourPlanner({ tripId: 15 }))
     act(() => result.current.setMaxHikingDifficulty(4))
 
-    expect(JSON.parse(localStorage.getItem('tour-draft-15') || 'null')).toMatchObject({
+    expect(JSON.parse(draftStore.getItem('tour-draft-15') || 'null')).toMatchObject({
       maxHikingDifficulty: 4,
     })
   })
@@ -1461,7 +1502,7 @@ describe('useTourPlanner', () => {
     })
     act(() => result.current.setHikingPreferences({ avoid_steps: true, avoid_climbs: false }))
     expect(result.current.hikingPreferences).toEqual({ avoid_steps: true })
-    expect(JSON.parse(localStorage.getItem('tour-draft-41') || 'null')).toMatchObject({ hikingPreferences: { avoid_steps: true } })
+    expect(JSON.parse(draftStore.getItem('tour-draft-41') || 'null')).toMatchObject({ hikingPreferences: { avoid_steps: true } })
     await act(async () => { await vi.advanceTimersByTimeAsync(450) })
     expect(routeWalkingTour).toHaveBeenLastCalledWith(expect.any(Array), expect.any(AbortSignal), 2, { avoid_steps: true })
 
@@ -1484,7 +1525,7 @@ describe('useTourPlanner', () => {
       result.current.setMaxHikingDifficulty(4)
     })
     await act(async () => { await vi.advanceTimersByTimeAsync(450) })
-    const previousDraft = localStorage.getItem('tour-draft-16')
+    const previousDraft = draftStore.getItem('tour-draft-16')
     expect(previousDraft).not.toBeNull()
     expect(result.current.canUndo).toBe(true)
 
@@ -1504,13 +1545,13 @@ describe('useTourPlanner', () => {
     expect(result.current.hasUnsavedChanges).toBe(true)
     expect(result.current.mode).toEqual({ type: 'new-draft' })
     expect(result.current.status).toBe('empty')
-    expect(JSON.parse(localStorage.getItem('tour-draft-16') || 'null')).toMatchObject({
+    expect(JSON.parse(draftStore.getItem('tour-draft-16') || 'null')).toMatchObject({
       name: '', waypoints: [], maxHikingDifficulty: 2, editingPlaceId: null,
     })
 
     act(() => result.current.addWaypoint(47, 10))
-    expect(localStorage.length).toBe(1)
-    expect(JSON.parse(localStorage.getItem('tour-draft-16') || 'null')).toMatchObject({
+    expect(draftStore.length).toBe(1)
+    expect(JSON.parse(draftStore.getItem('tour-draft-16') || 'null')).toMatchObject({
       name: '',
       maxHikingDifficulty: 2,
       editingPlaceId: null,
@@ -1526,19 +1567,19 @@ describe('useTourPlanner', () => {
       result.current.addWaypoint(48.01, 11.02)
     })
     const waypoints = result.current.waypoints
-    const storedDraft = localStorage.getItem('tour-draft-17')
+    const storedDraft = draftStore.getItem('tour-draft-17')
 
     act(() => result.current.startNewTour())
     expect(result.current.newTourConfirmationOpen).toBe(true)
     expect(result.current.name).toBe('Keep this draft')
     expect(result.current.waypoints).toBe(waypoints)
-    expect(localStorage.getItem('tour-draft-17')).toBe(storedDraft)
+    expect(draftStore.getItem('tour-draft-17')).toBe(storedDraft)
 
     act(() => result.current.cancelNewTour())
     expect(result.current.newTourConfirmationOpen).toBe(false)
     expect(result.current.name).toBe('Keep this draft')
     expect(result.current.waypoints).toBe(waypoints)
-    expect(localStorage.getItem('tour-draft-17')).toBe(storedDraft)
+    expect(draftStore.getItem('tour-draft-17')).toBe(storedDraft)
   })
 
   it('TOUR-PLANNER-012: opening a saved Tour then starting new never updates the saved Tour', async () => {
@@ -1586,7 +1627,7 @@ describe('useTourPlanner', () => {
     expect(result.current.newTourConfirmationOpen).toBe(false)
     expect(result.current.maxHikingDifficulty).toBe(2)
     expect(result.current.waypoints).toEqual([])
-    expect(JSON.parse(localStorage.getItem('tour-draft-20') || 'null')).toMatchObject({
+    expect(JSON.parse(draftStore.getItem('tour-draft-20') || 'null')).toMatchObject({
       name: '', waypoints: [], maxHikingDifficulty: 2,
     })
   })
@@ -1609,7 +1650,7 @@ describe('useTourPlanner', () => {
     expect(result.current.name).toBe('')
     expect(result.current.waypoints).toEqual([])
     expect(result.current.hasUnsavedChanges).toBe(false)
-    expect(localStorage.getItem('tour-draft-22')).toBeNull()
+    expect(draftStore.getItem('tour-draft-22')).toBeNull()
   })
 
   it('TOUR-PLANNER-017: starting new derives new-draft and persists its blank T2 draft', () => {
@@ -1617,7 +1658,7 @@ describe('useTourPlanner', () => {
     act(() => result.current.startNewTour())
 
     expect(result.current.mode).toEqual({ type: 'new-draft' })
-    expect(JSON.parse(localStorage.getItem('tour-draft-23') || 'null')).toMatchObject({
+    expect(JSON.parse(draftStore.getItem('tour-draft-23') || 'null')).toMatchObject({
       version: 11,
       tourType: 'hike',
       name: '',
@@ -1627,15 +1668,15 @@ describe('useTourPlanner', () => {
     })
   })
 
-  it('TOUR-PLANNER-018: restores new and saved drafts into their derived modes', () => {
-    localStorage.setItem('tour-draft-24', JSON.stringify({
+  it('TOUR-PLANNER-018: restores new and saved drafts into their derived modes', async () => {
+    draftStore.setItem('tour-draft-24', JSON.stringify({
       version: 2,
       name: 'Restored new hike',
       waypoints: [{ id: 'new-start', lat: 48, lng: 11, role: 'start' }],
       maxHikingDifficulty: 2,
       editingPlaceId: null,
     }))
-    localStorage.setItem('tour-draft-25', JSON.stringify({
+    draftStore.setItem('tour-draft-25', JSON.stringify({
       version: 2,
       name: 'Restored saved hike',
       waypoints: [{ id: 'saved-start', lat: 48, lng: 11, role: 'start' }],
@@ -1645,6 +1686,7 @@ describe('useTourPlanner', () => {
 
     const freshDraft = renderHook(() => useTourPlanner({ tripId: 24 }))
     const savedEdit = renderHook(() => useTourPlanner({ tripId: 25 }))
+    await act(async () => {})
 
     expect(freshDraft.result.current.mode).toEqual({ type: 'new-draft' })
     expect(freshDraft.result.current.draftRestored).toBe(true)
@@ -1683,24 +1725,25 @@ describe('useTourPlanner', () => {
     expect(result.current.hasUnsavedChanges).toBe(false)
   })
 
-  it('TOUR-PLANNER-020: leaving Tours forgets GPX but preserves a meaningful editable draft', () => {
+  it('TOUR-PLANNER-020: leaving Tours forgets GPX but preserves a meaningful editable draft', async () => {
     const { result, unmount } = renderHook(() => useTourPlanner({ tripId: 27 }))
     act(() => {
       result.current.startNewTour()
       result.current.setName('Keep this new draft')
       result.current.addWaypoint(48, 11)
     })
-    const savedDraft = localStorage.getItem('tour-draft-27')
+    const savedDraft = draftStore.getItem('tour-draft-27')
 
     act(() => result.current.closeGpxTour())
 
     expect(result.current.mode).toEqual({ type: 'new-draft' })
     expect(result.current.name).toBe('Keep this new draft')
     expect(result.current.waypoints).toHaveLength(1)
-    expect(localStorage.getItem('tour-draft-27')).toBe(savedDraft)
+    expect(draftStore.getItem('tour-draft-27')).toBe(savedDraft)
 
     unmount()
     const reopened = renderHook(() => useTourPlanner({ tripId: 27 }))
+    await act(async () => {})
     expect(reopened.result.current.mode).toEqual({ type: 'new-draft' })
     expect(reopened.result.current.name).toBe('Keep this new draft')
 
@@ -1728,7 +1771,7 @@ describe('useTourPlanner', () => {
     await act(async () => { await result.current.openTour(savedTour) })
     act(() => result.current.setName('Unsaved rename'))
     expect(result.current.mode).toEqual({ type: 'edit-saved', placeId: savedTour.place_id })
-    const persistedDraft = localStorage.getItem('tour-draft-29')
+    const persistedDraft = draftStore.getItem('tour-draft-29')
     expect(persistedDraft).not.toBeNull()
 
     act(() => result.current.returnToNeutral())
@@ -1736,7 +1779,7 @@ describe('useTourPlanner', () => {
     expect(result.current.mode).toEqual({ type: 'neutral' })
     expect(result.current.waypoints).toEqual([])
     expect(result.current.name).toBe('')
-    expect(localStorage.getItem('tour-draft-29')).toBeNull()
+    expect(draftStore.getItem('tour-draft-29')).toBeNull()
     expect(updateTour).not.toHaveBeenCalled()
     expect(createTour).not.toHaveBeenCalled()
   })
@@ -1768,7 +1811,7 @@ describe('useTourPlanner', () => {
     expect(result.current.error).toBeNull()
     expect(result.current.hasUnsavedChanges).toBe(false)
     expect(result.current.canSave).toBe(false)
-    expect(localStorage.getItem('tour-draft-29')).toBeNull()
+    expect(draftStore.getItem('tour-draft-29')).toBeNull()
     expect(screen.getByText('Plan a tour')).toBeInTheDocument()
     expect(screen.queryByLabelText('Tour could not be saved. Your draft is still here.')).not.toBeInTheDocument()
     await act(async () => { expect(await result.current.save()).toBeNull() })

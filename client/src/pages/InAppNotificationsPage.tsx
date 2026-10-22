@@ -2,7 +2,9 @@ import React from 'react'
 import { CheckCheck, Trash2 } from 'lucide-react'
 import { useTranslation } from '../i18n'
 import PageShell from '../components/Layout/PageShell'
+import HelpAnchor from '../components/Help/HelpAnchor'
 import EmptyState from '../components/shared/EmptyState'
+import ConfirmDialog from '../components/shared/ConfirmDialog'
 import { Spinner } from '../components/shared/Spinner'
 import InAppNotificationItem from '../components/Notifications/InAppNotificationItem.tsx'
 import { useInAppNotifications } from './inAppNotifications/useInAppNotifications'
@@ -19,11 +21,12 @@ function InAppNotificationsPageDesktop(): React.ReactElement {
   const {
     notifications, unreadCount, total, isLoading, hasMore,
     unreadOnly, setUnreadOnly, loaderRef, displayed,
-    markAllRead, deleteAll,
+    markAllRead, confirmingDeleteAll, requestDeleteAll, cancelDeleteAll, confirmDeleteAll,
   } = useInAppNotifications()
 
   return (
     <PageShell background="var(--bg-primary)">
+      <HelpAnchor id="notifications" />
       <div className="max-w-2xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -46,9 +49,7 @@ function InAppNotificationsPageDesktop(): React.ReactElement {
               {unreadCount > 0 && (
                 <button type="button"
                   onClick={markAllRead}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors text-content-secondary bg-surface-hover"
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-tertiary)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors text-content-secondary bg-surface-hover hover:bg-surface-tertiary focus-visible:bg-surface-tertiary"
                 >
                   <CheckCheck className="w-4 h-4" />
                   <span className="hidden sm:inline">{t('notifications.markAllRead')}</span>
@@ -56,8 +57,8 @@ function InAppNotificationsPageDesktop(): React.ReactElement {
               )}
               {notifications.length > 0 && (
                 <button type="button"
-                  onClick={deleteAll}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors text-red-500 hover:bg-red-500/10"
+                  onClick={requestDeleteAll}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors text-danger hover:bg-danger-soft focus-visible:bg-danger-soft"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span className="hidden sm:inline">{t('notifications.deleteAll')}</span>
@@ -104,6 +105,14 @@ function InAppNotificationsPageDesktop(): React.ReactElement {
             )}
           </div>
         </div>
+      <ConfirmDialog
+        isOpen={confirmingDeleteAll}
+        onClose={cancelDeleteAll}
+        onConfirm={confirmDeleteAll}
+        title={t('notifications.deleteAllConfirmTitle')}
+        message={t('notifications.deleteAllConfirmText')}
+        confirmLabel={t('notifications.deleteAll')}
+      />
     </PageShell>
   )
 }

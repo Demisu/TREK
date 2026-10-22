@@ -254,5 +254,6 @@ const reservations: TranslationStrings = {
   'reservations.showInFiles': '在文件中显示',
   'reservations.filesNeedConnection': '上传文件需要网络连接。移除新文件即可离线保存这条预订，或在恢复联网后再保存。',
   'reservations.needsConnection': '此操作需要网络连接。请在 TREK 恢复联网后重试。',
+  'reservations.exportCsvFiltered': '导出显示的 {shown}/{total} 行 (CSV)',
 };
 export default reservations;

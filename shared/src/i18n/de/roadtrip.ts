@@ -249,8 +249,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Der Ausweich-Router hat für diese Etappe nicht geantwortet, deshalb hat der Haupt-Router sie gezeichnet. Der Ausweich-Router wird jetzt noch einmal gefragt.',
   'roadtrip.day': 'Tag {number}',
-  'roadtrip.quietDay.empty': 'Noch keine Stopps — hier ablegen',
-  'roadtrip.quietDay.one': 'Bisher nur {name} — hier einen Stopp ablegen',
+  'roadtrip.quietDay.empty': 'Noch keine Stopps, hier ablegen',
+  'roadtrip.quietDay.one': 'Bisher nur {name}, hier einen Stopp ablegen',
   'roadtrip.leg.driveText': '{distance} in {time}',
   'roadtrip.day.stopCount': '{count} Stopps',
   'roadtrip.day.stopCount.one': '{count} Stopp',
@@ -335,5 +335,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Abfahrt nach dem Check-out',
   'roadtrip.bookend.noVia':
     'Auf der Fahrt zur oder von der Unterkunft geht kein Zwischenpunkt. Füge dort stattdessen einen Stopp hinzu.',
+  'roadtrip.stay.untilHint':
+    'Die Weiterfahrt ist um {time}, weil dieser Besuch eine Endzeit hat. Öffnen und Endzeit entfernen wählen, um stattdessen eine Aufenthaltsdauer festzulegen.',
 };
 export default roadtrip;

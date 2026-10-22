@@ -903,7 +903,7 @@ export class PackingService {
       actorId: actor.id,
       scope: 'trip',
       targetId: Number(tripId),
-      params: { trip: tripTitle || 'Untitled', actor: actor.email, category, tripId: String(tripId) },
+      params: { trip: tripTitle || 'Untitled', actor: actor.username, category, tripId: String(tripId) },
     }).catch(() => {});
   }
 }

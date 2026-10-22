@@ -40,7 +40,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Edytuj użytkownika',
   'admin.newPassword': 'Nowe hasło',
   'admin.newPasswordHint': 'Pozostaw puste, aby zachować obecne hasło',
-  'admin.deleteUser': 'Usunąć użytkownika "{name}"? Wszystkie jego podróże zostaną trwale usunięte.',
+  'admin.deleteUser':
+    'Usunąć użytkownika "{name}"? Jego konto oraz wszystkie należące do niego podróże i dzienniki zostaną trwale usunięte, także podróże udostępnione innym członkom, którzy utracą do nich dostęp. Podróże należące do innych osób pozostają.',
   'admin.deleteUserTitle': 'Usuń użytkownika',
   'admin.newPasswordPlaceholder': 'Podaj nowe hasło...',
   'admin.toast.loadError': 'Nie udało się załadować danych administratora',
@@ -193,9 +194,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.transitousHint':
     'Społecznościowe źródła GTFS. Bezpłatne i bez klucza, z najlepszym zasięgiem w Europie.',
   'admin.transitProvider.googleHint':
-    'Używa powyższego klucza Google w regionach, dla których Transitous nie ma danych. Rozliczane za wyszukiwanie — dopóki nie ustawiono klucza, działa Transitous.',
+    'Używa powyższego klucza Google w regionach, dla których Transitous nie ma danych. Rozliczane za wyszukiwanie; dopóki nie ustawiono klucza, działa Transitous.',
   'admin.transitProvider.noKeyWarning':
-    'Wybrano Google, ale nie skonfigurowano klucza Google — wyszukiwanie transportu nadal korzysta z Transitous. Dodaj klucz w sekcji Klucze API powyżej.',
+    'Wybrano Google, ale nie skonfigurowano klucza Google; wyszukiwanie transportu nadal korzysta z Transitous. Dodaj klucz w sekcji Klucze API powyżej.',
   'admin.transitProvider.personalKeyWarning':
     'Ustawiono tylko Twój własny klucz Google, więc wyszukiwanie pozostałych członków nadal wraca do Transitous. Zapisz klucz powyżej jako administrator, aby obowiązywał w całej instancji.',
   'admin.placeShadow.title': 'Dziennik wyszukiwania miejsc',
@@ -742,10 +743,10 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Brak zapisów w historii aktywności.',
   'admin.audit.refresh': 'Odśwież',
   'admin.audit.loadMore': 'Załaduj więcej',
-  'admin.audit.showing': 'Załadowano {count} wpisu · łącznie {total}',
-  'admin.audit.showing.one': 'Załadowano {count} wpis · łącznie {total}',
-  'admin.audit.showing.few': 'Załadowano {count} wpisy · łącznie {total}',
-  'admin.audit.showing.many': 'Załadowano {count} wpisów · łącznie {total}',
+  'admin.audit.showing': 'Załadowano {count} wpisu, łącznie {total}',
+  'admin.audit.showing.one': 'Załadowano {count} wpis, łącznie {total}',
+  'admin.audit.showing.few': 'Załadowano {count} wpisy, łącznie {total}',
+  'admin.audit.showing.many': 'Załadowano {count} wpisów, łącznie {total}',
   'admin.audit.col.time': 'Czas',
   'admin.audit.col.user': 'Użytkownik',
   'admin.audit.col.action': 'Akcja',
@@ -987,5 +988,37 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'Odrzuć',
   'admin.paddleRegions.origin.auto': 'Automatycznie',
   'admin.paddleRegions.origin.autoHint': 'TREK wczytał ten region sam dla planowanego tam spływu.',
+  'admin.mfa.reset': 'Zresetuj 2FA',
+  'admin.mfa.resetHint':
+    'Wyłącza uwierzytelnianie dwuskładnikowe tego użytkownika, na przykład po zgubieniu telefonu. Użytkownik zostaje wylogowany ze wszystkich urządzeń i po zalogowaniu hasłem może skonfigurować je ponownie.',
+  'admin.mfa.resetConfirm': 'Wyłączyć uwierzytelnianie dwuskładnikowe dla {name}?',
+  'admin.mfa.resetDone': 'Uwierzytelnianie dwuskładnikowe zostało zresetowane',
+  'admin.danger.title': 'Strefa zagrożenia',
+  'admin.rotateJwt.title': 'Zmień sekret JWT',
+  'admin.rotateJwt.hint': 'Generuje nowy sekret podpisu JWT. Wszystkie aktywne sesje zostaną natychmiast unieważnione.',
+  'admin.rotateJwt.confirm': 'Zmień i wyloguj',
+  'admin.rotateJwt.warning': 'Uwaga: spowoduje to unieważnienie wszystkich sesji i wylogowanie Ciebie.',
+  'admin.rotateJwt.body':
+    'Nowy sekret JWT zostanie wygenerowany natychmiast. Wszyscy zalogowani użytkownicy, w tym Ty, zostaną wylogowani i będą musieli zalogować się ponownie.',
+  'admin.oidcDisplayNamePlaceholder': 'np. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Adres URL discovery (opcjonalnie)',
+  'admin.oidcDiscoveryUrlHint':
+    'Zastępuje automatycznie utworzony adres discovery. Wymagane u dostawców takich jak Authentik, gdzie punkt końcowy nie znajduje się pod {path}.',
+  'admin.smtp.skipTls': 'Pomiń sprawdzanie certyfikatu TLS',
+  'admin.smtp.skipTlsHint': 'Włącz dla certyfikatów z podpisem własnym na lokalnych serwerach poczty',
+  'admin.demoBaseline.title': 'Stan bazowy dema',
+  'admin.demoBaseline.hint':
+    'Zapisuje bieżący stan jako cogodzinny punkt resetu. Wszystkie podróże i ustawienia administratora zostaną zachowane.',
+  'admin.demoBaseline.button': 'Zapisz stan bazowy',
+  'admin.demoBaseline.saved': 'Zapisano stan bazowy! Resety przywrócą ten stan.',
+  'admin.demoBaseline.failed': 'Nie udało się zapisać stanu bazowego',
+  'admin.invite.deleteTitle': 'Usuń link zaproszenia',
+  'admin.invite.deleteConfirm':
+    'Usunąć ten link zaproszenia? Osoby, które jeszcze z niego nie skorzystały, nie będą mogły się przez niego zarejestrować.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Usuń szablon',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Usunąć szablon "{name}" wraz ze wszystkimi kategoriami i pozycjami?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Usuń kategorię',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Usunąć kategorię "{name}" wraz ze wszystkimi jej pozycjami?',
+  'admin.rotateJwt.button': 'Odnów',
 };
 export default admin;

@@ -95,7 +95,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Muuda kasutajat',
   'admin.newPassword': 'Uus parool',
   'admin.newPasswordHint': 'Praeguse parooli säilitamiseks jäta tühjaks',
-  'admin.deleteUser': 'Kas kustutada kasutaja „{name}”? Kõik reisid kustutatakse jäädavalt.',
+  'admin.deleteUser':
+    'Kas kustutada kasutaja "{name}"? Tema konto ning kõik tema reisid ja päevikud kustutatakse jäädavalt, sealhulgas teiste liikmetega jagatud reisid, mille juurdepääsu nad kaotavad. Teiste omanduses olevad reisid jäävad alles.',
   'admin.deleteUserTitle': 'Kustuta kasutaja',
   'admin.newPasswordPlaceholder': 'Sisesta uus parool…',
   'admin.toast.loadError': 'Haldusandmete laadimine ebaõnnestus',
@@ -245,9 +246,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.google': 'Google',
   'admin.transitProvider.transitousHint': 'Kogukonna GTFS-andmevood. Tasuta ja võtmeta, parima katvusega Euroopas.',
   'admin.transitProvider.googleHint':
-    "Kasutab ülalolevat Google'i API-võtit piirkondades, mille kohta Transitousel andmed puuduvad. Tasuline iga otsingu eest — kuni võti pole määratud, kasutatakse Transitoust.",
+    "Kasutab ülalolevat Google'i API-võtit piirkondades, mille kohta Transitousel andmed puuduvad. Tasuline iga otsingu eest; kuni võti pole määratud, kasutatakse Transitoust.",
   'admin.transitProvider.noKeyWarning':
-    "Valitud on Google, kuid Google'i API-võti pole seadistatud — ühistranspordi otsing kasutab endiselt Transitoust. Lisa võti ülal jaotises „API-võtmed”.",
+    "Valitud on Google, kuid Google'i API-võti pole seadistatud; ühistranspordi otsing kasutab endiselt Transitoust. Lisa võti ülal jaotises „API-võtmed”.",
   'admin.transitProvider.personalKeyWarning':
     "Määratud on ainult sinu isiklik Google'i võti, seega kasutavad teiste liikmete ühistranspordi otsingud endiselt Transitoust. Kõigile rakendamiseks salvesta võti ülal administraatorina.",
   'admin.placeShadow.title': 'Kohaotsingu logi',
@@ -787,8 +788,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Auditikirjeid pole veel.',
   'admin.audit.refresh': 'Värskenda',
   'admin.audit.loadMore': 'Laadi veel',
-  'admin.audit.showing': '{count} laaditud · kokku {total}',
-  'admin.audit.showing.one': '{count} laaditud · kokku {total}',
+  'admin.audit.showing': '{count} laaditud, kokku {total}',
+  'admin.audit.showing.one': '{count} laaditud, kokku {total}',
   'admin.audit.col.time': 'Aeg',
   'admin.audit.col.user': 'Kasutaja',
   'admin.audit.col.action': 'Toiming',
@@ -933,5 +934,37 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'Lükka tagasi',
   'admin.paddleRegions.origin.auto': 'Automaatne',
   'admin.paddleRegions.origin.autoHint': 'TREK laadis selle piirkonna ise seal kavandatava aerutamismatka jaoks.',
+  'admin.mfa.reset': 'Lähtesta 2FA',
+  'admin.mfa.resetHint':
+    'Lülitab selle kasutaja kaheastmelise autentimise välja, näiteks pärast telefoni kaotamist. Kasutaja logitakse kõikjalt välja ja ta saab selle pärast parooliga sisselogimist uuesti seadistada.',
+  'admin.mfa.resetConfirm': 'Kas lülitada kasutaja {name} kaheastmeline autentimine välja?',
+  'admin.mfa.resetDone': 'Kaheastmeline autentimine lähtestatud',
+  'admin.danger.title': 'Ohutsoon',
+  'admin.rotateJwt.title': 'Roteeri JWT saladus',
+  'admin.rotateJwt.hint': 'Loo uus JWT allkirjastamise saladus. Kõik aktiivsed seansid muutuvad kohe kehtetuks.',
+  'admin.rotateJwt.confirm': 'Roteeri ja logi välja',
+  'admin.rotateJwt.warning': 'Hoiatus: see tühistab kõik seansid ja logib sind välja.',
+  'admin.rotateJwt.body':
+    'Uus JWT saladus luuakse kohe. Kõik sisseloginud kasutajad, sealhulgas sina, logitakse välja ja peavad uuesti sisse logima.',
+  'admin.oidcDisplayNamePlaceholder': 'nt Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery URL (valikuline)',
+  'admin.oidcDiscoveryUrlHint':
+    'Asendab automaatselt koostatud discovery URL-i. Vajalik teenusepakkujatel nagu Authentik, kus lõpp-punkt ei asu aadressil {path}.',
+  'admin.smtp.skipTls': 'Jäta TLS-sertifikaadi kontroll vahele',
+  'admin.smtp.skipTlsHint': 'Luba isetuvastatud sertifikaatide jaoks kohalikes meiliserverites',
+  'admin.demoBaseline.title': 'Demo lähtepunkt',
+  'admin.demoBaseline.hint':
+    'Salvesta praegune seis tunnise lähtestamise punktina. Kõik administraatori reisid ja seaded säilivad.',
+  'admin.demoBaseline.button': 'Salvesta lähtepunkt',
+  'admin.demoBaseline.saved': 'Lähtepunkt salvestatud! Lähtestamine taastab selle seisu.',
+  'admin.demoBaseline.failed': 'Lähtepunkti salvestamine ebaõnnestus',
+  'admin.invite.deleteTitle': 'Kustuta kutselink',
+  'admin.invite.deleteConfirm':
+    'Kas kustutada see kutselink? Kes seda veel kasutanud pole, ei saa sellega enam registreeruda.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Kustuta mall',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Kas kustutada mall "{name}" koos kõigi kategooriate ja kirjetega?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Kustuta kategooria',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Kas kustutada kategooria "{name}" ja kõik selle kirjed?',
+  'admin.rotateJwt.button': 'Vaheta',
 };
 export default admin;

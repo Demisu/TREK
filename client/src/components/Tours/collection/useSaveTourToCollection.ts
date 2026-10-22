@@ -36,15 +36,16 @@ const failure = (err: unknown): 'error' | 'offline' => (err instanceof OnlineOnl
  * LIB-03: keeping a saved tour in a collection. Every opening reads the
  * user's lists afresh and preselects the first one they may add to; the tour
  * is kept only on an explicit confirm, under the name in the field, as an
- * independent copy. Closing writes nothing.
+ * independent copy. Closing writes nothing. With startOpen the dialog is open
+ * from the first render, for a host that mounts it on demand.
  */
-export function useSaveTourToCollection(target: TourSaveTarget) {
+export function useSaveTourToCollection(target: TourSaveTarget, { startOpen = false }: { startOpen?: boolean } = {}) {
   const { t } = useTranslation();
   const toast = useToast();
   const navigate = useNavigate();
   const userId = useAuthStore((state) => state.user?.id);
   const [opening, setOpening] = useState(0);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(startOpen);
   const [answer, setAnswer] = useState<ListsAnswer | null>(null);
   const [listId, setListId] = useState<number | null>(null);
   const [name, setName] = useState(target.name);

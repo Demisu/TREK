@@ -68,5 +68,8 @@ const files: TranslationStrings = {
   'files.linkNeedsConnection': 'Att ta bort den här länken kräver en anslutning. Försök igen när TREK är online igen.',
   'files.placeFilesNeedConnection':
     'Filer behöver en anslutning för att laddas upp. Ta bort de nya för att spara platsen offline, eller spara när du är online igen.',
+  'files.maxSize': 'Högst {count} MB',
+  'files.maxSize.one': 'Högst {count} MB',
+  'files.toast.starError': 'Det gick inte att ändra stjärnan',
 };
 export default files;

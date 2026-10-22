@@ -293,7 +293,7 @@ export default function AdminSettingsTab({ admin, t }: AdminSettingsTabProps): R
                   type="text"
                   value={oidcConfig.display_name}
                   onChange={e => setOidcConfig(c => ({ ...c, display_name: e.target.value }))}
-                  placeholder='z.B. Google, Authentik, Keycloak'
+                  placeholder={t('admin.oidcDisplayNamePlaceholder')}
                   className={INPUT}
                 />
               </EditorField>
@@ -309,9 +309,9 @@ export default function AdminSettingsTab({ admin, t }: AdminSettingsTabProps): R
               </EditorField>
             </div>
             <EditorField
-              label={<>Discovery URL <span className="normal-case tracking-normal">(optional)</span></>}
+              label={t('admin.oidcDiscoveryUrl')}
               htmlFor="oidc-discovery-url"
-              hint={<>Override the auto-constructed discovery URL. Required for providers like Authentik where the endpoint is not at <code className="rounded-[4px] bg-surface-tertiary px-1 font-geist">{'<issuer>/.well-known/openid-configuration'}</code>.</>}
+              hint={t('admin.oidcDiscoveryUrlHint', { path: '<issuer>/.well-known/openid-configuration' })}
             >
               <input
                 id="oidc-discovery-url"
@@ -323,7 +323,7 @@ export default function AdminSettingsTab({ admin, t }: AdminSettingsTabProps): R
               />
             </EditorField>
             <div className={GRID_2}>
-              <EditorField label="Client ID" htmlFor="oidc-client-id">
+              <EditorField label={t('settings.oauth.clientId')} htmlFor="oidc-client-id">
                 <input
                   id="oidc-client-id"
                   type="text"
@@ -332,7 +332,7 @@ export default function AdminSettingsTab({ admin, t }: AdminSettingsTabProps): R
                   className={`${INPUT} font-geist`}
                 />
               </EditorField>
-              <EditorField label="Client Secret" htmlFor="oidc-client-secret">
+              <EditorField label={t('settings.oauth.clientSecret')} htmlFor="oidc-client-secret">
                 <input
                   id="oidc-client-secret"
                   type="password"
@@ -646,11 +646,11 @@ export default function AdminSettingsTab({ admin, t }: AdminSettingsTabProps): R
           can reach: the file it writes belongs to the host. */}
       {!managed && (
       /* Danger Zone */
-      <SettingsCard icon={AlertTriangle} title="Danger Zone" tone="danger">
+      <SettingsCard icon={AlertTriangle} title={t('admin.danger.title')} tone="danger">
         <SettingRows>
           <SettingRow
-            label="Rotate JWT Secret"
-            hint="Generate a new JWT signing secret. All active sessions will be invalidated immediately."
+            label={t('admin.rotateJwt.title')}
+            hint={t('admin.rotateJwt.hint')}
             control={
               <button type="button"
                 onClick={() => setShowRotateJwtModal(true)}
@@ -658,7 +658,7 @@ export default function AdminSettingsTab({ admin, t }: AdminSettingsTabProps): R
                 style={fs(13, 'body')}
               >
                 <RefreshCw size={14} />
-                Rotate
+                {t('admin.rotateJwt.button')}
               </button>
             }
           />

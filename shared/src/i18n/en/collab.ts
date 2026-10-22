@@ -106,5 +106,8 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Attach images',
   'collab.chat.attachedImage': 'Attached image',
   'collab.chat.closeImage': 'Close image',
+  'collab.notes.categoryInUse': 'Notes still use this category. Move or delete them first to remove it.',
+  'collab.notes.categoriesLocalHint':
+    'A category without notes is only saved in this browser. Other members see it once a note uses it.',
 };
 export default collab;

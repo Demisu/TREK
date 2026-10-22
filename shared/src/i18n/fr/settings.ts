@@ -138,7 +138,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Créer le token',
   'settings.mcp.modal.createdTitle': 'Token créé',
   'settings.mcp.modal.createdWarning':
-    "Ce token ne sera affiché qu'une seule fois. Copiez-le et conservez-le maintenant — il ne pourra pas être récupéré.",
+    "Ce token ne sera affiché qu'une seule fois. Copiez-le et conservez-le maintenant : il ne pourra pas être récupéré.",
   'settings.mcp.modal.done': 'Terminé',
   'settings.mcp.toast.created': 'Token créé',
   'settings.mcp.toast.createError': 'Impossible de créer le token',
@@ -180,14 +180,14 @@ const settings: TranslationStrings = {
     'Une URI par ligne. HTTPS, HTTP en boucle locale ou un schéma applicatif privé (myapp://). Correspondance exacte, sauf le port en boucle locale.',
   'settings.oauth.modal.scopes': 'Portées autorisées',
   'settings.oauth.modal.scopesHint':
-    "list_trips et get_trip_summary sont toujours disponibles — aucune portée requise. Ils permettent à l'IA de découvrir les IDs de voyage nécessaires.",
+    "list_trips et get_trip_summary sont toujours disponibles : aucune portée requise. Ils permettent à l'IA de découvrir les IDs de voyage nécessaires.",
   'settings.oauth.modal.selectAll': 'Tout sélectionner',
   'settings.oauth.modal.deselectAll': 'Tout désélectionner',
   'settings.oauth.modal.creating': 'Enregistrement…',
   'settings.oauth.modal.create': 'Enregistrer le client',
   'settings.oauth.modal.createdTitle': 'Client enregistré',
   'settings.oauth.modal.createdWarning':
-    "Le secret client n'est affiché qu'une seule fois. Copiez-le maintenant — il ne peut pas être récupéré.",
+    "Le secret client n'est affiché qu'une seule fois. Copiez-le maintenant : il ne peut pas être récupéré.",
   'settings.oauth.toast.createError': "Impossible d'enregistrer le client OAuth",
   'settings.oauth.toast.deleted': 'Client OAuth supprimé',
   'settings.oauth.toast.deleteError': 'Impossible de supprimer le client OAuth',
@@ -256,7 +256,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Supprimer le compte',
   'settings.deleteAccountTitle': 'Supprimer votre compte ?',
   'settings.deleteAccountWarning':
-    'Votre compte ainsi que tous vos voyages, lieux et fichiers seront définitivement supprimés. Cette action est irréversible.',
+    "Votre compte ainsi que tous les voyages, journaux, lieux et fichiers dont vous êtes propriétaire seront définitivement supprimés, y compris les voyages partagés avec d'autres membres, qui en perdront l'accès. Les voyages appartenant à d'autres restent et vous en êtes retiré. Cette action est irréversible.",
   'settings.deleteAccountConfirm': 'Supprimer définitivement',
   'settings.deleteBlockedTitle': 'Suppression impossible',
   'settings.deleteBlockedMessage':
@@ -360,7 +360,7 @@ const settings: TranslationStrings = {
   'settings.webPush.failed': "Le push n'a pas pu être activé sur cet appareil.",
   'settings.currency': "Devise d'affichage",
   'settings.currencyHint':
-    "Les montants dans Coûts sont convertis dans cette devise uniquement pour l'affichage — les montants d'origine restent inchangés.",
+    "Les montants dans Coûts sont convertis dans cette devise uniquement pour l'affichage ; les montants d'origine restent inchangés.",
   'settings.currencyTrip': 'Devise du voyage',
   'settings.placeLanguage': 'Noms de lieux',
   'settings.placeLanguageApp': 'Comme l’application',
@@ -368,7 +368,7 @@ const settings: TranslationStrings = {
     'La langue dans laquelle répondent la recherche de lieux, les suggestions et les adresses. Si un lieu n’a pas de nom dans cette langue, son nom local est affiché.',
   'settings.passkey.title': 'Passkeys',
   'settings.passkey.description':
-    'Connectez-vous plus rapidement et de façon résistante au phishing avec une passkey — votre empreinte digitale, votre visage, votre code PIN ou une clé matérielle. Votre mot de passe reste disponible en secours.',
+    'Connectez-vous plus rapidement et de façon résistante au phishing avec une passkey : votre empreinte digitale, votre visage, votre code PIN ou une clé matérielle. Votre mot de passe reste disponible en secours.',
   'settings.passkey.notConfigured':
     'Les passkeys sont activées mais ne sont pas encore entièrement configurées sur ce serveur. Demandez à votre administrateur de définir le domaine WebAuthn.',
   'settings.passkey.add': 'Ajouter une passkey',
@@ -536,10 +536,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     "Travaillez uniquement à partir des données en cache et mettez vos modifications en file d'attente. Désactivez pour vous reconnecter et synchroniser.",
   'settings.offline.mode.active':
-    "Le mode hors ligne est activé — vos modifications sont en file d'attente et seront synchronisées lorsque vous le désactiverez.",
+    "Le mode hors ligne est activé : vos modifications sont en file d'attente et seront synchronisées lorsque vous le désactiverez.",
   'settings.offline.prepare.title': 'Préparer le mode hors ligne',
   'settings.offline.prepare.hint':
-    'Téléchargez tout ce dont vous avez besoin — données de voyage, documents et tuiles de carte — avant de perdre la connexion.',
+    'Téléchargez tout ce dont vous avez besoin (données de voyage, documents et tuiles de carte) avant de perdre la connexion.',
   'settings.offline.prepare.button': 'Télécharger pour une utilisation hors ligne',
   'settings.offline.prepare.running': 'Téléchargement…',
   'settings.offline.prepare.done': 'Prêt pour une utilisation hors ligne',
@@ -613,7 +613,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'Toujours afficher les itinéraires de réservation',
   'settings.alwaysShowRoutesHint':
     "Affiche automatiquement sur la carte l'itinéraire de chaque vol, trajet en train et autre réservation, sans avoir à l'activer un par un.",
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Ce que cette clé peut lire',
@@ -657,7 +656,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Impossible de copier. Sélectionnez le texte et copiez-le manuellement.',
   'settings.apiKeys.modal.createTitle': 'Créer une clé API',
   'settings.apiKeys.modal.name': 'Nom',
-  'settings.apiKeys.modal.namePlaceholder': 'p. ex. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'ex. Tableau de bord maison',
   'settings.apiKeys.modal.nameHint': 'Uniquement pour vous, afin de reconnaître la clé plus tard.',
   'settings.apiKeys.modal.creating': 'Création...',
   'settings.apiKeys.modal.create': 'Créer',
@@ -665,6 +664,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     "Copiez la clé maintenant. Elle n'est affichée qu'une seule fois et ne peut pas être récupérée ensuite.",
   'settings.apiKeys.modal.done': 'Terminé',
+  'settings.mcp.deprecated': 'Obsolète',
+  'settings.offline.cache.dateRange': 'du {start} au {end}',
 };
 
 export default settings;

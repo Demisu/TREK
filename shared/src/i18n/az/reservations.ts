@@ -298,6 +298,7 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'Faylların yüklənməsi üçün bağlantı lazımdır. Rezervasiyanı oflayn saxlamaq üçün yeni faylları silin və ya yenidən onlayn olduqda saxlayın.',
   'reservations.needsConnection': 'Bunun üçün bağlantı lazımdır. TREK yenidən onlayn olduqda bir daha cəhd edin.',
+  'reservations.exportCsvFiltered': 'Göstərilən {shown}/{total} sətri ixrac et (CSV)',
 };
 
 export default reservations;

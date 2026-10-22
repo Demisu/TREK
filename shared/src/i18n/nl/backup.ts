@@ -69,5 +69,6 @@ const backup: TranslationStrings = {
     'Alle huidige gegevens (reizen, plaatsen, gebruikers, uploads) worden permanent vervangen door de back-up. Deze actie kan niet ongedaan worden gemaakt.',
   'backup.restoreTip': 'Tip: Maak een back-up van de huidige status voordat je herstelt.',
   'backup.restoreConfirm': 'Ja, herstellen',
+  'backup.auto.hourHintTz': 'Lokale servertijd ({format}-notatie), tijdzone {timezone}',
 };
 export default backup;

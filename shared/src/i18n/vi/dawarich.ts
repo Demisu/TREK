@@ -4,7 +4,7 @@ const dawarich: TranslationStrings = {
   // ── Connection ─────────────────────────────────────────────────────────────
   'dawarich.title': 'Dawarich',
   'dawarich.intro':
-    'Kết nối phiên bản Dawarich của riêng bạn để xem bạn đã thực sự đi những đâu. TREK đọc dữ liệu đó và gợi ý mục nhật ký, địa điểm và quốc gia — không có gì được thêm vào cho đến khi bạn xác nhận, và không có gì được ghi ngược lại Dawarich.',
+    'Kết nối phiên bản Dawarich của riêng bạn để xem bạn đã thực sự đi những đâu. TREK đọc dữ liệu đó và gợi ý mục nhật ký, địa điểm và quốc gia; không có gì được thêm vào cho đến khi bạn xác nhận, và không có gì được ghi ngược lại Dawarich.',
   'dawarich.url': 'Địa chỉ phiên bản',
   'dawarich.apiKey': 'Khóa API',
   'dawarich.apiKeyPlaceholder': 'Dán khóa API Dawarich của bạn',

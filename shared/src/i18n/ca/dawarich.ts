@@ -4,7 +4,7 @@ const dawarich: TranslationStrings = {
   // ── Connection ─────────────────────────────────────────────────────────────
   'dawarich.title': 'Dawarich',
   'dawarich.intro':
-    'Connecta la teva pròpia instància de Dawarich per veure on has estat realment. TREK la llegeix i et proposa entrades de diari, llocs i països — no s’hi afegeix res fins que ho confirmes, i no s’escriu res de tornada a Dawarich.',
+    'Connecta la teva pròpia instància de Dawarich per veure on has estat realment. TREK la llegeix i et proposa entrades de diari, llocs i països; no s’hi afegeix res fins que ho confirmes, i no s’escriu res de tornada a Dawarich.',
   'dawarich.url': 'Adreça de la instància',
   'dawarich.apiKey': 'Clau API',
   'dawarich.apiKeyPlaceholder': 'Enganxa la teva clau API de Dawarich',

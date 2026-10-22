@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { corridorTiles, prefetchTiles, tileUrls } from './terrainPrefetch';
+import { corridorTiles, prefetchTiles, TILE_TIMEOUT_MS, tileUrls } from './terrainPrefetch';
 
 const OK = { ok: true } as Response;
 
@@ -95,7 +95,7 @@ describe('prefetchTiles', () => {
     const signal = new AbortController().signal;
     await prefetchTiles(['u1', 'u2', 'u3', 'u4'], signal, progress);
     expect(fetchStub).toHaveBeenCalledTimes(4);
-    expect(fetchStub).toHaveBeenCalledWith('u1', { signal, mode: 'cors', cache: 'force-cache' });
+    expect(fetchStub).toHaveBeenCalledWith('u1', expect.objectContaining({ mode: 'cors', cache: 'force-cache' }));
     expect(progress.mock.calls.map(([share]) => share)).toEqual([0, 0.25, 0.5, 0.75, 1]);
   });
 
@@ -107,6 +107,29 @@ describe('prefetchTiles', () => {
     const progress = vi.fn();
     await prefetchTiles(['bad', 'good'], new AbortController().signal, progress);
     expect(progress).toHaveBeenLastCalledWith(1);
+  });
+
+  it('gives up on a tile that never answers, so the share still reaches 1', async () => {
+    vi.useFakeTimers();
+    try {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(
+          (url: string, init: RequestInit) =>
+            new Promise<Response>((resolve, reject) => {
+              if (url === 'good') resolve(OK);
+              else init.signal?.addEventListener('abort', () => reject(new Error('aborted')));
+            })
+        )
+      );
+      const progress = vi.fn();
+      const run = prefetchTiles(['hang', 'good'], new AbortController().signal, progress);
+      await vi.advanceTimersByTimeAsync(TILE_TIMEOUT_MS + 1);
+      await run;
+      expect(progress).toHaveBeenLastCalledWith(1);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('keeps at most eight requests in flight', async () => {

@@ -106,5 +106,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Görsel ekle',
   'collab.chat.attachedImage': 'Eklenen görsel',
   'collab.chat.closeImage': 'Görseli kapat',
+  'collab.notes.categoryInUse':
+    'Notlar hâlâ bu kategoriyi kullanıyor. Kategoriyi kaldırmak için önce notları taşıyın veya silin.',
+  'collab.notes.categoriesLocalHint':
+    'Notu olmayan bir kategori yalnızca bu tarayıcıda saklanır. Diğer üyeler onu, bir not kullandığında görür.',
 };
 export default collab;

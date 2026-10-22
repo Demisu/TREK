@@ -198,7 +198,9 @@ export async function buildApp(): Promise<INestApplication> {
    * a point. A ride along a signposted horse route (HOR-01) is a few thousand
    * points from OpenStreetMap, and one section of it alone can pass a hundred
    * kilobytes, so those two routes are measured against TOUR_WRITE_MAX_BYTES.
-   * Everything else keeps the tighter limit.
+   * The planner's unsaved draft carries the same points and fixed legs (its
+   * contract caps it at TOUR_DRAFT_MAX_CHARS), so its write takes that ceiling
+   * too. Everything else keeps the tighter limit.
    */
   const bookBody = express.json({ limit: '8mb', verify: rawBodyKeeper });
   const listFileBody = express.json({ limit: MAX_COLLECTION_FILE_BYTES * 2, verify: rawBodyKeeper });
@@ -211,7 +213,8 @@ export async function buildApp(): Promise<INestApplication> {
     req.method === 'POST' && /^\/api\/addons\/collections\/(import|gpx\/read|\d+\/import)$/.test(req.path);
   const isTourWrite = (req: Request) =>
     (req.method === 'POST' && /^\/api\/trips\/\d+\/tours$/.test(req.path)) ||
-    (req.method === 'PUT' && /^\/api\/trips\/\d+\/tours\/\d+$/.test(req.path));
+    (req.method === 'PUT' && /^\/api\/trips\/\d+\/tours\/\d+$/.test(req.path)) ||
+    (req.method === 'PUT' && /^\/api\/trips\/\d+\/tour-draft$/.test(req.path));
 
   instance.use(function jsonParser(req: Request, res: Response, next: NextFunction) {
     if (isBookWrite(req)) return bookBody(req, res, next);

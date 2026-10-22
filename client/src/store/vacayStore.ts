@@ -29,6 +29,15 @@ interface IncomingInvite {
   owner_username: string
 }
 
+/** The plan endpoint names the inviter `username`; views read `owner_username`. */
+export function normalizeIncomingInvites(rows: unknown): IncomingInvite[] {
+  if (!Array.isArray(rows)) return []
+  return rows.map((r: { plan_id: number; username?: string; owner_username?: string }) => ({
+    plan_id: r.plan_id,
+    owner_username: r.owner_username ?? r.username ?? '',
+  }))
+}
+
 interface VacayPlanResponse {
   plan: VacayPlan
   users: VacayUser[]
@@ -260,7 +269,7 @@ export const useVacayStore = create<VacayState>((set, get) => ({
       plan: data.plan,
       users: data.users,
       pendingInvites: data.pendingInvites,
-      incomingInvites: data.incomingInvites,
+      incomingInvites: normalizeIncomingInvites(data.incomingInvites),
       isOwner: data.isOwner,
       isFused: data.isFused,
     })
@@ -302,6 +311,8 @@ export const useVacayStore = create<VacayState>((set, get) => ({
 
   dissolve: async () => {
     await api.dissolve()
+    // The partners are gone from the plan, so a picked partner must not stay the target.
+    set({ selectedUserId: null })
     await get().loadAll()
   },
 

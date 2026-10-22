@@ -37,7 +37,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'Saxlama sistemi əlavə et',
   'storage.backends.usedBy': 'İstifadə edənlər: {categories}',
   'storage.backends.unused': 'Heç bir kateqoriyaya təyin edilməyib',
-  'storage.backends.envReadOnly': 'Mühit dəyişəni ilə müəyyən edilib — yalnız oxumaq mümkündür',
+  'storage.backends.envReadOnly': 'Mühit dəyişəni ilə müəyyən edilib (yalnız oxumaq mümkündür)',
   'storage.source.built-in': 'Daxili',
   'storage.source.env': 'Mühit',
   'storage.source.settings': 'Tənzimləmələr',

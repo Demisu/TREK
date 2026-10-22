@@ -1078,8 +1078,8 @@ describe('getItemPrivacy', () => {
 
 describe('notifyTagged', () => {
   it('does nothing when no users are tagged', async () => {
-    await svc.notifyTagged('5', { id: 1, email: 'a@b.c' } as never, 'Clothes', []);
-    await svc.notifyTagged('5', { id: 1, email: 'a@b.c' } as never, 'Clothes', 'nope');
+    await svc.notifyTagged('5', { id: 1, username: 'alice', email: 'a@b.c' } as never, 'Clothes', []);
+    await svc.notifyTagged('5', { id: 1, username: 'alice', email: 'a@b.c' } as never, 'Clothes', 'nope');
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(send).not.toHaveBeenCalled();
   });
@@ -1089,7 +1089,7 @@ describe('notifyTagged', () => {
     const trip = createTrip(testDb, user.id);
     const { title } = (await findRow(await orm(), Trips, { id: trip.id }))!;
 
-    await svc.notifyTagged(String(trip.id), { id: 1, email: 'a@b.c' } as never, 'Clothes', [2, 3]);
+    await svc.notifyTagged(String(trip.id), { id: 1, username: 'alice', email: 'a@b.c' } as never, 'Clothes', [2, 3]);
     // Flush the dynamic import().then microtask chain.
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(send).toHaveBeenCalledWith(
@@ -1098,13 +1098,13 @@ describe('notifyTagged', () => {
         actorId: 1,
         scope: 'trip',
         targetId: trip.id,
-        params: expect.objectContaining({ trip: title, actor: 'a@b.c', category: 'Clothes', tripId: String(trip.id) }),
+        params: expect.objectContaining({ trip: title, actor: 'alice', category: 'Clothes', tripId: String(trip.id) }),
       }),
     );
   });
 
   it('falls back to "Untitled" when the trip row is missing (?? / default branch)', async () => {
-    await svc.notifyTagged('999999', { id: 1, email: 'a@b.c' } as never, 'Clothes', [2]);
+    await svc.notifyTagged('999999', { id: 1, username: 'alice', email: 'a@b.c' } as never, 'Clothes', [2]);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(send).toHaveBeenCalledWith(
       expect.objectContaining({ params: expect.objectContaining({ trip: 'Untitled' }) }),
@@ -1114,7 +1114,7 @@ describe('notifyTagged', () => {
   it('swallows a failed send: tagging stays fire-and-forget and never rejects the write', async () => {
     send.mockRejectedValueOnce(new Error('smtp down'));
     await expect(
-      svc.notifyTagged('999999', { id: 1, email: 'a@b.c' } as never, 'Clothes', [2]),
+      svc.notifyTagged('999999', { id: 1, username: 'alice', email: 'a@b.c' } as never, 'Clothes', [2]),
     ).resolves.toBeUndefined();
     // Let the rejected send settle; an unhandled rejection would fail the run here.
     await new Promise((resolve) => setTimeout(resolve, 0));

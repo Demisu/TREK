@@ -203,7 +203,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Loo pääse',
   'settings.mcp.modal.createdTitle': 'Pääse loodud',
   'settings.mcp.modal.createdWarning':
-    'Seda pääset näidatakse ainult üks kord. Kopeeri ja salvesta see kohe — seda ei saa taastada.',
+    'Seda pääset näidatakse ainult üks kord. Kopeeri ja salvesta see kohe: seda ei saa taastada.',
   'settings.mcp.modal.done': 'Valmis',
   'settings.mcp.toast.created': 'Pääse loodud',
   'settings.mcp.toast.createError': 'Pääsme loomine ebaõnnestus',
@@ -245,14 +245,14 @@ const settings: TranslationStrings = {
     'Üks URI rea kohta. HTTPS, tagasisideaadressi HTTP või privaatne rakendusskeem (myapp://). Vaste peab olema täpne, välja arvatud tagasisideaadressi port.',
   'settings.oauth.modal.scopes': 'Lubatud õiguste ulatused',
   'settings.oauth.modal.scopesHint':
-    'list_trips ja get_trip_summary on alati saadaval — eraldi ulatust pole vaja. Need võimaldavad tehisintellektil leida teiste tööriistade jaoks vajalikud reiside ID-d.',
+    'list_trips ja get_trip_summary on alati saadaval: eraldi ulatust pole vaja. Need võimaldavad tehisintellektil leida teiste tööriistade jaoks vajalikud reiside ID-d.',
   'settings.oauth.modal.selectAll': 'Vali kõik',
   'settings.oauth.modal.deselectAll': 'Tühista kõik valikud',
   'settings.oauth.modal.creating': 'Registreerimine…',
   'settings.oauth.modal.create': 'Registreeri klient',
   'settings.oauth.modal.createdTitle': 'Klient registreeritud',
   'settings.oauth.modal.createdWarning':
-    'Kliendi saladust näidatakse ainult üks kord. Kopeeri see kohe — seda ei saa taastada.',
+    'Kliendi saladust näidatakse ainult üks kord. Kopeeri see kohe: seda ei saa taastada.',
   'settings.oauth.toast.createError': 'OAuth-kliendi registreerimine ebaõnnestus',
   'settings.oauth.toast.deleted': 'OAuth-klient kustutatud',
   'settings.oauth.toast.deleteError': 'OAuth-kliendi kustutamine ebaõnnestus',
@@ -319,7 +319,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Kustuta konto',
   'settings.deleteAccountTitle': 'Kas kustutada konto?',
   'settings.deleteAccountWarning':
-    'Sinu konto ning kõik sinu reisid, kohad ja failid kustutatakse jäädavalt. Seda toimingut ei saa tagasi võtta.',
+    'Sinu konto ning kõik sinu reisid, päevikud, kohad ja failid kustutatakse jäädavalt, sealhulgas teiste liikmetega jagatud reisid, mille juurdepääsu nad kaotavad. Teiste omanduses olevad reisid jäävad alles ja sind eemaldatakse neist. Seda toimingut ei saa tagasi võtta.',
   'settings.deleteAccountConfirm': 'Kustuta jäädavalt',
   'settings.deleteBlockedTitle': 'Kustutamine pole võimalik',
   'settings.deleteBlockedMessage':
@@ -363,7 +363,7 @@ const settings: TranslationStrings = {
   'settings.mfa.toastDisabled': 'Kaheastmeline autentimine keelatud',
   'settings.mfa.demoBlocked': 'Demorežiimis pole saadaval',
   'settings.currency': 'Kuvamisvaluuta',
-  'settings.currencyHint': 'Kulude summad teisendatakse sellesse valuutasse ainult kuvamiseks — algsummad ei muutu.',
+  'settings.currencyHint': 'Kulude summad teisendatakse sellesse valuutasse ainult kuvamiseks; algsummad ei muutu.',
   'settings.currencyTrip': 'Reisi valuuta',
   'settings.placeLanguage': 'Kohtade nimed',
   'settings.placeLanguageApp': 'Sama mis rakendusel',
@@ -371,7 +371,7 @@ const settings: TranslationStrings = {
     'Keel, milles vastavad kohaotsing, soovitused ja aadressid. Kui kohal pole selles keeles nime, näidatakse selle kohalikku nime.',
   'settings.passkey.title': 'Pääsuvõtmed',
   'settings.passkey.description':
-    'Logi kiiremini ja andmepüügi suhtes turvalisemalt sisse pääsuvõtmega — sõrmejälje, näotuvastuse, PIN-i või riistvaravõtmega. Parool jääb varuvariandiks.',
+    'Logi kiiremini ja andmepüügi suhtes turvalisemalt sisse pääsuvõtmega: sõrmejälje, näotuvastuse, PIN-i või riistvaravõtmega. Parool jääb varuvariandiks.',
   'settings.passkey.notConfigured':
     'Pääsuvõtmed on lubatud, kuid pole serveris veel täielikult seadistatud. Palu administraatoril määrata WebAuthni domeen.',
   'settings.passkey.add': 'Lisa pääsuvõti',
@@ -531,10 +531,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Kasuta ainult vahemälu andmeid ja lisa muudatused järjekorda. Ühenduse taastamiseks ja sünkroonimiseks lülita välja.',
   'settings.offline.mode.active':
-    'Võrguühenduseta režiim on sees — muudatused on järjekorras ja sünkroonitakse selle väljalülitamisel.',
+    'Võrguühenduseta režiim on sees: muudatused on järjekorras ja sünkroonitakse selle väljalülitamisel.',
   'settings.offline.prepare.title': 'Valmistu võrguühenduseta kasutamiseks',
   'settings.offline.prepare.hint':
-    'Laadi enne ühenduse kadumist alla kõik vajalik — reisiandmed, dokumendid ja kaardipaanid.',
+    'Laadi enne ühenduse kadumist alla kõik vajalik: reisiandmed, dokumendid ja kaardipaanid.',
   'settings.offline.prepare.button': 'Laadi alla võrguühenduseta kasutamiseks',
   'settings.offline.prepare.running': 'Allalaadimine…',
   'settings.offline.prepare.done': 'Valmis võrguühenduseta kasutamiseks',
@@ -597,8 +597,7 @@ const settings: TranslationStrings = {
   'settings.offline.banner.conflicts.one': 'Konflikte: {count}',
   'settings.alwaysShowRoutes': 'Näita alati broneeringute marsruute',
   'settings.alwaysShowRoutesHint':
-    'Kuva kaardil automaatselt iga lennu, rongi ja muu broneeringu marsruut — iga kirje juures eraldi lubama ei pea.',
-
+    'Kuva kaardil automaatselt iga lennu, rongi ja muu broneeringu marsruut, iga kirje juures eraldi lubama ei pea.',
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Mida see võti võib lugeda',
@@ -642,7 +641,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Kopeerimine ebaõnnestus. Vali tekst ja kopeeri käsitsi.',
   'settings.apiKeys.modal.createTitle': 'Loo API-võti',
   'settings.apiKeys.modal.name': 'Nimi',
-  'settings.apiKeys.modal.namePlaceholder': 'Nt Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'nt Kodune töölaud',
   'settings.apiKeys.modal.nameHint': 'Ainult sulle, et tunneksid võtme hiljem ära.',
   'settings.apiKeys.modal.creating': 'Loomine...',
   'settings.apiKeys.modal.create': 'Loo',
@@ -650,6 +649,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Kopeeri võti kohe. Seda näidatakse üks kord ja hiljem seda enam vaadata ei saa.',
   'settings.apiKeys.modal.done': 'Valmis',
+  'settings.mcp.deprecated': 'Aegunud',
+  'settings.offline.cache.dateRange': '{start} kuni {end}',
 };
 
 export default settings;

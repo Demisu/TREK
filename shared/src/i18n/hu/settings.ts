@@ -136,7 +136,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Token létrehozása',
   'settings.mcp.modal.createdTitle': 'Token létrehozva',
   'settings.mcp.modal.createdWarning':
-    'Ez a token csak egyszer jelenik meg. Másolja és mentse el most — nem lehet visszaállítani.',
+    'Ez a token csak egyszer jelenik meg. Másolja és mentse el most: nem lehet visszaállítani.',
   'settings.mcp.modal.done': 'Kész',
   'settings.mcp.toast.created': 'Token létrehozva',
   'settings.mcp.toast.createError': 'Nem sikerült létrehozni a tokent',
@@ -178,14 +178,13 @@ const settings: TranslationStrings = {
     'Soronként egy URI. HTTPS, loopback HTTP vagy saját alkalmazásséma (myapp://). Pontos egyezés, kivéve a loopback URI portját.',
   'settings.oauth.modal.scopes': 'Engedélyezett jogosultságok',
   'settings.oauth.modal.scopesHint':
-    'A list_trips és get_trip_summary mindig elérhető — jogosultság nélkül. Segítenek az AI-nak megtalálni az utazás azonosítókat.',
+    'A list_trips és get_trip_summary mindig elérhető: jogosultság nélkül. Segítenek az AI-nak megtalálni az utazás azonosítókat.',
   'settings.oauth.modal.selectAll': 'Összes kijelölése',
   'settings.oauth.modal.deselectAll': 'Összes kijelölés törlése',
   'settings.oauth.modal.creating': 'Regisztrálás…',
   'settings.oauth.modal.create': 'Kliens regisztrálása',
   'settings.oauth.modal.createdTitle': 'Kliens regisztrálva',
-  'settings.oauth.modal.createdWarning':
-    'A kliens titok csak egyszer jelenik meg. Másolja most — nem állítható helyre.',
+  'settings.oauth.modal.createdWarning': 'A kliens titok csak egyszer jelenik meg. Másolja most: nem állítható helyre.',
   'settings.oauth.toast.createError': 'Az OAuth kliens regisztrálása sikertelen',
   'settings.oauth.toast.deleted': 'OAuth kliens törölve',
   'settings.oauth.toast.deleteError': 'Az OAuth kliens törlése sikertelen',
@@ -251,7 +250,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Törlés',
   'settings.deleteAccountTitle': 'Biztosan törölni szeretnéd a fiókodat?',
   'settings.deleteAccountWarning':
-    'A fiókod és minden utazásod, helyed és fájlod véglegesen törlődik. Ez a művelet nem vonható vissza.',
+    'A fiókod, valamint minden általad birtokolt utazás, napló, hely és fájl véglegesen törlődik, azokat az utazásokat is beleértve, amelyeket más tagokkal osztottál meg; ők elveszítik a hozzáférést. Mások utazásai megmaradnak, de téged eltávolítunk belőlük. Ez a művelet nem vonható vissza.',
   'settings.deleteAccountConfirm': 'Végleges törlés',
   'settings.deleteBlockedTitle': 'Törlés nem lehetséges',
   'settings.deleteBlockedMessage':
@@ -355,7 +354,7 @@ const settings: TranslationStrings = {
   'settings.webPush.failed': 'A pusht nem sikerült bekapcsolni ezen az eszközön.',
   'settings.currency': 'Megjelenítési pénznem',
   'settings.currencyHint':
-    'A Költségek részben az összegek csak a megjelenítéshez lesznek erre a pénznemre átszámítva – az eredeti összegek nem változnak.',
+    'A Költségek részben az összegek csak a megjelenítéshez lesznek erre a pénznemre átszámítva; az eredeti összegek nem változnak.',
   'settings.currencyTrip': 'Az utazás pénzneme',
   'settings.placeLanguage': 'Helynevek',
   'settings.placeLanguageApp': 'Ugyanaz, mint az alkalmazás',
@@ -363,7 +362,7 @@ const settings: TranslationStrings = {
     'Ezen a nyelven válaszol a helykeresés, a javaslatok és a címek. Ha egy helynek nincs neve ezen a nyelven, a helyi neve jelenik meg.',
   'settings.passkey.title': 'Passkey-k',
   'settings.passkey.description':
-    'Jelentkezz be gyorsabban és adathalászat-állóan egy passkey-jel — ujjlenyomattal, arccal, PIN-kóddal vagy hardveres kulccsal. A jelszavad tartalékként megmarad.',
+    'Jelentkezz be gyorsabban és adathalászat-állóan egy passkey-jel: ujjlenyomattal, arccal, PIN-kóddal vagy hardveres kulccsal. A jelszavad tartalékként megmarad.',
   'settings.passkey.notConfigured':
     'A passkey-k engedélyezve vannak, de ezen a szerveren még nincsenek teljesen beállítva. Kérd meg a rendszergazdát, hogy állítsa be a WebAuthn-domaint.',
   'settings.passkey.add': 'Passkey hozzáadása',
@@ -528,10 +527,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Csak a gyorsítótárazott adatokból dolgozik, a módosításaidat pedig sorba állítja. Kapcsold ki az újracsatlakozáshoz és szinkronizáláshoz.',
   'settings.offline.mode.active':
-    'Az offline mód be van kapcsolva — a módosításaid sorban állnak, és szinkronizálódnak, amikor kikapcsolod.',
+    'Az offline mód be van kapcsolva: a módosításaid sorban állnak, és szinkronizálódnak, amikor kikapcsolod.',
   'settings.offline.prepare.title': 'Felkészülés offline használatra',
   'settings.offline.prepare.hint':
-    'Tölts le mindent, amire szükséged van — utazási adatok, dokumentumok és térképcsempék —, mielőtt megszakad a kapcsolat.',
+    'Tölts le mindent, amire szükséged van (utazási adatok, dokumentumok és térképcsempék), mielőtt megszakad a kapcsolat.',
   'settings.offline.prepare.button': 'Letöltés offline használatra',
   'settings.offline.prepare.running': 'Letöltés…',
   'settings.offline.prepare.done': 'Kész az offline használatra',
@@ -606,7 +605,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'Mindig jelenjenek meg a foglalási útvonalak',
   'settings.alwaysShowRoutesHint':
     'Automatikusan megjeleníti minden repülőjárat, vonat és egyéb foglalás útvonalát a térképen, nincs szükség egyenkénti bekapcsolásra.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Mit olvashat ez a kulcs',
@@ -650,13 +648,15 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'A másolás nem sikerült. Jelöld ki a szöveget, és másold ki kézzel.',
   'settings.apiKeys.modal.createTitle': 'API-kulcs létrehozása',
   'settings.apiKeys.modal.name': 'Név',
-  'settings.apiKeys.modal.namePlaceholder': 'pl. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'pl. Otthoni irányítópult',
   'settings.apiKeys.modal.nameHint': 'Csak neked, hogy később felismerd a kulcsot.',
   'settings.apiKeys.modal.creating': 'Létrehozás folyamatban...',
   'settings.apiKeys.modal.create': 'Létrehozás',
   'settings.apiKeys.modal.createdTitle': 'API-kulcs létrehozva',
   'settings.apiKeys.modal.createdWarning': 'Másold ki a kulcsot most. Csak egyszer jelenik meg, később nem kérhető le.',
   'settings.apiKeys.modal.done': 'Kész',
+  'settings.mcp.deprecated': 'Elavult',
+  'settings.offline.cache.dateRange': '{start} és {end} között',
 };
 
 export default settings;

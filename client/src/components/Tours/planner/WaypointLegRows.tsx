@@ -126,6 +126,7 @@ function PaddleRowExtras({
           extraMinutes={portage.extraMinutes}
           disabled={!editable}
           onExtraChange={(minutes) => paddle.setPortageExtra(point.id, minutes)}
+          onRemove={point.auto ? undefined : () => paddle.togglePortage(point.id)}
           way={point.auto ? undefined : way}
         />
       )}

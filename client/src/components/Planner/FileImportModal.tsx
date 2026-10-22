@@ -17,6 +17,8 @@ interface FileImportModalProps {
   tripId: number
   pushUndo?: (label: string, undoFn: () => Promise<void> | void) => void
   initialFile?: File | null
+  /** Several files already chosen, as the places column hands on what the Tours import had no line in. */
+  initialFiles?: readonly File[] | null
 }
 
 /** One tickable kind of content in the file (waypoints, paths…). */
@@ -34,7 +36,7 @@ function TypeCheck({ checked, label, onToggle }: { checked: boolean; label: stri
 
 const TYPE_BOX = 'flex flex-col gap-0.5 rounded-[14px] border border-edge-faint bg-surface-secondary p-1.5'
 
-export default function FileImportModal({ isOpen, onClose, tripId, pushUndo, initialFile }: FileImportModalProps) {
+export default function FileImportModal({ isOpen, onClose, tripId, pushUndo, initialFile, initialFiles }: FileImportModalProps) {
   const { t } = useTranslation()
   const toast = useToast()
   const loadTrip = useTripStore((s) => s.loadTrip)
@@ -45,7 +47,7 @@ export default function FileImportModal({ isOpen, onClose, tripId, pushUndo, ini
     canEnrich: canEnrichImport, enrich, setEnrich, handleInputChange, handleDragOver, handleDragLeave, handleDrop,
     handleImport, close: handleClose, isGpx, isKml, gpxNoneSelected, kmlNoneSelected, canImport,
   } = usePlacesFileImport({
-    tripId, t, toast, loadTrip, pushUndo, onDone: onClose, variant: 'dialog', open: isOpen, initialFile,
+    tripId, t, toast, loadTrip, pushUndo, onDone: onClose, variant: 'dialog', open: isOpen, initialFile, initialFiles,
   })
   const enrichHintId = useId()
 

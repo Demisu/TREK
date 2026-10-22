@@ -217,7 +217,7 @@ export default function MAdminBackupPanel() {
               {autoSettings.interval !== 'hourly' && (
                 <MAdminField
                   label={t('backup.auto.hour')}
-                  hint={`${t('backup.auto.hourHint', { format: is12h ? '12h' : '24h' })}${serverTimezone ? ` (Timezone: ${serverTimezone})` : ''}`}
+                  hint={serverTimezone ? t('backup.auto.hourHintTz', { format: is12h ? '12h' : '24h', timezone: serverTimezone }) : t('backup.auto.hourHint', { format: is12h ? '12h' : '24h' })}
                 >
                   <select
                     value={String(autoSettings.hour)}

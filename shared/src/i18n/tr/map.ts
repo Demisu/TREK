@@ -38,5 +38,6 @@ const map: TranslationStrings = {
   'map.overview.unrouted.one': '{count} etap hesaplanamadı, bu yüzden mesafeler eksik.',
   'map.overview.dayUnrouted': 'Bu günün {count} etabı hesaplanamadı',
   'map.overview.dayUnrouted.one': 'Bu günün {count} etabı hesaplanamadı',
+  'map.baseLayer.topo': 'Topoğrafik',
 };
 export default map;

@@ -141,7 +141,7 @@ describe('AdminUsersTab', () => {
     fireEvent.click(deleteButtons[1]);
 
     expect(admin.handleDeleteUser).not.toHaveBeenCalled();
-    expect(screen.getByText(`Delete user "${alice.username}"? All trips will be permanently deleted.`)).toBeInTheDocument();
+    expect(screen.getByText(`Delete user "${alice.username}"? Their account and every trip and journey they own will be permanently deleted, including trips shared with other members, who lose access to them. Trips owned by others stay.`)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
 
     expect(admin.handleDeleteUser).toHaveBeenCalledWith(alice, { confirmed: true });
@@ -153,7 +153,7 @@ describe('AdminUsersTab', () => {
     fireEvent.click(screen.getAllByLabelText('Delete user')[1]);
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
-    expect(screen.queryByText(`Delete user "${alice.username}"? All trips will be permanently deleted.`)).not.toBeInTheDocument();
+    expect(screen.queryByText(`Delete user "${alice.username}"? Their account and every trip and journey they own will be permanently deleted, including trips shared with other members, who lose access to them. Trips owned by others stay.`)).not.toBeInTheDocument();
     expect(admin.handleDeleteUser).not.toHaveBeenCalled();
   });
 
@@ -212,6 +212,16 @@ describe('AdminUsersTab', () => {
     expect(admin.copyInviteLink).toHaveBeenCalledWith('abcdefghijkl-rest-of-token');
 
     fireEvent.click(screen.getByLabelText('Delete'));
+    expect(admin.setInviteToDelete).toHaveBeenCalledWith(10);
+    expect(admin.handleDeleteInvite).not.toHaveBeenCalled();
+  });
+
+  it('FE-ADMUSR-017b: deleting an invite link waits for the answer in the confirm dialog', () => {
+    const admin = renderTab({ invites: [buildInvite()], inviteToDelete: 10 });
+
+    expect(screen.getByText('Delete this invite link? Anyone who has not used it yet can no longer register with it.')).toBeInTheDocument();
+    const confirm = screen.getAllByRole('button', { name: 'Delete' }).slice(-1)[0];
+    fireEvent.click(confirm);
     expect(admin.handleDeleteInvite).toHaveBeenCalledWith(10);
   });
 

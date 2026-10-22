@@ -68,5 +68,8 @@ const files: TranslationStrings = {
   'files.linkNeedsConnection': 'Removing this link needs a connection. Try again once TREK is back online.',
   'files.placeFilesNeedConnection':
     'Files need a connection to upload. Remove the new ones to save the place offline, or save once you are back online.',
+  'files.maxSize': 'Max {count} MB',
+  'files.maxSize.one': 'Max {count} MB',
+  'files.toast.starError': 'Could not change the star',
 };
 export default files;

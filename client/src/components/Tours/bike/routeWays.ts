@@ -171,12 +171,16 @@ export function sharesBy<C extends string>(ways: RouteWays, classOf: (edge: Rout
     .sort((a, b) => b.lengthM - a.lengthM);
 }
 
-/** The share of the line known to be unpaved, 0 to 1, or null when none of it is. */
+/**
+ * The share of the line known to be unpaved, 0 to 1. A line with a surface on record but none of it
+ * unpaved is a plain 0, so a fully paved route says so; null only where no surface is known at all.
+ */
 export function unpavedShareOf(ways: RouteWays): number | null {
   const row = sharesBy(ways, (edge) => (UNPAVED.has(edge.surface) ? 'unpaved' : 'other')).find(
     (share) => share.key === 'unpaved'
   );
-  return row ? row.share : null;
+  if (row) return row.share;
+  return ways.edges.some((edge) => edge.lengthM > 0 && edge.surface !== 'unknown') ? 0 : null;
 }
 
 /** The stretches of the line in one class, neighbours joined, each as its own line for the map. */

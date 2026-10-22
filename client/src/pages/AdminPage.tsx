@@ -120,8 +120,8 @@ function AdminPageDesktop(): React.ReactElement {
                 <RotateCcw size={18} strokeWidth={2} />
               </span>
               <div className="min-w-0 flex-1 basis-64">
-                <p className="m-0 font-bold text-content" style={fs(14, 'body')}>Demo Baseline</p>
-                <p className="m-0 mt-0.5 text-content-muted" style={fs(12.5, 'body')}>Save current state as the hourly reset point. All admin trips and settings will be preserved.</p>
+                <p className="m-0 font-bold text-content" style={fs(14, 'body')}>{t('admin.demoBaseline.title')}</p>
+                <p className="m-0 mt-0.5 text-content-muted" style={fs(12.5, 'body')}>{t('admin.demoBaseline.hint')}</p>
               </div>
               <button type="button"
                 onClick={saveDemoBaseline}
@@ -129,7 +129,7 @@ function AdminPageDesktop(): React.ReactElement {
                 style={fs(13, 'body')}
               >
                 <Save size={14} strokeWidth={2.1} />
-                Save Baseline
+                {t('admin.demoBaseline.button')}
               </button>
             </div>
           )}

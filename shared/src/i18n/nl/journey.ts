@@ -205,7 +205,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX-tracks',
   'journey.settings.recordings': 'Vastgelegde dagen',
   'journey.settings.showTripTracks': 'Alle GPX-tracks van reizen tonen',
-  'journey.settings.showTripTracksHint': 'Tekent de opgenomen routes van de gekoppelde reizen op de kaart.',
+  'journey.settings.showTripTracksHint': 'Tekent de geplande routes (GPX-tracks) van de gekoppelde reizen op de kaart.',
   'journey.settings.autoPrepare': 'Opgenomen dagen automatisch voorbereiden',
   'journey.settings.autoPrepareHint':
     'Zolang een gekoppelde reis loopt, wachten de verblijven uit je Dawarich bij hun dag op je controle. Bewerkers met een eigen verbinding krijgen die van hen. Er wordt niets vanzelf in het dagboek geschreven.',
@@ -905,5 +905,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Opgenomen dagen en de stops die eruit zijn overgenomen, op dagen met een gepubliceerd verhaal. Ze tonen waar en wanneer je was, ook je verblijf.',
   'journey.share.needsMap': 'Deel de kaart om dit aan te zetten',
+  'journey.editor.tags': 'Tags', // same-as-en
 };
 export default journey;

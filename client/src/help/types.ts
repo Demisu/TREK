@@ -25,6 +25,12 @@ export interface HelpGuideMedia {
   steps: boolean
   /** The state after the last step, `result.webp`. */
   result: boolean
+  /**
+   * Steps whose still also comes as a short silent loop, `step-<n>.loop.webp`,
+   * for the few gestures a still cannot show (a drag, a route being drawn, a
+   * flyover). The still stays the poster and what reduced motion shows.
+   */
+  clips?: number[]
 }
 
 /** Icon names the help components know how to draw (see components/Help/helpIcons.ts). */
@@ -101,6 +107,42 @@ export type HelpIcon =
   | 'wallet'
   | 'folder'
   | 'messages'
+  | 'mountain'
+  | 'footprints'
+  | 'bike'
+  | 'layers'
+  | 'rotate3d'
+  | 'mountainSnow'
+  | 'waves'
+  | 'wind'
+  | 'history'
+  | 'fileDown'
+  | 'backpack'
+  | 'bellRing'
+  | 'blocks'
+  | 'info'
+  | 'receipt'
+  | 'pin'
+  | 'arrowUpDown'
+  | 'packagePlus'
+  | 'routeOff'
+  | 'car'
+  | 'fileSpreadsheet'
+  | 'bed'
+  | 'batteryCharging'
+  | 'alert'
+  | 'filePen'
+  | 'cloudDownload'
+  | 'mapPinned'
+  | 'shuffle'
+  | 'moon'
+  | 'spline'
+  | 'cableCar'
+  | 'copyPlus'
+  | 'folderInput'
+  | 'mailCheck'
+  | 'notebookPen'
+  | 'moveRight'
 
 export interface HelpGuide {
   id: string

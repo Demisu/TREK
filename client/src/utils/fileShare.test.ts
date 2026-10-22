@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { canShareFile, shareFile } from './fileShare';
+import { canShareFile, canShareText, shareFile, shareText } from './fileShare';
 
 const gpx = () => new File(['<gpx/>'], 'Kramer.gpx', { type: 'application/gpx+xml' });
 
@@ -54,5 +54,42 @@ describe('shareFile (IO-01)', () => {
     await expect(shareFile(gpx(), 'Kramer')).resolves.toBe('failed');
     share.mockRejectedValueOnce(new Error('odd'));
     await expect(shareFile(gpx(), 'Kramer')).resolves.toBe('failed');
+  });
+});
+
+describe('canShareText', () => {
+  it('asks the platform about a text, and takes a share API without the question as a yes', () => {
+    const canShare = vi.fn(() => true);
+    stubShare(vi.fn(), canShare);
+    expect(canShareText()).toBe(true);
+    expect(canShare).toHaveBeenCalledWith({ title: 'TREK', text: 'TREK' });
+    canShare.mockReturnValue(false);
+    expect(canShareText()).toBe(false);
+    stubShare(vi.fn(), undefined);
+    expect(canShareText()).toBe(true);
+  });
+
+  it('is no without the share API, or when the question itself throws', () => {
+    stubShare(undefined, () => true);
+    expect(canShareText()).toBe(false);
+    stubShare(vi.fn(), () => {
+      throw new TypeError('no');
+    });
+    expect(canShareText()).toBe(false);
+  });
+});
+
+describe('shareText', () => {
+  it('opens the sheet with the title and the text, and reads a refusal like a file share', async () => {
+    const share = vi.fn().mockResolvedValue(undefined);
+    stubShare(share, () => true);
+    await expect(shareText('Kramer', 'Kramer\nHike')).resolves.toBe('shared');
+    expect(share).toHaveBeenCalledWith({ title: 'Kramer', text: 'Kramer\nHike' });
+    share.mockRejectedValueOnce(new DOMException('closed', 'AbortError'));
+    await expect(shareText('Kramer', 'x')).resolves.toBe('cancelled');
+    share.mockRejectedValueOnce(new DOMException('earlier share still open', 'InvalidStateError'));
+    await expect(shareText('Kramer', 'x')).resolves.toBe('busy');
+    share.mockRejectedValueOnce(new Error('odd'));
+    await expect(shareText('Kramer', 'x')).resolves.toBe('failed');
   });
 });

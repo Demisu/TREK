@@ -238,8 +238,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Mesin penghindaran tidak menjawab untuk ruas ini, jadi mesin utama yang menggambarnya. Mesin penghindaran sedang ditanya lagi.',
   'roadtrip.day': 'Hari {number}',
-  'roadtrip.quietDay.empty': 'Belum ada perhentian — jatuhkan di sini',
-  'roadtrip.quietDay.one': 'Sejauh ini hanya {name} — jatuhkan perhentian di sini',
+  'roadtrip.quietDay.empty': 'Belum ada perhentian, jatuhkan di sini',
+  'roadtrip.quietDay.one': 'Sejauh ini hanya {name}, jatuhkan perhentian di sini',
   'roadtrip.leg.driveText': '{distance} dalam {time}',
   'roadtrip.day.stopCount': '{count} perhentian',
   'roadtrip.day.fold': 'Lipat',
@@ -322,5 +322,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Berangkat setelah check-out',
   'roadtrip.bookend.noVia':
     'Titik lintas tidak bisa ditaruh di perjalanan ke atau dari penginapan Anda. Tambahkan perhentian di sana.',
+  'roadtrip.stay.untilHint':
+    'Berangkat pukul {time} karena kunjungan ini punya waktu selesai. Buka dan pilih Hapus waktu selesai untuk menetapkan lama singgah.',
 };
 export default roadtrip;

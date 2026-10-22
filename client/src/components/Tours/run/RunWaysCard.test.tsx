@@ -111,10 +111,10 @@ describe('RunWaysCard (RUN-02)', () => {
     expect(hardest.textContent).not.toMatch(/[–—]/);
   });
 
-  it('FE-TOUR-RUNWAYS-003: a route all paved and ungraded shows no head badges', () => {
+  it('FE-TOUR-RUNWAYS-003: a route all paved and ungraded says 0 % unpaved and shows no grade badge', () => {
     show({ ways: { line: LINE, edges: [WAYS.edges[0]] } });
     switchOn();
-    expect(screen.queryByText(/unpaved/)).toBeNull();
+    expect(screen.getByText('0 % unpaved')).toBeInTheDocument();
     expect(screen.queryByTestId('run-ways-hardest')).toBeNull();
   });
 

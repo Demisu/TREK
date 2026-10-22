@@ -225,5 +225,16 @@ const dashboard: TranslationStrings = {
   'dashboard.mobile.spotlightDays.one': '{count} dia',
   'dashboard.tripChangeNeedsConnection':
     'Canviar les dates, el nombre de dies, la moneda o la portada necessita connexió. El nom, la descripció i el recordatori es poden canviar sense connexió.',
+  'dashboard.ics.enable': 'Activa la subscripció al calendari',
+  'dashboard.ics.enableHint':
+    'Crea un enllaç secret que qualsevol persona que el tingui pot llegir sense iniciar sessió. El pots desactivar en qualsevol moment.',
+  'dashboard.ics.regenerate': 'Regenera',
+  'dashboard.ics.turnOff': 'Desactiva',
+  'dashboard.ics.manageHint':
+    'En regenerar es crea un enllaç nou i l’anterior deixa de funcionar. En desactivar, l’enllaç es deshabilita del tot.',
+  'dashboard.ics.addGoogle': 'Afegeix a Google Calendar',
+  'dashboard.ics.addApple': 'Afegeix a Calendari d’Apple / Outlook',
+  'dashboard.ics.copyManually': 'O copia un enllaç manualment',
+  'dashboard.ics.pasteFromUrl': 'enganxa’l a «Des d’URL»',
 };
 export default dashboard;

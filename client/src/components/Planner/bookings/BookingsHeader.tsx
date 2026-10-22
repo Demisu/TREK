@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState, type ReactNode } from 'react'
 import {
-  ArrowDownUp, CalendarDays, Check, Download, FileSpreadsheet, Filter, GanttChart, Layers, LayoutGrid, Plane, Plus, RotateCcw, Rows3,
+  ArrowDownUp, CalendarDays, Check, Download, Filter, GanttChart, Layers, LayoutGrid, Plane, Plus, RotateCcw, Rows3, Upload,
   Search, SlidersHorizontal, Tag, X,
 } from 'lucide-react'
 import { useTranslation } from '../../../i18n'
@@ -74,6 +74,8 @@ export default function BookingsHeader(p: BookingsHeaderProps) {
     ['timeline', GanttChart, t('reservations.view.timeline')],
   ]
   const hasEntries = p.total > 0
+  // With a filter in force the file holds only the rows on screen; the tooltip says so.
+  const exportLabel = p.filtering ? t('reservations.exportCsvFiltered', { shown: p.shown, total: p.total }) : t('reservations.exportCsv')
 
   return (
     <div className="flex flex-wrap items-center gap-2.5 rounded-[18px] bg-surface-tertiary py-3 ps-[22px] pe-3">
@@ -121,8 +123,8 @@ export default function BookingsHeader(p: BookingsHeaderProps) {
           </div>
           <ViewOptions {...p} />
           {p.onExport && (
-            <Tooltip label={t('reservations.exportCsv')}>
-              <button type="button" onClick={p.onExport} aria-label={t('reservations.exportCsv')} className={BAR_BTN}><FileSpreadsheet size={15} strokeWidth={2} /></button>
+            <Tooltip label={exportLabel}>
+              <button type="button" onClick={p.onExport} aria-label={exportLabel} className={BAR_BTN}><Download size={15} strokeWidth={2} /></button>
             </Tooltip>
           )}
         </>
@@ -133,7 +135,7 @@ export default function BookingsHeader(p: BookingsHeaderProps) {
           {hasEntries && <span className="mx-0.5 h-[22px] w-px flex-none bg-edge-faint" />}
           {p.onImport && (
             <Tooltip label={t('reservations.import.title')}>
-              <button type="button" onClick={p.onImport} aria-label={t('reservations.import.title')} className={BAR_BTN}><Download size={15} strokeWidth={2} /></button>
+              <button type="button" onClick={p.onImport} aria-label={t('reservations.import.title')} className={BAR_BTN}><Upload size={15} strokeWidth={2} /></button>
             </Tooltip>
           )}
           {p.onAirTrail && (

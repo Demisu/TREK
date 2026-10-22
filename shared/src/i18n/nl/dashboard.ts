@@ -225,5 +225,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'Aantal dagen is verplicht',
   'dashboard.tripChangeNeedsConnection':
     'Nieuwe data, een ander aantal dagen, een andere valuta of een nieuwe omslag hebben een verbinding nodig. Naam, beschrijving en herinnering kun je ook offline wijzigen.',
+  'dashboard.ics.enable': 'Agenda-abonnement inschakelen',
+  'dashboard.ics.enableHint':
+    'Maakt een geheime link die iedereen met die link kan lezen zonder in te loggen. Je kunt hem op elk moment uitschakelen.',
+  'dashboard.ics.regenerate': 'Opnieuw genereren',
+  'dashboard.ics.turnOff': 'Uitschakelen',
+  'dashboard.ics.manageHint':
+    'Opnieuw genereren maakt een nieuwe link en maakt de oude ongeldig. Uitschakelen schakelt de link helemaal uit.',
+  'dashboard.ics.addGoogle': 'Toevoegen aan Google Agenda',
+  'dashboard.ics.addApple': 'Toevoegen aan Apple Agenda / Outlook',
+  'dashboard.ics.copyManually': 'Of kopieer een link handmatig',
+  'dashboard.ics.pasteFromUrl': 'plak in “Vanaf URL”',
 };
 export default dashboard;

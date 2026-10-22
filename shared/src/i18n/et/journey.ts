@@ -222,7 +222,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX-rajad',
   'journey.settings.recordings': 'Salvestatud päevad',
   'journey.settings.showTripTracks': 'Näita kõiki reiside GPX-radu',
-  'journey.settings.showTripTracksHint': 'Kuvab kaardil seotud reiside salvestatud teekonnad.',
+  'journey.settings.showTripTracksHint': 'Joonistab kaardile seotud reiside planeeritud marsruudid (GPX-rajad).',
   'journey.settings.autoPrepare': 'Valmista salvestatud päevad automaatselt ette',
   'journey.settings.autoPrepareHint':
     'Kuni lingitud reis kestab, ootavad sinu Dawarichi peatused oma päeva juures ülevaatamist. Oma ühendusega toimetajad saavad enda omad. Päevikusse ei kirjutata midagi iseenesest.',
@@ -895,5 +895,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Salvestatud päevad ja neist võetud peatused päevadel, millel on avaldatud sissekanne. Need näitavad, kus ja millal sa olid, ka su majutust.',
   'journey.share.needsMap': 'Selle sisselülitamiseks jaga kaarti',
+  'journey.editor.tags': 'Sildid',
 };
 export default journey;

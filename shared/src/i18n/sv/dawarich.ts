@@ -4,7 +4,7 @@ const dawarich: TranslationStrings = {
   // ── Connection ─────────────────────────────────────────────────────────────
   'dawarich.title': 'Dawarich',
   'dawarich.intro':
-    'Anslut din egen Dawarich-instans för att se var du faktiskt har varit. TREK läser den och föreslår dagboksinlägg, platser och länder – ingenting läggs till förrän du bekräftar det, och ingenting skrivs tillbaka till Dawarich.',
+    'Anslut din egen Dawarich-instans för att se var du faktiskt har varit. TREK läser den och föreslår dagboksinlägg, platser och länder; ingenting läggs till förrän du bekräftar det, och ingenting skrivs tillbaka till Dawarich.',
   'dawarich.url': 'Instansens adress',
   'dawarich.apiKey': 'API-nyckel',
   'dawarich.apiKeyPlaceholder': 'Klistra in din Dawarich API-nyckel',

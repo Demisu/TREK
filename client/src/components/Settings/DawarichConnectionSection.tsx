@@ -163,7 +163,7 @@ function DawarichConnectionStatus({
           {state.lastSyncAt
             ? t('dawarich.lastSync', { when: new Date(state.lastSyncAt).toLocaleString(locale) })
             : t('dawarich.neverSynced')}
-          {state.lastSyncState === 'partial' && ` · ${t('dawarich.syncPartial')}`}
+          {state.lastSyncState === 'partial' && `, ${t('dawarich.syncPartial')}`}
         </p>
       )}
 

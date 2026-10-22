@@ -252,8 +252,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'El enrutador de evitación no respondió para este tramo, así que lo dibujó el enrutador principal. Se está volviendo a consultar el enrutador de evitación.',
   'roadtrip.day': 'Día {number}',
-  'roadtrip.quietDay.empty': 'Sin paradas todavía: suelta una aquí',
-  'roadtrip.quietDay.one': 'Por ahora solo {name}: suelta una parada aquí',
+  'roadtrip.quietDay.empty': 'Sin paradas todavía, suelta una aquí',
+  'roadtrip.quietDay.one': 'Por ahora solo {name}, suelta una parada aquí',
   'roadtrip.leg.driveText': '{distance} en {time}',
   'roadtrip.day.stopCount': '{count} paradas',
   'roadtrip.day.stopCount.one': '{count} parada',
@@ -339,5 +339,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Parte después de la hora de salida',
   'roadtrip.bookend.noVia':
     'No se puede poner un punto de paso en el trayecto hacia tu alojamiento o desde él. Añade una parada allí.',
+  'roadtrip.stay.untilHint':
+    'Se sale a las {time} porque esta visita tiene hora de fin. Ábrela y elige Quitar hora de fin para fijar una duración de estancia.',
 };
 export default roadtrip;

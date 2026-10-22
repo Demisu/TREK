@@ -4,7 +4,7 @@ const dawarich: TranslationStrings = {
   // ── Connection ─────────────────────────────────────────────────────────────
   'dawarich.title': 'Dawarich',
   'dawarich.intro':
-    '連接你自己的 Dawarich 執行個體，看看你實際去過哪些地方。TREK 會讀取它，並建議日誌條目、地點和國家 — 在你確認之前不會新增任何內容，也不會回寫任何資料到 Dawarich。',
+    '連接你自己的 Dawarich 執行個體，看看你實際去過哪些地方。TREK 會讀取它，並建議日誌條目、地點和國家；在你確認之前不會新增任何內容，也不會回寫任何資料到 Dawarich。',
   'dawarich.url': '執行個體位址',
   'dawarich.apiKey': 'API 金鑰',
   'dawarich.apiKeyPlaceholder': '貼上你的 Dawarich API 金鑰',

@@ -528,7 +528,7 @@ export default function MCostsTab({ planner, shell }: MTabScreenProps) {
         open={confirmDelete != null}
         onClose={() => setConfirmDelete(null)}
         title={t('costs.confirm.deleteTitle')}
-        message={t('costs.confirm.deleteBody', { name: confirmDelete?.name ?? '' })}
+        message={t((confirmDelete?.receipts || []).length > 0 ? 'costs.confirm.deleteBodyReceipts' : 'costs.confirm.deleteBody', { name: confirmDelete?.name ?? '' })}
         confirmLabel={t('common.delete')}
         cancelLabel={t('common.cancel')}
         danger

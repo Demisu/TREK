@@ -1,10 +1,11 @@
-import { act, fireEvent, render, screen } from '../../../tests/helpers/render'
+import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/render'
 import userEvent from '@testing-library/user-event'
 import { resetAllStores, seedStore } from '../../../tests/helpers/store'
 import { buildAssignment, buildPlace, buildTrip, buildUser } from '../../../tests/helpers/factories'
 import { useAuthStore } from '../../store/authStore'
 import { useTripStore } from '../../store/tripStore'
 import { usePermissionsStore } from '../../store/permissionsStore'
+import { tourRepo } from '../../repo/tourRepo'
 import { PlacesHeader } from './PlacesSidebarHeader'
 import { usePlacesSidebar, type PlacesSidebarProps, type SidebarState } from './usePlacesSidebar'
 
@@ -50,6 +51,8 @@ beforeEach(() => {
 
 afterEach(() => {
   localStorage.removeItem('trek:places-sort')
+  delete window.__addToast
+  vi.restoreAllMocks()
 })
 
 describe('B4A Places pool', () => {
@@ -120,36 +123,72 @@ describe('B4A Places pool', () => {
     expect(sidebar.filtered.map(place => place.id)).toEqual([1])
   })
 
-  it('blocks Places file drops while Tours is on and restores them while off', () => {
+  it('hands a route file dropped while Tours is on to the Tours preview, and to the places import while off', async () => {
+    const preview = vi.spyOn(tourRepo, 'previewGpx').mockResolvedValue({ tracks: [] })
     const props = makeProps({ toursEnabled: true })
     const { rerender } = render(<Host {...props} />)
     const file = new File(['track'], 'route.gpx', { type: 'application/gpx+xml' })
     fireEvent.dragEnter(screen.getByTestId('pool'))
-    expect(sidebar.sidebarDragOver).toBe(false)
+    expect(sidebar.sidebarDragOver).toBe(true)
     fireEvent.drop(screen.getByTestId('pool'), { dataTransfer: { files: [file] } })
+    await waitFor(() => expect(preview).toHaveBeenCalledWith(1, file))
     expect(sidebar.fileImportOpen).toBe(false)
     expect(sidebar.sidebarDropFile).toBeNull()
+    await waitFor(() => expect(sidebar.tourFileImport.preview).toEqual([{ file, tracks: [], leftOut: undefined }]))
+    act(() => sidebar.tourFileImport.cancel())
+
+    preview.mockClear()
     rerender(<Host {...props} toursEnabled={false} />)
     fireEvent.dragEnter(screen.getByTestId('pool'))
     expect(sidebar.sidebarDragOver).toBe(true)
     fireEvent.drop(screen.getByTestId('pool'), { dataTransfer: { files: [file] } })
     expect(sidebar.fileImportOpen).toBe(true)
     expect(sidebar.sidebarDropFile).toBe(file)
+    expect(preview).not.toHaveBeenCalled()
   })
 
-  it('keeps list import in Places while Tours is on and restores the file menu while off', async () => {
+  it('opens the places import with a dropped file the Tours preview finds no line in', async () => {
+    vi.spyOn(tourRepo, 'previewGpx').mockRejectedValue({ response: { data: { code: 'no_track' } } })
+    render(<Host {...makeProps({ toursEnabled: true })} />)
+    const points = new File(['<kml/>'], 'cafes.kml')
+    fireEvent.drop(screen.getByTestId('pool'), { dataTransfer: { files: [points] } })
+    await waitFor(() => expect(sidebar.fileImportOpen).toBe(true))
+    expect(sidebar.fileImportFiles).toEqual([points])
+    expect(sidebar.tourFileImport.preview).toBeNull()
+    act(() => sidebar.closeFileImport())
+    expect(sidebar.fileImportOpen).toBe(false)
+  })
+
+  it('names a dropped file neither import reads while Tours is on, instead of ignoring it', () => {
+    const preview = vi.spyOn(tourRepo, 'previewGpx')
+    const addToast = vi.fn()
+    window.__addToast = addToast
+    render(<Host {...makeProps({ toursEnabled: true })} />)
+    fireEvent.drop(screen.getByTestId('pool'), { dataTransfer: { files: [new File(['x'], 'photo.jpg')] } })
+    expect(addToast).toHaveBeenCalledWith(sidebar.t('places.importFileUnsupported'), 'error', undefined)
+    expect(preview).not.toHaveBeenCalled()
+    expect(sidebar.fileImportOpen).toBe(false)
+  })
+
+  it('keeps the file entry while Tours is on, opening the Tours file picker, and the places import while off', async () => {
     const user = userEvent.setup()
+    const picked: HTMLInputElement[] = []
+    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (this: HTMLInputElement) { picked.push(this) })
     const props = makeProps({ toursEnabled: true })
     const { rerender } = render(<Host {...props} />)
     await user.click(screen.getByRole('button', { name: 'Import Places' }))
-    expect(screen.queryByRole('button', { name: sidebar.t('places.importFile') })).not.toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: sidebar.t('places.importList') }))
-    expect(sidebar.listImportOpen).toBe(true)
+    await user.click(screen.getByRole('button', { name: sidebar.t('places.importFile') }))
+    expect(picked.map(input => input.accept)).toEqual(['.gpx,.kml,.kmz'])
     expect(sidebar.fileImportOpen).toBe(false)
+    await user.click(screen.getByRole('button', { name: 'Import Places' }))
+    await user.click(screen.getByRole('button', { name: sidebar.t('places.importGoogleList') }))
+    expect(sidebar.listImportOpen).toBe(true)
+    act(() => sidebar.setListImportOpen(false))
     rerender(<Host {...props} toursEnabled={false} />)
     await user.click(screen.getByRole('button', { name: 'Import Places' }))
     await user.click(screen.getByRole('button', { name: sidebar.t('places.importFile') }))
     expect(sidebar.fileImportOpen).toBe(true)
+    expect(picked).toHaveLength(1)
   })
 
   it.each([true, false])('exposes no AddRow actions without place-edit permission (Tours=%s)', async toursEnabled => {

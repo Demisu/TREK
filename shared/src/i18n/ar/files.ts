@@ -80,5 +80,12 @@ const files: TranslationStrings = {
   'files.linkNeedsConnection': 'تحتاج إزالة هذا الربط إلى اتصال. حاول مرة أخرى عندما يعود TREK إلى الاتصال.',
   'files.placeFilesNeedConnection':
     'تحتاج الملفات إلى اتصال لرفعها. أزل الملفات الجديدة لحفظ المكان دون اتصال، أو احفظ عند عودتك إلى الاتصال.',
+  'files.maxSize': 'الحد الأقصى {count} ميغابايت',
+  'files.maxSize.zero': 'الحد الأقصى {count} ميغابايت',
+  'files.maxSize.one': 'الحد الأقصى {count} ميغابايت',
+  'files.maxSize.two': 'الحد الأقصى {count} ميغابايت',
+  'files.maxSize.few': 'الحد الأقصى {count} ميغابايت',
+  'files.maxSize.many': 'الحد الأقصى {count} ميغابايت',
+  'files.toast.starError': 'تعذّر تغيير علامة النجمة',
 };
 export default files;

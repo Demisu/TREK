@@ -93,7 +93,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Edit User',
   'admin.newPassword': 'New Password',
   'admin.newPasswordHint': 'Leave empty to keep current password',
-  'admin.deleteUser': 'Delete user "{name}"? All trips will be permanently deleted.',
+  'admin.deleteUser':
+    'Delete user "{name}"? Their account and every trip and journey they own will be permanently deleted, including trips shared with other members, who lose access to them. Trips owned by others stay.',
   'admin.deleteUserTitle': 'Delete user',
   'admin.newPasswordPlaceholder': 'Enter new password…',
   'admin.toast.loadError': 'Failed to load admin data',
@@ -241,9 +242,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.google': 'Google',
   'admin.transitProvider.transitousHint': 'Community GTFS feeds. Free and keyless, with the best coverage in Europe.',
   'admin.transitProvider.googleHint':
-    'Uses the Google API key above, for regions Transitous has no data for. Billed per search — Transitous is used while no key is set.',
+    'Uses the Google API key above, for regions Transitous has no data for. Billed per search; Transitous is used while no key is set.',
   'admin.transitProvider.noKeyWarning':
-    'Google is selected, but no Google API key is configured — transit search is still using Transitous. Add a key under API Keys above.',
+    'Google is selected, but no Google API key is configured; transit search is still using Transitous. Add a key under API Keys above.',
   'admin.transitProvider.personalKeyWarning':
     "Only your own Google key is set, so other members' transit searches still fall back to Transitous. Save the key above as an admin to apply it instance-wide.",
   'admin.placeShadow.title': 'Place Search Log',
@@ -767,8 +768,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'No audit entries yet.',
   'admin.audit.refresh': 'Refresh',
   'admin.audit.loadMore': 'Load more',
-  'admin.audit.showing': '{count} loaded · {total} total',
-  'admin.audit.showing.one': '{count} loaded · {total} total',
+  'admin.audit.showing': '{count} loaded, {total} total',
+  'admin.audit.showing.one': '{count} loaded, {total} total',
   'admin.audit.col.time': 'Time',
   'admin.audit.col.user': 'User',
   'admin.audit.col.action': 'Action',
@@ -910,5 +911,37 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'Decline',
   'admin.paddleRegions.origin.auto': 'Automatic',
   'admin.paddleRegions.origin.autoHint': 'TREK loaded this region by itself for a paddle tour planned there.',
+  'admin.mfa.reset': 'Reset 2FA',
+  'admin.mfa.resetHint':
+    'Switches off two-factor authentication for this user, for example after a lost phone. They are signed out everywhere and can set it up again after logging in with their password.',
+  'admin.mfa.resetConfirm': 'Turn off two-factor authentication for {name}?',
+  'admin.mfa.resetDone': 'Two-factor authentication reset',
+  'admin.danger.title': 'Danger Zone',
+  'admin.rotateJwt.title': 'Rotate JWT Secret',
+  'admin.rotateJwt.hint': 'Generate a new JWT signing secret. All active sessions will be invalidated immediately.',
+  'admin.rotateJwt.confirm': 'Rotate & Log out',
+  'admin.rotateJwt.warning': 'Warning, this will invalidate all sessions and log you out.',
+  'admin.rotateJwt.body':
+    'A new JWT secret will be generated immediately. Every logged-in user, you included, will be signed out and will need to log in again.',
+  'admin.oidcDisplayNamePlaceholder': 'e.g. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery URL (optional)',
+  'admin.oidcDiscoveryUrlHint':
+    'Override the auto-constructed discovery URL. Required for providers like Authentik where the endpoint is not at {path}.',
+  'admin.smtp.skipTls': 'Skip TLS certificate check',
+  'admin.smtp.skipTlsHint': 'Enable for self-signed certificates on local mail servers',
+  'admin.demoBaseline.title': 'Demo Baseline',
+  'admin.demoBaseline.hint':
+    'Save current state as the hourly reset point. All admin trips and settings will be preserved.',
+  'admin.demoBaseline.button': 'Save Baseline',
+  'admin.demoBaseline.saved': 'Baseline saved! Resets will restore to this state.',
+  'admin.demoBaseline.failed': 'Failed to save baseline',
+  'admin.invite.deleteTitle': 'Delete invite link',
+  'admin.invite.deleteConfirm':
+    'Delete this invite link? Anyone who has not used it yet can no longer register with it.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Delete template',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Delete the template "{name}" with all its categories and items?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Delete category',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Delete the category "{name}" and all its items?',
+  'admin.rotateJwt.button': 'Rotate',
 };
 export default admin;

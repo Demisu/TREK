@@ -10,6 +10,8 @@ import { compareRoutes, deriveControlPoints, type RouteComparison, type TrackPoi
 
 /** The grade a planned version routes with when the import carries none: the paths a T3 walk may take. */
 const DEFAULT_DIFFICULTY: TourMaxHikingDifficulty = 3;
+/** Where a hike without a grade is routed once the default found no way: a recorded T4 or T5 route needs its paths. */
+const WIDEST_DIFFICULTY: TourMaxHikingDifficulty = 6;
 
 type GpxConversionStatus = 'idle' | 'analyzing' | 'ready' | 'failed';
 
@@ -22,9 +24,19 @@ interface ConversionState {
   comparison: RouteComparison | null;
   /** Why it failed: the track is too short to plan from, or the router found no way. */
   error: 'track' | 'routing' | null;
+  /** The hiking grade the suggestion was routed with; null until it was. */
+  routedDifficulty: TourMaxHikingDifficulty | null;
 }
 
-const IDLE: ConversionState = { placeId: null, status: 'idle', points: [], line: null, comparison: null, error: null };
+const IDLE: ConversionState = {
+  placeId: null,
+  status: 'idle',
+  points: [],
+  line: null,
+  comparison: null,
+  error: null,
+  routedDifficulty: null,
+};
 
 /**
  * Planning an editable tour from an import shown in the tour planner (PR1-05A/B).
@@ -73,11 +85,25 @@ export function useGpxConversion(planner: TourPlannerController) {
           fixedLeg: index < points.length - 1 ? freeLegBetween(point, points[index + 1]) : null,
         }))
       : points;
-    const routed = bikeProfile
+    let routedDifficulty = difficulty;
+    let routed = bikeProfile
       ? await routeBikeTour(legs, bikeProfile, controller.signal)
       : runProfile
         ? await routeRun(legs, runProfile, controller.signal)
         : await routeWalkingTour(legs, controller.signal, difficulty);
+    // A recorded hike without a grade is routed with the default T3 first; when that finds no way, the
+    // paths of a harder hike are allowed rather than leaving the walker with no suggestion to compare.
+    if (
+      !isTourRoute(routed) &&
+      !controller.signal.aborted &&
+      !bikeProfile &&
+      !runProfile &&
+      tour.tour_type === 'hike' &&
+      tour.max_hiking_difficulty == null
+    ) {
+      routedDifficulty = WIDEST_DIFFICULTY;
+      routed = await routeWalkingTour(legs, controller.signal, routedDifficulty);
+    }
     if (controller.signal.aborted) return;
     if (!isTourRoute(routed)) {
       setState({ ...base, status: 'failed', error: 'routing' });
@@ -89,6 +115,7 @@ export function useGpxConversion(planner: TourPlannerController) {
       status: 'ready',
       line: routed.coordinates,
       comparison: compareRoutes(trackPoints, suggestion),
+      routedDifficulty,
     });
   }, [bikeProfile, difficulty, drawn, runProfile, tour, track]);
 
@@ -109,7 +136,7 @@ export function useGpxConversion(planner: TourPlannerController) {
         name: tour.name,
         description: tour.description ?? null,
         website: tour.website ?? null,
-        difficulty,
+        difficulty: current.routedDifficulty ?? difficulty,
         points: current.points,
         sourcePlaceId: tour.place_id,
         inPlace: how === 'replace',
@@ -124,7 +151,18 @@ export function useGpxConversion(planner: TourPlannerController) {
       if (started) setState(IDLE);
       return started;
     },
-    [bikeProfile, current.points, current.status, difficulty, paddle, runProfile, ski, startDerivedTour, tour]
+    [
+      bikeProfile,
+      current.points,
+      current.routedDifficulty,
+      current.status,
+      difficulty,
+      paddle,
+      runProfile,
+      ski,
+      startDerivedTour,
+      tour,
+    ]
   );
 
   return useMemo(

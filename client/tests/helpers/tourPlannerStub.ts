@@ -8,6 +8,8 @@ import { vi } from 'vitest';
 export function hikePlannerDefaults() {
   return {
     tourType: 'hike' as const,
+    alpineAcknowledged: false,
+    acknowledgeAlpine: vi.fn(),
     setTourType: vi.fn(),
     isPaddle: false,
     isBike: false,

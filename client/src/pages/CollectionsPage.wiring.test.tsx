@@ -195,6 +195,7 @@ function makeHook(overrides: Hook = {}): Hook {
     categories: [],
     collections: [list],
     ownedLists: [list, { id: 4, name: 'Other', is_owner: true }],
+    writableLists: [list, { id: 4, name: 'Other', is_owner: true }],
     sharedLists: [],
     activeCollection: list,
     isAllSaved: false,

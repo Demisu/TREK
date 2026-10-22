@@ -338,7 +338,7 @@ export class UnifiedMemoriesService {
           targetId: Number(tripId),
           params: {
             trip: tripTitle || 'Untitled',
-            actor: actorRow?.email || 'Unknown',
+            actor: actorRow?.username || 'Unknown',
             count: String(added),
             tripId: String(tripId),
           },

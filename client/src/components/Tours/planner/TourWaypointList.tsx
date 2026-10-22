@@ -142,6 +142,8 @@ function RouteToolButton({
 /** The quiet hint and first-use guidance before a route exists. */
 function WaypointEmptyState() {
   const { t } = useTranslation();
+  // Say "turn on" only when the tool is off; on the flat map it starts on and the hint then just says what to do.
+  const placing = useTourPlaceToolStore((state) => state.placing[state.mode]);
   return (
     <div
       data-testid="tour-planner-empty-state"
@@ -149,7 +151,7 @@ function WaypointEmptyState() {
       style={fs(12, 'body')}
     >
       <MapPin size={14} strokeWidth={2} className="mt-px flex-none text-content-faint" />
-      <p className="m-0">{t('tours.planner.emptyHint')}</p>
+      <p className="m-0">{t(placing ? 'tours.planner.emptyHintPlacing' : 'tours.planner.emptyHint')}</p>
     </div>
   );
 }

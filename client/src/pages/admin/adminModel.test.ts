@@ -1,7 +1,7 @@
 // FE-ADMMODEL-001 to -005: the invite status both admin user views show; -010 to -012 the users list.
 import { describe, expect, it } from 'vitest';
 
-import { formatLastActive, inviteStatus, mergeSavedUser, type AdminUser } from './adminModel';
+import { formatLastActive, inviteMeta, inviteStatus, mergeSavedUser, type AdminUser } from './adminModel';
 
 const NOW = new Date('2026-10-09T12:00:00Z');
 
@@ -82,5 +82,27 @@ describe('mergeSavedUser', () => {
       email: 'new@e.com',
       role: 'admin',
     });
+  });
+});
+
+describe('inviteMeta', () => {
+  const t = (key: string, params?: Record<string, string | number>) => (params ? `${key} ${params.trip}` : key);
+
+  it('FE-ADMMODEL-020: joins uses, expiry, trip and creator with commas, never a middle dot', () => {
+    const meta = inviteMeta(
+      { used_count: 1, max_uses: 5, expires_at: '2026-10-10T00:00:00Z', trip_title: 'Rome', created_by_name: 'alice' },
+      t,
+      'en-US'
+    );
+    expect(meta).toBe(
+      '1/5 admin.invite.uses, admin.invite.expiresAt 10/10/2026, admin.invite.boundTo Rome, admin.invite.createdBy alice'
+    );
+    expect(meta).not.toContain('·');
+  });
+
+  it('FE-ADMMODEL-021: leaves out the expiry and the trip when the invite has none, and shows unlimited uses as infinity', () => {
+    expect(inviteMeta({ used_count: 2, max_uses: 0, created_by_name: 'bob' }, t, 'en-US')).toBe(
+      '2/∞ admin.invite.uses, admin.invite.createdBy bob'
+    );
   });
 });

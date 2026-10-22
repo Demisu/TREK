@@ -15,7 +15,7 @@ const wanderer: TranslationStrings = {
   'wanderer.test.button': 'Prova connessione',
   'wanderer.test.ok': 'Collegato.',
   'wanderer.test.okCount': 'Collegato. Puoi importare {count} dei tuoi sentieri.',
-  'wanderer.test.okCount.one': 'Collegato. Puoi importare {count} dei tuoi sentieri.',
+  'wanderer.test.okCount.one': 'Collegato. Puoi importare {count} sentiero.',
   'wanderer.disconnect': 'Scollega',
   'wanderer.saved': 'Collegamento a wanderer salvato',
   'wanderer.disconnected': 'Collegamento a wanderer rimosso',

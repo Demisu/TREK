@@ -75,5 +75,10 @@ const files: TranslationStrings = {
     'Щоб прибрати цей зв’язок, потрібне з’єднання. Спробуйте ще раз, коли TREK знову буде онлайн.',
   'files.placeFilesNeedConnection':
     'Для завантаження файлів потрібне з’єднання. Приберіть нові, щоб зберегти місце офлайн, або збережіть, коли знову будете онлайн.',
+  'files.maxSize': 'Макс. {count} МБ',
+  'files.maxSize.one': 'Макс. {count} МБ',
+  'files.maxSize.few': 'Макс. {count} МБ',
+  'files.maxSize.many': 'Макс. {count} МБ',
+  'files.toast.starError': 'Не вдалося змінити зірочку',
 };
 export default files;

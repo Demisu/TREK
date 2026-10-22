@@ -226,5 +226,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'A napok száma kötelező',
   'dashboard.tripChangeNeedsConnection':
     'Az időpontok, a napok száma, a pénznem vagy a borítókép módosításához kapcsolat kell. A név, a leírás és az emlékeztető offline is módosítható.',
+  'dashboard.ics.enable': 'Naptár-feliratkozás bekapcsolása',
+  'dashboard.ics.enableHint':
+    'Létrehoz egy titkos hivatkozást, amelyet bárki elolvashat, akinél megvan, bejelentkezés nélkül. Bármikor kikapcsolhatod.',
+  'dashboard.ics.regenerate': 'Újragenerálás',
+  'dashboard.ics.turnOff': 'Kikapcsolás',
+  'dashboard.ics.manageHint':
+    'Az újragenerálás új hivatkozást hoz létre, a régi érvénytelenné válik. A kikapcsolás teljesen letiltja a hivatkozást.',
+  'dashboard.ics.addGoogle': 'Hozzáadás a Google Naptárhoz',
+  'dashboard.ics.addApple': 'Hozzáadás az Apple Naptárhoz / Outlookhoz',
+  'dashboard.ics.copyManually': 'Vagy másold ki kézzel a hivatkozást',
+  'dashboard.ics.pasteFromUrl': 'illeszd be a „URL-ből” mezőbe',
 };
 export default dashboard;

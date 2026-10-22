@@ -204,7 +204,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPXトラック',
   'journey.settings.recordings': '記録された日',
   'journey.settings.showTripTracks': '旅行のGPXトラックをすべて表示',
-  'journey.settings.showTripTracksHint': 'リンクされた旅行の記録済みルートを地図に描画します。',
+  'journey.settings.showTripTracksHint': 'リンクした旅行の計画ルート(GPXトラック)を地図に描画します。',
   'journey.settings.autoPrepare': '記録された日を自動で準備する',
   'journey.settings.autoPrepareHint':
     'リンクした旅行の期間中、Dawarich の滞在先はその日のところで確認を待ちます。自分の接続を持つ編集者には各自の滞在先が届きます。ジャーナルに勝手に書き込まれることはありません。',
@@ -863,5 +863,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     '公開済みのエントリーがある日の記録と、そこから取り込んだ滞在。宿泊先も含め、いつどこにいたかがわかります。',
   'journey.share.needsMap': '有効にするには地図を共有してください',
+  'journey.editor.tags': 'タグ',
 };
 export default journey;

@@ -88,6 +88,8 @@ function SearchStatus({ found }: { found: HorseRoutes }) {
     );
   if (found.status === 'ready' && found.routes.length === 0)
     return <TourNotice>{t('tours.horse.routes.none')}</TourNotice>;
+  if (found.status === 'ready' && found.stale)
+    return <TourNotice icon={<RefreshCw size={13} strokeWidth={2} />}>{t('tours.horse.routes.stale')}</TourNotice>;
   if (found.status === 'ready' && found.truncated)
     return <TourNotice icon={<ZoomIn size={13} strokeWidth={2} />}>{t('tours.horse.routes.truncated')}</TourNotice>;
   return null;

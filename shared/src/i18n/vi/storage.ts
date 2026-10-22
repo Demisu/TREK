@@ -32,7 +32,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'Thêm backend',
   'storage.backends.usedBy': 'Được sử dụng bởi: {categories}',
   'storage.backends.unused': 'Chưa được gán cho danh mục nào',
-  'storage.backends.envReadOnly': 'Được xác định bởi biến môi trường — chỉ đọc',
+  'storage.backends.envReadOnly': 'Được xác định bởi biến môi trường (chỉ đọc)',
   'storage.source.built-in': 'Tích hợp sẵn',
   'storage.source.env': 'Môi trường',
   'storage.source.settings': 'Cài đặt',

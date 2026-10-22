@@ -605,7 +605,7 @@ function StopHead({ label, onRemove, children }: { label: string; onRemove?: () 
       <div className="flex min-h-[24px] items-center gap-2">
         <Eyebrow className="min-w-0 flex-1 truncate">{label}</Eyebrow>
         {onRemove && (
-          <IconAction label={t('common.delete')} onClick={onRemove} danger>
+          <IconAction label={t('roadtrip.stops.remove')} onClick={onRemove} danger>
             <Trash2 size={13} />
           </IconAction>
         )}

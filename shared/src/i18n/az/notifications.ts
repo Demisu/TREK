@@ -41,6 +41,8 @@ const notifications: TranslationStrings = {
   'notifications.test.tripText': '“{trip}” səyahəti üçün test bildirişi.',
   'notifications.countLabel': 'bildiriş',
   'notifications.countLabel.one': 'bildiriş',
+  'notifications.deleteAllConfirmTitle': 'Bütün bildirişlər silinsin?',
+  'notifications.deleteAllConfirmText': 'Bütün bildirişlər həmişəlik silinəcək. Bunu geri qaytarmaq olmaz.',
 };
 
 export default notifications;

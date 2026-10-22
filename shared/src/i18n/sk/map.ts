@@ -40,5 +40,6 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted': 'Trasu pre {count} úsekov tohto dňa sa nepodarilo vypočítať',
   'map.overview.dayUnrouted.one': 'Trasu pre {count} úsek tohto dňa sa nepodarilo vypočítať',
   'map.overview.dayUnrouted.few': 'Trasu pre {count} úseky tohto dňa sa nepodarilo vypočítať',
+  'map.baseLayer.topo': 'Topografická',
 };
 export default map;

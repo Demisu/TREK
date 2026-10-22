@@ -32,7 +32,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'Afegir backend',
   'storage.backends.usedBy': 'Utilitzat per: {categories}',
   'storage.backends.unused': 'No assignat a cap categoria',
-  'storage.backends.envReadOnly': "Definit per una variable d'entorn — només lectura",
+  'storage.backends.envReadOnly': "Definit per una variable d'entorn (només lectura)",
   'storage.source.built-in': 'Integrat',
   'storage.source.env': 'Entorn',
   'storage.source.settings': 'Configuració',

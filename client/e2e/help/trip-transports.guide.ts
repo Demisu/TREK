@@ -20,8 +20,25 @@ const guide = (id: string): HelpGuide => {
   return g
 }
 
-/** The flight the seed creates. Its row on day 1 is its title, then the Departure span label. */
-const FLIGHT = { title: 'LH716 FRA → HND', row: /^LH716 FRA → HND Departure/ }
+/**
+ * The flight the seed creates. Its row on day 1 is its title, then the time
+ * pill (13:05), then the Departure span label: the time came first in 3ff88062f.
+ */
+const FLIGHT = { title: 'LH716 FRA → HND', row: /^LH716 FRA → HND .*Departure/ }
+/** The train the day fixtures put on day 5: platform, seat and a booking code for the detail's tiles. */
+const TRAIN = { title: 'Nozomi 21 Tokyo → Kyoto' }
+/**
+ * What car-stops creates on day 3, the Hakone day. Every end and stop is one of
+ * the trip's own places, which the picker offers before anything is typed, so
+ * the guide needs no geocoder. The car comes back where it was collected.
+ */
+const CAR = {
+  title: 'Rental car through Hakone',
+  base: 'Hakone Open-Air Museum',
+  stops: ['Owakudani', 'Lake Ashi'] as const,
+}
+/** The file the export writes: the trip's title made safe, then the section (bookingsExport.ts). */
+const CSV_FILE = 'autumn-in-japan-transports.csv'
 /**
  * The connection the fixtures store on day 6, so no guide has to search for one
  * first. Its card is named by its title, the two ends with an arrow between them.
@@ -56,6 +73,13 @@ const toolbarButton = (page: Page, name: 'Filter' | 'View options') => page.getB
 const toolbarMenu = (page: Page, name: 'Filter' | 'View options') => toolbarButton(page, name).locator('xpath=../..').getByRole('menu')
 /** A transport's row in the day plan; the whole row is the button that opens it. */
 const transportRow = (page: Page, name: RegExp) => page.getByRole('button', { name }).first()
+/** The same row found by the title it shows, for a check that does not care about its pills. */
+const transportRowTitled = (page: Page, title: string) =>
+  page.locator('[data-dp="transport-row"]').filter({ hasText: title }).first()
+/** The tab bar's search box, and the bar it sits in (search, filter, views, options, export). */
+const searchBox = (page: Page) => page.getByRole('textbox', { name: 'Search', exact: true }).first()
+const bookingsBar = (page: Page) => searchBox(page).locator('xpath=../..')
+const exportButton = (page: Page) => page.getByRole('button', { name: /^Export (as spreadsheet|the \d+ of \d+ shown rows) \(CSV\)$/ })
 /** The booking a click on a row or a card opens, named by the booking's title. */
 const bookingDetail = (page: Page, title: string) => page.getByRole('dialog', { name: title })
 /** The Edit at the foot of that booking, which leads on to its form. */
@@ -99,6 +123,25 @@ async function searchLocation(page: Page, box: Locator, query: string, match: Re
   await wanted.click()
   await expect(box).toHaveValue(match, { timeout: 15_000 })
 }
+
+/**
+ * The transport form's location picker offers the trip's own places while the
+ * box is empty, in the same list the search answers in, so a place is picked
+ * without a geocoder in the way.
+ */
+async function pickTripPlace(page: Page, box: Locator, name: string): Promise<void> {
+  await box.click()
+  const option = suggestions(box).locator('button').filter({ hasText: name }).first()
+  await expect(option, `the trip's place "${name}" is not offered`).toBeVisible({ timeout: 10_000 })
+  await option.click()
+  await expect(box).toHaveValue(name, { timeout: 10_000 })
+}
+
+/** The car's stops block: its eyebrow, the stop rows and Add stop under it. */
+const carStops = (page: Page) => modal(page).getByText('Stops along the way', { exact: true }).locator('xpath=..')
+
+/** The Rename box the detail's title opens; its head names it. */
+const renameDialog = (page: Page) => page.getByRole('dialog', { name: 'Rename' })
 
 /** The transit search offers the day's own stops as soon as the box has focus. */
 async function pickStop(page: Page, box: Locator, name: string): Promise<void> {
@@ -302,6 +345,88 @@ const SCRIPTS: Record<string, GuideScript> = {
       },
     ],
     cleanup: p => deleteByTitle(p, TAXI.title),
+  },
+  'car-stops': {
+    guide: guide('car-stops'),
+    start: p => openTrip(p),
+    steps: [
+      {
+        // Day 3 is the Hakone day: the three places the drive uses are its own.
+        prepare: p => openDayMenu(p, 3),
+        target: p => dayMenu(p).getByRole('button', { name: 'Add transport' }),
+        act: async p => {
+          await dayMenu(p).getByRole('button', { name: 'Add transport' }).click()
+          await expect(modal(p).getByRole('heading', { name: 'Add transport' })).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        prepare: async p => {
+          await typePill(p).click()
+          await expect(typeMenu(p)).toBeVisible()
+          await beat(p, 300)
+        },
+        target: p => typeMenu(p).getByRole('button', { name: /^Car$/ }).first(),
+        act: async p => {
+          await typeMenu(p).getByRole('button', { name: /^Car$/ }).first().click()
+          await expect(typeMenu(p)).toHaveCount(0)
+          await expect(carStops(p)).toBeVisible()
+          await expect(modal(p).getByText('Pickup time', { exact: true })).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        // Times before any stop exists: with no stop rows the two time boxes
+        // are Pickup time and Return time, in that order.
+        prepare: async p => {
+          await typeInto(p, modal(p).getByPlaceholder('e.g. Lufthansa LH123, Hotel Adlon, ...'), CAR.title)
+          await pickTripPlace(p, locationBox(p, 0), CAR.base)
+          await pickTripPlace(p, locationBox(p, 1), CAR.base)
+          await modal(p).getByPlaceholder('00:00').nth(0).fill('09:00')
+          await modal(p).getByPlaceholder('00:00').nth(1).fill('18:00')
+          await settle(p)
+        },
+        target: p => block(p, 'Route'),
+      },
+      {
+        // The stops come after From and To in the form, so their pickers are
+        // the third and fourth location boxes.
+        prepare: async p => {
+          for (const [i, name] of CAR.stops.entries()) {
+            await modal(p).getByRole('button', { name: 'Add stop', exact: true }).click()
+            await pickTripPlace(p, locationBox(p, 2 + i), name)
+          }
+          await settle(p)
+        },
+        target: carStops,
+      },
+      {
+        // The second stop's Move up: the first one's is disabled.
+        target: p => modal(p).getByRole('button', { name: 'Move up', exact: true }).nth(1),
+        act: async p => {
+          await modal(p).getByRole('button', { name: 'Move up', exact: true }).nth(1).click()
+          await expect(locationBox(p, 2)).toHaveValue(CAR.stops[1])
+          await expect(locationBox(p, 3)).toHaveValue(CAR.stops[0])
+          await settle(p)
+        },
+      },
+      {
+        target: p => modal(p).getByRole('button', { name: 'Add', exact: true }),
+        act: async p => {
+          await modal(p).getByRole('button', { name: 'Add', exact: true }).click()
+          await expect(modal(p)).toHaveCount(0, { timeout: 20_000 })
+          const { tripId } = seededTrip()
+          await expect.poll(async () => {
+            const res = await p.request.get(`/api/trips/${tripId}/reservations`)
+            const body = (await res.json()) as { reservations?: ReservationRow[] } | ReservationRow[]
+            const list = Array.isArray(body) ? body : (body.reservations ?? [])
+            return list.some(r => r.title === CAR.title)
+          }, { timeout: 20_000 }).toBe(true)
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: p => deleteByTitle(p, CAR.title),
   },
   'import-transport-file': {
     guide: guide('import-transport-file'),
@@ -509,6 +634,55 @@ const SCRIPTS: Record<string, GuideScript> = {
       await resetLegModes(p, 0)
     },
   },
+  'transport-details': {
+    guide: guide('transport-details'),
+    start: p => openTrip(p, { tab: 'transports' }),
+    steps: [
+      {
+        target: p => card(p, TRAIN.title),
+        act: async p => {
+          await card(p, TRAIN.title).click()
+          await expect(bookingDetail(p, TRAIN.title)).toBeVisible()
+          await settle(p)
+        },
+      },
+      // Pointed at, not clicked: a headless clipboard refuses the write and
+      // the picture would carry the failure toast.
+      only(p => bookingDetail(p, TRAIN.title).getByRole('button', { name: 'Copy booking code' })),
+      // The tile row: departure and arrival with their stations, then Platform and Seat.
+      only(p => bookingDetail(p, TRAIN.title).getByText('Platform', { exact: true }).first().locator('xpath=ancestor::div[2]')),
+      {
+        prepare: async p => {
+          await bookingDetail(p, TRAIN.title).getByRole('button', { name: TRAIN.title, exact: true }).click()
+          await expect(renameDialog(p)).toBeVisible()
+          await beat(p, 300)
+        },
+        target: renameDialog,
+        // Cancel, not Save: the train keeps the name the other guides find it by.
+        act: async p => {
+          await renameDialog(p).getByRole('button', { name: 'Cancel', exact: true }).click()
+          await expect(renameDialog(p)).toHaveCount(0)
+          await settle(p)
+        },
+      },
+      {
+        target: p => bookingDetail(p, TRAIN.title).getByRole('button', { name: 'On map', exact: true }),
+        act: async p => {
+          await bookingDetail(p, TRAIN.title).getByRole('button', { name: 'On map', exact: true }).click()
+          // The Plan opens on day 5 with the train's line switched on.
+          await expect(transportRowTitled(p, TRAIN.title).getByRole('button', { name: 'Hide booking routes' })).toBeVisible({ timeout: 20_000 })
+          await settle(p)
+          await p.waitForTimeout(1500)
+        },
+      },
+    ],
+    cleanup: async p => {
+      const { tripId } = seededTrip()
+      await p.evaluate(id => {
+        try { localStorage.removeItem(`trek:visible-connections:${id}`) } catch { /* nothing was stored */ }
+      }, tripId)
+    },
+  },
   'edit-transport': {
     guide: guide('edit-transport'),
     start: p => openTrip(p),
@@ -599,6 +773,34 @@ const SCRIPTS: Record<string, GuideScript> = {
       }, tripId)
     },
   },
+  'export-transports-csv': {
+    guide: guide('export-transports-csv'),
+    start: p => openTrip(p, { tab: 'transports' }),
+    steps: [
+      {
+        // A search in force, so the picture shows the tab narrowed to what the file will hold.
+        prepare: async p => {
+          await typeInto(p, searchBox(p), 'Kyoto')
+          await expect(card(p, FLIGHT.title)).toHaveCount(0)
+          await expect(card(p, TRAIN.title)).toBeVisible()
+          await settle(p)
+        },
+        target: bookingsBar,
+      },
+      {
+        target: exportButton,
+        act: async p => {
+          const [download] = await Promise.all([p.waitForEvent('download'), exportButton(p).click()])
+          expect(download.suggestedFilename()).toBe(CSV_FILE)
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: async p => {
+      if (await searchBox(p).isVisible().catch(() => false)) await searchBox(p).fill('')
+      await p.evaluate(() => { try { sessionStorage.clear() } catch { /* a locked-down browser keeps its filters */ } })
+    },
+  },
   'airtrail-import': {
     guide: guide('airtrail-import'),
     // The connection is made here and taken away in cleanup, so the hero and
@@ -610,7 +812,7 @@ const SCRIPTS: Record<string, GuideScript> = {
       // loads. One more load now that the connection exists, and the button
       // is waited for, so a missing connection fails here and not at step 1.
       await p.reload()
-      await expect(p.getByRole('button', { name: 'Share', exact: true })).toBeVisible({ timeout: 30_000 })
+      await expect(p.getByRole('button', { name: 'Trip settings', exact: true })).toBeVisible({ timeout: 30_000 })
       await expect(airtrailButton(p)).toBeVisible({ timeout: 30_000 })
       await settle(p)
     },

@@ -137,7 +137,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Token erstellen',
   'settings.mcp.modal.createdTitle': 'Token erstellt',
   'settings.mcp.modal.createdWarning':
-    'Dieser Token wird nur einmal angezeigt. Kopiere und speichere ihn jetzt — er kann nicht wiederhergestellt werden.',
+    'Dieser Token wird nur einmal angezeigt. Kopiere und speichere ihn jetzt: er kann nicht wiederhergestellt werden.',
   'settings.mcp.modal.done': 'Fertig',
   'settings.mcp.toast.created': 'Token erstellt',
   'settings.mcp.toast.createError': 'Token konnte nicht erstellt werden',
@@ -179,14 +179,14 @@ const settings: TranslationStrings = {
     'Eine URI pro Zeile. HTTPS, Loopback-HTTP oder ein eigenes App-Schema (myapp://). Exakte Übereinstimmung, außer beim Port einer Loopback-URI.',
   'settings.oauth.modal.scopes': 'Erlaubte Berechtigungen',
   'settings.oauth.modal.scopesHint':
-    'list_trips und get_trip_summary sind immer verfügbar — keine Berechtigung nötig. Sie helfen der KI, Trip-IDs zu ermitteln.',
+    'list_trips und get_trip_summary sind immer verfügbar: keine Berechtigung nötig. Sie helfen der KI, Trip-IDs zu ermitteln.',
   'settings.oauth.modal.selectAll': 'Alle auswählen',
   'settings.oauth.modal.deselectAll': 'Alle abwählen',
   'settings.oauth.modal.creating': 'Wird registriert…',
   'settings.oauth.modal.create': 'Client registrieren',
   'settings.oauth.modal.createdTitle': 'Client registriert',
   'settings.oauth.modal.createdWarning':
-    'Das Client-Secret wird nur einmal angezeigt. Kopiere es jetzt — es kann nicht wiederhergestellt werden.',
+    'Das Client-Secret wird nur einmal angezeigt. Kopiere es jetzt: es kann nicht wiederhergestellt werden.',
   'settings.oauth.toast.createError': 'OAuth-Client konnte nicht registriert werden',
   'settings.oauth.toast.deleted': 'OAuth-Client gelöscht',
   'settings.oauth.toast.deleteError': 'OAuth-Client konnte nicht gelöscht werden',
@@ -254,7 +254,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Löschen',
   'settings.deleteAccountTitle': 'Account wirklich löschen?',
   'settings.deleteAccountWarning':
-    'Dein Account und alle deine Reisen, Orte und Dateien werden unwiderruflich gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.',
+    'Dein Konto sowie alle Reisen, Journale, Orte und Dateien, die dir gehören, werden endgültig gelöscht, auch Reisen, die mit anderen Mitgliedern geteilt sind; diese verlieren den Zugriff. Reisen anderer bleiben erhalten, du wirst daraus entfernt. Diese Aktion kann nicht rückgängig gemacht werden.',
   'settings.deleteAccountConfirm': 'Endgültig löschen',
   'settings.deleteBlockedTitle': 'Löschung nicht möglich',
   'settings.deleteBlockedMessage':
@@ -356,7 +356,7 @@ const settings: TranslationStrings = {
   'settings.webPush.failed': 'Push konnte für dieses Gerät nicht eingeschaltet werden.',
   'settings.currency': 'Anzeigewährung',
   'settings.currencyHint':
-    'Beträge unter Kosten werden nur zur Anzeige in diese Währung umgerechnet – die ursprünglichen Beträge bleiben unverändert.',
+    'Beträge unter Kosten werden nur zur Anzeige in diese Währung umgerechnet; die ursprünglichen Beträge bleiben unverändert.',
   'settings.currencyTrip': 'Reisewährung',
   'settings.placeLanguage': 'Ortsnamen',
   'settings.placeLanguageApp': 'Wie die App',
@@ -364,7 +364,7 @@ const settings: TranslationStrings = {
     'Die Sprache, in der Ortssuche, Vorschläge und Adressen antworten. Hat ein Ort keinen Namen in dieser Sprache, wird sein lokaler Name angezeigt.',
   'settings.passkey.title': 'Passkeys',
   'settings.passkey.description':
-    'Melde dich schneller und phishing-resistent mit einem Passkey an — per Fingerabdruck, Gesicht, PIN oder Hardware-Schlüssel. Dein Passwort bleibt als Backup erhalten.',
+    'Melde dich schneller und phishing-resistent mit einem Passkey an: per Fingerabdruck, Gesicht, PIN oder Hardware-Schlüssel. Dein Passwort bleibt als Backup erhalten.',
   'settings.passkey.notConfigured':
     'Passkeys sind aktiviert, aber auf diesem Server noch nicht vollständig eingerichtet. Bitte deinen Administrator, die WebAuthn-Domain festzulegen.',
   'settings.passkey.add': 'Passkey hinzufügen',
@@ -530,10 +530,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Nur mit zwischengespeicherten Daten arbeiten und Änderungen in die Warteschlange legen. Zum Verbinden und Synchronisieren ausschalten.',
   'settings.offline.mode.active':
-    'Offline-Modus ist an — deine Änderungen werden gesammelt und beim Ausschalten synchronisiert.',
+    'Offline-Modus ist an: deine Änderungen werden gesammelt und beim Ausschalten synchronisiert.',
   'settings.offline.prepare.title': 'Für Offline vorbereiten',
   'settings.offline.prepare.hint':
-    'Lade alles Nötige herunter — Reisedaten, Dokumente und Kartenkacheln — bevor du die Verbindung verlierst.',
+    'Lade alles Nötige herunter (Reisedaten, Dokumente und Kartenkacheln) bevor du die Verbindung verlierst.',
   'settings.offline.prepare.button': 'Für Offline-Nutzung herunterladen',
   'settings.offline.prepare.running': 'Lädt herunter…',
   'settings.offline.prepare.done': 'Bereit für die Offline-Nutzung',
@@ -607,8 +607,7 @@ const settings: TranslationStrings = {
   'settings.pluginActivity.columns.status': 'Ergebnis',
   'settings.alwaysShowRoutes': 'Buchungsrouten immer anzeigen',
   'settings.alwaysShowRoutesHint':
-    'Zeigt die Route für jeden Flug, jede Zugfahrt und jede andere Buchung automatisch auf der Karte an – ohne sie einzeln aktivieren zu müssen.',
-
+    'Zeigt die Route für jeden Flug, jede Zugfahrt und jede andere Buchung automatisch auf der Karte an, ohne sie einzeln aktivieren zu müssen.',
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Was dieser Schlüssel lesen darf',
@@ -654,7 +653,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Kopieren hat nicht geklappt. Markiere den Text und kopiere ihn von Hand.',
   'settings.apiKeys.modal.createTitle': 'API-Schlüssel erstellen',
   'settings.apiKeys.modal.name': 'Name',
-  'settings.apiKeys.modal.namePlaceholder': 'z. B. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'z. B. Heim-Dashboard',
   'settings.apiKeys.modal.nameHint': 'Nur für dich, damit du den Schlüssel später wiedererkennst.',
   'settings.apiKeys.modal.creating': 'Wird erstellt...',
   'settings.apiKeys.modal.create': 'Erstellen',
@@ -662,6 +661,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Kopiere den Schlüssel jetzt. Er wird nur einmal angezeigt und lässt sich später nicht mehr abrufen.',
   'settings.apiKeys.modal.done': 'Fertig',
+  'settings.mcp.deprecated': 'Veraltet',
+  'settings.offline.cache.dateRange': '{start} bis {end}',
 };
 
 export default settings;

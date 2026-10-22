@@ -9,8 +9,6 @@ const tours: TranslationStrings = {
   'tours.empty.title': 'Δεν υπάρχουν εκδρομές ακόμη',
   'tours.empty.body': 'Σχεδιάστε μια εκδρομή ή εισαγάγετε ένα αρχείο GPX ή KML για να ξεκινήσετε.',
   'tours.addToDay': 'Προσθήκη σε ημέρα',
-  'tours.addToDay.comingSoon': 'Αντιστοιχίστε εκδρομές σε ημέρες του ταξιδιού από τη λίστα εκδρομών.',
-  'tours.addToDay.pickDay': 'Επιλέξτε ημέρα',
   'tours.badge.wanderer': 'wanderer',
   'tours.badge.gpx': 'Εισαγωγή GPX',
   'tours.badge.planned': 'σχεδιάστηκε στο TREK',
@@ -19,7 +17,7 @@ const tours: TranslationStrings = {
   'tours.badgeShort.wanderer': 'wanderer',
   'tours.caution.badge': 'χρήση με προσοχή',
   'tours.caution.tooltip': 'Ελλιπή υψομετρικά δεδομένα ή μετρήσεις – εισαγωγή με επιφύλαξη',
-  'tours.import.caution': 'Εισαγωγή με επιφύλαξη – ελλιπή υψομετρικά δεδομένα ή μετρήσεις',
+  'tours.import.caution': 'Έγινε εισαγωγή, αλλά το αρχείο δεν έχει πλήρη δεδομένα υψομέτρου',
   'tours.import.success': 'Εισήχθησαν {count} εκδρομές',
   'tours.import.success.one': 'Εισήχθη {count} εκδρομή',
   'tours.import.noTrackIn': 'Δεν βρέθηκε ίχνος ή διαδρομή στο {name}',
@@ -93,7 +91,6 @@ const tours: TranslationStrings = {
   'tours.detail.maxAltitude': 'Μέγιστο υψόμετρο',
   'tours.detail.ascent': 'Υψομετρική άνοδος',
   'tours.detail.descent': 'Υψομετρική κάθοδος',
-  'tours.detail.source': 'Πηγή',
   'tours.detail.navigationHint':
     'Η πλοήγηση ανοίγει την αφετηρία του μονοπατιού· δεν σας καθοδηγεί κατά μήκος της διαδρομής.',
   'tours.planner.title': 'Σχεδιασμός εκδρομής',
@@ -168,12 +165,12 @@ const tours: TranslationStrings = {
   'tours.planner.tripTours': 'Εκδρομές αυτού του ταξιδιού',
   'tours.planner.safetyNote': 'Ο υπολογισμός διαδρομών βοηθά στον σχεδιασμό, αλλά δεν εγγυάται την ασφάλεια.',
   'tours.planner.maxDifficulty': 'Μέγιστη δυσκολία μονοπατιού',
-  'tours.planner.difficulty.t1': 'T1 – Πεζοπορία',
-  'tours.planner.difficulty.t2': 'T2 – Ορεινή πεζοπορία',
-  'tours.planner.difficulty.t3': 'T3 – Απαιτητική ορεινή πεζοπορία',
-  'tours.planner.difficulty.t4': 'T4 – Αλπική πεζοπορία',
-  'tours.planner.difficulty.t5': 'T5 – Απαιτητική αλπική πεζοπορία',
-  'tours.planner.difficulty.t6': 'T6 – Δύσκολη αλπική πεζοπορία',
+  'tours.planner.difficulty.t1': 'T1: Πεζοπορία',
+  'tours.planner.difficulty.t2': 'T2: Ορεινή πεζοπορία',
+  'tours.planner.difficulty.t3': 'T3: Απαιτητική ορεινή πεζοπορία',
+  'tours.planner.difficulty.t4': 'T4: Αλπική πεζοπορία',
+  'tours.planner.difficulty.t5': 'T5: Απαιτητική αλπική πεζοπορία',
+  'tours.planner.difficulty.t6': 'T6: Δύσκολη αλπική πεζοπορία',
   'tours.planner.difficulty.t3Warning':
     'Οι διαδρομές T3 ενδέχεται να περιλαμβάνουν εκτεθειμένα ή τεχνικά απαιτητικά ορεινά μονοπάτια που χρειάζονται σταθερό πάτημα και εξοικείωση με τα ύψη χωρίς φόβο.',
   'tours.planner.difficulty.alpineTitle': 'Ενεργοποίηση αλπικών διαδρομών;',
@@ -704,6 +701,12 @@ const tours: TranslationStrings = {
   'tours.gpxExport.shareReady':
     'Το αρχείο GPX είναι έτοιμο. Πάτησε ξανά Κοινοποίηση για να ανοίξει το μενού κοινοποίησης.',
   'tours.gpxExport.shareFailed': 'Η κοινοποίηση δεν πέτυχε. Το αρχείο GPX μπορεί ακόμη να ληφθεί.',
+  'tours.gpxExport.shareTour': 'Κοινοποίηση εκδρομής',
+  'tours.gpxExport.shareTourSaveFirst': 'Αποθήκευσε πρώτα την εκδρομή για να την κοινοποιήσεις',
+  'tours.gpxExport.shareCopied': 'Τα στοιχεία της εκδρομής αντιγράφηκαν στο πρόχειρο.',
+  'tours.gpxExport.shareCopyFailed': 'Δεν ήταν δυνατή η αντιγραφή των στοιχείων της εκδρομής.',
+  'tours.gpxExport.shareDuration': 'Διάρκεια: {time}',
+  'tours.gpxExport.shareTrip': 'Ταξίδι: {name}',
   'tours.revision.remoteTitle': 'Αυτή η εκδρομή αποθηκεύτηκε αλλού',
   'tours.revision.remoteBody':
     'Κάποιος, ή εσείς σε άλλη συσκευή, την αποθήκευσε ενώ την επεξεργαζόσασταν. Οι αλλαγές σας μένουν μέχρι να αποφασίσετε.',
@@ -1526,5 +1529,19 @@ const tours: TranslationStrings = {
   'tours.dayTime.nextItem': 'το επόμενο στοιχείο',
   'tours.dayTime.formHint': 'Αν μείνει κενό, το τέλος υπολογίζεται: {time}, η έναρξη συν τη διάρκεια {total}.',
   'tours.dayTime.formNoStart': 'Με ώρα έναρξης, το τέλος υπολογίζεται από τη διάρκεια {total}.',
+  'tours.poi.categoriesLimit':
+    'Μπορείτε να αναζητήσετε έως {count} είδη ταυτόχρονα. Καταργήστε την επιλογή ενός για να προσθέσετε άλλο.',
+  'tours.poi.categoriesLimit.one':
+    'Μπορείτε να αναζητήσετε έως {count} είδος ταυτόχρονα. Καταργήστε την επιλογή του για να προσθέσετε άλλο.',
+  'tours.import.fileTooLarge': 'Το αρχείο είναι πολύ μεγάλο. Τα αρχεία εκδρομών μπορούν να έχουν έως {maxMb} MB.',
+  'tours.planner.nothingToSave': 'Δεν υπάρχει τίποτα για αποθήκευση ακόμη. Αλλάξτε πρώτα την εκδρομή.',
+  'tours.detail.openInTours': 'Άνοιγμα στην καρτέλα Εκδρομές',
+  'tours.planner.status.routingGeneric': 'Υπολογισμός διαδρομής…',
+  'tours.planner.emptyHintPlacing':
+    'Κάντε κλικ στον χάρτη για να ορίσετε σημεία. Από δύο σημεία και πάνω, το TREK υπολογίζει τη διαδρομή.',
+  'tours.ski.drawStraight': 'Ευθεία γραμμή',
+  'tours.horse.routes.stale': 'Η λίστα δείχνει την προβολή που αναζητήσατε. Αναζητήστε ξανά για αυτήν.',
+  'tours.horse.dialog.adoptGapHint':
+    'Συνδέστε πρώτα το κενό με ένα χειροκίνητο τμήμα ή επιλέξτε τμήμα που ξεκινά εκεί όπου τελειώνει η διαδρομή σας.',
 };
 export default tours;

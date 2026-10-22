@@ -76,7 +76,7 @@ describe('FileRow', () => {
 
   it('FE-FILES-ROW-004: without the rights there is nothing to assign or delete', () => {
     renderRow(buildTripFile({}), { allowed: false });
-    expect(screen.getByRole('button', { name: 'Star' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Star' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Assign' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Delete' })).toBeNull();
   });

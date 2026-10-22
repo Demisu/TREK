@@ -59,12 +59,17 @@ export function NavigationMenu({ targets, anchor, onClose, title }: NavigationMe
     const onDown = (e: MouseEvent) => {
       if (!ref.current?.contains(e.target as Node) && !anchor?.contains(e.target as Node)) onClose()
     }
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    // Capture phase and prevented: a dialog behind the menu also closes on Escape, but not on one the menu took.
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      e.preventDefault()
+      onClose()
+    }
     document.addEventListener('mousedown', onDown)
-    document.addEventListener('keydown', onKey)
+    document.addEventListener('keydown', onKey, true)
     return () => {
       document.removeEventListener('mousedown', onDown)
-      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('keydown', onKey, true)
     }
   }, [anchor, onClose])
 

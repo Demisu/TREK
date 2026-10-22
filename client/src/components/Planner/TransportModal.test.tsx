@@ -772,7 +772,7 @@ describe('TransportModal', () => {
     expect(screen.getAllByTestId('airport-select')).toHaveLength(3);
 
     // Only the intermediate stop carries a delete button.
-    await userEvent.click(screen.getByRole('button', { name: /^Delete$/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'Remove stop' }));
     expect(screen.getAllByTestId('airport-select')).toHaveLength(2);
 
     const airports = screen.getAllByTestId('airport-select');
@@ -875,7 +875,7 @@ describe('TransportModal', () => {
     // Removing the only stop collapses the route to a direct flight, so there are
     // no legs left to hold a per-segment code. Documented behaviour, not a bug:
     // the field disappears with them and the booking keeps its own reference.
-    await userEvent.click(screen.getByRole('button', { name: /^Delete$/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'Remove stop' }));
     expect(screen.getAllByPlaceholderText('e.g. ABC12345')).toHaveLength(1);
 
     await userEvent.click(screen.getByRole('button', { name: /^Update$/i }));
@@ -1304,7 +1304,7 @@ describe('TransportModal', () => {
     await userEvent.type(screen.getByPlaceholderText(/e\.g\. Lufthansa/i), 'Köln → Aachen');
     await userEvent.click(screen.getByRole('button', { name: /Add stop/i }));
     expect(screen.getAllByTestId('location-select')).toHaveLength(3);
-    await userEvent.click(screen.getByRole('button', { name: /^Delete$/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'Remove stop' }));
     expect(screen.getAllByTestId('location-select')).toHaveLength(2);
 
     // Move the departure to another day through its own picker.

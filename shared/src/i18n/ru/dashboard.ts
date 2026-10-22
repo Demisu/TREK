@@ -258,5 +258,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'Количество дней обязательно',
   'dashboard.tripChangeNeedsConnection':
     'Для смены дат, количества дней, валюты или обложки нужно подключение. Название, описание и напоминание можно менять и офлайн.',
+  'dashboard.ics.enable': 'Включить подписку на календарь',
+  'dashboard.ics.enableHint':
+    'Создаёт секретную ссылку, которую может открыть без входа любой, у кого она есть. Её можно отключить в любой момент.',
+  'dashboard.ics.regenerate': 'Создать заново',
+  'dashboard.ics.turnOff': 'Отключить',
+  'dashboard.ics.manageHint':
+    'Повторное создание даёт новую ссылку, а старая перестаёт работать. Отключение полностью деактивирует ссылку.',
+  'dashboard.ics.addGoogle': 'Добавить в Google Календарь',
+  'dashboard.ics.addApple': 'Добавить в Календарь Apple / Outlook',
+  'dashboard.ics.copyManually': 'Или скопируйте ссылку вручную',
+  'dashboard.ics.pasteFromUrl': 'вставьте в поле «По URL»',
 };
 export default dashboard;

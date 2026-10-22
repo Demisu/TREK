@@ -707,6 +707,9 @@ describe('AdminPage', () => {
       await waitFor(() => expect(screen.getByText(/abcdef123456/)).toBeInTheDocument());
 
       fireEvent.click(screen.getByLabelText('Delete'));
+      // The invite is only deleted once the confirm dialog is answered; its button renders last.
+      const confirmButtons = await screen.findAllByRole('button', { name: /^delete$/i });
+      fireEvent.click(confirmButtons[confirmButtons.length - 1]);
 
       await waitFor(() => {
         expect(screen.queryByText(/abcdef123456/)).not.toBeInTheDocument();
@@ -945,8 +948,8 @@ describe('AdminPage', () => {
       const oidcHeading = await screen.findByRole('heading', { name: /single sign-on/i });
       const oidcCard = oidcHeading.closest<HTMLElement>('section');
 
-      // Type in the display name field (placeholder is 'z.B. Google, Authentik, Keycloak')
-      const displayNameInput = within(oidcCard!).getByPlaceholderText('z.B. Google, Authentik, Keycloak');
+      // Type in the display name field (placeholder is 'e.g. Google, Authentik, Keycloak')
+      const displayNameInput = within(oidcCard!).getByPlaceholderText('e.g. Google, Authentik, Keycloak');
       fireEvent.change(displayNameInput, { target: { value: 'Google' } });
 
       // Click the Save button in the OIDC section

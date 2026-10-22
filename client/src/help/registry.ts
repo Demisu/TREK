@@ -19,6 +19,19 @@ import { tripTransportsContext, tripTransportsGuides } from './contexts/tripTran
 import { tripMapContext, tripMapGuides } from './contexts/tripMap'
 import { tripDayDetailContext, tripDayDetailGuides } from './contexts/tripDayDetail'
 import { tripPlaceContext, tripPlaceGuides } from './contexts/tripPlace'
+import { tripToursContext, tripToursGuides } from './contexts/tripTours'
+import { tripTourDetailContext, tripTourDetailGuides } from './contexts/tripTourDetail'
+import { tripTourPlannerContext, tripTourPlannerGuides } from './contexts/tripTourPlanner'
+import { tripTourImportContext, tripTourImportGuides } from './contexts/tripTourImport'
+import { tripTourMapContext, tripTourMapGuides } from './contexts/tripTourMap'
+import { tripTourStagesContext, tripTourStagesGuides } from './contexts/tripTourStages'
+import { tripTourHikeContext, tripTourHikeGuides } from './contexts/tripTourHike'
+import { tripTourWalkContext, tripTourWalkGuides } from './contexts/tripTourWalk'
+import { tripTourBikeContext, tripTourBikeGuides } from './contexts/tripTourBike'
+import { tripTourSkiContext, tripTourSkiGuides } from './contexts/tripTourSki'
+import { tripTourPaddleContext, tripTourPaddleGuides } from './contexts/tripTourPaddle'
+import { tripTourHorseContext, tripTourHorseGuides } from './contexts/tripTourHorse'
+import { notificationsContext, notificationsGuides } from './contexts/notifications'
 
 /**
  * Everything the help center knows, composed from one file per screen under
@@ -36,6 +49,12 @@ const CONTEXT_LIST: HelpContext[] = [
   tripPlaceContext, tripDayDetailContext,
   tripTransportsContext, tripBookingsContext, tripListsContext, tripCostsContext, tripFilesContext, tripCollabContext,
   tripRoadtripContext,
+  // Tours: the list and the card on the Plan tab, then the Tours tab with its
+  // jobs and one screen per kind of tour, in the order the type picker has them.
+  tripToursContext, tripTourDetailContext,
+  tripTourPlannerContext, tripTourImportContext, tripTourMapContext, tripTourStagesContext,
+  tripTourHikeContext, tripTourWalkContext, tripTourBikeContext, tripTourSkiContext, tripTourPaddleContext, tripTourHorseContext,
+  notificationsContext,
   vacayContext, atlasContext, collectionsContext, journeyContext, journalContext, studioContext,
   settingsContext, ...settingsTabContexts, adminContext, ...adminTabContexts,
 ]
@@ -46,6 +65,10 @@ const GUIDE_LIST: HelpGuide[] = [
   ...tripPlaceGuides, ...tripDayDetailGuides,
   ...tripTransportsGuides, ...tripBookingsGuides, ...tripListsGuides, ...tripCostsGuides, ...tripFilesGuides, ...tripCollabGuides,
   ...tripRoadtripGuides,
+  ...tripToursGuides, ...tripTourDetailGuides,
+  ...tripTourPlannerGuides, ...tripTourImportGuides, ...tripTourMapGuides, ...tripTourStagesGuides,
+  ...tripTourHikeGuides, ...tripTourWalkGuides, ...tripTourBikeGuides, ...tripTourSkiGuides, ...tripTourPaddleGuides, ...tripTourHorseGuides,
+  ...notificationsGuides,
 ]
 
 export const HELP_CONTEXTS: ReadonlyMap<string, HelpContext> = new Map(CONTEXT_LIST.map(c => [c.id, c]))
@@ -116,6 +139,7 @@ export const helpMedia = {
   hero: (contextId: string): string => `${MEDIA_BASE}/ctx/${contextId}.webp`,
   step: (guideId: string, n: number): string => `${MEDIA_BASE}/${guideId}/step-${n}.webp`,
   result: (guideId: string): string => `${MEDIA_BASE}/${guideId}/result.webp`,
+  clip: (guideId: string, n: number): string => `${MEDIA_BASE}/${guideId}/step-${n}.loop.webp`,
 }
 
 /** Wiki route for a doc link, with the heading anchor when the link names one. */

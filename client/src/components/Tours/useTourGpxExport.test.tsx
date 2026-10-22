@@ -1,18 +1,27 @@
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { AxiosError, AxiosHeaders } from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { seedStore } from '../../../tests/helpers/store';
 import { attachmentFilename } from '../../api/tourGpxExport';
+import { useTripStore } from '../../store/tripStore';
 import { TourGpxExportBarButton, TourGpxExportButton } from './TourGpxExportButton';
 import { useTourGpxExport } from './useTourGpxExport';
 
 const repo = vi.hoisted(() => ({ exportGpx: vi.fn() }));
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn() }));
 const download = vi.hoisted(() => ({ downloadBlob: vi.fn() }));
-const share = vi.hoisted(() => ({ canShareFile: vi.fn(() => false), shareFile: vi.fn() }));
+const share = vi.hoisted(() => ({
+  canShareFile: vi.fn(() => false),
+  shareFile: vi.fn(),
+  canShareText: vi.fn(() => false),
+  shareText: vi.fn(),
+}));
+const clipboard = vi.hoisted(() => ({ copyText: vi.fn() }));
 vi.mock('../../repo/tourRepo', () => ({ tourRepo: repo }));
 vi.mock('../shared/Toast', () => ({ useToast: () => toast }));
 vi.mock('../../utils/fileDownload', () => download);
 vi.mock('../../utils/fileShare', () => share);
+vi.mock('../../utils/clipboard', () => clipboard);
 
 const target = { tripId: 1, placeId: 7, name: 'Kramer' };
 const blob = new Blob(['<gpx/>'], { type: 'application/gpx+xml' });
@@ -34,6 +43,8 @@ const gpxFile = (name: string) => expect.objectContaining({ name, type: 'applica
 beforeEach(() => {
   vi.clearAllMocks();
   share.canShareFile.mockReturnValue(false);
+  share.canShareText.mockReturnValue(false);
+  clipboard.copyText.mockResolvedValue(true);
   repo.exportGpx.mockResolvedValue({ offline: false, blob, filename: 'Kramer-über.gpx' });
 });
 
@@ -102,10 +113,14 @@ describe('useTourGpxExport (PR1-06A)', () => {
 });
 
 describe('useTourGpxExport, sharing (IO-01)', () => {
-  it('asks the platform about a GPX file, not about sharing in general', () => {
+  // The file shares; the text share where the platform takes no GPX file has its own block below.
+  beforeEach(() => {
     share.canShareFile.mockReturnValue(true);
+  });
+
+  it('asks the platform about a GPX file, not about sharing in general', () => {
     const { result } = renderHook(() => useTourGpxExport());
-    expect(result.current.canShare).toBe(true);
+    expect(result.current.sharesFile).toBe(true);
     expect(share.canShareFile).toHaveBeenCalledWith('tour.gpx', 'application/gpx+xml');
   });
 
@@ -206,6 +221,7 @@ describe('useTourGpxExport, sharing (IO-01)', () => {
   });
 
   it('fetches nothing ahead without the share, and drops the kept file when the tour changes', async () => {
+    share.canShareFile.mockReturnValue(false);
     const { unmount } = renderHook(() => useTourGpxExport(target));
     await act(async () => undefined);
     expect(repo.exportGpx).not.toHaveBeenCalled();
@@ -277,6 +293,85 @@ describe('useTourGpxExport, sharing (IO-01)', () => {
   });
 });
 
+describe('useTourGpxExport, sharing a text where the platform takes no GPX file', () => {
+  const facts = { tourType: 'hike' as const, distanceKm: 12, gain: 800, minutes: 240 };
+  const withFacts = { ...target, facts };
+  const sharedText = () => share.shareText.mock.calls[0][1] as string;
+
+  beforeEach(() => {
+    seedStore(useTripStore, { trip: { id: 1, title: 'Alps 2026' } });
+  });
+
+  it('offers the share all the same, and fetches no file for it, ahead or on the tap', async () => {
+    share.canShareText.mockReturnValue(true);
+    share.shareText.mockResolvedValue('shared');
+    const { result } = renderHook(() => useTourGpxExport(withFacts));
+    expect(result.current.sharesFile).toBe(false);
+    await act(() => result.current.shareGpx(withFacts));
+    expect(repo.exportGpx).not.toHaveBeenCalled();
+    expect(share.shareFile).not.toHaveBeenCalled();
+    expect(share.shareText).toHaveBeenCalledWith('Kramer', expect.any(String));
+    expect(clipboard.copyText).not.toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it('says the name, the type, distance, ascent, time and the trip', async () => {
+    share.canShareText.mockReturnValue(true);
+    share.shareText.mockResolvedValue('shared');
+    const { result } = renderHook(() => useTourGpxExport());
+    await act(() => result.current.shareGpx(withFacts));
+    const lines = sharedText().split('\n');
+    expect(lines[0]).toBe('Kramer');
+    expect(lines).toContain('tourTypes.hike');
+    expect(lines.some((line) => line.startsWith('tours.detail.distance: '))).toBe(true);
+    expect(lines.some((line) => line.startsWith('tours.detail.ascent: '))).toBe(true);
+    expect(lines).toContain('tours.gpxExport.shareDuration');
+    expect(lines).toContain('tours.gpxExport.shareTrip');
+  });
+
+  it('names the trip only when the trip open here is the one of the tour', async () => {
+    share.canShareText.mockReturnValue(true);
+    share.shareText.mockResolvedValue('shared');
+    const { result } = renderHook(() => useTourGpxExport());
+    await act(() => result.current.shareGpx({ ...withFacts, tripId: 2 }));
+    expect(sharedText()).not.toContain('tours.gpxExport.shareTrip');
+  });
+
+  it('a closed or busy sheet says nothing, a failed one copies the text instead', async () => {
+    share.canShareText.mockReturnValue(true);
+    const { result } = renderHook(() => useTourGpxExport());
+    share.shareText.mockResolvedValueOnce('cancelled').mockResolvedValueOnce('busy');
+    await act(() => result.current.shareGpx(withFacts));
+    await act(() => result.current.shareGpx(withFacts));
+    expect(clipboard.copyText).not.toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
+
+    share.shareText.mockResolvedValueOnce('failed');
+    await act(() => result.current.shareGpx(withFacts));
+    expect(clipboard.copyText).toHaveBeenCalledWith(share.shareText.mock.calls[2][1]);
+    expect(toast.success).toHaveBeenCalledWith('tours.gpxExport.shareCopied');
+  });
+
+  it('copies the text without a share sheet and says so, or says the copy failed', async () => {
+    const { result } = renderHook(() => useTourGpxExport());
+    await act(() => result.current.shareGpx(withFacts));
+    expect(share.shareText).not.toHaveBeenCalled();
+    expect(clipboard.copyText).toHaveBeenCalledWith(expect.stringContaining('Kramer'));
+    expect(toast.success).toHaveBeenCalledWith('tours.gpxExport.shareCopied');
+
+    clipboard.copyText.mockResolvedValueOnce(false);
+    await act(() => result.current.shareGpx(withFacts));
+    expect(toast.error).toHaveBeenCalledWith('tours.gpxExport.shareCopyFailed');
+  });
+
+  it('shares the name alone when the tour says nothing more', async () => {
+    seedStore(useTripStore, { trip: null });
+    const { result } = renderHook(() => useTourGpxExport());
+    await act(() => result.current.shareGpx(target));
+    expect(clipboard.copyText).toHaveBeenCalledWith('Kramer');
+  });
+});
+
 describe('TourGpxExportButton (PR1-06A)', () => {
   it('exports from the footer, apart from the navigation', async () => {
     render(<TourGpxExportButton target={target} />);
@@ -286,9 +381,13 @@ describe('TourGpxExportButton (PR1-06A)', () => {
     expect(repo.exportGpx).toHaveBeenCalledTimes(1);
   });
 
-  it('offers the share beside the download only where the platform takes GPX files (IO-01)', async () => {
+  it('offers the share beside the download, as a GPX file where the platform takes one (IO-01)', async () => {
     const { unmount } = render(<TourGpxExportButton target={target} />);
-    expect(screen.queryByTestId('tour-gpx-share')).toBeNull();
+    const textShare = screen.getByTestId('tour-gpx-share');
+    expect(textShare).toHaveAccessibleName('tours.gpxExport.shareTour');
+    await act(async () => fireEvent.click(textShare));
+    expect(clipboard.copyText).toHaveBeenCalledTimes(1);
+    expect(repo.exportGpx).not.toHaveBeenCalled();
     unmount();
     share.canShareFile.mockReturnValue(true);
     share.shareFile.mockResolvedValue('shared');
@@ -305,6 +404,13 @@ describe('TourGpxExportButton (PR1-06A)', () => {
     expect(screen.getByRole('button', { name: 'tours.gpxExport.shareSaveFirst' })).toBeDisabled();
     rerender(<TourGpxExportBarButton target={target} unsaved={false} />);
     expect(screen.getByRole('button', { name: 'tours.gpxExport.share' })).toBeEnabled();
+  });
+
+  it('the planner head shares the text where the platform takes no GPX file, after the save too', () => {
+    const { rerender } = render(<TourGpxExportBarButton target={target} unsaved />);
+    expect(screen.getByRole('button', { name: 'tours.gpxExport.shareTourSaveFirst' })).toBeDisabled();
+    rerender(<TourGpxExportBarButton target={target} unsaved={false} />);
+    expect(screen.getByRole('button', { name: 'tours.gpxExport.shareTour' })).toBeEnabled();
   });
 
   it('waits in the planner head while the tour has unsaved changes, and says so', () => {

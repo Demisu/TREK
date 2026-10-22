@@ -34,6 +34,7 @@
 - [[TREK Places API|TREK-Places-API]]
 - [[Day Plans and Notes|Day-Plans-and-Notes]]
 - [[Map Features|Map-Features]]
+- [[Tours|Tours]]
 - [[Route Optimization|Route-Optimization]]
 - [[Weather Forecasts|Weather-Forecasts]]
 

@@ -175,7 +175,7 @@ const settings: TranslationStrings = {
   'settings.mcp.clientConfigHint':
     'Ersätt <your_token> med ett API-token från listan nedan. Sökvägen till npx kan behöva anpassas efter ditt system (t.ex. C:\\PROGRA~1\\nodejs\\npx.cmd i Windows).',
   'settings.mcp.clientConfigHintOAuth':
-    'Ersätt <your_client_id> och <your_client_secret> med de autentiseringsuppgifter som visas i den OAuth 2.1-klient du skapade ovan. mcp-remote öppnar din webbläsare för att slutföra auktoriseringen första gången du ansluter. Sökvägen till npx kan behöva anpassas efter ditt system (t.ex. C:PROGRA~1\nodejs\npx.cmd i Windows).',
+    'Ersätt <your_client_id> och <your_client_secret> med de autentiseringsuppgifter som visas i den OAuth 2.1-klient du skapade ovan. mcp-remote öppnar din webbläsare för att slutföra auktoriseringen första gången du ansluter. Sökvägen till npx kan behöva anpassas efter ditt system (t.ex. C:\\PROGRA~1\\nodejs\\npx.cmd i Windows).',
   'settings.mcp.copy': 'Kopiera',
   'settings.mcp.copied': 'Kopierad!',
   'settings.mcp.apiTokens': 'API Tokens',
@@ -193,7 +193,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Skapa token',
   'settings.mcp.modal.createdTitle': 'Token skapad',
   'settings.mcp.modal.createdWarning':
-    'Denna token visas endast en gång. Kopiera och spara den nu – den går inte att återställa.',
+    'Denna token visas endast en gång. Kopiera och spara den nu: den går inte att återställa.',
   'settings.mcp.modal.done': 'Klar',
   'settings.mcp.toast.created': 'Token skapad',
   'settings.mcp.toast.createError': 'Misslyckades att skapa token',
@@ -235,14 +235,14 @@ const settings: TranslationStrings = {
     'En URI per rad. HTTPS, loopback-HTTP eller ett eget app-schema (myapp://). Exakt matchning, utom porten i en loopback-URI.',
   'settings.oauth.modal.scopes': 'Tillåtna tillämpningsområden',
   'settings.oauth.modal.scopesHint':
-    'list_trips och get_trip_summary är alltid tillgängliga – inget tillämpningsområden krävs. De gör det möjligt för AI:n att hämta de res-ID:n som behövs för att använda andra verktyg.',
+    'list_trips och get_trip_summary är alltid tillgängliga: inget tillämpningsområden krävs. De gör det möjligt för AI:n att hämta de res-ID:n som behövs för att använda andra verktyg.',
   'settings.oauth.modal.selectAll': 'Välj alla',
   'settings.oauth.modal.deselectAll': 'Avmarkera alla',
   'settings.oauth.modal.creating': 'Registrerar...',
   'settings.oauth.modal.create': 'Registrerar klient',
   'settings.oauth.modal.createdTitle': 'Klient registrerad',
   'settings.oauth.modal.createdWarning':
-    'Klienthemligheten visas endast en gång. Kopiera den nu – den går inte att återställa.',
+    'Klienthemligheten visas endast en gång. Kopiera den nu: den går inte att återställa.',
   'settings.oauth.toast.createError': 'Det gick inte att registrera OAuth-klienten',
   'settings.oauth.toast.deleted': 'OAuth-klienten har tagits bort',
   'settings.oauth.toast.deleteError': 'Det gick inte att ta bort OAuth-klienten',
@@ -309,7 +309,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Ta bort konto',
   'settings.deleteAccountTitle': 'Ta bort ditt konto?',
   'settings.deleteAccountWarning':
-    'Ditt konto samt alla dina resor, platser och filer kommer att raderas permanent. Denna åtgärd går inte att ångra.',
+    'Ditt konto och alla resor, journaler, platser och filer som du äger tas bort permanent, även resor som delas med andra medlemmar, som förlorar åtkomsten. Resor som ägs av andra finns kvar och du tas bort från dem. Den här åtgärden kan inte ångras.',
   'settings.deleteAccountConfirm': 'Radera permanent',
   'settings.deleteBlockedTitle': 'Det går inte att radera',
   'settings.deleteBlockedMessage':
@@ -356,7 +356,7 @@ const settings: TranslationStrings = {
   'settings.mfa.demoBlocked': 'Finns inte i demoläge',
   'settings.currency': 'Visningsvaluta',
   'settings.currencyHint':
-    'Belopp under Kostnader visas omräknade till denna valuta endast för visning – de ursprungliga beloppen ändras inte.',
+    'Belopp under Kostnader visas omräknade till denna valuta endast för visning; de ursprungliga beloppen ändras inte.',
   'settings.currencyTrip': 'Resans valuta',
   'settings.placeLanguage': 'Platsnamn',
   'settings.placeLanguageApp': 'Samma som appen',
@@ -364,7 +364,7 @@ const settings: TranslationStrings = {
     'Språket som platssökning, förslag och adresser svarar på. Om en plats saknar namn på det språket visas dess lokala namn.',
   'settings.passkey.title': 'Inloggningsnycklar',
   'settings.passkey.description':
-    'Logga in snabbare och med bättre skydd mot nätfiske med en inloggningsnyckel – ditt fingeravtryck, ditt ansikte, din PIN-kod eller en hårdvarunyckel. Ditt lösenord finns kvar som reserv.',
+    'Logga in snabbare och med bättre skydd mot nätfiske med en inloggningsnyckel: ditt fingeravtryck, ditt ansikte, din PIN-kod eller en hårdvarunyckel. Ditt lösenord finns kvar som reserv.',
   'settings.passkey.notConfigured':
     'Inloggningsnycklar är aktiverade men ännu inte fullständigt konfigurerade på den här servern. Be din administratör att ställa in WebAuthn-domänen.',
   'settings.passkey.add': 'Lägg till en inloggningsnyckel',
@@ -525,10 +525,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.force': 'Tvinga offlineläge',
   'settings.offline.mode.forceHint':
     'Arbeta endast med cachelagrade data och köa dina ändringar. Stäng av för att återansluta och synkronisera.',
-  'settings.offline.mode.active': 'Offlineläget är på — dina ändringar köas och synkroniseras när du stänger av det.',
+  'settings.offline.mode.active': 'Offlineläget är på: dina ändringar köas och synkroniseras när du stänger av det.',
   'settings.offline.prepare.title': 'Förbered för offline',
   'settings.offline.prepare.hint':
-    'Ladda ner allt du behöver — resdata, dokument och kartrutor — innan du förlorar anslutningen.',
+    'Ladda ner allt du behöver (resdata, dokument och kartrutor) innan du förlorar anslutningen.',
   'settings.offline.prepare.button': 'Ladda ner för offlineanvändning',
   'settings.offline.prepare.running': 'Laddar ner…',
   'settings.offline.prepare.done': 'Klar för offlineanvändning',
@@ -599,7 +599,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'Visa alltid bokningsrutter',
   'settings.alwaysShowRoutesHint':
     'Visar automatiskt rutten för varje flyg, tåg och annan bokning på kartan, utan att du behöver aktivera det för varje bokning för sig.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Vad den här nyckeln får läsa',
@@ -642,13 +641,15 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Det gick inte att kopiera. Markera texten och kopiera den manuellt.',
   'settings.apiKeys.modal.createTitle': 'Skapa API-nyckel',
   'settings.apiKeys.modal.name': 'Namn',
-  'settings.apiKeys.modal.namePlaceholder': 't.ex. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 't.ex. Hempanel',
   'settings.apiKeys.modal.nameHint': 'Bara för dig, så att du känner igen nyckeln senare.',
   'settings.apiKeys.modal.creating': 'Skapar...',
   'settings.apiKeys.modal.create': 'Skapa',
   'settings.apiKeys.modal.createdTitle': 'API-nyckel skapad',
   'settings.apiKeys.modal.createdWarning': 'Kopiera nyckeln nu. Den visas en gång och kan inte hämtas senare.',
   'settings.apiKeys.modal.done': 'Klar',
+  'settings.mcp.deprecated': 'Utfasad',
+  'settings.offline.cache.dateRange': '{start} till {end}',
 };
 
 export default settings;

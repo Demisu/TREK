@@ -19,6 +19,7 @@ import type { CollabNote } from './CollabNotes.types'
 import { announceNoteFilesChanged, useCollabNotesData } from './useCollabNotesData'
 import { FONT, NOTE_COLORS } from './CollabNotes.constants'
 import { buildCategoryColorMap } from './collabModel'
+import { planCategoryColorSave } from './CollabNotes.helpers'
 import { NoteFormModal } from './CollabNotesFormModal'
 import { CategorySettingsModal } from './CollabNotesCategorySettingsModal'
 import { NoteCard } from './CollabNotesCard'
@@ -136,25 +137,15 @@ function useCollabNotes({ tripId, currentUser }: CollabNotesProps) {
     } catch {}
   }, [tripId, setNotes])
 
-  const saveCategoryColors = useCallback(async (newMap) => {
+  const saveCategoryColors = useCallback(async (newMap, renames: Record<string, string> = {}) => {
     let failed = 0
-    // Update notes with changed colors
-    for (const [cat, color] of Object.entries(newMap)) {
-      const notesInCat = notes.filter(n => n.category === cat)
-      if (notesInCat.length > 0 && categoryColors[cat] !== color) {
-        for (const n of notesInCat) {
-          try { await handleUpdateNote(n.id, { color }) } catch { failed++ }
-        }
-      }
+    // Update notes with changed colors (by id, so a rename that ran just before does not matter)
+    const { updates, emptyCategories: emptyCats } = planCategoryColorSave(notes, categoryColors, newMap, renames)
+    for (const { noteId, color } of updates) {
+      try { await handleUpdateNote(noteId, { color }) } catch { failed++ }
     }
     if (failed > 0) await resyncNotes()
-    // Save all categories (including empty ones) to localStorage
-    const emptyCats = {}
-    for (const [cat, color] of Object.entries(newMap)) {
-      if (!notes.some(n => n.category === cat)) {
-        emptyCats[cat] = color
-      }
-    }
+    // Categories without a note are kept in this browser only
     saveEmptyCategories(emptyCats)
   }, [categoryColors, notes, handleUpdateNote, resyncNotes])
 
@@ -187,9 +178,12 @@ function useCollabNotes({ tripId, currentUser }: CollabNotesProps) {
   }, [editingNote, tripId, handleUpdateNote, setNotes, uploadNoteFiles])
 
   const handleDeleteNoteFile = useCallback(async (noteId, fileId) => {
-    try { await collabApi.deleteNoteFile(tripId, noteId, fileId) } catch { toast.error(offlineOr(t, t('common.error'))) }
+    try {
+      await collabApi.deleteNoteFile(tripId, noteId, fileId)
+      setNotes(prev => prev.map(n => (n.id === noteId ? { ...n, attachments: (n.attachments || []).filter(a => a.id !== fileId) } : n)))
+    } catch { toast.error(offlineOr(t, t('common.error'))) }
     announceNoteFilesChanged()
-  }, [tripId, toast, t])
+  }, [tripId, toast, t, setNotes])
 
   const handleDeleteNote = useCallback(async (noteId) => {
     try {

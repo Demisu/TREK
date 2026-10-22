@@ -261,8 +261,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Server pro objížďky pro tento úsek neodpověděl, takže ho nakreslil hlavní server. Dotaz na server pro objížďky se teď opakuje.',
   'roadtrip.day': 'Den {number}',
-  'roadtrip.quietDay.empty': 'Zatím žádné zastávky — přetáhněte sem',
-  'roadtrip.quietDay.one': 'Zatím jen {name} — přetáhněte sem zastávku',
+  'roadtrip.quietDay.empty': 'Zatím žádné zastávky, přetáhněte sem',
+  'roadtrip.quietDay.one': 'Zatím jen {name}, přetáhněte sem zastávku',
   'roadtrip.leg.driveText': '{distance} za {time}',
   'roadtrip.day.stopCount': '{count} zastávek',
   'roadtrip.day.stopCount.one': '{count} zastávka',
@@ -346,5 +346,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Odjezd až po check-outu',
   'roadtrip.bookend.noVia':
     'Na trasu do ubytování ani z něj nelze přidat průjezdní bod. Přidejte tam místo toho zastávku.',
+  'roadtrip.stay.untilHint':
+    'Odjezd je v {time}, protože tato návštěva má čas konce. Otevřete ji a zvolte Odebrat čas konce, abyste místo toho nastavili délku pobytu.',
 };
 export default roadtrip;

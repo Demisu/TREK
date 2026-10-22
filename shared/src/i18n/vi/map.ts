@@ -39,5 +39,6 @@ const map: TranslationStrings = {
   'map.attribution': 'Nguồn bản đồ',
   'map.overview.unrouted': 'Không thể tính đường đi cho {count} chặng, nên quãng đường chưa đầy đủ.',
   'map.overview.dayUnrouted': 'Không thể tính đường đi cho {count} chặng của ngày này',
+  'map.baseLayer.topo': 'Địa hình',
 };
 export default map;

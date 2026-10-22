@@ -9,8 +9,6 @@ const tours: TranslationStrings = {
   'tours.empty.title': 'Туров пока нет',
   'tours.empty.body': 'Для начала спланируйте тур или импортируйте файл GPX или KML.',
   'tours.addToDay': 'Добавить к дню',
-  'tours.addToDay.comingSoon': 'Назначайте туры на дни поездки из списка туров.',
-  'tours.addToDay.pickDay': 'Выберите день',
   'tours.badge.wanderer': 'wanderer',
   'tours.badge.gpx': 'Импорт GPX',
   'tours.badge.planned': 'спланировано в TREK',
@@ -19,7 +17,7 @@ const tours: TranslationStrings = {
   'tours.badgeShort.wanderer': 'wanderer',
   'tours.caution.badge': 'используйте с осторожностью',
   'tours.caution.tooltip': 'Данные о высоте или показателях неполные — импорт с оговорками',
-  'tours.import.caution': 'Импорт с оговорками — данные о высоте или показателях неполные',
+  'tours.import.caution': 'Импортировано, но в файле нет полных данных о высоте',
   'tours.import.success': 'Импортировано {count} тура',
   'tours.import.success.one': 'Импортирован {count} тур',
   'tours.import.success.few': 'Импортировано {count} тура',
@@ -100,7 +98,6 @@ const tours: TranslationStrings = {
   'tours.detail.maxAltitude': 'Максимальная высота',
   'tours.detail.ascent': 'Набор высоты',
   'tours.detail.descent': 'Сброс высоты',
-  'tours.detail.source': 'Источник',
   'tours.detail.navigationHint': 'Навигация открывает начальную точку тропы, но не ведёт по маршруту.',
   'tours.planner.title': 'Спланировать тур',
   'tours.planner.newTour': 'Спланировать новый тур',
@@ -175,12 +172,12 @@ const tours: TranslationStrings = {
   'tours.planner.tripTours': 'Туры этой поездки',
   'tours.planner.safetyNote': 'Расчёт маршрута помогает в планировании, но не гарантирует безопасность.',
   'tours.planner.maxDifficulty': 'Максимальная сложность тропы',
-  'tours.planner.difficulty.t1': 'T1 — Пеший поход',
-  'tours.planner.difficulty.t2': 'T2 — Горный поход',
-  'tours.planner.difficulty.t3': 'T3 — Сложный горный поход',
-  'tours.planner.difficulty.t4': 'T4 — Высокогорный поход',
-  'tours.planner.difficulty.t5': 'T5 — Сложный высокогорный поход',
-  'tours.planner.difficulty.t6': 'T6 — Очень сложный высокогорный поход',
+  'tours.planner.difficulty.t1': 'T1: Пеший поход',
+  'tours.planner.difficulty.t2': 'T2: Горный поход',
+  'tours.planner.difficulty.t3': 'T3: Сложный горный поход',
+  'tours.planner.difficulty.t4': 'T4: Высокогорный поход',
+  'tours.planner.difficulty.t5': 'T5: Сложный высокогорный поход',
+  'tours.planner.difficulty.t6': 'T6: Очень сложный высокогорный поход',
   'tours.planner.difficulty.t3Warning':
     'Маршруты T3 могут включать открытые участки над обрывами или технически сложные горные тропы, требующие уверенного шага и отсутствия боязни высоты.',
   'tours.planner.difficulty.alpineTitle': 'Разрешить высокогорные маршруты?',
@@ -697,6 +694,12 @@ const tours: TranslationStrings = {
   'tours.gpxExport.shareSaveFirst': 'Сначала сохрани маршрут, чтобы поделиться им в GPX',
   'tours.gpxExport.shareReady': 'Файл GPX готов. Нажми «Поделиться» ещё раз, чтобы открыть меню отправки.',
   'tours.gpxExport.shareFailed': 'Не удалось поделиться. Файл GPX по-прежнему можно скачать.',
+  'tours.gpxExport.shareTour': 'Поделиться походом',
+  'tours.gpxExport.shareTourSaveFirst': 'Сначала сохраните поход, чтобы поделиться им',
+  'tours.gpxExport.shareCopied': 'Данные похода скопированы в буфер обмена.',
+  'tours.gpxExport.shareCopyFailed': 'Не удалось скопировать данные похода.',
+  'tours.gpxExport.shareDuration': 'Длительность: {time}',
+  'tours.gpxExport.shareTrip': 'Поездка: {name}',
   'tours.revision.remoteTitle': 'Этот поход сохранили в другом месте',
   'tours.revision.remoteBody':
     'Кто-то, или вы на другом устройстве, сохранил его во время правки. Ваши изменения останутся, пока вы не решите.',
@@ -1541,5 +1544,23 @@ const tours: TranslationStrings = {
   'tours.dayTime.nextItem': 'следующий пункт',
   'tours.dayTime.formHint': 'Если оставить пустым, конец рассчитывается: {time}, начало плюс время тура {total}.',
   'tours.dayTime.formNoStart': 'Со временем начала конец рассчитывается по времени тура {total}.',
+  'tours.poi.categoriesLimit':
+    'Можно искать не более {count} видов одновременно. Снимите отметку с одного, чтобы добавить другой.',
+  'tours.poi.categoriesLimit.one':
+    'Можно искать не более {count} вида одновременно. Снимите с него отметку, чтобы добавить другой.',
+  'tours.poi.categoriesLimit.few':
+    'Можно искать не более {count} видов одновременно. Снимите отметку с одного, чтобы добавить другой.',
+  'tours.poi.categoriesLimit.many':
+    'Можно искать не более {count} видов одновременно. Снимите отметку с одного, чтобы добавить другой.',
+  'tours.import.fileTooLarge': 'Файл слишком большой. Файлы туров могут весить не более {maxMb} МБ.',
+  'tours.planner.nothingToSave': 'Пока нечего сохранять. Сначала измените тур.',
+  'tours.detail.openInTours': 'Открыть на вкладке «Туры»',
+  'tours.planner.status.routingGeneric': 'Расчёт маршрута…',
+  'tours.planner.emptyHintPlacing':
+    'Нажмите на карту, чтобы поставить точки. Начиная с двух точек TREK рассчитает маршрут.',
+  'tours.ski.drawStraight': 'Провести прямо',
+  'tours.horse.routes.stale': 'Список показывает область, в которой вы искали. Повторите поиск для текущей.',
+  'tours.horse.dialog.adoptGapHint':
+    'Сначала соедините разрыв участком, нарисованным вручную, или выберите участок, который начинается там, где заканчивается ваш маршрут.',
 };
 export default tours;

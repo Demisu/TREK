@@ -4,21 +4,19 @@ import { useNavigate } from 'react-router'
 import { Bell, Trash2, CheckCheck } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import { useInAppNotificationStore } from '../../store/inAppNotificationStore.ts'
-import { useSettingsStore } from '../../store/settingsStore'
 import { useAuthStore } from '../../store/authStore'
 import InAppNotificationItem from '../Notifications/InAppNotificationItem.tsx'
+import ConfirmDialog from '../shared/ConfirmDialog'
 
 export default function InAppNotificationBell(): React.ReactElement {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { settings } = useSettingsStore()
-  const darkMode = settings.dark_mode
-  const dark = darkMode === true || darkMode === 'dark' || (darkMode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   const isAuthenticated = useAuthStore(s => s.isAuthenticated)
   const { notifications, unreadCount, isLoading, fetchNotifications, fetchUnreadCount, markAllRead, deleteAll } = useInAppNotificationStore()
 
   const [open, setOpen] = useState(false)
+  const [confirmingDeleteAll, setConfirmingDeleteAll] = useState(false)
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -45,17 +43,14 @@ export default function InAppNotificationBell(): React.ReactElement {
       <button type="button"
         onClick={handleOpen}
         title={t('notifications.title')}
-        className="relative p-2 rounded-lg transition-colors text-content-muted"
-        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
-        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+        className="relative p-2 rounded-lg transition-colors text-content-muted hover:bg-surface-hover focus-visible:bg-surface-hover"
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
           <span
             data-testid="notification-badge"
-            className="absolute -top-1.5 -end-1.5 flex items-center justify-center rounded-full text-white font-bold tabular-nums ring-2 ring-surface-card"
+            className="absolute -top-1.5 -end-1.5 flex items-center justify-center rounded-full bg-danger text-white font-bold tabular-nums ring-2 ring-surface-card"
             style={{
-              background: '#ef4444',
               fontSize: 'calc(10.5px * var(--fs-scale-caption, 1))',
               minWidth: 20,
               height: 20,
@@ -103,20 +98,16 @@ export default function InAppNotificationBell(): React.ReactElement {
                   <button type="button"
                     onClick={markAllRead}
                     title={t('notifications.markAllRead')}
-                    className="p-1.5 rounded-lg transition-colors text-content-muted"
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    className="p-1.5 rounded-lg transition-colors text-content-muted hover:bg-surface-hover focus-visible:bg-surface-hover"
                   >
                     <CheckCheck className="w-3.5 h-3.5" />
                   </button>
                 )}
                 {notifications.length > 0 && (
                   <button type="button"
-                    onClick={deleteAll}
+                    onClick={() => setConfirmingDeleteAll(true)}
                     title={t('notifications.deleteAll')}
-                    className="p-1.5 rounded-lg transition-colors text-content-muted"
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    className="p-1.5 rounded-lg transition-colors text-content-muted hover:bg-surface-hover focus-visible:bg-surface-hover"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -146,12 +137,7 @@ export default function InAppNotificationBell(): React.ReactElement {
             {/* Footer */}
             <button type="button"
               onClick={handleShowAll}
-              className="w-full py-2.5 text-xs font-medium transition-colors flex-shrink-0 border-t border-edge-secondary text-content"
-              style={{
-                background: 'transparent',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              className="w-full py-2.5 text-xs font-medium transition-colors flex-shrink-0 border-t border-edge-secondary text-content hover:bg-surface-hover focus-visible:bg-surface-hover"
             >
               {t('notifications.showAll')}
             </button>
@@ -159,6 +145,14 @@ export default function InAppNotificationBell(): React.ReactElement {
         </>,
         document.body
       )}
+      <ConfirmDialog
+        isOpen={confirmingDeleteAll}
+        onClose={() => setConfirmingDeleteAll(false)}
+        onConfirm={() => { setConfirmingDeleteAll(false); void deleteAll() }}
+        title={t('notifications.deleteAllConfirmTitle')}
+        message={t('notifications.deleteAllConfirmText')}
+        confirmLabel={t('notifications.deleteAll')}
+      />
     </div>
   )
 }

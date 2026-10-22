@@ -260,5 +260,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'Liczba dni jest wymagana',
   'dashboard.tripChangeNeedsConnection':
     'Zmiana dat, liczby dni, waluty lub okładki wymaga połączenia. Nazwę, opis i przypomnienie można zmienić także offline.',
+  'dashboard.ics.enable': 'Włącz subskrypcję kalendarza',
+  'dashboard.ics.enableHint':
+    'Tworzy tajny link, który każdy, kto go ma, może odczytać bez logowania. Możesz go wyłączyć w dowolnym momencie.',
+  'dashboard.ics.regenerate': 'Wygeneruj ponownie',
+  'dashboard.ics.turnOff': 'Wyłącz',
+  'dashboard.ics.manageHint':
+    'Ponowne wygenerowanie tworzy nowy link i unieważnia stary. Wyłączenie całkowicie dezaktywuje link.',
+  'dashboard.ics.addGoogle': 'Dodaj do Kalendarza Google',
+  'dashboard.ics.addApple': 'Dodaj do Kalendarza Apple / Outlook',
+  'dashboard.ics.copyManually': 'Lub skopiuj link ręcznie',
+  'dashboard.ics.pasteFromUrl': 'wklej w „Z adresu URL”',
 };
 export default dashboard;

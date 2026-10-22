@@ -1,4 +1,4 @@
-// FE-PLANNER-FILEIMPHOOK-001 to FE-PLANNER-FILEIMPHOOK-018: the GPX/KML/KMZ import logic
+// FE-PLANNER-FILEIMPHOOK-001 to FE-PLANNER-FILEIMPHOOK-019: the GPX/KML/KMZ import logic
 // behind the desktop dialog (variant 'dialog') and the phone's import step ('sheet').
 import { act, renderHook } from '@testing-library/react';
 import type React from 'react';
@@ -145,6 +145,20 @@ describe('usePlacesFileImport: the desktop dialog opening', () => {
     rerender({ open: true, initialFile: null });
     expect(result.current.files).toEqual([]);
     expect(result.current.error).toBe('');
+  });
+
+  it('FE-PLANNER-FILEIMPHOOK-019: several files handed on open together, an unsupported one named, on either shell', () => {
+    for (const variant of ['dialog', 'sheet'] as const) {
+      const { result } = setup({
+        variant,
+        open: true,
+        initialFile: gpx('ignored.gpx'),
+        initialFiles: [kml('cafes.kml'), new File(['x'], 'photo.jpg'), gpx('walk.gpx')],
+      });
+      expect(result.current.files.map((f) => f.name)).toEqual(['cafes.kml', 'walk.gpx']);
+      expect(result.current.error).toBe('places.importFileUnsupported');
+      expect(result.current.isGpx && result.current.isKml).toBe(true);
+    }
   });
 
   it('FE-PLANNER-FILEIMPHOOK-006: without an opening flag (the phone) nothing is preloaded', () => {

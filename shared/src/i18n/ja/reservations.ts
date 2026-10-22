@@ -257,5 +257,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'ファイルのアップロードには接続が必要です。オフラインで予約を保存するには新しいファイルを外すか、オンラインに戻ってから保存してください。',
   'reservations.needsConnection': 'この操作には接続が必要です。TREK がオンラインに戻ってから、もう一度お試しください。',
+  'reservations.exportCsvFiltered': '表示中の {shown}/{total} 行をエクスポート (CSV)',
 };
 export default reservations;

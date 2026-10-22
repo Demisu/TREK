@@ -293,5 +293,14 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'عدد الأيام مطلوب',
   'dashboard.tripChangeNeedsConnection':
     'تغيير التواريخ أو عدد الأيام أو العملة أو صورة الغلاف يتطلب اتصالاً. يمكن تغيير الاسم والوصف والتذكير دون اتصال.',
+  'dashboard.ics.enable': 'تفعيل الاشتراك في التقويم',
+  'dashboard.ics.enableHint': 'ينشئ رابطًا سريًا يمكن لأي شخص يملكه قراءته دون تسجيل الدخول. يمكنك إيقافه في أي وقت.',
+  'dashboard.ics.regenerate': 'إعادة الإنشاء',
+  'dashboard.ics.turnOff': 'إيقاف',
+  'dashboard.ics.manageHint': 'تؤدي إعادة الإنشاء إلى رابط جديد وإبطال القديم. أما الإيقاف فيعطّل الرابط تمامًا.',
+  'dashboard.ics.addGoogle': 'أضف إلى تقويم Google',
+  'dashboard.ics.addApple': 'أضف إلى تقويم Apple / Outlook',
+  'dashboard.ics.copyManually': 'أو انسخ الرابط يدويًا',
+  'dashboard.ics.pasteFromUrl': 'الصقه في «من عنوان URL»',
 };
 export default dashboard;

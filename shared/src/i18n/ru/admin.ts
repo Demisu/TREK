@@ -50,7 +50,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Редактировать пользователя',
   'admin.newPassword': 'Новый пароль',
   'admin.newPasswordHint': 'Оставьте пустым, чтобы сохранить текущий пароль',
-  'admin.deleteUser': 'Удалить пользователя «{name}»? Все поездки будут безвозвратно удалены.',
+  'admin.deleteUser':
+    'Удалить пользователя "{name}"? Его аккаунт и все принадлежащие ему поездки и журналы будут удалены безвозвратно, включая поездки, к которым есть доступ у других участников: они потеряют доступ. Поездки других владельцев останутся.',
   'admin.deleteUserTitle': 'Удалить пользователя',
   'admin.newPasswordPlaceholder': 'Введите новый пароль…',
   'admin.toast.loadError': 'Не удалось загрузить данные администрирования',
@@ -200,9 +201,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.google': 'Google',
   'admin.transitProvider.transitousHint': 'GTFS-фиды сообщества. Бесплатно и без ключа, с лучшим покрытием в Европе.',
   'admin.transitProvider.googleHint':
-    'Использует указанный выше ключ Google для регионов, по которым у Transitous нет данных. Оплачивается за каждый поиск — пока ключ не задан, используется Transitous.',
+    'Использует указанный выше ключ Google для регионов, по которым у Transitous нет данных. Оплачивается за каждый поиск; пока ключ не задан, используется Transitous.',
   'admin.transitProvider.noKeyWarning':
-    'Выбран Google, но ключ Google не настроен — поиск транспорта по-прежнему использует Transitous. Добавьте ключ в разделе «Ключи API» выше.',
+    'Выбран Google, но ключ Google не настроен; поиск транспорта по-прежнему использует Transitous. Добавьте ключ в разделе «Ключи API» выше.',
   'admin.transitProvider.personalKeyWarning':
     'Задан только ваш собственный ключ Google, поэтому поиск других участников по-прежнему возвращается к Transitous. Сохраните ключ выше от имени администратора, чтобы он действовал для всей установки.',
   'admin.placeShadow.title': 'Журнал поиска мест',
@@ -747,10 +748,10 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Записей аудита пока нет.',
   'admin.audit.refresh': 'Обновить',
   'admin.audit.loadMore': 'Загрузить ещё',
-  'admin.audit.showing': 'Загружено {count} записи · всего {total}',
-  'admin.audit.showing.one': 'Загружена {count} запись · всего {total}',
-  'admin.audit.showing.few': 'Загружено {count} записи · всего {total}',
-  'admin.audit.showing.many': 'Загружено {count} записей · всего {total}',
+  'admin.audit.showing': 'Загружено {count} записи, всего {total}',
+  'admin.audit.showing.one': 'Загружена {count} запись, всего {total}',
+  'admin.audit.showing.few': 'Загружено {count} записи, всего {total}',
+  'admin.audit.showing.many': 'Загружено {count} записей, всего {total}',
   'admin.audit.col.time': 'Время',
   'admin.audit.col.user': 'Пользователь',
   'admin.audit.col.action': 'Действие',
@@ -978,5 +979,37 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'Отклонить',
   'admin.paddleRegions.origin.auto': 'Автоматически',
   'admin.paddleRegions.origin.autoHint': 'TREK загрузил этот регион сам для сплава, который там планируется.',
+  'admin.mfa.reset': 'Сбросить 2FA',
+  'admin.mfa.resetHint':
+    'Отключает двухфакторную аутентификацию пользователя, например после потери телефона. Он выйдет из аккаунта везде и сможет настроить её заново после входа с паролем.',
+  'admin.mfa.resetConfirm': 'Отключить двухфакторную аутентификацию для {name}?',
+  'admin.mfa.resetDone': 'Двухфакторная аутентификация сброшена',
+  'admin.danger.title': 'Опасная зона',
+  'admin.rotateJwt.title': 'Сменить секрет JWT',
+  'admin.rotateJwt.hint': 'Создаёт новый секрет подписи JWT. Все активные сеансы будут немедленно аннулированы.',
+  'admin.rotateJwt.confirm': 'Сменить и выйти',
+  'admin.rotateJwt.warning': 'Внимание: все сеансы будут аннулированы, и вы тоже выйдете из системы.',
+  'admin.rotateJwt.body':
+    'Новый секрет JWT будет создан немедленно. Все вошедшие пользователи, включая вас, будут выведены из системы и должны будут войти снова.',
+  'admin.oidcDisplayNamePlaceholder': 'например, Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery URL (необязательно)',
+  'admin.oidcDiscoveryUrlHint':
+    'Заменяет автоматически сформированный discovery URL. Нужен для провайдеров вроде Authentik, где конечная точка находится не по адресу {path}.',
+  'admin.smtp.skipTls': 'Не проверять сертификат TLS',
+  'admin.smtp.skipTlsHint': 'Включите для самоподписанных сертификатов на локальных почтовых серверах',
+  'admin.demoBaseline.title': 'Базовое состояние демо',
+  'admin.demoBaseline.hint':
+    'Сохраняет текущее состояние как точку ежечасного сброса. Все поездки и настройки администратора сохранятся.',
+  'admin.demoBaseline.button': 'Сохранить базовое состояние',
+  'admin.demoBaseline.saved': 'Базовое состояние сохранено! Сброс вернёт систему к этому состоянию.',
+  'admin.demoBaseline.failed': 'Не удалось сохранить базовое состояние',
+  'admin.invite.deleteTitle': 'Удалить ссылку-приглашение',
+  'admin.invite.deleteConfirm':
+    'Удалить эту ссылку-приглашение? Те, кто ещё не воспользовался ею, больше не смогут зарегистрироваться по ней.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Удалить шаблон',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Удалить шаблон "{name}" со всеми категориями и пунктами?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Удалить категорию',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Удалить категорию "{name}" и все её пункты?',
+  'admin.rotateJwt.button': 'Обновить',
 };
 export default admin;

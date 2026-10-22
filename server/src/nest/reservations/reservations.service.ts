@@ -234,8 +234,8 @@ export class ReservationsService {
     // reaches nothing in this direction — and it hid the edge while handing the
     // send a second NotificationsService built outside the container.
     try {
-      const actorEmail = await this.usersRepo.getEmail(actorId);
-      if (!actorEmail) return;
+      const actor = await this.usersRepo.findUsernameEmail(actorId);
+      if (!actor) return;
       const tripTitle = await this.tripsRepo.getTitle(tripId);
       this.notifications.send({
         event: 'booking_change',
@@ -244,7 +244,7 @@ export class ReservationsService {
         targetId: Number(tripId),
         params: {
           trip: tripTitle || 'Untitled',
-          actor: actorEmail,
+          actor: actor.username,
           booking,
           type: type || 'booking',
           tripId: String(tripId),

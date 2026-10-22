@@ -144,14 +144,14 @@ export function EntryEditor({ entry, journeyId, tripDates, galleryPhotos, trips,
     locationName,
     locationQuery, locationResults, locationSearching, showLocationResults, setShowLocationResults, locating,
     mood, setMood, weather, setWeather, statsExcluded, setStatsExcluded, tripSuggestion, isDraft, setIsDraft,
-    pros, setPros, cons, setCons, saving, uploadProgress, photos, photoOrder, canReorder,
+    pros, setPros, cons, setCons, tags, setTags, tagInput, setTagInput, addTag, saving, uploadProgress, photos, photoOrder, canReorder,
     pendingFiles, setPendingFiles, pendingPreviews: pendingUrls,
     pendingProviderGroups, setPendingProviderGroups, showGalleryPick, setShowGalleryPick, isDirty,
     availableGalleryPhotos, providerAssetIds, contextLocation, offersStatsToggle, addVerdictRow, verdictRowRef,
     handleSave, handleFileChange, pickGalleryPhoto, removePhoto, searchLocation, pickLocation, handleUseCurrentLocation,
   } = useJourneyEntryForm({
     entry, journeyId, trips, galleryPhotos, onSave, onUploadPhotos, onAddProviderPhotos, onDone,
-    blankVerdictRow: true, dirtyOnCoordinates: true, autoFillWeather: showWeather,
+    blankVerdictRow: true, dirtyOnCoordinates: true, autoFillWeather: showWeather, withTags: true,
   })
   const [photoTab, setPhotoTab] = useState<'upload' | 'gallery' | 'external'>('upload')
   const [availableProviders, setAvailableProviders] = useState<{ id: string; name: string }[]>([])
@@ -502,6 +502,35 @@ export function EntryEditor({ entry, journeyId, tripDates, galleryPhotos, trips,
                 </div>
               </DialogSection>
             )}
+
+            {/* Tags: the same field the phone sheet has, and what the journal search filters by */}
+            <DialogSection label={t('journey.editor.tags')}>
+              <div className="flex flex-wrap items-center gap-1.5 rounded-[10px] border border-edge bg-surface-input px-3 py-2">
+                {tags.map(tag => (
+                  <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-surface-tertiary px-2.5 py-1 font-semibold text-content" style={fs(12, 'caption')}>
+                    {tag}
+                    <button type="button" onClick={() => setTags(prev => prev.filter(x => x !== tag))} aria-label={`${t('common.delete')}: ${tag}`} className="text-content-faint hover:text-content">
+                      <X size={10} strokeWidth={2.5} />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ',') {
+                      e.preventDefault()
+                      addTag()
+                    }
+                  }}
+                  onBlur={addTag}
+                  placeholder={t('journey.editor.tagsPlaceholder')}
+                  aria-label={t('journey.editor.tags')}
+                  className="min-w-[120px] flex-1 border-0 bg-transparent py-0.5 text-content outline-none placeholder:text-content-faint"
+                  style={fs(13, 'body')}
+                />
+              </div>
+            </DialogSection>
 
             {/* Time sat in state and went to the server, it just had no input here, so a
                 draft's auto-stamped clock time showed up in the timeline, the map, the PDF

@@ -201,5 +201,14 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.removeTimezone': '移除 {city}',
   'dashboard.dayCountRequired': '天數為必填項',
   'dashboard.tripChangeNeedsConnection': '變更日期、天數、幣別或封面需要網路連線。名稱、說明和提醒可以在離線時變更。',
+  'dashboard.ics.enable': '啟用日曆訂閱',
+  'dashboard.ics.enableHint': '建立一個秘密連結，任何擁有該連結的人無需登入即可讀取。你可以隨時關閉。',
+  'dashboard.ics.regenerate': '重新產生',
+  'dashboard.ics.turnOff': '關閉',
+  'dashboard.ics.manageHint': '重新產生會建立新連結並使舊連結失效。關閉會完全停用該連結。',
+  'dashboard.ics.addGoogle': '加入 Google 日曆',
+  'dashboard.ics.addApple': '加入 Apple 日曆 / Outlook',
+  'dashboard.ics.copyManually': '或手動複製連結',
+  'dashboard.ics.pasteFromUrl': '貼到「從 URL」',
 };
 export default dashboard;

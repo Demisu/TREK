@@ -375,7 +375,7 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
                       </span>
                     </div>
                     {canEditJourney && (
-                      <button type="button" onClick={() => setShowSettings(true)} aria-label={t('journey.settings.title')} className="w-[34px] h-[34px] rounded-full bg-white/15 backdrop-blur flex items-center justify-center hover:bg-white/25"><MoreHorizontal size={14} /></button>
+                      <Tooltip label={t('journey.settings.title')} placement="bottom"><button type="button" onClick={() => setShowSettings(true)} aria-label={t('journey.settings.title')} className="w-[34px] h-[34px] rounded-full bg-white/15 backdrop-blur flex items-center justify-center hover:bg-white/25"><MoreHorizontal size={14} /></button></Tooltip>
                     )}
                   </div>
                 </div>

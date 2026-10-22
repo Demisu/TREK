@@ -2,15 +2,30 @@ import { test, expect, type Page, type Locator } from '@playwright/test'
 import { createHmac } from 'node:crypto'
 import { clearNotices } from '../screenshots/shot'
 import { captureGuide, captureHero, dismissReleaseNotice, beat, typeInto, settle, VIEWPORT, type GuideScript } from './guide'
+import { ensureAirtrailFlights, ensureDawarichRecording, disconnectAirtrail, disconnectDawarich, toggleAddon } from './external'
+import {
+  mediaEnv, wandererUrl, wandererToken, allowWanderer, ensureWandererConnection, disconnectWanderer,
+  ensureActivePlugin, removeSideloadedPlugin, parkOfflineChanges, clearParkedChanges,
+} from './fixtures-settings'
 import { settingsContext, settingsTabContexts, settingsGuides } from '../../src/help/contexts/settings'
 import type { HelpGuide } from '../../src/help/types'
 
 /**
  * Actions for the settings screens, keyed by the ids in
  * `src/help/contexts/settings.ts`. One route, one tab per screen; most guides
- * only frame a section, and the few that change something (theme, an API key,
- * two-factor authentication) leave the account in a state the run can live
+ * only frame a card or a row, and the few that change something (theme, an API
+ * key, two-factor authentication) leave the account in a state the run can live
  * with, because settings is the last file of the run.
+ *
+ * The cards come from `components/Settings/settingsKit.tsx`: a <section> with an
+ * <h2> in its head band, rows inside (`SettingRow`, a div with `px-3.5`), boxes
+ * of rows (`SettingRows`, a div with `divide-y`). A stacked row puts its wide
+ * control in a sibling below the label, so a row is found from its label by its
+ * own div, never by the label's parent.
+ *
+ * Connect AirTrail, Dawarich and the two wanderer guides need those services
+ * (media.env, see README and fixtures-settings.ts) and fail at their start
+ * without them; every other guide runs on the seed.
  */
 
 const TAB_OF: Record<string, string> = {
@@ -19,8 +34,10 @@ const TAB_OF: Record<string, string> = {
   'settings-map': 'Map',
   'settings-notifications': 'Notifications',
   'settings-integrations': 'Integrations',
+  'settings-plugins': 'Plugins',
   'settings-offline': 'Offline',
   'settings-account': 'Account',
+  'settings-about': 'About',
 }
 
 const guide = (id: string): HelpGuide => {
@@ -31,14 +48,31 @@ const guide = (id: string): HelpGuide => {
 
 const sidebar = (page: Page) => page.locator('nav').filter({ has: page.getByRole('button', { name: 'General' }) }).first()
 /** A settings card by the heading of its section. */
-const section = (page: Page, title: string) =>
-  page.locator('h2').filter({ hasText: title }).first().locator("xpath=ancestor::section[1]")
-/** A field of a section by its label. */
-const field = (page: Page, sectionTitle: string, label: string) =>
-  section(page, sectionTitle).getByText(label, { exact: true }).first().locator('xpath=..')
-const modal = (page: Page) => page.locator('.trek-modal-backdrop').last()
-/** A sub-section headed by an h3 inside a card (the passkeys block under Account). */
+const section = (page: Page, title: string | RegExp) =>
+  page.locator('h2').filter({ hasText: title }).first().locator('xpath=ancestor::section[1]')
+/** The label of a field or a row inside a card. */
+const label = (page: Page, sectionTitle: string | RegExp, text: string) =>
+  section(page, sectionTitle).getByText(text, { exact: true }).first()
+/** A field of a section by its label: the label's own column, as before. */
+const field = (page: Page, sectionTitle: string | RegExp, text: string) => label(page, sectionTitle, text).locator('xpath=..')
+/** A whole row (label, control and whatever the row holds below them) by its label. */
+const row = (page: Page, sectionTitle: string | RegExp, text: string) =>
+  label(page, sectionTitle, text).locator('xpath=ancestor::div[contains(@class,"px-3.5")][1]')
+/** The box of rows a row sits in. */
+const rows = (page: Page, sectionTitle: string | RegExp, text: string) =>
+  label(page, sectionTitle, text).locator('xpath=ancestor::div[contains(@class,"divide-y")][1]')
+/** The line of buttons a card ends with, found by its Save. */
+const buttonRow = (page: Page, sectionTitle: string | RegExp) =>
+  section(page, sectionTitle).getByRole('button', { name: 'Save', exact: true }).locator('xpath=..')
+/** The two fields side by side (address and key) of a connection card, by the address field's id. */
+const fieldPair = (page: Page, inputId: string) => page.locator(`#${inputId}`).locator('xpath=../..')
+const dialog = (page: Page) => page.getByRole('dialog').last()
+/** A sub-section headed by an h2 or h3 inside a card. */
 const subsection = (page: Page, title: string) => page.locator('h2, h3').filter({ hasText: title }).first().locator('xpath=ancestor::section[1]')
+const badge = (page: Page, sectionTitle: string, text: string) => section(page, sectionTitle).getByText(text, { exact: true }).first()
+/** The background check's switch, not the info dot beside its label, which carries the same name. */
+const watchSwitch = (page: Page) =>
+  section(page, /^wanderer$/).locator('button[aria-pressed][aria-label="Check my trails for changes"]')
 
 async function openSettings(page: Page, tab: string): Promise<void> {
   await page.goto('/settings')
@@ -68,24 +102,20 @@ function totp(secretBase32: string): string {
 
 const only = (target: (p: Page) => Locator) => ({ target })
 
+/**
+ * Save, wait for the card to say Connected, then Test connection and wait for
+ * its answer: the order the connect guides tell the reader.
+ */
+async function saveAndTest(page: Page, card: string, connected: string, answer: (p: Page) => Locator): Promise<void> {
+  await section(page, card).getByRole('button', { name: 'Save', exact: true }).click()
+  await expect(badge(page, card, connected)).toBeVisible({ timeout: 30_000 })
+  await section(page, card).getByRole('button', { name: 'Test connection' }).click()
+  await expect(answer(page)).toBeVisible({ timeout: 30_000 })
+  await settle(page)
+}
+
 const SCRIPTS: Record<string, GuideScript> = {
   // ── General ──────────────────────────────────────────────────────────────
-  'language-region': {
-    guide: guide('language-region'),
-    start: opener('settings-display'),
-    steps: [
-      only(p => field(p, 'Language & region', 'Language')),
-      only(p => section(p, 'Language & region')),
-    ],
-  },
-  'travel-map-prefs': {
-    guide: guide('travel-map-prefs'),
-    start: opener('settings-display'),
-    steps: [
-      only(p => field(p, 'Travel & map', 'Always show booking routes').locator('xpath=..')),
-      only(p => field(p, 'Travel & map', 'Blur Booking Codes').locator('xpath=..')),
-    ],
-  },
   startup: {
     guide: guide('startup'),
     start: opener('settings-display'),
@@ -99,6 +129,25 @@ const SCRIPTS: Record<string, GuideScript> = {
     ],
     cleanup: async p => { await section(p, 'Startup').getByRole('button', { name: 'Dashboard', exact: true }).click(); await settle(p) },
   },
+  'language-region': {
+    guide: guide('language-region'),
+    start: opener('settings-display'),
+    steps: [
+      // The chips sit below the label in a stacked row, so the row, not the label's column.
+      only(p => row(p, 'Language & region', 'Language')),
+      only(p => row(p, 'Language & region', 'Place names')),
+      only(p => section(p, 'Language & region')),
+    ],
+  },
+  'travel-map-prefs': {
+    guide: guide('travel-map-prefs'),
+    start: opener('settings-display'),
+    steps: [
+      only(p => row(p, 'Travel & map', 'Open places in')),
+      only(p => row(p, 'Travel & map', 'Always show booking routes')),
+      only(p => row(p, 'Travel & map', 'Explore places on the map')),
+    ],
+  },
 
   // ── Appearance ───────────────────────────────────────────────────────────
   'theme-scheme': {
@@ -106,20 +155,18 @@ const SCRIPTS: Record<string, GuideScript> = {
     start: opener('settings-appearance'),
     steps: [
       {
-        target: p => section(p, 'Theme').getByRole('button', { name: 'Dark', exact: true }).locator('xpath=..'),
+        target: p => section(p, 'Theme').getByRole('group', { name: 'Color Mode' }),
         act: async p => { await section(p, 'Theme').getByRole('button', { name: 'Light', exact: true }).click(); await beat(p, 400) },
       },
       {
-        target: p => section(p, 'Theme').getByText('Color scheme', { exact: true }).locator('xpath=..'),
-        act: async p => { await section(p, 'Theme').getByRole('button', { name: 'Teal', exact: true }).click(); await settle(p) },
+        target: p => row(p, 'Theme', 'Color scheme'),
+        // Custom brings up the accent row the next step is about.
+        act: async p => { await section(p, 'Theme').getByRole('button', { name: 'Custom', exact: true }).click(); await settle(p) },
       },
       {
-        prepare: async p => { await section(p, 'Theme').getByRole('button', { name: 'Custom', exact: true }).click(); await settle(p) },
-        target: p => section(p, 'Theme').getByText('Custom accent', { exact: true }).locator('xpath=..'),
-        act: async p => {
-          await section(p, 'Theme').getByRole('button', { name: 'Teal', exact: true }).click()
-          await settle(p)
-        },
+        target: p => row(p, 'Theme', 'Custom accent'),
+        // One of the preset dots (named by its hex), so the result shows a picked accent.
+        act: async p => { await section(p, 'Theme').locator('button[aria-label^="#"]').nth(2).click(); await settle(p) },
       },
     ],
     cleanup: async p => {
@@ -131,15 +178,16 @@ const SCRIPTS: Record<string, GuideScript> = {
     guide: guide('readability'),
     start: opener('settings-appearance'),
     steps: [
-      only(p => section(p, 'Readability').getByText('Transparency', { exact: true }).first().locator('xpath=../..')),
-      only(p => section(p, 'Readability').getByText('Text size', { exact: true }).first().locator('xpath=../..')),
+      only(p => rows(p, 'Readability', 'Transparency')),
+      only(p => row(p, 'Readability', 'Text size')),
     ],
   },
   'dashboard-widgets': {
     guide: guide('dashboard-widgets'),
     start: opener('settings-appearance'),
     steps: [
-      only(p => section(p, 'Dashboard widgets')),
+      only(p => label(p, 'Dashboard widgets', 'Desktop').locator('xpath=ancestor::section[1]')),
+      only(p => label(p, 'Dashboard widgets', 'Mobile').locator('xpath=ancestor::section[1]')),
       only(p => p.getByRole('button', { name: 'Reset to defaults' })),
     ],
   },
@@ -149,10 +197,15 @@ const SCRIPTS: Record<string, GuideScript> = {
     guide: guide('map-provider'),
     start: opener('settings-map'),
     steps: [
-      only(p => section(p, 'Map').getByText('Map Provider', { exact: true }).locator('xpath=..')),
-      only(p => section(p, 'Map').getByText(/^Map (Style|Template)$/).first().locator('xpath=..')),
-      only(p => section(p, 'Map').getByRole('button', { name: 'Save Map' }).locator('xpath=..')),
+      only(p => row(p, /^Map$/, 'Map Provider')),
+      only(p => section(p, /^Map$/).getByText(/^Map (Style|Template)$/).first().locator('xpath=..')),
+      {
+        // The Mapbox rows only exist with Mapbox GL picked; nothing is saved, the reload in cleanup drops it.
+        prepare: async p => { await section(p, /^Map$/).getByRole('button', { name: /Mapbox GL/ }).click(); await settle(p) },
+        target: p => rows(p, /^Map$/, '3D Buildings & Terrain'),
+      },
     ],
+    cleanup: async p => { await p.reload(); await settle(p) },
   },
 
   // ── Notifications ────────────────────────────────────────────────────────
@@ -160,9 +213,18 @@ const SCRIPTS: Record<string, GuideScript> = {
     guide: guide('notification-channels'),
     start: opener('settings-notifications'),
     steps: [
-      only(p => section(p, 'Ntfy')),
       only(p => section(p, 'Webhook URL')),
-      only(p => page_rows(p)),
+      only(p => section(p, 'Ntfy')),
+      // The per-event matrix is the first card, headed Notifications.
+      only(p => section(p, /^Notifications$/)),
+    ],
+  },
+  'web-push-device': {
+    guide: guide('web-push-device'),
+    start: opener('settings-notifications'),
+    steps: [
+      only(p => section(p, 'Push notifications on this device')),
+      only(p => section(p, /^Notifications$/)),
     ],
   },
 
@@ -172,29 +234,143 @@ const SCRIPTS: Record<string, GuideScript> = {
     start: opener('settings-integrations'),
     steps: [
       only(p => section(p, 'Immich')),
-      only(p => section(p, 'Immich').getByRole('button', { name: 'Test connection' }).locator('xpath=..')),
+      only(p => section(p, 'Immich').getByRole('button', { name: 'Test connection' }).locator('xpath=ancestor::div[contains(@class,"flex-wrap")][1]')),
     ],
+  },
+  'connect-airtrail': {
+    guide: guide('connect-airtrail'),
+    // The account holds the flights first, so Test connection has something to count.
+    start: async p => {
+      await ensureAirtrailFlights()
+      await disconnectAirtrail(p.request)
+      await toggleAddon(p.request, 'airtrail', true)
+      await openSettings(p, 'Integrations')
+      await expect(section(p, 'AirTrail')).toBeVisible({ timeout: 20_000 })
+    },
+    steps: [
+      {
+        target: p => fieldPair(p, 'airtrail-url'),
+        act: async p => {
+          await typeInto(p, p.locator('#airtrail-url'), mediaEnv('HELP_MEDIA_AIRTRAIL_URL'))
+          await typeInto(p, p.locator('#airtrail-key'), mediaEnv('HELP_MEDIA_AIRTRAIL_API_KEY'))
+          await settle(p)
+        },
+      },
+      only(p => rows(p, 'AirTrail', 'Allow self-signed certificates')),
+      {
+        target: p => buttonRow(p, 'AirTrail'),
+        act: p => saveAndTest(p, 'AirTrail', 'Connected', q => q.getByText(/^Connected\. \d+ flights? found$/).first()),
+      },
+    ],
+    cleanup: p => disconnectAirtrail(p.request),
+  },
+  'connect-dawarich': {
+    guide: guide('connect-dawarich'),
+    // The recording first, so Test connection finds the stays of the last 30 days.
+    start: async p => {
+      await ensureDawarichRecording()
+      await disconnectDawarich(p.request)
+      await toggleAddon(p.request, 'dawarich', true)
+      await openSettings(p, 'Integrations')
+      await expect(section(p, 'Dawarich')).toBeVisible({ timeout: 20_000 })
+    },
+    steps: [
+      {
+        target: p => fieldPair(p, 'dawarich-url'),
+        act: async p => {
+          await typeInto(p, p.locator('#dawarich-url'), mediaEnv('HELP_MEDIA_DAWARICH_URL'))
+          await typeInto(p, p.locator('#dawarich-key'), mediaEnv('HELP_MEDIA_DAWARICH_API_KEY'))
+          await settle(p)
+        },
+      },
+      // Both switches stay off: an automatic check would seed suggestions into every later picture.
+      only(p => rows(p, 'Dawarich', 'Check for new stays automatically')),
+      {
+        target: p => buttonRow(p, 'Dawarich'),
+        act: p => saveAndTest(p, 'Dawarich', 'Connected', q => section(q, 'Dawarich').getByText(/^Connected\. \d+ stays? found in the last 30 days\.$/).first()),
+      },
+    ],
+    cleanup: p => disconnectDawarich(p.request),
+  },
+  'tour-connect-wanderer': {
+    guide: guide('tour-connect-wanderer'),
+    start: async p => {
+      await allowWanderer(p.request)
+      await openSettings(p, 'Integrations')
+      await expect(section(p, /^wanderer$/)).toBeVisible({ timeout: 20_000 })
+    },
+    steps: [
+      {
+        target: p => fieldPair(p, 'wanderer-url'),
+        act: async p => {
+          await typeInto(p, p.locator('#wanderer-url'), wandererUrl())
+          await typeInto(p, p.locator('#wanderer-token'), wandererToken())
+          await settle(p)
+        },
+      },
+      only(p => row(p, /^wanderer$/, 'Allow a self-signed certificate')),
+      {
+        target: p => buttonRow(p, /^wanderer$/),
+        act: async p => {
+          const card = section(p, /^wanderer$/)
+          await card.getByRole('button', { name: 'Save', exact: true }).click()
+          await expect(card.getByText('Connected', { exact: true }).first()).toBeVisible({ timeout: 30_000 })
+          await card.getByRole('button', { name: 'Test connection' }).click()
+          await expect(card.getByRole('status').getByText(/^Connected\./)).toBeVisible({ timeout: 30_000 })
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: p => disconnectWanderer(p.request),
+  },
+  'tour-wanderer-watch': {
+    guide: guide('tour-wanderer-watch'),
+    start: async p => {
+      await ensureWandererConnection(p.request)
+      await openSettings(p, 'Integrations')
+      await expect(section(p, /^wanderer$/)).toBeVisible({ timeout: 20_000 })
+    },
+    steps: [
+      {
+        // Found by its switch: the label also holds the info dot, whose hidden text would spoil a text match.
+        target: p => watchSwitch(p).locator('xpath=ancestor::div[contains(@class,"divide-y")][1]'),
+        act: async p => {
+          await watchSwitch(p).click()
+          await expect(p.getByTestId('wanderer-watch-status')).toBeVisible({ timeout: 15_000 })
+          await settle(p)
+        },
+      },
+      only(p => p.getByTestId('wanderer-watch-status')),
+    ],
+    cleanup: p => disconnectWanderer(p.request),
   },
   'api-keys': {
     guide: guide('api-keys'),
     start: opener('settings-integrations'),
     steps: [
       {
-        target: p => section(p, 'API Keys').getByRole('button', { name: 'Create key' }),
-        act: async p => {
+        prepare: async p => {
           await section(p, 'API Keys').getByRole('button', { name: 'Create key' }).click()
-          await expect(modal(p)).toBeVisible()
-          await typeInto(p, modal(p).getByPlaceholder('e.g. Dawarich'), 'Home Assistant')
-          await modal(p).getByRole('button', { name: 'Create', exact: true }).click()
-          await expect(modal(p).getByText('API key created')).toBeVisible({ timeout: 15_000 })
+          await expect(dialog(p).getByText('Create API key')).toBeVisible()
+          await typeInto(p, dialog(p).getByPlaceholder('e.g. Home dashboard'), 'Home Assistant')
+          // A key for a dashboard only needs the trips and their days.
+          for (const area of ['Bookings', 'Accommodation', 'Who is coming', 'Wishlist', 'Totals']) {
+            await dialog(p).getByRole('checkbox', { name: area }).click()
+          }
+          await settle(p)
+        },
+        target: p => dialog(p),
+        act: async p => {
+          await dialog(p).getByRole('button', { name: 'Create', exact: true }).click()
+          await expect(dialog(p).getByText('API key created')).toBeVisible({ timeout: 15_000 })
           await settle(p)
         },
       },
       {
-        target: p => modal(p).locator('> [role="presentation"], > div').first(),
+        target: p => dialog(p),
         act: async p => {
-          await modal(p).getByRole('button', { name: 'Done' }).click()
-          await expect(modal(p)).toHaveCount(0)
+          await dialog(p).getByRole('button', { name: 'Done' }).click()
+          await expect(p.getByRole('dialog')).toHaveCount(0)
           await settle(p)
         },
       },
@@ -204,15 +380,36 @@ const SCRIPTS: Record<string, GuideScript> = {
     guide: guide('mcp-oauth'),
     start: opener('settings-integrations'),
     steps: [
-      only(p => section(p, 'MCP Configuration').getByText('MCP Endpoint', { exact: true }).locator('xpath=..')),
+      only(p => field(p, 'MCP Configuration', 'MCP Endpoint')),
       {
-        prepare: async p => { await section(p, 'MCP Configuration').getByRole('button', { name: 'OAuth 2.1 Clients' }).click(); await settle(p) },
-        target: p => section(p, 'MCP Configuration').getByRole('button', { name: 'New Client' }).locator('xpath=../..'),
+        prepare: async p => {
+          await section(p, 'MCP Configuration').getByRole('button', { name: 'OAuth 2.1 Clients' }).click()
+          await section(p, 'MCP Configuration').getByRole('button', { name: 'New Client' }).click()
+          await expect(dialog(p).getByText('Register OAuth Client')).toBeVisible()
+          await dialog(p).getByRole('button', { name: 'Claude Desktop', exact: true }).click()
+          await settle(p)
+        },
+        target: p => dialog(p),
+        // Registered for real, so the next step has a client row with its two buttons.
+        act: async p => {
+          await dialog(p).getByRole('button', { name: 'Register Client', exact: true }).click()
+          await expect(dialog(p).getByText('Client Registered')).toBeVisible({ timeout: 15_000 })
+          await dialog(p).getByRole('button', { name: 'Done', exact: true }).click()
+          await expect(p.getByRole('dialog')).toHaveCount(0)
+          await settle(p)
+        },
       },
-      {
-        prepare: async p => { await section(p, 'MCP Configuration').getByRole('button', { name: 'API Tokens' }).click(); await settle(p) },
-        target: p => section(p, 'MCP Configuration').getByRole('button', { name: 'Create New Token' }).locator('xpath=../..'),
-      },
+      only(p => section(p, 'MCP Configuration').getByRole('button', { name: 'Rotate Secret' }).first().locator('xpath=ancestor::div[contains(@class,"divide-y")][1]')),
+    ],
+  },
+
+  // ── Plugins ──────────────────────────────────────────────────────────────
+  'plugin-settings': {
+    guide: guide('plugin-settings'),
+    start: opener('settings-plugins'),
+    steps: [
+      only(p => section(p, 'Plugin settings')),
+      only(p => section(p, 'Plugin activity')),
     ],
   },
 
@@ -223,17 +420,25 @@ const SCRIPTS: Record<string, GuideScript> = {
     steps: [
       only(p => section(p, 'What to store offline')),
       only(p => p.getByRole('button', { name: 'Download for offline use' })),
-      only(p => section(p, 'Offline mode').getByRole('button', { name: 'Force offline mode' }).locator('xpath=..')),
+      only(p => row(p, 'Offline mode', 'Force offline mode')),
     ],
   },
   'offline-conflicts': {
     guide: guide('offline-conflicts'),
-    start: opener('settings-offline'),
+    // The conflicts card only exists while a change waits; two are parked in this browser's queue first.
+    start: async p => {
+      await openSettings(p, 'General')
+      await parkOfflineChanges(p)
+      await sidebar(p).getByRole('button', { name: 'Offline', exact: true }).click()
+      await expect(section(p, 'Sync conflicts')).toBeVisible({ timeout: 15_000 })
+      await settle(p)
+    },
     steps: [
-      // The conflicts section only exists while a conflict is open; the cache card shows their count.
-      only(p => section(p, 'Offline cache')),
-      only(p => p.getByRole('button', { name: 'Re-sync now' })),
+      only(p => section(p, 'Sync conflicts').getByRole('button', { name: 'Keep mine' }).locator('xpath=ancestor::div[contains(@class,"divide-y")][1]')),
+      only(p => row(p, 'Sync conflicts', 'When a conflict happens')),
+      only(p => section(p, 'Offline cache').getByRole('button', { name: 'Try again' }).locator('xpath=../..')),
     ],
+    cleanup: async p => { await clearParkedChanges(p); await p.reload(); await settle(p) },
   },
 
   // ── Account ──────────────────────────────────────────────────────────────
@@ -241,7 +446,9 @@ const SCRIPTS: Record<string, GuideScript> = {
     guide: guide('profile'),
     start: opener('settings-account'),
     steps: [
-      only(p => section(p, 'Account').getByText('Username', { exact: true }).first().locator('xpath=../..')),
+      // The identity strip: the picture with its camera, the name and the role.
+      only(p => section(p, 'Account').locator('div[class*="rounded-[14px]"]').first()),
+      only(p => fieldPair(p, 'account-username')),
       only(p => section(p, 'Account').getByRole('button', { name: 'Save Profile' })),
     ],
   },
@@ -249,9 +456,17 @@ const SCRIPTS: Record<string, GuideScript> = {
     guide: guide('password'),
     start: opener('settings-account'),
     steps: [
-      only(p => section(p, 'Change Password').getByPlaceholder('Current password').locator('xpath=../..')),
+      {
+        prepare: async p => {
+          // A few characters, so the checklist shows rules met and rules still open.
+          await typeInto(p, p.locator('#account-new-password'), 'Kyoto2026')
+          await settle(p)
+        },
+        target: p => section(p, 'Change Password'),
+      },
       only(p => section(p, 'Change Password').getByRole('button', { name: 'Update password' })),
     ],
+    cleanup: async p => { await p.reload(); await settle(p) },
   },
   mfa: {
     guide: guide('mfa'),
@@ -277,7 +492,8 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
       {
-        target: p => subsection(p, 'Two-factor authentication (2FA)').getByText('Backup codes').first().locator('xpath=..'),
+        // The whole panel: the codes and the Copy codes, Download TXT and Print / PDF buttons under them.
+        target: p => subsection(p, 'Two-factor authentication (2FA)').getByText('Backup codes', { exact: true }).first().locator('xpath=../..'),
       },
     ],
   },
@@ -285,7 +501,7 @@ const SCRIPTS: Record<string, GuideScript> = {
     guide: guide('passkeys'),
     start: opener('settings-account'),
     steps: [
-      // Passkeys need a secure context; the run is plain http, so this guide has no pictures.
+      // A passkey needs a device prompt the run cannot answer, so this guide has no pictures.
       {},
       {},
     ],
@@ -299,25 +515,28 @@ const SCRIPTS: Record<string, GuideScript> = {
   },
 }
 
-/** The per-event preference rows under the channels. */
-function page_rows(p: Page): Locator {
-  // The per-event matrix is the whole Notifications card in the redesigned tab.
-  return section(p, 'Notifications')
-}
-
 // ── Run ───────────────────────────────────────────────────────────────────────
 
 test.describe.configure({ mode: 'serial' })
 
 const ALL_CONTEXTS = [settingsContext, ...settingsTabContexts]
 
-// The photo-provider sections exist only for providers the admin switched on, and the
-// ntfy and webhook forms only for channels the admin turned on.
+/** Whether this file sideloaded a plugin for the Plugins tab and has to take it away again. */
+let sideloadedPlugin = false
+
+// The photo-provider sections exist only for providers the admin switched on, the ntfy,
+// webhook and push cards only for channels the admin turned on, and the Plugins tab only
+// while a plugin is active.
 test.beforeAll(async ({ request }) => {
   const res = await request.put('/api/admin/addons/immich', { data: { enabled: true } })
   if (!res.ok()) throw new Error(`could not enable the Immich provider: ${res.status()} ${await res.text()}`)
-  const channels = await request.put('/api/auth/app-settings', { data: { notification_channels: 'ntfy,webhook' } })
+  const channels = await request.put('/api/auth/app-settings', { data: { notification_channels: 'ntfy,webhook,push' } })
   if (!channels.ok()) throw new Error(`could not enable the notification channels: ${channels.status()} ${await channels.text()}`)
+  sideloadedPlugin = await ensureActivePlugin(request)
+})
+
+test.afterAll(async ({ request }) => {
+  if (sideloadedPlugin) await removeSideloadedPlugin(request)
 })
 
 test('every registered settings guide has a script, and only those', async () => {

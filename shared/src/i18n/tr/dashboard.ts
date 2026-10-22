@@ -223,5 +223,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'Gün sayısı gereklidir',
   'dashboard.tripChangeNeedsConnection':
     'Tarihleri, gün sayısını, para birimini veya kapak görselini değiştirmek bağlantı gerektirir. Ad, açıklama ve hatırlatıcı çevrimdışı da değiştirilebilir.',
+  'dashboard.ics.enable': 'Takvim aboneliğini etkinleştir',
+  'dashboard.ics.enableHint':
+    'Bağlantıya sahip herkesin oturum açmadan okuyabileceği gizli bir bağlantı oluşturur. Dilediğiniz zaman kapatabilirsiniz.',
+  'dashboard.ics.regenerate': 'Yeniden oluştur',
+  'dashboard.ics.turnOff': 'Kapat',
+  'dashboard.ics.manageHint':
+    'Yeniden oluşturmak yeni bir bağlantı üretir ve eskisini geçersiz kılar. Kapatmak bağlantıyı tamamen devre dışı bırakır.',
+  'dashboard.ics.addGoogle': 'Google Takvim’e ekle',
+  'dashboard.ics.addApple': 'Apple Takvim / Outlook’a ekle',
+  'dashboard.ics.copyManually': 'Veya bağlantıyı elle kopyalayın',
+  'dashboard.ics.pasteFromUrl': '“URL’den” alanına yapıştırın',
 };
 export default dashboard;

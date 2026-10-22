@@ -11,6 +11,8 @@ interface ImpFileStepProps {
   onBack: () => void
   /** Close the whole sheet after a clean import. */
   onDone: () => void
+  /** Files already chosen: what the Tours import found no line in, handed on to the places import. */
+  initialFiles?: readonly File[]
 }
 
 /**
@@ -18,13 +20,16 @@ interface ImpFileStepProps {
  * desktop FileImportModal (placesApi.importGpx / importMapFile), reduced to a
  * tap-to-pick flow.
  */
-export default function ImpFileStep({ planner, onBack, onDone }: ImpFileStepProps) {
+export default function ImpFileStep({ planner, onBack, onDone, initialFiles }: ImpFileStepProps) {
   const { t, toast, tripId, tripActions, pushUndo } = planner
   const inputRef = useRef<HTMLInputElement>(null)
   const {
     files, loading, error, summary, gpxOpts, toggleGpxOpt, kmlOpts, toggleKmlOpt, canEnrich, enrich, setEnrich,
     handleInputChange, handleImport, isGpx, isKml, gpxNoneSelected, kmlNoneSelected, canImport,
-  } = usePlacesFileImport({ tripId, t, toast, loadTrip: tripActions.loadTrip, pushUndo, onDone, variant: 'sheet' })
+  } = usePlacesFileImport({
+    tripId, t, toast, loadTrip: tripActions.loadTrip, pushUndo, onDone, variant: 'sheet',
+    open: initialFiles !== undefined, initialFiles,
+  })
 
   return (
     <>

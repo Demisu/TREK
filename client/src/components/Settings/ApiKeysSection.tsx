@@ -395,7 +395,7 @@ function ApiKeyRow({ apiKey, locale, onDelete }: { apiKey: ApiKey; locale: strin
         </div>
         <p className="m-0 mt-0.5 tabular-nums text-content-faint first-letter:uppercase" style={fs(11.5)}>
           {t('settings.apiKeys.createdAt')} {formatStamp(apiKey.created_at, locale)}
-          {' · '}
+          {', '}
           {apiKey.last_used_at
             ? `${t('settings.apiKeys.usedAt')} ${formatStamp(apiKey.last_used_at, locale)}`
             : t('settings.apiKeys.neverUsed')}

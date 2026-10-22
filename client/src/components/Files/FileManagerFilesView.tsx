@@ -32,7 +32,7 @@ export function FilesView(S: FileManagerState) {
             <p style={{ fontSize: 'calc(10px * var(--fs-scale-caption, 1))', color: 'var(--text-faint)', marginTop: 6, opacity: 0.7 }}>
               {(allowedFileTypes || 'jpg,jpeg,png,gif,webp,heic,pdf,doc,docx,xls,xlsx,txt,csv').toUpperCase().split(',').join(', ')}
             </p>
-            <span className="mt-1.5 inline-block rounded-full bg-surface-card px-2 py-[2px] font-geist font-semibold text-content-faint" style={{ fontSize: 'calc(10px * var(--fs-scale-caption, 1))' }}>Max 50 MB</span>
+            <span className="mt-1.5 inline-block rounded-full bg-surface-card px-2 py-[2px] font-geist font-semibold text-content-faint" style={{ fontSize: 'calc(10px * var(--fs-scale-caption, 1))' }}>{t('files.maxSize', { count: S.maxUploadMb })}</span>
           </>
         )}
       </div>}

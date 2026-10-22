@@ -4,6 +4,7 @@ import { ordinal, short } from '../dates'
 import { SEED_CHAT } from '../screenshots/seed'
 import { seededTrip, ensureCollabFixtures, COLLAB_SPARE_POLL, WHATS_NEXT_STOPS } from './fixtures'
 import { openTrip } from './trip-shared'
+import { MANAGE_NOTE, MANAGE_NOTE_EDIT, ensureManageNote, removeNotes, restoreNoteCategories } from './fixtures-trip-collab'
 import { tripCollabContext, tripCollabGuides } from '../../src/help/contexts/tripCollab'
 import type { HelpGuide } from '../../src/help/types'
 
@@ -15,7 +16,10 @@ import type { HelpGuide } from '../../src/help/types'
  * for the one guide that closes a poll for good, and the two upcoming stops
  * What's Next needs. What a guide writes it takes away again in `cleanup`, with
  * one deliberate exception: a deleted chat message cannot be undeleted, which is
- * why `trip-chat` is the last guide of the screen.
+ * why `trip-chat` is the last guide of the screen. The note `manage-notes` works
+ * on is its own (`fixtures-trip-collab.ts`), written at its start and deleted by
+ * its last step; `note-categories` renames and recolours seeded categories and
+ * puts them back in `cleanup`.
  */
 
 const guide = (id: string): HelpGuide => {
@@ -105,6 +109,31 @@ const hoverMessageAction = (text: string, name: 'Reply' | 'Delete') => async (pa
  * with the title typed into it, the body, and the footer with the buttons.
  */
 const noteDialog = (page: Page) => page.getByRole('dialog').filter({ has: page.getByPlaceholder('Write something...') })
+/** The full view of a note (Expand): a dialog without a text box, holding the note's title. */
+const noteView = (page: Page, title: string) =>
+  page.getByRole('dialog').filter({ hasText: title }).filter({ hasNot: page.getByPlaceholder('Write something...') })
+const categoryDialog = (page: Page) => page.getByRole('dialog').filter({ has: page.getByPlaceholder('New category...') })
+/**
+ * One row of Manage Categories, from the button that carries its name. Tooltip
+ * clones its child instead of wrapping it, so the button's parent is the row
+ * with the dot, the name, the six swatches and the bin.
+ */
+const categoryRow = (page: Page, name: string) =>
+  categoryDialog(page).getByRole('button', { name, exact: true }).locator('xpath=..')
+/** The box a category's name turns into while it is renamed: the dialog's one field without a placeholder. */
+const renameBox = (page: Page) => categoryDialog(page).locator('input:not([placeholder])')
+/** The card's menu is a ContextMenu portal; its items are plain buttons. */
+const noteMenu = (page: Page) => page.getByRole('menu')
+const openNoteMenu = async (page: Page, title: string): Promise<void> => {
+  await noteCard(page, title).getByRole('button', { name: 'More options', exact: true }).click()
+  await expect(noteMenu(page)).toBeVisible()
+  await beat(page, 300)
+}
+/** The Delete note? question: ConfirmDialog has no dialog role, so its panel is found from its heading. */
+const confirmPanel = (page: Page, title: string) =>
+  page.getByRole('heading', { name: title, exact: true }).locator('xpath=ancestor::div[@role="presentation"][1]')
+/** The filter row under the Notes head band: All and one pill per category. */
+const categoryPills = (page: Page) => notesPanel(page).getByRole('button', { name: 'All', exact: true }).locator('xpath=..')
 const pollDialog = (page: Page) => page.getByRole('dialog').filter({ has: page.getByPlaceholder('What should we do?') })
 const linkDialog = (page: Page) => page.getByRole('dialog').filter({ has: page.locator('#collab-link-url') })
 /** A field of an editor with the eyebrow label over it: the box's parent. */
@@ -130,6 +159,13 @@ const start = async (page: Page): Promise<void> => {
 }
 
 const collab = (): string => `/api/trips/${seededTrip().tripId}/collab`
+
+/** A category added in Manage Categories and used by no note is kept in this browser only. */
+const NEW_CATEGORY = 'Food'
+/** The renamed category and the recoloured one; `cleanup` puts both back. */
+const RENAME = { from: 'Ideas', to: 'Bad weather' }
+const RECOLOUR = { category: 'Accommodation', swatch: 'Amber' }
+const FILTER = 'Transport'
 
 async function listOf<T>(page: Page, path: string, key: string): Promise<T[]> {
   const res = await page.request.get(`${collab()}/${path}`)
@@ -220,6 +256,158 @@ const SCRIPTS: Record<string, GuideScript> = {
       },
     ],
     cleanup: page => deleteNote(page, NOTE.title),
+  },
+  'manage-notes': {
+    guide: guide('manage-notes'),
+    start: async page => {
+      await ensureManageNote(page.request)
+      await start(page)
+      await expect(noteCard(page, MANAGE_NOTE.title)).toBeVisible({ timeout: 15_000 })
+    },
+    steps: [
+      {
+        target: page => noteCard(page, MANAGE_NOTE.title).getByRole('button', { name: 'More options', exact: true }),
+        act: async page => {
+          await noteCard(page, MANAGE_NOTE.title).getByRole('button', { name: 'More options', exact: true }).click()
+          await expect(noteMenu(page)).toBeVisible()
+        },
+      },
+      {
+        // The picture is the note opened in full: its text, its Website and Edit at its foot.
+        prepare: async page => {
+          await noteMenu(page).getByRole('button', { name: 'Expand', exact: true }).click()
+          await expect(noteView(page, MANAGE_NOTE.title)).toBeVisible()
+          await settle(page)
+        },
+        target: page => noteView(page, MANAGE_NOTE.title),
+        act: async page => {
+          await noteView(page, MANAGE_NOTE.title).getByRole('button', { name: 'Close', exact: true }).click()
+          await expect(noteView(page, MANAGE_NOTE.title)).toHaveCount(0)
+        },
+      },
+      {
+        // The whole menu, like the other menus of the library: Pin is in it, between Expand and Edit.
+        prepare: page => openNoteMenu(page, MANAGE_NOTE.title),
+        target: noteMenu,
+        hover: async page => { await noteMenu(page).getByRole('button', { name: 'Pin', exact: true }).hover() },
+        act: async page => {
+          await noteMenu(page).getByRole('button', { name: 'Pin', exact: true }).click()
+          await expect(notesPanel(page).getByRole('article').first()).toHaveAttribute('aria-label', MANAGE_NOTE.title, { timeout: 15_000 })
+          await settle(page)
+        },
+      },
+      {
+        prepare: async page => {
+          await openNoteMenu(page, MANAGE_NOTE.title)
+          await noteMenu(page).getByRole('button', { name: 'Edit', exact: true }).click()
+          await expect(noteDialog(page)).toBeVisible()
+          await typeInto(page, noteDialog(page).getByPlaceholder('Write something...'), `${MANAGE_NOTE.content}\n${MANAGE_NOTE_EDIT}`)
+          await beat(page, 300)
+        },
+        target: noteDialog,
+        hover: async page => { await noteDialog(page).getByRole('button', { name: 'Save', exact: true }).hover() },
+        act: async page => {
+          await noteDialog(page).getByRole('button', { name: 'Save', exact: true }).click()
+          await expect(noteDialog(page)).toHaveCount(0, { timeout: 15_000 })
+          await settle(page)
+        },
+      },
+      {
+        prepare: async page => {
+          await openNoteMenu(page, MANAGE_NOTE.title)
+          await noteMenu(page).getByRole('button', { name: 'Delete', exact: true }).click()
+          await expect(confirmPanel(page, 'Delete note?')).toBeVisible()
+          await beat(page, 300)
+        },
+        target: page => confirmPanel(page, 'Delete note?'),
+        hover: async page => { await confirmPanel(page, 'Delete note?').getByRole('button', { name: 'Delete', exact: true }).hover() },
+        act: async page => {
+          await confirmPanel(page, 'Delete note?').getByRole('button', { name: 'Delete', exact: true }).click()
+          await expect(noteCard(page, MANAGE_NOTE.title)).toHaveCount(0, { timeout: 15_000 })
+          await settle(page)
+        },
+      },
+    ],
+    // The last step already deleted it; this is for a run that stopped short.
+    cleanup: page => removeNotes(page.request, MANAGE_NOTE.title),
+  },
+  'note-categories': {
+    guide: guide('note-categories'),
+    start,
+    steps: [
+      {
+        target: page => notesPanel(page).getByRole('button', { name: 'Manage Categories', exact: true }),
+        act: async page => {
+          await notesPanel(page).getByRole('button', { name: 'Manage Categories', exact: true }).click()
+          await expect(categoryDialog(page)).toBeVisible()
+          await settle(page)
+        },
+      },
+      {
+        prepare: page => typeInto(page, categoryDialog(page).getByPlaceholder('New category...'), NEW_CATEGORY),
+        // The box and the plus beside it.
+        target: page => categoryDialog(page).getByPlaceholder('New category...').locator('xpath=..'),
+        act: async page => {
+          await categoryDialog(page).getByRole('button', { name: 'New category...', exact: true }).click()
+          await expect(categoryRow(page, NEW_CATEGORY)).toBeVisible()
+          await settle(page)
+        },
+      },
+      {
+        // The name turns into a box on a click; the picture shows the new name typed into it.
+        prepare: async page => {
+          await categoryDialog(page).getByRole('button', { name: RENAME.from, exact: true }).click()
+          await expect(renameBox(page)).toBeFocused()
+          await typeInto(page, renameBox(page), RENAME.to)
+          await beat(page, 300)
+        },
+        target: page => renameBox(page).locator('xpath=..'),
+        // Hovering the row would be harmless, but a click elsewhere would blur the box and save early.
+        hover: async page => { await renameBox(page).hover() },
+        act: async page => {
+          await renameBox(page).press('Enter')
+          await expect(categoryRow(page, RENAME.to)).toBeVisible()
+          await settle(page)
+        },
+      },
+      {
+        // Another category than the renamed one: a rename and a new colour on the
+        // same category in one Save keep only the name (see the bug list).
+        prepare: async page => {
+          await categoryRow(page, RECOLOUR.category).getByRole('button', { name: RECOLOUR.swatch, exact: true }).click()
+          await expect(categoryRow(page, RECOLOUR.category).getByRole('button', { name: RECOLOUR.swatch, exact: true })).toHaveAttribute('aria-pressed', 'true')
+          await beat(page, 300)
+        },
+        target: page => categoryRow(page, RECOLOUR.category),
+        hover: async page => { await categoryRow(page, RECOLOUR.category).getByRole('button', { name: RECOLOUR.swatch, exact: true }).hover() },
+      },
+      {
+        target: page => categoryDialog(page).getByRole('button', { name: 'Save', exact: true }),
+        act: async page => {
+          await categoryDialog(page).getByRole('button', { name: 'Save', exact: true }).click()
+          await expect(categoryDialog(page)).toHaveCount(0, { timeout: 15_000 })
+          await expect(categoryPills(page).getByRole('button', { name: RENAME.to, exact: true })).toBeVisible({ timeout: 15_000 })
+          await settle(page)
+        },
+      },
+      {
+        target: categoryPills,
+        hover: async page => { await categoryPills(page).getByRole('button', { name: FILTER, exact: true }).hover() },
+        act: async page => {
+          await categoryPills(page).getByRole('button', { name: FILTER, exact: true }).click()
+          await expect(categoryPills(page).getByRole('button', { name: FILTER, exact: true })).toHaveAttribute('aria-pressed', 'true')
+          await expect(notesPanel(page).getByRole('article')).toHaveCount(1)
+          await settle(page)
+        },
+      },
+    ],
+    cleanup: async page => {
+      await restoreNoteCategories(page.request)
+      // The added category has no note, so it was only ever kept in this browser.
+      await page.evaluate(id => {
+        try { localStorage.removeItem(`collab-cats-${id}`) } catch { /* nothing was kept */ }
+      }, seededTrip().tripId)
+    },
   },
   'shared-links': {
     guide: guide('shared-links'),

@@ -70,5 +70,8 @@ const files: TranslationStrings = {
     'Diese Verknüpfung lässt sich nur mit Verbindung entfernen. Versuch es noch einmal, sobald TREK wieder online ist.',
   'files.placeFilesNeedConnection':
     'Dateien brauchen zum Hochladen eine Verbindung. Entferne die neuen, um den Ort offline zu speichern, oder speichere, sobald du wieder online bist.',
+  'files.maxSize': 'Max. {count} MB',
+  'files.maxSize.one': 'Max. {count} MB',
+  'files.toast.starError': 'Der Stern konnte nicht geändert werden',
 };
 export default files;

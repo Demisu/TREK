@@ -1,7 +1,11 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
-import { captureGuide, captureHero, settle, PICTURE_DAY, VIEWPORT, type GuideScript } from './guide'
+import { captureGuide, captureHero, settle, dragLoop, nudgeClock, VIEWPORT, type GuideScript } from './guide'
 import { seededTrip, ensureRoadtripFixtures } from './fixtures'
 import { openTrip, modal, dialog } from './trip-shared'
+import {
+  FERRY, FUEL_STOP, GOOGLE_ROUTE, HAZARD_TITLE, assignmentsOn, ensureFerry, ensureFuelStop, hideHazards, overnightFlight, placeIdOf,
+  removeFerry, removeFuelStop, removeImportedStops, removeNightAt, restoreFlight, stubGooglePreview, stubHazards,
+} from './fixtures-trip-roadtrip'
 import { tripRoadtripContext, tripRoadtripGuides } from '../../src/help/contexts/tripRoadtrip'
 import type { HelpGuide } from '../../src/help/types'
 
@@ -9,7 +13,9 @@ import type { HelpGuide } from '../../src/help/types'
  * Actions for road trip mode, keyed by the ids in
  * `src/help/contexts/tripRoadtrip.ts`. They run on the seeded "Autumn in
  * Japan" with the Road trip addon switched on, one long drive out of Tokyo on
- * day 4 and one imported track on day 7 (`ensureRoadtripFixtures`). What a
+ * day 4 and one imported track on day 7 (`ensureRoadtripFixtures`). A few
+ * guides bring their own extra (a fuel stop, a ferry, the answers of Google's
+ * preview and of the warning feeds), from `fixtures-trip-roadtrip.ts`. What a
  * guide writes it takes away again in `cleanup`, and `test.afterAll` switches
  * the addon off again: it is an instance-wide setting, and while it is on
  * every trip's left column grows a switch the other screens never show.
@@ -24,11 +30,15 @@ const guide = (id: string): HelpGuide => {
 // ── Where things are ──────────────────────────────────────────────────────────
 
 const rail = (page: Page) => page.locator('.roadtrip-rail-scroll')
-/** A day's card by the number in its heading: the rail leaves out days with nothing on them. */
+/**
+ * A day's card by its head band, which is the fold control and carries the day's
+ * name as its label ("Day 2"): the rail leaves out days with nothing on them. Not
+ * by the heading inside it, which sits inside that role=button band.
+ */
 const dayCard = (page: Page, day: number) =>
   rail(page)
     .locator('> section')
-    .filter({ has: page.getByRole('heading', { name: `Day ${day}`, exact: true }) })
+    .filter({ has: page.locator(`header[aria-label="Day ${day}"]`) })
     .first()
 /**
  * One stop's row and everything hanging off it. The kind disc sits inside the
@@ -49,8 +59,27 @@ const dayPicker = (page: Page) => corridor(page).getByRole('button', { name: /^D
 /** The list a dropdown opens; only one is open at a time. */
 const openList = (page: Page) => corridor(page).locator('div[role="listbox"]')
 const settingsCard = (page: Page) => page.getByRole('button', { name: /^Driving settings/ })
+/** Which of day 4's drive bands is its longest leg; worked out by `aimAtLongLeg`. */
+let altLeg = 0
 /** The drive band of day 4's long leg, the one with more than one road to it. */
-const altBand = (page: Page) => dayCard(page, 4).getByRole('button', { name: /Other ways$/ }).first()
+const altBand = (page: Page) => dayCard(page, 4).getByRole('button', { name: /Other ways$/ }).nth(altLeg)
+
+/**
+ * Pick day 4's longest leg by the distance its band reads. Not simply the first
+ * band: which leg comes first depends on what else the day holds (a timed stop,
+ * the hotel the day starts from), and a short hop inside Hakone has one sensible
+ * road, so the bar would only say that.
+ */
+async function aimAtLongLeg(page: Page): Promise<void> {
+  const names = await dayCard(page, 4)
+    .getByRole('button', { name: /Other ways$/ })
+    .evaluateAll(els => els.map(el => `${el.getAttribute('aria-label') ?? ''} ${el.textContent ?? ''}`))
+  const km = names.map(name => {
+    const m = /([\d.,]+)\s*km/.exec(name)
+    return m ? Number(m[1].replace(/,/g, '')) : 0
+  })
+  altLeg = km.reduce((best, value, i) => (value > km[best] ? i : best), 0)
+}
 /** The alternatives bar floats over the map, inside neither column. */
 const altBar = (page: Page) => page.getByText('Ways to drive this leg').locator('xpath=ancestor::div[2]')
 /** The refuel band belongs to no stop: it runs across the rail between two of them. */
@@ -58,6 +87,31 @@ const dryBand = (page: Page) => page.getByText('Tank runs out here').first().loc
 const addFuelStop = (page: Page) => dryBand(page).getByRole('button', { name: /as a fuel stop$/ }).first()
 /** A via handle is the one marker Leaflet drags itself; the corridor pins use HTML5 drag. */
 const viaHandle = (page: Page) => page.locator('.leaflet-marker-icon.leaflet-marker-draggable').first()
+/** The Search button's card: Looking for, the day, Within, Search and Manual. */
+const searchCard = (page: Page) => corridor(page).getByRole('button', { name: 'Search', exact: true }).locator('xpath=../..')
+/** A hotel hit: its add button is the bed, Add as an overnight stay. */
+const nightButton = (page: Page) =>
+  corridor(page).getByRole('button', { name: 'Add as an overnight stay', exact: true }).first()
+const nightRow = (page: Page) =>
+  corridor(page)
+    .getByRole('listitem')
+    .filter({ has: page.getByRole('button', { name: 'Add as an overnight stay', exact: true }) })
+    .first()
+/**
+ * The battery badge of a refuelling stop. It has no label of its own: its name
+ * is its figure, "80 %", or the "+" it shows while nothing says how full.
+ */
+const fillBadge = (page: Page, name: string) => stopItem(page, name).getByRole('button', { name: /^(\d+ %|\+)$/ })
+const fillPopover = (page: Page) => page.getByRole('dialog', { name: 'Fills to' })
+/** A booked ride is a card button in the chain, named by its title first. */
+const rideCard = (page: Page) => rail(page).getByRole('button', { name: /^Lake Ashi cruise/ }).first()
+/** The check-in pill of a ride card: the timetable's chips are pills of the same shape. */
+const checkInPill = (page: Page) => rideCard(page).locator('span.rounded-full').filter({ hasText: /Check-in|Boarding/ }).last()
+/** CustomSelect drops its options into a fixed portal on the body. */
+const selectMenu = (page: Page) => page.locator('body > div[style*="99999"]').last()
+/** A warning area drawn by the hazard layer, in the warning colour. */
+const hazardArea = (page: Page) => page.locator('.leaflet-overlay-pane path[stroke="var(--warning)"]').first()
+const hazardPopup = (page: Page) => page.locator('.leaflet-popup.trek-hazard-popup')
 
 // ── Getting there ─────────────────────────────────────────────────────────────
 
@@ -100,14 +154,14 @@ async function frameOnStop(page: Page, name: string): Promise<void> {
 
 /**
  * Let the map's pan to a picked place land. Leaflet times its pan from
- * `+new Date()`, and the clock is pinned to the picture day (`PICTURE_DAY`), so
+ * `+new Date()`, and the clock is pinned to the picture day (guide.ts), so
  * the pan starts and never gets anywhere: the map stays where it was. Moving the
  * pinned clock a few seconds on ends it on the next frame, as a second passing
  * would; nothing in these pictures reads the time to the second.
  */
 async function finishMapPan(page: Page): Promise<void> {
   await page.waitForTimeout(400)
-  await page.clock.setFixedTime(new Date(PICTURE_DAY.getTime() + 5_000))
+  await nudgeClock(page)
   await page.waitForTimeout(1200)
   await settle(page)
 }
@@ -126,6 +180,13 @@ type RoutePoint = { leg: number; x: number; y: number }
  * Points that really lie on a drawn leg, with nothing over them. A bounding-box
  * centre is no use here: a route is a curve, its box is mostly empty space, and
  * what sits in the middle of it is usually somebody else's pin.
+ *
+ * The drawn casing is not what takes the click: it is non-interactive, and an
+ * invisible band over the same line (`RouteHitBand`, a transparent stroke with
+ * the class `cursor-copy`) catches it instead. So the point is read off the
+ * casing, which is the line the reader sees and the one the ring sits on, and
+ * the hit test asks for the band of that same leg. Both are drawn from the same
+ * positions, so their `d` is the same string.
  */
 async function routePoints(page: Page): Promise<RoutePoint[]> {
   return page.evaluate(() => {
@@ -137,13 +198,16 @@ async function routePoints(page: Page): Promise<RoutePoint[]> {
       const length = path.getTotalLength()
       const ctm = path.getScreenCTM()
       if (!ctm || length < 24) return
+      const d = path.getAttribute('d')
       for (let f = 0.08; f <= 0.92; f += 0.02) {
         const at = path.getPointAtLength(length * f)
         const x = Math.round(ctm.a * at.x + ctm.c * at.y + ctm.e)
         const y = Math.round(ctm.b * at.x + ctm.d * at.y + ctm.f)
         // The two panels float over the map; a point under one of them is not clickable.
         if (x < 430 || x > 1550 || y < 220 || y > 950) continue
-        if (document.elementFromPoint(x, y) === path) found.push({ leg, x, y })
+        const hit = document.elementFromPoint(x, y)
+        const ownBand = hit instanceof SVGPathElement && hit.classList.contains('cursor-copy') && hit.getAttribute('d') === d
+        if (hit === path || ownBand) found.push({ leg, x, y })
       }
     })
     return found
@@ -158,11 +222,16 @@ let viaDayId = 0
 /** Names of what a guide created, read back by its cleanup. */
 let addedStop = ''
 let refuelStop = ''
+let nightStop = ''
 
 /** The leg with the most reachable points: the one worth clicking and worth a picture. */
 async function aimAtLeg(page: Page): Promise<void> {
   const points = await routePoints(page)
-  if (points.length === 0) throw new Error('no drawn leg is reachable on the map')
+  if (points.length === 0) {
+    const legs = await page.locator('.leaflet-overlay-pane svg path[stroke="#0a5cc2"]').count()
+    const bands = await page.locator('.leaflet-overlay-pane svg path.cursor-copy').count()
+    throw new Error(`no drawn leg is reachable on the map (${legs} drawn legs, ${bands} click bands)`)
+  }
   const counts = new Map<number, number>()
   for (const point of points) counts.set(point.leg, (counts.get(point.leg) ?? 0) + 1)
   const best = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]
@@ -176,6 +245,86 @@ const aimedLine = (page: Page) => page.locator('.leaflet-overlay-pane svg path[s
 /** The pointer goes on the line, not on the centre of the box around it. */
 const hoverAimedLine = async (page: Page): Promise<void> => {
   await page.mouse.move(aimedAt.x, aimedAt.y)
+}
+
+/** Where on the warning area a click lands on the area itself, clear of the panels and the route. */
+let hazardAt = { x: 0, y: 0 }
+async function aimAtHazard(page: Page): Promise<void> {
+  const aim = await page.evaluate(() => {
+    const paths = document.querySelectorAll<SVGPathElement>('.leaflet-overlay-pane path[stroke="var(--warning)"]')
+    const path = paths[0]
+    if (!path) return { point: null, why: 'no warning area is drawn' }
+    // The stub answers with one storm. More than one area means the live feed
+    // got through, and its first area is anywhere but over the drive.
+    if (paths.length > 1) return { point: null, why: `${paths.length} warning areas are drawn, so the feed was not stubbed` }
+    const box = path.getBoundingClientRect()
+    const found: { x: number; y: number }[] = []
+    for (let y = box.top + 8; y < box.bottom - 8; y += 12) {
+      for (let x = box.left + 8; x < box.right - 8; x += 12) {
+        if (x < 430 || x > 1550 || y < 220 || y > 950) continue
+        if (document.elementFromPoint(x, y) === path) found.push({ x: Math.round(x), y: Math.round(y) })
+      }
+    }
+    // Said in the error when nothing is found, so the log tells a map framed
+    // elsewhere from an area something else is lying on.
+    const top = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)
+    const why = `area at ${Math.round(box.left)},${Math.round(box.top)} ${Math.round(box.width)}x${Math.round(box.height)}, ` +
+      `on top at its centre: ${top ? `${top.tagName.toLowerCase()}.${String(top.getAttribute('class') ?? '')}` : 'nothing'}`
+    return { point: found[Math.floor(found.length / 2)] ?? null, why }
+  })
+  if (!aim.point) throw new Error(`no part of the warning area is reachable on the map (${aim.why})`)
+  hazardAt = aim.point
+}
+
+/** Hold the loop's last frame a moment, on the state the gesture left. */
+async function holdResult(page: Page, frame: () => Promise<void>): Promise<void> {
+  await settle(page)
+  await frame()
+  await frame()
+}
+
+// ── Day 4 as the fixtures left it, for the guide that moves its stops ─────────
+
+let day4Order: number[] = []
+
+async function placeOrder(page: Page, dayIndex: number): Promise<number[]> {
+  return (await assignmentsOn(page.request, dayIndex)).map(a => a.place_id)
+}
+
+/** Whether `first` comes before `second` among the day's stops. */
+async function before(page: Page, dayIndex: number, first: string, second: string): Promise<boolean> {
+  const order = await placeOrder(page, dayIndex)
+  const a = order.indexOf((await placeIdOf(page.request, first)) ?? -1)
+  const b = order.indexOf((await placeIdOf(page.request, second)) ?? -1)
+  return a >= 0 && b >= 0 && a < b
+}
+
+/**
+ * Every stop the guide pushed to another day back on day 4, and day 4 back in
+ * the order it had. Whichever stop went: the guide moves one, and a run that
+ * broke halfway must not leave it on the other day for the next guides.
+ */
+async function restoreDay4(page: Page): Promise<void> {
+  const { tripId, dayIds } = seededTrip()
+  const onDay4 = await placeOrder(page, 3)
+  for (const placeId of day4Order.filter(id => !onDay4.includes(id))) {
+    for (let i = 0; i < dayIds.length; i++) {
+      if (i === 3) continue
+      const moved = (await assignmentsOn(page.request, i)).find(a => a.place_id === placeId)
+      if (!moved) continue
+      await page.request.put(`/api/trips/${tripId}/assignments/${moved.id}/move`, {
+        data: { new_day_id: dayIds[3], order_index: null },
+      })
+      break
+    }
+  }
+  const day4 = await assignmentsOn(page.request, 3)
+  const rank = (placeId: number) => {
+    const i = day4Order.indexOf(placeId)
+    return i === -1 ? day4Order.length : i
+  }
+  const orderedIds = [...day4].sort((a, b) => rank(a.place_id) - rank(b.place_id)).map(a => a.id)
+  await page.request.put(`/api/trips/${tripId}/days/${dayIds[3]}/assignments/reorder`, { data: { orderedIds } })
 }
 
 // ── What the guides write, and how it is taken back ───────────────────────────
@@ -321,9 +470,13 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
       {
-        target: p => stopItem(p, 'Shibuya Crossing').getByRole('button', { name: /^Time at this stop/ }),
+        // Hakone Shrine, not a seeded stop: every seeded visit has an end time
+        // from the day plan, and a stop with one opens the read-only "until"
+        // version of the dialog, which has no slider and no Save. The drive's
+        // own fixture places carry no times, so the badge is the plus of Add a stay.
+        target: p => stopItem(p, 'Hakone Shrine').getByRole('button', { name: /^(Time at this stop|Add a stay)/ }),
         act: async p => {
-          await stopItem(p, 'Shibuya Crossing').getByRole('button', { name: /^Time at this stop/ }).click()
+          await stopItem(p, 'Hakone Shrine').getByRole('button', { name: /^(Time at this stop|Add a stay)/ }).click()
           await expect(modal(p).getByRole('heading', { name: 'Time at this stop' })).toBeVisible()
           await settle(p)
         },
@@ -335,15 +488,65 @@ const SCRIPTS: Record<string, GuideScript> = {
           await expect(modal(p).getByRole('slider', { name: 'Minutes' })).toHaveValue('60')
           await modal(p).getByRole('button', { name: 'Save', exact: true }).click()
           await expect(modal(p)).toHaveCount(0)
-          await expect(stopItem(p, 'Shibuya Crossing')).toContainText('1 h', { timeout: 20_000 })
+          await expect(stopItem(p, 'Hakone Shrine')).toContainText('1 h', { timeout: 20_000 })
           await settle(p)
         },
       },
     ],
     cleanup: async p => {
-      await restorePlace(p, 'Shibuya Crossing', { duration_minutes: 45 })
+      // Zero, not null: the update folds a null into "leave it alone".
+      await restorePlace(p, 'Hakone Shrine', { duration_minutes: 0 })
       await restorePlace(p, 'Meiji Jingu', { stop_type: null })
     },
+  },
+  'roadtrip-reorder': {
+    guide: guide('roadtrip-reorder'),
+    start: async p => {
+      day4Order = await placeOrder(p, 3)
+      await openRoadtrip(p)
+    },
+    steps: [
+      {
+        // Hakone Shrine onto Shinjuku Gyoen: the shrine moves up beside
+        // Owakudani, and the day stops driving to Tokyo and back.
+        target: p => stopItem(p, 'Hakone Shrine'),
+        dropTo: p => stopItem(p, 'Shinjuku Gyoen'),
+        clip: async (p, frame) => {
+          await dragLoop(p, stopItem(p, 'Hakone Shrine'), stopItem(p, 'Shinjuku Gyoen'), frame)
+          await expect.poll(() => before(p, 3, 'Hakone Shrine', 'Shinjuku Gyoen'), { timeout: 20_000 }).toBe(true)
+          await holdResult(p, frame)
+        },
+      },
+      {
+        // Onto the Open-Air Museum on day 3, the Hakone day the card just above:
+        // the shrine on Lake Ashi joins the lake and the museum. A day close by,
+        // and not Tokyo's day 2: the picture centres the stop it picks up in the
+        // rail, whatever a prepare scrolled to before, and with day 3 and the
+        // head of day 4 between them day 2 then lies above the rail's window, so
+        // the pointer let go off the rail and nothing moved.
+        target: p => stopItem(p, 'Hakone Shrine'),
+        dropTo: p => stopItem(p, 'Hakone Open-Air Museum'),
+        clip: async (p, frame) => {
+          await dragLoop(p, stopItem(p, 'Hakone Shrine'), stopItem(p, 'Hakone Open-Air Museum'), frame)
+          const shrine = await placeIdOf(p.request, 'Hakone Shrine')
+          await expect.poll(async () => (await placeOrder(p, 2)).includes(shrine ?? -1), { timeout: 20_000 }).toBe(true)
+          await expect(dayCard(p, 3)).toContainText('Hakone Shrine', { timeout: 30_000 })
+          await holdResult(p, frame)
+        },
+      },
+      {
+        // Day 4 is Owakudani and Shinjuku Gyoen now; Alt and up puts the garden
+        // first, and the day drives out of Tokyo to the valley.
+        target: p => stopRow(p, 'Shinjuku Gyoen'),
+        act: async p => {
+          await stopRow(p, 'Shinjuku Gyoen').focus()
+          await p.keyboard.press('Alt+ArrowUp')
+          await expect.poll(() => before(p, 3, 'Shinjuku Gyoen', 'Owakudani'), { timeout: 20_000 }).toBe(true)
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: restoreDay4,
   },
   'roadtrip-corridor': {
     guide: guide('roadtrip-corridor'),
@@ -418,6 +621,74 @@ const SCRIPTS: Record<string, GuideScript> = {
       },
     ],
     cleanup: p => deleteByName(p, addedStop),
+  },
+  'roadtrip-overnight': {
+    guide: guide('roadtrip-overnight'),
+    start: async p => {
+      nightStop = ''
+      await openRoadtrip(p)
+    },
+    steps: [
+      {
+        target: searchCard,
+        act: async p => {
+          // Accommodation on its own: the panel opens on Fuel for a petrol car,
+          // so Accommodation is ticked first and Fuel taken off after it (the
+          // trigger is only named "Looking for: ..." while something is ticked).
+          await kindPicker(p).click()
+          await expect(openList(p)).toBeVisible()
+          await openList(p).getByRole('option', { name: 'Accommodation' }).click()
+          const fuel = openList(p).getByRole('option', { name: 'Fuel' })
+          if ((await fuel.getAttribute('aria-selected')) === 'true') await fuel.click()
+          await kindPicker(p).click()
+          await expect(openList(p)).toHaveCount(0)
+          await expect(kindPicker(p)).toHaveAccessibleName('Looking for: Accommodation')
+          // Day 4 ends in Hakone, where the inns are.
+          await dayPicker(p).click()
+          await openList(p).getByRole('option', { name: /\bDay 4$/ }).click()
+          await expect(dayPicker(p)).toContainText('Day 4')
+          await corridor(p).getByRole('button', { name: 'Search', exact: true }).click()
+          await expect(nightButton(p)).toBeVisible({ timeout: 180_000 })
+          await settle(p)
+        },
+      },
+      {
+        prepare: async p => {
+          nightStop = (await nightRow(p).innerText()).split('\n')[0] ?? ''
+          await nightRow(p).hover()
+          await settle(p)
+        },
+        target: nightButton,
+        act: async p => {
+          await nightButton(p).click()
+          await expect(modal(p).getByRole('heading', { name: 'Add as a stop' })).toBeVisible({ timeout: 30_000 })
+          await settle(p)
+        },
+      },
+      {
+        // Left on Overnight, which is what a hotel opens on.
+        target: p => modal(p).getByRole('group', { name: 'Kind of stop' }),
+        act: async p => {
+          await expect(modal(p).getByRole('button', { name: 'Overnight', exact: true })).toHaveAttribute('aria-pressed', 'true')
+        },
+      },
+      only(p => dialog(p).locator('aside').filter({ hasText: 'Find accommodation' })),
+      {
+        target: p => modal(p).getByRole('button', { name: 'Add', exact: true }),
+        act: async p => {
+          await modal(p).getByRole('button', { name: 'Add', exact: true }).click()
+          await expect(modal(p)).toHaveCount(0, { timeout: 30_000 })
+          await expect
+            .poll(async () => (await listPlaces(p)).some(x => x.name === nightStop), { timeout: 30_000 })
+            .toBe(true)
+          await expect(rail(p).getByText(nightStop).first()).toBeVisible({ timeout: 30_000 })
+          await rail(p).getByText(nightStop).first().scrollIntoViewIfNeeded()
+          await settle(p)
+        },
+      },
+    ],
+    // The stay goes first, with the booking it brought, then the place.
+    cleanup: p => removeNightAt(p.request, nightStop),
   },
   'roadtrip-via': {
     guide: guide('roadtrip-via'),
@@ -494,13 +765,23 @@ const SCRIPTS: Record<string, GuideScript> = {
     start: openRoadtrip,
     steps: [
       {
-        // Day 4's drive out of Tokyo, not a city leg: for three kilometres across
-        // Shibuya the router knows one sensible way, and the bar says only that.
+        // Day 4's long drive between Tokyo and Hakone, not a city leg: for three
+        // kilometres across Shibuya the router knows one sensible way, and the
+        // bar says only that.
+        prepare: aimAtLongLeg,
         target: altBand,
         act: async p => {
           await altBand(p).click()
           await expect(p.getByText('Ways to drive this leg')).toBeVisible({ timeout: 60_000 })
           await expect(p.getByText('Asking the router…')).toHaveCount(0, { timeout: 60_000 })
+          // Both are answers of the public routers, not of this script; said
+          // outright, so a run on a day they will not help reads as that.
+          if (await p.getByText('The router is not answering right now.').isVisible()) {
+            throw new Error('the alternatives router did not answer (OSRM demo or public Valhalla)')
+          }
+          if (await p.getByText('Only one sensible way to drive this one.').isVisible()) {
+            throw new Error(`the router offered one way only for day 4's leg ${altLeg + 1}`)
+          }
           await expect(altBar(p).getByRole('button', { name: /km/ }).nth(1)).toBeVisible({ timeout: 60_000 })
           await settle(p)
         },
@@ -681,6 +962,74 @@ const SCRIPTS: Record<string, GuideScript> = {
     ],
     cleanup: p => deleteByName(p, refuelStop),
   },
+  'roadtrip-stop-fill': {
+    guide: guide('roadtrip-stop-fill'),
+    start: async p => {
+      await ensureFuelStop(p.request)
+      await openRoadtrip(p)
+    },
+    steps: [
+      {
+        // Faint "80 %": the stop follows the trip's Fill up to.
+        target: p => fillBadge(p, FUEL_STOP.name),
+        act: async p => {
+          await fillBadge(p, FUEL_STOP.name).click()
+          await expect(fillPopover(p)).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        target: fillPopover,
+        act: async p => {
+          await fillPopover(p).getByRole('button', { name: '100', exact: true }).click()
+          await expect(fillPopover(p)).toHaveCount(0)
+          await expect(stopItem(p, FUEL_STOP.name)).toContainText('100 %', { timeout: 20_000 })
+          await settle(p)
+        },
+      },
+      {
+        prepare: async p => {
+          await fillBadge(p, FUEL_STOP.name).click()
+          await expect(fillPopover(p)).toBeVisible()
+          await settle(p)
+        },
+        target: p => fillPopover(p).getByRole('button', { name: /^Use my default/ }),
+        act: async p => {
+          await fillPopover(p).getByRole('button', { name: /^Use my default/ }).click()
+          await expect(fillPopover(p)).toHaveCount(0)
+          await expect(stopItem(p, FUEL_STOP.name)).toContainText('80 %', { timeout: 20_000 })
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: p => removeFuelStop(p.request),
+  },
+  'roadtrip-bookings': {
+    guide: guide('roadtrip-bookings'),
+    start: async p => {
+      await ensureFerry(p.request)
+      await openRoadtrip(p)
+    },
+    steps: [
+      only(p => dayCard(p, 3)),
+      only(rideCard),
+      only(checkInPill),
+      {
+        target: rideCard,
+        act: async p => {
+          await rideCard(p).click()
+          await expect(modal(p)).toContainText(FERRY.title, { timeout: 15_000 })
+          await settle(p)
+          await closeModal(p)
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: async p => {
+      await closeModal(p)
+      await removeFerry(p.request)
+    },
+  },
   'roadtrip-track': {
     guide: guide('roadtrip-track'),
     start: openRoadtrip,
@@ -726,6 +1075,110 @@ const SCRIPTS: Record<string, GuideScript> = {
       await clearVias(p)
     },
   },
+  'roadtrip-google-import': {
+    guide: guide('roadtrip-google-import'),
+    start: async p => {
+      await stubGooglePreview(p)
+      await openRoadtrip(p)
+    },
+    steps: [
+      {
+        target: p => corridor(p).getByRole('button', { name: 'Import Google Maps route', exact: true }),
+        act: async p => {
+          await corridor(p).getByRole('button', { name: 'Import Google Maps route', exact: true }).click()
+          await p.getByRole('menu').getByRole('button', { name: 'Import Google Maps route' }).click()
+          await expect(modal(p).getByRole('heading', { name: 'Import Google Maps route' })).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        target: p => modal(p).getByRole('textbox', { name: 'Google Maps URL' }),
+        act: async p => {
+          await modal(p).getByRole('textbox', { name: 'Google Maps URL' }).fill(GOOGLE_ROUTE.url)
+          await modal(p).getByRole('button', { name: 'Preview', exact: true }).click()
+          await expect(modal(p).getByRole('list').first()).toContainText('Lake Kawaguchi', { timeout: 30_000 })
+          await settle(p)
+        },
+      },
+      only(p => modal(p).getByRole('list').first()),
+      {
+        target: dialog,
+        act: async p => {
+          // Day 3, the Hakone day: the route goes on round Mount Fuji from there.
+          await modal(p).getByRole('button', { name: /^Day \d+/, expanded: false }).first().click()
+          await expect(selectMenu(p)).toBeVisible()
+          await selectMenu(p).getByRole('button', { name: 'Day 3', exact: true }).click()
+          await expect(modal(p).getByRole('button', { name: /^Day 3/ }).first()).toBeVisible()
+          await modal(p).getByRole('button', { name: 'Import', exact: true }).click()
+          await expect(modal(p)).toHaveCount(0, { timeout: 60_000 })
+          const day3 = async () => {
+            const ids = await placeOrder(p, 2)
+            return Promise.all(['Gotemba Premium Outlets', 'Lake Kawaguchi'].map(async n => ids.includes((await placeIdOf(p.request, n)) ?? -1)))
+          }
+          await expect.poll(async () => (await day3()).every(Boolean), { timeout: 30_000 }).toBe(true)
+          await expect(dayCard(p, 3)).toContainText('Lake Kawaguchi', { timeout: 60_000 })
+          await dayCard(p, 3).scrollIntoViewIfNeeded()
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: async p => {
+      await p.unrouteAll({ behavior: 'ignoreErrors' })
+      await removeImportedStops(p.request)
+    },
+  },
+  'roadtrip-hazards': {
+    guide: guide('roadtrip-hazards'),
+    start: async p => {
+      // The stub sits on the browser context: the service worker fetches the
+      // feed itself, and a page route would let the live warnings through.
+      await stubHazards(p)
+      await openRoadtrip(p)
+    },
+    steps: [
+      {
+        target: settingsCard,
+        act: async p => {
+          await settingsCard(p).click()
+          await expect(modal(p).getByRole('heading', { name: 'Driving settings' })).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        target: p => modal(p).getByText('Current warnings', { exact: true }).locator('xpath=ancestor::section[1]'),
+        act: async p => {
+          const toggle = modal(p).getByRole('button', { name: 'Show hazard areas', exact: true })
+          await toggle.click()
+          await expect(toggle).toHaveAttribute('aria-pressed', 'true')
+          // The footer's Close, not the cross in the head band.
+          await modal(p).getByRole('button', { name: 'Close', exact: true }).last().click()
+          await expect(modal(p)).toHaveCount(0)
+          await expect(hazardArea(p)).toBeAttached({ timeout: 30_000 })
+          // The map stands fitted to the whole trip, where the storm over Hakone
+          // is a small patch near the right column, crossed by the drive and its
+          // pins, and wherever the fit lands decides whether it is reachable at
+          // all. Hakone Shrine lies inside it, so framing on
+          // that stop (the way the via guide brings its leg into view) puts the
+          // area in the middle of the map at the same zoom, outline and all.
+          await frameOnStop(p, 'Hakone Shrine')
+          await aimAtHazard(p)
+        },
+      },
+      {
+        target: hazardArea,
+        hover: async p => { await p.mouse.move(hazardAt.x, hazardAt.y) },
+        act: async p => {
+          await p.mouse.click(hazardAt.x, hazardAt.y)
+          await expect(hazardPopup(p)).toContainText(HAZARD_TITLE, { timeout: 15_000 })
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: async p => {
+      await p.context().unrouteAll({ behavior: 'ignoreErrors' })
+      await hideHazards(p.request)
+    },
+  },
 }
 
 // ── Run ───────────────────────────────────────────────────────────────────────
@@ -734,6 +1187,7 @@ test.describe.configure({ mode: 'serial' })
 
 test.beforeAll(async ({ request }) => {
   await ensureRoadtripFixtures(request)
+  await overnightFlight(request)
 })
 
 test.afterAll(async ({ request }) => {
@@ -741,6 +1195,7 @@ test.afterAll(async ({ request }) => {
   // Days / Road trip switch and every other screen's pictures change. Here
   // rather than in the last guide's cleanup, so a failed run puts it back too.
   await request.put('/api/admin/addons/roadtrip', { data: { enabled: false } })
+  await restoreFlight(request)
 })
 
 test('every registered road trip guide has a script, and only those', async () => {

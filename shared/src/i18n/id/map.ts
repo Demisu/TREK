@@ -37,5 +37,6 @@ const map: TranslationStrings = {
   'map.attribution': 'Kredit peta',
   'map.overview.unrouted': 'Rute untuk {count} ruas tidak dapat dihitung, jadi jaraknya belum lengkap.',
   'map.overview.dayUnrouted': 'Rute untuk {count} ruas pada hari ini tidak dapat dihitung',
+  'map.baseLayer.topo': 'Topografi',
 };
 export default map;

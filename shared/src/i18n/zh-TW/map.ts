@@ -35,5 +35,6 @@ const map: TranslationStrings = {
   'map.attribution': '地圖來源',
   'map.overview.unrouted': '有 {count} 段無法計算路線，因此距離不完整。',
   'map.overview.dayUnrouted': '本日有 {count} 段無法計算路線',
+  'map.baseLayer.topo': '地形圖',
 };
 export default map;

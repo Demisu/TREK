@@ -271,8 +271,8 @@ export default function MSettingsMcp() {
                         {t('settings.mcp.tokenCreatedAt')} {new Date(token.created_at).toLocaleDateString(locale)}
                       </span>
                       {token.last_used_at && (
-                        <span className="ms-1 font-geist">
-                          · {t('settings.mcp.tokenUsedAt')} {new Date(token.last_used_at).toLocaleDateString(locale)}
+                        <span className="font-geist">
+                          , {t('settings.mcp.tokenUsedAt')} {new Date(token.last_used_at).toLocaleDateString(locale)}
                         </span>
                       )}
                     </p>

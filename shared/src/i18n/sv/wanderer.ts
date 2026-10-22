@@ -15,7 +15,7 @@ const wanderer: TranslationStrings = {
   'wanderer.test.button': 'Testa anslutningen',
   'wanderer.test.ok': 'Ansluten.',
   'wanderer.test.okCount': 'Ansluten. Du kan importera {count} av dina leder.',
-  'wanderer.test.okCount.one': 'Ansluten. Du kan importera {count} av dina leder.',
+  'wanderer.test.okCount.one': 'Ansluten. Du kan importera {count} led.',
   'wanderer.disconnect': 'Koppla från',
   'wanderer.saved': 'wanderer-anslutningen sparad',
   'wanderer.disconnected': 'wanderer-anslutningen borttagen',

@@ -69,5 +69,6 @@ const backup: TranslationStrings = {
     'Kõik praegused andmed (reisid, kohad, kasutajad, üleslaaditud failid) asendatakse jäädavalt varukoopiaga. Seda toimingut ei saa tagasi võtta.',
   'backup.restoreTip': 'Vihje: enne taastamist loo praegusest seisust varukoopia.',
   'backup.restoreConfirm': 'Jah, taasta',
+  'backup.auto.hourHintTz': 'Serveri kohalik aeg ({format} vorming), ajavöönd {timezone}',
 };
 export default backup;

@@ -33,5 +33,8 @@ const notifications: TranslationStrings = {
   'notifications.test.tripTitle': '{actor} memposting di perjalananmu',
   'notifications.test.tripText': 'Notifikasi uji untuk perjalanan "{trip}".',
   'notifications.countLabel': 'notifikasi',
+  'notifications.deleteAllConfirmTitle': 'Hapus semua notifikasi?',
+  'notifications.deleteAllConfirmText':
+    'Semua notifikasi dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.',
 };
 export default notifications;

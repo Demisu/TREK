@@ -11,6 +11,12 @@ import HelpDocLink from './HelpDocLink'
 import HelpSizeChip from './HelpSizeChip'
 import { useScreenRoute } from './useScreenRoute'
 
+// A step plays its loop where the guide has one and the system allows motion; the still is the fallback.
+const prefersReducedMotion = (): boolean =>
+  typeof window !== 'undefined' && (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false)
+const stepMedia = (guide: HelpGuide, n: number): string =>
+  guide.media.clips?.includes(n) && !prefersReducedMotion() ? helpMedia.clip(guide.id, n) : helpMedia.step(guide.id, n)
+
 /**
  * One guide, top to bottom: a header card that says where you are and how big
  * the task is, the steps as a numbered rail with a picture each, what the
@@ -79,7 +85,7 @@ export default function HelpGuideView({ guide }: { guide: HelpGuide }): React.Re
           <span className="absolute start-[27px] top-6 bottom-6 w-px bg-edge" aria-hidden="true" />
           {steps.map(n => {
             const text = t(guideStepKey(guide.id, n))
-            const src = helpMedia.step(guide.id, n)
+            const src = stepMedia(guide, n)
             const alt = t('help.center.imageAlt', { n, title })
             return (
               <li

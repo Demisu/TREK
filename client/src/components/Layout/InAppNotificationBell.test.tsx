@@ -164,14 +164,30 @@ describe('InAppNotificationBell', () => {
     expect(markAllRead).toHaveBeenCalled();
   });
 
-  it('FE-COMP-BELL-015: clicking Delete all calls store action', async () => {
+  it('FE-COMP-BELL-015: Delete all asks first and only then calls the store action', async () => {
     const user = userEvent.setup();
     const deleteAll = vi.fn();
     seedStore(useInAppNotificationStore, { notifications: [buildNotification()], unreadCount: 1, isLoading: false, deleteAll });
     render(<InAppNotificationBell />);
     await user.click(screen.getAllByRole('button')[0]);
     await user.click(screen.getByTitle('Delete all'));
+    expect(deleteAll).not.toHaveBeenCalled();
+    expect(screen.getByText('Delete all notifications?')).toBeInTheDocument();
+    // The confirm button is the last one drawn, after the panel's own trash button.
+    await user.click(screen.getAllByRole('button', { name: 'Delete all' }).slice(-1)[0]);
     expect(deleteAll).toHaveBeenCalled();
+  });
+
+  it('FE-COMP-BELL-015b: cancelling the Delete all question keeps the notifications', async () => {
+    const user = userEvent.setup();
+    const deleteAll = vi.fn();
+    seedStore(useInAppNotificationStore, { notifications: [buildNotification()], unreadCount: 1, isLoading: false, deleteAll });
+    render(<InAppNotificationBell />);
+    await user.click(screen.getAllByRole('button')[0]);
+    await user.click(screen.getByTitle('Delete all'));
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(deleteAll).not.toHaveBeenCalled();
+    expect(screen.queryByText('Delete all notifications?')).not.toBeInTheDocument();
   });
 
   it('FE-COMP-BELL-016: Show all notifications navigates to /notifications', async () => {

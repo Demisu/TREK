@@ -195,11 +195,10 @@ describe('PaddleRegionLoadService', () => {
 
   it('PLOAD-006: switched off, or for a demo account, loads nothing and asks nobody', async () => {
     await load.updateSettings({ mode: 'off', max_mb: 500 });
-    expect((await ask(paddler))[0]).toEqual({
-      state: 'unavailable',
-      region: { id: 'oberpfalz', name: 'Oberpfalz' },
-      reason: 'off',
-    });
+    regions.mockClear();
+    expect((await ask(paddler))[0]).toEqual({ state: 'unavailable', region: null, reason: 'off' });
+    // Switched off, Geofabrik is not even asked which region lies around the place.
+    expect(regions).not.toHaveBeenCalled();
     await load.updateSettings({ mode: 'auto', max_mb: 500 });
     vi.spyOn(t?.get(DemoService) as DemoService, 'isDemoUserId').mockResolvedValue(true);
     expect((await ask(paddler))[0]).toMatchObject({ state: 'unavailable', reason: 'off' });

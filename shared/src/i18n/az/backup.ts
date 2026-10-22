@@ -70,6 +70,7 @@ const backup: TranslationStrings = {
     'Bütün cari məlumatlar (səyahətlər, məkanlar, istifadəçilər və yükləmələr) daimi olaraq ehtiyat nüsxədəki məlumatlarla əvəz ediləcək. Bu əməliyyatı geri qaytarmaq mümkün deyil.',
   'backup.restoreTip': 'Məsləhət: Bərpa etməzdən əvvəl cari vəziyyətin ehtiyat nüsxəsini yaradın.',
   'backup.restoreConfirm': 'Bəli, bərpa et',
+  'backup.auto.hourHintTz': 'Serverin yerli vaxtı ({format} formatı), saat qurşağı {timezone}',
 };
 
 export default backup;

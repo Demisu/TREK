@@ -9,8 +9,6 @@ const tours: TranslationStrings = {
   'tours.empty.title': 'Aucune sortie pour le moment',
   'tours.empty.body': 'Planifiez une sortie ou importez un fichier GPX ou KML pour commencer.',
   'tours.addToDay': 'Ajouter à une journée',
-  'tours.addToDay.comingSoon': 'Affectez les sorties à une journée du voyage depuis la liste des sorties.',
-  'tours.addToDay.pickDay': 'Choisir une journée',
   'tours.badge.wanderer': 'wanderer',
   'tours.badge.gpx': 'Import GPX',
   'tours.badge.planned': 'planifiée dans TREK',
@@ -19,7 +17,7 @@ const tours: TranslationStrings = {
   'tours.badgeShort.wanderer': 'wanderer',
   'tours.caution.badge': 'à utiliser avec prudence',
   'tours.caution.tooltip': 'Altitude ou mesures incomplètes : importée avec réserves',
-  'tours.import.caution': 'Importée avec réserves : altitude ou mesures incomplètes',
+  'tours.import.caution': "Importée, mais le fichier ne contient pas de données d'altitude complètes",
   'tours.import.success': '{count} sorties importées',
   'tours.import.success.one': '{count} sortie importée',
   'tours.import.noTrackIn': 'Aucune trace ni aucun itinéraire trouvé dans {name}',
@@ -94,7 +92,6 @@ const tours: TranslationStrings = {
   'tours.detail.maxAltitude': 'Altitude maximale',
   'tours.detail.ascent': 'Dénivelé positif',
   'tours.detail.descent': 'Dénivelé négatif',
-  'tours.detail.source': 'Source',
   'tours.detail.navigationHint':
     "La navigation ouvre le point de départ du sentier ; elle ne vous guide pas le long de l'itinéraire.",
   'tours.planner.title': 'Planifier une sortie',
@@ -168,12 +165,12 @@ const tours: TranslationStrings = {
   'tours.planner.tripTours': 'Sorties de ce voyage',
   'tours.planner.safetyNote': "Le calcul d'itinéraire aide à planifier, mais ne garantit pas la sécurité.",
   'tours.planner.maxDifficulty': 'Difficulté maximale du sentier',
-  'tours.planner.difficulty.t1': 'T1 — Randonnée',
-  'tours.planner.difficulty.t2': 'T2 — Randonnée en montagne',
-  'tours.planner.difficulty.t3': 'T3 — Randonnée en montagne exigeante',
-  'tours.planner.difficulty.t4': 'T4 — Randonnée alpine',
-  'tours.planner.difficulty.t5': 'T5 — Randonnée alpine exigeante',
-  'tours.planner.difficulty.t6': 'T6 — Randonnée alpine difficile',
+  'tours.planner.difficulty.t1': 'T1: Randonnée',
+  'tours.planner.difficulty.t2': 'T2: Randonnée en montagne',
+  'tours.planner.difficulty.t3': 'T3: Randonnée en montagne exigeante',
+  'tours.planner.difficulty.t4': 'T4: Randonnée alpine',
+  'tours.planner.difficulty.t5': 'T5: Randonnée alpine exigeante',
+  'tours.planner.difficulty.t6': 'T6: Randonnée alpine difficile',
   'tours.planner.difficulty.t3Warning':
     'Les itinéraires T3 peuvent comporter des sentiers de montagne exposés ou techniquement exigeants, nécessitant un pied sûr et une bonne tolérance au vide.',
   'tours.planner.difficulty.alpineTitle': "Activer le calcul d'itinéraires alpins ?",
@@ -700,6 +697,12 @@ const tours: TranslationStrings = {
   'tours.gpxExport.shareReady':
     'Le fichier GPX est prêt. Touche Partager encore une fois pour ouvrir le menu de partage.',
   'tours.gpxExport.shareFailed': "Le partage n'a pas fonctionné. Le fichier GPX reste téléchargeable.",
+  'tours.gpxExport.shareTour': 'Partager la sortie',
+  'tours.gpxExport.shareTourSaveFirst': "Enregistrez d'abord la sortie pour la partager",
+  'tours.gpxExport.shareCopied': 'Les détails de la sortie ont été copiés dans le presse-papiers.',
+  'tours.gpxExport.shareCopyFailed': "Les détails de la sortie n'ont pas pu être copiés.",
+  'tours.gpxExport.shareDuration': 'Durée : {time}',
+  'tours.gpxExport.shareTrip': 'Voyage : {name}',
   'tours.revision.remoteTitle': 'Cette sortie a été enregistrée ailleurs',
   'tours.revision.remoteBody':
     'Quelqu’un, ou vous sur un autre appareil, l’a enregistrée pendant votre modification. Vos changements restent jusqu’à votre décision.',
@@ -1524,5 +1527,20 @@ const tours: TranslationStrings = {
   'tours.dayTime.nextItem': 'l’élément suivant',
   'tours.dayTime.formHint': 'Laissée vide, la fin est calculée : {time}, le départ plus la durée de {total}.',
   'tours.dayTime.formNoStart': 'Avec une heure de départ, la fin est calculée à partir de la durée de {total}.',
+  'tours.poi.categoriesLimit':
+    "Vous pouvez chercher jusqu'à {count} types à la fois. Décochez-en un pour en ajouter un autre.",
+  'tours.poi.categoriesLimit.one':
+    "Vous pouvez chercher jusqu'à {count} type à la fois. Décochez-en un pour en ajouter un autre.",
+  'tours.import.fileTooLarge':
+    "Le fichier est trop volumineux. Les fichiers de sortie peuvent peser jusqu'à {maxMb} Mo.",
+  'tours.planner.nothingToSave': "Rien à enregistrer pour l'instant. Modifiez d'abord la sortie.",
+  'tours.detail.openInTours': "Ouvrir dans l'onglet Sorties",
+  'tours.planner.status.routingGeneric': 'Calcul de l’itinéraire…',
+  'tours.planner.emptyHintPlacing':
+    'Cliquez sur la carte pour placer des points. Dès deux points, TREK calcule l’itinéraire.',
+  'tours.ski.drawStraight': 'Tracer en ligne droite',
+  'tours.horse.routes.stale': 'La liste montre la vue que vous avez cherchée. Relancez la recherche pour celle-ci.',
+  'tours.horse.dialog.adoptGapHint':
+    "Comblez d'abord l'écart avec une section manuelle, ou choisissez une section qui commence là où votre balade se termine.",
 };
 export default tours;

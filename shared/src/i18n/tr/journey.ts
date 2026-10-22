@@ -210,7 +210,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX İzleri',
   'journey.settings.recordings': 'Kaydedilen günler',
   'journey.settings.showTripTracks': 'Tüm gezi GPX izlerini göster',
-  'journey.settings.showTripTracksHint': 'Bağlı gezilerdeki kayıtlı rotaları haritaya çizer.',
+  'journey.settings.showTripTracksHint': 'Bağlı gezilerin planlanan rotalarını (GPX izleri) haritada çizer.',
   'journey.settings.autoPrepare': 'Kaydedilen günleri otomatik hazırla',
   'journey.settings.autoPrepareHint':
     "Bağlı bir gezi sürerken Dawarich'teki durakların kendi gününde incelemeni bekler. Kendi bağlantısı olan düzenleyiciler kendi duraklarını alır. Günlüğe kendiliğinden hiçbir şey yazılmaz.",
@@ -893,5 +893,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Yayınlanmış bir girdisi olan günlerde kaydedilmiş günler ve onlardan alınan duraklar. Nerede ve ne zaman olduğunu, konakladığın yeri de gösterir.',
   'journey.share.needsMap': 'Bunu açmak için haritayı paylaş',
+  'journey.editor.tags': 'Etiketler',
 };
 export default journey;

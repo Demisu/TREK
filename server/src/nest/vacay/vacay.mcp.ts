@@ -219,7 +219,7 @@ export class VacayMcp {
     const planId = await this.vacay.getActivePlanId(ctx.userId);
     const me = await this.users.usernameAndEmail(ctx.userId);
     if (!me) return errorResult('User not found.');
-    await this.vacay.sendInvite(planId, ctx.userId, me.username, me.email, targetUserId);
+    await this.vacay.sendInvite(planId, ctx.userId, me.username, targetUserId);
     return ok({ success: true });
   }
 
@@ -643,7 +643,7 @@ export class VacayMcp {
   async shareVacayCalendar({ targetUserId }: { targetUserId: number }, ctx: McpContext) {
     const me = await this.users.usernameAndEmail(ctx.userId);
     if (!me) return errorResult('User not found.');
-    await this.vacay.shareCalendar(ctx.userId, me.email, targetUserId);
+    await this.vacay.shareCalendar(ctx.userId, me.username, targetUserId);
     return ok({ success: true });
   }
 

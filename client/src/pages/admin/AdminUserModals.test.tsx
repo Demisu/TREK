@@ -1,4 +1,4 @@
-// FE-ADMMOD-001 to FE-ADMMOD-027
+// FE-ADMMOD-001 to FE-ADMMOD-030
 import { http, HttpResponse } from 'msw';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -379,5 +379,41 @@ describe('AdminUserModals', () => {
     fireEvent.click(screen.getByRole('button', { name: /^close$/i }));
 
     expect(admin.setShowRotateJwtModal).toHaveBeenCalledWith(false);
+  });
+
+  it('FE-ADMMOD-028: a confirmed 2FA reset calls the endpoint and reports it', async () => {
+    let resetFor: string | undefined;
+    server.use(
+      http.delete('/api/admin/users/:id/mfa', ({ params }) => {
+        resetFor = params.id as string;
+        return HttpResponse.json({ success: true });
+      })
+    );
+    const admin = renderModals(editing);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset 2FA' }));
+    expect(screen.getByText('Turn off two-factor authentication for alice?')).toBeInTheDocument();
+    expect(resetFor).toBeUndefined();
+    const buttons = screen.getAllByRole('button', { name: 'Reset 2FA' });
+    fireEvent.click(buttons[buttons.length - 1]);
+
+    await waitFor(() => expect(admin.toast.success).toHaveBeenCalledWith('Two-factor authentication reset'));
+    expect(resetFor).toBe('2');
+  });
+
+  it('FE-ADMMOD-029: a failing 2FA reset toasts the generic error', async () => {
+    server.use(http.delete('/api/admin/users/:id/mfa', () => HttpResponse.json({}, { status: 500 })));
+    const admin = renderModals(editing);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset 2FA' }));
+    const buttons = screen.getAllByRole('button', { name: 'Reset 2FA' });
+    fireEvent.click(buttons[buttons.length - 1]);
+
+    await waitFor(() => expect(admin.toast.error).toHaveBeenCalledWith('Error'));
+  });
+
+  it('FE-ADMMOD-030: the 2FA reset is not offered on your own account', () => {
+    renderModals({ ...editing, editingUser: buildAdminUser({ id: 1, username: 'admin' }) });
+    expect(screen.queryByRole('button', { name: 'Reset 2FA' })).not.toBeInTheDocument();
   });
 });

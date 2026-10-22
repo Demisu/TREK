@@ -222,7 +222,7 @@ describe('TripMembersService delegation', () => {
   });
 
   it('MEMBERS-SVC-005: notifyInvite sends a user-scoped trip_invite carrying the actor, invitee and trip', async () => {
-    const actor = { id: 4, email: 'actor@example.test' } as User;
+    const actor = { id: 4, username: 'actor', email: 'actor@example.test' } as User;
     roster.notifyInvite('9', actor, 12, 'Roadtrip', 'invitee@example.test');
 
     // The bridge is imported lazily inside the call, so the send lands a microtask later.
@@ -232,13 +232,13 @@ describe('TripMembersService delegation', () => {
       actorId: 4,
       scope: 'user',
       targetId: 12,
-      params: { trip: 'Roadtrip', actor: 'actor@example.test', invitee: 'invitee@example.test', tripId: '9' },
+      params: { trip: 'Roadtrip', actor: 'actor', invitee: 'invitee@example.test', tripId: '9' },
     });
   });
 
   it('MEMBERS-SVC-006: a rejected notification never reaches the invite request', async () => {
     notifySend.mockRejectedValueOnce(new Error('bridge down'));
-    const actor = { id: 4, email: 'actor@example.test' } as User;
+    const actor = { id: 4, username: 'actor', email: 'actor@example.test' } as User;
 
     // The membership row is already committed when this fires — an unhandled
     // rejection would turn a successful invite into a 500 (and crash the process

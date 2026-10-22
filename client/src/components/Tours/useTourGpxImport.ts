@@ -12,8 +12,12 @@ const MAX_TOUR_FILE_BYTES = 10 * 1024 * 1024;
 const TOUR_FILE_EXTENSIONS = ['.gpx', '.kml', '.kmz'];
 const NO_TRACK = 'No track or route found in GPX file';
 
-const isTourFile = (file: Pick<File, 'name'>) =>
+export const isTourFile = (file: Pick<File, 'name'>) =>
   TOUR_FILE_EXTENSIONS.some((extension) => file.name.toLowerCase().endsWith(extension));
+
+/** The server read the file and found no line in it: a GPX file has always been refused by its message alone. */
+const isNoTrack = (error: unknown) =>
+  getApiErrorCode(error) === 'no_track' || getApiErrorMessage(error, '') === NO_TRACK;
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
@@ -27,13 +31,8 @@ function fileErrorMessage(error: unknown, name: string, t: Translate): string {
       return t('tours.import.archiveNoKmlIn', { name });
     case 'archive_too_large':
       return t('tours.import.archiveTooLargeIn', { name });
-    case 'no_track':
-      return t('tours.import.noTrackIn', { name });
     default:
-      // A GPX file without a track has always been refused by its message alone.
-      return getApiErrorMessage(error, '') === NO_TRACK
-        ? t('tours.import.noTrackIn', { name })
-        : t('tours.import.errorIn', { name });
+      return isNoTrack(error) ? t('tours.import.noTrackIn', { name }) : t('tours.import.errorIn', { name });
   }
 }
 
@@ -52,6 +51,13 @@ interface TourGpxImportOptions {
   onToursChanged?: (placeIds?: number[]) => void | Promise<void>;
   /** The new tours, once the trip has been read again with their places. */
   onImported?: (tours: TourListItem[]) => void;
+  /**
+   * The files the preview found no line in, handed on instead of named in a
+   * toast. The places column passes the places import here, so a file of
+   * points only still lands where points have always gone. Absent, each one is
+   * named in a toast, as the Tours workspace has always done.
+   */
+  onNoTrack?: (files: File[]) => void;
 }
 
 /**
@@ -65,7 +71,7 @@ interface TourGpxImportOptions {
  * Cancelling leaves the trip as it was. A file that cannot be read is named
  * in a toast and left out of the preview.
  */
-export function useTourGpxImport({ tripId, canEdit, onToursChanged, onImported }: TourGpxImportOptions) {
+export function useTourGpxImport({ tripId, canEdit, onToursChanged, onImported, onNoTrack }: TourGpxImportOptions) {
   const { t } = useTranslation();
   const toast = useToast();
   const refreshPlaces = useTripStore((state) => state.refreshPlaces);
@@ -84,26 +90,29 @@ export function useTourGpxImport({ tripId, canEdit, onToursChanged, onImported }
       if (supported.length < files.length) toast.error(t('tours.import.unsupported'));
       const fitting = supported.filter((file) => file.size <= MAX_TOUR_FILE_BYTES);
       if (fitting.length < supported.length)
-        toast.error(t('places.importFileTooLarge', { maxMb: MAX_TOUR_FILE_BYTES / 1024 / 1024 }));
+        toast.error(t('tours.import.fileTooLarge', { maxMb: MAX_TOUR_FILE_BYTES / 1024 / 1024 }));
       if (fitting.length === 0) return;
 
       setImporting(true);
       const read: GpxPreviewFile[] = [];
+      const withoutTrack: File[] = [];
       try {
         for (const file of fitting) {
           try {
             const preview = await tourRepo.previewGpx(tripId, file);
             read.push({ file, tracks: preview.tracks, leftOut: preview.left_out });
           } catch (error: unknown) {
-            fileError(error, file);
+            if (onNoTrack && isNoTrack(error)) withoutTrack.push(file);
+            else fileError(error, file);
           }
         }
         if (read.length > 0) setPreview(read);
       } finally {
         setImporting(false);
       }
+      if (withoutTrack.length > 0) onNoTrack?.(withoutTrack);
     },
-    [canEdit, fileError, importing, preview, t, toast, tripId]
+    [canEdit, fileError, importing, onNoTrack, preview, t, toast, tripId]
   );
 
   /** The previewed files imported as the chosen type, summed up in one set of toasts. */

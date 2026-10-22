@@ -24,6 +24,8 @@ export type GuideRow = [
   related: string[],
   /** Whether the guide carries a picture of the state after its last step. Default: no. */
   result?: boolean,
+  /** Steps that also come as a short loop (see HelpGuideMedia.clips). */
+  clips?: number[],
 ]
 
 export interface ScreenSpec {
@@ -46,14 +48,14 @@ export interface ScreenSpec {
 /** The context and the guides of one screen, from one description of it. */
 export function defineScreen(spec: ScreenSpec): { context: HelpContext; guides: HelpGuide[] } {
   const guides: HelpGuide[] = spec.guides.map(
-    ([id, icon, size, steps, tips, docs, related, result = false]): HelpGuide => ({
+    ([id, icon, size, steps, tips, docs, related, result = false, clips]): HelpGuide => ({
       id,
       context: spec.id,
       icon,
       size,
       steps,
       tips,
-      media: { steps: true, result },
+      media: clips?.length ? { steps: true, result, clips } : { steps: true, result },
       docs,
       related,
     }),

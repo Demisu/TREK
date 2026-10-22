@@ -184,6 +184,8 @@ export function buildAdminHook(overrides: Record<string, unknown> = {}): AdminHo
     handleCreateUser: vi.fn(),
     handleCreateInvite: vi.fn(),
     handleDeleteInvite: vi.fn(),
+    inviteToDelete: null,
+    setInviteToDelete: vi.fn(),
     copyInviteLink: vi.fn(),
     handleEditUser: vi.fn(),
     handleSaveUser: vi.fn(),

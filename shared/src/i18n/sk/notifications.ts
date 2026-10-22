@@ -35,5 +35,7 @@ const notifications: TranslationStrings = {
   'notifications.countLabel': 'oznámení',
   'notifications.countLabel.one': 'oznámenie',
   'notifications.countLabel.few': 'oznámenia',
+  'notifications.deleteAllConfirmTitle': 'Odstrániť všetky oznámenia?',
+  'notifications.deleteAllConfirmText': 'Všetky oznámenia sa natrvalo odstránia. Túto akciu nie je možné vrátiť späť.',
 };
 export default notifications;

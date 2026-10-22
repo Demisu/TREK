@@ -313,7 +313,7 @@ export function PortageLegRow({
   onExtraChange: (minutes: number | null) => void;
   /** Where it lies on a recorded track ("at 4.2 km"); a planned tour shows it under its waypoint instead. */
   position?: string;
-  /** Takes the portage off a recorded track; a planned tour carries it on its leg instead. */
+  /** Takes the portage off, back to a stretch on the water (not on a portage TREK added by itself). */
   onRemove?: () => void;
   /** On a planned tour: whether the portage follows the ways on land or goes straight, and the switch between them. */
   way?: PortageWay;

@@ -509,7 +509,15 @@ describe('usePlacesSidebar drag and drop', () => {
 // ── List import ───────────────────────────────────────────────────────────────
 
 describe('usePlacesSidebar list import', () => {
+  it('FE-PLANNER-PSHOOK-033a: without the Naver add-on only Google lists are offered', () => {
+    seedStore(useAddonStore, { addons: [], loaded: true });
+    render(<Host {...makeProps()} />);
+    expect(S.availableListImportProviders).toEqual(['google']);
+    expect(S.hasMultipleListImportProviders).toBe(false);
+  });
+
   it('FE-PLANNER-PSHOOK-033: both providers are offered', () => {
+    seedStore(useAddonStore, { addons: [{ id: 'naver_list_import', name: 'Naver', type: 'integration', icon: '', enabled: true }], loaded: true });
     render(<Host {...makeProps()} />);
     expect(S.availableListImportProviders).toEqual(['google', 'naver']);
     expect(S.hasMultipleListImportProviders).toBe(true);

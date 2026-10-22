@@ -78,7 +78,7 @@ export function MapLayerSwitcher({ active, onToggle }: { active: BaseLayer; onTo
 
 const TOUR_LAYERS = [
   { id: 'default', labelKey: 'map.baseLayer.default', Icon: MapIcon },
-  { id: 'topo', labelKey: null, Icon: Mountain },
+  { id: 'topo', labelKey: 'map.baseLayer.topo', Icon: Mountain },
   { id: 'hiking', labelKey: 'map.baseLayer.hiking', Icon: Footprints },
   { id: 'cycle', labelKey: 'map.baseLayer.cycle', Icon: Bike },
   { id: 'satellite', labelKey: 'map.baseLayer.satellite', Icon: Satellite },
@@ -220,7 +220,7 @@ function DownBadge() {
  * planning go on without it. Switched on further out than its first tiles, it
  * stays pressed in the soft accent and its tooltip says to zoom in, so an empty
  * map does not read as broken. An overlay with a key shows the key's button
- * beside the switch while it is on and answering.
+ * beside the switch while it is on, also when the source is down, so the colours stay readable.
  */
 function OverlayToggle({ overlay, compact }: { overlay: ToggleableRasterOverlay; compact: boolean }) {
   const { t } = useTranslation()
@@ -251,7 +251,7 @@ function OverlayToggle({ overlay, compact }: { overlay: ToggleableRasterOverlay;
           {down && <DownBadge />}
         </button>
       </Tooltip>
-      {look.Key && overlay.status === 'on' && <look.Key belowMinZoom={!!zoomIn} />}
+      {look.Key && on && <look.Key belowMinZoom={!!zoomIn} />}
       <span role="status" aria-live="polite" className="sr-only">{notice ?? ''}</span>
     </>
   )
@@ -296,7 +296,7 @@ export function TourMapLayerSwitcher({
     <div style={{ ...FROSTED_SHELL, gap: 2 }} role="group" aria-label={t('settings.mapStyle')}>
       {TOUR_LAYERS.filter(({ id }) => !bases || bases.includes(id)).map(({ id, labelKey, Icon }) => {
         const selected = active === id
-        const label = labelKey ? t(labelKey) : 'Topo'
+        const label = t(labelKey)
         const down = !!health?.down && health.base === id && active === id
         const downLabel = id === 'cycle' ? t('map.baseLayer.cycleDown') : t('map.baseLayer.hikingDown')
         return (

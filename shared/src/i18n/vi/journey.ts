@@ -208,7 +208,8 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Tuyến GPX',
   'journey.settings.recordings': 'Những ngày đã ghi',
   'journey.settings.showTripTracks': 'Hiện tất cả tuyến GPX của chuyến đi',
-  'journey.settings.showTripTracksHint': 'Vẽ lên bản đồ các tuyến đường đã ghi từ những chuyến đi được liên kết.',
+  'journey.settings.showTripTracksHint':
+    'Vẽ các tuyến đường đã lên kế hoạch (dấu vết GPX) của các chuyến đi được liên kết trên bản đồ.',
   'journey.settings.autoPrepare': 'Tự động chuẩn bị các ngày đã ghi',
   'journey.settings.autoPrepareHint':
     'Khi một chuyến đi được liên kết đang diễn ra, các điểm dừng từ Dawarich của bạn chờ ở ngày của chúng để bạn xem. Người chỉnh sửa có kết nối riêng nhận phần của họ. Không có gì tự ghi vào nhật ký.',
@@ -871,5 +872,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Những ngày đã ghi và các điểm dừng lấy từ đó, vào những ngày có bài viết được đăng. Cho thấy bạn đã ở đâu và khi nào, kể cả chỗ ở.',
   'journey.share.needsMap': 'Chia sẻ bản đồ để bật mục này',
+  'journey.editor.tags': 'Thẻ',
 };
 export default journey;

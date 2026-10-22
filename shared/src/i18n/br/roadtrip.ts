@@ -251,8 +251,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'O roteador de desvios não respondeu para este trecho, então o roteador principal o desenhou. O roteador de desvios está sendo consultado de novo.',
   'roadtrip.day': 'Dia {number}',
-  'roadtrip.quietDay.empty': 'Ainda sem paradas — solte uma aqui',
-  'roadtrip.quietDay.one': 'Até agora só {name} — solte uma parada aqui',
+  'roadtrip.quietDay.empty': "Ar-hend n'eus chomlec'h ebet, lakait unan amañ",
+  'roadtrip.quietDay.one': "Betek henn nemet {name}, lakait ur chomlec'h amañ",
   'roadtrip.leg.driveText': '{distance} em {time}',
   'roadtrip.day.stopCount': '{count} paradas',
   'roadtrip.day.stopCount.one': '{count} parada',
@@ -337,5 +337,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Saída depois do check-out',
   'roadtrip.bookend.noVia':
     'Não dá para colocar um ponto de passagem no trajeto de ida ou volta da sua hospedagem. Adicione uma parada ali.',
+  'roadtrip.stay.untilHint':
+    "Mont a reer da {time} peogwir ez eus un eur echuiñ d'ar weladenn-mañ. Digorit anezhi ha dibabit Lemel eur ar fin evit lakaat ur pad chom e plas.",
 };
 export default roadtrip;

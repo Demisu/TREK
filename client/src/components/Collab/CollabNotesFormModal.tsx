@@ -30,10 +30,12 @@ export function NoteFormModal({ onClose, onSubmit, onDeleteFile, existingCategor
 
   const [title, setTitle] = useState(note?.title || '')
   const [content, setContent] = useState(note?.content || '')
-  const [category, setCategory] = useState(note?.category || allCategories[0] || '')
+  const [category, setCategory] = useState(note?.category || '')
   const [website, setWebsite] = useState(note?.website || '')
   const [pendingFiles, setPendingFiles] = useState([])
   const [existingAttachments, setExistingAttachments] = useState(note?.attachments || [])
+  // Files taken off in edit mode go with Save, so Cancel leaves the note as it was.
+  const [removedFileIds, setRemovedFileIds] = useState<number[]>([])
   const [submitting, setSubmitting] = useState(false)
   const fileRef = useRef(null)
 
@@ -53,6 +55,9 @@ export function NoteFormModal({ onClose, onSubmit, onDeleteFile, existingCategor
         website: website.trim() || null,
         _pendingFiles: pendingFiles,
       })
+      if (onDeleteFile && note) {
+        for (const fileId of removedFileIds) await onDeleteFile(note.id, fileId)
+      }
       onClose()
     } catch {
     } finally {
@@ -60,11 +65,10 @@ export function NoteFormModal({ onClose, onSubmit, onDeleteFile, existingCategor
     }
   }
 
-  const handleDeleteAttachment = async (fileId) => {
-    if (onDeleteFile && note) {
-      await onDeleteFile(note.id, fileId)
-      setExistingAttachments(prev => prev.filter(a => a.id !== fileId))
-    }
+  const handleDeleteAttachment = (fileId: number) => {
+    if (!onDeleteFile || !note) return
+    setExistingAttachments(prev => prev.filter(a => a.id !== fileId))
+    setRemovedFileIds(prev => [...prev, fileId])
   }
 
   const canSubmit = title.trim() && !submitting
@@ -131,7 +135,7 @@ export function NoteFormModal({ onClose, onSubmit, onDeleteFile, existingCategor
                 const c = getCategoryColor(cat)
                 const active = category === cat
                 return (
-                  <button key={cat} type="button" onClick={() => setCategory(cat)} aria-pressed={active}
+                  <button key={cat} type="button" onClick={() => setCategory(active ? '' : cat)} aria-pressed={active}
                     className="rounded-full px-3 py-1 font-semibold"
                     style={{ ...fs(12, 'body'), border: active ? `1.5px solid ${c}` : '1px solid var(--border-faint)', background: active ? `color-mix(in srgb, ${c} 12%, transparent)` : 'var(--bg-card)', color: active ? c : 'var(--text-muted)' }}>
                     {cat}

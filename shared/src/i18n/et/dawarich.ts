@@ -4,7 +4,7 @@ const dawarich: TranslationStrings = {
   // ── Connection ─────────────────────────────────────────────────────────────
   'dawarich.title': 'Dawarich',
   'dawarich.intro':
-    'Ühenda oma Dawarichi server, et näha, kus tegelikult käisid. TREK loeb andmeid ja soovitab päevikusissekandeid, kohti ning riike — midagi ei lisata sinu kinnituseta ja Dawarichi ei kirjutata midagi tagasi.',
+    'Ühenda oma Dawarichi server, et näha, kus tegelikult käisid. TREK loeb andmeid ja soovitab päevikusissekandeid, kohti ning riike; midagi ei lisata sinu kinnituseta ja Dawarichi ei kirjutata midagi tagasi.',
   'dawarich.url': 'Serveri aadress',
   'dawarich.apiKey': 'API-võti',
   'dawarich.apiKeyPlaceholder': 'Kleebi oma Dawarichi API-võti',

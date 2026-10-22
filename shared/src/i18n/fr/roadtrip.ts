@@ -254,8 +254,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Le routeur de contournement n’a pas répondu pour cette étape, le routeur principal l’a donc tracée. Le routeur de contournement est interrogé à nouveau.',
   'roadtrip.day': 'Jour {number}',
-  'roadtrip.quietDay.empty': 'Aucun arrêt — déposez-en un ici',
-  'roadtrip.quietDay.one': 'Seulement {name} pour l’instant — déposez un arrêt ici',
+  'roadtrip.quietDay.empty': 'Aucun arrêt, déposez-en un ici',
+  'roadtrip.quietDay.one': "Seulement {name} pour l'instant, déposez un arrêt ici",
   'roadtrip.leg.driveText': '{distance} en {time}',
   'roadtrip.day.stopCount': '{count} arrêts',
   'roadtrip.day.stopCount.one': '{count} arrêt',
@@ -341,5 +341,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Part après l’heure limite de départ',
   'roadtrip.bookend.noVia':
     'Pas de point de passage sur le trajet vers ou depuis votre hébergement. Ajoutez plutôt un arrêt à cet endroit.',
+  'roadtrip.stay.untilHint':
+    "Départ à {time}, car cette visite a une heure de fin. Ouvrez-la et choisissez Supprimer l'heure de fin pour fixer plutôt une durée de séjour.",
 };
 export default roadtrip;

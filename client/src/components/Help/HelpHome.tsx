@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router'
-import { ArrowRight, ArrowUpRight, BookOpen, LayoutList, ListOrdered, Compass, ChevronRight, ChevronDown, Camera, LayoutGrid } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, BookOpen, LayoutList, ListOrdered, Compass, ChevronRight, Camera, LayoutGrid } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import { useHelpStore, docTitle } from '../../store/helpStore'
 import { ctxKey, ctxBulletKey, guideKey, guidesFor, helpMedia, docsRoute, helpContextTrail, childHelpContexts } from '../../help/registry'
-import type { HelpContext, HelpGuide } from '../../help/types'
+import type { HelpContext, HelpDocLink as HelpDocTarget, HelpGuide } from '../../help/types'
 import { helpIcon } from './helpIcons'
 import HelpBadge from './HelpBadge'
 import HelpDocLink from './HelpDocLink'
@@ -20,8 +20,6 @@ export default function HelpHome({ context }: { context: HelpContext | null }): 
   const { t } = useTranslation()
   const docIndex = useHelpStore(s => s.docIndex)
   const closeHelp = useHelpStore(s => s.closeHelp)
-  // Folded until asked for: the guides below matter more, the tabs are one click away.
-  const [subScreensOpen, setSubScreensOpen] = useState(false)
   const screenRoute = useScreenRoute(context?.route)
 
   if (!context) {
@@ -37,23 +35,25 @@ export default function HelpHome({ context }: { context: HelpContext | null }): 
   const guides = guidesFor(context)
   const bullets = Array.from({ length: context.bullets }, (_, i) => t(ctxBulletKey(context.id, i + 1)))
   const children = childHelpContexts(context.id)
+  const docs = onePerPage(context.docs)
+  const trail = helpContextTrail(context).slice(0, -1)
   const Icon = helpIcon(context.icon)
 
   return (
     <div className="trek-help-view flex flex-col gap-6">
       {/* Which screen, what it is, what help there is */}
       <header className="rounded-2xl border border-edge bg-surface-card p-5 sm:p-6 flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <HelpBadge tone="outline" icon={Compass}>{t('help.center.screens')}</HelpBadge>
-          {helpContextTrail(context).slice(0, -1).map(parent => (
-            <React.Fragment key={parent.id}>
-              <ChevronRight className="w-3.5 h-3.5 text-content-faint" />
-              <HelpBadge tone="outline">{t(ctxKey(parent.id, 'title'))}</HelpBadge>
-            </React.Fragment>
-          ))}
-          <ChevronRight className="w-3.5 h-3.5 text-content-faint" />
-          <HelpBadge tone="outline">{t('help.center.overview')}</HelpBadge>
-        </div>
+        {/* Where a sub-screen sits; a screen of its own needs no trail, the switcher names it. */}
+        {trail.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {trail.map((parent, i) => (
+              <React.Fragment key={parent.id}>
+                {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-content-faint" />}
+                <HelpBadge tone="outline" icon={i === 0 ? Compass : undefined}>{t(ctxKey(parent.id, 'title'))}</HelpBadge>
+              </React.Fragment>
+            ))}
+          </div>
+        )}
         <div className="flex items-start gap-4">
           <span className="w-14 h-14 rounded-2xl bg-accent text-accent-text flex items-center justify-center flex-shrink-0 shadow-card">
             <Icon className="w-6 h-6" />
@@ -63,43 +63,41 @@ export default function HelpHome({ context }: { context: HelpContext | null }): 
             <p className="text-body text-content-secondary leading-relaxed">{t(ctxKey(context.id, 'summary'))}</p>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-edge-secondary">
-          <HelpBadge tone="accent" icon={ListOrdered} count={guides.length}>{t('help.center.searchGuides')}</HelpBadge>
-          {context.docs.length > 0 && <HelpBadge tone="neutral" icon={BookOpen} count={context.docs.length}>{t('help.center.searchDocs')}</HelpBadge>}
-          {screenRoute && (
-            <Link to={screenRoute} onClick={closeHelp} className="ms-auto">
-              <HelpBadge tone="accent" icon={ArrowUpRight} className="hover:bg-accent-hover transition-colors">
-                {t('help.center.goToScreen', { screen: t(ctxKey(context.id, 'title')) })}
-              </HelpBadge>
-            </Link>
-          )}
-        </div>
+        {screenRoute && (
+          <Link to={screenRoute} onClick={closeHelp} className="self-start">
+            <HelpBadge tone="accent" icon={ArrowUpRight} className="hover:bg-accent-hover transition-colors">
+              {t('help.center.goToScreen', { screen: t(ctxKey(context.id, 'title')) })}
+            </HelpBadge>
+          </Link>
+        )}
       </header>
 
-      {/* Screens under this one (the tabs of Settings, the journal of Journey) */}
+      {/* Screens under this one (the columns and tabs of a trip, the tabs of Settings), always in
+          view: each holds guides of its own, and a fold hid that they are there at all. */}
       {children.length > 0 && (
-        <section className="rounded-2xl border border-edge bg-surface-card flex flex-col">
-          <button
-            type="button"
-            onClick={() => setSubScreensOpen(o => !o)}
-            aria-expanded={subScreensOpen}
-            className="flex items-center gap-3 p-4 text-start rounded-2xl hover:bg-surface-hover transition-colors"
-          >
-            <HelpBadge tone="neutral" icon={LayoutGrid} uppercase count={children.length}>{t('help.center.subScreensLabel')}</HelpBadge>
-            <span className="min-w-0 flex-1 text-caption text-content-muted truncate">
-              {children.map(child => t(ctxKey(child.id, 'title'))).join(' · ')}
-            </span>
-            <ChevronDown className={`w-4 h-4 text-content-faint flex-shrink-0 transition-transform ${subScreensOpen ? 'rotate-180' : ''}`} />
-          </button>
-          {subScreensOpen && (
-            <ul className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 px-4 pb-4">
-              {children.map(child => (
-                <li key={child.id}>
-                  <SubScreenCard screen={child} />
-                </li>
-              ))}
-            </ul>
-          )}
+        <section className="rounded-2xl border border-edge bg-surface-card p-4 flex flex-col gap-3">
+          <HelpBadge tone="neutral" icon={LayoutGrid} uppercase count={children.length} className="self-start">{t('help.center.subScreensLabel')}</HelpBadge>
+          <ul className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
+            {children.map(child => (
+              <li key={child.id}>
+                <SubScreenCard screen={child} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Guides */}
+      {guides.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <HelpBadge tone="accent" icon={ListOrdered} uppercase count={guides.length} className="self-start">{t('help.center.howTo')}</HelpBadge>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {guides.map(g => (
+              <li key={g.id}>
+                <GuideCard guide={g} />
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
@@ -136,26 +134,12 @@ export default function HelpHome({ context }: { context: HelpContext | null }): 
         </section>
       )}
 
-      {/* Guides */}
-      {guides.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <HelpBadge tone="accent" icon={ListOrdered} uppercase count={guides.length} className="self-start">{t('help.center.howTo')}</HelpBadge>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {guides.map(g => (
-              <li key={g.id}>
-                <GuideCard guide={g} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
       {/* Docs */}
-      {context.docs.length > 0 && (
+      {docs.length > 0 && (
         <section className="rounded-2xl border border-edge bg-surface-card p-4 flex flex-col gap-2">
-          <HelpBadge tone="neutral" icon={BookOpen} uppercase count={context.docs.length} className="self-start">{t('help.center.docsSection')}</HelpBadge>
+          <HelpBadge tone="neutral" icon={BookOpen} uppercase count={docs.length} className="self-start">{t('help.center.docsSection')}</HelpBadge>
           <ul className="flex flex-col">
-            {context.docs.map(link => (
+            {docs.map(link => (
               <li key={`${link.slug}#${link.anchor ?? ''}`}>
                 <HelpDocLink to={docsRoute(link)} title={docTitle(docIndex, link.slug)} />
               </li>
@@ -165,6 +149,19 @@ export default function HelpHome({ context }: { context: HelpContext | null }): 
       )}
     </div>
   )
+}
+
+/**
+ * The docs of a screen, one link per page: several sections of one page would
+ * all read as that page's title, the same name two or three times in a row.
+ */
+function onePerPage(docs: readonly HelpDocTarget[]): HelpDocTarget[] {
+  const seen = new Set<string>()
+  return docs.filter(link => {
+    if (seen.has(link.slug)) return false
+    seen.add(link.slug)
+    return true
+  })
 }
 
 /** One sub-screen: opens its overview in place; the one the reader is on says so. */

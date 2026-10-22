@@ -101,5 +101,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': '画像を添付',
   'collab.chat.attachedImage': '添付画像',
   'collab.chat.closeImage': '画像を閉じる',
+  'collab.notes.categoryInUse':
+    'このカテゴリーを使っているノートがまだあります。先にそのノートを移動または削除してください。',
+  'collab.notes.categoriesLocalHint':
+    'ノートのないカテゴリーはこのブラウザーにのみ保存されます。ノートで使われると、ほかのメンバーにも表示されます。',
 };
 export default collab;

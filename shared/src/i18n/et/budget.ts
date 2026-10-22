@@ -210,6 +210,7 @@ const budget: TranslationStrings = {
   'costs.receiptsNeedConnection':
     'Tšekkide üleslaadimiseks on vaja ühendust. Eemalda uued, et kulu võrguühenduseta salvestada, või salvesta, kui oled taas võrgus.',
   'costs.paymentQueued': 'Oled võrguühenduseta. Makse on salvestatud ja ilmub, kui TREK on taas võrgus.',
+  'costs.confirm.deleteBodyReceipts': '"{name}" kustutatakse jäädavalt. Tema tšekifailid jäävad Failide alla alles.',
 };
 
 export default budget;

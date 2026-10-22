@@ -89,7 +89,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Edit Pengguna',
   'admin.newPassword': 'Kata Sandi Baru',
   'admin.newPasswordHint': 'Kosongkan untuk mempertahankan kata sandi saat ini',
-  'admin.deleteUser': 'Hapus pengguna "{name}"? Semua perjalanan akan dihapus secara permanen.',
+  'admin.deleteUser':
+    'Hapus pengguna "{name}"? Akunnya serta semua perjalanan dan jurnal miliknya akan dihapus permanen, termasuk perjalanan yang dibagikan dengan anggota lain, yang akan kehilangan akses. Perjalanan milik orang lain tetap ada.',
   'admin.deleteUserTitle': 'Hapus pengguna',
   'admin.newPasswordPlaceholder': 'Masukkan kata sandi baru…',
   'admin.toast.loadError': 'Gagal memuat data admin',
@@ -241,9 +242,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.transitousHint':
     'Umpan GTFS komunitas. Gratis dan tanpa kunci, dengan cakupan terbaik di Eropa.',
   'admin.transitProvider.googleHint':
-    'Menggunakan kunci Google di atas, untuk wilayah yang tidak memiliki data Transitous. Ditagih per pencarian — selama belum ada kunci, Transitous yang dipakai.',
+    'Menggunakan kunci Google di atas, untuk wilayah yang tidak memiliki data Transitous. Ditagih per pencarian; selama belum ada kunci, Transitous yang dipakai.',
   'admin.transitProvider.noKeyWarning':
-    'Google dipilih, tetapi belum ada kunci Google yang dikonfigurasi — pencarian transportasi masih memakai Transitous. Tambahkan kunci di Kunci API di atas.',
+    'Google dipilih, tetapi belum ada kunci Google yang dikonfigurasi; pencarian transportasi masih memakai Transitous. Tambahkan kunci di Kunci API di atas.',
   'admin.transitProvider.personalKeyWarning':
     'Hanya kunci Google milikmu yang disetel, sehingga pencarian anggota lain tetap kembali ke Transitous. Simpan kunci di atas sebagai admin agar berlaku untuk seluruh instance.',
   'admin.placeShadow.title': 'Log pencarian tempat',
@@ -766,7 +767,7 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Belum ada entri audit.',
   'admin.audit.refresh': 'Segarkan',
   'admin.audit.loadMore': 'Muat lebih banyak',
-  'admin.audit.showing': '{count} dimuat · {total} total',
+  'admin.audit.showing': '{count} dimuat, {total} total',
   'admin.audit.col.time': 'Waktu',
   'admin.audit.col.user': 'Pengguna',
   'admin.audit.col.action': 'Tindakan',
@@ -920,5 +921,37 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.requests.decline': 'Tolak',
   'admin.paddleRegions.origin.auto': 'Otomatis',
   'admin.paddleRegions.origin.autoHint': 'TREK memuat wilayah ini sendiri untuk tur dayung yang direncanakan di sana.',
+  'admin.mfa.reset': 'Setel ulang 2FA',
+  'admin.mfa.resetHint':
+    'Menonaktifkan autentikasi dua faktor untuk pengguna ini, misalnya setelah ponsel hilang. Pengguna dikeluarkan dari semua sesi dan dapat mengaturnya lagi setelah masuk dengan kata sandinya.',
+  'admin.mfa.resetConfirm': 'Nonaktifkan autentikasi dua faktor untuk {name}?',
+  'admin.mfa.resetDone': 'Autentikasi dua faktor telah diatur ulang',
+  'admin.danger.title': 'Zona Berbahaya',
+  'admin.rotateJwt.title': 'Putar Secret JWT',
+  'admin.rotateJwt.hint': 'Buat secret penandatanganan JWT baru. Semua sesi aktif akan langsung tidak berlaku.',
+  'admin.rotateJwt.confirm': 'Putar & Keluar',
+  'admin.rotateJwt.warning': 'Peringatan: tindakan ini akan membatalkan semua sesi dan mengeluarkan Anda.',
+  'admin.rotateJwt.body':
+    'Secret JWT baru akan dibuat segera. Setiap pengguna yang sedang masuk, termasuk Anda, akan dikeluarkan dan harus masuk lagi.',
+  'admin.oidcDisplayNamePlaceholder': 'mis. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'URL discovery (opsional)',
+  'admin.oidcDiscoveryUrlHint':
+    'Menggantikan URL discovery yang dibuat otomatis. Diperlukan untuk penyedia seperti Authentik yang endpoint-nya tidak berada di {path}.',
+  'admin.smtp.skipTls': 'Lewati pemeriksaan sertifikat TLS',
+  'admin.smtp.skipTlsHint': 'Aktifkan untuk sertifikat self-signed pada server email lokal',
+  'admin.demoBaseline.title': 'Baseline Demo',
+  'admin.demoBaseline.hint':
+    'Simpan kondisi saat ini sebagai titik reset setiap jam. Semua perjalanan dan pengaturan admin akan dipertahankan.',
+  'admin.demoBaseline.button': 'Simpan Baseline',
+  'admin.demoBaseline.saved': 'Baseline disimpan! Reset akan mengembalikan ke kondisi ini.',
+  'admin.demoBaseline.failed': 'Gagal menyimpan baseline',
+  'admin.invite.deleteTitle': 'Hapus tautan undangan',
+  'admin.invite.deleteConfirm':
+    'Hapus tautan undangan ini? Siapa pun yang belum menggunakannya tidak bisa lagi mendaftar dengannya.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Hapus templat',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Hapus templat "{name}" beserta semua kategori dan itemnya?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Hapus kategori',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Hapus kategori "{name}" beserta semua itemnya?',
+  'admin.rotateJwt.button': 'Putar Ulang',
 };
 export default admin;

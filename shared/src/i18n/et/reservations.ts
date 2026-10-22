@@ -266,5 +266,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'Failide üleslaadimiseks on vaja ühendust. Eemalda uued, et broneering võrguühenduseta salvestada, või salvesta, kui oled taas võrgus.',
   'reservations.needsConnection': 'Selleks on vaja ühendust. Proovi uuesti, kui TREK on taas võrgus.',
+  'reservations.exportCsvFiltered': 'Ekspordi näidatud read, {shown} / {total} (CSV)',
 };
 export default reservations;

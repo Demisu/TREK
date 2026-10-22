@@ -41,7 +41,8 @@ const admin: TranslationStrings = {
   'admin.editUser': "Modifier l'utilisateur",
   'admin.newPassword': 'Nouveau mot de passe',
   'admin.newPasswordHint': 'Laissez vide pour conserver le mot de passe actuel',
-  'admin.deleteUser': "Supprimer l'utilisateur « {name} » ? Tous les voyages seront définitivement supprimés.",
+  'admin.deleteUser':
+    "Supprimer l'utilisateur \"{name}\" ? Son compte ainsi que tous les voyages et journaux dont il est propriétaire seront définitivement supprimés, y compris les voyages partagés avec d'autres membres, qui en perdront l'accès. Les voyages appartenant à d'autres restent.",
   'admin.deleteUserTitle': "Supprimer l'utilisateur",
   'admin.newPasswordPlaceholder': 'Saisir le nouveau mot de passe…',
   'admin.toast.loadError': "Impossible de charger les données d'administration",
@@ -194,9 +195,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.transitousHint':
     'Flux GTFS communautaires. Gratuit et sans clé, avec la meilleure couverture en Europe.',
   'admin.transitProvider.googleHint':
-    "Utilise la clé Google ci-dessus, pour les régions sans données Transitous. Facturé à la recherche — tant qu'aucune clé n'est définie, Transitous est utilisé.",
+    "Utilise la clé Google ci-dessus, pour les régions sans données Transitous. Facturé à la recherche ; tant qu'aucune clé n'est définie, Transitous est utilisé.",
   'admin.transitProvider.noKeyWarning':
-    "Google est sélectionné, mais aucune clé Google n'est configurée — la recherche de transports utilise toujours Transitous. Ajoutez une clé dans Clés d'API ci-dessus.",
+    "Google est sélectionné, mais aucune clé Google n'est configurée ; la recherche de transports utilise toujours Transitous. Ajoutez une clé dans Clés d'API ci-dessus.",
   'admin.transitProvider.personalKeyWarning':
     "Seule votre propre clé Google est définie : la recherche des autres membres continue de basculer sur Transitous. Enregistrez la clé ci-dessus en tant qu'administrateur pour l'appliquer à toute l'instance.",
   'admin.placeShadow.title': 'Journal des recherches de lieux',
@@ -701,8 +702,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': "Aucune entrée d'audit.",
   'admin.audit.refresh': 'Actualiser',
   'admin.audit.loadMore': 'Charger plus',
-  'admin.audit.showing': '{count} chargées · {total} au total',
-  'admin.audit.showing.one': '{count} chargée · {total} au total',
+  'admin.audit.showing': '{count} chargées, {total} au total',
+  'admin.audit.showing.one': '{count} chargée, {total} au total',
   'admin.audit.col.time': 'Heure',
   'admin.audit.col.user': 'Utilisateur',
   'admin.audit.col.action': 'Action',
@@ -949,5 +950,39 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.origin.auto': 'Automatique',
   'admin.paddleRegions.origin.autoHint':
     'TREK a chargé cette région de lui-même pour une sortie en canoë planifiée là-bas.',
+  'admin.mfa.reset': 'Réinitialiser la 2FA',
+  'admin.mfa.resetHint':
+    "Désactive l'authentification à deux facteurs de cet utilisateur, par exemple après la perte d'un téléphone. Il est déconnecté partout et pourra la reconfigurer après s'être connecté avec son mot de passe.",
+  'admin.mfa.resetConfirm': "Désactiver l'authentification à deux facteurs de {name} ?",
+  'admin.mfa.resetDone': 'Authentification à deux facteurs réinitialisée',
+  'admin.danger.title': 'Zone de danger',
+  'admin.rotateJwt.title': 'Renouveler le secret JWT',
+  'admin.rotateJwt.hint':
+    'Génère un nouveau secret de signature JWT. Toutes les sessions actives seront invalidées immédiatement.',
+  'admin.rotateJwt.confirm': 'Renouveler et se déconnecter',
+  'admin.rotateJwt.warning': 'Attention, cela invalidera toutes les sessions et vous déconnectera.',
+  'admin.rotateJwt.body':
+    'Un nouveau secret JWT sera généré immédiatement. Tous les utilisateurs connectés, vous compris, seront déconnectés et devront se reconnecter.',
+  'admin.oidcDisplayNamePlaceholder': 'ex. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'URL de découverte (facultative)',
+  'admin.oidcDiscoveryUrlHint':
+    "Remplace l'URL de découverte construite automatiquement. Nécessaire pour les fournisseurs comme Authentik dont le point de terminaison n'est pas à {path}.",
+  'admin.smtp.skipTls': 'Ignorer la vérification du certificat TLS',
+  'admin.smtp.skipTlsHint': 'À activer pour les certificats auto-signés sur des serveurs de messagerie locaux',
+  'admin.demoBaseline.title': 'État de référence de la démo',
+  'admin.demoBaseline.hint':
+    "Enregistre l'état actuel comme point de réinitialisation horaire. Tous les voyages et réglages de l'administrateur seront conservés.",
+  'admin.demoBaseline.button': "Enregistrer l'état de référence",
+  'admin.demoBaseline.saved': 'État de référence enregistré ! Les réinitialisations reviendront à cet état.',
+  'admin.demoBaseline.failed': "Échec de l'enregistrement de l'état de référence",
+  'admin.invite.deleteTitle': "Supprimer le lien d'invitation",
+  'admin.invite.deleteConfirm':
+    "Supprimer ce lien d'invitation ? Toute personne qui ne l'a pas encore utilisé ne pourra plus s'inscrire avec.",
+  'admin.packingTemplates.deleteTemplateTitle': 'Supprimer le modèle',
+  'admin.packingTemplates.deleteTemplateConfirm':
+    'Supprimer le modèle "{name}" avec toutes ses catégories et tous ses éléments ?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Supprimer la catégorie',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Supprimer la catégorie "{name}" et tous ses éléments ?',
+  'admin.rotateJwt.button': 'Renouveler',
 };
 export default admin;

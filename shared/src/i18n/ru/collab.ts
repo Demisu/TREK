@@ -116,5 +116,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Прикрепить изображения',
   'collab.chat.attachedImage': 'Прикреплённое изображение',
   'collab.chat.closeImage': 'Закрыть изображение',
+  'collab.notes.categoryInUse':
+    'Эта категория всё ещё используется в заметках. Сначала перенесите или удалите их, тогда категорию можно будет убрать.',
+  'collab.notes.categoriesLocalHint':
+    'Категория без заметок сохраняется только в этом браузере. Другие участники увидят её, когда её начнёт использовать заметка.',
 };
 export default collab;

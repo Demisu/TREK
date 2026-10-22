@@ -12,6 +12,7 @@ import LoginPage from './pages/LoginPage'
 import { ToastContainer } from './components/shared/Toast'
 import SaveToCollectionModal from './components/Collections/SaveToCollectionModal'
 import MSaveToCollectionSheet from './components/Collections/MSaveToCollectionSheet'
+import { useSaveToCollectionStore } from './store/saveToCollectionStore'
 import BackgroundTasksWidget from './components/BackgroundTasks/BackgroundTasksWidget'
 import MobileShell from './mobile/MobileShell'
 import MRouteFallback from './mobile/components/MRouteFallback'
@@ -62,6 +63,8 @@ const SharedTripPage = lazyWithRetry(() => import('./pages/SharedTripPage'))
 const JoinTripPage = lazyWithRetry(() => import('./pages/JoinTripPage'))
 const InAppNotificationsPage = lazyWithRetry(() => import('./pages/InAppNotificationsPage.tsx'))
 const OAuthAuthorizePage = lazyWithRetry(() => import('./pages/OAuthAuthorizePage'))
+// The tour keep dialog a day plan row opens; it loads only once a tour is to be kept.
+const TourSaveToCollectionHost = lazyWithRetry(() => import('./components/Tours/collection/TourSaveToCollectionHost'))
 
 // The ten phone screens are chunks of their own, alongside the desktop pages
 // rather than inside them. Each page used to import its M screen statically and
@@ -382,6 +385,7 @@ export default function App() {
   }, [settings.dark_mode, settings.appearance, isSharedPage])
 
   const isPhone = useIsPhone()
+  const keepingTour = useSaveToCollectionStore(s => s.tour !== null)
   const isAuthPage = location.pathname.startsWith('/login')
     || location.pathname.startsWith('/register')
     || location.pathname.startsWith('/forgot-password')
@@ -403,6 +407,7 @@ export default function App() {
       <ErrorBoundary boundaryId="widget:toast" fallback={null}><ToastContainer /></ErrorBoundary>
       {!hideAuthedWidgets && <ErrorBoundary boundaryId="widget:background-tasks" fallback={null}><BackgroundTasksWidget /></ErrorBoundary>}
       {!hideAuthedWidgets && (isPhone ? <MSaveToCollectionSheet /> : <SaveToCollectionModal />)}
+      {!hideAuthedWidgets && keepingTour && <ErrorBoundary boundaryId="widget:keep-tour" fallback={null}><Suspense fallback={null}><TourSaveToCollectionHost /></Suspense></ErrorBoundary>}
       <ErrorBoundary boundaryId="widget:offline-banner" fallback={null}><OfflineBanner /></ErrorBoundary>
       <ErrorBoundary boundaryId="widget:new-version" fallback={null}><NewVersionNotice /></ErrorBoundary>
       {/* One boundary for all route chunks, above <Routes> so it stays mounted

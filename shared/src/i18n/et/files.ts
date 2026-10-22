@@ -68,5 +68,8 @@ const files: TranslationStrings = {
   'files.linkNeedsConnection': 'Selle lingi eemaldamiseks on vaja ühendust. Proovi uuesti, kui TREK on taas võrgus.',
   'files.placeFilesNeedConnection':
     'Failide üleslaadimiseks on vaja ühendust. Eemalda uued, et koht võrguta salvestada, või salvesta, kui oled taas võrgus.',
+  'files.maxSize': 'Maks {count} MB',
+  'files.maxSize.one': 'Maks {count} MB',
+  'files.toast.starError': 'Tärni ei õnnestunud muuta',
 };
 export default files;

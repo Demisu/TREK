@@ -1,18 +1,24 @@
 import { test, expect, type Page, type Locator } from '@playwright/test'
-import { captureGuide, captureHero, beat, typeInto, settle, VIEWPORT, type GuideScript } from './guide'
+import { captureGuide, captureHero, beat, dragLoop, typeInto, settle, VIEWPORT, type GuideScript } from './guide'
 import { pickerLabel } from '../dates'
 import { seededTrip, ensureListsFixtures } from './fixtures'
 import { openTrip, modal } from './trip-shared'
+import { restorePacking, snapshotPacking, untickPacking, type PackingSnapshotRow } from './fixtures-trip-lists'
 import { tripListsContext, tripListsGuides } from '../../src/help/contexts/tripLists'
 import type { HelpGuide } from '../../src/help/types'
 
 /**
  * Actions for the Lists tab of a trip, keyed by the ids in
  * `src/help/contexts/tripLists.ts`. They run on the seeded "Autumn in Japan"
- * with the fixtures' packing template and two extra tasks in place, so Apply
- * template exists and the to-do sidebar has more than one filled filter; what
- * a guide creates it takes away again in `cleanup`, so the next one starts the
- * same.
+ * with the fixtures' packing template and extra tasks in place, so Apply
+ * template exists and the to-do sidebar has more than one filled filter.
+ *
+ * The seed's packing list is long and mostly ticked, so the packing guides do
+ * not undo their changes one by one: the list is snapshotted once before the
+ * first guide (`fixtures-trip-lists.ts`) and put back from that snapshot when
+ * each packing guide starts and again when it ends. What lives outside the
+ * items (a template, a bag, a list's assignees, a task) is removed by the
+ * guide that made it.
  */
 
 const guide = (id: string): HelpGuide => {
@@ -21,10 +27,10 @@ const guide = (id: string): HelpGuide => {
   return g
 }
 
-/** What the guides make and unmake. Nothing here is in the seed. */
-const NEW_LIST = 'Toiletries'
-const FIRST_ITEM = 'Toothbrush'
-const RENAMED_ITEM = 'Toothbrush and paste'
+/** What the guides make and unmake. None of these names is in the seed. */
+const NEW_LIST = 'Snacks'
+const FIRST_ITEM = 'Rice crackers'
+const RENAMED_ITEM = 'Rice crackers for the train'
 const MEMBER = 'mira'
 const SHARED_ITEM = 'Camera'
 const BAG_ITEM = 'Rain jacket'
@@ -34,36 +40,60 @@ const NEW_TASK = 'Pick up the pocket wifi'
 const NEW_TASK_NOTE = 'Counter is past customs, on the right, open until 22:00.'
 const TASK_LIST = 'On arrival'
 const OTHER_TASK_LIST = 'Before departure'
-const EDITED_TASK = 'Activate JR Pass'
+/** An open, unassigned task of the seed; the edit guide puts a name on it. */
+const EDITED_TASK = 'Send postcards home'
+/** The only open task with a priority (the fixtures' P3), so Priority puts it on top. */
+const PRIORITY_TASK = 'Confirm ryokan check-in time'
 const ASSIGNEE = 'jonas'
 /** The date picker labels a day cell with the whole date, in the run's English. */
 const DUE_DAY = pickerLabel(4)
-/** The fixtures' template, and the lists it brings with it. */
-const TEMPLATE = { name: 'Japan autumn basics', category: 'Rain kit', items: ['Umbrella', 'Quick-dry towel', 'Dry bag', 'SIM card', 'Plug adapter'] }
-const IMPORT_LINES = 'Toiletries, Toothbrush\nToiletries, Sunscreen, 90\nHealth, Plasters, 30'
-const IMPORTED = ['Toothbrush', 'Sunscreen', 'Plasters']
-/** The seed's packing items, in the order it created them. */
-const SEED_ORDER = ['Passport', 'JR Pass voucher', 'Travel insurance', 'Rain jacket', 'Walking shoes', 'Light layers', 'Type-A adapter', 'Power bank', 'Camera']
-const DOCUMENTS = ['Passport', 'JR Pass voucher', 'Travel insurance']
+/** The fixtures' template, and the list it brings with it. */
+const TEMPLATE = { name: 'Japan autumn basics', category: 'Rain kit' }
+/** Names the seed does not have, so the imported rows are the only ones that match. */
+const IMPORT_LINES = 'Toiletries, Earplugs\nHealth, Motion sickness tablets, 20\nDay bag, Folding fan, 40'
+const IMPORTED_LAST = 'Folding fan'
+/** Still open in the seed, so a click ticks it rather than unticking it. */
+const OPEN_ITEM = 'Slip-on shoes for temples'
+/** A list with one open item, so Check All visibly finishes it. */
+const CHECK_ALL_LIST = 'Electronics'
+const CHECK_ALL_OPEN = 'eSIM activation code'
+/** Fully packed in the seed, so the Open filter hides its list. */
+const PACKED_ITEM = 'Passport'
+/** What the ordering guide moves: the third list onto the first, then the last item of that first list to its top. */
+const MOVED_LIST = 'Electronics'
+const FIRST_LIST = 'Documents'
+const MOVED_ITEM = 'Credit card and some yen'
+const TOP_ITEM = 'Passport'
+/** Packed in the seed; the counting guide unticks it and counts five pairs in. */
+const PIECES_ITEM = 'Merino socks'
+const PIECES = 5
 /** The count in the label moves with what is ticked, so it is matched, not spelled. */
 const CLEAR_CHECKED = /^Remove \d+ checked$/
 
 // ── Locators ─────────────────────────────────────────────────────────────────
 
-/** A category card: the list's name is a span in the card's header row. */
+/** A category card: the list's name is a span in the card's head band. */
 const cat = (page: Page, name: string): Locator =>
   page.getByText(name, { exact: true }).first().locator('xpath=ancestor::div[2]')
 /**
- * The header row of a card. The ⋯ has to be taken from here: every item row
+ * The head band of a card. The ⋯ has to be taken from here: every item row
  * carries a ⋯ of its own, so the card as a whole holds several of them.
  */
 const catHeader = (page: Page, name: string): Locator => cat(page, name).locator('> div').first()
 const catMenu = (page: Page, name: string): Locator =>
-  catHeader(page, name).locator('button:has(svg.lucide-more-horizontal)')
+  catHeader(page, name).locator('button:has(svg.lucide-ellipsis, svg.lucide-more-horizontal)')
+/** The grip in a list's head band, before its colour dot. */
+const catGrip = (page: Page, name: string): Locator =>
+  catHeader(page, name).getByRole('button', { name: 'Drag to reorder the category' })
 /** The open ⋯ menu is a fixed popover with no class of its own; its last entry names it. */
 const catMenuCard = (page: Page): Locator => page.getByRole('button', { name: 'Delete List' }).locator('xpath=..')
 const item = (page: Page, name: string): Locator =>
   page.locator('.packing-item-row').filter({ hasText: name }).first()
+/** A row's own grip is a bare draggable div, the first thing in the row. */
+const rowGrip = (page: Page, name: string): Locator => item(page, name).locator('div[draggable="true"]')
+/** The two-column grid of list cards; its children are the cards, in order. */
+const listGrid = (page: Page): Locator =>
+  page.locator('div.grid').filter({ has: page.locator('.packing-item-row') }).first()
 /** The only item of the list the first guide builds; its name changes mid-guide. */
 const onlyRow = (page: Page): Locator => cat(page, NEW_LIST).locator('.packing-item-row').first()
 /** An item's own ⋯, which holds Move to List, Sharing, Rename and Delete. */
@@ -71,6 +101,18 @@ const rowMenu = (page: Page, name: string): Locator => item(page, name).locator(
 /** The open item menu; Sharing is a whole line in it. */
 const rowMenuSharing = (page: Page): Locator =>
   page.locator('.trek-menu-enter').getByRole('button', { name: /^Sharing/ })
+/**
+ * The progress card's count and percentage. The total is a span of its own
+ * that reads "/28"; the category badges hold "n/m" in one span, so they never match.
+ */
+const progressCount = (page: Page): Locator =>
+  page.getByText(/^\/\d+$/).first().locator('xpath=ancestor::div[2]')
+/** The quantity badge is the first field among a row's inline actions while it has no counter. */
+const quantityField = (page: Page, name: string): Locator =>
+  item(page, name).locator('.packing-row-inline-actions input').first()
+/** The packed counter of a multi-piece item, named "3 of 5 packed". */
+const piecesCounter = (page: Page, name: string): Locator =>
+  item(page, name).getByRole('group', { name: / of \d+ packed$/ })
 /** The name dialog that Add list and Save as template open. */
 const nameDialog = (page: Page, confirm: string): Locator => page.getByRole('button', { name: confirm, exact: true })
 /** The sharing dropdown is portalled to <body>, so the hint's parent is the card itself. */
@@ -83,7 +125,7 @@ const importCard = (page: Page): Locator =>
   page.getByRole('dialog').filter({ has: page.getByText('Import Packing List', { exact: true }) })
 /**
  * The bag picker of a row and the member picker of a bag both hang off the
- * body now, so they are found by their caption rather than inside the row.
+ * body, so they are found by their caption rather than inside the row.
  */
 const bagPicker = (page: Page): Locator => page.locator('.trek-menu-enter').filter({ hasText: 'Bags' }).last()
 const bagMemberPicker = (page: Page): Locator => page.locator('.trek-menu-enter').filter({ hasText: 'Assign members' }).last()
@@ -93,7 +135,6 @@ const datePicker = (page: Page): Locator => page.getByRole('dialog', { name: 'Da
 const exportMenu = (page: Page): Locator => page.getByRole('menu')
 /** The printable page inside the preview, a srcdoc frame of its own. */
 const printFrame = (page: Page) => page.frameLocator('iframe[title^="Packing List"]')
-/** The Bags card beside the lists. Total weight is a span in its foot band. */
 /** The bag sidebar: the innermost box holding the guide's bag and the weight summary below the cards. */
 const bagSidebar = (page: Page): Locator =>
   page.locator('div')
@@ -107,6 +148,12 @@ const task = (page: Page, name: string): Locator =>
   page.getByRole('button', { name: new RegExp(`^${name}`) }).first()
 const sidebarFilter = (page: Page, name: string): Locator =>
   page.getByRole('button', { name: new RegExp(`^${name}`) })
+/**
+ * A CustomSelect's options are portalled to <body> as a group named after what
+ * the field shows. Scoped to it, an option never collides with the sidebar's
+ * list row of the same name, which reads exactly the same once its count is zero.
+ */
+const selectList = (page: Page, showing: string): Locator => page.getByRole('group', { name: showing, exact: true }).last()
 
 const only = (target: (p: Page) => Locator) => ({ target })
 
@@ -132,10 +179,25 @@ async function openTodos(page: Page): Promise<void> {
 
 // ── Putting the seed back ────────────────────────────────────────────────────
 
+/** The packing list as the seed and the fixtures left it, taken in beforeAll. */
+let seedPacking: PackingSnapshotRow[] | null = null
+
+function seed(): PackingSnapshotRow[] {
+  if (!seedPacking) throw new Error('the packing list was not snapshotted before the guides')
+  return seedPacking
+}
+
+const resetPacking = (page: Page): Promise<void> => restorePacking(page.request, seed())
+
+/** Every packing guide starts from the seed's list, even after one that failed half way. */
+async function startLists(page: Page): Promise<void> {
+  await resetPacking(page)
+  await openLists(page)
+}
+
 interface PackingRow {
   id: number
   name: string
-  category: string | null
 }
 
 async function packingItems(page: Page): Promise<PackingRow[]> {
@@ -145,36 +207,21 @@ async function packingItems(page: Page): Promise<PackingRow[]> {
   return body.items ?? []
 }
 
-async function deleteItems(page: Page, match: (row: PackingRow) => boolean): Promise<void> {
-  const { tripId } = seededTrip()
-  for (const row of (await packingItems(page)).filter(match)) {
-    await page.request.delete(`/api/trips/${tripId}/packing/${row.id}`)
-  }
-}
-
-/**
- * Re-creates the three Documents items the guide really deleted, then writes
- * the seed's order back: without it the re-created rows sort last, the
- * Documents card slides to the end of the two-column grid, and every later
- * guide's picture changes.
- */
-async function restoreDocuments(page: Page): Promise<void> {
-  const { tripId } = seededTrip()
-  const present = await packingItems(page)
-  for (const name of DOCUMENTS) {
-    if (present.some(row => row.name === name)) continue
-    await page.request.post(`/api/trips/${tripId}/packing`, { data: { name, category: 'Documents', visibility: 'common' } })
-  }
-  const after = await packingItems(page)
-  const orderedIds = SEED_ORDER.map(name => after.find(row => row.name === name)?.id).filter((id): id is number => id !== undefined)
-  await page.request.put(`/api/trips/${tripId}/packing/reorder`, { data: { orderedIds } })
-}
-
 async function deleteTemplate(page: Page, name: string): Promise<void> {
   const res = await page.request.get('/api/admin/packing-templates')
   const body = (await res.json()) as { templates?: { id: number; name: string }[] }
   for (const template of (body.templates ?? []).filter(row => row.name === name)) {
     await page.request.delete(`/api/admin/packing-templates/${template.id}`)
+  }
+}
+
+async function deleteBag(page: Page, name: string): Promise<void> {
+  const { tripId } = seededTrip()
+  const res = await page.request.get(`/api/trips/${tripId}/packing/bags`)
+  const body = (await res.json()) as { bags?: { id: number; name: string }[] }
+  for (const bag of (body.bags ?? []).filter(x => x.name === name)) {
+    // bag_id is ON DELETE SET NULL, so the item is freed with it.
+    await page.request.delete(`/api/trips/${tripId}/packing/bags/${bag.id}`)
   }
 }
 
@@ -200,7 +247,7 @@ async function unassignTodo(page: Page, name: string): Promise<void> {
 const SCRIPTS: Record<string, GuideScript> = {
   'packing-categories': {
     guide: guide('packing-categories'),
-    start: openLists,
+    start: startLists,
     steps: [
       {
         target: p => p.getByRole('button', { name: 'Add list' }),
@@ -277,36 +324,78 @@ const SCRIPTS: Record<string, GuideScript> = {
     ],
     cleanup: async p => {
       const { tripId } = seededTrip()
-      await deleteItems(p, row => row.category === NEW_LIST)
+      await resetPacking(p)
       await p.request.put(`/api/trips/${tripId}/packing/category-assignees/${encodeURIComponent(NEW_LIST)}`, { data: { user_ids: [] } })
+    },
+  },
+  'arrange-packing-list': {
+    guide: guide('arrange-packing-list'),
+    start: startLists,
+    steps: [
+      {
+        // The still rings the grip and the card it goes onto; the loop shows the drag.
+        target: p => catGrip(p, MOVED_LIST),
+        dropTo: p => catHeader(p, FIRST_LIST),
+        clip: async (p, frame) => {
+          await dragLoop(p, catGrip(p, MOVED_LIST), catHeader(p, FIRST_LIST), frame)
+          await expect(listGrid(p).locator('> div').first()).toContainText(MOVED_LIST, { timeout: 20_000 })
+          await settle(p)
+          for (let i = 0; i < 3; i++) await frame()
+        },
+      },
+      {
+        prepare: async p => { await item(p, MOVED_ITEM).hover() },
+        target: p => rowGrip(p, MOVED_ITEM),
+        dropTo: p => item(p, TOP_ITEM),
+        clip: async (p, frame) => {
+          await dragLoop(p, rowGrip(p, MOVED_ITEM), item(p, TOP_ITEM), frame)
+          await expect(cat(p, FIRST_LIST).locator('.packing-item-row').first()).toContainText(MOVED_ITEM, { timeout: 20_000 })
+          await settle(p)
+          for (let i = 0; i < 3; i++) await frame()
+        },
+      },
+      {
+        target: p => p.getByRole('button', { name: 'A to Z' }),
+        act: async p => {
+          await p.getByRole('button', { name: 'A to Z' }).click()
+          await expect(p.getByRole('button', { name: 'A to Z' })).toHaveAttribute('aria-pressed', 'true')
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: async p => {
+      // A to Z is remembered in this browser; the next guide opens a fresh one,
+      // but the switch goes back off here all the same.
+      await p.evaluate(() => { try { localStorage.removeItem('trek:packing-sort') } catch { /* nothing stored */ } })
+      await resetPacking(p)
     },
   },
   'check-off-packing': {
     guide: guide('check-off-packing'),
-    start: openLists,
+    start: startLists,
     steps: [
       {
         // The grip is a div, so the tick box is the row's first button.
-        target: p => item(p, 'Passport').getByRole('button').first(),
+        target: p => item(p, OPEN_ITEM).getByRole('button').first(),
         act: async p => {
-          await item(p, 'Passport').getByRole('button').first().click()
-          await expect(item(p, 'Passport').locator('.packing-check')).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 })
+          await item(p, OPEN_ITEM).getByRole('button').first().click()
+          await expect(item(p, OPEN_ITEM).locator('.packing-check')).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 })
           await settle(p)
         },
       },
       // The count and the percentage, with the bar beside them: the whole card is
       // wider than any frame and would lose both at its edges.
-      only(p => p.getByText('/9', { exact: true }).locator('xpath=ancestor::div[2]')),
+      only(progressCount),
       {
         prepare: async p => {
-          await catMenu(p, 'Documents').click()
+          await catMenu(p, CHECK_ALL_LIST).click()
           await expect(p.getByRole('button', { name: 'Check All', exact: true })).toBeVisible()
           await beat(p, 300)
         },
         target: p => p.getByRole('button', { name: 'Check All', exact: true }),
         act: async p => {
           await p.getByRole('button', { name: 'Check All', exact: true }).click()
-          await expect(cat(p, 'Documents').getByText('3/3', { exact: true })).toBeVisible({ timeout: 20_000 })
+          await expect(item(p, CHECK_ALL_OPEN).locator('.packing-check')).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 })
           await settle(p)
         },
       },
@@ -314,28 +403,74 @@ const SCRIPTS: Record<string, GuideScript> = {
         target: p => p.getByRole('button', { name: 'Open', exact: true }),
         act: async p => {
           await p.getByRole('button', { name: 'Open', exact: true }).click()
-          await expect(p.getByText('Documents', { exact: true })).toHaveCount(0, { timeout: 20_000 })
+          await expect(item(p, PACKED_ITEM)).toHaveCount(0, { timeout: 20_000 })
           await settle(p)
         },
       },
       {
         target: p => p.getByRole('button', { name: CLEAR_CHECKED }),
         act: async p => {
-          // A native window.confirm, which Playwright dismisses unless something
-          // accepts it first. The browser's own dialog cannot be pictured, so
-          // the step shows the button and the state it leaves behind.
-          p.once('dialog', d => { void d.accept() })
+          // A native window.confirm, which cannot be pictured. The step shows the
+          // button and answers the browser with Cancel: with the Open filter on,
+          // the screen looks the same either way, and the seed's ticked items
+          // (most of the list) stay where they are for the guides after this one.
+          p.once('dialog', d => { void d.dismiss() })
           await p.getByRole('button', { name: CLEAR_CHECKED }).click()
-          await expect(p.getByRole('button', { name: CLEAR_CHECKED })).toHaveCount(0, { timeout: 30_000 })
+          await expect(p.getByRole('button', { name: CLEAR_CHECKED })).toBeVisible()
           await settle(p)
         },
       },
     ],
-    cleanup: restoreDocuments,
+    cleanup: resetPacking,
+  },
+  'count-packed-pieces': {
+    guide: guide('count-packed-pieces'),
+    start: async p => {
+      await resetPacking(p)
+      await untickPacking(p.request, PIECES_ITEM)
+      await openLists(p)
+    },
+    steps: [
+      {
+        prepare: async p => { await item(p, PIECES_ITEM).hover() },
+        target: p => quantityField(p, PIECES_ITEM),
+        act: async p => {
+          const field = quantityField(p, PIECES_ITEM)
+          await typeInto(p, field, String(PIECES))
+          await field.press('Enter')
+          await expect(piecesCounter(p, PIECES_ITEM)).toHaveAccessibleName(`0 of ${PIECES} packed`, { timeout: 20_000 })
+          await settle(p)
+        },
+      },
+      {
+        target: p => piecesCounter(p, PIECES_ITEM),
+        act: async p => {
+          for (let n = 1; n <= 3; n++) {
+            await item(p, PIECES_ITEM).getByRole('button', { name: 'Pack one more' }).click()
+            await expect(piecesCounter(p, PIECES_ITEM)).toHaveAccessibleName(`${n} of ${PIECES} packed`, { timeout: 20_000 })
+          }
+          await settle(p)
+        },
+      },
+      {
+        // Partly packed: the counter in the accent, the tick box outlined in it.
+        target: p => item(p, PIECES_ITEM),
+        act: async p => {
+          for (let n = 4; n <= PIECES; n++) {
+            await item(p, PIECES_ITEM).getByRole('button', { name: 'Pack one more' }).click()
+            await expect(piecesCounter(p, PIECES_ITEM)).toHaveAccessibleName(`${n} of ${PIECES} packed`, { timeout: 20_000 })
+          }
+          await expect(item(p, PIECES_ITEM).locator('.packing-check')).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 })
+          await settle(p)
+        },
+      },
+      only(p => item(p, PIECES_ITEM)),
+    ],
+    cleanup: resetPacking,
   },
   'apply-packing-template': {
     guide: guide('apply-packing-template'),
-    start: openLists,
+    start: startLists,
     steps: [
       {
         target: p => p.getByRole('button', { name: 'Apply template' }),
@@ -367,13 +502,13 @@ const SCRIPTS: Record<string, GuideScript> = {
       },
     ],
     cleanup: async p => {
-      await deleteItems(p, row => TEMPLATE.items.includes(row.name))
+      await resetPacking(p)
       await deleteTemplate(p, SAVED_TEMPLATE)
     },
   },
   'import-packing-list': {
     guide: guide('import-packing-list'),
-    start: openLists,
+    start: startLists,
     steps: [
       {
         // An icon at the right end of the bar, named Import by its label and tooltip.
@@ -407,16 +542,17 @@ const SCRIPTS: Record<string, GuideScript> = {
         act: async p => {
           await importCard(p).getByRole('button', { name: /^Import \d+$/ }).click()
           await expect(importCard(p)).toHaveCount(0, { timeout: 30_000 })
-          await expect(item(p, 'Sunscreen')).toBeVisible({ timeout: 30_000 })
+          await expect(item(p, IMPORTED_LAST)).toBeVisible({ timeout: 30_000 })
+          await item(p, IMPORTED_LAST).scrollIntoViewIfNeeded()
           await settle(p)
         },
       },
     ],
-    cleanup: p => deleteItems(p, row => IMPORTED.includes(row.name)),
+    cleanup: resetPacking,
   },
   'export-packing-list': {
     guide: guide('export-packing-list'),
-    start: openLists,
+    start: startLists,
     steps: [
       {
         target: p => p.getByRole('button', { name: 'Export', exact: true }),
@@ -449,7 +585,7 @@ const SCRIPTS: Record<string, GuideScript> = {
   },
   'share-packing-item': {
     guide: guide('share-packing-item'),
-    start: openLists,
+    start: startLists,
     steps: [
       {
         target: p => p.getByRole('button', { name: /^My list/ }),
@@ -518,18 +654,23 @@ const SCRIPTS: Record<string, GuideScript> = {
       if (row) {
         await p.request.put(`/api/trips/${tripId}/packing/${row.id}/sharing`, { data: { visibility: 'common', recipient_ids: [] } })
       }
+      await resetPacking(p)
     },
   },
   'packing-bags': {
     guide: guide('packing-bags'),
-    start: openLists,
+    start: async p => {
+      // A run that died half way leaves its bag behind, and the Bags card with it.
+      await deleteBag(p, BAG)
+      await startLists(p)
+    },
     steps: [
       {
         // The weight field's placeholder really is a dash: it is the app's own
         // string, not prose, so it is matched exactly as rendered.
-        target: p => item(p, BAG_ITEM).getByPlaceholder('\u2014'),
+        target: p => item(p, BAG_ITEM).getByPlaceholder('—'),
         act: async p => {
-          const field = item(p, BAG_ITEM).getByPlaceholder('\u2014')
+          const field = item(p, BAG_ITEM).getByPlaceholder('—')
           await typeInto(p, field, '620')
           await expect(field).toHaveValue('620', { timeout: 20_000 })
           await settle(p)
@@ -557,6 +698,8 @@ const SCRIPTS: Record<string, GuideScript> = {
           await settle(p)
         },
       },
+      // The jacket is ticked in the seed, so Packed under Total weight already
+      // carries its 620 g.
       only(bagSidebar),
       {
         target: p => bagSidebar(p).getByRole('button', { name: 'Set limit' }),
@@ -581,20 +724,15 @@ const SCRIPTS: Record<string, GuideScript> = {
           // The picker closes on a click anywhere beside it.
           await p.mouse.click(20, VIEWPORT.height - 40)
           await expect(bagSidebar(p).getByRole('button', { name: MEMBER })).toBeVisible({ timeout: 20_000 })
+          // A bag with someone on it fills Per person at the foot of the card.
+          await expect(p.getByText('Per person', { exact: true })).toBeVisible({ timeout: 20_000 })
           await settle(p)
         },
       },
     ],
     cleanup: async p => {
-      const { tripId } = seededTrip()
-      const res = await p.request.get(`/api/trips/${tripId}/packing/bags`)
-      const body = (await res.json()) as { bags?: { id: number; name: string }[] }
-      for (const bag of (body.bags ?? []).filter(x => x.name === BAG)) {
-        // bag_id is ON DELETE SET NULL, so the item is freed with it.
-        await p.request.delete(`/api/trips/${tripId}/packing/bags/${bag.id}`)
-      }
-      const row = (await packingItems(p)).find(x => x.name === BAG_ITEM)
-      if (row) await p.request.put(`/api/trips/${tripId}/packing/${row.id}`, { data: { weight_grams: null } })
+      await deleteBag(p, BAG)
+      await resetPacking(p)
     },
   },
   'create-todo': {
@@ -625,7 +763,7 @@ const SCRIPTS: Record<string, GuideScript> = {
         act: async p => {
           await modal(p).getByRole('button', { name: 'No list' }).click()
           // The select's list is portalled to <body>, outside the dialog.
-          await p.getByRole('button', { name: TASK_LIST, exact: true }).click()
+          await selectList(p, 'No list').getByRole('button', { name: TASK_LIST, exact: true }).click()
           await expect(modal(p).getByRole('button', { name: TASK_LIST })).toBeVisible({ timeout: 20_000 })
           await settle(p)
         },
@@ -657,7 +795,7 @@ const SCRIPTS: Record<string, GuideScript> = {
         act: async p => {
           await datePicker(p).getByRole('button', { name: DUE_DAY }).click()
           await modal(p).getByRole('button', { name: 'Unassigned' }).click()
-          await p.getByRole('button', { name: ASSIGNEE }).click()
+          await selectList(p, 'Unassigned').getByRole('button', { name: ASSIGNEE }).click()
           await expect(modal(p).getByRole('button', { name: ASSIGNEE })).toBeVisible({ timeout: 20_000 })
           await settle(p)
         },
@@ -702,7 +840,7 @@ const SCRIPTS: Record<string, GuideScript> = {
         target: p => p.getByRole('button', { name: 'Priority', exact: true }),
         act: async p => {
           await p.getByRole('button', { name: 'Priority', exact: true }).click()
-          await expect(p.locator('div[role="button"][data-no-press]').first()).toContainText(EDITED_TASK, { timeout: 20_000 })
+          await expect(p.locator('div[role="button"][data-no-press]').first()).toContainText(PRIORITY_TASK, { timeout: 20_000 })
           await settle(p)
         },
       },
@@ -717,7 +855,7 @@ const SCRIPTS: Record<string, GuideScript> = {
       {
         prepare: async p => {
           await todoPane(p).getByRole('button', { name: 'Unassigned' }).click()
-          await p.getByRole('button', { name: ASSIGNEE }).click()
+          await selectList(p, 'Unassigned').getByRole('button', { name: ASSIGNEE }).click()
           await settle(p)
         },
         target: p => todoPane(p).getByRole('button', { name: 'Save changes' }),
@@ -739,6 +877,7 @@ test.describe.configure({ mode: 'serial' })
 
 test.beforeAll(async ({ request }) => {
   await ensureListsFixtures(request)
+  seedPacking = await snapshotPacking(request)
 })
 
 test('every registered lists guide has a script, and only those', async () => {
@@ -747,7 +886,7 @@ test('every registered lists guide has a script, and only those', async () => {
 
 test('hero: trip-lists', async ({ page }) => {
   await page.setViewportSize(VIEWPORT)
-  await captureHero(page, tripListsContext.id, openLists)
+  await captureHero(page, tripListsContext.id, startLists)
 })
 
 for (const id of tripListsContext.guides) {

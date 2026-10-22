@@ -9,7 +9,7 @@ import { EditorField, Segmented } from '../../components/shared/dialogParts'
 import { SettingsCard, SettingRows, SettingsHint, StatusPill, SETTINGS_BUTTON, SETTINGS_BUTTON_PRIMARY, SETTINGS_ICON_BUTTON } from '../../components/Settings/settingsKit'
 import type { TranslationFn } from '../../types'
 import type { useAdmin } from './useAdmin'
-import { formatLastActive, inviteStatus } from './adminModel'
+import { formatLastActive, inviteMeta, inviteStatus } from './adminModel'
 
 interface AdminUsersTabProps {
   admin: ReturnType<typeof useAdmin>
@@ -41,7 +41,7 @@ export default function AdminUsersTab({ admin, t, locale }: AdminUsersTabProps):
     users, isLoading,
     setShowCreateUser,
     invites, inviteTrips, showCreateInvite, setShowCreateInvite, inviteForm, setInviteForm,
-    copyInviteLink, handleCreateInvite, handleDeleteInvite,
+    copyInviteLink, handleCreateInvite, handleDeleteInvite, inviteToDelete, setInviteToDelete,
     handleEditUser, handleDeleteUser,
   } = admin
   const inviteLabelId = useId()
@@ -168,10 +168,7 @@ export default function AdminUsersTab({ admin, t, locale }: AdminUsersTabProps):
                       </StatusPill>
                     </div>
                     <div className="mt-0.5 truncate text-content-faint" style={fs(11.5)}>
-                      {inv.used_count}/{inv.max_uses === 0 ? '∞' : inv.max_uses} {t('admin.invite.uses')}
-                      {inv.expires_at && ` · ${t('admin.invite.expiresAt')} ${new Date(inv.expires_at).toLocaleDateString(locale)}`}
-                      {inv.trip_title && ` · ${t('admin.invite.boundTo', { trip: inv.trip_title })}`}
-                      {` · ${t('admin.invite.createdBy')} ${inv.created_by_name}`}
+                      {inviteMeta(inv, t, locale)}
                     </div>
                   </div>
                   <div className="flex flex-none items-center gap-1.5">
@@ -180,7 +177,7 @@ export default function AdminUsersTab({ admin, t, locale }: AdminUsersTabProps):
                         <Copy size={14} strokeWidth={2} />
                       </RowIconButton>
                     )}
-                    <RowIconButton label={t('common.delete')} onClick={() => handleDeleteInvite(inv.id)} danger>
+                    <RowIconButton label={t('common.delete')} onClick={() => setInviteToDelete(inv.id)} danger>
                       <Trash2 size={14} strokeWidth={2} />
                     </RowIconButton>
                   </div>
@@ -264,6 +261,16 @@ export default function AdminUsersTab({ admin, t, locale }: AdminUsersTabProps):
         onConfirm={() => { if (userToDelete) void handleDeleteUser(userToDelete, { confirmed: true }) }}
         title={t('admin.deleteUserTitle')}
         message={userToDelete ? t('admin.deleteUser', { name: userToDelete.username }) : ''}
+        confirmLabel={t('common.delete')}
+        danger
+      />
+
+      <ConfirmDialog
+        isOpen={inviteToDelete !== null}
+        onClose={() => setInviteToDelete(null)}
+        onConfirm={() => { if (inviteToDelete !== null) void handleDeleteInvite(inviteToDelete) }}
+        title={t('admin.invite.deleteTitle')}
+        message={t('admin.invite.deleteConfirm')}
         confirmLabel={t('common.delete')}
         danger
       />

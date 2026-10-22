@@ -39,5 +39,6 @@ const map: TranslationStrings = {
   'map.overview.unrouted.one': '{count} leg could not be routed, so the distances are incomplete.',
   'map.overview.dayUnrouted': '{count} legs of this day could not be routed',
   'map.overview.dayUnrouted.one': '{count} leg of this day could not be routed',
+  'map.baseLayer.topo': 'Topo',
 };
 export default map;

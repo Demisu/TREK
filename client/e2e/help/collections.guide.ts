@@ -1,8 +1,13 @@
 import { test, expect, type Page, type Locator, type Request } from '@playwright/test'
 import path from 'node:path'
 import { clearNotices } from '../screenshots/shot'
-import { captureGuide, captureHero, dismissReleaseNotice, beat, typeInto, settle, VIEWPORT, OUT_DIR, PICTURE_DAY, type GuideScript } from './guide'
+import { captureGuide, captureHero, dismissReleaseNotice, beat, typeInto, settle, nudgeClock, VIEWPORT, OUT_DIR, type GuideScript } from './guide'
 import { ensureExtraTrips } from './fixtures'
+import { ensureToursFixtures } from './tour-fixtures'
+import {
+  ensureTourTargetTrip, ensureSecondList, deleteList, sendInviteToMe, withdrawInvitedList,
+  TOUR_TARGET_TRIP, SECOND_LIST, INVITED_LIST,
+} from './fixtures-collections'
 import { collectionsGuides, collectionsContext } from '../../src/help/contexts/collections'
 import type { HelpGuide } from '../../src/help/types'
 
@@ -13,12 +18,17 @@ import type { HelpGuide } from '../../src/help/types'
  * second list, a Kyoto place found by search, three more Kyoto temples taken
  * from the trip, a label, a member and a file round trip, in the order the
  * context lists them, and leave the list side of it in place. Whatever they put
- * into a trip comes out again in that guide's cleanup.
+ * into a trip comes out again in that guide's cleanup. The two Tours guides at
+ * the end work on the tour the Tours fixtures keep in "Dolomites ideas".
  */
 
 const KYOTO = 'Kyoto shortlist'
 const LISBON = 'Lisbon coffee'
 const JAPAN = 'Autumn in Japan'
+/** The list the Tours fixtures keep a whole tour in. */
+const DOLOMITES = 'Dolomites ideas'
+/** The two temples the duplicate guide copies into a second list. */
+const DUPLICATED = ['Kinkaku-ji Temple', 'Kiyomizu-dera Temple']
 
 /**
  * Kyoto places the import guide puts into the Japan trip first. The seed's trip
@@ -59,9 +69,21 @@ const importTrip = (page: Page, title: string) => modal(page).getByRole('button'
  * is on screen.
  */
 const importStagger = (page: Page) => modal(page).locator('.trek-stagger')
-const placeRow = (page: Page, name: string) => page.locator('.col-lrow').filter({ hasText: name }).first()
-const placeRows = (page: Page) => page.locator('.col-lrow')
+/**
+ * A place row. Kept tours wear the row class too and come first, so they are
+ * left out here; `tourRows` finds them.
+ */
+const placeRows = (page: Page) => page.locator('.col-lrow:not(.col-lrow-tour)')
+const placeRow = (page: Page, name: string) => placeRows(page).filter({ hasText: name }).first()
+/** The whole tours a list keeps, the first rows above its places. */
+const tourRows = (page: Page) => page.locator('.col-lrow-tour')
+/** The search box of the open list: on the map where there is one, above the list where there is none. */
+const listSearch = (page: Page) => page.locator('.col-map-search:visible, .col-search:visible').first()
 const selectionBar = (page: Page) => page.locator('.col-selbar')
+/** The pending invite to the list Mira shares, in the lists rail. */
+const inviteCard = (page: Page) => rail(page).locator('.col-invite').filter({ hasText: INVITED_LIST.name })
+/** The target trip's row under Into the trip in the take-over dialog. */
+const takeOverTrip = (page: Page) => modal(page).getByRole('radio').filter({ hasText: TOUR_TARGET_TRIP })
 /** The detail sheet beside the list. */
 const detail = (page: Page) => page.locator('.col-detail').first()
 /** The map beside the list, with its floating controls. */
@@ -94,6 +116,9 @@ async function deleteTripPlaces(page: Page, tripId: number, ids: number[]): Prom
   }
 }
 
+/** The tour the take-over made in the target trip, removed again in its cleanup. */
+let takenTour: { tripId: number; placeId: number } | null = null
+
 /** The places the import guide put into the Japan trip, removed again in its cleanup. */
 let addedToTrip: number[] = []
 /** The Japan trip's places before the copy guide ran; everything else is the copy's. */
@@ -116,14 +141,12 @@ async function blurFocus(page: Page): Promise<void> {
  * Leaflet times a pan from `+new Date()`, and the browser's clock is pinned to
  * the picture day (guide.ts), so a pan started for a picture never gets past its
  * first frame: the map stays where it was and the place the text says it pans
- * to is not in view. Moving the fixed time on for a moment lets the running
- * animation see that its time is up and finish, exactly where it would have
- * ended; the clock goes back to the picture day straight after.
+ * to is not in view. Moving the fixed time on lets the running animation see
+ * that its time is up and finish, exactly where it would have ended.
  */
 async function finishMapMotion(page: Page): Promise<void> {
-  await page.clock.setFixedTime(new Date(PICTURE_DAY.getTime() + 10_000))
+  await nudgeClock(page, 10_000)
   await page.evaluate(() => new Promise(res => requestAnimationFrame(() => requestAnimationFrame(res))))
-  await page.clock.setFixedTime(PICTURE_DAY)
 }
 
 /**
@@ -263,7 +286,7 @@ async function selectPlaces(page: Page, names: string[]): Promise<void> {
 /** Pick an option in a CustomSelect that has a search box. */
 async function pickSearchable(page: Page, trigger: Locator, text: string): Promise<void> {
   await trigger.click()
-  const search = page.getByPlaceholder('...')
+  const search = page.getByPlaceholder(/^(\.\.\.|Search)$/)
   await search.waitFor({ state: 'visible', timeout: 5_000 })
   await typeInto(page, search, text)
   await search.locator('xpath=../..').getByRole('button', { name: text, exact: true }).first().click()
@@ -568,6 +591,53 @@ const SCRIPTS: Record<string, GuideScript> = {
     },
   },
 
+  'move-to-list': {
+    guide: guide('move-to-list'),
+    start: async p => {
+      await ensureSecondList(p.request)
+      await openList(p, KYOTO)
+    },
+    steps: [
+      {
+        target: p => filterBar(p).getByRole('button', { name: 'Select', exact: true }),
+        act: async p => {
+          await selectPlaces(p, DUPLICATED)
+          await beat(p, 300)
+        },
+      },
+      {
+        // Duplicate rather than Move: the two temples stay on the list the
+        // guides after this one picture.
+        target: p => selectionBar(p).getByRole('button', { name: 'Duplicate to list' }),
+        act: async p => {
+          await selectionBar(p).getByRole('button', { name: 'Duplicate to list' }).click()
+          await expect(modal(p)).toBeVisible()
+          await expect(modal(p).getByRole('button').filter({ hasText: SECOND_LIST.name })).toBeVisible()
+          // A long list of lists starts with its search focused.
+          await blurFocus(p)
+          await settle(p)
+        },
+      },
+      {
+        target: modalCard,
+        act: async p => {
+          await modal(p).getByRole('button').filter({ hasText: SECOND_LIST.name }).click()
+          await expect(modal(p)).toHaveCount(0, { timeout: 15_000 })
+          if (await selectionBar(p).count()) await filterBar(p).getByRole('button', { name: 'Select', exact: true }).click()
+          await listRow(p, SECOND_LIST.name).click()
+          await expect(hero(p)).toContainText(SECOND_LIST.name)
+          await expect(p.locator('.col-loading')).toHaveCount(0)
+          for (const name of DUPLICATED) await expect(placeRow(p, name)).toBeVisible()
+          // A list that had no places mounts its map now, on the window's camera.
+          await pageReady(p, { reframe: true })
+        },
+      },
+    ],
+    cleanup: async p => {
+      await deleteList(p.request, SECOND_LIST.name)
+    },
+  },
+
   'copy-to-trip': {
     guide: guide('copy-to-trip'),
     start: async p => {
@@ -647,6 +717,37 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
     ],
+  },
+
+  'accept-list-invite': {
+    guide: guide('accept-list-invite'),
+    start: async p => {
+      // Mira makes a list of her own and invites the demo account before the page loads.
+      await sendInviteToMe(p.request)
+      await openCollections(p)
+      await expect(inviteCard(p)).toBeVisible({ timeout: 15_000 })
+    },
+    steps: [
+      {
+        target: inviteCard,
+      },
+      {
+        target: p => inviteCard(p).getByRole('button', { name: 'Accept' }),
+        act: async p => {
+          await inviteCard(p).getByRole('button', { name: 'Accept' }).click()
+          await expect(listRow(p, INVITED_LIST.name)).toBeVisible({ timeout: 15_000 })
+          await listRow(p, INVITED_LIST.name).click()
+          await expect(hero(p)).toContainText(INVITED_LIST.name)
+          await expect(p.locator('.col-loading')).toHaveCount(0)
+          for (const place of INVITED_LIST.places) await expect(placeRow(p, place.name)).toBeVisible()
+          await pageReady(p, { reframe: true })
+        },
+      },
+    ],
+    cleanup: async () => {
+      // Her list goes again, and with it the demo account's membership.
+      await withdrawInvitedList()
+    },
   },
 
   'export-list': {
@@ -759,6 +860,118 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
     ],
+  },
+
+  'tour-collection-add-to-trip': {
+    guide: guide('tour-collection-add-to-trip'),
+    start: async p => {
+      await ensureToursFixtures(p.request)
+      await ensureTourTargetTrip(p.request)
+      await openList(p, DOLOMITES)
+      await expect(tourRows(p).first()).toBeVisible({ timeout: 15_000 })
+      await settle(p)
+    },
+    steps: [
+      {
+        target: p => tourRows(p).first().getByRole('button', { name: 'Add to a trip' }),
+        act: async p => {
+          await tourRows(p).first().getByRole('button', { name: 'Add to a trip' }).click()
+          await expect(modal(p)).toBeVisible()
+          await expect(takeOverTrip(p)).toBeVisible({ timeout: 15_000 })
+          await blurFocus(p)
+          await settle(p)
+        },
+      },
+      {
+        target: p => modal(p).getByRole('radiogroup', { name: 'Into the trip' }),
+        act: async p => {
+          await takeOverTrip(p).click()
+          await expect(takeOverTrip(p)).toHaveAttribute('aria-checked', 'true')
+          await blurFocus(p)
+          await settle(p)
+        },
+      },
+      {
+        target: p => modal(p).getByRole('radiogroup', { name: 'Waypoints' }),
+        act: async p => {
+          // With its waypoints where the kept tour has any; Line only otherwise.
+          const withPoints = modal(p).getByTestId('kept-tour-points-with')
+          const choice = (await withPoints.isEnabled()) ? withPoints : modal(p).getByTestId('kept-tour-points-without')
+          await choice.click()
+          await expect(choice).toHaveAttribute('aria-checked', 'true')
+          await blurFocus(p)
+          await settle(p)
+        },
+      },
+      {
+        target: p => modal(p).getByTestId('kept-tour-confirm'),
+        act: async p => {
+          const tripId = await tripIdOf(p, TOUR_TARGET_TRIP)
+          const answer = p.waitForResponse(r => r.url().includes('/tours/from-collection') && r.request().method() === 'POST')
+          await modal(p).getByTestId('kept-tour-confirm').click()
+          const res = await answer
+          if (!res.ok()) throw new Error(`the take-over answered ${res.status()}: ${await res.text()}`)
+          const body = (await res.json()) as { tour: { place_id: number } }
+          takenTour = { tripId, placeId: body.tour.place_id }
+          await expect(modal(p).getByRole('button', { name: 'Open trip' })).toBeVisible({ timeout: 15_000 })
+          await blurFocus(p)
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: async p => {
+      if (await modal(p).count()) await p.keyboard.press('Escape')
+      // The new tour leaves the trip again, so the trip screens keep their seed.
+      if (takenTour) {
+        await deleteTripPlaces(p, takenTour.tripId, [takenTour.placeId])
+        takenTour = null
+      }
+    },
+  },
+
+  'tour-collection-manage': {
+    guide: guide('tour-collection-manage'),
+    start: async p => {
+      await ensureToursFixtures(p.request)
+      await openList(p, DOLOMITES)
+      await expect(tourRows(p).first()).toBeVisible({ timeout: 15_000 })
+      await settle(p)
+    },
+    steps: [
+      {
+        target: p => tourRows(p).first(),
+      },
+      {
+        target: listSearch,
+        act: async p => {
+          const name = ((await tourRows(p).first().locator('.t').textContent()) ?? '').trim()
+          const word = name.split(/\s+/)[0] ?? ''
+          if (!word) throw new Error('the kept tour has no name to search for')
+          await typeInto(p, listSearch(p).locator('input'), word)
+          await expect(tourRows(p).first()).toBeVisible()
+          await blurFocus(p)
+          await settle(p)
+        },
+      },
+      {
+        target: p => tourRows(p).first().locator('[data-testid^="kept-tour-remove-"]'),
+        act: async p => {
+          const before = await tourRows(p).count()
+          await tourRows(p).first().locator('[data-testid^="kept-tour-remove-"]').click()
+          // The bin carries the name as its label; the dialog's button carries it as text.
+          const confirm = p.getByRole('button', { name: 'Remove from the collection' }).filter({ hasText: 'Remove from the collection' })
+          await expect(confirm).toBeVisible()
+          await confirm.click()
+          await expect(tourRows(p)).toHaveCount(before - 1, { timeout: 15_000 })
+          await listSearch(p).locator('input').fill('')
+          await pageReady(p)
+        },
+      },
+    ],
+    cleanup: async p => {
+      // The tour goes back into the list for the next run and the Tours screens.
+      await ensureToursFixtures(p.request)
+    },
   },
 }
 

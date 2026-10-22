@@ -12,7 +12,8 @@ import type { HelpGuide } from '../../src/help/types'
  * Actions for the Atlas guides, keyed by the ids in `src/help/contexts/atlas.ts`.
  * They run in the order the context lists them and leave their marks on the
  * map on purpose: Greece is marked and removed again, a region of Austria and
- * Bavaria stay, Iceland and Petra land on the bucket list. The countries
+ * Bavaria stay, Iceland and Petra land on the bucket list; the tour left out
+ * in the Tours tab is counted again in `cleanup`. The countries
  * are drawn on a canvas, so the way in is always the search box: it flies to
  * the country and opens the same popup a click on the map would.
  */
@@ -208,6 +209,33 @@ async function regionTooltipBox(page: Page, country: string): Promise<Box> {
   return box
 }
 
+/** The Places badge in a country's detail card ("7 Places"), which opens the places dialog. */
+const placesBadge = (page: Page, country: string) =>
+  detailCard(page, country).getByRole('button', { name: /^\d+ Places?$/ })
+/** The dialog of a country's places, named after the country. */
+const placesDialog = (page: Page, country: string) => page.getByRole('dialog', { name: country })
+
+/** The Tours tab of the panel (Tours addon), and the tour activities it shows. */
+const toursTab = (page: Page) => panel(page).getByRole('button', { name: 'Tours', exact: true })
+const tourPane = (page: Page) => page.getByTestId('atlas-tour-activity')
+/** The Period pill: its name is the sr-only "Period: " before the value. */
+const periodPill = (scope: Locator) => scope.getByRole('button', { name: /^Period:/ })
+/** The open list of a pill, portalled to the body and named after what it picks. */
+const pillList = (page: Page, label: 'Period' | 'Type') => page.getByRole('group', { name: label, exact: true })
+const showToursButton = (page: Page) => tourPane(page).getByRole('button', { name: 'Show tours', exact: true })
+const tourDialog = (page: Page) => page.getByRole('dialog', { name: 'My tour activities' })
+const firstTourRow = (page: Page) => tourDialog(page).getByTestId('tour-activity-list').locator('> li').first()
+
+/** The tours the user has left out of their activities, by place id. */
+async function excludedTours(page: Page): Promise<Set<number>> {
+  const res = await page.request.get('/api/tours/activity-stats')
+  if (!res.ok()) throw new Error(`could not read the tour activities: ${res.status()}`)
+  const { entries } = (await res.json()) as { entries: { place_id: number; excluded: boolean }[] }
+  return new Set(entries.filter(e => e.excluded).map(e => e.place_id))
+}
+/** What was left out before the tour guide ran, so `cleanup` counts exactly its own change again. */
+let excludedBefore = new Set<number>()
+
 const SCRIPTS: Record<string, GuideScript> = {
   'mark-country': {
     guide: guide('mark-country'),
@@ -281,6 +309,40 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
     ],
+  },
+
+  'country-places': {
+    guide: guide('country-places'),
+    start: openAtlas,
+    steps: [
+      {
+        prepare: async p => { await searchCountry(p, 'Japan') },
+        target: p => countryHit(p, 'Japan'),
+        act: async p => {
+          await pickCountry(p, 'Japan')
+          await expect(placesBadge(p, 'Japan')).toBeVisible()
+        },
+      },
+      {
+        target: p => placesBadge(p, 'Japan'),
+        act: async p => {
+          await placesBadge(p, 'Japan').click()
+          await expect(placesDialog(p, 'Japan')).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        // The whole dialog: the step names the groups by trip, the search
+        // above them when the list is long, and the trip heading to click.
+        target: p => placesDialog(p, 'Japan'),
+        hover: p => placesDialog(p, 'Japan').getByRole('button', { name: /Autumn in Japan/ }).first().hover(),
+      },
+    ],
+    cleanup: async p => {
+      if (await placesDialog(p, 'Japan').count()) {
+        await placesDialog(p, 'Japan').getByRole('button', { name: 'Close', exact: true }).click()
+      }
+    },
   },
 
   'planned-countries': {
@@ -482,6 +544,103 @@ const SCRIPTS: Record<string, GuideScript> = {
     ],
   },
 
+  'tour-activity-stats': {
+    guide: guide('tour-activity-stats'),
+    start: async p => {
+      await openAtlas(p)
+      excludedBefore = await excludedTours(p)
+    },
+    steps: [
+      {
+        target: toursTab,
+        act: async p => {
+          await toursTab(p).click()
+          // The tab reads live once it is first shown.
+          await expect(tourPane(p).getByTestId('atlas-tour-activity-distance')).toBeVisible({ timeout: 20_000 })
+          await settle(p)
+        },
+      },
+      {
+        // The two pills with the period list open under the first: the step
+        // names the periods, and they only show while the list is open.
+        prepare: async p => {
+          await periodPill(tourPane(p)).click()
+          await expect(pillList(p, 'Period')).toBeVisible()
+          await spanOver(p, [await boxOf(periodPill(tourPane(p)).locator('xpath=..')), await boxOf(pillList(p, 'Period'))])
+        },
+        target: span,
+        hover: p => pillList(p, 'Period').getByRole('button', { name: 'Last 12 months', exact: true }).hover(),
+        act: async p => {
+          await clearSpan(p)
+          // All time keeps every tour of the seed in the sums the next steps read.
+          await pillList(p, 'Period').getByRole('button', { name: 'All time', exact: true }).click()
+          await expect(pillList(p, 'Period')).toHaveCount(0)
+        },
+      },
+      {
+        // The distance with its count, the climb and the type columns are
+        // siblings without a box of their own, so the ring gets one over them.
+        prepare: async p => {
+          const pane = tourPane(p)
+          const parts = [
+            pane.getByTestId('atlas-tour-activity-distance').locator('xpath=..'),
+            pane.getByTestId('atlas-tour-activity-ascent'),
+            pane.getByTestId('atlas-tour-activity-descent'),
+            ...(await pane.locator('[data-testid^="atlas-tour-activity-type-"]').all()),
+          ]
+          const boxes: Box[] = []
+          for (const part of parts) {
+            const box = (await part.count()) ? await part.first().boundingBox() : null
+            if (box) boxes.push(box)
+          }
+          await spanOver(p, boxes)
+        },
+        target: span,
+        // The badge at the distance's corner names the tour count in its tooltip.
+        hover: async p => {
+          const count = tourPane(p).getByTestId('atlas-tour-activity-count')
+          await ((await count.count()) ? count : tourPane(p).getByTestId('atlas-tour-activity-distance')).hover()
+        },
+        act: clearSpan,
+      },
+      {
+        // The side column: the Planned and Recorded badges, what does not
+        // count yet, and the i whose tooltip states the rule.
+        target: p => showToursButton(p).locator('xpath=..'),
+        hover: p => tourPane(p).getByRole('button', { name: 'My tour activities', exact: true }).hover(),
+      },
+      {
+        target: showToursButton,
+        act: async p => {
+          await showToursButton(p).click()
+          await expect(tourDialog(p).getByTestId('tour-activity-list')).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        target: p => firstTourRow(p),
+        hover: p => firstTourRow(p).locator('[data-testid^="tour-activity-toggle-"]').hover(),
+        act: async p => {
+          // Found again by its own id afterwards: the list may sort a left-out tour elsewhere.
+          const id = await firstTourRow(p).getAttribute('data-testid')
+          await firstTourRow(p).getByRole('button', { name: 'Leave out', exact: true }).click()
+          const row = tourDialog(p).getByTestId(id ?? '')
+          await expect(row.getByText('Left out', { exact: true })).toBeVisible({ timeout: 15_000 })
+          await expect(row.getByRole('button', { name: 'Count again', exact: true })).toBeEnabled()
+          await settle(p)
+        },
+      },
+    ],
+    cleanup: async p => {
+      // Count again every tour this guide left out, by the route the button uses.
+      for (const placeId of await excludedTours(p)) {
+        if (!excludedBefore.has(placeId)) {
+          await p.request.put('/api/tours/activity-stats/exclusions', { data: { place_id: placeId, excluded: false } })
+        }
+      }
+    },
+  },
+
   'dawarich-countries': {
     guide: guide('dawarich-countries'),
     start: async p => {
@@ -609,6 +768,10 @@ test.describe.configure({ mode: 'serial' })
 
 test.beforeAll(async ({ request }) => {
   await ensureAtlasFixtures(request)
+  // Planned and recorded tours of several types on past, dated days, for the
+  // Tours tab of the panel. Loaded lazily: the file belongs to the Tours guides.
+  const { ensureToursFixtures } = await import('./tour-fixtures')
+  await ensureToursFixtures(request)
   // After the Atlas fixtures: the connection adds two wishes with coordinates
   // (Fushimi Inari Taisha, Wadi Rum) to the list the fixtures create.
   await ensureDawarichConnection(request)

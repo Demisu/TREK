@@ -94,9 +94,9 @@ export function FileRow(p: FileManagerState & { file: TripFile; isTrash?: boolea
           </>
         ) : (
           <>
-            <RowAction label={file.starred ? t('files.unstar') || 'Unstar' : t('files.star') || 'Star'} tone="star" active={!!file.starred} onClick={() => handleStar(file.id)}>
+            {can('file_edit', trip) && <RowAction label={file.starred ? t('files.unstar') || 'Unstar' : t('files.star') || 'Star'} tone="star" active={!!file.starred} onClick={() => handleStar(file.id)}>
               <Star size={14} fill={file.starred ? '#facc15' : 'none'} /* theme-lint-disable: the star keeps its gold */ />
-            </RowAction>
+            </RowAction>}
             {can('file_edit', trip) && <RowAction label={t('files.assign') || 'Assign'} onClick={() => setAssignFileId(file.id)}><Pencil size={14} /></RowAction>}
             <RowAction label={t('common.open')} onClick={() => openFile(file)}><ExternalLink size={14} /></RowAction>
             <RowAction label={t('files.download') || 'Download'} onClick={() => triggerDownload(file.url, file.original_name)}><Download size={14} /></RowAction>

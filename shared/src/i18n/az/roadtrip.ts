@@ -253,8 +253,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'Yayınma marşrut mühərriki bu hissə üçün cavab vermədiyindən onu əsas mühərrik çəkdi. Yenidən sorğu göndərilir.',
   'roadtrip.day': '{number}-ci gün',
-  'roadtrip.quietDay.empty': 'Hələ dayanacaq yoxdur — birini buraya əlavə edin',
-  'roadtrip.quietDay.one': 'Hələlik yalnız {name} var — buraya dayanacaq əlavə edin',
+  'roadtrip.quietDay.empty': 'Hələ dayanacaq yoxdur, birini buraya əlavə edin',
+  'roadtrip.quietDay.one': 'Hələlik yalnız {name} var, buraya dayanacaq əlavə edin',
   'roadtrip.leg.driveText': '{time} ərzində {distance}',
   'roadtrip.day.stopCount': '{count} dayanacaq',
   'roadtrip.day.stopCount.one': '{count} dayanacaq',
@@ -338,6 +338,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Çıxışdan sonra yola düşür',
   'roadtrip.bookend.noVia':
     'Yaşayış yerinizə gedən və ya oradan gələn yolda ara nöqtə yoxdur. Əvəzində oraya dayanacaq əlavə edin.',
+  'roadtrip.stay.untilHint':
+    'Bu ziyarətin bitmə vaxtı olduğu üçün saat {time}-də yola düşülür. Bunun əvəzinə qalma müddəti təyin etmək üçün onu açıb bitmə vaxtını silin.',
 };
 
 export default roadtrip;

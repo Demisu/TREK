@@ -270,5 +270,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     "Les fichiers ont besoin d'une connexion pour être envoyés. Retire les nouveaux pour enregistrer la réservation hors ligne, ou enregistre une fois de retour en ligne.",
   'reservations.needsConnection': 'Cela nécessite une connexion. Réessaie dès que TREK sera de nouveau en ligne.',
+  'reservations.exportCsvFiltered': 'Exporter les {shown} lignes affichées sur {total} (CSV)',
 };
 export default reservations;

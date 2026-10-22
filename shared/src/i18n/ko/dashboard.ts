@@ -204,5 +204,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': '일수는 필수입니다',
   'dashboard.tripChangeNeedsConnection':
     '날짜, 일수, 통화 또는 커버 이미지를 바꾸려면 연결이 필요합니다. 이름, 설명, 알림은 오프라인에서도 바꿀 수 있습니다.',
+  'dashboard.ics.enable': '캘린더 구독 사용',
+  'dashboard.ics.enableHint':
+    '링크를 가진 사람은 누구나 로그인 없이 읽을 수 있는 비밀 링크를 만듭니다. 언제든지 끌 수 있습니다.',
+  'dashboard.ics.regenerate': '다시 생성',
+  'dashboard.ics.turnOff': '끄기',
+  'dashboard.ics.manageHint':
+    '다시 생성하면 새 링크가 만들어지고 이전 링크는 무효가 됩니다. 끄면 링크가 완전히 비활성화됩니다.',
+  'dashboard.ics.addGoogle': 'Google 캘린더에 추가',
+  'dashboard.ics.addApple': 'Apple 캘린더 / Outlook에 추가',
+  'dashboard.ics.copyManually': '또는 링크를 직접 복사',
+  'dashboard.ics.pasteFromUrl': '“URL에서”에 붙여넣기',
 };
 export default dashboard;

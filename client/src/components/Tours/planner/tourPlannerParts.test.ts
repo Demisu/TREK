@@ -1,9 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
 import { DEFAULT_SKI_ROUTE_OPTIONS } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
+import { draftChoices, draftFromText } from './tourPlannerDraft';
 import { openedTourFields, tourPlannerFacts, type TourPlannerFactsInput } from './tourPlannerFacts';
 import { usePlannerHistory } from './usePlannerHistory';
-import { useTourDraftStorage } from './useTourDraftStorage';
 
 const hike = (overrides: Partial<TourPlannerFactsInput> = {}): TourPlannerFactsInput => ({
   tourType: 'hike',
@@ -352,62 +352,75 @@ describe('usePlannerHistory', () => {
   });
 });
 
-describe('useTourDraftStorage', () => {
-  it('keeps a draft per trip, gives back only one that passes the check, and forgets it', () => {
-    localStorage.clear();
+describe('draftFromText', () => {
+  const text = (value: unknown) => JSON.stringify(value);
+
+  it('gives back a draft that passes the check with its points in order, and nothing for one that does not', () => {
     const draft = {
       version: 9 as const,
       name: 'Ridge',
-      waypoints: [{ id: 'a', lat: 47, lng: 11, role: 'start' as const }],
+      waypoints: [
+        { id: 'a', lat: 47, lng: 11, role: 'via' as const },
+        { id: 'b', lat: 47.1, lng: 11.1, role: 'via' as const },
+      ],
       baseRevision: 4,
     };
-    const first = renderHook(() => useTourDraftStorage(1));
-    act(() => first.result.current.keep(draft));
-    expect(renderHook(() => useTourDraftStorage(1)).result.current.restored).toMatchObject({
-      name: 'Ridge',
-      baseRevision: 4,
-    });
-    expect(renderHook(() => useTourDraftStorage(2)).result.current.restored).toBeNull();
-    localStorage.setItem('tour-draft-3', JSON.stringify({ ...draft, baseRevision: 0 }));
-    expect(renderHook(() => useTourDraftStorage(3)).result.current.restored).toBeNull();
-    localStorage.setItem('tour-draft-4', '{not json');
-    expect(renderHook(() => useTourDraftStorage(4)).result.current.restored).toBeNull();
-    act(() => first.result.current.forget());
-    expect(localStorage.getItem('tour-draft-1')).toBeNull();
+    const restored = draftFromText(text(draft));
+    expect(restored).toMatchObject({ name: 'Ridge', baseRevision: 4 });
+    expect(restored?.waypoints.map((point) => [point.id, point.role])).toEqual([
+      ['a', 'start'],
+      ['b', 'end'],
+    ]);
+    expect(draftFromText(null)).toBeNull();
+    expect(draftFromText(text({ ...draft, baseRevision: 0 }))).toBeNull();
+    expect(draftFromText('{not json')).toBeNull();
+    expect(draftFromText(text({ ...draft, version: 99 }))).toBeNull();
   });
 
   it('SKI-02: gives back a draft with its ski choice, and drops one whose discipline it does not know', () => {
-    localStorage.clear();
     const draft = { version: 11, name: 'Snowy ridge', waypoints: [{ id: 'a', lat: 47, lng: 11, role: 'start' }] };
     const ski = { ...draft, tourType: 'ski', ski: { discipline: 'winter_hike', technique: null } };
-    localStorage.setItem('tour-draft-5', JSON.stringify(ski));
-    expect(renderHook(() => useTourDraftStorage(5)).result.current.restored).toMatchObject({
+    expect(draftFromText(text(ski))).toMatchObject({
       tourType: 'ski',
       ski: { discipline: 'winter_hike', technique: null },
     });
-    localStorage.setItem('tour-draft-6', JSON.stringify({ ...ski, ski: { discipline: 'freeride', technique: null } }));
-    expect(renderHook(() => useTourDraftStorage(6)).result.current.restored).toBeNull();
+    expect(draftFromText(text({ ...ski, ski: { discipline: 'freeride', technique: null } }))).toBeNull();
     // A draft from before the label went keeps the rest of itself; the winter label is not read.
-    localStorage.setItem('tour-draft-11', JSON.stringify({ ...draft, version: 10, winterActivity: 'snowshoe' }));
-    expect(renderHook(() => useTourDraftStorage(11)).result.current.restored).toMatchObject({ name: 'Snowy ridge' });
+    expect(draftFromText(text({ ...draft, version: 10, winterActivity: 'snowshoe' }))).toMatchObject({
+      name: 'Snowy ridge',
+    });
   });
 
   it('RUN-01: gives back a draft with its run profile and pace, and drops one it cannot read', () => {
-    localStorage.clear();
     const draft = { version: 10, name: 'River loop', waypoints: [{ id: 'a', lat: 48, lng: 11, role: 'start' }] };
     const run = { ...draft, tourType: 'run', runProfile: 'running', runPaceSecondsPerKm: 345 };
-    localStorage.setItem('tour-draft-7', JSON.stringify(run));
-    expect(renderHook(() => useTourDraftStorage(7)).result.current.restored).toMatchObject({
+    expect(draftFromText(text(run))).toMatchObject({
       tourType: 'run',
       runProfile: 'running',
       runPaceSecondsPerKm: 345,
     });
-    localStorage.setItem('tour-draft-8', JSON.stringify({ ...draft, runPaceSecondsPerKm: null }));
-    const unpaced = renderHook(() => useTourDraftStorage(8)).result.current.restored;
-    expect(unpaced).toMatchObject({ runPaceSecondsPerKm: null });
-    localStorage.setItem('tour-draft-9', JSON.stringify({ ...draft, runProfile: 'sprint' }));
-    expect(renderHook(() => useTourDraftStorage(9)).result.current.restored).toBeNull();
-    localStorage.setItem('tour-draft-10', JSON.stringify({ ...draft, runPaceSecondsPerKm: -5 }));
-    expect(renderHook(() => useTourDraftStorage(10)).result.current.restored).toBeNull();
+    expect(draftFromText(text({ ...draft, runPaceSecondsPerKm: null }))).toMatchObject({ runPaceSecondsPerKm: null });
+    expect(draftFromText(text({ ...draft, runProfile: 'sprint' }))).toBeNull();
+    expect(draftFromText(text({ ...draft, runPaceSecondsPerKm: -5 }))).toBeNull();
+  });
+
+  it('reads the routing choices a draft was planned with, each one it lacks at its default', () => {
+    const bare = draftFromText(text({ version: 11, name: 'Bare', waypoints: [] }));
+    if (!bare) throw new Error('expected a draft');
+    expect(draftChoices(bare)).toEqual({
+      difficulty: 2,
+      preferences: null,
+      bikeProfile: 'touring',
+      runProfile: 'running',
+    });
+    expect(
+      draftChoices({
+        ...bare,
+        maxHikingDifficulty: 5,
+        bikeProfile: 'mtb',
+        runProfile: 'trail',
+        hikingPreferences: null,
+      })
+    ).toEqual({ difficulty: 5, preferences: null, bikeProfile: 'mtb', runProfile: 'trail' });
   });
 });

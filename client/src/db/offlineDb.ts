@@ -1,4 +1,4 @@
-import type { Ferrata, RoadtripPreferences, TourActivity, TourListItem, TourObstacleCheck, TourPackingLink, TourProvenance, TourVisit, TourWaypoint } from '@trek/shared';
+import type { Ferrata, RoadtripPreferences, TourActivity, TourDraft, TourListItem, TourObstacleCheck, TourPackingLink, TourProvenance, TourVisit, TourWaypoint } from '@trek/shared';
 import Dexie, { type Table } from 'dexie';
 import type { Trip, Day, Place, PackingItem, TodoItem, BudgetItem, Reservation, TripFile, Accommodation, TripMember, Tag, Category } from '../types';
 
@@ -58,6 +58,16 @@ interface CachedFerrataTile {
  */
 export interface CachedTourStationVisit extends TourVisit {
   trip_id: number;
+}
+
+/**
+ * The Tours planner's unsaved draft in one trip, as the account last said. A
+ * draft written offline is not written here: it waits in the queue, and every
+ * read lays the newest queued one over this row (see repo/tourDraftRepo).
+ */
+interface CachedTourDraft {
+  tripId: number;
+  draft: TourDraft;
 }
 
 // ── Queue + sync types ────────────────────────────────────────────────────────
@@ -268,6 +278,7 @@ export class TrekOfflineDb extends Dexie {
   budgetSettlements!: Table<CachedBudgetSettlement, number>;
   ferrataTiles!: Table<CachedFerrataTile, [number, string]>;
   tourStationVisits!: Table<CachedTourStationVisit, [number, string]>;
+  tourDrafts!: Table<CachedTourDraft, number>;
 
   constructor(name: string = ANON_DB_NAME) {
     super(name);
@@ -351,6 +362,10 @@ export class TrekOfflineDb extends Dexie {
     // walk's stops read as checked off offline; `trip_id` so they drop with the
     // trip, `assignment_id` so one day's visits are replaced at once.
     this.version(12).stores({ tourStationVisits: '[assignment_id+station_key], trip_id, assignment_id' });
+
+    // v13: the Tours planner's unsaved draft as the account last said it, one
+    // per trip (the database is the signed-in user's own), so it opens offline.
+    this.version(13).stores({ tourDrafts: 'tripId' });
   }
 }
 
@@ -651,9 +666,11 @@ export async function clearTripData(tripId: number): Promise<void> {
       offlineDb.budgetSettlements,
       offlineDb.ferrataTiles,
       offlineDb.tourStationVisits,
+      offlineDb.tourDrafts,
     ],
     async () => {
       await offlineDb.roadtripPreferences.delete(tripId);
+      await offlineDb.tourDrafts.delete(tripId);
       await offlineDb.budgetSettlements.delete(tripId);
       await offlineDb.days.where('trip_id').equals(tripId).delete();
       await offlineDb.places.where('trip_id').equals(tripId).delete();

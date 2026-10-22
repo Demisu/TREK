@@ -200,7 +200,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Vytvoriť token',
   'settings.mcp.modal.createdTitle': 'Token vytvorený',
   'settings.mcp.modal.createdWarning':
-    'Tento token bude zobrazený iba raz. Skopírujte a uložte ho teraz — nedá sa obnoviť.',
+    'Tento token bude zobrazený iba raz. Skopírujte a uložte ho teraz: nedá sa obnoviť.',
   'settings.mcp.modal.done': 'Hotovo',
   'settings.mcp.toast.created': 'Token vytvorený',
   'settings.mcp.toast.createError': 'Nepodarilo sa vytvoriť token',
@@ -242,14 +242,13 @@ const settings: TranslationStrings = {
     'Jedno URI na riadok. HTTPS, HTTP na loopbacku alebo vlastná schéma aplikácie (myapp://). Presná zhoda, okrem portu pri loopback URI.',
   'settings.oauth.modal.scopes': 'Povolené oprávnenia',
   'settings.oauth.modal.scopesHint':
-    'list_trips a get_trip_summary sú vždy dostupné — bez potrebného oprávnenia. Umožňujú AI zistiť ID ciest potrebné na použitie ktoréhokoľvek iného nástroja.',
+    'list_trips a get_trip_summary sú vždy dostupné: bez potrebného oprávnenia. Umožňujú AI zistiť ID ciest potrebné na použitie ktoréhokoľvek iného nástroja.',
   'settings.oauth.modal.selectAll': 'Vybrať všetko',
   'settings.oauth.modal.deselectAll': 'Zrušiť výber',
   'settings.oauth.modal.creating': 'Registruje sa…',
   'settings.oauth.modal.create': 'Zaregistrovať klienta',
   'settings.oauth.modal.createdTitle': 'Klient zaregistrovaný',
-  'settings.oauth.modal.createdWarning':
-    'Tajný kľúč klienta sa zobrazí iba raz. Skopírujte ho teraz — nedá sa obnoviť.',
+  'settings.oauth.modal.createdWarning': 'Tajný kľúč klienta sa zobrazí iba raz. Skopírujte ho teraz: nedá sa obnoviť.',
   'settings.oauth.toast.createError': 'Registrácia klienta OAuth zlyhala',
   'settings.oauth.toast.deleted': 'Klient OAuth zmazaný',
   'settings.oauth.toast.deleteError': 'Zmazanie klienta OAuth zlyhalo',
@@ -316,7 +315,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Zmazať účet',
   'settings.deleteAccountTitle': 'Zmazať váš účet?',
   'settings.deleteAccountWarning':
-    'Váš účet a všetky vaše cesty, miesta a súbory budú natrvalo zmazané. Túto akciu nie je možné vrátiť.',
+    'Váš účet a všetky cesty, denníky, miesta a súbory, ktoré vlastníte, sa natrvalo odstránia, vrátane ciest zdieľaných s ďalšími členmi, ktorí k nim stratia prístup. Cesty vlastnené inými zostanú a vy z nich budete odstránení. Túto akciu nie je možné vrátiť späť.',
   'settings.deleteAccountConfirm': 'Zmazať natrvalo',
   'settings.deleteBlockedTitle': 'Zmazanie nie je možné',
   'settings.deleteBlockedMessage':
@@ -363,7 +362,7 @@ const settings: TranslationStrings = {
   'settings.mfa.demoBlocked': 'Nie je k dispozícii v demo režime',
   'settings.currency': 'Zobrazovaná mena',
   'settings.currencyHint':
-    'Sumy v Nákladoch sa do tejto meny prepočítavajú iba pre zobrazenie — pôvodné sumy zostávajú nezmenené.',
+    'Sumy v Nákladoch sa do tejto meny prepočítavajú iba pre zobrazenie; pôvodné sumy zostávajú nezmenené.',
   'settings.currencyTrip': 'Mena cesty',
   'settings.placeLanguage': 'Názvy miest',
   'settings.placeLanguageApp': 'Rovnako ako aplikácia',
@@ -371,7 +370,7 @@ const settings: TranslationStrings = {
     'Jazyk, v ktorom odpovedá vyhľadávanie miest, návrhy a adresy. Ak miesto v tomto jazyku názov nemá, zobrazí sa jeho miestny názov.',
   'settings.passkey.title': 'Prístupové kľúče',
   'settings.passkey.description':
-    'Prihlasujte sa rýchlejšie a s ochranou proti phishingu pomocou prístupového kľúča — odtlačkom prsta, tvárou, PIN kódom alebo hardvérovým kľúčom. Vaše heslo zostáva ako záloha.',
+    'Prihlasujte sa rýchlejšie a s ochranou proti phishingu pomocou prístupového kľúča: odtlačkom prsta, tvárou, PIN kódom alebo hardvérovým kľúčom. Vaše heslo zostáva ako záloha.',
   'settings.passkey.notConfigured':
     'Prístupové kľúče sú povolené, ale na tomto serveri zatiaľ nie sú plne nastavené. Požiadajte administrátora o nastavenie domény WebAuthn.',
   'settings.passkey.add': 'Pridať prístupový kľúč',
@@ -533,10 +532,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Pracujte iba s dátami z vyrovnávacej pamäte a svoje zmeny zaraďte do fronty. Vypnutím sa znovu pripojíte a synchronizujete.',
   'settings.offline.mode.active':
-    'Offline režim je zapnutý — vaše zmeny sú vo fronte a synchronizujú sa, keď ho vypnete.',
+    'Offline režim je zapnutý: vaše zmeny sú vo fronte a synchronizujú sa, keď ho vypnete.',
   'settings.offline.prepare.title': 'Príprava na offline',
   'settings.offline.prepare.hint':
-    'Stiahnite si všetko potrebné — dáta ciest, dokumenty a mapové dlaždice — skôr než stratíte pripojenie.',
+    'Stiahnite si všetko potrebné (dáta ciest, dokumenty a mapové dlaždice) skôr než stratíte pripojenie.',
   'settings.offline.prepare.button': 'Stiahnuť pre offline použitie',
   'settings.offline.prepare.running': 'Sťahuje sa…',
   'settings.offline.prepare.done': 'Pripravené na offline použitie',
@@ -604,8 +603,7 @@ const settings: TranslationStrings = {
   'settings.offline.banner.conflicts.few': 'Konflikty: {count}',
   'settings.alwaysShowRoutes': 'Vždy zobrazovať trasy rezervácií',
   'settings.alwaysShowRoutesHint':
-    'Automaticky vykreslí na mape trasu každého letu, vlaku a inej rezervácie — netreba ju zapínať pri každej položke.',
-
+    'Automaticky vykreslí na mape trasu každého letu, vlaku a inej rezervácie, netreba ju zapínať pri každej položke.',
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Čo smie tento kľúč čítať',
@@ -652,7 +650,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Kopírovanie sa nepodarilo. Označte text a skopírujte ho ručne.',
   'settings.apiKeys.modal.createTitle': 'Vytvoriť API kľúč',
   'settings.apiKeys.modal.name': 'Názov',
-  'settings.apiKeys.modal.namePlaceholder': 'napr. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'napr. Domáci panel',
   'settings.apiKeys.modal.nameHint': 'Iba pre vás, aby ste kľúč neskôr spoznali.',
   'settings.apiKeys.modal.creating': 'Vytvára sa...',
   'settings.apiKeys.modal.create': 'Vytvoriť',
@@ -660,6 +658,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Skopírujte kľúč teraz. Zobrazí sa iba raz a neskôr ho už nie je možné získať.',
   'settings.apiKeys.modal.done': 'Hotovo',
+  'settings.mcp.deprecated': 'Zastarané',
+  'settings.offline.cache.dateRange': '{start} až {end}',
 };
 
 export default settings;

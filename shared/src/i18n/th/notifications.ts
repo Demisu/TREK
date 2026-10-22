@@ -33,5 +33,7 @@ const notifications: TranslationStrings = {
   'notifications.test.tripTitle': '{actor} โพสต์ในการเดินทางของคุณ',
   'notifications.test.tripText': 'ทดสอบการแจ้งเตือนสำหรับการเดินทาง "{trip}"',
   'notifications.countLabel': 'รายการ',
+  'notifications.deleteAllConfirmTitle': 'ลบการแจ้งเตือนทั้งหมดหรือไม่',
+  'notifications.deleteAllConfirmText': 'การแจ้งเตือนทั้งหมดจะถูกลบถาวร ไม่สามารถย้อนกลับได้',
 };
 export default notifications;

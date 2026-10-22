@@ -223,5 +223,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'Number of days is required',
   'dashboard.tripChangeNeedsConnection':
     'New dates, a different number of days, another currency or a new cover need a connection. The name, description and reminder can be changed offline.',
+  'dashboard.ics.enable': 'Enable calendar subscription',
+  'dashboard.ics.enableHint':
+    'Creates a secret link anyone with it can read without logging in. You can turn it off anytime.',
+  'dashboard.ics.regenerate': 'Regenerate',
+  'dashboard.ics.turnOff': 'Turn off',
+  'dashboard.ics.manageHint':
+    'Regenerating creates a new link and invalidates the old one. Turning off disables the link entirely.',
+  'dashboard.ics.addGoogle': 'Add to Google Calendar',
+  'dashboard.ics.addApple': 'Add to Apple Calendar / Outlook',
+  'dashboard.ics.copyManually': 'Or copy a link manually',
+  'dashboard.ics.pasteFromUrl': 'paste into “From URL”',
 };
 export default dashboard;

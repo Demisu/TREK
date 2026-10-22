@@ -65,5 +65,7 @@ const files: TranslationStrings = {
   'files.linkNeedsConnection': 'Gỡ liên kết này cần có kết nối. Hãy thử lại khi TREK trực tuyến trở lại.',
   'files.placeFilesNeedConnection':
     'Tệp cần có kết nối để tải lên. Hãy bỏ các tệp mới để lưu địa điểm khi ngoại tuyến, hoặc lưu khi bạn trực tuyến trở lại.',
+  'files.maxSize': 'Tối đa {count} MB',
+  'files.toast.starError': 'Không thể đổi dấu sao',
 };
 export default files;

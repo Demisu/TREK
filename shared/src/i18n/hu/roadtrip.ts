@@ -253,8 +253,8 @@ const roadtrip: TranslationStrings = {
   'roadtrip.alt.standIn':
     'A kerülő útvonaltervező nem válaszolt erre a szakaszra, ezért a fő útvonaltervező rajzolta meg. A kerülő útvonaltervezőt most újra megkérdezzük.',
   'roadtrip.day': '{number}. nap',
-  'roadtrip.quietDay.empty': 'Még nincs megálló — húzzon ide egyet',
-  'roadtrip.quietDay.one': 'Egyelőre csak {name} — húzzon ide egy megállót',
+  'roadtrip.quietDay.empty': 'Még nincs megálló, húzzon ide egyet',
+  'roadtrip.quietDay.one': 'Egyelőre csak {name}, húzzon ide egy megállót',
   'roadtrip.leg.driveText': '{distance} {time} alatt',
   'roadtrip.day.stopCount': '{count} megálló',
   'roadtrip.day.stopCount.one': '{count} megálló',
@@ -336,5 +336,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.bookend.afterCheckOut': 'Indulás kijelentkezés után',
   'roadtrip.bookend.noVia':
     'A szálláshoz vezető vagy onnan induló útra nem kerülhet köztes pont. Adj hozzá inkább egy megállót ott.',
+  'roadtrip.stay.untilHint':
+    'Indulás ekkor: {time}, mert ennek a látogatásnak van befejezési ideje. Nyissa meg, és válassza a Befejezési idő törlése lehetőséget, ha inkább tartózkodási időt állítana be.',
 };
 export default roadtrip;

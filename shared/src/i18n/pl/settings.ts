@@ -133,7 +133,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Utwórz token',
   'settings.mcp.modal.createdTitle': 'Token został utworzony',
   'settings.mcp.modal.createdWarning':
-    'Ten token zostanie wyświetlony tylko raz. Skopiuj i zapisz go — nie będzie można go zobaczyć ponownie.',
+    'Ten token zostanie wyświetlony tylko raz. Skopiuj i zapisz go: nie będzie można go zobaczyć ponownie.',
   'settings.mcp.modal.done': 'Gotowe',
   'settings.mcp.toast.created': 'Token został utworzony',
   'settings.mcp.toast.createError': 'Nie udało się utworzyć tokenu',
@@ -175,14 +175,14 @@ const settings: TranslationStrings = {
     'Jeden URI na linię. HTTPS, HTTP na loopbacku lub własny schemat aplikacji (myapp://). Dokładna zgodność, z wyjątkiem portu w URI loopback.',
   'settings.oauth.modal.scopes': 'Dozwolone uprawnienia',
   'settings.oauth.modal.scopesHint':
-    'list_trips i get_trip_summary są zawsze dostępne — bez wymaganych uprawnień. Umożliwiają AI odkrycie potrzebnych ID podróży.',
+    'list_trips i get_trip_summary są zawsze dostępne: bez wymaganych uprawnień. Umożliwiają AI odkrycie potrzebnych ID podróży.',
   'settings.oauth.modal.selectAll': 'Zaznacz wszystko',
   'settings.oauth.modal.deselectAll': 'Odznacz wszystko',
   'settings.oauth.modal.creating': 'Rejestrowanie…',
   'settings.oauth.modal.create': 'Zarejestruj klienta',
   'settings.oauth.modal.createdTitle': 'Klient zarejestrowany',
   'settings.oauth.modal.createdWarning':
-    'Sekret klienta jest wyświetlany tylko raz. Skopiuj go teraz — nie można go odzyskać.',
+    'Sekret klienta jest wyświetlany tylko raz. Skopiuj go teraz: nie można go odzyskać.',
   'settings.oauth.toast.createError': 'Nie udało się zarejestrować klienta OAuth',
   'settings.oauth.toast.deleted': 'Klient OAuth usunięty',
   'settings.oauth.toast.deleteError': 'Nie udało się usunąć klienta OAuth',
@@ -248,7 +248,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Usuń konto',
   'settings.deleteAccountTitle': 'Usunąć twoje konto?',
   'settings.deleteAccountWarning':
-    'Twoje konto i wszystkie twoje podróże, miejsca i pliki zostaną trwale usunięte. Tej akcji nie można cofnąć.',
+    'Twoje konto oraz wszystkie należące do Ciebie podróże, dzienniki, miejsca i pliki zostaną trwale usunięte, także podróże udostępnione innym członkom, którzy utracą do nich dostęp. Podróże należące do innych osób pozostają, a Ty zostaniesz z nich usunięty. Tej czynności nie można cofnąć.',
   'settings.deleteAccountConfirm': 'Usuń na zawsze',
   'settings.deleteBlockedTitle': 'Nie można usunąć konta',
   'settings.deleteBlockedMessage':
@@ -351,7 +351,7 @@ const settings: TranslationStrings = {
   'settings.mustChangePassword': 'Musisz zmienić hasło przed kontynuowaniem.',
   'settings.currency': 'Waluta wyświetlania',
   'settings.currencyHint':
-    'Kwoty w Kosztach są przeliczane na tę walutę wyłącznie na potrzeby wyświetlania — oryginalne kwoty pozostają bez zmian.',
+    'Kwoty w Kosztach są przeliczane na tę walutę wyłącznie na potrzeby wyświetlania; oryginalne kwoty pozostają bez zmian.',
   'settings.currencyTrip': 'Waluta wyjazdu',
   'settings.placeLanguage': 'Nazwy miejsc',
   'settings.placeLanguageApp': 'Tak jak aplikacja',
@@ -359,7 +359,7 @@ const settings: TranslationStrings = {
     'Język, w którym odpowiadają wyszukiwanie miejsc, podpowiedzi i adresy. Jeśli miejsce nie ma nazwy w tym języku, wyświetlana jest jego nazwa lokalna.',
   'settings.passkey.title': 'Klucze dostępu',
   'settings.passkey.description':
-    'Loguj się szybciej i z odpornością na phishing za pomocą klucza dostępu — odcisku palca, twarzy, kodu PIN lub klucza sprzętowego. Twoje hasło pozostaje jako zapasowa opcja.',
+    'Loguj się szybciej i z odpornością na phishing za pomocą klucza dostępu: odcisku palca, twarzy, kodu PIN lub klucza sprzętowego. Twoje hasło pozostaje jako zapasowa opcja.',
   'settings.passkey.notConfigured':
     'Klucze dostępu są włączone, ale nie zostały jeszcze w pełni skonfigurowane na tym serwerze. Poproś administratora o ustawienie domeny WebAuthn.',
   'settings.passkey.add': 'Dodaj klucz dostępu',
@@ -529,10 +529,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Pracuj wyłącznie na danych z pamięci podręcznej i kolejkuj swoje zmiany. Wyłącz, aby połączyć się ponownie i zsynchronizować.',
   'settings.offline.mode.active':
-    'Tryb offline jest włączony — Twoje zmiany czekają w kolejce i zostaną zsynchronizowane po jego wyłączeniu.',
+    'Tryb offline jest włączony: Twoje zmiany czekają w kolejce i zostaną zsynchronizowane po jego wyłączeniu.',
   'settings.offline.prepare.title': 'Przygotuj do trybu offline',
   'settings.offline.prepare.hint':
-    'Pobierz wszystko, czego potrzebujesz — dane podróży, dokumenty i kafelki mapy — zanim stracisz połączenie.',
+    'Pobierz wszystko, czego potrzebujesz (dane podróży, dokumenty i kafelki mapy) zanim stracisz połączenie.',
   'settings.offline.prepare.button': 'Pobierz do użytku offline',
   'settings.offline.prepare.running': 'Pobieranie…',
   'settings.offline.prepare.done': 'Gotowe do użytku offline',
@@ -615,7 +615,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'Zawsze pokazuj trasy rezerwacji',
   'settings.alwaysShowRoutesHint':
     'Automatycznie pokazuje na mapie trasę każdego lotu, pociągu i innej rezerwacji, bez konieczności włączania jej pojedynczo.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Co ten klucz może odczytywać',
@@ -665,7 +664,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Nie udało się skopiować. Zaznacz tekst i skopiuj go ręcznie.',
   'settings.apiKeys.modal.createTitle': 'Utwórz klucz API',
   'settings.apiKeys.modal.name': 'Nazwa',
-  'settings.apiKeys.modal.namePlaceholder': 'np. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'np. Domowy pulpit',
   'settings.apiKeys.modal.nameHint': 'Tylko dla Ciebie, abyś później rozpoznał klucz.',
   'settings.apiKeys.modal.creating': 'Tworzenie...',
   'settings.apiKeys.modal.create': 'Utwórz',
@@ -673,6 +672,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Skopiuj klucz teraz. Jest pokazywany tylko raz i później nie można go odzyskać.',
   'settings.apiKeys.modal.done': 'Gotowe',
+  'settings.mcp.deprecated': 'Przestarzałe',
+  'settings.offline.cache.dateRange': '{start} do {end}',
 };
 
 export default settings;

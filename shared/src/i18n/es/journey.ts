@@ -204,7 +204,8 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Rutas GPX',
   'journey.settings.recordings': 'Días grabados',
   'journey.settings.showTripTracks': 'Mostrar todas las rutas GPX de los viajes',
-  'journey.settings.showTripTracksHint': 'Dibuja en el mapa las rutas grabadas de los viajes vinculados.',
+  'journey.settings.showTripTracksHint':
+    'Dibuja en el mapa las rutas planificadas (tracks GPX) de los viajes vinculados.',
   'journey.settings.autoPrepare': 'Preparar automáticamente los días grabados',
   'journey.settings.autoPrepareHint':
     'Mientras un viaje vinculado está en curso, las estancias de tu Dawarich esperan en su día para que las revises. Los editores con su propia conexión reciben las suyas. Nada se escribe en el diario por sí solo.',
@@ -904,5 +905,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Días grabados y las paradas tomadas de ellos, en los días con una entrada publicada. Muestran dónde y cuándo estuviste, también tu alojamiento.',
   'journey.share.needsMap': 'Comparte el mapa para activarlo',
+  'journey.editor.tags': 'Etiquetas',
 };
 export default journey;

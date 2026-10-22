@@ -257,5 +257,6 @@ const reservations: TranslationStrings = {
   'reservations.filesNeedConnection':
     'File perlu koneksi untuk diunggah. Hapus file baru untuk menyimpan pemesanan secara offline, atau simpan saat kamu kembali online.',
   'reservations.needsConnection': 'Ini memerlukan koneksi. Coba lagi begitu TREK kembali online.',
+  'reservations.exportCsvFiltered': 'Ekspor {shown} dari {total} baris yang ditampilkan (CSV)',
 };
 export default reservations;

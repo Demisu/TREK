@@ -68,5 +68,6 @@ const backup: TranslationStrings = {
   'backup.restoreTip': 'نصيحة: أنشئ نسخة احتياطية للحالة الحالية قبل الاستعادة.',
   'backup.restoreConfirm': 'نعم، استعادة',
   'backup.auto.envLocked': 'Docker', // en-fallback
+  'backup.auto.hourHintTz': 'التوقيت المحلي للخادم (تنسيق {format})، المنطقة الزمنية {timezone}',
 };
 export default backup;

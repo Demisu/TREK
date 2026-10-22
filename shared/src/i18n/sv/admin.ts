@@ -94,7 +94,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Redigera anvädnare',
   'admin.newPassword': 'Nytt lösenord',
   'admin.newPasswordHint': 'Lämna fältet tomt för att behålla det nuvarande lösenordet',
-  'admin.deleteUser': 'Ta bort användare "{name}"? Alla resor kommer att raderas permanent.',
+  'admin.deleteUser':
+    'Ta bort användaren "{name}"? Kontot och alla resor och journaler som användaren äger tas bort permanent, även resor som delas med andra medlemmar, som förlorar åtkomsten. Resor som ägs av andra finns kvar.',
   'admin.deleteUserTitle': 'Ta bort användare',
   'admin.newPasswordPlaceholder': 'Ange nytt lösenord…',
   'admin.toast.loadError': 'Det gick inte att ladda administratörsdata',
@@ -246,9 +247,9 @@ const admin: TranslationStrings = {
   'admin.transitProvider.transitousHint':
     'GTFS-flöden från communityn. Gratis och utan nyckel, med bäst täckning i Europa.',
   'admin.transitProvider.googleHint':
-    'Använder Google-nyckeln ovan, för regioner som Transitous saknar data för. Debiteras per sökning – så länge ingen nyckel är angiven används Transitous.',
+    'Använder Google-nyckeln ovan, för regioner som Transitous saknar data för. Debiteras per sökning; så länge ingen nyckel är angiven används Transitous.',
   'admin.transitProvider.noKeyWarning':
-    'Google är valt, men ingen Google-nyckel är konfigurerad – kollektivtrafiksökningen använder fortfarande Transitous. Lägg till en nyckel under API-nycklar ovan.',
+    'Google är valt, men ingen Google-nyckel är konfigurerad; kollektivtrafiksökningen använder fortfarande Transitous. Lägg till en nyckel under API-nycklar ovan.',
   'admin.transitProvider.personalKeyWarning':
     'Bara din egen Google-nyckel är angiven, så andra medlemmars sökningar faller fortfarande tillbaka på Transitous. Spara nyckeln ovan som administratör för att den ska gälla hela instansen.',
   'admin.placeShadow.title': 'Logg över platssökningar',
@@ -790,8 +791,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': 'Inga revisionsposter ännu.',
   'admin.audit.refresh': 'Uppdatera',
   'admin.audit.loadMore': 'Ladda fler',
-  'admin.audit.showing': '{count} laddade · {total} totalt',
-  'admin.audit.showing.one': '{count} laddad · {total} totalt',
+  'admin.audit.showing': '{count} laddade, {total} totalt',
+  'admin.audit.showing.one': '{count} laddad, {total} totalt',
   'admin.audit.col.time': 'Tid',
   'admin.audit.col.user': 'Användare',
   'admin.audit.col.action': 'Åtgärd',
@@ -935,5 +936,37 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.origin.auto': 'Automatiskt',
   'admin.paddleRegions.origin.autoHint':
     'TREK läste in den här regionen av sig själv för en paddeltur som planeras där.',
+  'admin.mfa.reset': 'Återställ 2FA',
+  'admin.mfa.resetHint':
+    'Stänger av tvåfaktorsautentiseringen för den här användaren, till exempel efter en förlorad telefon. Användaren loggas ut överallt och kan ställa in den igen efter inloggning med lösenordet.',
+  'admin.mfa.resetConfirm': 'Stänga av tvåfaktorsautentiseringen för {name}?',
+  'admin.mfa.resetDone': 'Tvåfaktorsautentiseringen har återställts',
+  'admin.danger.title': 'Farozon',
+  'admin.rotateJwt.title': 'Rotera JWT-hemlighet',
+  'admin.rotateJwt.hint': 'Skapar en ny JWT-signeringshemlighet. Alla aktiva sessioner ogiltigförklaras omedelbart.',
+  'admin.rotateJwt.confirm': 'Rotera och logga ut',
+  'admin.rotateJwt.warning': 'Varning: detta ogiltigförklarar alla sessioner och loggar ut dig.',
+  'admin.rotateJwt.body':
+    'En ny JWT-hemlighet skapas direkt. Alla inloggade användare, du inräknad, loggas ut och måste logga in igen.',
+  'admin.oidcDisplayNamePlaceholder': 't.ex. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'Discovery-URL (valfritt)',
+  'admin.oidcDiscoveryUrlHint':
+    'Åsidosätter den automatiskt skapade discovery-URL:en. Krävs för leverantörer som Authentik där slutpunkten inte finns på {path}.',
+  'admin.smtp.skipTls': 'Hoppa över kontroll av TLS-certifikat',
+  'admin.smtp.skipTlsHint': 'Aktivera för självsignerade certifikat på lokala mejlservrar',
+  'admin.demoBaseline.title': 'Demobaslinje',
+  'admin.demoBaseline.hint':
+    'Sparar nuvarande tillstånd som återställningspunkt varje timme. Alla administratörens resor och inställningar bevaras.',
+  'admin.demoBaseline.button': 'Spara baslinje',
+  'admin.demoBaseline.saved': 'Baslinjen sparad! Återställningar går tillbaka till det här tillståndet.',
+  'admin.demoBaseline.failed': 'Det gick inte att spara baslinjen',
+  'admin.invite.deleteTitle': 'Ta bort inbjudningslänk',
+  'admin.invite.deleteConfirm':
+    'Ta bort den här inbjudningslänken? Den som inte har använt den ännu kan inte längre registrera sig med den.',
+  'admin.packingTemplates.deleteTemplateTitle': 'Ta bort mall',
+  'admin.packingTemplates.deleteTemplateConfirm': 'Ta bort mallen "{name}" med alla kategorier och objekt?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Ta bort kategori',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Ta bort kategorin "{name}" och alla dess objekt?',
+  'admin.rotateJwt.button': 'Rotera',
 };
 export default admin;

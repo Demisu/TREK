@@ -69,5 +69,8 @@ const files: TranslationStrings = {
     'Bu bağlantıyı kaldırmak için internet bağlantısı gerekiyor. TREK yeniden çevrimiçi olduğunda tekrar dene.',
   'files.placeFilesNeedConnection':
     'Dosyaları yüklemek için bağlantı gerekiyor. Yeri çevrimdışı kaydetmek için yenilerini kaldır ya da yeniden çevrimiçi olduğunda kaydet.',
+  'files.maxSize': 'En fazla {count} MB',
+  'files.maxSize.one': 'En fazla {count} MB',
+  'files.toast.starError': 'Yıldız değiştirilemedi',
 };
 export default files;

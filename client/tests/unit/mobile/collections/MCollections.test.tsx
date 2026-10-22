@@ -146,6 +146,7 @@ function makeHook(over: Record<string, unknown> = {}): Record<string, unknown> {
     categories: [],
     collections: [list(1, 'Hamburg')],
     ownedLists: [list(1, 'Hamburg')],
+    writableLists: [list(1, 'Hamburg')],
     sharedLists: [],
     activeCollection: list(1, 'Hamburg'),
     isAllSaved: false,
@@ -534,7 +535,9 @@ describe('MCollections', () => {
       selectedIds: [10, 11],
       copyIds: [10],
       listPickerMode: 'move',
+      // The add sheet offers the owned lists, the move picker every writable one.
       ownedLists: [list(1, 'Hamburg'), list(2, 'Kopenhagen')],
+      writableLists: [list(1, 'Hamburg'), list(2, 'Kopenhagen')],
     })
     render(<MCollections />)
 
@@ -577,7 +580,7 @@ describe('MCollections', () => {
   })
 
   it('FE-MOB-COLSCR-022: the list picker duplicates in copy mode', () => {
-    mocks.coll = makeHook({ listPickerMode: 'copy', selectedIds: [10], ownedLists: [list(1, 'Hamburg'), list(2, 'Kopenhagen')] })
+    mocks.coll = makeHook({ listPickerMode: 'copy', selectedIds: [10], writableLists: [list(1, 'Hamburg'), list(2, 'Kopenhagen')] })
     render(<MCollections />)
 
     fireEvent.click(screen.getByText('listpicker-pick'))

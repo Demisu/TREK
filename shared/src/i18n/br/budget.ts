@@ -210,5 +210,6 @@ const budget: TranslationStrings = {
   'costs.receiptsNeedConnection':
     'Os recibos precisam de conexão para serem enviados. Remova os novos para salvar a despesa offline, ou salve quando estiver online de novo.',
   'costs.paymentQueued': 'Você está offline. O pagamento foi salvo e aparece quando o TREK voltar a ficar online.',
+  'costs.confirm.deleteBodyReceipts': '"{name}" a vo dilamet da viken. Chom a ra e restroù fakturioù e Restroù.',
 };
 export default budget;

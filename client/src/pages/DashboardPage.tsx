@@ -200,8 +200,8 @@ function DashboardPageDesktop(): React.ReactElement {
                   </div>
                   <button type="button"
                     className="tool-action"
-                    aria-label="Subscribe to all trips calendar"
-                    title="Subscribe to all trips"
+                    aria-label={t('dashboard.subscribeAllTrips')}
+                    title={t('dashboard.subscribeAllTrips')}
                     onClick={() => setAllSubOpen(true)}
                     style={{ width: 38, height: 38, borderRadius: 11 }}
                   >
@@ -215,8 +215,8 @@ function DashboardPageDesktop(): React.ReactElement {
               {allSubOpen && (
                 <IcsSubscribeModal
                   endpoint="/api/feed/user"
-                  title="Subscribe to all trips"
-                  description="One calendar feed for all your active trips, kept in sync automatically. Excludes archived trips and trips that ended more than 90 days ago."
+                  title={t('dashboard.subscribeAllTrips')}
+                  description={t('dashboard.subscribeAllTripsDesc')}
                   onClose={() => setAllSubOpen(false)}
                 />
               )}
@@ -645,7 +645,7 @@ function TripCard({ trip, locale, badges, matchedPlaces, onOpen, onEdit, onCopy,
         {matchedPlaces && matchedPlaces.length > 0 && (
           <div className="trip-match" title={matchedPlaces.join(', ')}>
             <MapPin size={12} strokeWidth={2.2} aria-hidden />
-            <span>{matchedPlaces.join(' · ')}</span>
+            <span>{matchedPlaces.join(', ')}</span>
           </div>
         )}
         <div className="trip-meta" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>

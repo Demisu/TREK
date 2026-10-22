@@ -1,165 +1,44 @@
-import type { HelpContext, HelpGuide } from '../types'
+import { defineScreen } from '../defineScreen'
 
 /**
  * Help for the Collections addon (`/collections`): the place library outside
- * of any trip. The step actions that produce the pictures live in
- * `e2e/help/collections.guide.ts`, keyed by the same ids.
+ * of any trip, and with Tours on the whole tours a list keeps. The step
+ * actions that produce the pictures live in `e2e/help/collections.guide.ts`,
+ * keyed by the same ids.
  */
 
 const COLLECTIONS = 'Collections'
+const LISTS = { slug: COLLECTIONS, anchor: 'lists' }
+const ADDING = { slug: COLLECTIONS, anchor: 'adding-places' }
+const BULK = { slug: COLLECTIONS, anchor: 'filtering-and-bulk-actions' }
+const SHARING = { slug: COLLECTIONS, anchor: 'sharing-a-list-fusion' }
+const FILES = { slug: COLLECTIONS, anchor: 'sending-a-list-to-someone-else' }
+const TOURS = { slug: COLLECTIONS, anchor: 'whole-tours' }
 
-export const collectionsGuides: HelpGuide[] = [
-  {
-    id: 'create-list',
-    context: 'collections',
-    icon: 'plus',
-    size: 'guide',
-    steps: 3,
-    tips: 1,
-    media: { steps: true, result: true },
-    docs: { slug: COLLECTIONS, anchor: 'lists' },
-    related: ['add-place', 'edit-list', 'import-from-trip'],
-  },
-  {
-    id: 'add-place',
-    context: 'collections',
-    icon: 'mapPin',
-    size: 'guide',
-    steps: 3,
-    tips: 2,
-    media: { steps: true, result: true },
-    docs: { slug: COLLECTIONS, anchor: 'adding-places' },
-    related: ['import-from-trip', 'place-detail'],
-  },
-  {
-    id: 'import-from-trip',
-    context: 'collections',
-    icon: 'download',
-    size: 'guide',
-    steps: 4,
-    tips: 2,
-    media: { steps: true, result: true },
-    docs: { slug: COLLECTIONS, anchor: 'adding-places' },
-    related: ['add-place', 'copy-to-trip'],
-  },
-  {
-    id: 'place-status',
-    context: 'collections',
-    icon: 'checkCircle',
-    size: 'quick',
-    steps: 2,
-    tips: 2,
-    media: { steps: true, result: true },
-    docs: { slug: COLLECTIONS, anchor: 'place-status' },
-    related: ['place-detail', 'filter-select'],
-  },
-  {
-    id: 'place-detail',
-    context: 'collections',
-    icon: 'panelRight',
-    size: 'quick',
-    steps: 2,
-    tips: 2,
-    media: { steps: true, result: false },
-    docs: { slug: COLLECTIONS, anchor: 'place-detail' },
-    related: ['place-status', 'copy-to-trip', 'labels'],
-  },
-  {
-    id: 'labels',
-    context: 'collections',
-    icon: 'tags',
-    size: 'guide',
-    steps: 4,
-    tips: 2,
-    media: { steps: true, result: true },
-    docs: { slug: COLLECTIONS, anchor: 'custom-labels' },
-    related: ['filter-select', 'place-detail'],
-  },
-  {
-    id: 'filter-select',
-    context: 'collections',
-    icon: 'filter',
-    size: 'guide',
-    steps: 3,
-    tips: 1,
-    media: { steps: true, result: true },
-    docs: { slug: COLLECTIONS, anchor: 'filtering-and-bulk-actions' },
-    related: ['copy-to-trip', 'labels'],
-  },
-  {
-    id: 'copy-to-trip',
-    context: 'collections',
-    icon: 'copy',
-    size: 'guide',
-    steps: 3,
-    tips: 1,
-    media: { steps: true, result: true },
-    docs: { slug: COLLECTIONS, anchor: 'filtering-and-bulk-actions' },
-    related: ['filter-select', 'import-from-trip'],
-  },
-  {
-    id: 'share-list',
-    context: 'collections',
-    icon: 'userPlus',
-    size: 'guide',
-    steps: 3,
-    tips: 2,
-    media: { steps: true, result: true },
-    docs: { slug: COLLECTIONS, anchor: 'sharing-a-list-fusion' },
-    related: ['export-list'],
-  },
-  {
-    id: 'export-list',
-    context: 'collections',
-    icon: 'upload',
-    size: 'quick',
-    steps: 2,
-    tips: 2,
-    media: { steps: true, result: false },
-    docs: { slug: COLLECTIONS, anchor: 'sending-a-list-to-someone-else' },
-    related: ['import-file', 'share-list'],
-  },
-  {
-    id: 'import-file',
-    context: 'collections',
-    icon: 'fileInput',
-    size: 'guide',
-    steps: 3,
-    tips: 2,
-    media: { steps: true, result: true },
-    docs: { slug: COLLECTIONS, anchor: 'sending-a-list-to-someone-else' },
-    related: ['export-list', 'create-list'],
-  },
-  {
-    id: 'edit-list',
-    context: 'collections',
-    icon: 'pencil',
-    size: 'quick',
-    steps: 2,
-    tips: 1,
-    media: { steps: true, result: true },
-    docs: { slug: COLLECTIONS, anchor: 'lists' },
-    related: ['create-list'],
-  },
-  {
-    id: 'all-saved',
-    context: 'collections',
-    icon: 'library',
-    size: 'quick',
-    steps: 2,
-    tips: 1,
-    media: { steps: true, result: false },
-    docs: { slug: COLLECTIONS, anchor: 'lists' },
-    related: ['filter-select'],
-  },
-]
-
-export const collectionsContext: HelpContext = {
+export const { context: collectionsContext, guides: collectionsGuides } = defineScreen({
   id: 'collections',
   route: '/collections',
   icon: 'bookmark',
-  bullets: 6,
-  guides: collectionsGuides.map(g => g.id),
+  bullets: 7,
   docs: [{ slug: COLLECTIONS }, { slug: 'Admin-Categories' }, { slug: 'Admin-Addons' }],
-  hero: true,
-}
+  guides: [
+    ['create-list', 'plus', 'guide', 3, 1, LISTS, ['add-place', 'edit-list', 'import-from-trip'], true],
+    ['add-place', 'mapPin', 'guide', 3, 2, ADDING, ['import-from-trip', 'place-detail'], true],
+    ['import-from-trip', 'download', 'guide', 4, 2, ADDING, ['add-place', 'copy-to-trip'], true],
+    ['place-status', 'checkCircle', 'quick', 2, 2, { slug: COLLECTIONS, anchor: 'place-status' }, ['place-detail', 'filter-select'], true],
+    ['place-detail', 'panelRight', 'quick', 2, 2, { slug: COLLECTIONS, anchor: 'place-detail' }, ['place-status', 'copy-to-trip', 'labels']],
+    ['labels', 'tags', 'guide', 4, 2, { slug: COLLECTIONS, anchor: 'custom-labels' }, ['filter-select', 'place-detail'], true],
+    ['filter-select', 'filter', 'guide', 3, 1, BULK, ['move-to-list', 'copy-to-trip', 'labels'], true],
+    ['move-to-list', 'folderInput', 'quick', 3, 2, BULK, ['filter-select', 'labels'], true],
+    ['copy-to-trip', 'copy', 'guide', 3, 2, BULK, ['filter-select', 'import-from-trip'], true],
+    ['share-list', 'userPlus', 'guide', 3, 2, SHARING, ['accept-list-invite', 'export-list'], true],
+    ['accept-list-invite', 'mailCheck', 'quick', 2, 2, SHARING, ['share-list'], true],
+    ['export-list', 'upload', 'quick', 2, 2, FILES, ['import-file', 'share-list']],
+    ['import-file', 'fileInput', 'guide', 3, 2, FILES, ['export-list', 'create-list'], true],
+    ['edit-list', 'pencil', 'quick', 2, 1, LISTS, ['create-list'], true],
+    ['all-saved', 'library', 'quick', 2, 1, LISTS, ['filter-select']],
+    // Last: the two guides that need the Tours addon and a kept tour.
+    ['tour-collection-add-to-trip', 'copyPlus', 'guide', 4, 3, TOURS, ['tour-collection-manage', 'copy-to-trip'], true],
+    ['tour-collection-manage', 'route', 'quick', 3, 3, TOURS, ['tour-collection-add-to-trip'], true],
+  ],
+})

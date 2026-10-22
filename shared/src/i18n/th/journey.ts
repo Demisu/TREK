@@ -214,7 +214,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'เส้นทาง GPX',
   'journey.settings.recordings': 'วันที่บันทึกไว้',
   'journey.settings.showTripTracks': 'แสดงเส้นทาง GPX ของการเดินทางทั้งหมด',
-  'journey.settings.showTripTracksHint': 'วาดเส้นทางที่บันทึกไว้จากการเดินทางที่เชื่อมโยงบนแผนที่',
+  'journey.settings.showTripTracksHint': 'วาดเส้นทางที่วางแผนไว้ (แทร็ก GPX) จากทริปที่เชื่อมโยงไว้บนแผนที่',
   'journey.settings.autoPrepare': 'เตรียมวันที่บันทึกไว้โดยอัตโนมัติ',
   'journey.settings.autoPrepareHint':
     'ระหว่างที่ทริปที่เชื่อมโยงยังดำเนินอยู่ จุดแวะพักจาก Dawarich ของคุณจะรอตรวจอยู่ที่วันของมัน ผู้แก้ไขที่มีการเชื่อมต่อของตนเองจะได้ของตัวเอง ไม่มีอะไรถูกเขียนลงบันทึกเอง',
@@ -852,5 +852,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'วันที่บันทึกและจุดแวะที่นำมาจากวันนั้น ในวันที่มีบันทึกที่เผยแพร่แล้ว แสดงว่าคุณอยู่ที่ไหนและเมื่อไร รวมถึงที่พักด้วย',
   'journey.share.needsMap': 'แชร์แผนที่เพื่อเปิดใช้งานนี้',
+  'journey.editor.tags': 'แท็ก',
 };
 export default journey;

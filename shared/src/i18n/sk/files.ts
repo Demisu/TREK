@@ -72,5 +72,9 @@ const files: TranslationStrings = {
     'Odstránenie tohto prepojenia potrebuje pripojenie. Skús to znova, keď bude TREK opäť online.',
   'files.placeFilesNeedConnection':
     'Súbory potrebujú na nahranie pripojenie. Odstráň nové, aby si miesto uložil offline, alebo ulož, keď budeš opäť online.',
+  'files.maxSize': 'Max. {count} MB',
+  'files.maxSize.one': 'Max. {count} MB',
+  'files.maxSize.few': 'Max. {count} MB',
+  'files.toast.starError': 'Hviezdičku sa nepodarilo zmeniť',
 };
 export default files;

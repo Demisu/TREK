@@ -182,11 +182,10 @@ export default function Navbar({ tripTitle, tripId, onBack, showBack, onSettings
           <button
             type="button"
             onClick={onSettings}
-            aria-label={t('trip.settings.title')}
             className="inline-flex flex-none items-center gap-1.5 rounded-full bg-surface-card py-1 ps-2 pe-3 text-content shadow-sm ring-1 ring-inset ring-edge-faint transition-colors hover:bg-surface-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
           >
             <Settings className="h-4 w-4 flex-none text-content-muted" aria-hidden="true" />
-            <span className="text-caption font-semibold">{t('nav.settings')}</span>
+            <span className="text-caption font-semibold">{t('trip.settings.title')}</span>
           </button>
         )}
       </div>

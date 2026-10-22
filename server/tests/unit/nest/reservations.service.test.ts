@@ -867,7 +867,7 @@ describe('ReservationsService (DI-native, real SQL)', () => {
         actorId: user.id,
         scope: 'trip',
         targetId: trip.id,
-        params: { trip: trip.title, actor: user.email, booking: 'Hotel', type: 'lodging', tripId: String(trip.id) },
+        params: { trip: trip.title, actor: user.username, booking: 'Hotel', type: 'lodging', tripId: String(trip.id) },
       });
     });
 

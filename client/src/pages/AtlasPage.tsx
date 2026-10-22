@@ -531,7 +531,8 @@ function SidebarContent({ data, stats, regionsVisited, countryRegions, onOpenPla
           {item.visited_at && (
             <Tooltip
               label={item.visited_source === 'dawarich'
-                ? `${t('dawarich.bucket.visitedFrom')} — ${t('dawarich.bucket.clearVisit')}`
+                ? `${t('dawarich.bucket.visitedFrom')}
+${t('dawarich.bucket.clearVisit')}`
                 : ''}
               placement="top"
             >

@@ -35,5 +35,7 @@ const notifications: TranslationStrings = {
   'notifications.versionAvailable.title': 'Dostupná aktualizace',
   'notifications.versionAvailable.text': 'TREK {version} je nyní k dispozici.',
   'notifications.versionAvailable.button': 'Zobrazit podrobnosti',
+  'notifications.deleteAllConfirmTitle': 'Smazat všechna oznámení?',
+  'notifications.deleteAllConfirmText': 'Všechna oznámení se trvale odstraní. Tuto akci nelze vrátit zpět.',
 };
 export default notifications;

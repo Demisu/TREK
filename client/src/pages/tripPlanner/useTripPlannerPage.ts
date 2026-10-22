@@ -139,6 +139,8 @@ export function useTripPlannerPage() {
     trackPaddlePlan,
     paddleChecklist,
     skiClassification,
+    // The Tours rail's Trip places picker leaves the trip's tours out of the stops it offers.
+    tourPlaceIds: planner.tourPlaceIds,
     tourDetailActions,
     tourMap: { route: drawn.route,
       routeWalking: drawn.walking,

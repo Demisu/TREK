@@ -32,7 +32,7 @@ const storage: TranslationStrings = {
   'storage.backends.add': 'Tambah backend',
   'storage.backends.usedBy': 'Digunakan oleh: {categories}',
   'storage.backends.unused': 'Tidak ditetapkan ke kategori mana pun',
-  'storage.backends.envReadOnly': 'Ditentukan oleh variabel lingkungan — hanya baca',
+  'storage.backends.envReadOnly': 'Ditentukan oleh variabel lingkungan (hanya baca)',
   'storage.source.built-in': 'Bawaan',
   'storage.source.env': 'Lingkungan',
   'storage.source.settings': 'Pengaturan',

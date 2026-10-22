@@ -213,7 +213,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX-spår',
   'journey.settings.recordings': 'Inspelade dagar',
   'journey.settings.showTripTracks': 'Visa alla GPX-spår från resor',
-  'journey.settings.showTripTracksHint': 'Ritar de inspelade rutterna från de länkade resorna på kartan.',
+  'journey.settings.showTripTracksHint': 'Ritar de planerade rutterna (GPX-spår) från de länkade resorna på kartan.',
   'journey.settings.autoPrepare': 'Förbered inspelade dagar automatiskt',
   'journey.settings.autoPrepareHint':
     'Medan en länkad resa pågår väntar vistelserna från din Dawarich vid sin dag på att granskas. Redigerare med egen anslutning får sina. Inget skrivs i dagboken av sig självt.',
@@ -895,5 +895,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'Inspelade dagar och de stopp som hämtats från dem, på dagar med ett publicerat inlägg. De visar var och när du var, även ditt boende.',
   'journey.share.needsMap': 'Dela kartan för att slå på detta',
+  'journey.editor.tags': 'Taggar',
 };
 export default journey;

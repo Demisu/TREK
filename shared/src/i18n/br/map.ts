@@ -41,5 +41,6 @@ const map: TranslationStrings = {
     'Não foi possível calcular a rota de {count} trecho, por isso as distâncias estão incompletas.',
   'map.overview.dayUnrouted': 'Não foi possível calcular a rota de {count} trechos deste dia',
   'map.overview.dayUnrouted.one': 'Não foi possível calcular a rota de {count} trecho deste dia',
+  'map.baseLayer.topo': 'Topográfico',
 };
 export default map;

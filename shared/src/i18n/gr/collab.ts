@@ -106,5 +106,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Επισύναψη εικόνων',
   'collab.chat.attachedImage': 'Συνημμένη εικόνα',
   'collab.chat.closeImage': 'Κλείσιμο εικόνας',
+  'collab.notes.categoryInUse':
+    'Σημειώσεις χρησιμοποιούν ακόμη αυτή την κατηγορία. Μετακινήστε ή διαγράψτε τις πρώτα για να την αφαιρέσετε.',
+  'collab.notes.categoriesLocalHint':
+    'Μια κατηγορία χωρίς σημειώσεις αποθηκεύεται μόνο σε αυτό το πρόγραμμα περιήγησης. Τα άλλα μέλη τη βλέπουν μόλις τη χρησιμοποιήσει μια σημείωση.',
 };
 export default collab;

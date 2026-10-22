@@ -11,6 +11,7 @@ const COSTS = 'Budget-Tracking'
 const CURRENCIES = 'Currencies'
 const SETTLEMENT = { slug: COSTS, anchor: 'settlement-calculator' }
 const ITEMS = { slug: COSTS, anchor: 'expense-items' }
+const RECEIPTS = { slug: COSTS, anchor: 'receipts-and-invoices' }
 
 export const { context: tripCostsContext, guides: tripCostsGuides } = defineScreen({
   id: 'trip-costs',
@@ -20,14 +21,15 @@ export const { context: tripCostsContext, guides: tripCostsGuides } = defineScre
   bullets: 7,
   docs: [{ slug: COSTS }, { slug: CURRENCIES }],
   guides: [
-    ['add-expense', 'plus', 'guide', 6, 3, ITEMS, ['split-expense', 'expense-payers', 'expense-currency'], true],
+    ['add-expense', 'plus', 'guide', 6, 3, ITEMS, ['split-expense', 'expense-payers', 'expense-receipts'], true],
     ['expense-payers', 'userRound', 'guide', 4, 3, { slug: COSTS, anchor: 'who-paid' }, ['add-expense', 'settle-up']],
     ['split-expense', 'users', 'guide', 5, 4, { slug: COSTS, anchor: 'splitting-costs' }, ['add-expense', 'expense-payers'], true],
     ['expense-currency', 'coins', 'guide', 5, 3, { slug: CURRENCIES, anchor: 'expense-currency' }, ['add-expense', 'edit-trip', 'language-region'], true],
+    ['expense-receipts', 'receipt', 'guide', 5, 3, RECEIPTS, ['add-expense', 'files-preview', 'files-trash'], true],
     ['filter-costs', 'filter', 'quick', 5, 3, ITEMS, ['add-expense', 'final-budget', 'costs-table'], true],
     ['settle-up', 'checkCircle', 'tour', 6, 3, SETTLEMENT, ['final-budget', 'expense-payers'], true],
-    ['final-budget', 'chart', 'guide', 4, 2, SETTLEMENT, ['settle-up', 'add-expense']],
-    ['expense-from-booking', 'link', 'quick', 4, 2, { slug: COSTS, anchor: 'expenses-linked-to-a-booking-or-a-place' }, ['add-expense', 'bookings-in-plan', 'create-booking'], true],
+    ['final-budget', 'chart', 'guide', 4, 3, SETTLEMENT, ['settle-up', 'add-expense']],
+    ['expense-from-booking', 'link', 'quick', 4, 2, { slug: COSTS, anchor: 'expenses-linked-to-a-booking-or-a-place' }, ['add-expense', 'booking-cost', 'create-booking'], true],
     ['costs-table', 'calculator', 'guide', 6, 3, { slug: COSTS, anchor: 'table-view' }, ['add-expense', 'filter-costs', 'final-budget'], true],
   ],
 })

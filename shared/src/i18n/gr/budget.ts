@@ -212,5 +212,7 @@ const budget: TranslationStrings = {
   'costs.receiptsNeedConnection':
     'Οι αποδείξεις χρειάζονται σύνδεση για να ανέβουν. Αφαίρεσε τις νέες για να αποθηκεύσεις το έξοδο εκτός σύνδεσης ή αποθήκευσε όταν είσαι ξανά online.',
   'costs.paymentQueued': 'Είσαι εκτός σύνδεσης. Η πληρωμή αποθηκεύτηκε και θα εμφανιστεί μόλις το TREK συνδεθεί ξανά.',
+  'costs.confirm.deleteBodyReceipts':
+    'Το "{name}" θα διαγραφεί οριστικά. Τα αρχεία αποδείξεών του παραμένουν στα Αρχεία.',
 };
 export default budget;

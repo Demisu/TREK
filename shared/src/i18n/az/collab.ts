@@ -114,5 +114,9 @@ const collab: TranslationStrings = {
   'collab.chat.attachImages': 'Şəkillər əlavə et',
   'collab.chat.attachedImage': 'Əlavə edilmiş şəkil',
   'collab.chat.closeImage': 'Şəkli bağla',
+  'collab.notes.categoryInUse':
+    'Qeydlər hələ də bu kateqoriyadan istifadə edir. Silmək üçün əvvəlcə onları köçürün və ya silin.',
+  'collab.notes.categoriesLocalHint':
+    'Qeydi olmayan kateqoriya yalnız bu brauzerdə saxlanır. Digər üzvlər onu qeyd istifadə etdikdə görəcək.',
 };
 export default collab;

@@ -69,5 +69,8 @@ const files: TranslationStrings = {
     'Remover este vínculo precisa de conexão. Tente de novo quando o TREK voltar a ficar online.',
   'files.placeFilesNeedConnection':
     'Os arquivos precisam de conexão para serem enviados. Remova os novos para salvar o lugar offline ou salve quando estiver online de novo.',
+  'files.maxSize': 'Brasañ {count} Mo',
+  'files.maxSize.one': 'Brasañ {count} Mo',
+  'files.toast.starError': "N'eus ket bet gallet cheñch ar steredenn",
 };
 export default files;

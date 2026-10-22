@@ -513,7 +513,7 @@ describe('BackupPanel', () => {
     render(<><ToastContainer /><BackupPanel /></>)
     await screen.findByText('Run at hour')
 
-    expect(screen.getByText('Server local time (12h format) (Timezone: UTC)')).toBeInTheDocument()
+    expect(screen.getByText('Server local time (12h format), timezone UTC')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '12:00 AM' }))
     await user.click(await screen.findByRole('button', { name: '2:00 PM' }))
     await user.click(screen.getByRole('button', { name: /^save$/i }))

@@ -265,7 +265,7 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'مسارات GPX',
   'journey.settings.recordings': 'الأيام المسجلة',
   'journey.settings.showTripTracks': 'إظهار جميع مسارات GPX للرحلات',
-  'journey.settings.showTripTracksHint': 'يرسم على الخريطة المسارات المسجَّلة من الرحلات المرتبطة.',
+  'journey.settings.showTripTracksHint': 'يرسم المسارات المخططة (مسارات GPX) من الرحلات المرتبطة على الخريطة.',
   'journey.settings.autoPrepare': 'تحضير الأيام المسجلة تلقائيًا',
   'journey.settings.autoPrepareHint':
     'ما دامت رحلة مرتبطة جارية، تنتظر محطات التوقف من Dawarich الخاص بك عند يومها لتراجعها. يحصل المحررون الذين لديهم اتصالهم الخاص على محطاتهم. لا يُكتب شيء في اليومية من تلقاء نفسه.',
@@ -971,5 +971,6 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint':
     'الأيام المسجَّلة ومحطات التوقف المأخوذة منها، للأيام التي لها تدوينة منشورة. تُظهر أين كنت ومتى، بما في ذلك مكان إقامتك.',
   'journey.share.needsMap': 'شارك الخريطة لتفعيل هذا',
+  'journey.editor.tags': 'الوسوم',
 };
 export default journey;

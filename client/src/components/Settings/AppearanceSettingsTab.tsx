@@ -61,12 +61,7 @@ export default function AppearanceSettingsTab(): React.ReactElement {
                   {
                     value: 'auto',
                     icon: <Monitor size={14} strokeWidth={2} />,
-                    label: (
-                      <>
-                        <span className="hidden sm:inline">{tr('settings.auto', 'Auto')}</span>
-                        <span className="sm:hidden">Auto</span>
-                      </>
-                    ),
+                    label: tr('settings.auto', 'Auto'),
                   },
                 ]}
               />

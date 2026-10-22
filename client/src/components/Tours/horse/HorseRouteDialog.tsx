@@ -95,6 +95,7 @@ export function HorseRouteDialog({
             data-testid="horse-section-adopt"
             icon={<Plus size={14} strokeWidth={2} />}
             disabled={!pick.canAdopt}
+            title={pick.leg && pick.gapOpen && !pick.joinGap ? t('tours.horse.dialog.adoptGapHint') : undefined}
             onClick={pick.adopt}
           >
             {t('tours.horse.dialog.adopt')}

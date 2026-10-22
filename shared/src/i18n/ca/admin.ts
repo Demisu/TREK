@@ -42,7 +42,8 @@ const admin: TranslationStrings = {
   'admin.editUser': 'Editar usuari',
   'admin.newPassword': 'Contrasenya nova',
   'admin.newPasswordHint': 'Deixa-ho buit per mantenir la contrasenya actual',
-  'admin.deleteUser': 'Eliminar l\'usuari "{name}"? Tots els seus viatges s\'esborraran permanentment.',
+  'admin.deleteUser':
+    "Vols eliminar l'usuari \"{name}\"? El seu compte i tots els viatges i diaris que té seran eliminats definitivament, també els viatges compartits amb altres membres, que en perdran l'accés. Els viatges d'altres persones es mantenen.",
   'admin.deleteUserTitle': 'Eliminar usuari',
   'admin.newPasswordPlaceholder': 'Introdueix una contrasenya nova…',
   'admin.toast.loadError': "No s'han pogut carregar les dades d'administració",
@@ -322,8 +323,8 @@ const admin: TranslationStrings = {
   'admin.audit.empty': "Encara no hi ha entrades d'auditoria.",
   'admin.audit.refresh': 'Actualitzar',
   'admin.audit.loadMore': 'Carregar més',
-  'admin.audit.showing': '{count} carregats · {total} en total',
-  'admin.audit.showing.one': '{count} carregat · {total} en total',
+  'admin.audit.showing': '{count} carregats, {total} en total',
+  'admin.audit.showing.one': '{count} carregat, {total} en total',
   'admin.audit.col.time': 'Data i hora',
   'admin.audit.col.user': 'Usuari',
   'admin.audit.col.action': 'Acció',
@@ -946,5 +947,39 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.origin.auto': 'Automàtic',
   'admin.paddleRegions.origin.autoHint':
     'TREK ha carregat aquesta regió pel seu compte per a una ruta en caiac planificada allà.',
+  'admin.mfa.reset': 'Restablir 2FA',
+  'admin.mfa.resetHint':
+    "Desactiva l'autenticació de dos factors d'aquest usuari, per exemple després de perdre el telèfon. Es tanca la seva sessió a tot arreu i podrà tornar-la a configurar després d'iniciar sessió amb la contrasenya.",
+  'admin.mfa.resetConfirm': "Vols desactivar l'autenticació de dos factors de {name}?",
+  'admin.mfa.resetDone': 'Autenticació de dos factors restablerta',
+  'admin.danger.title': 'Zona de perill',
+  'admin.rotateJwt.title': 'Rota el secret JWT',
+  'admin.rotateJwt.hint':
+    "Genera un nou secret de signatura JWT. Totes les sessions actives s'invalidaran immediatament.",
+  'admin.rotateJwt.confirm': 'Rota i tanca la sessió',
+  'admin.rotateJwt.warning': 'Atenció: això invalidarà totes les sessions i et tancarà la sessió.',
+  'admin.rotateJwt.body':
+    'Es generarà un nou secret JWT immediatament. Tots els usuaris connectats, tu inclòs, es desconnectaran i hauran de tornar a iniciar sessió.',
+  'admin.oidcDisplayNamePlaceholder': 'p. ex. Google, Authentik, Keycloak',
+  'admin.oidcDiscoveryUrl': 'URL de descoberta (opcional)',
+  'admin.oidcDiscoveryUrlHint':
+    "Substitueix l'URL de descoberta construït automàticament. Cal per a proveïdors com Authentik, on el punt final no és a {path}.",
+  'admin.smtp.skipTls': 'Omet la comprovació del certificat TLS',
+  'admin.smtp.skipTlsHint': 'Activa-ho per a certificats autosignats en servidors de correu locals',
+  'admin.demoBaseline.title': 'Base de la demo',
+  'admin.demoBaseline.hint':
+    "Desa l'estat actual com a punt de restabliment horari. Es conservaran tots els viatges i ajustos de l'administrador.",
+  'admin.demoBaseline.button': 'Desa la base',
+  'admin.demoBaseline.saved': 'Base desada! Els restabliments tornaran a aquest estat.',
+  'admin.demoBaseline.failed': "No s'ha pogut desar la base",
+  'admin.invite.deleteTitle': "Elimina l'enllaç d'invitació",
+  'admin.invite.deleteConfirm':
+    "Vols eliminar aquest enllaç d'invitació? Qui encara no l'hagi fet servir ja no podrà registrar-se amb ell.",
+  'admin.packingTemplates.deleteTemplateTitle': 'Elimina la plantilla',
+  'admin.packingTemplates.deleteTemplateConfirm':
+    'Vols eliminar la plantilla "{name}" amb totes les seves categories i elements?',
+  'admin.packingTemplates.deleteCategoryTitle': 'Elimina la categoria',
+  'admin.packingTemplates.deleteCategoryConfirm': 'Vols eliminar la categoria "{name}" i tots els seus elements?',
+  'admin.rotateJwt.button': 'Renova',
 };
 export default admin;

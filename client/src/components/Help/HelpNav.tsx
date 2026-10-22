@@ -1,19 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Search, LifeBuoy, ArrowUpRight, ChevronsUpDown, ChevronDown, ChevronRight, Check, MapPin, CornerDownRight } from 'lucide-react'
 import { useTranslation } from '../../i18n'
-import { useHelpStore, docTitle } from '../../store/helpStore'
-import { ctxKey, guideKey, guidesFor, docsRoute, topLevelHelpContexts, childHelpContexts, helpContextTrail } from '../../help/registry'
+import { useHelpStore } from '../../store/helpStore'
+import { ctxKey, guideKey, guidesFor, topLevelHelpContexts, childHelpContexts, helpContextTrail } from '../../help/registry'
 import type { HelpContext, HelpGuide } from '../../help/types'
 import { helpIcon } from './helpIcons'
-import HelpDocLink from './HelpDocLink'
 import { ThisScreenChip } from './HelpHome'
 
 const GITHUB_DISCUSSIONS = 'https://github.com/liketrek/TREK/discussions/new?category=ideas'
 const DISCORD = 'https://discord.gg/NhZBDSd4qW'
 
 /**
- * Left pane of the help dialog: search, the current screen with its guides,
- * the docs that go with it, and the ways to reach a human.
+ * Left pane of the help dialog: search, the current screen with its guides
+ * and its neighbouring screens, and the ways to reach a human. The docs are
+ * listed once, at the foot of the overview.
  */
 export default function HelpNav({ context, currentId, activeGuideId }: {
   /** The screen whose help is shown. */
@@ -26,7 +26,6 @@ export default function HelpNav({ context, currentId, activeGuideId }: {
   const query = useHelpStore(s => s.query)
   const setQuery = useHelpStore(s => s.setQuery)
   const closeGuide = useHelpStore(s => s.closeGuide)
-  const docIndex = useHelpStore(s => s.docIndex)
   const searchRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -37,8 +36,12 @@ export default function HelpNav({ context, currentId, activeGuideId }: {
   const overviewActive = !activeGuideId && !query.trim()
   // The tabs of the screen on show, or of its parent when the reader is on one of them.
   const family = context ? childHelpContexts(context.parent ?? context.id) : []
-  // Folded by default: the guides matter more, the tabs are one click away.
-  const [familyOpen, setFamilyOpen] = useState(false)
+  // On a sub-screen its neighbours start open: each holds guides of its own, and folded they went
+  // unnoticed. On the screen above them they start folded, since its overview shows them as cards.
+  // Kept per screen, so moving from a screen to one of its sub-screens starts that one as it should.
+  const [folds, setFolds] = useState<Record<string, boolean>>({})
+  const familyOpen = context ? (folds[context.id] ?? Boolean(context.parent)) : false
+  const toggleFamily = () => { if (context) setFolds(f => ({ ...f, [context.id]: !familyOpen })) }
 
   return (
     <nav className="flex flex-col min-h-0 border-b md:border-b-0 md:border-e border-edge bg-surface-secondary" aria-label={t('help.center.title')}>
@@ -75,7 +78,7 @@ export default function HelpNav({ context, currentId, activeGuideId }: {
               <section className="flex flex-col gap-1">
                 <button
                   type="button"
-                  onClick={() => setFamilyOpen(o => !o)}
+                  onClick={toggleFamily}
                   aria-expanded={familyOpen}
                   className="flex items-center gap-1.5 px-2 pb-1 text-start text-caption font-semibold uppercase tracking-[0.1em] text-content-faint hover:text-content transition-colors"
                 >
@@ -122,18 +125,6 @@ export default function HelpNav({ context, currentId, activeGuideId }: {
               </section>
             )}
 
-            {context.docs.length > 0 && (
-              <section className="flex flex-col gap-1 px-2">
-                <NavLabel>{t('help.center.docsSection')}</NavLabel>
-                <ul className="flex flex-col">
-                  {context.docs.map(link => (
-                    <li key={`${link.slug}#${link.anchor ?? ''}`}>
-                      <HelpDocLink to={docsRoute(link)} title={docTitle(docIndex, link.slug)} />
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
           </>
         ) : (
           <p className="px-2 text-body text-content-muted">{t('help.center.noContext')}</p>

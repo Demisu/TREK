@@ -28,6 +28,8 @@ export function useVacaySettings({ language, loadCountries }: { language: string
   const updatePlan = useVacayStore((s) => s.updatePlan);
   const dissolve = useVacayStore((s) => s.dissolve);
   const [countries, setCountries] = useState<RegionOption[]>([]);
+  // Dissolving splits the plan at once, so the button only asks; the dialog confirms.
+  const [confirmingDissolve, setConfirmingDissolve] = useState(false);
 
   // Available countries with localized names
   useEffect(() => {
@@ -69,7 +71,17 @@ export function useVacaySettings({ language, loadCountries }: { language: string
     onDone();
   };
 
-  return { countries, publicHolidayCalendars, schoolHolidayCalendars, weekendDays, toggleWeekendDay, dissolveFusion };
+  return {
+    countries,
+    publicHolidayCalendars,
+    schoolHolidayCalendars,
+    weekendDays,
+    toggleWeekendDay,
+    dissolveFusion,
+    confirmingDissolve,
+    askDissolve: () => setConfirmingDissolve(true),
+    cancelDissolve: () => setConfirmingDissolve(false),
+  };
 }
 
 /** Days a month can always offer: February caps at 28 so no window start is skipped in a common year. */

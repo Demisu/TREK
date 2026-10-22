@@ -186,7 +186,7 @@ const settings: TranslationStrings = {
   'settings.mcp.modal.create': 'Buat Token',
   'settings.mcp.modal.createdTitle': 'Token Dibuat',
   'settings.mcp.modal.createdWarning':
-    'Token ini hanya ditampilkan sekali. Salin dan simpan sekarang — tidak bisa dipulihkan.',
+    'Token ini hanya ditampilkan sekali. Salin dan simpan sekarang: tidak bisa dipulihkan.',
   'settings.mcp.modal.done': 'Selesai',
   'settings.mcp.toast.created': 'Token dibuat',
   'settings.mcp.toast.createError': 'Gagal membuat token',
@@ -228,14 +228,14 @@ const settings: TranslationStrings = {
     'Satu URI per baris. HTTPS, HTTP loopback, atau skema aplikasi pribadi (myapp://). Kecocokan tepat, kecuali port pada URI loopback.',
   'settings.oauth.modal.scopes': 'Cakupan yang Diizinkan',
   'settings.oauth.modal.scopesHint':
-    'list_trips dan get_trip_summary selalu tersedia — tidak perlu cakupan. Keduanya memungkinkan AI menemukan ID perjalanan yang diperlukan untuk menggunakan alat lainnya.',
+    'list_trips dan get_trip_summary selalu tersedia: tidak perlu cakupan. Keduanya memungkinkan AI menemukan ID perjalanan yang diperlukan untuk menggunakan alat lainnya.',
   'settings.oauth.modal.selectAll': 'Pilih semua',
   'settings.oauth.modal.deselectAll': 'Batalkan semua',
   'settings.oauth.modal.creating': 'Mendaftarkan…',
   'settings.oauth.modal.create': 'Daftarkan Client',
   'settings.oauth.modal.createdTitle': 'Client Terdaftar',
   'settings.oauth.modal.createdWarning':
-    'Client secret hanya ditampilkan sekali. Salin sekarang — tidak dapat dipulihkan.',
+    'Client secret hanya ditampilkan sekali. Salin sekarang: tidak dapat dipulihkan.',
   'settings.oauth.toast.createError': 'Gagal mendaftarkan klien OAuth',
   'settings.oauth.toast.deleted': 'Klien OAuth dihapus',
   'settings.oauth.toast.deleteError': 'Gagal menghapus klien OAuth',
@@ -303,7 +303,7 @@ const settings: TranslationStrings = {
   'settings.deleteAccount': 'Hapus akun',
   'settings.deleteAccountTitle': 'Hapus akunmu?',
   'settings.deleteAccountWarning':
-    'Akunmu beserta semua perjalanan, tempat, dan file akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.',
+    'Akunmu serta semua perjalanan, jurnal, tempat, dan file milikmu akan dihapus permanen, termasuk perjalanan yang dibagikan dengan anggota lain, yang akan kehilangan akses. Perjalanan milik orang lain tetap ada dan kamu dikeluarkan dari sana. Tindakan ini tidak dapat dibatalkan.',
   'settings.deleteAccountConfirm': 'Hapus permanen',
   'settings.deleteBlockedTitle': 'Penghapusan tidak memungkinkan',
   'settings.deleteBlockedMessage':
@@ -352,7 +352,7 @@ const settings: TranslationStrings = {
   'settings.bookingLabelsHint': 'Menampilkan nama stasiun / bandara di peta. Jika mati, hanya ikon ditampilkan.',
   'settings.currency': 'Mata uang tampilan',
   'settings.currencyHint':
-    'Jumlah di Biaya ditampilkan dalam mata uang ini hanya untuk tampilan — jumlah aslinya tidak berubah.',
+    'Jumlah di Biaya ditampilkan dalam mata uang ini hanya untuk tampilan; jumlah aslinya tidak berubah.',
   'settings.currencyTrip': 'Mata uang perjalanan',
   'settings.placeLanguage': 'Nama tempat',
   'settings.placeLanguageApp': 'Sama dengan aplikasi',
@@ -360,7 +360,7 @@ const settings: TranslationStrings = {
     'Bahasa yang dipakai untuk pencarian tempat, saran, dan alamat. Jika suatu tempat tidak punya nama dalam bahasa itu, nama lokalnya yang ditampilkan.',
   'settings.passkey.title': 'Passkey',
   'settings.passkey.description':
-    'Masuk lebih cepat dan tahan terhadap phishing dengan passkey — sidik jari, wajah, PIN, atau kunci keamanan fisik kamu. Kata sandimu tetap tersedia sebagai cadangan.',
+    'Masuk lebih cepat dan tahan terhadap phishing dengan passkey: sidik jari, wajah, PIN, atau kunci keamanan fisik kamu. Kata sandimu tetap tersedia sebagai cadangan.',
   'settings.passkey.notConfigured':
     'Passkey diaktifkan tetapi belum sepenuhnya dikonfigurasi di server ini. Minta administratormu untuk mengatur domain WebAuthn.',
   'settings.passkey.add': 'Tambah passkey',
@@ -525,10 +525,10 @@ const settings: TranslationStrings = {
   'settings.offline.mode.forceHint':
     'Bekerja hanya dari data cache dan antrekan perubahanmu. Matikan untuk terhubung kembali dan menyinkronkan.',
   'settings.offline.mode.active':
-    'Mode offline aktif — perubahanmu diantrekan dan akan disinkronkan saat kamu mematikannya.',
+    'Mode offline aktif: perubahanmu diantrekan dan akan disinkronkan saat kamu mematikannya.',
   'settings.offline.prepare.title': 'Persiapkan untuk offline',
   'settings.offline.prepare.hint':
-    'Unduh semua yang kamu perlukan — data perjalanan, dokumen, dan tile peta — sebelum kehilangan koneksi.',
+    'Unduh semua yang kamu perlukan (data perjalanan, dokumen, dan tile peta) sebelum kehilangan koneksi.',
   'settings.offline.prepare.button': 'Unduh untuk penggunaan offline',
   'settings.offline.prepare.running': 'Mengunduh…',
   'settings.offline.prepare.done': 'Siap untuk penggunaan offline',
@@ -596,7 +596,6 @@ const settings: TranslationStrings = {
   'settings.alwaysShowRoutes': 'Selalu tampilkan rute pemesanan',
   'settings.alwaysShowRoutesHint':
     'Menampilkan rute setiap penerbangan, kereta, dan pemesanan lainnya di peta secara otomatis, tanpa perlu mengaktifkannya satu per satu.',
-
   // Public API keys (Settings -> Integrations)
   // ── API keys: what a key may read ─────────────────────────────────────────
   'settings.apiScopes.title': 'Apa yang boleh dibaca kunci ini',
@@ -637,7 +636,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.copyFailed': 'Gagal menyalin. Pilih teksnya dan salin secara manual.',
   'settings.apiKeys.modal.createTitle': 'Buat kunci API',
   'settings.apiKeys.modal.name': 'Nama',
-  'settings.apiKeys.modal.namePlaceholder': 'mis. Dawarich',
+  'settings.apiKeys.modal.namePlaceholder': 'mis. Dasbor rumah',
   'settings.apiKeys.modal.nameHint': 'Hanya untukmu, agar kamu mengenali kunci ini nanti.',
   'settings.apiKeys.modal.creating': 'Membuat...',
   'settings.apiKeys.modal.create': 'Buat',
@@ -645,6 +644,8 @@ const settings: TranslationStrings = {
   'settings.apiKeys.modal.createdWarning':
     'Salin kunci sekarang. Kunci hanya ditampilkan sekali dan tidak bisa diambil lagi.',
   'settings.apiKeys.modal.done': 'Selesai',
+  'settings.mcp.deprecated': 'Usang',
+  'settings.offline.cache.dateRange': '{start} sampai {end}',
 };
 
 export default settings;

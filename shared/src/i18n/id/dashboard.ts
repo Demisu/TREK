@@ -206,5 +206,16 @@ const dashboard: TranslationStrings = {
   'dashboard.dayCountRequired': 'Jumlah hari wajib diisi',
   'dashboard.tripChangeNeedsConnection':
     'Mengubah tanggal, jumlah hari, mata uang, atau sampul memerlukan koneksi. Nama, deskripsi, dan pengingat bisa diubah secara offline.',
+  'dashboard.ics.enable': 'Aktifkan langganan kalender',
+  'dashboard.ics.enableHint':
+    'Membuat tautan rahasia yang bisa dibaca siapa pun yang memilikinya tanpa masuk. Anda bisa mematikannya kapan saja.',
+  'dashboard.ics.regenerate': 'Buat ulang',
+  'dashboard.ics.turnOff': 'Matikan',
+  'dashboard.ics.manageHint':
+    'Membuat ulang akan membuat tautan baru dan membatalkan yang lama. Mematikan akan menonaktifkan tautan sepenuhnya.',
+  'dashboard.ics.addGoogle': 'Tambahkan ke Google Kalender',
+  'dashboard.ics.addApple': 'Tambahkan ke Kalender Apple / Outlook',
+  'dashboard.ics.copyManually': 'Atau salin tautan secara manual',
+  'dashboard.ics.pasteFromUrl': 'tempel di “Dari URL”',
 };
 export default dashboard;

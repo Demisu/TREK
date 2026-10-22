@@ -118,12 +118,12 @@ export default function AdminNotificationsTab({ admin, t }: AdminNotificationsTa
               </>)}
               <SettingRows>
                 <SettingRow
-                  label="Skip TLS certificate check"
-                  hint="Enable for self-signed certificates on local mail servers"
+                  label={t('admin.smtp.skipTls')}
+                  hint={t('admin.smtp.skipTlsHint')}
                   control={
                     <ToggleSwitch
                       on={smtpValues.smtp_skip_tls_verify === 'true'}
-                      label="Skip TLS certificate check"
+                      label={t('admin.smtp.skipTls')}
                       onToggle={() => {
                         const newVal = smtpValues.smtp_skip_tls_verify === 'true' ? 'false' : 'true'
                         setSmtpValues(prev => ({ ...prev, smtp_skip_tls_verify: newVal }))

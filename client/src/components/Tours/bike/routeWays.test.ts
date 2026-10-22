@@ -121,7 +121,9 @@ describe('what the line runs on (BIK-01 to BIK-05)', () => {
 
   it('FE-TOUR-WAYS-013: the share known to be unpaved, and none where nothing is', () => {
     expect(unpavedShareOf(WAYS)).toBe(0.4);
-    expect(unpavedShareOf({ line: LINE, edges: [WAYS.edges[0]] })).toBeNull();
+    // Paved all the way is a plain 0, not a missing figure; a line with no surface on record has none.
+    expect(unpavedShareOf({ line: LINE, edges: [WAYS.edges[0]] })).toBe(0);
+    expect(unpavedShareOf({ line: LINE, edges: [{ ...WAYS.edges[0], surface: 'unknown' }] })).toBeNull();
   });
 
   it('FE-TOUR-WAYS-005: the stretches of a class, neighbours joined into one line each', () => {
