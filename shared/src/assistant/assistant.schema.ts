@@ -67,6 +67,10 @@ export const ASSISTANT_CHANGE_VERB_KEYS = [
   'addReservation',
   'importBooking',
   'rememberNote',
+  // A tour: a hike or a city walk created, a hike changed, tours taken in from a GPX file.
+  'addTour',
+  'updateTour',
+  'importTour',
   // Any other tool: by what its annotations say it does.
   'genericCreate',
   'genericUpdate',
@@ -113,6 +117,8 @@ export const ASSISTANT_CHANGE_LABEL_KEYS = [
   'stay',
   'members',
   'route',
+  // The hardest SAC grade a hike's way may take, T1 to T6.
+  'difficulty',
   // A new order of a day's places or of the days, as the names in that order.
   'order',
   // An argument of a tool without a card of its own; the row names it in `field`.

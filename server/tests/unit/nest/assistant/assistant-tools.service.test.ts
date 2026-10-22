@@ -13,6 +13,7 @@ import {
   ASSISTANT_DENIED_TOOLS,
   ASSISTANT_TOOL_GROUPS,
   checkDenylist,
+  groupOf,
   isOfferedTool,
 } from '../../../../src/nest/assistant/assistant-tool-offer';
 import {
@@ -120,6 +121,28 @@ describe('the assistant tool catalog', () => {
     for (const [group, { controllers: names }] of Object.entries(ASSISTANT_TOOL_GROUPS)) {
       for (const name of names) expect(controllers.has(name), `${group}: ${name}`).toBe(true);
     }
+  });
+
+  it('ASTTOOL-017: the hike tools come with the tours, the proposal runs at once and the writes are cards of a tour', () => {
+    const hikeTools = ['propose_hike', 'create_hike', 'update_tour', 'import_tour_gpx'];
+    const entries = hikeTools.map((name) => registry.list().find((e) => e.kind === 'tool' && e.name === name));
+    expect(entries.map((entry) => entry && [entry.className, groupOf(entry)])).toEqual(
+      hikeTools.map(() => ['HikePlanMcp', 'tours']),
+    );
+    expect(hikeTools.map((name) => listed.get(name)?.annotations?.readOnlyHint === true)).toEqual([
+      true,
+      false,
+      false,
+      false,
+    ]);
+    expect(
+      ['create_hike', 'create_city_walk', 'update_tour', 'import_tour_gpx'].map((name) => ASSISTANT_WRITE_TOOLS[name]),
+    ).toEqual([
+      { verbKey: 'addTour', entity: 'tour' },
+      { verbKey: 'addTour', entity: 'tour' },
+      { verbKey: 'updateTour', entity: 'tour' },
+      { verbKey: 'importTour', entity: 'tour' },
+    ]);
   });
 
   it('ASTTOOL-005: the assistant scopes are real scopes', () => {

@@ -395,3 +395,124 @@ describe('appliedChange', () => {
     });
   });
 });
+
+describe('the cards of tours', () => {
+  it('ASTPRV-023: a new hike names its route by its points, its grade, its planned time and its words', () => {
+    const preview = describe_('create_hike', {
+      name: 'Herzogstand',
+      description: 'Up from the car park',
+      waypoints: [
+        { lat: 47.6, lng: 11.3, name: 'Car park' },
+        { lat: 47.61, lng: 11.3 },
+        { lat: 47.62, lng: 11.3, name: 'Summit' },
+      ],
+      round_trip: true,
+      max_hiking_difficulty: 3,
+      planned_duration_minutes: 330,
+    });
+    expect(assistantChangePreviewSchema.safeParse(preview).success).toBe(true);
+    expect(preview).toMatchObject({ verbKey: 'addTour', subject: 'Herzogstand', undoable: true, placeIds: [] });
+    expect(preview.rows).toEqual([
+      { op: 'add', labelKey: 'route', before: null, after: 'Car park → Summit → Car park' },
+      { op: 'add', labelKey: 'difficulty', before: null, after: 'T3' },
+      { op: 'add', labelKey: 'time', before: null, after: '5:30 h' },
+      { op: 'add', labelKey: 'description', before: null, after: 'Up from the car park' },
+    ]);
+    // Left without a limit, the hike is planned at T2, and the card says so.
+    const plain = describe_('create_hike', {
+      name: 'Walk',
+      waypoints: [
+        { lat: 1, lng: 1 },
+        { lat: 2, lng: 2 },
+      ],
+    });
+    expect(plain.rows).toEqual([{ op: 'add', labelKey: 'difficulty', before: null, after: 'T2' }]);
+    expect(
+      describe_('create_hike', { name: 'Odd', max_hiking_difficulty: 9, planned_duration_minutes: -5 }).rows,
+    ).toEqual([]);
+  });
+
+  it('ASTPRV-024: a new city walk names its stations, a linked one by its place, and points at the places it uses', () => {
+    const preview = describe_('create_city_walk', {
+      name: 'Market morning',
+      stations: [
+        { lat: 35, lng: 135, name: 'Hotel' },
+        { lat: 35.01, lng: 135, linked_place_id: 12 },
+        { lat: 35.02, lng: 135, linked_place_id: 99 },
+        'odd',
+      ],
+    });
+    expect(preview).toMatchObject({ verbKey: 'addTour', subject: 'Market morning', undoable: true, placeIds: [12] });
+    expect(preview.rows).toEqual([{ op: 'add', labelKey: 'route', before: null, after: 'Hotel → Nishiki Market' }]);
+  });
+
+  it('ASTPRV-025: a changed hike is named by its place and shows what it becomes', () => {
+    const preview = describe_('update_tour', {
+      placeId: 12,
+      expected_revision: 2,
+      name: 'Market loop',
+      description: null,
+      waypoints: [
+        { lat: 35, lng: 135, name: 'Gate' },
+        { lat: 35.01, lng: 135, name: 'Shrine' },
+      ],
+      max_hiking_difficulty: 2,
+      planned_duration_minutes: 90,
+    });
+    expect(preview).toMatchObject({
+      verbKey: 'updateTour',
+      subject: 'Nishiki Market',
+      undoable: false,
+      placeIds: [12],
+    });
+    expect(preview.rows).toEqual([
+      { op: 'change', labelKey: 'name', before: 'Nishiki Market', after: 'Market loop' },
+      { op: 'change', labelKey: 'description', before: null, after: '' },
+      { op: 'add', labelKey: 'route', before: null, after: 'Gate → Shrine' },
+      { op: 'add', labelKey: 'difficulty', before: null, after: 'T2' },
+      { op: 'add', labelKey: 'time', before: null, after: '1:30 h' },
+    ]);
+    expect(describe_('update_tour', { placeId: 77, name: 'Gone' })).toMatchObject({ subject: 'Gone', placeIds: [77] });
+    expect(describe_('update_tour', {})).toMatchObject({ subject: '', rows: [], placeIds: [] });
+  });
+
+  it('ASTPRV-026: tours from a file are named by the file, else by the first name in it', () => {
+    const gpx = '<gpx><trk><name>Ridge  walk</name></trk></gpx>';
+    expect(describe_('import_tour_gpx', { gpx, file_name: 'ridge.gpx', tour_type: 'bike' })).toMatchObject({
+      verbKey: 'importTour',
+      subject: 'ridge.gpx',
+      rows: [{ op: 'add', labelKey: 'type', before: null, after: 'bike' }],
+      undoable: false,
+    });
+    expect(describe_('import_tour_gpx', { gpx }).subject).toBe('Ridge walk');
+    expect(describe_('import_tour_gpx', { gpx: '<gpx><name>Open' }).subject).toBe('GPX');
+    expect(describe_('import_tour_gpx', { gpx: '<gpx/>' }).subject).toBe('GPX');
+  });
+
+  it('ASTPRV-027: a tour is named by its place in the receipt, every tour a file brought in too', () => {
+    expect(appliedChange('create_hike', 'tc', {}, { tour: { place_id: 61 }, waypoints: [] }, null, null)).toEqual({
+      toolCallId: 'tc',
+      entity: 'tour',
+      ids: [61],
+      dayId: null,
+      undoUntil: null,
+    });
+    expect(appliedChange('update_tour', 'tc', { placeId: 61 }, { tour: { place_id: 61 } }, null, null)).toMatchObject({
+      entity: 'tour',
+      ids: [61],
+    });
+    expect(
+      appliedChange(
+        'import_tour_gpx',
+        'tc',
+        {},
+        { tours: [{ place_id: 62 }, { place_id: 63 }, {}], skipped: 0 },
+        null,
+        null,
+      ),
+    ).toMatchObject({ entity: 'tour', ids: [62, 63] });
+    expect(appliedChange('import_tour_gpx', 'tc', {}, { tours: [], skipped: 1 }, null, null)).toMatchObject({
+      ids: [],
+    });
+  });
+});

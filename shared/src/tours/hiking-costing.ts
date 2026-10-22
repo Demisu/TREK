@@ -1,11 +1,18 @@
-import type { HikingPreferences } from '@trek/shared';
-import type { CostingOptions } from '../../Map/valhallaRoute';
+import type { HikingPreferences } from './tours.schema';
 
 /**
  * Defensive fallback only. Normal planner calls pass the persisted/draft value.
  * TREK exposes 1..6 and never exposes Valhalla's internal 0.
  */
 export const TOURS_MAX_HIKING_DIFFICULTY = 2;
+
+/**
+ * What a hike asks Valhalla's pedestrian costing for: its hiking limit, and
+ * the weightings its preferences switch on. The planner in the browser and
+ * the server's hike routing both build it here, so a hike is weighed alike
+ * wherever it is planned.
+ */
+export type HikingCosting = Record<string, number> & { max_hiking_difficulty: number };
 
 /**
  * MF-08, RTE-01: a hike's preferences as Valhalla's pedestrian costing
@@ -39,7 +46,7 @@ export function hikingCostingOptions(preferences: HikingPreferences | null | und
  */
 export function hikingCosting(
   maxHikingDifficulty: number = TOURS_MAX_HIKING_DIFFICULTY,
-  preferences: HikingPreferences | null = null
-): CostingOptions {
+  preferences: HikingPreferences | null = null,
+): HikingCosting {
   return { max_hiking_difficulty: maxHikingDifficulty, ...hikingCostingOptions(preferences) };
 }

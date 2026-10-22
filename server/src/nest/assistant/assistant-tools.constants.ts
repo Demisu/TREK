@@ -96,6 +96,11 @@ export const ASSISTANT_WRITE_TOOLS: Readonly<Record<string, AssistantWriteTool>>
   create_budget_item: { verbKey: 'addBudgetItem', entity: 'budget' },
   update_budget_item: { verbKey: 'updateBudgetItem', entity: 'budget' },
   create_reservation: { verbKey: 'addReservation', entity: 'reservation' },
+  // A tour is a place with a route: its id is its place's.
+  create_hike: { verbKey: 'addTour', entity: 'tour' },
+  create_city_walk: { verbKey: 'addTour', entity: 'tour' },
+  update_tour: { verbKey: 'updateTour', entity: 'tour' },
+  import_tour_gpx: { verbKey: 'importTour', entity: 'tour' },
 };
 
 /**
@@ -195,6 +200,13 @@ function idIn(value: unknown, key: string): number | null {
   return typeof id === 'number' && Number.isInteger(id) && id > 0 ? id : null;
 }
 
+/** The place id of a tour a create answered with (`{ tour: { place_id } }`). */
+function tourIdIn(value: unknown): number | null {
+  const tour = value && typeof value === 'object' ? (value as Record<string, unknown>).tour : undefined;
+  const id = tour && typeof tour === 'object' ? (tour as Record<string, unknown>).place_id : undefined;
+  return typeof id === 'number' && Number.isInteger(id) && id > 0 ? id : null;
+}
+
 function argId(args: ToolArgs, key: string): number | null {
   const id = args[key];
   return typeof id === 'number' && Number.isInteger(id) && id > 0 ? id : null;
@@ -212,6 +224,15 @@ interface AssistantUndo {
   tool: string;
   args: (args: ToolArgs, result: unknown) => ToolArgs | null;
 }
+
+/** A created tour taken back with its place, which takes its route and points along. */
+const DELETE_CREATED_TOUR: AssistantUndo = {
+  tool: 'delete_place',
+  args: (_args, result) => {
+    const placeId = tourIdIn(result);
+    return placeId ? { placeId } : null;
+  },
+};
 
 export const ASSISTANT_UNDO_MAP: Readonly<Record<string, AssistantUndo>> = {
   create_place: {
@@ -265,4 +286,6 @@ export const ASSISTANT_UNDO_MAP: Readonly<Record<string, AssistantUndo>> = {
       return itemId ? { itemId } : null;
     },
   },
+  create_hike: DELETE_CREATED_TOUR,
+  create_city_walk: DELETE_CREATED_TOUR,
 };

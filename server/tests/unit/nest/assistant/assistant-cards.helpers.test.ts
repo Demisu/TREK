@@ -287,6 +287,44 @@ describe('activityOf', () => {
     expect(activityOf('list_places', 'l', {}, card)).toBeNull();
     expect(activityOf('search_place', 'x'.repeat(65), { query: 'a' }, card)).toBeNull();
   });
+
+  it('ASTCRD-024: a hike being planned is named by its goal and shows the box round its points', () => {
+    const waypoints = [
+      { lat: 47.6, lng: 11.3, name: 'Car park' },
+      { lat: 47.61, lng: 11.31, name: 'Summit' },
+      { lat: 47.62, lng: 11.3 },
+    ];
+    const activity = activityOf('propose_hike', 'h', { waypoints, round_trip: true }, card);
+    expect(assistantActivitySchema.safeParse(activity).success).toBe(true);
+    expect(activity?.label).toBe('Summit');
+    expect(activity?.area).toMatchObject({ type: 'bbox' });
+    if (activity?.area?.type !== 'bbox') throw new Error('no box');
+    const { south, west, north, east } = activity.area;
+    [south, west, north, east].forEach((edge, index) =>
+      expect(edge).toBeCloseTo([47.595, 11.295, 47.625, 11.315][index], 9),
+    );
+    // Points all on one line still make a box; a start alone names no goal.
+    const line = [
+      { lat: 47.6, lng: 11.3, name: 'Car park' },
+      { lat: 47.6, lng: 11.31 },
+    ];
+    expect(activityOf('propose_hike', 'h', { waypoints: line }, card)).toMatchObject({
+      label: null,
+      area: { type: 'bbox' },
+    });
+    expect(activityOf('propose_hike', 'h', { waypoints: [{ lat: 'north', lng: 11 }, ...line] }, card)).toEqual({
+      toolCallId: 'h',
+      label: 'Car park',
+      area: null,
+    });
+    expect(activityOf('propose_hike', 'h', {}, card)).toBeNull();
+    const far = [line[0], { lat: 50, lng: 11.3, name: 'Far away' }];
+    expect(activityOf('propose_hike', 'h', { waypoints: far }, card)).toEqual({
+      toolCallId: 'h',
+      label: 'Far away',
+      area: null,
+    });
+  });
 });
 
 describe('mentionItems', () => {

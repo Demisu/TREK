@@ -9,13 +9,14 @@ import {
   writeToolOf,
 } from './assistant-tools.constants';
 import type { ToolHint } from './assistant-tools.service';
+import { clip, id, Rows, text, UNCHECKED } from './preview-rows.helpers';
 import { describeGeneric } from './tool-call-generic.helpers';
+import { TOUR_DESCRIBERS } from './tour-call-preview.helpers';
 import type {
   AssistantApplied,
   AssistantChangeEffect,
   AssistantChangeLabelKey,
   AssistantChangePreview,
-  AssistantChangeRow,
 } from '@trek/shared';
 
 /**
@@ -35,22 +36,7 @@ export interface PreviewContext {
   hintOf?: (toolName: string) => ToolHint | null;
 }
 
-/** Longest value a row shows; URLs keep their start, so the host stays visible. */
-const MAX_VALUE_CHARS = 160;
 const MAX_ROWS = 12;
-
-const CHECKED = '✓';
-const UNCHECKED = '✗';
-
-function clip(value: string): string {
-  const line = value.replace(/\s+/g, ' ').trim();
-  return line.length > MAX_VALUE_CHARS ? `${line.slice(0, MAX_VALUE_CHARS - 1)}…` : line;
-}
-
-function id(args: Args, key: string): number | null {
-  const value = args[key];
-  return typeof value === 'number' && Number.isInteger(value) && value > 0 ? value : null;
-}
 
 function has(args: Args, key: string): boolean {
   return args[key] !== undefined;
@@ -107,12 +93,6 @@ function money(ctx: PreviewContext, amount: number, currency: string | null): st
   return new Intl.NumberFormat(localeOf(ctx)).format(amount);
 }
 
-function text(value: unknown): string {
-  if (value === null || value === undefined) return '';
-  if (typeof value === 'boolean') return value ? CHECKED : UNCHECKED;
-  return clip(String(value));
-}
-
 function openingHours(ctx: PreviewContext, value: unknown): string {
   if (!Array.isArray(value)) return '';
   const weekday = new Intl.DateTimeFormat(localeOf(ctx), { weekday: 'short', timeZone: 'UTC' });
@@ -130,25 +110,6 @@ function openingHours(ctx: PreviewContext, value: unknown): string {
 function memberNames(ctx: PreviewContext, ids: unknown): string {
   if (!Array.isArray(ids)) return '';
   return clip(ids.map((memberId) => ctx.card.members.get(Number(memberId)) ?? `#${String(memberId)}`).join(', '));
-}
-
-class Rows {
-  readonly rows: AssistantChangeRow[] = [];
-
-  add(labelKey: AssistantChangeLabelKey, after: string): this {
-    if (after !== '') this.rows.push({ op: 'add', labelKey, before: null, after });
-    return this;
-  }
-
-  change(labelKey: AssistantChangeLabelKey, before: string | null, after: string): this {
-    this.rows.push({ op: 'change', labelKey, before: before || null, after });
-    return this;
-  }
-
-  move(labelKey: AssistantChangeLabelKey, before: string, after: string): this {
-    this.rows.push({ op: 'move', labelKey, before: before || null, after });
-    return this;
-  }
 }
 
 function coordinates(args: Args): string {
@@ -273,7 +234,7 @@ interface Described {
   placeIds: number[];
 }
 
-type Describer = (ctx: PreviewContext, args: Args) => Described;
+export type Describer = (ctx: PreviewContext, args: Args) => Described;
 
 /** Who shares an expense: the uneven split's members, else the equal one's. */
 function splitOf(args: Args): unknown {
@@ -430,6 +391,7 @@ const DESCRIBERS: Readonly<Record<string, Describer>> = {
     };
   },
   [IMPORT_BOOKING_TOOL]: describeBooking,
+  ...TOUR_DESCRIBERS,
 };
 
 /** A held write of the model's tools or of the server's own (a booking from a file). */
@@ -518,14 +480,28 @@ export function describeToolCall(
 const RESULT_KEYS = ['place', 'assignment', 'note', 'item', 'reservation'] as const;
 const ARG_KEYS = ['placeId', 'assignmentId', 'noteId', 'itemId'] as const;
 
-function createdId(result: unknown): number | null {
-  if (!result || typeof result !== 'object') return null;
+/**
+ * The tours an answer names: a tour created or changed (`tour`), or those a
+ * file brought in (`tours`). A tour's id is its place's.
+ */
+function tourIds(result: Args): number[] {
+  const tours = Array.isArray(result.tours) ? result.tours : [result.tour];
+  return tours.flatMap((tour: unknown) => {
+    const placeId = tour && typeof tour === 'object' ? id(tour as Args, 'place_id') : null;
+    return placeId === null ? [] : [placeId];
+  });
+}
+
+function createdIds(result: unknown): number[] {
+  if (!result || typeof result !== 'object') return [];
+  const tours = tourIds(result as Args);
+  if (tours.length > 0) return tours;
   for (const key of RESULT_KEYS) {
     const created = (result as Args)[key];
     const value = created && typeof created === 'object' ? id(created as Args, 'id') : null;
-    if (value !== null) return value;
+    if (value !== null) return [value];
   }
-  return null;
+  return [];
 }
 
 /** The day a created booking landed on, when its answer names one. */
@@ -550,11 +526,12 @@ export function appliedChange(
 ): AssistantApplied | null {
   // A tool without a card of its own touched something the client has no view for.
   const tool = writeTool(writeToolOf(toolName, args)) ?? { entity: 'other' as const };
-  const touched = createdId(result) ?? ARG_KEYS.map((key) => id(args, key)).find((value) => value !== null) ?? null;
+  const created = createdIds(result);
+  const named = ARG_KEYS.map((key) => id(args, key)).filter((value): value is number => value !== null);
   return {
     toolCallId,
     entity: tool.entity,
-    ids: touched === null ? [] : [touched],
+    ids: created.length > 0 ? created : named.slice(0, 1),
     dayId: dayId ?? bookedDay(result),
     undoUntil,
   };

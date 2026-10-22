@@ -167,6 +167,10 @@ const STEPS: Partial<Record<string, StepLook>> = {
   get_weather: { stepKey: 'assistant.step.weather', live: { liveKey: 'assistant.step.weatherAt', param: 'place' } },
   list_todos: { stepKey: 'assistant.step.todos' },
   get_settlement_summary: { stepKey: 'assistant.step.costs' },
+  propose_hike: {
+    stepKey: 'assistant.step.planningHike',
+    live: { liveKey: 'assistant.step.planningHikeTo', param: 'place' },
+  },
   search_help: { stepKey: 'assistant.step.help' },
   read_booking_file: { stepKey: 'assistant.step.readingBooking' },
 };

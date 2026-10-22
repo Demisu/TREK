@@ -220,6 +220,34 @@ function boxArea(value: unknown): BoxArea | null {
   return { type: 'bbox', south, west, north, east };
 }
 
+/** How far the box round a hike's points reaches past them, in degrees, so points on one line still make a box. */
+const HIKE_BOX_MARGIN = 0.005;
+
+/**
+ * Where a hike is being planned: named by its goal, the last point after the
+ * start that has a name, and the box round its points.
+ */
+function hikeLook(args: Row): { label: string | null; area: AssistantActivityArea | null } {
+  const points = Array.isArray(args.waypoints) ? args.waypoints.map(recordOf) : [];
+  const goal = points
+    .slice(1)
+    .map((point) => clipped(point.name, MAX_LABEL_CHARS))
+    .filter((name): name is string => name !== null)
+    .pop();
+  const lats = points.map((point) => finite(point.lat)).filter(isLat);
+  const lngs = points.map((point) => finite(point.lng)).filter(isLng);
+  const area =
+    lats.length === points.length && lngs.length === points.length && points.length > 0
+      ? boxArea({
+          south: Math.min(...lats) - HIKE_BOX_MARGIN,
+          west: Math.min(...lngs) - HIKE_BOX_MARGIN,
+          north: Math.max(...lats) + HIKE_BOX_MARGIN,
+          east: Math.max(...lngs) + HIKE_BOX_MARGIN,
+        })
+      : null;
+  return { label: goal ?? null, area };
+}
+
 /** The name and the area of a step that looks somewhere, as its arguments say. */
 function lookOf(
   toolName: string,
@@ -236,6 +264,7 @@ function lookOf(
     const centre = area ? nearbyName(card, (area.south + area.north) / 2, (area.west + area.east) / 2) : null;
     return { label: centre, area };
   }
+  if (toolName === 'propose_hike') return hikeLook(args);
   if (toolName === 'search_place') {
     const bias = recordOf(args.locationBias);
     const area = pointArea(bias.lat, bias.lng, bias.radius, BIAS_RADIUS_M);

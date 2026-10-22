@@ -288,4 +288,5 @@ export const CHANGE_LABELS: Record<AssistantChangeLabelKey, { labelKey: string }
   stay: { labelKey: 'assistant.change.label.stay' },
   members: { labelKey: 'assistant.change.label.members' },
   route: { labelKey: 'assistant.change.label.route' },
+  difficulty: { labelKey: 'assistant.change.label.difficulty' },
 };

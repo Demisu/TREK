@@ -111,11 +111,13 @@ export function checkDenylist(names: Iterable<string>): string[] {
 export const ASSISTANT_TOOL_GROUPS: Readonly<Record<string, { about: string; controllers: readonly string[] }>> = {
   tours: {
     about:
-      'Tours: hikes, bike tours, city walks, paddling and ski routes; plan, create, change and export them, ' +
-      'their packing, the tour library and imports from Google Maps.',
+      'Tours: hikes, bike tours, city walks, paddling and ski routes; plan, create, change and export them ' +
+      '(hikes with their heights and SAC grades), their packing, the tour library and imports from GPX files ' +
+      'and Google Maps.',
     controllers: [
       'ToursMcp',
       'CityWalkMcp',
+      'HikePlanMcp',
       'TourChangeMcp',
       'TourChangeUndoMcp',
       'TourLibraryMcp',

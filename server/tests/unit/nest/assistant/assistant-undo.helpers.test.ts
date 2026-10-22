@@ -121,3 +121,66 @@ describe('ASSISTANT_UNDO_MAP', () => {
     expect(ASSISTANT_UNDO_MAP.create_day_note.args({ dayId: 31 }, { note: { id: 0 } })).toBeNull();
   });
 });
+
+describe('a created tour', () => {
+  /** A hike as list_places has it: a place with its name and description, stamped once when it was made. */
+  const MADE = '2026-10-21 10:00:00';
+  const HIKE = {
+    id: 64,
+    name: 'Herzogstand',
+    description: null,
+    lat: 47.6,
+    lng: 11.3,
+    created_at: MADE,
+    updated_at: MADE,
+  };
+  const created = { tour: { place_id: 64, name: 'Herzogstand', description: null }, waypoints: [] };
+
+  it('ASTUND-005: is taken back while it has its name and words and nothing plans, books or pays for it', () => {
+    const tours = snapshot({ places: [PLACE, HIKE] });
+    for (const tool of ['create_hike', 'create_city_walk']) {
+      expect(unchangedSinceApplied(tool, created, tours), tool).toBe(true);
+    }
+    // A description the tour was created without reads as none on both sides.
+    expect(unchangedSinceApplied('create_hike', { tour: { place_id: 64, name: 'Herzogstand' } }, tours)).toBe(true);
+  });
+
+  it('ASTUND-006: stays once it was renamed, changed, put on a day, booked or deleted', () => {
+    expect(
+      unchangedSinceApplied('create_hike', created, snapshot({ places: [PLACE, { ...HIKE, name: 'Heimgarten' }] })),
+    ).toBe(false);
+    // A new way, limit or planned time (update_tour, the planner's save) leaves name and words as they were.
+    const rerouted = { ...HIKE, updated_at: '2026-10-21 10:04:00' };
+    for (const tool of ['create_hike', 'create_city_walk']) {
+      expect(unchangedSinceApplied(tool, created, snapshot({ places: [PLACE, rerouted] })), tool).toBe(false);
+    }
+    // A row that does not say when it was made cannot say it is unchanged.
+    const { created_at: _made, ...unstamped } = HIKE;
+    expect(unchangedSinceApplied('create_hike', created, snapshot({ places: [PLACE, unstamped] }))).toBe(false);
+    expect(
+      unchangedSinceApplied(
+        'create_hike',
+        created,
+        snapshot({ places: [PLACE, HIKE], days: [{ id: 31, assignments: [{ id: 305, place_id: 64 }] }] }),
+      ),
+    ).toBe(false);
+    expect(
+      unchangedSinceApplied(
+        'create_city_walk',
+        created,
+        snapshot({ places: [PLACE, HIKE], summary: { budget: { items: [{ id: 72, place_id: 64 }] } } }),
+      ),
+    ).toBe(false);
+    expect(unchangedSinceApplied('create_hike', created, snapshot())).toBe(false);
+  });
+
+  it('ASTUND-011: is taken back by deleting its place, named in the answer', () => {
+    for (const tool of ['create_hike', 'create_city_walk']) {
+      expect(ASSISTANT_UNDO_MAP[tool].tool).toBe('delete_place');
+      expect(ASSISTANT_UNDO_MAP[tool].args({}, created)).toEqual({ placeId: 64 });
+      expect(ASSISTANT_UNDO_MAP[tool].args({}, { tour: { place_id: 0 } })).toBeNull();
+      expect(ASSISTANT_UNDO_MAP[tool].args({}, { tour: 'odd' })).toBeNull();
+      expect(ASSISTANT_UNDO_MAP[tool].args({}, 'Tour not found.')).toBeNull();
+    }
+  });
+});

@@ -1,5 +1,5 @@
 /**
- * FE-AI-MODEL-001 to FE-AI-MODEL-010
+ * FE-AI-MODEL-001 to FE-AI-MODEL-012
  *
  * The pure half of the assistant's views: how a stored message reaches
  * @assistant-ui, what each error offers, how a reading tool is named while it
@@ -149,6 +149,15 @@ describe('toolStepKey', () => {
     });
     expect(liveStepText('search_nearby_places', null)).toEqual({ key: 'assistant.step.nearby' });
     expect(liveStepText('list_places', 'Kyoto')).toEqual({ key: 'assistant.step.reading' });
+  });
+
+  it('FE-AI-MODEL-012: a hike being planned says so, and names its goal once the step names one', () => {
+    expect(toolStepKey('propose_hike')).toBe('assistant.step.planningHike');
+    expect(liveStepText('propose_hike', 'Herzogstand')).toEqual({
+      key: 'assistant.step.planningHikeTo',
+      params: { place: 'Herzogstand' },
+    });
+    expect(liveStepText('propose_hike', null)).toEqual({ key: 'assistant.step.planningHike' });
   });
 });
 
