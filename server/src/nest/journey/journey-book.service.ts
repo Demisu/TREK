@@ -1,11 +1,30 @@
 import { JourneyBooks } from '../../db/entities/JourneyBooks.entity';
 import type { JourneyBookRow, JourneyBooksRepository } from '../../db/repositories/JourneyBooks.repository';
+import { DomainError } from '../common/domain-error';
 import { UnitOfWork } from '../database/unit-of-work';
 import { JourneyDomainService } from './journey-domain.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
-import type { BookRecord, BookSummary } from '@trek/shared';
+import type { BookDocument, BookRecord, BookSummary } from '@trek/shared';
 import { normalizeBookDocument } from '@trek/shared';
+
+/**
+ * What an edit of the book hands back to `editBook`: the record's title and
+ * the whole new document, plus whatever the caller wants returned beside the
+ * saved record. `unchanged` says the edit left the stored book as it is (a
+ * page moved to where it already was): nothing is written or announced then.
+ */
+interface BookEdit<T> {
+  title: string;
+  document: BookDocument;
+  result: T;
+  unchanged?: boolean;
+}
+
+/** Where a write came from: REST names the requesting tab, an MCP or assistant write none. */
+interface BookWriteOrigin {
+  socketId?: string;
+}
 
 /**
  * Storing TREK Studio books.
@@ -112,14 +131,27 @@ export class JourneyBookService {
    * Returns the saved record, or `{ conflict }` when the base version has
    * moved. Throwing would be the obvious shape and the wrong one: a conflict is
    * an ordinary outcome of two people working, not an exception.
+   *
+   * A save that lands is announced once the transaction has committed, never
+   * from inside it and never for a conflict: nothing was written then.
    */
   async saveBook(
     journeyId: number,
     userId: number,
     input: { title: string; document: unknown; baseVersion?: number },
+    origin: BookWriteOrigin = {},
   ): Promise<{ record: BookRecord } | { conflict: BookRecord } | null> {
     if (!(await this.canWrite(journeyId, userId))) return null;
+    const outcome = await this.storeSave(journeyId, userId, input);
+    if ('record' in outcome) await this.broadcastSaved(journeyId, userId, outcome.record, origin.socketId);
+    return outcome;
+  }
 
+  private async storeSave(
+    journeyId: number,
+    userId: number,
+    input: { title: string; document: unknown; baseVersion?: number },
+  ): Promise<{ record: BookRecord } | { conflict: BookRecord }> {
     const document = JSON.stringify(normalizeBookDocument(input.document));
 
     // M1 (rule 11/24) — JB3's existing-link read and JB4's insert are
@@ -167,6 +199,69 @@ export class JourneyBookService {
     });
   }
 
+  /**
+   * Change the book by a pure edit of what is stored now: the book tools' one
+   * way to write (journey-book-edit.service.ts).
+   *
+   * The read, the edit and the conditional update run in one transaction, so
+   * the connection mutex serializes them against a REST save: the edit always
+   * sees the version it replaces, and no retry loop is needed. `edit` gets the
+   * current record (null for a journey without a book, which the update then
+   * creates), may read what else it checks against inside the same
+   * transaction, and may throw a refusal; a throw rolls back before anything
+   * is written, and nobody is told anything. `expectedVersion` is the undo's
+   * guard: the book must still be at that version, else 409 and nothing moves.
+   * An edit that answers `unchanged` for a stored book writes nothing, bumps
+   * no version and sends nothing.
+   *
+   * The event goes out after the commit. A write that names no socket (MCP,
+   * the assistant) reaches every tab of every member, the asking one too, so
+   * the Studio a person has open shows what the assistant did.
+   */
+  async editBook<T>(
+    journeyId: number,
+    userId: number,
+    edit: (current: BookRecord | null) => BookEdit<T> | Promise<BookEdit<T>>,
+    options: BookWriteOrigin & { expectedVersion?: number } = {},
+  ): Promise<{ record: BookRecord; result: T }> {
+    await this.requireEditor(journeyId, userId);
+    const done = await this.uow.transactional(async () => {
+      const row = await this.booksRepo.findFirstForJourney(journeyId);
+      const current = row ? this.toRecord(row) : null;
+      if (options.expectedVersion !== undefined && current?.version !== options.expectedVersion) {
+        throw bookMoved(current);
+      }
+      const next = await edit(current);
+      if (current && next.unchanged) return { record: current, result: next.result, wrote: false };
+      const document = JSON.stringify(normalizeBookDocument(next.document));
+      if (!row) {
+        const id = await this.booksRepo.insertBook(journeyId, next.title, document, userId);
+        return { record: await this.written(id), result: next.result, wrote: true };
+      }
+      const changes = await this.booksRepo.casUpdate(row.id, row.version, {
+        title: next.title,
+        document,
+        updatedBy: userId,
+      });
+      if (changes === 0) throw bookMoved(await this.byId(row.id));
+      return { record: await this.written(row.id), result: next.result, wrote: true };
+    });
+    if (done.wrote) await this.broadcastSaved(journeyId, userId, done.record, options.socketId);
+    return { record: done.record, result: done.result };
+  }
+
+  /** 404 for someone who cannot see the journey (no existence oracle), 403 for a viewer. */
+  private async requireEditor(journeyId: number, userId: number): Promise<void> {
+    if (await this.canWrite(journeyId, userId)) return;
+    if (await this.canAccess(journeyId, userId)) {
+      throw new DomainError(403, 'Not allowed', {
+        code: 'book_read_only',
+        mcpMessage: "You can read this journey's book but not change it: only its owner and editors can.",
+      });
+    }
+    throw new DomainError(404, 'Journey not found', { mcpMessage: 'Journey not found or access denied.' });
+  }
+
   async deleteBook(journeyId: number, userId: number): Promise<boolean | null> {
     if (!(await this.canWrite(journeyId, userId))) return null;
     // JB6.
@@ -182,10 +277,11 @@ export class JourneyBookService {
    * Broadcasting a few hundred kilobytes of JSON on every autosave would make
    * the notification the size of the thing being edited.
    *
-   * The saver is excluded by socket id, the same way every other TREK mutation
-   * does it, so the client that just saved does not process its own change.
+   * A REST save excludes the saving tab by socket id, the same way every other
+   * TREK mutation does it, so the client that just saved does not process its
+   * own change. An MCP or assistant write has no socket, so every tab hears it.
    */
-  async broadcastSaved(journeyId: number, userId: number, record: BookRecord, socketId?: string) {
+  private async broadcastSaved(journeyId: number, userId: number, record: BookRecord, socketId?: string) {
     await this.journey.broadcastJourneyEvent(
       journeyId,
       'journey:book:saved',
@@ -199,6 +295,25 @@ export class JourneyBookService {
     const row = await this.booksRepo.findById(id);
     return row ? this.toRecord(row) : null;
   }
+
+  /** The row a write just made or changed, read back inside the same transaction, so it is there. */
+  private async written(id: number): Promise<BookRecord> {
+    const record = await this.byId(id);
+    if (!record) throw new Error(`Book ${id} is gone inside the transaction that wrote it`);
+    return record;
+  }
+}
+
+/**
+ * The book is not at the version a write was made against. The record rides
+ * along for REST like the save route's conflict; a tool answers the sentence.
+ */
+function bookMoved(current: BookRecord | null): DomainError {
+  return new DomainError(409, 'Book was changed by someone else', {
+    code: 'book_conflict',
+    details: { current },
+    mcpMessage: 'The book was changed since that version. Read it again with get_book before changing it.',
+  });
 }
 
 /** JSON that will not parse is an empty document, never an exception. */

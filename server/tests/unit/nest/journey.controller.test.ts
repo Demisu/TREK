@@ -990,24 +990,28 @@ describe('JourneyController', () => {
 
     // The record comes back bare, not in an envelope — the contract in
     // shared/src/book/book-store.schema.ts is the record itself.
-    const broadcastSaved = vi.fn();
     const saveBook = vi.fn().mockReturnValue({ record: { id: 3, version: 5 } });
     expect(
-      await ctl(svc(), { saveBook, broadcastSaved }).saveBook(
+      await ctl(svc(), { saveBook }).saveBook(
         user,
         '9',
         { title: 'T', document: { v: 1 }, baseVersion: 4 } as never,
         'sock-7',
       ),
     ).toEqual({ id: 3, version: 5 });
-    expect(saveBook).toHaveBeenCalledWith(9, 1, { title: 'T', document: { v: 1 }, baseVersion: 4 });
-    // Forwarded so the client that just saved does not process its own change.
-    expect(broadcastSaved).toHaveBeenCalledWith(9, 1, { id: 3, version: 5 }, 'sock-7');
+    // The socket goes to the service, which announces the save after its
+    // commit and leaves out the tab that saved, so it does not echo its change.
+    expect(saveBook).toHaveBeenCalledWith(
+      9,
+      1,
+      { title: 'T', document: { v: 1 }, baseVersion: 4 },
+      { socketId: 'sock-7' },
+    );
 
     // A missing title is '' rather than undefined: the column is NOT NULL and
     // an untitled book is an ordinary thing to have.
     const untitled = vi.fn().mockReturnValue({ record: { id: 3, version: 1 } });
-    await ctl(svc(), { saveBook: untitled, broadcastSaved: vi.fn() }).saveBook(user, '9', { document: {} } as never);
+    await ctl(svc(), { saveBook: untitled }).saveBook(user, '9', { document: {} } as never);
     expect(untitled.mock.calls[0][2].title).toBe('');
   });
 
@@ -1017,18 +1021,13 @@ describe('JourneyController', () => {
      * make showing what the other version is a second round trip, at exactly
      * the moment someone is worried about losing work.
      */
-    const broadcastSaved = vi.fn();
     const saveBook = vi.fn().mockReturnValue({ conflict: { id: 3, version: 6, title: 'Theirs' } });
     expect(
-      await thrownAsync(() =>
-        ctl(svc(), { saveBook, broadcastSaved }).saveBook(user, '9', { document: {}, baseVersion: 4 } as never),
-      ),
+      await thrownAsync(() => ctl(svc(), { saveBook }).saveBook(user, '9', { document: {}, baseVersion: 4 } as never)),
     ).toEqual({
       status: 409,
       body: { error: 'Book was changed by someone else', current: { id: 3, version: 6, title: 'Theirs' } },
     });
-    // Nothing was written, so nobody is told anything moved.
-    expect(broadcastSaved).not.toHaveBeenCalled();
   });
 
   it('book: delete answers 204, 403 for a viewer, or 404 out of reach', async () => {

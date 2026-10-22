@@ -1,4 +1,3 @@
-import { JourneyBooks } from '../../db/entities/JourneyBooks.entity';
 import { Users } from '../../db/entities/Users.entity';
 import { AddonsModule } from '../addons/addons.module';
 import { UserConnectionRepositoriesModule } from '../database/user-connection-repositories.module';
@@ -8,7 +7,7 @@ import { MemoriesModule } from '../memories/memories.module';
 import { buildStorageUploadOptions } from '../storage/storage-upload.factory';
 import { StorageModule } from '../storage/storage.module';
 import { StorageService } from '../storage/storage.service';
-import { JourneyBookService } from './journey-book.service';
+import { JourneyBookModule } from './journey-book.module';
 import { JourneyDomainModule } from './journey-domain.module';
 import { JourneyMapController } from './journey-map.controller';
 import { JourneyMapMcp } from './journey-map.mcp';
@@ -44,16 +43,18 @@ import { MulterModule } from '@nestjs/platform-express';
     MemoriesModule,
     JourneyDomainModule,
     JourneyPhotoCaptureModule,
+    // The Studio book: its service (the book routes below) and its MCP tools.
+    JourneyBookModule,
     // JourneyService's JV1 read (`UserImmichRepository.getImmichAutoUpload`).
     UserConnectionRepositoriesModule,
     // Plan 3g Task 3: `JourneyService` (JV1, now through the module above)
-    // and `JourneyBookService` (JB1-JB7, `JourneyBooksRepository`) both
     // constructed HERE — `@InjectRepository` resolves from this module's own
     // `forFeature` graph, not from `AuthModule`'s (which registers `Users`
-    // for its own providers only, per that module's own docstring).
-    MikroOrmModule.forFeature([Users, JourneyBooks]),
+    // for its own providers only, per that module's own docstring). The
+    // book's repository moved with `JourneyBookService` to JourneyBookModule.
+    MikroOrmModule.forFeature([Users]),
   ],
   controllers: [JourneyController, JourneyMapController, JourneyPublicController],
-  providers: [JourneyService, JourneyBookService, JourneyMcp, JourneyMapMcp, JourneyTracksMcp],
+  providers: [JourneyService, JourneyMcp, JourneyMapMcp, JourneyTracksMcp],
 })
 export class JourneyModule {}

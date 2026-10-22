@@ -126,6 +126,11 @@ describe('add, move and delete', () => {
     expect(ids(doc)).toEqual(['sp-cover', 'sp-first', 'sp-in2', 'sp-in3', 'sp-in1', 'sp-last', 'sp-back']);
   });
 
+  it('BOOKPG-023: answers the very same document for a move to where the page already is', () => {
+    const before = book(3);
+    expect(ok(moveBookPage(before, { spreadId: 'sp-in2', toIndex: 3 }))).toBe(before);
+  });
+
   it('BOOKPG-009: refuses to move a fixed page or to move a spread outside the covers', () => {
     for (const id of ['sp-cover', 'sp-first', 'sp-last', 'sp-back']) {
       expect(refused(moveBookPage(book(2), { spreadId: id, toIndex: 2 }))).toBe('protected_spread');
@@ -155,7 +160,7 @@ describe('restore', () => {
   it('BOOKPG-012: puts a page back in its place when the book still has it', () => {
     const before = book(2);
     const changed = { ...(before.spreads[2] as BookSpread), background: '#112233' };
-    const doc = ok(restoreBookPage(before, { spread: changed, index: 5, expectedVersion: 3 }));
+    const doc = ok(restoreBookPage(before, { pages: [{ spread: changed, index: 5 }], expectedVersion: 3 }));
     expect(ids(doc)).toEqual(ids(before));
     expect(doc.spreads[2]?.background).toBe('#112233');
   });
@@ -164,29 +169,94 @@ describe('restore', () => {
     const before = book(2);
     const gone = before.spreads[3] as BookSpread;
     const without = ok(deleteBookPages(before, { spreadIds: [gone.id] }));
-    expect(ids(ok(restoreBookPage(without, { spread: gone, index: 3, expectedVersion: 1 })))).toEqual(ids(before));
-    const clamped = ok(restoreBookPage(without, { spread: gone, index: 0, expectedVersion: 1 }));
+    const back = ok(restoreBookPage(without, { pages: [{ spread: gone, index: 3 }], expectedVersion: 1 }));
+    expect(ids(back)).toEqual(ids(before));
+    const clamped = ok(restoreBookPage(without, { pages: [{ spread: gone, index: 0 }], expectedVersion: 1 }));
     expect(clamped.spreads[2]?.id).toBe(gone.id);
   });
 
   it('BOOKPG-014: refuses a page that is not a page', () => {
-    expect(
-      refused(restoreBookPage(book(1), { spread: { id: 'x', role: 'middle' }, index: 2, expectedVersion: 1 })),
-    ).toBe('invalid_op');
+    const notAPage = { pages: [{ spread: { id: 'x', role: 'middle' }, index: 2 }], expectedVersion: 1 };
+    expect(refused(restoreBookPage(book(1), notAPage))).toBe('invalid_op');
+    expect(refused(restoreBookPage(book(1), { pages: [], expectedVersion: 1 }))).toBe('invalid_op');
   });
 
   it('BOOKPG-019: never makes a second cover, and never turns a page into another kind', () => {
     const doc = book(1);
     const asCover = { ...(doc.spreads[2] as BookSpread), role: 'cover' as const };
-    expect(refused(restoreBookPage(doc, { spread: asCover, index: 2, expectedVersion: 1 }))).toBe('invalid_op');
+    expect(refused(restoreBookPage(doc, { pages: [{ spread: asCover, index: 2 }], expectedVersion: 1 }))).toBe(
+      'invalid_op',
+    );
     for (const role of ['cover', 'first', 'last', 'back'] as const) {
       const extra = { ...blankSpread(role), id: `sp-extra-${role}` };
-      expect(refused(restoreBookPage(doc, { spread: extra, index: 2, expectedVersion: 1 }))).toBe('protected_spread');
+      expect(refused(restoreBookPage(doc, { pages: [{ spread: extra, index: 2 }], expectedVersion: 1 }))).toBe(
+        'protected_spread',
+      );
     }
     const lost = { ...doc, spreads: doc.spreads.filter((s) => s.role !== 'back') };
     const back = doc.spreads[doc.spreads.length - 1] as BookSpread;
-    const restored = ok(restoreBookPage(lost, { spread: back, index: lost.spreads.length, expectedVersion: 1 }));
+    const restored = ok(
+      restoreBookPage(lost, { pages: [{ spread: back, index: lost.spreads.length }], expectedVersion: 1 }),
+    );
     expect(ids(restored)).toEqual(ids(doc));
+  });
+
+  it('BOOKPG-024: puts several deleted pages back in one call, lowest index first whatever order they come in', () => {
+    const before = book(4);
+    const without = ok(deleteBookPages(before, { spreadIds: ['sp-in1', 'sp-in3', 'sp-in4'] }));
+    const previous = before.spreads.flatMap((spread, index) =>
+      ['sp-in1', 'sp-in3', 'sp-in4'].includes(spread.id) ? [{ index, spread }] : [],
+    );
+    const result = restoreBookPage(without, { pages: [...previous].reverse(), expectedVersion: 2 });
+    expect(ids(ok(result))).toEqual(ids(before));
+    expect(result.ok && result.spreadIds).toEqual(['sp-in1', 'sp-in3', 'sp-in4']);
+  });
+
+  it('BOOKPG-025: refuses a photo that is neither in the gallery nor in the book, and takes one the book holds', () => {
+    const base = book(2);
+    const frame = (id: string, photoId: number) =>
+      bookPhotoElementSchema.parse({ id, kind: 'photo', frame: { x: 10, y: 10, w: 80, h: 80 }, photoId });
+    const withPhoto = {
+      ...base,
+      spreads: base.spreads.map((s) => (s.id === 'sp-in1' ? { ...s, elements: [frame('p-kept', 7)] } : s)),
+    };
+    const page = withPhoto.spreads[3] as BookSpread;
+    const photos = [{ photoId: 1 }];
+    const stray = { ...page, elements: [frame('p-stray', 99)] };
+    const args = (spread: BookSpread) => ({ pages: [{ spread, index: 3 }], expectedVersion: 1 });
+    expect(refused(restoreBookPage(withPhoto, args(stray), { photos }))).toBe('photo_not_in_gallery');
+    const fromBook = { ...page, elements: [frame('p-again', 7)] };
+    expect(ok(restoreBookPage(withPhoto, args(fromBook), { photos })).spreads[3]?.elements[0]?.id).toBe('p-again');
+    const fromGallery = { ...page, elements: [frame('p-new', 1)] };
+    expect(ok(restoreBookPage(withPhoto, args(fromGallery), { photos })).spreads[3]?.elements[0]?.id).toBe('p-new');
+    // Without a gallery in the context the engine cannot tell, and leaves it to the caller.
+    expect(ok(restoreBookPage(withPhoto, args(stray))).spreads[3]?.elements[0]?.id).toBe('p-stray');
+  });
+
+  it('BOOKPG-026: keeps a locked element as it is on a page put back in place, and adds no locked one', () => {
+    const base = book(1);
+    const lockedText = bookTextElementSchema.parse({
+      id: 't-lock',
+      kind: 'text',
+      frame: { x: 20, y: 20, w: 100, h: 20 },
+      text: 'Kept',
+      locked: true,
+    });
+    const doc = {
+      ...base,
+      spreads: base.spreads.map((s) => (s.id === 'sp-in1' ? { ...s, elements: [lockedText] } : s)),
+    };
+    const page = doc.spreads[2] as BookSpread;
+    const args = (spread: BookSpread) => ({ pages: [{ spread, index: 2 }], expectedVersion: 1 });
+    // The same element with its keys in another order is the same element.
+    const backwards = Object.fromEntries(Object.entries(lockedText).reverse()) as BookTextElement;
+    const reordered = { ...page, background: '#223344', elements: [backwards] };
+    expect(ok(restoreBookPage(doc, args(reordered))).spreads[2]?.background).toBe('#223344');
+    const changed = { ...page, elements: [{ ...lockedText, text: 'Changed' }] };
+    expect(refused(restoreBookPage(doc, args(changed)))).toBe('locked');
+    expect(refused(restoreBookPage(doc, args({ ...page, elements: [] })))).toBe('locked');
+    const newLock = { ...lockedText, id: 't-new' };
+    expect(refused(restoreBookPage(doc, args({ ...page, elements: [lockedText, newLock] })))).toBe('locked');
   });
 });
 

@@ -1,6 +1,7 @@
 import { BucketList } from '../../../src/db/entities/BucketList.entity';
 import { CollectionLabels } from '../../../src/db/entities/CollectionLabels.entity';
 import { DawarichVisitSuggestions } from '../../../src/db/entities/DawarichVisitSuggestions.entity';
+import { JourneyBooks } from '../../../src/db/entities/JourneyBooks.entity';
 import { JourneyEntries } from '../../../src/db/entities/JourneyEntries.entity';
 import { TripJournalLinks } from '../../../src/db/entities/TripJournalLinks.entity';
 import { VacayHolidayCalendars } from '../../../src/db/entities/VacayHolidayCalendars.entity';
@@ -15,13 +16,13 @@ import { NotificationsService } from '../../../src/nest/notifications/notificati
 import { addCollectionMember } from '../../helpers/factories/collections';
 import { inContext } from '../../helpers/factories/context';
 import { addJourneyContributor, linkTripToJourney } from '../../helpers/factories/journeys';
-import { createRow, updateRows } from '../../helpers/factories/rows';
+import { createRow, insertRow, updateRows } from '../../helpers/factories/rows';
 import { addVacayPlanMember } from '../../helpers/factories/vacay';
 import { holidayCode } from './harness';
-import type { CaseGroup, ParityCase, Scene } from './types';
+import type { CaseGroup, ParityCase, RestCall, Scene } from './types';
 import { MikroORM } from '@mikro-orm/core';
 import type { INestApplication } from '@nestjs/common';
-import type { DawarichTrackSegment } from '@trek/shared';
+import { blankBook, blankSpread, type BookDocument, type DawarichTrackSegment } from '@trek/shared';
 
 import { vi } from 'vitest';
 
@@ -945,10 +946,112 @@ const collectionCases: ParityCase[] = [
   },
 ];
 
+/** The page ids of the scenes' books, in page order, so the tools can name them. */
+const BOOK_PAGES = ['sp-cover', 'sp-first', 'sp-inner', 'sp-last', 'sp-back'];
+
+/** A blank book for the scene's journey, the same one each time it is asked for. */
+function bookOf(s: Scene) {
+  let next = 0;
+  return blankBook({ title: `Book ${s.n}`, newId: () => BOOK_PAGES[next++] ?? `sp-extra-${next}` });
+}
+
+/** The scene's book with a second inner page after the first, so a page has somewhere to move. */
+function twoInnerBook(s: Scene): BookDocument {
+  const book = bookOf(s);
+  const second = { ...blankSpread('inner'), id: 'sp-inner-2' };
+  return { ...book, spreads: [...book.spreads.slice(0, 3), second, ...book.spreads.slice(3)] };
+}
+
+/** The scene's journey with its book at version 1, written as a row so the setup sends nothing. */
+async function seedBook(s: Scene, app: INestApplication, document: BookDocument = bookOf(s)): Promise<void> {
+  await insertRow(ormOf(app), JourneyBooks, {
+    journey: s.journey.id,
+    title: `Book ${s.n}`,
+    document: JSON.stringify(document),
+    version: 1,
+  });
+}
+
+/**
+ * The Studio's save, the one route that writes a book: every book tool's twin.
+ * It saves the scene's book as it stands, which sends the same event as any
+ * change would; what each tool changes is pinned in its own suites.
+ */
+const saveBook = (baseVersion?: number): RestCall => ({
+  method: 'put',
+  path: (s) => `/api/journeys/${s.journey.id}/book`,
+  body: (s) => ({ title: `Book ${s.n}`, document: bookOf(s), baseVersion }),
+});
+
+/**
+ * The Studio book's tools. Each write tells every member's tabs that the book
+ * moved on; REST leaves out the tab that saved, MCP none, so the Studio the
+ * assistant runs beside shows its change.
+ */
+const bookCases: ParityCase[] = [
+  {
+    tool: 'create_book',
+    needs: ['journey'],
+    args: onJourney,
+    rest: saveBook(),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    tool: 'add_book_pages',
+    needs: ['journey'],
+    setup: seedBook,
+    args: (s) => ({ journeyId: s.journey.id, afterSpreadId: 'sp-inner' }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    // A real move: a move to where the page already is writes nothing and sends nothing.
+    tool: 'move_book_page',
+    needs: ['journey'],
+    setup: (s, app) => seedBook(s, app, twoInnerBook(s)),
+    args: (s) => ({ journeyId: s.journey.id, spreadId: 'sp-inner', toIndex: 3 }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    tool: 'delete_book_pages',
+    needs: ['journey'],
+    setup: seedBook,
+    args: (s) => ({ journeyId: s.journey.id, spreadIds: ['sp-inner'] }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    tool: 'edit_book_page',
+    needs: ['journey'],
+    setup: seedBook,
+    args: (s) => ({ journeyId: s.journey.id, spreadId: 'sp-inner', ops: [{ op: 'background', color: '#f4efe6' }] }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    tool: 'set_book_cover',
+    needs: ['journey'],
+    setup: seedBook,
+    args: (s) => ({ journeyId: s.journey.id, title: `Lisbon ${s.n}` }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    // An undo puts the page back where it is, at the version the change left.
+    tool: 'restore_book_page',
+    needs: ['journey'],
+    setup: seedBook,
+    args: (s) => ({ journeyId: s.journey.id, pages: [{ spread: bookOf(s).spreads[2], index: 2 }], expectedVersion: 1 }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+];
+
 export const user: CaseGroup = {
   name: 'user',
   prefix: 'BCP-USER',
-  cases: [...atlasCases, ...dawarichCases, ...journeyCases, ...vacayCases, ...collectionCases],
+  cases: [...atlasCases, ...dawarichCases, ...journeyCases, ...vacayCases, ...collectionCases, ...bookCases],
   exempt: [
     { tool: 'create_journey_share_link', reason: TOKEN_ONLY, needs: ['journey'], args: onJourney },
     {

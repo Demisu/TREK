@@ -123,7 +123,6 @@ const { booksvc } = vi.hoisted(() => ({
     canOpen: vi.fn(),
     saveBook: vi.fn(),
     deleteBook: vi.fn(),
-    broadcastSaved: vi.fn(),
   },
 }));
 
@@ -175,7 +174,6 @@ describe('Journey e2e (real auth guard + temp SQLite)', () => {
     booksvc.canOpen.mockReset();
     booksvc.saveBook.mockReset();
     booksvc.deleteBook.mockReset();
-    booksvc.broadcastSaved.mockReset();
   });
 
   afterAll(async () => {
@@ -359,7 +357,8 @@ describe('Journey e2e (real auth guard + temp SQLite)', () => {
       .set('Cookie', sessionCookie(1))
       .set('X-Socket-Id', 'sock-7')
       .send({ document: {} });
-    expect(booksvc.broadcastSaved).toHaveBeenCalledWith(9, 1, { id: 3, version: 5 }, 'sock-7');
+    // The service announces the save after its commit, leaving out this socket.
+    expect(booksvc.saveBook.mock.calls[0][3]).toEqual({ socketId: 'sock-7' });
   });
 
   it('409 with the current record in the body, not a bare status', async () => {
@@ -371,7 +370,6 @@ describe('Journey e2e (real auth guard + temp SQLite)', () => {
     expect(res.status).toBe(409);
     expect(res.body.error).toBe('Book was changed by someone else');
     expect(res.body.current.version).toBe(6);
-    expect(booksvc.broadcastSaved).not.toHaveBeenCalled();
   });
 
   it('404 on saving into an inaccessible journey', async () => {

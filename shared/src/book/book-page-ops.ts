@@ -91,6 +91,8 @@ export function moveBookPage(doc: BookDocument, args: unknown): BookEditResult {
     if (toIndex < first || toIndex >= limit) {
       throw failOp('index_out_of_range', `inner pages sit at index ${first} to ${limit - 1}`, null);
     }
+    // A page already there: the very same document back, so a caller can tell nothing changed.
+    if (toIndex === from) return { ok: true, doc, spreadIds: [spreadId], created: [], dropped: [] };
     const spreads = doc.spreads.filter((_, i) => i !== from);
     spreads.splice(toIndex, 0, doc.spreads[from] as BookSpread);
     return { ok: true, doc: { ...doc, spreads }, spreadIds: [spreadId], created: [], dropped: [] };
@@ -121,44 +123,110 @@ export function deleteBookPages(doc: BookDocument, args: unknown): BookEditResul
 }
 
 /**
- * Put a page back as it was, for the assistant's undo: in its place when the
- * book still has a page with its id, else inserted at `index`, kept inside the
- * covers when it is an inner spread. The version check is the server's.
+ * Put pages back as they were, for the assistant's undo: each in its place
+ * when the book still has a page with its id, else inserted at its `index`,
+ * kept inside the covers when it is an inner spread. The version check is the
+ * server's. Several pages deleted at once go back lowest index first, so each
+ * index means what it meant before the delete.
  *
  * Never a second cover: a page still in the book is only replaced by one of
  * the same role, and a cover, first, last or back page comes back only into a
- * book that has lost its own. Several pages deleted at once go back lowest
- * index first, so each index means what it meant before the delete.
+ * book that has lost its own. A restore is no way around the rules of an
+ * edit: with a gallery in the context, a photo must be in it or already in the
+ * book, and a page still in the book keeps every locked element exactly as it
+ * is, adding none. An honest undo always passes both, since the change it
+ * takes back could touch neither and anything saved since fails the version.
  */
-export function restoreBookPage(doc: BookDocument, args: unknown): BookEditResult {
+export function restoreBookPage(doc: BookDocument, args: unknown, ctx: BookOpsContext = {}): BookEditResult {
   const parsed = restoreBookPageRequestSchema.safeParse(args);
   if (!parsed.success) return { ok: false, error: invalidOp(parsed.error, null) };
-  const { spread, index } = parsed.data;
+  const pages = [...parsed.data.pages].sort((a, b) => a.index - b.index);
   return caught(() => {
-    const at = doc.spreads.findIndex((s) => s.id === spread.id);
-    if (at >= 0) {
-      const current = doc.spreads[at] as BookSpread;
-      if (current.role !== spread.role) {
-        throw failOp(
-          'invalid_op',
-          `${spread.id} is the ${current.role} page now and cannot become the ${spread.role}`,
-          null,
-        );
-      }
-      const spreads = doc.spreads.slice();
-      spreads[at] = spread;
-      return { ok: true, doc: { ...doc, spreads }, spreadIds: [spread.id], created: [], dropped: [] };
+    let cur = doc;
+    for (const { spread, index } of pages) {
+      restorablePhotos(spread, cur, ctx);
+      cur = putBack(cur, spread, index);
     }
-    if (spread.role !== 'inner' && doc.spreads.some((s) => s.role === spread.role)) {
-      throw failOp('protected_spread', `the book already has its ${spread.role} page`, null);
-    }
-    if (doc.spreads.length >= MAX_SPREADS)
-      throw failOp('too_many_spreads', `a book holds at most ${MAX_SPREADS} pages`, null);
-    const { first, limit } = innerSpreadBounds(doc.spreads);
-    const to = spread.role === 'inner' ? Math.min(Math.max(index, first), limit) : Math.min(index, doc.spreads.length);
-    const spreads = [...doc.spreads.slice(0, to), spread, ...doc.spreads.slice(to)];
-    return { ok: true, doc: { ...doc, spreads }, spreadIds: [spread.id], created: [], dropped: [] };
+    const restored = [...new Set(pages.map((p) => p.spread.id))];
+    return { ok: true, doc: cur, spreadIds: restored, created: [], dropped: [] };
   });
+}
+
+/** One page back into the book: replaced where it is, or inserted at `index`. */
+function putBack(doc: BookDocument, spread: BookSpread, index: number): BookDocument {
+  const at = doc.spreads.findIndex((s) => s.id === spread.id);
+  if (at >= 0) {
+    const current = doc.spreads[at] as BookSpread;
+    if (current.role !== spread.role) {
+      throw failOp(
+        'invalid_op',
+        `${spread.id} is the ${current.role} page now and cannot become the ${spread.role}`,
+        null,
+      );
+    }
+    sameLocks(current, spread);
+    const spreads = doc.spreads.slice();
+    spreads[at] = spread;
+    return { ...doc, spreads };
+  }
+  if (spread.role !== 'inner' && doc.spreads.some((s) => s.role === spread.role)) {
+    throw failOp('protected_spread', `the book already has its ${spread.role} page`, null);
+  }
+  if (doc.spreads.length >= MAX_SPREADS) {
+    throw failOp('too_many_spreads', `a book holds at most ${MAX_SPREADS} pages`, null);
+  }
+  const { first, limit } = innerSpreadBounds(doc.spreads);
+  const to = spread.role === 'inner' ? Math.min(Math.max(index, first), limit) : Math.min(index, doc.spreads.length);
+  return { ...doc, spreads: [...doc.spreads.slice(0, to), spread, ...doc.spreads.slice(to)] };
+}
+
+/** The photos a page shows: its photo frames, placed or parked, and the pictures on its map markers. */
+function photoIdsOf(spread: BookSpread): number[] {
+  return [...spread.elements, ...spread.parked].flatMap((e) => {
+    if (e.kind === 'photo') return e.photoId == null ? [] : [e.photoId];
+    if (e.kind === 'map') return e.points.flatMap((p) => (p.photoId == null ? [] : [p.photoId]));
+    return [];
+  });
+}
+
+/** With a gallery known, every photo of a page coming back is in it or somewhere in the book already. */
+function restorablePhotos(spread: BookSpread, doc: BookDocument, ctx: BookOpsContext): void {
+  if (!ctx.photos) return;
+  const known = new Set([...ctx.photos.map((p) => p.photoId), ...doc.spreads.flatMap(photoIdsOf)]);
+  const stray = photoIdsOf(spread).find((id) => !known.has(id));
+  if (stray !== undefined) {
+    throw failOp('photo_not_in_gallery', `photo ${stray} is neither in this journey's gallery nor in the book`, null);
+  }
+}
+
+/** Key order aside, the same value: a parsed and a stored element list their fields in different orders. */
+function canonical(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  if (value && typeof value === 'object') {
+    const entries = Object.entries(value as Record<string, unknown>).filter(([, v]) => v !== undefined);
+    entries.sort(([a], [b]) => a.localeCompare(b));
+    return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${canonical(v)}`).join(',')}}`;
+  }
+  return JSON.stringify(value) ?? 'null';
+}
+
+/** A page replaced in place keeps each of its locked elements as it is and gains no new one. */
+function sameLocks(current: BookSpread, spread: BookSpread): void {
+  const lockedOf = (s: BookSpread) =>
+    new Map([...s.elements, ...s.parked].filter((e) => e.locked).map((e) => [e.id, e] as const));
+  const before = lockedOf(current);
+  const after = new Map([...spread.elements, ...spread.parked].map((e) => [e.id, e] as const));
+  for (const [id, el] of before) {
+    const back = after.get(id);
+    if (!back || canonical(back) !== canonical(el)) {
+      throw failOp('locked', `${id} is locked and stays as it is`, null, id);
+    }
+  }
+  for (const [id] of lockedOf(spread)) {
+    if (!before.has(id)) {
+      throw failOp('locked', `${id} is not locked on the page now and cannot come back locked`, null, id);
+    }
+  }
 }
 
 const isBoundTo = (el: BookElement, source: 'journey.title' | 'journey.subtitle') =>

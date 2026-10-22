@@ -12,6 +12,7 @@ import { JourneyBooks } from '../../../src/db/entities/JourneyBooks.entity';
 import { Journeys } from '../../../src/db/entities/Journeys.entity';
 import { TrekPhotos } from '../../../src/db/entities/TrekPhotos.entity';
 import { TripPhotos } from '../../../src/db/entities/TripPhotos.entity';
+import { catchDomainError, DomainError } from '../../../src/nest/common/domain-error';
 import { JourneyBookService } from '../../../src/nest/journey/journey-book.service';
 import { JourneyDomainService } from '../../../src/nest/journey/journey-domain.service';
 import { TrekPhotoRegistrationService } from '../../../src/nest/photos/trek-photo-registration.service';
@@ -29,6 +30,7 @@ import {
 import { createTestJourneyBooksRepo } from '../../helpers/journey-share-repos';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestUnitOfWork, sharedTestOrm, createTestTripsRepo, createTestPlacesRepo } from '../../helpers/test-uow';
+import { normalizeBookDocument } from '@trek/shared';
 
 import { describe, it, expect, vi, beforeAll, beforeEach, afterAll } from 'vitest';
 
@@ -393,18 +395,225 @@ describe('concurrency', () => {
 
 // -- Broadcasting -------------------------------------------------------------
 
-describe('broadcastSaved', () => {
-  it('sends the version, not the document, and excludes the saver', async () => {
+/**
+ * Who heard what, recorded off the domain's fan-out: the event, its payload,
+ * the socket left out, and whether a transaction was still open at the time.
+ */
+async function recordSends() {
+  const em = (await sharedTestOrm(testDb)).em;
+  const sent: Array<{ event: string; data: Record<string, unknown>; skips: unknown; inTx: boolean }> = [];
+  const spy = vi.spyOn(domain, 'broadcastJourneyEvent').mockImplementation(async (_journeyId, event, data, skips) => {
+    sent.push({ event, data, skips, inTx: em.isInTransaction() });
+  });
+  return { sent, restore: () => spy.mockRestore() };
+}
+
+describe('saveBook announces', () => {
+  it('JBOOK-001: a save that lands, after its commit, with the version and the saver, leaving out the saving tab', async () => {
     const { user } = createUser(testDb);
     const journey = createJourney(testDb, user.id);
-    const saved = (await books.saveBook(journey.id, user.id, { title: 'T', document: doc() }))!;
-    const record = 'record' in saved ? saved.record : null;
+    const rec = await recordSends();
+    try {
+      await books.saveBook(journey.id, user.id, { title: 'T', document: doc() }, { socketId: 'socket-7' });
+      expect(rec.sent).toEqual([
+        { event: 'journey:book:saved', data: { version: 1, savedBy: user.id }, skips: 'socket-7', inTx: false },
+      ]);
+    } finally {
+      rec.restore();
+    }
+  });
 
-    const spy = vi.spyOn(domain, 'broadcastJourneyEvent').mockImplementation(async () => {});
-    await books.broadcastSaved(journey.id, user.id, record!, 'socket-7');
+  it('JBOOK-002: nothing for a conflict or a refused save, since nothing was written', async () => {
+    const { user: owner } = createUser(testDb);
+    const { user: guest } = createUser(testDb);
+    const journey = createJourney(testDb, owner.id);
+    addJourneyContributor(testDb, journey.id, guest.id, 'viewer');
+    await books.saveBook(journey.id, owner.id, { title: 'T', document: doc('one') });
+    await books.saveBook(journey.id, owner.id, { title: 'T', document: doc('two'), baseVersion: 1 });
+    const rec = await recordSends();
+    try {
+      const stale = await books.saveBook(journey.id, owner.id, { title: 'T', document: doc('x'), baseVersion: 1 });
+      expect(stale && 'conflict' in stale).toBe(true);
+      expect(await books.saveBook(journey.id, guest.id, { title: 'T', document: doc('y') })).toBeNull();
+      expect(rec.sent).toEqual([]);
+    } finally {
+      rec.restore();
+    }
+  });
+});
 
-    expect(spy).toHaveBeenCalledWith(journey.id, 'journey:book:saved', { version: 1, savedBy: user.id }, 'socket-7');
-    spy.mockRestore();
+// -- Editing (the book tools' write) ------------------------------------------
+
+describe('editBook', () => {
+  const edited = (title: string) => () => ({ title, document: normalizeBookDocument(doc(title)), result: title });
+
+  it('JBOOK-003: creates the book a journey lacks, at version 1, and tells every tab, the asking one too', async () => {
+    const { user } = createUser(testDb);
+    const journey = createJourney(testDb, user.id);
+    const rec = await recordSends();
+    try {
+      const seen: Array<number | null> = [];
+      const out = await books.editBook(journey.id, user.id, (current) => {
+        seen.push(current?.version ?? null);
+        return edited('first')();
+      });
+      expect(seen).toEqual([null]);
+      expect(out.record.version).toBe(1);
+      expect(out.result).toBe('first');
+      expect(rec.sent).toEqual([
+        { event: 'journey:book:saved', data: { version: 1, savedBy: user.id }, skips: undefined, inTx: false },
+      ]);
+    } finally {
+      rec.restore();
+    }
+  });
+
+  it('JBOOK-004: edits what is stored now and bumps its version, the record coming back as GET reads it', async () => {
+    const { user } = createUser(testDb);
+    const journey = createJourney(testDb, user.id);
+    await books.saveBook(journey.id, user.id, { title: 'Iceland', document: doc('one') });
+    await books.saveBook(journey.id, user.id, { title: 'Iceland', document: doc('two'), baseVersion: 1 });
+
+    const out = await books.editBook(journey.id, user.id, (current) => ({
+      title: current?.title ?? '',
+      document: normalizeBookDocument({ ...doc('three'), spreads: current?.document.spreads ?? [] }),
+      result: current?.document.title,
+    }));
+
+    expect(out.result).toBe('two');
+    expect(out.record.version).toBe(3);
+    expect(await books.getBook(journey.id, user.id)).toEqual(out.record);
+    expect(out.record.title).toBe('Iceland');
+    expect(out.record.document.title).toBe('three');
+  });
+
+  it('JBOOK-005: an edit that throws rolls back: nothing written, nobody told', async () => {
+    const { user } = createUser(testDb);
+    const journey = createJourney(testDb, user.id);
+    await books.saveBook(journey.id, user.id, { title: 'T', document: doc('one') });
+    const rec = await recordSends();
+    try {
+      const refusal = new DomainError(422, 'ops[0]: no element p-9');
+      const thrown = await catchDomainError(() =>
+        books.editBook(journey.id, user.id, () => {
+          throw refusal;
+        }),
+      );
+      expect(thrown).toBe(refusal);
+      expect(rec.sent).toEqual([]);
+      const stored = await books.getBook(journey.id, user.id);
+      expect([stored?.version, stored?.document.title]).toEqual([1, 'one']);
+    } finally {
+      rec.restore();
+    }
+  });
+
+  it('JBOOK-006: refuses a moved book with 409 when a version is expected, writing and sending nothing', async () => {
+    const { user } = createUser(testDb);
+    const journey = createJourney(testDb, user.id);
+    await books.saveBook(journey.id, user.id, { title: 'T', document: doc('one') });
+    await books.saveBook(journey.id, user.id, { title: 'T', document: doc('two'), baseVersion: 1 });
+    const rec = await recordSends();
+    try {
+      const edit = vi.fn(edited('undo'));
+      const thrown = await catchDomainError(() => books.editBook(journey.id, user.id, edit, { expectedVersion: 1 }));
+      expect(thrown instanceof DomainError && [thrown.getStatus(), thrown.mcpMessage]).toEqual([
+        409,
+        'The book was changed since that version. Read it again with get_book before changing it.',
+      ]);
+      expect(edit).not.toHaveBeenCalled();
+      expect(rec.sent).toEqual([]);
+      expect((await books.getBook(journey.id, user.id))?.version).toBe(2);
+
+      // At the version it names, the same write lands.
+      const out = await books.editBook(journey.id, user.id, edited('undo'), { expectedVersion: 2 });
+      expect(out.record.version).toBe(3);
+    } finally {
+      rec.restore();
+    }
+  });
+
+  it('JBOOK-007: a viewer is refused with 403 and someone outside the journey with 404, before any edit runs', async () => {
+    const { user: owner } = createUser(testDb);
+    const { user: guest } = createUser(testDb);
+    const { user: stranger } = createUser(testDb);
+    const journey = createJourney(testDb, owner.id);
+    addJourneyContributor(testDb, journey.id, guest.id, 'viewer');
+    const edit = vi.fn(edited('nope'));
+
+    const asGuest = await catchDomainError(() => books.editBook(journey.id, guest.id, edit));
+    const asStranger = await catchDomainError(() => books.editBook(journey.id, stranger.id, edit));
+
+    expect(asGuest instanceof DomainError && asGuest.getStatus()).toBe(403);
+    expect(asStranger instanceof DomainError && [asStranger.getStatus(), asStranger.mcpMessage]).toEqual([
+      404,
+      'Journey not found or access denied.',
+    ]);
+    expect(edit).not.toHaveBeenCalled();
+    expect(await books.getBook(journey.id, owner.id)).toBeNull();
+  });
+
+  it('JBOOK-008: against a Studio save at the same moment one wins and the other is told the book moved', async () => {
+    const { user } = createUser(testDb);
+    const journey = createJourney(testDb, user.id);
+    await books.saveBook(journey.id, user.id, { title: 'T', document: doc('one') });
+
+    const [tool, studio] = await Promise.all([
+      catchDomainError(() => books.editBook(journey.id, user.id, edited('tool'), { expectedVersion: 1 })),
+      books.saveBook(journey.id, user.id, { title: 'T', document: doc('studio'), baseVersion: 1 }),
+    ]);
+
+    const toolLost = tool instanceof DomainError && tool.getStatus() === 409;
+    const studioLost = studio !== null && 'conflict' in studio;
+    expect([toolLost, studioLost].filter(Boolean)).toHaveLength(1);
+    const stored = await books.getBook(journey.id, user.id);
+    expect(stored?.version).toBe(2);
+    expect(stored?.document.title).toBe(toolLost ? 'studio' : 'tool');
+  });
+
+  it('JBOOK-009: an undo against a journey whose book is gone answers 409 with no current book, creating none', async () => {
+    const { user } = createUser(testDb);
+    const journey = createJourney(testDb, user.id);
+    const rec = await recordSends();
+    try {
+      const edit = vi.fn(edited('undo'));
+      const thrown = await catchDomainError(() => books.editBook(journey.id, user.id, edit, { expectedVersion: 3 }));
+      expect(thrown instanceof DomainError && [thrown.getStatus(), thrown.code, thrown.details]).toEqual([
+        409,
+        'book_conflict',
+        { current: null },
+      ]);
+      expect(edit).not.toHaveBeenCalled();
+      expect(rec.sent).toEqual([]);
+      expect(await books.getBook(journey.id, user.id)).toBeNull();
+    } finally {
+      rec.restore();
+    }
+  });
+
+  it('JBOOK-010: an edit that says it changed nothing writes nothing, keeps the version and tells nobody', async () => {
+    const { user } = createUser(testDb);
+    const journey = createJourney(testDb, user.id);
+    await books.saveBook(journey.id, user.id, { title: 'T', document: doc('one') });
+    const rec = await recordSends();
+    try {
+      // The edit may read what it checks against before it answers.
+      const out = await books.editBook(journey.id, user.id, async (current) => {
+        await Promise.resolve();
+        return { ...edited('ignored')(), unchanged: true, result: current?.version };
+      });
+      expect([out.result, out.record.version, out.record.document.title]).toEqual([1, 1, 'one']);
+      expect(rec.sent).toEqual([]);
+      expect((await books.getBook(journey.id, user.id))?.document.title).toBe('one');
+
+      // Without a stored book there is nothing to leave alone: the book is made.
+      const bare = createJourney(testDb, user.id);
+      const made = await books.editBook(bare.id, user.id, () => ({ ...edited('new')(), unchanged: true }));
+      expect(made.record.version).toBe(1);
+      expect(rec.sent).toHaveLength(1);
+    } finally {
+      rec.restore();
+    }
   });
 });
 

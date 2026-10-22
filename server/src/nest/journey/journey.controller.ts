@@ -683,11 +683,13 @@ export class JourneyController {
     @Body() body: BookSaveDto,
     @Headers('x-socket-id') socketId?: string,
   ) {
-    const result = await this.books.saveBook(Number(id), user.id, {
-      title: body.title ?? '',
-      document: body.document,
-      baseVersion: body.baseVersion,
-    });
+    // The service announces the save after its commit, leaving out this tab.
+    const result = await this.books.saveBook(
+      Number(id),
+      user.id,
+      { title: body.title ?? '', document: body.document, baseVersion: body.baseVersion },
+      { socketId },
+    );
     if (result === null) {
       throw await this.bookRefusal(Number(id), user.id);
     }
@@ -705,7 +707,6 @@ export class JourneyController {
         409,
       );
     }
-    await this.books.broadcastSaved(Number(id), user.id, result.record, socketId);
     return result.record;
   }
 

@@ -10,6 +10,7 @@ import {
   bookSpreadSchema,
   bookTextElementSchema,
 } from './book.schema';
+import { PHOTO_PICK } from './photo-pick';
 
 import { z } from 'zod';
 
@@ -233,14 +234,26 @@ export const createBookArgs = {
   title: z.string().max(MAX_BOOK_TITLE).optional(),
   preset: bookPageSetupSchema.shape.preset.unwrap().optional(),
 };
-export const restoreBookPageArgs = {
-  spread: bookSpreadSchema,
-  /** Where it goes back when it is gone; a page still in the book is replaced where it is. */
+/**
+ * A page as it was before a write, for the assistant's undo: `index` is where
+ * it goes back when it is gone, a page still in the book is replaced where it is.
+ */
+export const bookPreviousSpreadSchema = z.object({
   index: z
     .number()
     .int()
     .min(0)
     .max(MAX_SPREADS - 1),
+  spread: bookSpreadSchema,
+});
+export type BookPreviousSpread = z.infer<typeof bookPreviousSpreadSchema>;
+
+/**
+ * The pages a write answered under `previous_spreads`, put back in one call
+ * (several deleted pages are one undo), lowest index first.
+ */
+export const restoreBookPageArgs = {
+  pages: z.array(bookPreviousSpreadSchema).min(1).max(BOOK_OP_LIMITS.pagesPerCall),
   expectedVersion: z.number().int().nonnegative(),
 };
 export const describeBookPageArgs = { spreadId: bookSpreadIdSchema };
@@ -252,7 +265,7 @@ export const suggestBookPhotosArgs = {
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .optional(),
   purpose: z.enum(['page', 'cover']).optional(),
-  limit: z.number().int().min(1).max(60).optional(),
+  limit: z.number().int().min(1).max(PHOTO_PICK.maxLimit).optional(),
 };
 
 export const editBookPageRequestSchema = z.strictObject(editBookPageArgs);
@@ -357,18 +370,19 @@ export const bookPageDescriptionSchema = z.object({
 });
 export type BookPageDescription = z.infer<typeof bookPageDescriptionSchema>;
 
-/** A page as it was before a write, for the assistant's undo. */
-export const bookPreviousSpreadSchema = z.object({
-  index: z.number().int().nonnegative(),
-  spread: bookSpreadSchema,
-});
-
-/** What a book write answers. `previous_spreads` only when the call asked with `returnPrevious`. */
+/**
+ * What a book write answers. `dropped` names the elements whose content left
+ * the page (a layout, a hard remove). `previous_spreads` only when the call
+ * asked with `returnPrevious`; `from_index` only from a move, where the page
+ * stood before it, so a move can be taken back.
+ */
 export const bookWriteResultSchema = z.object({
   version: z.number().int().nonnegative(),
   spread_ids: z.array(z.string()),
   pages: z.array(bookSpreadSummarySchema),
   findings: z.array(bookFindingSchema).max(BOOK_OP_LIMITS.findings),
+  dropped: z.array(z.string()).max(MAX_SPREAD_ELEMENTS * 2),
   previous_spreads: z.array(bookPreviousSpreadSchema).optional(),
+  from_index: z.number().int().nonnegative().optional(),
 });
 export type BookWriteResult = z.infer<typeof bookWriteResultSchema>;

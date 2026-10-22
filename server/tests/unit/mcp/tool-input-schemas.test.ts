@@ -5,9 +5,9 @@
  * tool needs no harness wiring to be covered.
  *
  * What it holds: an input schema is self-contained (no $ref or $defs, which
- * several MCP clients do not resolve), and every id field is the positive
- * integer of @trek/shared's idSchema, the shared primitive the tools derive
- * their ids from.
+ * several MCP clients do not resolve), every id field is the positive integer
+ * of @trek/shared's idSchema, the shared primitive the tools derive their ids
+ * from, and the book restore's schema, which carries whole pages, stays under a ceiling.
  */
 import type { ToolOptions } from '../../../src/nest-mcp';
 import { getEntry, isMcpController, type ClassRef } from '../../../src/nest-mcp/metadata';
@@ -83,5 +83,14 @@ describe('MCP tool input schemas', () => {
       .filter((p): p is Record<string, unknown> => !!p && p.type === 'integer');
     expect(tripIds.length).toBeGreaterThan(100);
     for (const prop of tripIds) expect(prop).toMatchObject({ type: 'integer', exclusiveMinimum: 0 });
+  });
+
+  it('MCP-SCHEMA-003: restore_book_page, the one tool that takes whole book pages, stays under its size ceiling', () => {
+    // Every client loads it with tools/list, though only an undo calls it. Measured at about 34 000
+    // characters; a new element kind or field on a book page grows it, and this says so.
+    const restore = [...schemas].find(([key]) => key.endsWith('#restore_book_page'))?.[1];
+    const size = JSON.stringify(restore ?? null).length;
+    expect(size).toBeGreaterThan(10_000);
+    expect(size).toBeLessThan(40_000);
   });
 });

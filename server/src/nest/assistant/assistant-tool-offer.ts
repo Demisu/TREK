@@ -15,6 +15,28 @@ import { PACKAGE_HELD_READS, PACKAGE_TOOL_CONTROLLERS } from './cards/registry';
  * and the model loads an addon's tools when it needs them (USE_TOOLS_TOOL).
  */
 
+/**
+ * The Studio book tools wait for the Studio's own chat: a trip chat has no
+ * page to show a change on, no way yet to take one back and no forced
+ * `returnPrevious`, and an applied write would reload an open Studio from its
+ * cover. External MCP clients keep them; only the assistant leaves them out
+ * until the journey scope offers them.
+ */
+const STUDIO_ONLY_TOOLS: Readonly<Record<string, string>> = Object.fromEntries(
+  [
+    'get_book',
+    'describe_book_page',
+    'list_book_layouts',
+    'create_book',
+    'add_book_pages',
+    'move_book_page',
+    'delete_book_pages',
+    'edit_book_page',
+    'set_book_cover',
+    'suggest_book_photos',
+  ].map((name) => [name, 'a Studio book tool: offered in the Studio chat only, never in a trip chat']),
+);
+
 /** Never offered, whatever the user approves, each for the reason beside it. */
 export const ASSISTANT_DENIED_TOOLS: Readonly<Record<string, string>> = {
   delete_trip: 'irreversible, and it takes the conversation with it',
@@ -60,6 +82,8 @@ export const ASSISTANT_DENIED_TOOLS: Readonly<Record<string, string>> = {
   update_manual_school_holiday_region: 'changes the holidays of every user',
   delete_manual_school_holiday_region: 'changes the holidays of every user',
   delete_manual_school_holiday_country: 'changes the holidays of every user',
+  ...STUDIO_ONLY_TOOLS,
+  restore_book_page: 'an undo target only: it puts a book page back as an earlier change left it',
 };
 
 /**
@@ -121,7 +145,7 @@ const CORE_TOOL_GROUPS: ToolGroups = {
     about:
       'Tours: hikes, bike tours, city walks, paddling and ski routes; plan, create, change and export them ' +
       '(hikes with their heights and SAC grades), their packing, the tour library and imports from GPX files ' +
-      'and Google Maps.',
+      'and Google Maps walks.',
     controllers: [
       'ToursMcp',
       'CityWalkMcp',
@@ -136,11 +160,12 @@ const CORE_TOOL_GROUPS: ToolGroups = {
       'CollectionToursMcp',
       'PaddleRoutingMcp',
       'SkiRoutingMcp',
-      'GoogleRouteMcp',
     ],
   },
   roadtrip: {
-    about: 'Road trips and transit: the driving route and its stops, charging, hazards, public transport journeys.',
+    about:
+      'Road trips and transit: the driving route and its stops, where each day ends, charging, hazards, ' +
+      'public transport journeys and driving routes imported from Google Maps.',
     controllers: [
       'RoadtripMcp',
       'RoadtripPlanningMcp',
@@ -158,6 +183,8 @@ const CORE_TOOL_GROUPS: ToolGroups = {
       'JourneyMcp',
       'JourneyMapMcp',
       'JourneyTracksMcp',
+      'JourneyBookMcp',
+      'JourneyBookPhotosMcp',
       'JourneyRecordingsMcp',
       'JourneyDayImportMcp',
       'TripJournalLinkMcp',
