@@ -104,7 +104,11 @@ export const VACAY_ANSWER_CARDS = {
     const stats = statsOf(input.value);
     if (!stats || stats.length === 0) return null;
     const viewerId = input.card.viewerId;
-    const people = peopleOf(stats.map((row) => row.personId), knownPeople(null, [], stats), viewerId);
+    const people = peopleOf(
+      stats.map((row) => row.personId),
+      knownPeople(null, [], stats),
+      viewerId,
+    );
     const order = new Map(people.map((person, index) => [person.id, index]));
     const balances = keepKnown(stats, people)
       .sort((a, b) => (order.get(a.personId) ?? 0) - (order.get(b.personId) ?? 0))

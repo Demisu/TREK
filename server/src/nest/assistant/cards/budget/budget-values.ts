@@ -117,7 +117,11 @@ export function splitOf(
   max: number,
 ): Pick<CardExpense, 'split' | 'shares' | 'moreShares'> {
   if (members.length === 0) return { split: 'none', shares: [], moreShares: 0 };
-  const equal = splitEqualShares(toMinor(total), members.map((member) => ({ user_id: member.id })), itemId);
+  const equal = splitEqualShares(
+    toMinor(total),
+    members.map((member) => ({ user_id: member.id })),
+    itemId,
+  );
   const shares = members.map((member) => ({
     person: personFrom(card, member.id, member.name, member.avatarUrl),
     amount: member.amount ?? (equal[member.id] ?? 0) / 100,

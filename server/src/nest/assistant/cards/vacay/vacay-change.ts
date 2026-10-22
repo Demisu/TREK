@@ -96,7 +96,10 @@ function toggleProposal(viewerId: number, args: ToolArgs, loaded: VacayLoaded, d
   const was = existing ? counted(existing.kind, existing.fraction) : 0;
   const will = outcome === 'remove' ? 0 : outcome === 'blocked' ? was : counted(kind, fraction);
   const year = Number(date.slice(0, 4));
-  const periodYear = periodOf(date, loaded.stats.find((row) => row.personId === personId && row.year === year));
+  const periodYear = periodOf(
+    date,
+    loaded.stats.find((row) => row.personId === personId && row.year === year),
+  );
   const counts = kind === 'vacation' && (outcome === 'add' || outcome === 'convert');
   return {
     date,

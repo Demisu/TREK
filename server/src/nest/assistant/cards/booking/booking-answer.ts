@@ -16,7 +16,11 @@ const SHOWN = 8;
 
 function listCard(input: AnswerInput, rows: Row[], toRow: (raw: Row) => BookingRow): TrekCard | null {
   const scope = scopeOfCard(input.card);
-  return bookingCard('none', rows.slice(0, SHOWN).map((raw) => bookingItemOf(toRow(raw), scope)), rows.length);
+  return bookingCard(
+    'none',
+    rows.slice(0, SHOWN).map((raw) => bookingItemOf(toRow(raw), scope)),
+    rows.length,
+  );
 }
 
 /** A stay listed once: the list joins each booking that links it, so one stay can come twice. */

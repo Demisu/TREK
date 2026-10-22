@@ -222,7 +222,14 @@ describe('answer cards', () => {
   it('ASTCARD-BUD-004: an empty list, a broken answer and rows without a name or an amount show no card', () => {
     expect(answer('list_budget_items', { currency: 'EUR', total: 0, items: [] })).toBeNull();
     expect(answer('list_budget_items', 'not a list')).toBeNull();
-    expect(answer('list_budget_items', { items: [{ id: 1, total_price: 5 }, { id: 2, name: 'Tip' }] })).toBeNull();
+    expect(
+      answer('list_budget_items', {
+        items: [
+          { id: 1, total_price: 5 },
+          { id: 2, name: 'Tip' },
+        ],
+      }),
+    ).toBeNull();
     expect(answer('get_settlement_summary', { error: 'nope' })).toBeNull();
     expect(answer('get_budget_per_person', { summary: [] })).toBeNull();
     expect(answer('list_settlements', { settlements: [] })).toBeNull();

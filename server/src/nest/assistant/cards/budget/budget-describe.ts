@@ -28,7 +28,10 @@ function expenseName(ctx: PreviewContext, args: ToolArgs): string {
 
 /** Who shares a stored expense, by name. */
 function sharedBy(ctx: PreviewContext, row: Row | undefined): string {
-  return memberNames(ctx, rowsOf(row?.members).map((member) => member.user_id));
+  return memberNames(
+    ctx,
+    rowsOf(row?.members).map((member) => member.user_id),
+  );
 }
 
 /** "Ana → Ben", from the two people of a payment. */

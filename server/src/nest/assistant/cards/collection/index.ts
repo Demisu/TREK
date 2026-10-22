@@ -73,12 +73,15 @@ export const COLLECTION_CARDS: DomainCards = {
     list_collections: { answer: listsAnswer },
     find_place_in_collections: { answer: membershipAnswer },
     ...WRITE_CARDS,
-    create_collection: { ...WRITE_CARDS.create_collection, undo: DELETE_CREATED_LIST },
+    create_collection: { ...writeCards('create_collection', WRITES.create_collection), undo: DELETE_CREATED_LIST },
     save_place_to_collection: {
-      ...WRITE_CARDS.save_place_to_collection,
+      ...writeCards('save_place_to_collection', WRITES.save_place_to_collection),
       undo: DELETE_SAVED_PLACE,
       argPolicy: NO_IMAGE,
     },
-    update_collection_place: { ...WRITE_CARDS.update_collection_place, argPolicy: NO_IMAGE },
+    update_collection_place: {
+      ...writeCards('update_collection_place', WRITES.update_collection_place),
+      argPolicy: NO_IMAGE,
+    },
   },
 };

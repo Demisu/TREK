@@ -1,6 +1,5 @@
 import type { CardReader, PreviewContext, ToolArgs } from '../card-types';
 import { canonicalJson, clipped, finite, recordOf, type Row } from '../card-values';
-import { hikeCard } from './tour-route.cards';
 import {
   argText,
   climbOf,
@@ -19,6 +18,7 @@ import {
   straightMetres,
   whole,
 } from './tour-card-values';
+import { hikeCard } from './tour-route.cards';
 import {
   hikingPreferencesOf,
   TOUR_ROUTE_LIMITS,

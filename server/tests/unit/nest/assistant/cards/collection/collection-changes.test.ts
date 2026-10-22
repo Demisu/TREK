@@ -195,7 +195,12 @@ describe('collection change cards', () => {
     const deleted = preview('delete_collection', { collectionId: 12 }, { collection });
     expect(deleted).toMatchObject({ subject: 'Paris food', verbKey: 'genericRemove' });
     expect(listsOf(deleted.card).lists[0]).toMatchObject({ placeCount: 10, memberCount: 1, change: 'remove' });
-    const lists = { collections: [{ id: 12, name: 'A' }, { id: 13, name: 'B' }] };
+    const lists = {
+      collections: [
+        { id: 12, name: 'A' },
+        { id: 13, name: 'B' },
+      ],
+    };
     const order = preview('reorder_collections', { orderedIds: [13, 12] }, { lists });
     expect(order.subject).toBe('B, A');
     expect(listsOf(order.card).lists.map((row) => [row.name, row.change])).toEqual([

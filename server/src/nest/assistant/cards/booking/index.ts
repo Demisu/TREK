@@ -1,5 +1,5 @@
-import { IMPORT_BOOKING_TOOL } from '../../assistant-tools.constants';
 import type { TripCard } from '../../assistant-context';
+import { IMPORT_BOOKING_TOOL } from '../../assistant-tools.constants';
 import type { DomainCards, PreviewContext, ToolArgs } from '../card-types';
 import { argId, clipped, idIn } from '../card-values';
 import { BOOKING_ANSWERS } from './booking-answer';

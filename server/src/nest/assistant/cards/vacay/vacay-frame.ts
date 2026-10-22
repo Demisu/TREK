@@ -51,7 +51,9 @@ function tripDatesOf(card: TripCard): string[] {
 
 /** The dated days of the trip inside `months`, as many as a card holds. */
 export function tripDatesIn(card: TripCard, months: readonly CardMonth[]): string[] {
-  return tripDatesOf(card).filter((date) => inMonths(date, months)).slice(0, VACAY_CARD_MAX_DATES);
+  return tripDatesOf(card)
+    .filter((date) => inMonths(date, months))
+    .slice(0, VACAY_CARD_MAX_DATES);
 }
 
 /** The company holidays inside `months`, each date once. */

@@ -204,7 +204,11 @@ export function slotOf(card: TripCard | null, category: string | null, personal:
 
 /** The people of an assignee list (`[{ user_id }]`), as trip members. */
 export function assigneesOf(card: TripCard, raw: unknown): CardPerson[] {
-  return peopleOf(card, rowsOf(raw).flatMap((row) => positiveId(row.user_id) ?? []), 6);
+  return peopleOf(
+    card,
+    rowsOf(raw).flatMap((row) => positiveId(row.user_id) ?? []),
+    6,
+  );
 }
 
 /** One bag as `list_packing_bags` answers it. */
@@ -302,7 +306,11 @@ export function packingGroups(
   items: readonly ListItem[],
   options: GroupOptions,
 ): { groups: PackingCardGroup[]; moreGroups: number } {
-  const buckets = bucketsOf(card, items.filter((item) => !item.placeholder), options);
+  const buckets = bucketsOf(
+    card,
+    items.filter((item) => !item.placeholder),
+    options,
+  );
   let left = options.maxRows ?? MAX_PACKING_ROWS;
   const perGroup = options.fillSingleGroup && buckets.length === 1 ? left : ROWS_PER_GROUP;
   const groups = buckets.slice(0, MAX_CARD_GROUPS).map((bucket): PackingCardGroup => {

@@ -170,7 +170,11 @@ function todoAssigneesCard(ctx: PreviewContext, args: ToolArgs, loaded: TodoAssi
       category,
       slot: todoSlot(ctx.card, args.categoryName),
       assignees: peopleOf(ctx.card, chosen, 6),
-      assigneesRemoved: peopleOf(ctx.card, before.filter((id) => !chosen.includes(id)), 6),
+      assigneesRemoved: peopleOf(
+        ctx.card,
+        before.filter((id) => !chosen.includes(id)),
+        6,
+      ),
       items: [],
       count: inList.length,
       open: inList.filter((todo) => !todo.checked).length,

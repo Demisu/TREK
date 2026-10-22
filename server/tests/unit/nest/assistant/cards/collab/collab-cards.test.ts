@@ -143,7 +143,14 @@ describe('the chat card of a read', () => {
     const row = message(4, {
       origin: 'assistant',
       reactions: [
-        { emoji: '❤️', count: 2, users: [{ user_id: 7, username: 'anna' }, { user_id: 8, username: 'jon' }] },
+        {
+          emoji: '❤️',
+          count: 2,
+          users: [
+            { user_id: 7, username: 'anna' },
+            { user_id: 8, username: 'jon' },
+          ],
+        },
         { emoji: '👍', count: 1, users: [{ user_id: 8, username: 'jon' }] },
       ],
       attachments: [

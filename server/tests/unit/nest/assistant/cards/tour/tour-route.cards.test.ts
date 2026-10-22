@@ -13,13 +13,7 @@ import type { AnswerInput } from '../../../../../../src/nest/assistant/cards/car
 import { answerCardOf } from '../../../../../../src/nest/assistant/cards/registry';
 import { fitted, hardestStretches } from '../../../../../../src/nest/assistant/cards/tour/tour-card-values';
 import { sacStretches } from '../../../../../../src/nest/assistant/cards/tour/tour-route.cards';
-import {
-  MAX_CARD_CHARS,
-  trekCardSchema,
-  type TourRouteCard,
-  type TourRouteStretch,
-  type TrekCard,
-} from '@trek/shared';
+import { MAX_CARD_CHARS, trekCardSchema, type TourRouteCard, type TourRouteStretch, type TrekCard } from '@trek/shared';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 

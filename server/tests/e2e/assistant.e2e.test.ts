@@ -1131,9 +1131,10 @@ describe('Trip assistant e2e', () => {
     const args = { question, options: ['Trattoria', 'Night market'] };
     provider.script = [callTools({ id: 'call_poll', name: 'create_collab_poll', args })];
     const turn = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId: null, text: 'Ask the group' });
+    const toolCallId = ofType(turn.chunks, 'tool-approval-request')[0]?.toolCallId ?? '';
     const [change] = ofType(turn.chunks, 'data-trek-change');
     expect(change.data).toMatchObject({
-      toolCallId: 'call_poll',
+      toolCallId,
       verbKey: 'genericCreate',
       tool: 'create_collab_poll',
       domain: 'collab',
@@ -1148,7 +1149,7 @@ describe('Trip assistant e2e', () => {
     provider.script = [say('The poll is up.')];
     const decided = await post(`${t.base}/threads/${threadId}/decisions`, t.userId, {
       ...CTX,
-      decisions: [{ toolCallId: 'call_poll', approved: true }],
+      decisions: [{ toolCallId, approved: true }],
     });
     expect(decided.status).toBe(200);
     const poll = await findRow(orm, CollabPolls, { trip: t.tripId });
@@ -1156,7 +1157,7 @@ describe('Trip assistant e2e', () => {
     const [applied] = ofType(decided.chunks, 'data-trek-applied');
     expect(applied.data).toMatchObject({ entity: 'collab_poll', ids: [poll?.id] });
     expect(ofType(decided.chunks, 'data-trek-card')[0].data).toMatchObject({
-      toolCallId: 'call_poll',
+      toolCallId,
       card: { kind: 'collabPolls', polls: [{ pollId: poll?.id, change: 'create', question }] },
     });
     expect(broadcasts.broadcast).toHaveBeenCalledWith(t.tripId, 'collab:poll:created', expect.anything());

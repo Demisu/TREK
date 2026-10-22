@@ -130,7 +130,10 @@ export class RoadtripPlanningMcp {
       });
       const betweenStops = (alongKm: number): [string, string] | null => {
         if (anchors.length < 2) return null;
-        const index = insertIndexForAlong(anchors.map((anchor) => anchor.alongKm), alongKm);
+        const index = insertIndexForAlong(
+          anchors.map((anchor) => anchor.alongKm),
+          alongKm,
+        );
         return [anchors[index - 1].name, anchors[index].name];
       };
       const hits = new Map<

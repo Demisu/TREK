@@ -24,12 +24,7 @@ import {
   type ListItem,
   type PackingTier,
 } from './packing-rows';
-import {
-  resolvePackedState,
-  type PackingCardBag,
-  type PackingCardItem,
-  type PackingListCard,
-} from '@trek/shared';
+import { resolvePackedState, type PackingCardBag, type PackingCardItem, type PackingListCard } from '@trek/shared';
 
 /**
  * The card each packing change shows inside its change card, from the call's
@@ -330,37 +325,56 @@ export function packingAssigneesCard(ctx: PreviewContext, args: ToolArgs, loaded
   const before = rowsOf(recordOf(recordOf(loaded).assignees)[raw]).flatMap((row) => positiveId(row.user_id) ?? []);
   const inside = tripPacking(ctx.card).filter((item) => !item.placeholder && item.category === raw);
   const personal = inside.length > 0 && inside.every((item) => item.isPrivate);
-  return packingCard({ type: 'trip' }, 'category', [], [
-    {
-      key: { by: 'category', name, slot: slotOf(ctx.card, raw, personal) },
-      assignees: peopleOf(ctx.card, chosen, 6),
-      assigneesRemoved: peopleOf(ctx.card, before.filter((id) => !chosen.includes(id)), 6),
-      items: [],
-      count: inside.length,
-      packed: inside.filter((item) => item.checked).length,
-    },
-  ]);
+  return packingCard(
+    { type: 'trip' },
+    'category',
+    [],
+    [
+      {
+        key: { by: 'category', name, slot: slotOf(ctx.card, raw, personal) },
+        assignees: peopleOf(ctx.card, chosen, 6),
+        assigneesRemoved: peopleOf(
+          ctx.card,
+          before.filter((id) => !chosen.includes(id)),
+          6,
+        ),
+        items: [],
+        count: inside.length,
+        packed: inside.filter((item) => item.checked).length,
+      },
+    ],
+  );
 }
 
 /** A bag head on a card of its own: what a change to one bag shows. */
 function bagCard(card: TripCard, bag: PackingCardBag): PackingListCard {
   const inside = tripPacking(card).filter((item) => !item.placeholder && bag.id !== null && item.bagId === bag.id);
-  return packingCard({ type: 'trip' }, 'bag', [bag], [
-    {
-      key: { by: 'bag', bagKey: bag.key },
-      assignees: [],
-      assigneesRemoved: [],
-      items: [],
-      count: inside.length,
-      packed: inside.filter((item) => item.checked).length,
-    },
-  ]);
+  return packingCard(
+    { type: 'trip' },
+    'bag',
+    [bag],
+    [
+      {
+        key: { by: 'bag', bagKey: bag.key },
+        assignees: [],
+        assigneesRemoved: [],
+        items: [],
+        count: inside.length,
+        packed: inside.filter((item) => item.checked).length,
+      },
+    ],
+  );
 }
 
 /** The bag a call names (`bagId`), as the lookup read it. */
 function namedBag(card: TripCard, args: ToolArgs, loaded: unknown): PackingCardBag | null {
   const bagId = argId(args, 'bagId');
-  return bagId === null ? null : bagOf(card, rawBags(loaded).find((bag) => bag.id === bagId));
+  return bagId === null
+    ? null
+    : bagOf(
+        card,
+        rawBags(loaded).find((bag) => bag.id === bagId),
+      );
 }
 
 /** `create_packing_bag`: the new bag's head, in its colour (indigo without one) and with its limit. */

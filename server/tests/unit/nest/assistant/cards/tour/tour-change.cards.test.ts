@@ -342,7 +342,17 @@ describe('the words and the way back of the other tour writes', () => {
     expect(unchangedSinceApplied('create_hike', created, onItsDay)).toBe(true);
     const twice = {
       places: { places: [hike] },
-      summary: { days: [{ id: 31, assignments: [{ id: 306, place_id: 64 }, { id: 305, place_id: 64 }] }] },
+      summary: {
+        days: [
+          {
+            id: 31,
+            assignments: [
+              { id: 306, place_id: 64 },
+              { id: 305, place_id: 64 },
+            ],
+          },
+        ],
+      },
     };
     expect(unchangedSinceApplied('create_hike', created, twice)).toBe(false);
     // A new way saved since (any route write stamps updated_at) keeps the tour, name and day unchanged or not.

@@ -38,12 +38,10 @@ const sacStep = z.number().int().min(1).max(6);
 
 /** A point of the line, `[lat, lng, height]` at five decimals; every height is null when one is missing. */
 export type TourRoutePoint = [number, number, number | null];
-// Typed by hand like cardPointSchema: an inferred tuple reads every item as optional where strictNullChecks is off.
-export const tourRoutePointSchema: z.ZodType<TourRoutePoint> = z.tuple([
-  cardLatSchema,
-  cardLngSchema,
-  height.nullable(),
-]);
+// Re-typed on the way out like cardPointSchema, for the builds without strictNullChecks.
+export const tourRoutePointSchema = z
+  .tuple([cardLatSchema, cardLngSchema, height.nullable()])
+  .transform(([lat, lng, metres]): TourRoutePoint => [lat, lng, metres]);
 
 /** What a stop is beyond its role: a kind of place along a hike, its highest point, a city walk's station. */
 export const TOUR_ROUTE_STOP_KINDS = ['highest', 'station'] as const;

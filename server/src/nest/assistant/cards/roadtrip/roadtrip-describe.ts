@@ -113,7 +113,7 @@ export function describeSettings(ctx: PreviewContext, args: Args, loaded: SavedS
       after: settingText(change.after),
     });
   }
-  return { subject: clip(ctx.card.title), rows, dayId: null, placeIds: [] };
+  return { subject: clip(ctx.card.title), rows, dayId: null, placeIds: [], tool: 'update_roadtrip_settings' };
 }
 
 export function describeDayEnd(ctx: PreviewContext, args: Args): Described {
@@ -129,7 +129,9 @@ export function describeImportRoute(ctx: PreviewContext, args: Args): Described 
   const names = Array.isArray(args.stops)
     ? args.stops.map((stop: unknown) => text(recordOf(stop).name)).filter((name) => name !== '')
     : [];
-  const rows = dayRows(ctx, dayId).add('quantity', String(names.length)).add('route', clip(routeText(names)));
+  const rows = dayRows(ctx, dayId)
+    .add('quantity', String(names.length))
+    .add('route', clip(routeText(names)));
   const ends = names.length > 0 ? routeText([names[0] ?? '', names[names.length - 1] ?? '']) : '';
   return { subject: ends, rows, dayId, placeIds: [] };
 }
