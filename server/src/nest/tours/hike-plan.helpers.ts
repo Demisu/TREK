@@ -258,11 +258,7 @@ function runningTotals(legs: readonly number[]): number[] {
 }
 
 /** The walking minutes from the start to each point, the whole time split over the legs by the signposts' rule. */
-function waypointMinutesOf(
-  line: readonly GeometryPoint[],
-  positions: readonly number[],
-  total: number,
-): number[] {
+function waypointMinutesOf(line: readonly GeometryPoint[], positions: readonly number[], total: number): number[] {
   return runningTotals(legMinutes(line, positions, total));
 }
 
