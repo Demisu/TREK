@@ -155,6 +155,7 @@ describe('list_budget_items', () => {
           category: 'food',
           total_price: 90,
           currency: 'EUR',
+          trip_amount: null,
           expense_date: '2026-05-02',
           note: 'Window table, tip included',
           place_id: f.place.id,
@@ -164,6 +165,7 @@ describe('list_budget_items', () => {
             { user_id: f.owner.id, amount: null, paid: true },
             { user_id: f.guest.id, amount: null, paid: true },
           ],
+          receipt_count: 0,
         },
         {
           id: f.museum.id,
@@ -171,6 +173,8 @@ describe('list_budget_items', () => {
           category: 'activities',
           total_price: 50,
           currency: 'USD',
+          // 50 USD at the 1.25 frozen when it was booked.
+          trip_amount: 40,
           expense_date: null,
           note: null,
           place_id: null,
@@ -180,6 +184,7 @@ describe('list_budget_items', () => {
             { user_id: f.owner.id, amount: 30, paid: false },
             { user_id: f.guest.id, amount: 20, paid: true },
           ],
+          receipt_count: 0,
         },
       ],
       people: [
@@ -248,6 +253,8 @@ describe('list_budget_items', () => {
     const answer = read(await mcp.listBudgetItems({ tripId: trip.id }, ctx(user.id)));
     expect(answer).toMatchObject({ total: 200, by_category: { accommodation: 200 }, unconverted_item_ids: [pho.id] });
     expect(getRates).toHaveBeenCalledWith('EUR');
+    // Nothing converts it, so it names no amount in the trip currency either.
+    expect(answer.items.find((item: { id: number }) => item.id === pho.id)).toMatchObject({ trip_amount: null });
   });
 
   it('BGI-MCP-014: someone who cannot open the trip gets the trip refusal and no row', async () => {
@@ -272,6 +279,40 @@ describe('list_budget_items', () => {
       expect.objectContaining({ id: 7, place_id: null, reservation_id: null, payers: [], members: [] }),
     ]);
     expect(answer.people).toEqual([]);
+  });
+
+  it('BGI-MCP-019: a foreign expense says what it comes to in the trip currency, and every expense how many receipts it has', async () => {
+    const { user } = await makeUser(orm);
+    const trip = await makeTrip(orm, user.id, { currency: 'EUR' });
+    const receipt = { filename: 'r.pdf', original_name: 'r.pdf', file_size: 1, mime_type: 'application/pdf' };
+    const items: BudgetItem[] = [
+      {
+        id: 8,
+        trip_id: trip.id,
+        category: 'food',
+        name: 'Diner',
+        total_price: 30,
+        currency: 'USD',
+        exchange_rate: 1.2,
+        sort_order: 0,
+        receipts: [
+          { id: 1, url: '/a', ...receipt },
+          { id: 2, url: '/b', ...receipt },
+        ],
+      },
+      { id: 9, trip_id: trip.id, category: 'food', name: 'Bakery', total_price: 4, currency: 'eur', sort_order: 1 },
+    ];
+    vi.spyOn(t.get(BudgetService), 'listBudgetItems').mockResolvedValue(items);
+
+    const answer = read(await mcp.listBudgetItems({ tripId: trip.id }, ctx(user.id)));
+
+    // 30 USD at the 1.2 frozen when it was booked; a lower-case trip currency is the trip's own.
+    expect(answer.items).toEqual([
+      expect.objectContaining({ id: 8, currency: 'USD', trip_amount: 25, receipt_count: 2 }),
+      expect.objectContaining({ id: 9, trip_amount: null, receipt_count: 0 }),
+    ]);
+    // A count, never the files: no receipt name or link reaches the model.
+    expect(JSON.stringify(answer)).not.toMatch(/r\.pdf|receipts/);
   });
 
   it('BGI-MCP-016: a page of long expenses ends before the assistant cuts the answer, and next_offset starts at the first one it left out', async () => {

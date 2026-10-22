@@ -4,8 +4,15 @@ import { McpController, Tool, TOOL_ANNOTATIONS_READONLY, ok, type McpContext } f
 import type { BudgetItem } from '../../types';
 import { addonGate } from '../addons/addon-gate';
 import { AddonsService } from '../addons/addons.service';
+import { tripConverter } from './budget-money.helpers';
 import { BudgetService } from './budget.service';
-import { BUDGET_ITEMS_PAGE_DEFAULT, budgetItemsPageSchema, idSchema, type BudgetItemsPage } from '@trek/shared';
+import {
+  BUDGET_ITEMS_PAGE_DEFAULT,
+  budgetItemsPageSchema,
+  idSchema,
+  toMinor,
+  type BudgetItemsPage,
+} from '@trek/shared';
 
 /** The whole budget surface rides the budget addon, as in BudgetMcp. */
 const budgetAddonOn = addonGate(ADDON_IDS.BUDGET);
@@ -33,25 +40,42 @@ function shortNote(note: string | null | undefined): string | null {
   return line.length > NOTE_CHARS ? `${line.slice(0, NOTE_CHARS - 1)}…` : line;
 }
 
+/** Today's rates for the expenses that froze none, as the totals use them; null when none were needed. */
+type Rates = Record<string, number> | null;
+
+/**
+ * A foreign expense in the trip currency, at the rate it was booked at (else
+ * today's), to the cent; null for one in the trip currency or one no rate
+ * converts.
+ */
+function tripAmount(item: BudgetItem, tripCurrency: string, rates: Rates): number | null {
+  if ((item.currency || tripCurrency).toUpperCase() === tripCurrency) return null;
+  const convert = tripConverter(item.currency, item.exchange_rate, tripCurrency, rates);
+  return convert ? toMinor(convert(item.total_price || 0)) / 100 : null;
+}
+
 /**
  * One expense as the tool answers it: the fields a model plans with and a
- * card shows, without the avatars, receipts and itemised ticket the REST row
- * carries, and with the start of its note. Amounts stay in the expense's own
- * currency, which is the trip's when the row names none.
+ * card shows, without the avatars, receipt files and itemised ticket the REST
+ * row carries, and with the start of its note and the number of its receipts.
+ * Amounts stay in the expense's own currency, which is the trip's when the row
+ * names none; a foreign one also says what it comes to in the trip currency.
  */
-function slimItem(item: BudgetItem, tripCurrency: string) {
+function slimItem(item: BudgetItem, tripCurrency: string, rates: Rates) {
   return {
     id: item.id,
     name: item.name,
     category: item.category,
     total_price: item.total_price,
     currency: item.currency || tripCurrency,
+    trip_amount: tripAmount(item, tripCurrency, rates),
     expense_date: item.expense_date ?? null,
     note: shortNote(item.note),
     place_id: item.place_id ?? null,
     reservation_id: item.reservation_id ?? null,
     payers: rows(item.payers).map((p) => ({ user_id: p.user_id, amount: p.amount })),
     members: rows(item.members).map((m) => ({ user_id: m.user_id, amount: m.amount ?? null, paid: m.paid === 1 })),
+    receipt_count: rows(item.receipts).length,
   };
 }
 
@@ -60,11 +84,11 @@ function slimItem(item: BudgetItem, tripCurrency: string) {
  * would pass PAGE_CHARS. Always at least one, so a page is never empty while
  * expenses are left.
  */
-function fillPage(items: BudgetItem[], tripCurrency: string) {
+function fillPage(items: BudgetItem[], tripCurrency: string, rates: Rates) {
   const page: ReturnType<typeof slimItem>[] = [];
   let chars = 0;
   for (const item of items) {
-    const slim = slimItem(item, tripCurrency);
+    const slim = slimItem(item, tripCurrency, rates);
     chars += JSON.stringify(slim).length + 1;
     if (page.length > 0 && chars > PAGE_CHARS) break;
     page.push(slim);
@@ -100,7 +124,7 @@ export class BudgetItemsMcp {
 
   @Tool({
     name: 'list_budget_items',
-    description: `List the trip's expenses with their ids, up to ${BUDGET_ITEMS_PAGE_DEFAULT} at a time from offset. A page of long expenses ends earlier, so always go on at next_offset (null on the last page). Each expense: name, category, total_price in its currency, expense_date, the start of its note, the place or booking it belongs to (place_id, reservation_id), who paid how much (payers) and who shares it (members: amount is the member's share on an uneven split, null on an equal one; paid says whether they paid their share). people names the user ids. Next to the page, over all expenses: the trip currency, the total and the totals per category in it, and unconverted_item_ids, foreign expenses no exchange rate converts, which count in no total. Use the ids with update_budget_item and delete_budget_item.`,
+    description: `List the trip's expenses with their ids, up to ${BUDGET_ITEMS_PAGE_DEFAULT} at a time from offset. A page of long expenses ends earlier, so always go on at next_offset (null on the last page). Each expense: name, category, total_price in its currency, expense_date, the start of its note, the place or booking it belongs to (place_id, reservation_id), who paid how much (payers), who shares it (members: amount is the member's share on an uneven split, null on an equal one; paid says whether they paid their share), trip_amount (a foreign expense in the trip currency, null otherwise or without a rate) and receipt_count. people names the user ids. Next to the page, over all expenses: the trip currency, the total and the totals per category in it, and unconverted_item_ids, foreign expenses no exchange rate converts, which count in no total. Use the ids with update_budget_item and delete_budget_item.`,
     inputSchema: { tripId: idSchema, ...budgetItemsPageSchema.shape },
     annotations: TOOL_ANNOTATIONS_READONLY,
     when: budgetAddonOn,
@@ -112,13 +136,10 @@ export class BudgetItemsMcp {
     const currency = (trip.currency || 'EUR').toUpperCase();
     const items = await this.budget.listBudgetItems(tripId);
     // The figures get_trip_summary shows: each row at the rate it was booked at (#2525).
-    const totals = await this.budget.tripTotals(
-      tripId,
-      currency,
-      await this.budget.ratesForTripTotals(tripId, currency),
-    );
+    const rates = await this.budget.ratesForTripTotals(tripId, currency);
+    const totals = await this.budget.tripTotals(tripId, currency, rates);
     const start = offset ?? 0;
-    const page = fillPage(items.slice(start, start + (limit ?? BUDGET_ITEMS_PAGE_DEFAULT)), currency);
+    const page = fillPage(items.slice(start, start + (limit ?? BUDGET_ITEMS_PAGE_DEFAULT)), currency, rates);
     const end = start + page.length;
     return ok({
       currency,

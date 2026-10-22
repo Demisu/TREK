@@ -21,5 +21,7 @@ export const BUDGET_CARD_SCHEMAS = [
   settlementCardSchema,
   costPerPersonCardSchema,
 ] as const;
-export const BUDGET_VERB_KEYS = [] as const;
-export const BUDGET_APPLIED_ENTITIES = [] as const;
+/** A settle-up payment recorded or changed; removing one is a plain removal. */
+export const BUDGET_VERB_KEYS = ['addPayment', 'updatePayment'] as const;
+/** A settle-up payment: the receipt opens the Costs tab, where the payments are listed. */
+export const BUDGET_APPLIED_ENTITIES = ['settlement'] as const;

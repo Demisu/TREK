@@ -470,7 +470,7 @@ export class BudgetMcp {
   @Tool({
     name: 'create_budget_item_with_members',
     description:
-      'Create a budget/expense item and set the trip members splitting it equally in one atomic operation. If userIds is omitted, the cost is split across all trip members; pass an explicit list to split among a subset, or an empty array for a planning-only entry with no split. Ask the user which members share this expense rather than guessing; resolve user IDs with list_trip_members. Only use when the item does not yet exist; if it already exists, use set_budget_item_members directly. For an uneven split, a foreign currency or a date, use create_budget_item instead.',
+      'Create a budget/expense item and set the trip members splitting it equally in one atomic operation. If userIds is omitted or empty, the cost is split across all trip members; pass an explicit list to split among a subset. For a planning-only entry with no split, use create_budget_item with member_ids []. Ask the user which members share this expense rather than guessing; resolve user IDs with list_trip_members. Only use when the item does not yet exist; if it already exists, use set_budget_item_members directly. For an uneven split, a foreign currency or a date, use create_budget_item instead.',
     inputSchema: {
       tripId: idSchema,
       name: z.string().min(1).max(200),
@@ -480,9 +480,7 @@ export class BudgetMcp {
       userIds: z
         .array(idSchema)
         .optional()
-        .describe(
-          'User IDs splitting this item; omit to split across all trip members, or pass an empty array for no split',
-        ),
+        .describe('User IDs splitting this item; omit or pass an empty array to split across all trip members'),
       place_id: idSchema
         .optional()
         .describe(

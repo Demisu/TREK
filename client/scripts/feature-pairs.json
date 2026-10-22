@@ -265,8 +265,8 @@
       "mobile": ["src/mobile/screens/trip/sheets/MCostSheet.tsx", "src/mobile/screens/trip/tabs/MCostsTab.tsx"]
     },
     {
-      "feature": "Costs/budget ledger: useCostsLedger, useSettlementForm",
-      "hooks": ["src/components/Budget/useCostsLedger.ts", "src/components/Budget/useSettlementForm.ts"],
+      "feature": "Costs/budget ledger: useCostsLedger, useSettlementForm, useExpenseLinks",
+      "hooks": ["src/components/Budget/useCostsLedger.ts", "src/components/Budget/useSettlementForm.ts", "src/components/Budget/useExpenseLinks.ts"],
       "desktop": ["src/components/Budget/CostsPanel.tsx"],
       "mobile": ["src/mobile/screens/trip/tabs/MCostsTab.tsx"]
     },
