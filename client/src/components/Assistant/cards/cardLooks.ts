@@ -21,6 +21,8 @@ import {
 import type { CardMapLook } from '../../../types/assistantMap';
 import type { CardRules } from '../assistantParts';
 import { ATLAS_LOOK } from './atlas/atlasLook';
+import { BOOK_LOOK } from './book/bookLook';
+import { BOOK_DESIGN_LOOK } from './bookDesign/bookDesignLook';
 import { BOOKING_LOOK } from './booking/bookingLook';
 import { BUDGET_LOOK } from './budget/budgetLook';
 import type { CardLook, EntityLook, StepLook, VerbLook } from './cardTypes';
@@ -74,6 +76,8 @@ export const VERB_LOOK: Readonly<Record<AssistantChangeVerbKey, VerbLook>> = {
   ...VACAY_LOOK.verbs,
   ...JOURNEY_LOOK.verbs,
   ...PACKING_LOOK.verbs,
+  ...BOOK_LOOK.verbs,
+  ...BOOK_DESIGN_LOOK.verbs,
 };
 
 /** The tools TREK names an action of their own for; a change by any other tool is named by its verb. */
@@ -119,6 +123,8 @@ export const TOOL_LABELS: Readonly<Partial<Record<string, { labelKey: string }>>
   ...VACAY_LOOK.tools,
   ...JOURNEY_LOOK.tools,
   ...PACKING_LOOK.tools,
+  ...BOOK_LOOK.tools,
+  ...BOOK_DESIGN_LOOK.tools,
 };
 
 /** How each reading tool is named while it runs; a tool not listed reads "Working on it". */
@@ -161,6 +167,8 @@ export const STEP_LOOKS: Readonly<Partial<Record<string, StepLook>>> = {
   ...VACAY_LOOK.steps,
   ...JOURNEY_LOOK.steps,
   ...PACKING_LOOK.steps,
+  ...BOOK_LOOK.steps,
+  ...BOOK_DESIGN_LOOK.steps,
 };
 
 /** Shown on the map by its day: a stop or a note lives on one. */
@@ -193,6 +201,8 @@ export const ENTITY_LOOK: Readonly<Record<AssistantApplied['entity'], EntityLook
   ...VACAY_LOOK.entities,
   ...JOURNEY_LOOK.entities,
   ...PACKING_LOOK.entities,
+  ...BOOK_LOOK.entities,
+  ...BOOK_DESIGN_LOOK.entities,
 };
 
 /**
@@ -221,6 +231,8 @@ export const CARD_LOOKS: { readonly [K in TrekCardKind]: CardLook<K> } = {
   ...VACAY_LOOK.cards,
   ...JOURNEY_LOOK.cards,
   ...PACKING_LOOK.cards,
+  ...BOOK_LOOK.cards,
+  ...BOOK_DESIGN_LOOK.cards,
 };
 
 /** The look of the card in hand, typed for any kind. */

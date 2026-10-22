@@ -1,6 +1,8 @@
 import type { TrekCard, TrekCardKind } from '@trek/shared';
 
 import { ATLAS_VIEWS } from './atlas/atlasViews';
+import { BOOK_VIEWS } from './book/bookViews';
+import { BOOK_DESIGN_VIEWS } from './bookDesign/bookDesignViews';
 import { BOOKING_VIEWS } from './booking/bookingViews';
 import { BUDGET_VIEWS } from './budget/budgetViews';
 import type { CardView } from './cardTypes';
@@ -29,6 +31,8 @@ export const CARD_VIEWS: { readonly [K in TrekCardKind]: CardView<K> } = {
   ...VACAY_VIEWS,
   ...JOURNEY_VIEWS,
   ...PACKING_VIEWS,
+  ...BOOK_VIEWS,
+  ...BOOK_DESIGN_VIEWS,
 };
 
 /** The view of the card in hand, typed for any kind. */

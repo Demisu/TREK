@@ -2,6 +2,8 @@ import admin from './admin';
 import airport from './airport';
 import assistant from './assistant';
 import assistantAtlas from './assistantAtlas';
+import assistantBook from './assistantBook';
+import assistantBookDesign from './assistantBookDesign';
 import assistantBooking from './assistantBooking';
 import assistantBudget from './assistantBudget';
 import assistantCard from './assistantCard';
@@ -133,6 +135,8 @@ const locale = {
   ...assistantTour,
   ...assistantRoadtrip,
   ...assistantBudget,
+  ...assistantBook,
+  ...assistantBookDesign,
   ...assistantBooking,
   ...assistantCollab,
   ...assistantCollection,
