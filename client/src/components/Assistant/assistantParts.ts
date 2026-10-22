@@ -171,7 +171,7 @@ function pushCard(blocks: MessageBlock[], entry: CardEntry, group: string): void
 function withoutYielded(blocks: MessageBlock[], rules: CardRules): MessageBlock[] {
   const changes = blocks.flatMap((b) => (b.kind === 'change' ? b.items.flatMap((i) => (i.card ? [i.card] : [])) : []));
   if (changes.length === 0) return blocks;
-  return blocks.flatMap((block) => {
+  return blocks.flatMap((block): MessageBlock[] => {
     if (block.kind !== 'cards') return [block];
     const entries = block.entries.filter((e) => !changes.some((change) => rules.yieldsToChange(e.card, change)));
     return entries.length > 0 ? [{ ...block, entries }] : [];

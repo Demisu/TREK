@@ -330,11 +330,7 @@ export function nameArgOf(tool: string, key: string, value: number, card: TripCa
 }
 
 /** The reads an undo of `tool` makes before its check; none when its package asks for none or fails to say. */
-export function undoReadsOf(
-  tool: string,
-  args: ToolArgs,
-  result: unknown,
-): UndoReads {
+export function undoReadsOf(tool: string, args: ToolArgs, result: unknown): UndoReads {
   return TOOL_CARDS[tool]?.undo?.reads?.(args, result) ?? [];
 }
 

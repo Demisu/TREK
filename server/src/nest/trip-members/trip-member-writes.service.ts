@@ -73,9 +73,7 @@ export class TripMemberWritesService {
   async deleteGuest(tripId: string | number, guestId: number, writer: TripWriter): Promise<boolean> {
     // Read first: the rows that name the guest go with the guest.
     const shared = (await this.budget.listBudgetItems(tripId))
-      .filter(
-        (item) => item.paid_by_user_id === guestId || item.members?.some((member) => member.user_id === guestId),
-      )
+      .filter((item) => item.paid_by_user_id === guestId || item.members?.some((member) => member.user_id === guestId))
       .map((item) => item.id);
     if (!(await this.roster.deleteGuest(tripId, guestId))) return false;
     writer.events.emit('member:removed', { userId: guestId });

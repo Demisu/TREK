@@ -290,10 +290,7 @@ describe('ReservationsRpc', () => {
     const f = build({ created: true });
     await f
       .host()
-      .dispatch(
-        req('reservations.update', { tripId: 1, reservationId: 5, input: { title: 'x', type: 'hotel' } }),
-        42,
-      );
+      .dispatch(req('reservations.update', { tripId: 1, reservationId: 5, input: { title: 'x', type: 'hotel' } }), 42);
     expect(events(f.realtime)).toEqual(['accommodation:created', 'reservation:updated']);
   });
 

@@ -15,10 +15,10 @@ import { RoadtripPreferences } from '../../../src/db/entities/RoadtripPreference
 import { RoadtripVias } from '../../../src/db/entities/RoadtripVias.entity';
 import { DEMO_EMAIL_PRIMARY } from '../../../src/nest/common/demo';
 import { PermissionsService } from '../../../src/nest/permissions/permissions.service';
-import { FakeRealtimeService } from '../../helpers/fake-realtime';
 import { createUser, createTrip, createDay, createPlace } from '../../helpers/factories';
 import { addTripMember } from '../../helpers/factories';
 import { countRows, findRow, updateRows } from '../../helpers/factories/rows';
+import { FakeRealtimeService } from '../../helpers/fake-realtime';
 import { createMcpHarness, parseToolResult, type McpHarness } from '../../helpers/mcp-harness';
 import { resetTestDb, setAddonEnabled } from '../../helpers/test-db';
 import { createTestOrm, type TestOrm } from '../../helpers/test-orm';

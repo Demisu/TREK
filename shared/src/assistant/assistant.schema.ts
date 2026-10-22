@@ -542,12 +542,17 @@ export const assistantToolApprovalSchema = z.object({
 });
 export type AssistantToolApproval = z.infer<typeof assistantToolApprovalSchema>;
 
-/** The parts of a message, with the change, receipt and card parts read or written as given. */
-function messagePartSchema(
-  change: z.ZodType<AssistantChangePreview>,
-  applied: z.ZodType<AssistantApplied>,
-  card: z.ZodType<AssistantCard>,
-) {
+/**
+ * The parts of a message, with the change, receipt and card parts read or
+ * written as given. Generic over the three schemas so the emitted declaration
+ * keeps each one's own Zod type instead of a precomputed object type, which a
+ * consumer without strictNullChecks would read differently from its own infer.
+ */
+function messagePartSchema<
+  Change extends z.ZodType<AssistantChangePreview>,
+  Applied extends z.ZodType<AssistantApplied>,
+  Card extends z.ZodType<AssistantCard>,
+>(change: Change, applied: Applied, card: Card) {
   return z.discriminatedUnion('type', [
     z.object({ type: z.literal('text'), text: z.string() }),
     // A file the user handed the assistant. Only its description is kept, never its content.
