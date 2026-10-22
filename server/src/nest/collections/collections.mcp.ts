@@ -13,6 +13,7 @@ import {
 } from '../../nest-mcp';
 import { addonGate } from '../addons/addon-gate';
 import { AddonsService } from '../addons/addons.service';
+import { McpToolGuardsService } from '../mcp-shared/mcp-tool-guards.service';
 import { CollectionsService } from './collections.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import {
@@ -84,6 +85,7 @@ export class CollectionsMcp {
     private readonly collections: CollectionsService,
     @InjectRepository(Users) private readonly users: UsersRepository,
     readonly addons: AddonsService,
+    private readonly guards: McpToolGuardsService,
   ) {}
 
   // ── Read ──────────────────────────────────────────────────────────────
@@ -405,7 +407,8 @@ export class CollectionsMcp {
   })
   async copyCollectionPlacesToTrip(body: CollectionCopyToTripRequest, ctx: McpContext) {
     try {
-      return ok(await this.collections.copyToTrip(ctx.userId, body));
+      // The copies reach every tab of the trip, the asking one included.
+      return ok(await this.collections.copyToTrip(ctx.userId, body, this.guards.tripEvents(body.trip_id)));
     } catch (err) {
       return fail(err);
     }

@@ -493,6 +493,8 @@ describe('Journey e2e (real auth guard + temp SQLite)', () => {
 
     expect(res.status).toBe(201);
     expect(res.body).toEqual({ photos: [{ id: 5, journey_id: 9, photo_id: 77 }], added: 1 });
+    // The add itself goes out at once; no X-Socket-Id here, so no tab is left out.
+    expect(jsvc.broadcastJourneyEvent).toHaveBeenCalledWith(9, 'journey:updated', {}, undefined);
     await vi.waitFor(() => expect(jsvc.broadcastJourneyEvent).toHaveBeenCalledWith(9, 'journey:photos:updated', {}));
     expect(backfillRun).toHaveBeenCalledWith([77], 1);
   });
@@ -513,16 +515,18 @@ describe('Journey e2e (real auth guard + temp SQLite)', () => {
     await vi.waitFor(() => expect(jsvc.broadcastJourneyEvent).toHaveBeenCalledWith(9, 'journey:photos:updated', {}));
     expect(jsvc.journeyIdOfEntry).toHaveBeenCalledWith(3);
 
-    // Nothing learned: the photos are where they already were, so no refresh.
+    // Nothing learned: the photos are where they already were, so no refresh
+    // follows. The add is still told, to every tab but the one that asked.
     jsvc.broadcastJourneyEvent.mockReset();
     backfillRun.mockReset().mockResolvedValue(false);
     await request(server)
       .post('/api/journeys/entries/3/provider-photos')
       .set('Cookie', sessionCookie(1))
+      .set('X-Socket-Id', 'sock-3')
       .send({ provider: 'immich', asset_ids: ['a3'] });
     await vi.waitFor(() => expect(backfillRun).toHaveBeenCalled());
     await new Promise((resolve) => setTimeout(resolve, 10));
-    expect(jsvc.broadcastJourneyEvent).not.toHaveBeenCalled();
+    expect(jsvc.broadcastJourneyEvent.mock.calls).toEqual([[9, 'journey:updated', {}, 'sock-3']]);
   });
 
   it('a gallery upload gets its capture time read, and no journey refresh: the client sends one file per request (#1587)', async () => {

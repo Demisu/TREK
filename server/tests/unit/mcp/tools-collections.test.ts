@@ -647,6 +647,27 @@ describe('Tool: copy_collection_places_to_trip', () => {
     });
   });
 
+  it('MCP-COLL-COPY-001: each copied place reaches every tab of the trip as place:created, the asking one included', async () => {
+    const { user } = createUser(testDb);
+    createCategory(testDb);
+    const trip = createTrip(testDb, user.id);
+    const col = await seedCollection(user.id, 'Plan');
+    const pid = await seedPlace(col, user.id, 'Spanish Steps');
+    realtime.broadcastMock.mockClear();
+    await withHarness(user.id, async (h) => {
+      await h.client.callTool({
+        name: 'copy_collection_places_to_trip',
+        arguments: { trip_id: trip.id, place_ids: [pid] },
+      });
+    });
+    const sent = realtime.broadcastMock.mock.calls.filter(([, event]) => event === 'place:created');
+    expect(sent).toHaveLength(1);
+    // Room-wide in three arguments: no socket is skipped.
+    expect(sent[0]).toHaveLength(3);
+    expect(sent[0][0]).toBe(trip.id);
+    expect(sent[0][2]).toMatchObject({ place: { name: 'Spanish Steps', trip_id: trip.id }, _source: 'mcp' });
+  });
+
   it('surfaces the 404 text for a trip the user cannot access', async () => {
     const { user } = createUser(testDb);
     const { user: other } = createUser(testDb);
@@ -654,6 +675,7 @@ describe('Tool: copy_collection_places_to_trip', () => {
     const trip = createTrip(testDb, other.id);
     const col = await seedCollection(user.id, 'C');
     const pid = await seedPlace(col, user.id, 'X');
+    realtime.broadcastMock.mockClear();
     await withHarness(user.id, async (h) => {
       const result = await h.client.callTool({
         name: 'copy_collection_places_to_trip',
@@ -662,6 +684,8 @@ describe('Tool: copy_collection_places_to_trip', () => {
       expect(result.isError).toBe(true);
       expect(errorText(result)).toBe('Trip not found');
     });
+    // A refused copy reaches nobody.
+    expect(realtime.broadcastMock.mock.calls.filter(([, event]) => event === 'place:created')).toHaveLength(0);
   });
 });
 

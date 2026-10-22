@@ -13,6 +13,7 @@ import {
 } from '../../nest-mcp';
 import { addonGate } from '../addons/addon-gate';
 import { AddonsService } from '../addons/addons.service';
+import { AtlasWritesService } from './atlas-writes.service';
 import { AtlasService, BucketItemExistsError } from './atlas.service';
 import { idSchema } from '@trek/shared';
 
@@ -48,7 +49,9 @@ function jsonContent(uri: string, data: unknown) {
  * checks map to the declarative atlas read/write access markers (resolved by
  * trekMcpAccessPolicy) and the registration-time addon early-return becomes
  * the `when:` gate. Atlas rows are uid-scoped, so there are no trip-access
- * checks and no broadcasts; writes deny demo users, reads do not. The legacy
+ * checks; the writes go through AtlasWritesService, which tells every tab of
+ * the user (`atlas:changed`), the assistant's own included. Writes deny demo
+ * users, reads do not. The legacy
  * registrar's casing divergence from REST (mark_region_visited /
  * get_country_atlas_places passed codes through un-uppercased) was fixed in
  * the trailing quirk commit — both sides now uppercase. The one input schema
@@ -66,6 +69,7 @@ function jsonContent(uri: string, data: unknown) {
 export class AtlasMcp {
   constructor(
     private readonly atlas: AtlasService,
+    private readonly writes: AtlasWritesService,
     readonly addons: AddonsService,
   ) {}
 
@@ -122,7 +126,7 @@ export class AtlasMcp {
       return errorResult('region_code must belong to country_code.');
     }
     try {
-      const item = await this.atlas.createBucketItem(ctx.userId, {
+      const item = await this.writes.createBucketItem(ctx.userId, {
         name,
         lat,
         lng,
@@ -149,7 +153,7 @@ export class AtlasMcp {
     access: { group: 'atlas', mode: 'write' },
   })
   async deleteBucketListItem({ itemId }: { itemId: number }, ctx: McpContext) {
-    const deleted = await this.atlas.deleteBucketItem(ctx.userId, itemId);
+    const deleted = await this.writes.deleteBucketItem(ctx.userId, itemId);
     if (!deleted) return { content: [{ type: 'text' as const, text: 'Bucket list item not found.' }], isError: true };
     return ok({ success: true });
   }
@@ -167,7 +171,7 @@ export class AtlasMcp {
     access: { group: 'atlas', mode: 'write' },
   })
   async markCountryVisited({ country_code }: { country_code: string }, ctx: McpContext) {
-    await this.atlas.markCountry(ctx.userId, country_code.toUpperCase());
+    await this.writes.markCountry(ctx.userId, country_code.toUpperCase());
     return ok({ success: true, country_code: country_code.toUpperCase() });
   }
 
@@ -182,7 +186,7 @@ export class AtlasMcp {
     access: { group: 'atlas', mode: 'write' },
   })
   async unmarkCountryVisited({ country_code }: { country_code: string }, ctx: McpContext) {
-    await this.atlas.unmarkCountry(ctx.userId, country_code.toUpperCase());
+    await this.writes.unmarkCountry(ctx.userId, country_code.toUpperCase());
     return ok({ success: true, country_code: country_code.toUpperCase() });
   }
 
@@ -272,7 +276,7 @@ export class AtlasMcp {
     // (the legacy registrar passed them through verbatim, so a lowercase mark
     // created a row REST's uppercased unmark could never hit).
     const upperRegion = regionCode.toUpperCase();
-    await this.atlas.markRegion(ctx.userId, upperRegion, regionName, countryCode.toUpperCase());
+    await this.writes.markRegion(ctx.userId, upperRegion, regionName, countryCode.toUpperCase());
     const row = (await this.atlas.listManuallyVisitedRegions(ctx.userId)).find((r) => r.region_code === upperRegion);
     // Echo in the client-facing shape ({ code, name, ... }) rather than raw DB columns.
     const region = row
@@ -294,7 +298,7 @@ export class AtlasMcp {
   })
   async unmarkRegionVisited({ regionCode }: { regionCode: string }, ctx: McpContext) {
     // Post-fold quirk fix: uppercase, matching the REST controller.
-    await this.atlas.unmarkRegion(ctx.userId, regionCode.toUpperCase());
+    await this.writes.unmarkRegion(ctx.userId, regionCode.toUpperCase());
     return ok({ success: true });
   }
 
@@ -353,7 +357,7 @@ export class AtlasMcp {
   ) {
     let item: unknown;
     try {
-      item = await this.atlas.updateBucketItem(ctx.userId, itemId, {
+      item = await this.writes.updateBucketItem(ctx.userId, itemId, {
         name,
         notes,
         lat,

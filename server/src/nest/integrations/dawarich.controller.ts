@@ -161,14 +161,16 @@ export class DawarichController {
 
   @Post('bucket-list/confirm')
   @HttpCode(200)
-  async confirmBucketVisits(@CurrentUser() user: User, @Body() body: DawarichBucketConfirmDto) {
-    return { updated: await this.suggestions.confirmBucketVisits(user.id, body.itemIds, body.visitedAt) };
+  async confirmBucketVisits(@CurrentUser() user: User, @Body() body: DawarichBucketConfirmDto, @Req() req: Request) {
+    return {
+      updated: await this.suggestions.confirmBucketVisits(user.id, body.itemIds, body.visitedAt, socketId(req)),
+    };
   }
 
   @Delete('bucket-list/:itemId/visit')
   @HttpCode(200)
-  async clearBucketVisit(@CurrentUser() user: User, @Param('itemId') itemId: string) {
-    const cleared = await this.suggestions.clearBucketVisit(user.id, parseId(itemId));
+  async clearBucketVisit(@CurrentUser() user: User, @Param('itemId') itemId: string, @Req() req: Request) {
+    const cleared = await this.suggestions.clearBucketVisit(user.id, parseId(itemId), socketId(req));
     if (!cleared) throw new HttpException({ error: 'Bucket-list entry not found' }, 404);
     return { success: true };
   }
@@ -183,8 +185,8 @@ export class DawarichController {
 
   @Post('atlas/accept')
   @HttpCode(200)
-  async acceptAtlasCountries(@CurrentUser() user: User, @Body() body: DawarichAtlasAcceptDto) {
-    return { marked: await this.suggestions.acceptAtlasCountries(user.id, body.countryCodes) };
+  async acceptAtlasCountries(@CurrentUser() user: User, @Body() body: DawarichAtlasAcceptDto, @Req() req: Request) {
+    return { marked: await this.suggestions.acceptAtlasCountries(user.id, body.countryCodes, socketId(req)) };
   }
 
   // ── Track overlay ──────────────────────────────────────────────────────────

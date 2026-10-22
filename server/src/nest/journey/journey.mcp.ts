@@ -730,30 +730,20 @@ export class JourneyMcp {
       return notFound('Entry not found in this journey.');
     }
 
-    const photos: unknown[] = [];
-    for (let i = 0; i < asset_ids.length; i++) {
-      const assetId = asset_ids[i];
-      const mediaType = media_types?.[i] === 'video' ? 'video' : 'image';
-      const photo =
-        entryId === undefined
-          ? await this.journey.addProviderPhotoToGallery(
-              journeyId,
-              ctx.userId,
-              provider,
-              assetId,
-              undefined,
-              passphrase,
-              mediaType,
-            )
-          : await this.journey.addProviderPhoto(entryId, ctx.userId, provider, assetId, caption, passphrase, mediaType);
-      if (photo) photos.push(photo);
-    }
-
-    // Detached, exactly as the REST routes schedule it: the provider is asked
-    // when and where each photo was taken, and without that answer an attached
-    // photo can never appear on the journey map (#1614). Open clients are told
-    // once it lands, so the gallery re-sorts without a reload (#1587).
-    this.photoCapture.scheduleForJourney(journeyId, photos, ctx.userId);
+    // The same use case as the REST routes: the adds, the journey:updated every
+    // open tab hears, then, detached, the provider is asked when and where each
+    // photo was taken, without which it never appears on the journey map (#1614).
+    const photos = await this.photoCapture.addProviderPhotos(
+      entryId === undefined ? { journeyId } : { entryId },
+      ctx.userId,
+      {
+        provider,
+        assetIds: asset_ids,
+        mediaTypes: media_types,
+        caption: entryId === undefined ? undefined : caption,
+        passphrase,
+      },
+    );
     // `skipped` is what tells a caller that a shortfall was duplicates rather
     // than a failure; the REST body carries only photos and added.
     return ok({ photos, added: photos.length, skipped: asset_ids.length - photos.length });
