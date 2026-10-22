@@ -28,6 +28,7 @@ import { RoadtripModule } from '../roadtrip/roadtrip.module';
 import { SchedulingModule } from '../scheduling/scheduling.module';
 import { TripMembershipModule } from '../trip-membership/trip-membership.module';
 import { WandererModule } from '../wanderer/wanderer.module';
+import { WeatherModule } from '../weather/weather.module';
 import { CityWalkBriefingService } from './city-walk-briefing.service';
 import { CityWalkFootWayService } from './city-walk-foot-way.service';
 import { CityWalkMcp } from './city-walk.mcp';
@@ -98,7 +99,10 @@ import { Module } from '@nestjs/common';
  * tours' own repositories, is planned on foot by RoadtripModule's router and
  * is created through ToursService (CW-11). A hike an assistant plans with the
  * traveller is proposed, created, changed or taken in from a GPX file through
- * the same writes, its way planned on the server by HikeRoutingService. A
+ * the same writes, its way planned on the server by HikeRoutingService, its
+ * day read from WeatherModule's detailed weather and the places along it from
+ * the tours' own search; one created on a day is put there through
+ * AssignmentsService in the same write. A
  * change to a saved city walk an assistant prepares for review is laid onto
  * its saved points and planned on foot by the same router, and saves nothing
  * (MCP-T02); once the traveller
@@ -149,6 +153,8 @@ import { Module } from '@nestjs/common';
     // The wanderer watch tells the user of a new hint (WAN-02) and runs as a cron.
     NotificationsModule,
     SchedulingModule,
+    // A proposed hike's day reads the detailed weather at its highest point: sun, hours and warnings.
+    WeatherModule,
     MikroOrmModule.forFeature([
       CollectionTours,
       Tours,

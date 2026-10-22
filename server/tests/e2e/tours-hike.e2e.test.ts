@@ -6,8 +6,10 @@
  * services and a migrated temp SQLite). The way is planned by the road
  * trip's router with its paced queue; only the routing host behind
  * safeFetchAdminConfigured is a stub answering /route, /height and
- * /trace_attributes as Valhalla does, and the trail grades are a spy on the
- * container's TourTrailGradeService, so nothing leaves the process. The
+ * /trace_attributes as Valhalla does, and the trail grades, the places along
+ * the way and the day's weather are spies on the container's
+ * TourTrailGradeService, TourPoiSearchService and WeatherService, so nothing
+ * leaves the process. The
  * router's pacing runs on the test's clock during a call, moved on until the
  * call is done, so the suite does not wait it out. The broadcasts are spied
  * on the container's RealtimeService.
@@ -19,7 +21,9 @@ import { Tours } from '../../src/db/entities/Tours.entity';
 import { createLocalMcpServer, McpRegistryService } from '../../src/nest-mcp';
 import { unchangedSinceApplied } from '../../src/nest/assistant/assistant-undo.helpers';
 import { withRequestContext } from '../../src/nest/database/request-context';
+import { TourPoiSearchService } from '../../src/nest/tours/tour-poi-search.service';
 import { TourTrailGradeService } from '../../src/nest/tours/tour-trail-grade.service';
+import { WeatherService } from '../../src/nest/weather/weather.service';
 import { safeFetchAdminConfigured } from '../../src/utils/ssrfGuard';
 import { countRows, findRow } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
@@ -187,6 +191,47 @@ beforeAll(async () => {
     ways: [grade(501, 'hiking'), grade(502, 'mountain_hiking')],
     unanswered: [],
   });
+  vi.spyOn(app.get(TourPoiSearchService), 'search').mockResolvedValue({
+    pois: [
+      {
+        id: 'node:1',
+        name: 'Hut',
+        lat: at(10)[0],
+        lng: 11.3001,
+        category: 'shelter',
+        kind: 'amenity=shelter',
+        source: 'openstreetmap',
+        address: null,
+        website: null,
+        phone: null,
+        opening_hours: null,
+        distance_m: 8,
+        along_m: 556,
+      },
+    ],
+    truncated: false,
+    partial: false,
+    capped: false,
+    unavailable: [],
+  });
+  vi.spyOn(app.get(WeatherService), 'getDetailed').mockResolvedValue({
+    type: 'forecast',
+    temp: 14,
+    main: 'Clear',
+    description: '',
+    sunrise: '05:30',
+    sunset: '21:00',
+    precipitation_probability_max: 70,
+    hourly: Array.from({ length: 24 }, (_, hour) => ({
+      hour,
+      temp: 12,
+      precipitation: 0,
+      precipitation_probability: hour === 9 ? 70 : 5,
+      main: 'Clear',
+      wind: 10,
+      humidity: 50,
+    })),
+  });
   valhalla();
 }, 60_000);
 
@@ -207,8 +252,9 @@ describe('a hike planned with an assistant over MCP', () => {
       waypoints: WAYPOINTS,
       max_hiking_difficulty: 2,
       variant_label: 'by the hut',
-      date: '2027-07-10',
+      day_id: day.id,
       start_time: '08:30',
+      include_geometry: true,
     });
     expect(hikeProposalSchema.parse(proposal)).toEqual(proposal);
     expect(proposal).toMatchObject({
@@ -221,10 +267,21 @@ describe('a hike planned with an assistant over MCP', () => {
       max_ele_m: 1600,
       duration_basis: 'din33466',
       sac: { highest: 2, unknown_share: 0 },
+      high_point: { lat: at(20)[0], lng: 11.3, ele_m: 1600, at_m: 1112 },
+      day_id: day.id,
       date: '2027-07-10',
       start_time: '08:30',
+      schedule: { date: '2027-07-10', day_id: day.id, start: '08:30', weather: 'forecast', sunset: '21:00' },
+      warnings: [{ kind: 'rain', at: '09:00' }],
     });
     expect(proposal.waypoints.map((point: { at_m: number }) => point.at_m)).toEqual([0, 556, 1112]);
+    expect(proposal.waypoints.map((point: { arrival: string }) => point.arrival)[0]).toBe('08:30');
+    expect(proposal.along).toEqual([
+      { name: 'Hut', category: 'shelter', lat: at(10)[0], lng: 11.3001, at_m: 556, off_m: 8 },
+    ]);
+    expect(proposal.line_geometry).toHaveLength(21);
+    // The highest point, asked to about a kilometre.
+    expect(app.get(WeatherService).getDetailed).toHaveBeenCalledWith('47.61', '11.3', '2027-07-10', 'en');
     expect(await countRows(orm, Tours, {})).toBe(0);
     expect(sent()).toEqual([]);
     expect(askedSince()).toEqual(['/route', '/height', '/trace_attributes']);
@@ -254,7 +311,8 @@ describe('a hike planned with an assistant over MCP', () => {
       ['tours:changed', undefined],
       ['place:created', undefined],
     ]);
-    // The way and its heights as the proposal had them, kept for five minutes, and no grades: the host is not asked.
+    // The way and its heights as the proposal had them, and no grades: the host is not asked. The hike memo
+    // (fifteen minutes) and the router's own caches both answer here; HIKE-ROUTE-021 tells the memo apart.
     expect(askedSince()).toEqual([]);
     // Just made, the hike can be taken back: the trip as the undo reads it has it as it was created.
     const summary = await callTool(user.id, 'get_trip_summary', { tripId: trip.id });
@@ -304,6 +362,30 @@ describe('a hike planned with an assistant over MCP', () => {
     expect(askedSince()).toEqual([]);
   });
 
+  it('creates a hike straight onto a day in one write, its start kept, and tells the trip of the tour and the visit', async () => {
+    const { user } = await makeUser(orm);
+    const trip = await makeTrip(orm, user.id, { title: 'Alps' });
+    const day = await makeDay(orm, trip.id, { day_number: 1, date: '2027-07-10' });
+    sent();
+    const created = await callTool(user.id, 'create_hike', {
+      tripId: trip.id,
+      name: 'Up to the summit',
+      waypoints: WAYPOINTS,
+      day_id: day.id,
+      start_time: '08:30',
+    });
+    expect(created.route).toEqual({ planned: true });
+    expect(created.assignment).toEqual({ id: expect.any(Number), day_id: day.id });
+    const visit = await findRow(orm, DayAssignments, { id: created.assignment.id });
+    expect(visit).toMatchObject({ place_id: created.tour.place_id, assignment_time: '08:30' });
+    expect(sent()).toEqual([
+      ['tours:changed', undefined],
+      ['place:created', undefined],
+      ['assignment:created', undefined],
+    ]);
+    askedSince();
+  });
+
   it('takes a GPX text in as a hike, and refuses the tools to someone outside the trip', async () => {
     const { user } = await makeUser(orm);
     const { user: outsider } = await makeUser(orm);
@@ -320,7 +402,9 @@ describe('a hike planned with an assistant over MCP', () => {
     ]);
 
     const refused = { error: 'Trip not found or access denied.' };
-    expect(await callTool(outsider.id, 'propose_hike', { tripId: trip.id, waypoints: WAYPOINTS })).toEqual(refused);
+    expect(
+      await callTool(outsider.id, 'propose_hike', { tripId: trip.id, name: 'Ridge', waypoints: WAYPOINTS }),
+    ).toEqual(refused);
     expect(await callTool(outsider.id, 'import_tour_gpx', { tripId: trip.id, gpx })).toEqual(refused);
     expect(await callTool(user.id, 'import_tour_gpx', { tripId: trip.id, gpx, tour_type: 'kayak' })).toMatchObject({
       error: expect.stringContaining('a paddle import needs boat_type'),

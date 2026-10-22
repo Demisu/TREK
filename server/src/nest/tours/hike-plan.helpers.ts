@@ -2,12 +2,20 @@ import { addStretch, metresAlong } from './hike-routing.helpers';
 import type { PlannedHike } from './hike-routing.service';
 import type { TourCreateCommand } from './tours.service';
 import {
+  arrivalsOf,
+  cumulativeMetres,
   haversineMetres,
+  HIKE_ALONG_MAX,
   HIKE_PROPOSAL_SAC_SEGMENTS,
+  hikeScheduleOf,
   hikingPreferencesOf,
+  legMinutes,
+  nearestAlongM,
   TOUR_MAX_SNAP_M,
   type GeometryPoint,
+  type HikeAlongPlace,
   type HikeCreateRequest,
+  type HikeHighPoint,
   type HikePlan,
   type HikePlanPoint,
   type HikeProposal,
@@ -16,14 +24,18 @@ import {
   type HikeRouteOutcome,
   type HikeSacSegment,
   type HikeTrailGrades,
+  type TourPoi,
   type TourWaypoint,
   type UnroutedHikePlan,
+  type WeatherResult,
 } from '@trek/shared';
 
 /**
  * The pure halves of a hike an assistant plans over MCP (HikePlanService):
- * the points it is planned through, the proposal shown from a plan, the way
- * a saved hike keeps from a plan, and the write a created hike makes.
+ * the points it is planned through, the proposal shown from a plan (where
+ * and when each point is reached, the highest point, the places along the
+ * way, the day), the way a saved hike keeps from a plan, and the write a
+ * created hike makes.
  */
 
 /** The points a hike is planned through: as asked, and for a round trip back to its start. */
@@ -40,10 +52,11 @@ export function routeOutcomeOf(plan: HikePlan): HikeRouteOutcome {
 /** The points as a tour keeps them: in order, the first the start and the last the end, with their names. */
 export function hikeWaypointsOf(points: readonly HikePlanPoint[]): TourWaypoint[] {
   const last = points.length - 1;
-  return points.map(({ lat, lng, name }, sequence) => ({
+  return points.map(({ lat, lng, name, poi_category }, sequence) => ({
     lat,
     lng,
     ...(name ? { name } : {}),
+    ...(poi_category ? { poi_category } : {}),
     role: sequence === 0 ? 'start' : sequence === last ? 'end' : 'via',
     sequence,
   }));
@@ -166,8 +179,8 @@ export function heightRangeOf(line: readonly GeometryPoint[]): { min: number; ma
   const heights = line.flatMap((point) => (point.length === 3 ? [point[2]] : []));
   if (heights.length === 0 || heights.length !== line.length) return null;
   return {
-    min: Math.round(heights.reduce((low, height) => Math.min(low, height))),
-    max: Math.round(heights.reduce((high, height) => Math.max(high, height))),
+    min: Math.round(heights.reduce((low, height) => Math.min(low, height), Number.POSITIVE_INFINITY)),
+    max: Math.round(heights.reduce((high, height) => Math.max(high, height), Number.NEGATIVE_INFINITY)),
   };
 }
 
@@ -218,21 +231,120 @@ function unreachableOf(plan: HikePlan): HikeProposal['unreachable'] {
 }
 
 /**
+ * Where each point lies along the line, in metres: at the end of its leg as
+ * the router measured the legs, laid onto the line's own length, so a point
+ * the way passes twice (a loop's start and end, a summit walked up and down
+ * one path) lies where the way reaches it in order. Where the router gave no
+ * length for each leg, the line's nearest pass in order stands in.
+ */
+export function waypointPositionsOf({ line, legs }: PlannedHike, points: readonly HikePlanPoint[]): number[] | null {
+  if (!line) return null;
+  if (!legs || legs.length !== points.length - 1) return positionsAlong(line, points);
+  const length = cumulativeMetres(line).at(-1) ?? 0;
+  const measured = legs.reduce((sum, leg) => sum + leg, 0);
+  const scale = measured > 0 ? length / measured : 0;
+  return runningTotals(legs).map((along) => Math.round(along * scale));
+}
+
+/** Each value summed with all before it, after a leading 0: where each point lies when the legs are walked in order. */
+function runningTotals(legs: readonly number[]): number[] {
+  const totals = [0];
+  let sum = 0;
+  for (const leg of legs) {
+    sum += leg;
+    totals.push(sum);
+  }
+  return totals;
+}
+
+/** The walking minutes from the start to each point, the whole time split over the legs by the signposts' rule. */
+export function waypointMinutesOf(
+  line: readonly GeometryPoint[],
+  positions: readonly number[],
+  total: number,
+): number[] {
+  return runningTotals(legMinutes(line, positions, total));
+}
+
+/** The highest point of a line with every height, the first where two are as high, and where along the line it lies. */
+export function highPointOf(line: readonly GeometryPoint[] | null): HikeHighPoint | null {
+  if (!line || !heightRangeOf(line)) return null;
+  let top = 0;
+  line.forEach((point, index) => {
+    if ((point[2] ?? 0) > (line[top][2] ?? 0)) top = index;
+  });
+  const [lat, lng, height] = line[top];
+  return { lat, lng, ele_m: Math.round(height ?? 0), at_m: Math.round(cumulativeMetres(line)[top]) };
+}
+
+/** Where the day's weather of a hike is read: at its highest point where the heights are known, else at its start. */
+export function weatherPointOf(points: readonly HikePlanPoint[], { line }: PlannedHike): { lat: number; lng: number } {
+  const high = highPointOf(line);
+  return high ?? { lat: points[0].lat, lng: points[0].lng };
+}
+
+/**
+ * The places along a way a proposal names: the nearest to it, at most
+ * HIKE_ALONG_MAX, in the order the way passes them, each placed along the
+ * whole line as the points of the hike are.
+ */
+export function alongPlacesOf(pois: readonly TourPoi[], line: readonly GeometryPoint[]): HikeAlongPlace[] {
+  return [...pois]
+    .sort((a, b) => a.distance_m - b.distance_m)
+    .slice(0, HIKE_ALONG_MAX)
+    .map((poi) => ({
+      name: poi.name.trim() || null,
+      category: poi.category,
+      lat: poi.lat,
+      lng: poi.lng,
+      at_m: Math.round(nearestAlongM(line, poi.lat, poi.lng)),
+      off_m: Math.round(poi.distance_m),
+    }))
+    .sort((a, b) => a.at_m - b.at_m);
+}
+
+/** What a proposal reads besides its plan: the day it is for, the places along the way and that day's weather. */
+export interface HikeProposalContext {
+  dayId: number | null;
+  date: string | null;
+  /** Null where none were looked for or the search failed. */
+  along: HikeAlongPlace[] | null;
+  /** Null where none was asked or it could not be had. */
+  weather: WeatherResult | null;
+}
+
+/**
  * The proposal of a hike as a plan gives it: the way and its measures, its
- * profile and grades, each point with where it lies along the way, and the
- * request's own words given back. Without a way the points are still shown,
+ * grades and highest point, each point with where, after how long and when
+ * it is reached, the places along the way, the day's schedule and warnings,
+ * and the request's own words given back. The line and the profile only when
+ * asked for (include_geometry). Without a way the points are still shown,
  * with why there is none.
  */
 export function hikeProposalOf(
   request: HikeProposeRequest,
   points: readonly HikePlanPoint[],
-  { plan, line }: PlannedHike,
+  planned: PlannedHike,
+  context: HikeProposalContext,
 ): HikeProposal {
+  const { plan, line } = planned;
   const routed = plan.kind === 'routed' ? plan : null;
-  const positions = routed && line ? positionsAlong(line, points) : null;
+  const positions = routed ? waypointPositionsOf(planned, points) : null;
   const heights = routed?.has_heights && line ? heightRangeOf(line) : null;
+  const minutes = routed && line && positions ? waypointMinutesOf(line, positions, routed.duration_minutes) : null;
+  const arrivals = arrivalsOf(request.start_time ?? null, minutes ?? points.map(() => null));
+  const day =
+    routed && context.date
+      ? hikeScheduleOf({
+          date: context.date,
+          dayId: context.dayId,
+          start: request.start_time ?? null,
+          minutes: routed.duration_minutes,
+          weather: context.weather,
+        })
+      : null;
   return {
-    name: request.name ?? null,
+    name: request.name,
     variant_label: request.variant_label ?? null,
     route: routeOutcomeOf(plan),
     unreachable: unreachableOf(plan),
@@ -244,20 +356,30 @@ export function hikeProposalOf(
     heights_known: heights !== null,
     min_ele_m: heights?.min ?? null,
     max_ele_m: heights?.max ?? null,
-    line: routed?.line ?? [],
-    profile: routed?.profile ?? [],
+    ...(routed && request.include_geometry === true
+      ? { line_geometry: routed.line, profile_geometry: routed.profile }
+      : {}),
     sac: proposalSacOf(routed?.grades ?? null),
-    waypoints: points.map(({ lat, lng, name }, index) => ({
+    high_point: routed ? highPointOf(line) : null,
+    waypoints: points.map(({ lat, lng, name, poi_category }, index) => ({
       lat,
       lng,
       name: name || null,
+      poi_category: poi_category ?? null,
       at_m: positions?.[index] ?? null,
+      snapped_m: routed ? (planned.snapped?.[index] ?? null) : null,
+      minutes: minutes?.[index] ?? null,
+      arrival: arrivals[index] ?? null,
     })),
+    along: routed ? context.along : null,
     max_hiking_difficulty: plan.max_hiking_difficulty,
     hiking_preferences: routed ? routed.hiking_preferences : hikingPreferencesOf(request.hiking_preferences),
     round_trip: request.round_trip === true,
-    date: request.date ?? null,
+    day_id: context.dayId,
+    date: context.date,
     start_time: request.start_time ?? null,
+    schedule: day?.schedule ?? null,
+    warnings: day?.warnings ?? [],
   };
 }
 

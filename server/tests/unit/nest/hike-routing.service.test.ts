@@ -4,18 +4,25 @@
  * city walks use, with its paced queue; only the routing host behind
  * safeFetchAdminConfigured is a stub, answering /route, /height and
  * /trace_attributes as Valhalla does, and the trail grades come from a stub
- * of TourTrailGradeService. The suite takes its subject from the container.
+ * of TourTrailGradeService. The suite takes its subject from the container;
+ * its last case creates a hike through the real HikePlanService.
  */
+import { Places } from '../../../src/db/entities/Places.entity';
 import { DomainError } from '../../../src/nest/common/domain-error';
 import { RoadtripRouterService } from '../../../src/nest/roadtrip/roadtrip-router.service';
 import { SettingsService } from '../../../src/nest/settings/settings.service';
+import { HikePlanService } from '../../../src/nest/tours/hike-plan.service';
 import { HikeRoutingService, type PlannedHike } from '../../../src/nest/tours/hike-routing.service';
 import { TourTrailGradeService } from '../../../src/nest/tours/tour-trail-grade.service';
 import { ToursModule } from '../../../src/nest/tours/tours.module';
 import { safeFetchAdminConfigured } from '../../../src/utils/ssrfGuard';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
+import { findRow } from '../../helpers/factories/rows';
+import { makeTrip } from '../../helpers/factories/trips';
+import { makeUser } from '../../helpers/factories/users';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
 import { valhallaRoute } from '../../helpers/valhalla';
+import { MikroORM } from '@mikro-orm/core';
 import {
   HIKE_MAX_LINE_POINTS,
   HIKE_PLAN_LINE_POINTS,
@@ -33,7 +40,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 
 vi.mock('../../../src/utils/ssrfGuard', () => ({ safeFetchAdminConfigured: vi.fn() }));
 
-// HIKE-ROUTE-001 to HIKE-ROUTE-015
+// HIKE-ROUTE-001 to HIKE-ROUTE-021
 
 const db = createSnapshotTestDb();
 const grades = vi.fn<TourTrailGradeService['grades']>();
@@ -237,6 +244,8 @@ describe('HikeRoutingService: no way planned', () => {
     expect(planned).toEqual({
       plan: { kind: 'unrouted', max_hiking_difficulty: 3, why: 'router_unavailable', position: null, snapped_m: null },
       line: null,
+      snapped: null,
+      legs: null,
     });
     expect(asked('/height')).toHaveLength(0);
     expect(asked('/trace_attributes')).toHaveLength(0);
@@ -346,9 +355,11 @@ describe('HikeRoutingService: heights and grades are best effort', () => {
     const route = vi
       .spyOn(router, 'route')
       .mockImplementationOnce(async (...args) => ({ ...(await real(...args)), snapped: undefined }));
-    const hike = routed(await plan());
+    const planned = await plan();
+    const hike = routed(planned);
     expect(hike.has_heights).toBe(false);
     expect(hike.distance_m).toBe(222);
+    expect(planned.snapped).toBeNull();
     expect(heights).toHaveBeenCalledTimes(1);
     route.mockRestore();
     heights.mockRestore();
@@ -401,5 +412,165 @@ describe('HikeRoutingService: what it plans at all', () => {
     );
     expect(refusals.map((err) => err instanceof DomainError && err.getStatus())).toEqual([400, 400, 400]);
     expect(safeFetchAdminConfigured).not.toHaveBeenCalled();
+  });
+});
+
+describe('HikeRoutingService: a planned hike kept for a while', () => {
+  /** A plan for one user and trip of its own (or the trip given), the same pair each time it is asked. */
+  function planner(id: number, tripId = id) {
+    return async (request: Partial<HikePlanRequest> = {}, withGrades = true) => {
+      const pending = hikes.plan(id, tripId, { waypoints: WAYPOINTS, ...request }, { grades: withGrades });
+      await vi.runAllTimersAsync();
+      return pending;
+    };
+  }
+  const requests = () => vi.mocked(safeFetchAdminConfigured).mock.calls.length;
+  /** How many hikes the memo holds right now, stale ones included. */
+  const keptCount = () => (Reflect.get(hikes, 'memo') as Map<string, unknown>).size;
+
+  it('HIKE-ROUTE-016: answers the same request again with the very way, asking the router nothing, for a save too', async () => {
+    trip += 1;
+    const ask = planner(trip);
+    const first = await ask();
+    expect(first.snapped).toEqual([0, 0, 0]);
+    expect(first.legs).toEqual([111, 111]);
+    const before = requests();
+    // Points a millionth of a degree apart and named otherwise are the same points; a save reads no grades.
+    const nudged = WAYPOINTS.map((point) => ({ ...point, lat: point.lat + 0.000001, name: 'Elsewhere' }));
+    expect(await ask({ waypoints: nudged }, false)).toBe(first);
+    expect(await ask({ max_hiking_difficulty: 2, hiking_preferences: null })).toBe(first);
+    expect(requests()).toBe(before);
+
+    // Another limit, other preferences, another user or trip plan anew.
+    expect(await ask({ max_hiking_difficulty: 3 })).not.toBe(first);
+    expect(await ask({ hiking_preferences: { avoid_steps: true } })).not.toBe(first);
+    const other = planner(trip + 50_000);
+    expect(await other()).not.toBe(first);
+  });
+
+  it('HIKE-ROUTE-017: asks again after fifteen minutes, for grades a save did not read, and for a way without heights', async () => {
+    trip += 1;
+    const ask = planner(trip);
+    const saved = await ask({}, false);
+    expect(asked('/trace_attributes')).toHaveLength(0);
+    const shown = await ask({}, true);
+    expect(shown).not.toBe(saved);
+    expect(routed(shown).grades).not.toBeNull();
+    expect(asked('/trace_attributes')).toHaveLength(1);
+    expect(await ask({}, false)).toBe(shown);
+
+    vi.advanceTimersByTime(15 * 60_000);
+    expect(await ask({}, true)).not.toBe(shown);
+
+    trip += 1;
+    const level = planner(trip);
+    valhalla({ height: () => new Response('', { status: 502 }) });
+    const flatHike = await level();
+    expect(routed(flatHike).has_heights).toBe(false);
+    const heights = asked('/height').length;
+    expect(await level()).not.toBe(flatHike);
+    expect(asked('/height').length).toBeGreaterThan(heights);
+
+    // A way not planned is not kept either: the router is asked again.
+    trip += 1;
+    const down = planner(trip);
+    valhalla({ route: () => new Response('', { status: 503 }) });
+    await down();
+    await down();
+    expect(asked('/route')).toHaveLength(2);
+  });
+
+  it('HIKE-ROUTE-018: keeps at most 64 ways, the one used longest ago going first', async () => {
+    const base = 100_000;
+    const asks = Array.from({ length: 65 }, (_, index) => planner(base + index));
+    // Asked one after the other, so the first is the one used longest ago.
+    const kept = await asks
+      .slice(0, 64)
+      .reduce<Promise<PlannedHike[]>>(
+        async (before, ask) => [...(await before), await ask({}, false)],
+        Promise.resolve([]),
+      );
+    // The first is used again, so the second is now the one used longest ago.
+    expect(await asks[0]({}, false)).toBe(kept[0]);
+    await asks[64]({}, false);
+    expect(await asks[0]({}, false)).toBe(kept[0]);
+    expect(await asks[2]({}, false)).toBe(kept[2]);
+    expect(await asks[1]({}, false)).not.toBe(kept[1]);
+  });
+
+  it('HIKE-ROUTE-019: keeps one user apart from another in the same trip, and one trip apart from another of the same user', async () => {
+    trip += 1;
+    const first = await planner(trip)({}, false);
+    expect(await planner(trip)({}, false)).toBe(first);
+    expect(await planner(trip + 60_000, trip)({}, false)).not.toBe(first);
+    expect(await planner(trip, trip + 60_000)({}, false)).not.toBe(first);
+    expect(await planner(trip)({}, false)).toBe(first);
+  });
+
+  it('HIKE-ROUTE-020: drops stale hikes when it keeps a new one, and keeps no more than 200000 line points together', async () => {
+    const before = keptCount();
+    await planner(200_000)({}, false);
+    expect(keptCount()).toBe(Math.min(before + 1, 64));
+    // Well past fifteen minutes, also for a hike an earlier case kept on its own advanced clock.
+    vi.advanceTimersByTime(30 * 60_000);
+    await planner(200_001)({}, false);
+    // Every hike planned before is stale now, and goes as soon as another is kept.
+    expect(keptCount()).toBe(1);
+
+    // Lines of 10000 points: the twentieth pushes the small hike out, the twenty first the oldest long one.
+    const long = { waypoints: [WAYPOINTS[0], { lat: at(HIKE_MAX_LINE_POINTS - 1)[0], lng: 11 }] };
+    const line = stepsOf(0, HIKE_MAX_LINE_POINTS - 1);
+    valhalla({ route: () => json(valhallaRoute([{ line, km: 111.1, seconds: 90_000 }])) });
+    const asks = Array.from({ length: 21 }, (_, index) => planner(300_000 + index));
+    const kept = await asks
+      .slice(0, 20)
+      .reduce<Promise<PlannedHike[]>>(
+        async (earlier, ask) => [...(await earlier), await ask(long, false)],
+        Promise.resolve([]),
+      );
+    expect(kept[0].line).toHaveLength(HIKE_MAX_LINE_POINTS);
+    expect(keptCount()).toBe(20);
+    await asks[20](long, false);
+    expect(keptCount()).toBe(20);
+    expect(await asks[1](long, false)).toBe(kept[1]);
+    expect(await asks[0](long, false)).not.toBe(kept[0]);
+  });
+});
+
+describe('HikeRoutingService: the hike created from a proposal', () => {
+  it('HIKE-ROUTE-021: saves the very line the proposal showed while the router would now answer another, and the new one once the memo let it go', async () => {
+    const orm = t.get(MikroORM);
+    const { user } = await makeUser(orm);
+    const tripRow = await makeTrip(orm, user.id);
+    const hiking = t.get(HikePlanService);
+    const settled = async <T>(pending: Promise<T>): Promise<T> => {
+      await vi.runAllTimersAsync();
+      return await pending;
+    };
+    // Points two metres off the other cases' points, so neither the memo nor the router's caches hold them yet.
+    const request = {
+      name: 'Herzogstand',
+      waypoints: WAYPOINTS.map((point) => ({ ...point, lat: point.lat + 0.00002 })),
+    };
+    const proposal = await settled(hiking.propose(user.id, tripRow.id, { ...request, along: false }));
+    expect(proposal.route).toEqual({ planned: true });
+    const savedLine = async (placeId: number) =>
+      JSON.parse(String((await findRow(orm, Places, { id: placeId }))?.route_geometry)) as number[][];
+
+    // The router would now plan another way, and its own caches (five minutes) have let the first go.
+    valhalla({ route: () => json(valhallaRoute([{ line: stepsOf(0, 20, 11.01), km: 0.222, seconds: 330 }])) });
+    vi.advanceTimersByTime(6 * 60_000);
+    const created = await settled(hiking.create(user.id, tripRow.id, request));
+    expect(asked('/route')).toHaveLength(0);
+    const shown = await savedLine(created.tour.place_id);
+    expect(shown).toHaveLength(21);
+    expect(shown.every(([, lng]) => lng === 11)).toBe(true);
+    expect(shown.map(([lat, , ele]) => ele - heightAt(lat))).toEqual(Array.from({ length: 21 }, () => 0));
+
+    // Past fifteen minutes the memo is gone, and the hike created is the way the router plans now.
+    vi.advanceTimersByTime(10 * 60_000);
+    const later = await settled(hiking.create(user.id, tripRow.id, { ...request, name: 'Later' }));
+    expect(asked('/route')).toHaveLength(1);
+    expect((await savedLine(later.tour.place_id)).every(([, lng]) => lng === 11.01)).toBe(true);
   });
 });

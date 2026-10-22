@@ -28,13 +28,16 @@ export const HIKE_PLAN_PROFILE_SAMPLES = 200;
  */
 export const HIKE_MAX_LINE_POINTS = 10_000;
 
-const { lat, lng, name } = tourWaypointSchema.shape;
+const { lat, lng, name, poi_category } = tourWaypointSchema.shape;
 
 export const hikePlanPointSchema = z
   .object({
     lat,
     lng,
     name: name.describe('What the point is, such as a car park, a hut or a summit, where it has a name'),
+    poi_category: poi_category.describe(
+      'What kind of place the point is, where it is one: peak for a summit, shelter for a hut, drinking_water, viewpoint',
+    ),
   })
   .strict();
 export type HikePlanPoint = z.infer<typeof hikePlanPointSchema>;

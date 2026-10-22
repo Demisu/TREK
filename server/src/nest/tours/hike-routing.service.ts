@@ -41,6 +41,52 @@ export interface PlannedHike {
    * null where no way was planned.
    */
   line: GeometryPoint[] | null;
+  /**
+   * For each point asked through, how far the router moved it onto a way, in
+   * whole metres; null where no way was planned or the router did not say.
+   */
+  snapped: number[] | null;
+  /**
+   * The length of each leg between two points asked through, as the router
+   * measured it, in metres; null where no way was planned.
+   */
+  legs: number[] | null;
+}
+
+/**
+ * How long a planned hike is kept: a hike created or changed from the way a
+ * proposal showed saves that very line, and a proposal asked again (another
+ * label, another start) asks the router nothing.
+ */
+const PLAN_MEMO_TTL_MS = 15 * 60_000;
+/** The most planned hikes kept; the one used longest ago goes first. */
+const PLAN_MEMO_MAX = 64;
+/**
+ * The most line points all kept hikes hold together, besides PLAN_MEMO_MAX: a
+ * kept line can run to HIKE_MAX_LINE_POINTS, and the memo shares the box with
+ * everything else.
+ */
+const PLAN_MEMO_MAX_POINTS = 200_000;
+/** Points nearer than this many decimal places of a degree (about a metre) are one point for the memo. */
+const PLAN_MEMO_DECIMALS = 5;
+
+interface KeptPlan {
+  at: number;
+  /** Whether the grades were read with it, so a proposal is never answered from a save that read none. */
+  grades: boolean;
+  /** How many points its whole line holds. */
+  points: number;
+  planned: PlannedHike;
+}
+
+/** The request as the memo keys it: who asked in which trip, the points to about a metre, the limit, the preferences. */
+function memoKeyOf(userId: number, tripId: number, request: HikePlanRequest): string {
+  const points = request.waypoints.map(({ lat, lng }) => [
+    Number(lat.toFixed(PLAN_MEMO_DECIMALS)),
+    Number(lng.toFixed(PLAN_MEMO_DECIMALS)),
+  ]);
+  const limit = request.max_hiking_difficulty ?? TOURS_MAX_HIKING_DIFFICULTY;
+  return JSON.stringify([userId, tripId, points, limit, hikingPreferencesOf(request.hiking_preferences)]);
 }
 
 /** What a plan asks for besides the way and its heights. */
@@ -74,10 +120,14 @@ function whyNot(err: unknown): UnroutedHikePlan['why'] {
  * heights the line stays flat and its climb unknown, without grades the plan
  * says they could not be read. A way of more points than HIKE_MAX_LINE_POINTS
  * is not measured: its heights alone would hold the router's queue up for
- * every user. Writes nothing.
+ * every user. A way planned with every height is kept for a while (PLAN_MEMO_TTL_MS),
+ * so the hike created from a proposal is the line the proposal showed. Writes nothing.
  */
 @Injectable()
 export class HikeRoutingService {
+  /** The planned hikes kept, the one used last at the end. */
+  private readonly memo = new Map<string, KeptPlan>();
+
   constructor(
     private readonly router: RoadtripRouterService,
     private readonly trailGrades: TourTrailGradeService,
@@ -92,11 +142,64 @@ export class HikeRoutingService {
     // The tools check their own requests; a change plans through the points a hike has saved, held here to the same.
     const checked = hikePlanRequestSchema.safeParse(request);
     if (!checked.success) throw badRequest(checked.error.issues.map((issue) => issue.message).join('; '));
+    const key = memoKeyOf(userId, tripId, request);
+    const kept = this.recall(key, withGrades);
+    if (kept) return kept;
+    const planned = await this.planned(userId, tripId, request, withGrades);
+    // Only a way with every height is kept: one without is asked again, and its heights with it.
+    if (planned.plan.kind === 'routed' && planned.plan.has_heights && planned.line) {
+      const grades = withGrades && planned.plan.grades !== null;
+      this.remember(key, { at: Date.now(), grades, points: planned.line.length, planned });
+    }
+    return planned;
+  }
+
+  /** A hike kept from before for the same request, where it is fresh and read the grades it is asked for. */
+  private recall(key: string, withGrades: boolean): PlannedHike | null {
+    const kept = this.memo.get(key);
+    if (!kept) return null;
+    this.memo.delete(key);
+    if (Date.now() - kept.at >= PLAN_MEMO_TTL_MS) return null;
+    // Used now: it goes to the end, the last to be dropped.
+    this.memo.set(key, kept);
+    return withGrades && !kept.grades ? null : kept.planned;
+  }
+
+  /**
+   * Keeps a planned hike. Stale ones go first, then the ones used longest ago
+   * until the memo holds at most PLAN_MEMO_MAX hikes of PLAN_MEMO_MAX_POINTS
+   * line points together.
+   */
+  private remember(key: string, kept: KeptPlan): void {
+    this.memo.delete(key);
+    this.memo.set(key, kept);
+    let points = 0;
+    for (const [other, entry] of this.memo) {
+      if (kept.at - entry.at >= PLAN_MEMO_TTL_MS) this.memo.delete(other);
+      else points += entry.points;
+    }
+    for (const [oldest, entry] of this.memo) {
+      // The hike just kept is last and stays: one line holds far fewer points than the cap.
+      if (this.memo.size <= PLAN_MEMO_MAX && points <= PLAN_MEMO_MAX_POINTS) break;
+      this.memo.delete(oldest);
+      points -= entry.points;
+    }
+  }
+
+  /** The hike planned anew: the way, its heights and, where asked, its grades. */
+  private async planned(
+    userId: number,
+    tripId: number,
+    request: HikePlanRequest,
+    withGrades: boolean,
+  ): Promise<PlannedHike> {
     const limit = request.max_hiking_difficulty ?? TOURS_MAX_HIKING_DIFFICULTY;
     const preferences = hikingPreferencesOf(request.hiking_preferences);
     const unrouted = (why: UnroutedHikePlan['why'], position: number | null = null, snapped: number | null = null) => ({
       plan: { kind: 'unrouted' as const, max_hiking_difficulty: limit, why, position, snapped_m: snapped },
       line: null,
+      snapped: null,
+      legs: null,
     });
     let route: RoadtripRoute;
     try {
@@ -140,6 +243,8 @@ export class HikeRoutingService {
         grades,
       },
       line,
+      snapped: route.snapped ? snapped.map((point) => Math.round(point.meters)) : null,
+      legs: route.parts.map((part) => part.distance),
     };
   }
 

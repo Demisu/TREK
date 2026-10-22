@@ -4,7 +4,9 @@
  * the words of a change whose way could not be planned.
  */
 import {
+  alongPlacesOf,
   heightRangeOf,
+  highPointOf,
   hikeCreateCommandOf,
   hikePointsOf,
   hikeProposalOf,
@@ -16,19 +18,35 @@ import {
   routeOutcomeOf,
   unplannedChangeMessage,
   unplannedCreateMessage,
+  waypointPositionsOf,
+  weatherPointOf,
+  type HikeProposalContext,
 } from '../../../src/nest/tours/hike-plan.helpers';
 import type { PlannedHike } from '../../../src/nest/tours/hike-routing.service';
 import {
   HIKE_PROPOSAL_SAC_SEGMENTS,
   hikeProposalSchema,
   type GeometryPoint,
+  type HikePlan,
   type HikeSacSegment,
   type RoutedHikePlan,
+  type TourPoi,
 } from '@trek/shared';
 
 import { describe, expect, it } from 'vitest';
 
-// HIKE-PLAN-001 to HIKE-PLAN-011
+// HIKE-PLAN-001 to HIKE-PLAN-014
+
+/** A plan with its line, as the router answers it: without the router's legs and snaps unless given. */
+const planned = (
+  plan: HikePlan,
+  line: GeometryPoint[] | null,
+  legs: number[] | null = null,
+  snapped: number[] | null = null,
+): PlannedHike => ({ plan, line, legs, snapped });
+
+/** A proposal read without a day, places along the way or weather. */
+const ALONE: HikeProposalContext = { dayId: null, date: null, along: null, weather: null };
 
 /** A point `k` thousandths of a degree north of 47° N on 11° E, about 111 m a step. */
 const at = (k: number): [number, number] => [47 + k / 1000, 11];
@@ -70,9 +88,9 @@ describe('the points and the write of a hike', () => {
   });
 
   it('HIKE-PLAN-002: a created hike keeps the whole line, the walking time and the limit; without a way its points only', () => {
-    const planned: PlannedHike = { plan: ROUTED, line: LINE };
+    const kept = planned(ROUTED, LINE);
     const request = { name: 'Summit', waypoints: [START, SUMMIT], hiking_preferences: { avoid_steps: true } };
-    expect(hikeCreateCommandOf(request, [START, SUMMIT], keptWayOf(planned), 3)).toEqual({
+    expect(hikeCreateCommandOf(request, [START, SUMMIT], keptWayOf(kept), 3)).toEqual({
       name: 'Summit',
       description: undefined,
       tour_type: 'hike',
@@ -82,10 +100,10 @@ describe('the points and the write of a hike', () => {
       hiking_preferences: { avoid_steps: true },
       waypoints: hikeWaypointsOf([START, SUMMIT]),
     });
-    const unplanned: PlannedHike = {
-      plan: { kind: 'unrouted', max_hiking_difficulty: 2, why: 'no_way', position: null, snapped_m: null },
-      line: null,
-    };
+    const unplanned = planned(
+      { kind: 'unrouted', max_hiking_difficulty: 2, why: 'no_way', position: null, snapped_m: null },
+      null,
+    );
     expect(
       hikeCreateCommandOf(
         { ...request, planned_duration_minutes: 300, hiking_preferences: null },
@@ -105,19 +123,19 @@ describe('the points and the write of a hike', () => {
   });
 
   it('HIKE-PLAN-009: keeps a way only with the height of every point, and reads one without as a router that did not answer', () => {
-    expect(keptWayOf({ plan: ROUTED, line: LINE })).toEqual({ line: LINE, seconds: 720, route: { planned: true } });
-    const flat: PlannedHike = {
-      plan: { ...ROUTED, has_heights: false, ascent_m: null, descent_m: null, duration_basis: 'router' },
-      line: [at(0), at(4)],
-    };
+    expect(keptWayOf(planned(ROUTED, LINE))).toEqual({ line: LINE, seconds: 720, route: { planned: true } });
+    const flat = planned({ ...ROUTED, has_heights: false, ascent_m: null, descent_m: null, duration_basis: 'router' }, [
+      at(0),
+      at(4),
+    ]);
     const none = { line: null, seconds: null, route: { planned: false, why: 'router_unavailable', position: null } };
     expect(keptWayOf(flat)).toEqual(none);
     // A plan that says it has heights but came without its line keeps none either.
-    expect(keptWayOf({ plan: ROUTED, line: null })).toEqual(none);
-    const off: PlannedHike = {
-      plan: { kind: 'unrouted', max_hiking_difficulty: 2, why: 'point_off_the_way', position: 2, snapped_m: 400 },
-      line: null,
-    };
+    expect(keptWayOf(planned(ROUTED, null))).toEqual(none);
+    const off = planned(
+      { kind: 'unrouted', max_hiking_difficulty: 2, why: 'point_off_the_way', position: 2, snapped_m: 400 },
+      null,
+    );
     expect(keptWayOf(off)).toEqual({
       line: null,
       seconds: null,
@@ -235,7 +253,7 @@ describe('a proposal from a plan', () => {
       hiking_preferences: { avoid_steps: true },
     };
     const points = hikePointsOf(request.waypoints, false);
-    const routed = hikeProposalOf(request, points, { plan: ROUTED, line: LINE });
+    const routed = hikeProposalOf(request, points, planned(ROUTED, LINE), { ...ALONE, date: request.date });
     expect(hikeProposalSchema.parse(routed)).toEqual(routed);
     expect(routed).toMatchObject({
       name: 'Summit',
@@ -254,25 +272,33 @@ describe('a proposal from a plan', () => {
       ['Summit', 445],
     ]);
 
-    const flat = hikeProposalOf({ waypoints: request.waypoints }, points, {
-      plan: { ...ROUTED, has_heights: false, ascent_m: null, descent_m: null, grades: null },
-      line: [at(0), at(2), at(4)],
-    });
-    expect(flat).toMatchObject({ heights_known: false, min_ele_m: null, sac: null, name: null, date: null });
+    const flat = hikeProposalOf(
+      { name: 'Flat', waypoints: request.waypoints },
+      points,
+      planned({ ...ROUTED, has_heights: false, ascent_m: null, descent_m: null, grades: null }, [at(0), at(2), at(4)]),
+      ALONE,
+    );
+    expect(flat).toMatchObject({ heights_known: false, min_ele_m: null, sac: null, name: 'Flat', date: null });
 
-    const off = hikeProposalOf({ waypoints: request.waypoints, hiking_preferences: { avoid_climbs: true } }, points, {
-      plan: { kind: 'unrouted', max_hiking_difficulty: 2, why: 'point_off_the_way', position: 3, snapped_m: 512 },
-      line: null,
-    });
+    const off = hikeProposalOf(
+      { name: 'Off', waypoints: request.waypoints, hiking_preferences: { avoid_climbs: true } },
+      points,
+      planned(
+        { kind: 'unrouted', max_hiking_difficulty: 2, why: 'point_off_the_way', position: 3, snapped_m: 512 },
+        null,
+      ),
+      ALONE,
+    );
     expect(hikeProposalSchema.parse(off)).toEqual(off);
     expect(off).toMatchObject({
       route: { planned: false, why: 'point_off_the_way', position: 3 },
       unreachable: { position: 3, snapped_m: 512 },
       distance_m: null,
-      line: [],
-      profile: [],
+      high_point: null,
+      along: null,
       hiking_preferences: { avoid_climbs: true },
     });
+    expect(off).not.toHaveProperty('line_geometry');
     expect(off.waypoints.map((point) => point.at_m)).toEqual([null, null, null]);
     // A refusal without a point, and one whose distance is not known, names none.
     for (const plan of [
@@ -285,7 +311,9 @@ describe('a proposal from a plan', () => {
         snapped_m: null,
       },
     ]) {
-      expect(hikeProposalOf({ waypoints: request.waypoints }, points, { plan, line: null }).unreachable).toBeNull();
+      expect(
+        hikeProposalOf({ name: 'X', waypoints: request.waypoints }, points, planned(plan, null), ALONE).unreachable,
+      ).toBeNull();
     }
   });
 
@@ -307,5 +335,61 @@ describe('a proposal from a plan', () => {
     for (const why of ['no_valhalla', 'router_unavailable', 'no_way'] as const) {
       expect(unplannedChangeMessage({ why, position: null }).endsWith(kept)).toBe(true);
     }
+  });
+});
+
+describe('where and when a proposed hike reaches its points', () => {
+  const routedTo = (line: GeometryPoint[]) => ({ ...ROUTED, line });
+
+  it("HIKE-PLAN-012: lays the router's legs onto the line, and takes the nearest pass where it gave none for each", () => {
+    const points = [START, { lat: 47.002, lng: 11 }, SUMMIT];
+    // The router measured 200 m and 300 m; the line is 444.8 m long.
+    expect(waypointPositionsOf(planned(routedTo(LINE), LINE, [200, 300]), points)).toEqual([0, 178, 445]);
+    expect(waypointPositionsOf(planned(routedTo(LINE), LINE, [200]), points)).toEqual(positionsAlong(LINE, points));
+    expect(waypointPositionsOf(planned(routedTo(LINE), LINE, null), points)).toEqual([0, 222, 445]);
+    expect(waypointPositionsOf(planned(routedTo(LINE), LINE, [0, 0]), points)).toEqual([0, 0, 0]);
+    expect(waypointPositionsOf(planned(routedTo(LINE), null, [200, 300]), points)).toBeNull();
+  });
+
+  it('HIKE-PLAN-013: finds the highest point, the first of two as high, and reads the weather there or at the start', () => {
+    const ridge: GeometryPoint[] = [
+      [...at(0), 600],
+      [...at(1), 700],
+      [...at(2), 700],
+      [...at(3), 650],
+    ];
+    expect(highPointOf(ridge)).toEqual({ lat: 47.001, lng: 11, ele_m: 700, at_m: 111 });
+    expect(highPointOf([at(0), at(1)])).toBeNull();
+    expect(highPointOf(null)).toBeNull();
+    expect(weatherPointOf([START, SUMMIT], planned(routedTo(ridge), ridge))).toMatchObject({ lat: 47.001, lng: 11 });
+    expect(weatherPointOf([START, SUMMIT], planned(routedTo([at(0), at(4)]), [at(0), at(4)]))).toEqual({
+      lat: 47,
+      lng: 11,
+    });
+  });
+
+  it('HIKE-PLAN-014: names the nearest places along the way in the order passed, each placed on the whole line', () => {
+    const place = (name: string, k: number, off: number): TourPoi => ({
+      id: `node:${name}`,
+      name,
+      lat: at(k)[0],
+      lng: 11.0001,
+      category: 'shelter',
+      kind: 'amenity=shelter',
+      source: 'openstreetmap',
+      address: null,
+      website: null,
+      phone: null,
+      opening_hours: null,
+      distance_m: off,
+      along_m: 0,
+    });
+    const along = alongPlacesOf([place('Far', 1, 240), place('Top', 4, 8.4), place('Hut', 2, 7.6)], LINE);
+    expect(along.map(({ name, at_m, off_m }) => [name, at_m, off_m])).toEqual([
+      ['Far', 111, 240],
+      ['Hut', 222, 8],
+      ['Top', 445, 8],
+    ]);
+    expect(alongPlacesOf([], LINE)).toEqual([]);
   });
 });

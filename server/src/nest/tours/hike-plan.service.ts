@@ -1,6 +1,12 @@
-import { badRequest, DomainError } from '../common/domain-error';
+import { Tours } from '../../db/entities/Tours.entity';
+import type { ToursRepository } from '../../db/repositories/Tours.repository';
+import { AssignmentsService } from '../assignments/assignments.service';
+import { logWarn } from '../audit/audit-log.logger';
+import { badRequest, DomainError, notFound } from '../common/domain-error';
 import { UnitOfWork } from '../database/unit-of-work';
+import { WeatherService } from '../weather/weather.service';
 import {
+  alongPlacesOf,
   hikeCreateCommandOf,
   hikePointsOf,
   hikeProposalOf,
@@ -8,18 +14,27 @@ import {
   repointedWaypoints,
   unplannedChangeMessage,
   unplannedCreateMessage,
+  weatherPointOf,
   type KeptWay,
 } from './hike-plan.helpers';
 import { HikeRoutingService, type PlannedHike } from './hike-routing.service';
 import { noTrackFound } from './tour-file-import.helpers';
+import { TourPoiSearchService } from './tour-poi-search.service';
 import { tourRevisionConflict } from './tour-revision';
+import { thinnedLine } from './tours.helpers';
 import { ToursService, type ImportGpxAsTourResult, type TourCreateCommand } from './tours.service';
+import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import {
+  HIKE_ALONG_CATEGORIES,
+  HIKE_ALONG_CORRIDOR_M,
   HIKE_PLAN_MAX_WAYPOINTS,
   hikingPreferencesOf,
+  TOUR_POI_MAX_LINE_POINTS,
   tourGpxImportFieldsSchema,
   TOURS_MAX_HIKING_DIFFICULTY,
+  type GeometryPoint,
+  type HikeAlongPlace,
   type HikeCreateRequest,
   type HikePlanPoint,
   type HikeProposal,
@@ -31,10 +46,38 @@ import {
   type HikeRouteOutcome,
   type TourUpdateRequest,
   type TourWaypoint,
+  type WeatherResult,
 } from '@trek/shared';
 
-/** What a hike created over MCP answers: the tour as the planner's save answers it, and whether its way was planned. */
-export type HikeCreated = TourCreateResponse & { route: HikeRouteOutcome };
+/** The day a hike created over MCP was put on: the visit's id and the day's. */
+export interface HikeAssignment {
+  id: number;
+  day_id: number;
+}
+
+/**
+ * What a hike created over MCP answers: the tour as the planner's save
+ * answers it, whether its way was planned, and the visit it was put on its
+ * day with (null without a day).
+ */
+export type HikeCreated = TourCreateResponse & { route: HikeRouteOutcome; assignment: HikeAssignment | null };
+
+/** The language the day's weather is asked in; only its one-word kinds are read, which are the same in each. */
+const WEATHER_LANG = 'en';
+/**
+ * The decimals the weather's point is asked to, about a kilometre: the
+ * variants of one hike then share the weather's cache and its one request.
+ */
+const WEATHER_DECIMALS = 2;
+
+/** A coordinate as the weather is asked for it. */
+function weatherCoordinate(value: number): string {
+  return String(Number(value.toFixed(WEATHER_DECIMALS)));
+}
+
+function reasonOf(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
 
 /** What a change answers: the tour as now saved, whether its way was planned anew, and how that went. */
 export type HikeChanged = TourDetailResponse & { route: HikeRouteOutcome; replanned: boolean };
@@ -91,6 +134,10 @@ export class HikePlanService {
     private readonly uow: UnitOfWork,
     private readonly routing: HikeRoutingService,
     private readonly tours: ToursService,
+    private readonly assignments: AssignmentsService,
+    private readonly poiSearch: TourPoiSearchService,
+    private readonly weather: WeatherService,
+    @InjectRepository(Tours) private readonly toursRepo: ToursRepository,
   ) {}
 
   /** The way through the points; `grades` for a proposal only, which shows them. */
@@ -110,11 +157,65 @@ export class HikePlanService {
     );
   }
 
+  /**
+   * A hike proposed for the traveller to look at, with its day: the date of
+   * the trip's day it is on (a day of another trip is not found) or the date
+   * given, the places along the way unless asked to leave them out, and the
+   * day's weather at the way's highest point. The places and the weather are
+   * best effort: without them the proposal still answers.
+   */
   async propose(userId: number, tripId: number, request: HikeProposeRequest): Promise<HikeProposal> {
+    const day = await this.dayOf(tripId, request.day_id, request.date);
     const points = hikePointsOf(request.waypoints, request.round_trip);
     const { max_hiking_difficulty: limit, hiking_preferences: preferences } = request;
     const planned = await this.plan(userId, tripId, points, limit, preferences, true);
-    return hikeProposalOf(request, points, planned);
+    const line = planned.plan.kind === 'routed' ? planned.line : null;
+    const [along, weather] = await Promise.all([
+      line && request.along !== false ? this.alongOf(line) : null,
+      line && day.date ? this.weatherOf(weatherPointOf(points, planned), day.date) : null,
+    ]);
+    return hikeProposalOf(request, points, planned, { ...day, along, weather });
+  }
+
+  /** The trip's day a hike is planned on and its date, or the date given without a day. */
+  private async dayOf(
+    tripId: number,
+    dayId: number | undefined,
+    date: string | undefined,
+  ): Promise<{ dayId: number | null; date: string | null }> {
+    if (dayId === undefined) return { dayId: null, date: date ?? null };
+    const day = await this.toursRepo.dayOfTrip(tripId, dayId);
+    if (!day) throw notFound('Day not found');
+    return { dayId: day.id, date: day.date };
+  }
+
+  /** Summits, huts, water and viewpoints near the way, or null where the search could not be made. */
+  private async alongOf(line: readonly GeometryPoint[]): Promise<HikeAlongPlace[] | null> {
+    try {
+      const found = await this.poiSearch.search({
+        tour_type: 'hike',
+        categories: [...HIKE_ALONG_CATEGORIES],
+        corridor_m: HIKE_ALONG_CORRIDOR_M,
+        line: thinnedLine(line, TOUR_POI_MAX_LINE_POINTS).map(([lat, lng]): [number, number] => [lat, lng]),
+      });
+      // Not one kind could be searched: nothing found would read as nothing there.
+      if (found.unavailable.length === HIKE_ALONG_CATEGORIES.length) return null;
+      return alongPlacesOf(found.pois, line);
+    } catch (err: unknown) {
+      logWarn(`[Hike] no places along the way: ${reasonOf(err)}`);
+      return null;
+    }
+  }
+
+  /** The day's detailed weather near a point, or null where it could not be had. */
+  private async weatherOf(point: { lat: number; lng: number }, date: string): Promise<WeatherResult | null> {
+    try {
+      const [lat, lng] = [weatherCoordinate(point.lat), weatherCoordinate(point.lng)];
+      return await this.weather.getDetailed(lat, lng, date, WEATHER_LANG);
+    } catch (err: unknown) {
+      logWarn(`[Hike] no weather for ${date}: ${reasonOf(err)}`);
+      return null;
+    }
   }
 
   /**
@@ -124,8 +225,13 @@ export class HikePlanService {
    * the planner plans the way when it is opened. Any other reason stands in
    * the planner as well (no Valhalla, no way within the limit, a point off
    * every way, a way too long), so the hike is refused and nothing is saved.
+   * With a day it is put on that day in the same write (a day of another trip
+   * is not found), its start kept as the visit's, and the trip is told of the
+   * tour and the visit once both are saved, as the planner's save and its
+   * drop onto the day tell it.
    */
   async create(userId: number, tripId: number, request: HikeCreateRequest): Promise<HikeCreated> {
+    const day = request.day_id === undefined ? null : await this.dayOf(tripId, request.day_id, undefined);
     const points = hikePointsOf(request.waypoints, request.round_trip);
     const { max_hiking_difficulty: limit, hiking_preferences: preferences } = request;
     const planned = await this.plan(userId, tripId, points, limit, preferences, false);
@@ -134,8 +240,27 @@ export class HikePlanService {
       throw notRouted(unplannedCreateMessage(way.route));
     }
     const command = hikeCreateCommandOf(request, points, way, planned.plan.max_hiking_difficulty);
-    const created = await this.tours.createTour(String(tripId), command);
-    return { ...created, route: way.route };
+    if (day?.dayId == null) {
+      const created = await this.tours.createTour(String(tripId), command);
+      return { ...created, route: way.route, assignment: null };
+    }
+    const dayId = day.dayId;
+    const written = await this.uow.transactional(async () => {
+      const placeId = await this.tours.insertTour(tripId, command);
+      const added = await this.assignments.createAssignment(dayId, placeId, null);
+      if (!added) throw new Error('Created visit could not be loaded');
+      if (!request.start_time) return { placeId, assignment: added, reordered: null, vias: null };
+      const timed = await this.assignments.updateTime(added.id, request.start_time, null);
+      return { placeId, ...timed, assignment: timed.assignment ?? added };
+    });
+    const trip = String(tripId);
+    const created = await this.tours.announceCreatedTour(trip, written.placeId);
+    // As REST tells the trip of a visit added (and of a start that put its day in another order), to every tab.
+    this.assignments.broadcast(trip, 'assignment:created', { assignment: written.assignment }, undefined);
+    if (written.reordered) this.assignments.broadcast(trip, 'assignment:reordered', written.reordered, undefined);
+    if (written.vias) this.assignments.broadcast(trip, 'roadtripVia:changed', written.vias, undefined);
+    await this.assignments.reconcile(tripId);
+    return { ...created, route: way.route, assignment: { id: written.assignment.id, day_id: dayId } };
   }
 
   /**

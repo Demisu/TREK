@@ -11,7 +11,10 @@ import {
   hikeSacSegmentSchema,
   hikeTrailGradesSchema,
 } from './hike-plan.schema';
+import { hikeScheduleSchema, hikeWarningSchema, HIKE_WARNING_KINDS } from './hike-schedule';
+import { includeGeometryFlagSchema } from './tour-display.schema';
 import { tourGpxImportFieldsSchema } from './tour-gpx-import.schema';
+import { tourPoiCategorySchema, type TourPoiCategory } from './tour-poi-category';
 import {
   hikingPreferencesSchema,
   plannedTourDurationMinutesSchema,
@@ -36,7 +39,18 @@ export const HIKE_MAX_WAYPOINTS = 25;
 /** The longest label a variant is given, short enough for a chip that compares two ways. */
 export const HIKE_VARIANT_LABEL_MAX = 40;
 /** The most graded stretches a proposal shows; more are joined, the harder grade kept. */
-export const HIKE_PROPOSAL_SAC_SEGMENTS = 200;
+export const HIKE_PROPOSAL_SAC_SEGMENTS = 80;
+/** The kinds of places a proposal looks for along its way. */
+export const HIKE_ALONG_CATEGORIES = [
+  'peak',
+  'shelter',
+  'drinking_water',
+  'viewpoint',
+] as const satisfies readonly TourPoiCategory[];
+/** How far from the way a place along it may lie, in metres. */
+export const HIKE_ALONG_CORRIDOR_M = 250;
+/** The most places along the way a proposal names, the nearest to it. */
+export const HIKE_ALONG_MAX = 12;
 /** The largest GPX text a tool takes in, as the road trip's GPX import does. */
 export const TOUR_GPX_TEXT_MAX = 1_000_000;
 
@@ -62,11 +76,20 @@ const plannedMinutesSchema = plannedTourDurationMinutesSchema.describe(
   'How long the travellers plan to be out, in minutes, breaks included; left out the walking time stands alone',
 );
 
+const hikeDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .describe(
+    'The day the hike is planned for, YYYY-MM-DD, where it is on no day of the trip; day_id takes its own date',
+  );
+
+const hikeDayIdSchema = idSchema.describe('The day of the trip the hike is planned on, as list_days gives it');
+
+const hikeStartTimeSchema = clockTimeSchema.describe('When the hike starts, HH:MM');
+
 export const hikeProposeRequestSchema = z
   .object({
-    name: tourNameSchema
-      .optional()
-      .describe('What the hike is called, such as "Over the Herzogstand to the Heimgarten"'),
+    name: tourNameSchema.describe('What the hike is called, such as "Over the Herzogstand to the Heimgarten"'),
     waypoints: hikeWaypointsSchema,
     max_hiking_difficulty: hikeLimitSchema.optional(),
     hiking_preferences: hikePreferencesSchema.optional(),
@@ -80,12 +103,16 @@ export const hikeProposeRequestSchema = z
       .describe(
         'A short name for this way when several are compared, such as "short and steep" or "by the lake"; given back as it is',
       ),
-    date: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/)
+    day_id: hikeDayIdSchema.optional(),
+    date: hikeDateSchema.optional(),
+    start_time: hikeStartTimeSchema.optional(),
+    along: z
+      .boolean()
       .optional()
-      .describe('The day the hike is planned for, YYYY-MM-DD; given back as it is'),
-    start_time: clockTimeSchema.optional().describe('When the hike starts, HH:MM; given back as it is'),
+      .describe(
+        'Looks for summits, huts, water and viewpoints along the way; true when left out, false when comparing ways',
+      ),
+    include_geometry: includeGeometryFlagSchema,
   })
   .strict();
 export type HikeProposeRequest = z.infer<typeof hikeProposeRequestSchema>;
@@ -114,14 +141,53 @@ export const hikeProposalSacSchema = hikeTrailGradesSchema.extend({
 });
 export type HikeProposalSac = z.infer<typeof hikeProposalSacSchema>;
 
+/** The highest point of a way with heights, and where along it it lies. */
+export const hikeHighPointSchema = z.object({
+  lat,
+  lng,
+  ele_m: z.number().int(),
+  at_m: z.number().int().nonnegative(),
+});
+export type HikeHighPoint = z.infer<typeof hikeHighPointSchema>;
+
+/** A place along a proposed way: what it is, where, how far along the way and how far off it, in metres. */
+export const hikeAlongPlaceSchema = z.object({
+  name: z.string().nullable(),
+  category: tourPoiCategorySchema,
+  lat,
+  lng,
+  at_m: z.number().int().nonnegative(),
+  off_m: z.number().int().nonnegative(),
+});
+export type HikeAlongPlace = z.infer<typeof hikeAlongPlaceSchema>;
+
+/** A point a hike was asked through, as a proposal shows it. */
+export const hikeProposalWaypointSchema = z.object({
+  lat,
+  lng,
+  name: z.string().nullable(),
+  poi_category: tourPoiCategorySchema.nullable(),
+  /** Where it lies along the way; null where no way was planned. */
+  at_m: z.number().int().nonnegative().nullable(),
+  /** How far the router moved it onto a way, in metres; null where no way was planned. */
+  snapped_m: z.number().int().nonnegative().nullable(),
+  /** The walking minutes from the start to it; null where no way was planned. */
+  minutes: z.number().int().nonnegative().nullable(),
+  /** When it is reached, HH:MM; null without a start. */
+  arrival: clockTimeSchema.nullable(),
+});
+export type HikeProposalWaypoint = z.infer<typeof hikeProposalWaypointSchema>;
+
 /**
  * What propose_hike answers, and what a chat card for the hike is drawn
- * from: the way, its measures, its height profile and grades, the points it
- * was asked through with where each lies along the way, and what the request
- * named for the schedule, given back as it came.
+ * from: the way, its measures, its grades and highest point, the points it
+ * was asked through with where and when each is reached, the places along it,
+ * the day's schedule and what to look out for, and the request's own words
+ * given back. The line and the height profile come only when asked for
+ * (include_geometry), under keys a model never reads.
  */
 export const hikeProposalSchema = z.object({
-  name: z.string().nullable(),
+  name: z.string(),
   variant_label: z.string().nullable(),
   route: hikeRouteOutcomeSchema,
   /** Where a point lies further from any way than a tour allows: which one, and how far it was off. */
@@ -138,25 +204,25 @@ export const hikeProposalSchema = z.object({
   heights_known: z.boolean(),
   min_ele_m: z.number().int().nullable(),
   max_ele_m: z.number().int().nullable(),
-  /** The way thinned for display, `[lat, lng, ele]` where the heights are known; empty where none was planned. */
-  line: z.array(hikeLinePointSchema).max(HIKE_PLAN_LINE_POINTS),
-  /** The height profile thinned for display, `[metres along the way, height in metres]`. */
-  profile: z.array(hikeProfileSampleSchema).max(HIKE_PLAN_PROFILE_SAMPLES),
+  /** The way thinned for display, `[lat, lng, ele]` where the heights are known; only with include_geometry. */
+  line_geometry: z.array(hikeLinePointSchema).max(HIKE_PLAN_LINE_POINTS).optional(),
+  /** The height profile thinned for display, `[metres along the way, height]`; only with include_geometry. */
+  profile_geometry: z.array(hikeProfileSampleSchema).max(HIKE_PLAN_PROFILE_SAMPLES).optional(),
   sac: hikeProposalSacSchema.nullable(),
-  /** The points in the order walked, a round trip's way back included; at_m null where no way was planned. */
-  waypoints: z.array(
-    z.object({
-      lat,
-      lng,
-      name: z.string().nullable(),
-      at_m: z.number().int().nonnegative().nullable(),
-    }),
-  ),
+  high_point: hikeHighPointSchema.nullable(),
+  /** The points in the order walked, a round trip's way back included. */
+  waypoints: z.array(hikeProposalWaypointSchema),
+  /** Summits, huts, water and viewpoints along the way, in the order passed; null where not looked for or not found. */
+  along: z.array(hikeAlongPlaceSchema).max(HIKE_ALONG_MAX).nullable(),
   max_hiking_difficulty: tourMaxHikingDifficultySchema,
   hiking_preferences: hikingPreferencesSchema.nullable(),
   round_trip: z.boolean(),
+  day_id: idSchema.nullable(),
   date: z.string().nullable(),
   start_time: z.string().nullable(),
+  /** The day's schedule, sun and weather; null without a date. */
+  schedule: hikeScheduleSchema.nullable(),
+  warnings: z.array(hikeWarningSchema).max(HIKE_WARNING_KINDS.length),
 });
 export type HikeProposal = z.infer<typeof hikeProposalSchema>;
 
@@ -169,6 +235,10 @@ export const hikeCreateRequestSchema = z
     hiking_preferences: hikePreferencesSchema.optional(),
     round_trip: roundTripSchema.optional(),
     planned_duration_minutes: plannedMinutesSchema.optional(),
+    day_id: hikeDayIdSchema.optional().describe('The day of the trip the hike is put on, as list_days gives it'),
+    start_time: hikeStartTimeSchema
+      .optional()
+      .describe('When the hike starts on that day, HH:MM, kept as the start of its visit; only with day_id'),
   })
   .strict();
 export type HikeCreateRequest = z.infer<typeof hikeCreateRequestSchema>;

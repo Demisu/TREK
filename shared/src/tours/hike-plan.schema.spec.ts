@@ -38,7 +38,11 @@ describe('a hike the server plans through its points', () => {
   it('HIKE-PLAN-SCHEMA-001: takes two points and nothing else, and the limit, the preferences and the names it can be given', () => {
     expect(hikePlanRequestSchema.safeParse({ waypoints: [point(0), point(1)] }).success).toBe(true);
     const full = {
-      waypoints: [{ ...point(0), name: 'Parking' }, point(1), { ...point(2), name: 'Summit' }],
+      waypoints: [
+        { ...point(0), name: 'Parking' },
+        { ...point(1), poi_category: 'shelter' },
+        { ...point(2), name: 'Summit', poi_category: 'peak' },
+      ],
       max_hiking_difficulty: 4,
       hiking_preferences: { avoid_steps: true },
     };
@@ -58,6 +62,9 @@ describe('a hike the server plans through its points', () => {
     );
     expect(hikePlanRequestSchema.safeParse({ waypoints: two, tripId: 1 }).success).toBe(false);
     expect(hikePlanRequestSchema.safeParse({ waypoints: [{ lat: 91, lng: 0 }, point(1)] }).success).toBe(false);
+    expect(
+      hikePlanRequestSchema.safeParse({ waypoints: [{ ...point(0), poi_category: 'volcano' }, point(1)] }).success,
+    ).toBe(false);
   });
 
   it('HIKE-PLAN-SCHEMA-003: reads a routed plan with or without heights and grades', () => {
