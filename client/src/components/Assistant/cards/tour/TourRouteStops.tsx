@@ -4,8 +4,8 @@ import { createElement } from 'react';
 
 import { useTranslation } from '../../../../i18n';
 import {
-  type DistanceIndexedProfileSample,
   focusRouteProfileAtDistance,
+  type DistanceIndexedProfileSample,
   type RouteProfileFocus,
 } from '../../../../utils/routeGeometry';
 import { TOUR_POI_LOOKS } from '../../../Map/poiCategories';

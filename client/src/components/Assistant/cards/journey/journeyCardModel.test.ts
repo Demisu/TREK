@@ -12,8 +12,8 @@ import { describe, expect, it } from 'vitest';
 
 import { CARD_RULES, ENTITY_LOOK, STEP_LOOKS, TOOL_LABELS, VERB_LOOK } from '../cardLooks';
 import { coverEntryOf, journalTarget, mergeJournalCards } from './journeyCardModel';
-import { flagOf, moodOf, stateOf, weatherOf } from './journeyTones';
 import { JOURNEY_LOOK } from './journeyLook';
+import { flagOf, moodOf, stateOf, weatherOf } from './journeyTones';
 
 function look(over: Partial<JourneyEntryLook> = {}): JourneyEntryLook {
   return {

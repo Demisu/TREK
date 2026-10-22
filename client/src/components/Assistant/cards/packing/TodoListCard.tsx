@@ -1,4 +1,4 @@
-import type { TodoCardGroup, TodoCardItem, TodoListCard as TodoCard } from '@trek/shared';
+import type { TodoListCard as TodoCard, TodoCardGroup, TodoCardItem } from '@trek/shared';
 import { CalendarDays, Flag, ListTodo, PencilLine, StickyNote, Tag, User } from 'lucide-react';
 
 import { useTranslation } from '../../../../i18n';

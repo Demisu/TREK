@@ -1,4 +1,4 @@
-import type { AssistantMessage, AtlasBucketCard as BucketCard, AtlasBucketEntry } from '@trek/shared';
+import type { AssistantMessage, AtlasBucketEntry, AtlasBucketCard as BucketCard } from '@trek/shared';
 import { CalendarDays, Check, NotebookPen, Star, Tag, TriangleAlert } from 'lucide-react';
 
 import { useTranslation } from '../../../../i18n';

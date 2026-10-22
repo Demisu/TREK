@@ -10,7 +10,7 @@ import { Check, Circle, CircleDashed, type LucideIcon, PencilLine, Plus, Trash2,
 
 import { KAT_COLORS as PACKING_COLORS } from '../../../Packing/packingListPanel.constants';
 import { katColor as packingHashColor } from '../../../Packing/packingListPanel.helpers';
-import { katColor as todoHashColor, KAT_COLORS as TODO_COLORS } from '../../../Todo/todoListModel';
+import { KAT_COLORS as TODO_COLORS, katColor as todoHashColor } from '../../../Todo/todoListModel';
 import type { Tone } from '../parts/assistantTones';
 
 /**

@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import type { BookDocument, BookElement, BookSpread } from '@trek/shared';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { useStudioStore } from '../../../src/store/studioStore';
 
 /**

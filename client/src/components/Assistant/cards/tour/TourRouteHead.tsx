@@ -12,7 +12,7 @@ import { tourDayRowIcon } from '../../../Tours/tourDayRowIcon';
 import { CardFacts } from '../parts/CardFacts';
 import RouteSketch from '../parts/RouteSketch';
 import { useCardFormat } from '../parts/useCardFormat';
-import { type FactKey, factKeysOf, factValue, percentText } from './tourRouteModel';
+import { factKeysOf, factValue, percentText, type FactKey } from './tourRouteModel';
 import { sketchOf } from './tourRouteSketchModel';
 import { routeName, SAC_WORDS, timeLabelKey, TOUR_TYPE_WORDS } from './tourRouteWords';
 

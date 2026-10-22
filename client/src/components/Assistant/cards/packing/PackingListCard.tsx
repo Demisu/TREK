@@ -1,4 +1,4 @@
-import type { PackingCardGroup, PackingListCard as PackingCard } from '@trek/shared';
+import type { PackingListCard as PackingCard, PackingCardGroup } from '@trek/shared';
 import { Check } from 'lucide-react';
 
 import { useTranslation } from '../../../../i18n';
