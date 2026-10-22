@@ -110,6 +110,10 @@ export const TREK_WS_EVENTS = {
   // rather than a change to the itinerary everybody reads. That does not hold: two people
   // planning a road trip see the same line on the same map, and a reshaped drive changes
   // every arrival time after it.
+  //
+  // The via writes send dayId as text, the way the routes always did, on every surface.
+  // Assignments, accommodations and hike plans still send it as a number; the client
+  // reads it through Number(), so both forms stay valid here.
   'roadtripVia:changed': {
     scope: 'trip',
     payload: z.object({ dayId: id, vias: z.array(entity) }),
@@ -198,7 +202,8 @@ export const TREK_WS_EVENTS = {
     payload: z.union([z.object({ reservation: entity }), empty]),
   },
   'reservation:deleted': { scope: 'trip', payload: z.object({ reservationId: id }) },
-  // DRIFT: REST sends { positions, day_id }; the MCP tool sends { positions, dayId }.
+  // REST sends { positions, day_id }; the MCP tool sends { positions, day_id, dayId },
+  // keeping the dayId key it always sent next to REST's.
   'reservation:positions': {
     scope: 'trip',
     payload: z.union([
