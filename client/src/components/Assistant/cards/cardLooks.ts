@@ -60,8 +60,6 @@ export const VERB_LOOK: Readonly<Record<AssistantChangeVerbKey, VerbLook>> = {
   addReservation: { Icon: Ticket, tone: 'success', labelKey: 'assistant.change.verb.addReservation' },
   importBooking: { Icon: Ticket, tone: 'success', labelKey: 'assistant.change.verb.importBooking' },
   rememberNote: { Icon: NotebookPen, tone: 'info', labelKey: 'assistant.change.verb.rememberNote' },
-  addTour: { Icon: MapPinPlus, tone: 'success', labelKey: 'assistant.change.verb.addTour' },
-  updateTour: { Icon: PencilLine, tone: 'info', labelKey: 'assistant.change.verb.updateTour' },
   importTour: { Icon: Plus, tone: 'success', labelKey: 'assistant.change.verb.importTour' },
   genericCreate: { Icon: Plus, tone: 'success', labelKey: 'assistant.change.verb.genericCreate' },
   genericUpdate: { Icon: PencilLine, tone: 'info', labelKey: 'assistant.change.verb.genericUpdate' },

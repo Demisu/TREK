@@ -86,6 +86,8 @@ export class PhotoSignalsService implements OnModuleDestroy {
    * answer what is stored for them too, and the missing ones join the line
    * behind the others, neither waited for nor counted: a caller asking about a
    * few photos of a large gallery gets those measured first.
+   *
+   * @txIndependent each photo is measured off the event loop and stored on its own; one photo's row is complete alone.
    */
   async signalsFor(
     photoIds: readonly number[],
@@ -127,6 +129,11 @@ export class PhotoSignalsService implements OnModuleDestroy {
     return done;
   }
 
+  /**
+   * Starts measuring the next photos in line, a few at a time.
+   *
+   * @txIndependent one measurement per photo, each stored by itself after a worker answered.
+   */
   private pump(): void {
     while (this.active < PARALLEL_FETCHES) {
       const photoId = this.waiting.shift();

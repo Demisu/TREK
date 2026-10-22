@@ -79,7 +79,10 @@ export function mergePayments(entries: readonly CardEntry[]): PaymentsCard | nul
 /** Settle up and the share per traveller answer once: the latest card of the answer is the one shown. */
 export function latestOf(entries: readonly CardEntry[], kind: 'settlement'): SettlementCard | null;
 export function latestOf(entries: readonly CardEntry[], kind: 'costPerPerson'): CostPerPersonCard | null;
-export function latestOf(entries: readonly CardEntry[], kind: 'settlement' | 'costPerPerson') {
+export function latestOf(
+  entries: readonly CardEntry[],
+  kind: 'settlement' | 'costPerPerson'
+): SettlementCard | CostPerPersonCard | null {
   const cards = cardsOf(entries, kind);
   return cards[cards.length - 1] ?? null;
 }

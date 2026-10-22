@@ -27,7 +27,9 @@ export function bookingTabOf(type: string): 'transports' | 'buchungen' {
  * that trip's planner. `map` shows its route on the plan instead.
  */
 export function bookingTarget(item: BookingItem, reservationId: number, map = false): EntityTarget {
-  const params = map ? { booking: String(reservationId), map: '1' } : { booking: String(reservationId) };
+  const params: Record<string, string> = map
+    ? { booking: String(reservationId), map: '1' }
+    : { booking: String(reservationId) };
   const tab = map ? 'plan' : bookingTabOf(item.type);
   if (item.tripTitle !== null) {
     return { kind: 'page', path: `/trips/${item.tripId}?${new URLSearchParams({ tab, ...params }).toString()}` };
