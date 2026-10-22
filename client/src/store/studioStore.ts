@@ -1,8 +1,10 @@
 import { create } from 'zustand'
 import type { BookDocument, BookElement, BookFrame, BookLayout, BookSpread } from '@trek/shared'
-import { MAX_BOOK_LAYOUTS, MAX_SPREAD_ELEMENTS } from '@trek/shared'
+import {
+  MAX_BOOK_LAYOUTS, MAX_SPREAD_ELEMENTS, applySavedBookLayout as applySavedLayout,
+  bookLayoutFromSpread as layoutFromSpread, canEditSpread as isMovableSpread, innerSpreadBounds as innerBounds,
+} from '@trek/shared'
 import { pastedElements, type StudioClipboard } from '../components/Studio/studioClipboard'
-import { applySavedLayout, layoutFromSpread } from '../components/Studio/savedLayouts'
 
 /**
  * The book being edited.
@@ -92,33 +94,9 @@ interface StudioState {
   canRedo: () => boolean
 }
 
-/**
- * Where an inner spread may go: after the cover and the first page, before
- * the last page and the back cover.
- *
- * Read from the document each time rather than assumed, because a book from
- * before the single first page existed has none, and a book with no covers at
- * all (the tests build those) has nothing to stay inside of. The lower bound
- * is not decoration either: a book with no inner spreads yet reports its last
- * inner one as -1, which asked for a page at 0 — in front of the cover, where
- * it could not be moved back from, because a move only ever swaps with
- * another inner spread.
- */
-function innerBounds(spreads: readonly BookSpread[]): { first: number; limit: number } {
-  let first = 0
-  for (let i = 0; i < spreads.length; i++) {
-    const role = spreads[i].role
-    if (role === 'cover' || role === 'first') first = i + 1
-    else break
-  }
-  let limit = spreads.length
-  for (let i = spreads.length - 1; i >= 0; i--) {
-    const role = spreads[i].role
-    if (role === 'back' || role === 'last') limit = i
-    else break
-  }
-  return { first, limit: Math.max(first, limit) }
-}
+// Where an inner spread may go (`innerBounds`) and which spreads may move at
+// all (`isMovableSpread`) are shared with the server's book tools
+// (shared/src/book/book-pages.ts), so the assistant keeps the same pages fixed.
 
 function replaceSpread(doc: BookDocument, index: number, fn: (s: BookSpread) => BookSpread): BookDocument {
   const spreads = doc.spreads.slice()
@@ -289,10 +267,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
    * rail, the menu and the store all ask it rather than each testing `role`
    * for themselves.
    */
-  canEditSpread: index => {
-    const sp = get().doc?.spreads[index]
-    return !!sp && sp.role === 'inner'
-  },
+  canEditSpread: index => isMovableSpread(get().doc?.spreads[index]),
 
   addSpread: index => {
     const doc = get().doc

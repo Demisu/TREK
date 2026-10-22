@@ -4,7 +4,7 @@ import type {
 import {
   MAX_BOOK_COUNTRIES, MAX_BOOK_TITLE, MAX_COUNTRY_NAME, MAX_MAP_POINTS,
   MAX_MAP_POINT_LABEL, MAX_PATH_POINTS, MAX_PATH_SEGMENTS, MAX_SPREADS,
-  MAX_SPREAD_ELEMENTS, MAX_TEXT_LENGTH,
+  MAX_SPREAD_ELEMENTS, MAX_TEXT_LENGTH, blankBook, blankSpread,
 } from '@trek/shared'
 import { SPREAD_TEMPLATES } from './bookTemplates.data'
 import { applyTemplate, templateFit } from './applyTemplate'
@@ -1582,17 +1582,6 @@ export function buildBook(input: AutoInput): BookDocument {
 }
 
 /**
- * A page with nothing on it, of the given kind.
- *
- * The first and the last page of a book are laid down empty on purpose: the
- * first is where a title page or a dedication goes, the last where a colophon
- * does, and neither is something a layout should decide for a person.
- */
-function blankSpread(role: BookSpread['role']): BookSpread {
-  return { id: uid('sp'), role, background: null, elements: [], parked: [], entryId: null }
-}
-
-/**
  * The page setup for a book that opens on a single page.
  *
  * `startAt` numbers the first page inside the covers. A book from before the
@@ -1619,15 +1608,11 @@ function withFirstPage(page: BookPageSetup): BookPageSetup {
  * The covers are here rather than left out because a book has them and there is
  * no other way to add one: the pages rail only inserts inner spreads, between
  * the two. The single first and last pages likewise (#2317). Empty, though, in
- * the same way the spread between them is.
+ * the same way the spread between them is. The same blank book the assistant's
+ * `create_book` writes (shared/src/book/book-pages.ts).
  */
 export function emptyBook(input: AutoInput): BookDocument {
-  return {
-    version: 1,
-    title: input.title.slice(0, MAX_BOOK_TITLE),
-    page: withFirstPage(input.page),
-    spreads: [blankSpread('cover'), blankSpread('first'), blankSpread('inner'), blankSpread('last'), blankSpread('back')],
-  }
+  return blankBook({ title: input.title, page: input.page })
 }
 
 /**

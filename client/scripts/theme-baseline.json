@@ -108,7 +108,6 @@
   "components/Studio/StudioTravelPanel.tsx": 1,
   "components/Studio/TravelElements.tsx": 5,
   "components/Studio/printSheets.ts": 5,
-  "components/Studio/templates.ts": 3,
   "components/SystemNotices/ReleaseNoticeVisuals.tsx": 4,
   "components/SystemNotices/SystemNoticeBanner.tsx": 28,
   "components/SystemNotices/SystemNoticeModal.tsx": 107,

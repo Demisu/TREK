@@ -56,6 +56,6 @@
   "src/hooks/useWebPush.ts": 1,
   "src/repo/pluginPoiRepo.ts": 1,
   "src/store/slices/budgetSlice.ts": 1,
-  "src/store/studioStore.ts": 2,
+  "src/store/studioStore.ts": 1,
   "src/store/vacayStore.ts": 1
 }

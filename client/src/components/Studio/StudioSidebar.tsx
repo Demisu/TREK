@@ -11,10 +11,12 @@ import { useToast } from '../shared/Toast'
 import { SpreadFold, SpreadView } from './SpreadView'
 import { folioLabel, foliosOf } from './bookSheets'
 import { photoSrc } from './bookRender'
-import { elementId as uid } from './bookIds'
+import {
+  BOOK_COVER_TEMPLATES as COVER_TEMPLATES, BOOK_TEMPLATES as TEMPLATES, applyBookTemplate as applyTemplate,
+  bookElementId as uid,
+} from '@trek/shared'
 import { formatBookCoords, formatBookDate, type CoordFormat } from './entryText'
 import { coordValue } from './resolveBindings'
-import { COVER_TEMPLATES, TEMPLATES, applyTemplate } from './templates'
 import { MOOD_CONFIG, WEATHER_CONFIG } from '../../pages/journeyDetail/JourneyDetailPage.constants'
 import { PanelHead as Head } from './StudioPanelHead'
 import { StudioElementsPanel } from './StudioElementsPanel'
