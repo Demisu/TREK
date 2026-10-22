@@ -152,14 +152,11 @@ interface TextOpts {
   size?: number;
 }
 
+/** Where a text starts and how wide it runs; a zod-inferred frame passes in every compile mode. */
+type TextAt = Pick<BookFrame, 'x' | 'y' | 'w'>;
+
 /** A text in the book's look, its frame as tall as its words need. */
-export function textEl(
-  c: ComposeCtx,
-  at: { x: number; y: number; w: number },
-  words: string,
-  role: TextRole,
-  opts: TextOpts = {},
-): BookTextElement {
+export function textEl(c: ComposeCtx, at: TextAt, words: string, role: TextRole, opts: TextOpts = {}): BookTextElement {
   const defaultColour = role === 'caption' || role === 'meta' ? c.look.muted : c.look.ink;
   const el: BookTextElement = {
     id: c.newId('t'),
@@ -186,7 +183,7 @@ export function textEl(
 /** A heading that fits `maxH`: set smaller, down to the sub size, until it does. */
 export function headingEl(
   c: ComposeCtx,
-  at: { x: number; y: number; w: number },
+  at: TextAt,
   words: string,
   maxH: number,
   opts: TextOpts = {},
@@ -218,7 +215,7 @@ export function cutWords(words: string, n: number): string {
 }
 
 /** The longest start of `words` that fits a box at body size, cut at a sentence end where one is near. */
-function cutToFit(c: ComposeCtx, words: string, box: { w: number; h: number }): string {
+function cutToFit(c: ComposeCtx, words: string, box: Pick<BookFrame, 'w' | 'h'>): string {
   const fits = (s: string) => textEl(c, { x: 0, y: 0, w: box.w }, s, 'body').frame.h <= box.h;
   if (fits(words)) return words;
   let lo = 0;

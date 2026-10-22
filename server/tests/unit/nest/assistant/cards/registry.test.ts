@@ -56,7 +56,8 @@ const described = () => ({ subject: 'x', rows: new Rows(), dayId: null, placeIds
 
 describe('mergeDomains', () => {
   it('ASTREG-001: the live registry holds every package once, the core tables and the tours they brought', () => {
-    expect(new Set(DOMAINS.map((d) => d.id)).size).toBe(10);
+    expect(new Set(DOMAINS.map((d) => d.id)).size).toBe(DOMAINS.length);
+    expect(DOMAINS).toHaveLength(12);
     for (const name of Object.keys(CORE_WRITE_TOOLS)) expect(ASSISTANT_WRITE_TOOLS[name]).toBe(CORE_WRITE_TOOLS[name]);
     expect(ASSISTANT_WRITE_TOOLS.create_hike).toEqual({ verbKey: 'addTour', entity: 'tour' });
     expect(ASSISTANT_UNDO_MAP.create_city_walk?.tool).toBe('delete_place');

@@ -407,12 +407,8 @@ function opArrange(spread: BookSpread, op: Op<'arrange'>, env: ElementOpEnv): Bo
 
 // ── align, distribute ──────────────────────────────────────────────────────
 
-interface Box {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
+/** A frame in millimetres, as the book types it, so a zod-inferred `el.frame` passes in every compile mode. */
+type Box = BookFrame;
 
 function boundsOf(frames: readonly Box[]): Box {
   const x = Math.min(...frames.map((f) => f.x));

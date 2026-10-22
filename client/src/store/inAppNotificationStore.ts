@@ -79,6 +79,18 @@ function allRead(state: NotificationState): Partial<NotificationState> {
   return { notifications: state.notifications.map(n => n.is_read ? n : { ...n, is_read: true }), unreadCount: 0 }
 }
 
+/** One notification marked read or unread: its row flips, and the count moves only if it was the other way. */
+function markedOne(state: NotificationState, id: number, isRead: boolean): Partial<NotificationState> {
+  const wasRead = Boolean(state.notifications.find(n => n.id === id)?.is_read)
+  let delta = 0
+  if (isRead && !wasRead) delta = -1
+  if (!isRead && wasRead) delta = 1
+  return {
+    notifications: state.notifications.map(n => n.id === id ? { ...n, is_read: isRead } : n),
+    unreadCount: Math.max(0, state.unreadCount + delta),
+  }
+}
+
 export const useInAppNotificationStore = create<NotificationState>((set, get) => ({
   notifications: [],
   unreadCount: 0,
@@ -129,10 +141,7 @@ export const useInAppNotificationStore = create<NotificationState>((set, get) =>
   markRead: async (id: number) => {
     try {
       await inAppNotificationsApi.markRead(id)
-      set(state => ({
-        notifications: state.notifications.map(n => n.id === id ? { ...n, is_read: true } : n),
-        unreadCount: Math.max(0, state.unreadCount - (state.notifications.find(n => n.id === id)?.is_read ? 0 : 1)),
-      }))
+      set(state => markedOne(state, id, true))
     } catch {
       // best-effort
     }
@@ -141,10 +150,7 @@ export const useInAppNotificationStore = create<NotificationState>((set, get) =>
   markUnread: async (id: number) => {
     try {
       await inAppNotificationsApi.markUnread(id)
-      set(state => ({
-        notifications: state.notifications.map(n => n.id === id ? { ...n, is_read: false } : n),
-        unreadCount: state.unreadCount + (state.notifications.find(n => n.id === id)?.is_read ? 1 : 0),
-      }))
+      set(state => markedOne(state, id, false))
     } catch {
       // best-effort
     }

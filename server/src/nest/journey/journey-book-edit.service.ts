@@ -203,7 +203,7 @@ export class JourneyBookEditService {
   async wordsFor(userId: number): Promise<BookWords> {
     const language = bookLanguage((await this.settings.getUserSettings(userId)).language);
     let known = this.words.get(language);
-    if (!known) {
+    if (known === undefined) {
       known = loadBookWords(language);
       this.words.set(language, known);
     }

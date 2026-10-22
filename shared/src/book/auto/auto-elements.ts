@@ -330,7 +330,9 @@ export function placeMap(
     showRoute: false,
     showPins: true,
     showLabels: false,
-  } as BookElement;
+    // weight and tripId are left to the schema's defaults when the book is saved, as the client's layout always did;
+    // the parity fixture pins this output byte for byte.
+  } as unknown as BookElement;
 }
 
 /** The day of the month as a numeral with its month beneath: a mark rather than a line of information. */

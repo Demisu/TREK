@@ -98,7 +98,7 @@ export class AssistantBookGate {
     const trial = (tool: string, args: ToolArgs): Promise<BookTrial | null> => {
       const key = readKey(tool, args);
       const kept = trials.get(key);
-      if (kept) return kept;
+      if (kept !== undefined) return kept;
       base ??= this.baseOf(userId, journeyId);
       const tried = base.then((input) => (input ? this.tried(tool, args, input) : null));
       trials.set(key, tried);

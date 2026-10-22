@@ -1,7 +1,7 @@
 import { contrastOfLuminance, deltaE, greyLuminance, luminance, parseHex, requiredContrast } from './book-colour';
 import type { BookPhotoInfo } from './book-ops-core';
 import { BOOK_OP_LIMITS, type BookFinding } from './book-ops.schema';
-import type { BookDocument, BookElement, BookPageSetup, BookPhotoElement, BookSpread } from './book.schema';
+import type { BookDocument, BookElement, BookFrame, BookPageSetup, BookPhotoElement, BookSpread } from './book.schema';
 
 /**
  * The checks a designer makes on a proof, beyond the print faults of
@@ -17,12 +17,8 @@ import type { BookDocument, BookElement, BookPageSetup, BookPhotoElement, BookSp
  * them the checks that need them say nothing rather than guess.
  */
 
-interface Box {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
+/** A frame in millimetres, as the book types it, so a zod-inferred `el.frame` passes in every compile mode. */
+type Box = BookFrame;
 
 const mm = (v: number) => `${Math.round(v * 10) / 10}`;
 

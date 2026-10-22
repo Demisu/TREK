@@ -56,7 +56,6 @@ export class InMemoryAssistantRenderRegistry extends AssistantRenderRegistry {
   wait(request: RenderWait, signal: AbortSignal, timeoutMs: number): Promise<PageImage | null> {
     if (signal.aborted) return Promise.resolve(null);
     return new Promise((resolve) => {
-      let timer: ReturnType<typeof setTimeout> | undefined;
       const settle = (image: PageImage | null) => {
         clearTimeout(timer);
         signal.removeEventListener('abort', onAbort);
@@ -64,7 +63,7 @@ export class InMemoryAssistantRenderRegistry extends AssistantRenderRegistry {
         resolve(image);
       };
       const onAbort = () => settle(null);
-      timer = setTimeout(() => settle(null), timeoutMs);
+      const timer = setTimeout(() => settle(null), timeoutMs);
       signal.addEventListener('abort', onAbort, { once: true });
       this.waiting.set(request.requestId, { request, settle });
     });
