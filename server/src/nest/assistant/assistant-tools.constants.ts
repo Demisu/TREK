@@ -134,6 +134,15 @@ export const TAKE_PROPOSAL_TOOL = 'take_proposal';
  */
 export const REMEMBER_TOOL = 'remember_for_trip';
 
+/**
+ * A Studio turn's look at one page, as it stands or as a proposed edit would
+ * leave it (journey-studio.md 4.3). It is no MCP tool: the server offers it to
+ * the model in a journey's turns (assistant-book-preview.ts) and answers it as
+ * a read, with the page's description, its findings and, for a model that
+ * reads images, the page as the Studio draws it.
+ */
+export const PREVIEW_BOOK_PAGE_TOOL = 'preview_book_page';
+
 /** The model's tools a found place is added through: a new place for the day, or one the trip has already. */
 const FOUND_PLACE_VIA: ReadonlySet<string> = new Set(['create_and_assign_place', 'assign_place_to_day']);
 

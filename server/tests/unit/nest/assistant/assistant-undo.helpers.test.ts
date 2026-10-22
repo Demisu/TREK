@@ -218,12 +218,24 @@ describe('the undo session', () => {
       { tool: 'get_vacay_plan', args: { year: 2026 } },
       { tool: 'list_vacay_entries', args: {} },
     ];
-    const snap = await undoSnapshotOf(session(['list_vacay_entries']), 'toggle_vacay', {}, {}, reads);
+    const snap = await undoSnapshotOf(session(['list_vacay_entries']), 'toggle_vacay', {}, {}, { reads });
     expect(snap?.reads.get(readKey('get_vacay_plan', { year: 2026 }))).toEqual({
       name: 'get_vacay_plan',
       args: { year: 2026 },
     });
     expect(snap?.reads.get(readKey('list_vacay_entries'))).toBeNull();
     expect(snap?.reads.size).toBe(2);
+  });
+
+  it('ASTUND-022: a Studio undo reads no trip: it holds the removing tool and the book read, the summary stays empty', async () => {
+    expect([...undoTargetsOf('delete_book_pages', 'add_book_pages', {}, {}, false)]).toEqual([
+      'delete_book_pages',
+      'get_book',
+    ]);
+    const studio = session(['get_trip_summary', 'list_places']);
+    const snap = await undoSnapshotOf(studio, 'add_book_pages', {}, {}, { tripReads: false });
+    expect(snap).toMatchObject({ summary: null, places: null });
+    expect(snap?.reads.get(readKey('get_book'))).toEqual({ name: 'get_book', args: {} });
+    expect(studio.read).not.toHaveBeenCalledWith('get_trip_summary');
   });
 });

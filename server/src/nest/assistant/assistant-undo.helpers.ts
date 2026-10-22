@@ -75,9 +75,26 @@ export function unchangedSinceApplied(toolName: string, result: unknown, snapsho
   return !!check && check(recordOf(result), { ...snapshot, reads: snapshot.reads ?? new Map() });
 }
 
-/** The tools an undo's session holds: the removing tool, the trip reads and what the change's package reads. */
-export function undoTargetsOf(undoTool: string, toolName: string, args: ToolArgs, result: unknown): Set<string> {
-  return new Set([undoTool, ...TRIP_READS, ...undoReadsOf(toolName, args, result).map((read) => read.tool)]);
+/**
+ * The tools an undo's session holds: the removing tool, the trip reads (on a
+ * trip, `tripReads`) and what the change's package reads.
+ */
+export function undoTargetsOf(
+  undoTool: string,
+  toolName: string,
+  args: ToolArgs,
+  result: unknown,
+  tripReads = true,
+): Set<string> {
+  const trip = tripReads ? TRIP_READS : [];
+  return new Set([undoTool, ...trip, ...undoReadsOf(toolName, args, result).map((read) => read.tool)]);
+}
+
+/** What an undo's snapshot reads: a package's reads, and whether the trip is read too. */
+interface SnapshotReads {
+  reads?: ReturnType<typeof undoReadsOf>;
+  /** False in a Studio conversation: it is about a journey, there is no trip to read and the summary stays null. */
+  tripReads?: boolean;
 }
 
 /** The trip as the undo checks it, read through the undo's session; null when a trip read failed. */
@@ -86,16 +103,22 @@ export async function undoSnapshotOf(
   toolName: string,
   args: ToolArgs,
   result: unknown,
-  reads = undoReadsOf(toolName, args, result),
+  { reads = undoReadsOf(toolName, args, result), tripReads = true }: SnapshotReads = {},
 ): Promise<UndoSnapshot | null> {
-  const summary = await session.read('get_trip_summary');
-  const places = await session.read('list_places');
-  if (!summary.ok || !places.ok) return null;
+  const trip = tripReads ? await readTrip(session) : { summary: null, places: null };
+  if (!trip) return null;
   const extra = await Promise.all(
     reads.map(async (read): Promise<[string, unknown]> => {
       const run = await session.read(read.tool, read.args);
       return [readKey(read.tool, read.args), run.ok ? run.value : null];
     }),
   );
-  return { summary: summary.value, places: places.value, reads: new Map(extra) };
+  return { ...trip, reads: new Map(extra) };
+}
+
+/** The trip summary and its places as an undo reads them; null when either read failed. */
+async function readTrip(session: Pick<AssistantToolSession, 'read'>): Promise<Omit<UndoSnapshot, 'reads'> | null> {
+  const summary = await session.read('get_trip_summary');
+  const places = await session.read('list_places');
+  return summary.ok && places.ok ? { summary: summary.value, places: places.value } : null;
 }
