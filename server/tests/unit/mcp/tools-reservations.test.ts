@@ -9,6 +9,7 @@ import { ReservationDayPositions } from '../../../src/db/entities/ReservationDay
 import { ReservationTravelers } from '../../../src/db/entities/ReservationTravelers.entity';
 import { Reservations } from '../../../src/db/entities/Reservations.entity';
 import { Trips } from '../../../src/db/entities/Trips.entity';
+import { ReservationsService } from '../../../src/nest/reservations/reservations.service';
 import {
   createUser,
   createTrip,
@@ -479,6 +480,51 @@ describe('Tool: delete_reservation', () => {
 });
 
 // ---------------------------------------------------------------------------
+// The notice to fellow travellers
+// ---------------------------------------------------------------------------
+
+describe('Reservation tools: the booking notice', () => {
+  // The booking routes always told the other travellers; the tools did not.
+  it('create, update, the hotel link and delete each tell the fellow travellers, as REST does', async () => {
+    const notify = vi.spyOn(ReservationsService.prototype, 'notifyBookingChange').mockResolvedValue(undefined);
+    try {
+      const { user } = createUser(testDb);
+      const trip = createTrip(testDb, user.id);
+      const day1 = createDay(testDb, trip.id, { day_number: 1 });
+      const day2 = createDay(testDb, trip.id, { day_number: 2 });
+      const hotel = createPlace(testDb, trip.id, { name: 'Ritz' });
+      await withHarness(user.id, async (h) => {
+        const created = parseToolResult(
+          await h.client.callTool({
+            name: 'create_reservation',
+            arguments: { tripId: trip.id, title: 'Ritz', type: 'hotel' },
+          }),
+        ) as { reservation: { id: number } };
+        const reservationId = created.reservation.id;
+        await h.client.callTool({
+          name: 'update_reservation',
+          arguments: { tripId: trip.id, reservationId, title: 'Ritz Paris' },
+        });
+        await h.client.callTool({
+          name: 'link_hotel_accommodation',
+          arguments: { tripId: trip.id, reservationId, place_id: hotel.id, start_day_id: day1.id, end_day_id: day2.id },
+        });
+        await h.client.callTool({ name: 'delete_reservation', arguments: { tripId: trip.id, reservationId } });
+      });
+      // The trip id travels as text from some callers and as a number from others; the notice reads both alike.
+      expect(notify.mock.calls.map(([tripId, ...rest]) => [Number(tripId), ...rest])).toEqual([
+        [trip.id, user.id, 'Ritz', 'hotel'],
+        [trip.id, user.id, 'Ritz Paris', 'hotel'],
+        [trip.id, user.id, 'Ritz Paris', 'hotel'],
+        [trip.id, user.id, 'Ritz Paris', 'hotel'],
+      ]);
+    } finally {
+      notify.mockRestore();
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
 // link_hotel_accommodation
 // ---------------------------------------------------------------------------
 
@@ -512,6 +558,8 @@ describe('Tool: link_hotel_accommodation', () => {
       expect(Number.isInteger(data.reservation.accommodation_id)).toBe(true);
       expect(Number.isInteger(data.accommodation_id)).toBe(true);
       expect(broadcastMock).toHaveBeenCalledWith(trip.id, 'accommodation:created', expect.any(Object));
+      // A new stay is created, not also updated: the booking form's PUT sends the same.
+      expect(broadcastMock.mock.calls.some((c) => c[1] === 'accommodation:updated')).toBe(false);
     });
   });
 
@@ -540,6 +588,7 @@ describe('Tool: link_hotel_accommodation', () => {
     });
 
     // Update link
+    broadcastMock.mockClear();
     await withHarness(user.id, async (h) => {
       await h.client.callTool({
         name: 'link_hotel_accommodation',
@@ -552,6 +601,8 @@ describe('Tool: link_hotel_accommodation', () => {
         },
       });
       expect(broadcastMock).toHaveBeenCalledWith(trip.id, 'accommodation:updated', expect.any(Object));
+      // The stay already existed, so it is not announced as a new one.
+      expect(broadcastMock.mock.calls.some((c) => c[1] === 'accommodation:created')).toBe(false);
     });
   });
 
