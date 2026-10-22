@@ -1,5 +1,5 @@
 /**
- * Unit tests for DawarichSuggestionsService: DAWARICH-SUG-001..064.
+ * Unit tests for DawarichSuggestionsService: DAWARICH-SUG-001..069.
  *
  * This is the only service in the Dawarich domain that writes into TREK proper,
  * and every write it makes crosses an ownership line: a suggestion belongs to
@@ -25,7 +25,7 @@ import type { UsersRepository } from '../../../src/db/repositories/Users.reposit
 import type { AssignmentsService } from '../../../src/nest/assignments/assignments.service';
 import type { AtlasService } from '../../../src/nest/atlas/atlas.service';
 import { AcceptError, DawarichSuggestionsService } from '../../../src/nest/integrations/dawarich-suggestions.service';
-import type { DawarichClient } from '../../../src/nest/integrations/dawarich.client';
+import { DawarichError, type DawarichClient } from '../../../src/nest/integrations/dawarich.client';
 import type { DawarichService } from '../../../src/nest/integrations/dawarich.service';
 import type { JourneyDomainService } from '../../../src/nest/journey/journey-domain.service';
 import type { JourneyEntryStaysService } from '../../../src/nest/journey/journey-entry-stays.service';
@@ -1139,6 +1139,39 @@ describe('DawarichSuggestionsService — scanning for stays', () => {
     expect(scan.matches).toHaveLength(1);
     expect(scan.matches[0].match).toBeNull();
   });
+
+  it.each(['unreachable', 'unauthorized', 'forbidden', 'rate_limited'] as const)(
+    'DAWARICH-SUG-068: an instance failing with %s ends the scan at the first wish instead of reporting every wish as missed',
+    async (code) => {
+      const { user } = createUser(testDb);
+      await Promise.all(['Hallstatt', 'Kyoto', 'Petra'].map((name) => seedBucketItem(user.id, { name })));
+      dawarichStub.getCredentials.mockReturnValue(CREDS);
+      const failure = new DawarichError(code, 'Could not reach Dawarich');
+      clientStub.findVisitsNear.mockReset().mockRejectedValue(failure);
+
+      await expect(svc.scanBucketList(user.id)).rejects.toBe(failure);
+      // A hanging instance costs one timeout, not one per wish.
+      expect(clientStub.findVisitsNear).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it.each(['server_error', 'not_found', 'invalid_response'] as const)(
+    'DAWARICH-SUG-069: a lookup answered with %s is that one wish missed, and the scan goes on',
+    async (code) => {
+      const { user } = createUser(testDb);
+      await Promise.all(['Hallstatt', 'Kyoto'].map((name) => seedBucketItem(user.id, { name })));
+      dawarichStub.getCredentials.mockReturnValue(CREDS);
+      clientStub.findVisitsNear
+        .mockReset()
+        .mockRejectedValueOnce(new DawarichError(code, 'Dawarich answered HTTP 500'))
+        .mockResolvedValueOnce([]);
+
+      const scan = await svc.scanBucketList(user.id);
+
+      expect(scan.matches.map((m) => m.match)).toEqual([null, null]);
+      expect(clientStub.findVisitsNear).toHaveBeenCalledTimes(2);
+    },
+  );
 });
 
 // ── Atlas ────────────────────────────────────────────────────────────────────

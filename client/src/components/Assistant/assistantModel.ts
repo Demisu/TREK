@@ -167,6 +167,12 @@ const STEPS: Partial<Record<string, StepLook>> = {
   get_weather: { stepKey: 'assistant.step.weather', live: { liveKey: 'assistant.step.weatherAt', param: 'place' } },
   list_todos: { stepKey: 'assistant.step.todos' },
   get_settlement_summary: { stepKey: 'assistant.step.costs' },
+  list_budget_items: { stepKey: 'assistant.step.expenses' },
+  get_budget_per_person: { stepKey: 'assistant.step.shares' },
+  get_wind_forecast: { stepKey: 'assistant.step.wind' },
+  get_journey_tracks: { stepKey: 'assistant.step.tracks' },
+  scan_bucket_list_visits: { stepKey: 'assistant.step.bucketScan' },
+  suggest_atlas_countries: { stepKey: 'assistant.step.atlasCountries' },
   propose_hike: {
     stepKey: 'assistant.step.planningHike',
     live: { liveKey: 'assistant.step.planningHikeTo', param: 'place' },

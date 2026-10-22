@@ -123,6 +123,38 @@ describe('the assistant tool catalog', () => {
     }
   });
 
+  it('ASTTOOL-016: the expense, share and wind reads come with the core, every journey tool with the journey and the Dawarich checks with the Atlas', () => {
+    const groupOfTool = (name: string) => {
+      const entry = registry.list().find((e) => e.kind === 'tool' && e.name === name);
+      if (!entry) throw new Error(`${name} is not registered`);
+      return groupOf(entry);
+    };
+    const core = ['list_budget_items', 'get_budget_per_person', 'get_wind_forecast'];
+    expect(core.map(groupOfTool)).toEqual([null, null, null]);
+    for (const name of core) expect(listed.get(name)?.annotations?.readOnlyHint, name).toBe(true);
+    // A question about the bucket list or the visited countries loads the Atlas, so the checks against the
+    // recordings come with it.
+    const atlas = [
+      'scan_bucket_list_visits',
+      'suggest_atlas_countries',
+      'confirm_bucket_list_visits',
+      'clear_bucket_list_visit',
+      'accept_atlas_countries',
+    ];
+    expect(atlas.map(groupOfTool)).toEqual(atlas.map(() => 'atlas'));
+    // The journal's map, tracks, recorded days and day stays are never core: they wait for the journey group
+    // like the rest of the journal.
+    const journey = [
+      'get_journey_tracks',
+      'get_journey_map_layers',
+      'list_journey_recorded_days',
+      'save_journey_recorded_day',
+      'review_journey_day_stays',
+      'take_over_journey_day_stays',
+    ];
+    expect(journey.map(groupOfTool)).toEqual(journey.map(() => 'journey'));
+  });
+
   it('ASTTOOL-017: the hike tools come with the tours, the proposal runs at once and the writes are cards of a tour', () => {
     const hikeTools = ['propose_hike', 'create_hike', 'update_tour', 'import_tour_gpx'];
     const entries = hikeTools.map((name) => registry.list().find((e) => e.kind === 'tool' && e.name === name));

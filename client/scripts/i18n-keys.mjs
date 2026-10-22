@@ -139,6 +139,13 @@ export const DYNAMIC_ALLOWED = [
           'memories.* key in en',
       }))
   ),
+  {
+    file: 'components/Assistant/AssistantChangeCard.tsx',
+    template: 'assistant.tool.${tool}',
+    because:
+      'tool is the MCP tool a change card is for; verbLabel shows assistant.tool.<tool> only where en names ' +
+      'that tool, and the generic add, change or remove verb for every other tool',
+  },
 ];
 
 const KEY_RE = /^[a-z][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_:-]+)+$/;

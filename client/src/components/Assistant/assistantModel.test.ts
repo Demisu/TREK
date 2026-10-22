@@ -130,6 +130,26 @@ describe('toolStepKey', () => {
     expect(toolStepKey('constructor')).toBe('assistant.step.working');
   });
 
+  it('FE-AI-MODEL-011: names the expense, share, wind, track and Dawarich reads by what they look at', () => {
+    expect(
+      [
+        'list_budget_items',
+        'get_budget_per_person',
+        'get_wind_forecast',
+        'get_journey_tracks',
+        'scan_bucket_list_visits',
+        'suggest_atlas_countries',
+      ].map(toolStepKey)
+    ).toEqual([
+      'assistant.step.expenses',
+      'assistant.step.shares',
+      'assistant.step.wind',
+      'assistant.step.tracks',
+      'assistant.step.bucketScan',
+      'assistant.step.atlasCountries',
+    ]);
+  });
+
   it('FE-AI-MODEL-010: a running step that names a place or a query says it, and falls back to its name', () => {
     expect(liveStepText('search_nearby_places', 'Trastevere')).toEqual({
       key: 'assistant.step.nearbyAt',

@@ -143,14 +143,28 @@ export const ASSISTANT_TOOL_GROUPS: Readonly<Record<string, { about: string; con
     ],
   },
   journey: {
-    about: 'Journeys (the travel journal): entries, photos, the journal linked to this trip, location history.',
-    controllers: ['JourneyMcp', 'TripJournalLinkMcp', 'MemoriesMcp', 'DawarichMcp'],
+    about:
+      'Journeys (the travel journal): entries, photos, the journal linked to this trip, its map and GPX tracks, ' +
+      'location history and the recorded days.',
+    controllers: [
+      'JourneyMcp',
+      'JourneyMapMcp',
+      'JourneyTracksMcp',
+      'JourneyRecordingsMcp',
+      'JourneyDayImportMcp',
+      'TripJournalLinkMcp',
+      'MemoriesMcp',
+      'DawarichMcp',
+    ],
   },
   vacay: {
     about: 'Vacation planner: vacation days per year, public and school holidays, shared calendars.',
     controllers: ['VacayMcp', 'SchoolHolidaysMcp'],
   },
-  atlas: { about: 'Atlas: visited countries and regions, the bucket list.', controllers: ['AtlasMcp'] },
+  atlas: {
+    about: 'Atlas: visited countries and regions, the bucket list, and both checked against the Dawarich recordings.',
+    controllers: ['AtlasMcp', 'DawarichAtlasMcp'],
+  },
   collections: {
     about: 'Collections: saved places across trips, their labels and ratings.',
     controllers: ['CollectionsMcp'],

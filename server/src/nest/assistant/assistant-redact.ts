@@ -108,8 +108,26 @@ function projectTripSummary(summary: Json): Json {
   };
 }
 
+/**
+ * `suggest_atlas_countries` as the model gets it: each country with its
+ * cities and the minutes spent in them, without when the user was last seen
+ * in each city. The model offers countries to mark; a time per city would
+ * hand the provider a dated trail of the user's whereabouts for nothing it
+ * plans with.
+ */
+function projectAtlasSuggestions(value: Json): Json {
+  if (!isRecord(value) || !Array.isArray(value.countries)) return value;
+  return {
+    ...value,
+    countries: value.countries.map((country) =>
+      isRecord(country) ? { ...country, cities: pickAll(country.cities, ['name', 'minutes']) } : country,
+    ),
+  };
+}
+
 const PROJECTIONS: Readonly<Record<string, (value: Json) => Json>> = {
   get_trip_summary: projectTripSummary,
+  suggest_atlas_countries: projectAtlasSuggestions,
 };
 
 function shrink(value: Json, cap: number, cut: { done: boolean }): Json {
