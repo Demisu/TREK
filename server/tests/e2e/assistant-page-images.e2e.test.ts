@@ -1,33 +1,39 @@
 /**
  * The Studio page image reaching the model, per provider kind, end to end:
- * the whole app (buildApp, every global guard, the Zod pipe, the real MCP
- * registry, the real agent and vision) with the provider's own adapter
- * (Anthropic Messages, Chat Completions, the Responses API of a ChatGPT plan)
- * talking to a scripted fetch instead of the network.
+ * the whole app (buildApp, every global guard, the Zod pipe, the response
+ * contracts, the real MCP registry, the real agent and vision, the renders
+ * route and its registry) with the provider's own adapter (Anthropic
+ * Messages, Chat Completions, the Responses API of a ChatGPT plan) talking to
+ * a scripted fetch instead of the network.
  *
  * What is stood in for, and why: the connection the turn resolves names the
  * kind under test (an instance can only point a `custom` connection at
- * loopback), the user's Studio acknowledgement is given, and the Studio tab's
- * upload is the render registry answering at once with a page image (the
- * upload route itself is ASTRNE2E's). Everything between, from the look to
+ * loopback, so the kind, model and host are put on the saved one), and the
+ * client is that kind's real adapter on the scripted fetch. The Studio tab is
+ * the test reading the turn's stream as it comes: each render request it
+ * reads is answered at once with a page image uploaded to the renders route,
+ * as the tab does after drawing the page. The user's acknowledgement of page
+ * images goes through its own route. Everything between, from the look to
  * the request on the wire, is the real code.
  *
- * Pinned: a model that reads images gets the page in the place its provider
- * reads it (inside the tool_result for Anthropic, a user message after the
- * step's tool answers for Chat Completions and the Responses API), the turn
- * streams one render request and keeps the image's size, never its bytes; a
- * kind that cannot be told to read images (OpenRouter) asks for no image and
- * checks the page on its description.
+ * Pinned: a model that reads images gets the uploaded page, byte for byte,
+ * where its provider reads it (inside the tool_result for Anthropic, a user
+ * message after the step's tool answers for Chat Completions and the
+ * Responses API); the turn streams one render request and keeps the image's
+ * size, never its bytes, in the stream and in the stored thread. A kind that
+ * cannot be told to read images (OpenRouter) and a connection the user did
+ * not acknowledge for page images ask for no image and check the page on its
+ * description.
  */
 import { buildApp } from '../../src/bootstrap';
 import { AiChatClientService } from '../../src/nest/ai-connections/ai-chat-client.service';
+import { aiHostOf } from '../../src/nest/ai-connections/ai-connections.constants';
 import { AiConnectionsService } from '../../src/nest/ai-connections/ai-connections.service';
 import type { ResolvedAiConnection } from '../../src/nest/ai-connections/ai-connections.types';
 import { AnthropicMessagesClient } from '../../src/nest/ai-connections/providers/anthropic-messages.client';
 import { OpenAiChatClient } from '../../src/nest/ai-connections/providers/openai-chat.client';
 import { OpenAiResponsesClient } from '../../src/nest/ai-connections/providers/openai-responses.client';
 import type { AiFetch } from '../../src/nest/ai-connections/providers/provider-http';
-import { AssistantRenderRegistry, type PageImage } from '../../src/nest/assistant/assistant-render.registry';
 import { JourneyBookEditService } from '../../src/nest/journey/journey-book-edit.service';
 import { makeJourney } from '../helpers/factories/journeys';
 import { setAddonEnabled } from '../helpers/factories/settings';
@@ -43,11 +49,24 @@ import type { AddressInfo } from 'node:net';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// ── The page the Studio "uploads" ────────────────────────────────────────────
+// ── The page the Studio tab draws ────────────────────────────────────────────
 
-const JPEG = Buffer.from('ffd8ffe000104a46494600010100ffd9', 'hex');
-const PAGE: PageImage = { mimeType: 'image/jpeg', data: JPEG, width: 1280, height: 640 };
-const DATA_URL = `data:image/jpeg;base64,${JPEG.toString('base64')}`;
+/**
+ * A JPEG of 1280 x 640 as far as the renders route reads one (its frame
+ * header), with a body of its own, so its bytes are told apart from anything
+ * else in a request.
+ */
+function drawnPage(): Buffer {
+  const header = Buffer.alloc(16);
+  Buffer.from([0xff, 0xd8, 0xff, 0xc0, 0x00, 0x11, 0x08]).copy(header, 0);
+  header.writeUInt16BE(640, 7);
+  header.writeUInt16BE(1280, 9);
+  return Buffer.concat([header, Buffer.from('the studio page as drawn, '.repeat(3))]);
+}
+
+const PAGE = drawnPage();
+const BASE64 = PAGE.toString('base64');
+const DATA_URL = `data:image/jpeg;base64,${BASE64}`;
 
 // ── The provider, per kind: what each adapter streams back ───────────────────
 
@@ -158,7 +177,6 @@ let fake: HttpServer;
 let books: JourneyBookEditService;
 let connections: AiConnectionsService;
 let chatClients: AiChatClientService;
-let registry: AssistantRenderRegistry;
 
 beforeAll(async () => {
   fake = createServer((req, res) => {
@@ -170,7 +188,6 @@ beforeAll(async () => {
   books = nestApp.get(JourneyBookEditService);
   connections = nestApp.get(AiConnectionsService);
   chatClients = nestApp.get(AiChatClientService);
-  registry = nestApp.get(AssistantRenderRegistry);
   await setAddonEnabled(orm, 'ai_assistant', true);
   await setAddonEnabled(orm, 'journey', true);
   const adminId = (await makeUser(orm, { role: 'admin' })).user.id;
@@ -195,44 +212,70 @@ afterAll(async () => {
   await new Promise<void>((resolve) => fake.close(() => resolve()));
 });
 
-/** The turn runs on `kind`'s adapter as if that connection were saved, the Studio images acknowledged. */
-function runOn(kind: AiConnectionKind, model: string) {
-  const resolve = connections.resolveForUser.bind(connections);
-  vi.spyOn(connections, 'resolveForUser').mockImplementation(async (userId: number): Promise<ResolvedAiConnection> => ({
-    ...(await resolve(userId)),
-    kind,
-    model,
-  }));
-  vi.spyOn(connections, 'studioImagesAcked').mockResolvedValue(true);
-  vi.spyOn(chatClients, 'create').mockImplementation(() => adapterFor(kind, model));
-  return vi.spyOn(registry, 'wait').mockResolvedValue(PAGE);
-}
-
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const CTX = { locale: 'en', timeZone: 'Europe/Lisbon' };
 
-async function stream(path: string, userId: number, body: object): Promise<UiStreamChunk[]> {
+const ofType = <T extends UiStreamChunk['type']>(chunks: UiStreamChunk[], type: T) =>
+  chunks.filter((chunk): chunk is Extract<UiStreamChunk, { type: T }> => chunk.type === type);
+
+/**
+ * A turn's stream, read as it arrives: `onChunk` sees every chunk the moment
+ * it comes, as the Studio tab holding the stream does.
+ */
+async function stream(
+  path: string,
+  userId: number,
+  body: object,
+  onChunk: (chunk: UiStreamChunk) => void,
+): Promise<UiStreamChunk[]> {
+  const chunks: UiStreamChunk[] = [];
   const res = await request(nestApp.getHttpServer())
     .post(path)
     .set('Cookie', sessionCookie(userId))
     .send(body)
     .buffer(true)
     .parse((s, done) => {
-      let text = '';
+      let pending = '';
       s.setEncoding('utf8');
-      s.on('data', (chunk: string) => (text += chunk));
-      s.on('end', () => done(null, text));
+      s.on('data', (text: string) => {
+        pending += text;
+        const events = pending.split('\n\n');
+        pending = events.pop() ?? '';
+        for (const event of events) {
+          if (!event.startsWith('data: ') || event === 'data: [DONE]') continue;
+          const chunk = JSON.parse(event.slice('data: '.length)) as UiStreamChunk;
+          chunks.push(chunk);
+          onChunk(chunk);
+        }
+      });
+      s.on('end', () => done(null, ''));
     });
   expect(res.status).toBe(200);
-  return (res.body as string)
-    .split('\n\n')
-    .filter((event) => event.startsWith('data: ') && event !== 'data: [DONE]')
-    .map((event) => JSON.parse(event.slice('data: '.length)) as UiStreamChunk);
+  return chunks;
 }
 
-const ofType = <T extends UiStreamChunk['type']>(chunks: UiStreamChunk[], type: T) =>
-  chunks.filter((chunk): chunk is Extract<UiStreamChunk, { type: T }> => chunk.type === type);
+/**
+ * The Studio tab of a turn: every render request it reads is answered at
+ * once with the drawn page, uploaded to the renders route with the page and
+ * the version it was asked for. `uploads` holds each upload's status.
+ */
+function studioTab(journeyId: number, userId: number) {
+  const uploads: Array<Promise<number>> = [];
+  const onChunk = (chunk: UiStreamChunk) => {
+    const [asked] = ofType([chunk], 'data-trek-render-request');
+    if (!asked) return;
+    const { threadId, requestId, spreadId, bookVersion } = asked.data;
+    const upload = request(nestApp.getHttpServer())
+      .post(`/api/journeys/${journeyId}/assistant/threads/${threadId}/renders/${requestId}`)
+      .set('Cookie', sessionCookie(userId))
+      .field('bookVersion', String(bookVersion))
+      .field('spreadId', spreadId)
+      .attach('image', PAGE, { filename: 'page.jpg', contentType: 'image/jpeg' });
+    uploads.push(upload.then((res) => res.status));
+  };
+  return { onChunk, uploads };
+}
 
 /** A user with a journey of their own and a blank book in it: its double page is `inner`. */
 async function ownerWithBook() {
@@ -243,15 +286,40 @@ async function ownerWithBook() {
   return { userId: user.id, journeyId: journey.id, inner, base: `/api/journeys/${journey.id}/assistant` };
 }
 
+/**
+ * The turn runs on `kind`'s real adapter as if the user's connection were of
+ * that kind, model and host; with `acked` the user let it receive page images
+ * first, through the route the Studio's notice calls.
+ */
+async function runOn(kind: AiConnectionKind, model: string, userId: number, acked: boolean) {
+  const host = aiHostOf(kind, null);
+  const resolve = connections.resolveForUser.bind(connections);
+  vi.spyOn(connections, 'resolveForUser').mockImplementation(async (id: number): Promise<ResolvedAiConnection> => ({
+    ...(await resolve(id)),
+    kind,
+    model,
+    host,
+  }));
+  vi.spyOn(chatClients, 'create').mockImplementation(() => adapterFor(kind, model));
+  if (!acked) return;
+  const ack = await request(nestApp.getHttpServer())
+    .post('/api/ai/privacy-ack')
+    .set('Cookie', sessionCookie(userId))
+    .send({ kind, host, scope: 'studio_images' });
+  expect(ack.status).toBe(200);
+}
+
 /** One Studio turn on `kind`: the model previews warmer paper on the inner page, then answers. */
-async function lookTurn(kind: AiConnectionKind, model: string, via: Wire) {
+async function lookTurn(kind: AiConnectionKind, model: string, via: Wire, acked = true) {
   const j = await ownerWithBook();
-  const waited = runOn(kind, model);
+  await runOn(kind, model, j.userId, acked);
+  const tab = studioTab(j.journeyId, j.userId);
   const warmer = { spreadId: j.inner, ops: [{ op: 'background', color: '#f4efe6' }] };
   wire.answers = [lookAt(via, warmer), says(via, 'Fine.')];
-  const turn = await stream(`${j.base}/chat`, j.userId, { ...CTX, threadId: null, text: 'Warmer?', renders: true });
+  const body = { ...CTX, threadId: null, text: 'Warmer?', renders: true };
+  const turn = await stream(`${j.base}/chat`, j.userId, body, tab.onChunk);
   expect(wire.bodies).toHaveLength(2);
-  return { j, turn, waited, sent: wire.bodies[1] ?? {} };
+  return { j, turn, uploads: await Promise.all(tab.uploads), sent: wire.bodies[1] ?? {} };
 }
 
 /** A list in a request body, empty when that key holds none. */
@@ -260,38 +328,79 @@ const listIn = (body: Record<string, unknown>, key: string): Array<Record<string
   return Array.isArray(value) ? (value as Array<Record<string, unknown>>) : [];
 };
 
-/** The turn asked the Studio once for the page and kept the image's size, never its bytes. */
-function expectOneImage(turn: UiStreamChunk[], spreadId: string) {
+/** The look's answer as the model read it, in either shape (a tool message, a tool_result block), as JSON. */
+function lookAnswer(sent: Record<string, unknown>): string {
+  const messages = listIn(sent, 'messages');
+  const blocks = messages.flatMap((message) =>
+    Array.isArray(message.content) ? (message.content as Array<Record<string, unknown>>) : [],
+  );
+  const answer = [...messages, ...blocks].find(
+    (item) => item.tool_call_id === 'call_look' || (item.type === 'tool_result' && item.tool_use_id === 'call_look'),
+  );
+  return JSON.stringify(answer?.content ?? null);
+}
+
+/** The Studio turn as the test drove it: whose it is and where. */
+interface Studio {
+  userId: number;
+  inner: string;
+  base: string;
+}
+
+/**
+ * The turn asked the Studio once for the page, the tab's upload was taken,
+ * and the image's size was kept, never its bytes: not in the stream, not in
+ * the thread as stored.
+ */
+async function expectOneImage(j: Studio, turn: UiStreamChunk[], uploads: number[]) {
   const [asked, ...more] = ofType(turn, 'data-trek-render-request');
   expect(more).toEqual([]);
-  expect(asked?.data).toMatchObject({ spreadId, bookVersion: 1, hiddenPhotoIds: [] });
+  expect(asked?.data).toMatchObject({ spreadId: j.inner, bookVersion: 1, hiddenPhotoIds: [] });
+  expect(uploads).toEqual([200]);
   const [view] = ofType(turn, 'data-trek-page-view');
-  expect(view?.data).toMatchObject({ spreadId, bookVersion: 1, width: 1280, height: 640, bytes: JPEG.length });
+  expect(view?.data).toMatchObject({ spreadId: j.inner, bookVersion: 1, width: 1280, height: 640, bytes: PAGE.length });
   expect(JSON.stringify(ofType(turn, 'tool-output-available'))).toContain('is attached');
-  expect(JSON.stringify(turn)).not.toContain(JPEG.toString('base64'));
+  expect(JSON.stringify(turn)).not.toContain(BASE64);
+  const threadId = ofType(turn, 'data-trek-thread')[0]?.data.threadId ?? 0;
+  const stored = await request(nestApp.getHttpServer())
+    .get(`${j.base}/threads/${threadId}`)
+    .set('Cookie', sessionCookie(j.userId));
+  expect(stored.status).toBe(200);
+  expect(JSON.stringify(stored.body)).toContain(`"bytes":${PAGE.length}`);
+  expect(JSON.stringify(stored.body)).not.toContain(BASE64);
+}
+
+/** The turn asked for no image, and the model checked the page on its description and findings. */
+function expectWordsOnly(inner: string, turn: UiStreamChunk[], uploads: number[], sent: Record<string, unknown>) {
+  expect(ofType(turn, 'data-trek-render-request')).toEqual([]);
+  expect(uploads).toEqual([]);
+  const [view] = ofType(turn, 'data-trek-page-view');
+  expect(view?.data).toMatchObject({ spreadId: inner, width: null, height: null, bytes: null });
+  expect(JSON.stringify(sent)).not.toContain(BASE64);
+  expect(lookAnswer(sent)).toContain('Findings');
+  expect(lookAnswer(sent)).not.toContain('is attached');
 }
 
 // ── Cases ────────────────────────────────────────────────────────────────────
 
 describe('the Studio page image per provider kind', () => {
-  it('ASTIMGE2E-001: Anthropic gets the page as an image block inside the tool_result of the look', async () => {
-    const { j, turn, waited, sent } = await lookTurn('anthropic', 'claude-sonnet-4-5', 'anthropic');
-    expect(waited).toHaveBeenCalledTimes(1);
-    expectOneImage(turn, j.inner);
+  it('ASTIMGE2E-001: Anthropic gets the uploaded page as an image block inside the tool_result', async () => {
+    const { j, turn, uploads, sent } = await lookTurn('anthropic', 'claude-sonnet-4-5', 'anthropic');
+    await expectOneImage(j, turn, uploads);
     const results = listIn(sent, 'messages').flatMap((message) =>
       Array.isArray(message.content) ? (message.content as Array<Record<string, unknown>>) : [],
     );
     const result = results.find((block) => block.type === 'tool_result' && block.tool_use_id === 'call_look');
     expect(result?.content).toEqual([
       { type: 'text', text: expect.stringContaining('is attached') },
-      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: JPEG.toString('base64') } },
+      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: BASE64 } },
     ]);
   });
 
   /** Chat Completions: the tool answer stays text, the page follows in a user message of its own. */
   async function expectChatImage(kind: AiConnectionKind, model: string) {
-    const { j, turn, sent } = await lookTurn(kind, model, 'chat');
-    expectOneImage(turn, j.inner);
+    const { j, turn, uploads, sent } = await lookTurn(kind, model, 'chat');
+    await expectOneImage(j, turn, uploads);
     const messages = listIn(sent, 'messages');
     const answer = messages.findIndex((m) => m.role === 'tool' && m.tool_call_id === 'call_look');
     expect(answer).toBeGreaterThan(0);
@@ -309,13 +418,9 @@ describe('the Studio page image per provider kind', () => {
     await expectChatImage('openai', 'gpt-4o');
   });
 
-  it('ASTIMGE2E-005: Gemini, on the same Chat Completions shape, gets the page the same way', async () => {
-    await expectChatImage('gemini', 'gemini-2.5-flash');
-  });
-
   it('ASTIMGE2E-003: a ChatGPT plan (Responses API) gets the output as text, then the page as an image', async () => {
-    const { j, turn, sent } = await lookTurn('chatgpt', 'gpt-5', 'responses');
-    expectOneImage(turn, j.inner);
+    const { j, turn, uploads, sent } = await lookTurn('chatgpt', 'gpt-5', 'responses');
+    await expectOneImage(j, turn, uploads);
     const input = listIn(sent, 'input');
     const output = input.findIndex((item) => item.type === 'function_call_output' && item.call_id === 'call_look');
     expect(output).toBeGreaterThan(0);
@@ -331,13 +436,18 @@ describe('the Studio page image per provider kind', () => {
   });
 
   it('ASTIMGE2E-004: OpenRouter (vision unknown by id) asks for no image and reads the page in words', async () => {
-    const { j, turn, waited, sent } = await lookTurn('openrouter', 'some-lab/some-model', 'chat');
-    expect(waited).not.toHaveBeenCalled();
-    expect(ofType(turn, 'data-trek-render-request')).toEqual([]);
-    const [view] = ofType(turn, 'data-trek-page-view');
-    expect(view?.data).toMatchObject({ spreadId: j.inner, width: null, height: null, bytes: null });
-    expect(JSON.stringify(sent)).not.toContain('image_url');
-    const answer = listIn(sent, 'messages').find((m) => m.role === 'tool' && m.tool_call_id === 'call_look');
-    expect(String(answer?.content)).toContain('Findings');
+    const { j, turn, uploads, sent } = await lookTurn('openrouter', 'some-lab/some-model', 'chat');
+    expectWordsOnly(j.inner, turn, uploads, sent);
+    expect(JSON.stringify(listIn(sent, 'messages'))).not.toContain('image_url');
+  });
+
+  it('ASTIMGE2E-005: Gemini, on the same Chat Completions shape, gets the page the same way', async () => {
+    await expectChatImage('gemini', 'gemini-2.5-flash');
+  });
+
+  it('ASTIMGE2E-006: a model that reads images gets none while the user has not acknowledged page images', async () => {
+    const { j, turn, uploads, sent } = await lookTurn('anthropic', 'claude-sonnet-4-5', 'anthropic', false);
+    expectWordsOnly(j.inner, turn, uploads, sent);
+    expect(JSON.stringify(listIn(sent, 'messages'))).not.toContain('"type":"image"');
   });
 });
