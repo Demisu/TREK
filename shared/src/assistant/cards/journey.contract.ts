@@ -10,5 +10,7 @@ export * from './journey-entries.card';
  * or entity is added here and nowhere else.
  */
 export const JOURNEY_CARD_SCHEMAS = [journeyEntriesCardSchema] as const;
-export const JOURNEY_VERB_KEYS = [] as const;
-export const JOURNEY_APPLIED_ENTITIES = [] as const;
+/** An entry written, changed or deleted. */
+export const JOURNEY_VERB_KEYS = ['addJournalEntry', 'updateJournalEntry', 'removeJournalEntry'] as const;
+/** An entry of a journal; the receipt opens it there. */
+export const JOURNEY_APPLIED_ENTITIES = ['journey_entry'] as const;

@@ -400,8 +400,6 @@
   "src/components/Journey/moodConfig.ts",
   "src/components/Journey/photoZoom.test.ts",
   "src/components/Journey/photoZoom.ts",
-  "src/components/Journey/stripMarkdown.test.ts",
-  "src/components/Journey/stripMarkdown.ts",
   "src/components/Journey/useConnectedPhotoProviders.test.tsx",
   "src/components/Journey/useConnectedPhotoProviders.ts",
   "src/components/Journey/useEntryPhotoOrder.test.ts",
