@@ -10,9 +10,11 @@
  * writes what it says; a refused operation writes and sends nothing; the
  * cover, first, last and back pages stay; a photo must come from the journey's
  * gallery; `previous_spreads` comes back only when asked for; a move answers
- * where the page stood and a move to where it is writes nothing; and a restore
+ * where the page stood and a move to where it is writes nothing; a restore
  * lands only at the version it names, all the pages of one delete at once,
- * held to the gallery like an edit.
+ * held to the gallery like an edit; and a move or a delete that names a
+ * version (the assistant's undo) lands only there too. A held change is tried on the stored book
+ * with the journey's gallery and entries, read with a member's rights.
  */
 import { JourneyPhotos } from '../../../src/db/entities/JourneyPhotos.entity';
 import { TrekPhotos } from '../../../src/db/entities/TrekPhotos.entity';
@@ -180,6 +182,23 @@ describe('creating and reading a book', () => {
       status: 404,
       code: 'book_missing',
     });
+  });
+
+  it('JBEDIT-013: a change is tried on the stored book with the gallery and entries, by any member, never by an outsider', async () => {
+    const { journey, viewer, stranger, owner, created } = await crew();
+    const photo = await galleryPhoto(journey.id, owner.id);
+    const entry = await makeJourneyEntry(orm, journey.id, owner.id, { title: 'Alfama' });
+
+    const base = await edit.trialBase(journey.id, viewer.id);
+    expect(base.version).toBe(created.version);
+    expect(base.doc?.spreads.map((s) => s.id)).toEqual(created.spread_ids);
+    expect(base.ctx.photos?.map((p) => p.photoId)).toEqual([photo]);
+    expect(base.ctx.journey?.title).toBe('Lisbon');
+    expect(base.ctx.journey?.entries?.map((e) => e.id)).toEqual([entry.id]);
+    const bare = await makeJourney(orm, owner.id);
+    expect(await edit.trialBase(bare.id, owner.id)).toMatchObject({ doc: null, version: null });
+    expect(await refusal(() => edit.trialBase(journey.id, stranger.id))).toMatchObject({ status: 404 });
+    expect(sent()).toEqual([]);
   });
 });
 
@@ -409,5 +428,32 @@ describe('adding, moving, deleting and restoring pages', () => {
     // The page as the edit found it comes back: an honest undo always passes.
     const undone = await edit.restorePage(journey.id, owner.id, { pages: [page], expectedVersion: placed.version });
     expect(firstPage(undone)?.photoIds).toEqual([]);
+  });
+
+  it('JBEDIT-014: a move or a delete naming expectedVersion lands only at that version, never over a later save', async () => {
+    const { journey, owner, inner } = await crew();
+    const added = await edit.addPages(journey.id, owner.id, { afterSpreadId: inner, count: 2 });
+    const [fresh] = added.spread_ids;
+    if (!fresh) throw new Error('no page was added');
+    t.realtime.reset();
+
+    const stale = added.version - 1;
+    expect(
+      await refusal(() => edit.movePage(journey.id, owner.id, { spreadId: inner, toIndex: 4, expectedVersion: stale })),
+    ).toMatchObject({ status: 409, code: 'book_conflict' });
+    expect(
+      await refusal(() => edit.deletePages(journey.id, owner.id, { spreadIds: [fresh], expectedVersion: stale })),
+    ).toMatchObject({ status: 409, code: 'book_conflict' });
+    expect((await edit.overview(journey.id, owner.id)).version).toBe(added.version);
+    expect(sent()).toEqual([]);
+
+    const moved = await edit.movePage(journey.id, owner.id, {
+      spreadId: inner,
+      toIndex: 4,
+      expectedVersion: added.version,
+    });
+    expect(moved.version).toBe(added.version + 1);
+    const gone = await edit.deletePages(journey.id, owner.id, { spreadIds: [fresh], expectedVersion: moved.version });
+    expect(gone.version).toBe(moved.version + 1);
   });
 });

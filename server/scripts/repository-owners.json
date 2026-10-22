@@ -45,6 +45,7 @@
   "HiddenRegions": "atlas",
   "IdempotencyKeys": "common",
   "InviteTokens": "auth",
+  "JourneyBookRevisions": "journey",
   "JourneyBooks": "journey",
   "JourneyContributors": "journey",
   "JourneyEntries": "journey",

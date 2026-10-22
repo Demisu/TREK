@@ -14,7 +14,18 @@ export type ToolArgs = Record<string, unknown>;
 
 /** The packages that bring cards of their own, one folder each. */
 type CardPackageId =
-  'tour' | 'roadtrip' | 'budget' | 'booking' | 'collab' | 'collection' | 'atlas' | 'vacay' | 'journey' | 'packing';
+  | 'tour'
+  | 'roadtrip'
+  | 'budget'
+  | 'booking'
+  | 'collab'
+  | 'collection'
+  | 'atlas'
+  | 'vacay'
+  | 'journey'
+  | 'packing'
+  | 'book'
+  | 'bookDesign';
 
 /**
  * A read a card may make while a change is described: unaudited, made once

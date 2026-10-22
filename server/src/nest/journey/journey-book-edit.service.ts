@@ -3,6 +3,11 @@ import { JourneyPhotos } from '../../db/entities/JourneyPhotos.entity';
 import type { JourneyEntriesRepository } from '../../db/repositories/JourneyEntries.repository';
 import type { JourneyPhotosRepository } from '../../db/repositories/JourneyPhotos.repository';
 import { DomainError } from '../common/domain-error';
+import { PhotoSignalsService } from '../photos/photo-signals.service';
+import { SettingsService } from '../settings/settings.service';
+import { BookDesignDraftStore, designExpired } from './book-design-draft.store';
+import { bookEntriesOf } from './book-journey-input';
+import { bookLanguage, loadBookWords, type BookWords } from './book-travel-labels';
 import { JourneyBookService } from './journey-book.service';
 import { JourneyDomainService } from './journey-domain.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -10,15 +15,22 @@ import { Injectable } from '@nestjs/common';
 import {
   addBookPages,
   applyBookOps,
+  autoEntriesWithStops,
   blankBook,
   BOOK_OP_LIMITS,
   bookPageSetupSchema,
+  bookPath,
   deleteBookPages,
   describeSpread,
+  duplicateBookPage,
   listBookLayouts,
   moveBookPage,
+  removeBookLayout,
+  restoreBookLayout,
   restoreBookPage,
+  saveBookLayout,
   setBookCover,
+  setBookSetup,
   spreadFindings,
   summarizeBook,
   summarizeSpread,
@@ -29,19 +41,33 @@ import {
   type BookOpsContext,
   type BookOverview,
   type BookPageDescription,
+  type BookPhotoInfo,
   type BookPreviousSpread,
   type BookSpreadSummary,
+  type BookTravelContext,
   type BookWriteResult,
   type CreateBookRequest,
   type DeleteBookPagesRequest,
+  type DuplicateBookPageRequest,
   type EditBookPageRequest,
   type MoveBookPageRequest,
+  type RemoveBookLayoutRequest,
+  type RestoreBookLayoutRequest,
   type RestoreBookPageRequest,
+  type SaveBookLayoutRequest,
   type SetBookCoverRequest,
+  type SetBookSetupRequest,
 } from '@trek/shared';
 
 /** A book write's answer, in the shared result's shape. */
 export type BookWriteAnswer = BookWriteResult;
+
+/** A book as a held change is tried on: the stored document (null without a book), its version, the context. */
+export interface BookTrialBase {
+  doc: BookDocument | null;
+  version: number | null;
+  ctx: BookOpsContext;
+}
 
 /** One write as the engine runs it: the stored document (null without a book) and the journey in, a result out. */
 type BookChange = (doc: BookDocument | null, ctx: BookOpsContext) => BookEditResult;
@@ -59,8 +85,10 @@ interface JourneyWords {
 interface WriteOptions {
   returnPrevious?: boolean;
   expectedVersion?: number;
-  /** More of the answer, from the book as it was before the write. */
-  extra?: (before: BookDocument | null) => Partial<BookWriteResult>;
+  /** More of the answer, from the book as it was before the write and what the engine made. */
+  extra?: (before: BookDocument | null, made: BookMade) => Partial<BookWriteResult>;
+  /** The engine needs the journey's figures, route and entries (travel elements, a page laid out again). */
+  travel?: boolean;
 }
 
 /**
@@ -87,7 +115,16 @@ export class JourneyBookEditService {
     private readonly journey: JourneyDomainService,
     @InjectRepository(JourneyPhotos) private readonly photosRepo: JourneyPhotosRepository,
     @InjectRepository(JourneyEntries) private readonly entriesRepo: JourneyEntriesRepository,
+    // The originals' sizes for the print check, and the colours and calm areas the design findings read.
+    private readonly signals: PhotoSignalsService,
+    // The user's language, for the words the travel elements print.
+    private readonly settings: SettingsService,
+    // describe_book_page and a preview may look at a page of a design draft instead of the book.
+    private readonly drafts: BookDesignDraftStore,
   ) {}
+
+  /** The words of each language, read once from its locale table. */
+  private readonly words = new Map<string, Promise<BookWords>>();
 
   // ── Reads ────────────────────────────────────────────────────────────────
 
@@ -97,12 +134,21 @@ export class JourneyBookEditService {
     return summarizeBook(record?.document ?? null, record?.version ?? null);
   }
 
-  /** `describe_book_page`: one page in words, with its findings and its elements. */
-  async describePage(journeyId: number, userId: number, spreadId: string): Promise<BookPageDescription> {
+  /**
+   * `describe_book_page`: one page in words, with its findings and its
+   * elements; with `designId` the page of that design draft (design_book).
+   */
+  async describePage(
+    journeyId: number,
+    userId: number,
+    spreadId: string,
+    designId?: string,
+  ): Promise<BookPageDescription> {
     const { journey, record } = await this.readable(journeyId, userId);
-    if (!record) throw noBook();
+    const doc = designId ? (await this.draftOf(userId, journeyId, designId)).doc : record?.document;
+    if (!doc) throw noBook();
     const ctx = await this.context(journeyId, journey);
-    const described = describeSpread(record.document, spreadId, ctx.photos);
+    const described = describeSpread(doc, spreadId, ctx.photos);
     if (!described) throw pageNotFound(spreadId);
     return described;
   }
@@ -112,6 +158,63 @@ export class JourneyBookEditService {
     const { record } = await this.readable(journeyId, userId);
     const doc = record?.document ?? null;
     return listBookLayouts(doc, doc?.page ?? bookPageSetupSchema.parse({}), role);
+  }
+
+  /**
+   * The stored book and what the engine checks a change against (the
+   * gallery, the entries), for a change that is only tried: the assistant runs
+   * a held book write on it before the user sees its card, so it can refuse
+   * what the engine would refuse and show what the page would become. A
+   * member's read, like `get_book`; nothing is written. With `designId` the
+   * base is that design draft at the version it was made against (a preview
+   * of a draft page).
+   */
+  async trialBase(journeyId: number, userId: number, designId?: string): Promise<BookTrialBase> {
+    const { journey, record } = await this.readable(journeyId, userId);
+    const ctx = { ...(await this.context(journeyId, journey)), travel: await this.travelContext(journeyId, userId) };
+    if (designId) {
+      const draft = await this.draftOf(userId, journeyId, designId);
+      return { doc: draft.doc, version: draft.baseVersion ?? 0, ctx };
+    }
+    return { doc: record?.document ?? null, version: record?.version ?? null, ctx };
+  }
+
+  /**
+   * What the travel elements read: the journey's figures, its recorded route
+   * thinned for a page, its entries with their stops, and the words in the
+   * user's language. Read with the user's rights; a journey without figures
+   * has none (`stats: null`), and the engine refuses travel values then.
+   */
+  async travelContext(journeyId: number, userId: number): Promise<BookTravelContext> {
+    const stats = await this.journey.journeyStats(journeyId, userId);
+    const tracks = (await this.journey.journeyTracks(journeyId, userId)) ?? [];
+    const rows = (await this.journey.listEntries(journeyId, userId)) ?? [];
+    const words = await this.wordsFor(userId);
+    return {
+      locale: words.locale,
+      labels: words.labels,
+      stats,
+      path: bookPath(tracks),
+      entries: autoEntriesWithStops(bookEntriesOf(rows), stats),
+    };
+  }
+
+  /** The words the book prints in the user's language, and that language's locale. */
+  async wordsFor(userId: number): Promise<BookWords> {
+    const language = bookLanguage((await this.settings.getUserSettings(userId)).language);
+    let known = this.words.get(language);
+    if (!known) {
+      known = loadBookWords(language);
+      this.words.set(language, known);
+    }
+    return known;
+  }
+
+  /** The user's design draft for this journey; 410 once it is gone. */
+  private async draftOf(userId: number, journeyId: number, designId: string) {
+    const draft = await this.drafts.get(userId, journeyId, designId);
+    if (!draft) throw designExpired();
+    return draft;
   }
 
   // ── Writes ───────────────────────────────────────────────────────────────
@@ -136,9 +239,14 @@ export class JourneyBookEditService {
     return this.write(journeyId, userId, (doc, ctx) => addBookPages(stored(doc), args, ctx));
   }
 
-  /** The answer's `from_index` is where the page stood, so the assistant's undo can move it back. */
+  /**
+   * The answer's `from_index` is where the page stood, so the assistant's undo
+   * can move it back; that undo names `expectedVersion`, so it never moves a
+   * page over a later save (409 instead).
+   */
   async movePage(journeyId: number, userId: number, args: MoveBookPageRequest): Promise<BookWriteAnswer> {
     return this.write(journeyId, userId, (doc) => moveBookPage(stored(doc), args), {
+      expectedVersion: args.expectedVersion,
       extra: (before) => {
         const from = before?.spreads.findIndex((s) => s.id === args.spreadId) ?? -1;
         return from >= 0 ? { from_index: from } : {};
@@ -146,9 +254,11 @@ export class JourneyBookEditService {
     });
   }
 
+  /** The assistant's undo of new pages names `expectedVersion`, so it never deletes a page someone saved since. */
   async deletePages(journeyId: number, userId: number, args: DeleteBookPagesRequest): Promise<BookWriteAnswer> {
     return this.write(journeyId, userId, (doc) => deleteBookPages(stored(doc), args), {
       returnPrevious: args.returnPrevious,
+      expectedVersion: args.expectedVersion,
     });
   }
 
@@ -156,6 +266,7 @@ export class JourneyBookEditService {
     const edit = { spreadId: args.spreadId, ops: args.ops };
     return this.write(journeyId, userId, (doc, ctx) => applyBookOps(stored(doc), edit, ctx), {
       returnPrevious: args.returnPrevious,
+      travel: true,
     });
   }
 
@@ -179,6 +290,52 @@ export class JourneyBookEditService {
     });
   }
 
+  /**
+   * `set_book_setup`: the page format and the page numbers, elements not
+   * rescaled; the answer holds the setup as it was under `previous_setup`.
+   * The assistant's undo sets it back naming `expectedVersion`.
+   */
+  async setSetup(journeyId: number, userId: number, args: SetBookSetupRequest): Promise<BookWriteAnswer> {
+    return this.write(journeyId, userId, (doc) => setBookSetup(stored(doc), args), {
+      expectedVersion: args.expectedVersion,
+      extra: (before) => (before ? { previous_setup: before.page } : {}),
+    });
+  }
+
+  /** `duplicate_book_page`: a copy of an inner page with new ids, right after it. */
+  async duplicatePage(journeyId: number, userId: number, args: DuplicateBookPageRequest): Promise<BookWriteAnswer> {
+    return this.write(journeyId, userId, (doc, ctx) => duplicateBookPage(stored(doc), args, ctx));
+  }
+
+  /** `save_book_layout`: a page's arrangement kept as one of the book's own layouts; `layout_id` names it. */
+  async saveLayout(journeyId: number, userId: number, args: SaveBookLayoutRequest): Promise<BookWriteAnswer> {
+    return this.write(journeyId, userId, (doc, ctx) => saveBookLayout(stored(doc), args, ctx), {
+      extra: (_before, made) => (made.created[0] ? { layout_id: made.created[0] } : {}),
+    });
+  }
+
+  /** `remove_book_layout`: one of the book's own layouts taken away; `previous_layout` puts it back. */
+  async removeLayout(journeyId: number, userId: number, args: RemoveBookLayoutRequest): Promise<BookWriteAnswer> {
+    return this.write(journeyId, userId, (doc) => removeBookLayout(stored(doc), args), {
+      expectedVersion: args.expectedVersion,
+      extra: (before) => {
+        const layout = before?.layouts?.find((l) => l.id === args.layoutId);
+        return layout ? { previous_layout: layout } : {};
+      },
+    });
+  }
+
+  /**
+   * `restore_book_layout`, the assistant's undo of `remove_book_layout`: the
+   * layout it answered put back, only while the book is at `expectedVersion`.
+   * The layout comes as JSON and is parsed again like any argument.
+   */
+  async restoreLayout(journeyId: number, userId: number, args: RestoreBookLayoutRequest): Promise<BookWriteAnswer> {
+    return this.write(journeyId, userId, (doc) => restoreBookLayout(stored(doc), parsedJson(args.layout)), {
+      expectedVersion: args.expectedVersion,
+    });
+  }
+
   // ── The pieces ───────────────────────────────────────────────────────────
 
   /** The journey as a member sees it and its book. 404 for anyone else. */
@@ -192,15 +349,22 @@ export class JourneyBookEditService {
   /**
    * The gallery and the entries, for the engine: a photo an operation brings in
    * must be in the gallery, an entry a page or a binding names must be the
-   * journey's. Sizes are left out on purpose: `trek_photos.width/height` hold
-   * a thumbnail's size for an uploaded photo and nothing for a provider's, and
-   * the print check must read the original's or say nothing.
+   * journey's. A photo's size is its original's as the pixel signals measured
+   * it (`trek_photo_signals`), never `trek_photos.width/height`, which hold a
+   * thumbnail's size for an uploaded photo and nothing for a provider's: the
+   * print check reads the original's or says nothing. The colours, the busy
+   * grid and the salient point come with it for the design findings.
    */
   private async context(journeyId: number, journey: JourneyWords): Promise<BookOpsContext> {
     const gallery = await this.photosRepo.galleryRead(journeyId);
     const entries = await this.entriesRepo.listForJourney(journeyId);
+    const measured = await this.signals.bookSignals(gallery.map((p) => p.photo_id));
     return {
-      photos: gallery.map((p) => ({ photoId: p.photo_id, caption: p.caption ?? null })),
+      photos: gallery.map((p): BookPhotoInfo => ({
+        photoId: p.photo_id,
+        caption: p.caption ?? null,
+        ...measured.get(p.photo_id),
+      })),
       journey: {
         title: journey.title,
         subtitle: journey.subtitle ?? null,
@@ -230,11 +394,13 @@ export class JourneyBookEditService {
   ): Promise<BookWriteAnswer> {
     const journey = await this.journey.canAccessJourney(journeyId, userId);
     if (!journey) throw journeyNotFound();
+    // Read before the transaction: the figures take a while and need not be read in it.
+    const travel = options.travel ? await this.travelContext(journeyId, userId) : undefined;
     const { record, result } = await this.books.editBook(
       journeyId,
       userId,
       async (current) => {
-        const ctx = await this.context(journeyId, journey);
+        const ctx = { ...(await this.context(journeyId, journey)), ...(travel ? { travel } : {}) };
         const before = current?.document ?? null;
         const made = change(before, ctx);
         if (made.ok === false) throw refused(made.error);
@@ -252,7 +418,7 @@ export class JourneyBookEditService {
       findings: answer.findings,
       dropped: result.made.dropped,
       ...(options.returnPrevious ? { previous_spreads: previousOf(result.before, result.made.spreadIds) } : {}),
-      ...options.extra?.(result.before),
+      ...options.extra?.(result.before, result.made),
     };
   }
 }
@@ -281,6 +447,15 @@ function pagesOf(doc: BookDocument, made: BookMade, ctx: BookOpsContext) {
 function previousOf(before: BookDocument | null, spreadIds: readonly string[]): BookPreviousSpread[] {
   if (!before) return [];
   return before.spreads.flatMap((spread, index) => (spreadIds.includes(spread.id) ? [{ index, spread }] : []));
+}
+
+/** A JSON argument read back; what does not parse reaches the engine as nothing, which it refuses. */
+function parsedJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
 }
 
 /** Every write but `create_book` needs a book to change. */

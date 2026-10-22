@@ -422,3 +422,22 @@ export const AI_CONNECTION_ACCOUNT: JsonColumn<AiConnectionAccount> = {
   schema: aiConnectionAccountSchema,
   fallback: () => ({}),
 };
+
+/**
+ * A book as an applied design found it, kept for its undo: the same document
+ * `journey_books.document` holds. Read as a JSON object; the book contract
+ * normalizes it on the way back. A broken row reads as none and is refused,
+ * never written back as an empty book.
+ */
+export const JOURNEY_BOOK_REVISION_DOCUMENT: JsonColumn<Record<string, unknown> | null> = {
+  column: 'journey_book_revisions.document',
+  schema: z.record(z.string(), z.unknown()),
+  fallback: () => null,
+};
+
+/** A photo's main colours, up to five `#rrggbb:share`, most of the picture first. A broken row reads as none. */
+export const TREK_PHOTO_SIGNAL_PALETTE: JsonColumn<string[]> = {
+  column: 'trek_photo_signals.palette',
+  schema: z.array(z.string().regex(/^#[0-9a-f]{6}(?::(?:0|1)(?:\.\d{1,2})?)?$/)).max(5),
+  fallback: () => [],
+};

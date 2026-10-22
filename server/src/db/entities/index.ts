@@ -45,6 +45,7 @@ import { HiddenCountriesSchema } from './HiddenCountries.entity';
 import { HiddenRegionsSchema } from './HiddenRegions.entity';
 import { IdempotencyKeysSchema } from './IdempotencyKeys.entity';
 import { InviteTokensSchema } from './InviteTokens.entity';
+import { JourneyBookRevisionsSchema } from './JourneyBookRevisions.entity';
 import { JourneyBooksSchema } from './JourneyBooks.entity';
 import { JourneyContributorsSchema } from './JourneyContributors.entity';
 import { JourneyEntriesSchema } from './JourneyEntries.entity';
@@ -206,6 +207,7 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   HiddenRegionsSchema,
   IdempotencyKeysSchema,
   InviteTokensSchema,
+  JourneyBookRevisionsSchema,
   JourneyBooksSchema,
   JourneyContributorsSchema,
   JourneyEntriesSchema,

@@ -48,6 +48,7 @@ import type { HiddenCountriesTable } from './HiddenCountries.table';
 import type { HiddenRegionsTable } from './HiddenRegions.table';
 import type { IdempotencyKeysTable } from './IdempotencyKeys.table';
 import type { InviteTokensTable } from './InviteTokens.table';
+import type { JourneyBookRevisionsTable } from './JourneyBookRevisions.table';
 import type { JourneyBooksTable } from './JourneyBooks.table';
 import type { JourneyContributorsTable } from './JourneyContributors.table';
 import type { JourneyEntriesTable } from './JourneyEntries.table';
@@ -215,6 +216,7 @@ export interface DB {
   hidden_regions: HiddenRegionsTable;
   idempotency_keys: IdempotencyKeysTable;
   invite_tokens: InviteTokensTable;
+  journey_book_revisions: JourneyBookRevisionsTable;
   journey_books: JourneyBooksTable;
   journey_contributors: JourneyContributorsTable;
   journey_entries: JourneyEntriesTable;

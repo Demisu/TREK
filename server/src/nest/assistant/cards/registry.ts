@@ -8,6 +8,8 @@ import {
   type AssistantWriteTool,
 } from '../assistant-tools.constants';
 import { ATLAS_CARDS } from './atlas';
+import { BOOK_CARDS } from './book';
+import { BOOK_DESIGN_CARDS } from './book-design';
 import { BOOKING_CARDS } from './booking';
 import { BUDGET_CARDS } from './budget';
 import type {
@@ -53,6 +55,8 @@ export const DOMAINS: readonly DomainCards[] = [
   VACAY_CARDS,
   JOURNEY_CARDS,
   PACKING_CARDS,
+  BOOK_CARDS,
+  BOOK_DESIGN_CARDS,
 ];
 
 /** Prompt lines one package may add. */

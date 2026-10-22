@@ -19,20 +19,30 @@ import {
   createBookArgs,
   deleteBookPagesArgs,
   describeBookPageArgs,
+  duplicateBookPageArgs,
   editBookPageArgs,
   idSchema,
   listBookLayouts,
   listBookLayoutsArgs,
   moveBookPageArgs,
+  removeBookLayoutArgs,
+  restoreBookLayoutArgs,
   restoreBookPageArgs,
+  saveBookLayoutArgs,
   setBookCoverArgs,
+  setBookSetupArgs,
   type AddBookPagesRequest,
   type CreateBookRequest,
   type DeleteBookPagesRequest,
+  type DuplicateBookPageRequest,
   type EditBookPageRequest,
   type MoveBookPageRequest,
+  type RemoveBookLayoutRequest,
+  type RestoreBookLayoutRequest,
   type RestoreBookPageRequest,
+  type SaveBookLayoutRequest,
   type SetBookCoverRequest,
+  type SetBookSetupRequest,
 } from '@trek/shared';
 
 const journeyAddonOn = addonGate(ADDON_IDS.JOURNEY);
@@ -90,14 +100,17 @@ export class JourneyBookMcp {
 
   @Tool({
     name: 'describe_book_page',
-    description: `One page of a journey's book in words: its size and role, every element back to front with its id, kind, frame in mm, rotation, lock, photo id or first words and binding, then the findings (overlaps, content in the fold or past the trim, empty frames, low print resolution, words past their frame, parked elements). ${UNITS} Read it before editing a page and again after, to check the result.`,
+    description: `One page of a journey's book in words: its size and role, every element back to front with its id, kind, frame in mm, rotation, lock, photo id or first words and binding, then the findings (overlaps, content in the fold or past the trim, empty frames, low print resolution, words past their frame, parked elements, words on a busy part of a photo, low contrast, type too small, crowded pages, near misses of the margins). ${UNITS} Read it before editing a page and again after, to check the result. With designId (from design_book) it reads the page of that design draft instead of the book.`,
     inputSchema: { journeyId: idSchema, ...describeBookPageArgs },
     annotations: TOOL_ANNOTATIONS_READONLY,
     when: journeyAddonOn,
     access: { group: 'journey', mode: 'read' },
   })
-  async describeBookPage({ journeyId, spreadId }: OnJourney & { spreadId: string }, ctx: McpContext) {
-    return ok(await this.books.describePage(journeyId, ctx.userId, spreadId));
+  async describeBookPage(
+    { journeyId, spreadId, designId }: OnJourney & { spreadId: string; designId?: string },
+    ctx: McpContext,
+  ) {
+    return ok(await this.books.describePage(journeyId, ctx.userId, spreadId, designId));
   }
 
   @Tool({
@@ -164,7 +177,7 @@ export class JourneyBookMcp {
 
   @Tool({
     name: 'edit_book_page',
-    description: `Change one page with 1 to ${BOOK_OP_LIMITS.opsPerCall} operations, run in order, all or nothing: layout (a template, grid or saved layout), place_photo (a photo of the journey's gallery into a frame by elementId, by its slot among the page's frames, or into a new frame), photo_look (the crop as fit and focal point, mask, frame style, filter, radius), swap_photos, text (by elementId, or by role heading, body or meta, which creates the text when the page has none), caption (under a photo, bound to its caption in the journal unless words are given), frame (move, resize, turn), remove (parked with the page by default, park false deletes) and background (null is the paper). A locked element refuses any operation that would change it. ${LAYOUT_NOTES.templates} ${LAYOUT_NOTES.grids} ${UNITS} With returnPrevious the answer also holds the page as it was, under previous_spreads. ${WRITE_ANSWER}`,
+    description: `Change one page with 1 to ${BOOK_OP_LIMITS.opsPerCall} operations, run in order, all or nothing: layout (a template, grid, saved layout, or auto to lay the page out again from its entry), place_photo (a photo of the journey's gallery into a frame by elementId, by its slot among the page's frames, or into a new frame), photo_look (the crop as fit and focal point, mask, frame style, filter, radius), swap_photos, text (by elementId, or by role heading, body or meta, which creates the text when the page has none), caption (under a photo, bound to its caption in the journal unless words are given), frame (move, resize, turn), remove (parked with the page by default, park false deletes), background (null is the paper), add (a new photo frame, text, shape, icon, map, figures, country outlines, mark or list; the journey's own values such as the route, figures and countries come from the journey, never from you), style (the look of one element of its kind: opacity, colours, fonts, strokes and the like), arrange (to front, forward, backward, to back), align and distribute (several elements by their edges or centres, against each other, the page or the safe area), lock, duplicate, fill (a photo to the bleed of its page or the spread, behind everything), copy_from (elements of another page), refresh_travel (travel elements to the journey's current figures) and add_grid (a photo grid as empty frames in a box). A locked element refuses any operation that would change it but lock. The road a map draws between stops is a straight or bowed line; roads are not routed. ${LAYOUT_NOTES.templates} ${LAYOUT_NOTES.grids} ${UNITS} With returnPrevious the answer also holds the page as it was, under previous_spreads. ${WRITE_ANSWER}`,
     inputSchema: { journeyId: idSchema, ...editBookPageArgs },
     annotations: TOOL_ANNOTATIONS_NON_IDEMPOTENT,
     when: journeyAddonOn,
@@ -184,6 +197,66 @@ export class JourneyBookMcp {
   })
   async setBookCover({ journeyId, ...args }: OnJourney & SetBookCoverRequest, ctx: McpContext) {
     return ok(await this.books.setCover(journeyId, ctx.userId, args));
+  }
+
+  @Tool({
+    name: 'set_book_setup',
+    description: `The page format of a journey's book (preset, or pageWidth and pageHeight in mm, bleed and safe margin) and its page numbers (show, startAt, position, margin, size, autoColor, color, font). Elements keep their size and place, as in the Studio, so check the pages after a change of format. The answer also holds the setup as it was, under previous_setup. ${WRITE_ANSWER}`,
+    inputSchema: { journeyId: idSchema, ...setBookSetupArgs },
+    annotations: TOOL_ANNOTATIONS_WRITE,
+    when: journeyAddonOn,
+    access: { group: 'journey', mode: 'write' },
+  })
+  async setBookSetup({ journeyId, ...args }: OnJourney & SetBookSetupRequest, ctx: McpContext) {
+    return ok(await this.books.setSetup(journeyId, ctx.userId, args));
+  }
+
+  @Tool({
+    name: 'duplicate_book_page',
+    description: `Copy one inner double spread with everything on it, with new element ids, right after it. The cover, first, last and back pages cannot be copied. ${WRITE_ANSWER}`,
+    inputSchema: { journeyId: idSchema, ...duplicateBookPageArgs },
+    annotations: TOOL_ANNOTATIONS_NON_IDEMPOTENT,
+    when: journeyAddonOn,
+    access: { group: 'journey', mode: 'write' },
+  })
+  async duplicateBookPage({ journeyId, ...args }: OnJourney & DuplicateBookPageRequest, ctx: McpContext) {
+    return ok(await this.books.duplicatePage(journeyId, ctx.userId, args));
+  }
+
+  @Tool({
+    name: 'save_book_layout',
+    description: `Keep the arrangement of one page as one of the book's own layouts, named name or "Layout n", which edit_book_page's layout then takes as saved. A book keeps at most 24. The answer names the new layout under layout_id. ${WRITE_ANSWER}`,
+    inputSchema: { journeyId: idSchema, ...saveBookLayoutArgs },
+    annotations: TOOL_ANNOTATIONS_NON_IDEMPOTENT,
+    when: journeyAddonOn,
+    access: { group: 'journey', mode: 'write' },
+  })
+  async saveBookLayout({ journeyId, ...args }: OnJourney & SaveBookLayoutRequest, ctx: McpContext) {
+    return ok(await this.books.saveLayout(journeyId, ctx.userId, args));
+  }
+
+  @Tool({
+    name: 'remove_book_layout',
+    description: `Take one of the book's own layouts away by its id (get_book lists them); pages laid out on it stay as they are. Only when the person asked for it. The answer holds the layout as it was, under previous_layout. ${WRITE_ANSWER}`,
+    inputSchema: { journeyId: idSchema, ...removeBookLayoutArgs },
+    annotations: TOOL_ANNOTATIONS_DELETE,
+    when: journeyAddonOn,
+    access: { group: 'journey', mode: 'write' },
+  })
+  async removeBookLayout({ journeyId, ...args }: OnJourney & RemoveBookLayoutRequest, ctx: McpContext) {
+    return ok(await this.books.removeLayout(journeyId, ctx.userId, args));
+  }
+
+  @Tool({
+    name: 'restore_book_layout',
+    description: `Put back one of the book's own layouts exactly as remove_book_layout answered it under previous_layout, given as JSON in layout. Refused unless the book is still at expectedVersion. This takes back an earlier removal; it is not a way to make a layout. ${WRITE_ANSWER}`,
+    inputSchema: { journeyId: idSchema, ...restoreBookLayoutArgs },
+    annotations: TOOL_ANNOTATIONS_WRITE,
+    when: journeyAddonOn,
+    access: { group: 'journey', mode: 'write' },
+  })
+  async restoreBookLayout({ journeyId, ...args }: OnJourney & RestoreBookLayoutRequest, ctx: McpContext) {
+    return ok(await this.books.restoreLayout(journeyId, ctx.userId, args));
   }
 
   @Tool({

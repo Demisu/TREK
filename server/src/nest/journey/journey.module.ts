@@ -7,6 +7,7 @@ import { MemoriesModule } from '../memories/memories.module';
 import { buildStorageUploadOptions } from '../storage/storage-upload.factory';
 import { StorageModule } from '../storage/storage.module';
 import { StorageService } from '../storage/storage.service';
+import { JourneyBookDesignModule } from './journey-book-design.module';
 import { JourneyBookModule } from './journey-book.module';
 import { JourneyDomainModule } from './journey-domain.module';
 import { JourneyMapController } from './journey-map.controller';
@@ -45,6 +46,8 @@ import { MulterModule } from '@nestjs/platform-express';
     JourneyPhotoCaptureModule,
     // The Studio book: its service (the book routes below) and its MCP tools.
     JourneyBookModule,
+    // The assistant's whole-book design: its tools, its draft routes and the apply.
+    JourneyBookDesignModule,
     // JourneyService's JV1 read (`UserImmichRepository.getImmichAutoUpload`).
     UserConnectionRepositoriesModule,
     // Plan 3g Task 3: `JourneyService` (JV1, now through the module above)

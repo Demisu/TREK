@@ -1,9 +1,14 @@
+import { bookElementIdSchema, bookSpreadIdSchema } from '../book/book-ops.schema';
 import { idParamSchema, idSchema } from '../common/primitives.schema';
+import { assistantPageRenderSchema, assistantPageViewSchema } from './assistant-vision.schema';
 import {
   assistantCardSchema,
   assistantCardWriteSchema,
   ATLAS_APPLIED_ENTITIES,
   ATLAS_VERB_KEYS,
+  BOOK_APPLIED_ENTITIES,
+  BOOK_DESIGN_VERB_KEYS,
+  BOOK_VERB_KEYS,
   BOOKING_APPLIED_ENTITIES,
   BOOKING_VERB_KEYS,
   BUDGET_APPLIED_ENTITIES,
@@ -116,6 +121,8 @@ export const ASSISTANT_CHANGE_VERB_KEYS = [
   ...VACAY_VERB_KEYS,
   ...JOURNEY_VERB_KEYS,
   ...PACKING_VERB_KEYS,
+  ...BOOK_VERB_KEYS,
+  ...BOOK_DESIGN_VERB_KEYS,
 ] as const;
 export const assistantChangeVerbKeySchema = z.enum(ASSISTANT_CHANGE_VERB_KEYS);
 export type AssistantChangeVerbKey = z.infer<typeof assistantChangeVerbKeySchema>;
@@ -202,6 +209,9 @@ export const assistantFocusSchema = z
     dayId: idSchema.optional(),
     placeIds: z.array(idSchema).max(20).optional(),
     view: assistantMapViewSchema.optional(),
+    /** In the Studio: the page (spread) on screen, and the elements selected on it. */
+    spreadId: bookSpreadIdSchema.optional(),
+    elementIds: z.array(bookElementIdSchema).max(30).optional(),
   })
   .strict();
 export type AssistantFocus = z.infer<typeof assistantFocusSchema>;
@@ -220,6 +230,8 @@ export const assistantChatRequestSchema = assistantClientCtxSchema
     text: z.string().trim().min(1).max(32_000),
     focus: assistantFocusSchema.optional(),
     mentions: z.array(assistantMentionSchema).max(50).optional(),
+    /** The client draws a Studio page when the turn asks for one (the Studio's chat, assistant-vision.schema.ts). */
+    renders: z.boolean().optional(),
   })
   .strict();
 export type AssistantChatRequest = z.infer<typeof assistantChatRequestSchema>;
@@ -249,6 +261,8 @@ export type AssistantDecision = z.infer<typeof assistantDecisionSchema>;
 export const assistantDecisionsRequestSchema = assistantClientCtxSchema
   .extend({
     decisions: z.array(assistantDecisionSchema).min(1).max(50),
+    /** As on a chat turn: the client draws a Studio page when the turn asks for one. */
+    renders: z.boolean().optional(),
   })
   .strict();
 export type AssistantDecisionsRequest = z.infer<typeof assistantDecisionsRequestSchema>;
@@ -382,6 +396,7 @@ const assistantAppliedEntitySchema = z.enum([
   ...VACAY_APPLIED_ENTITIES,
   ...JOURNEY_APPLIED_ENTITIES,
   ...PACKING_APPLIED_ENTITIES,
+  ...BOOK_APPLIED_ENTITIES,
 ]);
 
 /** An applied change as the server writes it: what it touched, and until when it can be undone. */
@@ -579,6 +594,8 @@ function messagePartSchema<
     z.object({ type: z.literal('data-trek-card'), data: card }),
     // Only on a user message.
     z.object({ type: z.literal('data-trek-mentions'), data: assistantMentionsSchema }),
+    // A Studio page the turn looked at: what it was and its description, never the image.
+    z.object({ type: z.literal('data-trek-page-view'), data: assistantPageViewSchema }),
   ]);
 }
 
@@ -679,6 +696,13 @@ export const uiStreamChunkSchema = z.discriminatedUnion('type', [
     data: assistantActivitySchema,
     transient: z.literal(true).optional(),
   }),
+  // A Studio page the turn asks the Studio tab to draw and upload; the message never keeps it.
+  z.object({
+    type: z.literal('data-trek-render-request'),
+    data: assistantPageRenderSchema,
+    transient: z.literal(true).optional(),
+  }),
+  z.object({ type: z.literal('data-trek-page-view'), data: assistantPageViewSchema }),
   z.object({
     type: z.literal('data-trek-quota'),
     data: z.object({ used: z.number().int().nonnegative(), limit: z.number().int().nonnegative() }),

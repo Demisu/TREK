@@ -227,6 +227,16 @@ Requires `journey:read` or `journey:write` scope.
 | `set_book_cover` | The cover's layout, photo, title and subtitle. Needs edit access. |
 | `suggest_book_photos` | Photos of the journey's gallery for a page or the cover, grouped by day and place, best first: near duplicates (bursts and near-identical pictures) are folded onto the sharpest, and possibly blurry or low-resolution photos are named rather than picked. Narrow it to one entry or day. Sharpness and likeness are measured once per photo in the background; it cannot judge faces or what a photo shows. Any member may use it. |
 | `restore_book_page` | Put the pages an earlier change answered under `previous_spreads` back as they were, all in one call, only while the book is still at the version that change answered. Photos must be in the gallery or the book, and locked elements stay as they are. Meant for undo. Needs edit access. |
+| `set_book_setup` | The page format (a preset, or width and height in millimetres, bleed, safe margin) and the page numbers. Elements keep their size and place, as in the Studio. The answer holds the setup as it was. Needs edit access. |
+| `duplicate_book_page` | Copy one double spread with everything on it, with new ids, right after it. Needs edit access. |
+| `save_book_layout` | Keep the arrangement of one page as one of the book's own layouts (at most 24). Needs edit access. |
+| `remove_book_layout` | Take one of the book's own layouts away; pages laid out on it stay as they are. Needs edit access. |
+| `restore_book_layout` | Put back a layout `remove_book_layout` took away, only while the book is still at the version that removal answered. Meant for undo. Needs edit access. |
+| `design_book` | Design the whole book as a draft: chapters, pacing, pages, photos, type and colours, from what the person asks for (style, density, page count, scope, what to keep). Nothing changes until `apply_book_design`. It sees no faces and judges no beauty. Needs edit access. |
+| `get_book_design` | A design draft again, with the pages chosen for the apply now. |
+| `revise_book_design` | Change one page of a draft with the operations `edit_book_page` takes; nothing in the book changes. |
+| `apply_book_design` | Write a draft into the book in one change: the chosen pages, each only if nobody changed it since the design. The book as it was is kept so the change can be taken back in one step. Needs edit access. |
+| `restore_book_revision` | Put the book back as an applied design found it, only while it is still at the version the apply answered. Meant for undo. Needs edit access. |
 
 Every book write is one save of the whole book against its version: nothing is written when any part is refused, and every member's open Studio is told the book changed, the asking one included.
 

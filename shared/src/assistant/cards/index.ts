@@ -1,4 +1,6 @@
 import { ATLAS_CARD_SCHEMAS } from './atlas.contract';
+import { BOOK_DESIGN_CARD_SCHEMAS } from './book-design.contract';
+import { BOOK_CARD_SCHEMAS } from './book.contract';
 import { BOOKING_CARD_SCHEMAS } from './booking.contract';
 import { BUDGET_CARD_SCHEMAS } from './budget.contract';
 import { COLLAB_CARD_SCHEMAS } from './collab.contract';
@@ -13,6 +15,8 @@ import { z } from 'zod';
 
 export * from './card-parts';
 export * from './atlas.contract';
+export * from './book.contract';
+export * from './book-design.contract';
 export * from './booking.contract';
 export * from './budget.contract';
 export * from './collab.contract';
@@ -41,6 +45,8 @@ export const trekCardSchema = z.discriminatedUnion('kind', [
   ...VACAY_CARD_SCHEMAS,
   ...JOURNEY_CARD_SCHEMAS,
   ...PACKING_CARD_SCHEMAS,
+  ...BOOK_CARD_SCHEMAS,
+  ...BOOK_DESIGN_CARD_SCHEMAS,
 ]);
 export type TrekCard = z.infer<typeof trekCardSchema>;
 export type TrekCardKind = TrekCard['kind'];

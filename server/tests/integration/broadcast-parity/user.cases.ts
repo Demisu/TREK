@@ -1,6 +1,7 @@
 import { BucketList } from '../../../src/db/entities/BucketList.entity';
 import { CollectionLabels } from '../../../src/db/entities/CollectionLabels.entity';
 import { DawarichVisitSuggestions } from '../../../src/db/entities/DawarichVisitSuggestions.entity';
+import { JourneyBookRevisions } from '../../../src/db/entities/JourneyBookRevisions.entity';
 import { JourneyBooks } from '../../../src/db/entities/JourneyBooks.entity';
 import { JourneyEntries } from '../../../src/db/entities/JourneyEntries.entity';
 import { TripJournalLinks } from '../../../src/db/entities/TripJournalLinks.entity';
@@ -9,6 +10,7 @@ import { VacayShares } from '../../../src/db/entities/VacayShares.entity';
 import { VacayYears } from '../../../src/db/entities/VacayYears.entity';
 import { withRequestContext } from '../../../src/nest/database/request-context';
 import { DawarichTracksService } from '../../../src/nest/integrations/dawarich-tracks.service';
+import { BOOK_DESIGN_DRAFTS, BookDesignDraftStore } from '../../../src/nest/journey/book-design-draft.store';
 import { JourneyDomainService } from '../../../src/nest/journey/journey-domain.service';
 import { JourneyRecordedDaysService } from '../../../src/nest/journey/journey-recorded-days.service';
 import { PhotoCaptureBackfillService } from '../../../src/nest/memories/photo-capture-backfill.service';
@@ -972,6 +974,69 @@ async function seedBook(s: Scene, app: INestApplication, document: BookDocument 
   });
 }
 
+/** The scene's book keeping one layout of its own, `ly-one`. */
+function bookWithLayout(s: Scene): BookDocument {
+  const layout = {
+    id: 'ly-one',
+    name: 'One',
+    role: 'inner' as const,
+    pageWidth: 210,
+    pageHeight: 210,
+    background: null,
+    elements: [],
+  };
+  return { ...bookOf(s), layouts: [layout] };
+}
+
+/**
+ * A design draft of the scene's owner over the scene's book, changing its
+ * cover, kept where apply_book_design finds it (`d-parity-<n>`).
+ */
+async function seedDesign(s: Scene, app: INestApplication): Promise<void> {
+  await seedBook(s, app);
+  const base = bookOf(s);
+  const tinted = base.spreads.map((sp) => (sp.id === 'sp-cover' ? { ...sp, background: '#203040' } : sp));
+  const doc = { ...base, spreads: tinted };
+  await app.get(BookDesignDraftStore).put({
+    designId: `d-parity-${s.n}`,
+    userId: s.owner.id,
+    journeyId: s.journey.id,
+    baseVersion: 1,
+    base,
+    doc,
+    plan: [
+      {
+        spreadId: 'sp-cover',
+        index: 0,
+        action: 'replace',
+        beat: 'cover',
+        chapter: null,
+        entryId: null,
+        photoIds: [],
+        findings: { severe: 0, warn: 0 },
+      },
+    ],
+    selection: ['sp-cover'],
+    style: { style: 'classic', paper: '#ffffff', ink: '#1a1a1a', accent: '#c2410c', heading: 'sans', body: 'sans' },
+    usedPhotos: 0,
+    leftOut: [],
+    findings: [],
+    notes: [],
+    expiresAt: Date.now() + BOOK_DESIGN_DRAFTS.ttlMs,
+  });
+}
+
+/** The scene's book with a revision of it kept as `900000 + n`, what an applied design leaves. */
+async function seedRevision(s: Scene, app: INestApplication): Promise<void> {
+  await seedBook(s, app);
+  await insertRow(ormOf(app), JourneyBookRevisions, {
+    id: 900_000 + s.n,
+    journey: s.journey.id,
+    version: 1,
+    document: JSON.stringify(bookOf(s)),
+  });
+}
+
 /**
  * The Studio's save, the one route that writes a book: every book tool's twin.
  * It saves the scene's book as it stands, which sends the same event as any
@@ -1034,6 +1099,69 @@ const bookCases: ParityCase[] = [
     needs: ['journey'],
     setup: seedBook,
     args: (s) => ({ journeyId: s.journey.id, title: `Lisbon ${s.n}` }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    tool: 'set_book_setup',
+    needs: ['journey'],
+    setup: seedBook,
+    args: (s) => ({ journeyId: s.journey.id, safe: 8 }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    tool: 'duplicate_book_page',
+    needs: ['journey'],
+    setup: seedBook,
+    args: (s) => ({ journeyId: s.journey.id, spreadId: 'sp-inner' }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    tool: 'save_book_layout',
+    needs: ['journey'],
+    setup: seedBook,
+    args: (s) => ({ journeyId: s.journey.id, spreadId: 'sp-inner', name: 'Kept' }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    tool: 'remove_book_layout',
+    needs: ['journey'],
+    setup: (s, app) => seedBook(s, app, bookWithLayout(s)),
+    args: (s) => ({ journeyId: s.journey.id, layoutId: 'ly-one' }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    // An undo puts the layout back, at the version the removal left.
+    tool: 'restore_book_layout',
+    needs: ['journey'],
+    setup: seedBook,
+    args: (s) => ({
+      journeyId: s.journey.id,
+      layout: JSON.stringify(bookWithLayout(s).layouts?.[0]),
+      expectedVersion: 1,
+    }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    // One write for the whole design, one event.
+    tool: 'apply_book_design',
+    needs: ['journey'],
+    setup: seedDesign,
+    args: (s) => ({ journeyId: s.journey.id, designId: `d-parity-${s.n}` }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
+    // The undo of an applied design, at the version it left.
+    tool: 'restore_book_revision',
+    needs: ['journey'],
+    setup: seedRevision,
+    args: (s) => ({ journeyId: s.journey.id, revisionId: 900_000 + s.n, expectedVersion: 1 }),
     rest: saveBook(1),
     expect: [{ event: 'journey:book:saved', user: 'actor' }],
   },

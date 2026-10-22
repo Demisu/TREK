@@ -1,4 +1,6 @@
+import { JourneyBookRevisions } from '../../db/entities/JourneyBookRevisions.entity';
 import { JourneyBooks } from '../../db/entities/JourneyBooks.entity';
+import type { JourneyBookRevisionsRepository } from '../../db/repositories/JourneyBookRevisions.repository';
 import type { JourneyBookRow, JourneyBooksRepository } from '../../db/repositories/JourneyBooks.repository';
 import { DomainError } from '../common/domain-error';
 import { UnitOfWork } from '../database/unit-of-work';
@@ -6,7 +8,7 @@ import { JourneyDomainService } from './journey-domain.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import type { BookDocument, BookRecord, BookSummary } from '@trek/shared';
-import { normalizeBookDocument } from '@trek/shared';
+import { BOOK_DESIGN_LIMITS, normalizeBookDocument } from '@trek/shared';
 
 /**
  * What an edit of the book hands back to `editBook`: the record's title and
@@ -24,6 +26,16 @@ interface BookEdit<T> {
 /** Where a write came from: REST names the requesting tab, an MCP or assistant write none. */
 interface BookWriteOrigin {
   socketId?: string;
+}
+
+/**
+ * How `editBook` writes: only while the book is at `expectedVersion`, and with
+ * `keepRevision` keeping the book as it stood in `journey_book_revisions`
+ * inside the same transaction (a whole-book design's undo).
+ */
+interface BookEditOptions extends BookWriteOrigin {
+  expectedVersion?: number;
+  keepRevision?: boolean;
 }
 
 /**
@@ -56,6 +68,8 @@ export class JourneyBookService {
     // M1 (task-5-review.md) — `saveBook`'s first-save read-then-insert
     // needs the connection mutex to serialize two concurrent first saves.
     private readonly uow: UnitOfWork,
+    // The books a whole-book design replaced, kept in the transaction that replaces them (editBook).
+    @InjectRepository(JourneyBookRevisions) private readonly revisionsRepo: JourneyBookRevisionsRepository,
   ) {}
 
   /** Null when the journey does not exist or the user cannot reach it. */
@@ -217,13 +231,17 @@ export class JourneyBookService {
    * The event goes out after the commit. A write that names no socket (MCP,
    * the assistant) reaches every tab of every member, the asking one too, so
    * the Studio a person has open shows what the assistant did.
+   *
+   * With `keepRevision` the stored book is kept as a revision before it is
+   * replaced, in the same transaction, and the journey's oldest revisions past
+   * the newest few go; `revisionId` names it (null without a stored book).
    */
   async editBook<T>(
     journeyId: number,
     userId: number,
     edit: (current: BookRecord | null) => BookEdit<T> | Promise<BookEdit<T>>,
-    options: BookWriteOrigin & { expectedVersion?: number } = {},
-  ): Promise<{ record: BookRecord; result: T }> {
+    options: BookEditOptions = {},
+  ): Promise<{ record: BookRecord; result: T; revisionId: number | null }> {
     await this.requireEditor(journeyId, userId);
     const done = await this.uow.transactional(async () => {
       const row = await this.booksRepo.findFirstForJourney(journeyId);
@@ -232,11 +250,18 @@ export class JourneyBookService {
         throw bookMoved(current);
       }
       const next = await edit(current);
-      if (current && next.unchanged) return { record: current, result: next.result, wrote: false };
+      if (current && next.unchanged) {
+        return { record: current, result: next.result, wrote: false, revisionId: null };
+      }
       const document = JSON.stringify(normalizeBookDocument(next.document));
       if (!row) {
         const id = await this.booksRepo.insertBook(journeyId, next.title, document, userId);
-        return { record: await this.written(id), result: next.result, wrote: true };
+        return { record: await this.written(id), result: next.result, wrote: true, revisionId: null };
+      }
+      let revisionId: number | null = null;
+      if (options.keepRevision) {
+        revisionId = await this.revisionsRepo.insertRevision(journeyId, row.version, row.document);
+        await this.revisionsRepo.pruneRevisions(journeyId, BOOK_DESIGN_LIMITS.revisions);
       }
       const changes = await this.booksRepo.casUpdate(row.id, row.version, {
         title: next.title,
@@ -244,10 +269,10 @@ export class JourneyBookService {
         updatedBy: userId,
       });
       if (changes === 0) throw bookMoved(await this.byId(row.id));
-      return { record: await this.written(row.id), result: next.result, wrote: true };
+      return { record: await this.written(row.id), result: next.result, wrote: true, revisionId };
     });
     if (done.wrote) await this.broadcastSaved(journeyId, userId, done.record, options.socketId);
-    return { record: done.record, result: done.result };
+    return { record: done.record, result: done.result, revisionId: done.revisionId };
   }
 
   /** 404 for someone who cannot see the journey (no existence oracle), 403 for a viewer. */

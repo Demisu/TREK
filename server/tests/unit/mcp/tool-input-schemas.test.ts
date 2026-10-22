@@ -7,7 +7,8 @@
  * What it holds: an input schema is self-contained (no $ref or $defs, which
  * several MCP clients do not resolve), every id field is the positive integer
  * of @trek/shared's idSchema, the shared primitive the tools derive their ids
- * from, and the book restore's schema, which carries whole pages, stays under a ceiling.
+ * from, and the book restore's schema, which carries whole pages, stays under a ceiling, as do
+ * the page edit and the design revision, which take every page operation.
  */
 import type { ToolOptions } from '../../../src/nest-mcp';
 import { getEntry, isMcpController, type ClassRef } from '../../../src/nest-mcp/metadata';
@@ -92,5 +93,17 @@ describe('MCP tool input schemas', () => {
     const size = JSON.stringify(restore ?? null).length;
     expect(size).toBeGreaterThan(10_000);
     expect(size).toBeLessThan(40_000);
+  });
+
+  it('MCP-SCHEMA-004: the page edit and the design revision, which take every page operation, stay under their ceiling', () => {
+    // Every element kind's add and style operation widen the op union; the design's
+    // revision takes the same ops. A layout's undo takes its layout as JSON text, so it stays small.
+    const sizeOf = (tool: string) =>
+      JSON.stringify([...schemas].find(([key]) => key.endsWith(`#${tool}`))?.[1] ?? null).length;
+    for (const tool of ['edit_book_page', 'revise_book_design']) {
+      expect(sizeOf(tool)).toBeGreaterThan(10_000);
+      expect(sizeOf(tool)).toBeLessThan(45_000);
+    }
+    expect(sizeOf('restore_book_layout')).toBeLessThan(2_000);
   });
 });

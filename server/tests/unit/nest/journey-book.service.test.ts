@@ -8,6 +8,7 @@
  */
 import { db as testDb } from '../../../src/db/database';
 import { db as dbConn } from '../../../src/db/database';
+import { JourneyBookRevisions } from '../../../src/db/entities/JourneyBookRevisions.entity';
 import { JourneyBooks } from '../../../src/db/entities/JourneyBooks.entity';
 import { Journeys } from '../../../src/db/entities/Journeys.entity';
 import { TrekPhotos } from '../../../src/db/entities/TrekPhotos.entity';
@@ -80,7 +81,9 @@ beforeAll(async () => {
   // Plan 3g Task 3: JourneyBooksRepository (JB1-JB7), not `dbs` any more.
   // task-5-fix-brief constructor-ripple (M1): `UnitOfWork`, so `saveBook`'s
   // read-then-insert can be wrapped in one transaction.
-  books = new JourneyBookService(domain, await createTestJourneyBooksRepo(testDb), uow);
+  // WP13: the revisions a whole-book design keeps, in editBook's transaction.
+  const revisions = (await sharedTestOrm(testDb)).repo(JourneyBookRevisions);
+  books = new JourneyBookService(domain, await createTestJourneyBooksRepo(testDb), uow, revisions);
 });
 
 beforeEach(() => {

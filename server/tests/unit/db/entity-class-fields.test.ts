@@ -54,7 +54,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 //   provider_call_id, tool_name, args, preview; assistant_usage: user_id, day, paid_by (each row is
 //   written whole by the assistant, which always knows all of them).
 // + trek_photo_signals: id, photo_id, algo (a measurement always names its photo and how it was made).
-const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 569;
+// - assistant_threads.trip_id: a thread may be about a journey instead, so it is nullable now.
+// + journey_book_revisions: id, journey_id, version, document (a revision is only ever written whole).
+const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 572;
 
 describe('entity class fields never carry a NaN initialiser (task-4-review-shape.md, Important 1)', () => {
   it('CLASSFIELD-001: new X() has no own property whose value is NaN, across all 133 entities', () => {
