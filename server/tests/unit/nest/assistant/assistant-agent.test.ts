@@ -7,6 +7,7 @@
 import type {
   AiChatClient,
   AiChatEvent,
+  AiChatMessage,
   AiChatRequest,
 } from '../../../../src/nest/ai-connections/ai-chat-client.interface';
 import { AiProviderError } from '../../../../src/nest/ai-connections/ai-chat-client.interface';
@@ -14,6 +15,7 @@ import {
   runAgentLoop,
   type AgentDeps,
   type AgentInput,
+  type AgentToolRun,
   type HeldCall,
   type StepRecord,
 } from '../../../../src/nest/assistant/assistant-agent';
@@ -559,6 +561,34 @@ describe('runAgentLoop', () => {
     ]);
   });
 
+  it("ASTAGT-023: a change its gate sends back is that call's error for the model, never held; the next one is", async () => {
+    const refusalOf = vi.fn(async (_tool: string, args: Record<string, unknown>) =>
+      args.name === 'Broken' ? 'Not proposed yet: two photos overlap' : null,
+    );
+    const t = setup(
+      [
+        [
+          { type: 'tool-call', call: { id: 'w1', name: 'create_place', args: { name: 'Broken' } } },
+          { type: 'tool-call', call: { id: 'r1', name: 'list_places', args: {} } },
+        ],
+        [{ type: 'tool-call', call: { id: 'w2', name: 'create_place', args: { name: 'Fixed' } } }],
+      ],
+      { refusalOf },
+    );
+    const outcome = await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+    expect(outcome.end).toBe('awaiting');
+    // Only changes are asked about, each with the arguments it would be held with.
+    expect(refusalOf.mock.calls).toEqual([
+      ['create_place', { name: 'Broken' }],
+      ['create_place', { name: 'Fixed' }],
+    ]);
+    expect(t.deps.describe).toHaveBeenCalledTimes(1);
+    const sentBack = t.requests[1].messages.find((m) => m.role === 'tool' && m.toolCallId === 'w1');
+    expect(sentBack).toMatchObject({ isError: true, output: expect.stringContaining('two photos overlap') });
+    expect(t.chunks).toContainEqual({ type: 'tool-output-error', toolCallId: 'w1', errorText: expect.any(String) });
+    expect(t.memory.held[0]?.held.map((call) => call.args)).toEqual([{ name: 'Fixed' }]);
+  });
+
   describe('answer cards', () => {
     /** A card as a package would build it; its fields do not matter to the loop. */
     const CARD = { kind: 'tourList' } as TrekCard;
@@ -621,6 +651,85 @@ describe('runAgentLoop', () => {
       const t = setup([[read('c1')], [{ type: 'text-delta', delta: 'Done.' }]]);
       await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
       expect(t.memory.saved[0].step.parts.map((part) => part.type)).toEqual(['tool-call']);
+    });
+  });
+
+  describe('page images', () => {
+    const PAGE = { mimeType: 'image/jpeg' as const, data: 'aGVsbG8=' };
+    const VIEW = { spreadId: 'sp-2', bookVersion: 3, width: 1280, height: 640, bytes: 5, description: 'Page 2' };
+    const LOOKED: AgentToolRun = { ok: true, value: { description: 'Page 2' }, images: [PAGE, PAGE], view: VIEW };
+    const look = (id: string) => ({ type: 'tool-call' as const, call: { id, name: 'list_places', args: {} } });
+    const done = (): Step => [{ type: 'text-delta', delta: 'Looks good.' }];
+    const vision = () => ({
+      refused: vi.fn(),
+      afterApply: vi.fn(async (history: readonly AiChatMessage[]) => [...history]),
+    });
+    const imagesOf = (messages: AiChatMessage[]) =>
+      messages.filter((m) => m.role === 'tool').map((m) => (m.role === 'tool' ? (m.images?.length ?? 0) : 0));
+
+    it('ASTAGT-030: a look keeps what it looked at in its step and streams it; one image goes to the next request', async () => {
+      const t = setup([[look('c1')], done()], { vision: vision() });
+      t.tools.call.mockImplementation(async () => LOOKED);
+      await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+      const parts = t.memory.saved[0]?.step.parts ?? [];
+      expect(parts.map((part) => part.type)).toEqual(['tool-call', 'data-trek-page-view']);
+      expect(parts[1]).toEqual({ type: 'data-trek-page-view', data: VIEW });
+      expect(t.chunks).toContainEqual({ type: 'data-trek-page-view', data: VIEW });
+      // Never stored, never streamed: the bytes live for the next request.
+      expect(JSON.stringify([t.memory.saved, t.chunks])).not.toContain('aGVsbG8=');
+      expect(t.requests[1]?.messages.find((m) => m.role === 'tool')).toMatchObject({
+        toolCallId: 'c1',
+        images: [PAGE],
+      });
+    });
+
+    it('ASTAGT-031: a request carries the images of the newest three looks, one each; older looks go as their text', async () => {
+      const t = setup([[look('c1')], [look('c2')], [look('c3')], [look('c4')], done()], { vision: vision() });
+      t.tools.call.mockImplementation(async () => LOOKED);
+      await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+      expect(imagesOf(t.requests[1]?.messages ?? [])).toEqual([1]);
+      expect(imagesOf(t.requests[4]?.messages ?? [])).toEqual([0, 1, 1, 1]);
+    });
+
+    it('ASTAGT-032: a refused image drops the images, tells the vision and asks the step again, once', async () => {
+      const refusedImage = new AiProviderError('generic', 400, false, undefined, 'image_input_refused');
+      const seeing = vision();
+      const t = setup([[look('c1')], refusedImage, done()], { vision: seeing });
+      t.tools.call.mockImplementation(async () => LOOKED);
+      const outcome = await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+      expect(outcome.end).toBe('stop');
+      expect(seeing.refused).toHaveBeenCalledOnce();
+      expect(t.requests).toHaveLength(3);
+      expect(imagesOf(t.requests[1]?.messages ?? [])).toEqual([1]);
+      expect(imagesOf(t.requests[2]?.messages ?? [])).toEqual([0]);
+      expect(t.memory.saved.map((row) => row.status)).toEqual(['complete', 'complete']);
+    });
+
+    it('ASTAGT-033: another refusal, or one without a vision, ends the turn as before, asked once', async () => {
+      const otherRefusal = new AiProviderError('generic', 400, false, undefined, 'model_not_found');
+      const seeing = vision();
+      const t = setup([[look('c1')], otherRefusal], { vision: seeing });
+      t.tools.call.mockImplementation(async () => LOOKED);
+      expect((await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal)).end).toBe('failed');
+      expect(seeing.refused).not.toHaveBeenCalled();
+      expect(t.requests).toHaveLength(2);
+
+      const refusedImage = new AiProviderError('generic', 400, false, undefined, 'image_input_refused');
+      const plain = setup([[look('c1')], refusedImage]);
+      plain.tools.call.mockImplementation(async () => LOOKED);
+      const plainOutcome = await runAgentLoop(plain.deps, plain.input, plain.writer, new AbortController().signal);
+      expect(plainOutcome.end).toBe('failed');
+      expect(plain.requests).toHaveLength(2);
+    });
+
+    it('ASTAGT-034: a turn starts from the history the vision gives back, with views of applied pages', async () => {
+      const seeing = vision();
+      const seen = { role: 'user' as const, text: 'seen', images: [PAGE] };
+      seeing.afterApply.mockImplementation(async (history) => [...history, seen]);
+      const t = setup([done()], { vision: seeing });
+      await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+      expect(seeing.afterApply).toHaveBeenCalledWith(t.input.history);
+      expect(t.requests[0]?.messages.at(-1)).toEqual(seen);
     });
   });
 });

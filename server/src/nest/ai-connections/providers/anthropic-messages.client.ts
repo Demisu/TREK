@@ -4,6 +4,7 @@ import type {
   AiChatMessage,
   AiChatRequest,
   AiFinishReason,
+  AiImage,
   AiToolCall,
 } from '../ai-chat-client.interface';
 import { AI_BASE_URLS } from '../ai-connections.constants';
@@ -32,10 +33,18 @@ const MAX_TOKENS = 32_000;
 type ContentBlock = Record<string, unknown>;
 type AnthropicMessage = { role: 'user' | 'assistant'; content: ContentBlock[] };
 
+/** An image as a Messages API block: base64 in the request, never a URL. */
+function imageBlock(image: AiImage): ContentBlock {
+  return { type: 'image', source: { type: 'base64', media_type: image.mimeType, data: image.data } };
+}
+
 /**
  * The provider-neutral history as Messages API turns: a tool result is a
  * `tool_result` block of a user turn, and turns of the same role that follow
- * each other merge into one, since the API wants them alternating.
+ * each other merge into one, since the API wants them alternating. An image
+ * of a tool result goes inside that `tool_result`, after its text, where the
+ * model reads it as what the tool produced; a user's images go before their
+ * words.
  */
 export function toAnthropicMessages(messages: AiChatMessage[]): AnthropicMessage[] {
   const out: AnthropicMessage[] = [];
@@ -47,18 +56,20 @@ export function toAnthropicMessages(messages: AiChatMessage[]): AnthropicMessage
   };
   for (const message of messages) {
     if (message.role === 'user') {
-      push('user', [{ type: 'text', text: message.text }]);
+      push('user', [...(message.images ?? []).map(imageBlock), { type: 'text', text: message.text }]);
     } else if (message.role === 'assistant') {
       push('assistant', [
         ...(message.text ? [{ type: 'text', text: message.text }] : []),
         ...message.toolCalls.map((call) => ({ type: 'tool_use', id: call.id, name: call.name, input: call.args })),
       ]);
     } else {
+      const images = (message.images ?? []).map(imageBlock);
+      const output = images.length > 0 ? [{ type: 'text', text: message.output }, ...images] : message.output;
       push('user', [
         {
           type: 'tool_result',
           tool_use_id: message.toolCallId,
-          content: message.output,
+          content: output,
           ...(message.isError ? { is_error: true } : {}),
         },
       ]);

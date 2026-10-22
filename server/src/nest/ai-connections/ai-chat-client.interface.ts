@@ -2,7 +2,7 @@ import type { AiProviderState } from '../../db/json-columns';
 import type { AiConnectionKind } from '@trek/shared';
 
 export type { AiProviderState };
-export { AiProviderError } from './providers/provider-errors';
+export { AiProviderError, isImageRefusal } from './providers/provider-errors';
 
 /** A tool the model may call: its name, what it is for and its arguments as JSON Schema. */
 export interface AiToolSpec {
@@ -19,15 +19,29 @@ export interface AiToolCall {
 }
 
 /**
+ * An image a message carries to a model that reads images (the Studio page
+ * the assistant looks at), base64 without line breaks. It lives for one turn
+ * in memory; nothing stores it.
+ */
+export interface AiImage {
+  mimeType: 'image/jpeg' | 'image/png' | 'image/webp';
+  data: string;
+  detail?: 'low' | 'high';
+}
+
+/**
  * The provider-neutral history a turn sends. A tool result answers the call
  * with the same id; an assistant message may carry the items its provider
  * needs replayed verbatim (`providerState`), which an adapter for another
- * provider ignores and rebuilds from the text and the calls instead.
+ * provider ignores and rebuilds from the text and the calls instead. A user
+ * message or a tool result may carry images; each adapter places them where
+ * its provider reads them, and the assistant sends none to a model that reads
+ * no images.
  */
 export type AiChatMessage =
-  | { role: 'user'; text: string }
+  | { role: 'user'; text: string; images?: AiImage[] }
   | { role: 'assistant'; text: string; toolCalls: AiToolCall[]; providerState?: AiProviderState | null }
-  | { role: 'tool'; toolCallId: string; name: string; output: string; isError?: boolean };
+  | { role: 'tool'; toolCallId: string; name: string; output: string; isError?: boolean; images?: AiImage[] };
 
 export interface AiChatRequest {
   /** The standing instructions, the same on every turn of a conversation (cached where the provider can). */

@@ -1,6 +1,6 @@
 import { readCappedJson } from '../../../utils/cappedFetch';
 import { logWarn } from '../../audit/audit-log.logger';
-import { AiProviderError, errorCodeOf, providerFailure } from './provider-errors';
+import { AiProviderError, errorCodeOf, IMAGE_INPUT_REFUSED, namesImageInput, providerFailure } from './provider-errors';
 import type { AiConnectionKind } from '@trek/shared';
 
 /**
@@ -54,7 +54,11 @@ export async function openProviderStream(
 /** The AiProviderError a non-success response stands for, read from its status and its error body. */
 export async function refusalOf(kind: AiConnectionKind, res: Response): Promise<AiProviderError> {
   const body = await readCappedJson<unknown>(res, MAX_ERROR_BYTES).catch(() => undefined);
-  const code = errorCodeOf(body);
+  const named = errorCodeOf(body);
+  // A refused image is named by its own code, so the turn can send the step again without it; a
+  // refusal the provider's own code already explains (a plan that does not cover it) keeps that code.
+  const image = namesImageInput(res.status, body) && providerFailure(kind, res.status, named).code === 'generic';
+  const code = image ? IMAGE_INPUT_REFUSED : named;
   // Status and code only: an error body can quote the request, and the request holds the trip.
   logWarn(`[ai] ${kind} refused the request: HTTP ${res.status}${code ? ` (${code})` : ''}`);
   return providerFailure(kind, res.status, code);

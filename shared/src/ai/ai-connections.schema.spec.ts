@@ -3,7 +3,9 @@ import {
   aiApiKeyConnectRequestSchema,
   aiChatgptFinishRequestSchema,
   aiInstanceConnectionRequestSchema,
+  aiModelInfoSchema,
   aiOpenrouterStartRequestSchema,
+  aiPrivacyAckRequestSchema,
   aiRetentionSchema,
   aiStatusResponseSchema,
 } from './ai-connections.schema';
@@ -143,5 +145,24 @@ describe('aiStatusResponseSchema', () => {
         openrouterOAuth: true,
       }).success,
     ).toBe(true);
+  });
+});
+
+describe('the Studio page image', () => {
+  it('AIVIS-001: a model may say whether it reads images, and a list that cannot say leaves it out', () => {
+    expect(aiModelInfoSchema.parse({ id: 'm', label: 'm', supportsTools: true, supportsImages: false })).toEqual({
+      id: 'm',
+      label: 'm',
+      supportsTools: true,
+      supportsImages: false,
+    });
+    expect(aiModelInfoSchema.safeParse({ id: 'm', label: 'm', supportsTools: true }).success).toBe(true);
+  });
+
+  it('AIVIS-002: the acknowledgement of page images is its own scope; no other scope exists', () => {
+    const ack = { kind: 'anthropic', host: 'api.anthropic.com' };
+    expect(aiPrivacyAckRequestSchema.safeParse(ack).success).toBe(true);
+    expect(aiPrivacyAckRequestSchema.safeParse({ ...ack, scope: 'studio_images' }).success).toBe(true);
+    expect(aiPrivacyAckRequestSchema.safeParse({ ...ack, scope: 'everything' }).success).toBe(false);
   });
 });

@@ -275,6 +275,31 @@ describe('toChatHistory', () => {
       'The hike "Herzogstand" was not added; the user moved on without deciding.',
     );
   });
+
+  it('ASTHIS-014: a page the Studio drew is replayed as its description; no image is stored or sent again', () => {
+    const view = { spreadId: 'sp-2', bookVersion: 3, width: 1280, height: 640, bytes: 182_000, description: 'Page 2' };
+    const looked = { description: 'Page 2, a double spread', findings: [] };
+    const args = { spreadId: 'sp-2' };
+    const rows = [
+      row('user', [{ type: 'text', text: 'Check page 2' }]),
+      row('assistant', [
+        { type: 'tool-call', toolCallId: 'p1', toolName: 'preview_book_page', args, result: looked },
+        // Whatever reaches the store is what the shared part keeps: no bytes.
+        { type: 'data-trek-page-view', data: { ...view, data: 'aGVsbG8=' } as typeof view },
+      ]),
+      row('assistant', [{ type: 'text', text: 'It looks balanced.' }]),
+    ];
+    const history = toChatHistory(rows, new Map());
+    expect(history).toEqual([
+      { role: 'user', text: 'Check page 2' },
+      { role: 'assistant', text: '', toolCalls: [{ id: 'p1', name: 'preview_book_page', args }], providerState: null },
+      { role: 'tool', toolCallId: 'p1', name: 'preview_book_page', output: JSON.stringify(looked) },
+      { role: 'assistant', text: 'It looks balanced.', toolCalls: [], providerState: null },
+    ]);
+    expect(JSON.stringify(history)).not.toContain('aGVsbG8=');
+    const [, answer] = toThreadMessages(rows, new Map(), NOW);
+    expect(answer?.parts[1]).toEqual({ type: 'data-trek-page-view', data: view });
+  });
 });
 
 describe('toThreadMessages', () => {

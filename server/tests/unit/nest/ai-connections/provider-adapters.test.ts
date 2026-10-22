@@ -19,6 +19,9 @@ import {
   AiProviderError,
   CHATGPT_USAGE_URL,
   errorCodeOf,
+  IMAGE_INPUT_REFUSED,
+  isImageRefusal,
+  namesImageInput,
   providerFailure,
 } from '../../../../src/nest/ai-connections/providers/provider-errors';
 import { toProviderSchema, type AiFetch } from '../../../../src/nest/ai-connections/providers/provider-http';
@@ -540,5 +543,93 @@ describe('OpenAiResponsesClient', () => {
     expect(await failure(client(streamResponse(STREAM.slice(0, 3))).stream(REQUEST, signal()))).toMatchObject({
       providerCode: 'stream_cut',
     });
+  });
+});
+
+describe('images for a model that reads them', () => {
+  const PAGE = { mimeType: 'image/jpeg' as const, data: 'aGVsbG8=' };
+  const WITH_IMAGES: AiChatRequest = {
+    ...REQUEST,
+    messages: [
+      { role: 'user', text: 'Tidy page 2', images: [PAGE] },
+      {
+        role: 'assistant',
+        text: '',
+        toolCalls: [
+          { id: 'call_1', name: 'preview_book_page', args: { spreadId: 'sp-2' } },
+          { id: 'call_2', name: 'get_book', args: {} },
+        ],
+      },
+      { role: 'tool', toolCallId: 'call_1', name: 'preview_book_page', output: 'Page 2', images: [PAGE] },
+      { role: 'tool', toolCallId: 'call_2', name: 'get_book', output: '{"pages":4}' },
+    ],
+  };
+
+  it('PIMG-001: Anthropic puts a tool image in its tool_result after the text, a user image before the words', () => {
+    const turns = toAnthropicMessages(WITH_IMAGES.messages);
+    const image = { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: 'aGVsbG8=' } };
+    expect(turns[0]?.content).toEqual([image, { type: 'text', text: 'Tidy page 2' }]);
+    expect(turns[2]?.content).toEqual([
+      { type: 'tool_result', tool_use_id: 'call_1', content: [{ type: 'text', text: 'Page 2' }, image] },
+      { type: 'tool_result', tool_use_id: 'call_2', content: '{"pages":4}' },
+    ]);
+  });
+
+  it('PIMG-002: Chat Completions keeps the tool message text and sends the step images after its last result', () => {
+    const messages = toChatMessages(WITH_IMAGES);
+    const part = { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,aGVsbG8=', detail: 'high' } };
+    expect(messages[1]).toEqual({ role: 'user', content: [{ type: 'text', text: 'Tidy page 2' }, part] });
+    expect(messages.slice(3)).toEqual([
+      { role: 'tool', tool_call_id: 'call_1', content: 'Page 2' },
+      { role: 'tool', tool_call_id: 'call_2', content: '{"pages":4}' },
+      {
+        role: 'user',
+        content: [{ type: 'text', text: 'The image the call preview_book_page (call_1) produced:' }, part],
+      },
+    ]);
+  });
+
+  it('PIMG-003: the Responses API sends the output as text, then the image in a user message', () => {
+    const input = toResponsesInput(WITH_IMAGES);
+    const image = { type: 'input_image', image_url: 'data:image/jpeg;base64,aGVsbG8=', detail: 'high' };
+    expect(dig(input, 1, 'content', 1)).toEqual(image);
+    expect(input.slice(-3)).toEqual([
+      { type: 'function_call_output', call_id: 'call_1', output: 'Page 2' },
+      { type: 'function_call_output', call_id: 'call_2', output: '{"pages":4}' },
+      {
+        type: 'message',
+        role: 'user',
+        content: [{ type: 'input_text', text: 'The image the call preview_book_page (call_1) produced:' }, image],
+      },
+    ]);
+  });
+
+  it('PIMG-004: a history without images reads as it always did, with no extra user message', () => {
+    expect(toChatMessages(REQUEST).filter((message) => Array.isArray(message.content))).toEqual([]);
+    expect(toAnthropicMessages(REQUEST.messages)[2]?.content).toEqual([
+      { type: 'tool_result', tool_use_id: 'call_1', content: '{"id":7}' },
+      { type: 'text', text: 'Thanks' },
+    ]);
+  });
+
+  it('PIMG-005: a refusal over the image carries its own code; other refusals and plan limits do not', async () => {
+    const refused = (status: number, body: unknown) => {
+      const http = fetchAnswering(jsonResponse(status, body));
+      const client = new OpenAiChatClient('openai', 'gpt-4', 'https://o', 'k', http.fetcher);
+      return failure(client.stream(WITH_IMAGES, signal()));
+    };
+    const imageRefusal = await refused(400, { error: { message: 'image_url is only supported by certain models.' } });
+    expect(imageRefusal).toMatchObject({ code: 'generic', providerCode: IMAGE_INPUT_REFUSED });
+    expect(isImageRefusal(imageRefusal)).toBe(true);
+    const other = await refused(400, { error: { code: 'model_not_found', message: 'No such model' } });
+    expect(isImageRefusal(other)).toBe(false);
+    expect(isImageRefusal(await refused(500, { error: { message: 'image service down' } }))).toBe(false);
+    const code = 'subscription_sharing_unsupported_capability';
+    const plan = await refused(400, { error: { code, message: 'Image input is not part of this plan' } });
+    expect(plan).toMatchObject({ code: 'not_eligible', providerCode: code });
+    expect(namesImageInput(422, { message: 'This model does not support vision' })).toBe(true);
+    expect(namesImageInput(400, { detail: 'Invalid input_image' })).toBe(true);
+    expect(namesImageInput(400, 'image')).toBe(false);
+    expect(isImageRefusal(new Error('image'))).toBe(false);
   });
 });

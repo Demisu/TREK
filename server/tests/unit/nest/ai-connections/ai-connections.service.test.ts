@@ -267,6 +267,27 @@ describe('the instance connection', () => {
     expect((await service().status(id)).privacyAcked).toBe(false);
   });
 
+  it('AICS-016: images of Studio pages are acknowledged on their own, per kind@host, on any connection', async () => {
+    const admin = await user();
+    const id = await user();
+    await service().saveInstance(admin, { kind: 'anthropic', apiKey: 'sk-ant-instance' });
+    const target = { kind: 'anthropic' as const, host: 'api.anthropic.com' };
+    expect((await service().status(id)).studioImagesAcked).toBe(false);
+    // The planner's acknowledgement says nothing about images.
+    await service().ackPrivacy(id, target);
+    expect(await service().studioImagesAcked(id, target)).toBe(false);
+    await service().ackPrivacy(id, { ...target, scope: 'studio_images' });
+    expect(await readUserSetting(orm(), id, 'assistant_privacy_ack_studio_images')).toContain(
+      'anthropic@api.anthropic.com',
+    );
+    expect(await service().studioImagesAcked(id, target)).toBe(true);
+    expect(await service().status(id)).toMatchObject({ privacyAcked: true, studioImagesAcked: true });
+    // Another provider asks again.
+    expect(await service().studioImagesAcked(id, { kind: 'openai', host: 'api.openai.com' })).toBe(false);
+    await service().saveInstance(admin, { kind: 'openai', apiKey: 'sk-proj-other' });
+    expect((await service().status(id)).studioImagesAcked).toBe(false);
+  });
+
   it('AICS-014: settings are read with their defaults and written back', async () => {
     const admin = await user();
     expect(await service().readSettings()).toEqual({

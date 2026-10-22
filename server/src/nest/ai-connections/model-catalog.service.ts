@@ -35,6 +35,34 @@ const CHATGPT_FALLBACK_MODELS = [
 /** OpenAI's list holds every model of the account; these are the ones a chat with tools cannot use. */
 const OPENAI_NOT_FOR_CHAT = /(audio|realtime|transcribe|tts|image|search|instruct|embedding|moderation|codex)/;
 
+/**
+ * OpenAI chat models that read no images: the first GPT-4 and its dated
+ * snapshots, GPT-3.5 and the small reasoning models of the o1 and o3 lines.
+ * Every other chat model on the list reads them. A model this misses is
+ * caught at run time: the provider refuses the image and the assistant goes
+ * on without it.
+ */
+const OPENAI_TEXT_ONLY = /^(?:gpt-3\.5|gpt-4(?:-0\d{3})?$|o1-mini|o1-preview|o3-mini)/;
+
+/** Whether an OpenAI chat model reads images. */
+function openAiReadsImages(id: string): boolean {
+  return !OPENAI_TEXT_ONLY.test(id);
+}
+
+/**
+ * Whether the model a turn runs on reads images, without asking the provider:
+ * every current Anthropic and Gemini model and every model of a ChatGPT plan
+ * do, OpenAI's by name. OpenRouter's and a custom server's cannot be told
+ * from the id alone, so they stay on the page description (journey-studio.md
+ * 6, cut 5); the model list still says so for OpenRouter where it can. A
+ * model this takes for one that reads images and that refuses one is caught
+ * at run time and remembered as text-only.
+ */
+export function modelReadsImages(kind: AiConnectionKind, model: string): boolean {
+  if (kind === 'openai') return openAiReadsImages(model);
+  return kind === 'anthropic' || kind === 'gemini' || kind === 'chatgpt';
+}
+
 const openAiListSchema = z.object({ data: z.array(z.object({ id: z.string() })) });
 const anthropicListSchema = z.object({
   data: z.array(z.object({ id: z.string(), display_name: z.string().optional() })),
@@ -45,6 +73,7 @@ const openRouterListSchema = z.object({
       id: z.string(),
       name: z.string().optional(),
       supported_parameters: z.array(z.string()).optional(),
+      architecture: z.object({ input_modalities: z.array(z.string()).optional() }).optional(),
       pricing: z.object({ prompt: z.string().optional(), completion: z.string().optional() }).optional(),
     }),
   ),
@@ -150,6 +179,7 @@ export class ModelCatalogService {
           id: m.id,
           label: m.display_name ?? m.id,
           supportsTools: true,
+          supportsImages: true,
         }));
       }
       case 'openai': {
@@ -158,14 +188,14 @@ export class ModelCatalogService {
           .data.map((m) => m.id)
           .filter((id) => (id.startsWith('gpt-') || /^o\d/.test(id)) && !OPENAI_NOT_FOR_CHAT.test(id))
           .sort()
-          .map((id) => ({ id, label: id, supportsTools: true }));
+          .map((id) => ({ id, label: id, supportsTools: true, supportsImages: openAiReadsImages(id) }));
       }
       case 'gemini': {
         const body = await this.getJson(target.kind, `${AI_BASE_URLS.gemini}/models`, bearer(secret));
         return parsed(openAiListSchema, body)
           .data.map((m) => m.id.replace(/^models\//, ''))
           .filter((id) => id.startsWith('gemini') && !/(embedding|image|tts|audio)/.test(id))
-          .map((id) => ({ id, label: id, supportsTools: true }));
+          .map((id) => ({ id, label: id, supportsTools: true, supportsImages: true }));
       }
       case 'openrouter': {
         // The model list is public; the key is checked on its own first.
@@ -178,6 +208,8 @@ export class ModelCatalogService {
             label: m.name ?? m.id,
             supportsTools: true,
             free: m.pricing?.prompt === '0' && m.pricing?.completion === '0',
+            // A model OpenRouter lists without its input kinds is taken as one that reads no images.
+            supportsImages: m.architecture?.input_modalities?.includes('image') ?? false,
           }));
       }
       case 'chatgpt':
@@ -193,12 +225,12 @@ export class ModelCatalogService {
       const body = await this.getJson('chatgpt', `${AI_BASE_URLS.chatgpt}/models`, bearer(accessToken));
       listed = parsed(chatgptListSchema, body)
         .models.filter((m) => m.visibility === 'list' && m.supported_in_api !== false)
-        .map((m) => ({ id: m.slug, label: m.display_name ?? m.slug, supportsTools: true }));
+        .map((m) => chatgptModel(m.slug, m.display_name));
     } catch (err) {
       // A refused sign-in is the answer; anything else falls back to the known list.
       if (err instanceof AiProviderError && !err.retryable && err.code !== 'generic') throw err;
     }
-    return listed.length > 0 ? listed : CHATGPT_FALLBACK_MODELS.map((id) => ({ id, label: id, supportsTools: true }));
+    return listed.length > 0 ? listed : CHATGPT_FALLBACK_MODELS.map((id) => chatgptModel(id));
   }
 
   private async customModels(baseUrl: string | null, apiKey: string | null): Promise<AiModelInfo[]> {
@@ -229,6 +261,11 @@ export class ModelCatalogService {
       throw new AiProviderError('provider_unavailable', res.status, true, undefined, 'unreadable_list');
     }
   }
+}
+
+/** A model of a ChatGPT plan: every one reads images through the Responses API. */
+function chatgptModel(id: string, label?: string): AiModelInfo {
+  return { id, label: label ?? id, supportsTools: true, supportsImages: true };
 }
 
 function bearer(secret: string): Record<string, string> {

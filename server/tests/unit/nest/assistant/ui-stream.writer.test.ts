@@ -217,4 +217,32 @@ describe('UiStreamWriter', () => {
     w.close();
     expect(stream.text()).toBe(CARDS_FIXTURE);
   });
+
+  it('ASTWRT-007: asks the Studio for a page in a transient chunk and tells the page it looked at', () => {
+    const stream = memoryStream();
+    const w = new UiStreamWriter(stream);
+    w.text('Let me look');
+    w.renderRequest({
+      requestId: '0b6f7c1e-3a52-4d8e-9a7b-2f1e0c9d8a76',
+      threadId: 4,
+      spreadId: 'sp-2',
+      bookVersion: 3,
+      hiddenPhotoIds: [12],
+    });
+    w.pageView({ spreadId: 'sp-2', bookVersion: 3, width: 1280, height: 640, bytes: 1000, description: 'Page 2' });
+    const chunks = stream
+      .text()
+      .split('\n\n')
+      .filter((event) => event.startsWith('data: '))
+      .map((event) => uiStreamChunkSchema.parse(JSON.parse(event.slice('data: '.length))));
+    expect(chunks.map((chunk) => chunk.type)).toEqual([
+      'text-start',
+      'text-delta',
+      'text-end',
+      'data-trek-render-request',
+      'data-trek-page-view',
+    ]);
+    expect(chunks[3]).toMatchObject({ transient: true, data: { spreadId: 'sp-2', hiddenPhotoIds: [12] } });
+    expect(chunks[4]).not.toHaveProperty('transient');
+  });
 });

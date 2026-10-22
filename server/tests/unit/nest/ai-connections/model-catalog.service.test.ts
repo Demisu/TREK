@@ -6,6 +6,7 @@
  */
 import { AiConnectionsModule } from '../../../../src/nest/ai-connections/ai-connections.module';
 import {
+  modelReadsImages,
   ModelCatalogService,
   pickDefaultModel,
   withRecommendation,
@@ -66,7 +67,7 @@ describe('ModelCatalogService', () => {
     safeFetch.mockResolvedValueOnce(json(200, { data: [{ id: 'claude-sonnet-5', display_name: 'Claude Sonnet 5' }] }));
     const key = secret();
     expect(await catalog().list({ kind: 'anthropic', baseUrl: null, secret: key })).toEqual([
-      { id: 'claude-sonnet-5', label: 'Claude Sonnet 5', supportsTools: true, recommended: true },
+      { id: 'claude-sonnet-5', label: 'Claude Sonnet 5', supportsTools: true, supportsImages: true, recommended: true },
     ]);
     const [url, init] = safeFetch.mock.calls[0] as [string, RequestInit, { maxBytes: number }];
     expect(url).toBe('https://api.anthropic.com/v1/models?limit=1000');
@@ -109,6 +110,7 @@ describe('ModelCatalogService', () => {
             id: 'anthropic/claude-sonnet-5',
             name: 'Sonnet',
             supported_parameters: ['tools'],
+            architecture: { input_modalities: ['text', 'image'] },
             pricing: { prompt: '0.000003', completion: '0.000015' },
           },
           { id: 'meta/llama:free', supported_parameters: ['tools'], pricing: { prompt: '0', completion: '0' } },
@@ -117,8 +119,15 @@ describe('ModelCatalogService', () => {
       }),
     );
     expect(await catalog().list({ kind: 'openrouter', baseUrl: null, secret: secret() })).toEqual([
-      { id: 'anthropic/claude-sonnet-5', label: 'Sonnet', supportsTools: true, free: false, recommended: true },
-      { id: 'meta/llama:free', label: 'meta/llama:free', supportsTools: true, free: true },
+      {
+        id: 'anthropic/claude-sonnet-5',
+        label: 'Sonnet',
+        supportsTools: true,
+        free: false,
+        supportsImages: true,
+        recommended: true,
+      },
+      { id: 'meta/llama:free', label: 'meta/llama:free', supportsTools: true, free: true, supportsImages: false },
     ]);
     expect(safeFetch.mock.calls.map((call) => call[0])).toEqual([
       'https://openrouter.ai/api/v1/key',
@@ -167,7 +176,7 @@ describe('ModelCatalogService', () => {
       }),
     );
     expect(await catalog().list({ kind: 'chatgpt', baseUrl: null, secret: secret() })).toEqual([
-      { id: 'gpt-6.1-sol', label: 'GPT-6.1 Sol', supportsTools: true, recommended: true },
+      { id: 'gpt-6.1-sol', label: 'GPT-6.1 Sol', supportsTools: true, supportsImages: true, recommended: true },
     ]);
     safeFetch.mockResolvedValueOnce(json(500, {}));
     expect((await catalog().list({ kind: 'chatgpt', baseUrl: null, secret: secret() }))[0]?.id).toBe('gpt-6.1-sol');
@@ -216,6 +225,30 @@ describe('ModelCatalogService', () => {
       'claude-sonnet-5-5',
     );
     expect(pickDefaultModel('openai', list('gpt-4.1-mini', 'gpt-5.5-mini', 'gpt-5-mini'))).toBe('gpt-5.5-mini');
+  });
+
+  it('MCAT-011: says which models read images: OpenAI by name, Gemini all, OpenRouter by its input kinds', async () => {
+    safeFetch.mockResolvedValueOnce(json(200, { data: [{ id: 'gpt-5-mini' }, { id: 'gpt-4' }, { id: 'o3-mini' }] }));
+    const openai = await catalog().list({ kind: 'openai', baseUrl: null, secret: secret() });
+    expect(Object.fromEntries(openai.map((m) => [m.id, m.supportsImages]))).toEqual({
+      'gpt-4': false,
+      'gpt-5-mini': true,
+      'o3-mini': false,
+    });
+    safeFetch.mockResolvedValueOnce(json(200, { data: [{ id: 'models/gemini-3-flash' }] }));
+    expect((await catalog().list({ kind: 'gemini', baseUrl: null, secret: secret() }))[0]?.supportsImages).toBe(true);
+  });
+
+  it('MCAT-012: a turn tells from the kind and the id alone whether its model reads images', () => {
+    expect(modelReadsImages('anthropic', 'claude-sonnet-5')).toBe(true);
+    expect(modelReadsImages('gemini', 'gemini-3-flash')).toBe(true);
+    expect(modelReadsImages('chatgpt', 'gpt-6.1-sol')).toBe(true);
+    expect(modelReadsImages('openai', 'gpt-4o')).toBe(true);
+    expect(modelReadsImages('openai', 'gpt-4-0613')).toBe(false);
+    expect(modelReadsImages('openai', 'gpt-3.5-turbo')).toBe(false);
+    // OpenRouter and a custom server cannot be told from the id: the turn stays on the description.
+    expect(modelReadsImages('openrouter', 'anthropic/claude-sonnet-5')).toBe(false);
+    expect(modelReadsImages('custom', 'llava')).toBe(false);
   });
 
   it('MCAT-010: a picker lists the recommended model first and marked, the rest newest first', () => {

@@ -1,8 +1,10 @@
 import type { AiProviderState } from '../../db/json-columns';
 import {
   AiProviderError,
+  isImageRefusal,
   type AiChatClient,
   type AiChatMessage,
+  type AiImage,
   type AiToolCall,
   type AiToolSpec,
 } from '../ai-connections/ai-chat-client.interface';
@@ -15,22 +17,42 @@ import type { AssistantToolKind, ToolRun } from './assistant-tools.service';
 import type { AnswerInput } from './cards/card-types';
 import { answerCardOf } from './cards/registry';
 import type { UiStreamWriter } from './ui-stream.writer';
-import type {
-  AssistantChangePreview,
-  AssistantErrorCode,
-  AssistantMessagePart,
-  AssistantWeatherDay,
-  TrekCard,
+import {
+  ASSISTANT_PAGE_IMAGE,
+  type AssistantChangePreview,
+  type AssistantErrorCode,
+  type AssistantMessagePart,
+  type AssistantPageView,
+  type AssistantWeatherDay,
+  type TrekCard,
 } from '@trek/shared';
 
 type ToolArgs = Record<string, unknown>;
 
-/** The tools of the turn, as the loop uses them (an AssistantToolSession). */
-interface AgentToolPort {
+/**
+ * What a tool call came back with; a look at a Studio page also brings the
+ * page image for the model (in memory for this turn only) and what the
+ * message keeps of the look.
+ */
+export interface AgentToolRun extends ToolRun {
+  images?: AiImage[];
+  view?: AssistantPageView;
+}
+
+/** The tools of the turn, as the loop uses them (an AssistantToolSession, in the Studio with its page preview). */
+export interface AgentToolPort {
   specs(): AiToolSpec[];
   kindOf(name: string): AssistantToolKind | null;
   pinArgs(name: string, args: ToolArgs): { args: ToolArgs } | { error: string };
-  call(name: string, args: ToolArgs): Promise<ToolRun>;
+  call(name: string, args: ToolArgs): Promise<AgentToolRun>;
+}
+
+/** A Studio turn's page images, as the loop uses them (assistant-vision.ts). */
+export interface AgentVision {
+  /** The provider refused an image: the rest of the turn, and later turns on this model, go without. */
+  refused(): void;
+  /** The history a turn starts from, with views of the pages the changes just applied left. */
+  afterApply(history: readonly AiChatMessage[]): Promise<AiChatMessage[]>;
 }
 
 /** What one step leaves in its message row. */
@@ -71,6 +93,13 @@ export interface AgentDeps {
   today: string;
   /** The card a read's answer shows; the registry's (`answerCardOf`) unless a test hands in its own. */
   answerCard?: (tool: string, input: AnswerInput) => TrekCard | null;
+  /**
+   * Why a proposed change goes back to the model as its call's error instead
+   * of to the user (a Studio turn's book check); null holds it as usual.
+   */
+  refusalOf?: (tool: string, args: ToolArgs) => Promise<string | null>;
+  /** A Studio turn's page images; without it no image ever goes to the model. */
+  vision?: AgentVision | null;
 }
 
 export interface AgentInput {
@@ -103,6 +132,8 @@ interface StepParts {
   knownPlaceIds: Set<string>;
   /** The answer cards the step has shown; past MAX_CARDS_PER_STEP a read shows none. */
   cards: number;
+  /** The page images of the step's reads, by call id, for the model's next request only. */
+  images: Map<string, AiImage[]>;
 }
 
 /** The longest call id a card is kept under; a read under a longer one shows no card. */
@@ -169,6 +200,12 @@ async function runRead(
     ...(run.ok ? {} : { isError: true }),
   });
   if (!run.ok) return;
+  // A look at a Studio page: the message keeps what was looked at, the model gets one image of it.
+  if (run.view) {
+    w.pageView(run.view);
+    step.parts.push({ type: 'data-trek-page-view', data: run.view });
+  }
+  if (run.images?.length) step.images.set(id, run.images.slice(0, 1));
   const input = { toolCallId: id, args, value: run.value, card: deps.card, today: deps.today };
   const card = id.length <= MAX_CARD_CALL_ID ? (deps.answerCard ?? answerCardOf)(name, input) : null;
   if (card && step.cards++ < MAX_CARDS_PER_STEP) {
@@ -221,6 +258,39 @@ interface StepAnswer {
   cutOff: boolean;
 }
 
+/**
+ * The history as one model request carries it: the page images of the
+ * newest `max` messages that have any, one image each; older messages go as
+ * their text alone, which holds the page's description.
+ */
+function limitImages(history: readonly AiChatMessage[], max: number): AiChatMessage[] {
+  let kept = 0;
+  return history
+    .slice()
+    .reverse()
+    .map((message) => {
+      if (message.role === 'assistant' || !message.images?.length) return message;
+      return { ...message, images: kept++ < max ? message.images.slice(0, 1) : undefined };
+    })
+    .reverse();
+}
+
+/**
+ * A provider that refused the request over its images (a model that reads
+ * none after all): the turn's history loses its images, the vision remembers
+ * the model as text only, and the step is asked again, once. False for any
+ * other failure, or when there was no image to drop.
+ */
+function dropImagesAfter(turn: Turn, err: unknown): boolean {
+  const withImages = turn.history.some((message) => message.role !== 'assistant' && !!message.images?.length);
+  if (!turn.deps.vision || !withImages || !isImageRefusal(err)) return false;
+  turn.deps.vision.refused();
+  turn.history.forEach((message, index) => {
+    if (message.role !== 'assistant' && message.images) turn.history[index] = { ...message, images: undefined };
+  });
+  return true;
+}
+
 /** Streams one answer of the model; a failure or a stop ends the turn here, saved as far as it got. */
 async function streamAnswer(turn: Turn, rowId: number): Promise<StepAnswer | AgentOutcome> {
   const { deps, input, w, signal } = turn;
@@ -230,7 +300,7 @@ async function streamAnswer(turn: Turn, rowId: number): Promise<StepAnswer | Age
       {
         system: input.system,
         context: input.context,
-        messages: turn.history,
+        messages: limitImages(turn.history, ASSISTANT_PAGE_IMAGE.perRequest),
         tools: deps.tools.specs(),
         cacheKey: input.cacheKey,
       },
@@ -250,6 +320,9 @@ async function streamAnswer(turn: Turn, rowId: number): Promise<StepAnswer | Age
     }
     return answer;
   } catch (err) {
+    if (!signal.aborted && !answer.text && answer.received.length === 0 && dropImagesAfter(turn, err)) {
+      return streamAnswer(turn, rowId);
+    }
     const partial: StepRecord = {
       parts: answer.text ? [{ type: 'text', text: answer.text }] : [],
       providerState: null,
@@ -282,6 +355,10 @@ async function runCalls(turn: Turn, calls: AiToolCall[], collected: StepParts): 
     let prepared = kind ? deps.tools.pinArgs(call.name, call.args) : { error: `Unknown tool: ${call.name}` };
     const unknownPlace = 'error' in prepared ? null : placeIdRefusal(call.name, prepared.args, turn.knownPlaceIds);
     if (unknownPlace) prepared = { error: unknownPlace };
+    if (kind === 'write' && !('error' in prepared)) {
+      const refused = await deps.refusalOf?.(call.name, prepared.args);
+      if (refused) prepared = { error: refused };
+    }
     if (kind === 'read' && !('error' in prepared)) reads += 1;
     const overCap = kind === 'write' ? writes > MAX_WRITES_PER_STEP : reads > MAX_READS_PER_STEP;
     if ('error' in prepared || overCap) {
@@ -334,19 +411,30 @@ async function holdChanges(turn: Turn, rowId: number, step: StepRecord, held: He
   return outcomeOf(turn, 'awaiting');
 }
 
-/** Records a step that ran its reads, and hands their answers back for the next one. */
-async function carryOn(turn: Turn, rowId: number, step: StepRecord, text: string, calls: AiToolCall[]): Promise<void> {
+/**
+ * Records a step that ran its reads, and hands their answers back for the
+ * next one, a page image beside the answer of the look that brought it.
+ */
+async function carryOn(
+  turn: Turn,
+  rowId: number,
+  step: StepRecord,
+  answer: { text: string; calls: AiToolCall[]; images: ReadonlyMap<string, AiImage[]> },
+): Promise<void> {
   await turn.deps.store.saveStep(rowId, step, 'complete');
   turn.w.finishStep();
+  const { text, calls, images } = answer;
   turn.history.push({ role: 'assistant', text, toolCalls: calls, providerState: step.providerState });
   for (const part of step.parts) {
     if (part.type !== 'tool-call') continue;
+    const seen = images.get(part.toolCallId);
     turn.history.push({
       role: 'tool',
       toolCallId: part.toolCallId,
       name: part.toolName,
       output: outputText(part.result),
       ...(part.isError ? { isError: true } : {}),
+      ...(seen ? { images: seen } : {}),
     });
   }
 }
@@ -387,7 +475,7 @@ async function runStep(turn: Turn, step: number): Promise<AgentOutcome | null> {
   }
 
   const calls = received.map((call) => ({ ...call, id: uniqueCallId(call, input.usedCallIds, deps.newId) }));
-  const collected: StepParts = { parts, weather: [], knownPlaceIds: turn.knownPlaceIds, cards: 0 };
+  const collected: StepParts = { parts, weather: [], knownPlaceIds: turn.knownPlaceIds, cards: 0, images: new Map() };
   const held = await runCalls(turn, calls, collected);
   // One weather strip per step, whatever the step held: it is told before the changes.
   const weather = weatherOf(collected.weather);
@@ -403,7 +491,7 @@ async function runStep(turn: Turn, step: number): Promise<AgentOutcome | null> {
     return outcomeOf(turn, 'aborted');
   }
   if (held.length > 0) return holdChanges(turn, rowId, { parts, providerState }, held);
-  await carryOn(turn, rowId, { parts, providerState }, text, calls);
+  await carryOn(turn, rowId, { parts, providerState }, { text, calls, images: collected.images });
   return null;
 }
 
@@ -428,12 +516,13 @@ async function stepsFrom(turn: Turn, step: number): Promise<AgentOutcome> {
  * before its held changes are announced, so a card the client shows always
  * exists on the server.
  */
-export function runAgentLoop(
+export async function runAgentLoop(
   deps: AgentDeps,
   input: AgentInput,
   w: UiStreamWriter,
   signal: AbortSignal,
 ): Promise<AgentOutcome> {
+  const history = deps.vision ? await deps.vision.afterApply(input.history) : [...input.history];
   const knownPlaceIds = new Set(
     [...deps.card.places.values()].flatMap((place) => (place.googlePlaceId ? [place.googlePlaceId] : [])),
   );
@@ -442,7 +531,7 @@ export function runAgentLoop(
     input,
     w,
     signal,
-    history: [...input.history],
+    history,
     usage: { inputTokens: 0, cachedInputTokens: 0, outputTokens: 0 },
     knownPlaceIds,
     nudged: false,

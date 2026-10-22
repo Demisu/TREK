@@ -4,6 +4,7 @@ import type {
   AiChatEvent,
   AiChatMessage,
   AiChatRequest,
+  AiImage,
   AiProviderState,
 } from '../ai-chat-client.interface';
 import { AI_BASE_URLS } from '../ai-connections.constants';
@@ -18,6 +19,7 @@ import {
   toProviderSchema,
   type AiFetch,
 } from './provider-http';
+import { imageDataUrl, toolImageCaption, toolImagesEndingAt } from './provider-images';
 import { readSseEvents } from './sse-lines';
 
 /** The namespace the tools are grouped in, as Sign in with ChatGPT asks for. */
@@ -40,13 +42,28 @@ type ChatgptTokenSource = (rejected?: string) => Promise<string>;
 export function toResponsesInput(request: AiChatRequest): Record<string, unknown>[] {
   const input: Record<string, unknown>[] = [];
   if (request.context) input.push({ type: 'message', role: 'developer', content: request.context });
-  for (const message of request.messages) input.push(...toItems(message));
+  request.messages.forEach((message, index) => {
+    input.push(...toItems(message));
+    // A call's output is text; the images of a step's results follow its last one as a user message.
+    const withImages = toolImagesEndingAt(request.messages, index);
+    if (withImages.length === 0) return;
+    const content = withImages.flatMap((tool) => [
+      { type: 'input_text', text: toolImageCaption(tool) },
+      ...(tool.images ?? []).map(inputImage),
+    ]);
+    input.push({ type: 'message', role: 'user', content });
+  });
   return input;
+}
+
+function inputImage(image: AiImage): Record<string, unknown> {
+  return { type: 'input_image', image_url: imageDataUrl(image), detail: image.detail ?? 'high' };
 }
 
 function toItems(message: AiChatMessage): Record<string, unknown>[] {
   if (message.role === 'user') {
-    return [{ type: 'message', role: 'user', content: [{ type: 'input_text', text: message.text }] }];
+    const images = (message.images ?? []).map(inputImage);
+    return [{ type: 'message', role: 'user', content: [{ type: 'input_text', text: message.text }, ...images] }];
   }
   if (message.role === 'tool') {
     return [{ type: 'function_call_output', call_id: message.toolCallId, output: message.output }];

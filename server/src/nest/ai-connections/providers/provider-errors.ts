@@ -83,3 +83,40 @@ export function errorCodeOf(body: unknown): string | undefined {
   }
   return undefined;
 }
+
+/**
+ * The code a refusal carries when the provider said the request's image was
+ * the problem: a model that reads no images, a format it does not take. The
+ * assistant then sends the step again without images and remembers the model
+ * as one that reads none.
+ */
+export const IMAGE_INPUT_REFUSED = 'image_input_refused';
+
+/** How far into an error body's message the image check reads. */
+const MAX_MESSAGE_CHARS = 2000;
+
+/** The providers' wording for an image they refuse ("image_url is only supported by certain models"). */
+const NAMES_IMAGE = /\b(?:image|images|image_url|input_image|vision)\b/i;
+
+/** The message out of a provider's JSON error body, wherever it puts it; '' when it has none. */
+function errorMessageOf(body: unknown): string {
+  if (!body || typeof body !== 'object') return '';
+  const record = body as Record<string, unknown>;
+  const inner = record.error;
+  if (inner && typeof inner === 'object' && typeof (inner as Record<string, unknown>).message === 'string') {
+    return (inner as Record<string, string>).message;
+  }
+  if (typeof record.message === 'string') return record.message;
+  return typeof record.detail === 'string' ? record.detail : '';
+}
+
+/** Whether a refused request was refused over its image, read from the status and the error body. */
+export function namesImageInput(status: number, body: unknown): boolean {
+  if (status !== 400 && status !== 415 && status !== 422) return false;
+  return NAMES_IMAGE.test(errorMessageOf(body).slice(0, MAX_MESSAGE_CHARS));
+}
+
+/** Whether a provider error is the refusal of an image (see IMAGE_INPUT_REFUSED). */
+export function isImageRefusal(err: unknown): boolean {
+  return err instanceof AiProviderError && err.providerCode === IMAGE_INPUT_REFUSED;
+}

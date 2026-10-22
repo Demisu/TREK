@@ -6,6 +6,8 @@ import {
   type AssistantCard,
   type AssistantChangePreview,
   type AssistantErrorCode,
+  type AssistantPageRender,
+  type AssistantPageView,
   type AssistantPlaces,
   type AssistantWeather,
   type UiStreamChunk,
@@ -106,6 +108,17 @@ export class UiStreamWriter {
   activity(activity: AssistantActivity): void {
     this.endText();
     this.send({ type: 'data-trek-activity', data: activity, transient: true });
+  }
+
+  /** A Studio page the turn asks the Studio tab to draw and upload; only streamed, the message never keeps it. */
+  renderRequest(request: AssistantPageRender): void {
+    this.endText();
+    this.send({ type: 'data-trek-render-request', data: request, transient: true });
+  }
+
+  /** A Studio page the turn looked at: what it was and its description, never the image. */
+  pageView(view: AssistantPageView): void {
+    this.send({ type: 'data-trek-page-view', data: view });
   }
 
   quota(used: number, limit: number): void {

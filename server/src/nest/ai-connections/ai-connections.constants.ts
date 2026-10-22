@@ -35,6 +35,13 @@ export const AI_DEFAULT_RETENTION: AiRetention = { mode: 'days', days: 90 };
 export const AI_PRIVACY_ACK_SETTING = 'assistant_privacy_ack';
 
 /**
+ * The user setting that records which `kind@host` a user let receive images of
+ * their Studio pages (journey-studio.md 3.4), asked for on its own: the
+ * planner's notice says no files leave, which a page image would contradict.
+ */
+export const AI_STUDIO_IMAGES_ACK_SETTING = 'assistant_privacy_ack_studio_images';
+
+/**
  * Why a connection request was refused, as the client reads it from the body's
  * `code`: the assistant's error codes, plus the ones only setting up a
  * connection meets (a sign-in that took too long, a pasted address that is not

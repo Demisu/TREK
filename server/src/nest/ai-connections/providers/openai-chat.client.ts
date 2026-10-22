@@ -4,6 +4,7 @@ import type {
   AiChatMessage,
   AiChatRequest,
   AiFinishReason,
+  AiImage,
   AiToolCall,
 } from '../ai-chat-client.interface';
 import { AiProviderError, errorCodeOf, providerFailure } from './provider-errors';
@@ -17,20 +18,43 @@ import {
   toProviderSchema,
   type AiFetch,
 } from './provider-http';
+import { imageDataUrl, toolImageCaption, toolImagesEndingAt } from './provider-images';
 import { readSseEvents } from './sse-lines';
 import type { AiConnectionKind } from '@trek/shared';
 
 /** The end of an OpenAI-compatible stream. */
 const DONE = '[DONE]';
 
-/** The provider-neutral history as Chat Completions messages, the instructions and the trip card first. */
+/**
+ * The provider-neutral history as Chat Completions messages, the instructions
+ * and the trip card first. A tool message takes no image, so the images of a
+ * step's tool results follow its last result as one user message.
+ */
 export function toChatMessages(request: AiChatRequest): Record<string, unknown>[] {
   const system = [request.system, request.context].filter(Boolean).join('\n\n');
-  return [{ role: 'system', content: system }, ...request.messages.map(toChatMessage)];
+  const out: Record<string, unknown>[] = [{ role: 'system', content: system }];
+  request.messages.forEach((message, index) => {
+    out.push(toChatMessage(message));
+    const withImages = toolImagesEndingAt(request.messages, index);
+    if (withImages.length === 0) return;
+    const content = withImages.flatMap((tool) => [
+      { type: 'text', text: toolImageCaption(tool) },
+      ...(tool.images ?? []).map(imagePart),
+    ]);
+    out.push({ role: 'user', content });
+  });
+  return out;
+}
+
+function imagePart(image: AiImage): Record<string, unknown> {
+  return { type: 'image_url', image_url: { url: imageDataUrl(image), detail: image.detail ?? 'high' } };
 }
 
 function toChatMessage(message: AiChatMessage): Record<string, unknown> {
-  if (message.role === 'user') return { role: 'user', content: message.text };
+  if (message.role === 'user') {
+    if (!message.images?.length) return { role: 'user', content: message.text };
+    return { role: 'user', content: [{ type: 'text', text: message.text }, ...message.images.map(imagePart)] };
+  }
   if (message.role === 'tool') return { role: 'tool', tool_call_id: message.toolCallId, content: message.output };
   return {
     role: 'assistant',

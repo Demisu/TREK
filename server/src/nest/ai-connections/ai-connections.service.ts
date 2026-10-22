@@ -12,6 +12,7 @@ import { pickConnection } from './ai-connection.resolver';
 import {
   AI_BASE_URLS,
   AI_PRIVACY_ACK_SETTING,
+  AI_STUDIO_IMAGES_ACK_SETTING,
   aiHostOf,
   aiRefusal,
   openrouterOAuthAvailable,
@@ -128,6 +129,7 @@ export class AiConnectionsService implements SharedAiConnectionPort {
           ? { used: await this.usage.instanceTurnsToday(userId), limit: settings.dailyTurns }
           : null,
       privacyAcked: acked,
+      studioImagesAcked: !!effective && (await this.studioImagesAckedFor(userId, `${kindOf(effective)}@${host}`)),
       retention: settings.retention,
       openrouterOAuth: openrouterOAuthAvailable(),
     };
@@ -226,9 +228,23 @@ export class AiConnectionsService implements SharedAiConnectionPort {
     return viewOf(await this.ownRow(userId));
   }
 
-  /** The user saw that `kind@host` receives their messages on the instance's connection. */
+  /**
+   * The user saw that `kind@host` receives their messages on the instance's
+   * connection, or (`scope: 'studio_images'`) that it may also receive images
+   * of their Studio pages, on any connection.
+   */
   async ackPrivacy(userId: number, req: AiPrivacyAckRequest): Promise<void> {
-    await this.settings.upsertSetting(userId, AI_PRIVACY_ACK_SETTING, `${req.kind}@${req.host}`);
+    const key = req.scope === 'studio_images' ? AI_STUDIO_IMAGES_ACK_SETTING : AI_PRIVACY_ACK_SETTING;
+    await this.settings.upsertSetting(userId, key, `${req.kind}@${req.host}`);
+  }
+
+  /** Whether the user let this connection receive images of their Studio pages; without it a turn stays text. */
+  async studioImagesAcked(userId: number, connection: Pick<ResolvedAiConnection, 'kind' | 'host'>): Promise<boolean> {
+    return this.studioImagesAckedFor(userId, `${connection.kind}@${connection.host}`);
+  }
+
+  private async studioImagesAckedFor(userId: number, target: string): Promise<boolean> {
+    return (await this.settings.getDecryptedUserSetting(userId, AI_STUDIO_IMAGES_ACK_SETTING)) === target;
   }
 
   // ── The instance's connection (admin) ──────────────────────────────────────

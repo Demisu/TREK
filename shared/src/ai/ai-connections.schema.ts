@@ -48,6 +48,8 @@ export const aiModelInfoSchema = z.object({
   free: z.boolean().optional(),
   // The one a new connection starts on: the newest stable model of a capable line. Listed first.
   recommended: z.boolean().optional(),
+  // Whether the model reads images (the Studio assistant's page image); left out where the list cannot say.
+  supportsImages: z.boolean().optional(),
 });
 export type AiModelInfo = z.infer<typeof aiModelInfoSchema>;
 
@@ -88,6 +90,8 @@ export const aiStatusResponseSchema = z.object({
   quota: z.object({ used: z.number().int(), limit: z.number().int() }).nullable(),
   // Whether the user acknowledged that the effective kind@host receives their data.
   privacyAcked: z.boolean(),
+  // Whether the user also let kind@host receive images of their Studio pages, with their own photos on them.
+  studioImagesAcked: z.boolean().optional(),
   retention: aiRetentionSchema,
   // OpenRouter's OAuth needs an https callback; without one the client offers the key field instead.
   openrouterOAuth: z.boolean(),
@@ -142,11 +146,15 @@ export type AiAuthStartResponse = z.infer<typeof aiAuthStartResponseSchema>;
 export const aiModelListResponseSchema = z.object({ models: z.array(aiModelInfoSchema) });
 export type AiModelListResponse = z.infer<typeof aiModelListResponseSchema>;
 
-/** POST /api/ai/privacy-ack: the user saw that kind@host receives their messages. */
+/**
+ * POST /api/ai/privacy-ack: the user saw that kind@host receives their
+ * messages, or (`scope: 'studio_images'`) also images of their Studio pages.
+ */
 export const aiPrivacyAckRequestSchema = z
   .object({
     kind: aiConnectionKindSchema,
     host: z.string().max(253),
+    scope: z.enum(['studio_images']).optional(),
   })
   .strict();
 export type AiPrivacyAckRequest = z.infer<typeof aiPrivacyAckRequestSchema>;
