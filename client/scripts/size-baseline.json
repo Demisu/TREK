@@ -17,8 +17,6 @@
   "src/components/Planner/PlaceFormModal.tsx": 1193,
   "src/components/Planner/PlaceInspector.tsx": 1304,
   "src/components/Studio/TravelElements.tsx": 1738,
-  "src/components/Studio/autoLayout.ts": 1675,
-  "src/components/Studio/bookTemplates.data.ts": 1309,
   "src/components/Studio/countryShapes.ts": 2595,
   "src/index.css": 1636,
   "src/mobile/screens/admin/MAdminPluginsPanel.tsx": 1507,

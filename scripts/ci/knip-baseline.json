@@ -55,7 +55,7 @@
     "client/src/mobile/screens/trip/roadtrip/useMRoadtrip.ts": 2,
     "client/src/pages/dashboard/useTripSearch.ts": 1,
     "client/src/pages/journeyDetail/JourneyDetailPage.helpers.ts": 3,
-    "client/src/pages/journeyStudio/useJourneyStudio.ts": 2,
+    "client/src/pages/journeyStudio/useJourneyStudio.ts": 1,
     "client/src/pages/sharedTrip/SharedPlaceDetails.tsx": 1,
     "client/src/push/webPush.ts": 2,
     "client/src/repo/docSyncRepo.ts": 1,
