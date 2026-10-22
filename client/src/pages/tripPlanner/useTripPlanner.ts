@@ -12,7 +12,6 @@ import { resolvePluginIcon } from '../../components/shared/PluginIcon'
 import { useTranslation } from '../../i18n'
 import { addonsApi, authApi, tripsApi, healthApi, placesApi } from '../../api/client'
 import { TRANSPORT_TYPES } from '../../utils/dayMerge'
-import { accommodationRepo } from '../../repo/accommodationRepo'
 import { offlineDb } from '../../db/offlineDb'
 import { isEffectivelyOffline } from '../../sync/networkMode'
 import { useAuthStore } from '../../store/authStore'
@@ -32,13 +31,14 @@ import { useAddonStore } from '../../store/addonStore'
 import { usePlannerHistory } from '../../hooks/usePlannerHistory'
 import { useIsTouch } from '../../hooks/useIsTouch'
 import { usePluginStore } from '../../store/pluginStore'
-import type { Accommodation, Assignment, TripMember, Day, Reservation } from '../../types'
+import type { Assignment, TripMember, Day, Reservation } from '../../types'
 import { OFM_POSITRON, DEFAULT_MAP_LAT, DEFAULT_MAP_LNG, DEFAULT_MAP_ZOOM } from '../../constants/mapDefaults'
 import { useTileUrl } from '../../hooks/useTileUrl'
 import { placesForDays } from './tripPlannerModel'
 import { isDeepLinkableTripTab, TRIP_TAB_LABEL_KEYS } from '../../constants/tripTabs'
 import { isRoutableReservation } from '../../utils/reservationRoutes'
 import { showReservationOnMap } from '../../components/Planner/bookings/showOnMap'
+import { useTripStays } from '../../components/Planner/useTripStays'
 import {
   parseStoredConnections, resolveEffectiveConnections, resolveVisibleConnectionIds,
   toggleConnectionId, toggleAllConnections as flipAllConnectionsMode,
@@ -161,7 +161,10 @@ export function useTripPlanner() {
     )
   }, [roadtripMode, roadtripSettings.roadtrip_service_stops_in_days, storedAssignments])
   const [collabFeatures, setCollabFeatures] = useState<{ chat: boolean; notes: boolean; links: boolean; polls: boolean; whatsnext: boolean }>({ chat: true, notes: true, links: true, polls: true, whatsnext: true })
-  const [tripAccommodations, setTripAccommodations] = useState<Accommodation[]>([])
+  // Stays live in page-local state rather than the store, so store-level
+  // refreshes (a stay booked or changed elsewhere, a remote trip date change,
+  // reconnect hydration) nudge them, one read per burst (#1288).
+  const { tripAccommodations, setTripAccommodations, loadAccommodations } = useTripStays(tripId)
   const places = useMemo(
     () => (roadtripMode
       ? allPlaces
@@ -179,13 +182,6 @@ export function useTripPlanner() {
       const all = [d.owner, ...(d.members || [])].filter(Boolean)
       setTripMembers(all)
     }).catch(() => {})
-  }, [tripId])
-
-  const loadAccommodations = useCallback(() => {
-    if (tripId) {
-      accommodationRepo.list(tripId).then(d => setTripAccommodations(d.accommodations || [])).catch(() => {})
-      tripActions.loadReservations(tripId)
-    }
   }, [tripId])
 
   useEffect(() => {
@@ -436,14 +432,6 @@ export function useTripPlanner() {
       }
     }
   }, [tripId])
-
-  // Accommodations live in this hook's local state, so store-level refreshes
-  // (remote trip date change, reconnect hydration) nudge us via this event (#1288).
-  useEffect(() => {
-    const onRefresh = () => loadAccommodations()
-    window.addEventListener('accommodations:refresh', onRefresh)
-    return () => window.removeEventListener('accommodations:refresh', onRefresh)
-  }, [loadAccommodations])
 
   useTripWebSocket(tripId, invalidateTourPlaceIds)
 

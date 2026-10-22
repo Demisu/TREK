@@ -106,6 +106,15 @@ export const HANDLED_OUTSIDE_TRIP_STORE = [
   'import:progress',
   'import:done',
   'import:error',
+  // Stays live in page-local planner state, not in the trip store. A stay
+  // written elsewhere (the assistant, a fellow traveller, a plugin, a booking
+  // import) goes remoteEventHandler (STAY_REFRESH_EVENTS) -> accommodations:refresh
+  // -> components/Planner/useStaysRefresh, which reloads them once per burst in
+  // pages/tripPlanner/useTripPlanner (sidebar, map, the phone's day sheet) and
+  // components/Planner/useDayDetail (the desktop day panel).
+  'accommodation:created',
+  'accommodation:updated',
+  'accommodation:deleted',
 ] as const satisfies readonly TrekWsEventName[]
 
 /**
@@ -129,11 +138,6 @@ export const IGNORED_WS_EVENTS = [
   'budget:settlement-created',
   'budget:settlement-updated',
   'budget:settlement-deleted',
-  // Accommodations live in page-local planner state; the client refetches
-  // them off trip:updated date changes, never off these events.
-  'accommodation:created',
-  'accommodation:updated',
-  'accommodation:deleted',
   'trip:deleted',
   'member:added',
   'member:removed',
