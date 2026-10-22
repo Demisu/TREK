@@ -31,6 +31,25 @@ function saveDismissedSuggestions(userId: number | undefined, dismissed: Set<num
   window.localStorage.setItem(key, JSON.stringify([...dismissed]))
 }
 
+/** The journey events after which the list reads itself again. */
+const JOURNEY_LIST_EVENTS = ['journey:updated', 'journey:deleted', 'journey:contributor:changed'] as const
+
+/**
+ * A journey renamed, given other trips or deleted in another tab or through
+ * MCP, or this user taken off one as a contributor: the list reads itself
+ * again, once per burst. The spinner only shows over an empty list, so a
+ * reread of a full one does not flash.
+ */
+function useJourneyListReread(loadJourneys: () => Promise<void>): void {
+  useServerPing(JOURNEY_LIST_EVENTS, true, async () => {
+    try {
+      await loadJourneys()
+    } catch {
+      // A failed reread keeps the list on screen; the next event or visit reads it again.
+    }
+  })
+}
+
 /**
  * Journey list page logic — owns the journey store load, the create-journey
  * modal (title, available trips, selection), the search box, the trip
@@ -63,17 +82,7 @@ export function useJourney() {
   useEffect(() => {
     loadJourneys()
   }, [])
-  // A journey renamed, given other trips or deleted in another tab or through
-  // MCP, or this user taken off one as a contributor: the list reads itself
-  // again, once per burst. The spinner only shows over an empty list, so a
-  // reread of a full one does not flash.
-  useServerPing(['journey:updated', 'journey:deleted', 'journey:contributor:changed'], true, async () => {
-    try {
-      await loadJourneys()
-    } catch {
-      // A failed reread keeps the list on screen; the next event or visit reads it again.
-    }
-  })
+  useJourneyListReread(loadJourneys)
 
   useEffect(() => {
     let cancelled = false

@@ -68,7 +68,7 @@ import type {
   CollectionUpdateRequest,
   CollectionSavePlaceRequest,
   CollectionSaveResult,
-  CollectionCopyToTripRequest,
+  CollectionCopyToTripRequest, CollectionCopyToTripResponse,
   CollectionPlaceUpdateRequest,
   CollectionStatus,
   CollectionLabel,
@@ -1128,7 +1128,7 @@ export class CollectionsService {
     restTripEvents((this.realtime.broadcast as TripBroadcast).bind(this.realtime), tripId, socketId);
 
   /** Copy saved places into a trip; after the commit each copy goes out as `place:created`, as in the planner. */
-  async copyToTrip(userId: number, body: CollectionCopyToTripRequest, events: TripEventSink): Promise<{ copied: number; skipped: { id: number; name: string }[] }> {
+  async copyToTrip(userId: number, body: CollectionCopyToTripRequest, events: TripEventSink): Promise<CollectionCopyToTripResponse> {
     // R6's opposite order from `savePlace`: trip access (AP6) first, then `place_edit`; each keeps its legacy order.
     const trip = await this.trips.findAccessible(body.trip_id, userId);
     if (!trip) httpError(404, 'Trip not found');
@@ -1158,7 +1158,7 @@ export class CollectionsService {
       else if (r.lat != null && r.lng != null) dedup.coords.push({ lat: r.lat, lng: r.lng });
     }
 
-    const copiedIds: number[] = [];
+    const created: CollectionCopyToTripResponse['created'] = []; // each new trip place by the saved place it came from
     const skipped: { id: number; name: string }[] = [];
     // The whole copy is one logical write — atomic since the post-fold quirk pass.
     await this.uow.transactional(async () => {
@@ -1183,15 +1183,15 @@ export class CollectionsService {
         const votes = await this.collectionPlaceRatings.listForPlace(s.id);
         for (const v of votes) if (tripMemberIds.has(v.user_id)) await this.tripPlaceRatings.insertIgnore(newPlaceId, v.user_id, v.rating);
         trackInsertedInDedupSet(s, dedup);
-        copiedIds.push(newPlaceId);
+        created.push({ id: newPlaceId, source_id: s.id });
       }
     });
-    for (const placeId of copiedIds) {
-      const place = await this.tripPlaces.findWithTagsAndRatings(placeId); // as the place routes send it
-      if (place) events.emit('place:created', { place });
-      await this.places.onCreated(String(body.trip_id), placeId); // a no-op on no day, kept for parity
+    const rows = await Promise.all(created.map(({ id }) => this.tripPlaces.findWithTagsAndRatings(id))); // reads only
+    for (const [i, place] of rows.entries()) {
+      if (place) events.emit('place:created', { place }); // as the place routes send it
+      await this.places.onCreated(String(body.trip_id), created[i].id); // a no-op on no day, kept for parity
     }
-    return { copied: copiedIds.length, skipped };
+    return { copied: created.length, skipped, created };
   }
 
   // -------------------------------------------------------------------------
@@ -1219,7 +1219,7 @@ export class CollectionsService {
       const role = await this.roleOf(userId, r.collection_id);
       lists.push({
         collection_id: r.collection_id,
-        name: r.name,
+        name: r.name, color: r.color,
         place_id: r.place_id,
         status: (r.status as CollectionStatus) ?? 'idea',
         can_edit: role !== null && role !== 'viewer',

@@ -1521,7 +1521,7 @@ describe('journey hooks on the MCP create and update paths', () => {
       });
       expect(result.isError).toBeFalsy();
     });
-    expect((await skeletonFor(journey.id, place.id))!.title).toBe("Musée d'Orsay");
+    expect((await skeletonFor(journey.id, place.id))?.title).toBe("Musée d'Orsay");
   });
 
   it('MCP-PLACES-JRN-002: bulk_update_places carries a new time into the journey entry of every place', async () => {
@@ -1536,8 +1536,8 @@ describe('journey hooks on the MCP create and update paths', () => {
       });
       expect((parseToolResult(result) as { count: number }).count).toBe(2);
     });
-    expect((await skeletonFor(journey.id, place.id))!.entry_time).toBe('10:30');
-    expect((await skeletonFor(journey.id, second.id))!.entry_time).toBe('10:30');
+    expect((await skeletonFor(journey.id, place.id))?.entry_time).toBe('10:30');
+    expect((await skeletonFor(journey.id, second.id))?.entry_time).toBe('10:30');
   });
 
   it('MCP-PLACES-JRN-003: set_place_image_from_file runs the journey hook after the new picture', async () => {
@@ -1559,7 +1559,7 @@ describe('journey hooks on the MCP create and update paths', () => {
       expect(result.isError).toBeFalsy();
     });
     expect(await imageOf(place.id)).toMatch(/^\/uploads\/places\/[0-9a-f-]+\.jpg$/);
-    expect((await skeletonFor(journey.id, place.id))!.title).toBe('Lighthouse');
+    expect((await skeletonFor(journey.id, place.id))?.title).toBe('Lighthouse');
   });
 
   it('MCP-PLACES-JRN-004: create_place hands the new place to the journey hook, as POST /places does', async () => {

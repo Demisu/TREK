@@ -1040,7 +1040,7 @@ describe('Roster writes, as REST makes them', () => {
       broadcastMock.mockClear();
       await h.client.callTool({ name: 'delete_trip_guest', arguments: { tripId: trip.id, guestId } });
       expect(broadcastMock.mock.calls.map((call) => call[1])).toEqual(['member:removed', 'budget:updated']);
-      const [, , payload] = broadcastMock.mock.calls[1]!;
+      const [, , payload] = broadcastMock.mock.calls[1];
       const item = payload.item as { id: number; members: { user_id: number }[] };
       expect(item.id).toBe(shared.id);
       expect(item.members.map((m) => m.user_id)).toEqual([owner.id]);
@@ -1057,7 +1057,7 @@ describe('Roster writes, as REST makes them', () => {
       broadcastMock.mockClear();
       await h.client.callTool({ name: 'delete_trip_guest', arguments: { tripId: trip.id, guestId } });
       expect(broadcastMock.mock.calls.map((call) => call[1])).toEqual(['member:removed', 'budget:updated']);
-      const item = broadcastMock.mock.calls[1]![2].item as { id: number; paid_by_user_id: number | null };
+      const item = broadcastMock.mock.calls[1][2].item as { id: number; paid_by_user_id: number | null };
       expect(item.id).toBe(legacy.id);
       expect(item.paid_by_user_id).toBeNull();
     });

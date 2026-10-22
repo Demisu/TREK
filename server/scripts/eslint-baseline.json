@@ -1,12 +1,12 @@
 {
   "src": {
-    "@typescript-eslint/no-explicit-any": 89,
-    "@typescript-eslint/no-non-null-assertion": 264,
+    "@typescript-eslint/no-explicit-any": 86,
+    "@typescript-eslint/no-non-null-assertion": 263,
     "@typescript-eslint/no-require-imports": 18,
     "@typescript-eslint/no-unsafe-function-type": 1,
     "@typescript-eslint/no-unused-vars": 36,
     "no-await-in-loop": 563,
-    "no-console": 236,
+    "no-console": 235,
     "no-empty": 6
   },
   "suppressed": {

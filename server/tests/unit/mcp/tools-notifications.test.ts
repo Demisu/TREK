@@ -333,6 +333,6 @@ describe('Read state reaches every tab of the user', () => {
       expect(unread.isError).toBe(true);
     });
     expect(sent).not.toHaveBeenCalled();
-    expect((await findRow(orm, Notifications, { id: notif.id }))!.is_read).toBe(0);
+    expect((await findRow(orm, Notifications, { id: notif.id }))?.is_read).toBe(0);
   });
 });

@@ -68,6 +68,21 @@ import { useIsPhone } from '../../mobile/useIsPhone'
 import { useRoadtripVias } from '../../components/Roadtrip/useRoadtripVias'
 
 /**
+ * The trip's roster from the server: the owner and the members. Null offline
+ * or when it could not be read; the roster on screen then stays, and the next
+ * member event or reload reads it again.
+ */
+async function fetchRoster(tripId: number): Promise<TripMember[] | null> {
+  if (!tripId || isEffectivelyOffline()) return null
+  try {
+    const d = await tripsApi.getMembers(tripId)
+    return [d.owner, ...(d.members || [])].filter(Boolean)
+  } catch {
+    return null
+  }
+}
+
+/**
  * Trip planner page logic, the big one. Owns the trip store wiring, addon
  * gating, accommodations/members loading, the tab + resizable-panel + selection
  * state, the booking detail and the splash gate. TripPlannerPage stays a wiring
@@ -178,13 +193,8 @@ export function useTripPlanner() {
   // Re-fetch the trip roster so consumers (Costs participants, Collab, …) pick up a
   // just-added guest or member without a full page reload.
   const refreshMembers = useCallback(async () => {
-    if (!tripId || isEffectivelyOffline()) return
-    try {
-      const d = await tripsApi.getMembers(tripId)
-      setTripMembers([d.owner, ...(d.members || [])].filter(Boolean))
-    } catch {
-      // The roster on screen stays; the next member event or reload reads it again.
-    }
+    const roster = await fetchRoster(tripId)
+    if (roster) setTripMembers(roster)
   }, [tripId])
   // A member added, removed or renamed elsewhere, and the trip going away under us.
   useTripRosterSync(tripId, refreshMembers)
@@ -433,7 +443,8 @@ export function useTripPlanner() {
           .then(rows => setTripMembers(rows))
           .catch(() => {})
       } else {
-        void refreshMembers()
+        // The roster lands from the read's callback, never synchronously inside the effect.
+        void fetchRoster(tripId).then(roster => { if (roster) setTripMembers(roster) })
       }
     }
   }, [tripId])

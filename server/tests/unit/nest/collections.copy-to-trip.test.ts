@@ -50,6 +50,13 @@ const placeCreated = () =>
     .filter(([, event]) => event === 'place:created')
     .map(([room, , payload, sid]) => [room, payload, sid]);
 
+/** The place a save to a collection kept; a save that answered with a warning instead fails the case. */
+async function saved(userId: number, body: Parameters<CollectionsService['savePlace']>[1]) {
+  const { place } = await svc.savePlace(userId, body);
+  if (!place) throw new Error(`expected ${body.name} to be saved`);
+  return place;
+}
+
 describe('CollectionsService.copyToTrip: the trip hears its new places', () => {
   it('COLLECTIONS-SVC-215: each copied place goes out as place:created with its tags, then runs the journey hook; a skipped one sends nothing', async () => {
     const { user } = await makeUser(orm);
@@ -57,9 +64,9 @@ describe('CollectionsService.copyToTrip: the trip hears its new places', () => {
     const trip = await makeTrip(orm, user.id);
     const tag = await makeTag(orm, user.id, { name: 'rooftop' });
     const col = await svc.createCollection(user.id, { name: 'Evenings' });
-    const bar = (await svc.savePlace(user.id, { collection_id: col.id, name: 'Sky Bar', tag_ids: [tag.id] })).place!;
+    const bar = await saved(user.id, { collection_id: col.id, name: 'Sky Bar', tag_ids: [tag.id] });
     await makePlace(orm, trip.id, { name: 'Pantheon' });
-    const dup = (await svc.savePlace(user.id, { collection_id: col.id, name: 'Pantheon' })).place!;
+    const dup = await saved(user.id, { collection_id: col.id, name: 'Pantheon' });
     t.realtime.broadcastMock.mockClear();
 
     const res = await svc.copyToTrip(
@@ -68,8 +75,14 @@ describe('CollectionsService.copyToTrip: the trip hears its new places', () => {
       svc.tripEvents(trip.id, 'sock-copy'),
     );
 
-    expect(res).toEqual({ copied: 1, skipped: [{ id: dup.id, name: 'Pantheon' }] });
-    const copy = (await findRow(orm, Places, { trip: trip.id, name: 'Sky Bar' }))!;
+    const copy = await findRow(orm, Places, { trip: trip.id, name: 'Sky Bar' });
+    if (!copy) throw new Error('expected the copy in the trip');
+    // Each new trip place is named with the saved place it came from, for the assistant's "Show on map".
+    expect(res).toEqual({
+      copied: 1,
+      skipped: [{ id: dup.id, name: 'Pantheon' }],
+      created: [{ id: copy.id, source_id: bar.id }],
+    });
     const sent = placeCreated();
     expect(sent).toHaveLength(1);
     // The trip room, the REST socket left out, the place as the place routes send it.
@@ -87,7 +100,7 @@ describe('CollectionsService.copyToTrip: the trip hears its new places', () => {
     const { user: stranger } = await makeUser(orm);
     await makeCategory(orm);
     const col = await svc.createCollection(owner.id, { name: 'Mine' });
-    const gem = (await svc.savePlace(owner.id, { collection_id: col.id, name: 'Hidden gem' })).place!;
+    const gem = await saved(owner.id, { collection_id: col.id, name: 'Hidden gem' });
     const theirs = await makeTrip(orm, stranger.id);
     t.realtime.broadcastMock.mockClear();
 
@@ -103,7 +116,7 @@ describe('CollectionsService.copyToTrip: the trip hears its new places', () => {
     await makeCategory(orm);
     const trip = await makeTrip(orm, user.id);
     const col = await svc.createCollection(user.id, { name: 'Plugin' });
-    const spot = (await svc.savePlace(user.id, { collection_id: col.id, name: 'Viewpoint' })).place!;
+    const spot = await saved(user.id, { collection_id: col.id, name: 'Viewpoint' });
     t.realtime.broadcastMock.mockClear();
 
     await svc.copyToTrip(user.id, { trip_id: trip.id, place_ids: [spot.id] }, svc.tripEvents(trip.id, undefined));

@@ -11,7 +11,7 @@ import type { AiStatusResponse } from '@trek/shared';
 import { useLocation } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
 import { tripRepo } from '../../repo/tripRepo';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import type { Trip } from '../../types';
@@ -104,6 +104,9 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  // Unmounted before the store gets its real actions back: a window still on screen would ask the real
+  // loadStatus, whose failed request lands in a later case and hides the assistant there (status null).
+  cleanup();
   useAssistantStore.setState(INITIAL, true);
   vi.restoreAllMocks();
   vi.clearAllMocks();

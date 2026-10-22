@@ -200,6 +200,6 @@ export function useAiConnections({ phone = false }: { phone?: boolean } = {}) {
     canOpen: status?.available === true,
     openAssistant,
     isAdmin,
-    openAdmin: () => navigate('/admin?tab=addons'),
+    openAdmin: () => void navigate('/admin?tab=addons'),
   };
 }

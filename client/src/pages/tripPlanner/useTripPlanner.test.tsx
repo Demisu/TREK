@@ -222,7 +222,7 @@ describe('useTripPlanner — bootstrap', () => {
     await waitFor(() => expect(tripsApi.getMembers).toHaveBeenCalledTimes(1))
 
     env.forcedOffline = true
-    act(() => { result.current.refreshMembers() })
+    await act(async () => { await result.current.refreshMembers() })
 
     expect(tripsApi.getMembers).toHaveBeenCalledTimes(1)
   })
@@ -2788,7 +2788,7 @@ describe('useTripPlanner — misc state', () => {
       owner: { user_id: 1, username: 'owner' },
       members: [{ user_id: 2 }, { user_id: 3 }],
     })
-    act(() => { result.current.refreshMembers() })
+    await act(async () => { await result.current.refreshMembers() })
 
     await waitFor(() => expect(result.current.tripMembers).toHaveLength(3))
   })

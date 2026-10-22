@@ -74,6 +74,11 @@ const PAGE_SIZE = 20
 // Newest reset wins: a slower, older response must not overwrite the list of a filter the user has left.
 let fetchSeq = 0
 
+/** What marking everything read leaves, here or in another tab: every notification read, none to count. */
+function allRead(state: NotificationState): Partial<NotificationState> {
+  return { notifications: state.notifications.map(n => n.is_read ? n : { ...n, is_read: true }), unreadCount: 0 }
+}
+
 export const useInAppNotificationStore = create<NotificationState>((set, get) => ({
   notifications: [],
   unreadCount: 0,
@@ -148,10 +153,7 @@ export const useInAppNotificationStore = create<NotificationState>((set, get) =>
   markAllRead: async () => {
     try {
       await inAppNotificationsApi.markAllRead()
-      set(state => ({
-        notifications: state.notifications.map(n => ({ ...n, is_read: true })),
-        unreadCount: 0,
-      }))
+      set(allRead)
     } catch {
       // best-effort
     }
@@ -224,10 +226,5 @@ export const useInAppNotificationStore = create<NotificationState>((set, get) =>
   },
 
   // Everything marked read at once elsewhere: the same end state markAllRead leaves.
-  handleAllRead: () => {
-    set(state => ({
-      notifications: state.notifications.map(n => n.is_read ? n : { ...n, is_read: true }),
-      unreadCount: 0,
-    }))
-  },
+  handleAllRead: () => set(allRead),
 }))

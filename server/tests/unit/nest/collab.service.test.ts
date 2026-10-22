@@ -450,7 +450,7 @@ describe('postNote / postMessage', () => {
     const { service, realtime, send } = await postingSvc();
     const long = 'x'.repeat(100);
     const result = await service.postMessage(trip.id, { text: `  ${long}  ` }, mcpWriter(service, trip.id, user1.id));
-    expect(result.message!.text).toBe(long);
+    expect(result.message?.text).toBe(long);
     expect(realtime.broadcastMock).toHaveBeenCalledWith(
       trip.id,
       'collab:message:created',

@@ -17,6 +17,7 @@ import { countRows, findRow, findRows, insertRow, updateRows } from '../../helpe
 import { makeDay } from '../../helpers/factories/trips';
 import { FakeRealtimeService } from '../../helpers/fake-realtime';
 import { createMcpHarness, parseToolResult, type McpHarness } from '../../helpers/mcp-harness';
+import { oneByOne } from '../../helpers/one-by-one';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestOrm, type TestOrm } from '../../helpers/test-orm';
 
@@ -652,12 +653,12 @@ describe('Transport tools: the booking notice and the AirTrail push', () => {
         linked = await create('AY1502');
         const local = await create('LX638');
         await updateRows(orm, Reservations, { id: linked }, { external_source: 'airtrail', external_id: '501' });
-        for (const reservationId of [linked, local]) {
-          await h.client.callTool({
+        await oneByOne([linked, local], (reservationId) =>
+          h.client.callTool({
             name: 'update_transport',
             arguments: { tripId: trip.id, reservationId, status: 'confirmed' },
-          });
-        }
+          }),
+        );
       });
       expect(push.mock.calls).toEqual([[linked, trip.id]]);
     } finally {

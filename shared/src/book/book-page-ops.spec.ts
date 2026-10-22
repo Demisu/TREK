@@ -68,7 +68,7 @@ describe('the blank book and the fixed pages', () => {
     expect(doc.title.length).toBeLessThan(500);
   });
 
-  it('BOOKPG-022: lays a new book down in the format it is asked for, at that format's size', () => {
+  it("BOOKPG-022: lays a new book down in the format it is asked for, at that format's size", () => {
     const doc = blankBook({ title: 'Iceland', preset: 'a4-landscape', newId });
     expect(doc.page).toMatchObject({ preset: 'a4-landscape', pageWidth: 297, pageHeight: 210, bleed: 3, safe: 5 });
     expect(doc.page.pageNumbers.startAt).toBe(1);

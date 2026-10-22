@@ -39,14 +39,13 @@ export function memoisedReader(session: ReadSession): (tool: string, args?: Tool
   const memo = new Map<string, Promise<unknown>>();
   return (tool, args = {}) => {
     const key = readKey(tool, args);
-    let read = memo.get(key);
-    if (!read) {
-      read = session.read(tool, args).then(
-        (run) => (run.ok ? run.value : null),
-        () => null,
-      );
-      memo.set(key, read);
-    }
+    const kept = memo.get(key);
+    if (kept !== undefined) return kept;
+    const read = session.read(tool, args).then(
+      (run) => (run.ok ? run.value : null),
+      () => null,
+    );
+    memo.set(key, read);
     return read;
   };
 }

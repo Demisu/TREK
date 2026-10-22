@@ -148,7 +148,7 @@ describe('remoteEventHandler > broadcast parity', () => {
     expect(putBudget.mock.calls[0][0]).toEqual([state.budgetItems[0]]);
   });
 
-  it('FE-BCAST-026: only this user's removal drops the open trip from the offline cache', async () => {
+  it("FE-BCAST-026: only this user's removal drops the open trip from the offline cache", async () => {
     const drop = vi.spyOn(offlineDb.trips, 'delete');
     useTripStore.setState({ trip: buildTrip({ id: 5 }) });
     send({ type: 'member:removed', tripId: 5, userId: 99 });

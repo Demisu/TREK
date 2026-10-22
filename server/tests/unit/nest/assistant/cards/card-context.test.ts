@@ -15,6 +15,7 @@ import {
   memoisedReader,
 } from '../../../../../src/nest/assistant/cards/card-context';
 import type { ToolCards } from '../../../../../src/nest/assistant/cards/card-types';
+import { oneByOne } from '../../../../helpers/one-by-one';
 import type { AssistantMessagePart, TrekCard } from '@trek/shared';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -76,7 +77,7 @@ describe('loadFor', () => {
     const cards: Record<string, ToolCards> = {
       plan_days: {
         load: async (_args, read) => {
-          for (const year of [2021, 2022, 2023, 2024, 2025]) seen.push(await read('get_vacay_plan', { year }));
+          seen.push(...(await oneByOne([2021, 2022, 2023, 2024, 2025], (year) => read('get_vacay_plan', { year }))));
           return seen.length;
         },
       },

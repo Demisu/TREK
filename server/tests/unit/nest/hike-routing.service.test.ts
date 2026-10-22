@@ -557,8 +557,13 @@ describe('HikeRoutingService: the hike created from a proposal', () => {
     const savedLine = async (placeId: number) =>
       JSON.parse(String((await findRow(orm, Places, { id: placeId }))?.route_geometry)) as number[][];
 
-    // The router would now plan another way, and its own caches (five minutes) have let the first go.
-    valhalla({ route: () => json(valhallaRoute([{ line: stepsOf(0, 20, 11.01), km: 0.222, seconds: 330 }])) });
+    // The router would now plan another way, about 76 m east (within the snap limit, one leg per pair of points as
+    // Valhalla answers), and its own caches (five minutes) have let the first go.
+    const otherWay = valhallaRoute([
+      { line: stepsOf(0, 10, 11.001), km: 0.111, seconds: 150 },
+      { line: stepsOf(10, 20, 11.001), km: 0.111, seconds: 180 },
+    ]);
+    valhalla({ route: () => json(otherWay) });
     vi.advanceTimersByTime(6 * 60_000);
     const created = await settled(hiking.create(user.id, tripRow.id, request));
     expect(asked('/route')).toHaveLength(0);
@@ -571,6 +576,6 @@ describe('HikeRoutingService: the hike created from a proposal', () => {
     vi.advanceTimersByTime(10 * 60_000);
     const later = await settled(hiking.create(user.id, tripRow.id, { ...request, name: 'Later' }));
     expect(asked('/route')).toHaveLength(1);
-    expect((await savedLine(later.tour.place_id)).every(([, lng]) => lng === 11.01)).toBe(true);
+    expect((await savedLine(later.tour.place_id)).every(([, lng]) => lng === 11.001)).toBe(true);
   });
 });

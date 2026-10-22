@@ -16,15 +16,17 @@ const user = { id: 5 } as User;
  * sends is held by tools-tags-maps-weather.test.ts and the broadcast parity suite.
  */
 function writesFor(svc: Partial<TagsService>) {
+  // As the controller gets it: a case hands in the methods its route reaches.
+  const tags = svc as TagsService;
   return {
     create: vi.fn((userId: number, name: string, color: string | undefined, _socketId: string | undefined) =>
-      svc.create!(userId, name, color),
+      tags.create(userId, name, color),
     ),
     update: vi.fn(
       (_userId: number, id: string, changes: { name?: string; color?: string }, _socketId: string | undefined) =>
-        svc.update!(id, changes.name, changes.color),
+        tags.update(id, changes.name, changes.color),
     ),
-    remove: vi.fn((_userId: number, id: string, _socketId: string | undefined) => svc.remove!(id)),
+    remove: vi.fn((_userId: number, id: string, _socketId: string | undefined) => tags.remove(id)),
   };
 }
 let writes: ReturnType<typeof writesFor>;

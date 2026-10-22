@@ -998,7 +998,7 @@ describe('Link changes reach every tab', () => {
   /** The one file:updated a link change sent, and the file it carried. */
   function sentFile() {
     expect(broadcastMock.mock.calls.map((call) => call[1])).toEqual(['file:updated']);
-    return broadcastMock.mock.calls[0]![2].file as {
+    return broadcastMock.mock.calls[0][2].file as {
       id: number;
       linked_place_ids: number[];
       linked_reservation_ids: number[];
@@ -1033,7 +1033,7 @@ describe('Link changes reach every tab', () => {
     const file = await insertFile(trip.id);
     await linkFile(orm, file.id, { reservation: reservation.id });
     await linkFile(orm, file.id, { place: place.id });
-    const doomed = (await linkRows(file.id))[0]!.id;
+    const doomed = (await linkRows(file.id))[0].id;
     await withHarness(user.id, async (h) => {
       await h.client.callTool({
         name: 'unlink_trip_file',
