@@ -1,11 +1,12 @@
 /**
- * FE-AI-SLOTS-001 to FE-AI-SLOTS-006
+ * FE-AI-SLOTS-001 to FE-AI-SLOTS-007
  *
  * A change that carries a card is drawn through its kind's view: the slots
  * of a waiting row and of its receipt, a kind that draws its own subject, a
  * group around a run of rows of one kind, a run of waiting rows decided as
- * one, rows that start switched off, and slots that throw drawing what the
- * row shows without a card. The views here are test views.
+ * one, rows that start switched off, slots that throw drawing what the row
+ * shows without a card, and a run and a group told to wait while the chat
+ * runs. The views here are test views.
  */
 import type { AssistantApplied, AssistantChangePreview, TrekCard } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -36,21 +37,31 @@ vi.mock('./cardViews', async (importOriginal) => {
     },
     tourList: {
       ownsSubject: true,
-      Group: function Group({ items, place }: { items: readonly ChangeItem[]; place: string }) {
-        return createElement('p', null, `${place} of ${items.length}`);
+      Group: function Group({
+        items,
+        place,
+        disabled,
+      }: {
+        items: readonly ChangeItem[];
+        place: string;
+        disabled: boolean;
+      }) {
+        return createElement('p', null, `${place} of ${items.length}${disabled ? ', waiting' : ''}`);
       },
       Run: function Run({
         items,
         excluded,
+        disabled,
         onToggle,
       }: {
         items: readonly ChangeItem[];
         excluded: ReadonlySet<string>;
+        disabled: boolean;
         onToggle: (id: string) => void;
       }) {
         return createElement(
           'button',
-          { type: 'button', onClick: () => onToggle(items[0]?.toolCallId ?? '') },
+          { type: 'button', disabled, onClick: () => onToggle(items[0]?.toolCallId ?? '') },
           `run of ${items.length}, ${excluded.size} off`
         );
       },
@@ -183,5 +194,14 @@ describe('ChangeCardSlots', () => {
     expect(screen.getAllByRole('button', { name: 'Include this change' })).toHaveLength(2);
     expect(logged).toHaveBeenCalled();
     logged.mockRestore();
+  });
+
+  it('FE-AI-SLOTS-007: while the chat runs a run and a group are told to wait, as the rows are', () => {
+    useAssistantStore.setState({
+      byTrip: { [TRIP]: { ...chatOf(useAssistantStore.getState(), TRIP), threadId: 1, isRunning: true } },
+    });
+    renderCard([pending('c1', 'One', LIST), pending('c2', 'Two', LIST)]);
+    expect(screen.getByRole('button', { name: /^run of 2/ })).toBeDisabled();
+    expect(screen.getByText('head of 2, waiting')).toBeInTheDocument();
   });
 });

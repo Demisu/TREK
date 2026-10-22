@@ -129,9 +129,13 @@ export class AssistantController {
     return this.foundPlaces.add(user.id, Number(tripId), idParam(threadId), body);
   }
 
-  /** "Plan this" on a hike or a city walk an answer proposed: a change card that creates it, no model turn. */
+  /**
+   * "Plan this" on a hike or a city walk an answer proposed: a change card that creates it, no model turn.
+   * It holds a new tour, so it asks for the right the tour routes ask for.
+   */
   @Post('threads/:threadId/proposals')
   @HttpCode(200)
+  @RequirePermission('place_edit')
   @ResponseContract(assistantAddFoundPlaceResponseSchema)
   takeProposal(
     @CurrentUser() user: User,

@@ -1,4 +1,10 @@
-import { isTransportReservationType, type AssistantApplied, type BookingItem, type TrekCard } from '@trek/shared';
+import {
+  isTransportReservationType,
+  type AssistantApplied,
+  type BookingCard,
+  type BookingItem,
+  type TrekCard,
+} from '@trek/shared';
 import { BedDouble, CalendarCog, Hotel, Ticket } from 'lucide-react';
 
 import type { EntityTarget, PackLook } from '../cardTypes';
@@ -63,6 +69,11 @@ function reservationOpen(applied: AssistantApplied, card: TrekCard | null): Enti
   return item && id !== null ? bookingTarget(item, id) : null;
 }
 
+/** Whether a card shows a booking of this trip still waiting for its confirmation, one the chat can confirm. */
+function holdsPendingHere(card: BookingCard): boolean {
+  return card.items.some((item) => item.tripTitle === null && item.status === 'pending');
+}
+
 /** The check-in day of an applied stay, where the planner's day head shows it. */
 function stayDayOf(applied: AssistantApplied, card: TrekCard | null): number | null {
   const body = bookingItemOf(card)?.body;
@@ -119,7 +130,7 @@ export const BOOKING_LOOK = {
       followUps: [
         { id: 'bookingsOpen', labelKey: 'assistant.followUp.bookingsOpen' },
         { id: 'bookingsNights', labelKey: 'assistant.followUp.bookingsNights' },
-        { id: 'bookingsConfirm', labelKey: 'assistant.followUp.bookingsConfirm', edits: true },
+        { id: 'bookingsConfirm', labelKey: 'assistant.followUp.bookingsConfirm', edits: true, when: holdsPendingHere },
       ],
     },
   },

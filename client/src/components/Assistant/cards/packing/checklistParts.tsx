@@ -138,8 +138,18 @@ export interface RunEntry {
   facts: ReactNode;
 }
 
-/** A change in a run: the round include choice, the tile of what it does, and the row. */
-function RunRow({ entry, excluded, onToggle }: { entry: RunEntry; excluded: boolean; onToggle: (id: string) => void }) {
+/** A change in a run: the round include choice (waiting while the chat runs), the tile of what it does, and the row. */
+function RunRow({
+  entry,
+  excluded,
+  disabled,
+  onToggle,
+}: {
+  entry: RunEntry;
+  excluded: boolean;
+  disabled: boolean;
+  onToggle: (id: string) => void;
+}) {
   const { t } = useTranslation();
   const { variant } = useAssistantView();
   const glyph = ROW_GLYPH[entry.change];
@@ -152,9 +162,10 @@ function RunRow({ entry, excluded, onToggle }: { entry: RunEntry; excluded: bool
       <button
         type="button"
         onClick={() => onToggle(entry.item.toolCallId)}
+        disabled={disabled}
         aria-pressed={!excluded}
         aria-label={t('assistant.change.include')}
-        className={`grid flex-none place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+        className={`grid flex-none place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 ${
           variant === 'fullscreen' ? 'h-8 w-8' : 'h-[18px] w-[18px]'
         }`}
       >
@@ -179,6 +190,8 @@ function RunRow({ entry, excluded, onToggle }: { entry: RunEntry; excluded: bool
 export interface RunProps {
   items: readonly ChangeItem[];
   excluded: ReadonlySet<string>;
+  /** The include choices wait while the chat runs. */
+  disabled: boolean;
   onToggle(id: string): void;
 }
 
@@ -191,6 +204,7 @@ export interface RunProps {
 export function ChecklistRun({
   items,
   excluded,
+  disabled,
   onToggle,
   entryOf,
 }: RunProps & { entryOf: (item: ChangeItem) => RunEntry | null }) {
@@ -200,7 +214,12 @@ export function ChecklistRun({
       {entries.map((entry, i) => (
         <div key={entry.item.toolCallId}>
           {entries[i - 1]?.headKey !== entry.headKey && entry.head}
-          <RunRow entry={entry} excluded={excluded.has(entry.item.toolCallId)} onToggle={onToggle} />
+          <RunRow
+            entry={entry}
+            excluded={excluded.has(entry.item.toolCallId)}
+            disabled={disabled}
+            onToggle={onToggle}
+          />
         </div>
       ))}
     </div>

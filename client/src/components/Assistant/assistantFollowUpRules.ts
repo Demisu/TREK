@@ -1,7 +1,8 @@
-import type { AssistantMessage } from '@trek/shared';
+import type { AssistantMessage, TrekCardKind } from '@trek/shared';
 
 import { messageBlocks } from './assistantParts';
 import { CARD_LOOKS } from './cards/cardLooks';
+import type { CardEntry, CardFollowUp, CardLook } from './cards/cardTypes';
 
 /**
  * The next questions an answer suggests, as one tap each: read from what the
@@ -40,17 +41,27 @@ const GENERAL: readonly FollowUp[] = [
   { id: 'next', labelKey: 'assistant.followUp.next' },
 ];
 
+/** What a kind offers to ask next, typed for any kind. */
+function offeredBy(kind: TrekCardKind): readonly CardFollowUp<TrekCardKind>[] {
+  return (CARD_LOOKS[kind] as CardLook<TrekCardKind>).followUps ?? [];
+}
+
 /**
  * The follow-ups of the cards an answer ends on (past its closing words): what
  * the first card's kind offers, laid out as the chat lays it out, without the
- * ones that ask for a change when the user may not make one.
+ * ones that ask for a change when the user may not make one, and without the
+ * ones none of the answer's cards of that kind calls for.
  */
 function cardFollowUps(message: AssistantMessage, canEdit: boolean): readonly FollowUp[] {
   const blocks = messageBlocks(message, false).filter((block) => block.kind !== 'text');
   const last = blocks[blocks.length - 1];
-  const kind = last?.kind === 'cards' ? last.entries[0]?.card.kind : undefined;
-  const offered = kind ? (CARD_LOOKS[kind].followUps ?? []) : [];
-  return canEdit ? offered : offered.filter((followUp) => !followUp.edits);
+  const entries: readonly CardEntry[] = last?.kind === 'cards' ? last.entries : [];
+  const kind = entries[0]?.card.kind;
+  if (!kind) return [];
+  const cards = entries.filter((entry) => entry.card.kind === kind).map((entry) => entry.card);
+  return offeredBy(kind).filter(
+    (followUp) => (canEdit || !followUp.edits) && (!followUp.when || cards.some((card) => followUp.when?.(card)))
+  );
 }
 
 /** What an answer offers to ask next; changes are offered only to someone who may make them. */

@@ -150,10 +150,11 @@ describe('AssistantController', () => {
     expect(() => controller.addFoundPlace(user, '5', 'x', body)).toThrow(DomainError);
   });
 
-  it('ASTCTL-008: sharing needs the right to write in the trip chat; nothing else here asks for a right', () => {
+  it('ASTCTL-008: sharing asks for the trip chat right, "Plan this" for editing places; nothing else asks', () => {
     const handlers = AssistantController.prototype as unknown as Record<string, object>;
     expect(Reflect.getMetadata(TRIP_PERMISSION_KEY, handlers.share)).toBe('collab_edit');
-    for (const name of ['chat', 'decide', 'undo', 'addFoundPlace', 'takeProposal']) {
+    expect(Reflect.getMetadata(TRIP_PERMISSION_KEY, handlers.takeProposal)).toBe('place_edit');
+    for (const name of ['chat', 'decide', 'undo', 'addFoundPlace']) {
       expect(Reflect.getMetadata(TRIP_PERMISSION_KEY, handlers[name]), name).toBeUndefined();
     }
   });

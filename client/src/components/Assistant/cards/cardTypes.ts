@@ -53,6 +53,11 @@ export interface EntityLook {
   phoneOpen?(applied: AssistantApplied, card: TrekCard | null): EntityTarget | null;
 }
 
+/** What a kind offers to ask next; `when` keeps it to the answers whose cards of the kind call for it. */
+export interface CardFollowUp<K extends TrekCardKind> extends FollowUp {
+  when?(card: TrekCardOf<K>): boolean;
+}
+
 /**
  * The pure side of one kind: what it touches, what to ask next, how an answer
  * lays it out, and what the map draws for it (see types/assistantMap.ts). Pure,
@@ -60,7 +65,7 @@ export interface EntityLook {
  */
 export interface CardLook<K extends TrekCardKind> {
   entity?(card: TrekCardOf<K>): AssistantApplied['entity'];
-  followUps?: readonly FollowUp[];
+  followUps?: readonly CardFollowUp<K>[];
   /** The group an answer card joins; the kind when left out. */
   group?(card: TrekCardOf<K>): string;
   /** Drops a lookup card next to the change it served. */
@@ -95,6 +100,8 @@ interface CardSlotProps<K extends TrekCardKind> {
 interface CardRunProps {
   items: readonly ChangeItem[];
   excluded: ReadonlySet<string>;
+  /** The choices wait while the chat runs, as the change card's own do. */
+  disabled: boolean;
   onToggle(id: string): void;
 }
 

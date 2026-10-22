@@ -346,7 +346,7 @@ export function ChangeRows({ items, folded, excluded, disabled, undone, undoable
           // A run that throws falls back to its rows one by one.
           body.push(
             <CardBoundary key={`run-${taken[0]?.toolCallId}`} fallback={taken.map(row)}>
-              <Run items={taken} excluded={excluded} onToggle={onToggle} />
+              <Run items={taken} excluded={excluded} disabled={disabled} onToggle={onToggle} />
             </CardBoundary>
           );
         }
@@ -357,7 +357,7 @@ export function ChangeRows({ items, folded, excluded, disabled, undone, undoable
     if (!Group || !first) return body;
     const group = (place: 'head' | 'foot') => (
       <CardBoundary key={`${place}-${first.toolCallId}`}>
-        <Group items={run} excluded={excluded} onToggle={onToggle} place={place} />
+        <Group items={run} excluded={excluded} disabled={disabled} onToggle={onToggle} place={place} />
       </CardBoundary>
     );
     return [group('head'), ...body, group('foot')];

@@ -5,11 +5,12 @@ import { daysLater, isChanged, itemsOf, layoversOf, stopsOf, toneOfItem } from '
 import { BOOKING_LOOK, bookingSpotOf, bookingTarget } from './bookingLook';
 
 /**
- * FE-AI-BOOKLOOK-001 to FE-AI-BOOKLOOK-008
+ * FE-AI-BOOKLOOK-001 to FE-AI-BOOKLOOK-009
  *
  * The pure side of the booking cards: what an applied booking or stay opens,
- * where it sits on the map, which entity a card is about, and the ticket
- * arithmetic (stops, stopovers, a later arrival) the card draws from.
+ * where it sits on the map, which entity a card is about, the ticket
+ * arithmetic (stops, stopovers, a later arrival) the card draws from, and
+ * when confirming is offered as a follow-up.
  */
 
 const day = (id: number | null, number: number | null, date: string | null) => ({ id, number, date });
@@ -170,5 +171,19 @@ describe('booking look', () => {
     expect(toneOfItem({ type: 'flight', status: 'pending' })).toBe('pending');
     expect(toneOfItem({ type: 'restaurant', status: 'cancelled' })).toBe('pending');
     expect(toneOfItem({ type: 'hotel', status: null })).toBeNull();
+  });
+
+  it('FE-AI-BOOKLOOK-009: confirming is offered only beside a booking of this trip that waits for it', () => {
+    const when = BOOKING_LOOK.cards.booking.followUps.find((followUp) => followUp.id === 'bookingsConfirm')?.when;
+    expect(when?.(card([FLIGHT]))).toBe(true);
+    expect(
+      when?.(
+        card([
+          { ...FLIGHT, status: 'confirmed' },
+          { ...STAY, status: null },
+        ])
+      )
+    ).toBe(false);
+    expect(when?.(card([{ ...FLIGHT, tripId: 9, tripTitle: 'Vienna' }]))).toBe(false);
   });
 });

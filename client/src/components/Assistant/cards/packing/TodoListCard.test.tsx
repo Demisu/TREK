@@ -188,7 +188,7 @@ describe('TodoListCard', () => {
       pending('c1', one(task(null, 'Book the train', { change: 'add' }))),
       pending('c2', one(task(22, 'Travel insurance', { change: 'check', checked: true }))),
     ];
-    inView(<TodoChangeRun items={items} excluded={new Set()} onToggle={onToggle} />);
+    inView(<TodoChangeRun items={items} excluded={new Set()} disabled={false} onToggle={onToggle} />);
     expect(screen.getAllByText('Bookings')).toHaveLength(1);
     expect(screen.getByText('New')).toBeInTheDocument();
     expect(screen.getByText('Done')).toBeInTheDocument();

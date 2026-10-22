@@ -11,13 +11,16 @@
  * drawing asked for by the server and kept from the model; "Plan this" holds
  * the hike as a change card from the stored proposal, refused for an unknown
  * proposal and while it waits; applying it runs create_hike without a model
- * turn and names the tour in the receipt and on its card.
+ * turn and names the tour in the receipt and on its card. Taking a proposal
+ * asks for the right to edit places, like the tour routes: 403 without it,
+ * 404 outside the trip.
  */
 import { buildApp } from '../../src/bootstrap';
+import { PermissionsService } from '../../src/nest/permissions/permissions.service';
 import { HikePlanService } from '../../src/nest/tours/hike-plan.service';
 import { makePlace } from '../helpers/factories/places';
 import { setAddonEnabled } from '../helpers/factories/settings';
-import { makeTrip } from '../helpers/factories/trips';
+import { addTripMember, makeTrip } from '../helpers/factories/trips';
 import { makeUser } from '../helpers/factories/users';
 import { resetRateLimits } from '../helpers/test-db';
 import { sessionCookie } from './harness';
@@ -318,5 +321,35 @@ describe('a proposed hike in the chat', () => {
     // The card the change showed stays beside the receipt, now naming the tour it created.
     const [receipt] = ofType(decided.chunks, 'data-trek-card');
     expect(receipt?.data).toMatchObject({ toolCallId, card: { kind: 'tourRoute', placeId: t.placeId } });
+  });
+
+  it('ASTE2E-TOUR-003: "Plan this" asks for the right to edit places: 403 and nothing held without it, 404 outside the trip', async () => {
+    const t = await travellerWithPlanner();
+    const { user: member } = await makeUser(orm);
+    await addTripMember(orm, t.tripId, member.id);
+    const { threadId } = await proposeTurn({ userId: member.id, base: t.base });
+    const path = `${t.base}/threads/${threadId}/proposals`;
+
+    const permissions = vi.spyOn(nestApp.get(PermissionsService), 'checkPermission');
+    permissions.mockImplementation((action: string) => Promise.resolve(action !== 'place_edit'));
+    try {
+      const refused = await post(path, member.id, { ...CTX, toolCallId: 'call_hike' });
+      expect([refused.status, refused.json]).toEqual([403, { error: 'No permission' }]);
+      expect(permissions).toHaveBeenCalledWith('place_edit', expect.any(String), t.userId, member.id, true);
+    } finally {
+      permissions.mockRestore();
+    }
+    const shown = await request(nestApp.getHttpServer())
+      .get(`${t.base}/threads/${threadId}`)
+      .set('Cookie', sessionCookie(member.id));
+    const parts = (shown.body.messages as Array<{ parts: AssistantMessagePart[] }>).flatMap((m) => m.parts);
+    expect(parts.some((part) => part.type === 'tool-call' && part.toolName === 'take_proposal')).toBe(false);
+
+    const { user: stranger } = await makeUser(orm);
+    const outside = await post(path, stranger.id, { ...CTX, toolCallId: 'call_hike' });
+    expect([outside.status, outside.json]).toEqual([404, { error: 'Trip not found' }]);
+
+    // With the right, the same member takes the same proposal.
+    expect((await post(path, member.id, { ...CTX, toolCallId: 'call_hike' })).status).toBe(200);
   });
 });
