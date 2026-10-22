@@ -50,7 +50,7 @@ import {
 } from '@trek/shared';
 
 /** The day a hike created over MCP was put on: the visit's id and the day's. */
-export interface HikeAssignment {
+interface HikeAssignment {
   id: number;
   day_id: number;
 }

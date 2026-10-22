@@ -83,7 +83,7 @@ function SubjectLine({
 }) {
   const text = (
     <bdi
-      className={`${block ? 'block ' : ''}truncate text-body font-semibold leading-tight text-content ${struck ? 'line-through' : ''}`}
+      className={`${block ? 'block' : ''}truncate text-body font-semibold leading-tight text-content ${struck ? 'line-through' : ''}`}
     >
       {subject}
     </bdi>
@@ -133,7 +133,7 @@ function ChangeHead({ item, view, struck }: { item: ChangeItem; view: View | nul
 function BodySlot({ item, view, settled }: { item: ChangeItem; view: View | null; settled: boolean }) {
   if (!view?.Body || !item.card) return null;
   return (
-    <div className={`ps-[38px] pb-1.5 ${settled ? 'opacity-60' : ''}`}>
+    <div className={`pb-1.5 ps-[38px] ${settled ? 'opacity-60' : ''}`}>
       <Slot item={item} view={view} name="Body" />
     </div>
   );

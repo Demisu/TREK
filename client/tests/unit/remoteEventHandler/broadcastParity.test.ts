@@ -131,7 +131,16 @@ describe('remoteEventHandler > broadcast parity', () => {
     const untouched = buildBudgetItem({ id: 61, members: [{ ...other, paid: 0 }] });
     useTripStore.setState({
       days: [buildDay({ id: 10 })],
-      budgetItems: [buildBudgetItem({ id: 60, members: [{ ...guest, paid: 0 }, { ...other, paid: 1 }] }), untouched],
+      budgetItems: [
+        buildBudgetItem({
+          id: 60,
+          members: [
+            { ...guest, paid: 0 },
+            { ...other, paid: 1 },
+          ],
+        }),
+        untouched,
+      ],
       reservations: [buildReservation({ id: 70, travelers: [guest] })],
       packingItems: [buildPackingItem({ id: 80, recipients: [guest], contributors: [{ ...guest, status: 'packed' }] })],
       assignments: { '10': [buildAssignment({ id: 100, day_id: 10, participants: [guest] })] },
