@@ -16,6 +16,7 @@ import { PermissionsModule } from '../permissions/permissions.module';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { TripMembershipModule } from '../trip-membership/trip-membership.module';
 import { BudgetItemsMcp } from './budget-items.mcp';
+import { BudgetWritesService } from './budget-writes.service';
 import { BudgetController } from './budget.controller';
 import { BudgetMcp } from './budget.mcp';
 import { BudgetService } from './budget.service';
@@ -59,7 +60,15 @@ import { Module } from '@nestjs/common';
     ]),
   ],
   controllers: [BudgetController],
-  providers: [BudgetService, ExchangeRatesService, BudgetMcp, BudgetItemsMcp, ExchangeRatesRpc, CostsRpc],
+  providers: [
+    BudgetService,
+    BudgetWritesService,
+    ExchangeRatesService,
+    BudgetMcp,
+    BudgetItemsMcp,
+    ExchangeRatesRpc,
+    CostsRpc,
+  ],
   // For in-container consumers (CostsRpc, TripsService,
   // ReservationsService, BookingImportService).
   exports: [BudgetService, ExchangeRatesService],

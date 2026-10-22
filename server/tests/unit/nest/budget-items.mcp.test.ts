@@ -11,7 +11,7 @@ import { BudgetItems } from '../../../src/db/entities/BudgetItems.entity';
 import type { McpContext } from '../../../src/nest-mcp';
 import { getEntry, type ClassRef } from '../../../src/nest-mcp/metadata';
 import { AddonsService } from '../../../src/nest/addons/addons.service';
-import { toolOutputForProvider } from '../../../src/nest/assistant/assistant-redact';
+import { toolOutputForProvider } from '../../../src/nest/assistant/assistant-output';
 import { BudgetItemsMcp } from '../../../src/nest/budget/budget-items.mcp';
 import { BudgetModule } from '../../../src/nest/budget/budget.module';
 import { BudgetService } from '../../../src/nest/budget/budget.service';

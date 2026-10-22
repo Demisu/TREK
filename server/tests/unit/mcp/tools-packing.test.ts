@@ -589,6 +589,9 @@ describe('Tool: set_packing_item_sharing', () => {
     });
     expect(broadcastMock).toHaveBeenCalledWith(trip.id, 'packing:deleted', expect.any(Object));
     expect(broadcastMock).toHaveBeenCalledWith(trip.id, 'packing:created', expect.any(Object), undefined, user.id);
+    // Exactly what the REST route sends: who sees an item moves no bag weight,
+    // so the bag-totals ping the tool used to add is gone.
+    expect(broadcastMock.mock.calls.map((c) => c[1])).toEqual(['packing:deleted', 'packing:created']);
   });
 
   it('lets only the owner change sharing', async () => {
