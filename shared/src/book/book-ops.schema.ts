@@ -1,10 +1,13 @@
 import { idSchema } from '../common/primitives.schema';
-import { BOOK_GRIDS } from './book-grids';
+import { BOOK_ELEMENT_OP_SCHEMAS, bindingNamesItsSource } from './book-element-ops.schema';
 import { BOOK_COVER_TEMPLATES, BOOK_TEMPLATES } from './book-layouts';
+import { bookElementIdSchema, bookGridIdSchema, bookSpreadIdSchema } from './book-op-ids';
 import {
   MAX_BOOK_TITLE,
   MAX_SPREADS,
   MAX_SPREAD_ELEMENTS,
+  bookLayoutSchema,
+  bookPageNumbersSchema,
   bookPageSetupSchema,
   bookPhotoElementSchema,
   bookSpreadSchema,
@@ -29,9 +32,7 @@ import { z } from 'zod';
  * double spread twice the page width with the fold at one page width.
  */
 
-/** Ids as the document has them (`sp-...`, `p-...`): never invented by the model, bounded. */
-export const bookSpreadIdSchema = z.string().regex(/^[\w-]{1,40}$/);
-export const bookElementIdSchema = z.string().regex(/^[\w-]{1,40}$/);
+export { bookElementIdSchema, bookGridIdSchema, bookSpreadIdSchema };
 
 export const BOOK_OP_LIMITS = {
   /** Operations in one `edit_book_page` call. */
@@ -56,7 +57,6 @@ export const bookTemplateIdSchema = z.enum(idsOf(BOOK_TEMPLATES));
 export const bookCoverTemplateIdSchema = z.enum(idsOf(BOOK_COVER_TEMPLATES));
 /** Either set: which one fits is the page's question, answered when the operation runs. */
 export const bookAnyTemplateIdSchema = z.enum([...idsOf(BOOK_TEMPLATES), ...idsOf(BOOK_COVER_TEMPLATES)]);
-export const bookGridIdSchema = z.enum(idsOf(BOOK_GRIDS));
 
 const photo = bookPhotoElementSchema.shape;
 const text = bookTextElementSchema.shape;
@@ -72,31 +72,25 @@ const has = (value: object, keys: readonly string[]) =>
 
 const LOOK_KEYS = ['fit', 'focalX', 'focalY', 'mask', 'frameStyle', 'filter', 'radius'] as const;
 const FRAME_KEYS = ['x', 'y', 'w', 'h', 'rotation'] as const;
-const LAYOUT_KEYS = ['template', 'grid', 'saved'] as const;
-
-/**
- * An entry's words need the entry and a photo's caption needs the photo: a
- * binding that names neither reads nothing, and the ids it names are checked
- * against the journey when the engine runs.
- */
-function bindingNamesItsSource(b: { source: string; entryId?: number; photoId?: number } | null | undefined): boolean {
-  if (!b) return true;
-  if (b.source.startsWith('entry.') && b.entryId === undefined) return false;
-  return b.source !== 'photo.caption' || b.photoId !== undefined;
-}
+const LAYOUT_KEYS = ['template', 'grid', 'saved', 'auto'] as const;
 
 /** One edit of one page. Discriminated on `op`. */
 export const bookPageOpSchema = z.discriminatedUnion('op', [
-  /** Lay the page out again: a built-in layout, a photo grid, or one of the book's own layouts. */
+  /**
+   * Lay the page out again: a built-in layout, a photo grid, one of the book's
+   * own layouts, or `auto`, the Studio's "this page again" from the entry the
+   * page was made from.
+   */
   z
     .strictObject({
       op: z.literal('layout'),
       template: bookAnyTemplateIdSchema.optional(),
       grid: bookGridIdSchema.optional(),
       saved: z.string().min(1).max(40).optional(),
+      auto: z.literal(true).optional(),
     })
     .refine((v) => LAYOUT_KEYS.filter((k) => v[k] !== undefined).length === 1, {
-      message: 'give exactly one of template, grid or saved',
+      message: 'give exactly one of template, grid, saved or auto',
     }),
   /** Put a gallery photo into a frame: by element id, by its place among the page's frames, or a new frame. */
   z.strictObject({
@@ -150,7 +144,10 @@ export const bookPageOpSchema = z.discriminatedUnion('op', [
       font: text.font.unwrap().optional(),
       size: text.size.unwrap().optional(),
       weight: text.weight.unwrap().optional(),
+      italic: text.italic.unwrap().optional(),
       align: text.align.unwrap().optional(),
+      leading: text.leading.unwrap().optional(),
+      tracking: text.tracking.unwrap().optional(),
       color: text.color.unwrap().optional(),
     })
     .refine((v) => v.elementId !== undefined || v.role !== undefined, { message: 'name an elementId or a role' })
@@ -184,6 +181,7 @@ export const bookPageOpSchema = z.discriminatedUnion('op', [
   }),
   /** The page colour; null is the paper. */
   z.strictObject({ op: z.literal('background'), color: bookSpreadSchema.shape.background.unwrap() }),
+  ...BOOK_ELEMENT_OP_SCHEMAS,
 ]);
 export type BookPageOp = z.infer<typeof bookPageOpSchema>;
 export type BookPageOpInput = z.input<typeof bookPageOpSchema>;
@@ -198,6 +196,8 @@ export type BookPageOpInput = z.input<typeof bookPageOpSchema>;
  */
 
 const returnPrevious = z.boolean().optional();
+/** Refuses the write (409) unless the book is still at this version; the assistant's undo sets it. */
+const expectedVersion = z.number().int().nonnegative().optional();
 
 export const editBookPageArgs = {
   spreadId: bookSpreadIdSchema,
@@ -218,10 +218,12 @@ export const moveBookPageArgs = {
     .int()
     .min(0)
     .max(MAX_SPREADS - 1),
+  expectedVersion,
 };
 export const deleteBookPagesArgs = {
   spreadIds: z.array(bookSpreadIdSchema).min(1).max(BOOK_OP_LIMITS.pagesPerCall),
   returnPrevious,
+  expectedVersion,
 };
 export const setBookCoverArgs = {
   template: bookCoverTemplateIdSchema.optional(),
@@ -256,7 +258,10 @@ export const restoreBookPageArgs = {
   pages: z.array(bookPreviousSpreadSchema).min(1).max(BOOK_OP_LIMITS.pagesPerCall),
   expectedVersion: z.number().int().nonnegative(),
 };
-export const describeBookPageArgs = { spreadId: bookSpreadIdSchema };
+/** A design draft's id, as `design_book` answers it. */
+export const bookDesignIdSchema = z.string().regex(/^[\w-]{1,40}$/);
+
+export const describeBookPageArgs = { spreadId: bookSpreadIdSchema, designId: bookDesignIdSchema.optional() };
 export const listBookLayoutsArgs = { role: z.enum(['inner', 'single']).optional() };
 export const suggestBookPhotosArgs = {
   entryId: idSchema.optional(),
@@ -268,6 +273,41 @@ export const suggestBookPhotosArgs = {
   limit: z.number().int().min(1).max(PHOTO_PICK.maxLimit).optional(),
 };
 
+const pageNumbers = bookPageNumbersSchema.shape;
+
+/**
+ * The page format and the page numbers, as the Studio's setup sets them.
+ * Elements are not rescaled when the size changes, as in the Studio; the
+ * answer carries `previous_setup` to set it back.
+ */
+export const setBookSetupArgs = {
+  preset: bookPageSetupSchema.shape.preset.unwrap().optional(),
+  pageWidth: z.number().finite().min(60).max(500).optional(),
+  pageHeight: z.number().finite().min(60).max(500).optional(),
+  bleed: z.number().finite().min(0).max(20).optional(),
+  safe: z.number().finite().min(0).max(50).optional(),
+  pageNumbers: z
+    .strictObject({
+      show: pageNumbers.show.unwrap().optional(),
+      startAt: pageNumbers.startAt.unwrap().optional(),
+      position: pageNumbers.position.unwrap().optional(),
+      margin: z.number().finite().min(0).max(60).optional(),
+      size: pageNumbers.size.unwrap().optional(),
+      autoColor: pageNumbers.autoColor.unwrap().optional(),
+      color: pageNumbers.color.unwrap().optional(),
+      font: pageNumbers.font.unwrap().optional(),
+    })
+    .optional(),
+  /** The assistant's undo sets the setup back only while the book is still at the version the change left. */
+  expectedVersion,
+};
+/** A copy of an inner page, with new ids, right after it. */
+export const duplicateBookPageArgs = { spreadId: bookSpreadIdSchema };
+/** Keep a page's arrangement as one of the book's own layouts. */
+export const saveBookLayoutArgs = { spreadId: bookSpreadIdSchema, name: z.string().trim().min(1).max(60).optional() };
+/** Take one of the book's own layouts away; the answer carries it in `previous_layout`. */
+export const removeBookLayoutArgs = { layoutId: z.string().min(1).max(40), expectedVersion };
+
 export const editBookPageRequestSchema = z.strictObject(editBookPageArgs);
 export const addBookPagesRequestSchema = z.strictObject(addBookPagesArgs);
 export const moveBookPageRequestSchema = z.strictObject(moveBookPageArgs);
@@ -278,6 +318,10 @@ export const restoreBookPageRequestSchema = z.strictObject(restoreBookPageArgs);
 export const describeBookPageRequestSchema = z.strictObject(describeBookPageArgs);
 export const listBookLayoutsRequestSchema = z.strictObject(listBookLayoutsArgs);
 export const suggestBookPhotosRequestSchema = z.strictObject(suggestBookPhotosArgs);
+export const setBookSetupRequestSchema = z.strictObject(setBookSetupArgs);
+export const duplicateBookPageRequestSchema = z.strictObject(duplicateBookPageArgs);
+export const saveBookLayoutRequestSchema = z.strictObject(saveBookLayoutArgs);
+export const removeBookLayoutRequestSchema = z.strictObject(removeBookLayoutArgs);
 
 export type EditBookPageRequest = z.infer<typeof editBookPageRequestSchema>;
 export type AddBookPagesRequest = z.infer<typeof addBookPagesRequestSchema>;
@@ -287,6 +331,10 @@ export type SetBookCoverRequest = z.infer<typeof setBookCoverRequestSchema>;
 export type CreateBookRequest = z.infer<typeof createBookRequestSchema>;
 export type RestoreBookPageRequest = z.infer<typeof restoreBookPageRequestSchema>;
 export type SuggestBookPhotosRequest = z.infer<typeof suggestBookPhotosRequestSchema>;
+export type SetBookSetupRequest = z.infer<typeof setBookSetupRequestSchema>;
+export type DuplicateBookPageRequest = z.infer<typeof duplicateBookPageRequestSchema>;
+export type SaveBookLayoutRequest = z.infer<typeof saveBookLayoutRequestSchema>;
+export type RemoveBookLayoutRequest = z.infer<typeof removeBookLayoutRequestSchema>;
 
 /*
  * ── Answers ─────────────────────────────────────────────────────────────
@@ -307,6 +355,14 @@ export const BOOK_FINDING_CODES = [
   'parked',
   'hidden_photo',
   'not_in_gallery',
+  'text_on_busy',
+  'contrast_low',
+  'small_text',
+  'crowded',
+  'off_grid',
+  'font_mix',
+  'palette_drift',
+  'repeat_layout',
 ] as const;
 export type BookFindingCode = (typeof BOOK_FINDING_CODES)[number];
 
@@ -384,5 +440,11 @@ export const bookWriteResultSchema = z.object({
   dropped: z.array(z.string()).max(MAX_SPREAD_ELEMENTS * 2),
   previous_spreads: z.array(bookPreviousSpreadSchema).optional(),
   from_index: z.number().int().nonnegative().optional(),
+  /** From `set_book_setup`: the setup as it was, to set it back. */
+  previous_setup: bookPageSetupSchema.optional(),
+  /** From `remove_book_layout`: the layout as it was, to put it back. */
+  previous_layout: bookLayoutSchema.optional(),
+  /** From `save_book_layout`: the new layout's id, to take it away again. */
+  layout_id: z.string().max(40).optional(),
 });
 export type BookWriteResult = z.infer<typeof bookWriteResultSchema>;

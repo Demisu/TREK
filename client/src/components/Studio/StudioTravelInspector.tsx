@@ -3,14 +3,12 @@ import type {
   BookBadgeElement, BookCountriesElement, BookElement, BookListElement, BookMapElement,
   BookMetric, BookStatsElement, JourneyStats,
 } from '@trek/shared'
-import { BOOK_METRICS } from '@trek/shared'
-import { isStale, refreshPatch } from './travelRefresh'
+import { BOOK_METRICS, isStale, refreshPatch, routeFor } from '@trek/shared'
 import { Swatches } from './StudioSwatches'
 import { FontButtons, WeightLine } from './StudioTypeControls'
 import { sourceIdOf, useMapSources } from './mapSources'
 import { printDpi, tileView } from './mapTiles'
 import { useCartoApiKey } from '../../hooks/useTileUrl'
-import { routeFor } from './travelRefresh'
 import { Choice, Line, Picks, Section, Switch } from './StudioControls'
 import { fetchRoads } from './roadRoute'
 

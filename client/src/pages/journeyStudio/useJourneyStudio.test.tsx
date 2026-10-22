@@ -35,12 +35,11 @@ vi.mock('../../api/websocket', async importOriginal => ({
   sendBookCursor: vi.fn(),
 }))
 
-const autoLayout = await vi.importActual<typeof import('../../components/Studio/autoLayout')>(
-  '../../components/Studio/autoLayout',
-)
-const buildBook = vi.fn(autoLayout.buildBook)
-vi.mock('../../components/Studio/autoLayout', async importOriginal => {
-  const actual = await importOriginal<typeof import('../../components/Studio/autoLayout')>()
+// The auto layout lives in @trek/shared now; the hook's call into it is watched through a partial mock.
+const shared = await vi.importActual<typeof import('@trek/shared')>('@trek/shared')
+const buildBook = vi.fn(shared.buildBook)
+vi.mock('@trek/shared', async importOriginal => {
+  const actual = await importOriginal<typeof import('@trek/shared')>()
   return { ...actual, buildBook: (...args: Parameters<typeof actual.buildBook>) => buildBook(...args) }
 })
 

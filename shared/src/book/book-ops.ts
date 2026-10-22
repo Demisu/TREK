@@ -2,6 +2,7 @@ import { bookGridElements, defaultBookGridBox, findBookGrid, type BookGridDef } 
 import { bookElementId } from './book-ids';
 import { BOOK_TEXT_STYLES, applyBookTemplate, classifyBookTexts, findBookTemplate } from './book-layouts';
 import {
+  bookBoundWords,
   caught,
   checkedSpread,
   createdIds,
@@ -15,11 +16,11 @@ import {
   type BookOpsContext,
   type BookPhotoInfo,
 } from './book-ops-core';
+import { applyElementOp, autoRelayout } from './book-ops-elements';
 import { BOOK_OP_LIMITS, bookPageOpSchema, type BookPageOp } from './book-ops.schema';
 import { applySavedBookLayout, bookLayoutRole } from './book-saved-layouts';
 import {
   MAX_SPREAD_ELEMENTS,
-  MAX_TEXT_LENGTH,
   type BookDocument,
   type BookElement,
   type BookPageSetup,
@@ -115,6 +116,8 @@ function applyOne(spread: BookSpread, op: BookPageOp, env: Env): BookSpread {
       return opRemove(spread, op, env);
     case 'background':
       return { ...spread, background: op.color };
+    default:
+      return applyElementOp(spread, op, env);
   }
 }
 
@@ -201,6 +204,7 @@ function layoutFree(spread: BookSpread, op: Op<'layout'>, env: Env): BookSpread 
     if (!grid) throw failOp('layout_not_found', `no grid ${op.grid}`, env.opIndex);
     return applyGridLayout(spread, grid, env.page);
   }
+  if (op.auto) return autoRelayout(spread, env);
   const layout = (env.doc.layouts ?? []).find((l) => l.id === op.saved || l.name === op.saved);
   if (!layout) throw failOp('layout_not_found', `this book keeps no layout ${op.saved}`, env.opIndex);
   if (layout.role !== bookLayoutRole(spread)) {
@@ -386,48 +390,21 @@ function opSwapPhotos(spread: BookSpread, op: Op<'swap_photos'>, env: Env): Book
 type Binding = NonNullable<BookTextElement['binding']>;
 
 /**
- * The words a binding reads, from what the context knows, or undefined.
- *
- * Dates and coordinates are set in a reader's language and notation, which the
- * engine does not know: those need their words given.
- */
-function boundWords(binding: Binding, ctx: BookOpsContext): string | undefined {
-  const j = ctx.journey;
-  const pick = (v: string | null | undefined) => (v && v.trim() ? v.slice(0, MAX_TEXT_LENGTH) : undefined);
-  switch (binding.source) {
-    case 'journey.title':
-      return pick(j?.title);
-    case 'journey.subtitle':
-      return pick(j?.subtitle);
-    case 'photo.caption':
-      return pick(ctx.photos?.find((p) => p.photoId === binding.photoId)?.caption);
-    case 'entry.title':
-    case 'entry.story':
-    case 'entry.location': {
-      if (binding.source === 'entry.location' && binding.format) return undefined;
-      const entry = j?.entries?.find((e) => e.id === binding.entryId);
-      if (!entry) return undefined;
-      if (binding.source === 'entry.title') return pick(entry.title || entry.location);
-      return pick(binding.source === 'entry.story' ? entry.story?.trim() : entry.location);
-    }
-    default:
-      return undefined;
-  }
-}
-
-/**
  * Words given to a bound text keep it bound only when they are what the
  * binding reads anyway; otherwise the text is the author's from now on, as when
  * somebody types into it in the Studio.
  */
 const overriddenBy = (words: string, binding: Binding | null, ctx: BookOpsContext) =>
-  binding ? boundWords(binding, ctx) !== words : false;
+  binding ? bookBoundWords(binding, ctx) !== words : false;
 
 const styleOf = (op: Op<'text'>): Partial<BookTextElement> => ({
   ...(op.font !== undefined ? { font: op.font } : {}),
   ...(op.size !== undefined ? { size: op.size } : {}),
   ...(op.weight !== undefined ? { weight: op.weight } : {}),
+  ...(op.italic !== undefined ? { italic: op.italic } : {}),
   ...(op.align !== undefined ? { align: op.align } : {}),
+  ...(op.leading !== undefined ? { leading: op.leading } : {}),
+  ...(op.tracking !== undefined ? { tracking: op.tracking } : {}),
   ...(op.color !== undefined ? { color: op.color } : {}),
 });
 
@@ -469,7 +446,7 @@ function retext(el: BookTextElement, op: Op<'text'>, env: Env): BookTextElement 
         el.id,
       );
     }
-    const words = op.text ?? boundWords(op.binding, env.ctx) ?? (el.text.trim() ? el.text : undefined);
+    const words = op.text ?? bookBoundWords(op.binding, env.ctx) ?? (el.text.trim() ? el.text : undefined);
     if (words === undefined)
       throw failOp('text_required', `give the words for ${el.id}; the binding cannot be read here`, env.opIndex, el.id);
     // Bound without words of its own, the text follows its source: the Studio
@@ -520,7 +497,7 @@ const TEXT_DEFAULTS: Pick<
 function newText(spread: BookSpread, op: Op<'text'>, env: Env): BookTextElement {
   const role = op.role ?? 'body';
   const binding = op.binding ?? null;
-  const words = op.text ?? (binding ? boundWords(binding, env.ctx) : undefined);
+  const words = op.text ?? (binding ? bookBoundWords(binding, env.ctx) : undefined);
   if (!words) throw failOp('text_required', `the page has no ${role} text; give the words for a new one`, env.opIndex);
   return {
     id: env.newId('t'),

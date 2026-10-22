@@ -1,3 +1,4 @@
+import { bookVisiblePart } from './book-findings-design';
 import type { BookPhotoInfo } from './book-ops-core';
 import { BOOK_OP_LIMITS, type BookFinding } from './book-ops.schema';
 import type { BookElement, BookPageSetup, BookPhotoElement, BookSpread, BookTextElement } from './book.schema';
@@ -80,7 +81,7 @@ const LETTER_EM: Record<BookTextElement['font'], number> = {
 const orDefault = (v: number | undefined, fallback: number) => (Number.isFinite(v) ? (v as number) : fallback);
 
 /** How many millimetres a text needs to be set at its frame's width, roughly. */
-function textHeightNeeded(el: BookTextElement): number {
+export function textHeightNeeded(el: BookTextElement): number {
   const sizeMm = (orDefault(el.size, 11) * 25.4) / 72;
   const tracking = orDefault(el.tracking, 0);
   const letter = sizeMm * ((LETTER_EM[el.font] ?? 0.5) * (el.weight >= 600 ? 1.06 : 1) + tracking);
@@ -325,7 +326,28 @@ function focal(ctx: Ctx, el: BookPhotoElement, index: number): void {
     if (dx * dx + dy * dy > 1) return say('falls outside the ellipse mask');
   }
   const over = coveredBy(ctx.spread, index, px, py);
-  if (over) say(`is hidden under ${over.kind} ${over.id}`);
+  if (over) return say(`is hidden under ${over.kind} ${over.id}`);
+  salientCut(ctx, el);
+}
+
+/**
+ * The picture's salient point (where its detail gathers, from the pixel
+ * signals) cropped out of the frame. An estimate, not a face detector.
+ */
+function salientCut(ctx: Ctx, el: BookPhotoElement): void {
+  const info = ctx.photos?.find((p) => p.photoId === el.photoId);
+  const s = info?.salient;
+  const seen = bookVisiblePart(el, info);
+  if (!s || !seen) return;
+  const inX = s.x >= seen.x - 0.02 && s.x <= seen.x + seen.w + 0.02;
+  const inY = s.y >= seen.y - 0.02 && s.y <= seen.y + seen.h + 0.02;
+  if (inX && inY) return;
+  add(ctx, {
+    code: 'focal_cut',
+    severity: 'warn',
+    elementIds: [el.id],
+    message: `the detail of photo ${el.id} gathers at ${s.x.toFixed(2)}/${s.y.toFixed(2)} of the picture, outside what its frame shows; move focalX/focalY toward it`,
+  });
 }
 
 function overflow(ctx: Ctx): void {

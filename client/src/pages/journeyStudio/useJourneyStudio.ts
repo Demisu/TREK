@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
-import type { BookElement, BookPageNumbers, JourneyStats } from '@trek/shared'
-import { bookElementId as elementId, bookPageSetupSchema } from '@trek/shared'
+import type { AutoEntry, AutoInput, AutoPhoto, BookElement, BookPageNumbers, JourneyStats } from '@trek/shared'
+import {
+  autoEntriesWithStops, bookElementId as elementId, bookPageSetupSchema, bookPath, buildBook, distributeGallery,
+  emptyBook, relayoutSpread,
+} from '@trek/shared'
 import { journeyApi } from '../../api/client'
 import { useJourneyStore, type GalleryPhoto, type JourneyEntry, type JourneyPhoto } from '../../store/journeyStore'
 import { useStudioStore } from '../../store/studioStore'
@@ -16,10 +19,6 @@ import type { ProviderPhotoGroup } from '../../components/Journey/JourneyDetailP
 import { useProviderPhotoAdds } from '../journeyDetail/useProviderPhotoAdds'
 import { useIsMobile } from '../../hooks/useIsMobile'
 import { PAGE_PRESETS, clampPageSize, type PagePresetId } from '../../components/Studio/pagePresets'
-import {
-  buildBook, distributeGallery, emptyBook, relayoutSpread,
-  type AutoEntry, type AutoInput, type AutoPhoto,
-} from '../../components/Studio/autoLayout'
 import { resolveBindings } from '../../components/Studio/resolveBindings'
 
 /** CSS defines 1in as 96px and 25.4mm, so this factor is exact, not a guess. */
@@ -50,40 +49,6 @@ export const STUDIO_INSET = 16
  *    an editor that reflex would cost you the page you were working on. Only an
  *    Escape with nothing selected leaves.
  */
-/**
- * A journey's tracks, thinned to what a printed line can show.
- *
- * A three-week drive is hundreds of thousands of GPS fixes. At the size a map
- * is printed, a point every fifteen metres and a point every kilometre are the
- * same picture, and only one of them fits in a document that has to be saved,
- * sent over a websocket and parsed on the other side.
- *
- * Thinned by taking every nth point rather than by simplifying the geometry:
- * Douglas-Peucker would keep the shape better, and it is a hundred lines of
- * code to gain something nobody can see at 60mm across. The ends of every
- * segment are kept, because a track that stops short of where it ended reads
- * as a bug.
- */
-export function bookPath(tracks: { points: readonly unknown[][] }[]): [number, number][][] {
-  const SEGMENTS = 40
-  const PER_SEGMENT = 600
-  const out: [number, number][][] = []
-  for (const track of tracks.slice(0, SEGMENTS)) {
-    // Normalised on the way in: the contract types a pair as a tuple, and Zod
-    // infers that loosely enough that the pair has to be rebuilt to stay one.
-    const pts = track.points
-      .map(p => [Number(p[0]), Number(p[1])] as [number, number])
-      .filter(p => Number.isFinite(p[0]) && Number.isFinite(p[1]))
-    if (pts.length < 2) continue
-    if (pts.length <= PER_SEGMENT) { out.push(pts); continue }
-    const step = (pts.length - 1) / (PER_SEGMENT - 1)
-    const thinned: [number, number][] = []
-    for (let i = 0; i < PER_SEGMENT; i++) thinned.push(pts[Math.round(i * step)])
-    out.push(thinned)
-  }
-  return out
-}
-
 /**
  * The page a Studio with no document yet reports.
  *
@@ -301,36 +266,13 @@ export function useJourneyStudio() {
     const withPhotos = distributeGallery(entries, gallery)
 
     /*
-     * Give every entry what the journey's figures know about its stop.
-     *
-     * The entry carries a place name; the stats carry what that name resolved
-     * to — coordinates and a country. Matched by date first and by name second,
-     * because a day usually has one stop and two stops on one day are told
-     * apart by what they are called.
-     *
-     * With these a page can print the flag, the country's outline and the
-     * coordinates, which is most of what makes a printed travel page look like
-     * one rather than like a document.
+     * Give every entry what the journey's figures know about its stop: the
+     * coordinates and country its place resolved to and which day it is, so a
+     * page can print the flag, the outline and the coordinates. The matching
+     * is shared (autoEntriesWithStops) so the server's design tool reads the
+     * same stops.
      */
-    const points = stats?.points ?? []
-    const dayCount = stats?.days ?? null
-    const first = stats?.start ? Date.parse(`${stats.start}T00:00:00`) : Number.NaN
-    const placed = withPhotos.map(entry => {
-      const point = points.find(p => p.date && entry.date && p.date === entry.date)
-        ?? points.find(p => p.label && entry.location && p.label === entry.location)
-      const at = entry.date ? Date.parse(`${entry.date}T00:00:00`) : Number.NaN
-      const dayNumber = Number.isFinite(at) && Number.isFinite(first)
-        ? Math.floor((at - first) / 86_400_000) + 1
-        : null
-      return {
-        ...entry,
-        lat: point?.lat ?? null,
-        lng: point?.lng ?? null,
-        country: point?.country ?? null,
-        dayNumber: dayNumber && dayNumber > 0 ? dayNumber : null,
-        dayCount,
-      }
-    })
+    const placed = autoEntriesWithStops(withPhotos, stats)
 
     const preset = PAGE_PRESETS['square-210']
 

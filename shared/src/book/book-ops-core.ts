@@ -1,4 +1,13 @@
-import { bookSpreadSchema, type BookDocument, type BookSpread } from './book.schema';
+import type { BookTravelContext } from './book-travel';
+import {
+  MAX_SPREAD_ELEMENTS,
+  MAX_TEXT_LENGTH,
+  bookSpreadSchema,
+  type BookDocument,
+  type BookElement,
+  type BookSpread,
+  type BookTextElement,
+} from './book.schema';
 
 import type { z } from 'zod';
 
@@ -28,6 +37,10 @@ export const BOOK_OP_ERROR_CODES = [
   'caption_missing',
   'text_required',
   'no_cover',
+  'travel_unavailable',
+  'icon_unknown',
+  'not_enough_elements',
+  'layouts_full',
 ] as const;
 export type BookOpErrorCode = (typeof BOOK_OP_ERROR_CODES)[number];
 
@@ -49,6 +62,14 @@ export interface BookPhotoInfo {
   caption?: string | null;
   /** A photo by another contributor, drawn as an empty frame in a page image. */
   hidden?: boolean;
+  /** Up to five `#rrggbb` or `#rrggbb:share` colours of the picture, most of it first. */
+  palette?: readonly string[];
+  /** An 8 x 8 grid of edge density, row by row, one hex nibble (0 calm to f busy) per cell. */
+  busy?: string;
+  /** Where the picture's detail gathers (an edge-energy centroid), 0..1 of each edge; not a face detector. */
+  salient?: { x: number; y: number };
+  /** The picture's mean brightness, 0..255, when known. */
+  luma?: number;
 }
 
 /** The journey's words a text can be bound to. */
@@ -56,6 +77,8 @@ export interface BookJourneyWords {
   title: string;
   subtitle?: string | null;
   entries?: readonly { id: number; title?: string | null; story?: string | null; location?: string | null }[];
+  /** The cover photo the journey names, for a layout that rebuilds a page from its entry. */
+  coverPhotoId?: number | null;
 }
 
 export interface BookOpsContext {
@@ -64,6 +87,12 @@ export interface BookOpsContext {
   journey?: BookJourneyWords;
   /** Mints element and spread ids; tests pass a counter. */
   newId?: (prefix: string) => string;
+  /**
+   * The journey's figures, route and entries, for the travel elements (maps,
+   * figures, countries, marks, lists) and for laying a page out again from its
+   * entry. Without it those operations are refused with `travel_unavailable`.
+   */
+  travel?: BookTravelContext;
 }
 
 /**
@@ -171,4 +200,60 @@ export function galleryPhoto(photoId: number, ctx: BookOpsContext, opIndex: numb
   const info = ctx.photos.find((p) => p.photoId === photoId);
   if (!info) throw failOp('photo_not_in_gallery', `photo ${photoId} is not in this journey's gallery`, opIndex);
   return info;
+}
+
+/** An element on the page by id; a parked one is named as parked. */
+export function pageElement(spread: BookSpread, id: string, opIndex: number): BookElement {
+  const el = spread.elements.find((e) => e.id === id);
+  if (el) return el;
+  const parked = spread.parked.some((e) => e.id === id);
+  const message = parked
+    ? `${id} is parked, not on the page; lay the page out again to bring it back`
+    : `no element ${id} on this page`;
+  throw failOp('element_not_found', message, opIndex, id);
+}
+
+/** The element itself, or a refusal when it is locked. */
+export function unlockedElement<E extends BookElement>(el: E, opIndex: number): E {
+  if (el.locked) throw failOp('locked', `${el.id} is locked; it is left as it is`, opIndex, el.id);
+  return el;
+}
+
+/** A refusal when `add` more elements would not fit on the page. */
+export function roomFor(spread: BookSpread, add: number, opIndex: number): void {
+  if (spread.elements.length + add > MAX_SPREAD_ELEMENTS) {
+    throw failOp('too_many_elements', `a page holds at most ${MAX_SPREAD_ELEMENTS} elements`, opIndex);
+  }
+}
+
+type Binding = NonNullable<BookTextElement['binding']>;
+
+/**
+ * The words a binding reads, from what the context knows, or undefined.
+ *
+ * Dates and coordinates are set in a reader's language and notation, which the
+ * engine does not know: those need their words given.
+ */
+export function bookBoundWords(binding: Binding, ctx: BookOpsContext): string | undefined {
+  const j = ctx.journey;
+  const pick = (v: string | null | undefined) => (v && v.trim() ? v.slice(0, MAX_TEXT_LENGTH) : undefined);
+  switch (binding.source) {
+    case 'journey.title':
+      return pick(j?.title);
+    case 'journey.subtitle':
+      return pick(j?.subtitle);
+    case 'photo.caption':
+      return pick(ctx.photos?.find((p) => p.photoId === binding.photoId)?.caption);
+    case 'entry.title':
+    case 'entry.story':
+    case 'entry.location': {
+      if (binding.source === 'entry.location' && binding.format) return undefined;
+      const entry = j?.entries?.find((e) => e.id === binding.entryId);
+      if (!entry) return undefined;
+      if (binding.source === 'entry.title') return pick(entry.title || entry.location);
+      return pick(binding.source === 'entry.story' ? entry.story?.trim() : entry.location);
+    }
+    default:
+      return undefined;
+  }
 }

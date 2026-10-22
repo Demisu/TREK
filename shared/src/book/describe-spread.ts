@@ -1,4 +1,5 @@
 import { photoDpi, spreadFindings } from './book-findings';
+import { designFindings, sortBookFindings } from './book-findings-design';
 import { BOOK_GRIDS } from './book-grids';
 import { BOOK_COVER_TEMPLATES, BOOK_TEMPLATES, type BookTemplate } from './book-layouts';
 import type { BookPhotoInfo } from './book-ops-core';
@@ -61,7 +62,10 @@ function photoWords(el: BookPhotoElement, info: BookPhotoInfo | undefined): stri
     parts.push(`${pic} ${info.width} x ${info.height} px in a ${frame} frame`);
     const ratio = info.width / info.height / (el.frame.w / el.frame.h);
     const shown = Math.min(ratio, 1 / ratio);
-    if (el.fit === 'cover' && shown < 0.9) parts.push(`cover shows ${Math.round(shown * 100)}% of the picture`);
+    if (el.fit === 'cover' && shown < 0.9) {
+      const crop = `cover shows ${Math.round(shown * 100)}% of the picture (no face detection: check people in the page image)`;
+      parts.push(crop);
+    }
   }
   parts.push(`${el.fit}, focal ${el.focalX.toFixed(2)}/${el.focalY.toFixed(2)}`);
   const dpi = photoDpi(el, info);
@@ -86,19 +90,50 @@ function elementWords(el: BookElement, photos: readonly BookPhotoInfo[] | undefi
       return `${style}: "${head(el.text, 80)}"${bound}`;
     }
     case 'shape':
-      return `${el.shape}, fill ${el.fill ?? 'none'}${el.stroke ? `, stroke ${el.stroke}` : ''}`;
-    case 'map':
-      return `${el.source} map, ${el.points.length} points, ${el.countries.length} countries`;
-    case 'stats':
-      return `figures: ${el.metrics.join(', ')}`;
-    case 'countries':
-      return `${el.codes.length} countries`;
-    case 'badge':
-      return `${el.variant} mark "${head(el.text, 40)}"`;
-    case 'list':
-      return `list of ${el.items.length}`;
+      return shapeWords(el);
     case 'icon':
-      return `icon ${el.name}`;
+      return `icon ${el.name}, ${el.color}, line ${n(el.lineWidth)}`;
+    default:
+      return travelWords(el);
+  }
+}
+
+function shapeWords(el: Extract<BookElement, { kind: 'shape' }>): string {
+  const parts = [`${el.shape}, fill ${el.fill ?? 'none'}`];
+  if (el.gradient !== 'none') parts.push(`fading ${el.gradient}`);
+  if (el.stroke) parts.push(`stroke ${el.stroke} ${n(el.strokeWidth)} mm ${el.strokeStyle}`);
+  if (el.radius > 0) parts.push(`radius ${n(el.radius)}`);
+  return parts.join(', ');
+}
+
+type TravelElement = Extract<BookElement, { kind: 'map' | 'stats' | 'countries' | 'badge' | 'list' }>;
+
+/** What a travel element shows, and how it is set: its face, ink, accent and size. */
+function travelWords(el: TravelElement): string {
+  const set = `${el.font} ${el.weight >= 600 ? 'bold' : 'regular'}, ink ${el.color}, accent ${el.accent}, type x${n(el.textScale)}`;
+  const stale = el.stale ? '; its figures are out of date with the journey' : '';
+  return `${travelWhat(el)}; ${set}${stale}`;
+}
+
+function travelWhat(el: TravelElement): string {
+  switch (el.kind) {
+    case 'map': {
+      const scope = el.tripId != null ? `trip ${el.tripId}` : 'the whole journey';
+      const line = el.path.length ? `, a recorded track of ${el.path.length} segments` : '';
+      return `${el.style} ${el.source} map of ${scope}, ${el.points.length} stops, ${el.countries.length} countries${line}`;
+    }
+    case 'stats': {
+      const figures = el.metrics.map((m) => `${m} ${el.values[m] ?? 0}`).join(', ');
+      return `figures (${el.layout}): ${figures}`;
+    }
+    case 'countries':
+      return `${el.codes.length} countries (${el.codes.slice(0, 8).join(', ')}), ${el.layout}`;
+    case 'badge':
+      return `${el.variant} mark "${head(el.text, 40)}"${el.sub ? ` over "${head(el.sub, 40)}"` : ''}, ${el.style}`;
+    case 'list': {
+      const pros = el.items.filter((i) => i.tone === 'pro').length;
+      return `list of ${el.items.length} (${pros} pros, ${el.items.length - pros} others), ${el.layout}`;
+    }
   }
 }
 
@@ -157,6 +192,18 @@ function elementSummary(el: BookElement): BookElementSummary {
 }
 
 /**
+ * Every finding of one page, the print faults and the design checks
+ * (book-findings-design.ts) together, severe first, at most the cap.
+ */
+export function pageFindings(
+  spread: BookSpread,
+  page: BookPageSetup,
+  photos?: readonly BookPhotoInfo[],
+): BookFinding[] {
+  return sortBookFindings([...spreadFindings(spread, page, photos), ...designFindings(spread, page, photos)]);
+}
+
+/**
  * One page in words, with its findings and its elements. Null when the book
  * has no page with that id.
  *
@@ -171,7 +218,7 @@ export function describeSpread(
   const index = doc.spreads.findIndex((s) => s.id === spreadId);
   const spread = doc.spreads[index];
   if (!spread) return null;
-  const findings = spreadFindings(spread, doc.page, photos);
+  const findings = pageFindings(spread, doc.page, photos);
   const lines = [pageLine(doc, spread, index)];
   if (spread.elements.length) {
     lines.push('Elements, back to front (frame in mm: x, y, w x h):');
