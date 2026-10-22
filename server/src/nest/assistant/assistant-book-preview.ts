@@ -25,8 +25,8 @@ const DESCRIPTION =
   'Look at one page of the book before you change it or after: its elements, its findings (overlaps, words past ' +
   'their frame, empty frames, low resolution, content in the fold) and, when your model reads images, the page as ' +
   'the Studio draws it, with photos of other contributors left as empty frames. With ops (the same ops ' +
-  'edit_book_page takes) you see the page as that edit would leave it, without saving anything. Preview every ' +
-  'page you are about to change once, fix what the findings or the image show, then propose the edit. ' +
+  'edit_book_page takes) you see the page as that edit would leave it, without saving anything. Preview a page ' +
+  'once before you propose an edit of it, fix what the findings or the image show, then propose the edit. ' +
   'With designId (from design_book) you see the page of that design draft instead of the book. ' +
   `At most ${ASSISTANT_PAGE_IMAGE.previewsPerStep} previews per step and ${ASSISTANT_PAGE_IMAGE.previewsPerTurn} ` +
   'per turn.';

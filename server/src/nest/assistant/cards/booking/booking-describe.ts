@@ -1,22 +1,50 @@
+import { IMPORT_BOOKING_TOOL } from '../../assistant-tools.constants';
 import type { Described, PreviewContext, ToolArgs } from '../card-types';
 import { argId, recordOf, type Row } from '../card-values';
-import { clip, dayLabel, formatDateTime, memberNames, money, placeName, Rows, text } from '../preview-format';
+import {
+  clip,
+  dayLabel,
+  formatDate,
+  formatDateTime,
+  memberNames,
+  money,
+  placeName,
+  Rows,
+  text,
+} from '../preview-format';
 import { rowsOf } from '../undo-snapshot';
 import { bookingRowOf, stayRowOf } from './booking-trip';
 import type { AssistantChangeRow } from '@trek/shared';
 
 /**
- * The words of the curated booking changes: the row a receipt, a share text
- * or a thread stored before the cards still reads. The card draws the rest;
- * the booking reference is left out here as on the card.
+ * The words of every booking change: the rows a receipt, a share text or a
+ * thread stored before the cards still reads. The card draws the rest. The
+ * curated writes leave the booking reference out, as the card does; a new
+ * booking (`create_reservation`) and a booking read from a file keep the rows
+ * they always had, the reference among them.
  */
 
 type Describer = (ctx: PreviewContext, args: ToolArgs) => Described;
 
+const DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
+
 /** A date and time as the card writes it; a bare clock as it came. */
 function when(ctx: PreviewContext, value: unknown): string {
   if (typeof value !== 'string') return '';
-  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value) ? formatDateTime(ctx, value) : text(value);
+  return DATE_TIME.test(value) ? formatDateTime(ctx, value) : text(value);
+}
+
+/** A time read from a file: a date and time, or a bare date, in the user's words; anything else as it came. */
+function fileWhen(ctx: PreviewContext, value: unknown): string {
+  if (typeof value !== 'string') return '';
+  return DATE_TIME.test(value) ? formatDateTime(ctx, value) : text(formatDate(ctx, value));
+}
+
+/** The trip day a booking from a file falls on, by the date it starts. */
+function dayOn(ctx: PreviewContext, value: unknown): number | null {
+  if (typeof value !== 'string') return null;
+  const date = value.slice(0, 10);
+  return ctx.card.days.find((day) => day.date === date)?.id ?? null;
 }
 
 /** "Frankfurt (FRA) → New York (JFK)" from endpoints, empty without both ends. */
@@ -81,6 +109,31 @@ function bookingChangeRows(ctx: PreviewContext, current: Row, args: ToolArgs): R
   return rows;
 }
 
+/**
+ * A booking read from an attached file (a BookingImportPreviewItem): what it
+ * is, where it goes, when, and the reference the provider gave it.
+ */
+function describeImport(ctx: PreviewContext, args: ToolArgs): Described {
+  const stay = recordOf(args._accommodation);
+  const venue = recordOf(args._venue);
+  const meta = recordOf(args.metadata);
+  const amount = typeof meta.price === 'number' ? meta.price : Number(meta.price);
+  const dayId = dayOn(ctx, args.reservation_time ?? stay.check_in);
+  const rows = new Rows()
+    .add('type', text(args.type))
+    .add('route', routeText(args.endpoints))
+    .add('day', dayLabel(ctx, dayId))
+    .add('time', fileWhen(ctx, args.reservation_time))
+    .add('endTime', fileWhen(ctx, args.reservation_end_time))
+    .add('checkIn', fileWhen(ctx, stay.check_in))
+    .add('checkOut', fileWhen(ctx, stay.check_out))
+    .add('location', text(args.location ?? venue.name))
+    .add('address', text(venue.address))
+    .add('confirmation', text(args.confirmation_number ?? stay.confirmation))
+    .add('price', price(ctx, Number.isFinite(amount) ? amount : null, meta.priceCurrency));
+  return { subject: text(args.title), rows, dayId, placeIds: [] };
+}
+
 function updateBooking(tool: string): Describer {
   return (ctx, args) => {
     const current = recordOf(bookingRowOf(ctx.card, argId(args, 'reservationId')));
@@ -95,6 +148,26 @@ function updateBooking(tool: string): Describer {
 }
 
 export const BOOKING_DESCRIBERS: Readonly<Record<string, Describer>> = {
+  create_reservation: (ctx, args) => {
+    const placeId = argId(args, 'place_id');
+    const startDay = argId(args, 'start_day_id');
+    const rows = new Rows()
+      .add('type', text(args.type))
+      .add('day', dayLabel(ctx, argId(args, 'day_id')))
+      .add('time', when(ctx, args.reservation_time))
+      .add('endTime', when(ctx, args.reservation_end_time))
+      .add('stay', placeId ? stayText(ctx, placeId, startDay, argId(args, 'end_day_id')) : '')
+      .add('checkIn', text(args.check_in))
+      .add('checkOut', text(args.check_out))
+      .add('location', text(args.location))
+      .add('link', text(args.url))
+      .add('confirmation', text(args.confirmation_number))
+      .add('price', typeof args.price === 'number' ? money(ctx, args.price, ctx.card.currency) : '')
+      .add('notes', text(args.notes));
+    const dayId = argId(args, 'day_id') ?? startDay;
+    return { subject: text(args.title), rows, dayId, placeIds: placeId ? [placeId] : [] };
+  },
+  [IMPORT_BOOKING_TOOL]: describeImport,
   create_transport: (ctx, args) => {
     const dayId = argId(args, 'start_day_id');
     const rows = new Rows()

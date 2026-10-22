@@ -411,7 +411,7 @@ const assistant: TranslationStrings = {
   'assistant.domain.vacay': 'Vakantieplanner',
   'assistant.domain.atlas': 'Atlas',
   'assistant.domain.collections': 'Collecties',
-  'assistant.domain.collab': 'Reischat',
+  'assistant.domain.collab': 'Samenwerking',
   'assistant.domain.files': 'Bestanden',
   'assistant.domain.account': 'Account', // same-as-en
   'assistant.domain.plugins': 'Uitbreidingen',
@@ -441,7 +441,6 @@ const assistant: TranslationStrings = {
   'assistant.tool.delete_reservation': 'Boeking verwijderen',
   'assistant.tool.create_accommodation': 'Verblijf toevoegen',
   'assistant.tool.create_transport': 'Vervoer toevoegen',
-  'assistant.tool.toggle_vacay_entry': 'Vakantiedag instellen',
   'assistant.tool.mark_country_visited': 'Land als bezocht markeren',
   'assistant.tool.confirm_bucket_list_visits': 'Afvinken op de wensenlijst',
   'assistant.tool.clear_bucket_list_visit': 'Vinkje op de wensenlijst weghalen',

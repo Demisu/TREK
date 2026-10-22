@@ -94,9 +94,14 @@ function focusLines(card: BookCard): string[] {
   return [...lines, ''];
 }
 
+/** No book yet: someone who may change the book is pointed at create_book, which a viewer's turn is not offered. */
+function noBook(role: BookRole): string {
+  return role === 'viewer' ? 'Book: none yet.' : 'Book: none yet (create_book lays down a blank one).';
+}
+
 /** The book as the model reads it: its setup, then a row per page. */
-function bookLines(book: BookOverview): string[] {
-  if (!book.exists) return ['Book: none yet (create_book lays down a blank one).'];
+function bookLines(book: BookOverview, role: BookRole): string[] {
+  if (!book.exists) return [noBook(role)];
   const { preset, pageWidth, pageHeight, bleed, safe } = book.page;
   const lines = [
     `Book: "${oneLine(book.title)}", version ${book.version ?? '?'}`,
@@ -124,7 +129,8 @@ function galleryLine({ photos, withTime, withGps }: BookCardGallery): string {
 export function renderBookCard(card: BookCard): string {
   const lines = [`Journey: ${oneLine(card.title)}`];
   if (card.subtitle) lines.push(`Subtitle: ${oneLine(card.subtitle)}`);
-  lines.push(`Your role: ${ROLE_WORDING[card.role]}`, '', ...bookLines(card.book), '', galleryLine(card.gallery), '');
+  const book = bookLines(card.book, card.role);
+  lines.push(`Your role: ${ROLE_WORDING[card.role]}`, '', ...book, '', galleryLine(card.gallery), '');
   lines.push('Entries (entry id | date | title | place | photos):');
   if (card.entries.length === 0) lines.push('(no entries yet)');
   lines.push(...listed(card.entries, ENTRIES_LISTED, entryRow));

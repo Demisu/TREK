@@ -15,8 +15,9 @@ import type { TrekCard } from '@trek/shared';
  * stays and venues, as the planner's booking cards show them. Every booking
  * write and read gets its card; the curated writes name their own verb
  * ("Add accommodation" instead of a bare "Add") and the created ones can be
- * undone. `create_reservation` and a file's `import_booking` keep the core's
- * words; their cards come from here.
+ * undone. The words and cards of `create_reservation` and of a file's
+ * `import_booking` come from here too; the verb of a booking from a file stays
+ * with the changes the server proposes itself (ASSISTANT_SERVER_WRITE_TOOLS).
  */
 
 type ChangeOf = (ctx: PreviewContext, args: ToolArgs) => TrekCard | null;
@@ -36,6 +37,7 @@ const stayIds = (_args: ToolArgs, result: unknown): number[] => {
   return id ? [id] : [];
 };
 
+const ADD_RESERVATION = { verbKey: 'addReservation', entity: 'reservation' } as const;
 const ADD_STAY = { verbKey: 'addStay', entity: 'accommodation' } as const;
 const UPDATE_RESERVATION = { verbKey: 'updateReservation', entity: 'reservation' } as const;
 
@@ -50,13 +52,15 @@ export const BOOKING_CARDS: DomainCards = {
     list_accommodations: { answer: BOOKING_ANSWERS.list_accommodations },
     list_upcoming_reservations: { answer: BOOKING_ANSWERS.list_upcoming_reservations },
     create_reservation: {
+      write: ADD_RESERVATION,
+      describe: BOOKING_DESCRIBERS.create_reservation,
       change: change('create_reservation'),
       effect: BOOKING_EFFECTS.create_reservation,
       applied: appliedReservation,
       undo: BOOKING_UNDO.create_reservation,
     },
     create_transport: {
-      write: { verbKey: 'addReservation', entity: 'reservation' },
+      write: ADD_RESERVATION,
       describe: BOOKING_DESCRIBERS.create_transport,
       change: change('create_transport'),
       applied: appliedReservation,
@@ -120,6 +124,10 @@ export const BOOKING_CARDS: DomainCards = {
       nameArg: stayName,
     },
     delete_accommodation: { change: change('delete_accommodation'), nameArg: stayName },
-    [IMPORT_BOOKING_TOOL]: { change: importedBookingCard, applied: appliedImport },
+    [IMPORT_BOOKING_TOOL]: {
+      describe: BOOKING_DESCRIBERS[IMPORT_BOOKING_TOOL],
+      change: importedBookingCard,
+      applied: appliedImport,
+    },
   },
 };

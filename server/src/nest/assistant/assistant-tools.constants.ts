@@ -101,7 +101,6 @@ export const CORE_WRITE_TOOLS: Readonly<Record<string, AssistantWriteTool>> = {
   create_todo: { verbKey: 'addTodo', entity: 'todo' },
   create_budget_item: { verbKey: 'addBudgetItem', entity: 'budget' },
   update_budget_item: { verbKey: 'updateBudgetItem', entity: 'budget' },
-  create_reservation: { verbKey: 'addReservation', entity: 'reservation' },
 };
 
 /**

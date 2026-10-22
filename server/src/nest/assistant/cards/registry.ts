@@ -83,12 +83,15 @@ interface CoreTables {
   writes: Readonly<Record<string, unknown>>;
   undo: Readonly<Record<string, unknown>>;
   argPolicy: Readonly<Record<string, unknown>>;
+  /** The changes the server proposes itself: their verb stays in the core, their words may come from a package. */
+  serverWrites: Readonly<Record<string, unknown>>;
 }
 
 const CORE: CoreTables = {
   writes: { ...CORE_WRITE_TOOLS, ...ASSISTANT_SERVER_WRITE_TOOLS },
   undo: CORE_UNDO_MAP,
   argPolicy: CORE_ARG_POLICY,
+  serverWrites: ASSISTANT_SERVER_WRITE_TOOLS,
 };
 
 /** One field of every tool that has it, by tool name. */
@@ -196,9 +199,11 @@ export function mergeDomains(domains: readonly DomainCards[], core: CoreTables =
   ] as const) {
     refuseCoreOverlap(field, Object.keys(table), tools);
   }
-  // A curated card is a verb with its words: one without the other is half a card.
+  // A curated card is a verb with its words: one without the other is half a card. A change the
+  // server proposes itself (a booking from a file) has its verb in the core and may take its words here.
   for (const [tool, cards] of Object.entries(tools)) {
-    if (!cards.describe !== !cards.write) {
+    const verb = cards.write ?? core.serverWrites[tool];
+    if (cards.describe ? verb === undefined : cards.write !== undefined) {
       throw new Error(`Assistant cards: "${tool}" needs both a write entry and a describer, or neither`);
     }
   }

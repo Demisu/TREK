@@ -411,7 +411,7 @@ const assistant: TranslationStrings = {
   'assistant.domain.vacay': 'Planejador de férias',
   'assistant.domain.atlas': 'Atlas',
   'assistant.domain.collections': 'Coleções',
-  'assistant.domain.collab': 'Chat da viagem',
+  'assistant.domain.collab': 'Colab',
   'assistant.domain.files': 'Arquivos',
   'assistant.domain.account': 'Conta',
   'assistant.domain.plugins': 'Plugins', // same-as-en
@@ -441,7 +441,6 @@ const assistant: TranslationStrings = {
   'assistant.tool.delete_reservation': 'Excluir a reserva',
   'assistant.tool.create_accommodation': 'Adicionar hospedagem',
   'assistant.tool.create_transport': 'Adicionar transporte',
-  'assistant.tool.toggle_vacay_entry': 'Marcar um dia de férias',
   'assistant.tool.mark_country_visited': 'Marcar o país como visitado',
   'assistant.tool.confirm_bucket_list_visits': 'Riscar na lista de desejos',
   'assistant.tool.clear_bucket_list_visit': 'Desfazer o risco na lista de desejos',

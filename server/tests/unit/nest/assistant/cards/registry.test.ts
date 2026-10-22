@@ -95,6 +95,9 @@ describe('mergeDomains', () => {
       'needs both a write entry and a describer',
     );
     expect(() => mergeDomains([domain('vacay', { set_vacay: { write } })])).toThrow('needs both');
+    // A change the server proposes itself keeps its verb in the core; a package may give it its words.
+    const words = mergeDomains([domain('booking', { import_booking: { describe: described } })]);
+    expect(words.tools.import_booking?.describe).toBe(described);
   });
 
   it('ASTREG-004: a package comes once, with at most two prompt lines; its lines, groups and projections are gathered', () => {

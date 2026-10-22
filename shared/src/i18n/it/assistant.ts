@@ -416,7 +416,7 @@ const assistant: TranslationStrings = {
   'assistant.domain.vacay': 'Pianificatore ferie',
   'assistant.domain.atlas': 'Atlas',
   'assistant.domain.collections': 'Raccolte',
-  'assistant.domain.collab': 'Chat del viaggio',
+  'assistant.domain.collab': 'Collaborazione',
   'assistant.domain.files': 'File',
   'assistant.domain.account': 'Account', // same-as-en
   'assistant.domain.plugins': 'Estensioni',
@@ -446,7 +446,6 @@ const assistant: TranslationStrings = {
   'assistant.tool.delete_reservation': 'Elimina la prenotazione',
   'assistant.tool.create_accommodation': 'Aggiungi alloggio',
   'assistant.tool.create_transport': 'Aggiungi trasporto',
-  'assistant.tool.toggle_vacay_entry': 'Segna un giorno di ferie',
   'assistant.tool.mark_country_visited': 'Segna il paese come visitato',
   'assistant.tool.confirm_bucket_list_visits': 'Spunta nella lista dei desideri',
   'assistant.tool.clear_bucket_list_visit': 'Togli la spunta nella lista dei desideri',

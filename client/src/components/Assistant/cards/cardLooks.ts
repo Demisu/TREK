@@ -107,7 +107,6 @@ export const TOOL_LABELS: Readonly<Partial<Record<string, { labelKey: string }>>
   delete_reservation: { labelKey: 'assistant.tool.delete_reservation' },
   create_accommodation: { labelKey: 'assistant.tool.create_accommodation' },
   create_transport: { labelKey: 'assistant.tool.create_transport' },
-  toggle_vacay_entry: { labelKey: 'assistant.tool.toggle_vacay_entry' },
   mark_country_visited: { labelKey: 'assistant.tool.mark_country_visited' },
   confirm_bucket_list_visits: { labelKey: 'assistant.tool.confirm_bucket_list_visits' },
   clear_bucket_list_visit: { labelKey: 'assistant.tool.clear_bucket_list_visit' },

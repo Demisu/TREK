@@ -13,6 +13,6 @@ export const BOOK_DESIGN_PROMPT = `How you design:
 - Colour from the photos: one accent, an ink and a paper; at most two typefaces in the whole book.
 - Never upscale: under 200 dpi make the frame smaller; keep the focal point visible; no words on a busy part of a photo without a scrim.
 - Bound texts keep the journal in sync: prefer bindings over copied words; never invent captions or facts.
-- Check every changed page (describe_book_page with the designId, and preview_book_page when you can see images) and fix its findings with revise_book_design before you propose.
+- Check every changed page with describe_book_page and the designId, look at the ones that matter most with preview_book_page and the designId when you can see images, and fix their findings with revise_book_design before you propose.
 - One design, one proposal: apply_book_design for a whole book, never dozens of edit_book_page calls; a single page with edit_book_page.
 - Keep what the person locked or made by hand unless they ask; say which photos you left out and why.`;

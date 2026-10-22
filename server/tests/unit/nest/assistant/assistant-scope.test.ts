@@ -224,10 +224,14 @@ describe('the book card', () => {
   it('ASTSCP-022: says when there is no book and no entry yet, and what a viewer may not do', () => {
     const empty = { ...BOOK, exists: false, version: null, spreads: [], layouts: [] };
     const text = renderBookCard(card({ book: empty, entries: [], role: 'viewer', subtitle: null }));
-    expect(text).toContain('Book: none yet (create_book lays down a blank one).');
+    // A viewer's turn is not offered create_book, so its card does not name it.
+    expect(text).toContain('Book: none yet.');
+    expect(text).not.toContain('create_book');
     expect(text).toContain('(no entries yet)');
     expect(text).toContain('propose no changes');
     expect(text).not.toContain('Subtitle:');
+    const editor = renderBookCard(card({ book: empty, entries: [], role: 'editor' }));
+    expect(editor).toContain('Book: none yet (create_book lays down a blank one).');
   });
 
   it('ASTSCP-023: counts what it does not list', () => {

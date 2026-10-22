@@ -1,18 +1,12 @@
 import type { CardPlace } from './assistant-context';
 import { noteOf } from './assistant-memory';
-import {
-  ASSISTANT_SERVER_WRITE_TOOLS,
-  IMPORT_BOOKING_TOOL,
-  REMEMBER_TOOL,
-  writeToolOf,
-} from './assistant-tools.constants';
+import { ASSISTANT_SERVER_WRITE_TOOLS, REMEMBER_TOOL, writeToolOf } from './assistant-tools.constants';
 import type { Described, PreviewContext } from './cards/card-types';
 import {
   categoryName,
   clip,
   dayLabel,
   formatDate,
-  formatDateTime,
   id,
   localeOf,
   memberNames,
@@ -43,7 +37,8 @@ import type {
  * words. Days, places, categories and people are named instead of numbered,
  * dates and amounts are written in the user's locale, and an update shows
  * what the field held before. A package's cards (cards/registry.ts) add the
- * describers, effects and drawn cards of their tools.
+ * describers, effects and drawn cards of their tools; the bookings, a booking
+ * from a file among them, are the booking package's (cards/booking/).
  */
 
 type Args = Record<string, unknown>;
@@ -121,62 +116,6 @@ function updatePlaceRows(ctx: PreviewContext, args: Args, rows: Rows): void {
     rows.change('price', before, typeof args.price === 'number' ? money(ctx, args.price, currency) : '');
   }
   if (has(args, 'opening_hours')) rows.change('openingHours', null, openingHours(ctx, args.opening_hours));
-}
-
-/** A date, or a date and time, as the card writes it; anything else as it came. */
-function when(ctx: PreviewContext, value: unknown): string {
-  if (typeof value !== 'string') return '';
-  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value) ? formatDateTime(ctx, value) : text(formatDate(ctx, value));
-}
-
-/** The trip day a booking falls on, by the date it starts. */
-function dayOn(ctx: PreviewContext, value: unknown): number | null {
-  if (typeof value !== 'string') return null;
-  const date = value.slice(0, 10);
-  return ctx.card.days.find((day) => day.date === date)?.id ?? null;
-}
-
-/** "Frankfurt (FRA) → New York (JFK)" from a booking's endpoints, empty without both ends. */
-function route(endpoints: unknown): string {
-  if (!Array.isArray(endpoints)) return '';
-  const end = (role: string) => {
-    const found = endpoints.find((ep: unknown) => (ep as { role?: unknown } | null)?.role === role) as
-      { name?: unknown; code?: unknown } | undefined;
-    const name = text(found?.name);
-    const code = text(found?.code);
-    if (!name) return code;
-    return code && code !== name ? `${name} (${code})` : name;
-  };
-  const from = end('from');
-  const to = end('to');
-  return from && to ? clip(`${from} → ${to}`) : '';
-}
-
-/**
- * A booking read from an attached file (a BookingImportPreviewItem): what it
- * is, where it goes, when, and the reference the provider gave it.
- */
-function describeBooking(ctx: PreviewContext, args: Args): Described {
-  const stay = (args._accommodation ?? {}) as Args;
-  const venue = (args._venue ?? {}) as Args;
-  const meta = (args.metadata ?? {}) as Args;
-  const starts = args.reservation_time ?? stay.check_in;
-  const price = typeof meta.price === 'number' ? meta.price : Number(meta.price);
-  const currency = typeof meta.priceCurrency === 'string' ? meta.priceCurrency : ctx.card.currency;
-  const dayId = dayOn(ctx, starts);
-  const rows = new Rows()
-    .add('type', text(args.type))
-    .add('route', route(args.endpoints))
-    .add('day', dayLabel(ctx, dayId))
-    .add('time', when(ctx, args.reservation_time))
-    .add('endTime', when(ctx, args.reservation_end_time))
-    .add('checkIn', when(ctx, stay.check_in))
-    .add('checkOut', when(ctx, stay.check_out))
-    .add('location', text(args.location ?? venue.name))
-    .add('address', text(venue.address))
-    .add('confirmation', text(args.confirmation_number ?? stay.confirmation))
-    .add('price', Number.isFinite(price) && price > 0 ? money(ctx, price, currency) : '');
-  return { subject: text(args.title), rows, dayId, placeIds: [] };
 }
 
 type Describer = (ctx: PreviewContext, args: Args) => Described;
@@ -304,38 +243,6 @@ const DESCRIBERS: Readonly<Record<string, Describer>> = {
     return { subject: text(args.name) || `#${id(args, 'itemId') ?? ''}`, rows, dayId: null, placeIds: [] };
   },
   [REMEMBER_TOOL]: (_ctx, args) => ({ subject: noteOf(args) ?? '', rows: new Rows(), dayId: null, placeIds: [] }),
-  create_reservation: (ctx, args) => {
-    const placeId = id(args, 'place_id');
-    const startDay = id(args, 'start_day_id');
-    const endDay = id(args, 'end_day_id');
-    const stay =
-      placeId && startDay && endDay
-        ? `${placeName(ctx, placeId)}, ${dayLabel(ctx, startDay)} → ${dayLabel(ctx, endDay)}`
-        : '';
-    const rows = new Rows()
-      .add('type', text(args.type))
-      .add('day', dayLabel(ctx, id(args, 'day_id')))
-      .add('time', typeof args.reservation_time === 'string' ? formatDateTime(ctx, args.reservation_time) : '')
-      .add(
-        'endTime',
-        typeof args.reservation_end_time === 'string' ? formatDateTime(ctx, args.reservation_end_time) : '',
-      )
-      .add('stay', stay)
-      .add('checkIn', text(args.check_in))
-      .add('checkOut', text(args.check_out))
-      .add('location', text(args.location))
-      .add('link', text(args.url))
-      .add('confirmation', text(args.confirmation_number))
-      .add('price', typeof args.price === 'number' ? money(ctx, args.price, ctx.card.currency) : '')
-      .add('notes', text(args.notes));
-    return {
-      subject: text(args.title),
-      rows,
-      dayId: id(args, 'day_id') ?? startDay,
-      placeIds: placeId ? [placeId] : [],
-    };
-  },
-  [IMPORT_BOOKING_TOOL]: describeBooking,
 };
 
 /** A held write of the model's tools or of the server's own (a booking from a file). */

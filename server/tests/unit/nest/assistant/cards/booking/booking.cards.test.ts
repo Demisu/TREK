@@ -4,6 +4,7 @@
  * one exists; times cross zones only where both ends know theirs.
  */
 import { buildTripCard } from '../../../../../../src/nest/assistant/assistant-context';
+import { CORE_WRITE_TOOLS } from '../../../../../../src/nest/assistant/assistant-tools.constants';
 import { unchangedSinceApplied } from '../../../../../../src/nest/assistant/assistant-undo.helpers';
 import type { CardAirport, PreviewContext } from '../../../../../../src/nest/assistant/cards/card-types';
 import {
@@ -12,6 +13,7 @@ import {
   ASSISTANT_UNDO_MAP,
   ASSISTANT_WRITE_TOOLS,
   CARD_PROMPT_LINES,
+  TOOL_CARDS,
 } from '../../../../../../src/nest/assistant/cards/registry';
 import { appliedChange, describeToolCall } from '../../../../../../src/nest/assistant/tool-call-preview.helpers';
 import { MAX_CARD_CHARS, trekCardSchema, type BookingCard, type BookingItem, type TrekCard } from '@trek/shared';
@@ -635,6 +637,51 @@ describe('booking change cards', () => {
     ]) {
       expect(changeCard(tool, {}).preview.verbKey, tool).toBe(ASSISTANT_WRITE_TOOLS[tool].verbKey);
     }
+  });
+
+  it('ASTBOOK-034: a new booking and a booking from a file are described here, the core keeps no words of them', () => {
+    expect(CORE_WRITE_TOOLS.create_reservation).toBeUndefined();
+    expect(ASSISTANT_WRITE_TOOLS.create_reservation).toEqual({ verbKey: 'addReservation', entity: 'reservation' });
+    expect(TOOL_CARDS.create_reservation?.describe).toBeDefined();
+    // A booking from a file keeps the verb of the changes the server proposes itself.
+    expect(TOOL_CARDS.import_booking?.describe).toBeDefined();
+    expect(TOOL_CARDS.import_booking?.write).toBeUndefined();
+    const { preview } = changeCard('create_reservation', {
+      title: 'Mercure',
+      type: 'hotel',
+      place_id: 12,
+      start_day_id: 31,
+      end_day_id: 33,
+      confirmation_number: 'ABC123',
+      price: 0,
+    });
+    expect(preview).toMatchObject({ verbKey: 'addReservation', subject: 'Mercure', dayId: 31, placeIds: [12] });
+    expect(preview.tool).toBeUndefined();
+    expect(Object.fromEntries(preview.rows.map((row) => [row.labelKey, row.after]))).toEqual({
+      type: 'hotel',
+      stay: 'Mercure Hotel Berlin City, Wed 3 Jun → Fri 5 Jun',
+      confirmation: 'ABC123',
+      price: '€0.00',
+    });
+    // A bare date from a file reads as the day it names; a price that is no number shows none.
+    const file = changeCard('import_booking', {
+      type: 'train',
+      title: 'ICE to Hamburg',
+      reservation_time: '2026-06-04',
+      endpoints: [
+        { role: 'from', sequence: 0, name: 'Berlin Hbf' },
+        { role: 'to', sequence: 1, name: 'Hamburg Hbf', code: 'Hamburg Hbf' },
+      ],
+      metadata: { price: 'free' },
+      source: { fileName: 'ice.pdf', index: 0 },
+    }).preview;
+    expect(file).toMatchObject({ verbKey: 'importBooking', subject: 'ICE to Hamburg', dayId: 32, undoable: false });
+    expect(Object.fromEntries(file.rows.map((row) => [row.labelKey, row.after]))).toEqual({
+      type: 'train',
+      route: 'Berlin Hbf → Hamburg Hbf',
+      day: 'Thu 4 Jun',
+      time: 'Thu 4 Jun',
+    });
   });
 });
 
