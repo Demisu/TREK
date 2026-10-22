@@ -66,6 +66,7 @@ interface NotificationState {
 
   handleNewNotification: (notification: RawNotification) => void
   handleUpdatedNotification: (notification: RawNotification) => void
+  handleAllRead: () => void
 }
 
 const PAGE_SIZE = 20
@@ -205,10 +206,28 @@ export const useInAppNotificationStore = create<NotificationState>((set, get) =>
     }))
   },
 
+  // A notification read, unread or answered in another tab (or through MCP) moves
+  // the bell's count too. One this tab has not loaded says nothing about what it
+  // was before, so the count is asked for instead of guessed.
   handleUpdatedNotification: (raw: RawNotification) => {
     const notification = normalizeNotification(raw)
+    const before = get().notifications.find(n => n.id === notification.id)
+    if (!before) {
+      void get().fetchUnreadCount()
+      return
+    }
+    const delta = Number(!notification.is_read) - Number(!before.is_read)
     set(state => ({
       notifications: state.notifications.map(n => n.id === notification.id ? notification : n),
+      unreadCount: Math.max(0, state.unreadCount + delta),
+    }))
+  },
+
+  // Everything marked read at once elsewhere: the same end state markAllRead leaves.
+  handleAllRead: () => {
+    set(state => ({
+      notifications: state.notifications.map(n => n.is_read ? n : { ...n, is_read: true }),
+      unreadCount: 0,
     }))
   },
 }))

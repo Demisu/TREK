@@ -6,6 +6,7 @@ import { journeyApi } from '../../api/client'
 import { useToast } from '../../components/shared/Toast'
 import { useTranslation } from '../../i18n'
 import { computeJourneyLifecycle } from '../../utils/journeyLifecycle'
+import { useServerPing } from '../../sync/useServerPing'
 
 function dismissedSuggestionsKey(userId: number | undefined): string {
   return `trek:journey:dismissed-suggestions:v1:${userId ?? 'anonymous'}`
@@ -62,6 +63,17 @@ export function useJourney() {
   useEffect(() => {
     loadJourneys()
   }, [])
+  // A journey renamed, given other trips or deleted in another tab or through
+  // MCP, or this user taken off one as a contributor: the list reads itself
+  // again, once per burst. The spinner only shows over an empty list, so a
+  // reread of a full one does not flash.
+  useServerPing(['journey:updated', 'journey:deleted', 'journey:contributor:changed'], true, async () => {
+    try {
+      await loadJourneys()
+    } catch {
+      // A failed reread keeps the list on screen; the next event or visit reads it again.
+    }
+  })
 
   useEffect(() => {
     let cancelled = false

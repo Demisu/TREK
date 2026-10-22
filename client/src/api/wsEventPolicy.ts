@@ -43,9 +43,37 @@ export const HANDLED_OUTSIDE_TRIP_STORE = [
   'roadtripPreferences:changed',
   // components/Roadtrip/useDayBoundaries reloads the shared boundaries.
   'roadtripBoundary:changed',
-  // In-app notifications — hooks/useInAppNotificationListener
+  // In-app notifications: hooks/useInAppNotificationListener, which also keeps
+  // the bell's unread count in step (inAppNotificationStore).
   'notification:new',
   'notification:updated',
+  'notification:read-all',
+  // The same app-wide listener reads the display settings (settingsStore) and the
+  // tags (tripStore.reloadTags) again; both events carry names, never values.
+  'settings:updated',
+  'tags:changed',
+  // pages/dashboard/useDashboard reads the trip list again (desktop and phone).
+  'trips:changed',
+  // pages/atlas/useAtlas reads the atlas again (desktop and phone).
+  'atlas:changed',
+  // Trip roster: pages/tripPlanner/useTripRosterSync and the desktop packing panel
+  // (components/Packing/usePackingListPanel) read the members again. member:removed
+  // (it may be this user leaving the trip) and member:updated (a guest's new name on
+  // the rows that list people) are applied in the store and read back by the same
+  // hooks; both also move the balances below.
+  'member:added',
+  // Balances: components/Budget/useCostsLedger reads the settlement again on
+  // these and on the budget item events that move a split.
+  'budget:settlement-created',
+  'budget:settlement-updated',
+  'budget:settlement-deleted',
+  // Bags and who looks after a category: components/Packing/useBagTotalsPing and
+  // usePackingCategoryAssignees read them again, for both packing lists.
+  'packing:bag-created',
+  'packing:bag-updated',
+  'packing:bag-deleted',
+  'packing:bag-members-updated',
+  'packing:assignees',
   // Bag weights (#2191) — content-free ping; components/Packing/usePackingListPanel
   // and mobile/screens/trip/tabs/MPackingListTab re-read the bags on it. It carries
   // no state to apply, which is the point: the totals are summed server-side across
@@ -73,6 +101,7 @@ export const HANDLED_OUTSIDE_TRIP_STORE = [
   'vacay:shared-update',
   // Journey — pages/journeyDetail/useJourneyDetail ('journey:' prefix listener)
   // reads the open journey again, and leaves it once journey:deleted says it is gone.
+  // The journey list (pages/journey/useJourney) reads itself again on those two.
   'journey:updated',
   'journey:deleted',
   'journey:trip:synced',
@@ -121,43 +150,20 @@ export const HANDLED_OUTSIDE_TRIP_STORE = [
 ] as const satisfies readonly TrekWsEventName[]
 
 /**
- * Events the client deliberately does not act on today (state of the world
- * when the registry landed — every one of these was already dropped by the
- * old silent `default:` branches). Removing an entry means the event is now
- * handled somewhere; ADDING an entry is a product decision that a new server
- * event should have no client reaction — never add one just to silence the
- * registry-parity test.
+ * Events the client deliberately does not act on, each with the reason. Removing
+ * an entry means the event is now handled somewhere; ADDING one is a product
+ * decision that a server event should have no client reaction, never a way to
+ * silence the registry-parity test, which pins these keys to a list that only
+ * shrinks.
  */
-export const IGNORED_WS_EVENTS = [
-  'assignment:participants',
-  'packing:reordered',
-  'packing:bag-created',
-  'packing:bag-updated',
-  'packing:bag-deleted',
-  'packing:bag-members-updated',
-  'packing:assignees',
-  'packing:template-applied',
-  'todo:assignees',
-  'budget:settlement-created',
-  'budget:settlement-updated',
-  'budget:settlement-deleted',
-  'trip:deleted',
-  'member:added',
-  'member:removed',
-] as const satisfies readonly TrekWsEventName[]
+export const IGNORED_WS_EVENTS: Partial<Record<TrekWsEventName, string>> = {
+  'todo:assignees':
+    'No screen shows who looks after a todo category (todoApi.getCategoryAssignees has no caller), so there is nothing to refresh.',
+}
 
 /**
- * Events registered ahead of the write that sends them: nothing on the server
- * sends these yet, so there is nothing for the client to act on. They are not
- * a decision to ignore. The change that adds a sender moves its event to a
- * handler, and the list only shrinks.
+ * Events registered ahead of the write that sends them. The broadcast parity
+ * work gave every one of them a handler, so the list is empty; it stays as the
+ * place a future event registered before its sender goes, and only shrinks.
  */
-export const AWAITING_SENDER_WS_EVENTS = [
-  'member:updated',
-  'todo:reordered',
-  'trips:changed',
-  'settings:updated',
-  'tags:changed',
-  'notification:read-all',
-  'atlas:changed',
-] as const satisfies readonly TrekWsEventName[]
+export const AWAITING_SENDER_WS_EVENTS: readonly TrekWsEventName[] = []

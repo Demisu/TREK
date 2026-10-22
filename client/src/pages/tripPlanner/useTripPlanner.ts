@@ -46,6 +46,7 @@ import {
 } from '../../utils/connectionsVisibility'
 import { usePlaceLanguage } from '../../hooks/usePlaceLanguage'
 import { useDayDelete } from './useDayDelete'
+import { useTripRosterSync } from './useTripRosterSync'
 import { useDayAdd } from './useDayAdd'
 import { usePlannerDialogs } from './usePlannerDialogs'
 import { usePlaceDeepLink } from './usePlaceDeepLink'
@@ -176,13 +177,17 @@ export function useTripPlanner() {
 
   // Re-fetch the trip roster so consumers (Costs participants, Collab, …) pick up a
   // just-added guest or member without a full page reload.
-  const refreshMembers = useCallback(() => {
+  const refreshMembers = useCallback(async () => {
     if (!tripId || isEffectivelyOffline()) return
-    tripsApi.getMembers(tripId).then(d => {
-      const all = [d.owner, ...(d.members || [])].filter(Boolean)
-      setTripMembers(all)
-    }).catch(() => {})
+    try {
+      const d = await tripsApi.getMembers(tripId)
+      setTripMembers([d.owner, ...(d.members || [])].filter(Boolean))
+    } catch {
+      // The roster on screen stays; the next member event or reload reads it again.
+    }
   }, [tripId])
+  // A member added, removed or renamed elsewhere, and the trip going away under us.
+  useTripRosterSync(tripId, refreshMembers)
 
   useEffect(() => {
     addonsApi.enabled().then(data => {
@@ -428,7 +433,7 @@ export function useTripPlanner() {
           .then(rows => setTripMembers(rows))
           .catch(() => {})
       } else {
-        refreshMembers()
+        void refreshMembers()
       }
     }
   }, [tripId])
