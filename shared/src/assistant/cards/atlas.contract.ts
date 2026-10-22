@@ -15,4 +15,5 @@ export * from './atlas-passport.card';
  */
 export const ATLAS_CARD_SCHEMAS = [atlasPassportCardSchema, atlasCountryCardSchema, atlasBucketCardSchema] as const;
 export const ATLAS_VERB_KEYS = [] as const;
-export const ATLAS_APPLIED_ENTITIES = [] as const;
+/** A country, a region or a wish of the bucket list: the receipt opens the Atlas. */
+export const ATLAS_APPLIED_ENTITIES = ['atlas'] as const;
