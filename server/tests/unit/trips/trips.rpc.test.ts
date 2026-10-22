@@ -337,7 +337,7 @@ describe('TripsRpc membership', () => {
 
   it('TRIPS-RPC-021 a join that changes nothing announces nothing', async () => {
     const f = build();
-    f.membership.joinTripAsMember.mockResolvedValueOnce({ joined: false, tripId: 1 });
+    vi.mocked(f.membership.joinTripAsMember).mockResolvedValueOnce({ joined: false, tripId: 1 });
     expect((await f.host().dispatch(req('trips.addMember', { tripId: 1, userId: 7 }), 42)).ok).toBe(true);
     expect(f.roster.findMember).not.toHaveBeenCalled();
     expect(f.realtime.broadcast).not.toHaveBeenCalled();

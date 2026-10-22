@@ -32,8 +32,7 @@ export async function isFormatted(path) {
   try {
     return await prettier.check(readText(path), { ...options, filepath: path });
   } catch (err) {
-    stopped.set(path, String(err instanceof Error ? err.message : err).split('
-')[0]);
+    stopped.set(path, String(err instanceof Error ? err.message : err).split('\n')[0]);
     return false;
   }
 }

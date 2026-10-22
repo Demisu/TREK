@@ -361,7 +361,7 @@ describe('the applied change', () => {
     expect(ASSISTANT_WRITE_TOOLS.update_journey_entry?.verbKey).toBe('updateJournalEntry');
     expect(ASSISTANT_WRITE_TOOLS.delete_journey_entry?.verbKey).toBe('removeJournalEntry');
     expect(ASSISTANT_UNDO_MAP.update_journey_entry).toBeUndefined();
-    expect(CARD_PROMPT_LINES).toEqual(expect.arrayContaining(JOURNEY_CARDS.prompt ?? []));
+    expect(CARD_PROMPT_LINES).toEqual(expect.arrayContaining([...(JOURNEY_CARDS.prompt ?? [])]));
     expect(JOURNEY_CARDS.prompt).toHaveLength(1);
   });
 });
