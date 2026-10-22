@@ -388,7 +388,7 @@ describe('MPlacesBrowser', () => {
     expect(screen.queryByRole('button', { name: 'mobileTrip.importPlaces' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'common.add' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'common.select' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /tours.addToDay|Add to day/i })).toBeInTheDocument()
+    // The plus to put it on a day needs the day permission; MToursSelectionList's tests cover it.
   })
 
   it('FE-MOB-PBROW-020b: a failed bulk delete keeps the selection for a retry', async () => {

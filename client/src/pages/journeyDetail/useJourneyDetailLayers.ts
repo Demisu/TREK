@@ -5,7 +5,6 @@ import { useJourneyMapLayers } from '../../components/Journey/useJourneyMapLayer
 import { useJourneyRecordingPrep } from '../../components/Journey/useJourneyRecordingPrep';
 import type { useDawarichJournalTrail } from '../../hooks/useDawarichJournalTrail';
 import type { useDawarichSuggestions } from '../../hooks/useDawarichSuggestions';
-import { useIsMobile } from '../../hooks/useIsMobile';
 import { useAddonStore } from '../../store/addonStore';
 import type { JourneyDetail } from '../../store/journeyStore';
 import { useJourneyDetailDayImport } from './useJourneyDetailDayImport';
@@ -112,7 +111,6 @@ export function useJourneyDetailLayers({
     recordedRead,
     colorOfDay,
     dateOfEntry,
-    allLayers: useIsMobile(),
   });
 
   // The drafts a day's take-over wrote reach the timeline, and its stays leave the pending list.

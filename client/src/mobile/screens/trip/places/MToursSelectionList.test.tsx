@@ -136,10 +136,10 @@ describe('MToursSelectionList', () => {
     const other = { ...tour, place_id: 43, name: 'Other', max_hiking_difficulty: 4 }
     render(<List planner={planner({ tours: [tour, other] })} shell={shell()} />)
 
-    fireEvent.click(screen.getByRole('button', { name: /^T4 \d+$/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^T4\s*\d+$/ }))
     expect(screen.getByText('Other')).toBeInTheDocument()
     expect(screen.queryByText(tour.name)).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /^T4 \d+$/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^T4\s*\d+$/ }))
     expect(screen.getByText(tour.name)).toBeInTheDocument()
   })
 })

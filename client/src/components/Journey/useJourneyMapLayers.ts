@@ -1,5 +1,6 @@
 import type { JourneyTrack } from '@trek/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import { useTranslation } from '../../i18n';
 import { journeyMapRepo } from '../../repo/journeyMapRepo';
 import { DAWARICH_TRAIL_COLOR } from '../Map/dawarichTrail';
@@ -51,9 +52,10 @@ interface Options {
   /** The day an entry is on, for the colour of its stays. */
   dateOfEntry: (entryId: number) => string | null;
   /**
-   * Every layer on, whatever this browser kept: the phone shows no switches,
-   * so a layer once switched off there would stay off with no way back. A
-   * switch that is still offered then holds only for the visit.
+   * Every layer on, whatever this browser kept. On by default on a phone,
+   * which shows no switches, so a layer once switched off there would stay
+   * off with no way back. A switch that is still offered then holds only for
+   * the visit.
    */
   allLayers?: boolean;
 }
@@ -125,14 +127,15 @@ export function useJourneyMapLayers({
   recordedRead = 'ready',
   colorOfDay,
   dateOfEntry,
-  allLayers = false,
+  allLayers,
 }: Options): JourneyMapLayersView {
   const { t, locale } = useTranslation();
   const journeyId = source && 'journeyId' in source ? source.journeyId : null;
   const token = source && 'token' in source ? source.token : null;
   const storageKey =
     journeyId !== null ? layersStorageKey({ journeyId }) : token !== null ? layersStorageKey({ token }) : null;
-  const { visibility, toggle } = useLayerSwitches(allLayers ? null : storageKey);
+  const isMobile = useIsMobile();
+  const { visibility, toggle } = useLayerSwitches((allLayers ?? isMobile) ? null : storageKey);
 
   const sourceKey = journeyId !== null ? `j:${journeyId}` : token !== null ? `s:${token}` : null;
   // A shared page reads once; a journey's own map only while the plan or the entries are shown.

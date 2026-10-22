@@ -136,7 +136,6 @@ export function useJourneyPublic() {
     photoCount: mapPhotos.length,
     colorOfDay,
     dateOfEntry,
-    allLayers: isMobile,
   })
 
   // A journey shared while the trip is still running reads like a blog, so the owner
