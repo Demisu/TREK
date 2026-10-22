@@ -14,7 +14,8 @@ const SECRET_KEYS = new Set(['email', 'confirmation_number', 'confirmation', 'ph
 /** Keys that cost a lot and tell the model nothing it plans with. */
 const DROPPED_KEY = /^(image_url|cover_image|avatar|avatar_url|metadata|place_image|trip_cover)$|geometry/;
 
-const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
+// The lookbehind keeps a match from starting inside a run of address characters, so a long run without an @ is read once.
+const EMAIL = /(?<![\w.+-])[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
 
 type Json = unknown;
 

@@ -137,7 +137,7 @@ function round(value: number, digits: number): number {
 export function bitsToHex(bits: string): string | null {
   if (!/^[01]{64}$/.test(bits)) return null;
   let out = '';
-  for (let i = 0; i < 64; i += 4) out += parseInt(bits.slice(i, i + 4), 2).toString(16);
+  for (let i = 0; i < 64; i += 4) out += Number.parseInt(bits.slice(i, i + 4), 2).toString(16);
   return out;
 }
 

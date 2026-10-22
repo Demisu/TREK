@@ -14,8 +14,19 @@ export const SHARE_MAX_CHARS = 4800;
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;
 
-/** A table's divider row (`|---|:--:|`), which has no words. */
-const TABLE_RULE = /^\|?(?:\s*:?-+:?\s*\|)+\s*:?-*:?\s*$/;
+/** What a divider cell holds once trimmed: dashes, with a colon at either end for alignment. */
+const RULE_CELL = /^:?-*:?$/;
+
+/** A table's divider row (`|---|:--:|`), which has no words. Read cell by cell, so no pattern backtracks over it. */
+function isTableRule(line: string): boolean {
+  const cells = (line.startsWith('|') ? line.slice(1) : line).split('|');
+  const last = cells.pop() ?? '';
+  if (cells.length === 0 || !RULE_CELL.test(last.trim())) return false;
+  return cells.every((cell) => {
+    const trimmed = cell.trim();
+    return trimmed.includes('-') && RULE_CELL.test(trimmed);
+  });
+}
 
 /** One table row as its cells in a line. */
 function tableRow(line: string): string {
@@ -28,11 +39,45 @@ function tableRow(line: string): string {
     .join(', ');
 }
 
+/**
+ * Rewrites every `[text](url)` of a line (with a leading `!` for a picture), found by scanning:
+ * a `[` and the first `]` after it decide the match, so a long line of brackets is read once.
+ */
+function rewriteBrackets(line: string, picture: boolean, build: (text: string, url: string) => string): string {
+  let out = '';
+  let from = 0;
+  let paren = -1;
+  let open = line.indexOf('[');
+  while (open !== -1) {
+    if (picture && (open === 0 || line[open - 1] !== '!')) {
+      open = line.indexOf('[', open + 1);
+      continue;
+    }
+    const close = line.indexOf(']', open + 1);
+    if (close === -1) break;
+    let next = close;
+    if (line[close + 1] === '(') {
+      if (paren < close + 2) paren = line.indexOf(')', close + 2);
+      if (paren === -1) break;
+      let clean = true;
+      for (let at = close + 2; at < paren && clean; at++) clean = !/\s/.test(line.charAt(at));
+      const text = line.slice(open + 1, close);
+      const url = line.slice(close + 2, paren);
+      if (clean && (picture || (text !== '' && url !== ''))) {
+        out += line.slice(from, picture ? open - 1 : open) + build(text, url);
+        from = paren + 1;
+        next = paren;
+      }
+    }
+    open = line.indexOf('[', next + 1);
+  }
+  return out + line.slice(from);
+}
+
 /** The marks of one line of running text: emphasis, code, links and pictures. */
 function inline(line: string): string {
-  return line
-    .replace(/!\[([^\]]*)\]\([^)\s]*\)/g, '$1')
-    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, text: string, url: string) => (text === url ? url : `${text} (${url})`))
+  const pictures = rewriteBrackets(line, true, (text) => text);
+  return rewriteBrackets(pictures, false, (text, url) => (text === url ? url : `${text} (${url})`))
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/__([^_]+)__/g, '$1')
     .replace(/(^|[^\w*])\*([^*\s][^*]*)\*/g, '$1$2')
@@ -42,11 +87,11 @@ function inline(line: string): string {
 /** One line of Markdown as text, or null for a line that only carries layout (a fence, a table rule). */
 function plainLine(line: string): string | null {
   if (/^\s*(?:```|~~~)/.test(line)) return null;
-  if (TABLE_RULE.test(line.trim())) return null;
-  const heading = /^\s{0,3}#{1,6}\s+(.*)$/.exec(line);
-  if (heading) return inline(heading[1] ?? '');
-  const bullet = /^(\s*)[-*+]\s+(.*)$/.exec(line);
-  if (bullet) return `${bullet[1] ?? ''}• ${inline(bullet[2] ?? '')}`;
+  if (isTableRule(line.trim())) return null;
+  const heading = /^\s{0,3}#{1,6}\s(.*)$/.exec(line);
+  if (heading) return inline((heading[1] ?? '').trimStart());
+  const bullet = /^(\s*)[-*+]\s(.*)$/.exec(line);
+  if (bullet) return `${bullet[1] ?? ''}• ${inline((bullet[2] ?? '').trimStart())}`;
   const quote = /^\s*>\s?(.*)$/.exec(line);
   if (quote) return inline(quote[1] ?? '');
   if (line.trim().startsWith('|')) return tableRow(inline(line));

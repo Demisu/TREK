@@ -36,7 +36,7 @@ export function inMonths(date: string, months: readonly CardMonth[]): boolean {
 /** The dated days of the trip, from its days or else its first and last date (a year of them at most). */
 function tripDatesOf(card: TripCard): string[] {
   const dated = card.days.flatMap((day) => (day.date ? [day.date] : []));
-  if (dated.length > 0) return [...new Set(dated)].sort();
+  if (dated.length > 0) return [...new Set(dated)].sort((a, b) => a.localeCompare(b));
   if (!card.startDate || !card.endDate || card.startDate > card.endDate) return [];
   const dates: string[] = [];
   const day = new Date(`${card.startDate}T00:00:00Z`);

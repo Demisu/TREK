@@ -182,7 +182,7 @@ const HASH = /^[0-9a-f]{16}$/i;
 
 function parseHash(hex: string | null | undefined): Hash | null {
   if (!hex || !HASH.test(hex)) return null;
-  return [parseInt(hex.slice(0, 8), 16), parseInt(hex.slice(8), 16)];
+  return [Number.parseInt(hex.slice(0, 8), 16), Number.parseInt(hex.slice(8), 16)];
 }
 
 /** The set bits of a 32-bit number. */

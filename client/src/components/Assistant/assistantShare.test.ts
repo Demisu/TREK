@@ -76,6 +76,23 @@ describe('markdownToText', () => {
   it('FE-AI-SHARE-002: a link whose text is its address stays one address', () => {
     expect(markdownToText('[https://trek.app](https://trek.app)')).toBe('https://trek.app');
   });
+
+  it('FE-AI-SHARE-006: pictures, odd links and divider rows read as before', () => {
+    expect(markdownToText('![Map](a.png) and [[nested]](u) and [a b](x y) and [](z) and [ok](u)')).toBe(
+      'Map and [[nested]](u) and [a b](x y) and [](z) and ok (u)'
+    );
+    expect(markdownToText('|:-|-:|\n| a | b |')).toBe('a, b');
+    expect(markdownToText('| - | x |')).toBe('-, x');
+    expect(markdownToText('#   Wide heading\n-    wide item')).toBe('Wide heading\n• wide item');
+  });
+
+  it('FE-AI-SHARE-007: long runs of brackets, spaces and dashes are read in one pass', () => {
+    const started = Date.now();
+    const long = 20000;
+    markdownToText(`${'['.repeat(long)}\n${'![a](b '.repeat(long / 7)}\n${'-'.repeat(long)}\n#${' '.repeat(long)}x`);
+    markdownToText(`|${' - |'.repeat(long / 4)} x`);
+    expect(Date.now() - started).toBeLessThan(2000);
+  });
 });
 
 describe('chatTextOf', () => {

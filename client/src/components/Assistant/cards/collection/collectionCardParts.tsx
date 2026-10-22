@@ -75,7 +75,7 @@ function LabelChips({ labels }: { labels: readonly CollectionCardLabel[] }) {
       ))}
       {rest.length > 0 && (
         <Tooltip label={rest.map((label) => label.name).join(', ')} placement="top">
-          <span tabIndex={0} className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-accent">
+          <span className="rounded-full">
             <WhiteBadge>+{rest.length}</WhiteBadge>
           </span>
         </Tooltip>

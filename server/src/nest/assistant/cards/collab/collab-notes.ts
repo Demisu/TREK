@@ -61,7 +61,8 @@ function notesOf(notes: CollabNoteCard[], more = 0): CollabNotesCard | null {
 /** When a note was last touched, for the tab's order. */
 function touchedAt(row: Row): number {
   const stamp = typeof row.updated_at === 'string' && row.updated_at ? row.updated_at : row.created_at;
-  const ms = typeof stamp === 'string' ? Date.parse(stamp.includes('T') ? stamp : `${stamp.replace(' ', 'T')}Z`) : NaN;
+  const ms =
+    typeof stamp === 'string' ? Date.parse(stamp.includes('T') ? stamp : `${stamp.replace(' ', 'T')}Z`) : Number.NaN;
   return Number.isNaN(ms) ? 0 : ms;
 }
 

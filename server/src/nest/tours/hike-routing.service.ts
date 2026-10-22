@@ -137,8 +137,9 @@ export class HikeRoutingService {
     userId: number,
     tripId: number,
     request: HikePlanRequest,
-    { grades: withGrades }: HikePlanOptions = { grades: true },
+    options?: HikePlanOptions,
   ): Promise<PlannedHike> {
+    const withGrades = options?.grades ?? true;
     // The tools check their own requests; a change plans through the points a hike has saved, held here to the same.
     const checked = hikePlanRequestSchema.safeParse(request);
     if (!checked.success) throw badRequest(checked.error.issues.map((issue) => issue.message).join('; '));

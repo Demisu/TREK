@@ -66,9 +66,9 @@ export default function AssistantFitCheck({ changes }: { changes: readonly DayCh
   if (ok) return pill;
   return (
     <Tooltip label={check.slice(0, MAX_LINES).join('\n')} placement="top">
-      <span tabIndex={0} className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-accent">
+      <button type="button" className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-accent">
         {pill}
-      </span>
+      </button>
     </Tooltip>
   );
 }

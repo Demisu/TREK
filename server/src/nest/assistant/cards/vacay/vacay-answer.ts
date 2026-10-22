@@ -47,7 +47,7 @@ function emptyCard(): VacayCard {
 
 /** The distinct months of `dates` in order, at most `max`. */
 function monthsOfDates(dates: readonly string[], max: number): CardMonth[] {
-  const keys = [...new Set([...dates].sort().map(monthKey))].slice(0, max);
+  const keys = [...new Set([...dates].sort((a, b) => a.localeCompare(b)).map(monthKey))].slice(0, max);
   return keys.map((key) => monthOf(`${key}-01`));
 }
 
@@ -58,7 +58,9 @@ function monthsOfDates(dates: readonly string[], max: number): CardMonth[] {
  * from January to December, widened to the months the answer holds days of.
  */
 function focusMonths(input: AnswerInput, entries: readonly VacayEntryRow[], year: number): CardMonth[] {
-  const span = [`${year}-01`, `${year}-12`, ...entries.map((entry) => monthKey(entry.date))].sort();
+  const span = [`${year}-01`, `${year}-12`, ...entries.map((entry) => monthKey(entry.date))].sort((a, b) =>
+    a.localeCompare(b),
+  );
   const first = span[0] ?? `${year}-01`;
   const last = span[span.length - 1] ?? `${year}-12`;
   const inside = (key: string) => key >= first && key <= last;

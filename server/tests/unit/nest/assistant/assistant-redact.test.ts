@@ -29,6 +29,14 @@ describe('redactForProvider', () => {
     });
   });
 
+  it('ASTRED-003: masks an address inside a long run of address characters, and reads a run without one quickly', () => {
+    expect(redactForProvider('x'.repeat(50) + '.y@mail.example.test!')).toBe('[hidden]!');
+    const started = Date.now();
+    redactForProvider('a'.repeat(100000));
+    redactForProvider('a@'.repeat(50000));
+    expect(Date.now() - started).toBeLessThan(2000);
+  });
+
   it("ASTRED-002: drops a booked place's picture and the trip's cover, wherever they sit", () => {
     expect(
       redactForProvider({

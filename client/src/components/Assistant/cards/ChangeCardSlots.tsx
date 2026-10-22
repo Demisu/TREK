@@ -329,8 +329,10 @@ export function ChangeRows({ items, folded, excluded, disabled, undone, undoable
     const Group = view?.Group;
     const Run = view?.Run;
     const body: ReactNode[] = [];
-    for (let i = 0; i < run.length; i++) {
+    let i = 0;
+    while (i < run.length) {
       let end = i;
+      let next = i + 1;
       while (end < run.length && runnable(run[end] as ChangeItem, view)) end++;
       if (Run && end - i >= 2) {
         const taken = run.slice(i, end);
@@ -342,8 +344,9 @@ export function ChangeRows({ items, folded, excluded, disabled, undone, undoable
             </CardBoundary>
           );
         }
-        i = end - 1;
+        next = end;
       } else body.push(row(run[i] as ChangeItem));
+      i = next;
     }
     if (!Group || !first) return body;
     const group = (place: 'head' | 'foot') => (
