@@ -72,6 +72,9 @@ export const HANDLED_OUTSIDE_TRIP_STORE = [
   'vacay:share-removed',
   'vacay:shared-update',
   // Journey — pages/journeyDetail/useJourneyDetail ('journey:' prefix listener)
+  // reads the open journey again, and leaves it once journey:deleted says it is gone.
+  'journey:updated',
+  'journey:deleted',
   'journey:trip:synced',
   'journey:entry:created',
   'journey:entry:updated',
@@ -141,4 +144,20 @@ export const IGNORED_WS_EVENTS = [
   'trip:deleted',
   'member:added',
   'member:removed',
+] as const satisfies readonly TrekWsEventName[]
+
+/**
+ * Events registered ahead of the write that sends them: nothing on the server
+ * sends these yet, so there is nothing for the client to act on. They are not
+ * a decision to ignore. The change that adds a sender moves its event to a
+ * handler, and the list only shrinks.
+ */
+export const AWAITING_SENDER_WS_EVENTS = [
+  'member:updated',
+  'todo:reordered',
+  'trips:changed',
+  'settings:updated',
+  'tags:changed',
+  'notification:read-all',
+  'atlas:changed',
 ] as const satisfies readonly TrekWsEventName[]

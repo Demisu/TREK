@@ -123,6 +123,15 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
       const type = event.type as string
       if (!type?.startsWith('journey:')) return
       if (event.journeyId !== journeyId) return
+      // Its owner deleted it elsewhere: there is nothing left to read again, so
+      // the page goes back to the list (a journal shown inside a trip stays put).
+      if (type === 'journey:deleted') {
+        if (!embedded) {
+          toast.info(t('journey.deleted'))
+          void navigate('/journey')
+        }
+        return
+      }
       // reload journey data on any change from other contributors
       loadJourney(journeyId)
     }

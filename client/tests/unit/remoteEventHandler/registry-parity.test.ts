@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TREK_WS_EVENT_NAMES, TREK_WS_TRIP_EVENT_NAMES } from '@trek/shared';
 import { DEXIE_WRITERS, STATE_APPLIERS } from '../../../src/store/slices/remoteEventHandler';
-import { HANDLED_OUTSIDE_TRIP_STORE, IGNORED_WS_EVENTS } from '../../../src/api/wsEventPolicy';
+import { AWAITING_SENDER_WS_EVENTS, HANDLED_OUTSIDE_TRIP_STORE, IGNORED_WS_EVENTS } from '../../../src/api/wsEventPolicy';
 import { useTripStore } from '../../../src/store/tripStore';
 import { resetAllStores } from '../../helpers/store';
 import { buildPackingItem, buildPlace } from '../../helpers/factories';
@@ -9,8 +9,8 @@ import { buildPackingItem, buildPlace } from '../../helpers/factories';
 /**
  * The exhaustiveness ratchet (roadmap: WS event contract registry). Every
  * event in the shared registry must be classified on the client — applied by
- * the tripStore reducer, consumed by a dedicated listener, or explicitly
- * ignored. A server-side event added without a client decision turns this
+ * the tripStore reducer, consumed by a dedicated listener, explicitly
+ * ignored, or registered ahead of the write that will send it. A server-side event added without a client decision turns this
  * test red instead of vanishing into the old silent `default:` branches.
  */
 
@@ -20,6 +20,7 @@ const handledInStore = new Set<string>([
 ]);
 const handledElsewhere = new Set<string>(HANDLED_OUTSIDE_TRIP_STORE);
 const ignored = new Set<string>(IGNORED_WS_EVENTS);
+const awaitingSender = new Set<string>(AWAITING_SENDER_WS_EVENTS);
 
 beforeEach(() => {
   resetAllStores();
@@ -28,7 +29,7 @@ beforeEach(() => {
 describe('remoteEventHandler > registry parity', () => {
   it('FE-WSEVT-REGISTRY-001: every registry event is handled or explicitly ignored', () => {
     const unclassified = TREK_WS_EVENT_NAMES.filter(
-      name => !handledInStore.has(name) && !handledElsewhere.has(name) && !ignored.has(name),
+      name => !handledInStore.has(name) && !handledElsewhere.has(name) && !ignored.has(name) && !awaitingSender.has(name),
     );
     expect(
       unclassified,
@@ -38,10 +39,13 @@ describe('remoteEventHandler > registry parity', () => {
     ).toEqual([]);
   });
 
-  it('FE-WSEVT-REGISTRY-002: the three buckets are disjoint (exactly one decision per event)', () => {
+  it('FE-WSEVT-REGISTRY-002: the four buckets are disjoint (exactly one decision per event)', () => {
     const doubleClassified = TREK_WS_EVENT_NAMES.filter(name => {
       const buckets =
-        Number(handledInStore.has(name)) + Number(handledElsewhere.has(name)) + Number(ignored.has(name));
+        Number(handledInStore.has(name)) +
+        Number(handledElsewhere.has(name)) +
+        Number(ignored.has(name)) +
+        Number(awaitingSender.has(name));
       return buckets > 1;
     });
     expect(
@@ -52,7 +56,7 @@ describe('remoteEventHandler > registry parity', () => {
 
   it('FE-WSEVT-REGISTRY-003: no stale names — every classified event still exists in the registry', () => {
     const registry = new Set<string>(TREK_WS_EVENT_NAMES);
-    const stale = [...handledInStore, ...handledElsewhere, ...ignored].filter(
+    const stale = [...handledInStore, ...handledElsewhere, ...ignored, ...awaitingSender].filter(
       name => !registry.has(name),
     );
     expect(stale, `Name(s) not in the shared registry (renamed or removed?): ${stale.join(', ')}`).toEqual([]);
@@ -88,5 +92,20 @@ describe('remoteEventHandler > registry parity', () => {
     useTripStore.setState({ places: [buildPlace({ id: 5 })] });
     useTripStore.getState().handleRemoteEvent({ type: 'not:a:real:event', payload: 1 });
     expect(useTripStore.getState().places.map(p => p.id)).toEqual([5]);
+  });
+
+  it('FE-WSEVT-REGISTRY-008: the events awaiting a sender only shrink', () => {
+    // Registered by the broadcast parity work ahead of their writes. A new event
+    // gets a handler or a deliberate IGNORED_WS_EVENTS slot, never a place here.
+    const registeredAhead = [
+      'member:updated',
+      'todo:reordered',
+      'trips:changed',
+      'settings:updated',
+      'tags:changed',
+      'notification:read-all',
+      'atlas:changed',
+    ];
+    expect(AWAITING_SENDER_WS_EVENTS.filter(name => !registeredAhead.includes(name))).toEqual([]);
   });
 });

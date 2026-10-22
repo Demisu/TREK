@@ -1,4 +1,4 @@
-// FE-JRN-DETHOOK-001 to FE-JRN-DETHOOK-031
+// FE-JRN-DETHOOK-001 to FE-JRN-DETHOOK-032
 import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import { useLocation } from 'react-router';
 import { delay, http, HttpResponse } from 'msw';
@@ -241,6 +241,23 @@ describe('useJourneyDetail', () => {
     handler({ journeyId: 7 });
     await new Promise(r => setTimeout(r, 20));
     expect(latest.current?.title).toBe('Japan 2026');
+  });
+
+  it('FE-JRN-DETHOOK-032: a journey deleted elsewhere returns to the journey list instead of reading it again', async () => {
+    setup();
+    await waitFor(() => expect(latest.current).not.toBeNull());
+    const handler = vi.mocked(addListener).mock.calls[0][0] as (e: Record<string, unknown>) => void;
+    const reads = vi.fn();
+    server.use(http.get('/api/journeys/7', () => {
+      reads();
+      return HttpResponse.json({ error: 'gone' }, { status: 404 });
+    }));
+
+    handler({ type: 'journey:deleted', journeyId: 7 });
+    expect(mockNavigate).toHaveBeenCalledWith('/journey');
+    expect(addToast).toHaveBeenCalledWith('Journey deleted', 'info', undefined);
+    await new Promise(r => setTimeout(r, 20));
+    expect(reads).not.toHaveBeenCalled();
   });
 
   it('FE-JRN-DETHOOK-010: the websocket listener is detached on unmount', async () => {
