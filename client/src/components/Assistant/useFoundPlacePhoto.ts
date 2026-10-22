@@ -1,8 +1,18 @@
-import type { AssistantFoundPlace } from '@trek/shared';
 import { type RefObject, useEffect, useState } from 'react';
 
 import { fetchPhoto, getCached } from '../../services/photoService';
 import { useAuthStore } from '../../store/authStore';
+
+/**
+ * What a picture is asked for by: a found place, or a stay a booking card
+ * shows (its Google place id, its position and its name).
+ */
+interface PhotoPlace {
+  photoKey: string | null;
+  lat: number | null;
+  lng: number | null;
+  name: string;
+}
 
 /** The only pictures a found place shows: TREK's own photo proxy, never an address from the search. */
 const PROXY_PREFIX = '/api/maps/place-photo/';
@@ -13,7 +23,7 @@ const PROXY_PREFIX = '/api/maps/place-photo/';
  * a picture of its surroundings, the same street scene for every restaurant
  * in a district; such a card shows its category instead.
  */
-function photoKeyOf(place: AssistantFoundPlace): string | null {
+function photoKeyOf(place: PhotoPlace): string | null {
   return place.photoKey && !place.photoKey.startsWith('coords:') ? place.photoKey : null;
 }
 
@@ -31,7 +41,7 @@ function proxiedPhoto(url: string | null | undefined): string | null {
  * are off, for a place known only by its position, and for any answer that is
  * not the proxy's own address.
  */
-export function useFoundPlacePhoto(place: AssistantFoundPlace, ref: RefObject<Element | null>): string | null {
+export function useFoundPlacePhoto(place: PhotoPlace, ref: RefObject<Element | null>): string | null {
   const enabled = useAuthStore((s) => s.placesPhotosEnabled);
   const key = photoKeyOf(place);
   const [src, setSrc] = useState<string | null>(() => (key ? proxiedPhoto(getCached(key)?.photoUrl) : null));
@@ -56,7 +66,7 @@ export function useFoundPlacePhoto(place: AssistantFoundPlace, ref: RefObject<El
   useEffect(() => {
     if (!visible || !enabled || !key) return;
     let cancelled = false;
-    fetchPhoto(key, key, place.lat, place.lng, place.name, (entry) => {
+    fetchPhoto(key, key, place.lat ?? undefined, place.lng ?? undefined, place.name, (entry) => {
       if (!cancelled) setSrc(proxiedPhoto(entry.photoUrl));
     });
     return () => {

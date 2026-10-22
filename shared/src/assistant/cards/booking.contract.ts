@@ -10,5 +10,7 @@ export * from './booking.card';
  * or entity is added here and nowhere else.
  */
 export const BOOKING_CARD_SCHEMAS = [bookingCardSchema] as const;
-export const BOOKING_VERB_KEYS = [] as const;
-export const BOOKING_APPLIED_ENTITIES = [] as const;
+/** addReservation and importBooking sit in the core list already. */
+export const BOOKING_VERB_KEYS = ['addStay', 'updateStay', 'updateReservation'] as const;
+/** 'reservation' is a core entity already; a stay is its own row. */
+export const BOOKING_APPLIED_ENTITIES = ['accommodation'] as const;
