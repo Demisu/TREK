@@ -446,4 +446,15 @@ describe('VacayPage', () => {
       vi.useRealTimers();
     }
   });
+
+  it('FE-PAGE-VACAY-026: a link with a year opens Vacay on it; one without a usable year opens as before', () => {
+    const mockLoadAll = vi.fn().mockResolvedValue(undefined);
+    seedStore(useVacayStore, makeVacayState({ loadAll: mockLoadAll }) as never);
+    const { unmount } = render(<VacayPage />, { initialEntries: ['/vacay?year=2027'] });
+    expect(mockLoadAll).toHaveBeenCalledWith(2027);
+    unmount();
+    mockLoadAll.mockClear();
+    render(<VacayPage />, { initialEntries: ['/vacay?year=next'] });
+    expect(mockLoadAll).toHaveBeenCalledWith(undefined);
+  });
 });

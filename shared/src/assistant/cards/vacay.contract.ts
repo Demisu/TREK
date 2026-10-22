@@ -10,5 +10,13 @@ export * from './vacay.card';
  * or entity is added here and nowhere else.
  */
 export const VACAY_CARD_SCHEMAS = [vacayCardSchema] as const;
-export const VACAY_VERB_KEYS = [] as const;
-export const VACAY_APPLIED_ENTITIES = [] as const;
+/** A day off taken, given back or changed, a company holiday set, the allowance changed. */
+export const VACAY_VERB_KEYS = [
+  'addVacationDay',
+  'removeVacationDay',
+  'changeVacationDay',
+  'setCompanyHoliday',
+  'setVacationAllowance',
+] as const;
+/** A day or the allowance of the vacation plan: the receipt opens the vacation planner. */
+export const VACAY_APPLIED_ENTITIES = ['vacay'] as const;

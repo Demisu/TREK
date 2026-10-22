@@ -1,4 +1,5 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { useVacayStore } from '../../store/vacayStore'
 import { addListener, removeListener } from '../../api/websocket'
 import { useToast } from '../../components/shared/Toast'
@@ -12,6 +13,12 @@ const WS_RELOAD_MAX_WAIT_MS = 2000
 
 /** What a vacay event makes the page read again: the plan year, the whole state, the shares. */
 type VacayReload = 'plan' | 'all' | 'shares'
+
+/** The year a link opens Vacay on (`/vacay?year=2026`, from the assistant); none for anything else. */
+function linkedYear(value: string | null): number | undefined {
+  const year = Number(value)
+  return value !== null && Number.isInteger(year) && year >= 2000 && year <= 2100 ? year : undefined
+}
 
 const VACAY_RELOADS: Record<string, readonly VacayReload[]> = {
   'vacay:update': ['plan'],
@@ -40,8 +47,11 @@ export function useVacay() {
   const [showMobileSidebar, setShowMobileSidebar] = useState<boolean>(false)
   const toast = useToast()
   const { t } = useTranslation()
+  const [searchParams] = useSearchParams()
+  // Read once: the first load opens the linked year when the plan has it, later reloads keep the viewer's.
+  const [preferredYear] = useState(() => linkedYear(searchParams.get('year')))
 
-  useEffect(() => { loadAll() }, [])
+  useEffect(() => { loadAll(preferredYear) }, [])
 
   // Live sync via WebSocket. An agent marking days one by one over MCP sends one
   // event per day, so the reads wait until the events stop (or two seconds pass)
