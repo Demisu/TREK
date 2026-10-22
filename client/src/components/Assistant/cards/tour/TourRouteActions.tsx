@@ -8,6 +8,9 @@ import { CardOpenButton } from '../parts/CardOpen';
 import { tourTarget } from './tourLook';
 import { useTakeProposal } from './useTourRouteCard';
 
+/** What "Open" says: the phone opens the tour's place on the plan, the desktop the Tours tab. */
+const OPEN_LABEL = { phoneKey: 'assistant.card.tour.openPhone', desktopKey: 'assistant.card.tour.open' } as const;
+
 /**
  * The foot of a route card: "On map" always; "Plan this" on a proposed hike
  * or city walk for someone who may add to the trip, off with its reason said
@@ -51,7 +54,7 @@ export default function TourRouteActions({
         {card.source === 'saved' && card.placeId !== null && (
           <CardOpenButton
             target={phone ? { kind: 'map', placeId: card.placeId, dayId: null } : tourTarget(card.placeId)}
-            labelKey={phone ? 'assistant.card.tour.openPhone' : 'assistant.card.tour.open'}
+            labelKey={phone ? OPEN_LABEL.phoneKey : OPEN_LABEL.desktopKey}
           />
         )}
         {take.visible && take.state === 'taken' && (
