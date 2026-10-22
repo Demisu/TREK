@@ -1,16 +1,25 @@
-import { type CardView, PENDING_VIEW } from '../cardTypes';
+import type { CardView } from '../cardTypes';
+import CorridorCard from './CorridorCard';
+import DayRouteBody from './DayRouteBody';
+import RoadtripBlock from './RoadtripBlock';
+import RulesBody from './RulesBody';
+import TransitCard, { TransitBody } from './TransitCard';
 
 /**
- * How the kinds of the road trip draw in the chat; each one draws nothing until
- * its cards are built. This file only maps each kind to its view: the
- * components live in sibling files, since a file that exports anything besides
- * components breaks fast refresh, and lint:warnings holds
- * react-refresh/only-export-components at zero for a new file.
+ * How the kinds of the road trip draw in the chat: a drive (with the
+ * chargers checked beside it) as the road trip's own card and day rail,
+ * corridor hits and transit connections as answer cards, and under a change
+ * row the day route it bends, the connection it adds or the rules it sets.
+ * This file only maps each kind to its view: the components live in sibling
+ * files, since a file that exports anything besides components breaks fast
+ * refresh, and lint:warnings holds react-refresh/only-export-components at
+ * zero for a new file.
  */
 export const ROADTRIP_VIEWS = {
-  roadtrip: PENDING_VIEW,
-  corridor: PENDING_VIEW,
-  charging: PENDING_VIEW,
-  transit: PENDING_VIEW,
-  dayRoute: PENDING_VIEW,
-} satisfies { [K in 'roadtrip' | 'corridor' | 'charging' | 'transit' | 'dayRoute']: CardView<K> };
+  roadtrip: { Block: RoadtripBlock },
+  charging: { Block: RoadtripBlock },
+  corridor: { Block: CorridorCard },
+  transit: { Block: TransitCard, Body: TransitBody },
+  dayRoute: { Body: DayRouteBody },
+  roadtripRules: { Body: RulesBody },
+} satisfies { [K in 'roadtrip' | 'corridor' | 'charging' | 'transit' | 'dayRoute' | 'roadtripRules']: CardView<K> };

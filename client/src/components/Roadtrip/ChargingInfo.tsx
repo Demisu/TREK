@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PlugZap, Coins, ChevronDown } from 'lucide-react'
-import type { ChargingInfo as Info } from '@trek/shared'
+import { cheapestEnergy, type ChargingEnergyPrice, type ChargingInfo as Info } from '@trek/shared'
 import { useTranslation } from '../../i18n/TranslationContext'
 import { useTripStore } from '../../store/tripStore'
 import { chargingRepo } from '../../repo/chargingRepo'
@@ -19,6 +19,29 @@ import { Tooltip } from '../shared/Tooltip'
 type ChargingTarget =
   | { placeId: number; lat?: undefined; lng?: undefined; name?: undefined }
   | { placeId?: undefined; lat: number; lng: number; name: string }
+
+/**
+ * A charger's two compact badges: the free points of all its points, when that is known
+ * and fresh, and its cheapest energy price. The live badge on the rail draws them, and so
+ * does the assistant's card of one look at the charger, which never asks again.
+ */
+export function ChargingBadges({ label, known, fresh = true, available, total, energy }: {
+  /** What the availability badge says when it is pointed at. */
+  label: string
+  known: boolean
+  /** False for a count checked a while ago: still shown, but no longer green. */
+  fresh?: boolean
+  available: number | null
+  total: number | null
+  energy: ChargingEnergyPrice | null
+}) {
+  const { t } = useTranslation()
+  const price = (value: number, currency: string) => new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value)
+  return <span className="inline-flex shrink-0 items-center gap-1 align-middle whitespace-nowrap font-medium text-[length:calc(10px*var(--fs-scale-caption,1))] leading-none">
+    <Tooltip label={label}><span tabIndex={0} className={`inline-flex items-center gap-1 rounded px-1 py-0.5 ${known && fresh && available! > 0 ? 'bg-success-soft text-success' : 'bg-surface-secondary text-content-muted'}`}><PlugZap size={10} />{known ? `${available}/${total}` : '?'}</span></Tooltip>
+    {energy && <Tooltip label={t('roadtrip.charging.note')}><span tabIndex={0} className="inline-flex items-center gap-1 rounded bg-surface-secondary px-1 py-0.5 text-content-muted"><Coins size={10} />{price(energy.price, energy.currency)}/kWh*</span></Tooltip>}
+  </span>
+}
 
 export default function ChargingInfo({ placeId, lat, lng, name, compact = false }: ChargingTarget & { compact?: boolean }) {
   const tripId = useTripStore(s => s.trip?.id)
@@ -52,15 +75,11 @@ export default function ChargingInfo({ placeId, lat, lng, name, compact = false 
   const known = !isEffectivelyOffline() && info?.available != null && !info.stale && Date.now() - Date.parse(info.checkedAt) < 120000
   const status = loading ? t('common.loading') : known ? `${info.available}/${info.total} ${t('roadtrip.charging.available')}` : t(info?.stale ? 'roadtrip.charging.stale' : 'roadtrip.charging.unknown')
   const components = info?.tariffs.flatMap(tariff => tariff.components.map(component => ({ ...component, currency: tariff.currency }))) ?? []
-  const energy = components.filter(component => component.kind === 'ENERGY' && component.taxIncluded && !component.conditional)
-  const sameCurrency = new Set(energy.map(component => component.currency)).size === 1
-  const cheapest = sameCurrency ? energy.reduce<typeof energy[number] | null>((best, component) => !best || component.price < best.price ? component : best, null) : null
+  // The same price the assistant's card shows: tax included, no condition, one currency.
+  const cheapest = info ? cheapestEnergy(info.tariffs) : null
   const price = (value: number, currency: string) => new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value)
-  const badges = <span className="inline-flex shrink-0 items-center gap-1 align-middle whitespace-nowrap font-medium text-[length:calc(10px*var(--fs-scale-caption,1))] leading-none">
-    <Tooltip label={`${status}${info?.updatedAt ? ` (${new Date(info.updatedAt).toLocaleString()})` : ''}`}><span tabIndex={0} className={`inline-flex items-center gap-1 rounded px-1 py-0.5 ${known && info.available! > 0 ? 'bg-success-soft text-success' : 'bg-surface-secondary text-content-muted'}`}><PlugZap size={10} />{known ? `${info.available}/${info.total}` : '?'}</span></Tooltip>
-    {cheapest && <Tooltip label={t('roadtrip.charging.note')}><span tabIndex={0} className="inline-flex items-center gap-1 rounded bg-surface-secondary px-1 py-0.5 text-content-muted"><Coins size={10} />{price(cheapest.price, cheapest.currency)}/kWh*</span></Tooltip>}
-  </span>
-  if (compact) return badges
+  const label = `${status}${info?.updatedAt ? ` (${new Date(info.updatedAt).toLocaleString()})` : ''}`
+  if (compact) return <ChargingBadges label={label} known={known} available={info?.available ?? null} total={info?.total ?? null} energy={cheapest} />
   return <details className="group rounded-[10px] bg-surface-hover text-[length:calc(12px*var(--fs-scale-body,1))] text-content-secondary">
     <summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2 [&::-webkit-details-marker]:hidden">
       <PlugZap size={13} className="shrink-0 text-content-faint" />

@@ -1,12 +1,14 @@
 import { chargingCardSchema } from './charging.card';
 import { corridorCardSchema } from './corridor.card';
 import { dayRouteCardSchema } from './day-route.card';
+import { roadtripRulesCardSchema } from './roadtrip-rules.card';
 import { roadtripCardSchema } from './roadtrip.card';
 import { transitCardSchema } from './transit.card';
 
 export * from './charging.card';
 export * from './corridor.card';
 export * from './day-route.card';
+export * from './roadtrip-rules.card';
 export * from './roadtrip.card';
 export * from './transit.card';
 
@@ -23,6 +25,24 @@ export const ROADTRIP_CARD_SCHEMAS = [
   chargingCardSchema,
   transitCardSchema,
   dayRouteCardSchema,
+  roadtripRulesCardSchema,
 ] as const;
-export const ROADTRIP_VERB_KEYS = [] as const;
-export const ROADTRIP_APPLIED_ENTITIES = [] as const;
+/**
+ * A via point sent into a day's drive, a chain of them laid at once, one
+ * moved, one taken out, the vias of a day pinned again to its stops; the
+ * driving settings changed; where a day ends set; a Google Maps route taken
+ * in as stops; a transit connection added.
+ */
+export const ROADTRIP_VERB_KEYS = [
+  'addRouteVia',
+  'shapeRoute',
+  'moveRouteVia',
+  'removeRouteVia',
+  'repinRouteVias',
+  'updateDriveSettings',
+  'setDayBoundary',
+  'importRoute',
+  'addTransit',
+] as const;
+/** The road trip of a trip: its vias, its settings and its day endings, shown on the plan by their day. */
+export const ROADTRIP_APPLIED_ENTITIES = ['roadtrip'] as const;

@@ -716,6 +716,50 @@ describe('corridor filtering', () => {
     expect((await read({ toKm: 0 })).hits).toHaveLength(0);
     expect((await read({})).failedSources).toEqual(['plugin']);
   });
+  it('RTMCP-001: names the two stops of the day each hit lies between, and none on a day of one stop', async () => {
+    const s = tool();
+    s.plan.calculated.days[0].stops = [
+      { name: 'Augsburg', lat: 48, lng: 10 },
+      { name: 'Ulm', lat: 48, lng: 10.06 },
+      { name: 'Stuttgart', lat: 48, lng: 10.1 },
+    ] as never;
+    const read = async () => JSON.parse((await s.mcp.corridor(input, ctx)).content[0].text as string);
+    const between = (body: { hits: { poi: { name: string }; between: unknown }[] }) =>
+      Object.fromEntries(body.hits.map((hit) => [hit.poi.name, hit.between]));
+    expect(between(await read())).toEqual({
+      Fast: ['Augsburg', 'Ulm'],
+      Unknown: ['Augsburg', 'Ulm'],
+      Slow: ['Ulm', 'Stuttgart'],
+    });
+    s.plan.calculated.days[0].stops = [{ name: 'Augsburg', lat: 48, lng: 10 }] as never;
+    expect(Object.values(between(await read()))).toEqual([null, null, null]);
+  });
+  it('RTMCP-002: places each stop after the previous one, so a day crossing itself names the right pair', async () => {
+    const s = tool();
+    // East, north, then south across the first stretch at (48, 10.05) and on below it.
+    s.plan.calculated.days[0].geometry = [
+      [48, 10],
+      [48, 10.1],
+      [48.05, 10.1],
+      [48.05, 10.05],
+      [47.95, 10.05],
+    ];
+    s.plan.calculated.days[0].stops = [
+      { name: 'Start', lat: 48, lng: 10 },
+      { name: 'Corner', lat: 48.05, lng: 10.1 },
+      { name: 'Crossing', lat: 48, lng: 10.05 },
+      { name: 'End', lat: 47.95, lng: 10.05 },
+    ] as never;
+    s.maps.search.mockResolvedValue({
+      pois: [{ osm_id: 'x', name: 'Before the crossing', lat: 48.03, lng: 10.05, category: 'charging' }],
+      sources: ['osm'],
+      failedSources: [],
+      truncated: false,
+      clamped: false,
+    } as never);
+    const body = JSON.parse((await s.mcp.corridor(input, ctx)).content[0].text as string);
+    expect(body.hits.map((hit: { between: unknown }) => hit.between)).toEqual([['Corner', 'Crossing']]);
+  });
   it('leaves the ride between two terminals out of the search and drops a hit under the flight path (#2428)', async () => {
     // The day drives to the airport, flies two degrees north and east, and drives on
     // from the far one: the geometry jumps straight between the terminals, and the

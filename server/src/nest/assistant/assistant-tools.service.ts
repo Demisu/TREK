@@ -22,6 +22,14 @@ import {
   PACKAGE_HELD_READS,
   TOOL_CARDS,
 } from './cards/registry';
+import {
+  ItineraryShelves,
+  KeptItineraries,
+  restoreItinerary,
+  searchAgainArgs,
+  TRANSIT_CREATE_TOOL,
+  TRANSIT_SEARCH_TOOL,
+} from './cards/roadtrip/transit-restore';
 import { MikroORM } from '@mikro-orm/core';
 import { Client } from '@modelcontextprotocol/sdk/client/index';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory';
@@ -173,6 +181,8 @@ export class AssistantToolSession {
     private readonly tripId: number,
     private readonly audit: (toolName: string) => void,
     private readonly mode: SessionMode,
+    /** The itineraries the user's transit searches on this trip answered with, kept across turns. */
+    private readonly itineraries: KeptItineraries = new KeptItineraries(),
   ) {}
 
   /** The groups this turn loaded; the core is always there. */
@@ -223,9 +233,26 @@ export class AssistantToolSession {
   /** Runs a tool on the user's behalf (a read the model asked for, an applied change, an undo), audited. */
   async call(name: string, args: ToolArgs): Promise<ToolRun> {
     if (name === USE_TOOLS_TOOL) return this.load(args);
-    const run = await this.invoke(name, args);
+    const final = name === TRANSIT_CREATE_TOOL ? await this.withFoundItinerary(args) : args;
+    const run = await this.invoke(name, final);
     this.audit(name);
+    if (name === TRANSIT_SEARCH_TOOL && run.ok) this.itineraries.keep(run.value);
     return run;
+  }
+
+  /**
+   * The model never saw a connection's line; the search it took the
+   * connection from did. The held call keeps the model's copy (the thread
+   * never stores a line), and the search's own itinerary goes in only now.
+   * One no longer kept is searched for again, as a read for the server's use.
+   */
+  private async withFoundItinerary(args: ToolArgs): Promise<ToolArgs> {
+    const restored = restoreItinerary(this.itineraries, args);
+    const again = searchAgainArgs(args);
+    if (restored !== args || !again || !this.tools.has(TRANSIT_SEARCH_TOOL)) return restored;
+    const run = await this.invoke(TRANSIT_SEARCH_TOOL, again);
+    if (run.ok) this.itineraries.keep(run.value);
+    return restoreItinerary(this.itineraries, args);
   }
 
   /** Reads for the server's own use (the trip card, the undo check), not audited as the user's calls. */
@@ -273,6 +300,9 @@ export class AssistantToolsService implements OnApplicationBootstrap {
     private readonly orm: MikroORM,
     private readonly auditLog: AuditService,
   ) {}
+
+  /** The itineraries transit searches found, per user and trip, for the applied change that adds one of them. */
+  private readonly itineraries = new ItineraryShelves();
 
   onApplicationBootstrap(): void {
     const problems = checkToolCatalog(this.registry.list());
@@ -325,7 +355,9 @@ export class AssistantToolsService implements OnApplicationBootstrap {
       });
     }
     const mode: SessionMode = undoTargets ? 'undo' : 'turn';
-    return new AssistantToolSession(client, server, tools, tripId, (name) => this.audit(userId, name), mode);
+    const audit = (name: string) => this.audit(userId, name);
+    const kept = this.itineraries.of(userId, tripId);
+    return new AssistantToolSession(client, server, tools, tripId, audit, mode, kept);
   }
 
   /** The audit row an MCP client's call writes, marked as the assistant's. A failed write never fails the call. */

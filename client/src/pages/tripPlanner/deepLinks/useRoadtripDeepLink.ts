@@ -1,9 +1,22 @@
+import { useEffect } from 'react';
+
 import type { DeepLinkProps } from './deepLinkTypes';
 
 /**
- * Where the road trip opens a stop or a day the chat points at. Nothing yet: the road trip cards
- * fill it in, and until then the planner keeps its own links.
+ * Where the chat opens the road trip (`?tab=roadtrip`, with `?day=` for the
+ * day a change touched). The phone has a road trip tab and the tab link takes
+ * it there; the desktop has none, the road trip being a view of the plan, so
+ * the link switches that view on, once and never off, and the plan's tab
+ * shows it. A planner without the road trip addon stays as it is.
  */
-export function useRoadtripDeepLink(_links: DeepLinkProps): void {
-  // Filled in by the road trip cards.
+export function useRoadtripDeepLink({ planner, searchParams }: DeepLinkProps): void {
+  const asked = searchParams.get('tab') === 'roadtrip';
+  const hasTab = planner.TRIP_TABS.some((tab) => tab.id === 'roadtrip');
+  const addonOn = !!planner.enabledAddons.roadtrip;
+  const { roadtripMode, toggleRoadtripMode } = planner;
+
+  useEffect(() => {
+    if (!asked || hasTab || !addonOn || roadtripMode) return;
+    toggleRoadtripMode();
+  }, [asked, hasTab, addonOn, roadtripMode, toggleRoadtripMode]);
 }
