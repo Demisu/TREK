@@ -1,5 +1,6 @@
 import type { TripCard } from './assistant-context';
 import type { ToolHint } from './assistant-tools.service';
+import { FOREIGN_ID_GROUPS, nameArgOf } from './cards/registry';
 import type {
   AssistantChangeLabelKey,
   AssistantChangePreview,
@@ -15,10 +16,20 @@ import type {
  * the labels the other cards use (time, end, notes, day …), with ids named and
  * lists of ids read as the names in their order. The verb comes from what the
  * tool says it does; the client names the tool's action where it knows it. It
- * is never undoable: only the tools with a matching removal are.
+ * is never undoable: only the tools with a matching removal are. A package
+ * names the ids the trip card cannot (`nameArg`), and the place ids of a tool
+ * that works outside the trip (a collection's, the atlas') are never read as
+ * the trip's places.
  */
 
 type Args = Record<string, unknown>;
+
+/** What naming one tool's arguments needs: the trip, the tool, and whether its place ids are the trip's. */
+interface Naming {
+  card: TripCard;
+  toolName: string;
+  foreign: boolean;
+}
 
 const MAX_ROWS = 12;
 const MAX_VALUE_CHARS = 160;
@@ -98,35 +109,37 @@ function dayName(card: TripCard, dayId: number): string | null {
 }
 
 /** What one id argument names in the trip: a place, a day, a note, a booking, an item, a person. */
-function nameOf(card: TripCard, key: string, value: number, toolName: string): string | null {
+function nameOf({ card, toolName, foreign }: Naming, key: string, value: number): string | null {
+  const named = nameArgOf(toolName, key, value, card);
+  if (named !== null) return named;
   const k = key.toLowerCase().replace(/_/g, '');
   if (k === 'assignmentid') {
     const assignment = card.assignments.get(value);
     return assignment ? (card.places.get(assignment.placeId)?.name ?? null) : null;
   }
-  if (k === 'placeid' || k === 'sourceplaceid') return card.places.get(value)?.name ?? null;
+  if (k === 'placeid' || k === 'sourceplaceid') return foreign ? null : (card.places.get(value)?.name ?? null);
   if (k === 'dayid' || k === 'enddayid' || k === 'startdayid') return dayName(card, value);
   if (k === 'noteid') return card.notes.get(value)?.text ?? null;
   if (k === 'reservationid' || k === 'accommodationid') return card.reservations.get(value)?.title ?? null;
   if (k === 'itemid' && toolName.includes('packing')) return card.packing.get(value)?.name ?? null;
-  if (k === 'userid' || k === 'memberid' || k === 'assigneduserid') return card.members.get(value) ?? null;
+  if (k === 'userid' || k === 'memberid' || k === 'assigneduserid') return card.members.get(value)?.name ?? null;
   return null;
 }
 
 /** An id list in its order, named where the card knows the ids (a new order of a day's places). */
-function namesOf(card: TripCard, key: string, values: unknown[], toolName: string): string | null {
+function namesOf(naming: Naming, key: string, values: unknown[]): string | null {
   const singular = key.replace(/(Ids|_ids)$/, (m) => (m === 'Ids' ? 'Id' : '_id'));
-  const names = values.map((v) => (typeof v === 'number' ? nameOf(card, singular, v, toolName) : null));
+  const names = values.map((v) => (typeof v === 'number' ? nameOf(naming, singular, v) : null));
   return names.some((n) => n === null) ? null : names.join(', ');
 }
 
-function valueText(card: TripCard, key: string, value: unknown, toolName: string): string {
+function valueText(naming: Naming, key: string, value: unknown): string {
   if (typeof value === 'number') {
-    const name = nameOf(card, key, value, toolName);
+    const name = nameOf(naming, key, value);
     if (name) return clip(name);
   }
   if (Array.isArray(value)) {
-    const names = namesOf(card, key, value, toolName);
+    const names = namesOf(naming, key, value);
     if (names) return clip(names);
     return clip(value.map((item) => (typeof item === 'object' ? JSON.stringify(item) : String(item))).join(', '));
   }
@@ -136,31 +149,31 @@ function valueText(card: TripCard, key: string, value: unknown, toolName: string
 }
 
 /** The subject: what the tool is given a name for, else the first thing of the trip it works on. */
-function subjectOf(card: TripCard, args: Args, toolName: string): { text: string; key: string | null } {
+function subjectOf(naming: Naming, args: Args): { text: string; key: string | null } {
   const named = NAME_KEYS.find((key) => typeof args[key] === 'string' && (args[key] as string).trim());
   if (named) return { text: String(args[named]), key: named };
   const order = ['assignmentId', 'placeId', 'noteId', 'reservationId', 'itemId', 'dayId', 'day_id'];
   for (const key of order) {
     const value = args[key];
-    const name = typeof value === 'number' ? nameOf(card, key, value, toolName) : null;
+    const name = typeof value === 'number' ? nameOf(naming, key, value) : null;
     if (name) return { text: name, key };
   }
   const list = Object.entries(args).find(([key, value]) => /(Ids|_ids)$/.test(key) && Array.isArray(value));
   if (list) {
-    const names = namesOf(card, list[0], list[1] as unknown[], toolName);
+    const names = namesOf(naming, list[0], list[1] as unknown[]);
     if (names) return { text: names, key: list[0] };
   }
-  return { text: humanToolName(toolName), key: null };
+  return { text: humanToolName(naming.toolName), key: null };
 }
 
-function rowOf(card: TripCard, key: string, value: unknown, toolName: string): AssistantChangeRow {
+function rowOf(naming: Naming, key: string, value: unknown): AssistantChangeRow {
   const labelKey = LABEL_OF[key] ?? 'field';
   return {
     op: 'add',
     labelKey,
     ...(labelKey === 'field' ? { field: key.slice(0, 60) } : {}),
     before: null,
-    after: valueText(card, key, value, toolName),
+    after: valueText(naming, key, value),
   };
 }
 
@@ -171,12 +184,13 @@ export function describeGeneric(
   card: TripCard,
   hint: ToolHint | null,
 ): AssistantChangePreview {
-  const subject = subjectOf(card, args, toolName);
+  const naming: Naming = { card, toolName, foreign: !!hint?.group && FOREIGN_ID_GROUPS.has(hint.group) };
+  const subject = subjectOf(naming, args);
   const rows = Object.entries(args)
     .filter(([key]) => key !== subject.key && !HIDDEN_KEYS.has(key))
     .filter(([, value]) => value !== undefined && value !== null && value !== '')
     .slice(0, MAX_ROWS)
-    .map(([key, value]) => rowOf(card, key, value, toolName));
+    .map(([key, value]) => rowOf(naming, key, value));
   const dayArg = args.dayId ?? args.day_id;
   const assignment = typeof args.assignmentId === 'number' ? card.assignments.get(args.assignmentId) : undefined;
   const dayId = typeof dayArg === 'number' ? dayArg : (assignment?.dayId ?? null);
@@ -187,7 +201,7 @@ export function describeGeneric(
     subject: clip(subject.text),
     rows,
     dayId: dayId !== null && card.days.some((d) => d.id === dayId) ? dayId : null,
-    placeIds: placeId !== null && card.places.has(placeId) ? [placeId] : [],
+    placeIds: placeId !== null && !naming.foreign && card.places.has(placeId) ? [placeId] : [],
     undoable: false,
     effect: null,
     tool: toolName,

@@ -16,13 +16,9 @@ import {
   groupOf,
   isOfferedTool,
 } from '../../../../src/nest/assistant/assistant-tool-offer';
-import {
-  ASSISTANT_ARG_POLICY,
-  ASSISTANT_SCOPES,
-  ASSISTANT_SERVER_TOOLS,
-  ASSISTANT_WRITE_TOOLS,
-} from '../../../../src/nest/assistant/assistant-tools.constants';
+import { ASSISTANT_SCOPES, ASSISTANT_SERVER_TOOLS } from '../../../../src/nest/assistant/assistant-tools.constants';
 import { AssistantToolsService, checkToolCatalog } from '../../../../src/nest/assistant/assistant-tools.service';
+import { ASSISTANT_ARG_POLICY, ASSISTANT_WRITE_TOOLS } from '../../../../src/nest/assistant/cards/registry';
 import { withRequestContext } from '../../../../src/nest/database/request-context';
 import { makePlace } from '../../../helpers/factories/places';
 import { findRows } from '../../../helpers/factories/rows';
@@ -96,6 +92,37 @@ describe('the assistant tool catalog', () => {
     expect(checkDenylist(['create_party_invite'])).toEqual([
       '"create_party_invite" shares, invites or publishes; deny it or list it as safe',
     ]);
+  });
+
+  it('ASTTOOL-018: names a package entry for a tool that does not exist, and an undo read that is not registered', () => {
+    const entry = (name: string) => ({ kind: 'tool' as const, name, className: 'X', methodName: 'y' });
+    expect(checkToolCatalog([])).toContain(
+      'tool "create_hike" with cards of a package is neither registered nor the server\'s own',
+    );
+    const cards = {
+      list_vacay: { answer: () => null },
+      take_vacay: {
+        undo: {
+          tool: 'delete_place',
+          args: () => null,
+          reads: () => [{ tool: 'get_vacay_plan', args: {} }],
+          unchanged: () => true,
+        },
+      },
+      add_found_place: { appliedIds: () => [] },
+    };
+    const problems = checkToolCatalog([entry('take_vacay')], cards);
+    expect(problems).toContain('tool "list_vacay" with cards of a package is neither registered nor the server\'s own');
+    expect(problems).toContain('undo read "get_vacay_plan" is not registered');
+    expect(problems.join()).not.toContain('"add_found_place" with cards');
+    expect(problems.join()).not.toContain('"take_vacay" with cards');
+  });
+
+  it('ASTTOOL-019: names a held read of a package that is not registered', () => {
+    const entry = (name: string) => ({ kind: 'tool' as const, name, className: 'X', methodName: 'y' });
+    const problems = checkToolCatalog([entry('fetch_corridor')], {}, ['fetch_corridor', 'fetch_tolls']);
+    expect(problems).toContain('held read "fetch_tolls" of a package is not registered');
+    expect(problems.join()).not.toContain('"fetch_corridor"');
   });
 
   it("ASTTOOL-006: the server's own steps are no MCP tools", () => {

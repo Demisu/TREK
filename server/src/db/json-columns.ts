@@ -3,7 +3,9 @@ import {
   FERRATAS_RESULT_CAP,
   dawarichTrackSegmentSchema,
   assistantChangePreviewSchema,
-  assistantMessagePartSchema,
+  assistantChangePreviewWriteSchema,
+  assistantMessagePartWriteSchema,
+  assistantStoredPartsSchema,
   ferrataSchema,
   hikingPreferencesSchema,
   obstacleSnapshotSchema,
@@ -335,12 +337,24 @@ export const JOURNEY_RECORDED_DAY_SEGMENTS: JsonColumn<DawarichTrackSegment[]> =
 
 /**
  * The parts of an assistant message as the client renders them: text, tool
- * calls with their results and approvals, change previews and receipts. A
- * broken row reads as an empty message and is logged.
+ * calls with their results and approvals, change previews, receipts and
+ * cards. A data part this build does not know (one a later build wrote) is
+ * dropped on read, not the message, and a later verb, entity or card kind
+ * reads as its generic stand-in; any other broken row reads as an empty
+ * message and is logged. A row this build rewrites (a decision, a cancel)
+ * is written back as it was read, so what only a later build knew is gone
+ * from it for good: a rollback costs those cards, never the conversation.
  */
 export const ASSISTANT_MESSAGE_PARTS: JsonColumn<AssistantMessagePart[]> = {
   column: 'assistant_messages.parts',
-  schema: z.array(assistantMessagePartSchema),
+  schema: assistantStoredPartsSchema,
+  fallback: () => [],
+};
+
+/** The same column as it is written: strictly, so a part this build cannot describe is a bug in the writer. */
+export const ASSISTANT_MESSAGE_PARTS_WRITE: JsonColumn<AssistantMessagePart[]> = {
+  column: ASSISTANT_MESSAGE_PARTS.column,
+  schema: z.array(assistantMessagePartWriteSchema),
   fallback: () => [],
 };
 
@@ -370,10 +384,17 @@ export const ASSISTANT_TOOL_ARGS: JsonColumn<Record<string, unknown>> = {
   fallback: () => ({}),
 };
 
-/** The change card of a proposed change. A broken row reads as none. */
+/** The change card of a proposed change. A broken row reads as none, a later verb or card kind as its stand-in. */
 export const ASSISTANT_TOOL_PREVIEW: JsonColumn<AssistantChangePreview | null> = {
   column: 'assistant_tool_calls.preview',
   schema: assistantChangePreviewSchema.nullable(),
+  fallback: () => null,
+};
+
+/** The same column as it is written: strictly, like the message parts. */
+export const ASSISTANT_TOOL_PREVIEW_WRITE: JsonColumn<AssistantChangePreview | null> = {
+  column: ASSISTANT_TOOL_PREVIEW.column,
+  schema: assistantChangePreviewWriteSchema.nullable(),
   fallback: () => null,
 };
 

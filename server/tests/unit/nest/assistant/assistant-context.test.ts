@@ -45,6 +45,7 @@ describe('buildTripCard', () => {
   it('ASTCTX-030: knows the source ids of places and the bookings with their day', () => {
     const card = buildTripCard(
       1,
+      7,
       {
         ...SUMMARY,
         reservations: [{ id: 71, title: 'Gion Corner', day_id: 31 }, { id: 72, day_id: null }, { title: 'no id' }],
@@ -69,7 +70,7 @@ describe('buildTripCard', () => {
         { id: 73, title: 'Bus' },
       ],
     };
-    const card = buildTripCard(1, summary, PLACES, { dayId: 32, placeIds: [12] }, [
+    const card = buildTripCard(1, 7, summary, PLACES, { dayId: 32, placeIds: [12] }, [
       { kind: 'place', id: 14 },
       { kind: 'place', id: 12 },
       { kind: 'place', id: 999 },
@@ -93,7 +94,7 @@ describe('buildTripCard', () => {
       ].join('\n'),
     );
     expect(text).not.toMatch(/place 999|day 99\b|booking 98/);
-    const unknownOnly = buildTripCard(1, SUMMARY, PLACES, null, [{ kind: 'place', id: 999 }]);
+    const unknownOnly = buildTripCard(1, 7, SUMMARY, PLACES, null, [{ kind: 'place', id: 999 }]);
     expect(renderTripCard(unknownOnly)).not.toContain('The user names');
   });
 
@@ -115,7 +116,7 @@ describe('buildTripCard', () => {
   });
 
   it('ASTCTX-001: reads days, places, assignments, notes, packing and members', () => {
-    const card = buildTripCard(1, SUMMARY, PLACES, null);
+    const card = buildTripCard(1, 7, SUMMARY, PLACES, null);
     expect(card).toMatchObject({ tripId: 1, title: 'Kyoto in June', currency: 'JPY', startDate: '2026-06-11' });
     expect(card.days).toEqual([
       { id: 31, number: 1, date: '2026-06-11', title: 'Arrival', placeIds: [12] },
@@ -133,24 +134,44 @@ describe('buildTripCard', () => {
     });
     expect(card.packing.get(51)).toMatchObject({ name: 'Umbrella', weight: 300 });
     expect([...card.members.entries()]).toEqual([
-      [7, 'mia'],
-      [8, 'jon'],
+      [7, { name: 'mia', avatarKey: null }],
+      [8, { name: 'jon', avatarKey: null }],
     ]);
   });
 
+  it('ASTCTX-003: knows who asks, the members by their stored pictures, and the answers it was built from', () => {
+    const summary = {
+      ...SUMMARY,
+      members: {
+        owner: { id: 7, username: 'mia', avatar_url: '/uploads/avatars/mia-1.png' },
+        collaborators: [
+          { id: 8, username: 'jon', avatar_url: 'https://lh3.example.test/jon.png' },
+          { id: 9, username: 'ana', avatar_url: '/uploads/avatars/../../secret' },
+        ],
+      },
+    };
+    const card = buildTripCard(1, 8, summary, PLACES, null);
+    expect(card.viewerId).toBe(8);
+    expect(card.members.get(7)).toEqual({ name: 'mia', avatarKey: 'mia-1.png' });
+    expect(card.members.get(8)).toEqual({ name: 'jon', avatarKey: null });
+    expect(card.members.get(9)).toEqual({ name: 'ana', avatarKey: null });
+    expect(card.sources).toEqual({ summary, places: PLACES });
+  });
+
   it('ASTCTX-002: a tool that answered with an error leaves an emptier card, not a broken one', () => {
-    const card = buildTripCard(5, 'Trip not found or access denied.', null, null);
+    const card = buildTripCard(5, 7, 'Trip not found or access denied.', null, null);
     expect(card).toMatchObject({ tripId: 5, title: '', days: [] });
     expect(card.places.size).toBe(0);
     expect(
-      buildTripCard(5, { days: [{ id: 'x' }, null, { id: 3, assignments: [{ id: 1 }] }] }, { places: 'no' }, null).days,
+      buildTripCard(5, 7, { days: [{ id: 'x' }, null, { id: 3, assignments: [{ id: 1 }] }] }, { places: 'no' }, null)
+        .days,
     ).toEqual([{ id: 3, number: 1, date: null, title: null, placeIds: [] }]);
   });
 });
 
 describe('renderTripCard', () => {
   it('ASTCTX-010: lists the days with their places and ids, the unscheduled places and the focus', () => {
-    const text = renderTripCard(buildTripCard(1, SUMMARY, PLACES, { dayId: 32, placeIds: [14, 999] }));
+    const text = renderTripCard(buildTripCard(1, 7, SUMMARY, PLACES, { dayId: 32, placeIds: [14, 999] }));
     expect(text).toContain('Trip: Kyoto in June');
     expect(text).toContain('Dates: 2026-06-11 to 2026-06-12');
     expect(text).toContain('31 | 2026-06-11 | Arrival | Nishiki Market (12)');
@@ -164,7 +185,7 @@ describe('renderTripCard', () => {
 
   it('ASTCTX-011: a trip without days says so, and long lists are counted, not listed', () => {
     const many = { places: Array.from({ length: 205 }, (_, i) => ({ id: i + 1, name: `P${i + 1}` })) };
-    const text = renderTripCard(buildTripCard(1, { trip: { title: 'T' } }, many, null));
+    const text = renderTripCard(buildTripCard(1, 7, { trip: { title: 'T' } }, many, null));
     expect(text).toContain('(no days yet)');
     expect(text).toContain('and 5 more');
   });
@@ -177,22 +198,22 @@ describe('renderTripCard', () => {
         { id: 15, name: 'Kansai Airport', lat: 34.434, lng: 135.244 },
       ],
     };
-    const text = renderTripCard(buildTripCard(1, SUMMARY, places, { placeIds: [12] }));
+    const text = renderTripCard(buildTripCard(1, 7, SUMMARY, places, { placeIds: [12] }));
     expect(text).toContain('Around: 34.9670, 135.7640');
     expect(text).toContain('Nishiki Market (12, google ChIJn)');
     expect(text).toContain('- place 12: Nishiki Market (at 35.0050, 135.7640; google place id ChIJn)');
-    expect(renderTripCard(buildTripCard(1, SUMMARY, PLACES, null))).not.toContain('Around:');
+    expect(renderTripCard(buildTripCard(1, 7, SUMMARY, PLACES, null))).not.toContain('Around:');
   });
 
   it('ASTCTX-013: the part of the map on screen tells "here", a view of a whole country does not', () => {
     const view = { south: 35.6, west: 139.7, north: 35.72, east: 139.82 };
-    const text = renderTripCard(buildTripCard(1, SUMMARY, PLACES, { view }));
+    const text = renderTripCard(buildTripCard(1, 7, SUMMARY, PLACES, { view }));
     expect(text).toContain(
       "The map on the user's screen shows south 35.6000, west 139.7000, north 35.7200, east 139.8200.",
     );
     expect(text).toContain('"here", "nearby" or "around" means this area');
     const country = { south: 30, west: 129, north: 45, east: 146 };
-    expect(renderTripCard(buildTripCard(1, SUMMARY, PLACES, { view: country }))).not.toContain('on the user');
+    expect(renderTripCard(buildTripCard(1, 7, SUMMARY, PLACES, { view: country }))).not.toContain('on the user');
   });
 });
 
@@ -211,7 +232,7 @@ describe('the turn context', () => {
   });
 
   it('ASTCTX-022: carries the date, the units the user prefers and the card', () => {
-    const card = buildTripCard(1, SUMMARY, PLACES, null);
+    const card = buildTripCard(1, 7, SUMMARY, PLACES, null);
     const context = turnContext(card, 'Asia/Tokyo', new Date('2026-06-11T23:30:00Z'), {
       temperature_unit: 'fahrenheit',
       distance_unit: 'metric',
@@ -224,7 +245,7 @@ describe('the turn context', () => {
   });
 
   it("ASTCTX-023: the trip notes of this trip come along as preferences, never another trip's", () => {
-    const card = buildTripCard(1, SUMMARY, PLACES, null);
+    const card = buildTripCard(1, 7, SUMMARY, PLACES, null);
     const prefs = { assistant_memory: { '1': '  Vegetarian, no museums. ', '2': 'Other trip' } };
     const context = turnContext(card, 'UTC', new Date(), prefs);
     expect(context).toContain('<trip_notes>\nVegetarian, no museums.\n</trip_notes>');
@@ -234,7 +255,7 @@ describe('the turn context', () => {
   });
 
   it('ASTCTX-024: cost estimates are asked for unless the user turned them off', () => {
-    const card = buildTripCard(1, SUMMARY, PLACES, null);
+    const card = buildTripCard(1, 7, SUMMARY, PLACES, null);
     expect(turnContext(card, 'UTC', new Date(), {})).toContain('create_budget_item');
     expect(turnContext(card, 'UTC', new Date(), { assistant_cost_estimates: false })).not.toContain(
       'create_budget_item',

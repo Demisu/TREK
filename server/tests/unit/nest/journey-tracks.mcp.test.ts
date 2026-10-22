@@ -12,7 +12,7 @@ import type { McpContext } from '../../../src/nest-mcp';
 import { getEntry, type ClassRef } from '../../../src/nest-mcp/metadata';
 import { AddonsModule } from '../../../src/nest/addons/addons.module';
 import { AddonsService } from '../../../src/nest/addons/addons.service';
-import { toolOutputForProvider } from '../../../src/nest/assistant/assistant-redact';
+import { toolOutputForProvider } from '../../../src/nest/assistant/assistant-output';
 import { JourneyDomainModule } from '../../../src/nest/journey/journey-domain.module';
 import { JourneyDomainService } from '../../../src/nest/journey/journey-domain.service';
 import { JourneyTracksMcp } from '../../../src/nest/journey/journey-tracks.mcp';

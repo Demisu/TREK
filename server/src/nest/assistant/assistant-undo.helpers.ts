@@ -1,100 +1,42 @@
+import type { AssistantToolSession } from './assistant-tools.service';
+import type { ToolArgs, UndoSnapshot } from './cards/card-types';
+import { readKey, recordOf, type Row } from './cards/card-values';
+import { TOOL_CARDS, undoReadsOf } from './cards/registry';
+import {
+  byId,
+  placeUnchanged,
+  rowsOf,
+  same,
+  snapshotAssignments,
+  snapshotDays,
+  STABLE_FIELDS,
+} from './cards/undo-snapshot';
+
 /**
  * Whether an applied change may still be taken back: what it created must be
  * as it was then. An undo removes the created row with everything that hangs
  * off it, so a place someone planned on another day since, or booked, or
  * linked an expense to, is not removed by an undo the user meant for the bare
  * place. The trip is read as the tools answer it (`get_trip_summary` raw, and
- * `list_places` for places).
+ * `list_places` for places), plus the reads a package's undo asks for.
  */
 
-type Row = Record<string, unknown>;
+/** The trip as an undo reads it; the package reads are left out where none were made. */
+export type TripSnapshot = Omit<UndoSnapshot, 'reads'> & { reads?: UndoSnapshot['reads'] };
 
-export interface TripSnapshot {
-  summary: unknown;
-  places: unknown;
-}
+/** The trip reads every undo makes before it checks. */
+const TRIP_READS = ['get_trip_summary', 'list_places'] as const;
 
-function recordOf(value: unknown): Row {
-  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Row) : {};
-}
-
-function rowsOf(value: unknown): Row[] {
-  return Array.isArray(value) ? value.map(recordOf) : [];
-}
-
-/** The fields that say a row is still the one that was created; a field either side lacks is not compared. */
-const STABLE_FIELDS = {
-  place: ['name', 'updated_at', 'lat', 'lng', 'address', 'category_id', 'description', 'notes'],
-  assignment: ['day_id', 'place_id'],
-  note: ['text', 'time', 'icon', 'color'],
-  packing: ['name', 'updated_at', 'checked', 'quantity', 'category'],
-  todo: ['name', 'checked', 'due_date', 'description', 'priority', 'assigned_user_id', 'category'],
-  budget: ['name', 'total_price', 'currency', 'category', 'note', 'expense_date'],
-} as const;
-
-function same(created: Row, current: Row | undefined, fields: readonly string[]): boolean {
-  if (!current) return false;
-  return fields.every((field) => !(field in created) || !(field in current) || created[field] === current[field]);
-}
-
-function byId(rows: Row[], id: unknown): Row | undefined {
-  return rows.find((row) => row.id === id);
-}
-
-function days(snapshot: TripSnapshot): Row[] {
-  return rowsOf(recordOf(snapshot.summary).days);
-}
-
-function assignments(snapshot: TripSnapshot): Row[] {
-  return days(snapshot).flatMap((day) => rowsOf(day.assignments));
-}
-
-/** A created place, unchanged and still only where the change put it: on no other day, in no booking or expense. */
-function placeUnchanged(result: Row, snapshot: TripSnapshot): boolean {
-  const created = recordOf(result.place);
-  const current = byId(rowsOf(recordOf(snapshot.places).places), created.id);
-  if (!same(created, current, STABLE_FIELDS.place)) return false;
-  const ownAssignment = recordOf(result.assignment).id;
-  const plannedElsewhere = assignments(snapshot).some((a) => a.place_id === created.id && a.id !== ownAssignment);
-  const summary = recordOf(snapshot.summary);
-  const referenced = [
-    ...rowsOf(summary.reservations),
-    ...rowsOf(summary.accommodations),
-    ...rowsOf(recordOf(summary.budget).items),
-  ].some((row) => row.place_id === created.id);
-  return !plannedElsewhere && !referenced;
-}
-
-/**
- * A created tour, unchanged and on no day: its place still has the name and
- * description it was created with, has not been written since it was made,
- * and nothing plans, books or pays for it. Every write of a tour's route or
- * name (a change over MCP, the planner's save, a rename) stamps its place's
- * `updated_at`, which the create left equal to `created_at`; the revision is
- * not in the snapshot. A tour planned on a day since is kept too.
- */
-function tourUnchanged(result: Row, snapshot: TripSnapshot): boolean {
-  const tour = recordOf(result.tour);
-  const current = byId(rowsOf(recordOf(snapshot.places).places), tour.place_id);
-  const untouched = typeof current?.created_at === 'string' && current.updated_at === current.created_at;
-  return (
-    untouched &&
-    placeUnchanged({ place: { id: tour.place_id, name: tour.name, description: tour.description ?? null } }, snapshot)
-  );
-}
-
-const CHECKS: Readonly<Record<string, (result: Row, snapshot: TripSnapshot) => boolean>> = {
+const CORE_CHECKS: Readonly<Record<string, (result: Row, snapshot: UndoSnapshot) => boolean>> = {
   create_place: placeUnchanged,
   create_and_assign_place: placeUnchanged,
-  create_hike: tourUnchanged,
-  create_city_walk: tourUnchanged,
   assign_place_to_day: (result, snapshot) => {
     const created = recordOf(result.assignment);
-    return same(created, byId(assignments(snapshot), created.id), STABLE_FIELDS.assignment);
+    return same(created, byId(snapshotAssignments(snapshot), created.id), STABLE_FIELDS.assignment);
   },
   create_day_note: (result, snapshot) => {
     const created = recordOf(result.note);
-    const notes = days(snapshot).flatMap((day) => rowsOf(day.notes));
+    const notes = snapshotDays(snapshot).flatMap((day) => rowsOf(day.notes));
     return same(created, byId(notes, created.id), STABLE_FIELDS.note);
   },
   create_packing_item: (result, snapshot) => {
@@ -113,8 +55,47 @@ const CHECKS: Readonly<Record<string, (result: Row, snapshot: TripSnapshot) => b
   },
 };
 
+/**
+ * The core checks and each package's `undo.unchanged`, which the registry
+ * guards (one that throws reads as changed) and keeps off the core's tools.
+ */
+const CHECKS: Readonly<Record<string, (result: Row, snapshot: UndoSnapshot) => boolean>> = {
+  ...CORE_CHECKS,
+  ...Object.fromEntries(
+    Object.entries(TOOL_CARDS).flatMap(([tool, cards]) => {
+      const undo = cards.undo;
+      return undo ? [[tool, (result: Row, snapshot: UndoSnapshot) => undo.unchanged(result, snapshot)]] : [];
+    }),
+  ),
+};
+
 /** True when the change `toolName` made (its stored `result`) is still as it left it. */
 export function unchangedSinceApplied(toolName: string, result: unknown, snapshot: TripSnapshot): boolean {
   const check = CHECKS[toolName];
-  return !!check && check(recordOf(result), snapshot);
+  return !!check && check(recordOf(result), { ...snapshot, reads: snapshot.reads ?? new Map() });
+}
+
+/** The tools an undo's session holds: the removing tool, the trip reads and what the change's package reads. */
+export function undoTargetsOf(undoTool: string, toolName: string, args: ToolArgs, result: unknown): Set<string> {
+  return new Set([undoTool, ...TRIP_READS, ...undoReadsOf(toolName, args, result).map((read) => read.tool)]);
+}
+
+/** The trip as the undo checks it, read through the undo's session; null when a trip read failed. */
+export async function undoSnapshotOf(
+  session: Pick<AssistantToolSession, 'read'>,
+  toolName: string,
+  args: ToolArgs,
+  result: unknown,
+  reads = undoReadsOf(toolName, args, result),
+): Promise<UndoSnapshot | null> {
+  const summary = await session.read('get_trip_summary');
+  const places = await session.read('list_places');
+  if (!summary.ok || !places.ok) return null;
+  const extra = await Promise.all(
+    reads.map(async (read): Promise<[string, unknown]> => {
+      const run = await session.read(read.tool, read.args);
+      return [readKey(read.tool, read.args), run.ok ? run.value : null];
+    }),
+  );
+  return { summary: summary.value, places: places.value, reads: new Map(extra) };
 }

@@ -84,6 +84,9 @@ export * from './tours/tours.metrics';
 export * from './tours/hiking-costing';
 export * from './tours/hike-plan.schema';
 export * from './tours/tour-hike.schema';
+export * from './tours/tour-display.schema';
+export * from './tours/line-along';
+export * from './tours/hike-schedule';
 export * from './tours/tour-gpx-import.schema';
 export * from './tours/paddle-plan.schema';
 export * from './tours/paddle-plan';
@@ -113,6 +116,25 @@ export * from './journey/trip-journal-link.schema';
 export * from './book/book.schema';
 export * from './book/journey-stats.schema';
 export * from './book/book-store.schema';
+export * from './book/book-ids';
+export * from './book/book-layouts';
+export * from './book/book-grids';
+export * from './book/book-saved-layouts';
+export * from './book/book-pages';
+export * from './book/book-ops.schema';
+export {
+  BOOK_OP_ERROR_CODES,
+  type BookEditResult,
+  type BookJourneyWords,
+  type BookOpError,
+  type BookOpErrorCode,
+  type BookOpsContext,
+  type BookPhotoInfo,
+} from './book/book-ops-core';
+export * from './book/book-ops';
+export * from './book/book-page-ops';
+export * from './book/book-findings';
+export * from './book/describe-spread';
 export * from './share/share.schema';
 export * from './storage/storage.schema';
 export * from './settings/settings.schema';
@@ -126,6 +148,7 @@ export * from './oauth/oauth.schema';
 export * from './admin/admin.schema';
 export * from './ai/ai-connections.schema';
 export * from './assistant/assistant.schema';
+export * from './assistant/cards';
 export * from './assistant/assistant-share.schema';
 
 // Realtime WS event contract registry (event names + payload schemas)

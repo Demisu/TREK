@@ -16,14 +16,16 @@ import AssistantToolSteps from './AssistantToolSteps';
 import AssistantWeatherStrip from './AssistantWeatherStrip';
 import { messageBlocks } from './assistantParts';
 import { useAssistantView } from './assistantViewContext';
+import AssistantCardBlock from './cards/AssistantCardBlock';
 import { useAssistantShare } from './useAssistantShare';
 
 /**
  * One message of the chat. The user's question sits on the end side in a
  * quiet accent bubble; the answer runs as plain text across the column, with
- * its looked-up steps, the places and weather they found, and the proposed
- * changes in between, and a copy and a share button that show on hover
- * (always on the latest answer, and always on the phone, which has no hover).
+ * its looked-up steps, the places and weather they found, the cards its
+ * tools brought and the proposed changes in between, and a copy and a share
+ * button that show on hover (always on the latest answer, and always on the
+ * phone, which has no hover).
  */
 
 const BAR_BUTTON =
@@ -127,6 +129,7 @@ function Answer({ message }: { message: StoredMessage }) {
           return <AssistantPlaceStrip key={block.key} found={block.found} message={message} />;
         }
         if (block.kind === 'weather') return <AssistantWeatherStrip key={block.key} days={block.days} />;
+        if (block.kind === 'cards') return <AssistantCardBlock key={block.key} block={block} message={message} />;
         return <AssistantChangeCard key={block.key} items={block.items} />;
       })}
       {/* Nothing below says the answer goes on: no words being written, no step running. */}

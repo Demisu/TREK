@@ -1,3 +1,5 @@
+import type { ToolUndo } from './cards/card-types';
+import { argId, idIn } from './cards/card-values';
 import type { AssistantApplied, AssistantChangeVerbKey } from '@trek/shared';
 
 /**
@@ -12,6 +14,9 @@ export const MAX_WRITES_PER_STEP = 50;
 
 /** Lookups one step may run; the rest come back to the model as an error (searches bill the instance's maps key). */
 export const MAX_READS_PER_STEP = 30;
+
+/** Answer cards one step shows; the reads past it answer the model as usual, without a card. */
+export const MAX_CARDS_PER_STEP = 12;
 
 /** What a tool answer may cost the conversation, as JSON text, after it was cut down to its structure. */
 export const MAX_TOOL_OUTPUT_CHARS = 40_000;
@@ -70,18 +75,19 @@ export const ASSISTANT_SCOPES: readonly string[] = [
  * applied. A `quiet` one is decided without a model turn after it: the user
  * proposed it, so there is nothing for the model to carry on with.
  */
-interface AssistantWriteTool {
+export interface AssistantWriteTool {
   verbKey: AssistantChangeVerbKey;
   entity: AssistantApplied['entity'];
   quiet?: boolean;
 }
 
 /**
- * The writing tools with a change card of their own: its verb and what it
- * touches once applied. Every other writing tool is held as a card too, one
- * built from its arguments (tool-call-generic.helpers.ts).
+ * The core writing tools with a change card of their own: its verb and what
+ * it touches once applied. The packages add theirs (cards/registry.ts merges
+ * them into ASSISTANT_WRITE_TOOLS). Every other writing tool is held as a card
+ * too, one built from its arguments (tool-call-generic.helpers.ts).
  */
-export const ASSISTANT_WRITE_TOOLS: Readonly<Record<string, AssistantWriteTool>> = {
+export const CORE_WRITE_TOOLS: Readonly<Record<string, AssistantWriteTool>> = {
   create_place: { verbKey: 'addPlace', entity: 'place' },
   create_and_assign_place: { verbKey: 'addPlaceToDay', entity: 'place' },
   update_place: { verbKey: 'updatePlace', entity: 'place' },
@@ -96,11 +102,6 @@ export const ASSISTANT_WRITE_TOOLS: Readonly<Record<string, AssistantWriteTool>>
   create_budget_item: { verbKey: 'addBudgetItem', entity: 'budget' },
   update_budget_item: { verbKey: 'updateBudgetItem', entity: 'budget' },
   create_reservation: { verbKey: 'addReservation', entity: 'reservation' },
-  // A tour is a place with a route: its id is its place's.
-  create_hike: { verbKey: 'addTour', entity: 'tour' },
-  create_city_walk: { verbKey: 'addTour', entity: 'tour' },
-  update_tour: { verbKey: 'updateTour', entity: 'tour' },
-  import_tour_gpx: { verbKey: 'importTour', entity: 'tour' },
 };
 
 /**
@@ -179,9 +180,9 @@ export const PINNED_ARG = 'tripId';
  * (place details stay on the cheap lookup, which the instance pays for);
  * `stripped` ones are taken away (a picture URL would be loaded by every
  * member's browser, a tracking pixel the model could plant). Neither appears
- * in the schema the model sees.
+ * in the schema the model sees. The packages add theirs (ASSISTANT_ARG_POLICY).
  */
-export const ASSISTANT_ARG_POLICY: Readonly<
+export const CORE_ARG_POLICY: Readonly<
   Record<string, { forced?: Readonly<Record<string, unknown>>; stripped?: readonly string[] }>
 > = {
   get_place_details: { forced: { expand: false, refresh: false } },
@@ -192,49 +193,16 @@ export const ASSISTANT_ARG_POLICY: Readonly<
   update_trip: { stripped: ['cover_image'] },
 };
 
-type ToolArgs = Record<string, unknown>;
-
-function idIn(value: unknown, key: string): number | null {
-  const record = value && typeof value === 'object' ? (value as Record<string, unknown>)[key] : undefined;
-  const id = record && typeof record === 'object' ? (record as Record<string, unknown>).id : undefined;
-  return typeof id === 'number' && Number.isInteger(id) && id > 0 ? id : null;
-}
-
-/** The place id of a tour a create answered with (`{ tour: { place_id } }`). */
-function tourIdIn(value: unknown): number | null {
-  const tour = value && typeof value === 'object' ? (value as Record<string, unknown>).tour : undefined;
-  const id = tour && typeof tour === 'object' ? (tour as Record<string, unknown>).place_id : undefined;
-  return typeof id === 'number' && Number.isInteger(id) && id > 0 ? id : null;
-}
-
-function argId(args: ToolArgs, key: string): number | null {
-  const id = args[key];
-  return typeof id === 'number' && Number.isInteger(id) && id > 0 ? id : null;
-}
-
 /**
  * The way back from an applied change, for the server only: the tool that
  * removes what the change created, and its arguments, from the arguments the
  * change ran with and the result it gave. Null when the result does not name
  * what was created, which offers no undo. The model is never offered these
  * tools, except the removal it may also propose itself; they run in a session
- * of their own that holds nothing else.
+ * of their own that holds nothing else. The packages add theirs
+ * (ASSISTANT_UNDO_MAP).
  */
-interface AssistantUndo {
-  tool: string;
-  args: (args: ToolArgs, result: unknown) => ToolArgs | null;
-}
-
-/** A created tour taken back with its place, which takes its route and points along. */
-const DELETE_CREATED_TOUR: AssistantUndo = {
-  tool: 'delete_place',
-  args: (_args, result) => {
-    const placeId = tourIdIn(result);
-    return placeId ? { placeId } : null;
-  },
-};
-
-export const ASSISTANT_UNDO_MAP: Readonly<Record<string, AssistantUndo>> = {
+export const CORE_UNDO_MAP: Readonly<Record<string, ToolUndo>> = {
   create_place: {
     tool: 'delete_place',
     args: (_args, result) => {
@@ -286,6 +254,4 @@ export const ASSISTANT_UNDO_MAP: Readonly<Record<string, AssistantUndo>> = {
       return itemId ? { itemId } : null;
     },
   },
-  create_hike: DELETE_CREATED_TOUR,
-  create_city_walk: DELETE_CREATED_TOUR,
 };

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 
+import { isDeepLinkableTripTab } from '../../constants/tripTabs';
 import { useAssistantStore } from '../../store/assistantStore';
 import type { Day } from '../../types';
 import type { PlannerSearchParams } from './plannerTypes';
@@ -49,4 +50,42 @@ export function useAssistantDeepLink({
       { replace: true }
     );
   }, [openRequested, requestedDay, known, dayDone, selectDay, setSearchParams]);
+}
+
+interface AssistantTabLinkOptions {
+  searchParams: PlannerSearchParams[0];
+  setSearchParams: PlannerSearchParams[1];
+  /** The tab on screen. */
+  activeTab: string;
+  /** Switches the planner's tab the way its tab bar does. */
+  selectTab: (tabId: string) => void;
+}
+
+/**
+ * `?tab=<id>` while the planner is already open: what a card in the chat
+ * opens in another tab of this trip (`?tab=finanzplan&expense=7`). The
+ * planner reads the tab once when it opens; this takes a later one live,
+ * once, and then drops it from the URL. What the tab reads beside it stays
+ * for that tab to take.
+ */
+export function useAssistantTabLink({
+  searchParams,
+  setSearchParams,
+  activeTab,
+  selectTab,
+}: AssistantTabLinkOptions): void {
+  const requested = searchParams.get('tab');
+  const linkable = requested !== null && isDeepLinkableTripTab(requested);
+
+  useEffect(() => {
+    if (!linkable || requested === null) return;
+    if (requested !== activeTab) selectTab(requested);
+    setSearchParams(
+      (params) => {
+        params.delete('tab');
+        return params;
+      },
+      { replace: true }
+    );
+  }, [linkable, requested, activeTab, selectTab, setSearchParams]);
 }

@@ -1,4 +1,31 @@
 import { idParamSchema, idSchema } from '../common/primitives.schema';
+import {
+  assistantCardSchema,
+  assistantCardWriteSchema,
+  ATLAS_APPLIED_ENTITIES,
+  ATLAS_VERB_KEYS,
+  BOOKING_APPLIED_ENTITIES,
+  BOOKING_VERB_KEYS,
+  BUDGET_APPLIED_ENTITIES,
+  BUDGET_VERB_KEYS,
+  COLLAB_APPLIED_ENTITIES,
+  COLLAB_VERB_KEYS,
+  COLLECTION_APPLIED_ENTITIES,
+  COLLECTION_VERB_KEYS,
+  JOURNEY_APPLIED_ENTITIES,
+  JOURNEY_VERB_KEYS,
+  PACKING_APPLIED_ENTITIES,
+  PACKING_VERB_KEYS,
+  ROADTRIP_APPLIED_ENTITIES,
+  ROADTRIP_VERB_KEYS,
+  storedTrekCardSchema,
+  TOUR_APPLIED_ENTITIES,
+  TOUR_VERB_KEYS,
+  trekCardSchema,
+  VACAY_APPLIED_ENTITIES,
+  VACAY_VERB_KEYS,
+  type AssistantCard,
+} from './cards';
 
 import { z } from 'zod';
 
@@ -48,9 +75,10 @@ export type AssistantErrorCode = z.infer<typeof assistantErrorCodeSchema>;
 
 /**
  * What a change does, one per writing tool. The client labels the card with
- * `assistant.change.verb.<key>`.
+ * `assistant.change.verb.<key>`. These are the core verbs; each part of TREK
+ * adds its own in its cards contract (`cards/<pkg>.contract.ts`).
  */
-export const ASSISTANT_CHANGE_VERB_KEYS = [
+export const CORE_VERB_KEYS = [
   'addPlace',
   'addPlaceToDay',
   'updatePlace',
@@ -75,6 +103,19 @@ export const ASSISTANT_CHANGE_VERB_KEYS = [
   'genericCreate',
   'genericUpdate',
   'genericRemove',
+] as const;
+export const ASSISTANT_CHANGE_VERB_KEYS = [
+  ...CORE_VERB_KEYS,
+  ...TOUR_VERB_KEYS,
+  ...ROADTRIP_VERB_KEYS,
+  ...BUDGET_VERB_KEYS,
+  ...BOOKING_VERB_KEYS,
+  ...COLLAB_VERB_KEYS,
+  ...COLLECTION_VERB_KEYS,
+  ...ATLAS_VERB_KEYS,
+  ...VACAY_VERB_KEYS,
+  ...JOURNEY_VERB_KEYS,
+  ...PACKING_VERB_KEYS,
 ] as const;
 export const assistantChangeVerbKeySchema = z.enum(ASSISTANT_CHANGE_VERB_KEYS);
 export type AssistantChangeVerbKey = z.infer<typeof assistantChangeVerbKeySchema>;
@@ -233,6 +274,19 @@ export const assistantAddFoundPlaceRequestSchema = assistantClientCtxSchema
   .strict();
 export type AssistantAddFoundPlaceRequest = z.infer<typeof assistantAddFoundPlaceRequestSchema>;
 
+/**
+ * POST /threads/:threadId/proposals: take a proposal an answer showed as a
+ * card ("Plan this"). `toolCallId` names the read whose card it was; the
+ * server holds the matching change like a found place, from what it stored,
+ * and answers like the found places route.
+ */
+export const assistantTakeProposalRequestSchema = assistantClientCtxSchema
+  .extend({
+    toolCallId: z.string().min(1).max(64),
+  })
+  .strict();
+export type AssistantTakeProposalRequest = z.infer<typeof assistantTakeProposalRequestSchema>;
+
 // ── Change previews ─────────────────────────────────────────────────────────
 
 /**
@@ -269,8 +323,8 @@ export const assistantChangeRowSchema = z.object({
 });
 export type AssistantChangeRow = z.infer<typeof assistantChangeRowSchema>;
 
-/** A held writing call as the user sees it before deciding. */
-export const assistantChangePreviewSchema = z.object({
+/** A held writing call as the server writes it: every verb and card one this build knows. */
+export const assistantChangePreviewWriteSchema = z.object({
   toolCallId: z.string(),
   verbKey: assistantChangeVerbKeySchema,
   // What the change is about: the place, note or item name.
@@ -286,27 +340,62 @@ export const assistantChangePreviewSchema = z.object({
   // The tool behind a card without one of its own, and the part of TREK it works in.
   tool: z.string().max(80).optional(),
   domain: z.string().max(40).optional(),
+  // What the change will do, drawn as a card; absent on older rows and on cards without one.
+  card: trekCardSchema.nullable().optional(),
+});
+
+/**
+ * A held writing call as the user sees it before deciding, and as it is read
+ * back: a verb a later build added reads as a plain update and a card this
+ * build cannot draw as none, so an older client or a rolled back server still
+ * shows the change instead of dropping it.
+ */
+export const assistantChangePreviewSchema = assistantChangePreviewWriteSchema.extend({
+  verbKey: assistantChangeVerbKeySchema.catch('genericUpdate'),
+  card: storedTrekCardSchema.optional(),
 });
 export type AssistantChangePreview = z.infer<typeof assistantChangePreviewSchema>;
 
-/** An applied change: what it touched, and until when it can be undone. */
-export const assistantAppliedSchema = z.object({
+/** What an applied change can touch in the core; each part of TREK adds its own in its cards contract. */
+export const CORE_APPLIED_ENTITIES = [
+  'place',
+  'assignment',
+  'day_note',
+  'packing',
+  'todo',
+  'budget',
+  'reservation',
+  'memory',
+  'tour',
+  'other',
+] as const;
+
+const assistantAppliedEntitySchema = z.enum([
+  ...CORE_APPLIED_ENTITIES,
+  ...TOUR_APPLIED_ENTITIES,
+  ...ROADTRIP_APPLIED_ENTITIES,
+  ...BUDGET_APPLIED_ENTITIES,
+  ...BOOKING_APPLIED_ENTITIES,
+  ...COLLAB_APPLIED_ENTITIES,
+  ...COLLECTION_APPLIED_ENTITIES,
+  ...ATLAS_APPLIED_ENTITIES,
+  ...VACAY_APPLIED_ENTITIES,
+  ...JOURNEY_APPLIED_ENTITIES,
+  ...PACKING_APPLIED_ENTITIES,
+]);
+
+/** An applied change as the server writes it: what it touched, and until when it can be undone. */
+const assistantAppliedWriteSchema = z.object({
   toolCallId: z.string(),
-  entity: z.enum([
-    'place',
-    'assignment',
-    'day_note',
-    'packing',
-    'todo',
-    'budget',
-    'reservation',
-    'memory',
-    'tour',
-    'other',
-  ]),
+  entity: assistantAppliedEntitySchema,
   ids: z.array(idSchema),
   dayId: idSchema.nullable(),
   undoUntil: z.string().nullable(),
+});
+
+/** An applied change as it is read back: an entity a later build added reads as `other`, with nothing to open. */
+export const assistantAppliedSchema = assistantAppliedWriteSchema.extend({
+  entity: assistantAppliedEntitySchema.catch('other'),
 });
 export type AssistantApplied = z.infer<typeof assistantAppliedSchema>;
 
@@ -453,33 +542,72 @@ export const assistantToolApprovalSchema = z.object({
 });
 export type AssistantToolApproval = z.infer<typeof assistantToolApprovalSchema>;
 
-/** One stored part of a message, in the order the model produced it. */
-export const assistantMessagePartSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('text'), text: z.string() }),
-  // A file the user handed the assistant. Only its description is kept, never its content.
-  z.object({
-    type: z.literal('attachment'),
-    name: z.string(),
-    mime: z.string(),
-    size: z.number().int().nonnegative(),
-  }),
-  z.object({
-    type: z.literal('tool-call'),
-    toolCallId: z.string(),
-    toolName: z.string(),
-    args: z.record(z.string(), z.unknown()),
-    result: z.unknown().optional(),
-    isError: z.boolean().optional(),
-    approval: assistantToolApprovalSchema.optional(),
-  }),
-  z.object({ type: z.literal('data-trek-change'), data: assistantChangePreviewSchema }),
-  z.object({ type: z.literal('data-trek-applied'), data: assistantAppliedSchema }),
-  z.object({ type: z.literal('data-trek-places'), data: assistantPlacesSchema }),
-  z.object({ type: z.literal('data-trek-weather'), data: assistantWeatherSchema }),
-  // Only on a user message.
-  z.object({ type: z.literal('data-trek-mentions'), data: assistantMentionsSchema }),
-]);
+/** The parts of a message, with the change, receipt and card parts read or written as given. */
+function messagePartSchema(
+  change: z.ZodType<AssistantChangePreview>,
+  applied: z.ZodType<AssistantApplied>,
+  card: z.ZodType<AssistantCard>,
+) {
+  return z.discriminatedUnion('type', [
+    z.object({ type: z.literal('text'), text: z.string() }),
+    // A file the user handed the assistant. Only its description is kept, never its content.
+    z.object({
+      type: z.literal('attachment'),
+      name: z.string(),
+      mime: z.string(),
+      size: z.number().int().nonnegative(),
+    }),
+    z.object({
+      type: z.literal('tool-call'),
+      toolCallId: z.string(),
+      toolName: z.string(),
+      args: z.record(z.string(), z.unknown()),
+      result: z.unknown().optional(),
+      isError: z.boolean().optional(),
+      approval: assistantToolApprovalSchema.optional(),
+    }),
+    z.object({ type: z.literal('data-trek-change'), data: change }),
+    z.object({ type: z.literal('data-trek-applied'), data: applied }),
+    z.object({ type: z.literal('data-trek-places'), data: assistantPlacesSchema }),
+    z.object({ type: z.literal('data-trek-weather'), data: assistantWeatherSchema }),
+    // The card of one tool call: a read's beside the answer, an applied write's on the message that proposed it.
+    z.object({ type: z.literal('data-trek-card'), data: card }),
+    // Only on a user message.
+    z.object({ type: z.literal('data-trek-mentions'), data: assistantMentionsSchema }),
+  ]);
+}
+
+/** One stored part of a message, in the order the model produced it, as a reader takes it. */
+export const assistantMessagePartSchema = messagePartSchema(
+  assistantChangePreviewSchema,
+  assistantAppliedSchema,
+  assistantCardSchema,
+);
 export type AssistantMessagePart = z.infer<typeof assistantMessagePartSchema>;
+
+/** The parts as the server writes them: a verb, entity or card this build cannot name is a bug in the writer. */
+export const assistantMessagePartWriteSchema = messagePartSchema(
+  assistantChangePreviewWriteSchema,
+  assistantAppliedWriteSchema,
+  assistantCardWriteSchema,
+);
+
+/**
+ * A message's parts as they are read back: a `data-trek-*` part this build
+ * does not know, or one that no longer reads, is dropped, so a part a later
+ * build added never blanks the message around it. Any other broken part
+ * still fails the whole list. A known part reads through its tolerant fields
+ * (a later verb, entity or card kind); parts are written strictly, with
+ * `assistantMessagePartWriteSchema`.
+ */
+export const assistantStoredPartsSchema = z
+  .array(
+    z.union([
+      assistantMessagePartSchema,
+      z.object({ type: z.string().startsWith('data-trek-') }).transform(() => null),
+    ]),
+  )
+  .transform((parts) => parts.filter((part): part is AssistantMessagePart => part !== null));
 
 export const assistantMessageSchema = z.object({
   id: z.string(),
@@ -539,6 +667,7 @@ export const uiStreamChunkSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('data-trek-applied'), data: assistantAppliedSchema }),
   z.object({ type: z.literal('data-trek-places'), data: assistantPlacesSchema }),
   z.object({ type: z.literal('data-trek-weather'), data: assistantWeatherSchema }),
+  z.object({ type: z.literal('data-trek-card'), data: assistantCardSchema }),
   // Live progress of a running step; the message never keeps it.
   z.object({
     type: z.literal('data-trek-activity'),

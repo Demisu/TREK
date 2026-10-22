@@ -153,6 +153,7 @@ describe('the week grid', () => {
     preview: preview(id, dayId),
     applied: null,
     state: 'pending',
+    card: null,
   });
 
   it('FE-AI-POWER-005: from three days on the changes group by day, in trip order', () => {

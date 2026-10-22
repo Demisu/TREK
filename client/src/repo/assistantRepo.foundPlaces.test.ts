@@ -1,9 +1,10 @@
 /**
- * FE-AI-REPO-FOUND-001 to 002
+ * FE-AI-REPO-FOUND-001 to 004
  *
- * "+ Day N" on a found place: the repo posts the place's handle and the day,
- * parses the message the server answers with, and like every assistant call
- * sends nothing while offline.
+ * "+ Day N" on a found place, and "Plan this" on a card: the repo posts the
+ * handle (the place, or the call whose card it was), parses the message the
+ * server answers with, and like every assistant call sends nothing while
+ * offline.
  */
 import type { AssistantAddFoundPlaceResponse } from '@trek/shared';
 import { http, HttpResponse } from 'msw';
@@ -49,6 +50,29 @@ describe('assistantRepo.addFoundPlace', () => {
     setForcedOffline(true);
     const call = vi.spyOn(assistantApi, 'addFoundPlace');
     await expect(assistantRepo.addFoundPlace(4, 7, BODY)).rejects.toBeInstanceOf(OnlineOnlyError);
+    expect(call).not.toHaveBeenCalled();
+  });
+});
+
+describe('assistantRepo.takeProposal', () => {
+  const PROPOSAL = { locale: 'en', timeZone: 'UTC', toolCallId: 'read-3' };
+
+  it('FE-AI-REPO-FOUND-003: posts the call whose card it was, and parses the message it gets back', async () => {
+    let sent: unknown = null;
+    server.use(
+      http.post('/api/trips/4/assistant/threads/7/proposals', async ({ request }) => {
+        sent = await request.json();
+        return HttpResponse.json(ANSWER);
+      })
+    );
+    await expect(assistantRepo.takeProposal(4, 7, PROPOSAL)).resolves.toEqual(ANSWER);
+    expect(sent).toEqual(PROPOSAL);
+  });
+
+  it('FE-AI-REPO-FOUND-004: refuses before a request while offline', async () => {
+    setForcedOffline(true);
+    const call = vi.spyOn(assistantApi, 'takeProposal');
+    await expect(assistantRepo.takeProposal(4, 7, PROPOSAL)).rejects.toBeInstanceOf(OnlineOnlyError);
     expect(call).not.toHaveBeenCalled();
   });
 });

@@ -5,15 +5,17 @@
  * suggestion is held as a change card in one transaction, refused while a turn
  * runs, while another change waits, or past the per-minute limit.
  *
- * Replaced: the trip tools (what the trip reads as), the rate limit and the
- * stream registry.
+ * Replaced: the trip tools (what the trip reads as), the rate limit, the
+ * stream registry and the airports.
  */
 import { AssistantMessages } from '../../../../src/db/entities/AssistantMessages.entity';
 import { AssistantThreads } from '../../../../src/db/entities/AssistantThreads.entity';
 import { AssistantToolCalls } from '../../../../src/db/entities/AssistantToolCalls.entity';
+import { AirportsService } from '../../../../src/nest/airports/airports.service';
 import { AssistantFoundPlacesService } from '../../../../src/nest/assistant/assistant-found-places.service';
 import { AssistantStreamRegistry } from '../../../../src/nest/assistant/assistant-stream.registry';
 import { AssistantToolsService } from '../../../../src/nest/assistant/assistant-tools.service';
+import { AssistantCardContext } from '../../../../src/nest/assistant/cards/card-context';
 import { RateLimitService } from '../../../../src/nest/common/rate-limit.service';
 import { UnitOfWork } from '../../../../src/nest/database/unit-of-work';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
@@ -53,6 +55,8 @@ beforeAll(async () => {
     imports: [MikroOrmModule.forFeature([AssistantThreads, AssistantMessages, AssistantToolCalls])],
     providers: [
       AssistantFoundPlacesService,
+      AssistantCardContext,
+      { provide: AirportsService, useValue: { findByIata: () => null } },
       { provide: AssistantToolsService, useValue: tools },
       { provide: RateLimitService, useValue: rateLimit },
       { provide: AssistantStreamRegistry, useValue: streams },

@@ -1,6 +1,6 @@
 import type { CardPlace, TripCard } from './assistant-context';
-import { redactForProvider } from './assistant-redact';
-import { dayLabel, type PreviewContext } from './tool-call-preview.helpers';
+import { clipped, finite, isLat, isLng, recordOf, type Row } from './cards/card-values';
+import { dayLabel } from './cards/preview-format';
 import {
   haversineMetres,
   kindOfResult,
@@ -25,8 +25,6 @@ import {
  * every text is masked like a provider answer, and no URL is ever passed on:
  * a photo is asked for by a key, through TREK's own photo route.
  */
-
-type Row = Record<string, unknown>;
 
 /** Places a search shows as cards; `more` counts the rest. */
 const PLACES_SHOWN = 20;
@@ -56,30 +54,6 @@ const PLACE_LISTS: Readonly<Record<string, 'places' | 'pois'>> = {
   search_nearby_places: 'places',
   search_pois: 'pois',
 };
-
-function recordOf(value: unknown): Row {
-  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Row) : {};
-}
-
-function finite(value: unknown): number | null {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
-function isLat(value: number | null): value is number {
-  return value !== null && Math.abs(value) <= 90;
-}
-
-function isLng(value: number | null): value is number {
-  return value !== null && Math.abs(value) <= 180;
-}
-
-/** A text as a card may show it: on one line, masked like a provider answer, and cut to `max`. */
-function clipped(value: unknown, max: number): string | null {
-  if (typeof value !== 'string') return null;
-  const line = String(redactForProvider(value.replace(/\s+/g, ' ').trim()));
-  if (line === '') return null;
-  return line.length > max ? `${line.slice(0, max - 1)}…` : line;
-}
 
 /** Whether the trip runs today, the only time a source's "open now" means anything for it. */
 function tripRunsOn(card: TripCard, today: string): boolean {
@@ -285,7 +259,11 @@ export function activityOf(toolName: string, toolCallId: string, args: Row, card
 }
 
 /** What a mention is called in the trip; null when the trip holds no such thing. */
-function mentionLabel(ctx: PreviewContext, kind: AssistantMention['kind'], id: number): string | null {
+function mentionLabel(
+  ctx: { card: TripCard; locale: string },
+  kind: AssistantMention['kind'],
+  id: number,
+): string | null {
   if (kind === 'day') return ctx.card.days.some((day) => day.id === id) ? dayLabel(ctx, id) : null;
   if (kind === 'place') return ctx.card.places.get(id)?.name ?? null;
   return ctx.card.reservations.get(id)?.title ?? null;
@@ -303,7 +281,7 @@ export function mentionItems(
 ): AssistantMentions['items'] {
   const items: AssistantMentions['items'] = [];
   const seen = new Set<string>();
-  const ctx = { card, categories: new Map<number, string>(), locale };
+  const ctx = { card, locale };
   for (const { kind, id } of mentions) {
     const label = mentionLabel(ctx, kind, id);
     const shown = clipped(label, MAX_NAME_CHARS);

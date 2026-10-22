@@ -1,6 +1,5 @@
 import './assistant.css';
 
-import type { AssistantApplied } from '@trek/shared';
 import { Sparkles, X } from 'lucide-react';
 import { type CSSProperties, type KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -12,6 +11,8 @@ import AssistantHeader from './AssistantHeader';
 import AssistantLauncher, { LAUNCHER_INSET, LAUNCHER_SIZE } from './AssistantLauncher';
 import AssistantSurfaceLazy from './AssistantSurfaceLazy';
 import AssistantTripPicker from './AssistantTripPicker';
+import { plannerSearchOf } from './assistantShowOnMap';
+import type { EntityTarget } from './cards/cardTypes';
 import { useAssistantHotkey } from './useAssistantHotkey';
 import { useAssistantThread } from './useAssistantThread';
 
@@ -39,8 +40,8 @@ interface WindowTrip {
 interface AssistantWindowProps {
   /** The trip on screen; null outside a trip, where the window asks which one first. */
   trip: WindowTrip | null;
-  /** Shows an applied change in the planner on screen. */
-  onShowOnMap?: (applied: AssistantApplied) => void;
+  /** Opens what a card or an applied change points at, from the trip on screen. */
+  onOpen?: (target: EntityTarget) => void;
   /** Selects a day in the planner on screen. */
   onFocusDay?: (dayId: number) => void;
 }
@@ -101,12 +102,12 @@ function originFrom(rect: WindowRect, rtl: boolean): string {
 function ChatWindow({
   trip,
   hidden,
-  onShowOnMap,
+  onOpen,
   onFocusDay,
 }: {
   trip: WindowTrip;
   hidden: boolean;
-  onShowOnMap?: (applied: AssistantApplied) => void;
+  onOpen?: (target: EntityTarget) => void;
   onFocusDay?: (dayId: number) => void;
 }) {
   const { t } = useTranslation();
@@ -209,7 +210,7 @@ function ChatWindow({
           tripTitle={trip.title}
           variant="window"
           density={width < ROOMY_WIDTH ? 'compact' : 'roomy'}
-          onShowOnMap={onShowOnMap}
+          onOpen={onOpen}
           onFocusDay={onFocusDay}
         />
       </div>
@@ -217,7 +218,7 @@ function ChatWindow({
   );
 }
 
-export default function AssistantWindow({ trip, onShowOnMap, onFocusDay }: AssistantWindowProps) {
+export default function AssistantWindow({ trip, onOpen, onFocusDay }: AssistantWindowProps) {
   const navigate = useNavigate();
   const available = useAssistantStore((s) => s.status?.available === true);
   const open = useAssistantStore((s) => s.window.open);
@@ -239,23 +240,34 @@ export default function AssistantWindow({ trip, onShowOnMap, onFocusDay }: Assis
   }
 
   const current = trip ?? picked;
-  const showPicked = useCallback(() => {
-    if (picked) void navigate(`/trips/${picked.id}`);
-  }, [navigate, picked]);
+  // A change in a trip the planner does not show is shown by opening that trip; a tab opens on it.
+  const openPicked = useCallback(
+    (target: EntityTarget) => {
+      if (target.kind === 'page') void navigate(target.path);
+      else if (picked) void navigate(`/trips/${picked.id}${target.kind === 'tab' ? plannerSearchOf(target) : ''}`);
+    },
+    [navigate, picked]
+  );
+  // Another page leaves the trip: the chat stays on it, as if it had been picked.
+  const openOnScreen = useCallback(
+    (target: EntityTarget) => {
+      if (target.kind === 'page' && trip) setPicked(trip);
+      onOpen?.(target);
+    },
+    [onOpen, trip]
+  );
 
   if (!available) return null;
   if (!open) return trip ? <AssistantLauncher variant="floating" tripId={trip.id} /> : null;
   if (!current) return <PickerWindow onPick={setPicked} />;
 
-  // A change in a trip the planner does not show is shown by opening that trip.
   const onScreen = !!trip && current.id === trip.id;
-  const showOnMap = onScreen ? onShowOnMap : showPicked;
   return (
     <>
       <ChatWindow
         trip={current}
         hidden={minimized}
-        onShowOnMap={showOnMap}
+        onOpen={onScreen ? onOpen && openOnScreen : openPicked}
         // Only the planner on screen has days to select.
         onFocusDay={onScreen ? onFocusDay : undefined}
       />

@@ -1,6 +1,17 @@
 import admin from './admin';
 import airport from './airport';
 import assistant from './assistant';
+import assistantAtlas from './assistantAtlas';
+import assistantBooking from './assistantBooking';
+import assistantBudget from './assistantBudget';
+import assistantCard from './assistantCard';
+import assistantCollab from './assistantCollab';
+import assistantCollection from './assistantCollection';
+import assistantJourney from './assistantJourney';
+import assistantPacking from './assistantPacking';
+import assistantRoadtrip from './assistantRoadtrip';
+import assistantTour from './assistantTour';
+import assistantVacay from './assistantVacay';
 import atlas from './atlas';
 import backup from './backup';
 import budget from './budget';
@@ -118,5 +129,16 @@ const locale = {
   ...docsync,
   ...ferratas,
   ...assistant,
+  ...assistantCard,
+  ...assistantTour,
+  ...assistantRoadtrip,
+  ...assistantBudget,
+  ...assistantBooking,
+  ...assistantCollab,
+  ...assistantCollection,
+  ...assistantAtlas,
+  ...assistantVacay,
+  ...assistantJourney,
+  ...assistantPacking,
 };
 export default locale;

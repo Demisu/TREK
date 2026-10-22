@@ -17,6 +17,7 @@
  * shared in the trip chat.
  */
 import { buildApp } from '../../src/bootstrap';
+import { AssistantMessages } from '../../src/db/entities/AssistantMessages.entity';
 import { AssistantThreads } from '../../src/db/entities/AssistantThreads.entity';
 import { AssistantToolCalls } from '../../src/db/entities/AssistantToolCalls.entity';
 import { CollabMessages } from '../../src/db/entities/CollabMessages.entity';
@@ -26,6 +27,7 @@ import { Reservations } from '../../src/db/entities/Reservations.entity';
 import { Trips } from '../../src/db/entities/Trips.entity';
 import { TURNS_PER_MINUTE } from '../../src/nest/assistant/assistant-tools.constants';
 import { AssistantToolsService } from '../../src/nest/assistant/assistant-tools.service';
+import { AssistantCardContext } from '../../src/nest/assistant/cards/card-context';
 import { BookingImportService } from '../../src/nest/booking-import/booking-import.service';
 import { MapsService } from '../../src/nest/maps/maps.service';
 import { PermissionsService } from '../../src/nest/permissions/permissions.service';
@@ -40,7 +42,7 @@ import { resetRateLimits } from '../helpers/test-db';
 import { sessionCookie } from './harness';
 import { MikroORM } from '@mikro-orm/core';
 import type { INestApplication } from '@nestjs/common';
-import type { AssistantMessagePart, UiStreamChunk } from '@trek/shared';
+import { storedTrekCardSchema, type AssistantMessagePart, type TrekCard, type UiStreamChunk } from '@trek/shared';
 
 import { createServer, type IncomingMessage, type Server as HttpServer, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -949,11 +951,12 @@ describe('Trip assistant e2e', () => {
       origin: 'assistant',
       user_id: t.userId,
     });
+    // The asking tab is not left out: it never put the message into its own chat.
     expect(broadcasts.broadcast).toHaveBeenCalledWith(
       String(t.tripId),
       'collab:message:created',
       { message: expect.objectContaining({ origin: 'assistant' }) },
-      'sock-1',
+      undefined,
     );
     const listed = await get(`/api/trips/${t.tripId}/collab/messages`, t.userId);
     expect(listed.body.messages).toEqual([
@@ -976,5 +979,62 @@ describe('Trip assistant e2e', () => {
       await setCollabFeature(orm, 'chat', true);
     }
     expect(await countRows(orm, CollabMessages, { trip: t.tripId })).toBe(1);
+  });
+
+  it('ASTE2E-022: an applied change keeps its card on the proposing message; a card or part this build does not know reads as nothing', async () => {
+    const t = await travelerWithTrip();
+    const { turn, toolCallId, threadId } = await proposePlace(t, 'Sanjusangen-do');
+    const proposing = Number(ofType(turn.chunks, 'start')[0].messageId.slice('msg-'.length));
+    const built = { kind: 'tourRoute' } as TrekCard;
+    const applied = vi.spyOn(nestApp.get(AssistantCardContext), 'appliedCard').mockReturnValue(built);
+    provider.script = [say('Added it.')];
+    try {
+      const decided = await post(`${t.base}/threads/${threadId}/decisions`, t.userId, {
+        ...CTX,
+        decisions: [{ toolCallId, approved: true }],
+      });
+      expect(applied).toHaveBeenCalledWith(
+        'create_place',
+        expect.objectContaining({ args: { name: 'Sanjusangen-do' } }),
+      );
+      const types = decided.chunks.map((chunk) => chunk.type);
+      expect(types.indexOf('data-trek-card')).toBeGreaterThan(types.indexOf('data-trek-applied'));
+      expect(ofType(decided.chunks, 'data-trek-card')[0].data.toolCallId).toBe(toolCallId);
+    } finally {
+      applied.mockRestore();
+    }
+
+    const stored = await findRow(orm, AssistantMessages, { id: proposing });
+    const parts = JSON.parse(stored?.parts ?? '[]') as Array<{ type: string; data?: { toolCallId?: string } }>;
+    expect(parts.filter((part) => part.type === 'data-trek-card').map((part) => part.data?.toolCallId)).toEqual([
+      toolCallId,
+    ]);
+    const cardOf = (messages: Array<{ parts: AssistantMessagePart[] }>, id: string) =>
+      messages
+        .flatMap((message) => message.parts)
+        .find((part) => part.type === 'data-trek-card' && part.data.toolCallId === id);
+    const shown = await get(`${t.base}/threads/${threadId}`, t.userId);
+    expect(shown.status).toBe(200);
+    expect(cardOf(shown.body.messages, toolCallId)).toEqual({
+      type: 'data-trek-card',
+      data: { toolCallId, card: storedTrekCardSchema.parse(built) },
+    });
+
+    // A later build's part and kind, as a rolled back server finds them in the row.
+    const later = [
+      ...parts,
+      { type: 'data-trek-book-page', data: { page: 3 } },
+      { type: 'data-trek-card', data: { toolCallId: 'call_later', card: { kind: 'bookPage', page: 3 } } },
+    ];
+    await updateRows(orm, AssistantMessages, { id: proposing }, { parts: JSON.stringify(later) });
+    const tolerant = await get(`${t.base}/threads/${threadId}`, t.userId);
+    expect(tolerant.status).toBe(200);
+    const kept = (tolerant.body.messages as Array<{ parts: AssistantMessagePart[] }>).flatMap((m) => m.parts);
+    expect(kept.map((part) => part.type)).not.toContain('data-trek-book-page');
+    expect(kept.map((part) => part.type)).toContain('data-trek-change');
+    expect(cardOf(tolerant.body.messages, 'call_later')).toEqual({
+      type: 'data-trek-card',
+      data: { toolCallId: 'call_later', card: null },
+    });
   });
 });

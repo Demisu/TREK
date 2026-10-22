@@ -3,6 +3,7 @@ import {
   UI_STREAM_DONE,
   type AssistantActivity,
   type AssistantApplied,
+  type AssistantCard,
   type AssistantChangePreview,
   type AssistantErrorCode,
   type AssistantPlaces,
@@ -94,6 +95,11 @@ export class UiStreamWriter {
   /** The weather a step looked up, one entry per date. */
   weather(weather: AssistantWeather): void {
     this.send({ type: 'data-trek-weather', data: weather });
+  }
+
+  /** The card of one tool call: a read's beside the answer, an applied write's beside its receipt. */
+  card(data: AssistantCard): void {
+    this.send({ type: 'data-trek-card', data });
   }
 
   /** Where a step that is about to run looks; only streamed, the message never keeps it. */

@@ -1,6 +1,7 @@
 import type { AssistantMessage } from '@trek/shared';
 
 import { messageBlocks } from './assistantParts';
+import { verbLookOf } from './cards/cardLooks';
 
 /**
  * What an answer says once it goes to the trip chat, which shows plain text:
@@ -102,7 +103,8 @@ export function chatTextOf(message: AssistantMessage, opts: { includeChanges: bo
   const previews = blocks.flatMap((b) =>
     b.kind === 'change' ? b.items.flatMap((i) => (i.state === 'applied' && i.preview ? [i.preview] : [])) : []
   );
-  const lines = previews.map((p) => `✓ ${opts.t(`assistant.change.verb.${p.verbKey}`)}: ${p.subject}`);
+  // Named by its verb, as the share text always was; a card never goes along (it may hold what is private).
+  const lines = previews.map((p) => `✓ ${opts.t(verbLookOf(p.verbKey).labelKey)}: ${p.subject}`);
   const heading = opts.t('assistant.share.changesHeading');
   const changes = opts.includeChanges && lines.length > 0 ? [heading, ...lines].join('\n') : '';
   const full = [body, changes].filter(Boolean).join('\n\n');

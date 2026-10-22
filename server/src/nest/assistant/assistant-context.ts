@@ -1,3 +1,4 @@
+import { fileKeyOf } from './cards/card-values';
 import type { AssistantFocus, AssistantMention } from '@trek/shared';
 
 /**
@@ -58,8 +59,16 @@ interface CardPackingItem {
   packedQuantity: number | null;
 }
 
+/** A trip member: the name the trip shows, and the stored file of their picture (none for one on another host). */
+interface CardMember {
+  name: string;
+  avatarKey: string | null;
+}
+
 export interface TripCard {
   tripId: number;
+  /** The user the turn runs for; a card compares people with it instead of carrying "me". */
+  viewerId: number;
   title: string;
   startDate: string | null;
   endDate: string | null;
@@ -69,11 +78,17 @@ export interface TripCard {
   assignments: Map<number, { dayId: number; placeId: number }>;
   notes: Map<number, CardNote>;
   packing: Map<number, CardPackingItem>;
-  members: Map<number, string>;
+  members: Map<number, CardMember>;
   reservations: Map<number, CardBooking>;
   focus: AssistantFocus | null;
   /** What the user named with `@` in the message, as sent; checked against the card when it is rendered. */
   mentions: readonly AssistantMention[];
+  /**
+   * The raw answers the card was built from. A package that needs more of the
+   * trip than the card holds reads it from here, in its own file (memoised per
+   * card), rather than growing the card for every part of TREK.
+   */
+  sources: { summary: unknown; places: unknown };
 }
 
 /** Places a day lists by name on the card; the rest are counted. */
@@ -132,6 +147,7 @@ function placeOf(row: Row): CardPlace | null {
  */
 export function buildTripCard(
   tripId: number,
+  viewerId: number,
   summary: unknown,
   placeList: unknown,
   focus: AssistantFocus | null,
@@ -141,6 +157,7 @@ export function buildTripCard(
   const trip = recordOf(root.trip);
   const card: TripCard = {
     tripId,
+    viewerId,
     title: str(trip.title) ?? '',
     startDate: str(trip.start_date),
     endDate: str(trip.end_date),
@@ -154,6 +171,7 @@ export function buildTripCard(
     reservations: new Map(),
     focus,
     mentions,
+    sources: { summary, places: placeList },
   };
   for (const row of rowsOf(recordOf(placeList).places)) {
     const place = placeOf(row);
@@ -208,7 +226,8 @@ export function buildTripCard(
   const members = recordOf(root.members);
   for (const member of [recordOf(members.owner), ...rowsOf(members.collaborators)]) {
     const id = num(member.id);
-    if (id !== null) card.members.set(id, str(member.username) ?? `#${id}`);
+    if (id === null) continue;
+    card.members.set(id, { name: str(member.username) ?? `#${id}`, avatarKey: fileKeyOf(member.avatar_url) });
   }
   return card;
 }

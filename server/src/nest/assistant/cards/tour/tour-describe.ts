@@ -1,5 +1,6 @@
-import { clip, id, Rows, text } from './preview-rows.helpers';
-import type { Describer, PreviewContext } from './tool-call-preview.helpers';
+import type { Described, PreviewContext, ToolArgs } from '../card-types';
+import { recordOf } from '../card-values';
+import { clip, id, Rows, text } from '../preview-format';
 import { TOURS_MAX_HIKING_DIFFICULTY } from '@trek/shared';
 
 /**
@@ -8,12 +9,6 @@ import { TOURS_MAX_HIKING_DIFFICULTY } from '@trek/shared';
  * route reads as the names of its points in order, a hike's limit as its SAC
  * grade (T1 to T6), a planned time in hours and minutes.
  */
-
-type Args = Record<string, unknown>;
-
-function recordOf(value: unknown): Args {
-  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Args) : {};
-}
 
 /** A point's name: its own, else the name of the trip's place it stands for. */
 function pointName(ctx: PreviewContext, point: unknown): string {
@@ -56,7 +51,7 @@ function gpxName(gpx: unknown): string {
   return close < 0 ? '' : text(gpx.slice(open + '<name>'.length, close));
 }
 
-export const TOUR_DESCRIBERS: Readonly<Record<string, Describer>> = {
+export const TOUR_DESCRIBERS = {
   create_hike: (ctx, args) => {
     const rows = new Rows()
       .add('route', routeOf(ctx, args.waypoints, args.round_trip))
@@ -91,4 +86,4 @@ export const TOUR_DESCRIBERS: Readonly<Record<string, Describer>> = {
     const rows = new Rows().add('type', text(args.tour_type));
     return { subject: text(args.file_name) || gpxName(args.gpx) || 'GPX', rows, dayId: null, placeIds: [] };
   },
-};
+} satisfies Readonly<Record<string, (ctx: PreviewContext, args: ToolArgs) => Described>>;

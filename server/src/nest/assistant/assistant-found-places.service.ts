@@ -1,7 +1,11 @@
 import { AssistantMessages } from '../../db/entities/AssistantMessages.entity';
 import { AssistantThreads } from '../../db/entities/AssistantThreads.entity';
 import { AssistantToolCalls } from '../../db/entities/AssistantToolCalls.entity';
-import { ASSISTANT_MESSAGE_PARTS, ASSISTANT_TOOL_ARGS, ASSISTANT_TOOL_PREVIEW } from '../../db/json-columns';
+import {
+  ASSISTANT_MESSAGE_PARTS_WRITE,
+  ASSISTANT_TOOL_ARGS,
+  ASSISTANT_TOOL_PREVIEW_WRITE,
+} from '../../db/json-columns';
 import type {
   AssistantMessageRow,
   AssistantMessagesRepository,
@@ -16,12 +20,19 @@ import { encodeJson } from '../../utils/json-column';
 import { aiRefusal } from '../ai-connections/ai-connections.constants';
 import { RateLimitService } from '../common/rate-limit.service';
 import { UnitOfWork } from '../database/unit-of-work';
-import { buildTripCard, categoriesFrom, type CardCategory, type CardPlace, type TripCard } from './assistant-context';
+import {
+  buildTripCard,
+  categoriesFrom,
+  todayIn,
+  type CardCategory,
+  type CardPlace,
+  type TripCard,
+} from './assistant-context';
 import { partsOf, toThreadMessages } from './assistant-history';
 import { AssistantStreamRegistry } from './assistant-stream.registry';
 import { ADD_FOUND_PLACE_TOOL, TURNS_PER_MINUTE } from './assistant-tools.constants';
 import { AssistantToolsService } from './assistant-tools.service';
-import { describeToolCall } from './tool-call-preview.helpers';
+import { AssistantCardContext } from './cards/card-context';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import {
@@ -111,6 +122,7 @@ export class AssistantFoundPlacesService {
     private readonly rateLimit: RateLimitService,
     private readonly streams: AssistantStreamRegistry,
     private readonly uow: UnitOfWork,
+    private readonly cardContext: AssistantCardContext,
   ) {}
 
   /**
@@ -161,7 +173,10 @@ export class AssistantFoundPlacesService {
     const id = randomUUID();
     const args = suggestionArgs(place, req.dayId, card, categories);
     const names = new Map(categories.map((category): [number, string] => [category.id, category.name]));
-    const preview = describeToolCall(ADD_FOUND_PLACE_TOOL, id, args, { card, categories: names, locale: req.locale });
+    const ctx = this.cardContext.contextOf(card, names, req.locale, todayIn(req.timeZone, new Date()));
+    const [{ preview }] = await this.cardContext.describeProposed(userId, tripId, ctx, [
+      { id, toolName: ADD_FOUND_PLACE_TOOL, args },
+    ]);
     const parts: AssistantMessagePart[] = [
       { type: 'tool-call', toolCallId: id, toolName: ADD_FOUND_PLACE_TOOL, args, approval: { id } },
       { type: 'data-trek-change', data: preview },
@@ -171,7 +186,7 @@ export class AssistantFoundPlacesService {
       const messageId = await this.messages.append({
         threadId,
         role: 'assistant',
-        parts: encodeJson(ASSISTANT_MESSAGE_PARTS, parts),
+        parts: encodeJson(ASSISTANT_MESSAGE_PARTS_WRITE, parts),
         providerState: null,
         status: 'awaiting_approval',
         model: null,
@@ -185,7 +200,7 @@ export class AssistantFoundPlacesService {
           providerCallId: `found_${id}`,
           toolName: ADD_FOUND_PLACE_TOOL,
           args: encodeJson(ASSISTANT_TOOL_ARGS, args),
-          preview: encodeJson(ASSISTANT_TOOL_PREVIEW, preview),
+          preview: encodeJson(ASSISTANT_TOOL_PREVIEW_WRITE, preview),
           createdAt: now,
         },
       ]);
@@ -201,7 +216,7 @@ export class AssistantFoundPlacesService {
       const places = await session.read('list_places');
       const listed = await session.read('list_categories');
       return {
-        card: buildTripCard(tripId, summary.ok ? summary.value : null, places.ok ? places.value : null, null),
+        card: buildTripCard(tripId, userId, summary.ok ? summary.value : null, places.ok ? places.value : null, null),
         categories: categoriesFrom(listed.ok ? listed.value : null),
       };
     } finally {

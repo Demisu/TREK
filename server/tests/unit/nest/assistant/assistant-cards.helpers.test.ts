@@ -19,6 +19,7 @@ import { describe, expect, it } from 'vitest';
 
 const card = buildTripCard(
   1,
+  7,
   {
     trip: { title: 'Kyoto', start_date: '2026-06-11', end_date: '2026-06-13' },
     days: [
@@ -86,7 +87,7 @@ describe('foundPlacesOf', () => {
     const value = { places: [{ name: 'Cafe', lat: 35, lng: 135, open_now: false, types: ['cafe'] }] };
     expect(foundPlacesOf('search_place', 'c', value, card, '2026-06-11')?.places[0].openNow).toBe(false);
     expect(foundPlacesOf('search_place', 'c', value, card, '2026-10-21')?.places[0].openNow).toBeNull();
-    const undated = buildTripCard(1, { trip: { title: 'T' } }, null, null);
+    const undated = buildTripCard(1, 7, { trip: { title: 'T' } }, null, null);
     expect(foundPlacesOf('search_place', 'c', value, undated, '2026-06-11')?.places[0].openNow).toBeNull();
   });
 

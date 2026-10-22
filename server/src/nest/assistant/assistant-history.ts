@@ -4,7 +4,7 @@ import type { AssistantToolCallRow } from '../../db/repositories/AssistantToolCa
 import { parseDbTimestamp, utcSuffix } from '../../db/types';
 import { decodeJson } from '../../utils/json-column';
 import type { AiChatMessage, AiToolCall } from '../ai-connections/ai-chat-client.interface';
-import { fitToSize } from './assistant-redact';
+import { fitToSize } from './assistant-output';
 import {
   ADD_FOUND_PLACE_TOOL,
   APPROVAL_TTL_MS,

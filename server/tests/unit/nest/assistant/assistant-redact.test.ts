@@ -4,7 +4,8 @@
  * plan, and anything too large cut down along its structure, never through
  * the middle of the JSON.
  */
-import { fitToSize, redactForProvider, toolOutputForProvider } from '../../../../src/nest/assistant/assistant-redact';
+import { fitToSize, toolOutputForProvider } from '../../../../src/nest/assistant/assistant-output';
+import { redactForProvider } from '../../../../src/nest/assistant/assistant-redact';
 
 import { describe, expect, it } from 'vitest';
 
@@ -26,6 +27,15 @@ describe('redactForProvider', () => {
       place: { name: 'Hotel', phone: '[hidden]', email: '[hidden]', notes: 'Write to [hidden] before noon' },
       reservations: [{ confirmation_number: '[hidden]', title: 'Dinner' }, { confirmation_number: null }],
     });
+  });
+
+  it("ASTRED-002: drops a booked place's picture and the trip's cover, wherever they sit", () => {
+    expect(
+      redactForProvider({
+        reservations: [{ title: 'Ryokan', place_image: '/uploads/places/ryokan.jpg' }],
+        trip: { title: 'Kyoto', trip_cover: '/uploads/covers/kyoto.jpg' },
+      }),
+    ).toEqual({ reservations: [{ title: 'Ryokan' }], trip: { title: 'Kyoto' } });
   });
 });
 

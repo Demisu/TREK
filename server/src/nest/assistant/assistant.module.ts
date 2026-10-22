@@ -3,6 +3,7 @@ import { AssistantThreads } from '../../db/entities/AssistantThreads.entity';
 import { AssistantToolCalls } from '../../db/entities/AssistantToolCalls.entity';
 import { AddonsModule } from '../addons/addons.module';
 import { AiConnectionsModule } from '../ai-connections/ai-connections.module';
+import { AirportsModule } from '../airports/airports.module';
 import { AuditModule } from '../audit/audit.module';
 import { BookingImportModule } from '../booking-import/booking-import.module';
 import { CollabModule } from '../collab/collab.module';
@@ -21,6 +22,7 @@ import { AssistantStreamRegistry, InMemoryAssistantStreamRegistry } from './assi
 import { AssistantToolsService } from './assistant-tools.service';
 import { AssistantController } from './assistant.controller';
 import { AssistantService } from './assistant.service';
+import { AssistantCardContext } from './cards/card-context';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 
@@ -29,13 +31,15 @@ import { Module } from '@nestjs/common';
  * model the user's connection reaches (AiConnectionsModule), working the trip
  * through the MCP tools of the global registry. A file attached in the chat
  * is read through the booking import, and an answer shared in the trip's
- * chat is posted through the collab chat. Its conversations are kept per user
- * and trip and swept by the retention job.
+ * chat is posted through the collab chat. A card names an airport through the
+ * airports' data. Its conversations are kept per user and trip and swept by
+ * the retention job.
  */
 @Module({
   imports: [
     AddonsModule,
     AiConnectionsModule,
+    AirportsModule,
     AuditModule,
     BookingImportModule,
     CollabModule,
@@ -57,6 +61,7 @@ import { Module } from '@nestjs/common';
     AssistantFoundPlacesService,
     AssistantShareService,
     AssistantRetentionJob,
+    AssistantCardContext,
     { provide: AssistantStreamRegistry, useClass: InMemoryAssistantStreamRegistry },
   ],
 })

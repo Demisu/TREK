@@ -1,17 +1,36 @@
-import type { CardPlace, TripCard } from './assistant-context';
+import type { CardPlace } from './assistant-context';
 import { noteOf } from './assistant-memory';
 import {
   ASSISTANT_SERVER_WRITE_TOOLS,
-  ASSISTANT_UNDO_MAP,
-  ASSISTANT_WRITE_TOOLS,
   IMPORT_BOOKING_TOOL,
   REMEMBER_TOOL,
   writeToolOf,
 } from './assistant-tools.constants';
-import type { ToolHint } from './assistant-tools.service';
-import { clip, id, Rows, text, UNCHECKED } from './preview-rows.helpers';
+import type { Described, PreviewContext } from './cards/card-types';
+import {
+  categoryName,
+  clip,
+  dayLabel,
+  formatDate,
+  formatDateTime,
+  id,
+  localeOf,
+  memberNames,
+  money,
+  placeName,
+  Rows,
+  text,
+  UNCHECKED,
+} from './cards/preview-format';
+import {
+  ASSISTANT_UNDO_MAP,
+  ASSISTANT_WRITE_TOOLS,
+  changeCardOf,
+  describedOf,
+  refuseCoreOverlap,
+  TOOL_CARDS,
+} from './cards/registry';
 import { describeGeneric } from './tool-call-generic.helpers';
-import { TOUR_DESCRIBERS } from './tour-call-preview.helpers';
 import type {
   AssistantApplied,
   AssistantChangeEffect,
@@ -23,74 +42,16 @@ import type {
  * The change card of a held tool call: what it does and to what, in plain
  * words. Days, places, categories and people are named instead of numbered,
  * dates and amounts are written in the user's locale, and an update shows
- * what the field held before.
+ * what the field held before. A package's cards (cards/registry.ts) add the
+ * describers, effects and drawn cards of their tools.
  */
 
 type Args = Record<string, unknown>;
-
-export interface PreviewContext {
-  card: TripCard;
-  categories: ReadonlyMap<number, string>;
-  locale: string;
-  /** What a tool without a card of its own says about itself, for the card built from its arguments. */
-  hintOf?: (toolName: string) => ToolHint | null;
-}
 
 const MAX_ROWS = 12;
 
 function has(args: Args, key: string): boolean {
   return args[key] !== undefined;
-}
-
-/** A locale Intl accepts, the user's when it can. */
-function localeOf(ctx: PreviewContext): string {
-  try {
-    return Intl.getCanonicalLocales(ctx.locale)[0] ?? 'en';
-  } catch {
-    return 'en';
-  }
-}
-
-function formatDate(ctx: PreviewContext, isoDate: string): string {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
-  if (!match) return isoDate;
-  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
-  return new Intl.DateTimeFormat(localeOf(ctx), {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    timeZone: 'UTC',
-  }).format(date);
-}
-
-function formatDateTime(ctx: PreviewContext, value: string): string {
-  const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(value);
-  return match ? `${formatDate(ctx, match[1])}, ${match[2]}` : value;
-}
-
-/** A day as the planner names it: its date (and title), or its title, or its number. */
-export function dayLabel(ctx: PreviewContext, dayId: number | null): string {
-  if (dayId === null) return '';
-  const day = ctx.card.days.find((d) => d.id === dayId);
-  if (!day) return `#${dayId}`;
-  if (day.date) return day.title ? `${formatDate(ctx, day.date)}, ${day.title}` : formatDate(ctx, day.date);
-  return day.title ?? `#${day.number}`;
-}
-
-function placeName(ctx: PreviewContext, placeId: number | null): string {
-  if (placeId === null) return '';
-  return ctx.card.places.get(placeId)?.name ?? `#${placeId}`;
-}
-
-function money(ctx: PreviewContext, amount: number, currency: string | null): string {
-  if (currency) {
-    try {
-      return new Intl.NumberFormat(localeOf(ctx), { style: 'currency', currency }).format(amount);
-    } catch {
-      return `${amount} ${currency}`;
-    }
-  }
-  return new Intl.NumberFormat(localeOf(ctx)).format(amount);
 }
 
 function openingHours(ctx: PreviewContext, value: unknown): string {
@@ -107,18 +68,9 @@ function openingHours(ctx: PreviewContext, value: unknown): string {
   );
 }
 
-function memberNames(ctx: PreviewContext, ids: unknown): string {
-  if (!Array.isArray(ids)) return '';
-  return clip(ids.map((memberId) => ctx.card.members.get(Number(memberId)) ?? `#${String(memberId)}`).join(', '));
-}
-
 function coordinates(args: Args): string {
   const { lat, lng } = args;
   return typeof lat === 'number' && typeof lng === 'number' ? `${lat.toFixed(5)}, ${lng.toFixed(5)}` : '';
-}
-
-function categoryName(ctx: PreviewContext, categoryId: number | null): string {
-  return categoryId === null ? '' : (ctx.categories.get(categoryId) ?? `#${categoryId}`);
 }
 
 /** The fields a new place carries, shared by both ways of creating one. */
@@ -227,14 +179,7 @@ function describeBooking(ctx: PreviewContext, args: Args): Described {
   return { subject: text(args.title), rows, dayId, placeIds: [] };
 }
 
-interface Described {
-  subject: string;
-  rows: Rows;
-  dayId: number | null;
-  placeIds: number[];
-}
-
-export type Describer = (ctx: PreviewContext, args: Args) => Described;
+type Describer = (ctx: PreviewContext, args: Args) => Described;
 
 /** Who shares an expense: the uneven split's members, else the equal one's. */
 function splitOf(args: Args): unknown {
@@ -391,7 +336,6 @@ const DESCRIBERS: Readonly<Record<string, Describer>> = {
     };
   },
   [IMPORT_BOOKING_TOOL]: describeBooking,
-  ...TOUR_DESCRIBERS,
 };
 
 /** A held write of the model's tools or of the server's own (a booking from a file). */
@@ -445,34 +389,52 @@ const EFFECTS: Readonly<Record<string, (ctx: PreviewContext, args: Args) => Assi
   },
 };
 
+// A tool's words and its effect come from the core or from its package, never from both.
+refuseCoreOverlap('describe', Object.keys(DESCRIBERS));
+refuseCoreOverlap('effect', Object.keys(EFFECTS));
+
 /**
  * The change card for a held call of one of the writing tools, or of a
  * change the server proposed itself (a booking from a file, a found place).
  * `args` are the arguments as stored (the trip id is not among them). A found
- * place reads as the tool it runs through.
+ * place reads as the tool it runs through. `loaded` is what the tool's
+ * package looked up for it (card-context.ts), null when it looked up nothing.
  */
 export function describeToolCall(
   toolName: string,
   toolCallId: string,
   args: Args,
   ctx: PreviewContext,
+  loaded: unknown = null,
 ): AssistantChangePreview {
   const runs = writeToolOf(toolName, args);
   const tool = writeTool(runs);
-  const describe = DESCRIBERS[runs];
+  const cards = TOOL_CARDS[runs];
+  const describe: ((c: PreviewContext, a: Args) => Described | null) | undefined = cards?.describe
+    ? (c, a) => describedOf(runs, c, a, loaded)
+    : DESCRIBERS[runs];
   // The server's own steps all have a card; one without is a call that names no real tool.
   if (tool && !describe) throw new Error(`No change card for tool "${toolName}"`);
-  if (!tool || !describe) return describeGeneric(runs, toolCallId, args, ctx.card, ctx.hintOf?.(runs) ?? null);
-  const described = describe(ctx, args);
+  const card = changeCardOf(runs, ctx, args, loaded);
+  const drawn = card ? { card } : {};
+  // A package describer that failed gives way to the card built from the arguments.
+  const described = tool && describe ? describe(ctx, args) : null;
+  if (!tool || !described) {
+    return { ...describeGeneric(runs, toolCallId, args, ctx.card, ctx.hintOf?.(runs) ?? null), ...drawn };
+  }
+  const planned = cards?.effect ? cards.effect(ctx, args, loaded) : EFFECTS[runs]?.(ctx, args);
   return {
     toolCallId,
-    verbKey: tool.verbKey,
+    verbKey: described.verbKey ?? tool.verbKey,
     subject: clip(described.subject),
     rows: described.rows.rows.slice(0, MAX_ROWS),
     dayId: described.dayId,
     placeIds: described.placeIds,
     undoable: runs in ASSISTANT_UNDO_MAP,
-    effect: EFFECTS[runs]?.(ctx, args) ?? null,
+    effect: planned ?? null,
+    ...(described.tool ? { tool: described.tool } : {}),
+    ...(described.domain ? { domain: described.domain } : {}),
+    ...drawn,
   };
 }
 
@@ -525,8 +487,10 @@ export function appliedChange(
   undoUntil: string | null,
 ): AssistantApplied | null {
   // A tool without a card of its own touched something the client has no view for.
-  const tool = writeTool(writeToolOf(toolName, args)) ?? { entity: 'other' as const };
-  const created = createdIds(result);
+  const runs = writeToolOf(toolName, args);
+  const tool = writeTool(runs) ?? { entity: 'other' as const };
+  const own = TOOL_CARDS[runs]?.appliedIds?.(args, result) ?? [];
+  const created = own.length > 0 ? own : createdIds(result);
   const named = ARG_KEYS.map((key) => id(args, key)).filter((value): value is number => value !== null);
   return {
     toolCallId,

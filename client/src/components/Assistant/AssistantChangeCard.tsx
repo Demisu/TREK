@@ -1,25 +1,4 @@
-import type { AssistantApplied, AssistantChangePreview, AssistantChangeVerbKey } from '@trek/shared';
-import {
-  CalendarArrowUp,
-  CalendarMinus,
-  CalendarPlus,
-  Check,
-  CircleSlash,
-  ListTodo,
-  LoaderCircle,
-  Luggage,
-  MapPin,
-  MapPinPlus,
-  NotebookPen,
-  PencilLine,
-  Plus,
-  StickyNote,
-  Ticket,
-  Trash2,
-  TriangleAlert,
-  Undo2,
-  Wallet,
-} from 'lucide-react';
+import { Check, LoaderCircle, MapPin, Undo2 } from 'lucide-react';
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 
 import { useTranslation } from '../../i18n';
@@ -28,14 +7,15 @@ import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { useTripStore } from '../../store/tripStore';
 import { useToast } from '../shared/Toast';
 import { Tooltip } from '../shared/Tooltip';
-import AssistantChangeFields from './AssistantChangeFields';
 import AssistantCompareSwitch from './AssistantCompareSwitch';
 import AssistantFitCheck from './AssistantFitCheck';
 import AssistantWeekOverview from './AssistantWeekOverview';
-import { type ChangeItem, type ChangeState, undoLeftMs } from './assistantParts';
+import { type ChangeItem, undoLeftMs } from './assistantParts';
 import { useAssistantView } from './assistantViewContext';
+import { ChangeRows } from './cards/ChangeCardSlots';
+import { ICON_BUTTON } from './cards/parts/assistantTones';
+import { useChangeExclusions } from './cards/useChangeExclusions';
 import { changePoints, type DayChange } from './dayAfterModel';
-import { useChangeHover } from './useChangeHover';
 import { useWeekDays } from './useWeekDays';
 
 /**
@@ -49,113 +29,14 @@ import { useWeekDays } from './useWeekDays';
  * Every change wears its kind: a tinted tile with the icon of what it touches
  * and a badge naming the verb, in the tone of what happens (green adds, blue
  * changes, amber moves, red takes away). Its fields sit as badges holding a
- * label badge, so a row of them reads at a glance.
+ * label badge, so a row of them reads at a glance. The rows themselves, and a
+ * change that carries a card of its own, are drawn in cards/ChangeCardSlots.
  *
  * While it waits, the card shows the days it touches as they would read
  * afterwards, and each row lights its pin on the map (and the pin its row).
  * Once applied, the head offers the plan before and after the block on the
  * map, and taking the whole block back at once.
  */
-
-type Tone = 'success' | 'info' | 'warning' | 'danger';
-
-const TILE: Record<Tone, string> = {
-  success: 'bg-success-soft text-success',
-  info: 'bg-info-soft text-info',
-  warning: 'bg-warning-soft text-warning',
-  danger: 'bg-danger-soft text-danger',
-};
-
-/** What each kind of change looks like. A table, so a new verb fails to compile until it has a look. */
-const VERB_LOOK: Record<AssistantChangeVerbKey, { Icon: typeof Check; tone: Tone }> = {
-  addPlace: { Icon: MapPinPlus, tone: 'success' },
-  addPlaceToDay: { Icon: CalendarPlus, tone: 'success' },
-  updatePlace: { Icon: PencilLine, tone: 'info' },
-  assignPlace: { Icon: CalendarPlus, tone: 'success' },
-  moveAssignment: { Icon: CalendarArrowUp, tone: 'warning' },
-  removeFromDay: { Icon: CalendarMinus, tone: 'danger' },
-  addDayNote: { Icon: StickyNote, tone: 'success' },
-  updateDayNote: { Icon: StickyNote, tone: 'info' },
-  addPackingItem: { Icon: Luggage, tone: 'success' },
-  updatePackingItem: { Icon: Luggage, tone: 'info' },
-  addTodo: { Icon: ListTodo, tone: 'success' },
-  addBudgetItem: { Icon: Wallet, tone: 'success' },
-  updateBudgetItem: { Icon: Wallet, tone: 'info' },
-  addReservation: { Icon: Ticket, tone: 'success' },
-  importBooking: { Icon: Ticket, tone: 'success' },
-  rememberNote: { Icon: NotebookPen, tone: 'info' },
-  addTour: { Icon: MapPinPlus, tone: 'success' },
-  updateTour: { Icon: PencilLine, tone: 'info' },
-  importTour: { Icon: Plus, tone: 'success' },
-  genericCreate: { Icon: Plus, tone: 'success' },
-  genericUpdate: { Icon: PencilLine, tone: 'info' },
-  genericRemove: { Icon: Trash2, tone: 'danger' },
-};
-
-/** How a decided change reads: one quiet mark, its words in the tooltip. */
-const RECEIPT: Record<Exclude<ChangeState, 'pending'>, { labelKey: string; Icon: typeof Check; tone: string }> = {
-  applying: { labelKey: 'assistant.change.applying', Icon: LoaderCircle, tone: 'text-content-muted' },
-  applied: { labelKey: 'assistant.change.applied', Icon: Check, tone: 'text-success' },
-  failed: { labelKey: 'assistant.change.failed', Icon: TriangleAlert, tone: 'text-danger' },
-  discarded: { labelKey: 'assistant.change.discarded', Icon: CircleSlash, tone: 'text-content-faint' },
-  expired: { labelKey: 'assistant.change.expired', Icon: CircleSlash, tone: 'text-content-faint' },
-};
-
-const ICON_BUTTON =
-  'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-content-muted transition-colors hover:bg-surface-hover hover:text-content disabled:opacity-50';
-
-function KindTile({
-  verbKey,
-  size = 'md',
-  dimmed = false,
-}: {
-  verbKey: AssistantChangeVerbKey | null;
-  size?: 'sm' | 'md';
-  dimmed?: boolean;
-}) {
-  const box = size === 'sm' ? 'h-7 w-7 rounded-md' : 'h-8 w-8 rounded-lg';
-  if (!verbKey) return <span className={`trek-skeleton flex-shrink-0 ${box}`} aria-hidden="true" />;
-  const { Icon, tone } = VERB_LOOK[verbKey];
-  return (
-    <span
-      aria-hidden="true"
-      className={`flex flex-shrink-0 items-center justify-center ${box} ${dimmed ? 'bg-surface-secondary text-content-faint' : TILE[tone]}`}
-    >
-      <Icon size={size === 'sm' ? 14 : 16} strokeWidth={2.1} />
-    </span>
-  );
-}
-
-/** The key of a tool's own action name, for the tools TREK names one for. */
-const toolKey = (tool: string) => `assistant.tool.${tool}`;
-
-/** What the change does: the tool's own action where TREK names it, else add, change or remove. */
-function verbLabel(preview: AssistantChangePreview, t: (key: string) => string): string {
-  const own = preview.tool ? toolKey(preview.tool) : null;
-  const named = own ? t(own) : null;
-  return named && named !== own ? named : t(`assistant.change.verb.${preview.verbKey}`);
-}
-
-function ChangeHead({ preview, struck = false }: { preview: AssistantChangePreview | null; struck?: boolean }) {
-  const { t } = useTranslation();
-  if (!preview) return <span className="trek-skeleton inline-block h-4 w-40" aria-hidden="true" />;
-  return (
-    <span className="flex min-w-0 flex-col">
-      <bdi className={`truncate text-body font-semibold leading-tight text-content ${struck ? 'line-through' : ''}`}>
-        {preview.subject}
-      </bdi>
-      <span className="mt-0.5 flex min-w-0 items-center gap-2.5 text-caption text-content-faint">
-        <span className="truncate">{verbLabel(preview, t)}</span>
-        {preview.domain && (
-          // Where in TREK a change outside the trip plan lands: the vacation planner, the journal.
-          <span className="flex-shrink-0 rounded-full bg-surface-secondary px-1.5 text-content-secondary">
-            {t(`assistant.domain.${preview.domain}`)}
-          </span>
-        )}
-      </span>
-    </span>
-  );
-}
 
 /** The time now, ticking once more when the next undo window closes. */
 function useUndoClock(items: ChangeItem[]): number {
@@ -185,134 +66,6 @@ function dayChangesOf(items: readonly ChangeItem[], excluded: ReadonlySet<string
     i.state === 'pending' && i.preview?.effect && !excluded.has(i.toolCallId)
       ? [{ toolCallId: i.toolCallId, effect: i.preview.effect, subject: i.preview.subject }]
       : []
-  );
-}
-
-/** What an applied change can be shown as on the map; a kept note, a todo or an expense has no place there. */
-const ON_MAP: ReadonlySet<AssistantApplied['entity']> = new Set(['place', 'assignment', 'day_note', 'reservation']);
-
-function Receipt({
-  item,
-  undone,
-  canUndo,
-  onUndo,
-}: {
-  item: ChangeItem;
-  undone: boolean;
-  canUndo: boolean;
-  onUndo: () => void;
-}) {
-  const { t } = useTranslation();
-  const { onShowOnMap } = useAssistantView();
-  if (item.state === 'pending') return null;
-  const receipt = undone ? RECEIPT.discarded : RECEIPT[item.state];
-  const { Icon } = receipt;
-  const applied = item.state === 'applied' && !undone ? item.applied : null;
-  const mappable = applied !== null && ON_MAP.has(applied.entity);
-  const settled = item.state === 'discarded' || item.state === 'expired' || undone;
-  const statusLabel = t(undone ? 'assistant.change.undone' : receipt.labelKey);
-  return (
-    <div className="trek-assistant-enter flex items-center gap-2.5 py-1.5">
-      <KindTile verbKey={item.preview?.verbKey ?? null} size="sm" dimmed={settled} />
-      <div className={`min-w-0 flex-1 ${settled ? 'opacity-60' : ''}`}>
-        <ChangeHead preview={item.preview} struck={settled} />
-      </div>
-      {applied && mappable && onShowOnMap && (
-        <Tooltip label={t('assistant.change.showOnMap')} placement="top">
-          <button
-            type="button"
-            onClick={() => onShowOnMap(applied)}
-            aria-label={t('assistant.change.showOnMap')}
-            className={ICON_BUTTON}
-          >
-            <MapPin size={14} aria-hidden="true" />
-          </button>
-        </Tooltip>
-      )}
-      {canUndo && (
-        <Tooltip label={t('assistant.change.undo')} placement="top">
-          <button type="button" onClick={onUndo} aria-label={t('assistant.change.undo')} className={ICON_BUTTON}>
-            <Undo2 size={14} aria-hidden="true" />
-          </button>
-        </Tooltip>
-      )}
-      <Tooltip label={statusLabel} placement="top">
-        <span
-          role="img"
-          aria-label={statusLabel}
-          className={`flex h-7 w-5 items-center justify-center ${receipt.tone}`}
-        >
-          <Icon size={15} strokeWidth={2.4} className={item.state === 'applying' ? 'animate-spin' : ''} />
-        </span>
-      </Tooltip>
-    </div>
-  );
-}
-
-/**
- * A change waiting for its decision, as a row of the planner's day list: the
- * round choice in front (only when there is more than one to choose from),
- * what it touches in bold, and a faint line saying what happens and when.
- * Resting on it lights its pin on the map.
- */
-function PendingRow({
-  item,
-  excluded,
-  withChoice,
-  disabled,
-  onToggle,
-}: {
-  item: ChangeItem;
-  excluded: boolean;
-  withChoice: boolean;
-  disabled: boolean;
-  onToggle: () => void;
-}) {
-  const { t } = useTranslation();
-  const { tripId } = useAssistantView();
-  const { litFromMap, handlers } = useChangeHover(tripId, item.preview?.effect ? item.toolCallId : null);
-  const preview = item.preview;
-  return (
-    <div
-      {...handlers}
-      className={`-mx-1.5 flex items-center gap-2.5 rounded-[12px] px-1.5 py-2 transition-[opacity,background-color] ${
-        excluded ? 'opacity-50' : ''
-      } ${litFromMap ? 'bg-surface-hover' : 'hover:bg-surface-hover'}`}
-    >
-      {withChoice && (
-        <button
-          type="button"
-          onClick={onToggle}
-          disabled={disabled}
-          aria-pressed={!excluded}
-          aria-label={t('assistant.change.include')}
-          className={`grid h-[18px] w-[18px] flex-none place-items-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 ${
-            excluded ? 'border-[1.5px] border-edge bg-surface-card' : 'bg-accent'
-          }`}
-        >
-          {!excluded && <Check size={11} strokeWidth={3} aria-hidden="true" className="text-accent-text" />}
-        </button>
-      )}
-      <KindTile verbKey={preview?.verbKey ?? null} size="sm" dimmed={excluded} />
-      <div className="min-w-0 flex-1">
-        {preview ? (
-          <>
-            <bdi className="block truncate text-body font-semibold leading-tight text-content">{preview.subject}</bdi>
-            <span className="mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-caption text-content-faint">
-              <span className="me-0.5 min-w-0 truncate">{verbLabel(preview, t)}</span>
-              {preview.domain && (
-                <span className="flex-shrink-0 rounded-full bg-surface-secondary px-1.5 text-content-secondary">
-                  {t(`assistant.domain.${preview.domain}`)}
-                </span>
-              )}
-              <AssistantChangeFields rows={preview.rows} />
-            </span>
-          </>
-        ) : (
-          <span className="trek-skeleton inline-block h-4 w-40" aria-hidden="true" />
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -399,10 +152,10 @@ function HeadActions({
   changes: readonly DayChange[];
   undoable: readonly string[];
 }) {
-  const { tripId, variant, onShowOnMap } = useAssistantView();
+  const { tripId, variant, onOpen } = useAssistantView();
   const here = useTripStore((s) => s.trip?.id === tripId);
   if (open) {
-    const toMap = variant === 'fullscreen' && !!onShowOnMap && here && changes.length > 0;
+    const toMap = variant === 'fullscreen' && !!onOpen && here && changes.length > 0;
     return (
       <>
         <AssistantFitCheck changes={changes} />
@@ -412,7 +165,7 @@ function HeadActions({
   }
   return (
     <>
-      {onShowOnMap && <AssistantCompareSwitch tripId={tripId} blockKey={blockKeyOf(items.map((i) => i.toolCallId))} />}
+      {onOpen && <AssistantCompareSwitch tripId={tripId} blockKey={blockKeyOf(items.map((i) => i.toolCallId))} />}
       {undoable.length >= 2 && <UndoAllButton toolCallIds={undoable} />}
     </>
   );
@@ -426,7 +179,7 @@ export default function AssistantChangeCard({ items }: { items: ChangeItem[] }) 
   const undone = useAssistantStore((s) => chatOf(s, tripId).undone);
   const decide = useAssistantStore((s) => s.decide);
   const undo = useAssistantStore((s) => s.undo);
-  const [excluded, setExcluded] = useState<ReadonlySet<string>>(() => new Set());
+  const [excluded, setExcluded] = useChangeExclusions(items);
   const now = useUndoClock(items);
 
   const pending = items.filter((i) => i.state === 'pending');
@@ -489,30 +242,16 @@ export default function AssistantChangeCard({ items }: { items: ChangeItem[] }) 
           {t('assistant.week.showAll', { count: pending.length })}
         </button>
       )}
-      <div>
-        {items.map((item) =>
-          item.state === 'pending' ? (
-            folded ? null : (
-              <PendingRow
-                key={item.toolCallId}
-                item={item}
-                excluded={excluded.has(item.toolCallId)}
-                withChoice={pending.length > 1}
-                disabled={isRunning}
-                onToggle={() => toggle(item.toolCallId)}
-              />
-            )
-          ) : (
-            <Receipt
-              key={item.toolCallId}
-              item={item}
-              undone={!!undone[item.toolCallId]}
-              canUndo={undoable.includes(item.toolCallId)}
-              onUndo={() => void runUndo(item.toolCallId)}
-            />
-          )
-        )}
-      </div>
+      <ChangeRows
+        items={items}
+        folded={folded}
+        excluded={excluded}
+        disabled={isRunning}
+        undone={undone}
+        undoable={undoable}
+        onToggle={toggle}
+        onUndo={(toolCallId) => void runUndo(toolCallId)}
+      />
       {open && (
         <>
           <p className="sr-only" role="status">

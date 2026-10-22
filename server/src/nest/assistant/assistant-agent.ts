@@ -9,15 +9,18 @@ import {
 import { activityOf, foundPlacesOf, googleIdsOf, weatherDayOf, weatherOf } from './assistant-cards.helpers';
 import type { TripCard } from './assistant-context';
 import { outputText } from './assistant-history';
-import { toolOutputForProvider } from './assistant-redact';
-import { MAX_READS_PER_STEP, MAX_STEPS, MAX_WRITES_PER_STEP } from './assistant-tools.constants';
+import { toolOutputForProvider } from './assistant-output';
+import { MAX_CARDS_PER_STEP, MAX_READS_PER_STEP, MAX_STEPS, MAX_WRITES_PER_STEP } from './assistant-tools.constants';
 import type { AssistantToolKind, ToolRun } from './assistant-tools.service';
+import type { AnswerInput } from './cards/card-types';
+import { answerCardOf } from './cards/registry';
 import type { UiStreamWriter } from './ui-stream.writer';
 import type {
   AssistantChangePreview,
   AssistantErrorCode,
   AssistantMessagePart,
   AssistantWeatherDay,
+  TrekCard,
 } from '@trek/shared';
 
 type ToolArgs = Record<string, unknown>;
@@ -66,6 +69,8 @@ export interface AgentDeps {
   card: TripCard;
   /** Today in the user's time zone (`YYYY-MM-DD`). */
   today: string;
+  /** The card a read's answer shows; the registry's (`answerCardOf`) unless a test hands in its own. */
+  answerCard?: (tool: string, input: AnswerInput) => TrekCard | null;
 }
 
 export interface AgentInput {
@@ -96,7 +101,12 @@ interface StepParts {
   weather: AssistantWeatherDay[];
   /** The google place ids the turn has seen so far; a search adds what it found. */
   knownPlaceIds: Set<string>;
+  /** The answer cards the step has shown; past MAX_CARDS_PER_STEP a read shows none. */
+  cards: number;
 }
+
+/** The longest call id a card is kept under; a read under a longer one shows no card. */
+const MAX_CARD_CALL_ID = 64;
 
 const UNKNOWN_PLACE_ID =
   'Unknown place id. Use a google place id from the trip card or from a search result of this turn; ' +
@@ -132,8 +142,9 @@ const GO_ON =
 
 /**
  * Runs a read at once and records it: where it looks (streamed only), its
- * call and answer, and the cards its answer makes. The cards are built from
- * the tool's own answer, the parts the provider sees from the redacted one.
+ * call and answer, and the cards its answer makes (its package's card first,
+ * then the places strip). The cards are built from the tool's own answer, the
+ * parts the provider sees from the redacted one.
  */
 async function runRead(
   deps: AgentDeps,
@@ -158,6 +169,12 @@ async function runRead(
     ...(run.ok ? {} : { isError: true }),
   });
   if (!run.ok) return;
+  const input = { toolCallId: id, args, value: run.value, card: deps.card, today: deps.today };
+  const card = id.length <= MAX_CARD_CALL_ID ? (deps.answerCard ?? answerCardOf)(name, input) : null;
+  if (card && step.cards++ < MAX_CARDS_PER_STEP) {
+    w.card({ toolCallId: id, card });
+    step.parts.push({ type: 'data-trek-card', data: { toolCallId: id, card } });
+  }
   for (const placeId of googleIdsOf(name, run.value)) step.knownPlaceIds.add(placeId);
   const places = foundPlacesOf(name, id, run.value, deps.card, deps.today);
   if (places) {
@@ -370,7 +387,7 @@ async function runStep(turn: Turn, step: number): Promise<AgentOutcome | null> {
   }
 
   const calls = received.map((call) => ({ ...call, id: uniqueCallId(call, input.usedCallIds, deps.newId) }));
-  const collected: StepParts = { parts, weather: [], knownPlaceIds: turn.knownPlaceIds };
+  const collected: StepParts = { parts, weather: [], knownPlaceIds: turn.knownPlaceIds, cards: 0 };
   const held = await runCalls(turn, calls, collected);
   // One weather strip per step, whatever the step held: it is told before the changes.
   const weather = weatherOf(collected.weather);

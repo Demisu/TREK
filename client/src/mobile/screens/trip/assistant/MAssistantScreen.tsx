@@ -1,4 +1,3 @@
-import type { AssistantApplied } from '@trek/shared';
 import {
   ChevronLeft,
   Ellipsis,
@@ -12,13 +11,13 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 
 import AssistantCompareSwitch from '../../../../components/Assistant/AssistantCompareSwitch';
 import AssistantMemoryDialog from '../../../../components/Assistant/AssistantMemoryDialog';
 import AssistantSurfaceLazy from '../../../../components/Assistant/AssistantSurfaceLazy';
 import { AI_SETTINGS_PATH } from '../../../../components/Assistant/assistantParts';
-import { showOnMapTarget } from '../../../../components/Assistant/assistantShowOnMap';
+import type { EntityTarget } from '../../../../components/Assistant/cards/cardTypes';
 import { useAssistantHintsSetting } from '../../../../components/Assistant/useAssistantHints';
 import { useAssistantLiveStep } from '../../../../components/Assistant/useAssistantLiveStep';
 import { useAssistantThread } from '../../../../components/Assistant/useAssistantThread';
@@ -71,10 +70,10 @@ function useBackCloses(open: boolean, onClose: () => void): void {
   }, [open]);
 }
 
-/** The ways the chat hands the screen to the map. */
+/** The ways the chat hands the screen to the map, a tab of the trip or another page. */
 interface MapHops {
-  /** "Show on map" on an applied change: the change is selected there. */
-  showOnMap: (applied: AssistantApplied) => void;
+  /** What a card or an applied change points at: selected on the map, a tab opened, a page navigated to. */
+  open: (target: EntityTarget) => void;
   /** A day picked in the chat (its weather): the day is selected. */
   focusDay: (dayId: number) => void;
   /** Before the map moves to something the chat points at, such as a found place. */
@@ -84,21 +83,52 @@ interface MapHops {
 /**
  * Whatever the chat shows on the map, the chat steps aside to a pill and the
  * map comes up on the plan tab, then the change or the day is selected there.
- * Read through a ref, so the chat does not re-render with every render of the
- * trip screen.
+ * A tab of the trip opens the same way, on its own sub-tab where it has one,
+ * with what it reads beside it in the URL; another page leaves the trip, and
+ * the chat closes with it. Read through a ref, so the chat does not re-render
+ * with every render of the trip screen.
  */
 function useMapHops({ planner, shell }: MTripSheetsProps): MapHops {
+  const navigate = useNavigate();
+  const [, setSearchParams] = useSearchParams();
   const setMinimized = useAssistantStore((s) => s.setMinimized);
+  const close = useAssistantStore((s) => s.close);
   const reveal = () => {
     setMinimized(true);
     if (shell.trTab !== 'plan') shell.setTrTab('plan');
     if (shell.view !== 'map') shell.toggleView();
   };
-  const show = (applied: AssistantApplied) => {
-    const { placeId, dayId } = showOnMapTarget(applied);
+  const toTab = ({ tab, sub, params }: Extract<EntityTarget, { kind: 'tab' }>) => {
+    setMinimized(true);
+    shell.setTrTab(tab);
+    if (tab === 'listen' && (sub === 'packing' || sub === 'todo')) shell.setListsTab(sub);
+    if (tab === 'collab' && (sub === 'chat' || sub === 'notes' || sub === 'links' || sub === 'polls')) {
+      shell.setCollabTab(sub);
+    }
+    const entries = Object.entries(params ?? {});
+    if (entries.length > 0) {
+      setSearchParams(
+        (current) => {
+          for (const [key, value] of entries) current.set(key, value);
+          return current;
+        },
+        { replace: true }
+      );
+    }
+  };
+  const show = (target: EntityTarget) => {
+    if (target.kind === 'page') {
+      close();
+      void navigate(target.path);
+      return;
+    }
+    if (target.kind === 'tab') {
+      toTab(target);
+      return;
+    }
     reveal();
-    if (dayId !== null) planner.handleSelectDay(dayId, false);
-    if (placeId !== null) planner.setSelectedPlaceId(placeId);
+    if (target.dayId !== null) planner.handleSelectDay(target.dayId, false);
+    if (target.placeId !== null) planner.setSelectedPlaceId(target.placeId);
   };
   const focus = (dayId: number) => {
     reveal();
@@ -108,10 +138,10 @@ function useMapHops({ planner, shell }: MTripSheetsProps): MapHops {
   useLayoutEffect(() => {
     latest.current = { reveal, show, focus };
   });
-  const showOnMap = useCallback((applied: AssistantApplied) => latest.current.show(applied), []);
+  const open = useCallback((target: EntityTarget) => latest.current.show(target), []);
   const focusDay = useCallback((dayId: number) => latest.current.focus(dayId), []);
   const revealMap = useCallback(() => latest.current.reveal(), []);
-  return useMemo(() => ({ showOnMap, focusDay, revealMap }), [showOnMap, focusDay, revealMap]);
+  return useMemo(() => ({ open, focusDay, revealMap }), [open, focusDay, revealMap]);
 }
 
 interface ScreenProps {
@@ -251,7 +281,7 @@ function AssistantScreen({ tripId, tripTitle, hidden, hops }: ScreenProps) {
           tripId={tripId}
           tripTitle={tripTitle}
           variant="fullscreen"
-          onShowOnMap={hops.showOnMap}
+          onOpen={hops.open}
           onFocusDay={hops.focusDay}
           onRevealMap={hops.revealMap}
         />

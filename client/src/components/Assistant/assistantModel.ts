@@ -1,12 +1,15 @@
 import type { ThreadMessageLike } from '@assistant-ui/react';
 import type { AiStatusResponse, AssistantErrorCode, AssistantMessage, AssistantMessagePart } from '@trek/shared';
 
+import { STEP_LOOKS } from './cards/cardLooks';
+
 /**
  * Pure helpers the assistant's views share, desktop window and phone screen
  * alike: the bridge from stored messages to @assistant-ui, what an error says
- * and offers, how a reading tool is named while it runs, and which questions
- * the empty chat suggests. No React, and only a type from @assistant-ui, so
- * importing this keeps the chat runtime out of the chunk.
+ * and offers, how a reading tool is named while it runs (the steps live in
+ * the cards' look), and which questions the empty chat suggests. No React,
+ * and only a type from @assistant-ui, so importing this keeps the chat
+ * runtime out of the chunk.
  */
 
 type LikePart = Exclude<ThreadMessageLike['content'], string>[number];
@@ -144,47 +147,11 @@ export function connectionErrorOf(status: AiStatusResponse | null): AssistantErr
 
 // ── Tool steps ──────────────────────────────────────────────────────────────
 
-/** `liveKey` names the step with the place or query it is at, `param` is the word that fills it. */
-interface StepLook {
-  stepKey: string;
-  live?: { liveKey: string; param: 'place' | 'query' };
-}
-
-const STEPS: Partial<Record<string, StepLook>> = {
-  get_trip_summary: { stepKey: 'assistant.step.reading' },
-  list_places: { stepKey: 'assistant.step.reading' },
-  search_place: {
-    stepKey: 'assistant.step.searching',
-    live: { liveKey: 'assistant.step.searchingFor', param: 'query' },
-  },
-  search_pois: { stepKey: 'assistant.step.searching', live: { liveKey: 'assistant.step.nearbyAt', param: 'place' } },
-  get_place_details: { stepKey: 'assistant.step.details' },
-  search_nearby_places: {
-    stepKey: 'assistant.step.nearby',
-    live: { liveKey: 'assistant.step.nearbyAt', param: 'place' },
-  },
-  list_categories: { stepKey: 'assistant.step.categories' },
-  get_weather: { stepKey: 'assistant.step.weather', live: { liveKey: 'assistant.step.weatherAt', param: 'place' } },
-  list_todos: { stepKey: 'assistant.step.todos' },
-  get_settlement_summary: { stepKey: 'assistant.step.costs' },
-  list_budget_items: { stepKey: 'assistant.step.expenses' },
-  get_budget_per_person: { stepKey: 'assistant.step.shares' },
-  get_wind_forecast: { stepKey: 'assistant.step.wind' },
-  get_journey_tracks: { stepKey: 'assistant.step.tracks' },
-  scan_bucket_list_visits: { stepKey: 'assistant.step.bucketScan' },
-  suggest_atlas_countries: { stepKey: 'assistant.step.atlasCountries' },
-  propose_hike: {
-    stepKey: 'assistant.step.planningHike',
-    live: { liveKey: 'assistant.step.planningHikeTo', param: 'place' },
-  },
-  search_help: { stepKey: 'assistant.step.help' },
-  read_booking_file: { stepKey: 'assistant.step.readingBooking' },
-};
 const WORKING = { stepKey: 'assistant.step.working' };
 
 /** How a reading tool is named while it runs: "Reading your plan", never the tool's name. */
 export function toolStepKey(toolName: string): string {
-  return STEPS[toolName]?.stepKey ?? WORKING.stepKey;
+  return STEP_LOOKS[toolName]?.stepKey ?? WORKING.stepKey;
 }
 
 /**
@@ -193,7 +160,7 @@ export function toolStepKey(toolName: string): string {
  * or the step has no such line.
  */
 export function liveStepText(toolName: string, label: string | null): { key: string; params?: Record<string, string> } {
-  const live = STEPS[toolName]?.live;
+  const live = STEP_LOOKS[toolName]?.live;
   if (!live || !label) return { key: toolStepKey(toolName) };
   return { key: live.liveKey, params: { [live.param]: label } };
 }

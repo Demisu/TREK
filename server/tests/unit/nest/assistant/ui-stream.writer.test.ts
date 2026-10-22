@@ -6,7 +6,7 @@
  */
 import { UiStreamWriter } from '../../../../src/nest/assistant/ui-stream.writer';
 import type { SseStream } from '../../../../src/nest/common/sse-stream';
-import { uiStreamChunkSchema, UI_STREAM_DONE } from '@trek/shared';
+import { uiStreamChunkSchema, UI_STREAM_DONE, type TrekCard } from '@trek/shared';
 
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -16,6 +16,13 @@ const FIXTURE = readFileSync(
   resolve(__dirname, '../../../../../shared/src/assistant/__fixtures__/ui-stream.v1.txt'),
   'utf8',
 );
+const CARDS_FIXTURE = readFileSync(
+  resolve(__dirname, '../../../../../shared/src/assistant/__fixtures__/ui-stream.cards.v1.txt'),
+  'utf8',
+);
+
+/** A card as a package builds it; the writer passes it on as it is, whatever its fields. */
+const cardOf = (kind: string) => ({ kind }) as TrekCard;
 
 function memoryStream(): SseStream & { text: () => string; ended: boolean } {
   let out = '';
@@ -156,6 +163,7 @@ describe('UiStreamWriter', () => {
         { dayId: 4, date: '2026-06-11', main: 'Drizzle', tempMax: 19, tempMin: null, rainPct: 80, kind: 'forecast' },
       ],
     });
+    w.card({ toolCallId: 'call_2', card: cardOf('tourList') });
     const chunks = stream
       .text()
       .split('\n\n')
@@ -168,7 +176,45 @@ describe('UiStreamWriter', () => {
       'data-trek-activity',
       'data-trek-places',
       'data-trek-weather',
+      'data-trek-card',
     ]);
     expect(chunks[3]).toMatchObject({ transient: true, data: { label: 'Trastevere' } });
+    expect(chunks[6]).toMatchObject({ data: { toolCallId: 'call_2' } });
+    expect(chunks[6]).not.toHaveProperty('transient');
+  });
+
+  it('ASTWRT-006: writes the shared cards fixture byte for byte: a receipt card, a read card, a held change card', () => {
+    const applied = '7c1e2d3a-0b4f-4e8a-9d6c-1f2e3a4b5c6d';
+    const held = '9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d';
+    const stream = memoryStream();
+    const w = new UiStreamWriter(stream);
+    w.start('msg-12');
+    w.toolOutput(applied, { tour: { place_id: 77, name: 'Ridge walk' } });
+    w.applied({ toolCallId: applied, entity: 'tour', ids: [77], dayId: 32, undoUntil: '2026-06-11T09:15:00Z' });
+    w.card({ toolCallId: applied, card: cardOf('tourRoute') });
+    w.startStep();
+    w.toolInput('toolu_02', 'list_tours', {});
+    w.toolOutput('toolu_02', { tours: [{ place_id: 77, name: 'Ridge walk' }] });
+    w.card({ toolCallId: 'toolu_02', card: cardOf('tourList') });
+    w.finishStep();
+    w.startStep();
+    w.text('The ridge walk is on Friday now. ');
+    w.text('A lake loop would fit on Saturday.');
+    w.toolInput(held, 'create_hike', { name: 'Lake loop', round_trip: true });
+    w.approvalRequest(held);
+    w.change({
+      toolCallId: held,
+      verbKey: 'addTour',
+      subject: 'Lake loop',
+      rows: [{ op: 'add', labelKey: 'route', before: null, after: 'Car park → Lake → Car park' }],
+      dayId: null,
+      placeIds: [],
+      undoable: true,
+      card: cardOf('tourRoute'),
+    });
+    w.quota(4, 50);
+    w.finish('tool-calls');
+    w.close();
+    expect(stream.text()).toBe(CARDS_FIXTURE);
   });
 });

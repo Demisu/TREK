@@ -2,10 +2,16 @@
  * The undo guard: an applied change is taken back only while what it created
  * is as it left it, and, for a place, still only where the change put it.
  */
-import { ASSISTANT_UNDO_MAP } from '../../../../src/nest/assistant/assistant-tools.constants';
-import { unchangedSinceApplied, type TripSnapshot } from '../../../../src/nest/assistant/assistant-undo.helpers';
+import {
+  unchangedSinceApplied,
+  undoSnapshotOf,
+  undoTargetsOf,
+  type TripSnapshot,
+} from '../../../../src/nest/assistant/assistant-undo.helpers';
+import { readKey } from '../../../../src/nest/assistant/cards/card-values';
+import { ASSISTANT_UNDO_MAP } from '../../../../src/nest/assistant/cards/registry';
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 const PLACE = { id: 9, name: 'Kinkaku-ji', updated_at: '2026-10-21 10:00:00', lat: 35, lng: 135 };
 
@@ -103,22 +109,22 @@ describe('unchangedSinceApplied', () => {
 
 describe('ASSISTANT_UNDO_MAP', () => {
   it('ASTUND-010: builds the counter-call from the change and its answer, or none', () => {
-    expect(ASSISTANT_UNDO_MAP.create_place.args({}, { place: { id: 9 } })).toEqual({ placeId: 9 });
-    expect(ASSISTANT_UNDO_MAP.create_and_assign_place.args({}, { place: { id: 9 } })).toEqual({ placeId: 9 });
-    expect(ASSISTANT_UNDO_MAP.assign_place_to_day.args({ dayId: 31 }, { assignment: { id: 301 } })).toEqual({
+    expect(ASSISTANT_UNDO_MAP.create_place.args({}, { place: { id: 9 } }, null)).toEqual({ placeId: 9 });
+    expect(ASSISTANT_UNDO_MAP.create_and_assign_place.args({}, { place: { id: 9 } }, null)).toEqual({ placeId: 9 });
+    expect(ASSISTANT_UNDO_MAP.assign_place_to_day.args({ dayId: 31 }, { assignment: { id: 301 } }, null)).toEqual({
       dayId: 31,
       assignmentId: 301,
     });
-    expect(ASSISTANT_UNDO_MAP.create_day_note.args({ dayId: 31 }, { note: { id: 41 } })).toEqual({
+    expect(ASSISTANT_UNDO_MAP.create_day_note.args({ dayId: 31 }, { note: { id: 41 } }, null)).toEqual({
       dayId: 31,
       noteId: 41,
     });
-    expect(ASSISTANT_UNDO_MAP.create_packing_item.args({}, { item: { id: 51 } })).toEqual({ itemId: 51 });
-    expect(ASSISTANT_UNDO_MAP.create_todo.args({}, { item: { id: 61 } })).toEqual({ itemId: 61 });
-    expect(ASSISTANT_UNDO_MAP.create_budget_item.args({}, { item: { id: 71 } })).toEqual({ itemId: 71 });
-    expect(ASSISTANT_UNDO_MAP.create_place.args({}, 'Place not found.')).toBeNull();
-    expect(ASSISTANT_UNDO_MAP.assign_place_to_day.args({}, { assignment: { id: 301 } })).toBeNull();
-    expect(ASSISTANT_UNDO_MAP.create_day_note.args({ dayId: 31 }, { note: { id: 0 } })).toBeNull();
+    expect(ASSISTANT_UNDO_MAP.create_packing_item.args({}, { item: { id: 51 } }, null)).toEqual({ itemId: 51 });
+    expect(ASSISTANT_UNDO_MAP.create_todo.args({}, { item: { id: 61 } }, null)).toEqual({ itemId: 61 });
+    expect(ASSISTANT_UNDO_MAP.create_budget_item.args({}, { item: { id: 71 } }, null)).toEqual({ itemId: 71 });
+    expect(ASSISTANT_UNDO_MAP.create_place.args({}, 'Place not found.', null)).toBeNull();
+    expect(ASSISTANT_UNDO_MAP.assign_place_to_day.args({}, { assignment: { id: 301 } }, null)).toBeNull();
+    expect(ASSISTANT_UNDO_MAP.create_day_note.args({ dayId: 31 }, { note: { id: 0 } }, null)).toBeNull();
   });
 });
 
@@ -177,10 +183,47 @@ describe('a created tour', () => {
   it('ASTUND-011: is taken back by deleting its place, named in the answer', () => {
     for (const tool of ['create_hike', 'create_city_walk']) {
       expect(ASSISTANT_UNDO_MAP[tool].tool).toBe('delete_place');
-      expect(ASSISTANT_UNDO_MAP[tool].args({}, created)).toEqual({ placeId: 64 });
-      expect(ASSISTANT_UNDO_MAP[tool].args({}, { tour: { place_id: 0 } })).toBeNull();
-      expect(ASSISTANT_UNDO_MAP[tool].args({}, { tour: 'odd' })).toBeNull();
-      expect(ASSISTANT_UNDO_MAP[tool].args({}, 'Tour not found.')).toBeNull();
+      expect(ASSISTANT_UNDO_MAP[tool].args({}, created, null)).toEqual({ placeId: 64 });
+      expect(ASSISTANT_UNDO_MAP[tool].args({}, { tour: { place_id: 0 } }, null)).toBeNull();
+      expect(ASSISTANT_UNDO_MAP[tool].args({}, { tour: 'odd' }, null)).toBeNull();
+      expect(ASSISTANT_UNDO_MAP[tool].args({}, 'Tour not found.', null)).toBeNull();
     }
+  });
+});
+
+describe('the undo session', () => {
+  const session = (failing: string[] = []) => ({
+    read: vi.fn(async (name: string, args: Record<string, unknown> = {}) =>
+      failing.includes(name) ? { ok: false, value: 'Not allowed.' } : { ok: true, value: { name, args } },
+    ),
+  });
+
+  it('ASTUND-020: holds the removing tool and the trip reads, and reads the trip before the check', async () => {
+    expect([...undoTargetsOf('delete_place', 'create_hike', {}, {})]).toEqual([
+      'delete_place',
+      'get_trip_summary',
+      'list_places',
+    ]);
+    const snap = await undoSnapshotOf(session(), 'create_place', {}, {});
+    expect(snap).toEqual({
+      summary: { name: 'get_trip_summary', args: {} },
+      places: { name: 'list_places', args: {} },
+      reads: new Map(),
+    });
+    expect(await undoSnapshotOf(session(['list_places']), 'create_place', {}, {})).toBeNull();
+  });
+
+  it('ASTUND-021: keeps what a package reads by tool and arguments, a failed read as null', async () => {
+    const reads = [
+      { tool: 'get_vacay_plan', args: { year: 2026 } },
+      { tool: 'list_vacay_entries', args: {} },
+    ];
+    const snap = await undoSnapshotOf(session(['list_vacay_entries']), 'toggle_vacay', {}, {}, reads);
+    expect(snap?.reads.get(readKey('get_vacay_plan', { year: 2026 }))).toEqual({
+      name: 'get_vacay_plan',
+      args: { year: 2026 },
+    });
+    expect(snap?.reads.get(readKey('list_vacay_entries'))).toBeNull();
+    expect(snap?.reads.size).toBe(2);
   });
 });

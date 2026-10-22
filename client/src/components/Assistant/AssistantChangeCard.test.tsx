@@ -65,6 +65,7 @@ const pending = (id: string, subject: string): ChangeItem => ({
   preview: preview(id, subject),
   applied: null,
   state: 'pending',
+  card: null,
 });
 
 const onTheMap = (id: string, subject: string, effect = PANTHEON): ChangeItem => ({
@@ -74,7 +75,7 @@ const onTheMap = (id: string, subject: string, effect = PANTHEON): ChangeItem =>
 
 function receipt(id: string, undoUntil: string | null): ChangeItem {
   const applied: AssistantApplied = { toolCallId: id, entity: 'place', ids: [9], dayId: 3, undoUntil };
-  return { toolCallId: id, preview: preview(id, 'Kinkaku-ji'), applied, state: 'applied' };
+  return { toolCallId: id, preview: preview(id, 'Kinkaku-ji'), applied, state: 'applied', card: null };
 }
 
 function renderCard(items: ChangeItem[], view: Partial<AssistantView> = {}) {
@@ -173,12 +174,12 @@ describe('AssistantChangeCard: the receipt', () => {
   it('FE-AI-CARD-005: an applied change shows on the map and can be undone until its window closes', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.setSystemTime(new Date('2026-10-21T08:00:00.000Z'));
-    const onShowOnMap = vi.fn();
-    renderCard([receipt('c1', '2026-10-21T08:15:00.000Z')], { onShowOnMap });
+    const onOpen = vi.fn();
+    renderCard([receipt('c1', '2026-10-21T08:15:00.000Z')], { onOpen });
 
     expect(screen.getByRole('img', { name: 'Applied' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Show on map' }));
-    expect(onShowOnMap).toHaveBeenCalledWith(expect.objectContaining({ toolCallId: 'c1', dayId: 3 }));
+    expect(onOpen).toHaveBeenCalledWith({ kind: 'map', placeId: 9, dayId: null });
     expect(screen.getByRole('button', { name: 'Undo' })).toBeInTheDocument();
 
     act(() => {
@@ -259,12 +260,12 @@ describe('AssistantChangeCard: on the map', () => {
 
   it('FE-AI-CARD-011: on the phone the card hops to the map and frames what it would change', () => {
     plannerHere();
-    const onShowOnMap = vi.fn();
-    const first = renderCard([onTheMap('c1', 'Pantheon')], { onShowOnMap });
+    const onOpen = vi.fn();
+    const first = renderCard([onTheMap('c1', 'Pantheon')], { onOpen });
     expect(screen.queryByRole('button', { name: 'View on map' })).toBeNull();
     first.unmount();
 
-    renderCard([onTheMap('c1', 'Pantheon')], { variant: 'fullscreen', onShowOnMap });
+    renderCard([onTheMap('c1', 'Pantheon')], { variant: 'fullscreen', onOpen });
     fireEvent.click(screen.getByRole('button', { name: 'View on map' }));
     expect(requestCamera).toHaveBeenCalledWith(
       TRIP,
@@ -285,14 +286,14 @@ describe('AssistantChangeCard: the applied block', () => {
 
   it('FE-AI-CARD-012: before and after are there only for the block this session can compare, beside a map', () => {
     compare('c1');
-    const onShowOnMap = vi.fn();
-    const first = renderCard([receipt('c1', null), receipt('c2', null)], { onShowOnMap });
+    const onOpen = vi.fn();
+    const first = renderCard([receipt('c1', null), receipt('c2', null)], { onOpen });
     expect(screen.getByRole('button', { name: 'After' })).toHaveAttribute('aria-pressed', 'true');
     fireEvent.click(screen.getByRole('button', { name: 'Before' }));
     expect(setCompare).toHaveBeenCalledWith(TRIP, 'before');
     first.unmount();
 
-    const other = renderCard([receipt('c7', null), receipt('c8', null)], { onShowOnMap });
+    const other = renderCard([receipt('c7', null), receipt('c8', null)], { onOpen });
     expect(screen.queryByRole('button', { name: 'Before' })).toBeNull();
     other.unmount();
 

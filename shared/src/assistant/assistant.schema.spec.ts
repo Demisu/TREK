@@ -5,6 +5,7 @@ import {
   assistantAddFoundPlaceResponseSchema,
   assistantAttachmentRequestSchema,
   assistantChangePreviewSchema,
+  assistantChangePreviewWriteSchema,
   assistantChatRequestSchema,
   assistantDecisionsRequestSchema,
   assistantFoundPlaceSchema,
@@ -122,7 +123,13 @@ describe('assistantChangePreviewSchema', () => {
     expect(
       assistantChangePreviewSchema.safeParse({ ...preview, rows: [{ ...preview.rows[0], labelKey: 'evil' }] }).success,
     ).toBe(false);
-    expect(assistantChangePreviewSchema.safeParse({ ...preview, verbKey: 'deleteTrip' }).success).toBe(false);
+    expect(assistantChangePreviewWriteSchema.safeParse({ ...preview, verbKey: 'deleteTrip' }).success).toBe(false);
+  });
+
+  it('reads a verb a later build added as a plain update, and writes none it does not know', () => {
+    expect(assistantChangePreviewSchema.parse({ ...preview, verbKey: 'laterVerb' }).verbKey).toBe('genericUpdate');
+    expect(assistantChangePreviewWriteSchema.parse(preview).verbKey).toBe('addPlace');
+    expect(assistantChangePreviewWriteSchema.safeParse({ ...preview, card: { kind: 'nope' } }).success).toBe(false);
   });
 
   it('holds at most twelve rows', () => {

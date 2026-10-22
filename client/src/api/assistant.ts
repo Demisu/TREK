@@ -19,6 +19,7 @@ import {
   type AssistantDecisionsRequest,
   type AssistantErrorCode,
   type AssistantShareRequest,
+  type AssistantTakeProposalRequest,
   type AssistantThreadListResponse,
   type AssistantThreadResponse,
   type AssistantUndoResponse,
@@ -122,6 +123,13 @@ export const assistantApi = {
     body: AssistantAddFoundPlaceRequest
   ): Promise<AssistantAddFoundPlaceResponse> =>
     apiClient.post(`${tripBase(tripId)}/threads/${threadId}/found-places`, body).then((r) => r.data),
+  // A proposal an answer showed as a card ("Plan this"): answers like a found place, with the message holding it.
+  takeProposal: (
+    tripId: number,
+    threadId: number,
+    body: AssistantTakeProposalRequest
+  ): Promise<AssistantAddFoundPlaceResponse> =>
+    apiClient.post(`${tripBase(tripId)}/threads/${threadId}/proposals`, body).then((r) => r.data),
   // An answer posted to the trip chat, marked as shared from the assistant; the client's socket id skips the echo.
   share: (
     tripId: number,

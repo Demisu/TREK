@@ -1,19 +1,21 @@
-import type { AiStatusResponse, AssistantApplied } from '@trek/shared';
+import type { AiStatusResponse } from '@trek/shared';
+import { useLocation } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { EntityTarget } from '../../../../src/components/Assistant/cards/cardTypes';
 import MAssistantScreen from '../../../../src/mobile/screens/trip/assistant/MAssistantScreen';
 import { chatOf, useAssistantStore } from '../../../../src/store/assistantStore';
 import { buildPlanner, buildShell } from '../../../helpers/mobileTrip';
 import { act, cleanup, fireEvent, render, screen } from '../../../helpers/render';
 
-// FE-MOB-ASSIST-001 to FE-MOB-ASSIST-011
+// FE-MOB-ASSIST-001 to FE-MOB-ASSIST-014
 //
 // The phone's full-screen chat around the shared chat surface, which is
 // replaced here: what is tested is the frame, the header and the way to the
 // map and back.
 
 const surface = vi.hoisted(() => ({
-  onShowOnMap: null as ((applied: AssistantApplied) => void) | null,
+  onOpen: null as ((target: EntityTarget) => void) | null,
   onFocusDay: null as ((dayId: number) => void) | null,
   onRevealMap: null as (() => void) | null,
 }));
@@ -32,11 +34,11 @@ const thread = vi.hoisted(() => ({
 
 vi.mock('../../../../src/components/Assistant/AssistantSurfaceLazy', () => ({
   default: (props: {
-    onShowOnMap?: (applied: AssistantApplied) => void;
+    onOpen?: (target: EntityTarget) => void;
     onFocusDay?: (dayId: number) => void;
     onRevealMap?: () => void;
   }) => {
-    surface.onShowOnMap = props.onShowOnMap ?? null;
+    surface.onOpen = props.onOpen ?? null;
     surface.onFocusDay = props.onFocusDay ?? null;
     surface.onRevealMap = props.onRevealMap ?? null;
     return <div data-testid="chat-surface" />;
@@ -50,10 +52,21 @@ vi.mock('../../../../src/components/Assistant/useAssistantThread', () => ({
 const INITIAL = useAssistantStore.getState();
 const STATUS = { available: true, retention: { mode: 'days', days: 90 } } as AiStatusResponse;
 
-function renderScreen(plannerOverrides = {}, shellOverrides = {}) {
+function Location() {
+  const { pathname, search } = useLocation();
+  return <output data-testid="location">{`${pathname}${search}`}</output>;
+}
+
+function renderScreen(plannerOverrides = {}, shellOverrides = {}, { withLocation = false } = {}) {
   const planner = buildPlanner(plannerOverrides);
   const shell = buildShell(shellOverrides);
-  const view = render(<MAssistantScreen planner={planner} shell={shell} />);
+  const view = render(
+    <>
+      <MAssistantScreen planner={planner} shell={shell} />
+      {withLocation && <Location />}
+    </>,
+    { initialEntries: ['/trips/1'] }
+  );
   return { planner, shell, ...view };
 }
 
@@ -123,7 +136,7 @@ describe('MAssistantScreen', () => {
 
   it('FE-MOB-ASSIST-007: "Show on map" steps aside for the map, and the pill brings the chat back as it was', () => {
     const { planner, shell } = renderScreen({}, { trTab: 'listen', view: 'plan' });
-    act(() => surface.onShowOnMap?.({ toolCallId: 'c1', entity: 'place', ids: [42], dayId: 2, undoUntil: null }));
+    act(() => surface.onOpen?.({ kind: 'map', placeId: 42, dayId: null }));
 
     expect(useAssistantStore.getState().window).toEqual({ open: true, minimized: true });
     expect(shell.setTrTab).toHaveBeenCalledWith('plan');
@@ -193,6 +206,39 @@ describe('MAssistantScreen', () => {
     );
     expect(screen.getByRole('group', { name: 'Compare on the map' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'After' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('FE-MOB-ASSIST-012: a day on the map is selected there after the chat stepped aside', () => {
+    const { planner, shell } = renderScreen({}, { trTab: 'plan', view: 'plan' });
+    act(() => surface.onOpen?.({ kind: 'map', placeId: null, dayId: 5 }));
+    expect(useAssistantStore.getState().window.minimized).toBe(true);
+    expect(shell.toggleView).toHaveBeenCalled();
+    expect(planner.handleSelectDay).toHaveBeenCalledWith(5, false);
+    expect(planner.setSelectedPlaceId).not.toHaveBeenCalled();
+  });
+
+  it('FE-MOB-ASSIST-013: a tab opens on its own list or chat part, with what it reads in the URL', () => {
+    const { shell } = renderScreen({}, { trTab: 'plan', view: 'map' }, { withLocation: true });
+    act(() => surface.onOpen?.({ kind: 'tab', tab: 'listen', sub: 'todo', params: { todo: '4' } }));
+    expect(useAssistantStore.getState().window.minimized).toBe(true);
+    expect(shell.setTrTab).toHaveBeenCalledWith('listen');
+    expect(shell.setListsTab).toHaveBeenCalledWith('todo');
+    expect(shell.toggleView).not.toHaveBeenCalled();
+    expect(screen.getByTestId('location')).toHaveTextContent('/trips/1?todo=4');
+
+    act(() => surface.onOpen?.({ kind: 'tab', tab: 'collab', sub: 'polls' }));
+    expect(shell.setTrTab).toHaveBeenLastCalledWith('collab');
+    expect(shell.setCollabTab).toHaveBeenCalledWith('polls');
+    // A sub-tab a tab does not have is left alone.
+    act(() => surface.onOpen?.({ kind: 'tab', tab: 'collab', sub: 'packing' }));
+    expect(shell.setCollabTab).toHaveBeenCalledTimes(1);
+  });
+
+  it('FE-MOB-ASSIST-014: another page leaves the trip, and the chat closes with it', () => {
+    renderScreen({}, {}, { withLocation: true });
+    act(() => surface.onOpen?.({ kind: 'page', path: '/atlas' }));
+    expect(useAssistantStore.getState().window.open).toBe(false);
+    expect(screen.getByTestId('location')).toHaveTextContent('/atlas');
   });
 
   it('FE-MOB-ASSIST-008: the back gesture closes the chat instead of leaving the trip', () => {

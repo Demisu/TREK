@@ -17,7 +17,7 @@ import { trekMcpErrorMapper } from '../../../src/mcp/nest-mcp-policy';
 import { errorResult, type McpContext, type McpTextResult, type ToolOptions } from '../../../src/nest-mcp';
 import { getEntry, type ClassRef } from '../../../src/nest-mcp/metadata';
 import { AddonsService } from '../../../src/nest/addons/addons.service';
-import { toolOutputForProvider } from '../../../src/nest/assistant/assistant-redact';
+import { toolOutputForProvider } from '../../../src/nest/assistant/assistant-output';
 import { DomainError } from '../../../src/nest/common/domain-error';
 import { DawarichAtlasMcp } from '../../../src/nest/integrations/dawarich-atlas.mcp';
 import { DawarichSuggestionsService } from '../../../src/nest/integrations/dawarich-suggestions.service';

@@ -8,7 +8,11 @@ import type {
   AssistantMessagePart,
   AssistantPlaces,
   AssistantWeatherDay,
+  TrekCard,
 } from '@trek/shared';
+
+import { CARD_RULES } from './cards/cardLooks';
+import type { CardEntry } from './cards/cardTypes';
 
 /**
  * How an answer is laid out: its stored parts read as blocks. Text stays
@@ -16,8 +20,9 @@ import type {
  * changes the model proposes in one go sit together as one card, each with
  * its preview and, once applied, its receipt. The places a search found sit
  * as one strip, the newest search's, and the weather the steps looked up as
- * one row of days. Pure, so the window and the phone screen lay an answer out
- * the same way and a test can pin it.
+ * one row of days. The cards of reading tools sit as blocks of their group; a
+ * write's card rides on its change. Pure, so the window and the phone screen
+ * lay an answer out the same way and a test can pin it.
  */
 
 /** Where the settings card for the user's own AI connection lives. */
@@ -47,14 +52,26 @@ export interface ChangeItem {
   /** The receipt of an applied change. */
   applied: AssistantApplied | null;
   state: ChangeState;
+  /** What the change does as a card: the applied one once it came, else the preview's; null without one. */
+  card: TrekCard | null;
 }
+
+/** The answer cards of one group, side by side. */
+export type CardsBlock = { kind: 'cards'; key: string; group: string; entries: CardEntry[] };
 
 type MessageBlock =
   | { kind: 'text'; key: string; text: string }
   | { kind: 'steps'; key: string; steps: ToolStep[] }
   | { kind: 'change'; key: string; items: ChangeItem[] }
   | { kind: 'places'; key: string; found: AssistantPlaces }
-  | { kind: 'weather'; key: string; days: AssistantWeatherDay[] };
+  | { kind: 'weather'; key: string; days: AssistantWeatherDay[] }
+  | CardsBlock;
+
+/** How cards are laid out: the group each joins, and which ones give way to a change they served. */
+export interface CardRules {
+  group(card: TrekCard): string;
+  yieldsToChange(answer: TrekCard, change: TrekCard): boolean;
+}
 
 /** The change "+ Day 3" on a found place makes; the server holds it without a model turn. */
 const FOUND_PLACE_TOOL = 'add_found_place';
@@ -126,14 +143,57 @@ function pushChange(blocks: MessageBlock[], item: ChangeItem, fromStrip: Readonl
   else blocks.push({ kind: 'change', key: `change-${item.toolCallId}`, items: [item] });
 }
 
-/** The steps block a new step joins: the last one, past any strip shown after it. */
+/** The steps block a new step joins: the last one, past any strip or cards shown after it. */
 function openSteps(blocks: readonly MessageBlock[]): Extract<MessageBlock, { kind: 'steps' }> | null {
   for (let i = blocks.length - 1; i >= 0; i--) {
     const block = blocks[i];
     if (block?.kind === 'steps') return block;
-    if (block?.kind !== 'places' && block?.kind !== 'weather') return null;
+    if (block?.kind !== 'places' && block?.kind !== 'weather' && block?.kind !== 'cards') return null;
   }
   return null;
+}
+
+/** Adds an answer card to the last cards block of its group when only steps lie between them, or starts one. */
+function pushCard(blocks: MessageBlock[], entry: CardEntry, group: string): void {
+  for (let i = blocks.length - 1; i >= 0; i--) {
+    const block = blocks[i];
+    if (block?.kind === 'steps') continue;
+    if (block?.kind === 'cards' && block.group === group) {
+      block.entries.push(entry);
+      return;
+    }
+    break;
+  }
+  blocks.push({ kind: 'cards', key: `cards-${entry.toolCallId}`, group, entries: [entry] });
+}
+
+/** The blocks without the answer cards that give way to one of the message's changes, and without emptied ones. */
+function withoutYielded(blocks: MessageBlock[], rules: CardRules): MessageBlock[] {
+  const changes = blocks.flatMap((b) => (b.kind === 'change' ? b.items.flatMap((i) => (i.card ? [i.card] : [])) : []));
+  if (changes.length === 0) return blocks;
+  return blocks.flatMap((block) => {
+    if (block.kind !== 'cards') return [block];
+    const entries = block.entries.filter((e) => !changes.some((change) => rules.yieldsToChange(e.card, change)));
+    return entries.length > 0 ? [{ ...block, entries }] : [];
+  });
+}
+
+/** The change a call holds, with its preview, receipt and card; null for a reading step. */
+function changeItemOf(
+  part: ToolCallPart,
+  preview: AssistantChangePreview | null,
+  receipts: ReadonlyMap<string, AssistantApplied>,
+  cards: ReadonlyMap<string, TrekCard>
+): ChangeItem | null {
+  if (!part.approval && !preview) return null;
+  const applied = receipts.get(part.toolCallId) ?? null;
+  return {
+    toolCallId: part.toolCallId,
+    preview,
+    applied,
+    state: changeState(part, applied),
+    card: cards.get(part.toolCallId) ?? preview?.card ?? null,
+  };
 }
 
 function changeState(part: ToolCallPart, applied: AssistantApplied | null): ChangeState {
@@ -157,10 +217,21 @@ function changeState(part: ToolCallPart, applied: AssistantApplied | null): Chan
  * answer already holds; the weather of all steps joins
  * into one row where the first look sat. A strip does not split the steps
  * around it: a step after it joins the row of steps before it.
+ *
+ * A reading tool's card joins the cards block of its group (by `rules`, the
+ * kinds' looks unless a test hands others) when only steps lie between them;
+ * a card under a change's id is that change's and forms no block. Last,
+ * answer cards that give way to one of the message's changes are left out.
  */
-export function messageBlocks(message: AssistantMessage, writing: boolean): MessageBlock[] {
+export function messageBlocks(
+  message: AssistantMessage,
+  writing: boolean,
+  rules: CardRules = CARD_RULES
+): MessageBlock[] {
   const previews = new Map<string, AssistantChangePreview>();
   const receipts = new Map<string, AssistantApplied>();
+  const cards = new Map<string, TrekCard>();
+  const changeIds = new Set<string>();
   const effects: AssistantChangeEffect[] = [];
   // A place the user suggested from the strip stays on it, marked as suggested.
   const fromStrip = new Set(
@@ -172,9 +243,12 @@ export function messageBlocks(message: AssistantMessage, writing: boolean): Mess
     if (part.type === 'data-trek-change') {
       previews.set(part.data.toolCallId, part.data);
       if (part.data.effect && !fromStrip.has(part.data.toolCallId)) effects.push(part.data.effect);
+      changeIds.add(part.data.toolCallId);
     } else if (part.type === 'data-trek-applied') receipts.set(part.data.toolCallId, part.data);
     else if (part.type === 'data-trek-places') lastPlaces = index;
     else if (part.type === 'data-trek-weather' && firstWeather < 0) firstWeather = index;
+    else if (part.type === 'data-trek-card' && part.data.card) cards.set(part.data.toolCallId, part.data.card);
+    else if (part.type === 'tool-call' && part.approval) changeIds.add(part.toolCallId);
   });
 
   const blocks: MessageBlock[] = [];
@@ -193,11 +267,15 @@ export function messageBlocks(message: AssistantMessage, writing: boolean): Mess
       blocks.push({ kind: 'weather', key: `weather-${index}`, days: weatherDays(message.parts) });
       return;
     }
+    if (part.type === 'data-trek-card') {
+      const { toolCallId, card } = part.data;
+      // A card under a change's id is that change's; it rides on its row.
+      if (card && !changeIds.has(toolCallId)) pushCard(blocks, { toolCallId, card }, rules.group(card));
+      return;
+    }
     if (part.type !== 'tool-call') return;
-    const preview = previews.get(part.toolCallId) ?? null;
-    if (part.approval || preview) {
-      const applied = receipts.get(part.toolCallId) ?? null;
-      const item: ChangeItem = { toolCallId: part.toolCallId, preview, applied, state: changeState(part, applied) };
+    const item = changeItemOf(part, previews.get(part.toolCallId) ?? null, receipts, cards);
+    if (item) {
       pushChange(blocks, item, fromStrip);
       return;
     }
@@ -210,7 +288,7 @@ export function messageBlocks(message: AssistantMessage, writing: boolean): Mess
     if (steps) steps.steps.push(step);
     else blocks.push({ kind: 'steps', key: `steps-${part.toolCallId}`, steps: [step] });
   });
-  return blocks;
+  return withoutYielded(blocks, rules);
 }
 
 /**

@@ -22,7 +22,7 @@ export default function AssistantSurface({
   tripTitle,
   variant,
   density,
-  onShowOnMap,
+  onOpen,
   onFocusDay,
   onRevealMap,
 }: AssistantSurfaceProps) {
@@ -33,11 +33,11 @@ export default function AssistantSurface({
       tripId,
       variant,
       density: variant === 'fullscreen' ? ('compact' as const) : (density ?? 'roomy'),
-      onShowOnMap,
+      onOpen,
       onFocusDay,
       onRevealMap,
     }),
-    [tripId, variant, density, onShowOnMap, onFocusDay, onRevealMap]
+    [tripId, variant, density, onOpen, onFocusDay, onRevealMap]
   );
   return (
     <AssistantRuntimeProvider runtime={runtime}>

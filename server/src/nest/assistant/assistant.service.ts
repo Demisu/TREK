@@ -2,10 +2,11 @@ import { AssistantMessages } from '../../db/entities/AssistantMessages.entity';
 import { AssistantThreads } from '../../db/entities/AssistantThreads.entity';
 import { AssistantToolCalls } from '../../db/entities/AssistantToolCalls.entity';
 import {
-  ASSISTANT_MESSAGE_PARTS,
+  ASSISTANT_MESSAGE_PARTS_WRITE,
   ASSISTANT_PROVIDER_STATE,
   ASSISTANT_TOOL_ARGS,
   ASSISTANT_TOOL_PREVIEW,
+  ASSISTANT_TOOL_PREVIEW_WRITE,
   ASSISTANT_TOOL_RESULT,
 } from '../../db/json-columns';
 import type {
@@ -34,18 +35,17 @@ import { SettingsService } from '../settings/settings.service';
 import { runAgentLoop, type AgentStore, type HeldCall, type StepRecord } from './assistant-agent';
 import { AssistantBookingImportService } from './assistant-booking-import.service';
 import { mentionItems } from './assistant-cards.helpers';
-import { buildTripCard, categoriesFrom, languageName, todayIn, turnContext, type TripCard } from './assistant-context';
+import { buildTripCard, languageName, todayIn, turnContext, type TripCard } from './assistant-context';
 import { DISCARDED, NOT_RUN, type Outcome, withCancelled, withOutcomes } from './assistant-decisions.helpers';
 import { messageIdOf, outputText, partsOf, toChatHistory, toThreadMessages } from './assistant-history';
 import { rememberForTrip } from './assistant-memory';
-import { toolOutputForProvider } from './assistant-redact';
+import { toolOutputForProvider } from './assistant-output';
 import { AssistantStreamRegistry } from './assistant-stream.registry';
 import { titleFrom } from './assistant-title';
 import {
   ADD_FOUND_PLACE_TOOL,
   APPROVAL_TTL_MS,
   ASSISTANT_SERVER_WRITE_TOOLS,
-  ASSISTANT_UNDO_MAP,
   foundPlaceArgs,
   IMPORT_BOOKING_TOOL,
   READ_BOOKING_FILE_TOOL,
@@ -55,9 +55,11 @@ import {
   writeToolOf,
 } from './assistant-tools.constants';
 import { AssistantToolsService, type AssistantToolSession, type ToolRun } from './assistant-tools.service';
-import { unchangedSinceApplied } from './assistant-undo.helpers';
+import { unchangedSinceApplied, undoSnapshotOf, undoTargetsOf } from './assistant-undo.helpers';
 import { systemPrompt } from './assistant.prompt';
-import { appliedChange, describeToolCall } from './tool-call-preview.helpers';
+import { AssistantCardContext } from './cards/card-context';
+import { ASSISTANT_UNDO_MAP } from './cards/registry';
+import { appliedChange } from './tool-call-preview.helpers';
 import { UiStreamWriter } from './ui-stream.writer';
 import { MikroORM } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -65,6 +67,7 @@ import { Injectable } from '@nestjs/common';
 import type {
   AssistantAttachmentRequest,
   AssistantChatRequest,
+  AssistantClientCtx,
   AssistantDecision,
   AssistantDecisionsRequest,
   AssistantFocus,
@@ -133,7 +136,7 @@ function summaryOf(thread: AssistantThreadRow): AssistantThreadSummary {
 }
 
 function encodeParts(parts: AssistantMessagePart[]): string {
-  return encodeJson(ASSISTANT_MESSAGE_PARTS, parts);
+  return encodeJson(ASSISTANT_MESSAGE_PARTS_WRITE, parts);
 }
 
 const threadNotFound = () => aiRefusal('not_found', 'Conversation not found');
@@ -166,6 +169,7 @@ export class AssistantService {
     private readonly streams: AssistantStreamRegistry,
     private readonly uow: UnitOfWork,
     private readonly orm: MikroORM,
+    private readonly cardContext: AssistantCardContext,
   ) {}
 
   async listThreads(userId: number, tripId: number): Promise<AssistantThreadListResponse> {
@@ -265,7 +269,8 @@ export class AssistantService {
       if (begun.created) w.thread(begun.threadId, begun.title);
       const stopKeepalive = armKeepalive(stream);
       try {
-        const turn = { userId, tripId, threadId: begun.threadId, rowId: begun.rowId, locale: req.locale, name };
+        const { locale, timeZone } = req;
+        const turn = { userId, tripId, threadId: begun.threadId, rowId: begun.rowId, locale, timeZone, name };
         await this.proposeBookings(turn, file, w, signal);
       } catch (err) {
         const reason = err instanceof Error ? err.message : String(err);
@@ -416,19 +421,13 @@ export class AssistantService {
     const tool = writeToolOf(call.tool_name, args);
     const undo = ASSISTANT_UNDO_MAP[tool];
     const result = decodeJson(ASSISTANT_TOOL_RESULT, call.result, `tool call ${call.id}`);
-    const undoArgs = undo && call.state === 'executed' ? undo.args(args, result) : null;
+    const preview = decodeJson(ASSISTANT_TOOL_PREVIEW, call.preview, `tool call ${call.id}`);
+    const undoArgs = undo && call.state === 'executed' ? undo.args(args, result, preview) : null;
     if (!undo || !undoArgs) throw stale();
-    const session = await this.tools.open(userId, tripId, new Set([undo.tool, 'get_trip_summary', 'list_places']));
+    const session = await this.tools.open(userId, tripId, undoTargetsOf(undo.tool, tool, args, result));
     try {
-      const summary = await session.read('get_trip_summary');
-      const places = await session.read('list_places');
-      if (
-        !summary.ok ||
-        !places.ok ||
-        !unchangedSinceApplied(tool, result, { summary: summary.value, places: places.value })
-      ) {
-        throw stale();
-      }
+      const snapshot = await undoSnapshotOf(session, tool, args, result);
+      if (!snapshot || !unchangedSinceApplied(tool, result, snapshot)) throw stale();
       if (!(await this.toolCalls.claimUndo(call.id, userId, dbNow()))) throw stale();
       const run = await session.call(undo.tool, undoArgs);
       if (!run.ok) {
@@ -530,7 +529,7 @@ export class AssistantService {
    * transaction of its own.
    */
   private async proposeBookings(
-    turn: { userId: number; tripId: number; threadId: number; rowId: number; locale: string; name: string },
+    turn: { userId: number; tripId: number; threadId: number; rowId: number; name: string } & AssistantClientCtx,
     file: Express.Multer.File,
     w: UiStreamWriter,
     signal: AbortSignal,
@@ -574,18 +573,14 @@ export class AssistantService {
       return;
     }
     const card = await this.tripCardOf(turn.userId, turn.tripId);
-    const ctx = { card, categories: new Map<number, string>(), locale: turn.locale };
-    const held: HeldCall[] = items.map((item) => {
-      const id = randomUUID();
-      const args = item as Record<string, unknown>;
-      return {
-        id,
-        providerCallId: `import_${id}`,
-        toolName: IMPORT_BOOKING_TOOL,
-        args,
-        preview: describeToolCall(IMPORT_BOOKING_TOOL, id, args, ctx),
-      };
-    });
+    const ctx = this.cardContext.contextOf(card, new Map(), turn.locale, todayIn(turn.timeZone, new Date()));
+    const proposed = items.map((item) => ({
+      id: randomUUID(),
+      toolName: IMPORT_BOOKING_TOOL,
+      args: item as Record<string, unknown>,
+    }));
+    const described = await this.cardContext.describeProposed(turn.userId, turn.tripId, ctx, proposed);
+    const held: HeldCall[] = described.map((change) => ({ ...change, providerCallId: `import_${change.id}` }));
     const parts: AssistantMessagePart[] = [
       readPart(found),
       ...held.map((change): AssistantMessagePart => ({
@@ -613,7 +608,7 @@ export class AssistantService {
     try {
       const summary = await session.read('get_trip_summary');
       const places = await session.read('list_places');
-      return buildTripCard(tripId, summary.ok ? summary.value : null, places.ok ? places.value : null, null);
+      return buildTripCard(tripId, userId, summary.ok ? summary.value : null, places.ok ? places.value : null, null);
     } finally {
       await session.close();
     }
@@ -714,7 +709,8 @@ export class AssistantService {
     const args = decodeJson(ASSISTANT_TOOL_ARGS, call.args, `tool call ${call.id}`);
     const ran = await run(call.tool_name, args);
     const output = toolOutputForProvider(call.tool_name, ran.value);
-    const undoable = ran.ok && !!ASSISTANT_UNDO_MAP[writeToolOf(call.tool_name, args)]?.args(args, ran.value);
+    const preview = decodeJson(ASSISTANT_TOOL_PREVIEW, call.preview, `tool call ${call.id}`);
+    const undoable = ran.ok && !!ASSISTANT_UNDO_MAP[writeToolOf(call.tool_name, args)]?.args(args, ran.value, preview);
     const undoUntil = undoable ? dbNow(new Date(Date.now() + UNDO_WINDOW_MS)) : null;
     await this.inContext(() =>
       this.toolCalls.recordOutcome(
@@ -731,7 +727,6 @@ export class AssistantService {
       return;
     }
     w.toolOutput(call.id, output);
-    const preview = decodeJson(ASSISTANT_TOOL_PREVIEW, call.preview, `tool call ${call.id}`);
     const applied = appliedChange(
       call.tool_name,
       call.id,
@@ -744,6 +739,7 @@ export class AssistantService {
       w.applied(applied);
       receipts.push({ type: 'data-trek-applied', data: applied });
     }
+    this.cardContext.receipt(w, receipts, call, args, ran.value, preview);
   }
 
   /**
@@ -832,21 +828,17 @@ export class AssistantService {
       const providerIds = new Map([...calls.values()].map((call) => [call.id, call.provider_call_id]));
       const history = toChatHistory(rows, providerIds);
       const prefs = await this.inContext(() => this.settings.getUserSettings(spec.userId));
-      let categories: Map<number, string> | null = null;
+      const today = todayIn(spec.timeZone, new Date());
       const outcome = await runAgentLoop(
         {
           client: this.chatClients.create(spec.connection),
           tools: session,
           store: this.stepStore(spec),
-          describe: async (toolName, toolCallId, args) => {
-            categories ??= await this.categoriesOf(session);
-            const hintOf = (name: string) => session.hintOf(name);
-            return describeToolCall(toolName, toolCallId, args, { card, categories, locale: spec.locale, hintOf });
-          },
+          describe: this.cardContext.forTurn(session, card, spec.locale, today).describe,
           newId: randomUUID,
           quota: spec.quota,
           card,
-          today: todayIn(spec.timeZone, new Date()),
+          today,
         },
         {
           system: systemPrompt(languageName(spec.locale)),
@@ -890,13 +882,7 @@ export class AssistantService {
     const summary = await session.read('get_trip_summary');
     const places = await session.read('list_places');
     const [found, listed] = [summary.ok ? summary.value : null, places.ok ? places.value : null];
-    return buildTripCard(spec.tripId, found, listed, spec.focus, spec.mentions);
-  }
-
-  private async categoriesOf(session: AssistantToolSession): Promise<Map<number, string>> {
-    const run = await session.read('list_categories');
-    const categories = categoriesFrom(run.ok ? run.value : null);
-    return new Map(categories.map((category): [number, string] => [category.id, category.name]));
+    return buildTripCard(spec.tripId, spec.userId, found, listed, spec.focus, spec.mentions);
   }
 
   /**
@@ -973,7 +959,7 @@ export class AssistantService {
       providerCallId: change.providerCallId,
       toolName: change.toolName,
       args: encodeJson(ASSISTANT_TOOL_ARGS, change.args),
-      preview: encodeJson(ASSISTANT_TOOL_PREVIEW, change.preview),
+      preview: encodeJson(ASSISTANT_TOOL_PREVIEW_WRITE, change.preview),
       createdAt,
     };
   }

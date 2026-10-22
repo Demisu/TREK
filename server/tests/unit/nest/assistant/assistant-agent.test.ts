@@ -19,14 +19,16 @@ import {
 } from '../../../../src/nest/assistant/assistant-agent';
 import { buildTripCard } from '../../../../src/nest/assistant/assistant-context';
 import {
+  MAX_CARDS_PER_STEP,
   MAX_READS_PER_STEP,
   MAX_STEPS,
   MAX_WRITES_PER_STEP,
 } from '../../../../src/nest/assistant/assistant-tools.constants';
 import type { AssistantToolKind } from '../../../../src/nest/assistant/assistant-tools.service';
+import type { AnswerInput } from '../../../../src/nest/assistant/cards/card-types';
 import { UiStreamWriter } from '../../../../src/nest/assistant/ui-stream.writer';
 import type { SseStream } from '../../../../src/nest/common/sse-stream';
-import type { AssistantChangePreview, UiStreamChunk } from '@trek/shared';
+import type { AssistantChangePreview, TrekCard, UiStreamChunk } from '@trek/shared';
 
 import { describe, expect, it, vi } from 'vitest';
 
@@ -136,7 +138,7 @@ function setup(steps: Step[], overrides: Partial<AgentDeps> = {}) {
     describe: vi.fn(async (_name: string, id: string) => preview(id)),
     newId: () => `id-${++ids}`,
     quota: null,
-    card: buildTripCard(1, { days: [{ id: 41, day_number: 1, date: '2026-06-11' }] }, null, null),
+    card: buildTripCard(1, 7, { days: [{ id: 41, day_number: 1, date: '2026-06-11' }] }, null, null),
     today: '2026-01-05',
     ...overrides,
   };
@@ -487,7 +489,7 @@ describe('runAgentLoop', () => {
 
   it('ASTAGT-015: a details lookup runs only for a google id from the card or a search of this turn', async () => {
     const places = { places: [{ id: 9, name: 'Nishiki', google_place_id: 'ChIJn' }] };
-    const card = buildTripCard(1, { days: [] }, places, null);
+    const card = buildTripCard(1, 7, { days: [] }, places, null);
     const details = (id: string, placeId: string) => ({
       type: 'tool-call' as const,
       call: { id, name: 'get_place_details', args: { placeId } },
@@ -555,5 +557,70 @@ describe('runAgentLoop', () => {
       { role: 'assistant', text: 'Day 1: Senso-ji, then' },
       { role: 'user', text: expect.stringContaining('cut off') },
     ]);
+  });
+
+  describe('answer cards', () => {
+    /** A card as a package would build it; its fields do not matter to the loop. */
+    const CARD = { kind: 'tourList' } as TrekCard;
+    const read = (id: string) => ({ type: 'tool-call' as const, call: { id, name: 'list_places', args: {} } });
+
+    it('ASTAGT-019: a read card follows its answer in the stream and its call in the step, built from the raw value', async () => {
+      const raw = { places: [{ id: 5, name: 'Kinkaku-ji', email: 'desk@kinkaku.test' }] };
+      const answerCard = vi.fn((_tool: string, _input: AnswerInput) => CARD);
+      const t = setup([[read('c1')], [{ type: 'text-delta', delta: 'Done.' }]], { answerCard });
+      t.tools.call.mockImplementation(async () => ({ ok: true, value: raw }));
+      await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+      expect(answerCard).toHaveBeenCalledWith('list_places', {
+        toolCallId: 'c1',
+        args: {},
+        value: raw,
+        card: t.deps.card,
+        today: '2026-01-05',
+      });
+      expect(types(t.chunks).slice(0, 6)).toEqual([
+        'start-step',
+        'tool-input-start',
+        'tool-input-available',
+        'tool-output-available',
+        'data-trek-card',
+        'finish-step',
+      ]);
+      expect(t.chunks[4]).toEqual({ type: 'data-trek-card', data: { toolCallId: 'c1', card: CARD } });
+      const [call, card] = t.memory.saved[0].step.parts;
+      expect(card).toEqual({ type: 'data-trek-card', data: { toolCallId: 'c1', card: CARD } });
+      expect(JSON.stringify(call)).not.toContain('desk@kinkaku.test');
+      expect(JSON.stringify(t.requests[1].messages)).not.toContain('desk@kinkaku.test');
+    });
+
+    it('ASTAGT-020: a failed read makes no card, and a step shows at most twelve', async () => {
+      const answerCard = vi.fn(() => CARD);
+      const calls = Array.from({ length: MAX_CARDS_PER_STEP + 2 }, (_, i) => read(`c${i}`));
+      const failing = { type: 'tool-call' as const, call: { id: 'bad', name: 'search_place', args: { query: 'x' } } };
+      const t = setup([[...calls, failing]], { answerCard });
+      t.tools.call.mockImplementation(async (name: string) =>
+        name === 'search_place' ? { ok: false, value: 'Place search failed.' } : { ok: true, value: ANSWERS[name] },
+      );
+      await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+      expect(answerCard).toHaveBeenCalledTimes(MAX_CARDS_PER_STEP + 2);
+      expect(types(t.chunks).filter((type) => type === 'data-trek-card')).toHaveLength(MAX_CARDS_PER_STEP);
+      const parts = t.memory.saved[0].step.parts;
+      expect(parts.filter((part) => part.type === 'data-trek-card')).toHaveLength(MAX_CARDS_PER_STEP);
+      expect(parts.filter((part) => part.type === 'tool-call')).toHaveLength(MAX_CARDS_PER_STEP + 3);
+    });
+
+    it('ASTAGT-021: no card for a builder that gives none or a call id past 64 characters', async () => {
+      const long = `toolu_${'x'.repeat(64)}`;
+      const answerCard = vi.fn((_tool: string, input: AnswerInput) => (input.toolCallId === 'none' ? null : CARD));
+      const t = setup([[read(long), read('none')]], { answerCard });
+      await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+      expect(answerCard).toHaveBeenCalledTimes(1);
+      expect(types(t.chunks)).not.toContain('data-trek-card');
+    });
+
+    it('ASTAGT-022: without a builder of its own the loop asks the registry, where no core tool has an answer card', async () => {
+      const t = setup([[read('c1')], [{ type: 'text-delta', delta: 'Done.' }]]);
+      await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+      expect(t.memory.saved[0].step.parts.map((part) => part.type)).toEqual(['tool-call']);
+    });
   });
 });

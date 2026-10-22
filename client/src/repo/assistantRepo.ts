@@ -7,6 +7,7 @@ import {
   type AssistantChatRequest,
   type AssistantDecisionsRequest,
   type AssistantShareRequest,
+  type AssistantTakeProposalRequest,
 } from '@trek/shared';
 import { assistantApi } from '../api/assistant';
 import { requireOnline } from './onlineOnly';
@@ -76,6 +77,12 @@ export const assistantRepo = {
   async addFoundPlace(tripId: number, threadId: number, body: AssistantAddFoundPlaceRequest) {
     requireOnline();
     return assistantAddFoundPlaceResponseSchema.parse(await assistantApi.addFoundPlace(tripId, threadId, body));
+  },
+
+  /** A proposal an answer showed as a card ("Plan this"), held as a change; no model runs for it. */
+  async takeProposal(tripId: number, threadId: number, body: AssistantTakeProposalRequest) {
+    requireOnline();
+    return assistantAddFoundPlaceResponseSchema.parse(await assistantApi.takeProposal(tripId, threadId, body));
   },
 
   /**

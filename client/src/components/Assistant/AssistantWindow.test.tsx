@@ -1,5 +1,5 @@
 /**
- * FE-AI-WIN-001 to FE-AI-WIN-010
+ * FE-AI-WIN-001 to FE-AI-WIN-011
  *
  * The desktop window around the chat: when it shows at all, the button it
  * opens from, the trip picker outside a trip, closing that keeps the chat, and
@@ -8,6 +8,7 @@
  * useDragResize's and has its own tests; here it is a fixed rect.
  */
 import type { AiStatusResponse } from '@trek/shared';
+import { useLocation } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
@@ -15,6 +16,7 @@ import { tripRepo } from '../../repo/tripRepo';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import type { Trip } from '../../types';
 import AssistantWindow from './AssistantWindow';
+import type { EntityTarget } from './cards/cardTypes';
 
 vi.mock('../../hooks/useDragResize', () => ({
   useDragResize: () => ({
@@ -32,11 +34,13 @@ vi.mock('./AssistantSurfaceLazy', () => ({
     tripTitle,
     density,
     onFocusDay,
+    onOpen,
   }: {
     tripId: number;
     tripTitle: string;
     density?: string;
     onFocusDay?: (dayId: number) => void;
+    onOpen?: (target: EntityTarget) => void;
   }) => (
     <div>
       <p>
@@ -48,12 +52,30 @@ vi.mock('./AssistantSurfaceLazy', () => ({
           pick day
         </button>
       )}
+      {onOpen && (
+        <>
+          <button type="button" onClick={() => onOpen({ kind: 'map', placeId: 7, dayId: null })}>
+            open place
+          </button>
+          <button type="button" onClick={() => onOpen({ kind: 'tab', tab: 'finanzplan', params: { expense: '3' } })}>
+            open tab
+          </button>
+          <button type="button" onClick={() => onOpen({ kind: 'page', path: '/atlas' })}>
+            open page
+          </button>
+        </>
+      )}
       <textarea aria-label="composer" />
     </div>
   ),
 }));
 
 const TRIP = { id: 4, title: 'Kyoto' };
+
+function Location() {
+  const { pathname, search } = useLocation();
+  return <output data-testid="location">{`${pathname}${search}`}</output>;
+}
 const INITIAL = useAssistantStore.getState();
 const STATUS = { available: true, retention: { mode: 'days', days: 90 } } as AiStatusResponse;
 
@@ -184,5 +206,35 @@ describe('AssistantWindow', () => {
     expect(onFocusDay).toHaveBeenCalledWith(12);
     unmount();
     expect(useAssistantStore.getState().windowRect).toBeNull();
+  });
+
+  it('FE-AI-WIN-011: opens through the planner on screen, keeps a trip it leaves, and opens a picked trip itself', async () => {
+    seed({ open: true, minimized: false });
+    const onOpen = vi.fn();
+    const onScreen = render(<AssistantWindow trip={TRIP} onOpen={onOpen} />);
+    fireEvent.click(screen.getByRole('button', { name: 'open place' }));
+    expect(onOpen).toHaveBeenCalledWith({ kind: 'map', placeId: 7, dayId: null });
+    // Another page leaves the trip; the chat stays on it as if it had been picked.
+    fireEvent.click(screen.getByRole('button', { name: 'open page' }));
+    expect(onOpen).toHaveBeenLastCalledWith({ kind: 'page', path: '/atlas' });
+    onScreen.rerender(<AssistantWindow trip={null} onOpen={onOpen} />);
+    expect(screen.getByText('chat 4 Kyoto')).toBeInTheDocument();
+    onScreen.unmount();
+
+    seed({ open: true, minimized: false });
+    render(
+      <>
+        <AssistantWindow trip={null} onOpen={onOpen} />
+        <Location />
+      </>
+    );
+    fireEvent.click(await screen.findByRole('button', { name: /Lisbon/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'open tab' }));
+    expect(screen.getByTestId('location')).toHaveTextContent('/trips/9?tab=finanzplan&expense=3');
+    fireEvent.click(screen.getByRole('button', { name: 'open place' }));
+    expect(screen.getByTestId('location')).toHaveTextContent(/^\/trips\/9$/);
+    fireEvent.click(screen.getByRole('button', { name: 'open page' }));
+    expect(screen.getByTestId('location')).toHaveTextContent('/atlas');
+    expect(onOpen).toHaveBeenCalledTimes(2);
   });
 });

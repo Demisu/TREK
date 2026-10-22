@@ -1,3 +1,5 @@
+import { CARD_PROMPT_LINES } from './cards/registry';
+
 /**
  * The assistant's standing instructions. They stay the same for every turn
  * of a conversation (the provider caches them); what changes from turn to
@@ -33,7 +35,10 @@ How you work:
 - For the wind on a day (a paddle, a sail, a ridge walk), use get_wind_forecast: it has the gusts and the direction hour by hour.
 - If the request is unclear, ask one short question instead of guessing.`;
 
+/** The instructions with the packages' lines about their cards, built once so the provider's cache holds. */
+const STANDING = INSTRUCTIONS + CARD_PROMPT_LINES.map((line) => `\n- ${line}`).join('');
+
 /** The standing instructions, telling the model which language to answer in. */
 export function systemPrompt(language: string): string {
-  return INSTRUCTIONS.replace('{language}', language);
+  return STANDING.replace('{language}', language);
 }

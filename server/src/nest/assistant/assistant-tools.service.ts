@@ -13,15 +13,15 @@ import {
   USE_TOOLS_SPEC,
   USE_TOOLS_TOOL,
 } from './assistant-tool-offer';
+import { ASSISTANT_SCOPES, ASSISTANT_SERVER_TOOLS, PINNED_ARG, REMEMBER_TOOL } from './assistant-tools.constants';
+import type { ToolCards } from './cards/card-types';
 import {
   ASSISTANT_ARG_POLICY,
-  ASSISTANT_SCOPES,
-  ASSISTANT_SERVER_TOOLS,
   ASSISTANT_UNDO_MAP,
   ASSISTANT_WRITE_TOOLS,
-  PINNED_ARG,
-  REMEMBER_TOOL,
-} from './assistant-tools.constants';
+  PACKAGE_HELD_READS,
+  TOOL_CARDS,
+} from './cards/registry';
 import { MikroORM } from '@mikro-orm/core';
 import { Client } from '@modelcontextprotocol/sdk/client/index';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory';
@@ -58,19 +58,49 @@ interface ListedTool {
 type SessionMode = 'turn' | 'undo';
 
 /**
- * What is wrong with the tool catalog the assistant relies on, given what the
- * registry holds: a tool with a card of its own or an undo target that no
- * longer exists, a sharing tool the denylist missed, or a tool named like one
- * of the server's own steps. Empty when all is well.
+ * The tools the packages' undo checks read. A package's `reads` names its
+ * tools whatever the arguments, so asking with none shows which they are.
  */
-export function checkToolCatalog(listing: readonly McpRegistryListing[]): string[] {
+function undoReadTools(cards: Readonly<Record<string, ToolCards>>): string[] {
+  return Object.values(cards).flatMap((entry) => {
+    try {
+      return (entry.undo?.reads?.({}, {}) ?? []).map((read) => read.tool);
+    } catch {
+      return [];
+    }
+  });
+}
+
+/**
+ * What is wrong with the tool catalog the assistant relies on, given what the
+ * registry holds: a tool with a card of its own, a package's cards for a tool,
+ * an undo target, an undo read or a package's held read that no longer
+ * exists, a sharing tool the denylist missed, or a tool named like one of the
+ * server's own steps. Empty when all is well.
+ */
+export function checkToolCatalog(
+  listing: readonly McpRegistryListing[],
+  cards: Readonly<Record<string, ToolCards>> = TOOL_CARDS,
+  heldReads: Iterable<string> = PACKAGE_HELD_READS,
+): string[] {
   const tools = new Set(listing.filter((entry) => entry.kind === 'tool').map((entry) => entry.name));
   const problems: string[] = [];
   for (const name of Object.keys(ASSISTANT_WRITE_TOOLS)) {
     if (!tools.has(name)) problems.push(`tool "${name}" with a card of its own is not registered`);
   }
+  for (const name of Object.keys(cards)) {
+    if (!tools.has(name) && !ASSISTANT_SERVER_TOOLS.has(name)) {
+      problems.push(`tool "${name}" with cards of a package is neither registered nor the server's own`);
+    }
+  }
   for (const undo of Object.values(ASSISTANT_UNDO_MAP)) {
     if (!tools.has(undo.tool)) problems.push(`undo tool "${undo.tool}" is not registered`);
+  }
+  for (const name of undoReadTools(cards)) {
+    if (!tools.has(name)) problems.push(`undo read "${name}" is not registered`);
+  }
+  for (const name of heldReads) {
+    if (!tools.has(name)) problems.push(`held read "${name}" of a package is not registered`);
   }
   // The server's own steps are told apart from tool calls by name alone.
   for (const name of [...ASSISTANT_SERVER_TOOLS, USE_TOOLS_TOOL]) {

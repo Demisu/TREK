@@ -1,5 +1,6 @@
 import type { McpRegistryListing } from '../../nest-mcp';
 import type { AiToolSpec } from '../ai-connections/ai-chat-client.interface';
+import { PACKAGE_HELD_READS, PACKAGE_TOOL_CONTROLLERS } from './cards/registry';
 
 /**
  * Which of TREK's MCP tools the assistant is offered, and how. Every tool the
@@ -81,11 +82,15 @@ const SHARE_LIKE_SAFE: ReadonlySet<string> = new Set([
 ]);
 const SHARE_LIKE = /share|invite|feed/;
 
-/** Read-only tools that still wait for the user: they fetch an address that came from the web or a message. */
+/**
+ * Read-only tools that still wait for the user: they fetch an address that
+ * came from the web or a message. The packages add theirs in their cards.
+ */
 export const HELD_READS: ReadonlySet<string> = new Set([
   'resolve_maps_url',
   'preview_google_maps_route',
   'preview_google_maps_walk',
+  ...PACKAGE_HELD_READS,
 ]);
 
 export function isOfferedTool(name: string): boolean {
@@ -103,12 +108,15 @@ export function checkDenylist(names: Iterable<string>): string[] {
   return problems;
 }
 
+type ToolGroups = Readonly<Record<string, { about: string; controllers: readonly string[] }>>;
+
 /**
  * The tool groups a turn can load, by the MCP controller that registers the
  * tools, each with the words the model reads to pick it. A controller not
- * listed here belongs to the core, which every step offers.
+ * listed here, nor added by a package (`toolControllers` in its cards),
+ * belongs to the core, which every step offers.
  */
-export const ASSISTANT_TOOL_GROUPS: Readonly<Record<string, { about: string; controllers: readonly string[] }>> = {
+const CORE_TOOL_GROUPS: ToolGroups = {
   tours: {
     about:
       'Tours: hikes, bike tours, city walks, paddling and ski routes; plan, create, change and export them ' +
@@ -183,6 +191,29 @@ export const ASSISTANT_TOOL_GROUPS: Readonly<Record<string, { about: string; con
     controllers: ['PluginPoisMcp', 'PluginSearchMcp'],
   },
 };
+
+/**
+ * The groups with the controllers the packages added to them. A package that
+ * names a group this file does not know, or a controller a group lists
+ * already, stops the server at load.
+ */
+export function withPackageControllers(
+  core: ToolGroups,
+  added: Readonly<Record<string, readonly string[]>>,
+): ToolGroups {
+  const groups = Object.fromEntries(Object.entries(core).map(([group, value]) => [group, { ...value }]));
+  const listed = new Set(Object.values(core).flatMap((group) => group.controllers));
+  for (const [group, controllers] of Object.entries(added)) {
+    const known = groups[group];
+    if (!known) throw new Error(`Assistant tool groups: no group "${group}" for ${controllers.join(', ')}`);
+    const twice = controllers.find((controller) => listed.has(controller));
+    if (twice) throw new Error(`Assistant tool groups: controller "${twice}" is listed already`);
+    known.controllers = [...known.controllers, ...controllers];
+  }
+  return groups;
+}
+
+export const ASSISTANT_TOOL_GROUPS = withPackageControllers(CORE_TOOL_GROUPS, PACKAGE_TOOL_CONTROLLERS);
 
 const GROUP_OF_CONTROLLER = new Map(
   Object.entries(ASSISTANT_TOOL_GROUPS).flatMap(([group, { controllers }]) =>

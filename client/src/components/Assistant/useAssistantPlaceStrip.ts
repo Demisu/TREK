@@ -15,6 +15,7 @@ import { safeHexColor } from '../../utils/safeColor';
 import { formatDistance } from '../../utils/units';
 import { hasUndecided } from './assistantParts';
 import { useAssistantView } from './assistantViewContext';
+import { useCardPoint } from './cards/parts/useCardPoint';
 
 /** A day a found place can be suggested for, named the way the day list names it. */
 interface StripDay {
@@ -64,7 +65,7 @@ function lastSpot(stops: readonly Assignment[] | undefined): { lat: number; lng:
  */
 export function useAssistantPlaceStrip() {
   const { t, locale } = useTranslation();
-  const { tripId, onRevealMap } = useAssistantView();
+  const { tripId } = useAssistantView();
   const { offline } = useNetworkMode();
   const can = useCanDo();
   const unit = useSettingsStore((s) => s.settings.distance_unit ?? 'metric');
@@ -91,8 +92,7 @@ export function useAssistantPlaceStrip() {
     })
   );
   const addFoundPlace = useAssistantStore((s) => s.addFoundPlace);
-  const requestCamera = useAssistantStore((s) => s.requestCamera);
-  const setPreviewPin = useAssistantStore((s) => s.setPreviewPin);
+  const point = useCardPoint();
   const [adding, setAdding] = useState<string | null>(null);
 
   const stripDays = useMemo(
@@ -137,18 +137,14 @@ export function useAssistantPlaceStrip() {
   };
 
   /** Shows the place on the map; on the phone the chat steps aside first. */
-  const show = (place: AssistantFoundPlace) => {
-    onRevealMap?.();
-    requestCamera(tripId, [[place.lat, place.lng]], 'pan', 'user');
-  };
+  const show = point.show;
 
-  // Stable, so the strip can take the pin away when it goes.
+  // The pin goes with the strip: the card point takes it away when it unmounts.
+  const { hover: hoverPoint } = point;
   const hover = useCallback(
-    (place: AssistantFoundPlace | null) => {
-      if (place) setPreviewPin({ tripId, ref: place.ref, lat: place.lat, lng: place.lng, name: place.name });
-      else setPreviewPin(null);
-    },
-    [tripId, setPreviewPin]
+    (place: AssistantFoundPlace | null) =>
+      hoverPoint(place ? { ref: place.ref, lat: place.lat, lng: place.lng, name: place.name } : null),
+    [hoverPoint]
   );
 
   return {

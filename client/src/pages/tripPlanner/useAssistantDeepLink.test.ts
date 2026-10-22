@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { useAssistantStore } from '../../store/assistantStore';
 import type { Day } from '../../types';
-import { useAssistantDeepLink } from './useAssistantDeepLink';
+import { useAssistantDeepLink, useAssistantTabLink } from './useAssistantDeepLink';
 
 const day = (id: number, tripId = 5) => ({ id, trip_id: tripId }) as Day;
 
@@ -57,5 +57,35 @@ describe('useAssistantDeepLink', () => {
     expect(setSearchParams).not.toHaveBeenCalled();
     expect(selectDay).not.toHaveBeenCalled();
     expect(useAssistantStore.getState().window.open).toBe(false);
+  });
+});
+
+describe('useAssistantTabLink', () => {
+  function setupTab(query: string, activeTab: string) {
+    const searchParams = new URLSearchParams(query);
+    const setSearchParams = vi.fn((update: (params: URLSearchParams) => URLSearchParams) => update(searchParams));
+    const selectTab = vi.fn();
+    renderHook(() =>
+      useAssistantTabLink({ searchParams, setSearchParams: setSearchParams as never, activeTab, selectTab })
+    );
+    return { searchParams, setSearchParams, selectTab };
+  }
+
+  it('FE-PLANNER-ASSISTLINK-005: a ?tab= the chat opens while the planner is open switches the tab, once', () => {
+    const { searchParams, selectTab } = setupTab('tab=finanzplan&expense=7', 'plan');
+    expect(selectTab).toHaveBeenCalledWith('finanzplan');
+    expect(searchParams.has('tab')).toBe(false);
+    // What the tab reads beside it stays for the tab to take.
+    expect(searchParams.get('expense')).toBe('7');
+  });
+
+  it('FE-PLANNER-ASSISTLINK-006: the tab on screen is not switched again; a tab it cannot open is left alone', () => {
+    const same = setupTab('tab=finanzplan', 'finanzplan');
+    expect(same.selectTab).not.toHaveBeenCalled();
+    expect(same.searchParams.has('tab')).toBe(false);
+
+    const unknown = setupTab('tab=nowhere', 'plan');
+    expect(unknown.selectTab).not.toHaveBeenCalled();
+    expect(unknown.setSearchParams).not.toHaveBeenCalled();
   });
 });

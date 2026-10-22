@@ -1,5 +1,6 @@
 import type {
   AssistantApplied,
+  AssistantCard,
   AssistantDecision,
   AssistantMessage,
   AssistantMessagePart,
@@ -62,6 +63,8 @@ export function applyChunk(
       ]);
     case 'data-trek-weather':
       return withCurrent(messages, now, (parts) => [...parts, { type: 'data-trek-weather', data: chunk.data }]);
+    case 'data-trek-card':
+      return chunk.data.card ? placeCard(messages, now, chunk.data) : messages;
     case 'finish':
       return withStatus(messages, (m) =>
         m.status === 'error' ? m.status : m.parts.some(isAwaitingDecision) ? 'awaiting_approval' : 'complete'
@@ -203,6 +206,31 @@ function upsertCall(
 ): AssistantMessage[] {
   if (findCall(messages, toolCallId) >= 0) return updateCall(messages, toolCallId, (p) => edit({ ...p, toolName }));
   return withCurrent(messages, now, (parts) => [...parts, edit({ type: 'tool-call', toolCallId, toolName, args: {} })]);
+}
+
+/**
+ * Puts a card where it belongs: an applied write's next to the change that
+ * proposed it (an earlier message, when the decisions stream sends it), a
+ * read's into the message being written. A repeated card for the same call
+ * replaces the one before.
+ */
+function placeCard(messages: AssistantMessage[], now: () => string, data: AssistantCard): AssistantMessage[] {
+  const card: AssistantMessagePart = { type: 'data-trek-card', data };
+  const keep = (parts: AssistantMessagePart[]) => [
+    ...parts.filter((p) => !(p.type === 'data-trek-card' && p.data.toolCallId === data.toolCallId)),
+    card,
+  ];
+  const at = findChange(messages, data.toolCallId);
+  if (at < 0) return withCurrent(messages, now, keep);
+  return messages.map((m, i) => (i === at ? { ...m, parts: keep(m.parts) } : m));
+}
+
+/** The message holding the change a call proposed, or -1. */
+function findChange(messages: readonly AssistantMessage[], toolCallId: string): number {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i]?.parts.some((p) => p.type === 'tool-call' && p.toolCallId === toolCallId && p.approval)) return i;
+  }
+  return -1;
 }
 
 /** Puts the receipt of an applied change next to its call, so the card and its receipt stay together. */

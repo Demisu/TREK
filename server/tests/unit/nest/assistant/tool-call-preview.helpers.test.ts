@@ -3,19 +3,18 @@
  * locale, the value before a change, and the receipt of an applied change.
  */
 import { buildTripCard } from '../../../../src/nest/assistant/assistant-context';
-import { ASSISTANT_WRITE_TOOLS } from '../../../../src/nest/assistant/assistant-tools.constants';
-import {
-  appliedChange,
-  dayLabel,
-  describeToolCall,
-  type PreviewContext,
-} from '../../../../src/nest/assistant/tool-call-preview.helpers';
-import { assistantChangePreviewSchema } from '@trek/shared';
+import type { AssistantWriteTool } from '../../../../src/nest/assistant/assistant-tools.constants';
+import type { PreviewContext, ToolCards } from '../../../../src/nest/assistant/cards/card-types';
+import { dayLabel, Rows } from '../../../../src/nest/assistant/cards/preview-format';
+import { ASSISTANT_WRITE_TOOLS, FOREIGN_ID_GROUPS, TOOL_CARDS } from '../../../../src/nest/assistant/cards/registry';
+import { appliedChange, describeToolCall } from '../../../../src/nest/assistant/tool-call-preview.helpers';
+import { assistantChangePreviewSchema, trekCardSchema, type TrekCard } from '@trek/shared';
 
 import { describe, expect, it } from 'vitest';
 
 const card = buildTripCard(
   1,
+  7,
   {
     trip: { title: 'Kyoto', currency: 'EUR' },
     members: { owner: { id: 7, username: 'mia' }, collaborators: [{ id: 8, username: 'jon' }] },
@@ -56,6 +55,8 @@ const ctx: PreviewContext = {
     [3, 'Sights'],
   ]),
   locale: 'en-GB',
+  today: '2026-06-01',
+  airport: () => null,
 };
 
 const describe_ = (name: string, args: Record<string, unknown>) => describeToolCall(name, 'tc-1', args, ctx);
@@ -514,5 +515,106 @@ describe('the cards of tours', () => {
     expect(appliedChange('import_tour_gpx', 'tc', {}, { tours: [], skipped: 1 }, null, null)).toMatchObject({
       ids: [],
     });
+  });
+
+  /**
+   * Lends a tool package cards for one case, the way a package's index adds
+   * them, and takes them back after it.
+   */
+  function withCards<T>(tool: string, cards: ToolCards, write: AssistantWriteTool | null, run: () => T): T {
+    const tools = TOOL_CARDS as Record<string, ToolCards>;
+    const writes = ASSISTANT_WRITE_TOOLS as Record<string, AssistantWriteTool>;
+    const [before, writeBefore] = [tools[tool], writes[tool]];
+    tools[tool] = { ...before, ...cards };
+    if (write) writes[tool] = write;
+    try {
+      return run();
+    } finally {
+      if (before) tools[tool] = before;
+      else Reflect.deleteProperty(tools, tool);
+      if (writeBefore) writes[tool] = writeBefore;
+      else Reflect.deleteProperty(writes, tool);
+    }
+  }
+
+  it("ASTPRV-028: a package's describer speaks for its tool with its lookup, its overrides and its effect", () => {
+    const cards: ToolCards<string> = {
+      describe: (_ctx, args, loaded) => ({
+        subject: `${String(args.name)} (${loaded ?? 'none'})`,
+        rows: new Rows().add('day', 'Fri'),
+        dayId: 32,
+        placeIds: [],
+        verbKey: 'genericUpdate',
+        tool: 'plan_vacay_days',
+        domain: 'vacay',
+      }),
+      effect: (_ctx, _args, loaded) =>
+        loaded ? { kind: 'add', dayId: 32, fromDayId: null, placeId: 12, assignmentId: null, place: null } : null,
+    };
+    const preview = withCards('plan_vacay_days', cards, { verbKey: 'genericCreate', entity: 'other' }, () =>
+      describeToolCall('plan_vacay_days', 'tc-30', { name: 'Summer' }, ctx, 'plan'),
+    );
+    expect(preview).toMatchObject({
+      verbKey: 'genericUpdate',
+      subject: 'Summer (plan)',
+      tool: 'plan_vacay_days',
+      domain: 'vacay',
+      dayId: 32,
+      undoable: false,
+      effect: { kind: 'add', dayId: 32, placeId: 12 },
+    });
+    expect(assistantChangePreviewSchema.safeParse(preview).success).toBe(true);
+  });
+
+  it('ASTPRV-029: a change card rides on a curated and on a generic card; one its kind refuses stays out', () => {
+    const built = { kind: 'tourRoute' } as TrekCard;
+    const drawn = trekCardSchema.safeParse(built).success ? { card: built } : {};
+    const curated = withCards('create_place', { change: () => built }, null, () =>
+      describe_('create_place', { name: 'Kinkaku-ji' }),
+    );
+    expect(curated).toMatchObject({ verbKey: 'addPlace', subject: 'Kinkaku-ji', ...drawn });
+    const generic = withCards('set_vacay_days', { change: () => built }, null, () =>
+      describe_('set_vacay_days', { days: 3 }),
+    );
+    expect(generic).toMatchObject({ tool: 'set_vacay_days', ...drawn });
+    const refused = withCards(
+      'set_vacay_days',
+      { change: () => ({ kind: 'bookPage' }) as unknown as TrekCard },
+      null,
+      () => describe_('set_vacay_days', { days: 3 }),
+    );
+    expect(refused).not.toHaveProperty('card');
+    expect(describe_('create_place', { name: 'Kinkaku-ji' })).not.toHaveProperty('card');
+  });
+
+  it("ASTPRV-030: a package's applied ids name the receipt before the answer's usual keys", () => {
+    const applied = withCards('create_place', { appliedIds: (_args, result) => [Number(result)] }, null, () =>
+      appliedChange('create_place', 'tc', {}, 77, null, null),
+    );
+    expect(applied).toMatchObject({ entity: 'place', ids: [77] });
+    expect(appliedChange('create_place', 'tc', {}, { place: { id: 5 } }, null, null)).toMatchObject({ ids: [5] });
+  });
+
+  it('ASTPRV-031: a package names its ids first; a place id of a tool outside the trip is no trip place', () => {
+    const groups = FOREIGN_ID_GROUPS as Set<string>;
+    const saved = { ...ctx, hintOf: () => ({ destructive: false, creates: true, group: 'collections' }) };
+    const add = () => describeToolCall('add_collection_place', 'tc-31', { placeId: 12 }, saved);
+    // Place 12 is the trip's Nishiki Market until the collections say their ids are their own.
+    expect(add()).toMatchObject({ subject: 'Nishiki Market', placeIds: [12], domain: 'collections' });
+    groups.add('collections');
+    try {
+      const outside = add();
+      expect(outside).toMatchObject({ subject: 'add collection place', placeIds: [] });
+      expect(outside.rows).toEqual([{ op: 'add', labelKey: 'field', field: 'placeId', before: null, after: '12' }]);
+      const named = withCards(
+        'add_collection_place',
+        { nameArg: (key, value) => (key === 'placeId' ? `Saved place ${value}` : null) },
+        null,
+        add,
+      );
+      expect(named).toMatchObject({ subject: 'Saved place 12', rows: [], placeIds: [] });
+    } finally {
+      groups.delete('collections');
+    }
   });
 });

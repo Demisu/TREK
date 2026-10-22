@@ -1,12 +1,13 @@
 /**
- * FE-AI-MSG-CARDS-001 to 002
+ * FE-AI-MSG-CARDS-001 to 005
  *
  * The places and the weather a step found are stored parts of the answer,
  * like a change card: they land in the message being written, and a chunk
  * sent again for the same search step replaces its part instead of adding a
- * second strip.
+ * second strip. A tool's card lands the same way, except an applied write's,
+ * which joins the change that proposed it.
  */
-import type { AssistantMessage, AssistantPlaces } from '@trek/shared';
+import type { AssistantMessage, AssistantPlaces, TrekCard } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 import { applyChunk } from './assistantMessages';
 
@@ -68,5 +69,46 @@ describe('assistantMessages: cards in an answer', () => {
       NOW
     );
     expect(messages[0]?.parts.map((p) => p.type)).toEqual(['data-trek-weather']);
+  });
+
+  const ROUTE: TrekCard = { kind: 'tourRoute' };
+  const LIST: TrekCard = { kind: 'tourList' };
+  const cardsOf = (message: AssistantMessage | undefined) =>
+    message?.parts.flatMap((p) => (p.type === 'data-trek-card' ? [p.data] : [])) ?? [];
+
+  it('FE-AI-MSG-CARDS-003: a read card lands in the answer, replaced when sent again; a null card is skipped', () => {
+    let messages = started();
+    messages = applyChunk(messages, { type: 'data-trek-card', data: { toolCallId: 'r1', card: ROUTE } }, NOW);
+    messages = applyChunk(messages, { type: 'data-trek-card', data: { toolCallId: 'r1', card: LIST } }, NOW);
+    messages = applyChunk(messages, { type: 'data-trek-card', data: { toolCallId: 'r2', card: null } }, NOW);
+    expect(cardsOf(messages[0])).toEqual([{ toolCallId: 'r1', card: LIST }]);
+  });
+
+  it('FE-AI-MSG-CARDS-004: in the decisions stream an applied card joins the message that proposed the change', () => {
+    const proposing: AssistantMessage = {
+      id: 'msg-1',
+      role: 'assistant',
+      status: 'awaiting_approval',
+      createdAt: NOW(),
+      parts: [{ type: 'tool-call', toolCallId: 'w1', toolName: 'create_hike', args: {}, approval: { id: 'w1' } }],
+    };
+    let messages = applyChunk([proposing], { type: 'start', messageId: 'msg-2' }, NOW);
+    messages = applyChunk(messages, { type: 'data-trek-card', data: { toolCallId: 'w1', card: ROUTE } }, NOW);
+    expect(cardsOf(messages[0])).toEqual([{ toolCallId: 'w1', card: ROUTE }]);
+    expect(cardsOf(messages[1])).toEqual([]);
+  });
+
+  it('FE-AI-MSG-CARDS-005: a card under a call that holds no change stays in the message being written', () => {
+    const earlier: AssistantMessage = {
+      id: 'msg-1',
+      role: 'assistant',
+      status: 'complete',
+      createdAt: NOW(),
+      parts: [{ type: 'tool-call', toolCallId: 'r1', toolName: 'list_tours', args: {} }],
+    };
+    let messages = applyChunk([earlier], { type: 'start', messageId: 'msg-2' }, NOW);
+    messages = applyChunk(messages, { type: 'data-trek-card', data: { toolCallId: 'r1', card: LIST } }, NOW);
+    expect(cardsOf(messages[0])).toEqual([]);
+    expect(cardsOf(messages[1])).toEqual([{ toolCallId: 'r1', card: LIST }]);
   });
 });

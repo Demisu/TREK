@@ -20,6 +20,7 @@ import { assistantRepo } from '../repo/assistantRepo';
 import { OnlineOnlyError } from '../repo/onlineOnly';
 import type { Assignment } from '../types';
 import { randomId } from '../utils/randomId';
+import type { RouteProfileFocus } from '../utils/routeGeometry';
 import {
   blockDays,
   blockKeyOf,
@@ -74,6 +75,8 @@ interface AssistantTripChat {
   compare: AssistantCompare | null;
   /** The days, places and bookings named with @ in the draft. */
   mentions: AssistantMentionItem[];
+  /** The way picked among the ways a block of cards offers, by block. */
+  picks: Record<string, string>;
 }
 
 /** A mention as the composer picked it, with the label it wrote into the text. */
@@ -122,8 +125,17 @@ interface AssistantState {
   mapLink: { tripId: number; hoveredId: string | null; source: AssistantMapSource } | null;
   /** The latest request to move the map; `seq` tells a new one from the same points asked again. */
   camera: { tripId: number; seq: number; points: LatLng[]; mode: 'fit' | 'pan'; why: 'user' | 'auto' } | null;
-  /** A found place the pointer rests on, drawn on the map until it leaves. */
-  preview: { tripId: number; ref: string; lat: number; lng: number; name: string } | null;
+  /**
+   * A spot a card points at (a found place, a row), drawn on the map until
+   * the pointer leaves; a place of the trip pulses its own pin instead.
+   */
+  preview: { tripId: number; ref: string; lat: number; lng: number; name: string; placeId?: number } | null;
+  /** The point of a route a card and the map both show, from the card's profile or from the line on the map. */
+  routeFocus: { tripId: number; ref: string; focus: RouteProfileFocus; source: 'card' | 'map' } | null;
+  /** A line a card asks the map to draw while the pointer rests on it (a day of a drive, a saved tour). */
+  routePreview: { tripId: number; ref: string; lines: LatLng[][]; color: string } | null;
+  /** The route card the phone shows over the map. */
+  routePeek: { tripId: number; toolCallId: string } | null;
   /** Where the floating window sits after its last move or resize, for the map to frame around it. */
   windowRect: WindowRect | null;
   /** The part of the planner's map on screen, sent with a question so "here" means it. */
@@ -173,6 +185,14 @@ interface AssistantState {
   setPreviewPin: (preview: AssistantState['preview']) => void;
   setWindowRect: (rect: WindowRect | null) => void;
   setMapView: (mapView: AssistantState['mapView']) => void;
+
+  setRouteFocus: (routeFocus: AssistantState['routeFocus']) => void;
+  setRoutePreview: (routePreview: AssistantState['routePreview']) => void;
+  setRoutePeek: (routePeek: AssistantState['routePeek']) => void;
+  /** Picks one of the ways a block of cards offers. */
+  pick: (tripId: number, blockKey: string, toolCallId: string) => void;
+  /** Takes a proposal an answer showed as a card ("Plan this"); the server holds it as a change to decide. */
+  takeProposal: (tripId: number, toolCallId: string) => Promise<void>;
 }
 
 const NO_LIVE: AssistantTripChat['live'] = { activity: null };
@@ -192,7 +212,11 @@ const EMPTY_CHAT: AssistantTripChat = {
   undone: {},
   compare: null,
   mentions: [],
+  picks: {},
 };
+
+/** What the map shows for the cards of a chat, cleared when the chat closes or changes. */
+const NO_ROUTE = { routeFocus: null, routePreview: null, routePeek: null } as const;
 
 /** A trip's chat as the store holds it, or the empty one; stable, so a selector can return it. */
 export function chatOf(state: Pick<AssistantState, 'byTrip'>, tripId: number): AssistantTripChat {
@@ -462,6 +486,7 @@ function shellActions(ctx: Ctx) {
         window: { open: false, minimized: false },
         mapLink: null,
         preview: null,
+        ...NO_ROUTE,
         byTrip: backToAfter(s.byTrip),
       })),
     // Closed or minimized opens it; open closes it.
@@ -487,6 +512,7 @@ function threadActions(ctx: Ctx) {
 
   const openThread = async (tripId: number, threadId: number) => {
     if (chat(ctx, tripId).isRunning) return;
+    ctx.set(NO_ROUTE);
     patch(ctx, tripId, { threadId, loading: true, error: null, unsent: null });
     try {
       const { messages } = await assistantRepo.thread(tripId, threadId);
@@ -510,6 +536,7 @@ function threadActions(ctx: Ctx) {
 
   const newThread = (tripId: number) => {
     chat(ctx, tripId).abort?.abort();
+    ctx.set(NO_ROUTE);
     // The block a comparison belonged to leaves the screen with its thread.
     patch(ctx, tripId, {
       threadId: null,
@@ -619,23 +646,41 @@ function compareActions(ctx: Ctx) {
       const points = [...dayPoints(compare.snapshot, days), ...dayPoints(useTripStore.getState().assignments, days)];
       requestCameraOn(ctx, tripId, points, 'fit', 'user');
     },
-    addFoundPlace: async (tripId: number, ref: string, dayId: number) => {
-      const threadId = chat(ctx, tripId).threadId;
-      if (chat(ctx, tripId).isRunning || threadId === null) return;
-      try {
-        const { message } = await assistantRepo.addFoundPlace(tripId, threadId, { ...clientContext(), ref, dayId });
-        const c = chat(ctx, tripId);
-        // The thread may have changed while the server answered. The server sends back the whole answer the
-        // card joined, under that answer's id, so it replaces the message it already holds.
-        if (c.threadId !== threadId) return;
-        const known = c.messages.some((m) => m.id === message.id);
-        const messages = known ? c.messages.map((m) => (m.id === message.id ? message : m)) : [...c.messages, message];
-        patch(ctx, tripId, { messages, error: null });
-      } catch (err) {
-        patch(ctx, tripId, { error: errorCodeOf(err) });
-      }
-    },
+    addFoundPlace: (tripId: number, ref: string, dayId: number) =>
+      holdWithoutTurn(ctx, tripId, (threadId) =>
+        assistantRepo.addFoundPlace(tripId, threadId, { ...clientContext(), ref, dayId })
+      ),
+    takeProposal: (tripId: number, toolCallId: string) =>
+      holdWithoutTurn(ctx, tripId, (threadId) =>
+        assistantRepo.takeProposal(tripId, threadId, { ...clientContext(), toolCallId })
+      ),
   };
+}
+
+/**
+ * A change the server holds without a model turn (a found place for a day, a
+ * proposal a card showed), joined to the answer it belongs to. The server
+ * sends back that whole answer under its id, so it replaces the message the
+ * chat already holds.
+ */
+async function holdWithoutTurn(
+  ctx: Ctx,
+  tripId: number,
+  hold: (threadId: number) => Promise<{ message: AssistantMessage }>
+): Promise<void> {
+  const threadId = chat(ctx, tripId).threadId;
+  if (chat(ctx, tripId).isRunning || threadId === null) return;
+  try {
+    const { message } = await hold(threadId);
+    const c = chat(ctx, tripId);
+    // The thread may have changed while the server answered.
+    if (c.threadId !== threadId) return;
+    const known = c.messages.some((m) => m.id === message.id);
+    const messages = known ? c.messages.map((m) => (m.id === message.id ? message : m)) : [...c.messages, message];
+    patch(ctx, tripId, { messages, error: null });
+  } catch (err) {
+    patch(ctx, tripId, { error: errorCodeOf(err) });
+  }
 }
 
 function requestCameraOn(ctx: Ctx, tripId: number, points: LatLng[], mode: 'fit' | 'pan', why: 'user' | 'auto') {
@@ -662,6 +707,35 @@ function mapActions(ctx: Ctx) {
     setPreviewPin: (preview: AssistantState['preview']) => ctx.set({ preview }),
     setWindowRect: (rect: WindowRect | null) => ctx.set({ windowRect: rect }),
     setMapView: (mapView: AssistantState['mapView']) => ctx.set({ mapView }),
+  };
+}
+
+/** Whether two route focuses point at the same spot of the same route from the same side. */
+function sameFocus(a: AssistantState['routeFocus'], b: AssistantState['routeFocus']): boolean {
+  if (a === null || b === null) return a === b;
+  return (
+    a.tripId === b.tripId &&
+    a.ref === b.ref &&
+    a.source === b.source &&
+    a.focus.sampleIndex === b.focus.sampleIndex &&
+    a.focus.distanceMeters === b.focus.distanceMeters
+  );
+}
+
+function routeActions(ctx: Ctx) {
+  return {
+    // Scrubbing repeats the same spot; only a change reaches the subscribers.
+    setRouteFocus: (routeFocus: AssistantState['routeFocus']) => {
+      if (!sameFocus(ctx.get().routeFocus, routeFocus)) ctx.set({ routeFocus });
+    },
+    setRoutePreview: (routePreview: AssistantState['routePreview']) => {
+      const current = ctx.get().routePreview;
+      if (current?.tripId === routePreview?.tripId && current?.ref === routePreview?.ref) return;
+      ctx.set({ routePreview });
+    },
+    setRoutePeek: (routePeek: AssistantState['routePeek']) => ctx.set({ routePeek }),
+    pick: (tripId: number, blockKey: string, toolCallId: string) =>
+      patch(ctx, tripId, { picks: { ...chat(ctx, tripId).picks, [blockKey]: toolCallId } }),
   };
 }
 
@@ -728,10 +802,12 @@ export const useAssistantStore = create<AssistantState>((set, get) => {
     preview: null,
     windowRect: null,
     mapView: null,
+    ...NO_ROUTE,
     ...shellActions(ctx),
     ...threadActions(ctx),
     ...turnActions(ctx),
     ...compareActions(ctx),
     ...mapActions(ctx),
+    ...routeActions(ctx),
   };
 });

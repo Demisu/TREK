@@ -1,10 +1,11 @@
-import type { AssistantApplied } from '@trek/shared';
 import { useCallback, useMemo } from 'react';
 import { useLocation, useMatch, useNavigate } from 'react-router';
 
+import { rememberListsSubTab } from '../../hooks/useListsSubTab';
 import { useTripStore } from '../../store/tripStore';
 import AssistantWindow from './AssistantWindow';
-import { showOnMapSearch } from './assistantShowOnMap';
+import { plannerSearchOf } from './assistantShowOnMap';
+import type { EntityTarget } from './cards/cardTypes';
 
 /** The trip a route under /trips/:id shows, or null anywhere else. */
 function useRouteTripId(): number | null {
@@ -15,10 +16,12 @@ function useRouteTripId(): number | null {
 
 /**
  * The desktop assistant, mounted once above the routes so a conversation
- * keeps going from page to page. Inside a trip it is about that trip; "Show
- * on map" opens the planner on the change through its links (`?place=`,
- * `?day=`), the same way a notification opens a place, and a day picked in
- * the chat (its weather) selects that day the same way.
+ * keeps going from page to page. Inside a trip it is about that trip; what a
+ * card or an applied change opens goes through the planner's links: "Show on
+ * map" opens the planner on the change (`?place=`, `?day=`), the same way a
+ * notification opens a place, a tab of the trip opens as `?tab=` (a list's
+ * own tab remembered first), and another page is simply navigated to. A day
+ * picked in the chat (its weather) selects that day the same way.
  */
 export default function AssistantHost() {
   const navigate = useNavigate();
@@ -36,8 +39,20 @@ export default function AssistantHost() {
     },
     [navigate, pathname, tripId]
   );
-  const showOnMap = useCallback((applied: AssistantApplied) => openPlanner(showOnMapSearch(applied)), [openPlanner]);
+  const open = useCallback(
+    (target: EntityTarget) => {
+      if (target.kind === 'page') {
+        void navigate(target.path);
+        return;
+      }
+      if (target.kind === 'tab' && target.tab === 'listen' && tripId !== null) {
+        if (target.sub === 'packing' || target.sub === 'todo') rememberListsSubTab(tripId, target.sub);
+      }
+      openPlanner(plannerSearchOf(target));
+    },
+    [navigate, openPlanner, tripId]
+  );
   const focusDay = useCallback((dayId: number) => openPlanner(`?day=${dayId}`), [openPlanner]);
 
-  return <AssistantWindow trip={trip} onShowOnMap={showOnMap} onFocusDay={focusDay} />;
+  return <AssistantWindow trip={trip} onOpen={open} onFocusDay={focusDay} />;
 }

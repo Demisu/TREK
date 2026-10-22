@@ -1,10 +1,10 @@
 /**
- * FE-AI-HOST-001 to FE-AI-HOST-005
+ * FE-AI-HOST-001 to FE-AI-HOST-007
  *
- * The desktop host follows the trip on screen and sends "Show on map" and a
- * picked day to the planner through its links.
+ * The desktop host follows the trip on screen and sends what the chat opens
+ * (a spot on the map, a tab of the trip, another page) and a picked day to
+ * the planner through its links.
  */
-import type { AssistantApplied } from '@trek/shared';
 import { useLocation } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -12,10 +12,11 @@ import { act, render, screen } from '../../../tests/helpers/render';
 import { useTripStore } from '../../store/tripStore';
 import type { Trip } from '../../types';
 import AssistantHost from './AssistantHost';
+import type { EntityTarget } from './cards/cardTypes';
 
 interface WindowProps {
   trip: { id: number; title: string } | null;
-  onShowOnMap?: (applied: AssistantApplied) => void;
+  onOpen?: (target: EntityTarget) => void;
   onFocusDay?: (dayId: number) => void;
 }
 const seen: { props: WindowProps | null } = { props: null };
@@ -42,19 +43,12 @@ function renderAt(path: string) {
   );
 }
 
-const applied = (entity: AssistantApplied['entity'], ids: number[], dayId: number | null): AssistantApplied => ({
-  toolCallId: 'c1',
-  entity,
-  ids,
-  dayId,
-  undoUntil: null,
-});
-
 const INITIAL = useTripStore.getState();
 
 afterEach(() => {
   useTripStore.setState(INITIAL, true);
   seen.props = null;
+  sessionStorage.clear();
 });
 
 describe('AssistantHost', () => {
@@ -73,11 +67,27 @@ describe('AssistantHost', () => {
 
   it('FE-AI-HOST-003: "Show on map" opens the planner on the place, or on the day', () => {
     renderAt('/trips/5/files');
-    act(() => seen.props?.onShowOnMap?.(applied('place', [7], 2)));
+    act(() => seen.props?.onOpen?.({ kind: 'map', placeId: 7, dayId: null }));
     expect(screen.getByTestId('location')).toHaveTextContent('/trips/5?place=7');
 
-    act(() => seen.props?.onShowOnMap?.(applied('day_note', [9], 3)));
+    act(() => seen.props?.onOpen?.({ kind: 'map', placeId: null, dayId: 3 }));
     expect(screen.getByTestId('location')).toHaveTextContent('/trips/5?day=3');
+  });
+
+  it('FE-AI-HOST-006: a tab of the trip opens as ?tab= with its params, a list tab remembers its own list first', () => {
+    renderAt('/trips/5');
+    act(() => seen.props?.onOpen?.({ kind: 'tab', tab: 'finanzplan', params: { expense: '7' } }));
+    expect(screen.getByTestId('location')).toHaveTextContent('/trips/5?tab=finanzplan&expense=7');
+
+    act(() => seen.props?.onOpen?.({ kind: 'tab', tab: 'listen', sub: 'todo' }));
+    expect(screen.getByTestId('location')).toHaveTextContent('/trips/5?tab=listen');
+    expect(sessionStorage.getItem('trip-lists-subtab-5')).toBe('todo');
+  });
+
+  it('FE-AI-HOST-007: another page is navigated to as it is', () => {
+    renderAt('/trips/5');
+    act(() => seen.props?.onOpen?.({ kind: 'page', path: '/atlas' }));
+    expect(screen.getByTestId('location')).toHaveTextContent('/atlas');
   });
 
   it('FE-AI-HOST-005: a day picked in the chat selects it in the planner', () => {

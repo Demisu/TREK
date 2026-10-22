@@ -1,9 +1,10 @@
 /**
- * FE-AI-PARTS-001 to FE-AI-PARTS-014
+ * FE-AI-PARTS-001 to FE-AI-PARTS-019
  *
  * How an answer is laid out: text, the steps the assistant looked up, the
- * places and the weather they found, and one card per batch of proposed
- * changes, each change in the state its approval and receipt put it in.
+ * places and the weather they found, the cards its tools brought, and one
+ * card per batch of proposed changes, each change in the state its approval
+ * and receipt put it in, with its own card.
  */
 import {
   ASSISTANT_CHANGE_LABEL_KEYS,
@@ -13,10 +14,18 @@ import {
   type AssistantMessage,
   type AssistantMessagePart,
   type AssistantWeatherDay,
+  type TrekCard,
 } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 
-import { CHANGE_LABELS, hasUndecided, messageBlocks, suggestedFromStrip, undoLeftMs } from './assistantParts';
+import {
+  CHANGE_LABELS,
+  type CardRules,
+  hasUndecided,
+  messageBlocks,
+  suggestedFromStrip,
+  undoLeftMs,
+} from './assistantParts';
 
 const AT = '2026-10-21T08:00:00.000Z';
 
@@ -291,6 +300,94 @@ describe('messageBlocks: found places and weather', () => {
         { date: '2026-11-03', tempMax: 15 },
       ],
     });
+  });
+});
+
+describe('messageBlocks: cards', () => {
+  const ROUTE: TrekCard = { kind: 'tourRoute' };
+  const LIST: TrekCard = { kind: 'tourList' };
+  const card = (toolCallId: string, value: TrekCard | null): AssistantMessagePart => ({
+    type: 'data-trek-card',
+    data: { toolCallId, card: value },
+  });
+
+  it('FE-AI-PARTS-015: a read card joins the cards of its kind across steps, and the steps stay one row', () => {
+    const blocks = messageBlocks(
+      message([read('r1', {}), card('r1', LIST), read('r2', {}), card('r2', LIST), read('r3', {}), card('r3', ROUTE)]),
+      false
+    );
+    expect(blocks.map((b) => b.kind)).toEqual(['steps', 'cards', 'cards']);
+    expect(blocks[0]).toMatchObject({ steps: [{ toolCallId: 'r1' }, { toolCallId: 'r2' }, { toolCallId: 'r3' }] });
+    expect(blocks[1]).toMatchObject({ group: 'tourList', entries: [{ toolCallId: 'r1' }, { toolCallId: 'r2' }] });
+    expect(blocks[2]).toMatchObject({ group: 'tourRoute', entries: [{ toolCallId: 'r3', card: ROUTE }] });
+  });
+
+  it('FE-AI-PARTS-016: text between cards starts a new block; a card that did not read leaves nothing', () => {
+    const blocks = messageBlocks(
+      message([card('r1', LIST), { type: 'text', text: 'And more:' }, card('r2', LIST), card('r3', null)]),
+      false
+    );
+    expect(blocks.map((b) => b.kind)).toEqual(['cards', 'text', 'cards']);
+    expect(blocks[2]).toMatchObject({ entries: [{ toolCallId: 'r2' }] });
+  });
+
+  it('FE-AI-PARTS-017: a change carries its preview card until the applied card replaces it, and forms no block', () => {
+    const held = { ...preview('w1'), card: ROUTE };
+    const before = messageBlocks(message([write('w1'), { type: 'data-trek-change', data: held }]), false);
+    expect(before).toHaveLength(1);
+    expect(before[0]).toMatchObject({ kind: 'change', items: [{ toolCallId: 'w1', card: ROUTE }] });
+
+    const after = messageBlocks(
+      message([
+        write('w1', { approved: true }, { result: {} }),
+        { type: 'data-trek-change', data: held },
+        { type: 'data-trek-applied', data: applied('w1') },
+        card('w1', LIST),
+      ]),
+      false
+    );
+    expect(after.map((b) => b.kind)).toEqual(['change']);
+    expect(after[0]).toMatchObject({ items: [{ toolCallId: 'w1', state: 'applied', card: LIST }] });
+
+    const plain = messageBlocks(message([write('w2'), { type: 'data-trek-change', data: preview('w2') }]), false);
+    expect(plain[0]).toMatchObject({ items: [{ card: null }] });
+  });
+
+  it('FE-AI-PARTS-018: the rules group cards, and a lookup card that served a change gives way to it', () => {
+    const rules: CardRules = {
+      group: () => 'tours',
+      yieldsToChange: (answer, change) => answer.kind === 'tourList' && change.kind === 'tourRoute',
+    };
+    const parts: AssistantMessagePart[] = [
+      card('r1', LIST),
+      card('r2', ROUTE),
+      write('w1'),
+      { type: 'data-trek-change', data: { ...preview('w1'), card: ROUTE } },
+    ];
+    const blocks = messageBlocks(message(parts), false, rules);
+    expect(blocks.map((b) => b.kind)).toEqual(['cards', 'change']);
+    expect(blocks[0]).toMatchObject({ group: 'tours', entries: [{ toolCallId: 'r2' }] });
+
+    // Without a change card nothing gives way; with the plain rules each kind is its own group.
+    const plain = messageBlocks(message(parts.slice(0, 2)), false);
+    expect(plain.map((b) => (b.kind === 'cards' ? b.group : b.kind))).toEqual(['tourList', 'tourRoute']);
+  });
+
+  it('FE-AI-PARTS-019: a block left with no card goes, and a step after the cards joins the steps before them', () => {
+    const rules: CardRules = { group: (c) => c.kind, yieldsToChange: () => true };
+    const blocks = messageBlocks(
+      message([
+        read('r1', {}),
+        card('r1', LIST),
+        read('r2', {}),
+        write('w1'),
+        { type: 'data-trek-change', data: { ...preview('w1'), card: ROUTE } },
+      ]),
+      false,
+      rules
+    );
+    expect(blocks.map((b) => b.kind)).toEqual(['steps', 'change']);
+    expect(blocks[0]).toMatchObject({ steps: [{ toolCallId: 'r1' }, { toolCallId: 'r2' }] });
   });
 });
 
