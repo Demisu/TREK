@@ -2,7 +2,8 @@
  * `TrekPhotoSignalsRepository` (PSIGREPO-*): one measurement per photo,
  * replaced by the next, gone with its photo; read back for many photos at once
  * past SQLite's bound-value limit; and the gallery facts the book photo picker
- * starts from, in gallery order and for one journey only.
+ * starts from, in gallery order and for one journey only; the colour signals
+ * (palette, busy grid, salient point) of the newest measurement only.
  */
 import { JourneyPhotos } from '../../../../src/db/entities/JourneyPhotos.entity';
 import { TrekPhotoSignals } from '../../../../src/db/entities/TrekPhotoSignals.entity';
@@ -142,6 +143,19 @@ describe('TrekPhotoSignalsRepository', () => {
       },
       expect.objectContaining({ photo_id: late, caption: null, taken_at: '2026-07-03T10:00:00', media_type: 'image' }),
       expect.objectContaining({ photo_id: clip, media_type: 'video' }),
+    ]);
+  });
+
+  it('PSIGREPO-005: the colours, the busy grid and the salient point read back, and a later measurement without them clears them', async () => {
+    const { user } = await makeUser(t);
+    const photoId = await trekPhoto(user.id);
+    const colours = { palette: '["#336699:0.6","#f0e0d0:0.4"]', busy: 'f'.repeat(64), sal_x: 0.25, sal_y: 0.75 };
+    await signals.saveSignals(measured(photoId, { algo: 3, ...colours }));
+    expect(await signals.listForPhotos([photoId])).toEqual([expect.objectContaining({ algo: 3, ...colours })]);
+
+    await signals.saveSignals(measured(photoId, { algo: 2 }));
+    expect(await signals.listForPhotos([photoId])).toEqual([
+      expect.objectContaining({ algo: 2, palette: null, busy: null, sal_x: null, sal_y: null }),
     ]);
   });
 });

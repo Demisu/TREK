@@ -13,4 +13,8 @@ export interface TrekPhotoSignalsTable {
   orig_width: InsertOptional<number | null>;
   orig_height: InsertOptional<number | null>;
   computed_at: InsertOptional<string>;
+  palette: InsertOptional<string | null>;
+  busy: InsertOptional<string | null>;
+  sal_x: InsertOptional<number | null>;
+  sal_y: InsertOptional<number | null>;
 }

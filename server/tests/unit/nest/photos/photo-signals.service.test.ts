@@ -299,4 +299,29 @@ describe('PhotoSignalsService, the line', () => {
     expect(byPhoto.get(unsized)).toMatchObject({ origWidth: null, origHeight: null });
     expect(byPhoto.get(unsized)?.sharpness).toEqual(expect.any(Number));
   });
+
+  it('PHSVC-011: the book engine reads the original size, brightness, colours, busy grid and salient point of a photo', async () => {
+    const { ids } = await gallery(['image', 'image', 'image']);
+    const [measured, older, broken] = ids as [number, number, number];
+    resolver.readForSignals.mockResolvedValue({ kind: 'original', bytes: photo });
+    await main.signals.signalsFor([measured]);
+    await insertRow(orm, TrekPhotoSignals, { photo: older, algo: PHOTO_SIGNALS_ALGO - 1, orig_width: 800, luma: 0.5 });
+    await insertRow(orm, TrekPhotoSignals, {
+      photo: broken,
+      algo: PHOTO_SIGNALS_ALGO,
+      palette: 'not json',
+      busy: 'abc',
+    });
+
+    const book = await main.signals.bookSignals([measured, older, broken, measured]);
+
+    const own = book.get(measured);
+    expect(own).toMatchObject({ width: 300, height: 200, luma: 128, busy: '0'.repeat(64) });
+    expect(own?.palette).toEqual([expect.stringMatching(/^#[0-9a-f]{6}:1\.00$/)]);
+    expect(own?.salient).toBeUndefined();
+    // An older measurement still knows the size, never the colours.
+    expect(book.get(older)).toEqual({ width: 800, height: null, luma: 128 });
+    expect(book.get(broken)).toEqual({ width: null, height: null });
+    expect(await main.signals.bookSignals([])).toEqual(new Map());
+  });
 });

@@ -1,11 +1,14 @@
+import { colourSignals, type ColourSignals } from './photo-colour-signals';
+
 import { Jimp } from 'jimp';
 
 /**
  * The version of the measurement below. A stored row of another version is
  * measured again, so a better measurement never mixes with an older one.
- * Version 2 measures every photo at the same `SIGNAL_EDGE`, up or down.
+ * Version 2 measures every photo at the same `SIGNAL_EDGE`, up or down;
+ * version 3 adds the colours, the busy grid and the salient point.
  */
-export const PHOTO_SIGNALS_ALGO = 2;
+export const PHOTO_SIGNALS_ALGO = 3;
 
 /**
  * The long edge every photo is scaled to, up or down, before it is measured. A
@@ -23,7 +26,7 @@ const CLIP_LOW = 5;
 const CLIP_HIGH = 250;
 
 /** What a photo's pixels say. `width`/`height` are the decoded image's, before it is scaled to measure. */
-export interface PhotoPixels {
+export interface PhotoPixels extends ColourSignals {
   /** The perceptual hash, 64 bits as 16 hex digits; null if the hash came out in another shape. */
   phash: string | null;
   /** The variance of the grey Laplacian at `SIGNAL_EDGE`: the higher, the sharper. */
@@ -51,8 +54,9 @@ export async function measurePhoto(bytes: Uint8Array): Promise<PhotoPixels | nul
     image.scaleToFit({ w: SIGNAL_EDGE, h: SIGNAL_EDGE });
     // A strip far longer than it is wide ends up under 3 pixels across, which leaves no inner pixel.
     if (image.bitmap.width < 3 || image.bitmap.height < 3) return null;
-    const grey = greyStats(image.bitmap.data, image.bitmap.width, image.bitmap.height);
-    return { phash: bitsToHex(image.pHash()), ...grey, width, height };
+    const { data, width: w, height: h } = image.bitmap;
+    const grey = greyStats(data, w, h);
+    return { phash: bitsToHex(image.pHash()), ...grey, ...colourSignals(data, w, h), width, height };
   } catch {
     return null;
   }

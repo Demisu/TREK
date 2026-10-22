@@ -15,6 +15,13 @@ export interface TrekPhotoSignalWrite {
   clipped: number | null;
   orig_width: number | null;
   orig_height: number | null;
+  /** The main colours as JSON of up to five `"#rrggbb:share"`; absent or null when not measured. */
+  palette?: string | null;
+  /** An 8 x 8 grid of edge density, one hex digit per cell, row by row. */
+  busy?: string | null;
+  /** Where the detail gathers, 0 to 1 of each side. */
+  sal_x?: number | null;
+  sal_y?: number | null;
 }
 
 /** A stored measurement, with when it was made. */
@@ -68,6 +75,10 @@ export class TrekPhotoSignalsRepository extends TrekRepository<TrekPhotoSignals>
             'orig_width',
             'orig_height',
             'computed_at',
+            'palette',
+            'busy',
+            'sal_x',
+            'sal_y',
           ])
           .where('photo_id', 'in', chunk)
           .execute(),
@@ -81,7 +92,7 @@ export class TrekPhotoSignalsRepository extends TrekRepository<TrekPhotoSignals>
     const computedAt = dbNow();
     await this.db()
       .insertInto('trek_photo_signals')
-      .values({ ...row, computed_at: computedAt })
+      .values({ ...row, ...colours(row), computed_at: computedAt })
       .onConflict((oc) =>
         oc.column('photo_id').doUpdateSet({
           algo: row.algo,
@@ -91,6 +102,7 @@ export class TrekPhotoSignalsRepository extends TrekRepository<TrekPhotoSignals>
           clipped: row.clipped,
           orig_width: row.orig_width,
           orig_height: row.orig_height,
+          ...colours(row),
           computed_at: computedAt,
         }),
       )
@@ -123,4 +135,14 @@ export class TrekPhotoSignalsRepository extends TrekRepository<TrekPhotoSignals>
       .orderBy('gp.id', 'asc')
       .execute();
   }
+}
+
+/** The colour signals of a measurement, null where it has none, so an update never keeps an older one's. */
+function colours(row: TrekPhotoSignalWrite) {
+  return {
+    palette: row.palette ?? null,
+    busy: row.busy ?? null,
+    sal_x: row.sal_x ?? null,
+    sal_y: row.sal_y ?? null,
+  };
 }

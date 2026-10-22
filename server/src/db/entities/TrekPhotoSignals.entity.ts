@@ -16,6 +16,10 @@ export class TrekPhotoSignals {
   orig_width?: number | null;
   orig_height?: number | null;
   computed_at!: string & Opt;
+  palette?: string | null;
+  busy?: string | null;
+  sal_x?: number | null;
+  sal_y?: number | null;
 }
 
 export const TrekPhotoSignalsSchema = defineEntity({
@@ -34,5 +38,9 @@ export const TrekPhotoSignalsSchema = defineEntity({
     orig_width: p.integer().nullable(),
     orig_height: p.integer().nullable(),
     computed_at: p.type(DbTimestampType).defaultRaw(`CURRENT_TIMESTAMP`),
+    palette: p.text().nullable(),
+    busy: p.text().nullable(),
+    sal_x: p.double().nullable(),
+    sal_y: p.double().nullable(),
   },
 });

@@ -1,9 +1,11 @@
 import { TrekPhotoSignals } from '../../db/entities/TrekPhotoSignals.entity';
+import { TREK_PHOTO_SIGNAL_PALETTE } from '../../db/json-columns';
 import type {
   GalleryPhotoFacts,
   TrekPhotoSignalRow,
   TrekPhotoSignalsRepository,
 } from '../../db/repositories/TrekPhotoSignals.repository';
+import { decodeJson, encodeJson } from '../../utils/json-column';
 import { logWarn } from '../audit/audit-log.logger';
 import { withRequestContext } from '../database/request-context';
 import { PhotoResolverService, type PhotoSignalSource } from '../memories/photo-resolver.service';
@@ -16,7 +18,7 @@ import {
 import { MikroORM } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Inject, Injectable, type OnModuleDestroy } from '@nestjs/common';
-import type { PhotoPickSignals } from '@trek/shared';
+import type { BookPhotoInfo, PhotoPickSignals } from '@trek/shared';
 
 /** How long a caller waits for photos still being measured before it answers on what the rows know. */
 const SIGNALS_WAIT_MS = 8000;
@@ -26,6 +28,9 @@ export const MAX_QUEUED_PHOTOS = 500;
 export const PARALLEL_FETCHES = 2;
 /** A local original larger than this is not read for its signals. */
 export const MAX_ORIGINAL_BYTES = 40 * 1024 * 1024;
+
+/** What the book engine reads of a photo's measurement: the original's size, brightness, colours and calm areas. */
+type BookPhotoSignals = Pick<BookPhotoInfo, 'width' | 'height' | 'luma' | 'palette' | 'busy' | 'salient'>;
 
 /** Errors of the runner that say nothing about the photo: it is measured again on a later call. */
 const TRANSIENT = new Set(['busy', 'closed', 'unavailable']);
@@ -107,6 +112,19 @@ export class PhotoSignalsService implements OnModuleDestroy {
     return { byPhoto, pending: ids.filter((id) => !byPhoto.has(id)).length };
   }
 
+  /**
+   * What the book engine reads of these photos, from whatever measurement is
+   * stored, none measured or waited for: the original's size for the print
+   * check, and from the current measurement the colours, the busy grid and
+   * the salient point. A photo without a row is left out.
+   */
+  async bookSignals(photoIds: readonly number[]): Promise<Map<number, BookPhotoSignals>> {
+    const ids = [...new Set(photoIds)];
+    if (ids.length === 0) return new Map();
+    const rows = await this.signalsRepo.listForPhotos(ids);
+    return new Map(rows.map((row) => [row.photo_id, toBookSignals(row)]));
+  }
+
   /** The signals stored for these photos by the current measurement; older ones count as missing. */
   private async stored(ids: number[]): Promise<Map<number, PhotoPickSignals>> {
     if (ids.length === 0) return new Map();
@@ -183,6 +201,10 @@ export class PhotoSignalsService implements OnModuleDestroy {
       luma: pixels?.luma ?? null,
       clipped: pixels?.clipped ?? null,
       ...originalSize(source, pixels),
+      palette: pixels?.palette ? encodeJson(TREK_PHOTO_SIGNAL_PALETTE, pixels.palette) : null,
+      busy: pixels?.busy ?? null,
+      sal_x: pixels?.salX ?? null,
+      sal_y: pixels?.salY ?? null,
     });
   }
 
@@ -219,6 +241,32 @@ function toSignals(row: TrekPhotoSignalRow): PhotoPickSignals {
     clipped: row.clipped,
     origWidth: row.orig_width,
     origHeight: row.orig_height,
+  };
+}
+
+const BUSY_GRID = /^[0-9a-f]{64}$/;
+
+/** A stored palette as the engine reads it; anything that is not the measurement's own shape reads as none. */
+function paletteOf(row: TrekPhotoSignalRow): string[] | undefined {
+  const entries = decodeJson(TREK_PHOTO_SIGNAL_PALETTE, row.palette, `photo ${row.photo_id}`);
+  return entries.length > 0 ? entries : undefined;
+}
+
+function toBookSignals(row: TrekPhotoSignalRow): BookPhotoSignals {
+  const fresh = row.algo === PHOTO_SIGNALS_ALGO;
+  const palette = fresh ? paletteOf(row) : undefined;
+  const busy = fresh && row.busy && BUSY_GRID.test(row.busy) ? row.busy : undefined;
+  const salient =
+    fresh && typeof row.sal_x === 'number' && typeof row.sal_y === 'number'
+      ? { x: row.sal_x, y: row.sal_y }
+      : undefined;
+  return {
+    width: row.orig_width,
+    height: row.orig_height,
+    ...(typeof row.luma === 'number' ? { luma: Math.round(row.luma * 255) } : {}),
+    ...(palette ? { palette } : {}),
+    ...(busy ? { busy } : {}),
+    ...(salient ? { salient } : {}),
   };
 }
 
