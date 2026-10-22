@@ -6,7 +6,6 @@
   "components/Collab/CollabChatEmojiPicker.tsx": 3,
   "components/Collab/CollabChatReactionBadge.tsx": 3,
   "components/Collab/CollabChatReactionMenu.tsx": 1,
-  "components/Collab/CollabPolls.tsx": 1,
   "components/Collections/CollectionPlaceDetail.tsx": 2,
   "components/Files/FileManagerAvatarChip.tsx": 3,
   "components/Journey/JourneyDayJump.tsx": 1,

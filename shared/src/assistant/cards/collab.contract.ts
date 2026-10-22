@@ -8,11 +8,12 @@ export * from './collab-polls.card';
 
 /**
  * What the trip chat brings to the assistant chat: the kinds of card it draws,
- * the verbs of its change cards and what an applied change of its
- * touches, beyond the core ones. cards/index.ts and assistant.schema.ts
+ * the verbs of its change cards and the entities its applied changes touch,
+ * beyond the core ones. cards/index.ts and assistant.schema.ts
  * spread these into the card union and the shared enums, so a new kind, verb
- * or entity is added here and nowhere else.
+ * or entity is added here and nowhere else. Its changes keep the generic
+ * verbs (add, change, remove) and name their tool instead.
  */
 export const COLLAB_CARD_SCHEMAS = [collabChatCardSchema, collabPollsCardSchema, collabNotesCardSchema] as const;
 export const COLLAB_VERB_KEYS = [] as const;
-export const COLLAB_APPLIED_ENTITIES = [] as const;
+export const COLLAB_APPLIED_ENTITIES = ['collab_message', 'collab_poll', 'collab_note'] as const;

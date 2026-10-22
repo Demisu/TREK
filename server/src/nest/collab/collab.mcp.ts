@@ -70,7 +70,8 @@ function jsonContent(uri: string, data: unknown) {
  * vote_collab_poll gained the demo-user gate the legacy registrar was missing,
  * matching every other collab write tool. The two note write tools have since
  * gained `website`, which the REST route has always accepted and the note card
- * renders as a link preview.
+ * renders as a link preview. list_collab_notes came later, for the assistant's
+ * note cards: the notes resource as a tool, under the same gates.
  */
 @McpController()
 export class CollabMcp {
@@ -214,6 +215,22 @@ export class CollabMcp {
     return ok({ success: true });
   }
 
+  @Tool({
+    name: 'list_collab_notes',
+    description: 'List the shared notes of a trip, pinned first, with their category, colour, link and files.',
+    inputSchema: {
+      tripId: idSchema,
+    },
+    annotations: TOOL_ANNOTATIONS_READONLY,
+    when: collabNotesOn,
+    access: { group: 'collab', mode: 'read' },
+  })
+  async listCollabNotes({ tripId }: { tripId: number }, ctx: McpContext) {
+    if (!(await this.collab.verifyTripAccess(tripId, ctx.userId))) return noAccess();
+    const notes = await this.collab.listNotes(tripId);
+    return ok({ notes });
+  }
+
   // --- COLLAB POLLS & CHAT ---
 
   @Tool({
@@ -240,7 +257,10 @@ export class CollabMcp {
       question: z.string().min(1),
       options: z.array(z.string()).min(2).describe('Poll answer options (at least 2)'),
       multiple: z.boolean().optional().describe('Allow multiple choice'),
-      deadline: z.string().optional().describe('ISO date string for poll deadline'),
+      deadline: z
+        .string()
+        .optional()
+        .describe('Poll deadline as an ISO date-time with its zone, e.g. 2026-10-24T18:00:00+02:00 or ...Z'),
     },
     annotations: TOOL_ANNOTATIONS_NON_IDEMPOTENT,
     when: collabPollsOn,

@@ -72,6 +72,20 @@ export const OTHER_BUBBLE_RADIUS = {
   borderEndStartRadius: 16,
 } as const;
 
+/** The corners of a desktop chat bubble: round all over, with the tail (a tight
+ *  corner on the sender's side) only on the last message of a group. Logical
+ *  corners, so the tail follows the row in a right-to-left language. The Collab
+ *  tab and the assistant's chat card draw with it. */
+export function bubbleRadius(own: boolean, lastInGroup: boolean) {
+  const tail = lastInGroup ? 4 : 18;
+  return {
+    borderStartStartRadius: 18,
+    borderStartEndRadius: 18,
+    borderEndEndRadius: own ? tail : 18,
+    borderEndStartRadius: own ? 18 : tail,
+  };
+}
+
 // SQLite stores UTC without a 'Z' suffix — append one so JS parses it as UTC
 // rather than local time.
 export function parseUtcDate(iso: string): Date {
