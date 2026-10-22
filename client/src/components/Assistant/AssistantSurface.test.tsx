@@ -1,15 +1,17 @@
 /**
- * FE-AI-SURF-001 to FE-AI-SURF-006
+ * FE-AI-SURF-001 to FE-AI-SURF-008
  *
  * The chat on the real @assistant-ui runtime, fed from the assistant store:
  * the empty chat with its suggestions, stored messages as the user sees
- * them, sending from the composer, and the composer holding back while a
- * change waits for a decision.
+ * them, sending from the composer, the composer holding back while a change
+ * waits for a decision, and a journey's chat under its own key, without the
+ * trip's questions and booking upload.
  */
 import type { AiStatusResponse, AssistantMessage } from '@trek/shared';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
+import { assistantChatKey } from '../../store/assistantChatKey';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import AssistantSurface from './AssistantSurface';
 
@@ -178,5 +180,57 @@ describe('AssistantSurface', () => {
     expect(screen.getByText('Nishiki Market')).toBeInTheDocument();
     expect(screen.getByRole('list', { name: 'Weather for 1 day' })).toBeInTheDocument();
     expect(screen.getByText('14°')).toBeInTheDocument();
+  });
+
+  it('FE-AI-SURF-007: a journey chat reads and sends under its own key, not the trip with the same id', async () => {
+    const key = assistantChatKey({ kind: 'journey', journeyId: TRIP });
+    useAssistantStore.setState({
+      status: STATUS,
+      send,
+      byTrip: {
+        [TRIP]: { ...chatOf(useAssistantStore.getState(), TRIP), draft: 'trip draft' },
+        [key]: {
+          ...chatOf(useAssistantStore.getState(), key),
+          messages: [
+            {
+              id: 'q1',
+              role: 'user',
+              status: 'complete',
+              createdAt: AT,
+              parts: [{ type: 'text', text: 'Tidy page 3' }],
+            },
+          ],
+        },
+      },
+    });
+    render(<AssistantSurface tripId={key} tripTitle="Lisbon" variant="window" density="compact" />);
+
+    expect(await screen.findByText('Tidy page 3')).toBeInTheDocument();
+    const input = screen.getByRole('textbox', { name: 'Ask anything about Lisbon' });
+    fireEvent.change(input, { target: { value: 'Calmer cover' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    await waitFor(() => expect(send).toHaveBeenCalledWith(key, 'Calmer cover'));
+    expect(chatOf(useAssistantStore.getState(), TRIP).draft).toBe('trip draft');
+  });
+
+  it('FE-AI-SURF-008: an empty journey chat offers no trip questions, no booking upload and no drop zone', async () => {
+    const key = assistantChatKey({ kind: 'journey', journeyId: TRIP });
+    useAssistantStore.setState({
+      status: STATUS,
+      send,
+      byTrip: { [key]: { ...chatOf(useAssistantStore.getState(), key), messages: [] } },
+    });
+    render(<AssistantSurface tripId={key} tripTitle="Lisbon" variant="window" />);
+
+    const input = await screen.findByRole('textbox', { name: 'Ask anything about Lisbon' });
+    // It asks about the book, not the plan.
+    expect(screen.getByText('What should the book look like?')).toBeInTheDocument();
+    expect(screen.queryByText('What are we planning?')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Which days are still empty?' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Attach a booking' })).toBeNull();
+
+    // A file dragged over the chat is left to the browser: nothing lights up to take it.
+    fireEvent.dragEnter(input, { dataTransfer: { types: ['Files'], files: [] } });
+    expect(screen.queryByText('Drop it here and I will read the booking')).toBeNull();
   });
 });

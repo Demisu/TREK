@@ -1,21 +1,27 @@
 /**
- * FE-AI-REPO-001 to FE-AI-REPO-005
+ * FE-AI-REPO-001 to FE-AI-REPO-007
  *
  * The assistant is online-only on purpose (there is no model on the device
  * and no cached chats), so the repo makes two promises: nothing is sent while
  * offline, the manual offline switch included, and answers are parsed against
- * the shared contract instead of cast.
+ * the shared contract instead of cast. A journey's chat goes through the same
+ * calls with its scope.
  */
-import type { AssistantThreadResponse } from '@trek/shared';
+import { type AssistantThreadResponse, blankBook } from '@trek/shared';
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { server } from '../../tests/helpers/msw/server';
+import { type MultipartBody, readMultipart } from '../../tests/helpers/multipart';
 import { assistantApi } from '../api/assistant';
 import { _resetNetworkMode, setForcedOffline } from '../sync/networkMode';
 import { assistantRepo } from './assistantRepo';
 import { OnlineOnlyError } from './onlineOnly';
 
 const BASE = '/api/trips/4/assistant';
+
+/** A design draft's book, as GET .../book-designs/:designId answers it. */
+let draftIds = 0;
+const DRAFT = blankBook({ title: 'Lisbon', newId: (prefix) => `${prefix}-${++draftIds}` });
 
 const THREAD: AssistantThreadResponse = {
   thread: { id: 7, title: 'Kyoto', lastMessageAt: '2026-10-21T08:00:00.000Z' },
@@ -104,5 +110,57 @@ describe('assistantRepo', () => {
     await expect(assistantRepo.stop(4)).rejects.toBeInstanceOf(OnlineOnlyError);
     expect(chat).not.toHaveBeenCalled();
     expect(threads).not.toHaveBeenCalled();
+  });
+
+  it('FE-AI-REPO-006: a journey scope reads the journey threads and hands the scope to the stream', async () => {
+    const journey = { kind: 'journey', journeyId: 12 } as const;
+    server.use(
+      http.get('/api/journeys/12/assistant/threads', () => HttpResponse.json({ threads: [THREAD.thread] })),
+      http.get('/api/journeys/12/assistant/threads/7', () => HttpResponse.json(THREAD))
+    );
+    await expect(assistantRepo.threads(journey)).resolves.toEqual([THREAD.thread]);
+    await expect(assistantRepo.thread(journey, 7)).resolves.toEqual(THREAD);
+
+    const stream = (async function* () {})();
+    const chat = vi.spyOn(assistantApi, 'chat').mockResolvedValue(stream);
+    const body = { locale: 'en', timeZone: 'UTC', threadId: null, text: 'Hi' };
+    await expect(assistantRepo.send(journey, body, new AbortController().signal)).resolves.toBe(stream);
+    expect(chat).toHaveBeenCalledWith(journey, body, expect.any(AbortSignal));
+  });
+
+  it('FE-AI-REPO-007: a Studio page goes up as multipart to the turn that asked, its book is read fresh', async () => {
+    let sent: MultipartBody | null = null;
+    let requestId = '';
+    server.use(
+      http.post('/api/journeys/12/assistant/threads/9/renders/:requestId', async ({ request, params }) => {
+        requestId = String(params.requestId);
+        sent = await readMultipart(request);
+        return HttpResponse.json({ accepted: true });
+      }),
+      http.get('/api/journeys/12/book', () => HttpResponse.json({ book: null })),
+      http.get('/api/journeys/12/book-designs/d-1', () =>
+        HttpResponse.json({ designId: 'd-1', baseVersion: null, document: DRAFT, plan: [], selection: [] })
+      )
+    );
+    const image = new Blob(['jpeg'], { type: 'image/jpeg' });
+    const page = { image, bookVersion: 4, spreadId: 'sp-3', drawnPhotoIds: [7, 8] };
+    const signal = new AbortController().signal;
+
+    await assistantRepo.uploadRender(12, 9, 'req-1', page, signal);
+    await expect(assistantRepo.pageBook(12)).resolves.toBeNull();
+    // A design draft's page is drawn at the version the draft was made against; a draft of no book is version 0.
+    await expect(assistantRepo.pageDraft(12, 'd-1')).resolves.toEqual({ version: 0, document: DRAFT });
+
+    expect(requestId).toBe('req-1');
+    expect(sent).toEqual({
+      fields: { bookVersion: '4', spreadId: 'sp-3', drawnPhotoIds: '7,8' },
+      filenames: ['page.jpg'],
+    });
+
+    // Online only, like every other call here.
+    setForcedOffline(true);
+    await expect(assistantRepo.uploadRender(12, 9, 'req-1', page, signal)).rejects.toBeInstanceOf(OnlineOnlyError);
+    await expect(assistantRepo.pageBook(12)).rejects.toBeInstanceOf(OnlineOnlyError);
+    await expect(assistantRepo.pageDraft(12, 'd-1')).rejects.toBeInstanceOf(OnlineOnlyError);
   });
 });

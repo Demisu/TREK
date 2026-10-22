@@ -1,13 +1,18 @@
 /**
  * The assistant's conversation tables through their repositories: threads
- * reached only by their owner on their own trip, messages in the order they
- * were written, proposed changes decided and undone exactly once, the usage a
- * daily limit counts, and everything going with its user or trip (GDPR).
+ * reached only by their owner on their own trip or journey, messages in the
+ * order they were written, proposed changes decided and undone exactly once,
+ * the usage a daily limit counts, and everything going with its user, trip or
+ * journey (GDPR).
  */
 import { AssistantMessages } from '../../../../src/db/entities/AssistantMessages.entity';
 import { AssistantThreads } from '../../../../src/db/entities/AssistantThreads.entity';
 import { AssistantToolCalls } from '../../../../src/db/entities/AssistantToolCalls.entity';
 import { AssistantUsage } from '../../../../src/db/entities/AssistantUsage.entity';
+import { JourneyContributors } from '../../../../src/db/entities/JourneyContributors.entity';
+import { Journeys } from '../../../../src/db/entities/Journeys.entity';
+import { TripJournalLinkMembers } from '../../../../src/db/entities/TripJournalLinkMembers.entity';
+import { TripJournalLinks } from '../../../../src/db/entities/TripJournalLinks.entity';
 import { Trips } from '../../../../src/db/entities/Trips.entity';
 import { Users } from '../../../../src/db/entities/Users.entity';
 import type { AssistantMessagesRepository } from '../../../../src/db/repositories/AssistantMessages.repository';
@@ -15,7 +20,8 @@ import type { AssistantThreadsRepository } from '../../../../src/db/repositories
 import type { AssistantToolCallsRepository } from '../../../../src/db/repositories/AssistantToolCalls.repository';
 import type { AssistantUsageRepository } from '../../../../src/db/repositories/AssistantUsage.repository';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
-import { countRows, deleteRows } from '../../../helpers/factories/rows';
+import { addJourneyContributor, makeJourney } from '../../../helpers/factories/journeys';
+import { countRows, createRow, deleteRows, insertRow } from '../../../helpers/factories/rows';
 import { addTripMember, makeTrip } from '../../../helpers/factories/trips';
 import { makeUser } from '../../../helpers/factories/users';
 import { resetTestDb } from '../../../helpers/test-db';
@@ -53,6 +59,12 @@ async function ownerWithTrip() {
   const { user } = await makeUser(t);
   const trip = await makeTrip(t, user.id);
   return { userId: user.id, tripId: trip.id };
+}
+
+async function ownerWithJourney() {
+  const { user } = await makeUser(t);
+  const journey = await makeJourney(t, user.id);
+  return { userId: user.id, journeyId: journey.id };
 }
 
 async function threadWithMessage() {
@@ -116,6 +128,93 @@ describe('threads', () => {
     expect((await threads.listRecent(userId, tripId, 20)).map((row) => row.id)).toEqual([kept]);
     expect(await threads.findOwned(memberThread, member.id, tripId)).not.toBeNull();
     expect(await threads.findOwned(idle, userId, tripId)).toBeNull();
+  });
+});
+
+describe('journey threads', () => {
+  it('ASTREPO-003: a journey thread is found, listed and deleted only by its owner on its journey, never on a trip', async () => {
+    const { userId, journeyId } = await ownerWithJourney();
+    const { user: other } = await makeUser(t);
+    const trip = await makeTrip(t, userId);
+    const older = await threads.createJourneyThread(userId, journeyId, 'Cover', AT);
+    const newer = await threads.createJourneyThread(userId, journeyId, 'Pages', AT);
+    const onTrip = await threads.createThread(userId, trip.id, 'Kyoto', AT);
+    await threads.touch(older, LATER);
+
+    expect((await threads.listRecentOnJourney(userId, journeyId, 20)).map((row) => row.id)).toEqual([older, newer]);
+    expect((await threads.listRecent(userId, trip.id, 20)).map((row) => row.id)).toEqual([onTrip]);
+    expect(await threads.findOwnedOnJourney(older, userId, journeyId)).toMatchObject({
+      title: 'Cover',
+      journey_id: journeyId,
+      trip_id: null,
+    });
+    expect(await threads.findOwnedOnJourney(older, other.id, journeyId)).toBeNull();
+    expect(await threads.findOwnedOnJourney(older, userId, journeyId + 1)).toBeNull();
+    expect(await threads.findOwnedOnJourney(onTrip, userId, journeyId)).toBeNull();
+    expect(await threads.findOwned(older, userId, trip.id)).toBeNull();
+    expect(await threads.findOwned(onTrip, userId, trip.id)).toMatchObject({ trip_id: trip.id, journey_id: null });
+
+    expect(await threads.deleteOwnedOnJourney(older, other.id, journeyId)).toBe(false);
+    expect(await threads.deleteOwned(older, userId, trip.id)).toBe(false);
+    expect(await threads.deleteOwnedOnJourney(older, userId, journeyId)).toBe(true);
+  });
+
+  it('ASTREPO-004: retention keeps the threads of the journey owner and its contributors, and drops those of people taken off it', async () => {
+    const { userId, journeyId } = await ownerWithJourney();
+    const { user: editor } = await makeUser(t);
+    const { user: leaver } = await makeUser(t);
+    await addJourneyContributor(t, journeyId, editor.id, 'editor');
+    await addJourneyContributor(t, journeyId, leaver.id, 'viewer');
+    const own = await threads.createJourneyThread(userId, journeyId, 'Own', AT);
+    const edited = await threads.createJourneyThread(editor.id, journeyId, 'Editor', AT);
+    const left = await threads.createJourneyThread(leaver.id, journeyId, 'Leaver', AT);
+    await deleteRows(t, JourneyContributors, { journey: journeyId, user: leaver.id });
+
+    expect(await threads.deleteWithoutAccess()).toBe(1);
+    expect(await threads.findOwnedOnJourney(own, userId, journeyId)).not.toBeNull();
+    expect(await threads.findOwnedOnJourney(edited, editor.id, journeyId)).not.toBeNull();
+    expect(await threads.findOwnedOnJourney(left, leaver.id, journeyId)).toBeNull();
+  });
+
+  it('ASTREPO-006: retention keeps the journey threads of someone a trip journal link lets in, until it drops them', async () => {
+    const { userId, journeyId } = await ownerWithJourney();
+    const trip = await makeTrip(t, userId);
+    const { user: member } = await makeUser(t);
+    const link = await createRow(t, TripJournalLinks, { trip: trip.id, journey: journeyId, created_at: Date.now() });
+    await insertRow(t, TripJournalLinkMembers, { link: link.id, user: member.id, added_at: Date.now() });
+    const linked = await threads.createJourneyThread(member.id, journeyId, 'Linked', AT);
+
+    expect(await threads.deleteWithoutAccess()).toBe(0);
+    expect(await threads.findOwnedOnJourney(linked, member.id, journeyId)).not.toBeNull();
+
+    await deleteRows(t, TripJournalLinkMembers, { link: link.id, user: member.id });
+    expect(await threads.deleteWithoutAccess()).toBe(1);
+    expect(await threads.findOwnedOnJourney(linked, member.id, journeyId)).toBeNull();
+  });
+
+  it('ASTREPO-005: a change of a journey thread is found only through its own user and journey', async () => {
+    const { userId, journeyId } = await ownerWithJourney();
+    const { user: other } = await makeUser(t);
+    const threadId = await threads.createJourneyThread(userId, journeyId, 'Book', AT);
+    const messageId = await messages.append({
+      threadId,
+      role: 'assistant',
+      parts: '[]',
+      providerState: null,
+      status: 'awaiting_approval',
+      model: 'claude',
+      createdAt: AT,
+    });
+    await calls.insertProposals([proposal('j1', threadId, messageId)]);
+    expect(await calls.findOwnedOnJourney('j1', userId, journeyId)).toMatchObject({ id: 'j1', thread_id: threadId });
+    expect(await calls.findOwnedOnJourney('j1', other.id, journeyId)).toBeNull();
+    expect(await calls.findOwnedOnJourney('j1', userId, journeyId + 1)).toBeNull();
+    expect(await calls.findOwned('j1', userId, journeyId)).toBeNull();
+
+    await deleteRows(t, Journeys, { id: journeyId });
+    expect(await countRows(t, AssistantThreads, { id: threadId })).toBe(0);
+    expect(await countRows(t, AssistantMessages, { id: messageId })).toBe(0);
+    expect(await countRows(t, AssistantToolCalls, { id: 'j1' })).toBe(0);
   });
 });
 

@@ -1,9 +1,10 @@
 /**
- * FE-AI-PLACES-001 to FE-AI-PLACES-008
+ * FE-AI-PLACES-001 to FE-AI-PLACES-010
  *
  * The strip of places a search found: what a card says, that its picture only
  * ever comes from TREK's photo proxy, "+ Day N" for the day in focus or a
- * picked one, why it waits while a change is undecided, and the map's part.
+ * picked one, why it waits while a change is undecided, the map's part, and
+ * no "+ Day" in a journey's chat.
  */
 import type { AssistantFoundPlace, AssistantMessage, AssistantPlaces } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -18,6 +19,7 @@ import {
 } from '../../../tests/helpers/factories';
 import { fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
 import { fetchPhoto } from '../../services/photoService';
+import { assistantChatKey } from '../../store/assistantChatKey';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { useAuthStore } from '../../store/authStore';
 import { useTripStore } from '../../store/tripStore';
@@ -230,5 +232,17 @@ describe('AssistantPlaceStrip', () => {
     });
     fireEvent.mouseLeave(card);
     expect(setPreviewPin).toHaveBeenLastCalledWith(null);
+  });
+
+  it('FE-AI-PLACES-010: a journey chat lists the places but offers no "+ Day" while the trip is on screen', () => {
+    // The journey key never matches the planner's trip, so the trip check already hides "+ Day";
+    // the scope check in the hook is defence in depth for the day trips and journeys share keys.
+    seed();
+    renderStrip({ toolCallId: 's1', places: [place('s1:0')], more: 0 }, answer(), {
+      tripId: assistantChatKey({ kind: 'journey', journeyId: TRIP }),
+    });
+    expect(screen.getByText('Trattoria s1:0')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Add to/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Pick a day/ })).toBeNull();
   });
 });

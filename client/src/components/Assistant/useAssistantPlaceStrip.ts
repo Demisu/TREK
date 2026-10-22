@@ -14,7 +14,7 @@ import { haversineKm } from '../../utils/geo';
 import { safeHexColor } from '../../utils/safeColor';
 import { formatDistance } from '../../utils/units';
 import { hasUndecided } from './assistantParts';
-import { useAssistantView } from './assistantViewContext';
+import { useAssistantScope, useAssistantView } from './assistantViewContext';
 import { useCardPoint } from './cards/parts/useCardPoint';
 
 /** A day a found place can be suggested for, named the way the day list names it. */
@@ -66,6 +66,7 @@ function lastSpot(stops: readonly Assignment[] | undefined): { lat: number; lng:
 export function useAssistantPlaceStrip() {
   const { t, locale } = useTranslation();
   const { tripId } = useAssistantView();
+  const scope = useAssistantScope();
   const { offline } = useNetworkMode();
   const can = useCanDo();
   const unit = useSettingsStore((s) => s.settings.distance_unit ?? 'metric');
@@ -108,8 +109,11 @@ export function useAssistantPlaceStrip() {
   const focusDay = stripDays.find((d) => d.id === focusDayId) ?? null;
   const from = focusDay && assignments ? lastSpot(assignments[String(focusDay.id)]) : null;
 
-  /** Whether "+ Day" shows at all: the planner holds the trip and the user may add to it. */
-  const canSuggest = !!trip && can('place_edit', trip) && stripDays.length > 0;
+  /**
+   * Whether "+ Day" shows at all: a trip's chat (a journey's has no days), the
+   * planner holds the trip and the user may add to it.
+   */
+  const canSuggest = scope.kind === 'trip' && !!trip && can('place_edit', trip) && stripDays.length > 0;
   /** Why "+ Day" is off right now, as a tooltip; null when it is on. */
   let blockedKey: string | null = null;
   if (offline) blockedKey = 'assistant.error.offline';

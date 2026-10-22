@@ -2,6 +2,7 @@ import { LLM_PHOTO_EXTENSIONS } from '@trek/shared';
 import { type DragEvent, useState } from 'react';
 
 import { useTranslation } from '../../i18n';
+import { assistantScopeOf } from '../../store/assistantChatKey';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { useToast } from '../shared/Toast';
 
@@ -32,6 +33,8 @@ function hasFiles(e: DragEvent): boolean {
  * the window. One file at a time, refused here with a toast when it is not
  * one the import reads or too big, so a wrong file never costs a round trip.
  * The drop handlers go on the whole chat; `dragging` lights its drop zone.
+ * A journey's chat imports no bookings: there `canAttach` is false, a file is
+ * left to the browser and the drop zone never lights.
  */
 export function useAssistantAttach(tripId: number) {
   const { t } = useTranslation();
@@ -39,10 +42,11 @@ export function useAssistantAttach(tripId: number) {
   const attach = useAssistantStore((s) => s.attach);
   const busy = useAssistantStore((s) => chatOf(s, tripId).isRunning);
   const [dragging, setDragging] = useState(false);
+  const canAttach = assistantScopeOf(tripId).kind === 'trip';
 
   const take = (files: FileList | File[] | null | undefined): boolean => {
     const file = files ? Array.from(files)[0] : undefined;
-    if (!file) return false;
+    if (!file || !canAttach) return false;
     if (busy) return true;
     if (!ATTACH_EXTENSIONS.includes(extensionOf(file.name))) {
       toast.warning(t('assistant.attach.unsupported'));
@@ -58,12 +62,12 @@ export function useAssistantAttach(tripId: number) {
 
   const dropZone = {
     onDragEnter: (e: DragEvent) => {
-      if (!hasFiles(e)) return;
+      if (!canAttach || !hasFiles(e)) return;
       e.preventDefault();
       setDragging(true);
     },
     onDragOver: (e: DragEvent) => {
-      if (!hasFiles(e)) return;
+      if (!canAttach || !hasFiles(e)) return;
       e.preventDefault();
       e.dataTransfer.dropEffect = 'copy';
     },
@@ -73,12 +77,12 @@ export function useAssistantAttach(tripId: number) {
       setDragging(false);
     },
     onDrop: (e: DragEvent) => {
-      if (!hasFiles(e)) return;
+      if (!canAttach || !hasFiles(e)) return;
       e.preventDefault();
       setDragging(false);
       take(e.dataTransfer.files);
     },
   };
 
-  return { take, busy, dragging, dropZone, accept: ATTACH_EXTENSIONS.join(',') };
+  return { take, busy, canAttach, dragging, dropZone, accept: ATTACH_EXTENSIONS.join(',') };
 }

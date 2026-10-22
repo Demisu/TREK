@@ -5,7 +5,8 @@ import type { InsertOptional } from './columns';
 export interface AssistantThreadsTable {
   id: InsertOptional<number>;
   user_id: number;
-  trip_id: number;
+  trip_id: InsertOptional<number | null>;
+  journey_id: InsertOptional<number | null>;
   title: string;
   created_at: InsertOptional<string>;
   last_message_at: InsertOptional<string>;

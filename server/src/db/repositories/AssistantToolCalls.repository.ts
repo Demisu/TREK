@@ -95,13 +95,27 @@ export class AssistantToolCallsRepository extends TrekRepository<AssistantToolCa
 
   /** A call of one of the user's threads on that trip; null for anyone else's or another trip's. */
   async findOwned(id: string, userId: number, tripId: number): Promise<AssistantToolCallRow | null> {
+    return this.findOwnedBy(id, userId, 'assistant_threads.trip_id', tripId);
+  }
+
+  /** A call of one of the user's threads on that journey; null for anyone else's or another journey's. */
+  async findOwnedOnJourney(id: string, userId: number, journeyId: number): Promise<AssistantToolCallRow | null> {
+    return this.findOwnedBy(id, userId, 'assistant_threads.journey_id', journeyId);
+  }
+
+  private async findOwnedBy(
+    id: string,
+    userId: number,
+    owner: 'assistant_threads.trip_id' | 'assistant_threads.journey_id',
+    ownerId: number,
+  ): Promise<AssistantToolCallRow | null> {
     const row = await this.kysely<Pick<DB, 'assistant_tool_calls' | 'assistant_threads'>>()
       .selectFrom('assistant_tool_calls')
       .innerJoin('assistant_threads', 'assistant_threads.id', 'assistant_tool_calls.thread_id')
       .selectAll('assistant_tool_calls')
       .where('assistant_tool_calls.id', '=', id)
       .where('assistant_threads.user_id', '=', userId)
-      .where('assistant_threads.trip_id', '=', tripId)
+      .where(owner, '=', ownerId)
       .executeTakeFirst();
     return row ?? null;
   }

@@ -1,10 +1,11 @@
 /**
- * FE-AI-API-001 to FE-AI-API-007
+ * FE-AI-API-001 to FE-AI-API-008
  *
  * The two streaming calls bypass axios, so they carry by hand what the axios
  * instance would add (the cookie, the socket id) and turn a refusal before the
  * stream into a typed error the chat can name. The refusal's code comes from
- * the body when the server names one, and from the status otherwise.
+ * the body when the server names one, and from the status otherwise. A
+ * journey's chat reaches the same calls under the journey.
  */
 import type { AssistantChatRequest } from '@trek/shared';
 import { http, HttpResponse } from 'msw';
@@ -129,5 +130,39 @@ describe('assistantApi JSON calls', () => {
     );
     await expect(assistantApi.stop(4)).resolves.toEqual({ success: true });
     expect(body).toEqual({});
+  });
+
+  it('FE-AI-API-008: a journey scope reaches the journey routes, a trip scope the trip routes', async () => {
+    const journey = { kind: 'journey', journeyId: 12 } as const;
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => streamResponse('data: [DONE]\n\n'));
+    const signal = new AbortController().signal;
+    await assistantApi.chat(journey, BODY, signal);
+    await assistantApi.decide(journey, 7, { locale: 'en', timeZone: 'UTC', decisions: [] }, signal);
+    await assistantApi.chat({ kind: 'trip', tripId: 4 }, BODY, signal);
+    expect(fetchSpy.mock.calls.map(([url]) => url)).toEqual([
+      '/api/journeys/12/assistant/chat',
+      '/api/journeys/12/assistant/threads/7/decisions',
+      '/api/trips/4/assistant/chat',
+    ]);
+
+    const hits: string[] = [];
+    server.use(
+      http.get('/api/journeys/12/assistant/threads', () => {
+        hits.push('threads');
+        return HttpResponse.json({ threads: [] });
+      }),
+      http.post('/api/journeys/12/assistant/tool-calls/:id/undo', () => {
+        hits.push('undo');
+        return HttpResponse.json({ undone: true });
+      }),
+      http.post('/api/journeys/12/assistant/stop', () => {
+        hits.push('stop');
+        return HttpResponse.json({ success: true });
+      })
+    );
+    await assistantApi.threads(journey);
+    await assistantApi.undo(journey, 'c1');
+    await assistantApi.stop(journey);
+    expect(hits).toEqual(['threads', 'undo', 'stop']);
   });
 });

@@ -16,11 +16,10 @@ import { PACKAGE_HELD_READS, PACKAGE_TOOL_CONTROLLERS } from './cards/registry';
  */
 
 /**
- * The Studio book tools wait for the Studio's own chat: a trip chat has no
- * page to show a change on, no way yet to take one back and no forced
- * `returnPrevious`, and an applied write would reload an open Studio from its
- * cover. External MCP clients keep them; only the assistant leaves them out
- * until the journey scope offers them.
+ * The Studio book tools belong to the Studio's own chat, the journey scope
+ * (isOfferedInJourney below): a trip chat has no page to show a change on and
+ * an applied write would reload an open Studio from its cover. External MCP
+ * clients keep them; a trip conversation of the assistant never sees them.
  */
 const STUDIO_ONLY_TOOLS: Readonly<Record<string, string>> = Object.fromEntries(
   [
@@ -34,6 +33,14 @@ const STUDIO_ONLY_TOOLS: Readonly<Record<string, string>> = Object.fromEntries(
     'edit_book_page',
     'set_book_cover',
     'suggest_book_photos',
+    'set_book_setup',
+    'duplicate_book_page',
+    'save_book_layout',
+    'remove_book_layout',
+    'design_book',
+    'get_book_design',
+    'revise_book_design',
+    'apply_book_design',
   ].map((name) => [name, 'a Studio book tool: offered in the Studio chat only, never in a trip chat']),
 );
 
@@ -84,6 +91,8 @@ export const ASSISTANT_DENIED_TOOLS: Readonly<Record<string, string>> = {
   delete_manual_school_holiday_country: 'changes the holidays of every user',
   ...STUDIO_ONLY_TOOLS,
   restore_book_page: 'an undo target only: it puts a book page back as an earlier change left it',
+  restore_book_layout: 'an undo target only: it puts back a layout an earlier change took away',
+  restore_book_revision: 'an undo target only: it puts the book back as an applied design found it',
 };
 
 /**
@@ -119,6 +128,73 @@ export const HELD_READS: ReadonlySet<string> = new Set([
 
 export function isOfferedTool(name: string): boolean {
   return !(name in ASSISTANT_DENIED_TOOLS);
+}
+
+/** The argument a Studio conversation pins on every tool that takes it, as a trip conversation pins `tripId`. */
+export const JOURNEY_PINNED_ARG = 'journeyId';
+
+/** The controllers of the book itself: their reads, and their writes for someone who may change the book. */
+const STUDIO_CONTROLLERS: ReadonlySet<string> = new Set([
+  'JourneyBookMcp',
+  'JourneyBookPhotosMcp',
+  'JourneyBookDesignMcp',
+]);
+
+/** The controllers whose reads a Studio conversation also gets: the journey, its map and its tracks. */
+const JOURNEY_READ_CONTROLLERS: ReadonlySet<string> = new Set(['JourneyMcp', 'JourneyMapMcp', 'JourneyTracksMcp']);
+
+/**
+ * Whether a registered tool is one of the book's own. A trip conversation
+ * leaves these out by their controller as well as by name, so a book tool
+ * added later never reaches a trip chat through the journey group.
+ */
+export function isStudioController(className: string | undefined): boolean {
+  return className !== undefined && STUDIO_CONTROLLERS.has(className);
+}
+
+/**
+ * What is wrong with the book tools against the registry: one that is not
+ * listed above as a Studio tool (or as the undo target), so the denylist and
+ * the Studio's offer no longer tell the same story.
+ */
+export function checkStudioTools(listing: Iterable<Pick<McpRegistryListing, 'kind' | 'name' | 'className'>>): string[] {
+  const problems: string[] = [];
+  for (const entry of listing) {
+    if (entry.kind === 'tool' && isStudioController(entry.className) && !(entry.name in ASSISTANT_DENIED_TOOLS)) {
+      problems.push(`book tool "${entry.name}" is not listed as a Studio tool`);
+    }
+  }
+  return problems;
+}
+
+/**
+ * Whether a Studio conversation attaches a registered tool: one of the book's
+ * or the journey's, and none the denylist keeps from the assistant, the book
+ * tools a trip chat goes without excepted (`restore_book_page` stays out: it
+ * is an undo target only).
+ */
+export function isOfferedInJourney(name: string, className: string | undefined): boolean {
+  if (name in ASSISTANT_DENIED_TOOLS && !(name in STUDIO_ONLY_TOOLS)) return false;
+  return isStudioController(className) || (className !== undefined && JOURNEY_READ_CONTROLLERS.has(className));
+}
+
+/**
+ * Whether a Studio conversation keeps an attached tool once its schema and
+ * annotations are known. Only tools that work on the conversation's journey
+ * (they take the `journeyId` the server pins) stay, so the conversation never
+ * reaches another journey; of those every read, and the book's writes only
+ * for someone who may change the book. The journey's own writes (entries,
+ * photos, its trips) stay with the journey page.
+ */
+export function keptInJourney(
+  className: string | undefined,
+  kind: 'read' | 'write',
+  pinned: boolean,
+  canWrite: boolean,
+): boolean {
+  if (!pinned) return false;
+  if (kind === 'read') return true;
+  return canWrite && isStudioController(className);
 }
 
 /** What is wrong with the denylist against the registry: a sharing tool that slipped through. */

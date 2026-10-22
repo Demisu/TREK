@@ -13,8 +13,10 @@ import {
   ASSISTANT_DENIED_TOOLS,
   ASSISTANT_TOOL_GROUPS,
   checkDenylist,
+  checkStudioTools,
   groupOf,
   isOfferedTool,
+  isStudioController,
 } from '../../../../src/nest/assistant/assistant-tool-offer';
 import { ASSISTANT_SCOPES, ASSISTANT_SERVER_TOOLS } from '../../../../src/nest/assistant/assistant-tools.constants';
 import { AssistantToolsService, checkToolCatalog } from '../../../../src/nest/assistant/assistant-tools.service';
@@ -90,6 +92,7 @@ describe('the assistant tool catalog', () => {
     const entry = (name: string) => ({ kind: 'tool' as const, name, className: 'X', methodName: 'y' });
     expect(checkToolCatalog([entry('import_booking')])).toContain('"import_booking" is the server\'s own step');
     expect(checkToolCatalog([entry('use_addon_tools')])).toContain('"use_addon_tools" is the server\'s own step');
+    expect(checkToolCatalog([entry('preview_book_page')])).toContain('"preview_book_page" is the server\'s own step');
     expect(checkDenylist(['create_party_invite'])).toEqual([
       '"create_party_invite" shares, invites or publishes; deny it or list it as safe',
     ]);
@@ -214,6 +217,19 @@ describe('the assistant tool catalog', () => {
     expect(ASSISTANT_DENIED_TOOLS.suggest_book_photos).toMatch(/Studio chat only/);
   });
 
+  it('ASTTOOL-022: a book tool not listed as one of the Studio is named, whatever its name says', () => {
+    const entry = (name: string, className: string) => ({ kind: 'tool' as const, name, className, methodName: 'y' });
+    expect(checkToolCatalog([entry('arrange_book', 'JourneyBookPhotosMcp')])).toContain(
+      'book tool "arrange_book" is not listed as a Studio tool',
+    );
+    const listedOnes = [entry('get_book', 'JourneyBookMcp'), entry('restore_book_page', 'JourneyBookMcp')];
+    expect(checkStudioTools([...listedOnes, entry('list_places', 'PlacesMcp')])).toEqual([]);
+    expect(checkStudioTools([{ kind: 'resource', name: 'book_notes', className: 'JourneyBookMcp' }])).toEqual([]);
+    expect(isStudioController('JourneyBookPhotosMcp')).toBe(true);
+    expect(isStudioController('JourneyMcp')).toBe(false);
+    expect(isStudioController(undefined)).toBe(false);
+  });
+
   it('ASTTOOL-017: the hike tools come with the tours, the proposal runs at once and the writes are cards of a tour', () => {
     const hikeTools = ['propose_hike', 'create_hike', 'update_tour', 'import_tour_gpx'];
     const entries = hikeTools.map((name) => registry.list().find((e) => e.kind === 'tool' && e.name === name));
@@ -278,6 +294,24 @@ describe('an assistant tool session', () => {
       }
       const pinned = [...listed.values()].filter((tool) => 'tripId' in (tool.inputSchema.properties ?? {}));
       expect(pinned.length).toBeGreaterThan(10);
+    } finally {
+      await session.close();
+    }
+  });
+
+  it('ASTTOOL-023: a trip session that loads the journey group gets its tools but none of the book controllers', async () => {
+    const { userId, tripId } = await ownerWithTrips();
+    const session = await tools.open(userId, tripId);
+    try {
+      expect((await session.call('use_addon_tools', { groups: ['journey'] })).ok).toBe(true);
+      const names = session.specs().map((spec) => spec.name);
+      expect(names).toContain('list_journey_entries');
+      const book = registry
+        .list()
+        .filter((entry) => entry.kind === 'tool' && isStudioController(entry.className))
+        .map((entry) => entry.name);
+      expect(book.length).toBeGreaterThan(5);
+      expect(names.filter((name) => book.includes(name))).toEqual([]);
     } finally {
       await session.close();
     }

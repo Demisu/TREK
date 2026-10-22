@@ -155,6 +155,14 @@ describe('the answer cards', () => {
     expect(whole.entries.map((e) => e.entryId)).toEqual([12, 13]);
     expect(whole.journalTitle).toBe('Berlin 2026');
   });
+
+  it('ASTCARD-JRN-016: a Studio read, whose journey id the server pins and hides, takes the journey from the answer', () => {
+    const value = { journey: { id: 3, title: 'Berlin 2026' }, entries: [entry()] };
+    const card = cardOf(answerCardOf('list_journey_entries', answerInput({}, value)));
+    expect(card.journeyId).toBe(3);
+    expect(card.journalTitle).toBe('Berlin 2026');
+    expect(card.entries.map((e) => e.entryId)).toEqual([12]);
+  });
 });
 
 describe('an entry as a card shows it', () => {
@@ -356,12 +364,14 @@ describe('the applied change', () => {
     expect(check?.unchanged(created, snapshot(null))).toBe(false);
   });
 
-  it('ASTCARD-JRN-015: the journal brings its verbs, its undo and one prompt line to the registry', () => {
+  it('ASTCARD-JRN-015: the journal brings its verbs, its undo and two prompt lines to the registry', () => {
     expect(ASSISTANT_WRITE_TOOLS.create_journey_entry).toEqual({ verbKey: 'addJournalEntry', entity: 'journey_entry' });
     expect(ASSISTANT_WRITE_TOOLS.update_journey_entry?.verbKey).toBe('updateJournalEntry');
     expect(ASSISTANT_WRITE_TOOLS.delete_journey_entry?.verbKey).toBe('removeJournalEntry');
     expect(ASSISTANT_UNDO_MAP.update_journey_entry).toBeUndefined();
     expect(CARD_PROMPT_LINES).toEqual(expect.arrayContaining([...(JOURNEY_CARDS.prompt ?? [])]));
-    expect(JOURNEY_CARDS.prompt).toHaveLength(1);
+    expect(JOURNEY_CARDS.prompt).toHaveLength(2);
+    // A trip chat sends a book request to the Studio instead of trying it.
+    expect(JOURNEY_CARDS.prompt?.[1]).toContain('open Studio from the journey');
   });
 });

@@ -49,7 +49,10 @@ function journalWrite(tool: string): ToolCards<JournalLoaded> {
 export const JOURNEY_CARDS: DomainCards = {
   id: 'journey',
   tools: {
-    list_journey_entries: { answer: ({ args, value }) => readAnswer(argId(args, 'journeyId'), value, 'entries') },
+    // A Studio conversation pins the journey, so its arguments hold no id: the answer names the journey too.
+    list_journey_entries: {
+      answer: ({ args, value }) => readAnswer(argId(args, 'journeyId') ?? idIn(value, 'journey'), value, 'entries'),
+    },
     get_journey_entry: { answer: ({ value }) => readAnswer(idIn(value, 'journey'), value, 'entry') },
     get_journey: {
       answer: ({ value }) => {
@@ -76,5 +79,6 @@ export const JOURNEY_CARDS: DomainCards = {
   },
   prompt: [
     'Journal: get_trip_journal finds the journal this trip shows. To show entries, call list_journey_entries with from/to for the days asked: the app draws them as cards, so do not list them again in your answer.',
+    "Photo book: a journey's photo book is laid out in its Studio, which has an assistant of its own. When asked to design or change the book, tell the user to open Studio from the journey; its tools are not offered here.",
   ],
 };

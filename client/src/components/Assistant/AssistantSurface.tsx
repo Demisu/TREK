@@ -8,12 +8,15 @@ import { type AssistantView, AssistantViewContext } from './assistantViewContext
 import { useAssistantRuntime } from './useAssistantRuntime';
 
 export interface AssistantSurfaceProps extends AssistantView {
-  /** Named in the composer's placeholder. */
+  /** Named in the composer's placeholder: the trip's title, or the journey's in TREK Studio. */
   tripTitle: string;
 }
 
 /**
- * The chat for one trip, the same on the desktop window and the phone screen.
+ * The chat for one trip, the same on the desktop window and the phone screen,
+ * and for one journey in TREK Studio: `tripId` is the chat's key, so the
+ * Studio passes `assistantChatKey({ kind: 'journey', journeyId })` and gets
+ * the journey's conversations, with the parts that need a trip left empty.
  * Its own chunk: this is the only module tree that pulls in @assistant-ui, so
  * nobody downloads the chat runtime before opening the assistant.
  */

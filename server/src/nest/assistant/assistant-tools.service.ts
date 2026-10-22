@@ -7,13 +7,24 @@ import { REMEMBER_SPEC } from './assistant-memory';
 import {
   ASSISTANT_TOOL_GROUPS,
   checkDenylist,
+  checkStudioTools,
   groupOf,
   HELD_READS,
+  isOfferedInJourney,
   isOfferedTool,
+  isStudioController,
+  JOURNEY_PINNED_ARG,
+  keptInJourney,
   USE_TOOLS_SPEC,
   USE_TOOLS_TOOL,
 } from './assistant-tool-offer';
-import { ASSISTANT_SCOPES, ASSISTANT_SERVER_TOOLS, PINNED_ARG, REMEMBER_TOOL } from './assistant-tools.constants';
+import {
+  ASSISTANT_SCOPES,
+  ASSISTANT_SERVER_TOOLS,
+  PINNED_ARG,
+  PREVIEW_BOOK_PAGE_TOOL,
+  REMEMBER_TOOL,
+} from './assistant-tools.constants';
 import type { ToolCards } from './cards/card-types';
 import {
   ASSISTANT_ARG_POLICY,
@@ -62,8 +73,28 @@ interface ListedTool {
   hint: ToolHint;
 }
 
-/** A turn's session offers every tool (the core first, the rest by group); an undo's holds its one target. */
-type SessionMode = 'turn' | 'undo';
+/**
+ * A trip turn's session offers every tool (the core first, the rest by group);
+ * a journey turn's offers the Studio's tools at once and nothing else; an
+ * undo's holds its one target.
+ */
+type SessionMode = 'turn' | 'journey' | 'undo';
+
+/** The argument every pinned tool runs with, and its value: the conversation's trip or journey. */
+interface SessionPin {
+  arg: string;
+  id: number;
+}
+
+/** The registered tools by name, as the registry lists them. */
+type ToolCatalog = ReadonlyMap<string, McpRegistryListing>;
+
+/** Which registered tools a session attaches, and which of those it keeps once they are listed. */
+interface SessionOffer {
+  catalog: ToolCatalog;
+  include: (name: string) => boolean;
+  keep: (tool: ListedTool) => boolean;
+}
 
 /**
  * The tools the packages' undo checks read. A package's `reads` names its
@@ -83,8 +114,9 @@ function undoReadTools(cards: Readonly<Record<string, ToolCards>>): string[] {
  * What is wrong with the tool catalog the assistant relies on, given what the
  * registry holds: a tool with a card of its own, a package's cards for a tool,
  * an undo target, an undo read or a package's held read that no longer
- * exists, a sharing tool the denylist missed, or a tool named like one of the
- * server's own steps. Empty when all is well.
+ * exists, a sharing tool the denylist missed, a book tool not listed as the
+ * Studio's, or a tool named like one of the server's own steps. Empty when
+ * all is well.
  */
 export function checkToolCatalog(
   listing: readonly McpRegistryListing[],
@@ -110,11 +142,11 @@ export function checkToolCatalog(
   for (const name of heldReads) {
     if (!tools.has(name)) problems.push(`held read "${name}" of a package is not registered`);
   }
-  // The server's own steps are told apart from tool calls by name alone.
-  for (const name of [...ASSISTANT_SERVER_TOOLS, USE_TOOLS_TOOL]) {
+  // The server's own steps and tools are told apart from the registry's by name alone.
+  for (const name of [...ASSISTANT_SERVER_TOOLS, USE_TOOLS_TOOL, PREVIEW_BOOK_PAGE_TOOL]) {
     if (tools.has(name)) problems.push(`"${name}" is the server's own step`);
   }
-  return [...problems, ...checkDenylist(tools)];
+  return [...problems, ...checkDenylist(tools), ...checkStudioTools(listing)];
 }
 
 /**
@@ -127,14 +159,14 @@ function kindOf(name: string, readOnly: boolean): AssistantToolKind {
   return readOnly && !HELD_READS.has(name) ? 'read' : 'write';
 }
 
-function hiddenArgs(name: string): Set<string> {
+function hiddenArgs(name: string, pinArg: string = PINNED_ARG): Set<string> {
   const policy = ASSISTANT_ARG_POLICY[name];
-  return new Set([PINNED_ARG, ...Object.keys(policy?.forced ?? {}), ...(policy?.stripped ?? [])]);
+  return new Set([pinArg, ...Object.keys(policy?.forced ?? {}), ...(policy?.stripped ?? [])]);
 }
 
 /** The tool's JSON Schema without the arguments the server sets or takes away. */
-function modelSchema(name: string, schema: Record<string, unknown>): Record<string, unknown> {
-  const hidden = hiddenArgs(name);
+function modelSchema(name: string, schema: Record<string, unknown>, pinArg: string): Record<string, unknown> {
+  const hidden = hiddenArgs(name, pinArg);
   const properties = { ...((schema.properties as Record<string, unknown> | undefined) ?? {}) };
   for (const key of hidden) delete properties[key];
   const required = Array.isArray(schema.required)
@@ -171,18 +203,21 @@ function readResult(result: unknown): ToolRun {
  * broadcast their changes the same way.
  *
  * Every tool that takes a trip runs on the conversation's trip: the model
- * never sees that argument, and one it sends anyway must name this trip.
+ * never sees that argument, and one it sends anyway must name this trip. A
+ * Studio conversation pins its journey the same way, through `journeyId`.
  */
 export class AssistantToolSession {
   constructor(
     private readonly client: InstanceType<typeof Client>,
     private readonly server: ReturnType<typeof createLocalMcpServer>,
     private readonly tools: ReadonlyMap<string, ListedTool>,
-    private readonly tripId: number,
+    /** The conversation's trip, or its journey when `pinArg` is `journeyId`. */
+    private readonly pinnedId: number,
     private readonly audit: (toolName: string) => void,
     private readonly mode: SessionMode,
     /** The itineraries the user's transit searches on this trip answered with, kept across turns. */
     private readonly itineraries: KeptItineraries = new KeptItineraries(),
+    private readonly pinArg: string = PINNED_ARG,
   ) {}
 
   /** The groups this turn loaded; the core is always there. */
@@ -190,17 +225,18 @@ export class AssistantToolSession {
 
   /**
    * The tools as the model is offered them: the core and the groups it
-   * loaded, the trip notes, and the step that loads the other groups.
+   * loaded, the trip notes, and the step that loads the other groups. A
+   * journey's session offers all it holds and no more.
    */
   specs(): AiToolSpec[] {
     const listed = [...this.tools.values()]
-      .filter((tool) => this.mode === 'undo' || tool.hint.group === null || this.loaded.has(tool.hint.group))
+      .filter((tool) => this.mode !== 'turn' || tool.hint.group === null || this.loaded.has(tool.hint.group))
       .map((tool) => ({
         name: tool.name,
         description: tool.description,
-        parameters: modelSchema(tool.name, tool.inputSchema),
+        parameters: modelSchema(tool.name, tool.inputSchema, this.pinArg),
       }));
-    if (this.mode === 'undo') return listed;
+    if (this.mode !== 'turn') return listed;
     const more = Object.keys(ASSISTANT_TOOL_GROUPS).some((group) => !this.loaded.has(group));
     return [...listed, REMEMBER_SPEC, ...(more ? [USE_TOOLS_SPEC] : [])];
   }
@@ -222,11 +258,12 @@ export class AssistantToolSession {
    * conversation's is refused.
    */
   pinArgs(name: string, args: ToolArgs): { args: ToolArgs } | { error: string } {
-    const given = args[PINNED_ARG];
-    if (given !== undefined && Number(given) !== this.tripId) {
-      return { error: 'This conversation is about one trip; its id is set by the app and cannot be changed.' };
+    const given = args[this.pinArg];
+    if (given !== undefined && Number(given) !== this.pinnedId) {
+      const about = this.pinArg === PINNED_ARG ? 'trip' : 'journey';
+      return { error: `This conversation is about one ${about}; its id is set by the app and cannot be changed.` };
     }
-    const hidden = hiddenArgs(name);
+    const hidden = hiddenArgs(name, this.pinArg);
     return { args: Object.fromEntries(Object.entries(args).filter(([key]) => !hidden.has(key))) };
   }
 
@@ -280,7 +317,7 @@ export class AssistantToolSession {
     const tool = this.tools.get(name);
     if (!tool) return { ok: false, value: `Unknown tool: ${name}` };
     const forced = ASSISTANT_ARG_POLICY[name]?.forced ?? {};
-    const final = { ...args, ...(tool.pinned ? { [PINNED_ARG]: this.tripId } : {}), ...forced };
+    const final = { ...args, ...(tool.pinned ? { [this.pinArg]: this.pinnedId } : {}), ...forced };
     try {
       return readResult(await this.client.callTool({ name, arguments: final }));
     } catch (err) {
@@ -311,12 +348,52 @@ export class AssistantToolsService implements OnApplicationBootstrap {
 
   /**
    * A session for one user and trip: for a turn every tool the assistant is
-   * offered, for an undo only the named targets. No plugin tools are ever
-   * attached: the assistant passes no dynamic tool source.
+   * offered but the book's own (left out by name and by controller), for an
+   * undo only the named targets. No plugin tools are ever attached: the
+   * assistant passes no dynamic tool source.
    */
   async open(userId: number, tripId: number, undoTargets?: ReadonlySet<string>) {
-    const include = (name: string) => (undoTargets ? undoTargets.has(name) : isOfferedTool(name));
-    const classOf = new Map(this.registry.list().map((entry) => [entry.name, entry] as const));
+    const catalog = this.catalog();
+    const include = (name: string) =>
+      undoTargets ? undoTargets.has(name) : isOfferedTool(name) && !isStudioController(catalog.get(name)?.className);
+    const mode: SessionMode = undoTargets ? 'undo' : 'turn';
+    const kept = this.itineraries.of(userId, tripId);
+    return this.session(userId, { arg: PINNED_ARG, id: tripId }, mode, { catalog, include, keep: () => true }, kept);
+  }
+
+  /**
+   * A session for one user and journey, the Studio's: for a turn the book
+   * tools and the journey's reads, each on this journey, with the book's
+   * writes only for someone who may change it (`canWrite`); for an undo only
+   * the named targets.
+   */
+  async openJourney(userId: number, journeyId: number, canWrite: boolean, undoTargets?: ReadonlySet<string>) {
+    const catalog = this.catalog();
+    const classOf = (name: string) => catalog.get(name)?.className;
+    const include = (name: string) => (undoTargets ? undoTargets.has(name) : isOfferedInJourney(name, classOf(name)));
+    const keep = (tool: ListedTool) =>
+      !!undoTargets || keptInJourney(classOf(tool.name), tool.kind, tool.pinned, canWrite);
+    const mode: SessionMode = undoTargets ? 'undo' : 'journey';
+    return this.session(userId, { arg: JOURNEY_PINNED_ARG, id: journeyId }, mode, { catalog, include, keep });
+  }
+
+  /** The registered tools by name, read once per session. */
+  private catalog(): ToolCatalog {
+    return new Map(
+      this.registry
+        .list()
+        .filter((entry) => entry.kind === 'tool')
+        .map((entry) => [entry.name, entry] as const),
+    );
+  }
+
+  private async session(
+    userId: number,
+    pin: SessionPin,
+    mode: SessionMode,
+    offer: SessionOffer,
+    kept?: KeptItineraries,
+  ): Promise<AssistantToolSession> {
     const server = createLocalMcpServer('TREK assistant');
     const around = (info: { kind: string; name: string }, call: () => unknown): unknown =>
       traceEntry('mcp', `${info.kind} ${info.name} user=${userId} client=assistant`, () =>
@@ -326,7 +403,7 @@ export class AssistantToolsService implements OnApplicationBootstrap {
       this.registry.attach(
         server,
         { userId, scopes: [...ASSISTANT_SCOPES], isStaticToken: false },
-        { include: (kind, name) => kind === 'tool' && include(name), around },
+        { include: (kind, name) => kind === 'tool' && offer.include(name), around },
       ),
     );
     const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
@@ -337,27 +414,26 @@ export class AssistantToolsService implements OnApplicationBootstrap {
     const tools = new Map<string, ListedTool>();
     for (const tool of (await client.listTools()).tools) {
       const annotations = tool.annotations ?? {};
-      const kind = undoTargets ? 'write' : kindOf(tool.name, annotations.readOnlyHint === true);
+      const kind = mode === 'undo' ? 'write' : kindOf(tool.name, annotations.readOnlyHint === true);
       const inputSchema = tool.inputSchema as Record<string, unknown>;
       const properties = (inputSchema.properties as Record<string, unknown> | undefined) ?? {};
-      const entry = classOf.get(tool.name);
-      tools.set(tool.name, {
+      const entry = offer.catalog.get(tool.name);
+      const listed: ListedTool = {
         name: tool.name,
         description: tool.description ?? '',
         inputSchema,
         kind,
-        pinned: PINNED_ARG in properties,
+        pinned: pin.arg in properties,
         hint: {
           destructive: annotations.destructiveHint === true,
           creates: annotations.idempotentHint === false,
           group: entry ? groupOf(entry) : null,
         },
-      });
+      };
+      if (offer.keep(listed)) tools.set(tool.name, listed);
     }
-    const mode: SessionMode = undoTargets ? 'undo' : 'turn';
     const audit = (name: string) => this.audit(userId, name);
-    const kept = this.itineraries.of(userId, tripId);
-    return new AssistantToolSession(client, server, tools, tripId, audit, mode, kept);
+    return new AssistantToolSession(client, server, tools, pin.id, audit, mode, kept, pin.arg);
   }
 
   /** The audit row an MCP client's call writes, marked as the assistant's. A failed write never fails the call. */

@@ -11,6 +11,7 @@ import { onClientGone, openSseStream } from '../common/sse-stream';
 import { RequirePermission, TripAccessGuard } from '../permissions/trip-access.guard';
 import { AssistantFoundPlacesService } from './assistant-found-places.service';
 import { AssistantProposalsService } from './assistant-proposals.service';
+import { tripScope } from './assistant-scope';
 import { AssistantShareService } from './assistant-share.service';
 import {
   AssistantAddFoundPlaceDto,
@@ -35,7 +36,7 @@ import {
 import type { Response } from 'express';
 
 /** A route id: a positive integer, or the 404 an unknown one gets. */
-function idParam(value: string): number {
+export function idParam(value: string): number {
   const id = Number(value);
   if (!Number.isInteger(id) || id <= 0) throw aiRefusal('not_found', 'Conversation not found');
   return id;
@@ -75,20 +76,20 @@ export class AssistantController {
   @Get('threads')
   @ResponseContract(assistantThreadListResponseSchema)
   threads(@CurrentUser() user: User, @Param('tripId') tripId: string) {
-    return this.assistant.listThreads(user.id, Number(tripId));
+    return this.assistant.listThreads(user.id, tripScope(Number(tripId)));
   }
 
   @Get('threads/:threadId')
   @ResponseContract(assistantThreadResponseSchema)
   thread(@CurrentUser() user: User, @Param('tripId') tripId: string, @Param('threadId') threadId: string) {
-    return this.assistant.getThread(user.id, Number(tripId), idParam(threadId));
+    return this.assistant.getThread(user.id, tripScope(Number(tripId)), idParam(threadId));
   }
 
   @Delete('threads/:threadId')
   @HttpCode(200)
   @ResponseContract(successResponseSchema)
   async deleteThread(@CurrentUser() user: User, @Param('tripId') tripId: string, @Param('threadId') threadId: string) {
-    await this.assistant.deleteThread(user.id, Number(tripId), idParam(threadId));
+    await this.assistant.deleteThread(user.id, tripScope(Number(tripId)), idParam(threadId));
     return { success: true as const };
   }
 
@@ -100,7 +101,7 @@ export class AssistantController {
     @Body() body: AssistantChatDto,
     @Res() res: Response,
   ): Promise<void> {
-    await this.assistant.chat(user.id, Number(tripId), body, channelOf(res));
+    await this.assistant.chat(user.id, tripScope(Number(tripId)), body, channelOf(res));
   }
 
   // response-contract-exempt: streams the turn through @Res() as server-sent events, there is no JSON body to check.
@@ -112,7 +113,7 @@ export class AssistantController {
     @Body() body: AssistantDecisionsDto,
     @Res() res: Response,
   ): Promise<void> {
-    await this.assistant.decide(user.id, Number(tripId), idParam(threadId), body, channelOf(res));
+    await this.assistant.decide(user.id, tripScope(Number(tripId)), idParam(threadId), body, channelOf(res));
   }
 
   /** "+ Day 3" on a place a search found: a change card for the day, held like any other, no model turn. */
@@ -166,7 +167,7 @@ export class AssistantController {
     @Param('toolCallId') toolCallId: string,
     @Body() _body: AssistantUndoDto,
   ) {
-    await this.assistant.undo(user.id, Number(tripId), toolCallId);
+    await this.assistant.undo(user.id, tripScope(Number(tripId)), toolCallId);
     return { undone: true as const };
   }
 

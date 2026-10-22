@@ -18,21 +18,24 @@ import {
   type AssistantChatRequest,
   type AssistantDecisionsRequest,
   type AssistantErrorCode,
+  type AssistantRenderUploadResponse,
+  type AssistantScope,
   type AssistantShareRequest,
   type AssistantTakeProposalRequest,
   type AssistantThreadListResponse,
   type AssistantThreadResponse,
   type AssistantUndoResponse,
+  type BookDesignDraftResponse,
   type CollabMessageResponse,
   type SuccessResponse,
   type UiStreamChunk,
 } from '@trek/shared';
-import apiClient from './client';
+import apiClient, { postMultipart } from './client';
 import { parseUiMessageStream } from './uiMessageStream';
 import { getSocketId } from './websocket';
 
 /**
- * The trip assistant and the AI connections behind it, in their own file
+ * The assistant and the AI connections behind it, in their own file
  * rather than in the `client.ts` god module.
  *
  * The two streaming calls (a new message, and the decisions on held changes)
@@ -98,6 +101,23 @@ async function openStream(path: string, body: unknown, signal: AbortSignal): Pro
 const tripBase = (tripId: number) => `/trips/${tripId}/assistant`;
 
 /**
+ * What a conversation call is about: a trip's id (the planner's chat), or a
+ * scope, which also reaches a journey's chat in TREK Studio. Threads, turns,
+ * decisions, undo and stop exist under both; files, found places, proposals
+ * and sharing belong to a trip and take its id.
+ */
+export type AssistantTarget = number | AssistantScope;
+
+function scopeBase(target: AssistantTarget): string {
+  if (typeof target === 'number') return tripBase(target);
+  return target.kind === 'trip' ? tripBase(target.tripId) : `/journeys/${target.journeyId}/assistant`;
+}
+
+/** Where the Studio uploads a page a running turn of a journey's chat asked for. */
+const renderPath = (journeyId: number, threadId: number, requestId: string) =>
+  `/journeys/${journeyId}/assistant/threads/${threadId}/renders/${encodeURIComponent(requestId)}`;
+
+/**
  * For the calls that make the server go and ask the provider (listing models,
  * testing a key, exchanging a sign-in code): the shared 8 s is TREK's own
  * budget and too short for a provider's.
@@ -105,17 +125,17 @@ const tripBase = (tripId: number) => `/trips/${tripId}/assistant`;
 const viaProvider = { timeout: 30_000 };
 
 export const assistantApi = {
-  threads: (tripId: number): Promise<AssistantThreadListResponse> =>
-    apiClient.get(`${tripBase(tripId)}/threads`).then((r) => r.data),
-  thread: (tripId: number, threadId: number): Promise<AssistantThreadResponse> =>
-    apiClient.get(`${tripBase(tripId)}/threads/${threadId}`).then((r) => r.data),
-  deleteThread: (tripId: number, threadId: number): Promise<SuccessResponse> =>
-    apiClient.delete(`${tripBase(tripId)}/threads/${threadId}`).then((r) => r.data),
-  undo: (tripId: number, toolCallId: string): Promise<AssistantUndoResponse> =>
-    apiClient.post(`${tripBase(tripId)}/tool-calls/${encodeURIComponent(toolCallId)}/undo`, {}).then((r) => r.data),
+  threads: (target: AssistantTarget): Promise<AssistantThreadListResponse> =>
+    apiClient.get(`${scopeBase(target)}/threads`).then((r) => r.data),
+  thread: (target: AssistantTarget, threadId: number): Promise<AssistantThreadResponse> =>
+    apiClient.get(`${scopeBase(target)}/threads/${threadId}`).then((r) => r.data),
+  deleteThread: (target: AssistantTarget, threadId: number): Promise<SuccessResponse> =>
+    apiClient.delete(`${scopeBase(target)}/threads/${threadId}`).then((r) => r.data),
+  undo: (target: AssistantTarget, toolCallId: string): Promise<AssistantUndoResponse> =>
+    apiClient.post(`${scopeBase(target)}/tool-calls/${encodeURIComponent(toolCallId)}/undo`, {}).then((r) => r.data),
   // Ends this user's running turn, wherever it runs (another tab included).
-  stop: (tripId: number): Promise<SuccessResponse> =>
-    apiClient.post(`${tripBase(tripId)}/stop`, {}).then((r) => r.data),
+  stop: (target: AssistantTarget): Promise<SuccessResponse> =>
+    apiClient.post(`${scopeBase(target)}/stop`, {}).then((r) => r.data),
   // A place a search found, suggested for a day: answers with the message holding the change.
   addFoundPlace: (
     tripId: number,
@@ -141,13 +161,25 @@ export const assistantApi = {
       .post(`${tripBase(tripId)}/threads/${threadId}/messages/${encodeURIComponent(messageId)}/share`, body)
       .then((r) => r.data),
 
-  chat: (tripId: number, body: AssistantChatRequest, signal: AbortSignal) =>
-    openStream(`${tripBase(tripId)}/chat`, body, signal),
-  decide: (tripId: number, threadId: number, body: AssistantDecisionsRequest, signal: AbortSignal) =>
-    openStream(`${tripBase(tripId)}/threads/${threadId}/decisions`, body, signal),
+  chat: (target: AssistantTarget, body: AssistantChatRequest, signal: AbortSignal) =>
+    openStream(`${scopeBase(target)}/chat`, body, signal),
+  decide: (target: AssistantTarget, threadId: number, body: AssistantDecisionsRequest, signal: AbortSignal) =>
+    openStream(`${scopeBase(target)}/threads/${threadId}/decisions`, body, signal),
   // A booking file: the server reads it and proposes each booking it finds as a change.
   attach: (tripId: number, form: FormData, signal: AbortSignal) =>
     openStream(`${tripBase(tripId)}/attachments`, form, signal),
+  // A Studio page a running turn asked for, drawn by this tab: the image and what it shows, as multipart.
+  uploadRender: (
+    journeyId: number,
+    threadId: number,
+    requestId: string,
+    form: FormData,
+    signal: AbortSignal
+  ): Promise<AssistantRenderUploadResponse> =>
+    postMultipart(renderPath(journeyId, threadId, requestId), form, { signal }),
+  // A whole-book design draft, for a page of it a running turn asked the Studio to draw.
+  bookDesign: (journeyId: number, designId: string): Promise<BookDesignDraftResponse> =>
+    apiClient.get(`/journeys/${journeyId}/book-designs/${encodeURIComponent(designId)}`).then((r) => r.data),
 };
 
 /** A user's own connection, and what the assistant runs on for them. */

@@ -35,11 +35,12 @@ import { SettingsService } from '../settings/settings.service';
 import { runAgentLoop, type AgentStore, type HeldCall, type StepRecord } from './assistant-agent';
 import { AssistantBookingImportService } from './assistant-booking-import.service';
 import { mentionItems } from './assistant-cards.helpers';
-import { buildTripCard, languageName, todayIn, turnContext, type TripCard } from './assistant-context';
+import { todayIn } from './assistant-context';
 import { DISCARDED, NOT_RUN, type Outcome, withCancelled, withOutcomes } from './assistant-decisions.helpers';
 import { messageIdOf, outputText, partsOf, toChatHistory, toThreadMessages } from './assistant-history';
 import { rememberForTrip } from './assistant-memory';
 import { toolOutputForProvider } from './assistant-output';
+import { AssistantScopes, findScopedCall, scopedThreads, tripScope } from './assistant-scope';
 import { AssistantStreamRegistry } from './assistant-stream.registry';
 import { titleFrom } from './assistant-title';
 import {
@@ -54,8 +55,9 @@ import {
   writeToolOf,
 } from './assistant-tools.constants';
 import { AssistantToolsService, type AssistantToolSession, type ToolRun } from './assistant-tools.service';
+import { readTripCard } from './assistant-trip-scope';
 import { unchangedSinceApplied, undoSnapshotOf, undoTargetsOf } from './assistant-undo.helpers';
-import { systemPrompt } from './assistant.prompt';
+import { AssistantVision } from './assistant-vision';
 import { AssistantCardContext } from './cards/card-context';
 import { ASSISTANT_UNDO_MAP } from './cards/registry';
 import { appliedChange } from './tool-call-preview.helpers';
@@ -72,6 +74,7 @@ import type {
   AssistantFocus,
   AssistantMention,
   AssistantMessagePart,
+  AssistantScope,
   AssistantThreadListResponse,
   AssistantThreadResponse,
   AssistantThreadSummary,
@@ -114,7 +117,7 @@ export interface TurnChannel {
 /** What a turn runs with, whichever request started it. */
 interface TurnSpec {
   userId: number;
-  tripId: number;
+  scope: AssistantScope;
   threadId: number;
   connection: ResolvedAiConnection;
   locale: string;
@@ -124,6 +127,8 @@ interface TurnSpec {
   quota: { used: number; limit: number } | null;
   /** The row the first step writes into, when the turn created it already (a chat turn). */
   firstRowId: number | null;
+  /** The client draws Studio pages for this turn (assistant-vision.ts). */
+  renders?: boolean;
 }
 
 function summaryOf(thread: AssistantThreadRow): AssistantThreadSummary {
@@ -141,9 +146,10 @@ function encodeParts(parts: AssistantMessagePart[]): string {
 const threadNotFound = () => aiRefusal('not_found', 'Conversation not found');
 
 /**
- * The trip assistant: a user's conversations about one trip, the turns that
- * answer them, the decisions on the changes a turn proposes and the undo of
- * an applied one.
+ * The assistant: a user's conversations about one trip or (in TREK Studio)
+ * one journey, the turns that answer them, the decisions on the changes a
+ * turn proposes and the undo of an applied one. What differs between the two
+ * scopes (the threads, the tools, the context) is AssistantScopes'.
  *
  * A turn checks everything that can refuse it first (the rate limit, the
  * connection, the daily limit, one turn per user at a time), so a refusal is
@@ -169,21 +175,23 @@ export class AssistantService {
     private readonly uow: UnitOfWork,
     private readonly orm: MikroORM,
     private readonly cardContext: AssistantCardContext,
+    private readonly scopes: AssistantScopes,
+    private readonly vision: AssistantVision,
   ) {}
 
-  async listThreads(userId: number, tripId: number): Promise<AssistantThreadListResponse> {
-    return { threads: (await this.threads.listRecent(userId, tripId, THREADS_LISTED)).map(summaryOf) };
+  async listThreads(userId: number, scope: AssistantScope): Promise<AssistantThreadListResponse> {
+    return { threads: (await scopedThreads(this.threads, scope).list(userId, THREADS_LISTED)).map(summaryOf) };
   }
 
-  async getThread(userId: number, tripId: number, threadId: number): Promise<AssistantThreadResponse> {
-    const thread = await this.threads.findOwned(threadId, userId, tripId);
+  async getThread(userId: number, scope: AssistantScope, threadId: number): Promise<AssistantThreadResponse> {
+    const thread = await scopedThreads(this.threads, scope).find(threadId, userId);
     if (!thread) throw threadNotFound();
     const rows = await this.messages.listLatest(threadId, THREAD_ROWS);
     return { thread: summaryOf(thread), messages: toThreadMessages(rows, await this.callsOf(rows), new Date()) };
   }
 
-  async deleteThread(userId: number, tripId: number, threadId: number): Promise<void> {
-    if (!(await this.threads.deleteOwned(threadId, userId, tripId))) throw threadNotFound();
+  async deleteThread(userId: number, scope: AssistantScope, threadId: number): Promise<void> {
+    if (!(await scopedThreads(this.threads, scope).remove(threadId, userId))) throw threadNotFound();
   }
 
   /** Stops the user's running turn, wherever it runs; nothing to stop is not an error. */
@@ -192,22 +200,24 @@ export class AssistantService {
   }
 
   /**
-   * A new message, in a thread of the user's on this trip or (threadId null) a
-   * new one, answered as a stream.
+   * A new message, in a thread of the user's on this trip or journey or
+   * (threadId null) a new one, answered as a stream.
    *
    * @txIndependent a streamed turn writes as it goes: the opening rows in one
    * transaction, then each step on its own, with the provider's answer between.
    */
-  async chat(userId: number, tripId: number, req: AssistantChatRequest, channel: TurnChannel): Promise<void> {
+  async chat(userId: number, scope: AssistantScope, req: AssistantChatRequest, channel: TurnChannel): Promise<void> {
     await this.admit(userId);
     const connection = await this.connections.resolveForUser(userId);
     const dailyTurns = await this.withinDailyLimit(userId, connection);
     await this.claimed(userId, channel.signal, async (signal) => {
-      const mentions = req.mentions ?? [];
+      // Days, places and bookings are named with "@" in a trip only.
+      const tripId = scope.kind === 'trip' ? scope.tripId : null;
+      const mentions = tripId !== null ? (req.mentions ?? []) : [];
       // The labels the message keeps come from the trip, never from the request.
-      const card = mentions.length > 0 ? await this.tripCardOf(userId, tripId) : null;
+      const card = mentions.length > 0 && tripId !== null ? await readTripCard(this.tools, userId, tripId) : null;
       const items = card ? mentionItems(card, mentions, req.locale) : [];
-      const begun = await this.beginTurn(userId, tripId, req.threadId, req.text, connection.model, [
+      const begun = await this.beginTurn(userId, scope, req.threadId, req.text, connection.model, [
         { type: 'text', text: req.text },
         ...(items.length > 0 ? [{ type: 'data-trek-mentions' as const, data: { items } }] : []),
       ]);
@@ -222,7 +232,7 @@ export class AssistantService {
           : null;
       const spec: TurnSpec = {
         userId,
-        tripId,
+        scope,
         threadId: begun.threadId,
         connection,
         locale: req.locale,
@@ -231,6 +241,7 @@ export class AssistantService {
         mentions,
         quota,
         firstRowId: begun.rowId,
+        renders: req.renders === true,
       };
       await this.converse(spec, stream, w, signal);
     });
@@ -259,7 +270,7 @@ export class AssistantService {
     await this.withinDailyLimit(userId, connection);
     await this.claimed(userId, channel.signal, async (signal) => {
       const name = file.originalname.slice(0, MAX_FILE_NAME_CHARS);
-      const begun = await this.beginTurn(userId, tripId, req.threadId ?? null, name, connection.model, [
+      const begun = await this.beginTurn(userId, tripScope(tripId), req.threadId ?? null, name, connection.model, [
         { type: 'attachment', name, mime: file.mimetype || 'application/octet-stream', size: file.size },
       ]);
       const stream = channel.open();
@@ -293,16 +304,16 @@ export class AssistantService {
    */
   async decide(
     userId: number,
-    tripId: number,
+    scope: AssistantScope,
     threadId: number,
     req: AssistantDecisionsRequest,
     channel: TurnChannel,
   ): Promise<void> {
-    if (!(await this.threads.findOwned(threadId, userId, tripId))) throw threadNotFound();
+    if (!(await scopedThreads(this.threads, scope).find(threadId, userId))) throw threadNotFound();
     await this.admit(userId);
     const open = await this.toolCalls.listOpen(threadId);
     if (open.length > 0 && open.every((call) => ASSISTANT_SERVER_WRITE_TOOLS[call.tool_name]?.quiet === true)) {
-      await this.decideQuietly(userId, tripId, threadId, req, channel);
+      await this.decideQuietly(userId, scope, threadId, req, channel);
       return;
     }
     const connection = await this.connections.resolveForUser(userId);
@@ -321,7 +332,7 @@ export class AssistantService {
             : null;
         const spec: TurnSpec = {
           userId,
-          tripId,
+          scope,
           threadId,
           connection,
           locale: req.locale,
@@ -330,10 +341,11 @@ export class AssistantService {
           mentions: [],
           quota,
           firstRowId: null,
+          renders: req.renders === true,
         };
         await this.converse(spec, stream, w, signal, (session) =>
           this.applyDecisions(
-            (name, args) => this.runChange(session, userId, tripId, name, args),
+            (name, args) => this.runChange(session, userId, scope, name, args),
             threadId,
             decided,
             w,
@@ -356,7 +368,7 @@ export class AssistantService {
    */
   private async decideQuietly(
     userId: number,
-    tripId: number,
+    scope: AssistantScope,
     threadId: number,
     req: AssistantDecisionsRequest,
     channel: TurnChannel,
@@ -368,10 +380,9 @@ export class AssistantService {
       let opened: AssistantToolSession | null = null;
       try {
         w.start(messageIdOf(await this.answerStart(threadId, decided[0].call.message_id)));
-        const session = await this.tools.open(userId, tripId);
+        const session = await this.scopes.open(userId, scope);
         opened = session;
-        const run = (name: string, args: Record<string, unknown>) =>
-          this.runChange(session, userId, tripId, name, args);
+        const run = (name: string, args: Record<string, unknown>) => this.runChange(session, userId, scope, name, args);
         await this.applyDecisions(run, threadId, decided, w, unrun);
         w.finish('stop');
       } catch (err) {
@@ -390,17 +401,23 @@ export class AssistantService {
   /**
    * Runs one applied change: a booking from a file through the booking import,
    * a found place or a taken proposal through the tool it names, anything else through its own tool.
+   * A booking and a trip note belong to a trip; a journey's session holds neither.
    */
   private runChange(
     session: AssistantToolSession,
     userId: number,
-    tripId: number,
+    scope: AssistantScope,
     name: string,
     args: Record<string, unknown>,
   ): Promise<ToolRun> {
-    if (name === IMPORT_BOOKING_TOOL) return this.inContext(() => this.bookings.apply(userId, tripId, args));
+    const tripId = scope.kind === 'trip' ? scope.tripId : null;
+    if (name === IMPORT_BOOKING_TOOL && tripId !== null) {
+      return this.inContext(() => this.bookings.apply(userId, tripId, args));
+    }
     if (writeToolOf(name, args) !== name) return session.call(writeToolOf(name, args), foundPlaceArgs(args));
-    if (name === REMEMBER_TOOL) return this.inContext(() => rememberForTrip(this.settings, userId, tripId, args));
+    if (name === REMEMBER_TOOL && tripId !== null) {
+      return this.inContext(() => rememberForTrip(this.settings, userId, tripId, args));
+    }
     return session.call(name, args);
   }
 
@@ -411,9 +428,9 @@ export class AssistantService {
    * @txIndependent the undo tool commits on its own between the claim and the
    * claim's release on failure, so the two cannot share a transaction.
    */
-  async undo(userId: number, tripId: number, toolCallId: string): Promise<void> {
+  async undo(userId: number, scope: AssistantScope, toolCallId: string): Promise<void> {
     await this.admit(userId);
-    const call = await this.toolCalls.findOwned(toolCallId, userId, tripId);
+    const call = await findScopedCall(this.toolCalls, scope, toolCallId, userId);
     if (!call) throw aiRefusal('not_found', 'Change not found');
     const stale = () => conflict('This change cannot be undone any more', { code: 'stale' });
     const args = decodeJson(ASSISTANT_TOOL_ARGS, call.args, `tool call ${call.id}`);
@@ -423,9 +440,10 @@ export class AssistantService {
     const preview = decodeJson(ASSISTANT_TOOL_PREVIEW, call.preview, `tool call ${call.id}`);
     const undoArgs = undo && call.state === 'executed' ? undo.args(args, result, preview) : null;
     if (!undo || !undoArgs) throw stale();
-    const session = await this.tools.open(userId, tripId, undoTargetsOf(undo.tool, tool, args, result));
+    const onTrip = scope.kind === 'trip';
+    const session = await this.scopes.open(userId, scope, undoTargetsOf(undo.tool, tool, args, result, onTrip));
     try {
-      const snapshot = await undoSnapshotOf(session, tool, args, result);
+      const snapshot = await undoSnapshotOf(session, tool, args, result, { tripReads: onTrip });
       if (!snapshot || !unchangedSinceApplied(tool, result, snapshot)) throw stale();
       if (!(await this.toolCalls.claimUndo(call.id, userId, dbNow()))) throw stale();
       const run = await session.call(undo.tool, undoArgs);
@@ -484,21 +502,22 @@ export class AssistantService {
    */
   private async beginTurn(
     userId: number,
-    tripId: number,
+    scope: AssistantScope,
     threadId: number | null,
     titleText: string,
     model: string,
     userParts: AssistantMessagePart[],
   ) {
     const now = dbNow();
+    const threads = scopedThreads(this.threads, scope);
     return this.uow.transactional(async () => {
       let id: number;
       let title: string;
       if (threadId === null) {
         title = titleFrom(titleText);
-        id = await this.threads.createThread(userId, tripId, title, now);
+        id = await threads.create(userId, title, now);
       } else {
-        const thread = await this.threads.findOwned(threadId, userId, tripId);
+        const thread = await threads.find(threadId, userId);
         if (!thread) throw threadNotFound();
         id = thread.id;
         title = thread.title;
@@ -571,7 +590,7 @@ export class AssistantService {
       w.finish('error');
       return;
     }
-    const card = await this.tripCardOf(turn.userId, turn.tripId);
+    const card = await readTripCard(this.tools, turn.userId, turn.tripId);
     const ctx = this.cardContext.contextOf(card, new Map(), turn.locale, todayIn(turn.timeZone, new Date()));
     const proposed = items.map((item) => ({
       id: randomUUID(),
@@ -599,18 +618,6 @@ export class AssistantService {
     }
     w.finishStep();
     w.finish('tool-calls');
-  }
-
-  /** The trip card a booking's change card names its day from, read with the user's rights. */
-  private async tripCardOf(userId: number, tripId: number): Promise<TripCard> {
-    const session = await this.tools.open(userId, tripId, new Set(['get_trip_summary', 'list_places']));
-    try {
-      const summary = await session.read('get_trip_summary');
-      const places = await session.read('list_places');
-      return buildTripCard(tripId, userId, summary.ok ? summary.value : null, places.ok ? places.value : null, null);
-    } finally {
-      await session.close();
-    }
   }
 
   private async cancelOpen(threadId: number, now: string): Promise<void> {
@@ -801,9 +808,9 @@ export class AssistantService {
   }
 
   /**
-   * The turn itself, once the stream is open: the tool session, the trip card,
-   * the history, then the agent loop. Whatever fails after this point ends the
-   * stream with an error chunk instead of a JSON answer.
+   * The turn itself, once the stream is open: the tool session, the trip or
+   * book card, the history, then the agent loop. Whatever fails after this
+   * point ends the stream with an error chunk instead of a JSON answer.
    *
    * @txIndependent each step is saved when it is complete, with the provider's
    * answer and the tool calls between two saves.
@@ -818,30 +825,37 @@ export class AssistantService {
     const stopKeepalive = armKeepalive(stream);
     let opened: AssistantToolSession | null = null;
     try {
-      const session = await this.tools.open(spec.userId, spec.tripId);
+      const session = await this.scopes.open(spec.userId, spec.scope);
       opened = session;
       if (prelude) await prelude(session);
-      const card = await this.cardOf(session, spec);
+      const { card, system, context, gate } = await this.scopes.turnOf(session, spec.scope, {
+        ...spec,
+        now: new Date(),
+      });
       const rows = await this.inContext(() => this.messages.listLatest(spec.threadId, HISTORY_ROWS));
       const calls = await this.inContext(() => this.callsOf(rows));
       const providerIds = new Map([...calls.values()].map((call) => [call.id, call.provider_call_id]));
       const history = toChatHistory(rows, providerIds);
-      const prefs = await this.inContext(() => this.settings.getUserSettings(spec.userId));
       const today = todayIn(spec.timeZone, new Date());
+      const { userId, threadId, connection } = spec;
+      const seen = { userId, threadId, connection, renders: spec.renders === true, w, signal };
+      const seeing = await this.vision.turnTools(spec.scope, session, seen);
       const outcome = await runAgentLoop(
         {
           client: this.chatClients.create(spec.connection),
-          tools: session,
+          tools: seeing.tools,
           store: this.stepStore(spec),
-          describe: this.cardContext.forTurn(session, card, spec.locale, today).describe,
+          describe: this.cardContext.forTurn(gate.reader, card, spec.locale, today).describe,
+          refusalOf: gate.refusalOf,
+          vision: seeing.vision,
           newId: randomUUID,
           quota: spec.quota,
           card,
           today,
         },
         {
-          system: systemPrompt(languageName(spec.locale)),
-          context: turnContext(card, spec.timeZone, new Date(), prefs),
+          system,
+          context,
           cacheKey: `trek-thread-${spec.threadId}`,
           history,
           usedCallIds: new Set(
@@ -874,14 +888,6 @@ export class AssistantService {
       await opened?.close();
       w.close();
     }
-  }
-
-  /** The trip card for this turn, read through the trip tools with the user's rights. */
-  private async cardOf(session: AssistantToolSession, spec: TurnSpec): Promise<TripCard> {
-    const summary = await session.read('get_trip_summary');
-    const places = await session.read('list_places');
-    const [found, listed] = [summary.ok ? summary.value : null, places.ok ? places.value : null];
-    return buildTripCard(spec.tripId, spec.userId, found, listed, spec.focus, spec.mentions);
   }
 
   /**

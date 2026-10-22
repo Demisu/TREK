@@ -43,7 +43,7 @@ export default function AssistantComposer({ tripId, tripTitle }: { tripId: numbe
   const mentions = useAssistantMentions(tripId);
   const { suggestions } = useAssistantSuggestions(tripId);
   const empty = useAuiState((s) => s.composer.isEmpty);
-  const { take, busy, accept } = useAssistantAttach(tripId);
+  const { take, busy, accept, canAttach } = useAssistantAttach(tripId);
   const fileInput = useRef<HTMLInputElement>(null);
   const fallback = t('assistant.composer.placeholder', { trip: tripTitle });
   const placeholder = useTypewriterPlaceholder(
@@ -75,27 +75,31 @@ export default function AssistantComposer({ tripId, tripTitle }: { tripId: numbe
           </div>
         )}
         <div className="flex items-center gap-1 p-1.5">
-          <Tooltip label={t('assistant.attach.button')} placement="top">
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => fileInput.current?.click()}
-              aria-label={t('assistant.attach.button')}
-              className={`flex ${ACTION[variant]} flex-shrink-0 items-center justify-center rounded-full text-content-muted transition-colors hover:bg-surface-hover hover:text-content disabled:opacity-40`}
-            >
-              <Paperclip size={17} aria-hidden="true" />
-            </button>
-          </Tooltip>
-          <input
-            ref={fileInput}
-            type="file"
-            accept={accept}
-            hidden
-            onChange={(e) => {
-              take(e.target.files);
-              e.target.value = '';
-            }}
-          />
+          {canAttach && (
+            <>
+              <Tooltip label={t('assistant.attach.button')} placement="top">
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => fileInput.current?.click()}
+                  aria-label={t('assistant.attach.button')}
+                  className={`flex ${ACTION[variant]} flex-shrink-0 items-center justify-center rounded-full text-content-muted transition-colors hover:bg-surface-hover hover:text-content disabled:opacity-40`}
+                >
+                  <Paperclip size={17} aria-hidden="true" />
+                </button>
+              </Tooltip>
+              <input
+                ref={fileInput}
+                type="file"
+                accept={accept}
+                hidden
+                onChange={(e) => {
+                  take(e.target.files);
+                  e.target.value = '';
+                }}
+              />
+            </>
+          )}
           <ComposerPrimitive.Input
             // The desktop window opens ready to type; on the phone the keyboard waits for a tap.
             autoFocus={variant === 'window'}

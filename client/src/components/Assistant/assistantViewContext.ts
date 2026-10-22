@@ -1,10 +1,18 @@
+import type { AssistantScope } from '@trek/shared';
 import { createContext, useContext } from 'react';
 
+import { type AssistantChatKey, assistantScopeOf } from '../../store/assistantChatKey';
 import type { EntityTarget } from './cards/cardTypes';
 
 /** What the parts deep inside a chat need from whoever shows it. */
 export interface AssistantView {
-  tripId: number;
+  /**
+   * The chat's key, which every part hands to the assistant store: the trip's
+   * id in the planner, a journey's key in TREK Studio (`assistantChatKey`).
+   * No trip is held under a journey's key, so the parts that read the trip
+   * (its map, its days, found places) stay empty there.
+   */
+  tripId: AssistantChatKey;
   /** 'window' on the desktop, 'fullscreen' on the phone. */
   variant: 'window' | 'fullscreen';
   /** How much room the chat has: a narrow window and the phone are 'compact'. */
@@ -27,4 +35,9 @@ export function useAssistantView(): AssistantView {
   const view = useContext(AssistantViewContext);
   if (!view) throw new Error('useAssistantView outside AssistantSurface');
   return view;
+}
+
+/** What the chat on screen is about, for the parts that only make sense on a trip. */
+export function useAssistantScope(): AssistantScope {
+  return assistantScopeOf(useAssistantView().tripId);
 }

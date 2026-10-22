@@ -3,6 +3,7 @@ import type { AssistantMessage } from '@trek/shared';
 import { useMemo } from 'react';
 
 import { useNetworkMode } from '../../hooks/useNetworkMode';
+import type { AssistantChatKey } from '../../store/assistantChatKey';
 import { pendingToolCallIds } from '../../store/assistantMessages';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { toThreadMessage } from './assistantModel';
@@ -21,11 +22,12 @@ function textOf(message: AppendMessage): string {
  *
  * Offline the composer is off; while a change waits for a decision, typing
  * works but sending waits, because the model is still waiting for that answer.
+ * A trip's chat and a journey's run the same way, each under its own key.
  */
-export function useAssistantRuntime(tripId: number) {
-  const messages = useAssistantStore((s) => chatOf(s, tripId).messages);
-  const isRunning = useAssistantStore((s) => chatOf(s, tripId).isRunning);
-  const isLoading = useAssistantStore((s) => chatOf(s, tripId).loading);
+export function useAssistantRuntime(key: AssistantChatKey) {
+  const messages = useAssistantStore((s) => chatOf(s, key).messages);
+  const isRunning = useAssistantStore((s) => chatOf(s, key).isRunning);
+  const isLoading = useAssistantStore((s) => chatOf(s, key).loading);
   const send = useAssistantStore((s) => s.send);
   const cancel = useAssistantStore((s) => s.cancel);
   const { offline } = useNetworkMode();
@@ -38,7 +40,7 @@ export function useAssistantRuntime(tripId: number) {
     isLoading,
     isDisabled: offline,
     isSendDisabled: waiting,
-    onNew: (message) => send(tripId, textOf(message)),
-    onCancel: async () => cancel(tripId),
+    onNew: (message) => send(key, textOf(message)),
+    onCancel: async () => cancel(key),
   });
 }

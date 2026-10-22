@@ -10,6 +10,7 @@ import {
   type AssistantMention,
   type AssistantMessage,
   type AssistantMessagePart,
+  type AssistantPageRender,
   type AssistantThreadSummary,
   type UiStreamChunk,
 } from '@trek/shared';
@@ -21,6 +22,7 @@ import { OnlineOnlyError } from '../repo/onlineOnly';
 import type { Assignment } from '../types';
 import { randomId } from '../utils/randomId';
 import type { RouteProfileFocus } from '../utils/routeGeometry';
+import { assistantScopeOf, assistantTargetOf, type AssistantChatKey } from './assistantChatKey';
 import {
   blockDays,
   blockKeyOf,
@@ -35,8 +37,12 @@ import { useSettingsStore } from './settingsStore';
 import { useTripStore } from './tripStore';
 
 /**
- * The trip assistant: whether it can run, whether its window is open, and one
- * conversation per trip.
+ * The assistant: whether it can run, whether its window is open, and one
+ * conversation per trip and one per journey (the chat in TREK Studio), each
+ * under its `AssistantChatKey`. The actions both kinds of chat have take that
+ * key; the ones that only make sense on a trip (files, found places,
+ * proposals, the before and after on the map) take a trip's id and do nothing
+ * for a journey's key.
  *
  * Online-only like the repos it calls; nothing here reaches Dexie. Messages
  * are kept in the server's stored shape (`AssistantMessage`), and the stream
@@ -114,8 +120,9 @@ interface AssistantState {
   /** What the assistant runs on for this user; null until loaded, and the assistant stays hidden until then. */
   status: AiStatusResponse | null;
   window: { open: boolean; minimized: boolean };
-  byTrip: Record<number, AssistantTripChat>;
-  /** The change applied last, for the planner to jump to it. */
+  /** The chats by `AssistantChatKey`: a trip's id, or a journey's key. */
+  byTrip: Record<AssistantChatKey, AssistantTripChat>;
+  /** The change applied last in a trip's chat, for the planner to jump to it. */
   lastApplied: { tripId: number; applied: AssistantApplied } | null;
   /**
    * The change under the pointer, shared by its card row and its pin on the
@@ -140,45 +147,51 @@ interface AssistantState {
   windowRect: WindowRect | null;
   /** The part of the planner's map on screen, sent with a question so "here" means it. */
   mapView: { tripId: number; view: AssistantMapView } | null;
+  /** The TREK Studio hosting a journey's chat, by the chat's key, while that chat is open there. */
+  studioHosts: Record<AssistantChatKey, AssistantStudioHost>;
 
   loadStatus: () => Promise<void>;
   ackPrivacy: () => Promise<void>;
+  /** The user let the effective connection receive images of their Studio pages. */
+  ackStudioImages: () => Promise<void>;
+  /** Hosts a journey's chat in the Studio; the returned function ends it, unless another host took the key since. */
+  hostStudio: (key: AssistantChatKey, host: AssistantStudioHost) => () => void;
 
   open: () => void;
   close: () => void;
   toggle: () => void;
   setMinimized: (minimized: boolean) => void;
-  /** Opens the window on a trip with a context chip ("Ask" on a place). */
-  openWith: (tripId: number, focus: AssistantFocus | null) => void;
-  setFocus: (tripId: number, focus: AssistantFocus | null) => void;
-  setDraft: (tripId: number, draft: string) => void;
+  /** Opens the window on a chat with a context chip ("Ask" on a place). */
+  openWith: (key: AssistantChatKey, focus: AssistantFocus | null) => void;
+  setFocus: (key: AssistantChatKey, focus: AssistantFocus | null) => void;
+  setDraft: (key: AssistantChatKey, draft: string) => void;
 
   /** Loads the thread list and, when nothing is open yet, the latest thread. */
-  resume: (tripId: number) => Promise<void>;
-  loadThreads: (tripId: number) => Promise<void>;
-  openThread: (tripId: number, threadId: number) => Promise<void>;
-  newThread: (tripId: number) => void;
-  deleteThread: (tripId: number, threadId: number) => Promise<void>;
+  resume: (key: AssistantChatKey) => Promise<void>;
+  loadThreads: (key: AssistantChatKey) => Promise<void>;
+  openThread: (key: AssistantChatKey, threadId: number) => Promise<void>;
+  newThread: (key: AssistantChatKey) => void;
+  deleteThread: (key: AssistantChatKey, threadId: number) => Promise<void>;
 
-  send: (tripId: number, text: string) => Promise<void>;
-  /** Hands a booking file to the chat, which proposes what it finds in it. */
-  attach: (tripId: number, file: File) => Promise<void>;
-  decide: (tripId: number, decisions: AssistantDecision[]) => Promise<void>;
-  undo: (tripId: number, toolCallId: string) => Promise<UndoOutcome>;
-  cancel: (tripId: number) => void;
+  send: (key: AssistantChatKey, text: string) => Promise<void>;
+  /** Hands a booking file to a trip's chat, which proposes what it finds in it; does nothing under a journey key. */
+  attach: (key: AssistantChatKey, file: File) => Promise<void>;
+  decide: (key: AssistantChatKey, decisions: AssistantDecision[]) => Promise<void>;
+  undo: (key: AssistantChatKey, toolCallId: string) => Promise<UndoOutcome>;
+  cancel: (key: AssistantChatKey) => void;
   /** Sends the last question again: the refused message, or the one whose answer broke off. */
-  retry: (tripId: number) => Promise<void>;
+  retry: (key: AssistantChatKey) => Promise<void>;
   /** Stops the turn running in another window, then sends here. */
-  continueHere: (tripId: number) => Promise<void>;
-  dismissError: (tripId: number) => void;
+  continueHere: (key: AssistantChatKey) => Promise<void>;
+  dismissError: (key: AssistantChatKey) => void;
 
   /** Takes back the applied changes of one block, the last one first. */
-  undoBlock: (tripId: number, toolCallIds: readonly string[]) => Promise<UndoBlockResult>;
-  /** Shows the plan before or after the last applied block, on the map. */
-  setCompare: (tripId: number, mode: 'before' | 'after') => void;
-  /** Suggests a place a search found for a day; the server holds it as a change to decide like any other. */
-  addFoundPlace: (tripId: number, ref: string, dayId: number) => Promise<void>;
-  addMention: (tripId: number, mention: AssistantMentionItem) => void;
+  undoBlock: (key: AssistantChatKey, toolCallIds: readonly string[]) => Promise<UndoBlockResult>;
+  /** Shows the plan before or after the last applied block, on the map; a journey chat has none to show. */
+  setCompare: (key: AssistantChatKey, mode: 'before' | 'after') => void;
+  /** Suggests a found place for a day, held as a change to decide; skipped under a journey key. */
+  addFoundPlace: (key: AssistantChatKey, ref: string, dayId: number) => Promise<void>;
+  addMention: (key: AssistantChatKey, mention: AssistantMentionItem) => void;
 
   setMapHover: (tripId: number, hoveredId: string | null, source: AssistantMapSource) => void;
   requestCamera: (tripId: number, points: LatLng[], mode: 'fit' | 'pan', why: 'user' | 'auto') => void;
@@ -190,17 +203,45 @@ interface AssistantState {
   setRoutePreview: (routePreview: AssistantState['routePreview']) => void;
   setRoutePeek: (routePeek: AssistantState['routePeek']) => void;
   /** Picks one of the ways a block of cards offers. */
-  pick: (tripId: number, blockKey: string, toolCallId: string) => void;
+  pick: (key: AssistantChatKey, blockKey: string, toolCallId: string) => void;
   /**
    * Takes a proposal an answer showed as a card ("Plan this"); the server holds it as a change to decide.
    * Says what came of it: held, refused (the chat's error says why), or skipped while a turn ran or the
-   * thread changed under it.
+   * thread changed under it, and always skipped under a journey key.
    */
-  takeProposal: (tripId: number, toolCallId: string) => Promise<HoldOutcome>;
+  takeProposal: (key: AssistantChatKey, toolCallId: string) => Promise<HoldOutcome>;
 }
 
 /** What came of a change the server was asked to hold without a model turn. */
 export type HoldOutcome = 'held' | 'refused' | 'skipped';
+
+/**
+ * What the TREK Studio holding a journey's chat does for its turns: it writes
+ * the work still sitting in its autosave before a turn or an apply goes out,
+ * so the assistant edits the book the user sees, and it draws the pages a
+ * turn asks to look at (journey-studio.md 3.1). A chat with no host sends text only.
+ */
+export interface AssistantStudioHost {
+  /** Draws the page a running turn asked for and uploads it; never throws, a page it cannot send stays text. */
+  render: (request: AssistantPageRender, signal: AbortSignal) => void;
+  /** Writes the local work of the book; false when it could not land (a conflict, a viewer, offline). */
+  flush: () => Promise<boolean>;
+}
+
+/** The Studio hosting the chat under `key`, if one does. */
+const studioHostOf = (ctx: Ctx, key: AssistantChatKey): AssistantStudioHost | undefined => ctx.get().studioHosts[key];
+
+/** A turn of a hosted chat writes the book first and says the Studio draws pages; any other turn opens as it is. */
+async function hostedOpen<T>(ctx: Ctx, key: AssistantChatKey, open: (renders: { renders?: true }) => Promise<T>) {
+  const host = studioHostOf(ctx, key);
+  if (!host) return open({});
+  try {
+    await host.flush();
+  } catch {
+    // The Studio's save indicator shows its own failure; the turn goes on against the book the server holds.
+  }
+  return open({ renders: true });
+}
 
 const NO_LIVE: AssistantTripChat['live'] = { activity: null };
 
@@ -225,9 +266,9 @@ const EMPTY_CHAT: AssistantTripChat = {
 /** What the map shows for the cards of a chat, cleared when the chat closes or changes. */
 const NO_ROUTE = { routeFocus: null, routePreview: null, routePeek: null } as const;
 
-/** A trip's chat as the store holds it, or the empty one; stable, so a selector can return it. */
-export function chatOf(state: Pick<AssistantState, 'byTrip'>, tripId: number): AssistantTripChat {
-  return state.byTrip[tripId] ?? EMPTY_CHAT;
+/** A chat as the store holds it, or the empty one; stable, so a selector can return it. */
+export function chatOf(state: Pick<AssistantState, 'byTrip'>, key: AssistantChatKey): AssistantTripChat {
+  return state.byTrip[key] ?? EMPTY_CHAT;
 }
 
 function httpStatus(err: unknown): number | undefined {
@@ -288,8 +329,8 @@ function patch(ctx: Ctx, tripId: number, next: Partial<AssistantTripChat>) {
   ctx.set((s) => ({ byTrip: { ...s.byTrip, [tripId]: { ...chatOf(s, tripId), ...next } } }));
 }
 
-/** What the store takes from a chunk beside the messages. */
-function onChunk(ctx: Ctx, tripId: number, chunk: UiStreamChunk) {
+/** What the store takes from a chunk beside the messages; `signal` ends with the turn. */
+function onChunk(ctx: Ctx, tripId: number, chunk: UiStreamChunk, signal: AbortSignal) {
   if (chunk.type === 'data-trek-thread') {
     const { threadId, title } = chunk.data;
     const threads = chat(ctx, tripId).threads;
@@ -299,8 +340,11 @@ function onChunk(ctx: Ctx, tripId: number, chunk: UiStreamChunk) {
     const status = ctx.get().status;
     if (status) ctx.set({ status: { ...status, quota: chunk.data } });
   } else if (chunk.type === 'data-trek-applied') {
-    ctx.set({ lastApplied: { tripId, applied: chunk.data } });
-    noteAddedPlace(ctx, tripId, chunk.data);
+    // The planner jumps to a trip's change; the Studio hears a book change through its broadcast.
+    if (assistantScopeOf(tripId).kind === 'trip') {
+      ctx.set({ lastApplied: { tripId, applied: chunk.data } });
+      noteAddedPlace(ctx, tripId, chunk.data);
+    }
     // A kept note lives in the user's settings; read them again so the notes dialog shows it.
     if (chunk.data.entity === 'memory') void useSettingsStore.getState().loadSettings();
   } else if (chunk.type === 'data-trek-activity') {
@@ -308,6 +352,9 @@ function onChunk(ctx: Ctx, tripId: number, chunk: UiStreamChunk) {
   } else if (chunk.type === 'tool-output-available' || chunk.type === 'tool-output-error') {
     // The step the line spoke of is done; the next one says what it does itself.
     if (chat(ctx, tripId).live.activity) patch(ctx, tripId, { live: NO_LIVE });
+  } else if (chunk.type === 'data-trek-render-request') {
+    // The Studio holding this chat draws the page; without one the turn waits out its time and goes on as text.
+    studioHostOf(ctx, tripId)?.render(chunk.data, signal);
   }
 }
 
@@ -356,7 +403,7 @@ async function runTurn(ctx: Ctx, tripId: number, turn: Turn): Promise<void> {
     for await (const chunk of stream) {
       current = applyChunk(current, chunk);
       if (chunk.type === 'error') error = chunk.errorText;
-      if (live()) onChunk(ctx, tripId, chunk);
+      if (live()) onChunk(ctx, tripId, chunk, abort.signal);
       commit.schedule();
     }
   } catch (err) {
@@ -404,13 +451,17 @@ async function sendMessage(ctx: Ctx, tripId: number, text: string): Promise<void
     messages: [...c.messages, question],
     before: c.messages,
     unsent: trimmed,
-    open: (signal) => assistantRepo.send(tripId, body, signal),
+    open: (signal) =>
+      hostedOpen(ctx, tripId, (renders) =>
+        assistantRepo.send(assistantTargetOf(tripId), { ...body, ...renders }, signal)
+      ),
   });
 }
 
 async function attachFile(ctx: Ctx, tripId: number, file: File): Promise<void> {
   const c = chat(ctx, tripId);
-  if (c.isRunning) return;
+  // Files are read into a trip; a journey's chat has no route for them.
+  if (c.isRunning || assistantScopeOf(tripId).kind !== 'trip') return;
   const question: AssistantMessage = {
     id: `local-${randomId()}`,
     role: 'user',
@@ -486,6 +537,22 @@ function shellActions(ctx: Ctx) {
       const status = ctx.get().status;
       if (status) ctx.set({ status: { ...status, privacyAcked: true } });
     },
+    ackStudioImages: async () => {
+      const effective = ctx.get().status?.effective;
+      if (!effective) return;
+      await aiConnectionsRepo.ackPrivacy({ kind: effective.kind, host: effective.host, scope: 'studio_images' });
+      const status = ctx.get().status;
+      if (status) ctx.set({ status: { ...status, studioImagesAcked: true } });
+    },
+    hostStudio: (key: AssistantChatKey, host: AssistantStudioHost) => {
+      ctx.set((s) => ({ studioHosts: { ...s.studioHosts, [key]: host } }));
+      return () => {
+        if (ctx.get().studioHosts[key] !== host) return;
+        ctx.set((s) => ({
+          studioHosts: Object.fromEntries(Object.entries(s.studioHosts).filter(([k]) => Number(k) !== key)),
+        }));
+      };
+    },
     open: () => ctx.set({ window: { open: true, minimized: false } }),
     // Closing leaves the map as the plan is now: "after", nothing hovered, no preview pin.
     close: () =>
@@ -511,7 +578,7 @@ function shellActions(ctx: Ctx) {
 function threadActions(ctx: Ctx) {
   const loadThreads = async (tripId: number) => {
     try {
-      patch(ctx, tripId, { threads: await assistantRepo.threads(tripId) });
+      patch(ctx, tripId, { threads: await assistantRepo.threads(assistantTargetOf(tripId)) });
     } catch (err) {
       patch(ctx, tripId, { error: errorCodeOf(err) });
     }
@@ -522,7 +589,7 @@ function threadActions(ctx: Ctx) {
     ctx.set(NO_ROUTE);
     patch(ctx, tripId, { threadId, loading: true, error: null, unsent: null });
     try {
-      const { messages } = await assistantRepo.thread(tripId, threadId);
+      const { messages } = await assistantRepo.thread(assistantTargetOf(tripId), threadId);
       // Another thread may have been opened while this one loaded.
       if (chat(ctx, tripId).threadId === threadId) patch(ctx, tripId, { messages, loading: false });
     } catch (err) {
@@ -568,7 +635,7 @@ function threadActions(ctx: Ctx) {
       if (latest && c.threadId === null && c.messages.length === 0 && !c.isRunning) await openThread(tripId, latest.id);
     },
     deleteThread: async (tripId: number, threadId: number) => {
-      await assistantRepo.deleteThread(tripId, threadId);
+      await assistantRepo.deleteThread(assistantTargetOf(tripId), threadId);
       const c = chat(ctx, tripId);
       patch(ctx, tripId, { threads: c.threads ? c.threads.filter((t) => t.id !== threadId) : null });
       if (c.threadId === threadId) newThread(tripId);
@@ -579,7 +646,7 @@ function threadActions(ctx: Ctx) {
 async function undoOne(ctx: Ctx, tripId: number, toolCallId: string): Promise<UndoOutcome> {
   let outcome: UndoOutcome;
   try {
-    await assistantRepo.undo(tripId, toolCallId);
+    await assistantRepo.undo(assistantTargetOf(tripId), toolCallId);
     outcome = 'undone';
   } catch (err) {
     const status = httpStatus(err);
@@ -677,6 +744,8 @@ async function holdWithoutTurn(
   hold: (threadId: number) => Promise<{ message: AssistantMessage }>
 ): Promise<HoldOutcome> {
   const threadId = chat(ctx, tripId).threadId;
+  // Found places and proposals are held for a trip's days; a journey's chat has neither.
+  if (assistantScopeOf(tripId).kind !== 'trip') return 'skipped';
   if (chat(ctx, tripId).isRunning || threadId === null) return 'skipped';
   try {
     const { message } = await hold(threadId);
@@ -779,7 +848,10 @@ function turnActions(ctx: Ctx) {
         messages: markDecisions(c.messages, decisions),
         before: c.messages,
         unsent: null,
-        open: (signal) => assistantRepo.decide(tripId, threadId, body, signal),
+        open: (signal) =>
+          hostedOpen(ctx, tripId, (renders) =>
+            assistantRepo.decide(assistantTargetOf(tripId), threadId, { ...body, ...renders }, signal)
+          ),
       });
       // Refused before anything ran: there is no "after" to compare with.
       if (chat(ctx, tripId).error) patch(ctx, tripId, { compare: null });
@@ -789,7 +861,7 @@ function turnActions(ctx: Ctx) {
     retry,
     continueHere: async (tripId: number) => {
       try {
-        await assistantRepo.stop(tripId);
+        await assistantRepo.stop(assistantTargetOf(tripId));
       } catch (err) {
         patch(ctx, tripId, { error: errorCodeOf(err) });
         return;
@@ -812,6 +884,7 @@ export const useAssistantStore = create<AssistantState>((set, get) => {
     preview: null,
     windowRect: null,
     mapView: null,
+    studioHosts: {},
     ...NO_ROUTE,
     ...shellActions(ctx),
     ...threadActions(ctx),

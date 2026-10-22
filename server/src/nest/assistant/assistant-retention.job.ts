@@ -19,7 +19,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /**
  * Nightly sweep of the assistant's conversations: threads nobody wrote in
  * for longer than the admin's retention (none under "forever"), threads of
- * users who no longer belong to their trip, changes that waited a day
+ * users who no longer belong to their trip or journey, changes that waited a day
  * without a decision (expired, so no card waits forever), and usage days
  * older than the usage retention.
  */
