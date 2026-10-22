@@ -10,6 +10,7 @@ import {
   naturalSpreads,
   newRhythm,
   planChapter,
+  settleRhythm,
   shareSpreads,
   type DesignChapter,
   type PlannedSpread,
@@ -210,8 +211,15 @@ export function composeDesignedInner(
       body.push(...stationsSpreads(c, chapter, input));
       return;
     }
+    const from = rhythm.beats.length;
     const plans = planChapter(chapter, shares[i] ?? 1, rhythm, plan, leftOut);
-    body.push(...chapterSpreads(c, chapter, plans, body.length));
+    const made = chapterSpreads(c, chapter, plans, body.length);
+    settleRhythm(
+      rhythm,
+      from,
+      made.map((d) => d.beat),
+    );
+    body.push(...made);
   });
   const head = framing.filter((k) => k !== 'closing').map((k) => framingSpread(c, k, input));
   const tail = framing.filter((k) => k === 'closing').map((k) => framingSpread(c, k, input));

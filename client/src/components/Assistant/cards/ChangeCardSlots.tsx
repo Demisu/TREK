@@ -1,6 +1,6 @@
 import type { AssistantChangePreview, TrekCardKind } from '@trek/shared';
 import { Check, Undo2 } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 
 import { useTranslation } from '../../../i18n';
 import { Tooltip } from '../../shared/Tooltip';
@@ -48,7 +48,7 @@ function Lead({ item, view, dimmed }: { item: ChangeItem; view: View | null; dim
   );
 }
 
-/** A slot of the kind's view, or nothing; `fallback` where it throws. */
+/** A slot of the kind's view, or nothing; `fallback` where it throws, until the change moves on to its next state. */
 function Slot({
   item,
   view,
@@ -63,7 +63,7 @@ function Slot({
   const Own = view?.[name];
   if (!Own || !item.card) return null;
   return (
-    <CardBoundary fallback={fallback}>
+    <CardBoundary fallback={fallback} resetKeys={[item.state]}>
       <Own card={item.card} item={item} />
     </CardBoundary>
   );
@@ -130,7 +130,8 @@ function ChangeHead({ item, view, struck }: { item: ChangeItem; view: View | nul
 }
 
 /** The kind's body under a row, faded with the row once the change is settled. */
-function BodySlot({ item, view, settled }: { item: ChangeItem; view: View | null; settled: boolean }) {
+function BodySlot({ item, settled }: { item: ChangeItem; settled: boolean }) {
+  const view = item.card ? viewOf(item.card) : null;
   if (!view?.Body || !item.card) return null;
   return (
     <div className={`pb-1.5 ps-[38px] ${settled ? 'opacity-60' : ''}`}>
@@ -138,6 +139,10 @@ function BodySlot({ item, view, settled }: { item: ChangeItem; view: View | null
     </div>
   );
 }
+
+/** A decided change that no longer stands: discarded, expired or taken back. */
+const settledOf = (item: ChangeItem, undone: boolean) =>
+  item.state === 'discarded' || item.state === 'expired' || undone;
 
 /** A decided change: its tile and head, the ways to what it changed, undo while it can, and its mark. */
 function Receipt({
@@ -156,36 +161,33 @@ function Receipt({
   const receipt = undone ? RECEIPT.discarded : RECEIPT[item.state];
   const { Icon } = receipt;
   const applied = item.state === 'applied' && !undone ? item.applied : null;
-  const settled = item.state === 'discarded' || item.state === 'expired' || undone;
+  const settled = settledOf(item, undone);
   const statusLabel = t(undone ? 'assistant.change.undone' : receipt.labelKey);
   const view = item.card ? viewOf(item.card) : null;
   return (
-    <>
-      <div className="trek-assistant-enter flex items-center gap-2.5 py-1.5">
-        <Lead item={item} view={view} dimmed={settled} />
-        <div className={`min-w-0 flex-1 ${settled ? 'opacity-60' : ''}`}>
-          <ChangeHead item={item} view={view} struck={settled} />
-        </div>
-        {applied && <EntityActions applied={applied} card={item.card} />}
-        {canUndo && (
-          <Tooltip label={t('assistant.change.undo')} placement="top">
-            <button type="button" onClick={onUndo} aria-label={t('assistant.change.undo')} className={ICON_BUTTON}>
-              <Undo2 size={14} aria-hidden="true" />
-            </button>
-          </Tooltip>
-        )}
-        <Tooltip label={statusLabel} placement="top">
-          <span
-            role="img"
-            aria-label={statusLabel}
-            className={`flex h-7 w-5 items-center justify-center ${receipt.tone}`}
-          >
-            <Icon size={15} strokeWidth={2.4} className={item.state === 'applying' ? 'animate-spin' : ''} />
-          </span>
-        </Tooltip>
+    <div className="trek-assistant-enter flex items-center gap-2.5 py-1.5">
+      <Lead item={item} view={view} dimmed={settled} />
+      <div className={`min-w-0 flex-1 ${settled ? 'opacity-60' : ''}`}>
+        <ChangeHead item={item} view={view} struck={settled} />
       </div>
-      <BodySlot item={item} view={view} settled={settled} />
-    </>
+      {applied && <EntityActions applied={applied} card={item.card} />}
+      {canUndo && (
+        <Tooltip label={t('assistant.change.undo')} placement="top">
+          <button type="button" onClick={onUndo} aria-label={t('assistant.change.undo')} className={ICON_BUTTON}>
+            <Undo2 size={14} aria-hidden="true" />
+          </button>
+        </Tooltip>
+      )}
+      <Tooltip label={statusLabel} placement="top">
+        <span
+          role="img"
+          aria-label={statusLabel}
+          className={`flex h-7 w-5 items-center justify-center ${receipt.tone}`}
+        >
+          <Icon size={15} strokeWidth={2.4} className={item.state === 'applying' ? 'animate-spin' : ''} />
+        </span>
+      </Tooltip>
+    </div>
   );
 }
 
@@ -215,53 +217,50 @@ function PendingRow({
   const view = item.card ? viewOf(item.card) : null;
   const aside = <Slot item={item} view={view} name="Aside" />;
   return (
-    <>
-      <div
-        {...handlers}
-        className={`-mx-1.5 flex items-center gap-2.5 rounded-[12px] px-1.5 py-2 transition-[opacity,background-color] ${
-          excluded ? 'opacity-50' : ''
-        } ${litFromMap ? 'bg-surface-hover' : 'hover:bg-surface-hover'}`}
-      >
-        {withChoice && (
-          <button
-            type="button"
-            onClick={onToggle}
-            disabled={disabled}
-            aria-pressed={!excluded}
-            aria-label={t('assistant.change.include')}
-            className={`grid h-[18px] w-[18px] flex-none place-items-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 ${
-              excluded ? 'border-[1.5px] border-edge bg-surface-card' : 'bg-accent'
-            }`}
-          >
-            {!excluded && <Check size={11} strokeWidth={3} aria-hidden="true" className="text-accent-text" />}
-          </button>
-        )}
-        <Lead item={item} view={view} dimmed={excluded} />
-        <div className="min-w-0 flex-1">
-          {preview ? (
-            <>
-              {view?.ownsSubject ? (
-                aside
+    <div
+      {...handlers}
+      className={`-mx-1.5 flex items-center gap-2.5 rounded-[12px] px-1.5 py-2 transition-[opacity,background-color] ${
+        excluded ? 'opacity-50' : ''
+      } ${litFromMap ? 'bg-surface-hover' : 'hover:bg-surface-hover'}`}
+    >
+      {withChoice && (
+        <button
+          type="button"
+          onClick={onToggle}
+          disabled={disabled}
+          aria-pressed={!excluded}
+          aria-label={t('assistant.change.include')}
+          className={`grid h-[18px] w-[18px] flex-none place-items-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 ${
+            excluded ? 'border-[1.5px] border-edge bg-surface-card' : 'bg-accent'
+          }`}
+        >
+          {!excluded && <Check size={11} strokeWidth={3} aria-hidden="true" className="text-accent-text" />}
+        </button>
+      )}
+      <Lead item={item} view={view} dimmed={excluded} />
+      <div className="min-w-0 flex-1">
+        {preview ? (
+          <>
+            {view?.ownsSubject ? (
+              aside
+            ) : (
+              <SubjectLine subject={preview.subject} struck={false} aside={view?.Aside && aside} block />
+            )}
+            <span className="mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-caption text-content-faint">
+              <span className="me-0.5 min-w-0 truncate">{verbLabel(preview, t)}</span>
+              <DomainChip domain={preview.domain} />
+              {view?.Facts ? (
+                <Slot item={item} view={view} name="Facts" fallback={<AssistantChangeFields rows={preview.rows} />} />
               ) : (
-                <SubjectLine subject={preview.subject} struck={false} aside={view?.Aside && aside} block />
+                <AssistantChangeFields rows={preview.rows} />
               )}
-              <span className="mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-caption text-content-faint">
-                <span className="me-0.5 min-w-0 truncate">{verbLabel(preview, t)}</span>
-                <DomainChip domain={preview.domain} />
-                {view?.Facts ? (
-                  <Slot item={item} view={view} name="Facts" fallback={<AssistantChangeFields rows={preview.rows} />} />
-                ) : (
-                  <AssistantChangeFields rows={preview.rows} />
-                )}
-              </span>
-            </>
-          ) : (
-            <span className="trek-skeleton inline-block h-4 w-40" aria-hidden="true" />
-          )}
-        </div>
+            </span>
+          </>
+        ) : (
+          <span className="trek-skeleton inline-block h-4 w-40" aria-hidden="true" />
+        )}
       </div>
-      <BodySlot item={item} view={view} settled={excluded} />
-    </>
+    </div>
   );
 }
 
@@ -302,27 +301,34 @@ function runnable(item: ChangeItem, view: View | null): boolean {
  */
 export function ChangeRows({ items, folded, excluded, disabled, undone, undoable, onToggle, onUndo }: RowsProps) {
   const pendingCount = items.filter((i) => i.state === 'pending').length;
-  const row = (item: ChangeItem) =>
-    item.state === 'pending' ? (
-      folded ? null : (
-        <PendingRow
-          key={item.toolCallId}
-          item={item}
-          excluded={excluded.has(item.toolCallId)}
-          withChoice={pendingCount > 1}
-          disabled={disabled}
-          onToggle={() => onToggle(item.toolCallId)}
-        />
-      )
-    ) : (
-      <Receipt
-        key={item.toolCallId}
-        item={item}
-        undone={!!undone[item.toolCallId]}
-        canUndo={undoable.includes(item.toolCallId)}
-        onUndo={() => onUndo(item.toolCallId)}
-      />
+  // The body stands beside the row, in the same place whether the change waits or is decided, so a body that holds
+  // what the user chose (the pages of a book design) keeps it, and draws on, as the change starts to apply.
+  const row = (item: ChangeItem) => {
+    const waiting = item.state === 'pending';
+    if (waiting && folded) return null;
+    const isUndone = !!undone[item.toolCallId];
+    return (
+      <Fragment key={item.toolCallId}>
+        {waiting ? (
+          <PendingRow
+            item={item}
+            excluded={excluded.has(item.toolCallId)}
+            withChoice={pendingCount > 1}
+            disabled={disabled}
+            onToggle={() => onToggle(item.toolCallId)}
+          />
+        ) : (
+          <Receipt
+            item={item}
+            undone={isUndone}
+            canUndo={undoable.includes(item.toolCallId)}
+            onUndo={() => onUndo(item.toolCallId)}
+          />
+        )}
+        <BodySlot item={item} settled={waiting ? excluded.has(item.toolCallId) : settledOf(item, isUndone)} />
+      </Fragment>
     );
+  };
   const rows = runsOf(items).flatMap((run) => {
     const first = run[0];
     const view = first?.card ? viewOf(first.card) : null;

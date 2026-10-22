@@ -334,6 +334,21 @@ export function planChapter(
   return out;
 }
 
+/** Where the last hero stands before the book has one: far enough back for the first chapter to open with one. */
+const NO_HERO = -10;
+
 export function newRhythm(): Rhythm {
-  return { beats: [], lastHero: -10 };
+  return { beats: [], lastHero: NO_HERO };
+}
+
+/**
+ * The rhythm from `from` on as the chapter's spreads were made: a planned
+ * page the composer left out (a quiet page with no words left to set once the
+ * opener held the story) takes no place in it, so the next chapter's hero is
+ * paced by the spreads the book has, four of them after the last hero.
+ */
+export function settleRhythm(rhythm: Rhythm, from: number, made: readonly BookDesignBeat[]): void {
+  rhythm.beats.splice(from, rhythm.beats.length - from, ...made);
+  const hero = rhythm.beats.lastIndexOf('hero');
+  rhythm.lastHero = hero >= 0 ? hero : NO_HERO;
 }

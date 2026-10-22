@@ -1,5 +1,5 @@
 /**
- * FE-AI-CARDPART-001 to FE-AI-CARDPART-009
+ * FE-AI-CARDPART-001 to FE-AI-CARDPART-010
  *
  * The pieces every card is built from: its tile, frame and head, its facts
  * and change marks, its rows and the way to the rest, its "Open" and day
@@ -189,5 +189,31 @@ describe('card parts', () => {
       </div>
     );
     expect(screen.getByText('still here')).toBeInTheDocument();
+  });
+
+  it('FE-AI-CARDPART-010: a card that threw stays out until its reset key moves on, then is drawn again', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    function Flaky({ broken }: { broken: boolean }) {
+      if (broken) throw new Error('broken');
+      return <span>drawn</span>;
+    }
+    const { rerender } = render(
+      <CardBoundary resetKeys={['pending']}>
+        <Flaky broken />
+      </CardBoundary>
+    );
+    expect(screen.queryByText('drawn')).not.toBeInTheDocument();
+    rerender(
+      <CardBoundary resetKeys={['pending']}>
+        <Flaky broken={false} />
+      </CardBoundary>
+    );
+    expect(screen.queryByText('drawn')).not.toBeInTheDocument();
+    rerender(
+      <CardBoundary resetKeys={['applying']}>
+        <Flaky broken={false} />
+      </CardBoundary>
+    );
+    expect(screen.getByText('drawn')).toBeInTheDocument();
   });
 });
