@@ -43,7 +43,6 @@ import { toolOutputForProvider } from './assistant-output';
 import { AssistantStreamRegistry } from './assistant-stream.registry';
 import { titleFrom } from './assistant-title';
 import {
-  ADD_FOUND_PLACE_TOOL,
   APPROVAL_TTL_MS,
   ASSISTANT_SERVER_WRITE_TOOLS,
   foundPlaceArgs,
@@ -349,7 +348,7 @@ export class AssistantService {
 
   /**
    * Decisions on changes the user proposed themselves (a found place for a
-   * day): applied or discarded like any others, but no model turn follows, so
+   * day, a taken proposal): applied or discarded like any others, but no model turn follows, so
    * neither the connection nor the daily limit is asked.
    *
    * @txIndependent like `decide`: the decisions in one transaction, then each
@@ -390,7 +389,7 @@ export class AssistantService {
 
   /**
    * Runs one applied change: a booking from a file through the booking import,
-   * a found place through the tool it names, anything else through its own tool.
+   * a found place or a taken proposal through the tool it names, anything else through its own tool.
    */
   private runChange(
     session: AssistantToolSession,
@@ -400,7 +399,7 @@ export class AssistantService {
     args: Record<string, unknown>,
   ): Promise<ToolRun> {
     if (name === IMPORT_BOOKING_TOOL) return this.inContext(() => this.bookings.apply(userId, tripId, args));
-    if (name === ADD_FOUND_PLACE_TOOL) return session.call(writeToolOf(name, args), foundPlaceArgs(args));
+    if (writeToolOf(name, args) !== name) return session.call(writeToolOf(name, args), foundPlaceArgs(args));
     if (name === REMEMBER_TOOL) return this.inContext(() => rememberForTrip(this.settings, userId, tripId, args));
     return session.call(name, args);
   }

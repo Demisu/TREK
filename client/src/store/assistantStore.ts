@@ -191,9 +191,16 @@ interface AssistantState {
   setRoutePeek: (routePeek: AssistantState['routePeek']) => void;
   /** Picks one of the ways a block of cards offers. */
   pick: (tripId: number, blockKey: string, toolCallId: string) => void;
-  /** Takes a proposal an answer showed as a card ("Plan this"); the server holds it as a change to decide. */
-  takeProposal: (tripId: number, toolCallId: string) => Promise<void>;
+  /**
+   * Takes a proposal an answer showed as a card ("Plan this"); the server holds it as a change to decide.
+   * Says what came of it: held, refused (the chat's error says why), or skipped while a turn ran or the
+   * thread changed under it.
+   */
+  takeProposal: (tripId: number, toolCallId: string) => Promise<HoldOutcome>;
 }
+
+/** What came of a change the server was asked to hold without a model turn. */
+export type HoldOutcome = 'held' | 'refused' | 'skipped';
 
 const NO_LIVE: AssistantTripChat['live'] = { activity: null };
 
@@ -646,10 +653,11 @@ function compareActions(ctx: Ctx) {
       const points = [...dayPoints(compare.snapshot, days), ...dayPoints(useTripStore.getState().assignments, days)];
       requestCameraOn(ctx, tripId, points, 'fit', 'user');
     },
-    addFoundPlace: (tripId: number, ref: string, dayId: number) =>
-      holdWithoutTurn(ctx, tripId, (threadId) =>
+    addFoundPlace: async (tripId: number, ref: string, dayId: number) => {
+      await holdWithoutTurn(ctx, tripId, (threadId) =>
         assistantRepo.addFoundPlace(tripId, threadId, { ...clientContext(), ref, dayId })
-      ),
+      );
+    },
     takeProposal: (tripId: number, toolCallId: string) =>
       holdWithoutTurn(ctx, tripId, (threadId) =>
         assistantRepo.takeProposal(tripId, threadId, { ...clientContext(), toolCallId })
@@ -667,19 +675,21 @@ async function holdWithoutTurn(
   ctx: Ctx,
   tripId: number,
   hold: (threadId: number) => Promise<{ message: AssistantMessage }>
-): Promise<void> {
+): Promise<HoldOutcome> {
   const threadId = chat(ctx, tripId).threadId;
-  if (chat(ctx, tripId).isRunning || threadId === null) return;
+  if (chat(ctx, tripId).isRunning || threadId === null) return 'skipped';
   try {
     const { message } = await hold(threadId);
     const c = chat(ctx, tripId);
     // The thread may have changed while the server answered.
-    if (c.threadId !== threadId) return;
+    if (c.threadId !== threadId) return 'skipped';
     const known = c.messages.some((m) => m.id === message.id);
     const messages = known ? c.messages.map((m) => (m.id === message.id ? message : m)) : [...c.messages, message];
     patch(ctx, tripId, { messages, error: null });
+    return 'held';
   } catch (err) {
     patch(ctx, tripId, { error: errorCodeOf(err) });
+    return 'refused';
   }
 }
 

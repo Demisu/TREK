@@ -1,14 +1,17 @@
 /**
- * FE-PLANNER-AI-MAP-001 to FE-PLANNER-AI-MAP-006
+ * FE-PLANNER-AI-MAP-001 to FE-PLANNER-AI-MAP-009
  *
  * The planner's link between the assistant and its map: which suggestions
  * stand as ghosts and which mark a real pin, when the map may move on its
  * own (setting, lock, reduced motion, the phone's folded chat), the "before"
- * view of an applied block, and the pop of a place that arrives.
+ * view of an applied block, the pop of a place that arrives, and the routes
+ * the chat's cards draw beside them.
  */
 import { act, renderHook } from '@testing-library/react';
-import type { AssistantMessage, AssistantMessagePart, Trip } from '@trek/shared';
+import type { AssistantMessage, AssistantMessagePart, TourRouteCard, Trip } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { HIKE } from '../../../tests/helpers/assistantTour';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useTripStore } from '../../store/tripStore';
@@ -27,7 +30,7 @@ function visit(id: number, dayId: number, placeId = id * 10): Assignment {
   return { id, day_id: dayId, place_id: placeId, order_index: 0, place: stop } as Assignment;
 }
 
-function held(id: string, effect: object, approval: object = {}): AssistantMessagePart[] {
+function held(id: string, effect: object, approval: object = {}, card?: TourRouteCard): AssistantMessagePart[] {
   return [
     { type: 'tool-call', toolCallId: id, toolName: 'x', args: {}, approval: { id, ...approval } },
     {
@@ -41,6 +44,7 @@ function held(id: string, effect: object, approval: object = {}): AssistantMessa
         placeIds: [],
         undoable: true,
         effect,
+        ...(card ? { card } : {}),
       },
     } as AssistantMessagePart,
   ];
@@ -302,5 +306,32 @@ describe('useAssistantCompareView', () => {
     expect(before.result.current.assignments[3]?.map((v) => v.id)).toEqual([1]);
     expect(before.result.current.assignments[5]).toBe(view[5]);
     expect(before.result.current.places.map((p) => p.id)).toEqual([1]);
+  });
+});
+
+describe("useAssistantMapLink: the chat's routes", () => {
+  it('FE-PLANNER-AI-MAP-008: a held tour whose card draws its way stands as that line, not as a pin at its start', () => {
+    setMessages([...held('t1', NEW, {}, { ...HIKE, source: 'pending' }), ...held('a', NEW)]);
+    const { result } = link();
+    expect(result.current.assistantGhosts?.map((g) => g.id)).toEqual(['a']);
+    expect(result.current.assistantRouteLines?.map((line) => line.id)).toEqual(['t1:pending:route']);
+    expect(result.current.routeProfileFocus).toBeNull();
+
+    act(() => result.current.onAssistantRouteHover?.('t1'));
+    expect(useAssistantStore.getState().mapLink).toEqual({ tripId: TRIP, hoveredId: 't1', source: 'map' });
+    expect(result.current.assistantRouteLines?.[0]?.hot).toBe(true);
+  });
+
+  it('FE-PLANNER-AI-MAP-009: a trip place a card points at pulses its own pin; one off the map shows as a pin of its own', () => {
+    const { result } = link();
+    const spot = { tripId: TRIP, ref: 'r:0', lat: 41.01, lng: 12, name: 'Place 1' };
+    act(() => useAssistantStore.getState().setPreviewPin({ ...spot, placeId: 1 }));
+    expect(result.current.assistantGhosts).toEqual([]);
+    expect(result.current.assistantPulsePlaceId).toBe(1);
+    expect(result.current.assistantHoveredId).toBeNull();
+
+    act(() => useAssistantStore.getState().setPreviewPin({ ...spot, placeId: 2 }));
+    expect(result.current.assistantGhosts).toEqual([{ id: 'preview:r:0', lat: 41.01, lng: 12, name: 'Place 1' }]);
+    expect(result.current.assistantPulsePlaceId).toBeNull();
   });
 });

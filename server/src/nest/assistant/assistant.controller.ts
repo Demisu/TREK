@@ -10,6 +10,7 @@ import { ResponseContract } from '../common/response-contract';
 import { onClientGone, openSseStream } from '../common/sse-stream';
 import { RequirePermission, TripAccessGuard } from '../permissions/trip-access.guard';
 import { AssistantFoundPlacesService } from './assistant-found-places.service';
+import { AssistantProposalsService } from './assistant-proposals.service';
 import { AssistantShareService } from './assistant-share.service';
 import {
   AssistantAddFoundPlaceDto,
@@ -17,6 +18,7 @@ import {
   AssistantDecisionsDto,
   AssistantShareDto,
   AssistantStopDto,
+  AssistantTakeProposalDto,
   AssistantUndoDto,
 } from './assistant.dto';
 import { AssistantService, type TurnChannel } from './assistant.service';
@@ -67,6 +69,7 @@ export class AssistantController {
     private readonly assistant: AssistantService,
     private readonly foundPlaces: AssistantFoundPlacesService,
     private readonly shares: AssistantShareService,
+    private readonly proposals: AssistantProposalsService,
   ) {}
 
   @Get('threads')
@@ -123,6 +126,19 @@ export class AssistantController {
     @Body() body: AssistantAddFoundPlaceDto,
   ) {
     return this.foundPlaces.add(user.id, Number(tripId), idParam(threadId), body);
+  }
+
+  /** "Plan this" on a hike or a city walk an answer proposed: a change card that creates it, no model turn. */
+  @Post('threads/:threadId/proposals')
+  @HttpCode(200)
+  @ResponseContract(assistantAddFoundPlaceResponseSchema)
+  takeProposal(
+    @CurrentUser() user: User,
+    @Param('tripId') tripId: string,
+    @Param('threadId') threadId: string,
+    @Body() body: AssistantTakeProposalDto,
+  ) {
+    return this.proposals.take(user.id, Number(tripId), idParam(threadId), body);
   }
 
   /** An answer shared in the trip's chat, marked as from the assistant; the chat's own right decides. */

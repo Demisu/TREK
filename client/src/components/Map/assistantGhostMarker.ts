@@ -34,17 +34,22 @@ function ghostIcon(name: string | undefined): string {
   return markup;
 }
 
+/**
+ * A ghost's element: a dashed pin with its category's icon, or for a spot a
+ * card marks (`point`) a small dashed dot without one.
+ */
 export function buildGhostElement(ghost: AssistantGhost): HTMLDivElement {
   const el = document.createElement('div');
-  el.className = 'trek-ghost';
+  el.className = ghost.variant === 'point' ? 'trek-ghost trek-ghost--point' : 'trek-ghost';
   el.dataset.ghostId = ghost.id;
+  el.dataset.ghostRef = ghost.ref ?? ghost.id;
   el.setAttribute('role', 'button');
   el.setAttribute('aria-label', ghost.name);
   if (ghost.color) el.style.setProperty('--ghost-color', ghost.color);
   const face = document.createElement('div');
   face.className = 'trek-ghost-face';
   // A fixed glyph from the icon table, never anything the ghost carries.
-  face.innerHTML = ghostIcon(ghost.icon);
+  if (ghost.variant !== 'point') face.innerHTML = ghostIcon(ghost.icon);
   el.appendChild(face);
   return el;
 }
@@ -79,11 +84,12 @@ export function mountGhosts(
   const cleanups: (() => void)[] = [];
   for (const ghost of ghosts) {
     const el = buildGhostElement(ghost);
-    const enter = () => handlers.current.onHover?.(ghost.id);
+    const ref = ghost.ref ?? ghost.id;
+    const enter = () => handlers.current.onHover?.(ref);
     const leave = () => handlers.current.onHover?.(null);
     const click = (event: Event) => {
       event.stopPropagation();
-      handlers.current.onClick?.(ghost.id);
+      handlers.current.onClick?.(ref);
     };
     const key = (event: KeyboardEvent) => {
       if (event.key === 'Enter') click(event);
@@ -111,7 +117,7 @@ export function mountGhosts(
   };
 }
 
-/** Marks the hovered ghost, and only it, without rebuilding any pin. */
+/** Marks the hovered ghosts (every one of a change lit by its call), and only them, without rebuilding any pin. */
 export function setGhostHot(elements: ReadonlyMap<string, HTMLElement>, hoveredId: string | null | undefined): void {
-  elements.forEach((el, id) => el.classList.toggle(GHOST_HOT_CLASS, id === hoveredId));
+  elements.forEach((el, id) => el.classList.toggle(GHOST_HOT_CLASS, (el.dataset.ghostRef ?? id) === hoveredId));
 }

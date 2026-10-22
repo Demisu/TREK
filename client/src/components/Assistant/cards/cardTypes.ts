@@ -49,6 +49,8 @@ export interface EntityLook {
   phoneOpenLabelKey?: string;
   onMap?(applied: AssistantApplied, card: TrekCard | null): { placeId: number | null; dayId: number | null } | null;
   open?(applied: AssistantApplied, card: TrekCard | null): EntityTarget | null;
+  /** Where "Open" goes on the phone instead, where the tab `open` names may not exist; null shows none there. */
+  phoneOpen?(applied: AssistantApplied, card: TrekCard | null): EntityTarget | null;
 }
 
 /**

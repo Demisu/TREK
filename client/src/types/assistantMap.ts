@@ -18,6 +18,33 @@ export interface RouteLineSpec {
   casing?: string;
   dashed?: boolean;
   dim?: boolean;
+  /** The named stops along it, dotted on the line while it is lit, each with its name. */
+  stops?: { lat: number; lng: number; label: string }[];
+  /** Stretches drawn over it in their own colour (the hard grades of a hike). */
+  tints?: { line: [number, number][]; color: string }[];
+}
+
+/**
+ * A line as the plan's map draws it beside the plan: the specs of every card
+ * in the chat, laid out and lit by the store's route model. `ref` is the key
+ * the chat and the map light it by (a change's call, `tour:<placeId>`), so
+ * several lines of one card light together; `id` is the line's own. Colours
+ * are CSS values here and resolved by the planner before the map draws them.
+ */
+export interface AssistantRouteLine {
+  id: string;
+  ref: string;
+  lines: [number, number][][];
+  color: string;
+  casing: string;
+  dashed?: boolean;
+  dim?: boolean;
+  /** Under the pointer, in the chat or on the map: drawn solid, on top, with its stops. */
+  hot?: boolean;
+  /** A filled disc at the start and a ring at the end; no end where the line closes on its start. */
+  ends?: { start: [number, number]; end: [number, number] | null };
+  stops?: { lat: number; lng: number; label: string }[];
+  tints?: { line: [number, number][]; color: string }[];
 }
 
 /** A spot a card asks the plan's map to mark: a pin for a stop, a small point for a via. */

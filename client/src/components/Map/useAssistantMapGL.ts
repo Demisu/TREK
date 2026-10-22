@@ -5,6 +5,7 @@ import { PLACE_POP_CLASS, PLACE_PULSE_CLASS } from './assistantGhostMarker';
 import { useReportViewGL } from './assistantViewport';
 import type { AssistantMapProps } from './mapViewContract';
 import { useAssistantCameraGL, type CameraEngine, type CameraMap } from './useAssistantCameraGL';
+import { useAssistantGhostLinesGL, type LineMap } from './useAssistantGhostLinesGL';
 import { useAssistantGhostMarkersGL, type GhostMap } from './useAssistantGhostMarkersGL';
 
 interface PinGL {
@@ -14,7 +15,7 @@ interface PinGL {
 
 interface AssistantMapGLOptions<Pin extends PinGL> {
   /** The live GL map, typed by what the parts read; the engine itself stays out of this module. */
-  mapRef: { readonly current: (CameraMap & GhostMap) | null };
+  mapRef: { readonly current: (CameraMap & GhostMap & LineMap) | null };
   mapReady: boolean;
   gl: CameraEngine;
   /** The ghosts' pins, in the ref the renderer repositions on its render clock. */
@@ -40,8 +41,8 @@ export function carryAssistantMarks(from: HTMLElement, to: HTMLElement): void {
 
 /**
  * Everything the assistant does on the GL map in one call, so MapViewGL only
- * hands its props on: the ghosts, the camera, and the pop and pulse on the
- * real pins. The twin of AssistantMapLeaflet.
+ * hands its props on: the routes its cards show, the ghosts, the camera, and
+ * the pop and pulse on the real pins. The twin of AssistantMapLeaflet.
  */
 export function useAssistantMapGL<Pin extends PinGL>({
   mapRef,
@@ -53,6 +54,13 @@ export function useAssistantMapGL<Pin extends PinGL>({
   padding,
   assistant,
 }: AssistantMapGLOptions<Pin>): void {
+  useAssistantGhostLinesGL({
+    mapRef,
+    mapReady,
+    lines: assistant.assistantRouteLines,
+    onHover: assistant.onAssistantRouteHover,
+    onPoint: assistant.onAssistantRoutePoint,
+  });
   useAssistantGhostMarkersGL({
     mapRef,
     mapReady,

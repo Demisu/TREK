@@ -8,6 +8,7 @@ import 'reflect-metadata';
 import { AddonGuard } from '../../../../src/nest/addons/addon.guard';
 import { REQUIRE_ADDON } from '../../../../src/nest/addons/require-addon.decorator';
 import type { AssistantFoundPlacesService } from '../../../../src/nest/assistant/assistant-found-places.service';
+import type { AssistantProposalsService } from '../../../../src/nest/assistant/assistant-proposals.service';
 import type { AssistantShareService } from '../../../../src/nest/assistant/assistant-share.service';
 import { AssistantController } from '../../../../src/nest/assistant/assistant.controller';
 import type { AssistantService, TurnChannel } from '../../../../src/nest/assistant/assistant.service';
@@ -38,12 +39,14 @@ function make() {
   };
   const foundPlaces = { add: vi.fn(async () => ({ message: { id: 'msg-3' } })) };
   const shares = { share: vi.fn(async () => ({ message: { id: 12, origin: 'assistant' } })) };
+  const proposals = { take: vi.fn(async () => ({ message: { id: 'msg-4' } })) };
   const controller = new AssistantController(
     service as unknown as AssistantService,
     foundPlaces as unknown as AssistantFoundPlacesService,
     shares as unknown as AssistantShareService,
+    proposals as unknown as AssistantProposalsService,
   );
-  return { service, foundPlaces, shares, controller };
+  return { service, foundPlaces, shares, proposals, controller };
 }
 
 /** Enough of an Express response for the stream: headers, writes and the close event. */
@@ -106,6 +109,11 @@ describe('AssistantController', () => {
       path: 'threads/:threadId/found-places',
       httpCode: 200,
     });
+    expect(route('takeProposal')).toEqual({
+      method: RequestMethod.POST,
+      path: 'threads/:threadId/proposals',
+      httpCode: 200,
+    });
     expect(route('share')).toEqual({
       method: RequestMethod.POST,
       path: 'threads/:threadId/messages/:messageId/share',
@@ -142,9 +150,17 @@ describe('AssistantController', () => {
   it('ASTCTL-008: sharing needs the right to write in the trip chat; nothing else here asks for a right', () => {
     const handlers = AssistantController.prototype as unknown as Record<string, object>;
     expect(Reflect.getMetadata(TRIP_PERMISSION_KEY, handlers.share)).toBe('collab_edit');
-    for (const name of ['chat', 'decide', 'undo', 'addFoundPlace']) {
+    for (const name of ['chat', 'decide', 'undo', 'addFoundPlace', 'takeProposal']) {
       expect(Reflect.getMetadata(TRIP_PERMISSION_KEY, handlers[name]), name).toBeUndefined();
     }
+  });
+
+  it('ASTCTL-009: "Plan this" goes to the proposals with the caller, the trip and the thread', async () => {
+    const { proposals, controller } = make();
+    const body = { locale: 'en', timeZone: 'UTC', toolCallId: 'call_7' };
+    expect(await controller.takeProposal(user, '5', '9', body)).toEqual({ message: { id: 'msg-4' } });
+    expect(proposals.take).toHaveBeenCalledWith(7, 5, 9, body);
+    expect(() => controller.takeProposal(user, '5', '0', body)).toThrow(DomainError);
   });
 
   it('ASTCTL-004: a thread id that is not one answers 404', () => {

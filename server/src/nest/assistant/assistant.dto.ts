@@ -10,6 +10,7 @@ import {
   assistantDecisionsRequestSchema,
   assistantShareRequestSchema,
   assistantStopRequestSchema,
+  assistantTakeProposalRequestSchema,
   assistantUndoRequestSchema,
 } from '@trek/shared';
 
@@ -21,4 +22,5 @@ export class AssistantChatDto extends createZodDto(assistantChatRequestSchema) {
 export class AssistantDecisionsDto extends createZodDto(assistantDecisionsRequestSchema) {}
 export class AssistantShareDto extends createZodDto(assistantShareRequestSchema) {}
 export class AssistantStopDto extends createZodDto(assistantStopRequestSchema) {}
+export class AssistantTakeProposalDto extends createZodDto(assistantTakeProposalRequestSchema) {}
 export class AssistantUndoDto extends createZodDto(assistantUndoRequestSchema) {}

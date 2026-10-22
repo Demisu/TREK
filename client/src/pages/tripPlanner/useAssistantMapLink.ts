@@ -18,6 +18,7 @@ import { useSettingsStore } from '../../store/settingsStore';
 import { useTripStore } from '../../store/tripStore';
 import type { AssignmentsMap, Category, Place } from '../../types';
 import { prefersReducedMotion } from '../../utils/reducedMotion';
+import { useAssistantRouteLines } from './useAssistantRouteLines';
 
 /** Moves the map was not asked for come at most this often while the assistant works. */
 const AUTO_CAMERA_GAP_MS = 2000;
@@ -73,8 +74,10 @@ interface MapLinkOptions {
 /**
  * Everything the assistant shows on the trip map, as props for MapViewAuto:
  * its waiting suggestions as ghosts tied to their rows in the chat, the
- * camera moves it asks for, and the pop of a place that arrives from an
- * applied suggestion. Desktop and phone both get it through useTripPlanner.
+ * routes its cards show (useAssistantRouteLines), the camera moves it asks
+ * for, and the pop of a place that arrives from an applied suggestion. A
+ * spot a card points at is a pin of its own, or the pulse of a trip place's
+ * own pin. Desktop and phone both get it through useTripPlanner.
  */
 export function useAssistantMapLink(options: MapLinkOptions): AssistantMapProps {
   const { tripId, isMobile, mapLocked, mapPlaces, assignments, markersLocked, selectDay } = options;
@@ -82,28 +85,38 @@ export function useAssistantMapLink(options: MapLinkOptions): AssistantMapProps 
   const categories = useTripStore((s) => s.categories);
   const candidates = useGhostCandidates(tripId);
   const knownIds = useMemo(() => new Set(places.map((p) => p.id)), [places]);
-  const live = useMemo(() => liveGhosts(candidates, knownIds), [candidates, knownIds]);
   const preview = useAssistantStore((s) => (s.preview?.tripId === tripId ? s.preview : null));
   const linkId = useAssistantStore((s) => (s.mapLink?.tripId === tripId ? s.mapLink.hoveredId : null));
   const setMapHover = useAssistantStore((s) => s.setMapHover);
-
-  const { ghosts, existing } = useMemo(
-    () => ghostPins(live, { places, categories, onMap: new Set(mapPlaces.map((p) => p.id)) }),
-    [categories, live, mapPlaces, places]
+  const autoAllowed = useAutoCameraAllowed(isMobile, mapLocked);
+  const route = useAssistantRouteLines({ tripId, isMobile, autoAllowed });
+  const { hiddenGhosts, cardGhosts } = route;
+  // A change whose card draws its own line stands on the map as that line, not as a pin at its start.
+  const live = useMemo(
+    () => liveGhosts(candidates, knownIds).filter((c) => !hiddenGhosts.has(c.toolCallId)),
+    [candidates, hiddenGhosts, knownIds]
   );
-  const previewId = preview ? `preview:${preview.ref}` : null;
+
+  const onMapIds = useMemo(() => new Set(mapPlaces.map((p) => p.id)), [mapPlaces]);
+  const { ghosts, existing } = useMemo(
+    () => ghostPins(live, { places, categories, onMap: onMapIds }),
+    [categories, live, onMapIds, places]
+  );
+  const previewPlace = preview?.placeId !== undefined && onMapIds.has(preview.placeId) ? preview.placeId : null;
+  const previewId = preview && previewPlace === null ? `preview:${preview.ref}` : null;
   const shownGhosts = useMemo(() => {
-    if (!preview || !previewId) return ghosts;
-    return [...ghosts, { id: previewId, lat: preview.lat, lng: preview.lng, name: preview.name }];
-  }, [ghosts, preview, previewId]);
+    const all = cardGhosts.length > 0 ? [...ghosts, ...cardGhosts] : ghosts;
+    if (!preview || !previewId) return all;
+    return [...all, { id: previewId, lat: preview.lat, lng: preview.lng, name: preview.name }];
+  }, [cardGhosts, ghosts, preview, previewId]);
 
   const onGhostHover = useCallback((id: string | null) => setMapHover(tripId, id, 'map'), [setMapHover, tripId]);
   const onGhostClick = useCallback((id: string) => setMapHover(tripId, id, 'map'), [setMapHover, tripId]);
 
-  const autoAllowed = useAutoCameraAllowed(isMobile, mapLocked);
   useAutoCamera({ tripId, live, ghosts, assignments, autoAllowed });
   const assistantCamera = useCameraProp(tripId, isMobile);
   const poppedPlaceIds = useArrivalPop(tripId, knownIds, selectDay, autoAllowed);
+  const pulse = previewPlace ?? (linkId ? (existing.get(linkId) ?? null) : null);
 
   return useMemo(
     () => ({
@@ -111,20 +124,28 @@ export function useAssistantMapLink(options: MapLinkOptions): AssistantMapProps 
       assistantHoveredId: previewId ?? linkId,
       onAssistantGhostHover: onGhostHover,
       onAssistantGhostClick: onGhostClick,
-      assistantPulsePlaceId: linkId ? (existing.get(linkId) ?? null) : null,
+      assistantPulsePlaceId: pulse,
       assistantCamera,
       poppedPlaceIds,
       markersLocked,
+      assistantRouteLines: route.assistantRouteLines,
+      onAssistantRouteHover: route.onAssistantRouteHover,
+      onAssistantRoutePoint: route.onAssistantRoutePoint,
+      routeProfileFocus: route.routeProfileFocus,
     }),
     [
       assistantCamera,
-      existing,
       linkId,
       markersLocked,
       onGhostClick,
       onGhostHover,
       poppedPlaceIds,
       previewId,
+      pulse,
+      route.assistantRouteLines,
+      route.onAssistantRouteHover,
+      route.onAssistantRoutePoint,
+      route.routeProfileFocus,
       shownGhosts,
     ]
   );

@@ -1,5 +1,5 @@
 /**
- * FE-AI-STORE-CARDS-001 to FE-AI-STORE-CARDS-004
+ * FE-AI-STORE-CARDS-001 to FE-AI-STORE-CARDS-005
  *
  * What the store keeps for the cards: the spot of a route the card and the
  * map share, a line a card asks the map to draw, the route the phone peeks
@@ -91,12 +91,27 @@ describe('assistantStore: cards', () => {
       { type: 'tool-call', toolCallId: 'w1', toolName: 'create_hike', args: {}, approval: { id: 'w1' } },
     ]);
     const take = vi.spyOn(assistantRepo, 'takeProposal').mockResolvedValueOnce({ message: held });
-    await store().takeProposal(TRIP, 'r1');
+    await expect(store().takeProposal(TRIP, 'r1')).resolves.toBe('held');
     expect(take).toHaveBeenCalledWith(TRIP, 7, expect.objectContaining({ toolCallId: 'r1' }));
     expect(chatOf(store(), TRIP).messages).toEqual([held]);
 
     vi.spyOn(assistantRepo, 'takeProposal').mockRejectedValueOnce({ response: { status: 429 } });
-    await store().takeProposal(TRIP, 'r1');
+    await expect(store().takeProposal(TRIP, 'r1')).resolves.toBe('refused');
     expect(chatOf(store(), TRIP).error).toBe('too_many_requests');
+  });
+
+  it('FE-AI-STORE-CARDS-005: "Plan this" says it held nothing while a turn runs or after the thread changed under it', async () => {
+    seedThread([answer([{ type: 'text', text: 'Three ways up.' }])]);
+    const held = answer([{ type: 'text', text: 'Three ways up.' }]);
+    const take = vi.spyOn(assistantRepo, 'takeProposal').mockImplementationOnce(async () => {
+      useAssistantStore.setState({ byTrip: { [TRIP]: { ...chatOf(store(), TRIP), threadId: 8 } } });
+      return { message: held };
+    });
+    await expect(store().takeProposal(TRIP, 'r1')).resolves.toBe('skipped');
+    expect(take).toHaveBeenCalledTimes(1);
+
+    useAssistantStore.setState({ byTrip: { [TRIP]: { ...chatOf(store(), TRIP), isRunning: true } } });
+    await expect(store().takeProposal(TRIP, 'r1')).resolves.toBe('skipped');
+    expect(take).toHaveBeenCalledTimes(1);
   });
 });

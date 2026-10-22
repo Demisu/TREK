@@ -125,6 +125,32 @@ describe('foundPlacesOf', () => {
     expect(JSON.stringify(poi)).not.toMatch(/ramen\.example|opening/);
   });
 
+  it('ASTCRD-008: the places along a saved tour show as cards; an unnamed tap is left out', () => {
+    const along = {
+      pois: [
+        { id: 'node:7', name: 'Herzogstandhaus', lat: 47.6, lng: 11.3, category: 'shelter', kind: 'alpine_hut' },
+        { id: 'node:8', name: '', lat: 47.61, lng: 11.3, category: 'drinking_water', kind: 'amenity=drinking_water' },
+      ],
+      truncated: false,
+      partial: false,
+      capped: false,
+      unavailable: [],
+    };
+    const found = foundPlacesOf('search_tour_pois', 't', along, card, '2026-06-12');
+    expect(found?.places.map((place) => place.name)).toEqual(['Herzogstandhaus']);
+    expect(found?.places[0]).toMatchObject({ ref: 't:0', lat: 47.6, lng: 11.3, googlePlaceId: null });
+    // The POI's own id is its OpenStreetMap element: a place already in the trip is named, not added twice.
+    expect(found?.places[0]).toMatchObject({ osmId: 'node:7', inTripPlaceId: null });
+    const known = { pois: [{ id: 'way:77', name: 'Nishiki', lat: 35.005, lng: 135.764, category: 'shop' }] };
+    expect(foundPlacesOf('search_tour_pois', 'k', known, card, 'x')?.places[0]).toMatchObject({
+      osmId: 'way:77',
+      inTripPlaceId: 14,
+    });
+    // An id of another index is no OpenStreetMap id.
+    const indexed = { pois: [{ id: 'trek:55', name: 'Hut', lat: 47.6, lng: 11.3, category: 'shelter' }] };
+    expect(foundPlacesOf('search_tour_pois', 'i', indexed, card, 'x')?.places[0]?.osmId).toBeNull();
+  });
+
   it('ASTCRD-004: at most twenty cards, the rest counted; places without a position or name are left out', () => {
     const many = Array.from({ length: 23 }, (_, i) => ({ name: `Place ${i}`, lat: 35 + i / 100, lng: 135 }));
     const found = foundPlacesOf('search_place', 'm', { places: [{ name: 'No position' }, ...many] }, card, 'x');
@@ -360,6 +386,15 @@ describe('found place arguments', () => {
     expect(writeToolOf('add_found_place', { via: 'create_and_assign_place' })).toBe('create_and_assign_place');
     expect(writeToolOf('add_found_place', { via: 'delete_trip' })).toBe('add_found_place');
     expect(writeToolOf('create_place', { via: 'assign_place_to_day' })).toBe('create_place');
+    // A proposal taken from an answer runs as the create its `via` names, and as nothing else.
+    expect(writeToolOf('take_proposal', { via: 'create_hike' })).toBe('create_hike');
+    expect(writeToolOf('take_proposal', { via: 'create_city_walk' })).toBe('create_city_walk');
+    expect(writeToolOf('take_proposal', { via: 'create_and_assign_place' })).toBe('take_proposal');
+    expect(writeToolOf('add_found_place', { via: 'create_hike' })).toBe('add_found_place');
+    expect(foundPlaceArgs({ via: 'create_hike', name: 'Herzogstand', waypoints: [] })).toEqual({
+      name: 'Herzogstand',
+      waypoints: [],
+    });
     expect(foundPlaceArgs({ via: 'assign_place_to_day', dayId: 3, placeId: 4, name: 'X' })).toEqual({
       dayId: 3,
       placeId: 4,

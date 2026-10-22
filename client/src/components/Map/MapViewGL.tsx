@@ -49,6 +49,7 @@ import { pluginsApi, type PluginMapMarker, type PluginMapLayer } from '../../api
 import { DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM } from '../../constants/mapDefaults'
 import { computeMapViewport, TILE_SIZE_GL } from '../../utils/mapViewport'
 import { selectedPlaceTarget } from './selectedPlaceTarget'
+import { PLACE_CLUSTER_CIRCLE_LAYER_ID, PLACE_CLUSTER_COUNT_LAYER_ID } from './placeClusterLayers'
 
 // Marker grouping for the GL map (#1385): MapLibre/Mapbox can't show the rich
 // HTML photo markers *and* cluster them natively, so we feed the place points
@@ -57,8 +58,6 @@ import { selectedPlaceTarget } from './selectedPlaceTarget'
 // points the source reports as currently unclustered. Grouping is always on,
 // matching the Leaflet map's MarkerClusterGroup.
 const PLACE_CLUSTER_SOURCE_ID = 'trip-place-clusters'
-const PLACE_CLUSTER_CIRCLE_LAYER_ID = 'trip-place-clusters-circle'
-const PLACE_CLUSTER_COUNT_LAYER_ID = 'trip-place-clusters-count'
 const PLACE_UNCLUSTERED_LAYER_ID = 'trip-place-unclustered-hit'
 
 type PlaceWithCoords = Place & { lat: number; lng: number }

@@ -1,5 +1,6 @@
 import type { DawarichTrack, RoadtripHazard, RoadtripVia } from '@trek/shared';
 import type { Day, Place, Reservation, RouteVia } from '../../types';
+import type { AssistantRouteLine } from '../../types/assistantMap';
 import type { ViewportPadding } from '../../utils/mapViewport';
 import type { RouteProfileFocus } from '../../utils/routeGeometry';
 import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer';
@@ -209,6 +210,12 @@ export interface MapViewProps {
   assistantCamera?: AssistantCamera | null;
   /** Places that just arrived from an applied suggestion; their pins pop once. */
   poppedPlaceIds?: readonly number[];
+  /** The routes the chat shows beside the plan: proposed ways, held changes, the way a change replaces. */
+  assistantRouteLines?: AssistantRouteLine[];
+  /** The pointer onto a route line (its `ref`) or off every one; the phone leaves it out, a tap points instead. */
+  onAssistantRouteHover?: (ref: string | null) => void;
+  /** The pointer moving along a route line, or a tap on it: where on the map, for the route's profile. */
+  onAssistantRoutePoint?: (ref: string, lat: number, lng: number) => void;
   /** While the map shows the plan before a change, its pins cannot be dragged onto a day. */
   markersLocked?: boolean;
 }
@@ -224,9 +231,17 @@ export type AssistantMapProps = Pick<
   | 'assistantCamera'
   | 'poppedPlaceIds'
   | 'markersLocked'
+  | 'assistantRouteLines'
+  | 'onAssistantRouteHover'
+  | 'onAssistantRoutePoint'
+  | 'routeProfileFocus'
 >;
 
-/** A suggested place drawn before it exists. `color` and `icon` are its category's. */
+/**
+ * A suggested place drawn before it exists. `color` and `icon` are its
+ * category's. A spot a card marks (a road trip's new via) is a small
+ * `point` instead of a pin, and lights with its change's row by `ref`.
+ */
 export interface AssistantGhost {
   id: string;
   lat: number;
@@ -234,6 +249,9 @@ export interface AssistantGhost {
   name: string;
   color?: string;
   icon?: string;
+  variant?: 'pin' | 'point';
+  /** The key it lights by, when several ghosts belong to one change; its `id` otherwise. */
+  ref?: string;
 }
 
 /**

@@ -11,6 +11,7 @@ import {
   ASSISTANT_SERVER_TOOLS,
   IMPORT_BOOKING_TOOL,
   READ_BOOKING_FILE_TOOL,
+  TAKE_PROPOSAL_TOOL,
 } from './assistant-tools.constants';
 import type { AssistantMessage, AssistantMessagePart, AssistantToolApproval } from '@trek/shared';
 
@@ -87,6 +88,18 @@ function foundPlaceOutcome(part: ToolCallPart): string {
   return `The user picked ${place} from the search results for ${day}; it waits for them to add or discard it.`;
 }
 
+/** What became of a proposal the user took from an answer to add it to the trip, as its stored part says. */
+function takenProposalOutcome(part: ToolCallPart): string {
+  const name = quoted(part.args.name);
+  const what = part.args.via === 'create_city_walk' ? 'city walk' : 'hike';
+  if (part.approval?.approved === true) {
+    return part.isError ? `The ${what} ${name} could not be added.` : `The ${what} ${name} was added to the trip.`;
+  }
+  if (part.approval?.approved === false) return `The user discarded the ${what} ${name}.`;
+  if (part.approval?.resolution) return `The ${what} ${name} was not added; the user moved on without deciding.`;
+  return `The user took the proposed ${what} ${name} to add it; it waits for them to add or discard it.`;
+}
+
 /**
  * The server's own steps of a message (reading an attached file, the bookings
  * it found) as one note in plain words. They are no tools the provider knows,
@@ -107,6 +120,8 @@ export function serverStepsNote(calls: readonly ToolCallPart[]): string {
       lines.push(bookingOutcome(part));
     } else if (part.toolName === ADD_FOUND_PLACE_TOOL) {
       lines.push(foundPlaceOutcome(part));
+    } else if (part.toolName === TAKE_PROPOSAL_TOOL) {
+      lines.push(takenProposalOutcome(part));
     }
   }
   return lines.join(' ');

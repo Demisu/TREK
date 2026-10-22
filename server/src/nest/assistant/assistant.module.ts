@@ -16,6 +16,7 @@ import { TripMembershipModule } from '../trip-membership/trip-membership.module'
 import { AssistantAttachmentsController } from './assistant-attachments.controller';
 import { AssistantBookingImportService } from './assistant-booking-import.service';
 import { AssistantFoundPlacesService } from './assistant-found-places.service';
+import { AssistantProposalsService } from './assistant-proposals.service';
 import { AssistantRetentionJob } from './assistant-retention.job';
 import { AssistantShareService } from './assistant-share.service';
 import { AssistantStreamRegistry, InMemoryAssistantStreamRegistry } from './assistant-stream.registry';
@@ -59,6 +60,7 @@ import { Module } from '@nestjs/common';
     AssistantToolsService,
     AssistantBookingImportService,
     AssistantFoundPlacesService,
+    AssistantProposalsService,
     AssistantShareService,
     AssistantRetentionJob,
     AssistantCardContext,

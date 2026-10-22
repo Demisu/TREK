@@ -32,7 +32,8 @@ export function changeEffects(messages: readonly AssistantMessage[]): Map<string
   return effects;
 }
 
-function receiptsOf(messages: readonly AssistantMessage[]): Map<string, AssistantApplied> {
+/** The receipt of every applied change of the thread, by its call. */
+export function receiptsOf(messages: readonly AssistantMessage[]): Map<string, AssistantApplied> {
   const receipts = new Map<string, AssistantApplied>();
   for (const m of messages) {
     for (const p of m.parts) if (p.type === 'data-trek-applied') receipts.set(p.data.toolCallId, p.data);

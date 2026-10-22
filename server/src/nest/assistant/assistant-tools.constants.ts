@@ -120,6 +120,13 @@ export const IMPORT_BOOKING_TOOL = 'import_booking';
 export const ADD_FOUND_PLACE_TOOL = 'add_found_place';
 
 /**
+ * A proposal an answer showed as a card, taken by the user ("Plan this" on a
+ * proposed hike or city walk). Held as a change card like a found place,
+ * through the model's tool in its `via` argument, without a model turn.
+ */
+export const TAKE_PROPOSAL_TOOL = 'take_proposal';
+
+/**
  * A fact or wish the user wants kept for this trip ("we are two"). It is no
  * MCP tool: the server offers it to the model itself, holds it as a change
  * card like any write and, once applied, adds it to the user's trip notes,
@@ -129,6 +136,9 @@ export const REMEMBER_TOOL = 'remember_for_trip';
 
 /** The model's tools a found place is added through: a new place for the day, or one the trip has already. */
 const FOUND_PLACE_VIA: ReadonlySet<string> = new Set(['create_and_assign_place', 'assign_place_to_day']);
+
+/** The model's tools a taken proposal is created through: a hike, a city walk. */
+const PROPOSAL_VIA: ReadonlySet<string> = new Set(['create_hike', 'create_city_walk']);
 
 /**
  * Changes the server applies itself: a booking from an attached file, a search
@@ -143,20 +153,24 @@ export const ASSISTANT_SERVER_WRITE_TOOLS: Readonly<Record<string, AssistantWrit
   [IMPORT_BOOKING_TOOL]: { verbKey: 'importBooking', entity: 'reservation' },
   // The card names the verb of the `via` tool; these are its fallbacks.
   [ADD_FOUND_PLACE_TOOL]: { verbKey: 'addPlaceToDay', entity: 'place', quiet: true },
+  [TAKE_PROPOSAL_TOOL]: { verbKey: 'addTour', entity: 'tour', quiet: true },
   [REMEMBER_TOOL]: { verbKey: 'rememberNote', entity: 'memory' },
 };
 
 /**
- * The tool a held call runs as: for a found place the model's tool in its
- * `via` argument, for anything else the call's own. A `via` that is not one of
- * the two is returned as it is, so it finds no card, run or undo.
+ * The tool a held call runs as: for a found place or a taken proposal the
+ * model's tool in its `via` argument, for anything else the call's own. A
+ * `via` that is not one of the tools it may name is returned as it is, so it
+ * finds no card, run or undo.
  */
 export function writeToolOf(toolName: string, args: Record<string, unknown>): string {
-  if (toolName !== ADD_FOUND_PLACE_TOOL) return toolName;
-  return typeof args.via === 'string' && FOUND_PLACE_VIA.has(args.via) ? args.via : toolName;
+  const via = typeof args.via === 'string' ? args.via : '';
+  if (toolName === ADD_FOUND_PLACE_TOOL) return FOUND_PLACE_VIA.has(via) ? via : toolName;
+  if (toolName === TAKE_PROPOSAL_TOOL) return PROPOSAL_VIA.has(via) ? via : toolName;
+  return toolName;
 }
 
-/** The arguments a found place runs its `via` tool with: what that tool takes, nothing else. */
+/** The arguments a found place or a taken proposal runs its `via` tool with: what that tool takes, nothing else. */
 export function foundPlaceArgs(args: Record<string, unknown>): Record<string, unknown> {
   if (args.via === 'assign_place_to_day') return { dayId: args.dayId, placeId: args.placeId };
   const { via: _via, ...rest } = args;

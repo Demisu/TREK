@@ -44,6 +44,8 @@ const NAMED_WITHIN_M = 2_000;
 
 const GOOGLE_PLACE_ID = /^[\w-]{1,200}$/;
 const MAX_OSM_ID_CHARS = 40;
+/** A source's own id that names an OpenStreetMap element, as a tour POI carries it (`node:123`). */
+const OSM_ELEMENT_ID = /^(node|way|relation):\d+$/;
 const MAX_CALL_ID_CHARS = 64;
 const WEATHER_KINDS: ReadonlySet<string> = new Set(['forecast', 'climate', 'current']);
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -53,6 +55,8 @@ const PLACE_LISTS: Readonly<Record<string, 'places' | 'pois'>> = {
   search_place: 'places',
   search_nearby_places: 'places',
   search_pois: 'pois',
+  // Places along a saved tour: a hut, a spring, a viewpoint to add to the day.
+  search_tour_pois: 'pois',
 };
 
 /** Whether the trip runs today, the only time a source's "open now" means anything for it. */
@@ -72,7 +76,9 @@ function foundPlaceOf(row: Row, ref: string, card: TripCard, running: boolean): 
   if (!isLat(lat) || !isLng(lng) || !name) return null;
   const googleId = typeof row.google_place_id === 'string' ? row.google_place_id : '';
   const googlePlaceId = GOOGLE_PLACE_ID.test(googleId) ? googleId : null;
-  const osm = typeof row.osm_id === 'string' ? row.osm_id : '';
+  // A tour POI has no osm_id of its own: its id is the OpenStreetMap element when the source is OpenStreetMap.
+  const ownId = typeof row.id === 'string' && OSM_ELEMENT_ID.test(row.id) ? row.id : '';
+  const osm = typeof row.osm_id === 'string' ? row.osm_id : ownId;
   const osmId = osm !== '' && osm.length <= MAX_OSM_ID_CHARS ? osm : null;
   const rating = finite(row.rating);
   const inTrip = [...card.places.values()].find((place) => isSamePlace(place, googlePlaceId, osmId));

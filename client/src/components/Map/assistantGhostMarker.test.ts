@@ -1,4 +1,4 @@
-// FE-MAP-GHOST-001 to 003: the assistant's suggested places as map pins, built once for both renderers.
+// FE-MAP-GHOST-001 to 004: the assistant's suggested places as map pins, built once for both renderers.
 import { describe, expect, it, vi } from 'vitest';
 import { GHOST_HOT_CLASS, buildGhostElement, mountGhosts, setGhostHot } from './assistantGhostMarker';
 
@@ -53,5 +53,29 @@ describe('assistantGhostMarker', () => {
     expect([a.classList.contains(GHOST_HOT_CLASS), b.classList.contains(GHOST_HOT_CLASS)]).toEqual([false, true]);
     setGhostHot(elements, null);
     expect(b.classList.contains(GHOST_HOT_CLASS)).toBe(false);
+  });
+
+  it('FE-MAP-GHOST-004: a spot a card marks is a dot without an icon, and every ghost of one change lights by its call', () => {
+    const point = buildGhostElement({ id: 'c1:via:0', ref: 'c1', lat: 41.9, lng: 12.5, name: 'Via', variant: 'point' });
+    expect(point.classList.contains('trek-ghost--point')).toBe(true);
+    expect(point.querySelector('.trek-ghost-face svg')).toBeNull();
+
+    const onHover = vi.fn();
+    const onClick = vi.fn();
+    const ghosts = [
+      { id: 'c1:stop:0', ref: 'c1', lat: 41.9, lng: 12.5, name: 'Stop', variant: 'pin' as const },
+      { id: 'c1:via:0', ref: 'c1', lat: 41.91, lng: 12.5, name: 'Via', variant: 'point' as const },
+      { id: 'c2', lat: 41.92, lng: 12.5, name: 'Other' },
+    ];
+    const mounted = mountGhosts(ghosts, () => ({ remove: vi.fn() }), { current: { onHover, onClick } });
+    mounted.elements.get('c1:via:0')?.dispatchEvent(new Event('pointerenter'));
+    mounted.elements.get('c1:stop:0')?.dispatchEvent(new MouseEvent('click'));
+    expect(onHover).toHaveBeenCalledWith('c1');
+    expect(onClick).toHaveBeenCalledWith('c1');
+
+    setGhostHot(mounted.elements, 'c1');
+    const hot = [...mounted.elements.values()].map((el) => el.classList.contains(GHOST_HOT_CLASS));
+    expect(hot).toEqual([true, true, false]);
+    mounted.dispose();
   });
 });

@@ -64,6 +64,19 @@
   animation: trek-ghost-enter 180ms var(--ease-out-quint) both;
 }
 
+/* A spot a card marks (a via of a drive): a small dashed dot in the middle of the ghost's box, no icon. */
+.trek-ghost--point {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trek-ghost--point .trek-ghost-face {
+  width: 12px;
+  height: 12px;
+  border-width: 2px;
+}
+
 .trek-ghost.is-hot .trek-ghost-face {
   border-style: solid;
   animation:

@@ -1,5 +1,5 @@
 /**
- * FE-AI-ENTITY-001 to FE-AI-ENTITY-004
+ * FE-AI-ENTITY-001 to FE-AI-ENTITY-005
  *
  * What a receipt offers for the thing it changed, read off the entity's
  * look: the map pin where the plan can show it, "Open" where it lives in
@@ -20,6 +20,8 @@ vi.mock('./cardLooks', async (importOriginal) => {
       ...actual.ENTITY_LOOK.tour,
       openLabelKey: 'assistant.change.viewOnMap',
       phoneOpenLabelKey: 'assistant.history.open',
+      onMap: undefined,
+      phoneOpen: undefined,
       open: (applied: AssistantApplied) => ({
         kind: 'tab',
         tab: 'tour-planner',
@@ -27,6 +29,12 @@ vi.mock('./cardLooks', async (importOriginal) => {
       }),
     },
     budget: { ...actual.ENTITY_LOOK.budget, open: () => ({ kind: 'tab', tab: 'finanzplan' }) },
+    reservation: {
+      ...actual.ENTITY_LOOK.reservation,
+      openLabelKey: undefined,
+      open: () => ({ kind: 'tab', tab: 'buchungen' }),
+      phoneOpen: () => null,
+    },
   };
   return { ...actual, ENTITY_LOOK: looks, entityLookOf: (entity: AssistantApplied['entity']) => looks[entity] };
 });
@@ -67,7 +75,7 @@ describe('EntityActions', () => {
   });
 
   it('FE-AI-ENTITY-003: what has no place on the map gets no pin', () => {
-    const { container } = renderActions(applied('packing', [2], null), { onOpen: vi.fn() });
+    const { container } = renderActions(applied('memory', [2], null), { onOpen: vi.fn() });
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -86,5 +94,16 @@ describe('EntityActions', () => {
     renderActions(applied('budget', [3], null), { onOpen });
     fireEvent.click(screen.getByRole('button', { name: 'Open' }));
     expect(onOpen).toHaveBeenLastCalledWith({ kind: 'tab', tab: 'finanzplan' });
+  });
+
+  it('FE-AI-ENTITY-005: on the phone "Open" goes where the look names for the phone, and shows none where it names nothing', () => {
+    const onOpen = vi.fn();
+    const desktop = renderActions(applied('reservation', [5], null), { onOpen });
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }));
+    expect(onOpen).toHaveBeenLastCalledWith({ kind: 'tab', tab: 'buchungen' });
+    desktop.unmount();
+
+    renderActions(applied('reservation', [5], null), { onOpen, variant: 'fullscreen' });
+    expect(screen.queryByRole('button', { name: 'Open' })).toBeNull();
   });
 });

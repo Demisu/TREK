@@ -11,8 +11,9 @@ import { ICON_BUTTON } from './parts/assistantTones';
 /**
  * What a receipt offers for the thing it changed, as its entity's look says:
  * the map pin where the plan's map can show it, and "Open" where it lives
- * somewhere else in TREK (a tab of the trip, another page). Neither shows
- * where the shell around the chat cannot open anything.
+ * somewhere else in TREK (a tab of the trip, another page; on the phone what
+ * its look names for it there). Neither shows where the shell around the
+ * chat cannot open anything.
  */
 export default function EntityActions({ applied, card }: { applied: AssistantApplied; card: TrekCard | null }) {
   const { t } = useTranslation();
@@ -20,8 +21,9 @@ export default function EntityActions({ applied, card }: { applied: AssistantApp
   if (!onOpen) return null;
   const look = entityLookOf(applied.entity);
   const onMap = showOnMapTarget(applied, card);
-  const open = look.open?.(applied, card) ?? null;
-  const openKey = variant === 'fullscreen' ? (look.phoneOpenLabelKey ?? look.openLabelKey) : look.openLabelKey;
+  const phone = variant === 'fullscreen';
+  const open = (phone && look.phoneOpen ? look.phoneOpen(applied, card) : look.open?.(applied, card)) ?? null;
+  const openKey = phone ? (look.phoneOpenLabelKey ?? look.openLabelKey) : look.openLabelKey;
   const openLabel = openKey ? t(openKey) : t('assistant.card.common.open');
   return (
     <>

@@ -250,6 +250,31 @@ describe('toChatHistory', () => {
       },
     ]);
   });
+
+  it('ASTHIS-013: a proposal the user took to add is told as a note, a hike or a city walk, whatever became of it', () => {
+    const taken = (approval: AssistantToolApproval, via = 'create_hike', isError = false) =>
+      serverStepsNote([
+        {
+          type: 'tool-call',
+          toolCallId: 'p',
+          toolName: 'take_proposal',
+          args: { via, name: 'Herzogstand' },
+          approval,
+          ...(isError ? { isError: true } : {}),
+        },
+      ]);
+    expect(taken({ id: 'p' })).toBe(
+      'The user took the proposed hike "Herzogstand" to add it; it waits for them to add or discard it.',
+    );
+    expect(taken({ id: 'p', approved: true })).toBe('The hike "Herzogstand" was added to the trip.');
+    expect(taken({ id: 'p', approved: true }, 'create_hike', true)).toBe('The hike "Herzogstand" could not be added.');
+    expect(taken({ id: 'p', approved: false }, 'create_city_walk')).toBe(
+      'The user discarded the city walk "Herzogstand".',
+    );
+    expect(taken({ id: 'p', resolution: 'expired' })).toBe(
+      'The hike "Herzogstand" was not added; the user moved on without deciding.',
+    );
+  });
 });
 
 describe('toThreadMessages', () => {

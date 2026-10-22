@@ -8,7 +8,7 @@ import { chatOf, useAssistantStore } from '../../../../src/store/assistantStore'
 import { buildPlanner, buildShell } from '../../../helpers/mobileTrip';
 import { act, cleanup, fireEvent, render, screen } from '../../../helpers/render';
 
-// FE-MOB-ASSIST-001 to FE-MOB-ASSIST-014
+// FE-MOB-ASSIST-001 to FE-MOB-ASSIST-015
 //
 // The phone's full-screen chat around the shared chat surface, which is
 // replaced here: what is tested is the frame, the header and the way to the
@@ -43,6 +43,10 @@ vi.mock('../../../../src/components/Assistant/AssistantSurfaceLazy', () => ({
     surface.onRevealMap = props.onRevealMap ?? null;
     return <div data-testid="chat-surface" />;
   },
+}));
+
+vi.mock('../../../../src/components/Assistant/map/RoutePeekLazy', () => ({
+  default: (props: { tripId: number }) => <div data-testid="route-peek-mount" data-trip={props.tripId} />,
 }));
 
 vi.mock('../../../../src/components/Assistant/useAssistantThread', () => ({
@@ -149,6 +153,27 @@ describe('MAssistantScreen', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Back to chat' }));
     expect(useAssistantStore.getState().window.minimized).toBe(false);
     expect(screen.getByRole('dialog', { name: 'Assistant' })).toBeInTheDocument();
+  });
+
+  it("FE-MOB-ASSIST-015: the route's peek is mounted only while a route is shown, and the pill back closes it", () => {
+    renderScreen({}, { trTab: 'plan', view: 'map' });
+    expect(screen.queryByTestId('route-peek-mount')).not.toBeInTheDocument();
+    // Over the map with no route shown (a place, a booking), the peek's code is not loaded.
+    act(() => surface.onRevealMap?.());
+    expect(screen.queryByTestId('route-peek-mount')).not.toBeInTheDocument();
+    act(() => useAssistantStore.getState().setRoutePeek({ tripId: 2, toolCallId: 'c1' }));
+    expect(screen.queryByTestId('route-peek-mount')).not.toBeInTheDocument();
+    act(() => {
+      useAssistantStore.getState().setRoutePeek({ tripId: 1, toolCallId: 'c1' });
+      useAssistantStore.getState().setMapHover(1, 'c1', 'map');
+    });
+    expect(screen.getByTestId('route-peek-mount').dataset.trip).toBe('1');
+
+    // Back in the chat the line the tap lit goes out with the peek.
+    fireEvent.click(screen.getByRole('button', { name: 'Back to chat' }));
+    expect(useAssistantStore.getState().routePeek).toBeNull();
+    expect(useAssistantStore.getState().mapLink).toEqual({ tripId: 1, hoveredId: null, source: 'map' });
+    expect(screen.queryByTestId('route-peek-mount')).not.toBeInTheDocument();
   });
 
   it('FE-MOB-ASSIST-009: a day picked in the chat is selected on the map, and the pill says where a step looks', () => {

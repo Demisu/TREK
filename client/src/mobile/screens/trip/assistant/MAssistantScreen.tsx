@@ -18,6 +18,8 @@ import AssistantMemoryDialog from '../../../../components/Assistant/AssistantMem
 import AssistantSurfaceLazy from '../../../../components/Assistant/AssistantSurfaceLazy';
 import { AI_SETTINGS_PATH } from '../../../../components/Assistant/assistantParts';
 import type { EntityTarget } from '../../../../components/Assistant/cards/cardTypes';
+import RoutePeekLazy from '../../../../components/Assistant/map/RoutePeekLazy';
+import { moveRoutePeek } from '../../../../components/Assistant/map/routePeekControl';
 import { useAssistantHintsSetting } from '../../../../components/Assistant/useAssistantHints';
 import { useAssistantLiveStep } from '../../../../components/Assistant/useAssistantLiveStep';
 import { useAssistantThread } from '../../../../components/Assistant/useAssistantThread';
@@ -322,7 +324,11 @@ function BackToChat({ tripId, running }: { tripId: number; running: boolean }) {
     <div className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+86px)] z-[42] mx-auto flex w-fit max-w-[calc(100%-2rem)] items-center gap-2">
       <button
         type="button"
-        onClick={() => setMinimized(false)}
+        onClick={() => {
+          // The route's peek belongs to the map: back in the chat, the card shows the route.
+          moveRoutePeek(tripId, null);
+          setMinimized(false);
+        }}
         aria-label={t('assistant.mobile.backToChat')}
         className={`flex h-11 min-w-0 items-center gap-2 pe-4 ps-3 text-m-ink ${glass}`}
       >
@@ -344,8 +350,9 @@ function BackToChat({ tripId, running }: { tripId: number; running: boolean }) {
  * The assistant on the phone: a full-screen chat over the trip, opened from
  * the Mehr sheet's tile or "Ask" on a place. It stays mounted while "Show on
  * map" hands the screen to the map, so an answer being written goes on and
- * the pill above the dock brings the chat back as it was. The keyboard lifts
- * the composer, and the back gesture closes the chat rather than the trip.
+ * the pill above the dock brings the chat back as it was; a route shown on
+ * the map peeks over it above the pill. The keyboard lifts the composer, and
+ * the back gesture closes the chat rather than the trip.
  *
  * Nothing shows until the assistant has a connection this user can use.
  */
@@ -353,6 +360,7 @@ export default function MAssistantScreen({ planner, shell }: MTripSheetsProps) {
   const available = useAssistantStore((s) => s.status?.available === true);
   const open = useAssistantStore((s) => s.window.open);
   const minimized = useAssistantStore((s) => s.window.minimized);
+  const peeking = useAssistantStore((s) => s.routePeek?.tripId === planner.tripId);
   const running = useAssistantStore((s) => s.byTrip[planner.tripId]?.isRunning === true);
   const loadStatus = useAssistantStore((s) => s.loadStatus);
   const hops = useMapHops({ planner, shell });
@@ -366,6 +374,14 @@ export default function MAssistantScreen({ planner, shell }: MTripSheetsProps) {
   return (
     <>
       <AssistantScreen tripId={planner.tripId} tripTitle={planner.trip.title} hidden={minimized} hops={hops} />
+      {minimized && peeking && (
+        <RoutePeekLazy
+          tripId={planner.tripId}
+          onOpen={hops.open}
+          onFocusDay={hops.focusDay}
+          onRevealMap={hops.revealMap}
+        />
+      )}
       {minimized && <BackToChat tripId={planner.tripId} running={running} />}
     </>
   );
