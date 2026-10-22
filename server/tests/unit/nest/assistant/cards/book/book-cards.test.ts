@@ -70,12 +70,13 @@ function book(): BookDocument {
   return blankBook({ title: 'Lisbon', newId: (prefix) => `${prefix}-${++seq}` });
 }
 
+/** The base a turn's gate tries a call on, as `trialBase` reads it: a journey without a book has no version. */
 function input(doc: BookDocument | null = book()): BookTrialInput {
   let seq = 0;
   return {
     journeyId: 4,
     doc,
-    version: 3,
+    version: doc ? 3 : null,
     ctx: {
       photos: [{ photoId: 81 }, { photoId: 82 }],
       journey: { title: 'Lisbon' },

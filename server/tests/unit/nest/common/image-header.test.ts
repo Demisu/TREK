@@ -23,12 +23,13 @@ function webp(chunk: string, length: number): Buffer {
 
 describe('readImageHeader', () => {
   it('IMGHDR-001: steps over stray bytes, fill bytes and the markers that carry no length', () => {
+    // A JPEG opens with SOI and a marker (FF D8 FF); the stray bytes come between segments, after the first one.
     const segments = [
+      [0xff, 0xe1, 0x00, 0x04, 0, 0],
       [0x00, 0x12],
       [0xff, 0xff],
       [0xff, 0x01],
       [0xff, 0xd0],
-      [0xff, 0xe1, 0x00, 0x04, 0, 0],
     ];
     expect(readImageHeader(jpeg(800, 600, ...segments))).toEqual({ mimeType: 'image/jpeg', width: 800, height: 600 });
   });

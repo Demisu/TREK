@@ -16,6 +16,7 @@
  * this text-only model the preview is the page's description alone.
  */
 import { buildApp } from '../../src/bootstrap';
+import { withRequestContext } from '../../src/nest/database/request-context';
 import { JourneyBookEditService } from '../../src/nest/journey/journey-book-edit.service';
 import { makeJourney } from '../helpers/factories/journeys';
 import { setAddonEnabled } from '../helpers/factories/settings';
@@ -24,7 +25,7 @@ import { resetRateLimits } from '../helpers/test-db';
 import { sessionCookie } from './harness';
 import { MikroORM } from '@mikro-orm/core';
 import type { INestApplication } from '@nestjs/common';
-import type { UiStreamChunk } from '@trek/shared';
+import type { BookPageOp, UiStreamChunk } from '@trek/shared';
 
 import { createServer, type IncomingMessage, type Server as HttpServer, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -166,11 +167,17 @@ async function stream(path: string, userId: number, body: object): Promise<UiStr
 const ofType = <T extends UiStreamChunk['type']>(chunks: UiStreamChunk[], type: T) =>
   chunks.filter((chunk): chunk is Extract<UiStreamChunk, { type: T }> => chunk.type === type);
 
+/** A call on the book service as the Studio's own save makes it: in a request's ORM context, as HTTP runs one. */
+const inContext = <T>(work: () => Promise<T>): Promise<T> => withRequestContext(orm, work);
+
+/** The book as `get_book` reads it for the journey's owner. */
+const bookOf = (j: { journeyId: number; userId: number }) => inContext(() => books.overview(j.journeyId, j.userId));
+
 /** A user with a journey of their own and a blank book in it: its double page is `inner`. */
 async function ownerWithBook() {
   const { user } = await makeUser(orm);
   const journey = await makeJourney(orm, user.id, { title: 'Portugal by train' });
-  const created = await books.createBook(journey.id, user.id, {});
+  const created = await inContext(() => books.createBook(journey.id, user.id, {}));
   const inner = created.pages.find((page) => page.role === 'inner')?.id ?? 'no inner page';
   return { userId: user.id, journeyId: journey.id, inner, base: `/api/journeys/${journey.id}/assistant` };
 }
@@ -241,11 +248,11 @@ describe('Studio book cards e2e', () => {
     });
     // The pages the answer kept for the undo never reach the model or the chat.
     expect(JSON.stringify(ofType(decided, 'tool-output-available'))).not.toContain('previous_spreads');
-    expect((await books.overview(j.journeyId, j.userId)).spreads[2]?.emptyFrames).toBe(2);
+    expect((await bookOf(j)).spreads[2]?.emptyFrames).toBe(2);
 
     const undone = await undo(j.base, j.userId, held?.toolCallId ?? '');
     expect(undone.status).toBe(200);
-    const after = await books.overview(j.journeyId, j.userId);
+    const after = await bookOf(j);
     expect([after.version, after.spreads[2]?.elements]).toEqual([3, 0]);
     expect((await undo(j.base, j.userId, held?.toolCallId ?? '')).body).toMatchObject({ code: 'stale' });
   });
@@ -259,7 +266,7 @@ describe('Studio book cards e2e', () => {
       { type: 'tool-output-error', toolCallId: 'call_out', errorText: expect.stringMatching(/^ops\[0\]: /) },
     ]);
     expect(ofType(turn, 'tool-approval-request')).toHaveLength(0);
-    expect((await books.overview(j.journeyId, j.userId)).version).toBe(1);
+    expect((await bookOf(j)).version).toBe(1);
   });
 
   it('ASTBKE2E-003: new pages are deleted again by undo, but not once the book was saved since', async () => {
@@ -271,14 +278,15 @@ describe('Studio book cards e2e', () => {
     expect(ofType(first, 'data-trek-change')[0]?.data.card).toMatchObject({ change: 'new', count: 2 });
     const threadId = ofType(first, 'data-trek-thread')[0]?.data.threadId ?? 0;
     await approve(j.base, j.userId, threadId, held?.toolCallId ?? '');
-    expect((await books.overview(j.journeyId, j.userId)).spreads).toHaveLength(7);
+    expect((await bookOf(j)).spreads).toHaveLength(7);
 
     // Someone saves the book after the change: the undo would delete pages that are no longer just as added.
-    await books.editPage(j.journeyId, j.userId, { spreadId: j.inner, ops: [{ op: 'background', color: '#f4efe6' }] });
+    const warmer: BookPageOp[] = [{ op: 'background', color: '#f4efe6' }];
+    await inContext(() => books.editPage(j.journeyId, j.userId, { spreadId: j.inner, ops: warmer }));
     const stale = await undo(j.base, j.userId, held?.toolCallId ?? '');
     expect(stale.status).toBe(409);
     expect(stale.body).toMatchObject({ code: 'stale' });
-    expect((await books.overview(j.journeyId, j.userId)).spreads).toHaveLength(7);
+    expect((await bookOf(j)).spreads).toHaveLength(7);
   });
 
   it('ASTBKE2E-004: an edited page is not put back once the book was saved since; the page keeps that save', async () => {
@@ -288,15 +296,15 @@ describe('Studio book cards e2e', () => {
     const [held] = ofType(first, 'tool-approval-request');
     const threadId = ofType(first, 'data-trek-thread')[0]?.data.threadId ?? 0;
     await approve(j.base, j.userId, threadId, held?.toolCallId ?? '');
-    expect((await books.overview(j.journeyId, j.userId)).version).toBe(2);
+    expect((await bookOf(j)).version).toBe(2);
 
     // The Studio saves a heading on the same page after the change.
-    const heading = [{ op: 'text', role: 'heading', text: 'Alfama' }];
-    await books.editPage(j.journeyId, j.userId, { spreadId: j.inner, ops: heading });
+    const heading: BookPageOp[] = [{ op: 'text', role: 'heading', text: 'Alfama' }];
+    await inContext(() => books.editPage(j.journeyId, j.userId, { spreadId: j.inner, ops: heading }));
     const stale = await undo(j.base, j.userId, held?.toolCallId ?? '');
     expect(stale.status).toBe(409);
     expect(stale.body).toMatchObject({ code: 'stale' });
-    const after = await books.overview(j.journeyId, j.userId);
+    const after = await bookOf(j);
     expect([after.version, after.spreads[2]?.elements]).toEqual([3, 1]);
   });
 
@@ -308,14 +316,14 @@ describe('Studio book cards e2e', () => {
     expect(held).toHaveLength(2);
     const threadId = ofType(first, 'data-trek-thread')[0]?.data.threadId ?? 0;
     await approve(j.base, j.userId, threadId, ...held);
-    expect((await books.overview(j.journeyId, j.userId)).version).toBe(3);
+    expect((await bookOf(j)).version).toBe(3);
 
     // Newest first, as "undo all" runs: the newer change goes back, the older is behind the version that left.
     expect((await undo(j.base, j.userId, held[1] ?? '')).status).toBe(200);
     const older = await undo(j.base, j.userId, held[0] ?? '');
     expect(older.status).toBe(409);
     expect(older.body).toMatchObject({ code: 'stale' });
-    expect((await books.overview(j.journeyId, j.userId)).version).toBe(4);
+    expect((await bookOf(j)).version).toBe(4);
   });
 
   it('ASTBKE2E-006: a preview shows a proposed page in words, saves nothing, asks a text model no image', async () => {
@@ -326,7 +334,8 @@ describe('Studio book cards e2e', () => {
     const turn = await stream(`${j.base}/chat`, j.userId, body);
 
     const offered = provider.requests[0]?.tools?.find((tool) => tool.function.name === 'preview_book_page');
-    expect(Object.keys(offered?.function.parameters.properties ?? {})).toEqual(['spreadId', 'ops']);
+    // With the edit's ops the preview also takes a design draft's id (ASTPVW-005).
+    expect(Object.keys(offered?.function.parameters.properties ?? {})).toEqual(['spreadId', 'ops', 'designId']);
     expect(ofType(turn, 'tool-output-available').map((part) => part.toolCallId)).toEqual(['call_look']);
     expect(ofType(turn, 'data-trek-render-request')).toEqual([]);
     const [view] = ofType(turn, 'data-trek-page-view');
@@ -334,6 +343,6 @@ describe('Studio book cards e2e', () => {
     const answer = provider.requests[1]?.messages.find((message) => message.tool_call_id === 'call_look');
     expect(answer?.content).toContain('"proposed":true');
     expect(answer?.content).toContain('Findings');
-    expect((await books.overview(j.journeyId, j.userId)).version).toBe(1);
+    expect((await bookOf(j)).version).toBe(1);
   });
 });

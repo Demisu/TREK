@@ -78,7 +78,7 @@ function setup(fakes: Fakes = {}) {
     books as unknown as JourneyBookEditService,
     photos as unknown as JourneyAiPhotosService,
     registry,
-    orm,
+    orm.orm,
   );
   const stop = new AbortController();
   const asked: AssistantPageRender[] = [];

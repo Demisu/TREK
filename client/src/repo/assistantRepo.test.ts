@@ -145,6 +145,7 @@ describe('assistantRepo', () => {
     const image = new Blob(['jpeg'], { type: 'image/jpeg' });
     const page = { image, bookVersion: 4, spreadId: 'sp-3', drawnPhotoIds: [7, 8] };
     const signal = new AbortController().signal;
+    const append = vi.spyOn(FormData.prototype, 'append');
 
     await assistantRepo.uploadRender(12, 9, 'req-1', page, signal);
     await expect(assistantRepo.pageBook(12)).resolves.toBeNull();
@@ -152,9 +153,11 @@ describe('assistantRepo', () => {
     await expect(assistantRepo.pageDraft(12, 'd-1')).resolves.toEqual({ version: 0, document: DRAFT });
 
     expect(requestId).toBe('req-1');
+    // One file part; jsdom names every file part 'blob' on the wire, so its name is checked where the form gets it.
+    expect(append).toHaveBeenCalledWith('image', image, 'page.jpg');
     expect(sent).toEqual({
       fields: { bookVersion: '4', spreadId: 'sp-3', drawnPhotoIds: '7,8' },
-      filenames: ['page.jpg'],
+      filenames: [expect.any(String)],
     });
 
     // Online only, like every other call here.
