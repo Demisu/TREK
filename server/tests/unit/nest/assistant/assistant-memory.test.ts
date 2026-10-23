@@ -3,7 +3,13 @@
  * same note is not added twice, notes that would run past the limit are
  * refused whole, and other trips' notes stay as they are.
  */
-import { noteOf, REMEMBER_SPEC, rememberForTrip } from '../../../../src/nest/assistant/assistant-memory';
+import type { AgentToolPort } from '../../../../src/nest/assistant/assistant-agent';
+import {
+  noteOf,
+  REMEMBER_SPEC,
+  rememberForTrip,
+  rememberingPort,
+} from '../../../../src/nest/assistant/assistant-memory';
 import type { SettingsService } from '../../../../src/nest/settings/settings.service';
 
 import { describe, expect, it, vi } from 'vitest';
@@ -53,5 +59,32 @@ describe('the trip notes', () => {
     expect(noteOf({ note: 42 })).toBeNull();
     expect(noteOf({ note: 'y'.repeat(600) })).toHaveLength(500);
     expect(REMEMBER_SPEC.parameters).toMatchObject({ required: ['note'], additionalProperties: false });
+  });
+
+  it('ASTMEM-005: in a trip turn the note is kept at once as a read; other tools and a journey keep the port as it is', async () => {
+    const port: AgentToolPort = {
+      specs: () => [REMEMBER_SPEC],
+      kindOf: (name) => (name === 'remember_for_trip' || name === 'create_place' ? 'write' : null),
+      pinArgs: (_name, args) => ({ args: { ...args, tripId: 4 } }),
+      call: vi.fn(async () => ({ ok: true, value: 'port' })),
+    };
+    const remember = vi.fn(async () => ({ ok: true, value: { notes: 'Vegetarian' } }));
+    const kept = rememberingPort(port, remember);
+    expect(kept.kindOf('remember_for_trip')).toBe('read');
+    expect(kept.kindOf('create_place')).toBe('write');
+    expect(kept.kindOf('nope')).toBeNull();
+    expect(kept.pinArgs('remember_for_trip', { note: 'x' })).toEqual({ args: { note: 'x' } });
+    expect(kept.pinArgs('create_place', {})).toEqual({ args: { tripId: 4 } });
+    expect(await kept.call('remember_for_trip', { note: 'Vegetarian' })).toEqual({
+      ok: true,
+      value: { notes: 'Vegetarian' },
+    });
+    expect(await kept.call('create_place', {})).toEqual({ ok: true, value: 'port' });
+    expect(kept.specs()).toEqual([REMEMBER_SPEC]);
+    expect(remember).toHaveBeenCalledTimes(1);
+    expect(rememberingPort(port, null)).toBe(port);
+    // A session that does not hold the tool (a journey's) never gains it.
+    const journey = rememberingPort({ ...port, kindOf: () => null }, remember);
+    expect(journey.kindOf('remember_for_trip')).toBeNull();
   });
 });

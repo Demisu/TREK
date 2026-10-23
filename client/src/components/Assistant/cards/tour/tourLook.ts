@@ -1,5 +1,5 @@
 import { type AssistantApplied, cumulativeMetres, type TourRouteCard, type TrekCard } from '@trek/shared';
-import { Route } from 'lucide-react';
+import { Circle, CircleCheck, CircleSlash, Route } from 'lucide-react';
 
 import type { RouteLineSpec, RouteUse } from '../../../../types/assistantMap';
 import type { EntityTarget, PackLook } from '../cardTypes';
@@ -86,6 +86,9 @@ export const TOUR_LOOK = {
   verbs: {
     addTour: { Icon: Route, tone: 'success', labelKey: 'assistant.change.verb.addTour' },
     updateTour: { Icon: Route, tone: 'info', labelKey: 'assistant.change.verb.updateTour' },
+    markVisited: { Icon: CircleCheck, tone: 'success', labelKey: 'assistant.change.verb.markVisited' },
+    markSkipped: { Icon: CircleSlash, tone: 'info', labelKey: 'assistant.change.verb.markSkipped' },
+    markPlanned: { Icon: Circle, tone: 'info', labelKey: 'assistant.change.verb.markPlanned' },
   },
   tools: {},
   steps: {
@@ -96,6 +99,7 @@ export const TOUR_LOOK = {
     list_tours: { stepKey: 'assistant.step.readingTours' },
     find_tours_for_day: { stepKey: 'assistant.step.readingTours' },
     search_tour_pois: { stepKey: 'assistant.step.tourPois' },
+    get_city_walk_progress: { stepKey: 'assistant.step.readingTour' },
   },
   entities: {
     tour: {

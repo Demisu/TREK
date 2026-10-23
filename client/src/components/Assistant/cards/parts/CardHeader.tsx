@@ -48,14 +48,14 @@ export default function CardHeader({
   children?: ReactNode;
 }) {
   return (
-    <div className="-mx-3.5 -mt-3 mb-3 px-3.5 pb-3 pt-3" style={{ background: tint }}>
-      <div className={`flex gap-3 ${meta ? 'items-start' : 'items-center'}`}>
+    <div className="-mx-3.5 -mt-3 mb-3 px-3.5 pb-2.5 pt-2.5" style={{ background: tint }}>
+      <div className={`flex gap-2.5 ${meta ? 'items-start' : 'items-center'}`}>
         {tile ?? (
           <span
             aria-hidden="true"
-            className={`grid h-10 w-10 flex-none place-items-center rounded-[12px] bg-surface-card shadow-sm ${GLYPH[tone]}`}
+            className={`grid h-8 w-8 flex-none place-items-center rounded-[10px] bg-surface-card shadow-sm ${GLYPH[tone]}`}
           >
-            <Icon size={18} strokeWidth={2} />
+            <Icon size={15} strokeWidth={2} />
           </span>
         )}
         <div className="min-w-0 flex-1">
@@ -71,14 +71,14 @@ export default function CardHeader({
             <bdi
               title={title}
               className="line-clamp-2 min-w-0 font-bold leading-tight tracking-[-0.01em] text-content"
-              style={fs(15, 'body')}
+              style={fs(13.5, 'body')}
             >
               {title}
             </bdi>
             {count !== undefined && (
               <span
-                className="inline-flex h-5 flex-none items-center rounded-full bg-surface-card px-2 font-semibold tabular-nums text-content-secondary shadow-sm"
-                style={fs(11)}
+                className="inline-flex h-[18px] flex-none items-center rounded-full bg-surface-card px-1.5 font-semibold tabular-nums text-content-secondary shadow-sm"
+                style={fs(10.5)}
               >
                 {count}
               </span>

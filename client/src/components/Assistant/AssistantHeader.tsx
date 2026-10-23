@@ -103,11 +103,7 @@ export default function AssistantHeader({ tripId, thread, tripTitle, onClose, dr
         <div className="min-w-0 flex-1">
           {thread.isRunning ? (
             // While it works, the line over the title says what it does right now.
-            <p role="status" className="m-0 flex min-w-0 items-center gap-1.5 text-caption font-medium">
-              <span
-                aria-hidden="true"
-                className="trek-assistant-pulse h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent"
-              />
+            <p role="status" className="m-0 flex min-w-0 items-center text-caption font-medium">
               <span className="trek-assistant-shimmer truncate">{live?.text ?? t('assistant.step.working')}</span>
             </p>
           ) : (

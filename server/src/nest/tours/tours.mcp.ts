@@ -1,9 +1,18 @@
 import { ADDON_IDS } from '../../addons';
 import type { TourDayRow } from '../../db/repositories/Tours.repository';
-import { noAccess } from '../../mcp/tools/_shared';
-import { McpController, Tool, TOOL_ANNOTATIONS_READONLY, errorResult, ok, type McpContext } from '../../nest-mcp';
+import { noAccess, permissionDenied } from '../../mcp/tools/_shared';
+import {
+  McpController,
+  Tool,
+  TOOL_ANNOTATIONS_READONLY,
+  TOOL_ANNOTATIONS_WRITE,
+  errorResult,
+  ok,
+  type McpContext,
+} from '../../nest-mcp';
 import { addonGate } from '../addons/addon-gate';
 import { AddonsService } from '../addons/addons.service';
+import { McpToolGuardsService } from '../mcp-shared/mcp-tool-guards.service';
 import { TripAccessService } from '../trip-membership/trip-access.service';
 import { withoutLine } from './tour-activities.helpers';
 import { TourGpxExportService } from './tour-gpx-export.service';
@@ -15,10 +24,13 @@ import { ToursService } from './tours.service';
 import { NotFoundException } from '@nestjs/common';
 import {
   idSchema,
+  stationKeySchema,
   tourPoiSearchRequestSchema,
+  tourVisitUpdateRequestSchema,
   type TourDetailResponse,
   type TourListItem,
   type TourPoiSearchRequest,
+  type TourVisitUpdateRequest,
 } from '@trek/shared';
 
 type TourDay = Pick<TourDayRow, 'day_id' | 'day_number' | 'date' | 'title' | 'tour_stage_key'>;
@@ -101,6 +113,7 @@ export class ToursMcp {
     private readonly gpxExport: TourGpxExportService,
     private readonly poiSearch: TourPoiSearchService,
     private readonly visits: TourVisitsService,
+    private readonly guards: McpToolGuardsService,
     // Read by the addon gate of every tool here.
     readonly addons: AddonsService,
   ) {}
@@ -204,6 +217,70 @@ export class ToursMcp {
       if (err instanceof NotFoundException) return errorResult('No city walk of this trip is on that day.');
       throw err;
     }
+  }
+
+  @Tool({
+    name: 'set_city_walk_visit',
+    description:
+      'Check off a station of a city walk (tour_type walk) on one day it is on, as the travellers tap it in the day plan: visited, skipped, or planned to take a mark back. Use it when the travellers say where they are or what they did ("we are at the museum", "skip the tower"); stationKey is the key of the station from get_city_walk_progress or get_tour_plan. The mark belongs to that day only, as every visit does. The answer gives the status before and after, and the walk as it now stands that day (the same fields as get_city_walk_progress): read get_city_walk_remaining_time next for what is left. Needs the right to edit the trip days, as checking off in the day plan does. Nothing about the route changes.',
+    inputSchema: {
+      tripId: idSchema,
+      placeId: idSchema.describe('The place id of the city walk, as list_tours gives it'),
+      dayId: idSchema.describe('The day the walk is on, as find_tours_for_day gives it'),
+      stationKey: stationKeySchema.describe('The key of the station, as get_city_walk_progress gives it'),
+      status: tourVisitUpdateRequestSchema.shape.status.describe(
+        'visited for a station seen, skipped for one left out, planned to take a mark back',
+      ),
+      assignmentId: idSchema
+        .optional()
+        .describe(
+          'For a walk put on that day more than once: the assignment of the run, one of that walk on that day; without it the first run of the day',
+        ),
+    },
+    annotations: TOOL_ANNOTATIONS_WRITE,
+    when: addonGate(ADDON_IDS.TOURS),
+    access: { group: 'trips', mode: 'write' },
+  })
+  async setCityWalkVisit(
+    {
+      tripId,
+      placeId,
+      dayId,
+      stationKey,
+      status,
+      assignmentId,
+    }: {
+      tripId: number;
+      placeId: number;
+      dayId: number;
+      stationKey: string;
+      status: TourVisitUpdateRequest['status'];
+      assignmentId?: number;
+    },
+    ctx: McpContext,
+  ) {
+    if (!(await this.access.findAccessible(tripId, ctx.userId))) return noAccess();
+    // Checking off in the day plan is what REST asks 'day_edit' for.
+    if (!(await this.guards.hasTripPermission('day_edit', tripId, ctx.userId))) return permissionDenied();
+    let before: WalkProgress;
+    try {
+      before = await this.visits.progress(tripId, placeId, dayId, assignmentId);
+    } catch (err: unknown) {
+      if (err instanceof NotFoundException) return errorResult('No city walk of this trip is on that day.');
+      throw err;
+    }
+    const station = before.stations.find((one) => one.key === stationKey);
+    if (!station)
+      return errorResult('This walk has no station with that key on that day: read get_city_walk_progress.');
+    await this.visits.update(String(tripId), before.assignment_id, stationKey, { status });
+    const after = await this.visits.progress(tripId, placeId, dayId, before.assignment_id);
+    return ok({
+      station_key: stationKey,
+      name: station.name,
+      previous_status: station.status,
+      status,
+      walk: after,
+    });
   }
 
   @Tool({

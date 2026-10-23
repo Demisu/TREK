@@ -6,6 +6,7 @@ import {
   type AssistantDecision,
   type AssistantErrorCode,
   type AssistantFocus,
+  type AssistantFoundPlace,
   type AssistantMapView,
   type AssistantMention,
   type AssistantMessage,
@@ -149,6 +150,8 @@ interface AssistantState {
   routeFocus: { tripId: number; ref: string; focus: RouteProfileFocus; source: 'card' | 'map' } | null;
   /** A line a card asks the map to draw while the pointer rests on it (a day of a drive, a saved tour). */
   routePreview: { tripId: number; ref: string; lines: LatLng[][]; color: string } | null;
+  /** A found place to open in the planner's place form, filled in; `seq` tells a new one from the same place asked again. */
+  placeDraft: { tripId: number; seq: number; place: AssistantFoundPlace; dayId: number | null } | null;
   /** The route card the phone shows over the map. */
   routePeek: { tripId: number; toolCallId: string } | null;
   /** Where the floating window sits after its last move or resize, for the map to frame around it. */
@@ -207,6 +210,9 @@ interface AssistantState {
 
   setMapHover: (tripId: number, hoveredId: string | null, source: AssistantMapSource) => void;
   requestCamera: (tripId: number, points: LatLng[], mode: 'fit' | 'pan', why: 'user' | 'auto') => void;
+  /** Opens a found place in the planner's place form; the planner takes it with `takePlaceDraft`. */
+  openPlaceDraft: (tripId: number, place: AssistantFoundPlace, dayId: number | null) => void;
+  takePlaceDraft: (seq: number) => void;
   setPreviewPin: (preview: AssistantState['preview']) => void;
   setWindowRect: (rect: WindowRect | null) => void;
   setMapView: (mapView: AssistantState['mapView']) => void;
@@ -820,6 +826,11 @@ function mapActions(ctx: Ctx) {
     },
     requestCamera: (tripId: number, points: LatLng[], mode: 'fit' | 'pan', why: 'user' | 'auto') =>
       requestCameraOn(ctx, tripId, points, mode, why),
+    openPlaceDraft: (tripId: number, place: AssistantFoundPlace, dayId: number | null) =>
+      ctx.set({ placeDraft: { tripId, seq: (ctx.get().placeDraft?.seq ?? 0) + 1, place, dayId } }),
+    takePlaceDraft: (seq: number) => {
+      if (ctx.get().placeDraft?.seq === seq) ctx.set({ placeDraft: null });
+    },
     setPreviewPin: (preview: AssistantState['preview']) => ctx.set({ preview }),
     setWindowRect: (rect: WindowRect | null) => ctx.set({ windowRect: rect }),
     setMapView: (mapView: AssistantState['mapView']) => ctx.set({ mapView }),
@@ -923,6 +934,7 @@ export const useAssistantStore = create<AssistantState>((set, get) => {
     mapLink: null,
     camera: null,
     preview: null,
+    placeDraft: null,
     windowRect: null,
     mapView: null,
     studioHosts: {},

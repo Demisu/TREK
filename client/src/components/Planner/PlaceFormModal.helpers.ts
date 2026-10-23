@@ -136,6 +136,8 @@ export interface PlacePrefill {
   website?: string
   phone?: string
   osm_id?: string
+  /** A place Google knows, such as one the assistant found: the details column reads it by this id. */
+  google_place_id?: string
 }
 
 /** A blank form at a prefilled position, with what the POI already knew. */
@@ -149,6 +151,7 @@ export function prefillForm(prefill: PlacePrefill, extra: Partial<PlaceFormData>
     website: prefill.website || '',
     phone: prefill.phone || '',
     osm_id: prefill.osm_id,
+    google_place_id: prefill.google_place_id,
     ...extra,
   }
 }
@@ -170,7 +173,7 @@ export function openingDetailsSelection(
     }
   }
   if (prefill) {
-    return { placeId: prefill.osm_id || undefined, lat: prefill.lat, lng: prefill.lng, name: prefill.name || '' }
+    return { placeId: prefill.google_place_id || prefill.osm_id || undefined, lat: prefill.lat, lng: prefill.lng, name: prefill.name || '' }
   }
   return null
 }

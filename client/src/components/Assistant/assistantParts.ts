@@ -66,6 +66,8 @@ type MessageBlock =
   | { kind: 'change'; key: string; items: ChangeItem[] }
   | { kind: 'places'; key: string; found: AssistantPlaces }
   | { kind: 'weather'; key: string; days: AssistantWeatherDay[] }
+  // A note the model kept in the trip notes on its own, as a quiet line.
+  | { kind: 'remembered'; key: string; note: string }
   | CardsBlock;
 
 /** How cards are laid out: the group each joins, and which ones give way to a change they served. */
@@ -91,6 +93,37 @@ function proposed(place: AssistantFoundPlace, effects: readonly AssistantChangeE
       spot !== null && Math.abs(spot.lat - place.lat) < SAME_SPOT_DEG && Math.abs(spot.lng - place.lng) < SAME_SPOT_DEG
     );
   });
+}
+
+/** A name as it is compared with the answer's words: lower case, without accents or marks. */
+function folded(text: string): string {
+  return text.normalize('NFKD').replace(/\p{M}/gu, '').toLocaleLowerCase();
+}
+
+/**
+ * The found places the answer names, first, then the rest; null when the
+ * answer is written and names none of them. A search the answer does not
+ * draw on is the model's own groundwork and shows no strip.
+ */
+function namedFirst(places: readonly AssistantFoundPlace[], text: string): AssistantFoundPlace[] | null {
+  if (text.trim() === '') return [...places];
+  const words = folded(text);
+  const named = places.filter((place) => {
+    const name = folded(place.name).trim();
+    return name.length >= 3 && words.includes(name);
+  });
+  if (named.length === 0) return null;
+  return [...named, ...places.filter((place) => !named.includes(place))];
+}
+
+/** The tool that keeps a note in the trip notes; kept at once, without a card. */
+const REMEMBER_TOOL = 'remember_for_trip';
+
+/** The note a call kept, once it is kept; null for any other call, one still running or one refused. */
+function rememberedNote(part: Extract<AssistantMessagePart, { type: 'tool-call' }>): string | null {
+  if (part.toolName !== REMEMBER_TOOL || part.approval || part.result === undefined || part.isError) return null;
+  const note = (part.args as { note?: unknown }).note;
+  return typeof note === 'string' && note.trim() !== '' ? note.trim() : null;
 }
 
 /** Every day the answer's weather steps looked up, one entry per date (the later look wins), by date. */
@@ -265,8 +298,13 @@ export function messageBlocks(
     }
     if (part.type === 'data-trek-places' && index === lastPlaces && !placesHidden) {
       const found = allFound(message.parts);
-      const places = found.places.filter((place) => !proposed(place, effects));
-      if (places.length > 0) blocks.push({ kind: 'places', key: `places-${index}`, found: { ...found, places } });
+      const text = message.parts.map((p) => (p.type === 'text' ? p.text : '')).join(' ');
+      const places = namedFirst(
+        found.places.filter((place) => !proposed(place, effects)),
+        text
+      );
+      if (places && places.length > 0)
+        blocks.push({ kind: 'places', key: `places-${index}`, found: { ...found, places } });
       return;
     }
     if (part.type === 'data-trek-weather' && index === firstWeather) {
@@ -284,6 +322,11 @@ export function messageBlocks(
     const item = changeItemOf(part, previews.get(part.toolCallId) ?? null, receipts, cards);
     if (item) {
       pushChange(blocks, item, fromStrip);
+      return;
+    }
+    const note = rememberedNote(part);
+    if (note !== null) {
+      blocks.push({ kind: 'remembered', key: `remembered-${part.toolCallId}`, note });
       return;
     }
     const step: ToolStep = {

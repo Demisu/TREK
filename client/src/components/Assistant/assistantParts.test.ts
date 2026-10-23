@@ -200,7 +200,7 @@ describe('messageBlocks: found places and weather', () => {
         read('s2', []),
         places('s2', [found('s2:0', { name: 'Place s1:0' }), found('s2:1', { googlePlaceId: 'ChIJa', lat: 40 })], 3),
         places('s3', [found('s3:0', { lat: 40 })]),
-        { type: 'text', text: 'Three good ones.' },
+        { type: 'text', text: 'Three good ones, Place s3:0 first.' },
       ]),
       false
     );
@@ -208,8 +208,45 @@ describe('messageBlocks: found places and weather', () => {
     expect(blocks[0]).toMatchObject({ steps: [{ toolCallId: 's1' }, { toolCallId: 's2' }] });
     // The same name at the same spot, or the same Google id, shows once.
     expect(blocks[1]).toMatchObject({
-      found: { toolCallId: 's3', more: 5, places: [{ ref: 's1:0' }, { ref: 's1:1' }, { ref: 's3:0' }] },
+      found: { toolCallId: 's3', more: 5, places: [{ ref: 's3:0' }, { ref: 's1:0' }, { ref: 's1:1' }] },
     });
+  });
+
+  it('FE-AI-PARTS-008c: a note kept in the trip notes is a line of its own, a refused or running one a step', () => {
+    const kept = (id: string, extra: Record<string, unknown>): AssistantMessagePart =>
+      ({
+        type: 'tool-call',
+        toolCallId: id,
+        toolName: 'remember_for_trip',
+        args: { note: ' Vegetarian ' },
+        ...extra,
+      }) as AssistantMessagePart;
+    const blocks = messageBlocks(
+      message([
+        kept('m1', { result: { notes: 'Vegetarian' } }),
+        kept('m2', { result: 'The trip notes are full.', isError: true }),
+      ]),
+      false
+    );
+    expect(blocks).toMatchObject([
+      { kind: 'remembered', note: 'Vegetarian' },
+      { kind: 'steps', steps: [{ toolCallId: 'm2' }] },
+    ]);
+    expect(messageBlocks(message([kept('m3', {})]), true)).toMatchObject([{ kind: 'steps' }]);
+  });
+
+  it('FE-AI-PARTS-008b: an answer that names none of the places it found shows no strip', () => {
+    const blocks = messageBlocks(
+      message([places('s1', [found('s1:0', { name: 'Café Ñandú' })]), { type: 'text', text: 'It rains all day.' }]),
+      false
+    );
+    expect(blocks.map((b) => b.kind)).toEqual(['text']);
+    // Named with other accents and case, it is the same place.
+    const named = messageBlocks(
+      message([places('s1', [found('s1:0', { name: 'Café Ñandú' })]), { type: 'text', text: 'Try cafe nandu.' }]),
+      false
+    );
+    expect(named.map((b) => b.kind)).toEqual(['places', 'text']);
   });
 
   it('FE-AI-PARTS-009: drops the places a change of the model proposes, and the strip if none is left', () => {

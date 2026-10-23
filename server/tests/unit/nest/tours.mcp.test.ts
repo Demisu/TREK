@@ -10,6 +10,7 @@ import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../src/db/entities/Tours.entity';
 import type { McpContext } from '../../../src/nest-mcp';
 import { getEntry, type ClassRef } from '../../../src/nest-mcp/metadata';
+import { McpToolGuardsService } from '../../../src/nest/mcp-shared/mcp-tool-guards.service';
 import { PlacesMcp } from '../../../src/nest/places/places.mcp';
 import { TourLibraryMcp } from '../../../src/nest/tours/tour-library.mcp';
 import { TOUR_PLAN_LINE_POINTS } from '../../../src/nest/tours/tour-plan-read';
@@ -247,6 +248,57 @@ describe('ToursMcp', () => {
       Promise.resolve([]),
     );
     expect(answers).toEqual(notThere.map(() => ({ error: 'No city walk of this trip is on that day.' })));
+  });
+
+  it('TOURS-MCP-033: set_city_walk_visit checks a station off on its day, says what it was, and takes a mark back', async () => {
+    const { member, trip, day1, walk, onDay1 } = await walkFixture();
+    const at = { tripId: trip.id, placeId: walk.id, dayId: day1.id };
+    const marked = read(
+      await mcp.setCityWalkVisit({ ...at, stationKey: 'stop-park', status: 'visited' }, ctx(member.id)),
+    );
+    expect(marked).toMatchObject({
+      station_key: 'stop-park',
+      name: null,
+      previous_status: 'planned',
+      status: 'visited',
+      walk: { assignment_id: onDay1.id },
+    });
+    expect(marked.walk.stations.map((station: { status: string }) => station.status)).toEqual([
+      'visited',
+      'skipped',
+      'visited',
+    ]);
+    const back = read(
+      await mcp.setCityWalkVisit({ ...at, stationKey: 'stop-market', status: 'planned' }, ctx(member.id)),
+    );
+    expect(back).toMatchObject({ name: null, previous_status: 'skipped', status: 'planned' });
+    const orm = await createTestOrm(db);
+    expect(await countRows(orm, TourStationVisits, { station_key: 'stop-market' })).toBe(0);
+    await orm.close();
+  });
+
+  it('TOURS-MCP-034: set_city_walk_visit refuses an outsider, a member without day_edit, an unknown station and a day without the walk', async () => {
+    const { user, outsider, trip, day1, day2, walk } = await walkFixture();
+    const at = { tripId: trip.id, placeId: walk.id, dayId: day1.id, status: 'visited' as const };
+    expect(read(await mcp.setCityWalkVisit({ ...at, stationKey: 'stop-park' }, ctx(outsider.id)))).toEqual({
+      error: 'Trip not found or access denied.',
+    });
+    const guards = t.get(McpToolGuardsService);
+    const denied = vi.spyOn(guards, 'hasTripPermission').mockResolvedValueOnce(false);
+    try {
+      expect(read(await mcp.setCityWalkVisit({ ...at, stationKey: 'stop-park' }, ctx(user.id)))).toEqual({
+        error: 'You do not have permission to perform this action on this trip.',
+      });
+      expect(denied).toHaveBeenCalledWith('day_edit', trip.id, user.id);
+    } finally {
+      denied.mockRestore();
+    }
+    expect(read(await mcp.setCityWalkVisit({ ...at, stationKey: 'stop-nowhere' }, ctx(user.id))).error).toMatch(
+      /no station with that key/,
+    );
+    expect(read(await mcp.setCityWalkVisit({ ...at, dayId: day2.id, stationKey: 'stop-park' }, ctx(user.id)))).toEqual({
+      error: 'No city walk of this trip is on that day.',
+    });
   });
 
   it('TOURS-MCP-010: a failure other than a missing walk is not passed off as no walk', async () => {

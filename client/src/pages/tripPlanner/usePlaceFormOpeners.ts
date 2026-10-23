@@ -76,7 +76,7 @@ export function usePlaceFormOpeners(options: PlaceFormOpenersOptions) {
   // Open the Add-Place form pre-filled from an OSM "explore" POI marker: all the
   // data already comes from the POI, so no reverse-geocode is needed.
   const openAddPlaceFromPoi = useCallback((
-    poi: { lat: number; lng: number; name: string; address: string | null; website: string | null; phone: string | null; osm_id: string; category?: string | null; poi_type?: string | null },
+    poi: { lat: number; lng: number; name: string; address: string | null; website: string | null; phone: string | null; osm_id: string; google_place_id?: string | null; category?: string | null; poi_type?: string | null },
     dayId?: number | null,
     /** Index within that day. Omitted, the place is appended, which is what every caller did before. */
     position?: number | null,
@@ -100,6 +100,7 @@ export function usePlaceFormOpeners(options: PlaceFormOpenersOptions) {
       // A plugin POI's `plugin:<pluginId>:<id>` rides along as it is. The server never
       // takes that prefix for a Google place id, so the details column makes no Google call.
       osm_id: poi.osm_id,
+      google_place_id: poi.google_place_id || undefined,
       // What the map search filed it under, so the form can preselect a category (#2282).
       category: poi.poi_type || poi.category || undefined,
       stop_type: stop?.stopType ?? null,

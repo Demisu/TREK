@@ -1,12 +1,10 @@
 import type { AssistantFoundPlace } from '@trek/shared';
-import { Check, ChevronDown, LoaderCircle, MapPin, Plus, Star } from 'lucide-react';
+import { Check, MapPin, Plus, Star } from 'lucide-react';
 import { createElement, type ReactNode, useRef } from 'react';
 
 import { useTranslation } from '../../i18n';
 import { getCategoryIcon } from '../shared/categoryIcons';
-import { PopoverListPanel } from '../shared/dialogParts';
 import { Tooltip } from '../shared/Tooltip';
-import { usePopoverList } from '../shared/usePopoverList';
 import { useAssistantView } from './assistantViewContext';
 import type { useAssistantPlaceStrip } from './useAssistantPlaceStrip';
 import { useFoundPlacePhoto } from './useFoundPlacePhoto';
@@ -16,110 +14,14 @@ type Strip = ReturnType<typeof useAssistantPlaceStrip>;
 const ACTION =
   'inline-flex items-center gap-1 rounded-lg bg-surface-secondary text-caption font-medium text-content transition-colors hover:bg-surface-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-surface-secondary';
 
-/** "+ Day 3" for the day in focus, a list of the trip's days beside it; "Pick a day" when no day is in focus. */
-function SuggestButton({ place, strip, tall }: { place: AssistantFoundPlace; strip: Strip; tall: boolean }) {
+/** "Add to trip": opens the planner's place form filled in with the place, its details loading beside it. */
+function AddButton({ place, strip, tall }: { place: AssistantFoundPlace; strip: Strip; tall: boolean }) {
   const { t } = useTranslation();
-  const { days, focusDay, disabled, blockedKey, adding } = strip;
-  const list = usePopoverList(focusDay ? days.findIndex((d) => d.id === focusDay.id) : 0, {
-    estimatedHeight: Math.ceil(days.length / 7) * 44 + 16,
-  });
-  const { open, toggle, close, triggerRef, listId } = list;
-  const height = tall ? 'h-10' : 'h-7';
-  const busy = adding === place.ref;
-
-  const pick = (dayId: number) => {
-    close();
-    void strip.suggest(place, dayId);
-  };
-
-  const buttons = (
-    <span className="inline-flex min-w-0 gap-px">
-      {focusDay ? (
-        <>
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={() => void strip.suggest(place, focusDay.id)}
-            aria-label={t('assistant.place.addTo', { day: focusDay.label })}
-            className={`${ACTION} ${height} rounded-e-none px-2`}
-          >
-            {busy ? (
-              <LoaderCircle size={12} aria-hidden="true" className="animate-spin" />
-            ) : (
-              <Plus size={12} aria-hidden="true" />
-            )}
-            <span className="truncate">{t('assistant.place.addToShort', { n: focusDay.n })}</span>
-          </button>
-          <button
-            ref={triggerRef}
-            type="button"
-            disabled={disabled}
-            onClick={toggle}
-            aria-expanded={open}
-            aria-controls={open ? listId : undefined}
-            aria-label={t('assistant.place.pickDay')}
-            className={`${ACTION} ${height} rounded-s-none px-1.5`}
-          >
-            <ChevronDown size={12} aria-hidden="true" />
-          </button>
-        </>
-      ) : (
-        <button
-          ref={triggerRef}
-          type="button"
-          disabled={disabled}
-          onClick={toggle}
-          aria-expanded={open}
-          aria-controls={open ? listId : undefined}
-          className={`${ACTION} ${height} px-2`}
-        >
-          <Plus size={12} aria-hidden="true" />
-          <span className="truncate">{t('assistant.place.pickDay')}</span>
-          <ChevronDown size={12} aria-hidden="true" className="text-content-faint" />
-        </button>
-      )}
-    </span>
-  );
-
   return (
-    <>
-      {blockedKey ? (
-        <Tooltip label={t(blockedKey)} placement="top">
-          {/* A disabled button gets no pointer events; the wrapper carries the reason. */}
-          <span className="inline-flex min-w-0">{buttons}</span>
-        </Tooltip>
-      ) : (
-        buttons
-      )}
-      {/* A grid of day tiles, not a list: a month-long trip still fits in a few rows. */}
-      <PopoverListPanel list={list} label={t('assistant.place.pickDay')} className="w-[15.5rem] p-2">
-        <div className="grid grid-cols-7 gap-1">
-          {days.map((day) => {
-            const current = day.id === focusDay?.id;
-            return (
-              <Tooltip key={day.id} label={day.label} placement="top">
-                <button
-                  type="button"
-                  onClick={() => pick(day.id)}
-                  aria-label={day.label}
-                  aria-pressed={current}
-                  className={`flex h-10 flex-col items-center justify-center rounded-lg leading-none outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent ${
-                    current ? 'bg-accent text-accent-text' : 'text-content hover:bg-surface-hover'
-                  }`}
-                >
-                  <span className="text-body font-semibold tabular-nums">{day.n}</span>
-                  {day.weekday && (
-                    <span className={`mt-0.5 text-caption ${current ? 'text-accent-text' : 'text-content-faint'}`}>
-                      {day.weekday}
-                    </span>
-                  )}
-                </button>
-              </Tooltip>
-            );
-          })}
-        </div>
-      </PopoverListPanel>
-    </>
+    <button type="button" onClick={() => strip.open(place)} className={`${ACTION} ${tall ? 'h-10' : 'h-7'} px-2`}>
+      <Plus size={12} aria-hidden="true" />
+      <span className="truncate">{t('assistant.place.add')}</span>
+    </button>
   );
 }
 
@@ -219,7 +121,7 @@ function PlaceAction({
       </span>
     );
   }
-  return strip.canSuggest ? <SuggestButton place={place} strip={strip} tall={tall} /> : null;
+  return strip.canAdd ? <AddButton place={place} strip={strip} tall={tall} /> : null;
 }
 
 /**
@@ -227,9 +129,10 @@ function PlaceAction({
  * with the category it most likely belongs in on it (or that category's icon
  * on its colour), its name, address and rating, whether it is open now while
  * the trip runs, how far it is from the last stop of the day in focus, and one
- * way on: "+ Day 3" for a new place, "On map" for one the trip has. A click on
- * the card shows it on the map, and resting the pointer on it pins it there
- * for a moment.
+ * way on: "Add to trip" for a new place, "On map" for one the trip has. A click
+ * on a new place opens the place form filled in with it (one the trip has, or
+ * any where nothing can be added, shows on the map), and resting the pointer on
+ * it pins it there for a moment.
  */
 export default function AssistantPlaceCard({
   place,
@@ -259,7 +162,7 @@ export default function AssistantPlaceCard({
     >
       <button
         type="button"
-        onClick={() => strip.show(place)}
+        onClick={() => (place.inTripPlaceId === null && strip.canAdd ? strip.open(place) : strip.show(place))}
         onFocus={() => strip.hover(place)}
         onBlur={() => strip.hover(null)}
         className="flex flex-col text-start outline-none focus-visible:bg-surface-hover"

@@ -160,7 +160,7 @@ export default function TourRouteHead({ card, onShow }: { card: TourRouteCard; o
   const { t } = useTranslation();
   const name = routeName(card, t);
   const tile = (
-    <span className="w-14 flex-none overflow-hidden rounded-[12px] bg-surface-card p-1 shadow-sm">
+    <span className="w-12 flex-none overflow-hidden rounded-[10px] bg-surface-card p-1 shadow-sm">
       <TourRouteSketch card={card} height={48} onShow={onShow} />
     </span>
   );

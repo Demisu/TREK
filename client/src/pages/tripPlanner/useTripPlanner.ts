@@ -52,6 +52,7 @@ import { usePlannerDialogs } from './usePlannerDialogs'
 import { usePlaceDeepLink } from './usePlaceDeepLink'
 import { useAssistantDeepLink } from './useAssistantDeepLink'
 import { useAssistantCompareView, useAssistantMapLink } from './useAssistantMapLink'
+import { useAssistantPlaceDraft } from './useAssistantPlaceDraft'
 import { usePlannerMapView } from './usePlannerMapView'
 import { useMapPlaces } from './useMapPlaces'
 import { useRoadtripFeed } from './useRoadtripFeed'
@@ -593,6 +594,7 @@ export function useTripPlanner() {
     setPrefillCoords, setEditingPlace, setEditingAssignmentId, setPlaceFormDayId, setPlaceFormPosition, setShowPlaceForm,
     roadtripActive, roadtripFeedActive, roadtripRoutes, roadtripCorridor, manualStopTargetFor, isTourPlace,
   })
+  useAssistantPlaceDraft(tripId, openAddPlaceFromPoi)
 
   const {
     handleReorder, handleReorderDays, handleUpdateDayTitle, handleMoveToDay, handleRemoveAssignment,

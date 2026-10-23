@@ -1,5 +1,6 @@
 import type { AiToolSpec } from '../ai-connections/ai-chat-client.interface';
 import type { SettingsService } from '../settings/settings.service';
+import type { AgentToolPort } from './assistant-agent';
 import { MAX_MEMORY_CHARS, tripMemoryOf } from './assistant-context';
 import { REMEMBER_TOOL } from './assistant-tools.constants';
 import type { ToolRun } from './assistant-tools.service';
@@ -7,13 +8,21 @@ import type { ToolRun } from './assistant-tools.service';
 /** The longest single note the model may keep. */
 const MAX_NOTE_CHARS = 500;
 
-/** How the model is offered the trip notes: one short fact per call, confirmed by the user like any change. */
+/**
+ * How the model is offered the trip notes: one short fact per call, kept at
+ * once without a card (the chat shows it as kept, and the notes are the
+ * user's to edit in the chat menu).
+ */
 export const REMEMBER_SPEC: AiToolSpec = {
   name: REMEMBER_TOOL,
   description:
     "Keep a fact or wish about this trip in the user's trip notes, which come along with every later conversation " +
-    'about this trip (for example "we travel as two", "vegetarian", "no museums before 10"). Call it whenever the ' +
-    'user asks you to remember something, instead of saying you cannot. The user confirms it like any change.',
+    'about this trip (for example "we travel as two", "vegetarian", "no museums before 10", "Anna has a bad knee"). ' +
+    'It is kept at once, without asking: call it on your own whenever the user tells you something that will ' +
+    'matter for later suggestions on this trip (who travels, needs, likes and dislikes, budget, pace, fixed ' +
+    'times), and whenever they ask you to remember something, instead of saying you cannot. Keep nothing ' +
+    'that only matters for this one answer, nothing already in <trip_notes>, and nothing private beyond what the ' +
+    'trip needs (no passport or card numbers). Say in a few words that you noted it.',
   parameters: {
     type: 'object',
     properties: {
@@ -57,4 +66,22 @@ export async function rememberForTrip(
   const all = prefs.assistant_memory && typeof prefs.assistant_memory === 'object' ? prefs.assistant_memory : {};
   await settings.upsertSetting(userId, 'assistant_memory', { ...all, [String(tripId)]: next });
   return { ok: true, value: { notes: next } };
+}
+
+/**
+ * The turn's tools with the trip notes kept at once: remember_for_trip runs
+ * as a read (the loop carries on with its answer) through `remember`, every
+ * other tool as the port has it. Without a trip the port stays as it is.
+ */
+export function rememberingPort(
+  port: AgentToolPort,
+  remember: ((args: Record<string, unknown>) => Promise<ToolRun>) | null,
+): AgentToolPort {
+  if (!remember) return port;
+  return {
+    specs: () => port.specs(),
+    kindOf: (name) => (name === REMEMBER_TOOL && port.kindOf(name) !== null ? 'read' : port.kindOf(name)),
+    pinArgs: (name, args) => (name === REMEMBER_TOOL ? { args } : port.pinArgs(name, args)),
+    call: (name, args) => (name === REMEMBER_TOOL ? remember(args) : port.call(name, args)),
+  };
 }

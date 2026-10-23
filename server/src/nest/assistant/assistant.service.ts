@@ -38,7 +38,7 @@ import { mentionItems } from './assistant-cards.helpers';
 import { todayIn } from './assistant-context';
 import { DISCARDED, NOT_RUN, type Outcome, withCancelled, withOutcomes } from './assistant-decisions.helpers';
 import { messageIdOf, outputText, partsOf, toChatHistory, toThreadMessages } from './assistant-history';
-import { rememberForTrip } from './assistant-memory';
+import { rememberForTrip, rememberingPort } from './assistant-memory';
 import { toolOutputForProvider } from './assistant-output';
 import { AssistantScopes, findScopedCall, scopedThreads, tripScope } from './assistant-scope';
 import { AssistantStreamRegistry } from './assistant-stream.registry';
@@ -812,6 +812,14 @@ export class AssistantService {
     return new Map(lists.flat().map((call) => [call.id, call]));
   }
 
+  /** How a trip's turn keeps a note at once; a journey's has no trip notes. */
+  private remembering(userId: number, scope: AssistantScope) {
+    if (scope.kind !== 'trip') return null;
+    const { tripId } = scope;
+    return (args: Record<string, unknown>) =>
+      this.inContext(() => rememberForTrip(this.settings, userId, tripId, args));
+  }
+
   /**
    * The turn itself, once the stream is open: the tool session, the trip or
    * book card, the history, then the agent loop. Whatever fails after this
@@ -848,7 +856,7 @@ export class AssistantService {
       const outcome = await runAgentLoop(
         {
           client: this.chatClients.create(spec.connection),
-          tools: seeing.tools,
+          tools: rememberingPort(seeing.tools, this.remembering(userId, spec.scope)),
           store: this.stepStore(spec),
           describe: this.cardContext.forTurn(gate.reader, card, spec.locale, today).describe,
           refusalOf: gate.refusalOf,

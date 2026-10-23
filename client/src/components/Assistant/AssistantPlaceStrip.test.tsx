@@ -2,9 +2,8 @@
  * FE-AI-PLACES-001 to FE-AI-PLACES-010
  *
  * The strip of places a search found: what a card says, that its picture only
- * ever comes from TREK's photo proxy, "+ Day N" for the day in focus or a
- * picked one, why it waits while a change is undecided, the map's part, and
- * no "+ Day" in a journey's chat.
+ * ever comes from TREK's photo proxy, "Add to trip" opening the place form on
+ * the day in focus, the map's part, and no "Add to trip" in a journey's chat.
  */
 import type { AssistantFoundPlace, AssistantMessage, AssistantPlaces } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -67,7 +66,6 @@ const answer = (parts: AssistantMessage['parts'] = []): AssistantMessage => ({
   parts,
 });
 
-const addFoundPlace = vi.fn(async () => {});
 const requestCamera = vi.fn();
 const setPreviewPin = vi.fn();
 const onRevealMap = vi.fn();
@@ -83,7 +81,6 @@ function seed({ focusDayId = 31, messages = [] as AssistantMessage[] } = {}) {
     categories: [buildCategory({ id: 5, name: 'Restaurant', icon: 'Utensils' })],
   });
   useAssistantStore.setState({
-    addFoundPlace,
     requestCamera,
     setPreviewPin,
     byTrip: {
@@ -165,34 +162,30 @@ describe('AssistantPlaceStrip', () => {
     expect(fetchPhoto).toHaveBeenCalledWith('good', 'good', 41.889, 12.47, 'Trattoria s1:0', expect.any(Function));
   });
 
-  it('FE-AI-PLACES-004: "+ Day 1" suggests the place for the day in focus', () => {
+  it('FE-AI-PLACES-004: "Add to trip" opens the place form with the place, on the day in focus', () => {
     seed();
     renderStrip({ toolCallId: 's1', places: [place('s1:0')], more: 0 });
-    fireEvent.click(screen.getByRole('button', { name: /^Add to/ }));
-    expect(addFoundPlace).toHaveBeenCalledWith(TRIP, 's1:0', 31);
+    fireEvent.click(screen.getByRole('button', { name: 'Add to trip' }));
+    expect(onRevealMap).toHaveBeenCalled();
+    expect(useAssistantStore.getState().placeDraft).toMatchObject({ tripId: TRIP, dayId: 31, place: { ref: 's1:0' } });
   });
 
-  it('FE-AI-PLACES-005: another day is picked from the list, and without a focus the list is the only way', () => {
+  it('FE-AI-PLACES-005: a click on a new place opens the form too, without a day when none is in focus', () => {
     seed({ focusDayId: 0 });
     renderStrip({ toolCallId: 's1', places: [place('s1:0')], more: 0 });
-    fireEvent.click(screen.getByRole('button', { name: /Pick a day/ }));
-    fireEvent.click(screen.getByRole('button', { name: /Nov 3/ }));
-    expect(addFoundPlace).toHaveBeenCalledWith(TRIP, 's1:0', 32);
+    fireEvent.click(screen.getByText('Trattoria s1:0'));
+    expect(useAssistantStore.getState().placeDraft).toMatchObject({ dayId: null, place: { ref: 's1:0' } });
+    expect(requestCamera).not.toHaveBeenCalled();
   });
 
-  it('FE-AI-PLACES-006: waits while a change is undecided, and offline', () => {
+  it('FE-AI-PLACES-006: opening the form waits for nothing: an undecided change and offline leave it on', () => {
     const waiting = answer([
       { type: 'tool-call', toolCallId: 'w1', toolName: 'create_place', args: {}, approval: { id: 'w1' } },
     ]);
     seed({ messages: [waiting] });
-    const { unmount } = renderStrip({ toolCallId: 's1', places: [place('s1:0')], more: 0 });
-    expect(screen.getByRole('button', { name: /^Add to/ })).toBeDisabled();
-    unmount();
-
-    seed();
     setForcedOffline(true);
     renderStrip({ toolCallId: 's1', places: [place('s1:0')], more: 0 });
-    expect(screen.getByRole('button', { name: /^Add to/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add to trip' })).toBeEnabled();
   });
 
   it('FE-AI-PLACES-007: a suggested place says so, and one the trip has goes to the map instead', () => {
@@ -234,15 +227,14 @@ describe('AssistantPlaceStrip', () => {
     expect(setPreviewPin).toHaveBeenLastCalledWith(null);
   });
 
-  it('FE-AI-PLACES-010: a journey chat lists the places but offers no "+ Day" while the trip is on screen', () => {
-    // The journey key never matches the planner's trip, so the trip check already hides "+ Day";
+  it('FE-AI-PLACES-010: a journey chat lists the places but offers no "Add to trip" while the trip is on screen', () => {
+    // The journey key never matches the planner's trip, so the trip check already hides "Add to trip";
     // the scope check in the hook is defence in depth for the day trips and journeys share keys.
     seed();
     renderStrip({ toolCallId: 's1', places: [place('s1:0')], more: 0 }, answer(), {
       tripId: assistantChatKey({ kind: 'journey', journeyId: TRIP }),
     });
     expect(screen.getByText('Trattoria s1:0')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /^Add to/ })).toBeNull();
-    expect(screen.queryByRole('button', { name: /Pick a day/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Add to trip' })).toBeNull();
   });
 });
