@@ -20,7 +20,16 @@ import { ROW_GLYPH, type RowChange } from './checklistModel';
  * list, and the rows of a run of changes with their include choice.
  */
 
-/** A group's head: its colour, its name, a badge, and who looks after it (the ones a change drops faded). */
+/** The band behind a group's head: its colour faint over the card's grey, the grey alone without one. */
+function bandOf(color: string): string {
+  return color ? `color-mix(in srgb, ${color} 12%, var(--bg-secondary))` : 'var(--bg-secondary)';
+}
+
+/**
+ * A group's head as a section of the list: a full width band in its colour,
+ * the colour dot, its name, and at the end its badge (how many it holds) and
+ * who looks after it, the ones a change drops faded.
+ */
 export function ChecklistHead({
   color,
   name,
@@ -38,14 +47,17 @@ export function ChecklistHead({
   lead?: ReactNode;
 }) {
   return (
-    <div className="flex min-w-0 items-center gap-2 pt-1">
+    <div
+      className="mt-1.5 flex min-w-0 items-center gap-2 rounded-lg px-2.5 py-1.5"
+      style={{ background: bandOf(color) }}
+    >
       {lead ?? <CategoryDot color={color} />}
-      <bdi title={name} className="min-w-0 truncate text-caption font-semibold text-content">
+      <bdi title={name} className="min-w-0 flex-1 truncate text-caption font-semibold text-content">
         {name}
       </bdi>
-      {badge}
-      {(people.length > 0 || removed.length > 0) && (
-        <span className="ms-auto flex flex-none items-center gap-1.5">
+      {(badge || people.length > 0 || removed.length > 0) && (
+        <span className="flex flex-none items-center gap-1.5">
+          {badge}
           <PeopleStack people={people} />
           {/* The people a change takes off, faded; the card says "No longer" in words under the head. */}
           {removed.length > 0 && (

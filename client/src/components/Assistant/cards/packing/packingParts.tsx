@@ -58,13 +58,13 @@ function BagSwatch({ bag, size = 'row' }: { bag: PackingCardBag | undefined; siz
 /** A row's quantity and weight: quiet figures at its end, no frame each. */
 const QUIET = 'text-caption tabular-nums text-content-muted';
 
-/** How many rows a group holds, quiet beside its name. */
+/** How many rows a group holds, a white pill at the end of its band. */
 function GroupCount({ count }: { count: number }) {
   const { t } = useTranslation();
   return (
     <span
       aria-label={t('tours.packing.items', { count })}
-      className="flex-none text-caption tabular-nums text-content-faint"
+      className="inline-flex h-[18px] flex-none items-center rounded-full bg-surface-card px-1.5 text-caption font-semibold tabular-nums text-content-secondary shadow-sm"
     >
       {count}
     </span>
@@ -231,7 +231,7 @@ function BagHead({
 }) {
   const { t } = useTranslation();
   if (!bag) {
-    const badge = inChange ? undefined : <GroupCount count={group.count} />;
+    const badge = <GroupCount count={group.count} />;
     const lead = <BagSwatch bag={undefined} size="head" />;
     return <ChecklistHead color="" name={t('packing.noBag')} lead={lead} badge={badge} />;
   }
@@ -298,7 +298,7 @@ export function PackingGroup({
       <ChecklistHead
         color={packingColorOf(key.slot, name)}
         name={name}
-        badge={inChange ? undefined : <GroupCount count={group.count} />}
+        badge={<GroupCount count={group.count} />}
         people={group.assignees}
         removed={group.assigneesRemoved}
       />
