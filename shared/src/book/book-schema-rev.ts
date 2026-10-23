@@ -33,8 +33,9 @@ import type { BookDocument } from './book.schema';
  *
  * - 2: the wider type, new families and weights (book-fonts.data.ts).
  * - 3: paint on shapes and pages (`paint`, `backgroundPaint`, book-paint.schema.ts).
+ * - 4: the sticker kind (book-sticker.ts, stickers/).
  */
-export const BOOK_SCHEMA_REV = 3;
+export const BOOK_SCHEMA_REV = 4;
 
 /** The `code` a refused save carries in its body when the stored book is newer than the writer. */
 export const BOOK_SCHEMA_NEWER_CODE = 'book_schema_newer';

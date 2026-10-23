@@ -22,6 +22,7 @@ import {
   duplicateBookPageArgs,
   editBookPageArgs,
   idSchema,
+  listBookAssetsArgs,
   listBookLayouts,
   listBookLayoutsArgs,
   moveBookPageArgs,
@@ -36,6 +37,7 @@ import {
   type DeleteBookPagesRequest,
   type DuplicateBookPageRequest,
   type EditBookPageRequest,
+  type ListBookAssetsRequest,
   type MoveBookPageRequest,
   type RemoveBookLayoutRequest,
   type RestoreBookLayoutRequest,
@@ -125,6 +127,19 @@ export class JourneyBookMcp {
     return ok(await this.books.layouts(journeyId, ctx.userId, role));
   }
 
+  @Tool({
+    name: 'list_book_assets',
+    description:
+      "The Studio's library of things to put on a page of a journey's book, searchable, the same one the Studio's panels show. kind sticker lists the illustrations: flat, multi-coloured drawings of landmarks, travel things, tropical and Mediterranean motifs, the sea, mountains, the north, Asia, food, paper and tape, hand-drawn doodles and ornaments. Each row has its id, theme, one sentence of what it shows, its tags, its aspect (width over height) and its colour slots with their defaults. query searches ids, tags and descriptions in English; tags and theme narrow it; at most limit rows, 40 by default, with the total found. Place one with edit_book_page add { kind: 'sticker', stickerId }, recolour it with colors (one per slot, in order) and mirror it with flipX. Stickers are decoration: put them beside or over a photo, never over words.",
+    inputSchema: { journeyId: idSchema, ...listBookAssetsArgs },
+    annotations: TOOL_ANNOTATIONS_READONLY,
+    when: journeyAddonOn,
+    access: { group: 'journey', mode: 'read' },
+  })
+  async listAssets({ journeyId, query, tags, theme, limit }: OnJourney & ListBookAssetsRequest, ctx: McpContext) {
+    return ok(await this.books.assets(journeyId, ctx.userId, { query, tags, theme, limit }));
+  }
+
   // ── Write ───────────────────────────────────────────────────────────────
 
   @Tool({
@@ -177,7 +192,7 @@ export class JourneyBookMcp {
 
   @Tool({
     name: 'edit_book_page',
-    description: `Change one page with 1 to ${BOOK_OP_LIMITS.opsPerCall} operations, run in order, all or nothing: layout (a template, grid, saved layout, or auto to lay the page out again from its entry), place_photo (a photo of the journey's gallery into a frame by elementId, by its slot among the page's frames, or into a new frame), photo_look (the crop as fit and focal point, mask, frame style, filter, radius), swap_photos, text (by elementId, or by role heading, body or meta, which creates the text when the page has none), caption (under a photo, bound to its caption in the journal unless words are given), frame (move, resize, turn), remove (parked with the page by default, park false deletes), background (a colour, or a paint: a colour with alpha, a linear or radial gradient, or one of twelve patterns; null is the paper), add (a new photo frame, text, shape, icon, map, figures, country outlines, mark or list; the journey's own values such as the route, figures and countries come from the journey, never from you), style (the look of one element of its kind: opacity, colours, a shape's paint, fonts, strokes and the like), arrange (to front, forward, backward, to back), align and distribute (several elements by their edges or centres, against each other, the page or the safe area), lock, duplicate, fill (a photo to the bleed of its page or the spread, behind everything), copy_from (elements of another page), refresh_travel (travel elements to the journey's current figures) and add_grid (a photo grid as empty frames in a box). A locked element refuses any operation that would change it but lock. The road a map draws between stops is a straight or bowed line; roads are not routed. ${LAYOUT_NOTES.templates} ${LAYOUT_NOTES.grids} ${UNITS} With returnPrevious the answer also holds the page as it was, under previous_spreads, and a digest of each page as the write left it under page_digests (for restore_book_page expectedPages). ${WRITE_ANSWER}`,
+    description: `Change one page with 1 to ${BOOK_OP_LIMITS.opsPerCall} operations, run in order, all or nothing: layout (a template, grid, saved layout, or auto to lay the page out again from its entry), place_photo (a photo of the journey's gallery into a frame by elementId, by its slot among the page's frames, or into a new frame), photo_look (the crop as fit and focal point, mask, frame style, filter, radius), swap_photos, text (by elementId, or by role heading, body or meta, which creates the text when the page has none), caption (under a photo, bound to its caption in the journal unless words are given), frame (move, resize, turn), remove (parked with the page by default, park false deletes), background (a colour, or a paint: a colour with alpha, a linear or radial gradient, or one of twelve patterns; null is the paper), add (a new photo frame, text, shape, icon, sticker from list_book_assets, map, figures, country outlines, mark or list; the journey's own values such as the route, figures and countries come from the journey, never from you), style (the look of one element of its kind: opacity, colours, a shape's paint, fonts, strokes and the like), arrange (to front, forward, backward, to back), align and distribute (several elements by their edges or centres, against each other, the page or the safe area), lock, duplicate, fill (a photo to the bleed of its page or the spread, behind everything), copy_from (elements of another page), refresh_travel (travel elements to the journey's current figures) and add_grid (a photo grid as empty frames in a box). A locked element refuses any operation that would change it but lock. The road a map draws between stops is a straight or bowed line; roads are not routed. ${LAYOUT_NOTES.templates} ${LAYOUT_NOTES.grids} ${UNITS} With returnPrevious the answer also holds the page as it was, under previous_spreads, and a digest of each page as the write left it under page_digests (for restore_book_page expectedPages). ${WRITE_ANSWER}`,
     inputSchema: { journeyId: idSchema, ...editBookPageArgs },
     annotations: TOOL_ANNOTATIONS_NON_IDEMPOTENT,
     when: journeyAddonOn,

@@ -11,6 +11,7 @@ import { PageNumbers } from './PageNumbers'
 import { PaintedShapeView } from './paint/PaintedShape'
 import { SpreadPaint } from './paint/paintRender'
 import { usePaintId } from './paint/usePaintId'
+import { StickerView } from './StickerView'
 
 /**
  * One spread, drawn.
@@ -405,6 +406,7 @@ export function ElementView({
   // Above the catch-all below, which routes everything that is not text into
   // the travel elements and draws null for anything they do not know.
   if (el.kind === 'icon') return <IconView el={el} />
+  if (el.kind === 'sticker') return <StickerView el={el} frameStyle={frameStyle(el)} />
 
   if (el.kind !== 'text') {
     // map, stats, countries, badge — the elements drawn from the journey's own

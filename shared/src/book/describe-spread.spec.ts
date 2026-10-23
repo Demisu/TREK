@@ -536,6 +536,6 @@ describe('summaries', () => {
   it('BOOKDESC-023: says with the layouts what a grid and a template do to the page', () => {
     const { notes } = listBookLayouts(null, book([]).page);
     expect(notes.grids).toMatch(/re-pours every photo of the page, placed or parked/);
-    expect(notes.templates).toMatch(/shapes, maps, badges, stats, lists and icons are dropped/);
+    expect(notes.templates).toMatch(/shapes, maps, badges, stats, lists, icons and stickers are dropped/);
   });
 });

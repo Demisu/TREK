@@ -37,6 +37,7 @@ const BOOK_TOOLS = [
   'get_book',
   'describe_book_page',
   'list_book_layouts',
+  'list_book_assets',
   'create_book',
   'add_book_pages',
   'move_book_page',

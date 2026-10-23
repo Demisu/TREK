@@ -51,6 +51,16 @@
         "default": "./dist/roadtrip/planning.cjs"
       }
     },
+    "./stickers": {
+      "import": {
+        "types": "./dist/book/stickers/index.d.mts",
+        "default": "./dist/book/stickers/index.mjs"
+      },
+      "require": {
+        "types": "./dist/book/stickers/index.d.cts",
+        "default": "./dist/book/stickers/index.cjs"
+      }
+    },
     "./sanitize": {
       "import": {
         "types": "./dist/sanitize/sanitize.d.mts",

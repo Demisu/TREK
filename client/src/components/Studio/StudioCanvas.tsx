@@ -9,6 +9,7 @@ import { fontStack, nearestWeight } from './bookFonts'
 import { useSpreadInteraction, type HandleId } from './useSpreadInteraction'
 import { useStudioStore } from '../../store/studioStore'
 import { useTranslation } from '../../i18n'
+import { STICKER_DRAG_TYPE, stickerDropped } from './stickerLibrary'
 
 const HANDLES: HandleId[] = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']
 
@@ -196,6 +197,12 @@ export function StudioCanvas({
       onPointerUp={finish}
       onPointerCancel={finish}
       onDragOver={e => {
+        // A sticker from its panel lands where it is let go; it fills no frame.
+        if (e.dataTransfer.types.includes(STICKER_DRAG_TYPE)) {
+          e.preventDefault()
+          e.dataTransfer.dropEffect = 'copy'
+          return
+        }
         const fromPanel = e.dataTransfer.types.includes('application/x-trek-photo')
         // A file drag is only claimed when somebody is there to take it; for a
         // viewer the browser keeps its default and opens the picture itself.
@@ -209,6 +216,12 @@ export function StudioCanvas({
       }}
       onDragLeave={() => { setDropTarget(null); setFileOver(false) }}
       onDrop={e => {
+        const sticker = stickerDropped(e.dataTransfer.getData(STICKER_DRAG_TYPE), page, single, pointInMm(e))
+        if (sticker) {
+          e.preventDefault()
+          addElement(spreadIndex, sticker)
+          return
+        }
         const raw = e.dataTransfer.getData('application/x-trek-photo')
         const files = Array.from(e.dataTransfer.files ?? [])
         if (!raw && !(files.length && onDropFiles)) return

@@ -377,7 +377,8 @@ describe('the whole-book design through the Studio chat', () => {
     expect([undone.status, undone.body]).toEqual([200, { undone: true }]);
     const restored = await bookOf(j.journeyId, j.ownerId);
     expect(restored.version).toBe(3);
-    expect(restored.document).toEqual(before.document);
+    // Put back as it was, written by this build: stamped with its format revision (book-schema-rev.ts).
+    expect({ ...restored.document, schemaRev: undefined }).toEqual({ ...before.document, schemaRev: undefined });
     expect(restored.document.spreads.map((spread) => spread.id)).toEqual(j.created.spread_ids);
     expect(savedTo(j.ownerId)).toBe(1);
     const again = await undo(j.base, j.ownerId, turn.heldId);

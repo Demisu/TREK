@@ -60,7 +60,9 @@ import {
   type SaveBookLayoutRequest,
   type SetBookCoverRequest,
   type SetBookSetupRequest,
+  type ListBookAssetsRequest,
 } from '@trek/shared';
+import { bookStickerLookup, listBookAssets } from '@trek/shared/stickers';
 
 import { createHash } from 'node:crypto';
 
@@ -163,6 +165,16 @@ export class JourneyBookEditService {
     const { record } = await this.readable(journeyId, userId);
     const doc = record?.document ?? null;
     return listBookLayouts(doc, doc?.page ?? bookPageSetupSchema.parse({}), role);
+  }
+
+  /**
+   * `list_book_assets`: the Studio's sticker library, searched. Not of the
+   * journey, but asked on one, a member's read like the other book reads, so
+   * the Studio chat keeps it (its tools are pinned to the journey).
+   */
+  async assets(journeyId: number, userId: number, search: Omit<ListBookAssetsRequest, 'kind'>) {
+    await this.readable(journeyId, userId);
+    return { kind: 'sticker' as const, ...listBookAssets(search) };
   }
 
   /**
@@ -397,6 +409,8 @@ export class JourneyBookEditService {
           location: e.location_name ?? null,
         })),
       },
+      // The Studio's sticker library, which a new sticker is placed from.
+      stickers: bookStickerLookup,
     };
   }
 

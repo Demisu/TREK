@@ -150,6 +150,8 @@ export * from './book/book-travel';
 export * from './book/book-text';
 export * from './book/book-path';
 export * from './book/book-icons';
+export * from './book/book-sticker';
+export * from './book/stickers/sticker-types';
 export * from './book/book-map-sources';
 export * from './book/book-colour';
 export * from './book/book-paint.schema';

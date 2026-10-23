@@ -92,6 +92,13 @@ export const MAX_IMPLICIT_MATCHES = 30;
  */
 export const DYNAMIC_ALLOWED = [
   {
+    file: 'components/Studio/stickerLibrary.ts',
+    template: 'journey.studio.sticker.${id}',
+    because:
+      'id is a sticker id of the library in @trek/shared/stickers; stickerLibrary.test.ts resolves the key of every ' +
+      'sticker the library holds against en',
+  },
+  {
     file: 'components/Trips/TripShareDialog.tsx',
     template: '${opt.label}Hint',
     because:

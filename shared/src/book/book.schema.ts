@@ -1,5 +1,6 @@
 import { BOOK_FONTS_IDS, BOOK_WEIGHTS, type BookFontFamily } from './book-fonts.data';
 import { bookPaintFieldSchema } from './book-paint.schema';
+import { MAX_STICKER_SLOTS } from './stickers/sticker-types';
 
 import { z } from 'zod';
 
@@ -745,6 +746,27 @@ export const bookIconElementSchema = z.object({
 });
 
 /**
+ * An illustration from the Studio's sticker library (stickers/, book-sticker.ts).
+ *
+ * The drawing is not in the document, only its id: the library is code that
+ * ships with the app, so a book stays small and every copy of a sticker draws
+ * the same. Like an icon, an id this build does not know draws nothing and
+ * costs the page nothing else. `colors` repaints the sticker's slots in order,
+ * empty for its own colours; `flipX` mirrors it, for a bird facing the other
+ * way or an arrow pointing back.
+ */
+export const bookStickerElementSchema = z.object({
+  ...elementBase,
+  kind: z.literal('sticker'),
+  stickerId: z
+    .string()
+    .regex(/^[a-z][A-Za-z0-9]*$/, 'expected a sticker id')
+    .max(48),
+  colors: z.array(hex).max(MAX_STICKER_SLOTS).default([]),
+  flipX: z.boolean().default(false),
+});
+
+/**
  * A journal entry's pros and cons, set as a page.
  *
  * TREK's entries already carry them as two lists, and two lists is exactly what
@@ -803,9 +825,11 @@ export const bookElementSchema = z.discriminatedUnion('kind', [
   bookBadgeElementSchema,
   bookListElementSchema,
   bookIconElementSchema,
+  bookStickerElementSchema,
 ]);
 export type BookElement = z.infer<typeof bookElementSchema>;
 export type BookIconElement = z.infer<typeof bookIconElementSchema>;
+export type BookStickerElement = z.infer<typeof bookStickerElementSchema>;
 export type BookPhotoElement = z.infer<typeof bookPhotoElementSchema>;
 export type BookTextElement = z.infer<typeof bookTextElementSchema>;
 export type BookShapeElement = z.infer<typeof bookShapeElementSchema>;

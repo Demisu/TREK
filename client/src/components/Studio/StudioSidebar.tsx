@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Camera, Check, ChevronDown, ImagePlus, ChevronUp, Compass, Copy, FileDown, Files, ImageIcon, LayoutTemplate,
-  Plus, Search, Shapes, Trash2, Upload, X,
+  Plus, Search, Shapes, Sticker, Trash2, Upload, X,
 } from 'lucide-react'
 import type { BookElement, BookPageSetup, JourneyStats } from '@trek/shared'
 import { useElementSize } from '../../hooks/useElementSize'
@@ -21,6 +21,7 @@ import {
 import { MOOD_CONFIG, WEATHER_CONFIG } from '../../pages/journeyDetail/JourneyDetailPage.constants'
 import { PanelHead as Head } from './StudioPanelHead'
 import { StudioElementsPanel } from './StudioElementsPanel'
+import { StudioStickersPanel } from './StudioStickersPanel'
 import { StudioTravelPanel } from './StudioTravelPanel'
 import { StudioSavedLayouts } from './StudioSavedLayouts'
 import { MAX_SPREAD_FILE_BYTES, importSpread } from './spreadFile'
@@ -39,7 +40,7 @@ import type { StudioUploader } from './studioUpload'
  * costs 52px and gives the panel the room a photo browser actually needs.
  */
 
-type Section = 'pages' | 'content' | 'elements' | 'travel' | 'templates'
+type Section = 'pages' | 'content' | 'elements' | 'stickers' | 'travel' | 'templates'
 
 export interface JourneySource {
   entries: {
@@ -118,6 +119,7 @@ export function StudioSidebar({
     { id: 'pages', icon: Files, labelKey: 'journey.studio.pages' },
     { id: 'content', icon: ImageIcon, labelKey: 'journey.studio.content' },
     { id: 'elements', icon: Shapes, labelKey: 'journey.studio.elements' },
+    { id: 'stickers', icon: Sticker, labelKey: 'journey.studio.stickers' },
     { id: 'travel', icon: Compass, labelKey: 'journey.studio.travel' },
     { id: 'templates', icon: LayoutTemplate, labelKey: 'journey.studio.templates' },
   ]
@@ -146,6 +148,7 @@ export function StudioSidebar({
             providers={providers} onBrowseProvider={onBrowseProvider} />
         )}
         {section === 'elements' && <StudioElementsPanel page={page} t={t} />}
+        {section === 'stickers' && <StudioStickersPanel page={page} t={t} />}
         {section === 'travel' && (
           <StudioTravelPanel
             page={page}

@@ -37,6 +37,7 @@ export const BOOK_LOOK = {
     // The server's own read: it waits for the Studio to draw the page, and says it looks at it.
     preview_book_page: { stepKey: 'assistant.step.lookingAtPage' },
     list_book_layouts: { stepKey: 'assistant.step.bookLayouts' },
+    list_book_assets: { stepKey: 'assistant.step.bookStickers' },
     suggest_book_photos: { stepKey: 'assistant.step.choosingPhotos' },
   },
   entities: {

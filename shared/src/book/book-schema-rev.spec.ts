@@ -11,7 +11,7 @@ import { bookDocumentSchema } from './book.schema';
 
 import { describe, expect, it } from 'vitest';
 
-// BKREV-001 to BKREV-007
+// BKREV-001 to BKREV-008
 
 /**
  * The reader guard: a document says which revision of the format wrote it, a
@@ -25,6 +25,10 @@ const NEWER = BOOK_SCHEMA_REV + 1;
 
 /** A revision one past what this build reads. */
 const NEWER = BOOK_SCHEMA_REV + 1;
+
+/** A revision above this build's, and an element kind no revision of it knows. */
+const NEWER = BOOK_SCHEMA_REV + 1;
+const fromLater = { id: 'x1', kind: 'hologram', frame, glow: 'lemon' };
 
 const doc = (over: Record<string, unknown> = {}) => ({
   version: 1,
@@ -83,10 +87,9 @@ describe('a reader older than the document', () => {
   });
 
   it('BKREV-005: reads a newer book as far as it can and says so, so nothing it dropped is saved', () => {
-    const sticker = { id: 'x1', kind: 'sticker', frame, stickerId: 'lemon' };
     const raw = doc({ schemaRev: NEWER });
     const spread = (raw.spreads as { elements: unknown[] }[])[0];
-    if (spread) spread.elements.push(sticker);
+    if (spread) spread.elements.push(fromLater);
     const read = readBookDocument(raw);
     expect(read.newer).toBe(true);
     expect(read.document.schemaRev).toBe(NEWER);
@@ -105,15 +108,28 @@ describe('a reader older than the document', () => {
 
 describe('a save request carrying a newer book', () => {
   it('BKREV-007: reaches the server as its revision alone, so the save is refused there rather than at the pipe', () => {
-    const sticker = { id: 'x1', kind: 'sticker', frame, stickerId: 'lemon' };
     const raw = doc({ schemaRev: NEWER });
     const spread = (raw.spreads as { elements: unknown[] }[])[0];
-    if (spread) spread.elements.push(sticker);
+    if (spread) spread.elements.push(fromLater);
     expect(bookSaveRequestSchema.parse({ title: 'T', document: raw }).document).toEqual({ schemaRev: NEWER });
     // A book of today still reads whole, revision or none.
     const today = bookSaveRequestSchema.parse({ title: 'T', document: doc() }).document;
     expect(today).toEqual(bookDocumentSchema.parse(doc()));
     expect(bookSaveRequestSchema.parse({ document: doc({ schemaRev: 1 }) }).document).toMatchObject({ schemaRev: 1 });
     expect(bookSaveRequestSchema.safeParse({ document: { schemaRev: 1, spreads: 'no' } }).success).toBe(false);
+  });
+});
+
+describe('the sticker kind', () => {
+  it('BKREV-008: reads whole at this revision, and is what an older reader would have dropped', () => {
+    const sticker = { id: 'k1', kind: 'sticker', frame, stickerId: 'lemon', colors: ['#ffcc00'], flipX: true };
+    const raw = doc({ schemaRev: BOOK_SCHEMA_REV });
+    const spread = (raw.spreads as { elements: unknown[] }[])[0];
+    if (spread) spread.elements.push(sticker);
+    const read = readBookDocument(raw);
+    expect(read.newer).toBe(false);
+    expect(read.document.spreads[0]?.elements.map((e) => e.kind)).toEqual(['text', 'sticker']);
+    // A reader of revision 1 is told the book is newer than it, so it never saves the copy without the sticker.
+    expect(readBookDocument(raw, 1).newer).toBe(true);
   });
 });

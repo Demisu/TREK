@@ -1,3 +1,4 @@
+import type { BookStickerLookup } from './book-sticker';
 import type { BookTravelContext } from './book-travel';
 import {
   MAX_SPREAD_ELEMENTS,
@@ -39,6 +40,7 @@ export const BOOK_OP_ERROR_CODES = [
   'no_cover',
   'travel_unavailable',
   'icon_unknown',
+  'sticker_unknown',
   'not_enough_elements',
   'layouts_full',
 ] as const;
@@ -93,6 +95,13 @@ export interface BookOpsContext {
    * entry. Without it those operations are refused with `travel_unavailable`.
    */
   travel?: BookTravelContext;
+  /**
+   * Finds a sticker of the library by id (`bookStickerLookup` of
+   * `@trek/shared/stickers`). Handed in rather than imported, so the engine
+   * does not carry the drawings; without it a new sticker is refused with
+   * `sticker_unknown`.
+   */
+  stickers?: BookStickerLookup;
 }
 
 /**
@@ -100,7 +109,7 @@ export interface BookOpsContext {
  * elements whose content was on the page or parked with it before and is in
  * neither place after (`droppedIds`): deleted by a `remove` with `park: false`,
  * or left out by a layout, which carries photos and texts and drops shapes,
- * maps, badges, stats, lists and icons, exactly as the Studio's layout picker
+ * maps, badges, stats, lists, icons and stickers, exactly as the Studio's layout picker
  * does. The operations on whole pages (add, move, delete, restore) answer an
  * empty list; a deleted page is named in `spreadIds`.
  */

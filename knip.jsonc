@@ -61,6 +61,7 @@
         "src/index.ts",
         "src/roadtrip/planning.ts",
         "src/sanitize/sanitize.ts",
+        "src/book/stickers/index.ts",
         "src/i18n/index.ts",
         "src/i18n/*/index.ts",
         // open-request-schemas.d.mts types the .mjs script beside it.

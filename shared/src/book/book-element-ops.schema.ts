@@ -29,6 +29,7 @@ import {
 } from './book-op-enums';
 import { bookElementIdSchema, bookGridIdSchema, bookSpreadIdSchema } from './book-op-ids';
 import { bookPaintInSchema } from './book-paint.schema';
+import { bookStickerIdSchema } from './book-sticker';
 import {
   MAX_BOOK_COUNTRIES,
   bookBadgeElementSchema,
@@ -38,13 +39,14 @@ import {
   bookMapElementSchema,
   bookShapeElementSchema,
   bookStatsElementSchema,
+  bookStickerElementSchema,
   bookTextElementSchema,
 } from './book.schema';
 
 import { z } from 'zod';
 
 /**
- * The element operations of a book page: create any of the nine kinds, style
+ * The element operations of a book page: create any of the ten kinds, style
  * one, arrange, align, distribute, lock, duplicate, fill, copy from another
  * page, refresh the travel figures, drop in a photo grid. They join the page
  * operations of book-ops.schema.ts, so `edit_book_page` takes them and the one
@@ -69,6 +71,7 @@ export const bookFrameInSchema = z.strictObject({ x: mmIn, y: mmIn, w: sizeIn, h
 const text = bookTextElementSchema.shape;
 const shape = bookShapeElementSchema.shape;
 const icon = bookIconElementSchema.shape;
+const sticker = bookStickerElementSchema.shape;
 const map = bookMapElementSchema.shape;
 const stats = bookStatsElementSchema.shape;
 const countries = bookCountriesElementSchema.shape;
@@ -124,6 +127,16 @@ const ICON_PROPS = {
   ...COMMON,
   color: icon.color.unwrap().optional(),
   lineWidth: icon.lineWidth.unwrap().optional(),
+};
+const STICKER_PROPS = {
+  ...COMMON,
+  colors: sticker.colors
+    .unwrap()
+    .describe(
+      "The sticker's colour slots in order, as list_book_assets names them; fewer than its slots keeps the rest at their own colour, an empty list puts them all back.",
+    )
+    .optional(),
+  flipX: sticker.flipX.unwrap().describe('Mirror the drawing left to right.').optional(),
 };
 const MAP_PROPS = {
   ...COMMON,
@@ -187,6 +200,7 @@ export const bookElementPropsSchema = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('text'), ...TEXT_PROPS }),
   z.strictObject({ kind: z.literal('shape'), shape: bookShapeIdSchema.optional(), ...SHAPE_PROPS }),
   z.strictObject({ kind: z.literal('icon'), ...ICON_PROPS }),
+  z.strictObject({ kind: z.literal('sticker'), ...STICKER_PROPS }),
   z.strictObject({ kind: z.literal('map'), ...MAP_PROPS }),
   z.strictObject({ kind: z.literal('stats'), metrics: METRICS.optional(), ...STATS_PROPS }),
   z.strictObject({ kind: z.literal('countries'), ...COUNTRIES_PROPS }),
@@ -253,6 +267,7 @@ export const bookNewElementSchema = z.discriminatedUnion('kind', [
     .refine((v) => v.text !== undefined || v.binding !== undefined, { message: 'give the words or a binding' }),
   z.strictObject({ kind: z.literal('shape'), shape: bookShapeIdSchema, ...SHAPE_PROPS }),
   z.strictObject({ kind: z.literal('icon'), name: bookIconNameSchema, ...ICON_PROPS }),
+  z.strictObject({ kind: z.literal('sticker'), stickerId: bookStickerIdSchema, ...STICKER_PROPS }),
   z.strictObject({
     kind: z.literal('map'),
     scope: mapScope,

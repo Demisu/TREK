@@ -9,6 +9,7 @@ import { photoSrc } from './bookRender'
 import { FRAME_SHAPES, SHAPE_GROUPS } from './shapes'
 import { ShapeGlyph } from './StudioElementsPanel'
 import { TravelInspector } from './StudioTravelInspector'
+import { StudioStickerInspector } from './StudioStickerInspector'
 import { Swatches } from './StudioSwatches'
 import { StudioBackgroundSection } from './StudioBackgroundSection'
 import { StudioShapePaint } from './StudioShapePaint'
@@ -614,6 +615,8 @@ export function StudioInspector({
             </Section>
           </>
         )}
+
+        {el.kind === 'sticker' && <StudioStickerInspector el={el} set={set} t={t} />}
 
         <TravelInspector el={el} stats={stats} path={path} set={set} t={t} locale={locale} />
 

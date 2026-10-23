@@ -12,6 +12,7 @@ import type {
   BookSpreadSummary,
 } from './book-ops.schema';
 import { paintWords } from './book-paint';
+import { bookStickerWords } from './book-sticker';
 import {
   bookPageSetupSchema,
   type BookDocument,
@@ -97,6 +98,8 @@ function elementWords(el: BookElement, photos: readonly BookPhotoInfo[] | undefi
       return shapeWords(el);
     case 'icon':
       return `icon ${el.name}, ${el.color}, line ${n(el.lineWidth)}`;
+    case 'sticker':
+      return bookStickerWords(el);
     default:
       return travelWords(el);
   }
@@ -295,7 +298,7 @@ function templateRow(tpl: BookTemplate, page: BookPageSetup) {
  */
 const BOOK_LAYOUT_NOTES = {
   templates:
-    "A template or saved layout re-pours the photos and texts of the page into its slots and parks what it has no room for; the page's own shapes, maps, badges, stats, lists and icons are dropped (a saved layout brings its own), and the write answer names them in dropped.",
+    "A template or saved layout re-pours the photos and texts of the page into its slots and parks what it has no room for; the page's own shapes, maps, badges, stats, lists, icons and stickers are dropped (a saved layout brings its own), and the write answer names them in dropped.",
   grids:
     'A grid re-pours every photo of the page, placed or parked, into its cells and parks the rest; the old frames go, empty ones too. Texts, shapes and travel elements stay where they are.',
 } as const;

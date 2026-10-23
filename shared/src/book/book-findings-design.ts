@@ -260,7 +260,8 @@ function offGrid(ctx: Ctx): void {
   const W = inner ? PW * 2 : PW;
   const baseX = [-bleed, 0, safe, W - safe, W, W + bleed, ...(inner ? [PW, PW - safe, PW + safe] : [])];
   const baseY = [-bleed, 0, safe, H - safe, H, H + bleed];
-  const content = ctx.spread.elements.filter((e) => e.kind !== 'shape' && !e.rotation);
+  // Shapes and stickers are laid freely; only the content is held to the grid.
+  const content = ctx.spread.elements.filter((e) => e.kind !== 'shape' && e.kind !== 'sticker' && !e.rotation);
   const near = (v: number, lines: number[]) => lines.some((l) => Math.abs(v - l) > 0.5 && Math.abs(v - l) < 3);
   const onLine = (v: number, lines: number[]) => lines.some((l) => Math.abs(v - l) <= 0.5);
   const misses = (edges: number[], lines: number[]) => edges.some((v) => near(v, lines) && !onLine(v, lines));

@@ -16,6 +16,7 @@ import {
 } from './book-ops-core';
 import { withShapePaint } from './book-paint';
 import type { BookPaint } from './book-paint.schema';
+import { newStickerElement } from './book-ops-sticker';
 import {
   bookBadgeValue,
   bookCountryMark,
@@ -185,10 +186,12 @@ function opAdd(spread: BookSpread, op: Op<'add'>, env: ElementOpEnv): BookSpread
   return { ...spread, elements: [...spread.elements, el], parked };
 }
 
-/** The look fields of a new element. A shape's name is `created`'s: a rule arrives as a hairline rect, never `line`. */
+/** The look fields of a new element. A shape's name is `created`'s: a rule arrives as a hairline rect, never `line`. A sticker's colours too. */
 function lookOf(spec: BookNewElement): Record<string, unknown> {
   const look: Record<string, unknown> = { ...spec };
   if (spec.kind === 'shape') delete look.shape;
+  // A sticker's colours are cut to its slots when it is made (book-ops-sticker.ts).
+  if (spec.kind === 'sticker') delete look.colors;
   return look;
 }
 
@@ -215,6 +218,8 @@ function created(spread: BookSpread, spec: BookNewElement, frame: BookFrame | nu
         lineWidth: 2,
       };
     }
+    case 'sticker':
+      return newStickerElement(spec, at, env);
     default:
       return newTravel(spec, at, env);
   }
