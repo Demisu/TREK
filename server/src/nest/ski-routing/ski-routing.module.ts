@@ -38,5 +38,7 @@ function routerRunner() {
     TrekPlacesWinterService,
     { provide: SKI_ROUTER_RUNNER, useFactory: routerRunner },
   ],
+  // A ski tour the assistant planned is planned again when it is saved (ToursModule).
+  exports: [SkiRoutingService],
 })
 export class SkiRoutingModule {}

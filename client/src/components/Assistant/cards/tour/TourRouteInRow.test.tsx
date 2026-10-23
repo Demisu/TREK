@@ -1,5 +1,5 @@
 /**
- * FE-AI-TOUR-033 to FE-AI-TOUR-034
+ * FE-AI-TOUR-033 to FE-AI-TOUR-034, FE-AI-TOUR-063
  *
  * A held tour change in its row: the route drawn small with its figures and
  * grade and a small profile, the kind of tour as the row's tile; a tour whose
@@ -70,5 +70,11 @@ describe('TourRouteInRow', () => {
     const delta = screen.getByTestId('leg-variant-delta');
     expect(delta).toHaveTextContent('+1.6 km');
     expect(delta).toHaveTextContent('+20 min');
+  });
+
+  it('FE-AI-TOUR-063: a held bike tour or run names its profile in its row, never a hike grade', () => {
+    renderRow({ ...PENDING, activity: 'bike', routingProfile: 'road', grades: null, limit: null });
+    expect(screen.getByText('Road')).toBeInTheDocument();
+    expect(screen.queryByTestId('tour-grade')).toBeNull();
   });
 });

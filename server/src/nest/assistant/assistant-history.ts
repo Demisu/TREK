@@ -93,10 +93,20 @@ function foundPlaceOutcome(part: ToolCallPart): string {
   return `The user picked ${place} from the search results for ${day}; it waits for them to add or discard it.`;
 }
 
+/** What a taken proposal created, by the tool it went through; a hike for any other. */
+const TAKEN_WORDS: Readonly<Record<string, string>> = {
+  create_city_walk: 'city walk',
+  'create_tour:bike': 'bike tour',
+  'create_tour:run': 'run',
+  create_paddle_tour: 'paddle tour',
+  create_ski_tour: 'ski tour',
+};
+
 /** What became of a proposal the user took from an answer to add it to the trip, as its stored part says. */
 function takenProposalOutcome(part: ToolCallPart): string {
   const name = quoted(part.args.name);
-  const what = part.args.via === 'create_city_walk' ? 'city walk' : 'hike';
+  const via = part.args.via === 'create_tour' ? `create_tour:${String(part.args.activity)}` : String(part.args.via);
+  const what = TAKEN_WORDS[via] ?? 'hike';
   if (part.approval?.approved === true) {
     return part.isError ? `The ${what} ${name} could not be added.` : `The ${what} ${name} was added to the trip.`;
   }

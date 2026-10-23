@@ -5,8 +5,8 @@ import { TOURS_MAX_HIKING_DIFFICULTY } from '@trek/shared';
 
 /**
  * The change cards of the tours an assistant creates and changes: a hike, a
- * city walk, a change to a saved hike, tours taken in from a GPX file. The
- * route reads as the names of its points in order, a hike's limit as its SAC
+ * bike tour, a run, a paddle or ski tour, a city walk, a change to a saved
+ * hike, tours taken in from a GPX file. The route reads as the names of its points in order, a hike's limit as its SAC
  * grade (T1 to T6), a planned time in hours and minutes.
  */
 
@@ -58,6 +58,17 @@ function gpxName(gpx: unknown): string {
   return close < 0 ? '' : text(gpx.slice(open + '<name>'.length, close));
 }
 
+/** A tour of another type than a hike created from its plan: its points in order, its day, its planned time and words. */
+function describeSportCreate(ctx: PreviewContext, args: ToolArgs): Described {
+  const day = onDay(ctx, id(args, 'day_id'), args.start_time);
+  const rows = new Rows()
+    .add('route', routeOf(ctx, args.waypoints, args.round_trip))
+    .add('day', day)
+    .add('time', hours(args.planned_duration_minutes))
+    .add('description', text(args.description));
+  return { subject: text(args.name), rows, dayId: day ? id(args, 'day_id') : null, placeIds: [] };
+}
+
 export const TOUR_DESCRIBERS = {
   create_hike: (ctx, args) => {
     const day = onDay(ctx, id(args, 'day_id'), args.start_time);
@@ -69,6 +80,10 @@ export const TOUR_DESCRIBERS = {
       .add('description', text(args.description));
     return { subject: text(args.name), rows, dayId: day ? id(args, 'day_id') : null, placeIds: [] };
   },
+  // A bike tour, a run, a paddle or ski tour: its points and day; its profile and figures are on the route card below.
+  create_tour: describeSportCreate,
+  create_paddle_tour: describeSportCreate,
+  create_ski_tour: describeSportCreate,
   create_city_walk: (ctx, args) => {
     const rows = new Rows().add('route', routeOf(ctx, args.stations, false)).add('description', text(args.description));
     return { subject: text(args.name), rows, dayId: null, placeIds: linkedPlaceIds(ctx, args.stations) };

@@ -226,13 +226,28 @@ export function routePoints(card: TourRouteCard): [number, number][] {
 }
 
 /**
- * Whether "Plan this" can take the proposal: a hike whose way was planned,
- * or a city walk. A paddle or ski plan, a saved tour and a held change cannot.
+ * Whether "Plan this" can take the proposal: a city walk, a hike, a bike
+ * tour or a run whose way was planned, or a paddle or ski plan whose every
+ * leg was planned. A saved tour and a held change cannot.
  */
 export function canTake(card: TourRouteCard): boolean {
+  if (card.source === 'plan') {
+    const whole = card.warnings.every((warning) => warning.kind !== 'legs_failed');
+    return (card.activity === 'kayak' || card.activity === 'ski') && card.routed && whole;
+  }
   if (card.source !== 'proposal') return false;
-  return card.activity === 'walk' || (card.activity === 'hike' && card.routed);
+  return card.activity === 'walk' || (LAND_PLANS.has(card.activity) && card.routed);
 }
+
+/** The proposals on land "Plan this" takes once their way is planned. */
+const LAND_PLANS: ReadonlySet<TourRouteCard['activity']> = new Set(['hike', 'bike', 'run']);
+
+/** Why "Plan this" waits on a card it can take: a run is saved with the runner's pace only. Null when nothing is missing. */
+export function takeWaitsKey(card: TourRouteCard): string | null {
+  return card.activity === 'run' && card.paceSecondsPerKm == null ? NEEDS_PACE.labelKey : null;
+}
+
+const NEEDS_PACE = { labelKey: 'assistant.card.tour.needsPace' } as const;
 
 /** A share as words take it, "40 %". */
 export function percentText(share: number): string {

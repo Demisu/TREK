@@ -101,14 +101,16 @@ export interface RouteOptions {
    */
   footOnly?: boolean;
   /**
-   * A hike's own pedestrian costing (its hiking limit and preferences, as
-   * `hikingCosting` builds them), sent to Valhalla as the planner in the
-   * browser sends it. Only Valhalla knows a hiking limit: OSRM's foot profile
-   * takes a T5 ridge as readily as a forest road. So a walk asked with one is
-   * asked of Valhalla alone and fails rather than fall back to OSRM, with a
-   * `RouteRefusal` of `no_valhalla` where there is no Valhalla to ask.
+   * A tour's own costing, sent to Valhalla as the planner in the browser
+   * sends it: on foot a hike's (its hiking limit and preferences, as
+   * `hikingCosting` builds them) or a run's (`runCosting`), by bike the
+   * bicycle costing of its profile (`bikeCosting`). Only Valhalla knows these:
+   * OSRM's foot profile takes a T5 ridge as readily as a forest road, and its
+   * bike profile knows no road bike from a mountain bike. So a way asked with
+   * one is asked of Valhalla alone and fails rather than fall back to OSRM,
+   * with a `RouteRefusal` of `no_valhalla` where there is no Valhalla to ask.
    */
-  costingOptions?: Readonly<Record<string, number>>;
+  costingOptions?: Readonly<Record<string, number | string>>;
 }
 
 export type { TracedWay };
@@ -304,7 +306,8 @@ export class RoadtripRouterService {
   ): Promise<RoadtripRoute> {
     const settings = await this.settings.getUserSettings(userId);
     const footOnly = options.footOnly === true && profile === 'walking';
-    const hiking = profile === 'walking' ? options.costingOptions : undefined;
+    // A tour's own costing goes with a way on foot or by bike; a drive has its avoidances instead.
+    const hiking = profile === 'walking' || profile === 'cycling' ? options.costingOptions : undefined;
     const key = JSON.stringify([
       userId,
       tripId,
@@ -348,8 +351,11 @@ export class RoadtripRouterService {
       const { base, valhalla } = routersOf(settings);
       let weighted = false;
       if (hiking) {
-        if (!valhalla) throw new RouteRefusal('no_valhalla', 'No Valhalla is set to plan a hike with');
-        const legs = await this.valhallaLegs(valhalla, points, 'pedestrian', { ...hiking });
+        const cycling = mode === 'cycling';
+        if (!valhalla) {
+          throw new RouteRefusal('no_valhalla', `No Valhalla is set to plan a ${cycling ? 'bike tour' : 'hike'} with`);
+        }
+        const legs = await this.valhallaLegs(valhalla, points, cycling ? 'bicycle' : 'pedestrian', { ...hiking });
         ({ line, distance, duration, parts, snapped } = routeOfLegs(points, legs));
         weighted = true;
       } else if (footOnly && valhalla) {
@@ -473,8 +479,8 @@ export class RoadtripRouterService {
   private async valhallaLegs(
     valhalla: string,
     points: Point[],
-    costing: 'auto' | 'pedestrian',
-    options: Record<string, number>,
+    costing: 'auto' | 'pedestrian' | 'bicycle',
+    options: Record<string, number | string>,
     offBoatLines = false,
   ): Promise<ValhallaLegs> {
     const legs: ValhallaLegs = [];

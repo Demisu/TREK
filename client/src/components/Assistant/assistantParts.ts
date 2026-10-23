@@ -127,6 +127,10 @@ function namedFirst(places: readonly AssistantFoundPlace[], text: string): Assis
 const TOUR_PLANNING_TOOLS: ReadonlySet<string> = new Set([
   'propose_hike',
   'create_hike',
+  'propose_tour',
+  'create_tour',
+  'create_paddle_tour',
+  'create_ski_tour',
   'update_tour',
   'propose_city_walk',
   'create_city_walk',

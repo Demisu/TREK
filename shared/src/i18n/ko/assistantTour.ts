@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': '계획하는 중…',
   'assistant.card.tour.added': '여행에 추가했어요',
   'assistant.card.tour.askAgain': '여기서는 더 이상 계획할 수 없어요. 다시 요청해 주세요.',
+  'assistant.card.tour.needsPace': '이 달리기를 저장하려면 어시스턴트에게 페이스를 알려 주세요.',
   'assistant.card.tour.open': '투어에서 열기',
   'assistant.card.tour.openPhone': '투어 열기',
   'assistant.card.tour.unsaved': '편집 중인 투어를 먼저 저장하거나 취소하세요',

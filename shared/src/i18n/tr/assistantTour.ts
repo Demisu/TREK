@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Planlanıyor…',
   'assistant.card.tour.added': 'Geziye eklendi',
   'assistant.card.tour.askAgain': 'Bu artık buradan planlanamıyor. Yeniden iste.',
+  'assistant.card.tour.needsPace': 'Bu koşuyu kaydetmek için asistana temponu söyle.',
   'assistant.card.tour.open': 'Turlar sekmesinde aç',
   'assistant.card.tour.openPhone': 'Turu aç',
   'assistant.card.tour.unsaved': 'Önce düzenlediğiniz turu kaydedin ya da vazgeçin',

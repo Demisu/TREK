@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Плануємо…',
   'assistant.card.tour.added': 'Додано до подорожі',
   'assistant.card.tour.askAgain': 'Звідси це вже не запланувати. Запитайте ще раз.',
+  'assistant.card.tour.needsPace': 'Скажіть асистенту свій темп, щоб зберегти цю пробіжку.',
   'assistant.card.tour.open': 'Відкрити в Турах',
   'assistant.card.tour.openPhone': 'Відкрити тур',
   'assistant.card.tour.unsaved': 'Спершу збережіть або скасуйте тур, який ви редагуєте',

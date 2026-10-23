@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'جارٍ التخطيط…',
   'assistant.card.tour.added': 'أُضيفت إلى الرحلة',
   'assistant.card.tour.askAgain': 'لم يعد بالإمكان التخطيط لهذا من هنا. اطلبه مرة أخرى.',
+  'assistant.card.tour.needsPace': 'أخبر المساعد بوتيرتك لحفظ هذا الجري.',
   'assistant.card.tour.open': 'فتح في الجولات',
   'assistant.card.tour.openPhone': 'فتح الجولة',
   'assistant.card.tour.unsaved': 'احفظ الجولة التي تعدّلها أو تجاهلها أولًا',

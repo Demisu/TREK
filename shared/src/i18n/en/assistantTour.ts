@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Planning it…',
   'assistant.card.tour.added': 'Added to the trip',
   'assistant.card.tour.askAgain': 'This can no longer be planned from here. Ask for it again.',
+  'assistant.card.tour.needsPace': 'Tell the assistant your pace to save this run.',
   'assistant.card.tour.open': 'Open in Tours',
   'assistant.card.tour.openPhone': 'Open tour',
   'assistant.card.tour.unsaved': 'Save or discard the tour you are editing first',

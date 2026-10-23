@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Планируется…',
   'assistant.card.tour.added': 'Добавлено в поездку',
   'assistant.card.tour.askAgain': 'Отсюда это уже не запланировать. Спросите ещё раз.',
+  'assistant.card.tour.needsPace': 'Сообщите ассистенту свой темп, чтобы сохранить эту пробежку.',
   'assistant.card.tour.open': 'Открыть в Турах',
   'assistant.card.tour.openPhone': 'Открыть тур',
   'assistant.card.tour.unsaved': 'Сначала сохраните или отмените тур, который вы редактируете',

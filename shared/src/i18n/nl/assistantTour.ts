@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Wordt ingepland…',
   'assistant.card.tour.added': 'Toegevoegd aan de reis',
   'assistant.card.tour.askAgain': 'Dit kan hier niet meer worden ingepland. Vraag er opnieuw om.',
+  'assistant.card.tour.needsPace': 'Geef de assistent je tempo om deze run op te slaan.',
   'assistant.card.tour.open': 'Openen in Tochten',
   'assistant.card.tour.openPhone': 'Tocht openen',
   'assistant.card.tour.unsaved': 'Sla eerst de tocht op die je bewerkt, of gooi hem weg',

@@ -21,11 +21,13 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { OverpassModule } from '../overpass/overpass.module';
 import { PackingModule } from '../packing/packing.module';
 import { PaddleObstaclesModule } from '../paddle-obstacles/paddle-obstacles.module';
+import { PaddleRoutingModule } from '../paddle-routing/paddle-routing.module';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { PlaceImportModule } from '../place-import/place-import.module';
 import { PlacesModule } from '../places/places.module';
 import { RoadtripModule } from '../roadtrip/roadtrip.module';
 import { SchedulingModule } from '../scheduling/scheduling.module';
+import { SkiRoutingModule } from '../ski-routing/ski-routing.module';
 import { TripMembershipModule } from '../trip-membership/trip-membership.module';
 import { WandererModule } from '../wanderer/wanderer.module';
 import { WeatherModule } from '../weather/weather.module';
@@ -38,6 +40,7 @@ import { CollectionToursService } from './collection-tours.service';
 import { HikePlanMcp } from './hike-plan.mcp';
 import { HikePlanService } from './hike-plan.service';
 import { HikeRoutingService } from './hike-routing.service';
+import { SportTourCreateService } from './sport-tour-create.service';
 import { TourActivitiesController } from './tour-activities.controller';
 import { TourActivitiesMcp } from './tour-activities.mcp';
 import { TourActivitiesService } from './tour-activities.service';
@@ -64,6 +67,7 @@ import { TourPackingMcp } from './tour-packing.mcp';
 import { PaddleCheckCache } from './tour-paddle-check.cache';
 import { TourPaddleCheckService } from './tour-paddle-check.service';
 import { TourPaddlePlanService } from './tour-paddle-plan.service';
+import { TourPlanMcp } from './tour-plan.mcp';
 import { TourPoiSearchController } from './tour-poi-search.controller';
 import { TourPoiSearchService } from './tour-poi-search.service';
 import { TourSkiController } from './tour-ski.controller';
@@ -102,7 +106,9 @@ import { Module } from '@nestjs/common';
  * the same writes, its way planned on the server by HikeRoutingService, its
  * day read from WeatherModule's detailed weather and the places along it from
  * the tours' own search; one created on a day is put there through
- * AssignmentsService in the same write. A
+ * AssignmentsService in the same write. A bike tour or a run goes the same
+ * way for its profile, and a paddle or ski tour an assistant planned is saved
+ * after PaddleRoutingModule's or SkiRoutingModule's router planned its legs again. A
  * change to a saved city walk an assistant prepares for review is laid onto
  * its saved points and planned on foot by the same router, and saves nothing
  * (MCP-T02); once the traveller
@@ -155,6 +161,9 @@ import { Module } from '@nestjs/common';
     SchedulingModule,
     // A proposed hike's day reads the detailed weather at its highest point: sun, hours and warnings.
     WeatherModule,
+    // A paddle or ski tour the assistant planned is planned again by its own router when it is saved.
+    PaddleRoutingModule,
+    SkiRoutingModule,
     MikroOrmModule.forFeature([
       CollectionTours,
       Tours,
@@ -212,6 +221,7 @@ import { Module } from '@nestjs/common';
     CityWalkBriefingService,
     HikeRoutingService,
     HikePlanService,
+    SportTourCreateService,
     TourChangePreviewService,
     TourChangeSaveService,
     TourChangeUndoService,
@@ -227,6 +237,7 @@ import { Module } from '@nestjs/common';
     TourWalkImportMcp,
     CityWalkMcp,
     HikePlanMcp,
+    TourPlanMcp,
     TourChangeMcp,
     TourChangeUndoMcp,
     TourActivitiesMcp,

@@ -16,7 +16,7 @@ import RouteSketch from '../parts/RouteSketch';
 import { useCardFormat } from '../parts/useCardFormat';
 import { factKeysOf, factValue, percentText, type FactKey } from './tourRouteModel';
 import { sketchOf } from './tourRouteSketchModel';
-import { routeName, SAC_WORDS, timeLabelKey, TOUR_TYPE_WORDS } from './tourRouteWords';
+import { PROFILE_WORDS, routeName, SAC_WORDS, timeLabelKey, TOUR_TYPE_WORDS } from './tourRouteWords';
 
 /**
  * The head of a route card: the route drawn small beside its name, the
@@ -63,14 +63,16 @@ export function TourRouteFigures({ card }: { card: TourRouteCard }) {
 /**
  * The grade of a hike, as the hike's own card shows it: the hardest SAC step
  * along the way, uncertain when too little of it is graded, with what it
- * means, the routing limit and where grades come from in its tooltip. Any
- * other tour says what kind it is instead.
+ * means, the routing limit and where grades come from in its tooltip. A bike
+ * tour or a run names its profile instead, any other tour what kind it is.
  */
 export function TourGrade({ card }: { card: TourRouteCard }) {
   const { t } = useTranslation();
   if (card.activity !== 'hike' || !card.grades) {
     const icon = createElement(tourDayRowIcon(card.activity), { size: 10, strokeWidth: 2.2, 'aria-hidden': true });
-    return <SoftPill icon={icon}>{t(TOUR_TYPE_WORDS[card.activity].labelKey)}</SoftPill>;
+    // A bike tour or a run says what it was planned for: "Gravel", "Trail running".
+    const words = card.routingProfile ? PROFILE_WORDS[card.routingProfile] : TOUR_TYPE_WORDS[card.activity];
+    return <SoftPill icon={icon}>{t(words.labelKey)}</SoftPill>;
   }
   const { highest, unknownShare } = card.grades;
   const uncertain = unknownShare >= 0.5;
@@ -138,7 +140,7 @@ export function TourRouteSketch({
 export function TourRouteFields({ card }: { card: TourRouteCard }) {
   const { t } = useTranslation();
   const format = useCardFormat();
-  const fields = factKeysOf(card).flatMap((key) => {
+  const fields: Array<{ key: string; label: string; value: string }> = factKeysOf(card).flatMap((key) => {
     const value = factValue(card, key);
     if (value === null) return [];
     // A field's label is short; how the time was reckoned is the figure badges' tooltip.
@@ -148,6 +150,10 @@ export function TourRouteFields({ card }: { card: TourRouteCard }) {
     else text = key === 'distance' ? format.distance(value / 1000) : format.elevation(value);
     return [{ key, label, value: text }];
   });
+  // A run's time is its distance at the runner's pace: the pace stands beside it.
+  if (card.paceSecondsPerKm != null) {
+    fields.push({ key: 'pace', label: t('tours.run.pace'), value: format.pace(card.paceSecondsPerKm) });
+  }
   return <CardFields fields={fields} />;
 }
 
@@ -173,9 +179,9 @@ export default function TourRouteHead({ card, onShow }: { card: TourRouteCard; o
       title={name}
       meta={card.label ?? undefined}
     >
-      {((card.activity === 'hike' && card.grades) || card.schedule) && (
+      {((card.activity === 'hike' && card.grades) || card.routingProfile || card.schedule) && (
         <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-          {card.activity === 'hike' && card.grades && <TourGrade card={card} />}
+          {((card.activity === 'hike' && card.grades) || card.routingProfile) && <TourGrade card={card} />}
           <DayPill card={card} />
         </div>
       )}

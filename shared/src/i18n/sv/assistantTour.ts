@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Planeras…',
   'assistant.card.tour.added': 'Tillagd i resan',
   'assistant.card.tour.askAgain': 'Det här kan inte längre planeras härifrån. Fråga efter det igen.',
+  'assistant.card.tour.needsPace': 'Berätta din takt för assistenten för att spara den här löprundan.',
   'assistant.card.tour.open': 'Öppna i Turer',
   'assistant.card.tour.openPhone': 'Öppna tur',
   'assistant.card.tour.unsaved': 'Spara eller släng först turen du redigerar',

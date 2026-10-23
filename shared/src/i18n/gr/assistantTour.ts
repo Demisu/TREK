@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Προγραμματίζεται…',
   'assistant.card.tour.added': 'Προστέθηκε στο ταξίδι',
   'assistant.card.tour.askAgain': 'Αυτό δεν μπορεί πια να προγραμματιστεί από εδώ. Ζήτησέ το ξανά.',
+  'assistant.card.tour.needsPace': 'Πες στον βοηθό τον ρυθμό σου για να αποθηκευτεί αυτό το τρέξιμο.',
   'assistant.card.tour.open': 'Άνοιγμα στις Εκδρομές',
   'assistant.card.tour.openPhone': 'Άνοιγμα εκδρομής',
   'assistant.card.tour.unsaved': 'Αποθηκεύστε ή απορρίψτε πρώτα την εκδρομή που επεξεργάζεστε',

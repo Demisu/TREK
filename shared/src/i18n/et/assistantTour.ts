@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Planeerin…',
   'assistant.card.tour.added': 'Reisile lisatud',
   'assistant.card.tour.askAgain': 'Seda ei saa siit enam planeerida. Küsi seda uuesti.',
+  'assistant.card.tour.needsPace': 'Ütle assistendile oma tempo, et see jooks salvestada.',
   'assistant.card.tour.open': 'Ava retkedes',
   'assistant.card.tour.openPhone': 'Ava retk',
   'assistant.card.tour.unsaved': 'Salvesta või loobu kõigepealt retkest, mida muudad',

@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Sedang direncanakan…',
   'assistant.card.tour.added': 'Ditambahkan ke perjalanan',
   'assistant.card.tour.askAgain': 'Ini tidak bisa lagi direncanakan dari sini. Minta lagi.',
+  'assistant.card.tour.needsPace': 'Beri tahu asisten kecepatanmu untuk menyimpan lari ini.',
   'assistant.card.tour.open': 'Buka di Tur',
   'assistant.card.tour.openPhone': 'Buka tur',
   'assistant.card.tour.unsaved': 'Simpan atau buang dulu tur yang sedang kamu edit',

@@ -3,7 +3,12 @@ import { skiColourSchemeSchema, skiRunDifficultySchema, skiSegmentKindSchema } f
 import { HIKE_UNROUTED_REASONS } from '../../tours/hike-plan.schema';
 import { HIKE_WARNING_KINDS } from '../../tours/hike-schedule';
 import { tourPoiCategorySchema } from '../../tours/tour-poi-category';
-import { tourMaxHikingDifficultySchema, tourTypeKeySchema } from '../../tours/tours.schema';
+import {
+  BIKE_PROFILES,
+  RUN_PROFILES,
+  tourMaxHikingDifficultySchema,
+  tourTypeKeySchema,
+} from '../../tours/tours.schema';
 import { cardClockSchema, cardDateSchema, cardLatSchema, cardLngSchema, cardPointSchema, cardText } from './card-parts';
 
 import { z } from 'zod';
@@ -95,6 +100,9 @@ export const TOUR_WARNING_KINDS = [...HIKE_WARNING_KINDS, 'legs_failed'] as cons
  */
 export const TOUR_ROUTE_PROBLEMS = [...HIKE_UNROUTED_REASONS, 'ferry_only', 'not_planned'] as const;
 
+/** The profile a bike tour or a run is planned for, as the Tours tab names it. */
+export const TOUR_ROUTE_PROFILES = [...BIKE_PROFILES, ...RUN_PROFILES] as const;
+
 export const tourRouteScheduleSchema = z.object({
   date: cardDateSchema,
   dayId: idSchema.nullable(),
@@ -136,7 +144,15 @@ export const tourRouteCardSchema = z.object({
   minEleM: height.nullable(),
   maxEleM: height.nullable(),
   minutes: minutes.nullable(),
-  minutesBasis: z.enum(['din33466', 'router', 'planned', 'stations', 'piste']).nullable(),
+  /** pace: a run's distance at the runner's pace. */
+  minutesBasis: z.enum(['din33466', 'router', 'planned', 'stations', 'piste', 'pace']).nullable(),
+  /**
+   * A bike tour's or a run's profile (road, gravel, trail ...); null for every
+   * other activity. Left out by a card drawn before it was sent.
+   */
+  routingProfile: z.enum(TOUR_ROUTE_PROFILES).nullable().optional(),
+  /** A run's pace in seconds per kilometre; null without one. Left out like the profile. */
+  paceSecondsPerKm: z.number().int().min(60).max(3_600).nullable().optional(),
   /** The hiking limit the way was planned under, a setting rather than a grade of the path. */
   limit: tourMaxHikingDifficultySchema.nullable(),
   grades: z.object({ highest: sacStep.nullable(), unknownShare: z.number().min(0).max(1) }).nullable(),

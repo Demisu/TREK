@@ -29,6 +29,7 @@ import {
   sacAt,
   sacPaint,
   steepStretches,
+  takeWaitsKey,
   wayGroups,
 } from './tourRouteModel';
 import { sketchOf } from './tourRouteSketchModel';
@@ -136,13 +137,31 @@ describe('tourRouteModel', () => {
     });
   });
 
-  it('FE-AI-TOUR-009: "Plan this" takes a planned hike or a city walk, nothing else', () => {
+  it('FE-AI-TOUR-009: "Plan this" takes a planned way of every type, a city walk, a whole paddle or ski plan', () => {
     expect(canTake(HIKE)).toBe(true);
     expect(canTake({ ...HIKE, routed: false })).toBe(false);
     expect(canTake({ ...HIKE, activity: 'walk', routed: false })).toBe(true);
+    expect(canTake({ ...HIKE, activity: 'bike', routingProfile: 'gravel' })).toBe(true);
+    expect(canTake({ ...HIKE, activity: 'run', routingProfile: 'trail', routed: false })).toBe(false);
     expect(canTake(SAVED)).toBe(false);
-    expect(canTake({ ...HIKE, activity: 'kayak', source: 'plan' })).toBe(false);
+    expect(canTake({ ...HIKE, activity: 'kayak', source: 'plan' })).toBe(true);
+    expect(canTake({ ...HIKE, activity: 'ski', source: 'plan' })).toBe(true);
+    // A plan with a leg that could not be planned is no tour yet; a hike is never a plan.
+    const failed = [{ kind: 'legs_failed' as const, at: null, count: 1 }];
+    expect(canTake({ ...HIKE, activity: 'ski', source: 'plan', warnings: failed })).toBe(false);
+    expect(canTake({ ...HIKE, source: 'plan' })).toBe(false);
     expect(canTake({ ...HIKE, source: 'pending' })).toBe(false);
+  });
+
+  it("FE-AI-TOUR-060: a run waits for the runner's pace; a bike tour, a hike and a run with a pace wait for nothing", () => {
+    expect(takeWaitsKey({ ...HIKE, activity: 'run', routingProfile: 'running' })).toBe('assistant.card.tour.needsPace');
+    expect(takeWaitsKey({ ...HIKE, activity: 'run', paceSecondsPerKm: 330 })).toBeNull();
+    expect(takeWaitsKey({ ...HIKE, activity: 'bike' })).toBeNull();
+    expect(takeWaitsKey(HIKE)).toBeNull();
+    // A ride's router time is its riding time; a run's time is at its pace.
+    expect(timeLabelKey({ activity: 'bike', minutesBasis: 'router' })).toBe('tours.bike.timeEstimated');
+    expect(timeLabelKey({ activity: 'run', minutesBasis: 'pace' })).toBe('tours.run.timeEstimated');
+    expect(timeLabelKey({ activity: 'hike', minutesBasis: 'router' })).toBe('tours.scope.routed');
   });
 
   it('FE-AI-TOUR-010: proposals of one answer form ways of three at most; anything else stands alone', () => {

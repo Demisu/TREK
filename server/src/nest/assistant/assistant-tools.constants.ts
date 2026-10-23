@@ -145,8 +145,14 @@ export const PREVIEW_BOOK_PAGE_TOOL = 'preview_book_page';
 /** The model's tools a found place is added through: a new place for the day, or one the trip has already. */
 const FOUND_PLACE_VIA: ReadonlySet<string> = new Set(['create_and_assign_place', 'assign_place_to_day']);
 
-/** The model's tools a taken proposal is created through: a hike, a city walk. */
-const PROPOSAL_VIA: ReadonlySet<string> = new Set(['create_hike', 'create_city_walk']);
+/** The model's tools a taken proposal is created through: a hike, a bike tour or a run, a city walk, a paddle or ski tour. */
+const PROPOSAL_VIA: ReadonlySet<string> = new Set([
+  'create_hike',
+  'create_tour',
+  'create_city_walk',
+  'create_paddle_tour',
+  'create_ski_tour',
+]);
 
 /**
  * Changes the server applies itself: a booking from an attached file, a search

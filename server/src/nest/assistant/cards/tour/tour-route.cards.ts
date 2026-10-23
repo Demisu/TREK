@@ -28,10 +28,12 @@ import {
   type RoutePoint,
 } from './tour-card-values';
 import {
+  BIKE_PROFILES,
   cumulativeMetres,
   HIKE_UNROUTED_REASONS,
   legMinutes,
   nearestAlongM,
+  RUN_PROFILES,
   TOUR_ROUTE_LIMITS,
   TOUR_WARNING_KINDS,
   tourTypeKeySchema,
@@ -42,7 +44,8 @@ import {
 } from '@trek/shared';
 
 /**
- * The cards of a hike the assistant proposed (propose_hike) and of a saved
+ * The cards of a hike, a bike tour or a run the assistant proposed
+ * (propose_hike, propose_tour) and of a saved
  * tour it read (get_tour_plan), built from the tool's raw answer. A proposal
  * draws its line only when the tool added it for drawing (the assistant
  * always asks), so without `line_geometry` there is no card. A way that was
@@ -56,6 +59,35 @@ const SAME_SUMMIT_M = 150;
 const LOOP_END_M = 60;
 
 const UNROUTED: ReadonlySet<string> = new Set(HIKE_UNROUTED_REASONS);
+const BIKE: ReadonlySet<string> = new Set(BIKE_PROFILES);
+const RUN: ReadonlySet<string> = new Set(RUN_PROFILES);
+
+/** A planned way's activity on land beyond a hike: a bike tour or a run, with its profile and a run's pace. */
+type RoutingProfile = NonNullable<TourRouteCard['routingProfile']>;
+type LandSport = Pick<TourRouteCard, 'activity' | 'routingProfile' | 'paceSecondsPerKm'>;
+
+/**
+ * The bike tour or run a proposal (propose_tour) or its arguments name, with
+ * its profile (the planner's own where none is named) and a run's pace; null
+ * for a hike, whose card names none of them.
+ */
+export function landSportOf(plan: Row, args: Row): LandSport | null {
+  const activity = plan.activity ?? args.activity;
+  if (activity === 'bike') {
+    const profile = plan.bike_profile ?? args.bike_profile;
+    return {
+      activity,
+      routingProfile: typeof profile === 'string' && BIKE.has(profile) ? (profile as RoutingProfile) : 'touring',
+    };
+  }
+  if (activity !== 'run') return null;
+  const profile = plan.run_profile ?? args.run_profile;
+  return {
+    activity,
+    routingProfile: typeof profile === 'string' && RUN.has(profile) ? (profile as RoutingProfile) : 'running',
+    paceSecondsPerKm: whole(plan.run_pace_seconds_per_km ?? args.run_pace_seconds_per_km, 60, 3_600),
+  };
+}
 const WARNINGS: ReadonlySet<string> = new Set(TOUR_WARNING_KINDS);
 
 /** Graded stretches merged where the step repeats, at most the card's share, the hardest kept. */
@@ -197,9 +229,11 @@ function unroutedHike(value: Row, args: Row, source: TourRouteCard['source']): T
   const unreachable = recordOf(value.unreachable);
   const why = typeof route.why === 'string' && UNROUTED.has(route.why) ? route.why : 'not_planned';
   const along = straightMetres(points);
+  const sport = landSportOf(value, args);
   return routeCard({
     source,
     activity: 'hike',
+    ...sport,
     name: clipped(value.name ?? args.name, 120),
     label: clipped(value.variant_label ?? args.variant_label, 40),
     limit: sacStepOf(value.max_hiking_difficulty ?? args.max_hiking_difficulty),
@@ -235,11 +269,16 @@ export function hikeCard(
   const sac = plan.sac === null || plan.sac === undefined ? null : recordOf(plan.sac);
   const start = clockOf(plan.start_time);
   const own = waypointStops(rowsIn(plan.waypoints), start);
-  const basis = plan.duration_basis === 'din33466' || plan.duration_basis === 'router' ? plan.duration_basis : null;
+  const basis =
+    plan.duration_basis === 'din33466' || plan.duration_basis === 'router' || plan.duration_basis === 'pace'
+      ? plan.duration_basis
+      : null;
   const unknown = finite(sac?.unknown_share);
+  const sport = landSportOf(plan, args);
   return routeCard({
     source,
     activity: 'hike',
+    ...sport,
     name: clipped(plan.name, 120),
     label: clipped(plan.variant_label, 40),
     distanceM: metresOf(plan.distance_m),
@@ -261,7 +300,7 @@ export function hikeCard(
   });
 }
 
-/** propose_hike: the proposal as a card. */
+/** propose_hike and propose_tour: the proposal as a card, a hike's or a bike tour's or a run's. */
 export function proposalCard({ value, args, card }: AnswerInput): TourRouteCard | null {
   const proposal = hikeCard(value, args, card, 'proposal');
   return proposal ? fitted(proposal) : null;
@@ -347,6 +386,13 @@ export function savedTourCard({ value }: AnswerInput): TourRouteCard | null {
       line,
       stops: sortedStops(stops),
       stages: whole(tour.stage_count, 2, 60),
+      ...savedSportOf(activity.data, tour),
     }),
   );
+}
+
+/** A saved bike tour's or run's profile and a run's pace, as its card names them; nothing for any other type. */
+function savedSportOf(activity: TourRouteCard['activity'], tour: Row): Partial<TourRouteCard> {
+  if (activity !== 'bike' && activity !== 'run') return {};
+  return landSportOf({ activity, ...tour }, {}) ?? {};
 }

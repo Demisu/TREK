@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Tervezés…',
   'assistant.card.tour.added': 'Hozzáadva az utazáshoz',
   'assistant.card.tour.askAgain': 'Ezt innen már nem lehet megtervezni. Kérd újra.',
+  'assistant.card.tour.needsPace': 'Mondd meg az asszisztensnek a tempódat, hogy menthető legyen ez a futás.',
   'assistant.card.tour.open': 'Megnyitás a Túrákban',
   'assistant.card.tour.openPhone': 'Túra megnyitása',
   'assistant.card.tour.unsaved': 'Előbb mentsd el vagy vesd el a szerkesztett túrát',

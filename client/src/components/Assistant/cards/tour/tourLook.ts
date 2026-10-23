@@ -99,6 +99,7 @@ export const TOUR_LOOK = {
   tools: {},
   steps: {
     propose_city_walk: { stepKey: 'assistant.step.planningWalk' },
+    propose_tour: { stepKey: 'assistant.step.planningRoute' },
     plan_paddle_route: { stepKey: 'assistant.step.planningRoute' },
     plan_ski_route: { stepKey: 'assistant.step.planningRoute' },
     get_tour_plan: { stepKey: 'assistant.step.readingTour' },

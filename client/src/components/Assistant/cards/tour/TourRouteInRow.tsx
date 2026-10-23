@@ -53,7 +53,7 @@ export default function TourRouteInRow({ card, item }: { card: TourRouteCard; it
             <span className="min-w-0 flex-1">
               <WayFigures way={legVariantOf(card, 'current')} unit={unit} />
             </span>
-            {grades && grades.highest !== null && <TourGrade card={card} />}
+            {((grades && grades.highest !== null) || card.routingProfile) && <TourGrade card={card} />}
           </span>
           {previous && (
             <VariantDelta

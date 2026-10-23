@@ -3,7 +3,9 @@ import { Places } from '../../../src/db/entities/Places.entity';
 import { TourChangeSteps } from '../../../src/db/entities/TourChangeSteps.entity';
 import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../src/db/entities/Tours.entity';
+import { PaddleRoutingService } from '../../../src/nest/paddle-routing/paddle-routing.service';
 import { RoadtripRouterService } from '../../../src/nest/roadtrip/roadtrip-router.service';
+import { SkiRoutingService } from '../../../src/nest/ski-routing/ski-routing.service';
 import { proposalIdOf } from '../../../src/nest/tours/tour-change-proposal';
 import { makeDayAssignment } from '../../helpers/factories/itinerary';
 import { makePlace } from '../../helpers/factories/places';
@@ -40,6 +42,64 @@ function routerDown(app: INestApplication): () => void {
   route.mockRejectedValue(new Error('no routing host in the broadcast parity test'));
   return () => route.mockRestore();
 }
+
+/**
+ * No water or piste data in a test: the paddle and piste routers plan the
+ * one leg asked as a straight stretch, and no height host answers, so each
+ * tour is saved with its points only, as both tools save one then.
+ */
+function sportRouters(app: INestApplication): () => void {
+  const geometry: Array<[number, number]> = [
+    [47, 11],
+    [47.02, 11.02],
+  ];
+  const paddle = vi.spyOn(app.get(PaddleRoutingService), 'route').mockResolvedValue({
+    legs: [
+      {
+        status: 'ok',
+        geometry,
+        segments: [{ kind: 'water', from: 0, to: 1, name: null, source: null, osm_ref: null, grade: null }],
+        distance_m: 2700,
+        snapped_m: { from: 0, to: 0 },
+      },
+    ],
+    graph_rev: null,
+  });
+  const ski = vi.spyOn(app.get(SkiRoutingService), 'route').mockResolvedValue({
+    legs: [
+      {
+        status: 'ok',
+        geometry: geometry.map(([lat, lng]): [number, number, null] => [lat, lng, null]),
+        segments: [],
+        distance_m: 2700,
+        climb_m: 0,
+        descent_m: 0,
+        seconds: { ski: 600, lift: 0, wait: 0, walk: 0 },
+        snapped_m: { from: 0, to: 0 },
+        area_ids: [],
+        why: [],
+        alternatives: [],
+      },
+    ],
+    build: null,
+    stale: false,
+    area_names: [],
+    colour_scheme: 'europe',
+    attribution: '',
+  });
+  const heights = vi.spyOn(app.get(RoadtripRouterService), 'heights').mockResolvedValue(null);
+  return () => {
+    paddle.mockRestore();
+    ski.mockRestore();
+    heights.mockRestore();
+  };
+}
+
+/** The two points of every tour the parity cases create. */
+const TWO_POINTS = [
+  { lat: 47, lng: 11 },
+  { lat: 47.02, lng: 11.02 },
+];
 
 /** A hike's line with its heights, as the planner saves one. */
 const HIKE_LINE: [number, number, number][] = [
@@ -341,6 +401,56 @@ export const toursRoadtrip: CaseGroup = {
       }),
       rest: { method: 'post', path: (s) => `/api/trips/${s.trip.id}/tours`, body: () => hikeBody('Ridge walk') },
       stub: routerDown,
+      expect: ['tours:changed', 'place:created'],
+    },
+    {
+      tool: 'create_tour',
+      args: (s) => ({ tripId: s.trip.id, name: 'Lake ride', activity: 'bike', waypoints: TWO_POINTS }),
+      // The planner saves a new bike tour through the tours route, with the line it planned in the browser.
+      rest: {
+        method: 'post',
+        path: (s) => `/api/trips/${s.trip.id}/tours`,
+        body: () => ({
+          ...hikeBody('Lake ride'),
+          tour_type: 'bike',
+          bike_profile: 'touring',
+          max_hiking_difficulty: null,
+        }),
+      },
+      stub: routerDown,
+      expect: ['tours:changed', 'place:created'],
+    },
+    {
+      tool: 'create_paddle_tour',
+      args: (s) => ({ tripId: s.trip.id, name: 'River day', waypoints: TWO_POINTS, water_context: 'river' }),
+      rest: {
+        method: 'post',
+        path: (s) => `/api/trips/${s.trip.id}/tours`,
+        body: () => ({
+          ...hikeBody('River day'),
+          tour_type: 'kayak',
+          boat_type: 'kayak',
+          water_context: 'river',
+          max_hiking_difficulty: null,
+        }),
+      },
+      stub: sportRouters,
+      expect: ['tours:changed', 'place:created'],
+    },
+    {
+      tool: 'create_ski_tour',
+      args: (s) => ({ tripId: s.trip.id, name: 'Piste day', waypoints: TWO_POINTS, discipline: 'alpine' }),
+      rest: {
+        method: 'post',
+        path: (s) => `/api/trips/${s.trip.id}/tours`,
+        body: () => ({
+          ...hikeBody('Piste day'),
+          tour_type: 'ski',
+          ski_discipline: 'alpine',
+          max_hiking_difficulty: null,
+        }),
+      },
+      stub: sportRouters,
       expect: ['tours:changed', 'place:created'],
     },
     {

@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': '計画中…',
   'assistant.card.tour.added': '旅行に追加しました',
   'assistant.card.tour.askAgain': 'ここからはもう計画できません。もう一度頼んでください。',
+  'assistant.card.tour.needsPace': 'このランを保存するには、アシスタントにペースを伝えてください。',
   'assistant.card.tour.open': 'ツアーで開く',
   'assistant.card.tour.openPhone': 'ツアーを開く',
   'assistant.card.tour.unsaved': '編集中のツアーを先に保存するか破棄してください',

@@ -18,6 +18,7 @@ import CardHeader from '../parts/CardHeader';
 import { CardSection } from '../parts/CardSection';
 import WayFigures from './TourFigureLine';
 import { TourRouteBody } from './TourRouteCard';
+import { TourGrade } from './TourRouteHead';
 import { legVariantOf, profileSamples, type RouteEntry, WAY_KEYS } from './tourRouteModel';
 import { routeName, TOUR_TYPE_WORDS } from './tourRouteWords';
 import { useLineHover, useTourRouteCard } from './useTourRouteCard';
@@ -114,6 +115,8 @@ function WayOption({
           {grades && grades.highest !== null && (
             <SacStepChip step={grades.highest} uncertain={grades.unknownShare >= 0.5} />
           )}
+          {/* Ways of a ride or a run may differ by profile: each says its own. */}
+          {entry.card.routingProfile && <TourGrade card={entry.card} />}
         </span>
         <WayFigures way={way} unit={unit} />
         {!chosen && <WayDelta way={way} chosen={chosenWay} letter={chosenLetter} unit={unit} />}

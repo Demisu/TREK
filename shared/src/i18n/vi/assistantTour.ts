@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Đang lên kế hoạch…',
   'assistant.card.tour.added': 'Đã thêm vào chuyến đi',
   'assistant.card.tour.askAgain': 'Không thể lên kế hoạch từ đây nữa. Hãy hỏi lại.',
+  'assistant.card.tour.needsPace': 'Hãy cho trợ lý biết tốc độ của bạn để lưu buổi chạy này.',
   'assistant.card.tour.open': 'Mở trong Chuyến tham quan',
   'assistant.card.tour.openPhone': 'Mở chuyến đi',
   'assistant.card.tour.unsaved': 'Hãy lưu hoặc bỏ chuyến đi bạn đang chỉnh sửa trước',

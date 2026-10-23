@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Planification…',
   'assistant.card.tour.added': 'Ajouté au voyage',
   'assistant.card.tour.askAgain': "Ceci ne peut plus être planifié d'ici. Redemandez-le.",
+  'assistant.card.tour.needsPace': 'Indique ton allure à l’assistant pour enregistrer cette course.',
   'assistant.card.tour.open': 'Ouvrir dans Sorties',
   'assistant.card.tour.openPhone': 'Ouvrir la sortie',
   'assistant.card.tour.unsaved': 'Enregistrez ou abandonnez d’abord la sortie en cours de modification',

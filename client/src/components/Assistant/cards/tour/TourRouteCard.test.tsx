@@ -1,5 +1,5 @@
 /**
- * FE-AI-TOUR-021 to FE-AI-TOUR-028, FE-AI-TOUR-037 to FE-AI-TOUR-042
+ * FE-AI-TOUR-021 to FE-AI-TOUR-028, FE-AI-TOUR-037 to FE-AI-TOUR-042, FE-AI-TOUR-061 to FE-AI-TOUR-062
  *
  * A route in the chat as the Tours tab shows a hike: its figures and grade,
  * a profile only where the heights are known, the profile, the stop chips
@@ -386,5 +386,45 @@ describe('TourRouteCard', () => {
     });
     expect(container.querySelectorAll('[data-testid="tour-day"] .bg-danger')).toHaveLength(2);
     expect(screen.getAllByText('Start by 10:30')).toHaveLength(1);
+  });
+
+  it('FE-AI-TOUR-061: a bike tour names its profile and its riding time, a run its pace, and waits for one it lacks', () => {
+    const bike: Route = {
+      ...HIKE,
+      activity: 'bike',
+      routingProfile: 'gravel',
+      minutesBasis: 'router',
+      limit: null,
+      grades: null,
+    };
+    const { container } = renderCard(bike);
+    expect(screen.getByText('Gravel')).toBeInTheDocument();
+    expect(screen.queryByTestId('tour-grade')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Plan this' })).toBeEnabled();
+    expect(container.querySelector('[data-field="pace"]')).toBeNull();
+
+    const run: Route = {
+      ...bike,
+      activity: 'run',
+      routingProfile: 'trail',
+      minutesBasis: 'pace',
+      paceSecondsPerKm: 330,
+    };
+    const paced = renderCard(run);
+    expect(screen.getByText('Trail running')).toBeInTheDocument();
+    expect(paced.container.querySelector('[data-field="pace"]')).toHaveTextContent('5:30 min/km');
+
+    renderCard({ ...run, paceSecondsPerKm: null, minutes: null });
+    expect(screen.getByText('Tell the assistant your pace to save this run.')).toBeInTheDocument();
+    const buttons = screen.getAllByRole('button', { name: 'Plan this' });
+    expect(buttons[buttons.length - 1]).toBeDisabled();
+  });
+
+  it('FE-AI-TOUR-062: a whole paddle plan offers "Plan this"; one with a leg that failed does not', () => {
+    const plan: Route = { ...HIKE, activity: 'kayak', source: 'plan', limit: null, grades: null, schedule: null };
+    renderCard(plan);
+    expect(screen.getByRole('button', { name: 'Plan this' })).toBeInTheDocument();
+    renderCard({ ...plan, name: 'Broken', warnings: [{ kind: 'legs_failed', at: null, count: 1 }] });
+    expect(screen.getAllByRole('button', { name: 'Plan this' })).toHaveLength(1);
   });
 });

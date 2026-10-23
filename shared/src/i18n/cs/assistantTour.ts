@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Plánuje se…',
   'assistant.card.tour.added': 'Přidáno do cesty',
   'assistant.card.tour.askAgain': 'Odsud to už naplánovat nejde. Zeptej se na to znovu.',
+  'assistant.card.tour.needsPace': 'Řekni asistentovi své tempo, aby se tento běh mohl uložit.',
   'assistant.card.tour.open': 'Otevřít ve Výletech',
   'assistant.card.tour.openPhone': 'Otevřít výlet',
   'assistant.card.tour.unsaved': 'Nejprve uložte nebo zahoďte výlet, který upravujete',

@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'กำลังวางแผน…',
   'assistant.card.tour.added': 'เพิ่มในทริปแล้ว',
   'assistant.card.tour.askAgain': 'วางแผนจากตรงนี้ไม่ได้แล้ว โปรดขอใหม่อีกครั้ง',
+  'assistant.card.tour.needsPace': 'บอกเพซของคุณให้ผู้ช่วยทราบเพื่อบันทึกการวิ่งนี้',
   'assistant.card.tour.open': 'เปิดในทัวร์',
   'assistant.card.tour.openPhone': 'เปิดทัวร์',
   'assistant.card.tour.unsaved': 'บันทึกหรือยกเลิกทัวร์ที่คุณกำลังแก้ไขก่อน',

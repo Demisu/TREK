@@ -18,7 +18,7 @@ import {
   straightMetres,
   whole,
 } from './tour-card-values';
-import { hikeCard } from './tour-route.cards';
+import { hikeCard, landSportOf } from './tour-route.cards';
 import {
   hikingPreferencesOf,
   TOUR_ROUTE_LIMITS,
@@ -118,8 +118,12 @@ function heldProblem(card: TourRouteCard | null): TourRouteCard['problem'] {
   return refuses && card?.problem ? card.problem : { why: 'not_planned', position: null, snappedM: null };
 }
 
-/** The points of a held hike or walk joined straight, as stops along the straight line. */
-function straightCard(points: readonly Row[], activity: 'hike' | 'walk', fields: Partial<TourRouteCard>) {
+/** The points of a held tour joined straight, as stops along the straight line. */
+export function straightCard(
+  points: readonly Row[],
+  activity: TourRouteCard['activity'],
+  fields: Partial<TourRouteCard>,
+): TourRouteCard | null {
   const stops = points.flatMap((point) => {
     const at = latLngOf(point);
     return at ? [{ ...at, point }] : [];
@@ -155,17 +159,43 @@ function hikePoints(args: ToolArgs): Row[] {
   return args.round_trip === true && points[0] ? [...points, points[0]] : points;
 }
 
-/** create_hike: the planned way as the proposal drew it, else the points straight. */
+/**
+ * create_hike and create_tour: the planned way as the proposal drew it, else
+ * the points straight, a hike's under its limit, a bike tour's or a run's
+ * under its profile.
+ */
 export function createHikeCard(ctx: PreviewContext, args: ToolArgs, loaded: TourLoaded | null): TourRouteCard | null {
   const name = argText(args.name, 120);
   const planned = loaded ? hikeCard(loaded.plan, args, ctx.card, 'pending') : null;
   if (planned?.routed) return fitted({ ...planned, name: name ?? planned.name, label: null });
-  const straight = straightCard(hikePoints(args), 'hike', {
+  const sport = landSportOf({}, args);
+  const own = sport ?? { limit: sacStepOf(args.max_hiking_difficulty) ?? TOURS_MAX_HIKING_DIFFICULTY };
+  const straight = straightCard(hikePoints(args), sport?.activity ?? 'hike', {
     name,
-    limit: sacStepOf(args.max_hiking_difficulty) ?? TOURS_MAX_HIKING_DIFFICULTY,
+    ...own,
     problem: heldProblem(planned),
   });
   return straight ? fitted(straight) : null;
+}
+
+/** The fields propose_tour takes of a create_tour, as the planner's memo keys its way. */
+const TOUR_PLAN_FIELDS = [
+  'name',
+  'activity',
+  'bike_profile',
+  'run_profile',
+  'run_pace_seconds_per_km',
+  'waypoints',
+  'round_trip',
+  'day_id',
+  'start_time',
+] as const;
+
+/** create_tour: plans the way through the points as propose_tour did (the planner's memo answers a recent one). */
+export async function loadCreateTour(args: ToolArgs, read: CardReader): Promise<TourLoaded> {
+  const plan: ToolArgs = { along: false };
+  for (const key of TOUR_PLAN_FIELDS) if (args[key] !== undefined) plan[key] = args[key];
+  return { plan: await read('propose_tour', plan), saved: null };
 }
 
 /** create_city_walk: the stations joined straight; the way on foot is planned when the walk is saved. */

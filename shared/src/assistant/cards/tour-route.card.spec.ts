@@ -157,6 +157,24 @@ describe('tourRouteCardSchema', () => {
   });
 });
 
+describe('tourRouteCardSchema: bike tours and runs', () => {
+  it('TOURCARD-008: a bike tour or a run names its profile, a run its pace; a card drawn before reads without both', () => {
+    const bike = hike({
+      activity: 'bike',
+      routingProfile: 'gravel',
+      minutesBasis: 'router',
+      limit: null,
+      grades: null,
+    });
+    expect(tourRouteCardSchema.parse(bike).routingProfile).toBe('gravel');
+    const run = hike({ activity: 'run', routingProfile: 'trail', minutesBasis: 'pace', paceSecondsPerKm: 330 });
+    expect(tourRouteCardSchema.parse(run).paceSecondsPerKm).toBe(330);
+    expect(tourRouteCardSchema.parse(hike()).routingProfile).toBeUndefined();
+    expect(tourRouteCardSchema.safeParse(hike({ routingProfile: 'tandem' as never })).success).toBe(false);
+    expect(tourRouteCardSchema.safeParse(hike({ paceSecondsPerKm: 5 })).success).toBe(false);
+  });
+});
+
 describe('tourListCardSchema', () => {
   const row = {
     placeId: 61,

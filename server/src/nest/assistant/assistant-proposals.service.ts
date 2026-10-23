@@ -22,13 +22,14 @@ import { RateLimitService } from '../common/rate-limit.service';
 import { UnitOfWork } from '../database/unit-of-work';
 import { buildTripCard, categoriesFrom, todayIn, type TripCard } from './assistant-context';
 import { partsOf, toThreadMessages } from './assistant-history';
+import { isSportPlan, SPORT_CREATES, sportTakeArgsOf, tourTypeWord } from './assistant-proposal-sports';
 import { AssistantStreamRegistry } from './assistant-stream.registry';
 import { TAKE_PROPOSAL_TOOL, TURNS_PER_MINUTE } from './assistant-tools.constants';
 import { AssistantToolsService, type ToolRun } from './assistant-tools.service';
 import { AssistantCardContext } from './cards/card-context';
 import { recordOf, type Row } from './cards/card-values';
 import { argText } from './cards/tour/tour-card-values';
-import { cityWalkCard } from './cards/tour/tour-sport.cards';
+import { cityWalkCard, paddleCard, skiCard } from './cards/tour/tour-sport.cards';
 import { describeToolCall } from './tool-call-preview.helpers';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
@@ -49,8 +50,17 @@ import { randomUUID } from 'node:crypto';
  */
 const WALK_READ = 'propose_city_walk';
 
-/** What a taken proposal reads: the trip's days and places, the category names its card writes with, a walk again. */
-const TRIP_READS: ReadonlySet<string> = new Set(['get_trip_summary', 'list_places', 'list_categories', WALK_READ]);
+/**
+ * What a taken proposal reads: the trip's days and places, the category names
+ * its card writes with, a walk or a paddle or ski plan again.
+ */
+const TRIP_READS: ReadonlySet<string> = new Set([
+  'get_trip_summary',
+  'list_places',
+  'list_categories',
+  WALK_READ,
+  ...Object.keys(SPORT_CREATES),
+]);
 
 /** Message rows searched for the proposal; the history a turn sends the provider. */
 const SEARCHED_ROWS = 40;
@@ -69,9 +79,11 @@ interface StoredProposal {
 }
 
 /** The proposing reads a card can be taken from, and the tool each one is created through. */
-const CREATES: Readonly<Record<string, 'create_hike' | 'create_city_walk'>> = {
+const CREATES: Readonly<Record<string, string>> = {
   propose_hike: 'create_hike',
+  propose_tour: 'create_tour',
   propose_city_walk: 'create_city_walk',
+  ...SPORT_CREATES,
 };
 const PROPOSING: ReadonlySet<string> = new Set(Object.keys(CREATES));
 
@@ -104,6 +116,26 @@ function walkName(stations: readonly Row[], result: Row): string {
 }
 
 /**
+ * A paddle or ski plan asked again with the arguments it was planned with:
+ * the stored answer is the model's shortened copy, and its legs' stretches
+ * name the water or the areas the tour is called after. The card is drawn
+ * again from the whole answer (the stored one when none can be drawn). Null
+ * when the plan cannot be read now.
+ */
+async function planAgain(
+  read: (name: string, args: Row) => Promise<ToolRun>,
+  proposal: StoredProposal,
+  trip: TripCard,
+  today: string,
+): Promise<StoredProposal | null> {
+  const run = await read(proposal.toolName, proposal.args);
+  if (!run.ok) return null;
+  const input = { toolCallId: '', args: proposal.args, value: run.value, card: trip, today };
+  const drawn = proposal.toolName === 'plan_ski_route' ? skiCard(input) : paddleCard(input);
+  return { ...proposal, result: recordOf(run.value), card: drawn ?? proposal.card };
+}
+
+/**
  * A walk asked again with the arguments it was proposed with: the stations to
  * create from the tool's own answer, and the card drawn from that answer (the
  * stored one when none can be drawn). Null when the walk cannot be read now.
@@ -133,7 +165,7 @@ export function pendingCardOf(card: TourRouteCard, args: Row): TourRouteCard {
   return { ...card, source: 'pending', name: argText(args.name, 120) ?? card.name, label: null, schedule };
 }
 
-/** The fields of a propose_hike create_hike takes as they are. */
+/** The fields of a propose_hike create_hike takes as they are, and those of a propose_tour create_tour takes. */
 const HIKE_FIELDS = [
   'name',
   'waypoints',
@@ -143,21 +175,42 @@ const HIKE_FIELDS = [
   'day_id',
   'start_time',
 ] as const;
+const TOUR_FIELDS = [
+  'name',
+  'activity',
+  'bike_profile',
+  'run_profile',
+  'run_pace_seconds_per_km',
+  'waypoints',
+  'round_trip',
+  'day_id',
+  'start_time',
+] as const;
 
 /**
- * The change a taken proposal holds: create_hike with the proposal's own
- * arguments for a hike whose way was planned, create_city_walk with the
+ * The change a taken proposal holds: create_hike (create_tour for a bike
+ * tour or a run) with the proposal's own arguments for a way that was
+ * planned, create_paddle_tour or create_ski_tour with a plan's points and
+ * settings, create_city_walk with the
  * stations it answered for a walk that can be created. Null for a proposal
  * nothing can be created from.
  */
-export function takeArgsOf(proposal: StoredProposal): Row | null {
+export function takeArgsOf(proposal: StoredProposal, fallbackName = ''): Row | null {
   const via = CREATES[proposal.toolName];
-  if (via === 'create_hike') {
+  if (via === 'create_hike' || via === 'create_tour') {
     if (!proposal.card.routed) return null;
+    // A run is saved with the runner's pace only, as the planner saves one.
+    if (via === 'create_tour' && proposal.args.activity === 'run' && proposal.args.run_pace_seconds_per_km == null) {
+      return null;
+    }
     const args: Row = { via };
-    for (const key of HIKE_FIELDS) if (proposal.args[key] !== undefined) args[key] = proposal.args[key];
+    for (const key of via === 'create_hike' ? HIKE_FIELDS : TOUR_FIELDS) {
+      if (proposal.args[key] !== undefined) args[key] = proposal.args[key];
+    }
     return args;
   }
+  if (isSportPlan(proposal.toolName))
+    return sportTakeArgsOf(proposal.toolName, proposal.args, proposal.result, fallbackName);
   const stations = Array.isArray(proposal.result.stations_for_create) ? proposal.result.stations_for_create : [];
   if (proposal.result.can_create === false || stations.length < 2) return null;
   return { via, name: walkName(stations.map(recordOf), proposal.result), stations };
@@ -227,7 +280,8 @@ export class AssistantProposalsService {
     const id = randomUUID();
     const today = todayIn(req.timeZone, new Date());
     const { card, categories, proposal } = await this.tripOf(userId, tripId, stored, today);
-    const args = proposal ? takeArgsOf(proposal) : null;
+    const fallback = isSportPlan(stored.toolName) ? await tourTypeWord(req.locale, stored.toolName) : '';
+    const args = proposal ? takeArgsOf(proposal, fallback) : null;
     if (!proposal || !args) throw aiRefusal('generic', 'Nothing can be created from this proposal: ask for it again');
     const ctx = this.cardContext.contextOf(card, categories, req.locale, today);
     // The proposal it came from, so the thread tells which card was taken, whatever way it creates.
@@ -294,11 +348,22 @@ export class AssistantProposalsService {
       return {
         card,
         categories: new Map(categories.map((category): [number, string] => [category.id, category.name])),
-        proposal: stored.toolName === WALK_READ ? await walkAgain(read, stored, card, today) : stored,
+        proposal: await this.again(read, stored, card, today),
       };
     } finally {
       await session.close();
     }
+  }
+
+  /** The proposal as it is taken: a walk or a paddle or ski plan asked again, a hike or tour as it was stored. */
+  private async again(
+    read: (name: string, args: Row) => Promise<ToolRun>,
+    stored: StoredProposal,
+    card: TripCard,
+    today: string,
+  ): Promise<StoredProposal | null> {
+    if (stored.toolName === WALK_READ) return await walkAgain(read, stored, card, today);
+    return isSportPlan(stored.toolName) ? await planAgain(read, stored, card, today) : stored;
   }
 
   /** The newest answer of the thread as the client shows it, with what became of its changes. */

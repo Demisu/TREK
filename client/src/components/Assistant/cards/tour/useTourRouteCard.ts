@@ -11,7 +11,7 @@ import { hasUndecided } from '../../assistantParts';
 import { useAssistantView } from '../../assistantViewContext';
 import { useChangeHover } from '../../useChangeHover';
 import { tourTarget } from './tourLook';
-import { canTake, routePoints } from './tourRouteModel';
+import { canTake, routePoints, takeWaitsKey } from './tourRouteModel';
 import { takeInThread, takeOfProposal } from './tourTakeModel';
 
 /**
@@ -104,7 +104,8 @@ function stateAfter(outcome: HoldOutcome, error: string | null): TakeState {
 }
 
 /**
- * "Plan this" on a proposed hike or city walk: one tap adds the tour. The
+ * "Plan this" on a proposed tour (a hike, a bike tour, a run, a city walk)
+ * or a paddle or ski plan: one tap adds the tour. The
  * server holds the tour it creates as a change, without a model turn, and
  * the tap decides it at once, since tapping "Plan this" already is the
  * decision; the assistant then answers to what was added. Once the tour is
@@ -148,9 +149,10 @@ export function useTakeProposal(toolCallId: string, card: TourRouteCard) {
   }, []);
 
   const visible = canTake(card) && !!trip && can('place_edit', trip);
-  let reasonKey: string | null = null;
+  let reasonKey: string | null;
   if (offline) reasonKey = 'assistant.error.offline';
   else if (waiting && state !== 'taken') reasonKey = 'assistant.composer.decideFirst';
+  else reasonKey = takeWaitsKey(card);
   const disabled = reasonKey !== null || isRunning || threadId === null || state === 'busy';
 
   const take = useCallback(async () => {

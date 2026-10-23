@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': 'Pianificazione…',
   'assistant.card.tour.added': 'Aggiunto al viaggio',
   'assistant.card.tour.askAgain': 'Non si può più pianificare da qui. Chiedilo di nuovo.',
+  'assistant.card.tour.needsPace': 'Di’ all’assistente il tuo passo per salvare questa corsa.',
   'assistant.card.tour.open': 'Apri in Escursioni',
   'assistant.card.tour.openPhone': 'Apri escursione',
   'assistant.card.tour.unsaved': 'Prima salva o scarta l’escursione che stai modificando',

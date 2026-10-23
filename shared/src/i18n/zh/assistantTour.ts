@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': '正在安排…',
   'assistant.card.tour.added': '已加入行程',
   'assistant.card.tour.askAgain': '这里已无法再加入计划，请重新询问。',
+  'assistant.card.tour.needsPace': '告诉助手你的配速即可保存这次跑步。',
   'assistant.card.tour.open': '在游览中打开',
   'assistant.card.tour.openPhone': '打开路线',
   'assistant.card.tour.unsaved': '请先保存或放弃正在编辑的路线',

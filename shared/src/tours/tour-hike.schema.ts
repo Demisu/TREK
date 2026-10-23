@@ -60,7 +60,7 @@ export const TOUR_GPX_TEXT_MAX = 1_000_000;
  * over several days whether a day's stage ends there (MDT-01), where the
  * night is spent and the next stage starts.
  */
-const hikeStopSchema = hikePlanPointSchema
+export const hikeStopSchema = hikePlanPointSchema
   .extend({
     stage_end: z
       .boolean()
@@ -72,7 +72,7 @@ const hikeStopSchema = hikePlanPointSchema
   .strict();
 export type HikeStop = z.infer<typeof hikeStopSchema>;
 
-const hikeWaypointsSchema = z
+export const hikeWaypointsSchema = z
   .array(hikeStopSchema)
   .min(2)
   .max(HIKE_MAX_WAYPOINTS)
@@ -99,7 +99,10 @@ export function hikeStageIssues(
   );
 }
 
-function refineStages(value: { waypoints?: readonly HikeStop[]; round_trip?: boolean }, ctx: z.RefinementCtx): void {
+export function refineStages(
+  value: { waypoints?: readonly HikeStop[]; round_trip?: boolean },
+  ctx: z.RefinementCtx,
+): void {
   if (!value.waypoints) return;
   for (const issue of hikeStageIssues(value.waypoints, value.round_trip)) {
     ctx.addIssue({ code: 'custom', path: issue.path, message: issue.message });
@@ -114,22 +117,31 @@ const hikePreferencesSchema = hikingPreferencesSchema
   .nullable()
   .describe('Steep climbs, steps or ferries the way avoids where there is a way round');
 
-const roundTripSchema = z.boolean().describe('The hike ends back at its start: the way back is planned too');
+export const roundTripSchema = z.boolean().describe('The hike ends back at its start: the way back is planned too');
 
-const plannedMinutesSchema = plannedTourDurationMinutesSchema.describe(
+export const plannedMinutesSchema = plannedTourDurationMinutesSchema.describe(
   'How long the travellers plan to be out, in minutes, breaks included; left out the walking time stands alone',
 );
 
-const hikeDateSchema = z
+export const hikeDateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/)
   .describe(
     'The day the hike is planned for, YYYY-MM-DD, where it is on no day of the trip; day_id takes its own date',
   );
 
-const hikeDayIdSchema = idSchema.describe('The day of the trip the hike is planned on, as list_days gives it');
+export const hikeDayIdSchema = idSchema.describe('The day of the trip the hike is planned on, as list_days gives it');
 
-const hikeStartTimeSchema = clockTimeSchema.describe('When the hike starts, HH:MM');
+export const hikeStartTimeSchema = clockTimeSchema.describe('When the hike starts, HH:MM');
+
+export const variantLabelSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(HIKE_VARIANT_LABEL_MAX)
+  .describe(
+    'A short name for this way when several are compared, such as "short and steep" or "by the lake"; given back as it is',
+  );
 
 export const hikeProposeRequestSchema = z
   .object({
@@ -138,15 +150,7 @@ export const hikeProposeRequestSchema = z
     max_hiking_difficulty: hikeLimitSchema.optional(),
     hiking_preferences: hikePreferencesSchema.optional(),
     round_trip: roundTripSchema.optional(),
-    variant_label: z
-      .string()
-      .trim()
-      .min(1)
-      .max(HIKE_VARIANT_LABEL_MAX)
-      .optional()
-      .describe(
-        'A short name for this way when several are compared, such as "short and steep" or "by the lake"; given back as it is',
-      ),
+    variant_label: variantLabelSchema.optional(),
     day_id: hikeDayIdSchema.optional(),
     date: hikeDateSchema.optional(),
     start_time: hikeStartTimeSchema.optional(),

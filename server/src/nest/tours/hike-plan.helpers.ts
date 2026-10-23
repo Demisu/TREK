@@ -321,6 +321,19 @@ export interface HikeProposalContext {
   along: HikeAlongPlace[] | null;
   /** Null where none was asked or it could not be had. */
   weather: WeatherResult | null;
+  /**
+   * A bike tour's or a run's own time on the move, in minutes, which stands
+   * for the plan's and is shared out over the legs by their length: a ride's
+   * is the router's for its profile, a run's its distance at the pace (null
+   * without one). A hike leaves it out and keeps the signposts' rule.
+   */
+  movingMinutes?: number | null;
+}
+
+/** The minutes from the start to each point, the whole time shared out by how far along the way each lies. */
+function minutesByLength(positions: readonly number[], total: number): number[] {
+  const length = positions.at(-1) ?? 0;
+  return positions.map((at) => (length > 0 ? Math.round((total * at) / length) : 0));
 }
 
 /**
@@ -341,16 +354,21 @@ export function hikeProposalOf(
   const routed = plan.kind === 'routed' ? plan : null;
   const positions = routed ? waypointPositionsOf(planned, points) : null;
   const heights = routed?.has_heights && line ? heightRangeOf(line) : null;
-  const minutes = routed && line && positions ? waypointMinutesOf(line, positions, routed.duration_minutes) : null;
+  const own = context.movingMinutes !== undefined;
+  const total = routed ? (own ? (context.movingMinutes ?? null) : routed.duration_minutes) : null;
+  let minutes: number[] | null = null;
+  if (line && positions && total !== null) {
+    minutes = own ? minutesByLength(positions, total) : waypointMinutesOf(line, positions, total);
+  }
   const arrivals = arrivalsOf(request.start_time ?? null, minutes ?? points.map(() => null));
   // One day's sun and hours say nothing about a hike over several days.
   const day =
-    routed && context.date && hikeStagesOf(points) === 1
+    total !== null && context.date && hikeStagesOf(points) === 1
       ? hikeScheduleOf({
           date: context.date,
           dayId: context.dayId,
           start: request.start_time ?? null,
-          minutes: routed.duration_minutes,
+          minutes: total,
           weather: context.weather,
         })
       : null;
@@ -362,7 +380,7 @@ export function hikeProposalOf(
     distance_m: routed?.distance_m ?? null,
     ascent_m: routed?.ascent_m ?? null,
     descent_m: routed?.descent_m ?? null,
-    duration_minutes: routed?.duration_minutes ?? null,
+    duration_minutes: total,
     duration_basis: routed?.duration_basis ?? null,
     heights_known: heights !== null,
     min_ele_m: heights?.min ?? null,

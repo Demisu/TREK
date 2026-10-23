@@ -5,6 +5,7 @@ import { useTranslation } from '../../../../i18n';
 import { useSettingsStore } from '../../../../store/settingsStore';
 import { formatClockTime, formatDate, formatMoney } from '../../../../utils/formatters';
 import { formatDistance, formatElevation } from '../../../../utils/units';
+import { formatRunPace, runPaceUnitText } from '../../../Tours/run/runPace';
 
 /**
  * How a card writes its numbers, the way the rest of TREK does for this
@@ -13,7 +14,7 @@ import { formatDistance, formatElevation } from '../../../../utils/units';
  * units. A card hands these to its words as `{value}`, never a raw number.
  */
 export function useCardFormat() {
-  const { locale } = useTranslation();
+  const { locale, t } = useTranslation();
   const twelveHour = useSettingsStore((s) => s.settings.time_format === '12h');
   const unit = useSettingsStore((s) => s.settings.distance_unit ?? 'metric');
   return useMemo(() => {
@@ -37,6 +38,8 @@ export function useCardFormat() {
         return m === 0 ? hours.format(h) : `${hours.format(h)} ${mins.format(m)}`;
       },
       count: (value: number) => number.format(value),
+      /** "5:30 min/km" from seconds per kilometre, per mile with distances in miles. */
+      pace: (secondsPerKm: number) => `${formatRunPace(secondsPerKm, unit)} ${runPaceUnitText(unit, t)}`,
     };
-  }, [locale, twelveHour, unit]);
+  }, [locale, twelveHour, unit, t]);
 }

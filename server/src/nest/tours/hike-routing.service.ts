@@ -6,6 +6,7 @@ import { TourTrailGradeService } from './tour-trail-grade.service';
 import { thinnedLine } from './tours.helpers';
 import { Injectable } from '@nestjs/common';
 import {
+  bikeCosting,
   computeTourMetrics,
   HIKE_MAX_LINE_POINTS,
   HIKE_PLAN_LINE_POINTS,
@@ -14,14 +15,18 @@ import {
   hikingCosting,
   hikingPreferencesOf,
   hikingTimeMinutes,
+  runCosting,
   sacStepOf,
   TOUR_MAX_SNAP_M,
   TOUR_TRAIL_GRADE_MAX_WAYS,
   TOURS_MAX_HIKING_DIFFICULTY,
+  type BikeProfile,
   type GeometryPoint,
   type HikePlan,
   type HikePlanRequest,
+  type HikingPreferences,
   type HikeTrailGrades,
+  type RunProfile,
   type SacStep,
   type UnroutedHikePlan,
 } from '@trek/shared';
@@ -79,14 +84,26 @@ interface KeptPlan {
   planned: PlannedHike;
 }
 
-/** The request as the memo keys it: who asked in which trip, the points to about a metre, the limit, the preferences. */
-function memoKeyOf(userId: number, tripId: number, request: HikePlanRequest): string {
+/**
+ * A tour planned through the same way as a hike but for another activity: a
+ * bike tour by bike for its profile, a run on foot for its profile. Neither
+ * takes a hiking limit, preferences or SAC grades.
+ */
+export type PlannedActivity = { activity: 'bike'; profile: BikeProfile } | { activity: 'run'; profile: RunProfile };
+
+/**
+ * The request as the memo keys it: who asked in which trip, the points to
+ * about a metre, the limit, the preferences, and for a bike tour or a run its
+ * activity and profile.
+ */
+function memoKeyOf(userId: number, tripId: number, request: HikePlanRequest, activity: PlannedActivity | null): string {
   const points = request.waypoints.map(({ lat, lng }) => [
     Number(lat.toFixed(PLAN_MEMO_DECIMALS)),
     Number(lng.toFixed(PLAN_MEMO_DECIMALS)),
   ]);
   const limit = request.max_hiking_difficulty ?? TOURS_MAX_HIKING_DIFFICULTY;
-  return JSON.stringify([userId, tripId, points, limit, hikingPreferencesOf(request.hiking_preferences)]);
+  const key = [userId, tripId, points, limit, hikingPreferencesOf(request.hiking_preferences)];
+  return JSON.stringify(activity ? [...key, activity.activity, activity.profile] : key);
 }
 
 /** What a plan asks for besides the way and its heights. */
@@ -96,6 +113,27 @@ export interface HikePlanOptions {
    * trail grades): a proposal shows them, a hike being saved keeps none.
    */
   grades: boolean;
+  /**
+   * A bike tour or a run, planned with its own costing and timed by the
+   * router; a hike when left out. Its limit and preferences are a hike's and
+   * go unread.
+   */
+  activity?: PlannedActivity;
+}
+
+/**
+ * How a way is asked of the router: on foot with a hike's limit and
+ * preferences, by bike with its profile's bicycle costing, on foot with a
+ * run's pedestrian costing.
+ */
+function costingOf(
+  activity: PlannedActivity | null,
+  limit: number,
+  preferences: HikingPreferences | null,
+): ['walking' | 'cycling', Readonly<Record<string, number | string>>] {
+  if (activity?.activity === 'bike') return ['cycling', bikeCosting(activity.profile)];
+  if (activity?.activity === 'run') return ['walking', runCosting(activity.profile)];
+  return ['walking', hikingCosting(limit, preferences)];
 }
 
 /** What went wrong, for the log. */
@@ -139,14 +177,16 @@ export class HikeRoutingService {
     request: HikePlanRequest,
     options?: HikePlanOptions,
   ): Promise<PlannedHike> {
-    const withGrades = options?.grades ?? true;
+    const activity = options?.activity ?? null;
+    // SAC grades are a hike's: a bike tour or a run never reads them.
+    const withGrades = activity === null && (options?.grades ?? true);
     // The tools check their own requests; a change plans through the points a hike has saved, held here to the same.
     const checked = hikePlanRequestSchema.safeParse(request);
     if (!checked.success) throw badRequest(checked.error.issues.map((issue) => issue.message).join('; '));
-    const key = memoKeyOf(userId, tripId, request);
+    const key = memoKeyOf(userId, tripId, request, activity);
     const kept = this.recall(key, withGrades);
     if (kept) return kept;
-    const planned = await this.planned(userId, tripId, request, withGrades);
+    const planned = await this.planned(userId, tripId, request, withGrades, activity);
     // Only a way with every height is kept: one without is asked again, and its heights with it.
     if (planned.plan.kind === 'routed' && planned.plan.has_heights && planned.line) {
       const grades = withGrades && planned.plan.grades !== null;
@@ -193,6 +233,7 @@ export class HikeRoutingService {
     tripId: number,
     request: HikePlanRequest,
     withGrades: boolean,
+    activity: PlannedActivity | null,
   ): Promise<PlannedHike> {
     const limit = request.max_hiking_difficulty ?? TOURS_MAX_HIKING_DIFFICULTY;
     const preferences = hikingPreferencesOf(request.hiking_preferences);
@@ -205,8 +246,8 @@ export class HikeRoutingService {
     let route: RoadtripRoute;
     try {
       const points = request.waypoints.map(({ lat, lng }) => ({ lat, lng }));
-      const costingOptions = hikingCosting(limit, preferences);
-      route = await this.router.route(userId, tripId, ANY_DAY, points, 'walking', [], { costingOptions });
+      const [mode, costingOptions] = costingOf(activity, limit, preferences);
+      route = await this.router.route(userId, tripId, ANY_DAY, points, mode, [], { costingOptions });
     } catch (err: unknown) {
       if (!(err instanceof RouteRefusal)) logWarn(`[Hike] no way for trip ${tripId}: ${reasonOf(err)}`);
       return unrouted(whyNot(err));
@@ -226,6 +267,8 @@ export class HikeRoutingService {
     const ascent = metrics.elevationGainM;
     const descent = metrics.elevationLossM;
     const heights = ascent !== null && descent !== null;
+    // The signposts' rule is a walker's: a ride keeps the router's time for its profile, and a run's pace is set later.
+    const byRule = heights && activity === null;
     return {
       plan: {
         kind: 'routed',
@@ -234,10 +277,10 @@ export class HikeRoutingService {
         distance_m: Math.round(lengthM),
         ascent_m: heights ? Math.round(ascent) : null,
         descent_m: heights ? Math.round(descent) : null,
-        duration_minutes: heights
+        duration_minutes: byRule
           ? hikingTimeMinutes(metrics.distanceKm, ascent, descent)
           : Math.round(route.leg.seg.duration / 60),
-        duration_basis: heights ? 'din33466' : 'router',
+        duration_basis: byRule ? 'din33466' : 'router',
         has_heights: heights,
         line: thinnedLine(line, HIKE_PLAN_LINE_POINTS),
         profile: profileOf(line, HIKE_PLAN_PROFILE_SAMPLES),

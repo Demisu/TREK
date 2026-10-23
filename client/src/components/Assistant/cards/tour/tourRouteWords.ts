@@ -92,10 +92,25 @@ const TIME_WORDS = {
   planned: { labelKey: 'tours.scope.planned' },
   stations: { labelKey: 'tours.scope.plannedWithStays' },
   piste: { labelKey: 'tours.ski.time' },
+  pace: { labelKey: 'tours.run.timeEstimated' },
 } as const satisfies Record<NonNullable<TourRouteCard['minutesBasis']>, { labelKey: string }>;
 
-/** The name of a route's time: by how it was reckoned, else a paddle's own, else a walking time. */
+/** What each bike and run profile is called, as the Tours tab names it. */
+export const PROFILE_WORDS = {
+  touring: { labelKey: 'tours.bike.profile.touring' },
+  road: { labelKey: 'tours.bike.profile.road' },
+  gravel: { labelKey: 'tours.bike.profile.gravel' },
+  mtb: { labelKey: 'tours.bike.profile.mtb' },
+  running: { labelKey: 'tours.run.profile.running' },
+  trail: { labelKey: 'tours.run.profile.trail' },
+} as const satisfies Record<NonNullable<TourRouteCard['routingProfile']>, { labelKey: string }>;
+
+/**
+ * The name of a route's time: by how it was reckoned (a bike tour's router
+ * time is its riding time), else a paddle's own, else a walking time.
+ */
 export function timeLabelKey(card: Pick<TourRouteCard, 'minutesBasis' | 'activity'>): string {
+  if (card.minutesBasis === 'router' && card.activity === 'bike') return 'tours.bike.timeEstimated';
   if (card.minutesBasis) return TIME_WORDS[card.minutesBasis].labelKey;
   return card.activity === 'kayak' ? 'tours.paddle.timeEstimated' : 'tours.planner.walkingEstimated';
 }

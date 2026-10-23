@@ -244,7 +244,7 @@ function lookOf(
     const centre = area ? nearbyName(card, (area.south + area.north) / 2, (area.west + area.east) / 2) : null;
     return { label: centre, area };
   }
-  if (toolName === 'propose_hike') return hikeLook(args);
+  if (toolName === 'propose_hike' || toolName === 'propose_tour') return hikeLook(args);
   if (toolName === 'search_place') {
     const bias = recordOf(args.locationBias);
     const area = pointArea(bias.lat, bias.lng, bias.radius, BIAS_RADIUS_M);

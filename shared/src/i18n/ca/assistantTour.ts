@@ -15,6 +15,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.adding': "S'està planificant…",
   'assistant.card.tour.added': 'Afegit al viatge',
   'assistant.card.tour.askAgain': 'Això ja no es pot planificar des d’aquí. Torna-ho a demanar.',
+  'assistant.card.tour.needsPace': 'Digues el teu ritme a l’assistent per desar aquesta cursa.',
   'assistant.card.tour.open': 'Obre a Excursions',
   'assistant.card.tour.openPhone': 'Obre l’excursió',
   'assistant.card.tour.unsaved': 'Primer desa o descarta l’excursió que estàs editant',
