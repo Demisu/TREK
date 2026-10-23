@@ -997,7 +997,7 @@
 .trek-dash .st-line.is-wide { display: block; }
 .trek-dash .st-line-label {
   flex: none;
-  width: 52px;
+  width: 68px; overflow-wrap: anywhere; hyphens: auto; /* "Ausrichtung" fits, a longer word breaks */
   font-size: 11px;
   color: var(--ink-3);
   line-height: 1.25;
