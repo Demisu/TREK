@@ -271,8 +271,9 @@ describe('what the tours tell the model about every type', () => {
     for (const tool of ['propose_tour', 'create_tour', 'create_paddle_tour', 'create_ski_tour', 'plan_ski_route']) {
       expect(every).toContain(tool);
     }
-    const profiles = CARD_PROMPT_LINES.find((line) => line.startsWith('Profiles:'));
-    for (const word of ['road', 'gravel', 'mtb', 'trail', 'run_pace_seconds_per_km']) expect(profiles).toContain(word);
+    // The profiles share the planning line: a package may add two prompt lines at most.
+    for (const word of ['Profiles:', 'road', 'gravel', 'mtb', 'trail', 'run_pace_seconds_per_km'])
+      expect(every).toContain(word);
     for (const line of CARD_PROMPT_LINES) expect(systemPrompt('English')).toContain(line);
   });
 });
