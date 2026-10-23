@@ -169,10 +169,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Laadi pilt üles',
   'places.changeImage': 'Muuda pilti',
   'places.removeImage': 'Eemalda pilt',
-  'places.chooseImage': 'Vali pilt',
-  'places.uploadFromDevice': 'Laadi üles seadmest',
-  'places.fromAttachedFiles': 'Manustatud failidest',
+  'places.image.current': 'Praegune pilt',
+  'places.image.own': 'Sinu pilt',
+  'places.image.none': 'Pilti pole',
+  'places.image.needsConnection': 'Uus pilt vajab ühendust. Salvesta uuesti, kui oled võrgus.',
+  'places.openPhotos': 'Näita fotosid',
   'places.imageUploadError': 'Pildi üleslaadimine ebaõnnestus',
-  'places.imageRemoveError': 'Pildi eemaldamine ebaõnnestus',
 };
 export default places;

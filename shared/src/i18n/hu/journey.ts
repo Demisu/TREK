@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'Nagyítás',
   'journey.lightbox.zoomOut': 'Kicsinyítés',
   'journey.lightbox.zoomReset': 'Vissza a teljes fotóhoz',
+  'journey.lightbox.previous': 'Előző fotó',
+  'journey.lightbox.next': 'Következő fotó',
   'journey.create': 'Létrehozás',
   'journey.titlePlaceholder': 'Hová utazol?',
   'journey.empty': 'Még nincsenek útinaplók',

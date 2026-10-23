@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'Apropa',
   'journey.lightbox.zoomOut': 'Allunya',
   'journey.lightbox.zoomReset': 'Torna a la foto sencera',
+  'journey.lightbox.previous': 'Foto anterior',
+  'journey.lightbox.next': 'Foto següent',
   'journey.create': 'Crea',
   'journey.titlePlaceholder': 'A on vas?',
   'journey.empty': 'Encara no hi ha travesies',

@@ -168,10 +168,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Kép feltöltése',
   'places.changeImage': 'Kép módosítása',
   'places.removeImage': 'Kép eltávolítása',
-  'places.chooseImage': 'Kép kiválasztása',
-  'places.uploadFromDevice': 'Feltöltés eszközről',
-  'places.fromAttachedFiles': 'Csatolt fájlokból',
+  'places.image.current': 'Jelenlegi kép',
+  'places.image.own': 'A te képed',
+  'places.image.none': 'Nincs kép',
+  'places.image.needsConnection': 'Új képhez kapcsolat kell. Mentsd újra, ha online vagy.',
+  'places.openPhotos': 'Fotók megtekintése',
   'places.imageUploadError': 'Nem sikerült feltölteni a képet',
-  'places.imageRemoveError': 'Nem sikerült eltávolítani a képet',
 };
 export default places;

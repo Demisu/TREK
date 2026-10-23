@@ -77,6 +77,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'تكبير',
   'journey.lightbox.zoomOut': 'تصغير',
   'journey.lightbox.zoomReset': 'العودة إلى الصورة كاملة',
+  'journey.lightbox.previous': 'الصورة السابقة',
+  'journey.lightbox.next': 'الصورة التالية',
   'journey.create': 'Create', // en-fallback
   'journey.titlePlaceholder': 'Where are you going?', // en-fallback
   'journey.empty': 'No journeys yet', // en-fallback

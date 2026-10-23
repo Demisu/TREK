@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'Yaxınlaşdır',
   'journey.lightbox.zoomOut': 'Uzaqlaşdır',
   'journey.lightbox.zoomReset': 'Tam fotoya qayıt',
+  'journey.lightbox.previous': 'Əvvəlki foto',
+  'journey.lightbox.next': 'Növbəti foto',
   'journey.create': 'Yarat',
   'journey.titlePlaceholder': 'Haraya gedirsiniz?',
   'journey.empty': 'Hələ səyahət gündəliyi yoxdur',

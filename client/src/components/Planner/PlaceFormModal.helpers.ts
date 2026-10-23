@@ -1,4 +1,5 @@
 import type { Assignment, Place, RoadtripStopType } from '@trek/shared'
+import { pendingImagePayload, type PendingImagePayload, type PendingPlaceImage } from './placeImageChoice'
 import type { PlaceDetailsSelection } from './PlaceDetailsColumn'
 
 export interface PlaceFormData {
@@ -27,7 +28,8 @@ export interface PlaceFormData {
   // Hero image picked from the detail column. Optional and absent from
   // DEFAULT_FORM on purpose: the mobile sheet shares this type and never sets
   // it, and places.service already writes image_url through on create/update.
-  image_url?: string
+  // Null drops the place's picture on save; undefined keeps it.
+  image_url?: string | null
   // Day-specific note on the in-context assignment (#2163). Only hydrated when
   // the form opened with an assignment in context; both forms drop it from the
   // submit payload when unchanged, and useTripPlanner strips it off the place
@@ -308,6 +310,8 @@ export interface PlaceFormPayload extends Omit<PlaceFormData, 'lat' | 'lng' | 'c
   category_id: string | null
   /** Files chosen before the place existed: uploaded once the save has given it an id. */
   _pendingFiles?: File[]
+  /** A picture waiting to become the place's own: a file from the device, or an attached file's id. */
+  _pendingImage?: PendingImagePayload
 }
 
 /**
@@ -322,6 +326,7 @@ export function placeFormPayload<E extends object = object>(
   pendingFiles: File[],
   assignment: Pick<Assignment, 'notes'> | null | undefined,
   extra?: (lat: number | null, lng: number | null) => E,
+  pendingImage: PendingPlaceImage | null = null,
 ): PlaceFormPayload & E {
   const lat = form.lat ? Number.parseFloat(form.lat) : null
   const lng = form.lng ? Number.parseFloat(form.lng) : null
@@ -332,6 +337,7 @@ export function placeFormPayload<E extends object = object>(
     category_id: form.category_id || null,
     ...(extra ? extra(lat, lng) : {}),
     _pendingFiles: pendingFiles.length > 0 ? pendingFiles : undefined,
+    _pendingImage: pendingImagePayload(pendingImage),
   } as PlaceFormPayload & E
   if (!assignment || (form.assignment_notes ?? '') === (assignment.notes ?? '')) {
     delete payload.assignment_notes

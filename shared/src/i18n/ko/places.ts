@@ -158,10 +158,11 @@ const places: TranslationStrings = {
   'places.uploadImage': '이미지 업로드',
   'places.changeImage': '이미지 변경',
   'places.removeImage': '이미지 제거',
-  'places.chooseImage': '이미지 선택',
-  'places.uploadFromDevice': '기기에서 업로드',
-  'places.fromAttachedFiles': '첨부 파일에서',
+  'places.image.current': '현재 이미지',
+  'places.image.own': '내 이미지',
+  'places.image.none': '이미지 없음',
+  'places.image.needsConnection': '새 이미지는 연결이 필요합니다. 온라인일 때 다시 저장하세요.',
+  'places.openPhotos': '사진 보기',
   'places.imageUploadError': '이미지를 업로드할 수 없습니다',
-  'places.imageRemoveError': '이미지를 제거할 수 없습니다',
 };
 export default places;

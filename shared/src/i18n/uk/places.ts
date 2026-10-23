@@ -184,10 +184,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Завантажити зображення',
   'places.changeImage': 'Змінити зображення',
   'places.removeImage': 'Видалити зображення',
-  'places.chooseImage': 'Вибрати зображення',
-  'places.uploadFromDevice': 'Завантажити з пристрою',
-  'places.fromAttachedFiles': 'З прикріплених файлів',
+  'places.image.current': 'Поточне зображення',
+  'places.image.own': 'Твоє зображення',
+  'places.image.none': 'Без зображення',
+  'places.image.needsConnection': 'Для нового зображення потрібне з’єднання. Збережи ще раз, коли будеш онлайн.',
+  'places.openPhotos': 'Показати фото',
   'places.imageUploadError': 'Не вдалося завантажити зображення',
-  'places.imageRemoveError': 'Не вдалося видалити зображення',
 };
 export default places;

@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'Zooma in',
   'journey.lightbox.zoomOut': 'Zooma ut',
   'journey.lightbox.zoomReset': 'Tillbaka till hela fotot',
+  'journey.lightbox.previous': 'Föregående foto',
+  'journey.lightbox.next': 'Nästa foto',
   'journey.create': 'Skapa',
   'journey.titlePlaceholder': 'Vart ska du?',
   'journey.empty': 'Inga journeys än',

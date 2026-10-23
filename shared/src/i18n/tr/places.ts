@@ -170,10 +170,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Görsel yükle',
   'places.changeImage': 'Görseli değiştir',
   'places.removeImage': 'Görseli kaldır',
-  'places.chooseImage': 'Bir görsel seç',
-  'places.uploadFromDevice': 'Cihazdan yükle',
-  'places.fromAttachedFiles': 'Ekli dosyalardan',
+  'places.image.current': 'Mevcut görsel',
+  'places.image.own': 'Senin görselin',
+  'places.image.none': 'Görsel yok',
+  'places.image.needsConnection': 'Yeni bir görsel bağlantı gerektirir. Çevrimiçi olunca yeniden kaydet.',
+  'places.openPhotos': 'Fotoğrafları göster',
   'places.imageUploadError': 'Görsel yüklenemedi',
-  'places.imageRemoveError': 'Görsel kaldırılamadı',
 };
 export default places;

@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'Ingrandisci',
   'journey.lightbox.zoomOut': 'Riduci',
   'journey.lightbox.zoomReset': 'Torna alla foto intera',
+  'journey.lightbox.previous': 'Foto precedente',
+  'journey.lightbox.next': 'Foto successiva',
   'journey.create': 'Crea',
   'journey.titlePlaceholder': 'Dove stai andando?',
   'journey.empty': 'Nessun diario ancora',

@@ -21,6 +21,8 @@ import PlTimeFields from './PlTimeFields'
 import PlFileAttach from './PlFileAttach'
 import MLinkedCosts from './MLinkedCosts'
 import PlaceDetailsColumn from '../../../../components/Planner/PlaceDetailsColumn'
+import { PlaceImageSection } from '../../../../components/Planner/PlaceFormMedia'
+import { usePlaceImageField } from '../../../../components/Planner/usePlaceImageField'
 import { useTranslation } from '../../../../i18n'
 import { useAuthStore } from '../../../../store/authStore'
 import { useSettingsStore } from '../../../../store/settingsStore'
@@ -72,8 +74,11 @@ export default function MPlaceEditSheet({ planner, onOpenExpense }: MPlaceEditSh
   const {
     form, setForm, autoFilledRef, pendingFiles, addFiles, removeFile, handlePaste, isSaving, setIsSaving,
     duplicateWarning, detailsSelection, setDetailsSelection, openForm, handleChange, pickImage, adoptDescription,
-    warnIfDuplicate,
+    warnIfDuplicate, pendingImage, stageUpload, stageAttached, removeImage,
   } = usePlaceForm({ t, toast, canUploadFiles })
+  const image = usePlaceImageField({
+    place: editingPlace, imageUrl: form.image_url, pendingImage, canUploadFiles, stageUpload, stageAttached, removeImage,
+  })
   const [resolvingPick, setResolvingPick] = useState(false)
   const isBudgetEnabled = useAddonStore(s => s.isEnabled('budget'))
   // Set right before submit: the place has to exist before an expense can point
@@ -188,7 +193,7 @@ export default function MPlaceEditSheet({ planner, onOpenExpense }: MPlaceEditSh
     expenseIntentRef.current = false
     setIsSaving(true)
     try {
-      const saved = await handleSavePlace(placeFormPayload(form, pendingFiles, ctxAssignment))
+      const saved = await handleSavePlace(placeFormPayload(form, pendingFiles, ctxAssignment, undefined, pendingImage))
       const savedId = saved?.id ?? sheetPlace?.id ?? null
       if (withExpense && savedId) {
         onOpenExpense({ prefill: { placeId: savedId, name: form.name.trim(), category: 'activities' } })
@@ -254,6 +259,7 @@ export default function MPlaceEditSheet({ planner, onOpenExpense }: MPlaceEditSh
               selection={detailsSelection}
               selectedImageUrl={form.image_url}
               onPickImage={pickImage}
+              image={image}
               onAdoptDescription={adoptDescription}
               hasDescription={!!form.description.trim()}
               language={language}
@@ -262,6 +268,11 @@ export default function MPlaceEditSheet({ planner, onOpenExpense }: MPlaceEditSh
               fluid
               t={t}
             />
+          </div>
+        )}
+        {!placesEnrichEnabled && (
+          <div className="mt-3">
+            <PlaceImageSection image={image} onPickUrl={pickImage} t={t} />
           </div>
         )}
 

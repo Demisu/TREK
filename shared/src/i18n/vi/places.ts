@@ -160,10 +160,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Tải ảnh lên',
   'places.changeImage': 'Đổi ảnh',
   'places.removeImage': 'Xóa ảnh',
-  'places.chooseImage': 'Chọn ảnh',
-  'places.uploadFromDevice': 'Tải lên từ thiết bị',
-  'places.fromAttachedFiles': 'Từ tệp đính kèm',
+  'places.image.current': 'Ảnh hiện tại',
+  'places.image.own': 'Ảnh của bạn',
+  'places.image.none': 'Không có ảnh',
+  'places.image.needsConnection': 'Ảnh mới cần kết nối. Hãy lưu lại khi bạn trực tuyến.',
+  'places.openPhotos': 'Xem ảnh',
   'places.imageUploadError': 'Không thể tải ảnh lên',
-  'places.imageRemoveError': 'Không thể xóa ảnh',
 };
 export default places;

@@ -168,10 +168,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Enviar imagem',
   'places.changeImage': 'Alterar imagem',
   'places.removeImage': 'Remover imagem',
-  'places.chooseImage': 'Escolher uma imagem',
-  'places.uploadFromDevice': 'Enviar do dispositivo',
-  'places.fromAttachedFiles': 'Dos arquivos anexados',
+  'places.image.current': 'Imagem atual',
+  'places.image.own': 'Sua imagem',
+  'places.image.none': 'Sem imagem',
+  'places.image.needsConnection': 'Uma nova imagem precisa de conexão. Salve de novo quando estiver online.',
+  'places.openPhotos': 'Ver fotos',
   'places.imageUploadError': 'Não foi possível enviar a imagem',
-  'places.imageRemoveError': 'Não foi possível remover a imagem',
 };
 export default places;

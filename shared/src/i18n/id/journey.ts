@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'Perbesar',
   'journey.lightbox.zoomOut': 'Perkecil',
   'journey.lightbox.zoomReset': 'Kembali ke foto utuh',
+  'journey.lightbox.previous': 'Foto sebelumnya',
+  'journey.lightbox.next': 'Foto berikutnya',
   'journey.create': 'Buat',
   'journey.titlePlaceholder': 'Ke mana kamu pergi?',
   'journey.empty': 'Belum ada journey',

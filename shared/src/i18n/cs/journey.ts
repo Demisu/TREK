@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'Přiblížit',
   'journey.lightbox.zoomOut': 'Oddálit',
   'journey.lightbox.zoomReset': 'Zpět na celou fotku',
+  'journey.lightbox.previous': 'Předchozí fotka',
+  'journey.lightbox.next': 'Další fotka',
   'journey.create': 'Vytvořit',
   'journey.titlePlaceholder': 'Kam jedete?',
   'journey.empty': 'Zatím žádné cestovní deníky',

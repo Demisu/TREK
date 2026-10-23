@@ -1,16 +1,16 @@
-import type { MapsPlaceEnrichmentResult } from '@trek/shared'
+import type { MapsPlaceEnrichmentResult } from '@trek/shared';
 
 /**
  * The place an enrichment consumer is describing — the editor's details column
  * and the view-mode photo gallery both use this shape.
  */
 export interface PlaceDetailsSelection {
-  placeId?: string
-  lat: number
-  lng: number
-  name: string
+  placeId?: string;
+  lat: number;
+  lng: number;
+  name: string;
   /** The picked search result, so the server can skip its own details lookup. */
-  details?: Record<string, unknown>
+  details?: Record<string, unknown>;
 }
 
 /**
@@ -19,25 +19,25 @@ export interface PlaceDetailsSelection {
  * pay for the provider fan-out twice, and the gallery must reuse the pictures
  * the editor already fetched for the same place.
  */
-const enrichmentCache = new Map<string, MapsPlaceEnrichmentResult>()
+const enrichmentCache = new Map<string, MapsPlaceEnrichmentResult>();
 
 /** Test seam: the module-level cache otherwise leaks between cases. */
 export function __clearEnrichmentCacheForTests(): void {
-  enrichmentCache.clear()
+  enrichmentCache.clear();
 }
 
 function readSession(key: string): MapsPlaceEnrichmentResult | undefined {
   try {
-    const raw = sessionStorage.getItem(key)
-    return raw ? (JSON.parse(raw) as MapsPlaceEnrichmentResult) : undefined
+    const raw = sessionStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as MapsPlaceEnrichmentResult) : undefined;
   } catch {
-    return undefined
+    return undefined;
   }
 }
 
 function writeSession(key: string, value: MapsPlaceEnrichmentResult): void {
   try {
-    sessionStorage.setItem(key, JSON.stringify(value))
+    sessionStorage.setItem(key, JSON.stringify(value));
   } catch {
     /* private mode / quota — the in-memory cache still helps for this session */
   }
@@ -48,30 +48,30 @@ function writeSession(key: string, value: MapsPlaceEnrichmentResult): void {
  * without it the tab that was open while the fix shipped keeps replaying the
  * answer the fix was about — and reports it as still broken.
  */
-const ENRICH_CACHE_V = 4
+const ENRICH_CACHE_V = 4;
 
 export function cacheKeyFor(selection: PlaceDetailsSelection, language: string): string {
-  const id = selection.placeId || `coords:${selection.lat}:${selection.lng}`
-  return `enrich_v${ENRICH_CACHE_V}_${id}_${language}`
+  const id = selection.placeId || `coords:${selection.lat}:${selection.lng}`;
+  return `enrich_v${ENRICH_CACHE_V}_${id}_${language}`;
 }
 
 /** The answer if it was already fetched this session, else undefined. */
 export function readCachedEnrichment(
   selection: PlaceDetailsSelection,
-  language: string,
+  language: string
 ): MapsPlaceEnrichmentResult | undefined {
-  const key = cacheKeyFor(selection, language)
-  const cached = enrichmentCache.get(key) ?? readSession(key)
-  if (cached) enrichmentCache.set(key, cached)
-  return cached
+  const key = cacheKeyFor(selection, language);
+  const cached = enrichmentCache.get(key) ?? readSession(key);
+  if (cached) enrichmentCache.set(key, cached);
+  return cached;
 }
 
 export function storeEnrichment(
   selection: PlaceDetailsSelection,
   language: string,
-  value: MapsPlaceEnrichmentResult,
+  value: MapsPlaceEnrichmentResult
 ): void {
-  const key = cacheKeyFor(selection, language)
-  enrichmentCache.set(key, value)
-  writeSession(key, value)
+  const key = cacheKeyFor(selection, language);
+  enrichmentCache.set(key, value);
+  writeSession(key, value);
 }

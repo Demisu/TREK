@@ -159,10 +159,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Unggah gambar',
   'places.changeImage': 'Ganti gambar',
   'places.removeImage': 'Hapus gambar',
-  'places.chooseImage': 'Pilih gambar',
-  'places.uploadFromDevice': 'Unggah dari perangkat',
-  'places.fromAttachedFiles': 'Dari berkas terlampir',
+  'places.image.current': 'Gambar saat ini',
+  'places.image.own': 'Gambarmu',
+  'places.image.none': 'Tanpa gambar',
+  'places.image.needsConnection': 'Gambar baru butuh koneksi. Simpan lagi saat sudah online.',
+  'places.openPhotos': 'Lihat foto',
   'places.imageUploadError': 'Tidak dapat mengunggah gambar',
-  'places.imageRemoveError': 'Tidak dapat menghapus gambar',
 };
 export default places;

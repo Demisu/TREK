@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'Phóng to',
   'journey.lightbox.zoomOut': 'Thu nhỏ',
   'journey.lightbox.zoomReset': 'Quay lại ảnh đầy đủ',
+  'journey.lightbox.previous': 'Ảnh trước',
+  'journey.lightbox.next': 'Ảnh tiếp theo',
   'journey.create': 'Tạo nên',
   'journey.titlePlaceholder': 'Bạn đang đi đâu?',
   'journey.empty': 'Chưa có chuyến đi nào',

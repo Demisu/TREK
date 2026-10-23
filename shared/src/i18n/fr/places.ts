@@ -169,10 +169,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Importer une image',
   'places.changeImage': "Changer l'image",
   'places.removeImage': "Supprimer l'image",
-  'places.chooseImage': 'Choisir une image',
-  'places.uploadFromDevice': 'Importer depuis l’appareil',
-  'places.fromAttachedFiles': 'Depuis les fichiers joints',
+  'places.image.current': 'Image actuelle',
+  'places.image.own': 'Ton image',
+  'places.image.none': 'Pas d’image',
+  'places.image.needsConnection': 'Une nouvelle image a besoin d’une connexion. Enregistre à nouveau une fois en ligne.',
+  'places.openPhotos': 'Voir les photos',
   'places.imageUploadError': "Impossible d'importer l'image",
-  'places.imageRemoveError': "Impossible de supprimer l'image",
 };
 export default places;

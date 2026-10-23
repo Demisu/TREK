@@ -221,8 +221,6 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
     categories, reservations, tripMembers,
     onSetParticipants: placeActions.setParticipants,
     onUpdatePlace: placeActions.updatePlace,
-    onUploadImage: async (placeId: number, file: File) => { await tripActions.uploadPlaceImage(tripId, placeId, file) },
-    onImageFromFile: async (placeId: number, fileId: number) => { await tripActions.setPlaceImageFromFile(tripId, placeId, fileId) },
     onRate: placeActions.ratePlace,
   }
   const tourDetailProps = { ...selectedPlaceProps, ...tourDetailActions }

@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'ซูมเข้า',
   'journey.lightbox.zoomOut': 'ซูมออก',
   'journey.lightbox.zoomReset': 'กลับไปดูรูปเต็ม',
+  'journey.lightbox.previous': 'รูปก่อนหน้า',
+  'journey.lightbox.next': 'รูปถัดไป',
   'journey.create': 'สร้าง',
   'journey.titlePlaceholder': 'คุณจะไปไหน?',
   'journey.empty': 'ยังไม่มีการเดินทาง',

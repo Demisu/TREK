@@ -184,10 +184,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Prześlij zdjęcie',
   'places.changeImage': 'Zmień zdjęcie',
   'places.removeImage': 'Usuń zdjęcie',
-  'places.chooseImage': 'Wybierz obraz',
-  'places.uploadFromDevice': 'Prześlij z urządzenia',
-  'places.fromAttachedFiles': 'Z załączonych plików',
+  'places.image.current': 'Bieżący obraz',
+  'places.image.own': 'Twój obraz',
+  'places.image.none': 'Bez obrazu',
+  'places.image.needsConnection': 'Nowy obraz wymaga połączenia. Zapisz ponownie, gdy będziesz online.',
+  'places.openPhotos': 'Pokaż zdjęcia',
   'places.imageUploadError': 'Nie udało się przesłać zdjęcia',
-  'places.imageRemoveError': 'Nie udało się usunąć zdjęcia',
 };
 export default places;

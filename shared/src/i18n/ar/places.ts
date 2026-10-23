@@ -200,10 +200,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'رفع صورة',
   'places.changeImage': 'تغيير الصورة',
   'places.removeImage': 'إزالة الصورة',
-  'places.chooseImage': 'اختر صورة',
-  'places.uploadFromDevice': 'رفع من الجهاز',
-  'places.fromAttachedFiles': 'من الملفات المرفقة',
+  'places.image.current': 'الصورة الحالية',
+  'places.image.own': 'صورتك',
+  'places.image.none': 'بلا صورة',
+  'places.image.needsConnection': 'تحتاج الصورة الجديدة إلى اتصال. احفظ مجددًا عند الاتصال بالإنترنت.',
+  'places.openPhotos': 'عرض الصور',
   'places.imageUploadError': 'تعذّر رفع الصورة',
-  'places.imageRemoveError': 'تعذّر إزالة الصورة',
 };
 export default places;

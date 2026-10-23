@@ -8,9 +8,11 @@ import { useTripStore } from '../../store/tripStore'
 import { useSettingsStore } from '../../store/settingsStore'
 import CollectionPicker from '../Collections/CollectionPicker'
 import PlaceDetailsColumn from './PlaceDetailsColumn'
+import { PendingFiles, PlaceImageSection } from './PlaceFormMedia'
+import { usePlaceImageField } from './usePlaceImageField'
 import { useToast } from '../shared/Toast'
 import { Tooltip } from '../shared/Tooltip'
-import { Search, Paperclip, X, Loader2, Plus, RotateCcw, MapPin, Navigation, LocateFixed, PencilLine } from 'lucide-react'
+import { Search, Loader2, Plus, RotateCcw, MapPin, Navigation, LocateFixed, PencilLine } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import { PlaceContactFields } from './PlaceContactFields'
 import { weekFromPeriods } from './placeHours'
@@ -121,8 +123,11 @@ function usePlaceFormModal(props: PlaceFormModalProps) {
   const {
     form, setForm, autoFilledRef, pendingFiles, addFilesFromInput, removeFile, handlePaste, isSaving, setIsSaving,
     duplicateWarning, detailsSelection, setDetailsSelection, openForm, handleChange: changeField, pickImage,
-    adoptDescription, warnIfDuplicate,
+    adoptDescription, warnIfDuplicate, pendingImage, stageUpload, stageAttached, removeImage,
   } = usePlaceForm({ t, toast, canUploadFiles })
+  const image = usePlaceImageField({
+    place, imageUrl: form.image_url, pendingImage, canUploadFiles, stageUpload, stageAttached, removeImage,
+  })
   // The index the picked place came from, as its row named it, shown as a pill
   // in the head band. Null for a place typed by hand or taken from the saved list.
   const [pickedSource, setPickedSource] = useState<string | null>(null)
@@ -358,7 +363,7 @@ function usePlaceFormModal(props: PlaceFormModalProps) {
         ...(serviceStop
           ? { _serviceStop: serviceStopChoice(serviceStop, lat, lng, serviceStopLeg).placement }
           : {}),
-      }))
+      }), pendingImage)
       const saved = await onSave(payload)
       // Open the Costs editor for the saved place when the user asked to
       // create/edit its linked expense — gated on an id, so a create that the
@@ -442,6 +447,7 @@ function usePlaceFormModal(props: PlaceFormModalProps) {
     handleRemoveFile: removeFile,
     handlePaste,
     pickImage,
+    image,
     adoptDescription,
     hasTimeError,
     handleSubmit,
@@ -606,6 +612,7 @@ export default function PlaceFormModal(props: PlaceFormModalProps) {
             selection={detailsSelection}
             selectedImageUrl={form.image_url}
             onPickImage={S.pickImage}
+            image={S.image}
             onAdoptDescription={S.adoptDescription}
             onHours={(hours) => S.setDetailsHours(weekFromPeriods(hours.periods))}
             hasDescription={!!form.description.trim()}
@@ -879,6 +886,7 @@ export default function PlaceFormModal(props: PlaceFormModalProps) {
             maxLength={2000}
           />
 
+          {!showDetails && <PlaceImageSection image={S.image} onPickUrl={S.pickImage} t={t} />}
           {/* The link and the files side by side, as on a booking. */}
           <div className={canUploadFiles ? GRID_2 : ''}>
             <EditorField label={t('places.formWebsite')} htmlFor={`${fieldId}-website`}>
@@ -1115,46 +1123,5 @@ function MarkdownField({ id, label, value, onChange, placeholder, maxLength }: {
         className={`${TEXTAREA} resize-y`}
       />
     </DialogSection>
-  )
-}
-
-/** Files chosen before the place exists: they are uploaded once the save has given it an id. */
-function PendingFiles({ files, fileRef, onAdd, onRemove, t }: {
-  files: File[]
-  fileRef: React.RefObject<HTMLInputElement | null>
-  onAdd: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onRemove: (index: number) => void
-  t: Translate
-}) {
-  return (
-    <div className="min-w-0">
-      <div className={LABEL}>{t('files.title')}</div>
-      <input ref={fileRef} type="file" multiple className="hidden" onChange={onAdd} />
-      <button
-        type="button"
-        onClick={() => fileRef.current?.click()}
-        className={WHITE_BUTTON}
-        style={fs(13, 'body')}
-      >
-        <Paperclip size={14} aria-hidden="true" />
-        {t('files.attach')}
-      </button>
-      {files.length > 0 && (
-        <div className="mt-1.5 flex flex-col gap-1" data-testid="pending-files">
-          {files.map((file, idx) => (
-            <div key={idx} className="flex items-center gap-2 rounded-[8px] border border-edge-faint bg-surface-card px-2.5 py-1.5" style={fs(12, 'body')}>
-              <Paperclip size={11} className="flex-none text-content-faint" aria-hidden="true" />
-              <span className="min-w-0 flex-1 truncate text-content-secondary">{file.name}</span>
-              <Tooltip label={t('common.delete')}>
-                <button type="button" onClick={() => onRemove(idx)} aria-label={t('common.delete')}
-                  className="flex flex-none text-content-faint transition-colors hover:text-danger">
-                  <X size={12} />
-                </button>
-              </Tooltip>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
   )
 }

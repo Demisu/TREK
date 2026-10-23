@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'Збільшити',
   'journey.lightbox.zoomOut': 'Зменшити',
   'journey.lightbox.zoomReset': 'Повернутися до всього фото',
+  'journey.lightbox.previous': 'Попереднє фото',
+  'journey.lightbox.next': 'Наступне фото',
   'journey.create': 'Створити',
   'journey.titlePlaceholder': 'Куди ви їдете?',
   'journey.empty': 'Поки що немає подорожей',

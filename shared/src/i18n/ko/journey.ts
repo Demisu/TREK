@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': '확대',
   'journey.lightbox.zoomOut': '축소',
   'journey.lightbox.zoomReset': '전체 사진으로 돌아가기',
+  'journey.lightbox.previous': '이전 사진',
+  'journey.lightbox.next': '다음 사진',
   'journey.create': '만들기',
   'journey.titlePlaceholder': '어디로 가시나요?',
   'journey.empty': '아직 Journey가 없습니다',

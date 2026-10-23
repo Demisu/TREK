@@ -168,10 +168,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Ladda upp bild',
   'places.changeImage': 'Byt bild',
   'places.removeImage': 'Ta bort bild',
-  'places.chooseImage': 'Välj en bild',
-  'places.uploadFromDevice': 'Ladda upp från enheten',
-  'places.fromAttachedFiles': 'Från bifogade filer',
+  'places.image.current': 'Nuvarande bild',
+  'places.image.own': 'Din bild',
+  'places.image.none': 'Ingen bild',
+  'places.image.needsConnection': 'En ny bild behöver en anslutning. Spara igen när du är online.',
+  'places.openPhotos': 'Visa foton',
   'places.imageUploadError': 'Det gick inte att ladda upp bilden',
-  'places.imageRemoveError': 'Det gick inte att ta bort bilden',
 };
 export default places;

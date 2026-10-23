@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': '拡大',
   'journey.lightbox.zoomOut': '縮小',
   'journey.lightbox.zoomReset': '写真全体に戻す',
+  'journey.lightbox.previous': '前の写真',
+  'journey.lightbox.next': '次の写真',
   'journey.create': '作成',
   'journey.titlePlaceholder': 'どこへ行きますか？',
   'journey.empty': '日記はまだありません',

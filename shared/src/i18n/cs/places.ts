@@ -176,10 +176,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Nahrát obrázek',
   'places.changeImage': 'Změnit obrázek',
   'places.removeImage': 'Odebrat obrázek',
-  'places.chooseImage': 'Vybrat obrázek',
-  'places.uploadFromDevice': 'Nahrát ze zařízení',
-  'places.fromAttachedFiles': 'Z přiložených souborů',
+  'places.image.current': 'Aktuální obrázek',
+  'places.image.own': 'Tvůj obrázek',
+  'places.image.none': 'Bez obrázku',
+  'places.image.needsConnection': 'Nový obrázek potřebuje připojení. Ulož znovu, až budeš online.',
+  'places.openPhotos': 'Zobrazit fotky',
   'places.imageUploadError': 'Obrázek se nepodařilo nahrát',
-  'places.imageRemoveError': 'Obrázek se nepodařilo odebrat',
 };
 export default places;

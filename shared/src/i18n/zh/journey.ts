@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': '放大',
   'journey.lightbox.zoomOut': '缩小',
   'journey.lightbox.zoomReset': '恢复完整照片',
+  'journey.lightbox.previous': '上一张照片',
+  'journey.lightbox.next': '下一张照片',
   'journey.create': '创建',
   'journey.titlePlaceholder': '你要去哪里？',
   'journey.empty': '还没有旅程',

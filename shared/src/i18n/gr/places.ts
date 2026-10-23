@@ -169,10 +169,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Μεταφόρτωση εικόνας',
   'places.changeImage': 'Αλλαγή εικόνας',
   'places.removeImage': 'Αφαίρεση εικόνας',
-  'places.chooseImage': 'Επιλογή εικόνας',
-  'places.uploadFromDevice': 'Μεταφόρτωση από τη συσκευή',
-  'places.fromAttachedFiles': 'Από συνημμένα αρχεία',
+  'places.image.current': 'Τρέχουσα εικόνα',
+  'places.image.own': 'Η εικόνα σου',
+  'places.image.none': 'Χωρίς εικόνα',
+  'places.image.needsConnection': 'Μια νέα εικόνα χρειάζεται σύνδεση. Αποθήκευσε ξανά όταν είσαι online.',
+  'places.openPhotos': 'Προβολή φωτογραφιών',
   'places.imageUploadError': 'Δεν ήταν δυνατή η μεταφόρτωση της εικόνας',
-  'places.imageRemoveError': 'Δεν ήταν δυνατή η αφαίρεση της εικόνας',
 };
 export default places;

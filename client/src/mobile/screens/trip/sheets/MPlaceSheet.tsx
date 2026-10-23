@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import DawarichIcon from '../../../../components/shared/DawarichIcon'
 import {
-  Bookmark, Camera, ChevronRight, ExternalLink, Loader2, Map as MapIcon, Navigation, Paperclip,
+  Bookmark, ChevronRight, ExternalLink, Map as MapIcon, Navigation, Paperclip,
   Pencil, Phone, Plus, Route, RouteOff, Sparkles, Trash2, Upload, X,
 } from 'lucide-react'
 import MSheet from '../../../components/MSheet'
@@ -12,7 +12,7 @@ import { useSaveToCollectionStore } from '../../../../store/saveToCollectionStor
 import { placeToSaveTarget } from '../../../../components/Collections/saveTarget'
 import { useAssistantAsk } from '../../../../components/Assistant/useAssistantAsk'
 import {
-  participantsWith, participantsWithout, placeActions, splitParticipants, usePlaceFileUpload, usePlaceImagePick,
+  participantsWith, participantsWithout, placeActions, splitParticipants, usePlaceFileUpload,
 } from '../../../../components/Planner/usePlaceActions'
 import { getCategoryIcon } from '../../../../components/shared/categoryIcons'
 import PlaceRating from '../../../../components/shared/StarRating'
@@ -27,6 +27,7 @@ import { navigationTargetLabel, getNavigationTargets, openNavigationTarget } fro
 import { NavigationMenu } from '../../../../components/shared/NavigationMenu'
 import { getPlaceBookings } from '../../../../utils/dayMerge'
 import type { Assignment, Day, Reservation, TripMember } from '../../../../types'
+import PlacePhotoGallery from '../../../../components/Planner/PlacePhotoGallery'
 import { ActionCircle, Eyebrow, INNER_CLS } from './MTripSheetUi'
 
 /**
@@ -37,7 +38,7 @@ import { ActionCircle, Eyebrow, INNER_CLS } from './MTripSheetUi'
  * attached files, plus the inspector action row.
  */
 export default function MPlaceSheet({ planner, shell }: MTripSheetsProps) {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const place = planner.selectedPlace ?? null
   // Match the desktop inspector gate: while the Tours facet is loading, wait
   // before choosing a surface; once identified as a tour, its purpose-built
@@ -60,11 +61,7 @@ export default function MPlaceSheet({ planner, shell }: MTripSheetsProps) {
   const [participantPickerOpen, setParticipantPickerOpen] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
   const navBtnRef = useRef<HTMLButtonElement>(null)
-  const {
-    busy: imgBusy, setBusy: setImgBusy, pickImage: handleImagePick,
-  } = usePlaceImagePick(place && !isTourPlace ? file => planner.tripActions.uploadPlaceImage(planner.tripId, place.id, file) : undefined, planner.toast)
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
-  const imageInputRef = useRef<HTMLInputElement | null>(null)
 
   const close = () => {
     planner.setSelectedPlaceId(null)
@@ -165,18 +162,6 @@ export default function MPlaceSheet({ planner, shell }: MTripSheetsProps) {
     }
   }
 
-  const handleImageRemove = async () => {
-    if (!place || isTourPlace) return
-    setImgBusy(true)
-    try {
-      await planner.tripActions.updatePlace(planner.tripId, place.id, { image_url: null })
-    } catch (err: unknown) {
-      planner.toast.error(translateApiError(t, err, 'places.imageRemoveError'))
-    } finally {
-      setImgBusy(false)
-    }
-  }
-
   const saveToCollection = () => {
     if (!place) return
     openSavePicker(placeToSaveTarget(place))
@@ -211,7 +196,8 @@ export default function MPlaceSheet({ planner, shell }: MTripSheetsProps) {
           <div className="flex-none px-[18px] pt-4">
             <div className="flex items-start gap-3">
               <div className="flex flex-none flex-col items-center gap-[5px]">
-                <div className="relative h-[52px] w-[52px]">
+                {/* The picture opens the place's photos; it is changed in the editor. */}
+                <PlacePhotoGallery place={place} language={language} label={t('places.openPhotos')} className="rounded-[16px]">
                   {place.image_url ? (
                     <div
                       className="h-[52px] w-[52px] rounded-[16px] border-[1.5px] border-[color:var(--m-avbr)] bg-cover bg-center"
@@ -222,35 +208,7 @@ export default function MPlaceSheet({ planner, shell }: MTripSheetsProps) {
                       <CatIcon size={20} strokeWidth={1.8} className="text-m-muted" />
                     </div>
                   )}
-                  {canManagePlace && (
-                    <>
-                      {/* Tap the thumbnail to set a custom image (#1136). */}
-                      <button
-                        type="button"
-                        onClick={() => { if (!imgBusy) imageInputRef.current?.click() }}
-                        aria-label={place.image_url ? t('places.changeImage') : t('places.uploadImage')}
-                        className="absolute inset-0 flex items-center justify-center rounded-[16px]"
-                        style={{ background: imgBusy ? 'rgba(0,0,0,0.45)' : 'transparent' }}
-                      >
-                        <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full" style={{ background: 'rgba(0,0,0,0.55)', color: '#fff' }}>
-                          {imgBusy ? <Loader2 size={12} className="animate-spin" /> : <Camera size={12} />}
-                        </span>
-                      </button>
-                      {place.image_url && !imgBusy && (
-                        <button
-                          type="button"
-                          onClick={handleImageRemove}
-                          aria-label={t('places.removeImage')}
-                          className="absolute flex items-center justify-center rounded-full"
-                          style={{ top: -5, insetInlineEnd: -5, width: 18, height: 18, background: '#ef4444', color: '#fff', border: '2px solid var(--m-sheet)' }}
-                        >
-                          <X size={9} strokeWidth={3} />
-                        </button>
-                      )}
-                      <input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp,.heic,.heif" className="hidden" onChange={handleImagePick} />
-                    </>
-                  )}
-                </div>
+                </PlacePhotoGallery>
                 {category && (
                   <span className="flex max-w-[76px] items-center gap-1 rounded-full border border-[color:var(--m-faint)] px-2 py-[2px] font-geist text-[0.625rem] font-semibold text-m-muted">
                     <CatIcon size={10} strokeWidth={2} className="flex-none" />

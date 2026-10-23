@@ -4,7 +4,6 @@ import { translateApiError, useTranslation } from '../../i18n';
 import type { TripStoreState } from '../../store/tripStore';
 import { useTripStore } from '../../store/tripStore';
 import type { Place } from '../../types';
-import { normalizeImageFile } from '../../utils/convertHeic';
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;
 
@@ -132,30 +131,4 @@ export function usePlaceFileUpload(
   );
 
   return { uploading, filesExpanded, setFilesExpanded, fileInputRef, handleUpload };
-}
-
-/**
- * A picture picked as a place's image (#1136): converted from HEIC where needed,
- * uploaded, and a failure said in a toast. `busy` also covers whatever else the
- * caller does to the image while it runs. Without an upload the pick does nothing.
- */
-export function usePlaceImagePick(upload: ((file: File) => Promise<unknown>) | undefined, toast: PlaceActionToast) {
-  const { t } = useTranslation();
-  const [busy, setBusy] = useState(false);
-
-  const pickImage = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file || !upload) return;
-    setBusy(true);
-    try {
-      await upload(await normalizeImageFile(file));
-    } catch (err: unknown) {
-      toast.error(translateApiError(t, err, 'places.imageUploadError'));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return { busy, setBusy, pickImage };
 }

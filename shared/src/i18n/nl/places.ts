@@ -168,10 +168,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Afbeelding uploaden',
   'places.changeImage': 'Afbeelding wijzigen',
   'places.removeImage': 'Afbeelding verwijderen',
-  'places.chooseImage': 'Een afbeelding kiezen',
-  'places.uploadFromDevice': 'Uploaden vanaf apparaat',
-  'places.fromAttachedFiles': 'Uit bijgevoegde bestanden',
+  'places.image.current': 'Huidige afbeelding',
+  'places.image.own': 'Jouw afbeelding',
+  'places.image.none': 'Geen afbeelding',
+  'places.image.needsConnection': 'Een nieuwe afbeelding heeft een verbinding nodig. Sla opnieuw op zodra je online bent.',
+  'places.openPhotos': 'Foto’s bekijken',
   'places.imageUploadError': 'Afbeelding uploaden mislukt',
-  'places.imageRemoveError': 'Afbeelding verwijderen mislukt',
 };
 export default places;

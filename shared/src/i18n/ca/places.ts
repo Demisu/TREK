@@ -170,10 +170,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Puja una imatge',
   'places.changeImage': 'Canvia la imatge',
   'places.removeImage': 'Elimina la imatge',
-  'places.chooseImage': 'Tria una imatge',
-  'places.uploadFromDevice': 'Puja des del dispositiu',
-  'places.fromAttachedFiles': 'Dels fitxers adjunts',
+  'places.image.current': 'Imatge actual',
+  'places.image.own': 'La teva imatge',
+  'places.image.none': 'Sense imatge',
+  'places.image.needsConnection': 'Una imatge nova necessita connexió. Torna a desar quan estiguis en línia.',
+  'places.openPhotos': 'Mostra les fotos',
   'places.imageUploadError': "No s'ha pogut pujar la imatge",
-  'places.imageRemoveError': "No s'ha pogut eliminar la imatge",
 };
 export default places;

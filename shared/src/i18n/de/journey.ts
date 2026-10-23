@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'Vergrößern',
   'journey.lightbox.zoomOut': 'Verkleinern',
   'journey.lightbox.zoomReset': 'Zurück zum ganzen Foto',
+  'journey.lightbox.previous': 'Vorheriges Foto',
+  'journey.lightbox.next': 'Nächstes Foto',
   'journey.create': 'Erstellen',
   'journey.titlePlaceholder': 'Wohin geht die Reise?',
   'journey.empty': 'Noch keine Journeys',

@@ -168,10 +168,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Carica immagine',
   'places.changeImage': 'Cambia immagine',
   'places.removeImage': 'Rimuovi immagine',
-  'places.chooseImage': 'Scegli un’immagine',
-  'places.uploadFromDevice': 'Carica dal dispositivo',
-  'places.fromAttachedFiles': 'Dai file allegati',
+  'places.image.current': 'Immagine attuale',
+  'places.image.own': 'La tua immagine',
+  'places.image.none': 'Nessuna immagine',
+  'places.image.needsConnection': 'Una nuova immagine richiede una connessione. Salva di nuovo quando sei online.',
+  'places.openPhotos': 'Mostra foto',
   'places.imageUploadError': "Impossibile caricare l'immagine",
-  'places.imageRemoveError': "Impossibile rimuovere l'immagine",
 };
 export default places;

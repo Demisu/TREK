@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'Suurenda',
   'journey.lightbox.zoomOut': 'Vähenda',
   'journey.lightbox.zoomReset': 'Tagasi terve fotoni',
+  'journey.lightbox.previous': 'Eelmine foto',
+  'journey.lightbox.next': 'Järgmine foto',
   'journey.create': 'Loo',
   'journey.titlePlaceholder': 'Kuhu lähed?',
   'journey.empty': 'Reisilugusid veel pole',

@@ -9,6 +9,7 @@ import { useAuthStore } from '../../store/authStore'
 import { useTripStore, type TripStoreState } from '../../store/tripStore'
 import { isEffectivelyOffline } from '../../sync/networkMode'
 import type { Accommodation, Place } from '../../types'
+import { savePendingImage, takePendingImage } from './placeImageSave'
 import { capturePlaceVisits, deleteLosesDependents, restorePlace } from './placeUndo'
 import type { PlannerBase, PlannerHistory } from './plannerTypes'
 import type { PlannerDialogs } from './usePlannerDialogs'
@@ -96,6 +97,8 @@ export function usePlaceEdits(options: PlaceEditsOptions) {
     // stays open with them instead of saving a place that loses them.
     if (pendingFiles?.length > 0 && isEffectivelyOffline()) throw new Error(t('files.placeFilesNeedConnection'))
     delete data._pendingFiles
+    const pendingImage = takePendingImage(data, () => t('places.image.needsConnection'))
+    const imageFailed = (err: unknown) => toast.error(translateApiError(t, err, 'places.imageUploadError'))
     // Where a service stop added by hand belongs on the drive. The form worked it out
     // from the coordinates being saved, because until a place was chosen in it there
     // were none to project.
@@ -134,6 +137,7 @@ export function usePlaceEdits(options: PlaceEditsOptions) {
           try { await tripActions.addFile(tripId, fd) } catch (err) { toast.error(translateApiError(t, err, 'files.uploadError')) }
         }
       }
+      await savePendingImage(tripActions, tripId, editingPlace.id, pendingImage, imageFailed)
       toast.success(t('trip.toast.placeUpdated'))
       return { id: editingPlace.id }
     } else {
@@ -189,6 +193,7 @@ export function usePlaceEdits(options: PlaceEditsOptions) {
           try { await tripActions.addFile(tripId, fd) } catch (err) { toast.error(translateApiError(t, err, 'files.uploadError')) }
         }
       }
+      await savePendingImage(tripActions, tripId, place?.id, pendingImage, imageFailed)
       toast.success(t('trip.toast.placeAdded'))
       if (place?.id) {
         const capturedId = place.id

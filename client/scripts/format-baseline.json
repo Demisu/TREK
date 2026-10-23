@@ -1123,8 +1123,6 @@
   "src/components/shared/PasswordChecklist.tsx",
   "src/components/shared/PlaceAvatar.test.tsx",
   "src/components/shared/PlaceAvatar.tsx",
-  "src/components/shared/PlaceAvatarUpload.test.tsx",
-  "src/components/shared/PlaceAvatarUpload.tsx",
   "src/components/shared/PluginIcon.test.tsx",
   "src/components/shared/PluginIcon.tsx",
   "src/components/shared/PublicLanguagePicker.test.tsx",

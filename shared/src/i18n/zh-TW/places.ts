@@ -156,10 +156,11 @@ const places: TranslationStrings = {
   'places.uploadImage': '上傳圖片',
   'places.changeImage': '變更圖片',
   'places.removeImage': '移除圖片',
-  'places.chooseImage': '選擇圖片',
-  'places.uploadFromDevice': '從裝置上傳',
-  'places.fromAttachedFiles': '從附加檔案選擇',
+  'places.image.current': '目前圖片',
+  'places.image.own': '你的圖片',
+  'places.image.none': '沒有圖片',
+  'places.image.needsConnection': '新圖片需要連線。連線後請再儲存一次。',
+  'places.openPhotos': '查看照片',
   'places.imageUploadError': '無法上傳圖片',
-  'places.imageRemoveError': '無法刪除圖片',
 };
 export default places;

@@ -9,7 +9,7 @@ import { markdownLinkComponents } from '../shared/markdownLink'
 import { X, Clock, MapPin, ExternalLink, Phone, Mail, Banknote, Pencil, Plus, Minus, ChevronDown, ChevronUp, ChevronRight, FileText, Upload, File, FileImage, Star, Navigation, Mountain, Bookmark, BookmarkCheck, Copy } from 'lucide-react'
 import { hoursLines, periodsFromWeek } from './placeHours'
 import PlaceAvatar from '../shared/PlaceAvatar'
-import PlaceAvatarUpload, { pickableImages } from '../shared/PlaceAvatarUpload'
+import PlacePhotoGallery from './PlacePhotoGallery'
 import { BlurredCode } from '../shared/BookingCode'
 import PlaceRating from '../shared/StarRating'
 import TrackColorPicker from '../shared/TrackColorPicker'
@@ -186,10 +186,6 @@ interface PlaceInspectorProps {
   tripMembers?: TripMember[]
   onSetParticipants?: (assignmentId: number, dayId: number, participantIds: number[]) => void
   onUpdatePlace?: (placeId: number, data: Partial<Place>) => void
-  /** Upload a custom thumbnail (#1136); enables the click-to-change avatar in trip mode. */
-  onUploadImage?: (placeId: number, file: File) => Promise<void>
-  /** Takes a picture already attached to the place as its image (#1242). */
-  onImageFromFile?: (placeId: number, fileId: number) => Promise<void>
   /** Cast/clear the current user's star vote (#1435); enables the rating row. */
   onRate?: (placeId: number, rating: number | null) => Promise<void> | void
   leftWidth?: number
@@ -215,7 +211,7 @@ export default function PlaceInspector({
   place, categories, mode = 'trip', days = [], selectedDayId = null, selectedAssignmentId = null,
   assignments = {}, reservations = [], onEditTransport, onEditReservation, onOpenBooking,
   onClose, onEdit: editPlace, onDelete: deletePlace, onAssignToDay, onRemoveAssignment,
-  files = [], onFileUpload, tripMembers = [], onSetParticipants, onUpdatePlace: updatePlace, onUploadImage, onImageFromFile, onRate,
+  files = [], onFileUpload, tripMembers = [], onSetParticipants, onUpdatePlace: updatePlace, onRate,
   leftWidth = 0, rightWidth = 0, clearMapPill = false,
   collectionStatus, onCopyToTrip, onSetStatus, onRemoveFromList, roadtripEndDay, roadtripStay, roadtripActive,
 }: PlaceInspectorProps) {
@@ -392,9 +388,6 @@ export default function PlaceInspector({
           editingName={editingName} nameInputRef={nameInputRef} nameValue={nameValue} setNameValue={setNameValue}
           commitNameEdit={commitNameEdit} handleNameKeyDown={handleNameKeyDown} startNameEdit={startNameEdit}
           onUpdatePlace={onUpdatePlace}
-          onUploadImage={mode === 'trip' && onUpdatePlace ? onUploadImage : undefined}
-          attachedImages={pickableImages(placeFiles)}
-          onImageFromFile={mode === 'trip' && onUpdatePlace ? onImageFromFile : undefined}
           onClose={onClose} />
 
         {/* The body scrolls inside the capped card; each block keeps its natural height (#1195). */}
@@ -598,19 +591,17 @@ interface InspectorHeadProps {
   handleNameKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void
   startNameEdit: () => void
   onUpdatePlace?: (placeId: number, data: Partial<Place>) => void
-  onUploadImage?: (placeId: number, file: File) => Promise<void>
-  attachedImages: TripFile[]
-  onImageFromFile?: (placeId: number, fileId: number) => Promise<void>
   onClose: () => void
 }
 
 /**
  * The head band: the avatar with its open/closed ring and photo credit, the
- * name (a double-click renames it), the address, and the facts as pills.
+ * name (a double-click renames it), the address, and the facts as pills. The
+ * avatar opens the place's photos; its picture is changed in the editor.
  */
 function InspectorHead({ place, category, openNow, phone, email, rating, ratingCount, price, time, editingName, nameInputRef,
-  nameValue, setNameValue, commitNameEdit, handleNameKeyDown, startNameEdit, onUpdatePlace, onUploadImage, attachedImages, onImageFromFile, onClose }: InspectorHeadProps) {
-  const { t, locale } = useTranslation()
+  nameValue, setNameValue, commitNameEdit, handleNameKeyDown, startNameEdit, onUpdatePlace, onClose }: InspectorHeadProps) {
+  const { t, locale, language } = useTranslation()
   const ring = openNow === true ? 'bg-success' : openNow === false ? 'bg-danger' : 'bg-surface-card shadow-sm'
   const hasCoords = !!(place.lat && place.lng)
   const hasPills = openNow !== null || !!category || !!time || rating != null || !!price || place.source === 'dawarich' || !!phone || !!email || hasCoords
@@ -619,13 +610,9 @@ function InspectorHead({ place, category, openNow, phone, email, rating, ratingC
       <div className="flex items-start gap-3.5">
         <div className="flex w-[57px] flex-none flex-col items-center">
           <div className={`rounded-full p-[2.5px] ${ring}`}>
-            {onUploadImage
-              ? <PlaceAvatarUpload place={place} category={category} size={52}
-                  onUpload={(file: File) => onUploadImage(place.id, file)}
-                  onRemove={() => onUpdatePlace(place.id, { image_url: null })}
-                  attachedImages={attachedImages}
-                  onPickAttached={onImageFromFile ? (fileId: number) => onImageFromFile(place.id, fileId) : undefined} />
-              : <PlaceAvatar place={place} category={category} size={52} />}
+            <PlacePhotoGallery place={place} language={language} label={t('places.openPhotos')} className="rounded-full">
+              <PlaceAvatar place={place} category={category} size={52} />
+            </PlacePhotoGallery>
           </div>
           <PhotoCredit imageUrl={place.image_url} />
         </div>

@@ -9,6 +9,8 @@ const journey: TranslationStrings = {
   'journey.lightbox.zoomIn': 'Μεγέθυνση',
   'journey.lightbox.zoomOut': 'Σμίκρυνση',
   'journey.lightbox.zoomReset': 'Επιστροφή σε ολόκληρη τη φωτογραφία',
+  'journey.lightbox.previous': 'Προηγούμενη φωτογραφία',
+  'journey.lightbox.next': 'Επόμενη φωτογραφία',
   'journey.create': 'Δημιουργία',
   'journey.titlePlaceholder': 'Πού πηγαίνετε;',
   'journey.empty': 'Δεν υπάρχουν ταξίδια ακόμα',

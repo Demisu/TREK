@@ -184,10 +184,11 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Загрузить изображение',
   'places.changeImage': 'Изменить изображение',
   'places.removeImage': 'Удалить изображение',
-  'places.chooseImage': 'Выбрать изображение',
-  'places.uploadFromDevice': 'Загрузить с устройства',
-  'places.fromAttachedFiles': 'Из прикреплённых файлов',
+  'places.image.current': 'Текущее изображение',
+  'places.image.own': 'Твоё изображение',
+  'places.image.none': 'Без изображения',
+  'places.image.needsConnection': 'Для нового изображения нужно подключение. Сохрани ещё раз, когда будешь онлайн.',
+  'places.openPhotos': 'Показать фото',
   'places.imageUploadError': 'Не удалось загрузить изображение',
-  'places.imageRemoveError': 'Не удалось удалить изображение',
 };
 export default places;

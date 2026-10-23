@@ -1,6 +1,6 @@
 // FE-PLANNER-PLACEACT-001 to -015: the place writes behind both the desktop
 // inspector and the phone place sheet.
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import type { ChangeEvent } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -8,14 +8,12 @@ import { buildAssignment, buildPlace } from '../../../tests/helpers/factories';
 import { resetAllStores } from '../../../tests/helpers/store';
 import { assignmentsApi } from '../../api/client';
 import { useTripStore } from '../../store/tripStore';
-import { normalizeImageFile } from '../../utils/convertHeic';
 import {
   participantsWith,
   participantsWithout,
   placeActions,
   splitParticipants,
   usePlaceFileUpload,
-  usePlaceImagePick,
 } from './usePlaceActions';
 
 vi.mock('../../utils/convertHeic', () => ({
@@ -206,63 +204,5 @@ describe('usePlaceFileUpload', () => {
     expect(result.current.filesExpanded).toBe(true);
     act(() => result.current.setFilesExpanded((v) => !v));
     expect(result.current.filesExpanded).toBe(false);
-  });
-});
-
-describe('usePlaceImagePick', () => {
-  it('FE-PLANNER-PLACEACT-013: converts the picked picture, uploads it and clears the input', async () => {
-    const upload = vi.fn(async (_file: File) => undefined);
-    const toast = { error: vi.fn() };
-    const { result } = renderHook(() => usePlaceImagePick(upload, toast));
-    const { event, target } = pick([new File(['x'], 'photo.heic')]);
-
-    await act(async () => {
-      await result.current.pickImage(event);
-    });
-
-    expect(normalizeImageFile).toHaveBeenCalledTimes(1);
-    expect(upload.mock.calls[0][0].name).toBe('normalized-photo.heic');
-    expect(target.value).toBe('');
-    expect(result.current.busy).toBe(false);
-    expect(toast.error).not.toHaveBeenCalled();
-  });
-
-  it('FE-PLANNER-PLACEACT-014: a refused picture is reported and the busy flag drops again', async () => {
-    let fail: (err: Error) => void = () => undefined;
-    const upload = vi.fn(() => new Promise<void>((_resolve, reject) => (fail = reject)));
-    const toast = { error: vi.fn() };
-    const { result } = renderHook(() => usePlaceImagePick(upload, toast));
-
-    let running: Promise<void> = Promise.resolve();
-    act(() => {
-      running = result.current.pickImage(pick([new File(['x'], 'a.png')]).event);
-    });
-    expect(result.current.busy).toBe(true);
-    await waitFor(() => expect(upload).toHaveBeenCalled());
-
-    await act(async () => {
-      fail(new Error('unsupported'));
-      await running;
-    });
-    expect(toast.error).toHaveBeenCalledWith('places.imageUploadError');
-    expect(result.current.busy).toBe(false);
-  });
-
-  it('FE-PLANNER-PLACEACT-015: without an upload or a file the pick only clears the input', async () => {
-    const upload = vi.fn(async () => undefined);
-    const noUpload = renderHook(() => usePlaceImagePick(undefined, { error: vi.fn() }));
-    const nothingPicked = renderHook(() => usePlaceImagePick(upload, { error: vi.fn() }));
-    const first = pick([new File(['x'], 'a.png')]);
-    const second = pick([]);
-    await act(async () => {
-      await noUpload.result.current.pickImage(first.event);
-      await nothingPicked.result.current.pickImage(second.event);
-    });
-    expect(first.target.value).toBe('');
-    expect(second.target.value).toBe('');
-    expect(upload).not.toHaveBeenCalled();
-    expect(normalizeImageFile).not.toHaveBeenCalled();
-    act(() => noUpload.result.current.setBusy(true));
-    expect(noUpload.result.current.busy).toBe(true);
   });
 });

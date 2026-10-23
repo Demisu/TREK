@@ -1,8 +1,8 @@
 import type React from 'react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { useTranslation } from '../../i18n';
-import type { Category } from '../../types';
+import type { Category, TripFile } from '../../types';
 import { offlineOr } from '../../utils/needsConnection';
 import type { useToast } from '../shared/Toast';
 import type { PlaceDetailsSelection } from './PlaceDetailsColumn';
@@ -15,6 +15,7 @@ import {
   type PlacePrefill,
   type ResultField,
 } from './PlaceFormModal.helpers';
+import type { PendingPlaceImage } from './placeImageChoice';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 type Toast = ReturnType<typeof useToast>;
@@ -40,6 +41,20 @@ export function usePlaceForm({ t, toast, canUploadFiles }: PlaceFormOptions) {
   // user's and survives. See mergeResult.
   const autoFilledRef = useRef<Set<ResultField>>(new Set());
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  // The picture that becomes the place's own when the form is saved.
+  const [pendingImage, setPendingImageState] = useState<PendingPlaceImage | null>(null);
+  const previewRef = useRef<string | null>(null);
+  const setPendingImage = (next: PendingPlaceImage | null) => {
+    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
+    previewRef.current = next?.kind === 'upload' ? next.preview : null;
+    setPendingImageState(next);
+  };
+  useEffect(
+    () => () => {
+      if (previewRef.current) URL.revokeObjectURL(previewRef.current);
+    },
+    []
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
   // What the details column is describing. Null until there is a place to describe.
@@ -59,6 +74,7 @@ export function usePlaceForm({ t, toast, canUploadFiles }: PlaceFormOptions) {
     autoFilledRef.current = openingAutoFilled(place, prefill);
     setDetailsSelection(openingDetailsSelection(place, prefill));
     setPendingFiles([]);
+    setPendingImage(null);
     setDuplicateWarning(null);
   };
 
@@ -91,8 +107,29 @@ export function usePlaceForm({ t, toast, canUploadFiles }: PlaceFormOptions) {
     }
   };
 
-  /** A hero image picked in the details column, or none. */
-  const pickImage = (url: string | null) => setForm((prev) => ({ ...prev, image_url: url ?? undefined }));
+  /** A source's photo picked in the details column, or the place's own picture again. */
+  const pickImage = (url: string | null) => {
+    setPendingImage(null);
+    setForm((prev) => ({ ...prev, image_url: url ?? undefined }));
+  };
+
+  /** A picture from the device, shown at once and uploaded when the form is saved. */
+  const stageUpload = (file: File) => {
+    setPendingImage({ kind: 'upload', file, preview: URL.createObjectURL(file) });
+    setForm((prev) => ({ ...prev, image_url: undefined }));
+  };
+
+  /** An image already attached to the place, made its picture when the form is saved. */
+  const stageAttached = (file: TripFile) => {
+    setPendingImage({ kind: 'attached', file });
+    setForm((prev) => ({ ...prev, image_url: undefined }));
+  };
+
+  /** No picture at all: the save drops the place's own one. */
+  const removeImage = () => {
+    setPendingImage(null);
+    setForm((prev) => ({ ...prev, image_url: null }));
+  };
 
   /** The details column's description, taken over into the form. */
   const adoptDescription = (text: string) => setForm((prev) => ({ ...prev, description: text }));
@@ -127,6 +164,10 @@ export function usePlaceForm({ t, toast, canUploadFiles }: PlaceFormOptions) {
     openForm,
     handleChange,
     pickImage,
+    pendingImage,
+    stageUpload,
+    stageAttached,
+    removeImage,
     adoptDescription,
     warnIfDuplicate,
   };

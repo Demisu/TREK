@@ -156,10 +156,11 @@ const places: TranslationStrings = {
   'places.uploadImage': '上传图片',
   'places.changeImage': '更换图片',
   'places.removeImage': '移除图片',
-  'places.chooseImage': '选择图片',
-  'places.uploadFromDevice': '从设备上传',
-  'places.fromAttachedFiles': '从附件中选择',
+  'places.image.current': '当前图片',
+  'places.image.own': '你的图片',
+  'places.image.none': '无图片',
+  'places.image.needsConnection': '新图片需要联网。联网后请再次保存。',
+  'places.openPhotos': '查看照片',
   'places.imageUploadError': '无法上传图片',
-  'places.imageRemoveError': '无法删除图片',
 };
 export default places;

@@ -160,10 +160,11 @@ const places: TranslationStrings = {
   'places.uploadImage': '画像をアップロード',
   'places.changeImage': '画像を変更',
   'places.removeImage': '画像を削除',
-  'places.chooseImage': '画像を選択',
-  'places.uploadFromDevice': 'デバイスからアップロード',
-  'places.fromAttachedFiles': '添付ファイルから',
+  'places.image.current': '現在の画像',
+  'places.image.own': 'あなたの画像',
+  'places.image.none': '画像なし',
+  'places.image.needsConnection': '新しい画像には接続が必要です。オンラインになってからもう一度保存してください。',
+  'places.openPhotos': '写真を見る',
   'places.imageUploadError': '画像をアップロードできませんでした',
-  'places.imageRemoveError': '画像を削除できませんでした',
 };
 export default places;

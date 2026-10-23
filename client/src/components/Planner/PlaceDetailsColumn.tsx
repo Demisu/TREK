@@ -33,22 +33,22 @@ import { fs } from '../shared/DialogShell'
 import { LABEL } from '../shared/dialogParts'
 import { COLUMN_CARD, ColumnHead, HintCard, SIDE_COLUMN, WHITE_BUTTON } from './placeDialogParts'
 import type { TranslationFn } from '../../types'
+import PlaceImagePicker, { type PlaceImageOwn } from './PlaceImagePicker'
+import { chosenImage, type ChosenImage } from './placeImageChoice'
+import { cacheKeyFor, readCachedEnrichment, storeEnrichment, type PlaceDetailsSelection } from './placeEnrichment'
 
-/** The place the column is describing. Null while nothing is selected. */
-export interface PlaceDetailsSelection {
-  placeId?: string
-  lat: number
-  lng: number
-  name: string
-  /** The picked search result, so the server can skip its own details lookup. */
-  details?: Record<string, unknown>
-}
+export { __clearEnrichmentCacheForTests, type PlaceDetailsSelection } from './placeEnrichment'
 
 interface PlaceDetailsColumnProps {
   selection: PlaceDetailsSelection | null
   /** Currently chosen hero image, so the picked tile can show as picked. */
-  selectedImageUrl?: string
+  selectedImageUrl?: string | null
   onPickImage: (url: string | null) => void
+  /**
+   * The editor's own pictures (upload, the current one, attached images) and
+   * which tile is chosen; without it only the sources' pictures are offered.
+   */
+  image?: { own: PlaceImageOwn; chosen: ChosenImage }
   onAdoptDescription: (text: string) => void
   /** The looked-up opening hours, once they arrive, so the form can take them over (#2472). */
   onHours?: (hours: PlaceHours) => void
@@ -73,47 +73,6 @@ interface PlaceDetailsColumnProps {
   variant?: 'sheet' | 'dialog'
   /** False on an instance with no Google key, which is most of them. */
   t: TranslationFn
-}
-
-/**
- * Module-level cache plus sessionStorage, same shape as usePlaceDetails in
- * PlaceInspector. Clicking back and forth between two search results must not
- * pay for the provider fan-out twice.
- */
-const enrichmentCache = new Map<string, MapsPlaceEnrichmentResult>()
-
-/** Test seam: the module-level cache otherwise leaks between cases. */
-export function __clearEnrichmentCacheForTests(): void {
-  enrichmentCache.clear()
-}
-
-function readSession(key: string): MapsPlaceEnrichmentResult | undefined {
-  try {
-    const raw = sessionStorage.getItem(key)
-    return raw ? (JSON.parse(raw) as MapsPlaceEnrichmentResult) : undefined
-  } catch {
-    return undefined
-  }
-}
-
-function writeSession(key: string, value: MapsPlaceEnrichmentResult): void {
-  try {
-    sessionStorage.setItem(key, JSON.stringify(value))
-  } catch {
-    /* private mode / quota — the in-memory cache still helps for this session */
-  }
-}
-
-/**
- * Bumped with the server's CACHE_VERSION. sessionStorage outlives a deploy, so
- * without it the tab that was open while the fix shipped keeps replaying the
- * answer the fix was about — and reports it as still broken.
- */
-const ENRICH_CACHE_V = 4
-
-function cacheKeyFor(selection: PlaceDetailsSelection, language: string): string {
-  const id = selection.placeId || `coords:${selection.lat}:${selection.lng}`
-  return `enrich_v${ENRICH_CACHE_V}_${id}_${language}`
 }
 
 type LoadState = 'idle' | 'loading' | 'ready' | 'error'
@@ -161,6 +120,7 @@ export default function PlaceDetailsColumn({
   locale = 'en-US',
   fluid = false,
   variant = 'sheet',
+  image,
   t,
 }: PlaceDetailsColumnProps): React.ReactElement {
   const dialog = variant === 'dialog'
@@ -183,9 +143,8 @@ export default function PlaceDetailsColumn({
       return
     }
 
-    const cached = enrichmentCache.get(selectionKey) ?? readSession(selectionKey)
+    const cached = readCachedEnrichment(selection, language)
     if (cached) {
-      enrichmentCache.set(selectionKey, cached)
       setData(cached)
       setState('ready')
       return
@@ -217,8 +176,7 @@ export default function PlaceDetailsColumn({
         )
         .then((result) => {
           if (controller.signal.aborted) return
-          enrichmentCache.set(selectionKey, result)
-          writeSession(selectionKey, result)
+          storeEnrichment(selection, language, result)
           setData(result)
           setState('ready')
         })
@@ -279,6 +237,16 @@ export default function PlaceDetailsColumn({
       )}
 
       <div className={dialog ? 'flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto px-3 pb-3' : 'flex-1 min-h-0 overflow-y-auto p-3 space-y-3.5'}>
+        {/* The place's picture first: its own ones are there whatever the sources answer. */}
+        <PictureBlock
+          photos={state === 'ready' && !data?.disabled ? (data?.photos ?? []) : []}
+          chosen={image?.chosen ?? chosenImage(selectedImageUrl, null, null)}
+          onPickImage={onPickImage}
+          own={image?.own}
+          dialog={dialog}
+          t={t}
+        />
+
         {/* Nothing picked yet, which is a state rather than a fault: the mascot
             waits with an idle look instead of a sad one. The dialog says the
             same in a quiet card, and the column keeps its width either way. */}
@@ -331,7 +299,6 @@ export default function PlaceDetailsColumn({
 
         {selection && state === 'ready' && !data?.disabled && !isEmpty && (
           <>
-            <PhotoStrip photos={data?.photos ?? []} selectedImageUrl={selectedImageUrl} onPickImage={onPickImage} dialog={dialog} t={t} />
             <RatingRow rating={data?.rating ?? null} locale={locale} dialog={dialog} />
             <OpeningHoursBlock
               hours={data?.hours ?? null}
@@ -389,116 +356,28 @@ export default function PlaceDetailsColumn({
   )
 }
 
-/** The name to put under a picture. Google gives no author, so it gets its own name. */
-function creditOf(photo: PlacePhotoCandidate): string {
-  return photo.attribution || sourceLabelFor(photo.source)
-}
-
-/**
- * The picture grid.
- *
- * A grid rather than one large image: this sits beside a form in a dialog, and
- * a picture that takes half the column pushes the facts and the description out
- * of sight. Three columns at 320px gives ~96px tiles, which is enough to tell
- * the pictures apart while leaving the rest of the column visible.
- *
- * Only the picture in play is credited in full — crediting all of them at once
- * cost two lines each and drowned the column, and the licence obligation
- * attaches to the one that gets used. Every tile still carries the full credit
- * as its tooltip and links to its source page.
- */
-function PhotoStrip({
+/** The picker under its label; nothing while there is no picture to offer. */
+function PictureBlock({
   photos,
-  selectedImageUrl,
+  chosen,
   onPickImage,
-  dialog = false,
+  own,
+  dialog,
   t,
 }: {
   photos: PlacePhotoCandidate[]
-  selectedImageUrl?: string
+  chosen: ChosenImage
   onPickImage: (url: string | null) => void
-  dialog?: boolean
+  own?: PlaceImageOwn
+  dialog: boolean
   t: TranslationFn
 }): React.ReactElement | null {
-  const [hovered, setHovered] = useState<string | null>(null)
-  if (photos.length === 0) return null
-
-  const shown = photos.find((p) => p.url === (hovered ?? selectedImageUrl)) ?? photos[0]
-  const body = (
-    <>
-      <div className="grid grid-cols-3 gap-1.5">
-        {photos.map((photo) => (
-          <PhotoTile
-            key={photo.key}
-            photo={photo}
-            selected={selectedImageUrl === photo.url}
-            onPick={onPickImage}
-            onHover={setHovered}
-            dialog={dialog}
-            t={t}
-          />
-        ))}
-      </div>
-      <p className={dialog ? 'mt-2 flex min-w-0 items-center gap-2 text-caption leading-tight text-content-faint' : 'text-caption leading-tight text-content-faint truncate'}>
-        <PhotoCredit photo={shown} dialog={dialog} />
-      </p>
-    </>
-  )
-
+  const picker = <PlaceImagePicker photos={photos} chosen={chosen} onPickUrl={onPickImage} own={own} dialog={dialog} t={t} />
+  if (photos.length === 0 && !own) return null
   return (
     <Block label={t('places.details.pickImage')} dialog={dialog}>
-      {dialog ? <div className={`${COLUMN_CARD} p-2`}>{body}</div> : body}
+      {dialog ? <div className={`${COLUMN_CARD} p-2`}>{picker}</div> : picker}
     </Block>
-  )
-}
-
-function PhotoTile({
-  photo,
-  selected,
-  onPick,
-  onHover,
-  dialog = false,
-  t,
-}: {
-  photo: PlacePhotoCandidate
-  selected: boolean
-  onPick: (url: string | null) => void
-  onHover: (url: string | null) => void
-  /** On a white card, and without the native tooltip: hovering a tile already moves the credit line under the grid to it. */
-  dialog?: boolean
-  t: TranslationFn
-}): React.ReactElement {
-  const credit = creditOf(photo)
-
-  return (
-    <button
-      type="button"
-      onClick={() => onPick(selected ? null : photo.url)}
-      onMouseEnter={() => onHover(photo.url)}
-      onMouseLeave={() => onHover(null)}
-      onFocus={() => onHover(photo.url)}
-      onBlur={() => onHover(null)}
-      aria-pressed={selected}
-      aria-label={`${t('places.details.pickImage')} — ${credit}`}
-      title={dialog ? undefined : `${credit}${photo.license ? ` · ${photo.license}` : ''}`}
-      className={`group relative block w-full aspect-square overflow-hidden rounded-lg transition-shadow ${
-        selected
-          ? `ring-2 ring-accent ring-offset-2 ${dialog ? 'ring-offset-surface-card' : 'ring-offset-surface-secondary'}`
-          : 'ring-1 ring-edge hover:ring-content-muted'
-      }`}
-    >
-      <img
-        src={photo.url}
-        alt=""
-        loading="lazy"
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
-      />
-      {selected && (
-        <span className="absolute top-1 end-1 rounded-full bg-accent p-0.5 shadow-card">
-          <Check className="w-2.5 h-2.5 text-accent-on" />
-        </span>
-      )}
-    </button>
   )
 }
 
@@ -533,75 +412,6 @@ function descriptionSourceLabel(
   }
 }
 
-function sourceLabelFor(source: PlacePhotoCandidate['source']): string {
-  if (source === 'google') return 'Google'
-  if (source === 'wikipedia') return 'Wikipedia'
-  return 'Wikimedia Commons'
-}
-
-/**
- * Author and licence for the picture currently in play.
- *
- * Not decoration: Commons images are largely CC BY / CC BY-SA, and reusing one
- * without naming its author does not satisfy those terms. When a source hands
- * us no author (Google), we say where it came from rather than inventing one.
- * Rendered inline — the container supplies the colour and the truncation.
- */
-function PhotoCredit({ photo, dialog = false }: { photo: PlacePhotoCandidate; dialog?: boolean }): React.ReactElement {
-  const credit = creditOf(photo)
-
-  if (dialog) {
-    // Two pieces side by side with room between them, rather than joined by a dot.
-    return (
-      <>
-        <span className="min-w-0 truncate">
-          {photo.sourceUrl ? (
-            <a href={photo.sourceUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
-              {credit}
-            </a>
-          ) : (
-            credit
-          )}
-        </span>
-        {photo.license && (
-          <span className="flex-none">
-            {photo.licenseUrl ? (
-              <a href={photo.licenseUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                {photo.license}
-              </a>
-            ) : (
-              photo.license
-            )}
-          </span>
-        )}
-      </>
-    )
-  }
-
-  return (
-    <>
-      {photo.sourceUrl ? (
-        <a href={photo.sourceUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
-          {credit}
-        </a>
-      ) : (
-        credit
-      )}
-      {photo.license && (
-        <>
-          {' · '}
-          {photo.licenseUrl ? (
-            <a href={photo.licenseUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
-              {photo.license}
-            </a>
-          ) : (
-            photo.license
-          )}
-        </>
-      )}
-    </>
-  )
-}
 
 /**
  * Shown when the free sources found nothing and no Google key is configured.

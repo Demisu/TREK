@@ -182,11 +182,12 @@ const places: TranslationStrings = {
   'places.uploadImage': 'Şəkil yüklə',
   'places.changeImage': 'Şəkli dəyiş',
   'places.removeImage': 'Şəkli sil',
-  'places.chooseImage': 'Şəkil seç',
-  'places.uploadFromDevice': 'Cihazdan yüklə',
-  'places.fromAttachedFiles': 'Əlavə edilmiş fayllardan',
+  'places.image.current': 'Cari şəkil',
+  'places.image.own': 'Sənin şəklin',
+  'places.image.none': 'Şəkil yoxdur',
+  'places.image.needsConnection': 'Yeni şəkil üçün bağlantı lazımdır. Onlayn olanda yenidən yadda saxla.',
+  'places.openPhotos': 'Fotolara bax',
   'places.imageUploadError': 'Şəkli yükləmək mümkün olmadı',
-  'places.imageRemoveError': 'Şəkli silmək mümkün olmadı',
 };
 
 export default places;
