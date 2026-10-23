@@ -239,7 +239,7 @@ describe('the page in words', () => {
     );
     expect(words).toContain('hollow letters (outline only), round a circle, centred at 90 deg');
     expect(words).toContain('letters filled with photo 1 (focal 0.50/0.50, zoom 1), on an arc, bend 20');
-    expect(words).toContain('sans 24 pt, left, #1a1a1a: "Lisbon"');
+    expect(words).toContain('sans (heading) 24 pt, left, #1a1a1a: "Lisbon"');
   });
 
   it('BKTOP-012: says a translucent fill by its alpha', () => {
