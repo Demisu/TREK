@@ -6,7 +6,7 @@ import { DomainError } from '../common/domain-error';
 import { UnitOfWork } from '../database/unit-of-work';
 import type { FootWay } from './city-walk-briefing.helpers';
 import { CityWalkFootWayService } from './city-walk-foot-way.service';
-import type { DraftPoint } from './tour-change-apply';
+import { editsOnly, type DraftPoint } from './tour-change-apply';
 import { asWaypoint } from './tour-change-effects';
 import { TourChangePreviewService } from './tour-change-preview.service';
 import { proposalIdOf } from './tour-change-proposal';
@@ -14,7 +14,13 @@ import { tourWriteOf, writtenStations, writtenTour } from './tour-change-write';
 import { ToursService, type TourCreateCommand, type TourRouteDrops } from './tours.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
-import type { TourChangeSaveRequest, TourDetailResponse, TourListItem, TourWaypoint } from '@trek/shared';
+import type {
+  GeometryPoint,
+  TourChangeSaveRequest,
+  TourDetailResponse,
+  TourListItem,
+  TourWaypoint,
+} from '@trek/shared';
 
 /** The refusal of a save naming a proposal other than the one these changes were prepared as. */
 export const TOUR_CHANGE_NOT_PREPARED = 'tour_change_not_prepared';
@@ -25,6 +31,12 @@ interface ChangedTour {
   points: readonly DraftPoint[];
   way: FootWay;
   preparedOn: number;
+  /**
+   * Edits alone move no station: the walk keeps its saved line (heights and
+   * all) and its walking time, and the router is not asked, so a router that
+   * is down never takes the way of a walk whose stays were changed.
+   */
+  kept?: { line: GeometryPoint[] | null; seconds: number | null };
 }
 
 /** The step a save recorded: its id and the revision it raised the tour to. */
@@ -42,11 +54,11 @@ type SaveOutcome = { earlier: TourChangeStepRow } | ({ step: SavedStep } & TourR
  * only, as a created one does (CW-11): no line, no distance and no walking
  * time until the planner plans the way.
  */
-function writeOf({ tour, points, way, preparedOn }: ChangedTour): TourCreateCommand {
+function writeOf({ tour, points, way, preparedOn, kept }: ChangedTour): TourCreateCommand {
   const routed = way.kind === 'routed' ? way : null;
   return tourWriteOf(tour, {
-    route_geometry: routed?.line ?? null,
-    duration_seconds: routed?.seconds ?? null,
+    route_geometry: kept ? kept.line : (routed?.line ?? null),
+    duration_seconds: kept ? kept.seconds : (routed?.seconds ?? null),
     waypoints: points.map(asWaypoint),
     expected_revision: preparedOn,
   });
@@ -129,8 +141,14 @@ export class TourChangeSaveService {
     const earlier = await this.stepsRepo.findSavedProposal(placeId, proposalId, preparedOn);
     if (earlier) return alreadySavedAnswer(earlier);
     const laid = await this.preview.lay(tripId, placeId, changes, { action: 'saved', preparedOn });
-    const way = await this.footWays.plan(userId, tripId, laid.outcome.points);
-    const changed: ChangedTour = { tour: laid.tour, points: laid.outcome.points, way, preparedOn };
+    const changed: ChangedTour = editsOnly(changes)
+      ? await this.keptWay(tripId, placeId, laid.tour, laid.outcome.points, preparedOn)
+      : {
+          tour: laid.tour,
+          points: laid.outcome.points,
+          way: await this.footWays.plan(userId, tripId, laid.outcome.points),
+          preparedOn,
+        };
     const write = await this.tours.routeWrite(writeOf(changed));
     const saved = await this.uow.transactional(async (): Promise<SaveOutcome> => {
       // The same proposal saved by a save sent alongside this one while the way was planned.
@@ -157,6 +175,23 @@ export class TourChangeSaveService {
       stagesDropped: saved.stagesDropped,
     });
     return savedAnswer(detail, saved.step, changed);
+  }
+
+  /** A change of edits only, written with the walk's saved line and walking time. */
+  private async keptWay(
+    tripId: number,
+    placeId: number,
+    tour: TourListItem,
+    points: readonly DraftPoint[],
+    preparedOn: number,
+  ): Promise<ChangedTour> {
+    const line = await this.tours.savedLine(tripId, placeId);
+    const way: FootWay =
+      line.length >= 2
+        ? { kind: 'routed', line: line.map(([lat, lng]): [number, number] => [lat, lng]), legs: [], seconds: 0 }
+        : { kind: 'unrouted', why: 'nothing_to_route', position: null };
+    const seconds = tour.duration == null ? null : tour.duration * 60;
+    return { tour, points, way, preparedOn, kept: { line: line.length >= 2 ? line : null, seconds } };
   }
 
   /** The tour as it is before the change, as the step keeps it: its line, its points and its measures. */

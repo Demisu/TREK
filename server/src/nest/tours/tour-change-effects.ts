@@ -24,13 +24,16 @@ interface ChangeEffectsInput {
   stored: { distance_km: number | null; walking_minutes: number | null };
 }
 
-type StationChange = 'kept' | 'added' | 'replaced' | 'moved';
+type StationChange = 'kept' | 'added' | 'replaced' | 'moved' | 'edited';
 
 const CHANGE_OF: Record<DraftPoint['origin'], StationChange> = {
   saved: 'kept',
   added: 'added',
   replacing: 'replaced',
   moved: 'moved',
+  edited: 'edited',
+  // The way back a close_loop adds is no station, so no station row ever names it.
+  loop: 'added',
 };
 
 /** The key a point is saved under; null for a station a change brings in, which gets one when saved. */

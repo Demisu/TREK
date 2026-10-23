@@ -81,10 +81,19 @@ export function replans(args: ToolArgs, saved: unknown): boolean {
       : hikingPreferencesOf(recordOf(args.hiking_preferences) as HikingPreferences);
   return (
     args.waypoints !== undefined ||
+    args.reshape !== undefined ||
     plan.line === null ||
     limit !== kept.limit ||
     canonicalJson(preferences) !== canonicalJson(kept.preferences)
   );
+}
+
+/** The points update_tour plans a reshape through: the saved ones turned round, or with the way back to the start. */
+export function reshapedPoints(reshape: unknown, points: readonly Row[]): Row[] | null {
+  const first = points[0];
+  if (reshape === 'reverse') return [...points].reverse();
+  if (reshape === 'close_loop' && first) return [...points, { lat: first.lat, lng: first.lng }];
+  return null;
 }
 
 /**
@@ -100,7 +109,8 @@ export async function loadUpdateTour(args: ToolArgs, read: CardReader): Promise<
   if (!saved || !replans(args, saved)) return { plan: null, saved };
   const tour = recordOf(recordOf(saved).tour);
   const kept = keptSettings(tour);
-  const points = args.waypoints ?? rowsIn(recordOf(saved).waypoints).map(({ lat, lng }) => ({ lat, lng }));
+  const savedPoints = rowsIn(recordOf(saved).waypoints).map(({ lat, lng }) => ({ lat, lng }));
+  const points = args.waypoints ?? reshapedPoints(args.reshape, savedPoints) ?? savedPoints;
   const plan = await read('propose_hike', {
     name: args.name ?? tour.name,
     waypoints: points,
@@ -228,7 +238,8 @@ export function updateTourCard(ctx: PreviewContext, args: ToolArgs, loaded: Tour
   const previous = previousOf(loaded.saved);
   const planned = hikeCard(loaded.plan, args, ctx.card, 'pending');
   if (planned?.routed) return fitted({ ...planned, placeId, name, label: null, previous });
-  const points = args.waypoints === undefined ? rowsIn(recordOf(loaded.saved).waypoints) : rowsIn(args.waypoints);
+  const saved = rowsIn(recordOf(loaded.saved).waypoints);
+  const points = args.waypoints === undefined ? (reshapedPoints(args.reshape, saved) ?? saved) : rowsIn(args.waypoints);
   const straight = straightCard(points, 'hike', { placeId, name, previous, problem: heldProblem(planned) });
   return straight ? fitted(straight) : null;
 }

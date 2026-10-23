@@ -24,7 +24,9 @@ export interface TourLineWrite {
 
 /**
  * The write of a tour's line and points, everything else of the tour as it
- * is: a change of stations, or taking one back, changes nothing else.
+ * is: a change of stations, or taking one back, changes nothing else. Every
+ * setting of every type goes along, so a type that is no city walk keeps its
+ * profile, pace, discipline or boat through such a write as well.
  */
 export function tourWriteOf(tour: TourListItem, line: TourLineWrite): TourCreateCommand {
   return {
@@ -35,6 +37,13 @@ export function tourWriteOf(tour: TourListItem, line: TourLineWrite): TourCreate
     max_hiking_difficulty: tour.max_hiking_difficulty,
     hiking_preferences: tour.hiking_preferences,
     bike_profile: tour.bike_profile,
+    run_profile: tour.run_profile,
+    run_pace_seconds_per_km: tour.run_pace_seconds_per_km,
+    ski_discipline: tour.ski_discipline,
+    ski_technique: tour.ski_technique,
+    ski_options: tour.ski_options,
+    ski_route_build: tour.ski_route_build,
+    ski_planned_legs: tour.ski_planned_legs,
     boat_type: tour.boat_type,
     water_context: tour.water_context,
     paddle_speed_kmh: tour.paddle_speed_kmh,

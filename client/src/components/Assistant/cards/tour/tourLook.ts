@@ -1,5 +1,21 @@
 import { type AssistantApplied, cumulativeMetres, type TourRouteCard, type TrekCard } from '@trek/shared';
-import { ChartNoAxesColumn, Circle, CircleCheck, CircleSlash, Footprints, Luggage, Route } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  ChartNoAxesColumn,
+  Circle,
+  CircleCheck,
+  CircleSlash,
+  Copy,
+  Footprints,
+  History,
+  Luggage,
+  Palette,
+  Repeat,
+  Route,
+  Snowflake,
+  TriangleAlert,
+  Waves,
+} from 'lucide-react';
 
 import type { RouteLineSpec, RouteUse } from '../../../../types/assistantMap';
 import type { EntityTarget, PackLook } from '../cardTypes';
@@ -95,6 +111,14 @@ export const TOUR_LOOK = {
     countTour: { Icon: ChartNoAxesColumn, tone: 'success', labelKey: 'assistant.change.verb.countTour' },
     linkPacking: { Icon: Luggage, tone: 'success', labelKey: 'assistant.change.verb.linkPacking' },
     unlinkPacking: { Icon: Luggage, tone: 'info', labelKey: 'assistant.change.verb.unlinkPacking' },
+    reverseTour: { Icon: ArrowLeftRight, tone: 'info', labelKey: 'assistant.change.verb.reverseTour' },
+    closeLoop: { Icon: Repeat, tone: 'info', labelKey: 'assistant.change.verb.closeLoop' },
+    copyTour: { Icon: Copy, tone: 'success', labelKey: 'assistant.change.verb.copyTour' },
+    setRouteColor: { Icon: Palette, tone: 'info', labelKey: 'assistant.change.verb.setRouteColor' },
+    classifySki: { Icon: Snowflake, tone: 'info', labelKey: 'assistant.change.verb.classifySki' },
+    setPaddlePlan: { Icon: Waves, tone: 'info', labelKey: 'assistant.change.verb.setPaddlePlan' },
+    decideObstacles: { Icon: TriangleAlert, tone: 'info', labelKey: 'assistant.change.verb.decideObstacles' },
+    restoreTrack: { Icon: History, tone: 'info', labelKey: 'assistant.change.verb.restoreTrack' },
   },
   tools: {},
   steps: {
@@ -107,6 +131,7 @@ export const TOUR_LOOK = {
     find_tours_for_day: { stepKey: 'assistant.step.readingTours' },
     search_tour_pois: { stepKey: 'assistant.step.tourPois' },
     get_city_walk_progress: { stepKey: 'assistant.step.readingTour' },
+    get_tour_trail_details: { stepKey: 'assistant.step.readingTour' },
   },
   entities: {
     tour: {

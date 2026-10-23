@@ -104,6 +104,20 @@ export const TOUR_DESCRIBERS = {
       rows,
       dayId: null,
       placeIds: placeId === null ? [] : [placeId],
+      // PR1-01, PR1-02: a hike turned round or taken back to its start says so as its verb.
+      ...(args.reshape === 'reverse' ? { verbKey: 'reverseTour' as const } : {}),
+      ...(args.reshape === 'close_loop' ? { verbKey: 'closeLoop' as const } : {}),
+    };
+  },
+  // A tour of the trip saved again as a new one: the copy's name, the tour it is made from.
+  copy_tour: (ctx, args) => {
+    const source = id(args, 'placeId');
+    const from = source === null ? '' : (ctx.card.places.get(source)?.name ?? '');
+    return {
+      subject: text(args.name),
+      rows: new Rows().add('route', from),
+      dayId: null,
+      placeIds: source !== null && ctx.card.places.has(source) ? [source] : [],
     };
   },
   // A tour of another trip copied in; its own name stays unless the copy is given one.

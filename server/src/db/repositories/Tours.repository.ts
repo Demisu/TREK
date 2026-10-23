@@ -162,6 +162,12 @@ export interface TourInsert {
 }
 
 /** What a route edit replaces on an existing tour: the type and everything that belongs to it. */
+/** The planned times of a tour as P8 writes them, null where there is none. */
+interface TourTimesUpdate {
+  planned_duration_minutes: number | null;
+  break_additional_minutes: number | null;
+}
+
 export type TourUpdate = Omit<
   TourInsert,
   | 'place_id'
@@ -876,6 +882,23 @@ export class ToursRepository extends TrekRepository<Tours> {
         portage_speed_kmh: input.portage_speed_kmh,
         paddle_lake_style: input.paddle_lake_style,
         ...(input.hiking_preferences !== undefined ? { hiking_preferences: input.hiking_preferences } : {}),
+      })
+      .where('place_id', '=', place_id)
+      .where('place_id', 'in', (eb) => eb.selectFrom('places').select('id').where('trip_id', '=', trip_id))
+      .executeTakeFirst();
+    return Number(result.numUpdatedRows ?? 0) > 0;
+  }
+
+  /**
+   * P8: a tour's planned times alone, as update_tour_details changes them;
+   * nothing else of the tour is touched. Returns whether a row of that trip was updated.
+   */
+  async updateTimesInTrip(trip_id: number, place_id: number, input: TourTimesUpdate): Promise<boolean> {
+    const result = await this.db()
+      .updateTable('tours')
+      .set({
+        planned_duration_minutes: input.planned_duration_minutes,
+        break_additional_minutes: input.break_additional_minutes,
       })
       .where('place_id', '=', place_id)
       .where('place_id', 'in', (eb) => eb.selectFrom('places').select('id').where('trip_id', '=', trip_id))

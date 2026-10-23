@@ -22,6 +22,7 @@
 import {
   CITY_WALK_MAX_STATIONS,
   isClosedLoop,
+  TOUR_STATION_EDIT_FIELDS,
   type CityWalkStation,
   type TourChange,
   type TourChangeOp,
@@ -36,7 +37,7 @@ import {
 const CHANGEABLE_TYPES: ReadonlySet<string> = new Set(['walk']);
 
 /** How a point of the changed plan came to be: kept from the saved tour, or brought in by a change. */
-type DraftOrigin = 'saved' | 'added' | 'replacing' | 'moved';
+type DraftOrigin = 'saved' | 'added' | 'replacing' | 'moved' | 'edited' | 'loop';
 
 /** A point of the plan as the changes leave it. */
 export type DraftPoint = TourWaypoint & {
@@ -73,7 +74,10 @@ type RefusalReason =
   | 'fixed_leg'
   | 'place_not_linkable'
   | 'too_few_stations'
-  | 'too_many_stations';
+  | 'too_many_stations'
+  | 'reshape_not_alone'
+  | 'walk_under_way'
+  | 'already_loop';
 
 /** Why a change, or the whole proposal (change null), cannot be prepared. */
 interface ChangeRefusal {
@@ -130,26 +134,32 @@ function newStation(station: CityWalkStation, change: number): DraftPoint {
 
 /** The work in progress: the points without the way back of a loop, and what the changes did so far. */
 class ChangeRun {
-  readonly body: DraftPoint[];
+  private body: DraftPoint[];
   readonly removed: DraftPoint[] = [];
   readonly replaced: DraftPoint[] = [];
   readonly shapingDropped: DraftPoint[] = [];
   readonly refused: ChangeRefusal[] = [];
   /** The saved stations a change removed or replaced, which no later change can name. */
   private readonly gone = new Set<string>();
+  /** The way back of a loop as the walk ends: the saved one, turned by a reverse, or the one a close_loop adds. */
+  private back: DraftPoint | null;
 
   constructor(
     private readonly basis: ChangeBasis,
-    private readonly loop: boolean,
+    private loop: boolean,
   ) {
     const points = basis.points.map(savedPoint);
     this.body = loop ? points.slice(0, -1) : points;
+    this.back = loop ? (points[points.length - 1] ?? null) : null;
   }
 
   apply(change: TourChange, index: number): void {
     const number = index + 1;
     const refuse = (reason: RefusalReason, key: string | null, days?: StationDone[]) =>
       this.refused.push({ change: number, op: change.op, key, reason, ...(days ? { days } : {}) });
+    if (change.op === 'edit') return this.edit(change, number, refuse);
+    if (change.op === 'reverse') return this.reverse(number, refuse);
+    if (change.op === 'close_loop') return this.closeLoop(number, refuse);
     const before = this.refused.length;
     if ('station' in change) this.checkLink(change.station, (reason) => refuse(reason, null));
     if (change.op === 'add') {
@@ -171,6 +181,72 @@ class ChangeRun {
     this.gone.add(change.key);
     if (change.op === 'replace') this.body.splice(at, 0, this.replacing(change.station, number, change.key));
     (change.op === 'remove' ? this.removed : this.replaced).push({ ...point, change: number });
+  }
+
+  /**
+   * The fields an edit names written onto its station, which stays where it
+   * is: an edit moves nothing, so a protected station or one already done
+   * takes it too.
+   */
+  private edit(
+    change: Extract<TourChange, { op: 'edit' }>,
+    number: number,
+    refuse: (reason: RefusalReason, key: string) => void,
+  ): void {
+    const index = this.indexOfStation(change.key, refuse);
+    if (index === null) return;
+    const point = this.body[index] as DraftPoint;
+    const edited: DraftPoint = { ...point, origin: point.origin === 'saved' ? 'edited' : point.origin, change: number };
+    for (const field of TOUR_STATION_EDIT_FIELDS) {
+      const value = change[field];
+      if (value !== undefined) Object.assign(edited, { [field]: value });
+    }
+    this.body[index] = edited;
+  }
+
+  /**
+   * PR1-02 for a city walk: the walk the other way round, as the planner
+   * turns it. A loop stays a loop from the same start, its start the station
+   * there; a leg drawn by hand stays on the stretch it covers, its line turned
+   * with it. Refused once the travellers checked a station off on a day.
+   */
+  private reverse(number: number, refuse: (reason: RefusalReason, key: string | null) => void): void {
+    if ([...this.basis.done.values()].some((days) => days.length > 0)) {
+      refuse('walk_under_way', null);
+      return;
+    }
+    // A protected station keeps its place; turned round, every station but the start of a loop moves.
+    const kept = this.body.filter((point, at) => point.protected === true && !(this.back && at === 0));
+    for (const point of kept) refuse('protected', point.key ?? null);
+    if (kept.length > 0) return;
+    const whole = this.back ? [...this.body, this.back] : this.body;
+    const turned = reversedPoints(whole).map((point, at): DraftPoint => {
+      const was = whole.findIndex((one) => one.ref === point.ref);
+      return was !== at && point.origin === 'saved' ? { ...point, origin: 'moved', change: number } : point;
+    });
+    this.body = this.back ? turned.slice(0, -1) : turned;
+    this.back = this.back ? (turned[turned.length - 1] ?? null) : null;
+  }
+
+  /** PR1-01 for a city walk: a way back from its last station to its start, no station of its own. */
+  private closeLoop(number: number, refuse: (reason: RefusalReason, key: string | null) => void): void {
+    const first = this.body[0];
+    if (this.loop || !first) {
+      refuse('already_loop', null);
+      return;
+    }
+    this.loop = true;
+    this.back = {
+      lat: first.lat,
+      lng: first.lng,
+      role: 'end',
+      sequence: 0,
+      ref: `new:${number}`,
+      origin: 'loop',
+      change: number,
+      after: null,
+      replaces: null,
+    };
   }
 
   private replacing(station: CityWalkStation, change: number, key: string): DraftPoint {
@@ -294,8 +370,7 @@ class ChangeRun {
   /** The changed points in order with their roles and sequence, the way back of a loop at its start again. */
   finished(): DraftPoint[] {
     const first = this.body[0];
-    const last = this.basis.points[this.basis.points.length - 1];
-    const back = this.loop && first && last ? [{ ...savedPoint(last), lat: first.lat, lng: first.lng }] : [];
+    const back = this.loop && first && this.back ? [{ ...this.back, lat: first.lat, lng: first.lng }] : [];
     const points = [...this.body, ...back];
     const end = points.length - 1;
     return points.map((point, sequence): DraftPoint => ({
@@ -304,6 +379,74 @@ class ChangeRun {
       role: sequence === 0 ? 'start' : sequence === end ? 'end' : 'via',
     }));
   }
+}
+
+type FixedLeg = NonNullable<TourWaypoint['fixed_leg']>;
+
+/** A fixed leg run the other way: its line turned, a crossing by boat between the same points of it. */
+export function turnedLeg(leg: FixedLeg): FixedLeg {
+  const geometry = [...leg.geometry].reverse();
+  if (leg.kind !== 'ferry') return { ...leg, geometry };
+  const last = geometry.length - 1;
+  const crossings = leg.crossings.map(([from, to]): [number, number] => [last - to, last - from]).reverse();
+  return { ...leg, geometry, crossings };
+}
+
+/** What makes a point a station, kept apart so the start of a loop stays the station there. */
+const STATION_PARTS = [
+  'key',
+  'name',
+  'stay_minutes',
+  'importance',
+  'protected',
+  'opening_hours',
+  'poi_category',
+] as const;
+
+function stationPartsOf(point: DraftPoint): Partial<DraftPoint> {
+  return Object.fromEntries(STATION_PARTS.flatMap((part) => (point[part] === undefined ? [] : [[part, point[part]]])));
+}
+
+function withoutStationParts(point: DraftPoint): DraftPoint {
+  const rest = { ...point };
+  for (const part of STATION_PARTS) delete rest[part];
+  return rest;
+}
+
+/**
+ * The points the other way round: the leg after a point is the one that led
+ * into it before, turned. In a loop the way back and the start trade what
+ * makes each a station (and the ref the changes know it by), so the start
+ * keeps its key, name and stay (CW-03).
+ */
+export function reversedPoints(points: readonly DraftPoint[]): DraftPoint[] {
+  const reversed = points.map((_, index): DraftPoint => {
+    const point = points[points.length - 1 - index] as DraftPoint;
+    const before = points[points.length - 2 - index];
+    const { fixed_leg: _old, ...rest } = point;
+    const leg = before?.fixed_leg;
+    return leg && index < points.length - 1 ? { ...rest, fixed_leg: turnedLeg(leg) } : rest;
+  });
+  if (!isClosedLoop(points) || reversed.length < 2) return reversed;
+  const start = reversed[0] as DraftPoint;
+  const back = reversed[reversed.length - 1] as DraftPoint;
+  return [
+    { ...withoutStationParts(start), ...stationPartsOf(back), ref: back.ref, origin: back.origin },
+    ...reversed.slice(1, -1),
+    { ...withoutStationParts(back), ...stationPartsOf(start), ref: start.ref, origin: start.origin },
+  ];
+}
+
+/** A reverse or a close_loop goes with edits only: anything else would be laid onto points it turned. */
+function reshapeNotAlone(changes: readonly TourChange[]): boolean {
+  const reshapes = changes.filter((change) => change.op === 'reverse' || change.op === 'close_loop').length;
+  const others = changes.filter((change) => change.op !== 'edit').length - reshapes;
+  return reshapes > 1 || (reshapes === 1 && others > 0);
+}
+
+/** Whether every change only edits stations, so the walk keeps its way as saved. */
+export function editsOnly(changes: readonly TourChange[]): boolean {
+  return changes.every((change) => change.op === 'edit');
 }
 
 /** The whole numbers from `from` up to, not including, `to`. */
@@ -323,12 +466,13 @@ export function applyChanges(basis: ChangeBasis, changes: readonly TourChange[])
   });
   if (!CHANGEABLE_TYPES.has(basis.tourType)) return whole('type_not_supported');
   if (basis.recorded) return whole('recorded_track');
+  if (reshapeNotAlone(changes)) return whole('reshape_not_alone');
   const loop = isClosedLoop(basis.points);
   const run = new ChangeRun(basis, loop);
   changes.forEach((change, index) => run.apply(change, index));
   if (run.refused.length > 0) return { kind: 'refused', refused: run.refused };
   const points = run.finished();
-  const count = stationCount(points, loop);
+  const count = stationCount(points, isClosedLoop(points));
   if (count < 2) return whole('too_few_stations');
   if (count > CITY_WALK_MAX_STATIONS && count > stationCount(basis.points.map(savedPoint), loop)) {
     return whole('too_many_stations');
@@ -359,12 +503,22 @@ const REFUSAL_TEXT: Record<RefusalReason, string> = {
   place_not_linkable: 'the new station names a place that is not a place of this trip, or is a tour',
   too_few_stations: 'a city walk keeps at least two stations',
   too_many_stations: `a city walk holds at most ${CITY_WALK_MAX_STATIONS} stations`,
+  reshape_not_alone:
+    'a reverse or a close_loop is the only change of its proposal besides edits; prepare the other changes apart',
+  walk_under_way:
+    'the travellers already visited or skipped stations of this walk; it is not turned round while it is under way',
+  already_loop: 'this walk already ends where it starts',
 };
+
+/** How a refusal names the change it is about: its op and the station it names, where it names one. */
+function changeLabel(refusal: ChangeRefusal): string {
+  if (refusal.key) return `${refusal.op} ${refusal.key}`;
+  return refusal.op === 'reverse' || refusal.op === 'close_loop' ? refusal.op : `${refusal.op} station`;
+}
 
 /** One refusal as a sentence the assistant can pass on. */
 function refusalLine(refusal: ChangeRefusal): string {
-  const about =
-    refusal.change === null ? 'The proposal' : `Change ${refusal.change} (${refusal.op} ${refusal.key ?? 'station'})`;
+  const about = refusal.change === null ? 'The proposal' : `Change ${refusal.change} (${changeLabel(refusal)})`;
   const days = refusal.days ? `, day ids ${refusal.days.map((day) => `${day.day_id} ${day.status}`).join(', ')}` : '';
   return `${about}: ${REFUSAL_TEXT[refusal.reason]}${days}.`;
 }

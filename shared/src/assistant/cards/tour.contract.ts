@@ -27,6 +27,16 @@ export const TOUR_VERB_KEYS = [
   // A tour pointed at its trip's packing list, or let go of it.
   'linkPacking',
   'unlinkPacking',
+  // A saved tour turned round or taken back to its start, copied, or its line drawn in another colour.
+  'reverseTour',
+  'closeLoop',
+  'copyTour',
+  'setRouteColor',
+  // The writes of a ski or paddle tour of its own, and a planned import taken back to its recording.
+  'classifySki',
+  'setPaddlePlan',
+  'decideObstacles',
+  'restoreTrack',
 ] as const;
 /** 'tour' is a core entity already. */
 export const TOUR_APPLIED_ENTITIES = [] as const;

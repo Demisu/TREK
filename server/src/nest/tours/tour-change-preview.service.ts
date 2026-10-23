@@ -4,7 +4,7 @@ import type { TourStationVisitsRepository } from '../../db/repositories/TourStat
 import type { TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
 import { DomainError } from '../common/domain-error';
 import { CityWalkFootWayService } from './city-walk-foot-way.service';
-import { applyChanges, refusalText, type RefusedAction, type StationDone } from './tour-change-apply';
+import { applyChanges, editsOnly, refusalText, type RefusedAction, type StationDone } from './tour-change-apply';
 import { describeChange } from './tour-change-effects';
 import { proposalIdOf, staleProposal } from './tour-change-proposal';
 import { ToursService } from './tours.service';
@@ -96,10 +96,13 @@ export class TourChangePreviewService {
 
   async prepare(tripId: number, placeId: number, userId: number, { changes }: TourChangeRequest) {
     const { tour, waypoints, outcome } = await this.lay(tripId, placeId, changes, { action: 'prepared' });
-    const [wayBefore, wayAfter] = await Promise.all([
-      this.footWays.plan(userId, tripId, waypoints),
-      this.footWays.plan(userId, tripId, outcome.points),
-    ]);
+    // Edits alone move no station, so the way after is the way before and the router is asked once.
+    const [wayBefore, wayAfter] = editsOnly(changes)
+      ? await this.footWays.plan(userId, tripId, waypoints).then((way) => [way, way] as const)
+      : await Promise.all([
+          this.footWays.plan(userId, tripId, waypoints),
+          this.footWays.plan(userId, tripId, outcome.points),
+        ]);
     const revision = tour.revision ?? null;
     return {
       prepared_only: true,

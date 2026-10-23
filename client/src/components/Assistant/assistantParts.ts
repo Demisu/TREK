@@ -459,4 +459,5 @@ export const CHANGE_LABELS: Record<AssistantChangeLabelKey, { labelKey: string }
   difficulty: { labelKey: 'assistant.change.label.difficulty' },
   track: { labelKey: 'assistant.change.label.track' },
   packing: { labelKey: 'assistant.change.label.packing' },
+  breaks: { labelKey: 'assistant.change.label.breaks' },
 };

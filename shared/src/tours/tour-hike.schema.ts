@@ -295,6 +295,20 @@ export const hikeCreateRequestSchema = z
   .superRefine(refineStages);
 export type HikeCreateRequest = z.infer<typeof hikeCreateRequestSchema>;
 
+/**
+ * PR1-01 and PR1-02 for a saved hike: its points the other way round
+ * (`reverse`, the last point starts it) or taken back to its start
+ * (`close_loop`, a way back from its last point), as the planner's route
+ * tools do. The way is planned anew through the points as they then stand.
+ */
+export const TOUR_RESHAPES = ['reverse', 'close_loop'] as const;
+export const tourReshapeSchema = z
+  .enum(TOUR_RESHAPES)
+  .describe(
+    'reverse turns the saved hike round, its last point starting it; close_loop adds the way back from its last point to its start. Give it without waypoints',
+  );
+export type TourReshape = z.infer<typeof tourReshapeSchema>;
+
 export const tourUpdateRequestSchema = z
   .object({
     placeId: idSchema.describe('The place id of the hike, as list_tours gives it'),
@@ -311,9 +325,14 @@ export const tourUpdateRequestSchema = z
     max_hiking_difficulty: hikeLimitSchema.optional(),
     hiking_preferences: hikePreferencesSchema.optional(),
     planned_duration_minutes: plannedMinutesSchema.optional(),
+    reshape: tourReshapeSchema.optional(),
   })
   .strict()
-  .superRefine(refineStages);
+  .superRefine(refineStages)
+  .refine((value) => value.reshape === undefined || value.waypoints === undefined, {
+    path: ['reshape'],
+    message: 'reshape turns the saved points; give it without waypoints',
+  });
 export type TourUpdateRequest = z.infer<typeof tourUpdateRequestSchema>;
 
 /**

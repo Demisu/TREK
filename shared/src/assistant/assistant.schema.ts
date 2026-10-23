@@ -170,6 +170,8 @@ export const ASSISTANT_CHANGE_LABEL_KEYS = [
   // The recorded track a tour was done on; the part of the packing list a tour points at.
   'track',
   'packing',
+  // The minutes of breaks a tour plans on top of its moving time.
+  'breaks',
   // A new order of a day's places or of the days, as the names in that order.
   'order',
   // An argument of a tool without a card of its own; the row names it in `field`.

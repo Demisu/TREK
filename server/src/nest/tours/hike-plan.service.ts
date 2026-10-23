@@ -32,6 +32,7 @@ import {
   unplannedTourMessage,
 } from './tour-plan.helpers';
 import { TourPoiSearchService } from './tour-poi-search.service';
+import { reshapedHikePoints } from './tour-reshape.helpers';
 import { tourRevisionConflict } from './tour-revision';
 import { thinnedLine } from './tours.helpers';
 import { ToursService, type ImportGpxAsTourResult, type TourCreateCommand } from './tours.service';
@@ -134,6 +135,15 @@ function repointingRefusal(saved: readonly TourWaypoint[], points: readonly Hike
     return 'This hike is split into stages over several days: give stage_end again on each stop a day ends at, or the stages would end. A new limit or new preferences alone plan it anew here, its stages kept.';
   }
   return null;
+}
+
+/** The change with the saved points reshaped as its new points, or refused with why (a hike only). */
+function withReshape(request: TourUpdateRequest, saved: readonly TourWaypoint[], type: string): TourUpdateRequest {
+  const { reshape, ...rest } = request;
+  if (!reshape || type !== 'hike') return rest;
+  const reshaped = reshapedHikePoints(saved, reshape);
+  if ('refused' in reshaped) throw badRequest(reshaped.refused);
+  return { ...rest, waypoints: reshaped.points };
 }
 
 /** Stage ends that do not hold (at the start or the end, too many stages): refused with their reason. */
@@ -381,9 +391,11 @@ export class HikePlanService {
    * changed in the planner (a city walk through prepare_tour_change and
    * save_tour_change).
    */
-  async update(userId: number, tripId: number, request: TourUpdateRequest): Promise<HikeChanged> {
-    const { placeId } = request;
+  async update(userId: number, tripId: number, asked: TourUpdateRequest): Promise<HikeChanged> {
+    const { placeId } = asked;
     const saved = await this.tours.getTour(String(tripId), String(placeId));
+    // PR1-01, PR1-02: a reshape is the saved points turned or closed, then planned as new points are.
+    const request = asked.reshape ? withReshape(asked, saved.waypoints, saved.tour.tour_type) : asked;
     const { tour } = saved;
     if (tour.tour_type !== 'hike') {
       throw badRequest(
