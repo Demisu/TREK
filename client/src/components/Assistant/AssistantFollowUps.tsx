@@ -35,7 +35,7 @@ export default function AssistantFollowUps({ message }: { message: AssistantMess
   return (
     <div role="group" aria-label={t('assistant.followUp.title')} className="flex flex-wrap gap-1.5 pt-0.5">
       {chips.map((chip, i) => {
-        const text = t(chip.labelKey);
+        const text = chip.text ?? t(chip.labelKey);
         return (
           <button
             key={chip.id}

@@ -3,6 +3,7 @@ import type { AiToolSpec } from '../ai-connections/ai-chat-client.interface';
 import { AuditService } from '../audit/audit.service';
 import { traceEntry } from '../audit/entry-trace.logger';
 import { withRequestContext } from '../database/request-context';
+import { FOLLOW_UPS_SPEC } from './assistant-follow-ups';
 import { REMEMBER_SPEC } from './assistant-memory';
 import {
   ASSISTANT_TOOL_GROUPS,
@@ -45,6 +46,7 @@ import { MikroORM } from '@mikro-orm/core';
 import { Client } from '@modelcontextprotocol/sdk/client/index';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory';
 import { Injectable, type OnApplicationBootstrap } from '@nestjs/common';
+import { ASSISTANT_FOLLOW_UPS_TOOL } from '@trek/shared';
 
 type ToolArgs = Record<string, unknown>;
 
@@ -143,7 +145,7 @@ export function checkToolCatalog(
     if (!tools.has(name)) problems.push(`held read "${name}" of a package is not registered`);
   }
   // The server's own steps and tools are told apart from the registry's by name alone.
-  for (const name of [...ASSISTANT_SERVER_TOOLS, USE_TOOLS_TOOL, PREVIEW_BOOK_PAGE_TOOL]) {
+  for (const name of [...ASSISTANT_SERVER_TOOLS, USE_TOOLS_TOOL, PREVIEW_BOOK_PAGE_TOOL, ASSISTANT_FOLLOW_UPS_TOOL]) {
     if (tools.has(name)) problems.push(`"${name}" is the server's own step`);
   }
   return [...problems, ...checkDenylist(tools), ...checkStudioTools(listing)];
@@ -236,9 +238,10 @@ export class AssistantToolSession {
         description: tool.description,
         parameters: modelSchema(tool.name, tool.inputSchema, this.pinArg),
       }));
-    if (this.mode !== 'turn') return listed;
+    if (this.mode === 'undo') return listed;
+    if (this.mode !== 'turn') return [...listed, FOLLOW_UPS_SPEC];
     const more = Object.keys(ASSISTANT_TOOL_GROUPS).some((group) => !this.loaded.has(group));
-    return [...listed, REMEMBER_SPEC, ...(more ? [USE_TOOLS_SPEC] : [])];
+    return [...listed, REMEMBER_SPEC, ...(more ? [USE_TOOLS_SPEC] : []), FOLLOW_UPS_SPEC];
   }
 
   kindOf(name: string): AssistantToolKind | null {

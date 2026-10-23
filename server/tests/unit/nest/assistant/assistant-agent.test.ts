@@ -20,6 +20,7 @@ import {
   type StepRecord,
 } from '../../../../src/nest/assistant/assistant-agent';
 import { buildTripCard } from '../../../../src/nest/assistant/assistant-context';
+import { FOLLOW_UPS_ANSWER, followUpsOf } from '../../../../src/nest/assistant/assistant-follow-ups';
 import {
   MAX_CARDS_PER_STEP,
   MAX_READS_PER_STEP,
@@ -30,7 +31,12 @@ import type { AssistantToolKind } from '../../../../src/nest/assistant/assistant
 import type { AnswerInput } from '../../../../src/nest/assistant/cards/card-types';
 import { UiStreamWriter } from '../../../../src/nest/assistant/ui-stream.writer';
 import type { SseStream } from '../../../../src/nest/common/sse-stream';
-import type { AssistantChangePreview, TrekCard, UiStreamChunk } from '@trek/shared';
+import {
+  ASSISTANT_FOLLOW_UPS_TOOL,
+  type AssistantChangePreview,
+  type TrekCard,
+  type UiStreamChunk,
+} from '@trek/shared';
 
 import { describe, expect, it, vi } from 'vitest';
 
@@ -731,5 +737,83 @@ describe('runAgentLoop', () => {
       expect(seeing.afterApply).toHaveBeenCalledWith(t.input.history);
       expect(t.requests[0]?.messages.at(-1)).toEqual(seen);
     });
+  });
+
+  describe('follow-ups', () => {
+    const ask = (id: string, questions: unknown) => ({
+      type: 'tool-call' as const,
+      call: { id, name: ASSISTANT_FOLLOW_UPS_TOOL, args: { questions } },
+    });
+
+    it('ASTAGT-035: an answer that ends on follow-ups is finished: the chips are told and kept, the call answered, the model not asked again', async () => {
+      const t = setup([
+        [
+          { type: 'text-delta', delta: 'Here is the hike.' },
+          ask('toolu_9', ['An easier variant', 'What to pack?']),
+          { type: 'finish', reason: 'tool-calls' },
+        ],
+      ]);
+      const outcome = await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+      expect(outcome.end).toBe('stop');
+      expect(t.requests).toHaveLength(1);
+      expect(t.tools.call).not.toHaveBeenCalled();
+      expect(t.memory.saved[0].step.parts).toEqual([
+        { type: 'text', text: 'Here is the hike.' },
+        {
+          type: 'tool-call',
+          toolCallId: 'toolu_9',
+          toolName: ASSISTANT_FOLLOW_UPS_TOOL,
+          args: { questions: ['An easier variant', 'What to pack?'] },
+          result: FOLLOW_UPS_ANSWER,
+        },
+        { type: 'data-trek-follow-ups', data: { questions: ['An easier variant', 'What to pack?'] } },
+      ]);
+      expect(t.chunks).toContainEqual({
+        type: 'data-trek-follow-ups',
+        data: { questions: ['An easier variant', 'What to pack?'] },
+      });
+      // Never a step of its own on screen.
+      expect(types(t.chunks)).not.toContain('tool-input-start');
+    });
+
+    it('ASTAGT-036: follow-ups beside a read are answered with it, so the provider sees every call answered, and the loop goes on', async () => {
+      const t = setup([
+        [
+          { type: 'tool-call', call: { id: 'toolu_1', name: 'list_places', args: { tripId: 1 } } },
+          ask('toolu_2', ['Too early']),
+          { type: 'finish', reason: 'tool-calls' },
+        ],
+        [{ type: 'text-delta', delta: 'Done' }],
+      ]);
+      await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+      expect(t.tools.call).toHaveBeenCalledTimes(1);
+      const second = t.requests[1].messages;
+      const assistant = second[1] as Extract<AiChatMessage, { role: 'assistant' }>;
+      expect(assistant.toolCalls.map((call) => call.id)).toEqual(['toolu_1', 'toolu_2']);
+      const answered = second.filter((m): m is Extract<AiChatMessage, { role: 'tool' }> => m.role === 'tool');
+      expect(answered.map((m) => m.toolCallId).sort()).toEqual(['toolu_1', 'toolu_2']);
+      expect(answered.find((m) => m.toolCallId === 'toolu_2')?.output).toContain('Shown to the user');
+      expect(t.chunks.some((chunk) => chunk.type === 'data-trek-follow-ups')).toBe(false);
+    });
+
+    it('ASTAGT-037: follow-ups without any words still get the push to answer, and empty questions show nothing', async () => {
+      const t = setup([
+        [ask('toolu_3', ['x']), { type: 'finish', reason: 'tool-calls' }],
+        [{ type: 'text-delta', delta: 'Answer' }, ask('toolu_4', ['  ', 42]), { type: 'finish', reason: 'tool-calls' }],
+      ]);
+      const outcome = await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+      expect(outcome.end).toBe('stop');
+      expect(t.requests).toHaveLength(2);
+      expect(t.chunks.some((chunk) => chunk.type === 'data-trek-follow-ups')).toBe(false);
+    });
+  });
+
+  it('ASTAGT-038: followUpsOf trims, drops duplicates and blanks, cuts each to a chip and keeps three', () => {
+    const long = 'a'.repeat(200);
+    expect(followUpsOf({ questions: [' Easier  one ', 'easier one', '', 7, long, 'Pack', 'Fifth'] })).toEqual({
+      questions: ['Easier one', 'a'.repeat(80), 'Pack'],
+    });
+    expect(followUpsOf({ questions: [] })).toBeNull();
+    expect(followUpsOf({})).toBeNull();
   });
 });

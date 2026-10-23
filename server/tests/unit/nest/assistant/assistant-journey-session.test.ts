@@ -14,6 +14,7 @@ import { makeUser } from '../../../helpers/factories/users';
 import { FakeRealtimeService } from '../../../helpers/fake-realtime';
 import { bootTestApp } from '../../../helpers/test-app';
 import { MikroORM } from '@mikro-orm/core';
+import { ASSISTANT_FOLLOW_UPS_TOOL } from '@trek/shared';
 
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -56,8 +57,10 @@ describe('a Studio tool session', () => {
       for (const name of ['get_trip_summary', 'create_place', 'remember_for_trip', 'use_addon_tools']) {
         expect(names, name).not.toContain(name);
       }
+      // The follow-ups are the server's own, offered in every turn and never one of the registry's tools.
+      expect(names).toContain(ASSISTANT_FOLLOW_UPS_TOOL);
       const classOf = new Map(registry.list().map((entry) => [entry.name, entry.className] as const));
-      for (const spec of specs) {
+      for (const spec of specs.filter((one) => one.name !== ASSISTANT_FOLLOW_UPS_TOOL)) {
         expect(isOfferedInJourney(spec.name, classOf.get(spec.name)), spec.name).toBe(true);
         const properties = Object.keys((spec.parameters.properties as Record<string, unknown> | undefined) ?? {});
         expect(properties, spec.name).not.toContain('journeyId');

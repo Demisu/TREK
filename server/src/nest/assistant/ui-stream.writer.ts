@@ -6,6 +6,7 @@ import {
   type AssistantCard,
   type AssistantChangePreview,
   type AssistantErrorCode,
+  type AssistantFollowUps,
   type AssistantPageRender,
   type AssistantPageView,
   type AssistantPlaces,
@@ -97,6 +98,11 @@ export class UiStreamWriter {
   /** The weather a step looked up, one entry per date. */
   weather(weather: AssistantWeather): void {
     this.send({ type: 'data-trek-weather', data: weather });
+  }
+
+  /** What the model offers to ask next, at the end of an answer. */
+  followUps(followUps: AssistantFollowUps): void {
+    this.send({ type: 'data-trek-follow-ups', data: followUps });
   }
 
   /** The card of one tool call: a read's beside the answer, an applied write's beside its receipt. */

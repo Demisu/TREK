@@ -33,6 +33,7 @@ import { MikroORM } from '@mikro-orm/core';
 import { Client } from '@modelcontextprotocol/sdk/client/index';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp';
+import { ASSISTANT_FOLLOW_UPS_TOOL } from '@trek/shared';
 
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -280,6 +281,7 @@ describe('an assistant tool session', () => {
       const names = specs.map((spec) => spec.name);
       expect(names).toEqual(expect.arrayContaining(['get_trip_summary', 'create_place', 'remember_for_trip']));
       expect(names).toContain('use_addon_tools');
+      expect(names.at(-1)).toBe(ASSISTANT_FOLLOW_UPS_TOOL);
       // An addon's tools wait until the model loads their group.
       expect(names).not.toContain('list_tours');
       for (const spec of specs) {

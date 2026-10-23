@@ -10,6 +10,7 @@ import {
 } from '../ai-connections/ai-chat-client.interface';
 import { activityOf, foundPlacesOf, googleIdsOf, weatherDayOf, weatherOf } from './assistant-cards.helpers';
 import type { TripCard } from './assistant-context';
+import { FOLLOW_UPS_ANSWER, followUpsOf } from './assistant-follow-ups';
 import { outputText } from './assistant-history';
 import { toolOutputForProvider } from './assistant-output';
 import { MAX_CARDS_PER_STEP, MAX_READS_PER_STEP, MAX_STEPS, MAX_WRITES_PER_STEP } from './assistant-tools.constants';
@@ -18,6 +19,7 @@ import type { AnswerInput } from './cards/card-types';
 import { answerCardOf } from './cards/registry';
 import type { UiStreamWriter } from './ui-stream.writer';
 import {
+  ASSISTANT_FOLLOW_UPS_TOOL,
   ASSISTANT_PAGE_IMAGE,
   type AssistantChangePreview,
   type AssistantErrorCode,
@@ -439,6 +441,11 @@ async function carryOn(
   }
 }
 
+/** A follow-up call as the step keeps it: answered by the server, never run. */
+function answeredAsk(call: AiToolCall): AssistantMessagePart {
+  return { type: 'tool-call', toolCallId: call.id, toolName: call.name, args: call.args, result: FOLLOW_UPS_ANSWER };
+}
+
 /** One step of the turn: the outcome when the turn ends with it, null when the model is asked again. */
 async function runStep(turn: Turn, step: number): Promise<AgentOutcome | null> {
   const { deps, input, w, signal, history } = turn;
@@ -446,12 +453,18 @@ async function runStep(turn: Turn, step: number): Promise<AgentOutcome | null> {
   w.startStep();
   const answer = await streamAnswer(turn, rowId);
   if ('end' in answer) return answer;
-  const { text, received, providerState, cutOff } = answer;
+  const { text, providerState, cutOff } = answer;
+  const all = answer.received.map((call) => ({ ...call, id: uniqueCallId(call, input.usedCallIds, deps.newId) }));
+  // The follow-ups the model offers are the server's to answer: they never run, and alone they end the turn.
+  const asks = all.filter((call) => call.name === ASSISTANT_FOLLOW_UPS_TOOL);
+  const received = all.filter((call) => call.name !== ASSISTANT_FOLLOW_UPS_TOOL);
 
   const parts: AssistantMessagePart[] = text ? [{ type: 'text', text }] : [];
   const empty = received.length === 0 && !text.trim();
-  const announced = received.length === 0 && step === 0 && ANNOUNCED.test(text.trimEnd());
-  const push = empty || (received.length === 0 && cutOff) ? GO_ON : announced ? MAKE_THE_CALLS : null;
+  // An answer that offered follow-ups is finished, however it ends.
+  const settled = asks.length > 0 && !empty;
+  const announced = !settled && received.length === 0 && step === 0 && ANNOUNCED.test(text.trimEnd());
+  const push = empty || (!settled && received.length === 0 && cutOff) ? GO_ON : announced ? MAKE_THE_CALLS : null;
   if (push && !turn.nudged) {
     turn.nudged = true;
     await deps.store.saveStep(rowId, { parts, providerState }, 'complete');
@@ -467,16 +480,23 @@ async function runStep(turn: Turn, step: number): Promise<AgentOutcome | null> {
     finishTurn(turn, 'error');
     return outcomeOf(turn, 'failed', 'empty_answer');
   }
+  // Every call is answered, so the provider's own record of the step stays whole when it is replayed.
+  parts.push(...asks.map((call) => answeredAsk(call)));
   if (received.length === 0) {
+    const followUps = asks.length > 0 ? followUpsOf(asks[asks.length - 1].args) : null;
+    if (followUps) {
+      parts.push({ type: 'data-trek-follow-ups', data: followUps });
+      w.followUps(followUps);
+    }
     await deps.store.saveStep(rowId, { parts, providerState }, 'complete');
     w.finishStep();
     finishTurn(turn, 'stop');
     return outcomeOf(turn, 'stop');
   }
 
-  const calls = received.map((call) => ({ ...call, id: uniqueCallId(call, input.usedCallIds, deps.newId) }));
+  const calls = [...received, ...asks];
   const collected: StepParts = { parts, weather: [], knownPlaceIds: turn.knownPlaceIds, cards: 0, images: new Map() };
-  const held = await runCalls(turn, calls, collected);
+  const held = await runCalls(turn, received, collected);
   // One weather strip per step, whatever the step held: it is told before the changes.
   const weather = weatherOf(collected.weather);
   if (weather) {

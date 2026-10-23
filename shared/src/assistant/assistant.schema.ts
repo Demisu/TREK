@@ -491,6 +491,22 @@ export const assistantWeatherSchema = z.object({
 });
 export type AssistantWeather = z.infer<typeof assistantWeatherSchema>;
 
+/**
+ * The tool the model ends an answer with to offer what the user may ask
+ * next. The server answers it itself and never shows it as a step.
+ */
+export const ASSISTANT_FOLLOW_UPS_TOOL = 'suggest_follow_ups';
+/** The longest follow-up question the chat shows on one chip. */
+export const MAX_FOLLOW_UP_CHARS = 80;
+/** How many follow-up questions an answer offers at most. */
+export const MAX_FOLLOW_UPS = 3;
+
+/** The questions the model offers to ask next, fitting the conversation, in the user's language. */
+export const assistantFollowUpsSchema = z.object({
+  questions: z.array(z.string().min(1).max(MAX_FOLLOW_UP_CHARS)).min(1).max(MAX_FOLLOW_UPS),
+});
+export type AssistantFollowUps = z.infer<typeof assistantFollowUpsSchema>;
+
 /** Where a running step looks: a point with a radius, or a box. */
 export const assistantActivityAreaSchema = z.discriminatedUnion('type', [
   z.object({
@@ -592,6 +608,8 @@ function messagePartSchema<
     z.object({ type: z.literal('data-trek-applied'), data: applied }),
     z.object({ type: z.literal('data-trek-places'), data: assistantPlacesSchema }),
     z.object({ type: z.literal('data-trek-weather'), data: assistantWeatherSchema }),
+    // What the model offers to ask next, at the end of an answer.
+    z.object({ type: z.literal('data-trek-follow-ups'), data: assistantFollowUpsSchema }),
     // The card of one tool call: a read's beside the answer, an applied write's on the message that proposed it.
     z.object({ type: z.literal('data-trek-card'), data: card }),
     // Only on a user message.
@@ -691,6 +709,7 @@ export const uiStreamChunkSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('data-trek-applied'), data: assistantAppliedSchema }),
   z.object({ type: z.literal('data-trek-places'), data: assistantPlacesSchema }),
   z.object({ type: z.literal('data-trek-weather'), data: assistantWeatherSchema }),
+  z.object({ type: z.literal('data-trek-follow-ups'), data: assistantFollowUpsSchema }),
   z.object({ type: z.literal('data-trek-card'), data: assistantCardSchema }),
   // Live progress of a running step; the message never keeps it.
   z.object({
