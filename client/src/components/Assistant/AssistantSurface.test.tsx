@@ -177,7 +177,7 @@ describe('AssistantSurface', () => {
               ],
             },
           },
-          { type: 'text', text: 'Rain on Monday, so the market is a good pick.' },
+          { type: 'text', text: 'Rain on Monday, so Nishiki Market is a good pick.' },
         ],
       },
     ]);

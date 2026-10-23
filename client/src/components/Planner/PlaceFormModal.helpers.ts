@@ -128,7 +128,7 @@ export function placeEditForm(
 }
 
 /** A position the form opens on: a POI tapped on the map, or a right-click on it. */
-export interface PlacePrefill {
+export type PlacePrefill = {
   lat: number
   lng: number
   name?: string

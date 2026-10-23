@@ -173,7 +173,6 @@
     "client/src/pages/tripPlanner/plannerTypes.ts": 1,
     "client/src/pages/tripPlanner/useBookingEdits.ts": 1,
     "client/src/pages/tripPlanner/useDayPlanEdits.ts": 1,
-    "client/src/pages/tripPlanner/usePlaceFormOpeners.ts": 1,
     "client/src/pages/tripPlanner/useRoadtripAlternatives.ts": 1,
     "client/src/pages/tripPlanner/useRoadtripStopEdits.ts": 1,
     "client/src/push/webPush.ts": 1,

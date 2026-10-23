@@ -116,6 +116,23 @@ function namedFirst(places: readonly AssistantFoundPlace[], text: string): Assis
   return [...named, ...places.filter((place) => !named.includes(place))];
 }
 
+/**
+ * The tools that plan or save a tour. An answer that ran one is about the
+ * tour, planned or not: the places its searches went through to find the
+ * points are the model's groundwork, not suggestions, and show no strip.
+ */
+const TOUR_PLANNING_TOOLS: ReadonlySet<string> = new Set([
+  'propose_hike',
+  'create_hike',
+  'update_tour',
+  'propose_city_walk',
+  'create_city_walk',
+  'plan_paddle_route',
+  'plan_ski_route',
+  'prepare_tour_change',
+  'save_tour_change',
+]);
+
 /** The tool that keeps a note in the trip notes; kept at once, without a card. */
 const REMEMBER_TOOL = 'remember_for_trip';
 
@@ -289,7 +306,9 @@ export function messageBlocks(
 
   // An answer about a tour shows the tour, not the places its searches went through to find it.
   const changeCards = message.parts.flatMap((p) => (p.type === 'data-trek-change' && p.data.card ? [p.data.card] : []));
-  const placesHidden = [...cards.values(), ...changeCards].some((card) => rules.hidesFoundPlaces?.(card) === true);
+  const placesHidden =
+    [...cards.values(), ...changeCards].some((card) => rules.hidesFoundPlaces?.(card) === true) ||
+    message.parts.some((p) => p.type === 'tool-call' && TOUR_PLANNING_TOOLS.has(p.toolName));
   const blocks: MessageBlock[] = [];
   message.parts.forEach((part, index) => {
     if (part.type === 'text') {

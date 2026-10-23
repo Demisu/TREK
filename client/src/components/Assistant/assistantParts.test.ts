@@ -212,6 +212,25 @@ describe('messageBlocks: found places and weather', () => {
     });
   });
 
+  it('FE-AI-PARTS-008d: an answer that planned a tour shows no found places, even one whose planning failed', () => {
+    const blocks = messageBlocks(
+      message([
+        places('s1', [found('s1:0', { name: 'Treseburg' })]),
+        {
+          type: 'tool-call',
+          toolCallId: 'h1',
+          toolName: 'propose_hike',
+          args: {},
+          result: 'Router down',
+          isError: true,
+        },
+        { type: 'text', text: 'Treseburg is the turning point.' },
+      ]),
+      false
+    );
+    expect(blocks.map((b) => b.kind)).not.toContain('places');
+  });
+
   it('FE-AI-PARTS-008c: a note kept in the trip notes is a line of its own, a refused or running one a step', () => {
     const kept = (id: string, extra: Record<string, unknown>): AssistantMessagePart =>
       ({

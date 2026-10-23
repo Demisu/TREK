@@ -4,8 +4,8 @@
  * A note the assistant kept on its own: a quiet line naming it, the trip
  * notes read again while the answer is written, and the notes a tap away.
  */
-import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '../../../tests/helpers/render';
 
 import { useSettingsStore } from '../../store/settingsStore';
 import AssistantRemembered from './AssistantRemembered';

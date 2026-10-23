@@ -5,6 +5,7 @@ import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../src/db/entities/Tours.entity';
 import { RoadtripRouterService } from '../../../src/nest/roadtrip/roadtrip-router.service';
 import { proposalIdOf } from '../../../src/nest/tours/tour-change-proposal';
+import { makeDayAssignment } from '../../helpers/factories/itinerary';
 import { makePlace } from '../../helpers/factories/places';
 import { createRow, deleteRows, updateRows } from '../../helpers/factories/rows';
 import { addTourWaypoints, linkTourPacking, makeTour, makeTourActivity } from '../../helpers/factories/tours';
@@ -163,6 +164,23 @@ async function keptTour(s: Scene, app: INestApplication): Promise<void> {
   madeFor.set(s.n, row.id);
 }
 
+/** A city walk of two stations on the scene's first day; the walk's place is the row made. */
+async function walkOnDay(s: Scene, app: INestApplication): Promise<void> {
+  const orm = ormOf(app);
+  const walk = await makePlace(orm, s.trip.id, { name: `Old town ${s.n}` });
+  await makeTour(orm, walk.id, { tourTypeRef: 'walk' });
+  await addTourWaypoints(orm, walk.id, [
+    { lat: 48.1, lng: 11.5, station_key: 'stop-gate', name: 'Gate' },
+    { lat: 48.108, lng: 11.5, station_key: 'stop-park', name: 'Park' },
+  ]);
+  const visit = await makeDayAssignment(orm, s.days[0].id, walk.id);
+  madeFor.set(s.n, walk.id);
+  visitFor.set(s.n, visit.id);
+}
+
+/** The day assignment of the walk a case's setup put on the first day, by the scene's number. */
+const visitFor = new Map<number, number>();
+
 /** Two stops of a Google Maps directions link, reviewed. */
 const GOOGLE_STOPS = [
   { name: 'Brandenburger Tor', lat: 52.5163, lng: 13.3777 },
@@ -292,6 +310,24 @@ export const toursRoadtrip: CaseGroup = {
       rest: { method: 'post', path: (s) => `/api/trips/${s.trip.id}/tours`, body: () => walkBody(1) },
       stub: routerDown,
       expect: ['tours:changed', 'place:created'],
+    },
+    {
+      tool: 'set_city_walk_visit',
+      setup: walkOnDay,
+      args: (s) => ({
+        tripId: s.trip.id,
+        placeId: made(s),
+        dayId: s.days[0].id,
+        stationKey: 'stop-park',
+        status: 'visited',
+      }),
+      // The day plan checks a station off through the visits route.
+      rest: {
+        method: 'put',
+        path: (s) => `/api/trips/${s.trip.id}/tour-visits/${visitFor.get(s.n)}/stop-park`,
+        body: () => ({ status: 'visited' }),
+      },
+      expect: ['tours:visits'],
     },
     {
       tool: 'create_hike',
