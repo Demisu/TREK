@@ -1,4 +1,4 @@
-// FE-COMP-LIGHTBOX-001 to FE-COMP-LIGHTBOX-021
+// FE-COMP-LIGHTBOX-001 to FE-COMP-LIGHTBOX-027
 
 // Plyr needs a real media pipeline, so the player is stubbed here.
 vi.mock('./VideoPlayer', () => ({
@@ -246,5 +246,82 @@ describe('PhotoLightbox', () => {
     fireEvent.touchEnd(overlay, { touches: [], changedTouches: [{ clientX: 250, clientY: 100 }] });
     expect(img.style.transform).toContain('scale(2)');
     expect(onClose).not.toHaveBeenCalled();
+  });
+  it('FE-COMP-LIGHTBOX-022: is a labelled modal dialog', () => {
+    render(<PhotoLightbox photos={samplePhotos} onClose={vi.fn()} label="Show photos" />);
+    const dialog = screen.getByRole('dialog', { name: 'Show photos' });
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+  });
+
+  it('FE-COMP-LIGHTBOX-023: takes the focus when it opens and gives it back to the opener when it closes', () => {
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    opener.focus();
+    try {
+      const { unmount } = render(<PhotoLightbox photos={samplePhotos} onClose={vi.fn()} label="Gallery" />);
+      expect(screen.getByRole('dialog', { name: 'Gallery' })).toHaveFocus();
+      unmount();
+      expect(opener).toHaveFocus();
+    } finally {
+      opener.remove();
+    }
+  });
+
+  it('FE-COMP-LIGHTBOX-024: names its arrows', () => {
+    render(<PhotoLightbox photos={samplePhotos} startIndex={1} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Next photo' }));
+    expect(screen.getByText('3 / 3')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Previous photo' }));
+    expect(screen.getByText('2 / 3')).toBeInTheDocument();
+  });
+
+  describe('right to left', () => {
+    beforeEach(() => {
+      document.documentElement.dir = 'rtl';
+    });
+    afterEach(() => {
+      document.documentElement.dir = '';
+    });
+
+    it('FE-COMP-LIGHTBOX-025: the arrow keys follow the reading direction', () => {
+      render(<PhotoLightbox photos={samplePhotos} onClose={vi.fn()} />);
+      fireEvent.keyDown(window, { key: 'ArrowLeft' });
+      expect(screen.getByText('2 / 3')).toBeInTheDocument();
+      fireEvent.keyDown(window, { key: 'ArrowRight' });
+      expect(screen.getByText('1 / 3')).toBeInTheDocument();
+    });
+
+    it('FE-COMP-LIGHTBOX-026: a swipe to the right turns to the next photo', () => {
+      const { container } = render(<PhotoLightbox photos={samplePhotos} startIndex={1} onClose={vi.fn()} />);
+      const surface = container.firstElementChild as HTMLElement;
+
+      fireEvent.touchStart(surface, { touches: [{ clientX: 100, clientY: 200 }] });
+      fireEvent.touchEnd(surface, { changedTouches: [{ clientX: 200, clientY: 210 }] });
+      expect(screen.getByText('3 / 3')).toBeInTheDocument();
+
+      fireEvent.touchStart(surface, { touches: [{ clientX: 200, clientY: 200 }] });
+      fireEvent.touchEnd(surface, { changedTouches: [{ clientX: 100, clientY: 210 }] });
+      expect(screen.getByText('2 / 3')).toBeInTheDocument();
+    });
+  });
+
+  it('FE-COMP-LIGHTBOX-027: a caption with a source page links to it in a new tab, one without stays text', () => {
+    render(
+      <PhotoLightbox
+        photos={[
+          { id: 'a', src: '/a.jpg', caption: 'Alice, CC BY 4.0', captionHref: 'https://commons.wikimedia.org/wiki/File:A.jpg' },
+          { id: 'b', src: '/b.jpg', caption: 'Google', captionHref: null },
+        ]}
+        onClose={vi.fn()}
+      />,
+    );
+    const link = screen.getByRole('link', { name: 'Alice, CC BY 4.0' });
+    expect(link).toHaveAttribute('href', 'https://commons.wikimedia.org/wiki/File:A.jpg');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(screen.getByText('Google', { selector: 'p' })).toBeInTheDocument();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 });

@@ -1046,14 +1046,16 @@ describe('TripPlannerPage — day detail and inspector', () => {
     expect(useTripStore.getState().assignments['7'][0].participants).toEqual([{ user_id: 5 }])
 
     await act(async () => { await props('inspector').onUpdatePlace(1, { name: 'X' }) })
-    await act(async () => { await props('inspector').onUploadImage(1, new File(['x'], 'a.png')) })
+    // The picture is chosen in the editor now: the inspector gets no way to upload or take one.
+    expect(props('inspector').onUploadImage).toBeUndefined()
+    expect(props('inspector').onImageFromFile).toBeUndefined()
     await act(async () => { await props('inspector').onRate(1, 4) })
     await act(async () => { await props('inspector').onFileUpload(new FormData()) })
 
     const tripActions = hookState.tripActions as Record<string, ReturnType<typeof vi.fn>>
     expect(tripActions.addFile).toHaveBeenCalled()
     expect(tripActions.updatePlace).toHaveBeenCalledWith(42, 1, { name: 'X' })
-    expect(tripActions.uploadPlaceImage).toHaveBeenCalled()
+    expect(tripActions.uploadPlaceImage).not.toHaveBeenCalled()
     expect(tripActions.ratePlace).toHaveBeenCalledWith(42, 1, 4)
   })
 
@@ -1095,7 +1097,7 @@ describe('TripPlannerPage — day detail and inspector', () => {
     expect(hookState.handleDeletePlace).toHaveBeenCalledWith(1)
 
     await act(async () => { await props('inspector').onUpdatePlace(1, { name: 'Y' }) })
-    await act(async () => { await props('inspector').onUploadImage(1, new File(['x'], 'a.png')) })
+    expect(props('inspector').onUploadImage).toBeUndefined()
     await act(async () => { await props('inspector').onRate(1, 3) })
     await act(async () => { await props('inspector').onFileUpload(new FormData()) })
 

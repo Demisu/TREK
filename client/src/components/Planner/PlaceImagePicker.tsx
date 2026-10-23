@@ -5,7 +5,7 @@ import { fetchImageAsBlob } from '../../api/authUrl';
 import type { TranslationFn, TripFile } from '../../types';
 import { normalizeImageFile } from '../../utils/convertHeic';
 import { Tooltip } from '../shared/Tooltip';
-import type { ChosenImage } from './placeImageChoice';
+import { offersPictures, type ChosenImage } from './placeImageChoice';
 import { creditOf } from './placePhotoCredit';
 
 /** The place's own pictures beside the sources' ones: what it has, what it can get, what waits for the save. */
@@ -70,77 +70,24 @@ export default function PlaceImagePicker({
   t,
 }: PlaceImagePickerProps): React.ReactElement | null {
   const [hovered, setHovered] = useState<Credit>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [reading, setReading] = useState(false);
   const current = own?.currentUrl && !photos.some((p) => p.url === own.currentUrl) ? own.currentUrl : null;
   const attached = own?.attached ?? [];
-  const hasAnything =
-    photos.length > 0 || !!current || attached.length > 0 || !!own?.pendingPreview || !!own?.canUpload;
-  if (!hasAnything) return null;
+  if (!offersPictures(photos, own)) return null;
 
-  const pick = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file || !own) return;
-    setReading(true);
-    try {
-      own.onUpload(await normalizeImageFile(file));
-    } finally {
-      setReading(false);
-    }
-  };
-
-  const credit = (): Credit => {
-    if (hovered) return hovered;
-    if (chosen.kind === 'url') {
-      const photo = photos.find((p) => p.url === chosen.url);
-      if (photo) return { kind: 'photo', photo };
-    }
-    if (chosen.kind === 'current') return { kind: 'own', label: t('places.image.current') };
-    if (chosen.kind === 'upload') return { kind: 'own', label: t('places.image.own') };
-    if (chosen.kind === 'attached') {
-      const file = attached.find((f) => f.id === chosen.fileId);
-      if (file) return { kind: 'own', label: file.original_name };
-    }
-    if (chosen.kind === 'none' && (own?.currentUrl || photos.length > 0))
-      return { kind: 'own', label: t('places.image.none') };
-    return photos[0] ? { kind: 'photo', photo: photos[0] } : null;
-  };
-  const shown = credit();
+  const shown = hovered ?? creditFor(chosen, photos, attached, own, t);
   const removable = !!own && chosen.kind !== 'none';
 
   return (
     <>
       <div className="grid grid-cols-3 gap-1.5">
         {own?.canUpload && (
-          <Tooltip label={t('places.uploadImage')} placement="top">
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              disabled={reading}
-              aria-pressed={chosen.kind === 'upload'}
-              aria-label={t('places.uploadImage')}
-              className={`${TILE} ${ring(chosen.kind === 'upload', dialog)} ${own.pendingPreview ? '' : 'border border-dashed border-edge bg-surface-card'}`}
-              onMouseEnter={() => own.pendingPreview && setHovered({ kind: 'own', label: t('places.image.own') })}
-              onMouseLeave={() => setHovered(null)}
-            >
-              {own.pendingPreview ? (
-                <>
-                  <img src={own.pendingPreview} alt="" className="h-full w-full object-cover" />
-                  {chosen.kind === 'upload' && <Picked />}
-                </>
-              ) : (
-                <span className="flex h-full w-full flex-col items-center justify-center gap-1 px-1 text-center text-caption leading-tight text-content-muted group-hover:text-content">
-                  {reading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <ImagePlus className="h-4 w-4" strokeWidth={2} />
-                  )}
-                  {t('places.uploadImage')}
-                </span>
-              )}
-            </button>
-          </Tooltip>
+          <UploadTile
+            own={own}
+            selected={chosen.kind === 'upload'}
+            dialog={dialog}
+            onHover={(on) => setHovered(on ? { kind: 'own', label: t('places.image.own') } : null)}
+            t={t}
+          />
         )}
         {current && (
           <button
@@ -178,41 +125,130 @@ export default function PlaceImagePicker({
           />
         ))}
       </div>
-      {own?.canUpload && (
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*,.heic,.heif"
-          className="hidden"
-          onChange={(e) => void pick(e)}
-        />
-      )}
       {(shown || removable) && (
-        <div
-          className={
-            dialog
-              ? 'mt-2 flex min-w-0 items-center gap-2 text-caption leading-tight text-content-faint'
-              : 'mt-1.5 flex min-w-0 items-center gap-2 text-caption leading-tight text-content-faint'
-          }
-        >
-          <span className="flex min-w-0 flex-1 items-center gap-2">
-            {shown?.kind === 'photo' && <PhotoCredit photo={shown.photo} />}
-            {shown?.kind === 'own' && <span className="min-w-0 truncate">{shown.label}</span>}
-          </span>
-          {removable && (
-            <button
-              type="button"
-              onClick={own.onRemove}
-              className="inline-flex flex-none items-center gap-1 rounded-md px-1.5 py-0.5 text-content-muted transition-colors hover:bg-surface-hover hover:text-content"
-            >
-              <ImageOff className="h-3 w-3" />
-              {t('places.removeImage')}
-            </button>
-          )}
-        </div>
+        <CreditLine shown={shown} onRemove={removable ? own?.onRemove : undefined} dialog={dialog} t={t} />
       )}
     </>
   );
+}
+
+/** The tile that takes a picture from the device, or shows the one waiting for the save. */
+function UploadTile({
+  own,
+  selected,
+  dialog,
+  onHover,
+  t,
+}: {
+  own: PlaceImageOwn;
+  selected: boolean;
+  dialog: boolean;
+  onHover: (on: boolean) => void;
+  t: TranslationFn;
+}): React.ReactElement {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [reading, setReading] = useState(false);
+  const pick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setReading(true);
+    try {
+      own.onUpload(await normalizeImageFile(file));
+    } finally {
+      setReading(false);
+    }
+  };
+  const preview = own.pendingPreview;
+  return (
+    <>
+      <Tooltip label={t('places.uploadImage')} placement="top">
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={reading}
+          aria-pressed={selected}
+          aria-label={t('places.uploadImage')}
+          className={`${TILE} ${ring(selected, dialog)} ${preview ? '' : 'border border-dashed border-edge bg-surface-card'}`}
+          onMouseEnter={() => onHover(!!preview)}
+          onMouseLeave={() => onHover(false)}
+        >
+          {preview ? (
+            <>
+              <img src={preview} alt="" className="h-full w-full object-cover" />
+              {selected && <Picked />}
+            </>
+          ) : (
+            <span className="flex h-full w-full flex-col items-center justify-center gap-1 px-1 text-center text-caption leading-tight text-content-muted group-hover:text-content">
+              {reading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <ImagePlus className="h-4 w-4" strokeWidth={2} />
+              )}
+              {t('places.uploadImage')}
+            </span>
+          )}
+        </button>
+      </Tooltip>
+      <input ref={fileRef} type="file" accept="image/*,.heic,.heif" className="hidden" onChange={(e) => void pick(e)} />
+    </>
+  );
+}
+
+/** Who the chosen picture is from, and the way to leave the place without one. */
+function CreditLine({
+  shown,
+  onRemove,
+  dialog,
+  t,
+}: {
+  shown: Credit;
+  onRemove?: () => void;
+  dialog: boolean;
+  t: TranslationFn;
+}): React.ReactElement {
+  return (
+    <div
+      className={`${dialog ? 'mt-2' : 'mt-1.5'} flex min-w-0 items-center gap-2 text-caption leading-tight text-content-faint`}
+    >
+      <span className="flex min-w-0 flex-1 items-center gap-2">
+        {shown?.kind === 'photo' && <PhotoCredit photo={shown.photo} />}
+        {shown?.kind === 'own' && <span className="min-w-0 truncate">{shown.label}</span>}
+      </span>
+      {onRemove && (
+        <button
+          type="button"
+          onClick={onRemove}
+          className="inline-flex flex-none items-center gap-1 rounded-md px-1.5 py-0.5 text-content-muted transition-colors hover:bg-surface-hover hover:text-content"
+        >
+          <ImageOff className="h-3 w-3" />
+          {t('places.removeImage')}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** The credit line for the chosen tile: a source's photo, the place's own picture, or nothing to say. */
+function creditFor(
+  chosen: ChosenImage,
+  photos: PlacePhotoCandidate[],
+  attached: TripFile[],
+  own: PlaceImageOwn | undefined,
+  t: TranslationFn
+): Credit {
+  if (chosen.kind === 'url') {
+    const photo = photos.find((p) => p.url === chosen.url);
+    if (photo) return { kind: 'photo', photo };
+  }
+  if (chosen.kind === 'current') return { kind: 'own', label: t('places.image.current') };
+  if (chosen.kind === 'upload') return { kind: 'own', label: t('places.image.own') };
+  if (chosen.kind === 'attached') {
+    const file = attached.find((f) => f.id === chosen.fileId);
+    if (file) return { kind: 'own', label: file.original_name };
+  }
+  if (chosen.kind === 'none' && own?.currentUrl) return { kind: 'own', label: t('places.image.none') };
+  return photos[0] ? { kind: 'photo', photo: photos[0] } : null;
 }
 
 function PhotoTile({

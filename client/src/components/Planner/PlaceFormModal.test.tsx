@@ -913,7 +913,7 @@ describe('PlaceFormModal', () => {
 
   it('FE-PLANNER-PLACEFORM-031: pending files list shows file names after adding', async () => {
     render(<PlaceFormModal {...defaultProps} />);
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = document.querySelector('input[type="file"][multiple]') as HTMLInputElement;
     expect(fileInput).toBeTruthy();
 
     const file = new File(['x'], 'photo.jpg', { type: 'image/jpeg' });
@@ -925,7 +925,7 @@ describe('PlaceFormModal', () => {
   it('FE-PLANNER-PLACEFORM-032: removing a pending file removes it from the list', async () => {
     const user = userEvent.setup();
     render(<PlaceFormModal {...defaultProps} />);
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = document.querySelector('input[type="file"][multiple]') as HTMLInputElement;
 
     const file = new File(['x'], 'remove-me.jpg', { type: 'image/jpeg' });
     fireEvent.change(fileInput, { target: { files: [file] } });
@@ -1470,7 +1470,7 @@ describe('PlaceFormModal', () => {
   it('FE-PLANNER-PLACEFORM-057: the Attach button opens the hidden file input', async () => {
     const user = userEvent.setup();
     render(<PlaceFormModal {...defaultProps} />);
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = document.querySelector('input[type="file"][multiple]') as HTMLInputElement;
     const clickSpy = vi.spyOn(fileInput, 'click').mockImplementation(() => {});
     await user.click(screen.getByRole('button', { name: /Attach/i }));
     expect(clickSpy).toHaveBeenCalled();
@@ -2422,7 +2422,7 @@ describe('PlaceFormModal on the dialog frame', () => {
   it('FE-PLANNER-PLACEFORM-103: a pending file is removed by its named button', async () => {
     const user = userEvent.setup();
     render(<PlaceFormModal {...defaultProps} />);
-    fireEvent.change(document.querySelector('input[type="file"]') as HTMLInputElement, {
+    fireEvent.change(document.querySelector('input[type="file"][multiple]') as HTMLInputElement, {
       target: { files: [new File(['x'], 'ticket.pdf', { type: 'application/pdf' })] },
     });
     await user.click(within(screen.getByTestId('pending-files')).getByRole('button', { name: 'Delete' }));

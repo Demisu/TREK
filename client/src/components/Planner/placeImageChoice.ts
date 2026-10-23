@@ -1,4 +1,6 @@
+import type { PlacePhotoCandidate } from '@trek/shared';
 import type { TripFile } from '../../types';
+import type { PlaceImageOwn } from './PlaceImagePicker';
 
 const PICKABLE = /^image\/(jpeg|png|gif|webp)$/;
 
@@ -45,4 +47,11 @@ export type PendingImagePayload = File | { fileId: number };
 export function pendingImagePayload(pending: PendingPlaceImage | null): PendingImagePayload | undefined {
   if (!pending) return undefined;
   return pending.kind === 'upload' ? pending.file : { fileId: pending.file.id };
+}
+
+/** Whether the picker has a tile to show: its sources' photos, or a picture of the place's own, or an upload. */
+export function offersPictures(photos: readonly PlacePhotoCandidate[], own: PlaceImageOwn | undefined): boolean {
+  if (photos.length > 0) return true;
+  if (!own) return false;
+  return !!own.currentUrl || own.attached.length > 0 || !!own.pendingPreview || own.canUpload;
 }

@@ -110,8 +110,8 @@ describe('PlaceDetailsColumn', () => {
     })
   })
 
-  it('FE-PDC-004: renders author and licence under every Commons picture', async () => {
-    renderColumn()
+  it('FE-PDC-004: renders author and licence under the Commons picture in play', async () => {
+    renderColumn({ selectedImageUrl: COMMONS_PHOTO.url })
 
     const credit = await screen.findByText('Alice')
     // Links to the file description page, where the full terms are.
@@ -122,9 +122,11 @@ describe('PlaceDetailsColumn', () => {
 
   it('FE-PDC-005: names the source when a picture has no author, instead of inventing one', async () => {
     placeEnrichment.mockResolvedValue({ photos: [GOOGLE_PHOTO], description: null, facts: [] })
-    renderColumn()
+    renderColumn({ selectedImageUrl: GOOGLE_PHOTO.url })
 
     expect(await screen.findByText('Google')).toBeInTheDocument()
+    // The tile's name carries the credit too, after a colon.
+    expect(screen.getByRole('button', { name: 'places.details.pickImage: Google' })).toBeInTheDocument()
   })
 
   it('FE-PDC-006: picking a picture reports its proxy URL', async () => {
@@ -611,17 +613,21 @@ describe('PlaceDetailsColumn — picture layout', () => {
     withPhotos(3)
     const { onPickImage } = renderColumn()
 
-    await screen.findByText('Author 0')
+    // Nothing is picked yet, and the line under the grid says so.
+    await screen.findByText('places.image.none')
+    expect(screen.queryByText('Author 0')).not.toBeInTheDocument()
     const tiles = screen.getAllByRole('button', { name: /places.details.pickImage/ })
     fireEvent.mouseEnter(tiles[2])
 
     expect(screen.getByText('Author 2')).toBeInTheDocument()
     expect(onPickImage).not.toHaveBeenCalled()
+    fireEvent.mouseLeave(tiles[2])
+    expect(screen.queryByText('Author 2')).not.toBeInTheDocument()
   })
 
   it('FE-PDC-037: credits the picture in play, licence included', async () => {
     withPhotos(2)
-    renderColumn()
+    renderColumn({ selectedImageUrl: '/api/maps/place-photo/p0/bytes' })
 
     expect(await screen.findByText('Author 0')).toBeInTheDocument()
     expect(screen.getByText('Author 0').closest('a')).toHaveAttribute(
@@ -672,9 +678,12 @@ describe('PlaceDetailsColumn — dialog variant', () => {
 
     const tile = await screen.findByRole('button', { name: /places.details.pickImage/ })
     expect(tile).not.toHaveAttribute('title')
+    // Hovering the tile moves the credit line to it.
+    fireEvent.mouseEnter(tile)
     const licence = screen.getByText('CC BY-SA 4.0', { selector: 'a[href*="creativecommons"]' })
-    expect(licence.closest('p')).toHaveTextContent('Alice')
-    expect(licence.closest('p')?.textContent).not.toContain('·')
+    const line = licence.parentElement?.parentElement as HTMLElement
+    expect(line).toHaveTextContent('Alice')
+    expect(line.textContent).not.toContain('·')
 
     fireEvent.click(tile)
     expect(onPickImage).toHaveBeenCalledWith(COMMONS_PHOTO.url)
@@ -786,5 +795,43 @@ describe('PlaceDetailsColumn — dialog variant', () => {
     placeEnrichment.mockRejectedValue(new Error('network'))
     renderDialog()
     expect(await screen.findByText('places.details.error', undefined, { timeout: 4000 })).toBeInTheDocument()
+  })
+})
+
+/**
+ * FE-PDC-050..051 — the editor's own pictures beside the sources' ones.
+ */
+describe('PlaceDetailsColumn — the place\'s own pictures', () => {
+  const own = (over: Record<string, unknown> = {}) => ({
+    currentUrl: '/uploads/places/own.jpg',
+    attached: [],
+    pendingPreview: null,
+    canUpload: true,
+    onUpload: vi.fn(),
+    onPickAttached: vi.fn(),
+    onRemove: vi.fn(),
+    ...over,
+  })
+
+  it('FE-PDC-050: offers the upload and the current picture even while nothing is selected', () => {
+    const mine = own()
+    renderColumn({ selection: null, image: { own: mine, chosen: { kind: 'current' } } })
+
+    expect(screen.getByText('places.details.pickImage')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'places.uploadImage' })).toBeInTheDocument()
+    const current = screen.getByRole('button', { name: 'places.image.current' })
+    expect(current).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(current)
+    expect(mine.onRemove).toHaveBeenCalledTimes(1)
+  })
+
+  it('FE-PDC-051: the sources\' photos join the own ones once they arrive, the choice following the image prop', async () => {
+    const { onPickImage } = renderColumn({ image: { own: own(), chosen: { kind: 'url', url: COMMONS_PHOTO.url } } })
+
+    const tile = await screen.findByRole('button', { name: 'places.details.pickImage: Alice' })
+    expect(tile).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'places.image.current' })).toHaveAttribute('aria-pressed', 'false')
+    fireEvent.click(tile)
+    expect(onPickImage).toHaveBeenCalledWith(null)
   })
 })

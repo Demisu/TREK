@@ -1,8 +1,8 @@
-// FE-PLANNER-PLFORMH-001 to FE-PLANNER-PLFORMH-010: the place form's openings and save
+// FE-PLANNER-PLFORMH-001 to FE-PLANNER-PLFORMH-011: the place form's openings and save
 // payload, as the desktop dialog and the phone sheet both build them.
 import { describe, expect, it } from 'vitest';
 
-import type { Assignment, Place } from '../../types';
+import type { Assignment, Place, TripFile } from '../../types';
 import {
   DEFAULT_FORM,
   duplicateName,
@@ -154,5 +154,19 @@ describe('placeFormPayload', () => {
   it("FE-PLANNER-PLFORMH-010: a shell's extras are built from the parsed coordinates", () => {
     const payload = placeFormPayload(form, [], null, (lat, lng) => ({ at: [lat, lng] }));
     expect(payload.at).toEqual([48.86, null]);
+  });
+
+  it('FE-PLANNER-PLFORMH-011: a waiting picture travels as the file, or as the attached file id, or not at all', () => {
+    expect(placeFormPayload(form, [], null)._pendingImage).toBeUndefined();
+    const picture = new File(['x'], 'front.png');
+    expect(
+      placeFormPayload(form, [], null, undefined, { kind: 'upload', file: picture, preview: 'blob:x' })._pendingImage
+    ).toBe(picture);
+    const attached = { id: 12, mime_type: 'image/png' } as TripFile;
+    expect(placeFormPayload(form, [], null, undefined, { kind: 'attached', file: attached })._pendingImage).toEqual({
+      fileId: 12,
+    });
+    // A dropped picture is the field's null, and it is saved as such.
+    expect(placeFormPayload({ ...form, image_url: null }, [], null).image_url).toBeNull();
   });
 });

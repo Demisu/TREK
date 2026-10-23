@@ -11,7 +11,7 @@ import { server } from '../../../helpers/msw/server'
 import { resetAllStores, seedStore } from '../../../helpers/store'
 import { fireEvent, render, screen, waitFor } from '../../../helpers/render'
 
-// FE-MOB-PLEDIT-001 to FE-MOB-PLEDIT-047, plus the 009b, 025b and 029b variants
+// FE-MOB-PLEDIT-001 to FE-MOB-PLEDIT-048, plus the 009b, 025b and 029b variants
 // planner.t echoes the key, so every label/placeholder is asserted as its key.
 
 const CATEGORIES = [
@@ -394,7 +394,7 @@ describe('MPlaceEditSheet', () => {
   it('FE-MOB-PLEDIT-025b: attaches files chosen through the picker', async () => {
     const { planner } = setup()
     const file = new File(['x'], 'map.pdf', { type: 'application/pdf' })
-    const picker = document.querySelector('input[type="file"]') as HTMLInputElement
+    const picker = document.querySelector('input[type="file"][multiple]') as HTMLInputElement
     fireEvent.change(picker, { target: { files: [file] } })
     expect(await screen.findByText('map.pdf')).toBeInTheDocument()
 
@@ -666,6 +666,32 @@ describe('MPlaceEditSheet', () => {
     seedStore(useAuthStore, { placesEnrichEnabled: false })
     setup({ editingPlace: EDITED })
     expect(screen.queryByText('places.details.title')).not.toBeInTheDocument()
+    // The picture is still chosen in the sheet, by the form's own picker.
+    expect(screen.getByText('places.details.pickImage')).toBeInTheDocument()
+  })
+
+  it('FE-MOB-PLEDIT-048: a picture picked from the device waits for the save and travels with it', async () => {
+    const preview = vi.spyOn(URL, 'createObjectURL').mockImplementation(() => 'blob:sheet-preview')
+    const revoke = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined)
+    try {
+      seedStore(useAuthStore, { placesEnrichEnabled: false })
+      const { planner } = setup({ editingPlace: EDITED })
+      const picture = new File(['x'], 'gate.png', { type: 'image/png' })
+      fireEvent.change(document.querySelector('input[type="file"][accept^="image"]') as HTMLInputElement, {
+        target: { files: [picture] },
+      })
+      const tile = await screen.findByRole('button', { name: 'places.uploadImage', pressed: true })
+      expect(tile.querySelector('img')).toHaveAttribute('src', 'blob:sheet-preview')
+      // Nothing is sent before the save.
+      expect(planner.handleSavePlace).not.toHaveBeenCalled()
+
+      fireEvent.click(submit())
+      await waitFor(() => expect(planner.handleSavePlace).toHaveBeenCalledTimes(1))
+      expect(planner.handleSavePlace).toHaveBeenCalledWith(expect.objectContaining({ _pendingImage: picture }))
+    } finally {
+      preview.mockRestore()
+      revoke.mockRestore()
+    }
   })
 
   it('FE-MOB-PLEDIT-043: a plugin POI pick fills the form and asks the details block about its plugin id, not a Google one', async () => {

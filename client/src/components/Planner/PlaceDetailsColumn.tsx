@@ -4,7 +4,6 @@ import {
   ArrowRight,
   Bike,
   Building2,
-  Check,
   ChefHat,
   ChevronDown,
   ChevronUp,
@@ -34,7 +33,7 @@ import { LABEL } from '../shared/dialogParts'
 import { COLUMN_CARD, ColumnHead, HintCard, SIDE_COLUMN, WHITE_BUTTON } from './placeDialogParts'
 import type { TranslationFn } from '../../types'
 import PlaceImagePicker, { type PlaceImageOwn } from './PlaceImagePicker'
-import { chosenImage, type ChosenImage } from './placeImageChoice'
+import { chosenImage, offersPictures, type ChosenImage } from './placeImageChoice'
 import { cacheKeyFor, readCachedEnrichment, storeEnrichment, type PlaceDetailsSelection } from './placeEnrichment'
 
 export { __clearEnrichmentCacheForTests, type PlaceDetailsSelection } from './placeEnrichment'
@@ -372,8 +371,8 @@ function PictureBlock({
   dialog: boolean
   t: TranslationFn
 }): React.ReactElement | null {
+  if (!offersPictures(photos, own)) return null
   const picker = <PlaceImagePicker photos={photos} chosen={chosen} onPickUrl={onPickImage} own={own} dialog={dialog} t={t} />
-  if (photos.length === 0 && !own) return null
   return (
     <Block label={t('places.details.pickImage')} dialog={dialog}>
       {dialog ? <div className={`${COLUMN_CARD} p-2`}>{picker}</div> : picker}

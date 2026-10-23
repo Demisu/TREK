@@ -1,9 +1,11 @@
-// FE-PLANNER-PLFORM-001 to FE-PLANNER-PLFORM-014: the place form state behind the desktop
-// dialog and the phone sheet, and the inline new category of both ('dialog' and 'sheet').
+// FE-PLANNER-PLFORM-001 to FE-PLANNER-PLFORM-019: the place form state behind the desktop
+// dialog and the phone sheet, its waiting picture, and the inline new category of both
+// ('dialog' and 'sheet').
 import { act, renderHook } from '@testing-library/react';
 import type React from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 
+import { buildTripFile } from '../../../tests/helpers/factories';
 import type { Category, Place } from '../../types';
 import { DEFAULT_FORM } from './PlaceFormModal.helpers';
 import { useNewCategory, usePlaceForm, type NewCategoryOptions } from './usePlaceForm';
@@ -162,6 +164,88 @@ describe('usePlaceForm', () => {
 function category(id: number): Category {
   return { id, name: 'Food', color: '#6366f1', icon: 'MapPin' } as unknown as Category;
 }
+
+describe('usePlaceForm, the waiting picture', () => {
+  let previews: number;
+  let createObjectURL: MockInstance<typeof URL.createObjectURL>;
+  let revokeObjectURL: MockInstance<typeof URL.revokeObjectURL>;
+
+  beforeEach(() => {
+    previews = 0;
+    createObjectURL = vi.spyOn(URL, 'createObjectURL').mockImplementation(() => `blob:preview-${++previews}`);
+    revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('FE-PLANNER-PLFORM-015: nothing waits on a fresh form', () => {
+    const { result } = setup();
+    expect(result.current.pendingImage).toBeNull();
+  });
+
+  it('FE-PLANNER-PLFORM-016: a picture from the device waits with its preview and keeps the field untouched', () => {
+    const { result } = setup();
+    act(() => result.current.pickImage('https://img.example/1.jpg'));
+    const picture = file('front.png', 'image/png');
+    act(() => result.current.stageUpload(picture));
+    expect(createObjectURL).toHaveBeenCalledWith(picture);
+    expect(result.current.pendingImage).toEqual({ kind: 'upload', file: picture, preview: 'blob:preview-1' });
+    // A source's photo picked before gives way to it.
+    expect(result.current.form.image_url).toBeUndefined();
+  });
+
+  it('FE-PLANNER-PLFORM-017: replacing the waiting upload frees its preview, whatever replaces it', () => {
+    const { result } = setup();
+    act(() => result.current.stageUpload(file('a.png', 'image/png')));
+    act(() => result.current.stageUpload(file('b.png', 'image/png')));
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:preview-1');
+    expect(result.current.pendingImage).toMatchObject({ kind: 'upload', preview: 'blob:preview-2' });
+
+    const attached = buildTripFile({ id: 8, mime_type: 'image/png' });
+    act(() => result.current.stageAttached(attached));
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:preview-2');
+    expect(result.current.pendingImage).toEqual({ kind: 'attached', file: attached });
+    expect(result.current.form.image_url).toBeUndefined();
+
+    // An attached image has no preview of ours to free.
+    revokeObjectURL.mockClear();
+    act(() => result.current.pickImage('https://img.example/2.jpg'));
+    expect(revokeObjectURL).not.toHaveBeenCalled();
+    expect(result.current.pendingImage).toBeNull();
+    expect(result.current.form.image_url).toBe('https://img.example/2.jpg');
+  });
+
+  it('FE-PLANNER-PLFORM-018: removing the picture drops what waits and empties the field for the save', () => {
+    const { result } = setup();
+    act(() => result.current.stageUpload(file('a.png', 'image/png')));
+    act(() => result.current.removeImage());
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:preview-1');
+    expect(result.current.pendingImage).toBeNull();
+    expect(result.current.form.image_url).toBeNull();
+
+    // A fresh opening starts without a waiting picture as well.
+    act(() => result.current.stageUpload(file('b.png', 'image/png')));
+    act(() => result.current.openForm(DEFAULT_FORM, null, null));
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:preview-2');
+    expect(result.current.pendingImage).toBeNull();
+  });
+
+  it('FE-PLANNER-PLFORM-019: closing the form frees the preview still waiting, and only that one', () => {
+    const { result, unmount } = setup();
+    act(() => result.current.stageUpload(file('a.png', 'image/png')));
+    revokeObjectURL.mockClear();
+    unmount();
+    expect(revokeObjectURL).toHaveBeenCalledTimes(1);
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:preview-1');
+
+    const empty = setup();
+    revokeObjectURL.mockClear();
+    empty.unmount();
+    expect(revokeObjectURL).not.toHaveBeenCalled();
+  });
+});
 
 describe('useNewCategory', () => {
   function setupCategory(options: Pick<NewCategoryOptions, 'variant' | 'create'>) {

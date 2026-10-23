@@ -23,6 +23,7 @@ vi.mock('../../api/client', async (importOriginal) => {
     mapsApi: {
       details: vi.fn().mockResolvedValue({ place: null }),
       placePhotoCredit: vi.fn().mockResolvedValue({ credit: null }),
+      placeEnrichment: vi.fn().mockResolvedValue({ photos: [], facts: [], description: null }),
     },
   };
 });
@@ -54,6 +55,7 @@ beforeAll(() => {
 
 import PlaceInspector from './PlaceInspector';
 import { mapsApi } from '../../api/client';
+import { __clearEnrichmentCacheForTests } from './placeEnrichment';
 
 // ── Shared fixtures ───────────────────────────────────────────────────────────
 
@@ -100,6 +102,8 @@ beforeEach(() => {
   seedStore(useSettingsStore, { settings: { time_format: '24h', temperature_unit: 'celsius' } });
 
   vi.mocked(mapsApi.details).mockResolvedValue({ place: null });
+  vi.mocked(mapsApi.placeEnrichment).mockResolvedValue({ photos: [], facts: [], description: null } as never);
+  __clearEnrichmentCacheForTests();
 });
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -970,18 +974,21 @@ describe('PlaceInspector', () => {
     }
   });
 
-  // ── Custom thumbnail upload (#1136) ──────────────────────────────────────────
+  // ── The avatar opens the place's photos (#1136) ─────────────────────────────
 
-  it('FE-PLANNER-INSPECTOR-049: onUploadImage in trip mode renders the upload-capable avatar', () => {
-    render(<PlaceInspector {...defaultProps} onUploadImage={vi.fn()} />);
-    // The place carries no image yet, so the avatar offers "Upload image".
-    expect(screen.getByRole('button', { name: 'Upload image' })).toBeTruthy();
-  });
-
-  it('FE-PLANNER-INSPECTOR-050: without onUploadImage the avatar has no upload control', () => {
+  it('FE-PLANNER-INSPECTOR-049: the avatar opens the photos and offers no upload, the picture is changed in the editor', () => {
     render(<PlaceInspector {...defaultProps} />);
+    expect(screen.getByRole('button', { name: 'Show photos' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Upload image' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Change image' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Remove image' })).toBeNull();
+  });
+
+  it('FE-PLANNER-INSPECTOR-050: with no picture and nobody to ask for one the avatar stays a plain picture', () => {
+    seedStore(useAuthStore, { placesEnrichEnabled: false });
+    render(<PlaceInspector {...defaultProps} />);
+    expect(screen.queryByRole('button', { name: 'Show photos' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Upload image' })).toBeNull();
   });
 
 // ── Track colour (#776) ──────────────────────────────────────────────────────
@@ -1415,15 +1422,23 @@ describe('PlaceInspector', () => {
     expect(document.querySelector('iframe[src*="tide-widget"]')).toBeNull();
   });
 
-  // ── Custom thumbnail callbacks (#1136) ───────────────────────────────────────
+  // ── The avatar's gallery (#1136) ────────────────────────────────────────────
 
-  it('FE-PLANNER-INSPECTOR-088: removing the custom image clears image_url through onUpdatePlace', async () => {
+  it('FE-PLANNER-INSPECTOR-088: the custom image opens at once in the gallery, and the avatar has no remove control', async () => {
+    seedStore(useAuthStore, { placesEnrichEnabled: false });
     const onUpdatePlace = vi.fn();
-    const onUploadImage = vi.fn(async () => {});
     const withImage = buildPlace({ id: 706, name: 'Pictured', image_url: '/uploads/places/x.jpg' });
-    render(<PlaceInspector {...defaultProps} place={withImage} onUpdatePlace={onUpdatePlace} onUploadImage={onUploadImage} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Remove image' }));
-    expect(onUpdatePlace).toHaveBeenCalledWith(706, { image_url: null });
+    render(<PlaceInspector {...defaultProps} place={withImage} onUpdatePlace={onUpdatePlace} />);
+    expect(screen.queryByRole('button', { name: 'Remove image' })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show photos' }));
+    const gallery = await screen.findByRole('dialog', { name: 'Show photos' });
+    expect(gallery.querySelector('img')).toHaveAttribute('src', '/uploads/places/x.jpg');
+    expect(mapsApi.placeEnrichment).not.toHaveBeenCalled();
+    expect(onUpdatePlace).not.toHaveBeenCalled();
+
+    fireEvent.click(within(gallery).getByRole('button', { name: 'Close' }));
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Show photos' })).toBeNull());
   });
 
   it('FE-PLANNER-INSPECTOR-090: opening hours are read for the selected day, not for today', async () => {
@@ -1545,13 +1560,27 @@ describe('PlaceInspector', () => {
     }
   });
 
-  it('FE-PLANNER-INSPECTOR-089: picking a file hands it to onUploadImage', async () => {
-    const onUploadImage = vi.fn(async () => {});
-    render(<PlaceInspector {...defaultProps} onUploadImage={onUploadImage} />);
-    const input = document.querySelector('input[accept*="image"]') as HTMLInputElement;
-    const file = new File(['x'], 'thumb.png', { type: 'image/png' });
-    fireEvent.change(input, { target: { files: [file] } });
-    await waitFor(() => expect(onUploadImage).toHaveBeenCalledWith(place.id, file));
+  it("FE-PLANNER-INSPECTOR-089: the avatar asks the sources for the place's photos on click and shows them credited", async () => {
+    vi.mocked(mapsApi.placeEnrichment).mockResolvedValue({
+      photos: [{
+        key: 'gp~p0', url: '/api/maps/place-photo/gp~p0/bytes', attribution: 'Alice', license: 'CC BY 4.0',
+        licenseUrl: null, sourceUrl: 'https://commons.wikimedia.org/wiki/File:T.jpg', source: 'wikimedia',
+      }],
+      facts: [],
+      description: null,
+    } as never);
+    render(<PlaceInspector {...defaultProps} />);
+    // Nothing is asked before the click: selecting a place is not worth the provider fan-out.
+    expect(mapsApi.placeEnrichment).not.toHaveBeenCalled();
+    expect(document.querySelector('input[type="file"][accept*="image"]')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show photos' }));
+    const gallery = await screen.findByRole('dialog', { name: 'Show photos' });
+    expect(mapsApi.placeEnrichment).toHaveBeenCalledWith(expect.objectContaining({ lat: place.lat, lng: place.lng, name: 'Eiffel Tower' }));
+    expect(within(gallery).getByRole('img')).toHaveAttribute('src', '/api/maps/place-photo/gp~p0/bytes');
+    expect(within(gallery).getByRole('link', { name: 'Alice, CC BY 4.0' })).toHaveAttribute(
+      'href', 'https://commons.wikimedia.org/wiki/File:T.jpg',
+    );
   });
 
   it('FE-PLANNER-INSPECTOR-098: deselecting and reselecting a place survives a rerender', async () => {

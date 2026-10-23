@@ -6,7 +6,7 @@ import { Tooltip } from '../shared/Tooltip';
 import { LABEL } from '../shared/dialogParts';
 import PlaceImagePicker, { type PlaceImageOwn } from './PlaceImagePicker';
 import { COLUMN_CARD, WHITE_BUTTON } from './placeDialogParts';
-import type { ChosenImage } from './placeImageChoice';
+import { offersPictures, type ChosenImage } from './placeImageChoice';
 
 /** Files chosen before the place exists: they are uploaded once the save has given it an id. */
 export function PendingFiles({
@@ -72,6 +72,7 @@ export function PlaceImageSection({
   onPickUrl: (url: string | null) => void;
   t: TranslationFn;
 }) {
+  if (!offersPictures([], image.own)) return null;
   return (
     <div className="min-w-0">
       <div className={LABEL}>{t('places.details.pickImage')}</div>

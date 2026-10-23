@@ -1,4 +1,4 @@
-// FE-TP-PLACEEDITS-001 to FE-TP-PLACEEDITS-017
+// FE-TP-PLACEEDITS-001 to FE-TP-PLACEEDITS-020
 //
 // Writes to the trip's places, driven straight through usePlaceEdits. The store holds
 // the places and day lists the delete and category handlers capture for their undo,
@@ -51,6 +51,8 @@ function makeActions() {
     setAssignmentLegMode: vi.fn(async () => undefined),
     ratePlace: vi.fn(async () => undefined),
     addFile: vi.fn(async () => undefined),
+    uploadPlaceImage: vi.fn(async () => undefined),
+    setPlaceImageFromFile: vi.fn(async () => undefined),
     deletePlace: vi.fn(async (): Promise<{ tourPlaceIds?: number[] } | undefined> => undefined),
     deletePlacesMany: vi.fn(async (): Promise<{ tourPlaceIds?: number[] } | undefined> => undefined),
     updatePlacesMany: vi.fn(async () => undefined),
@@ -477,6 +479,59 @@ describe('usePlaceEdits', () => {
       // Without new files the place saves offline as before.
       await act(async () => { await result.current.handleSavePlace({ name: 'Lake' }) })
       expect(actions.updatePlace).toHaveBeenCalledWith(42, 1, { name: 'Lake' })
+    } finally {
+      Object.defineProperty(navigator, 'onLine', { value: true, writable: true, configurable: true })
+    }
+  })
+  it('FE-TP-PLACEEDITS-018: an edited place gets its waiting picture after the update, uploaded or taken from its files', async () => {
+    const { result } = renderEdits({ editingPlace: lake })
+    const picture = new File(['x'], 'front.png', { type: 'image/png' })
+
+    await act(async () => { await result.current.handleSavePlace({ name: 'Lake', _pendingImage: picture }) })
+
+    // The picture rides its own route, never the place's update.
+    expect(actions.updatePlace).toHaveBeenCalledWith(42, 1, { name: 'Lake' })
+    expect(actions.uploadPlaceImage).toHaveBeenCalledWith(42, 1, picture)
+    expect(actions.updatePlace.mock.invocationCallOrder[0]).toBeLessThan(actions.uploadPlaceImage.mock.invocationCallOrder[0])
+
+    await act(async () => { await result.current.handleSavePlace({ name: 'Lake', _pendingImage: { fileId: 33 } }) })
+    expect(actions.setPlaceImageFromFile).toHaveBeenCalledWith(42, 1, 33)
+    expect(toast.success).toHaveBeenCalledWith('trip.toast.placeUpdated')
+  })
+
+  it('FE-TP-PLACEEDITS-019: a new place gets its picture once the create has given it an id, and a refused one is reported', async () => {
+    const { result } = renderEdits()
+    const picture = new File(['x'], 'front.png', { type: 'image/png' })
+    actions.uploadPlaceImage.mockRejectedValueOnce(new Error('too large'))
+
+    let saved: unknown
+    await act(async () => { saved = await result.current.handleSavePlace({ name: 'Pump', _pendingImage: picture }) })
+
+    expect(actions.addPlace).toHaveBeenCalledWith(42, { name: 'Pump' })
+    expect(actions.uploadPlaceImage).toHaveBeenCalledWith(42, 900, picture)
+    // The place is saved all the same; only the picture failed.
+    expect(saved).toMatchObject({ id: 900 })
+    expect(toast.error).toHaveBeenCalledWith('places.imageUploadError')
+    expect(toast.success).toHaveBeenCalledWith('trip.toast.placeAdded')
+
+    // A create the store could not make has no place to put an attached file on.
+    actions.addPlace.mockResolvedValueOnce(null)
+    await act(async () => { await result.current.handleSavePlace({ name: 'Ghost', _pendingImage: { fileId: 5 } }) })
+    expect(actions.setPlaceImageFromFile).not.toHaveBeenCalled()
+  })
+
+  it('FE-TP-PLACEEDITS-020: offline, a save with a waiting picture is refused before anything is written', async () => {
+    Object.defineProperty(navigator, 'onLine', { value: false, writable: true, configurable: true })
+    try {
+      const { result } = renderEdits({ editingPlace: lake })
+      let refused: unknown
+      await act(async () => {
+        await result.current.handleSavePlace({ name: 'Lake', _pendingImage: { fileId: 5 } }).catch((err: unknown) => { refused = err })
+      })
+
+      expect(refused).toEqual(new Error('places.image.needsConnection'))
+      expect(actions.updatePlace).not.toHaveBeenCalled()
+      expect(actions.setPlaceImageFromFile).not.toHaveBeenCalled()
     } finally {
       Object.defineProperty(navigator, 'onLine', { value: true, writable: true, configurable: true })
     }
