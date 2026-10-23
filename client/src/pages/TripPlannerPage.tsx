@@ -627,6 +627,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
               tourPlanner={tourPlanner} tourMap={tourMap} locationSearch={locationSearch} canPlaceEdit={canPlaceEdit}
               leftPanelPx={leftPanelPx} rightPanelPx={rightPanelPx}
               onViewportChange={wandererBrowser.onViewportChange} paddleChecklist={pageState.paddleChecklist}
+              assistantRoutes={assistantMap}
             />
             <div className="hidden md:block" style={{ position: 'absolute', left: 10, top: 10, bottom: 10, zIndex: 20 }}>
               <PanelTab hidden={leftHidden} label={leftHidden ? t('trip.mobilePlan') : t('common.collapse')} onToggle={toggleLeft} />
