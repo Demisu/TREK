@@ -12,7 +12,7 @@
  * journey; the bar's switch and the column it opens.
  */
 import type { AiStatusResponse } from '@trek/shared';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { fireEvent, render, screen, waitFor, within } from '../../../tests/helpers/render';
 import { aiConnectionsRepo } from '../../repo/aiConnectionsRepo';
@@ -54,6 +54,11 @@ function running() {
   });
   return cancel;
 }
+
+beforeAll(() => {
+  // jsdom lays nothing out and has no element scrolling; the thread's viewport only needs the call to exist.
+  Element.prototype.scrollTo = vi.fn() as unknown as typeof Element.prototype.scrollTo;
+});
 
 beforeEach(() => {
   vi.spyOn(assistantRepo, 'threads').mockResolvedValue([]);
