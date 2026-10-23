@@ -72,7 +72,7 @@ describe('a Studio tool session', () => {
     }
   });
 
-  it('ASTJSES-002: a viewer is offered the reads and not one write', async () => {
+  it('ASTJSES-002: a viewer is offered the reads but the design draft tools, and not one write', async () => {
     const { journeyId } = await ownerWithJourneys();
     const { user: viewer } = await makeUser(orm);
     await addJourneyContributor(orm, journeyId, viewer.id, 'viewer');
@@ -81,6 +81,11 @@ describe('a Studio tool session', () => {
       const names = session.specs().map((spec) => spec.name);
       expect(names).toEqual(expect.arrayContaining(['get_book', 'describe_book_page', 'list_journey_entries']));
       for (const name of [...BOOK_WRITES, 'set_book_cover']) expect(names, name).not.toContain(name);
+      const listed = registry.list().map((entry) => entry.name);
+      for (const name of ['design_book', 'get_book_design', 'revise_book_design']) {
+        expect(listed, name).toContain(name);
+        expect(names, name).not.toContain(name);
+      }
       for (const name of names) expect(session.kindOf(name), name).toBe('read');
     } finally {
       await session.close();

@@ -50,7 +50,7 @@ function samples(data: Uint8Array, total: number): Rgb[] {
   const out: Rgb[] = [];
   for (let i = 0; i < total; i += stride) {
     const o = i * 4;
-    out.push([data[o] ?? 0, data[o + 1] ?? 0, data[o + 2] ?? 0]);
+    out.push([data[o], data[o + 1], data[o + 2]]);
   }
   return out;
 }
@@ -98,21 +98,20 @@ export function paletteOf(data: Uint8Array, width: number, height: number): stri
     for (const colour of pixels) {
       const at = nearest(centres, colour);
       const sum = sums[at];
-      if (!sum) continue;
       sum[0] += colour[0];
       sum[1] += colour[1];
       sum[2] += colour[2];
-      members[at] = (members[at] ?? 0) + 1;
+      members[at] += 1;
     }
     // The last round only counts: the centres stay where the counting found them.
     if (round === ROUNDS) break;
     sums.forEach((sum, i) => {
-      const n = members[i] ?? 0;
+      const n = members[i];
       if (n > 0) centres[i] = [sum[0] / n, sum[1] / n, sum[2] / n];
     });
   }
   return centres
-    .map((centre, i) => ({ centre, share: (members[i] ?? 0) / pixels.length, i }))
+    .map((centre, i) => ({ centre, share: members[i] / pixels.length, i }))
     .filter((c) => c.share >= MIN_SHARE)
     .sort((a, b) => b.share - a.share || a.i - b.i)
     .map((c) => `#${hex2(c.centre[0])}${hex2(c.centre[1])}${hex2(c.centre[2])}:${c.share.toFixed(2)}`);
@@ -127,9 +126,9 @@ export function edgeSignals(data: Uint8Array, width: number, height: number): Om
   const grey = new Float32Array(width * height);
   for (let i = 0; i < grey.length; i++) {
     const o = i * 4;
-    grey[i] = 0.299 * (data[o] ?? 0) + 0.587 * (data[o + 1] ?? 0) + 0.114 * (data[o + 2] ?? 0);
+    grey[i] = 0.299 * data[o] + 0.587 * data[o + 1] + 0.114 * data[o + 2];
   }
-  const at = (k: number) => grey[k] ?? 0;
+  const at = (k: number) => grey[k];
   const sums = new Array<number>(GRID * GRID).fill(0);
   const counts = new Array<number>(GRID * GRID).fill(0);
   let energy = 0;
@@ -141,8 +140,8 @@ export function edgeSignals(data: Uint8Array, width: number, height: number): Om
       const i = row * width + col;
       const lap = Math.abs(at(i - 1) + at(i + 1) + at(i - width) + at(i + width) - 4 * at(i));
       const cell = cellRow * GRID + Math.min(GRID - 1, Math.floor((col * GRID) / width));
-      sums[cell] = (sums[cell] ?? 0) + lap;
-      counts[cell] = (counts[cell] ?? 0) + 1;
+      sums[cell] += lap;
+      counts[cell] += 1;
       energy += lap;
       sx += lap * ((col + 0.5) / width);
       sy += lap * ((row + 0.5) / height);
@@ -150,7 +149,7 @@ export function edgeSignals(data: Uint8Array, width: number, height: number): Om
   }
   const busy = sums
     .map((sum, cell) => {
-      const n = counts[cell] ?? 0;
+      const n = counts[cell];
       const level = n > 0 ? Math.min(15, Math.round(sum / n / BUSY_STEP)) : 0;
       return level.toString(16);
     })

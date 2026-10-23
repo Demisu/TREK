@@ -105,7 +105,7 @@ function greyStats(data: Uint8Array, width: number, height: number) {
   let clipped = 0;
   for (let i = 0; i < total; i++) {
     const o = i * 4;
-    const y = 0.299 * (data[o] ?? 0) + 0.587 * (data[o + 1] ?? 0) + 0.114 * (data[o + 2] ?? 0);
+    const y = 0.299 * data[o] + 0.587 * data[o + 1] + 0.114 * data[o + 2];
     grey[i] = y;
     sum += y;
     if (y <= CLIP_LOW || y >= CLIP_HIGH) clipped++;
@@ -114,7 +114,7 @@ function greyStats(data: Uint8Array, width: number, height: number) {
   let n = 0;
   let mean = 0;
   let m2 = 0;
-  const at = (k: number) => grey[k] ?? 0;
+  const at = (k: number) => grey[k];
   for (let row = 1; row < height - 1; row++) {
     for (let col = 1; col < width - 1; col++) {
       const i = row * width + col;

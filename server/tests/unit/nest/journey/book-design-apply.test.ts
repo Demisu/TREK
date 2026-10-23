@@ -6,14 +6,19 @@
  * untouched; a page whose photos left the gallery stays out; the draft's
  * format and title come along unless someone set others since, and a page
  * size moved since takes nothing. A journey that had no book gets the chosen
- * pages as a new book (a cover photo gone since leaves an empty frame), one
- * that lost its book since, or got one since, gets nothing.
+ * pages as a new book (a cover photo gone since leaves an empty frame, a map
+ * stop's picture gone since leaves a dot), one that lost its book since, or
+ * got one since, gets nothing. A plan row the draft holds no page for writes
+ * nothing, and a book at the page limit takes no new page.
  */
 import { applyDesignDraft, type DraftToApply } from '../../../../src/nest/journey/book-design-apply';
 import {
   blankBook,
+  bookMapElementSchema,
   bookPageSetupForPreset,
   bookPhotoElementSchema,
+  bookShapeElementSchema,
+  MAX_SPREADS,
   type BookDesignPlanRow,
   type BookDocument,
   type BookSpread,
@@ -242,5 +247,76 @@ describe('applyDesignDraft', () => {
       selection: ['a'],
     };
     expect(applyDesignDraft(reordered, draft, new Set([4])).applied).toEqual(['a']);
+  });
+
+  it('JBAPPLY-011: a new book empties only the gone pictures on its cover, a map stop among them', () => {
+    const point = (photoId: number | null) => ({ lat: 38.7, lng: -9.1, label: '', photoId });
+    const map = bookMapElementSchema.parse({
+      id: 'm-c',
+      kind: 'map',
+      frame: { x: 0, y: 0, w: 40, h: 40 },
+      points: [point(5), point(6), point(null)],
+    });
+    const empty = bookPhotoElementSchema.parse({ id: 'p-c-e', kind: 'photo', frame: { x: 0, y: 0, w: 20, h: 20 } });
+    const shape = bookShapeElementSchema.parse({ id: 's-c', kind: 'shape', frame: { x: 0, y: 0, w: 10, h: 10 } });
+    const framed = page('c', 'cover', [6]);
+    const cover = { ...framed, elements: [...framed.elements, empty, map, shape] };
+    const doc = book([cover, ...pages('f:first', 'l:last', 'k:back')]);
+    const plan = doc.spreads.map((s) => row(s.id, 'insert'));
+    const draft: DraftToApply = { base: null, doc, plan, selection: [] };
+
+    const out = applyDesignDraft(null, draft, new Set([6]));
+
+    const [frame, blank, stops, rest] = out.doc.spreads[0]?.elements ?? [];
+    expect(frame).toMatchObject({ kind: 'photo', photoId: 6 });
+    expect(blank).toMatchObject({ kind: 'photo', photoId: null });
+    expect(stops?.kind === 'map' ? stops.points.map((p) => p.photoId) : 'not a map').toEqual([null, 6, null]);
+    expect(rest).toEqual(shape);
+    expect(out.applied).toEqual(['c', 'f', 'l', 'k']);
+  });
+
+  it('JBAPPLY-012: a new page with only a dropped page and a page the book lacks before it follows the cover', () => {
+    const base = book(pages('c:cover', 'a', 'k:back'));
+    const draft: DraftToApply = {
+      base,
+      doc: book(pages('c:cover', 'm', 'n', 'k:back')),
+      plan: [row('x', 'drop'), row('m', 'insert'), row('n', 'insert')],
+      selection: ['n'],
+    };
+
+    const out = applyDesignDraft(base, draft, new Set());
+
+    expect(out.doc.spreads.map((s) => s.id)).toEqual(['c', 'n', 'a', 'k']);
+    expect(out.applied).toEqual(['n']);
+    expect(out.skipped).toEqual([
+      { spreadId: 'x', reason: 'excluded' },
+      { spreadId: 'm', reason: 'excluded' },
+    ]);
+  });
+
+  it('JBAPPLY-013: a plan row whose page the draft does not hold changes nothing and is not named', () => {
+    const base = stored();
+    const draft: DraftToApply = {
+      base,
+      doc: book(pages('c:cover')),
+      plan: [row('a', 'replace'), row('n', 'insert')],
+      selection: ['a', 'n'],
+    };
+
+    const out = applyDesignDraft(base, draft, new Set());
+
+    expect([out.applied, out.skipped]).toEqual([[], []]);
+    expect(out.doc.spreads).toEqual(base.spreads);
+  });
+
+  it('JBAPPLY-014: a book at the page limit takes no new page, the page named as changed since', () => {
+    const inner = Array.from({ length: MAX_SPREADS - 1 }, (_, i) => page(`i${i}`, 'inner'));
+    const full = book([page('c', 'cover'), ...inner]);
+    const draft: DraftToApply = { base: full, doc: book(pages('n')), plan: [row('n', 'insert')], selection: ['n'] };
+
+    const out = applyDesignDraft(full, draft, new Set());
+
+    expect(out.skipped).toEqual([{ spreadId: 'n', reason: 'changed_since' }]);
+    expect(out.doc.spreads).toHaveLength(MAX_SPREADS);
   });
 });

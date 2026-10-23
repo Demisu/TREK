@@ -311,6 +311,8 @@ describe('PhotoSignalsService, the line', () => {
       algo: PHOTO_SIGNALS_ALGO,
       palette: 'not json',
       busy: 'abc',
+      sal_x: 0.25,
+      sal_y: 0.75,
     });
 
     const book = await main.signals.bookSignals([measured, older, broken, measured]);
@@ -321,7 +323,8 @@ describe('PhotoSignalsService, the line', () => {
     expect(own?.salient).toBeUndefined();
     // An older measurement still knows the size, never the colours.
     expect(book.get(older)).toEqual({ width: 800, height: null, luma: 128 });
-    expect(book.get(broken)).toEqual({ width: null, height: null });
+    // A broken palette or grid reads as none; the salient point beside it still counts.
+    expect(book.get(broken)).toEqual({ width: null, height: null, salient: { x: 0.25, y: 0.75 } });
     expect(await main.signals.bookSignals([])).toEqual(new Map());
   });
 });

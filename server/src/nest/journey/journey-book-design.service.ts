@@ -204,6 +204,8 @@ export class JourneyBookDesignService {
    * is and is named under `skipped`; nothing applied is a 409.
    */
   async apply(journeyId: number, userId: number, args: ApplyBookDesignRequest): Promise<BookDesignApplyResult> {
+    // The rights come before the draft: a viewer or an outsider holds none, and is told 403 or 404, not 410.
+    await this.requireEditor(journeyId, userId);
     const draft = await this.draftOf(userId, journeyId, args.designId);
     const { record, result, revisionId } = await this.books.editBook(
       journeyId,

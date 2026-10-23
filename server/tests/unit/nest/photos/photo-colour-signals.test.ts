@@ -2,8 +2,10 @@
  * The colour signals of a photo (PHSIG3-*), on pixels drawn here: a picture
  * half flat and half textured has its busy cells and its salient point on
  * the textured side, a two-colour picture has both colours in its palette
- * with their shares, a flat one has one colour, no salient point and a calm
- * grid; the measurement of a whole photo carries them, at version 3.
+ * with their shares (two equal ones always in the same order), a flat one has
+ * one colour, no salient point and a calm grid, the smallest picture is busy
+ * only around its one inner pixel; the measurement of a whole photo carries
+ * them, at version 3.
  */
 import { colourSignals, edgeSignals, paletteOf } from '../../../../src/nest/photos/photo-colour-signals';
 import { measurePhoto, PHOTO_SIGNALS_ALGO } from '../../../../src/nest/photos/photo-signals-runner';
@@ -74,5 +76,19 @@ describe('colour signals', () => {
     expect(measured?.palette?.[0]).toMatch(/^#[0-9a-f]{6}:(0|1)\.\d{2}$/);
     expect(measured?.busy).toMatch(/^[0-9a-f]{64}$/);
     expect(measured?.salX).toBeGreaterThan(0.6);
+  });
+
+  it('PHSIG3-005: on the smallest picture only the cell holding the one inner pixel can be busy', () => {
+    const dot = edgeSignals(
+      pixels(3, 3, (x, y) => (x === 1 && y === 1 ? [255, 255, 255] : [0, 0, 0])),
+      3,
+      3,
+    );
+    expect(dot).toEqual({ busy: `${'0'.repeat(18)}f${'0'.repeat(45)}`, salX: 0.5, salY: 0.5 });
+  });
+
+  it('PHSIG3-006: two colours of equal share come out in one order every time, the lower histogram bin first', () => {
+    const halves = pixels(100, 100, (x) => (x < 50 ? [200, 30, 30] : [20, 40, 220]));
+    expect(paletteOf(halves, 100, 100)).toEqual(['#1428dc:0.50', '#c81e1e:0.50']);
   });
 });

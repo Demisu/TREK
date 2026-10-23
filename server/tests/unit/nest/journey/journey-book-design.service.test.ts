@@ -3,18 +3,19 @@
  * the shared engine. Taken from JourneyBookDesignModule over a snapshot test
  * db, with the realtime fake and the photo bytes stubbed (nothing to measure).
  *
- * What it pins: a design is a draft, nothing written or sent, made by the
- * owner and editors only (a viewer 403, an outsider 404) and read back by its
- * maker only (410 for anyone else and once it is gone); a revision of a draft
- * page is checked like an edit and changes only the draft, a kept page it
- * revises is proposed; the selection names only pages the plan changes; the
- * apply writes the chosen pages in one version with one announcement, keeps
- * the book as it was as a revision in the same transaction, names the pages
- * left out and the ones changed since, refuses when nothing is left (409,
- * nothing written) and at a stale version, and forgets the draft; a journey
- * without a book gets a new one and no revision; restoring the revision puts
- * the book back only at the version the apply left, and never writes a revision that
- * does not read back; five revisions are kept.
+ * What it pins: a design is a draft, nothing written or sent, made and
+ * applied by the owner and editors only (a viewer 403, an outsider 404, before
+ * any draft is looked for) and read back by its maker only (410 for anyone
+ * else and once it is gone); a revision of a draft page is checked like an
+ * edit and changes only the draft, a kept page it revises is proposed; the
+ * selection names only pages the plan changes; the apply writes the chosen
+ * pages in one version with one announcement, keeps the book as it was as a
+ * revision in the same transaction, names the pages left out and the ones
+ * changed since, refuses when nothing is left (409, nothing written) and at a
+ * stale version, and forgets the draft; a journey without a book gets a new
+ * one and no revision; restoring the revision puts the book back only at the
+ * version the apply left, and never writes a revision that does not read
+ * back; five revisions are kept.
  */
 import { JourneyBookRevisions } from '../../../../src/db/entities/JourneyBookRevisions.entity';
 import { JourneyEntryPhotos } from '../../../../src/db/entities/JourneyEntryPhotos.entity';
@@ -144,7 +145,7 @@ describe('a design draft', () => {
     expect(await designs.describeDraft(journey.id, editor.id, answer.design_id)).toEqual(answer);
   });
 
-  it("JBDSN-002: only the owner and editors design; a draft is its maker's alone and gone for anyone else", async () => {
+  it("JBDSN-002: only the owner and editors design or apply; a draft is its maker's alone, gone for others", async () => {
     const { journey, owner, viewer, stranger } = await crew();
     expect(await refusal(() => designs.design(journey.id, viewer.id))).toEqual({ status: 403, code: 'book_read_only' });
     expect(await refusal(() => designs.design(journey.id, stranger.id))).toMatchObject({ status: 404 });
@@ -158,6 +159,13 @@ describe('a design draft', () => {
     expect(await refusal(() => designs.describeDraft(journey.id, owner.id, 'd-none'))).toEqual(gone);
     expect(await refusal(() => designs.draftView(journey.id, stranger.id, id))).toMatchObject({ status: 404 });
     expect(await refusal(() => designs.select(journey.id, viewer.id, id, []))).toMatchObject({ status: 403 });
+    // Taking the owner's draft is a question of rights first, never answered as a design gone.
+    const taking = { designId: id };
+    expect(await refusal(() => designs.apply(journey.id, viewer.id, taking))).toEqual({
+      status: 403,
+      code: 'book_read_only',
+    });
+    expect(await refusal(() => designs.apply(journey.id, stranger.id, taking))).toMatchObject({ status: 404 });
   });
 
   it('JBDSN-003: a revision changes a page of the draft like an edit would, nothing of the book; a kept page revised is proposed', async () => {

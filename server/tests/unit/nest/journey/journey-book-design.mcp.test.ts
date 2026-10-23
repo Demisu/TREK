@@ -7,9 +7,10 @@
  * journey group, the design, its read and its revision as reads, the apply,
  * the undo targets and the book-level changes as writes; the tools answer
  * what the services answer, so an editor designs, revises and applies, a
- * viewer is refused and an outsider told the journey is not there; the apply
- * tells every member once, the asking one included; describe_book_page reads
- * a draft page by its designId.
+ * viewer is refused every change and an outsider told the journey is not
+ * there by every tool, before a draft is looked for (403 or 404, not 410);
+ * the apply tells every member once, the asking one included;
+ * describe_book_page reads a draft page by its designId.
  */
 import { JourneyEntryPhotos } from '../../../../src/db/entities/JourneyEntryPhotos.entity';
 import { JourneyPhotos } from '../../../../src/db/entities/JourneyPhotos.entity';
@@ -193,5 +194,38 @@ describe('the design tools', () => {
     const back = { journeyId: journey.id, layout, expectedVersion: removed.version };
     const restored = bookWriteResultSchema.parse(answered(await books.restoreBookLayout(back, ctx(owner.id))));
     expect(restored.version).toBe(removed.version + 1);
+  });
+
+  it('JBDMCP-005: the other tools refuse an outsider, and a viewer every change, before a draft is read', async () => {
+    const { journey, viewer, stranger } = await crew();
+    const draft = { journeyId: journey.id, designId: 'd-none' };
+    const revise = { ...draft, spreadId: 'sp-none', ops: [{ op: 'background' as const, color: '#f4efe6' }] };
+    const revision = { journeyId: journey.id, revisionId: 1, expectedVersion: 1 };
+    const page = { journeyId: journey.id, spreadId: 'sp-none' };
+    const removal = { journeyId: journey.id, layoutId: 'l-none', expectedVersion: 1 };
+    const putBack = { journeyId: journey.id, layout: '{}', expectedVersion: 1 };
+    const format = { journeyId: journey.id, preset: 'a4-portrait' as const };
+    const gone = 'Journey not found';
+
+    await expect(designs.getBookDesign(draft, ctx(stranger.id))).rejects.toThrow(gone);
+    await expect(designs.reviseBookDesign(revise, ctx(stranger.id))).rejects.toThrow(gone);
+    await expect(designs.applyBookDesign(draft, ctx(stranger.id))).rejects.toThrow(gone);
+    await expect(designs.restoreBookRevision(revision, ctx(stranger.id))).rejects.toThrow(gone);
+    await expect(books.duplicateBookPage(page, ctx(stranger.id))).rejects.toThrow(gone);
+    await expect(books.saveBookLayout(page, ctx(stranger.id))).rejects.toThrow(gone);
+    await expect(books.removeBookLayout(removal, ctx(stranger.id))).rejects.toThrow(gone);
+    await expect(books.restoreBookLayout(putBack, ctx(stranger.id))).rejects.toThrow(gone);
+    await expect(books.setBookSetup(format, ctx(stranger.id))).rejects.toThrow(gone);
+
+    // A viewer may read the book, so a draft it never made is gone; every change is refused.
+    await expect(designs.getBookDesign(draft, ctx(viewer.id))).rejects.toThrow('This design is no longer kept');
+    await expect(designs.reviseBookDesign(revise, ctx(viewer.id))).rejects.toThrow('Not allowed');
+    await expect(designs.applyBookDesign(draft, ctx(viewer.id))).rejects.toThrow('Not allowed');
+    await expect(designs.restoreBookRevision(revision, ctx(viewer.id))).rejects.toThrow('Not allowed');
+    await expect(books.duplicateBookPage(page, ctx(viewer.id))).rejects.toThrow('Not allowed');
+    await expect(books.saveBookLayout(page, ctx(viewer.id))).rejects.toThrow('Not allowed');
+    await expect(books.removeBookLayout(removal, ctx(viewer.id))).rejects.toThrow('Not allowed');
+    await expect(books.restoreBookLayout(putBack, ctx(viewer.id))).rejects.toThrow('Not allowed');
+    expect(t.realtime.broadcastToUserMock).not.toHaveBeenCalled();
   });
 });

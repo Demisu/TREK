@@ -179,12 +179,19 @@ export function isOfferedInJourney(name: string, className: string | undefined):
 }
 
 /**
+ * The controllers whose reads work only for someone who may change the book:
+ * a design draft is its editor's, so a viewer's design_book, revise_book_design
+ * and get_book_design could only refuse.
+ */
+const EDITOR_READ_CONTROLLERS: ReadonlySet<string> = new Set(['JourneyBookDesignMcp']);
+
+/**
  * Whether a Studio conversation keeps an attached tool once its schema and
  * annotations are known. Only tools that work on the conversation's journey
  * (they take the `journeyId` the server pins) stay, so the conversation never
- * reaches another journey; of those every read, and the book's writes only
- * for someone who may change the book. The journey's own writes (entries,
- * photos, its trips) stay with the journey page.
+ * reaches another journey; of those every read but the design draft's, which,
+ * like the book's writes, go only to someone who may change the book. The
+ * journey's own writes (entries, photos, its trips) stay with the journey page.
  */
 export function keptInJourney(
   className: string | undefined,
@@ -193,7 +200,7 @@ export function keptInJourney(
   canWrite: boolean,
 ): boolean {
   if (!pinned) return false;
-  if (kind === 'read') return true;
+  if (kind === 'read') return canWrite || className === undefined || !EDITOR_READ_CONTROLLERS.has(className);
   return canWrite && isStudioController(className);
 }
 
