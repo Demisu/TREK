@@ -26,8 +26,10 @@ function HtmlProbe({ tKey, params }: { tKey: string; params?: Record<string, str
 }
 
 // A language's string table is built from its files the first time it is asked
-// for; on a busy runner that can take longer than waitFor's default second.
-const FIRST_LOAD = { timeout: 5000 };
+// for; on a busy runner that can take longer than waitFor's default second,
+// and with every locale's files grown it took past five on the CI shards
+// (12 s stays under the 15 s test timeout).
+const FIRST_LOAD = { timeout: 12_000 };
 
 function withLanguage(language: string) {
   seedStore(useSettingsStore, { settings: { language } });
