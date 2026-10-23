@@ -161,6 +161,20 @@ export const BOOK_SHAPES = [
 export type BookShapeId = (typeof BOOK_SHAPES)[number];
 
 /**
+ * A field that takes one id out of a long catalogue: a typeface, a shape.
+ *
+ * A tool's JSON schema shows it as a plain string, and the parse holds it to
+ * the catalogue, refusing an id it lacks with the ids it has. Spelled out as an
+ * enum it would be repeated wherever the field appears, on every element kind
+ * of a page, because the tool schemas carry no `$ref` to share it, and that
+ * repetition is what held the book tools over their size ceiling
+ * (MCP-SCHEMA-003 and 004 on the server). Where a model has to choose an id,
+ * the described enums of book-op-enums.ts still list them.
+ */
+export const bookCatalogueIdSchema = <const T extends readonly [string, ...string[]]>(ids: T) =>
+  z.string().pipe(z.enum(ids));
+
+/**
  * The families a book may be set in, and the weights type is set at. The
  * catalogue is book-fonts.data.ts: which face each id names, its weights, its
  * real italics and what it is for.
@@ -230,7 +244,7 @@ export const bookPhotoElementSchema = z.object({
    * makes a frame usable: you place a wide star across a spread and it is wide.
    * A shape you cannot resize freely is an ornament, not a frame.
    */
-  mask: z.enum(BOOK_SHAPES).nullable().default(null),
+  mask: bookCatalogueIdSchema(BOOK_SHAPES).nullable().default(null),
   /**
    * Decoration *around* the picture — a Polaroid's thick chin, a print's white
    * border, the shadow of a photo lying on a page.
@@ -245,7 +259,7 @@ export const bookTextElementSchema = z.object({
   ...elementBase,
   kind: z.literal('text'),
   text: z.string().max(MAX_TEXT_LENGTH).default(''),
-  font: z.enum(BOOK_FONTS_IDS).default('sans'),
+  font: bookCatalogueIdSchema(BOOK_FONTS_IDS).default('sans'),
   /** Points. */
   size: z.number().min(4).max(200).default(11),
   weight: bookWeightSchema.default(400),
@@ -307,7 +321,7 @@ export const bookTextElementSchema = z.object({
 export const bookShapeElementSchema = z.object({
   ...elementBase,
   kind: z.literal('shape'),
-  shape: z.enum(BOOK_SHAPES).default('rect'),
+  shape: bookCatalogueIdSchema(BOOK_SHAPES).default('rect'),
   fill: hex.nullable().default('#111827'),
   /**
    * Fade the fill out towards one edge. A cover almost always needs this: a
@@ -358,7 +372,7 @@ export const bookShapeElementSchema = z.object({
 
 /** What the travel elements share with text: they are typeset, not drawn. */
 const typeset = {
-  font: z.enum(BOOK_FONTS_IDS).default('sans'),
+  font: bookCatalogueIdSchema(BOOK_FONTS_IDS).default('sans'),
   color: hex.default('#1a1a1a'),
   /**
    * The one colour that carries emphasis — the figure in a stat, the route on
@@ -930,7 +944,7 @@ export const bookPageNumbersSchema = z.object({
    */
   autoColor: z.boolean().default(true),
   color: hex.default('#8a8578'),
-  font: z.enum(BOOK_FONTS_IDS).default('sans'),
+  font: bookCatalogueIdSchema(BOOK_FONTS_IDS).default('sans'),
 });
 export type BookPageNumbers = z.infer<typeof bookPageNumbersSchema>;
 

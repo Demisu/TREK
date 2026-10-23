@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Camera, Check, ChevronDown, ImagePlus, ChevronUp, Compass, Copy, FileDown, Files, ImageIcon, Layers, LayoutTemplate,
+  Camera, ChevronDown, ImagePlus, ChevronUp, Compass, Copy, FileDown, Files, ImageIcon, Layers, LayoutTemplate,
   Plus, Search, Shapes, Sticker, Trash2, Upload, X,
 } from 'lucide-react'
 import type { BookElement, BookPageSetup, JourneyStats } from '@trek/shared'

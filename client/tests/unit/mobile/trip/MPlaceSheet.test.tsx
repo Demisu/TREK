@@ -7,6 +7,7 @@ import type { MTripShellApi, TripPlanner } from '../../../../src/mobile/screens/
 import { useAddonStore } from '../../../../src/store/addonStore'
 import { useSaveToCollectionStore } from '../../../../src/store/saveToCollectionStore'
 import { useTripStore } from '../../../../src/store/tripStore'
+import { __clearEnrichmentCacheForTests } from '../../../../src/components/Planner/placeEnrichment'
 import { openFile } from '../../../../src/utils/fileDownload'
 import type { Assignment, Category, Day, Place, TripFile, TripMember } from '../../../../src/types'
 import { resetAllStores, seedStore } from '../../../helpers/store'
@@ -143,6 +144,10 @@ describe('MPlaceSheet', () => {
     resetAllStores()
     seedStore(useAddonStore, { addons: [{ id: 'collections', name: 'Collections', type: 'feature', icon: '', enabled: true }] })
     vi.spyOn(window, 'open').mockImplementation(() => null)
+    // The enrichment cache outlives a test: an earlier case's photos for the same place would open the gallery.
+    sessionStorage.clear()
+    __clearEnrichmentCacheForTests()
+    galleryToast.info.mockClear()
   })
 
   afterEach(() => {

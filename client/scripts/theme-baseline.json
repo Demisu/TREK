@@ -132,7 +132,6 @@
   "components/shared/Modal.tsx": 3,
   "components/shared/NavigationMenu.tsx": 1,
   "components/shared/NoteColorPicker.tsx": 2,
-  "components/shared/PlaceAvatarUpload.tsx": 3,
   "components/shared/PublicLanguagePicker.tsx": 3,
   "components/shared/Skeleton.tsx": 2,
   "components/shared/Spinner.tsx": 2,

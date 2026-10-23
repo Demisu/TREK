@@ -11,7 +11,11 @@ import PlacePhotoGallery from './PlacePhotoGallery';
 import { __clearEnrichmentCacheForTests } from './placeEnrichment';
 
 const placeEnrichment = vi.fn();
-vi.mock('../../api/client', () => ({ mapsApi: { placeEnrichment: (...a: unknown[]) => placeEnrichment(...a) } }));
+// Partial: the store registry behind resetAllStores needs the real default client.
+vi.mock('../../api/client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api/client')>()),
+  mapsApi: { placeEnrichment: (...a: unknown[]) => placeEnrichment(...a) },
+}));
 vi.mock('../Journey/VideoPlayerLazy', () => ({ default: () => null }));
 
 const PLACE = buildPlace({ id: 3, name: 'Tower', lat: 48.85, lng: 2.29, image_url: '/uploads/places/tower.jpg' });

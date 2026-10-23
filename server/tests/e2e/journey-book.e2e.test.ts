@@ -129,9 +129,6 @@ async function journeyWithBook() {
   return { owner, editor, viewer, journey, inner, everyone: [owner.id, editor.id, viewer.id].sort((a, b) => a - b) };
 }
 
-/** A revision one past what this build reads. */
-const NEWER = BOOK_SCHEMA_REV + 1;
-
 describe('Studio book over MCP and REST', () => {
   it('JBE2E-001: an MCP write is what GET reads next, and a viewer is refused in the words a tool answers', async () => {
     const { editor, viewer, journey, inner } = await journeyWithBook();

@@ -427,10 +427,13 @@ describe('TourPlanMcp: create_paddle_tour', () => {
     expect(paddleRoute).toHaveBeenCalledWith(
       expect.objectContaining({
         boat: 'canoe',
+        // The router is asked with the bare coordinates: the names of the points stay with the tour.
         legs: [
-          { from: PADDLE_POINTS[0], to: PADDLE_POINTS[1] },
-          { from: PADDLE_POINTS[1], to: PADDLE_POINTS[2] },
+          { from: { lat: 48.1, lng: 11.6 }, to: { lat: 48.11, lng: 11.6 } },
+          { from: { lat: 48.11, lng: 11.6 }, to: { lat: 48.12, lng: 11.6 } },
         ],
+        lake_style: 'direct',
+        lock_policy: 'auto',
       }),
     );
     expect(created.route).toEqual({ planned: true });

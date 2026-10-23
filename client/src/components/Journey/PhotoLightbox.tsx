@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from 'lucide-react'
 import VideoPlayer from './VideoPlayerLazy'
 import { usePhotoZoom } from './usePhotoZoom'
 import { Tooltip } from '../shared/Tooltip'
-import { useTranslation } from '../../i18n'
+import { isRtlLanguage, useTranslation } from '../../i18n'
 
 interface LightboxPhoto {
   id: string
@@ -36,9 +36,10 @@ export default function PhotoLightbox({ photos, startIndex = 0, onClose, label }
   const [idx, setIdx] = useState(startIndex)
   const touchStart = useRef<{ x: number; y: number } | null>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   // Right to left, the next photo lies to the left: the arrow keys and swipes follow the reading direction.
-  const rtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl'
+  // Taken from the language, not read off <html dir>, so it stays put across re-renders.
+  const rtl = isRtlLanguage(language)
 
   // Focus moves into the dialog when it opens and back to what opened it when it closes.
   useEffect(() => {

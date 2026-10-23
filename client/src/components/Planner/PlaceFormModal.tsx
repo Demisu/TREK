@@ -43,7 +43,6 @@ import {
 } from '../shared/DialogShell'
 import { EditorField, GRID_2, INPUT, LABEL, PANEL, PillSelect, TEXTAREA } from '../shared/dialogParts'
 import { SoftPill, tintOf } from './planParts'
-import { WHITE_BUTTON } from './placeDialogParts'
 import { TimeSection } from './PlaceFormTimeSection'
 
 // The submit payload mirrors the form, but lat/lng are parsed to numbers and

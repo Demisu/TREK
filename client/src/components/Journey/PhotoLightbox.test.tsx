@@ -17,6 +17,7 @@ vi.mock('../../api/websocket', () => ({
 
 import { render, screen, fireEvent } from '../../../tests/helpers/render';
 import { resetAllStores } from '../../../tests/helpers/store';
+import { useSettingsStore } from '../../store/settingsStore';
 import PhotoLightbox from './PhotoLightbox';
 
 const samplePhotos = [
@@ -277,7 +278,8 @@ describe('PhotoLightbox', () => {
 
   describe('right to left', () => {
     beforeEach(() => {
-      document.documentElement.dir = 'rtl';
+      // The direction follows the language, as in the app, where the provider also sets <html dir>.
+      useSettingsStore.setState((state) => ({ settings: { ...state.settings, language: 'ar' } }));
     });
     afterEach(() => {
       document.documentElement.dir = '';

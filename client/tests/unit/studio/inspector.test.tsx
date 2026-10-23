@@ -7,6 +7,7 @@ import {
 import { fireEvent, render } from '../../helpers/render'
 import { StudioInspector } from '../../../src/components/Studio/StudioInspector'
 import { useStudioStore } from '../../../src/store/studioStore'
+import { BOOK_FONTS } from '../../../src/components/Studio/bookFonts'
 import type { JourneySource } from '../../../src/components/Studio/StudioSidebar'
 
 /**
@@ -213,10 +214,14 @@ describe('a text element', () => {
     expect(el()).toMatchObject({ text: 'Bergen harbour', overridden: true })
   })
 
+  /* The weight is a slider over the weights the family ships, not a row of chips. */
   it('sets the weight', () => {
     load([text()])
     const { container } = draw()
-    pick(container, '600')
+    const slider = container.querySelector('input[type="range"][aria-label="journey.studio.weight"]') as HTMLInputElement
+    const at = BOOK_FONTS.sans.weights.indexOf(600)
+    expect(at).toBeGreaterThan(-1)
+    fireEvent.change(slider, { target: { value: String(at) } })
     expect(el()).toMatchObject({ weight: 600 })
   })
 

@@ -58,8 +58,14 @@ type ObjectFactory = typeof z.object | typeof z.strictObject;
  * The union, built once for the document (plain objects, which drop a field
  * they do not know, as the rest of the document does) and once for the
  * operations (strict, as every operation is), so the two cannot drift.
+ *
+ * The document takes the pattern as a string held to BOOK_PATTERNS on parse:
+ * a page carries paint on its background and on every shape, twice over in the
+ * restore tool's schema (elements and parked), and the ids spelled out each
+ * time are what a model handing a page back never needs. The operations,
+ * where a model picks a pattern, keep the enum.
  */
-function paintSchemas(obj: ObjectFactory) {
+function paintSchemas(obj: ObjectFactory, pattern: z.ZodType<BookPattern, string>) {
   const stop = obj({ at: z.number().min(0).max(1), color: hex, alpha: alpha.optional() });
   const stops = z.array(stop).min(2).max(MAX_PAINT_STOPS);
   const paint = z.discriminatedUnion('type', [
@@ -74,7 +80,7 @@ function paintSchemas(obj: ObjectFactory) {
     }),
     obj({
       type: z.literal('pattern'),
-      pattern: z.enum(BOOK_PATTERNS),
+      pattern,
       fg: hex,
       bg: hex.nullable(),
       scale: z.number().min(PATTERN_SCALE.min).max(PATTERN_SCALE.max),
@@ -84,7 +90,7 @@ function paintSchemas(obj: ObjectFactory) {
   return { stop, paint };
 }
 
-const docSchemas = paintSchemas(z.object);
+const docSchemas = paintSchemas(z.object, z.string().pipe(z.enum(BOOK_PATTERNS)));
 
 export const bookPaintStopSchema = docSchemas.stop;
 export const bookPaintSchema = docSchemas.paint;
@@ -97,7 +103,7 @@ export type BookPatternPaint = Extract<BookPaint, { type: 'pattern' }>;
  * Paint as the page operations take it. Described once, here, because the
  * tool schema is all a model reads of it and it appears in three places.
  */
-export const bookPaintInSchema = paintSchemas(z.strictObject).paint.describe(
+export const bookPaintInSchema = paintSchemas(z.strictObject, z.enum(BOOK_PATTERNS)).paint.describe(
   'solid (alpha 0..1), linear (angle: 0 towards the top, 90 towards the right) or radial (cx, cy 0..1 of the box, r of half its diagonal) with 2 to 6 stops at 0..1, or a pattern: fg on bg (null shows through), scale 1 is an 8 mm cell.',
 );
 

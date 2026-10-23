@@ -116,7 +116,6 @@
   "src/components/Vacay/useVacayCalendarLogic.ts",
   "src/components/Vacay/useVacaySettings.ts",
   "src/components/Vacay/useVacayUserPicker.ts",
-  "src/components/shared/PlaceAvatarUpload.tsx",
   "src/hooks/useAirtrailConnection.ts",
   "src/hooks/useDawarichConnection.ts",
   "src/hooks/useDawarichSuggestions.ts",

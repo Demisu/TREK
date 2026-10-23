@@ -613,16 +613,19 @@ describe('PlaceDetailsColumn — picture layout', () => {
     withPhotos(3)
     const { onPickImage } = renderColumn()
 
-    // Nothing is picked yet, and the line under the grid says so.
-    await screen.findByText('places.image.none')
-    expect(screen.queryByText('Author 0')).not.toBeInTheDocument()
+    // Nothing is picked and there is no own picture to remove, so 'No picture'
+    // stays away and the first photo is credited.
+    await screen.findByText('Author 0')
+    expect(screen.queryByText('places.image.none')).not.toBeInTheDocument()
     const tiles = screen.getAllByRole('button', { name: /places.details.pickImage/ })
     fireEvent.mouseEnter(tiles[2])
 
     expect(screen.getByText('Author 2')).toBeInTheDocument()
+    expect(screen.queryByText('Author 0')).not.toBeInTheDocument()
     expect(onPickImage).not.toHaveBeenCalled()
     fireEvent.mouseLeave(tiles[2])
     expect(screen.queryByText('Author 2')).not.toBeInTheDocument()
+    expect(screen.getByText('Author 0')).toBeInTheDocument()
   })
 
   it('FE-PDC-037: credits the picture in play, licence included', async () => {

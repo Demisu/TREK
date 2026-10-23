@@ -35,9 +35,6 @@ import { BOOK_SCHEMA_REV, normalizeBookDocument } from '@trek/shared';
 
 import { describe, it, expect, vi, beforeAll, beforeEach, afterAll } from 'vitest';
 
-/** A format revision newer than this build reads. */
-const NEWER = BOOK_SCHEMA_REV + 1;
-
 vi.mock('../../../src/db/database', async () => {
   const { createSnapshotTestDb } = await import('../../helpers/db-mock');
   const db = createSnapshotTestDb();

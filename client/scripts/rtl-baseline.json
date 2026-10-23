@@ -73,7 +73,6 @@
   "components/shared/DetailShell.tsx": 1,
   "components/shared/ElevationProfile.tsx": 2,
   "components/shared/NavigationMenu.tsx": 2,
-  "components/shared/PlaceAvatarUpload.tsx": 3,
   "components/shared/PublicLanguagePicker.tsx": 1,
   "components/shared/SlidingTabs.tsx": 3,
   "components/shared/StarRating.tsx": 3,

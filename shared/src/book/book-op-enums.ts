@@ -6,6 +6,7 @@ import {
   BOOK_METRICS,
   BOOK_SHAPES,
   bookBadgeElementSchema,
+  bookCatalogueIdSchema,
   bookCountriesElementSchema,
   bookListElementSchema,
   bookMapElementSchema,
@@ -47,7 +48,7 @@ export const bookFontIdSchema = z
   .enum(BOOK_FONTS_IDS)
   .describe(`Typeface by role; weights a family lacks snap to its nearest. ${bookFontIndex()}`);
 /** The typeface of a travel element, where the full line above would repeat ten times. */
-export const bookTypesetFontSchema = z.enum(BOOK_FONTS_IDS).describe('Typeface id, as for text.');
+export const bookTypesetFontSchema = bookCatalogueIdSchema(BOOK_FONTS_IDS).describe('Typeface id, as for text.');
 /** How heavy type is set, 100 thin to 900 black. */
 export const bookWeightSchema = bookTextElementSchema.shape.weight
   .unwrap()
