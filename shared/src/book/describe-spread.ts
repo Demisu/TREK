@@ -1,5 +1,6 @@
 import { photoDpi, spreadFindings } from './book-findings';
 import { designFindings, sortBookFindings } from './book-findings-design';
+import { bookFontRole, bookWeightWord, nearestBookWeight } from './book-fonts';
 import { BOOK_GRIDS } from './book-grids';
 import { BOOK_COVER_TEMPLATES, BOOK_TEMPLATES, type BookTemplate } from './book-layouts';
 import type { BookPhotoInfo } from './book-ops-core';
@@ -85,7 +86,9 @@ function elementWords(el: BookElement, photos: readonly BookPhotoInfo[] | undefi
         photos?.find((p) => p.photoId === el.photoId),
       );
     case 'text': {
-      const style = `${el.font} ${n(el.size)} pt${el.weight >= 600 ? ' bold' : ''}${el.italic ? ' italic' : ''}, ${el.align}, ${el.color}`;
+      const weight = nearestBookWeight(el.font, el.weight);
+      const set = `${el.font} (${bookFontRole(el.font)}) ${n(el.size)} pt${weight === 400 ? '' : ` ${bookWeightWord(weight)}`}`;
+      const style = `${set}${el.italic ? ' italic' : ''}, ${el.align}, ${el.color}`;
       const bound = el.binding ? `, bound to ${el.binding.source}${el.overridden ? ' (overridden)' : ''}` : '';
       return `${style}: "${head(el.text, 80)}"${bound}`;
     }
@@ -110,7 +113,7 @@ type TravelElement = Extract<BookElement, { kind: 'map' | 'stats' | 'countries' 
 
 /** What a travel element shows, and how it is set: its face, ink, accent and size. */
 function travelWords(el: TravelElement): string {
-  const set = `${el.font} ${el.weight >= 600 ? 'bold' : 'regular'}, ink ${el.color}, accent ${el.accent}, type x${n(el.textScale)}`;
+  const set = `${el.font} ${bookWeightWord(nearestBookWeight(el.font, el.weight))}, ink ${el.color}, accent ${el.accent}, type x${n(el.textScale)}`;
   const stale = el.stale ? '; its figures are out of date with the journey' : '';
   return `${travelWhat(el)}; ${set}${stale}`;
 }

@@ -28,8 +28,8 @@ The energy decides the rest:
 - Vary the beats, never three alike in a row; a quiet page for a long story, grids for bursts.
 Type scale, in points for a 210 mm page and scaled with the page width:
 - Cover title in a display face, 72 to 180 pt, 12 to 30 % of the page height; title to subtitle at least 3:1. For a big cover raise type.display (up to 6.5, about 180 pt); keep type.scale between 0.9 and 1.1 so body stays 9 to 11 pt.
-- Date lines in spaced caps, 7 to 9 pt, tracking 0.25 to 0.4; an accent word over a title in the contrasting face (playfair italic or display), 1.2 to 1.6 times its cap height, with contrast, an outline or a shadow.
-- Body 9 to 11 pt; captions 6.5 to 8 pt with tracking 0.05 to 0.1; a display face and a body face, two typefaces at most.
+- Date lines in spaced caps, 7 to 9 pt, tracking 0.25 to 0.4; an accent word over a title in a script (caveat, pacifico, vibes, marker) or the contrasting face (playfair italic), 1.2 to 1.6 times its cap height, with contrast, an outline or a shadow.
+- Body 9 to 11 pt in a face whose role is body; captions 6.5 to 8 pt with tracking 0.05 to 0.1; a display face, a body face and one more at most, a script or a mono line not counted; a family sets only the weights its font id lists.
 Look, judge, revise:
 - Check every changed page with describe_book_page and the designId, and look at the pages that matter most with preview_book_page and the designId when you can see images; preview the cover at least twice, the first draft and the final one.
 - Before every proposal answer silently: Is there one dominant element? Does the title read at thumbnail size? Does the energy match the brief? Is the palette the book's own? Is anything touching or overlapping by accident? Is text on a busy area without contrast? Does the decoration suit the energy? Does the page differ from the one before? Fix what fails with revise_book_design.

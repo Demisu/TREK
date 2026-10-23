@@ -1,4 +1,5 @@
 import { accentFromPalettes, contrastRatio, parseHex, readPalette, readableInk, toHex } from '../book-colour';
+import { bookFontCountsInMix, bookFontSuits } from '../book-fonts';
 import type { BookPhotoInfo } from '../book-ops-core';
 import type { BookFontFamily, BookPageSetup, BookPhotoElement } from '../book.schema';
 import type { BookDesignDirectives, BookDesignStyle } from './design-directives.schema';
@@ -7,8 +8,12 @@ import type { BookDesignDirectives, BookDesignStyle } from './design-directives.
  * The look of a designed book: its paper, ink, accent, the two typefaces,
  * the type sizes and the page grid, from the style and the directives.
  *
- * At most two families per book; badges, figures, maps and lists take the
- * heading face. Sizes are set for a 210 mm page and scale with the page
+ * At most two families per book, read by their roles (book-fonts.data.ts):
+ * the body face has to be one that sets running text, so a poster face or a
+ * script asked for as the body falls back to the style's own. Badges,
+ * figures, maps and lists take the heading face, unless that is a script or
+ * a mono face, which sets a title well and a column of figures badly; then
+ * they take the body face. Sizes are set for a 210 mm page and scale with the page
  * width, times `type.scale`, never under what a reader can read and never
  * over what a text element takes. The cover title has a tier of its own,
  * `display`, the heading size times `type.display`: 1 by default, so a book
@@ -31,6 +36,8 @@ export interface BookDesignLook {
   onScrim: string;
   heading: BookFontFamily;
   body: BookFontFamily;
+  /** The face of the travel elements: figures, marks, maps and lists. */
+  figures: BookFontFamily;
   /** Points. `display` is the cover title's, the heading's unless `type.display` raises it. */
   sizes: { display: number; heading: number; sub: number; body: number; caption: number; meta: number };
   /** The frame decoration and the slight turn a scrapbook gives its pictures. */
@@ -172,6 +179,8 @@ export function designLook(
   const size = (role: keyof typeof BASE_SIZES, times = 1) =>
     Math.min(MAX_PT, Math.max(FLOOR[role], round1(BASE_SIZES[role] * scale * times)));
   const heading = directives.type?.heading ?? preset.heading;
+  const asked = directives.type?.body;
+  const body = asked && bookFontSuits(asked, 'body') ? asked : preset.body;
   return {
     style: directives.style,
     paper: colours.paper,
@@ -182,7 +191,8 @@ export function designLook(
     scrimOpacity: 0.6,
     onScrim: '#ffffff',
     heading,
-    body: directives.type?.body ?? preset.body,
+    body,
+    figures: bookFontCountsInMix(heading) ? heading : body,
     sizes: {
       display: size('heading', directives.type?.display ?? 1),
       heading: size('heading'),

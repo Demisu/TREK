@@ -1,5 +1,6 @@
 import type { AutoEntry, AutoPhoto } from '../auto/auto-types';
 import { DESIGN_TEXT_HEADROOM, MIN_PRINT_DPI, textHeightNeeded } from '../book-findings';
+import { nearestBookWeight } from '../book-fonts';
 import type { BookPhotoInfo } from '../book-ops-core';
 import { formatBookDate } from '../book-text';
 import { bookBadgeValue, bookTravelBadge, type BookTravelContext } from '../book-travel';
@@ -158,6 +159,7 @@ type TextAt = Pick<BookFrame, 'x' | 'y' | 'w'>;
 /** A text in the book's look, its frame as tall as its words need. */
 export function textEl(c: ComposeCtx, at: TextAt, words: string, role: TextRole, opts: TextOpts = {}): BookTextElement {
   const defaultColour = role === 'caption' || role === 'meta' ? c.look.muted : c.look.ink;
+  const font = role === 'heading' || role === 'sub' ? c.look.heading : c.look.body;
   const el: BookTextElement = {
     id: c.newId('t'),
     kind: 'text',
@@ -166,9 +168,10 @@ export function textEl(c: ComposeCtx, at: TextAt, words: string, role: TextRole,
     opacity: 1,
     locked: false,
     text: words,
-    font: role === 'heading' || role === 'sub' ? c.look.heading : c.look.body,
+    font,
     size: opts.size ?? c.look.sizes[role],
-    weight: WEIGHT[role],
+    // A family that lacks the role's weight is set at its nearest, never at a synthesised one.
+    weight: nearestBookWeight(font, WEIGHT[role]) as BookTextElement['weight'],
     italic: false,
     align: opts.align ?? 'left',
     leading: LEADING[role],
@@ -258,7 +261,7 @@ export function titleBlock(
     if (value) {
       const chip = frameOf(box.x, y, scaled(c, 24), scaled(c, 7));
       const badge = bookTravelBadge({ id: c.newId('bd'), frame: chip, variant: 'day', value });
-      els.push({ ...badge, font: c.look.heading, accent: c.look.accent });
+      els.push({ ...badge, font: c.look.figures, accent: c.look.accent });
       y += chip.h + 4;
     }
   }

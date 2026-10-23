@@ -146,7 +146,7 @@ function listUnder(c: ComposeCtx, entry: AutoEntry, foot: Foot): BookElement | n
   if (foot.top + h > foot.bottom) return null;
   const labels = { pros: c.travel.labels.pros, cons: c.travel.labels.cons };
   const list = bookTravelList(labels, { id: c.newId('li'), frame: frameOf(foot.x, foot.top, foot.w, h), items });
-  return { ...list, font: c.look.heading, color: c.look.ink, accent: c.look.accent };
+  return { ...list, font: c.look.figures, color: c.look.ink, accent: c.look.accent };
 }
 
 /**
@@ -293,7 +293,7 @@ function chapterMap(c: ComposeCtx, entry: AutoEntry, box: BookFrame): BookElemen
   const h = box.h * 0.3;
   const frame = frameOf(box.x, box.y + box.h - h, box.w, h);
   const map = bookTravelMap(c.travel, stats, { id: c.newId('mp'), frame, scope: { tripId } });
-  const look = { style: c.look.mapStyle, font: c.look.heading, color: c.look.ink, accent: c.look.accent };
+  const look = { style: c.look.mapStyle, font: c.look.figures, color: c.look.ink, accent: c.look.accent };
   return { ...map, ...look, pinStyle: 'dot' };
 }
 

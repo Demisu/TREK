@@ -613,7 +613,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.mosaic': 'فسيفساء',
   'journey.studio.tpl.bandQuote': 'كلمات في الوسط',
   'journey.studio.tpl.staggerFour': 'أربع متدرجة',
-  'journey.studio.weightMissing': 'هذا الخط لا يوفر هذا الوزن',
   'journey.studio.mapSource': 'مصدر الخريطة',
   'journey.studio.mapSourceVector': 'المخططات',
   'journey.studio.mapSourceRelief': 'تضاريس',

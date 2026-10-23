@@ -588,7 +588,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.mosaic': 'Mosaik',
   'journey.studio.tpl.bandQuote': 'Worte dazwischen',
   'journey.studio.tpl.staggerFour': 'Vier versetzt',
-  'journey.studio.weightMissing': 'Diese Schrift hat diesen Schnitt nicht',
   'journey.studio.mapSource': 'Kartenquelle',
   'journey.studio.mapSourceVector': 'Umrisse',
   'journey.studio.mapSourceRelief': 'Relief',

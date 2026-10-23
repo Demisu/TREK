@@ -1,3 +1,4 @@
+import { withRealWeight } from './book-fonts';
 import { bookGridElements, defaultBookGridBox, findBookGrid, type BookGridDef } from './book-grids';
 import { bookElementId } from './book-ids';
 import { BOOK_TEXT_STYLES, applyBookTemplate, classifyBookTexts, findBookTemplate } from './book-layouts';
@@ -413,9 +414,11 @@ function opText(spread: BookSpread, op: Op<'text'>, env: Env): BookSpread {
     op.elementId !== undefined
       ? textEl(spread, op.elementId, env)
       : classifyBookTexts(roleTexts(spread))[op.role ?? 'body'];
-  if (existing && existing.kind === 'text') return replaceEl(spread, retext(unlocked(existing, env), op, env));
+  // The weight lands on one the family has, whichever of the two a change names.
+  if (existing && existing.kind === 'text')
+    return replaceEl(spread, withRealWeight(retext(unlocked(existing, env), op, env)));
   withRoom(spread, 1, env);
-  return { ...spread, elements: [...spread.elements, newText(spread, op, env)] };
+  return { ...spread, elements: [...spread.elements, withRealWeight(newText(spread, op, env))] };
 }
 
 function retext(el: BookTextElement, op: Op<'text'>, env: Env): BookTextElement {

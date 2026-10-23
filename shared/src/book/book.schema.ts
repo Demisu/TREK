@@ -1,3 +1,5 @@
+import { BOOK_FONTS_IDS, BOOK_WEIGHTS, type BookFontFamily } from './book-fonts.data';
+
 import { z } from 'zod';
 
 /**
@@ -157,15 +159,15 @@ export const BOOK_SHAPES = [
 export type BookShapeId = (typeof BOOK_SHAPES)[number];
 
 /**
- * The families a book may be set in.
+ * The families a book may be set in, and the weights type is set at. The
+ * catalogue is book-fonts.data.ts: which face each id names, its weights, its
+ * real italics and what it is for.
  *
  * `sans`, `serif` and `display` are the three the format started with and are
- * kept by name, so every document written so far still parses — they now point
- * at bundled faces rather than at whatever the rendering machine happened to
- * have installed. See client/src/components/Studio/bookFonts.ts.
+ * kept by name, so every document written so far still parses.
  */
-export const BOOK_FONTS_IDS = ['sans', 'inter', 'serif', 'garamond', 'playfair', 'display', 'bebas'] as const;
-export type BookFontFamily = (typeof BOOK_FONTS_IDS)[number];
+export { BOOK_FONTS_IDS, type BookFontFamily };
+const bookWeightSchema = z.literal(BOOK_WEIGHTS);
 
 export const bookFrameSchema = z.object({
   /** Millimetres from the left edge of the spread. Negative means bleed. */
@@ -230,7 +232,7 @@ export const bookTextElementSchema = z.object({
   font: z.enum(BOOK_FONTS_IDS).default('sans'),
   /** Points. */
   size: z.number().min(4).max(200).default(11),
-  weight: z.union([z.literal(400), z.literal(500), z.literal(600), z.literal(700)]).default(400),
+  weight: bookWeightSchema.default(400),
   italic: z.boolean().default(false),
   align: z.enum(['left', 'center', 'right', 'justify']).default('left'),
   /** Multiple of the font size. */
@@ -362,7 +364,7 @@ const typeset = {
    * together, the way `textScale` moves their size. Without it the only way to
    * lighten a stats block was to not use one.
    */
-  weight: z.union([z.literal(400), z.literal(500), z.literal(600), z.literal(700)]).default(700),
+  weight: bookWeightSchema.default(700),
   /** Set when the journey has moved on since these values were taken. */
   stale: z.boolean().default(false),
 };

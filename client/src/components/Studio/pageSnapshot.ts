@@ -1,4 +1,5 @@
 import { ASSISTANT_PAGE_IMAGE, type BookPageSetup, type BookSpread } from '@trek/shared';
+import { snapshotFontCss } from './snapshotFonts';
 
 /**
  * One Studio page as a JPEG, for the assistant to look at (journey-studio.md
@@ -126,6 +127,8 @@ export async function snapshotSpread(
   hiddenPhotoIds: ReadonlySet<number>
 ): Promise<PageSnapshot | null> {
   await picturesLoaded(root, hiddenPhotoIds);
+  // Only the faces the page draws travel with it (snapshotFonts.ts); without any, the library looks for itself.
+  const fontCss = await snapshotFontCss(root);
   // A single page is drawn up to the long edge too: a larger scale renders the page sharper, it stretches no pixels.
   const scale = ASSISTANT_PAGE_IMAGE.longEdge / Math.max(size.width, size.height);
   const { domToBlob } = await import('modern-screenshot');
@@ -137,6 +140,7 @@ export async function snapshotSpread(
     quality: ASSISTANT_PAGE_IMAGE.jpegQuality,
     filter: (node) => keepNode(node, hiddenPhotoIds),
     timeout: LOAD_TIMEOUT_MS,
+    ...(fontCss ? { font: { cssText: fontCss } } : {}),
     fetch: { requestInit: { credentials: 'same-origin', cache: 'force-cache' } },
   });
   if (image.size > ASSISTANT_PAGE_IMAGE.maxBytes) return null;

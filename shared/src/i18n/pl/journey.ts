@@ -603,7 +603,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.mosaic': 'Mozaika',
   'journey.studio.tpl.bandQuote': 'Słowa pośrodku',
   'journey.studio.tpl.staggerFour': 'Cztery przesunięte',
-  'journey.studio.weightMissing': 'Ten krój nie ma tej grubości',
   'journey.studio.mapSource': 'Źródło mapy',
   'journey.studio.mapSourceVector': 'Kontury',
   'journey.studio.mapSourceRelief': 'Relief',

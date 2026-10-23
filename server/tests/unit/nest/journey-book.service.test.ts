@@ -31,7 +31,7 @@ import {
 import { createTestJourneyBooksRepo } from '../../helpers/journey-share-repos';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestUnitOfWork, sharedTestOrm, createTestTripsRepo, createTestPlacesRepo } from '../../helpers/test-uow';
-import { normalizeBookDocument } from '@trek/shared';
+import { BOOK_SCHEMA_REV, normalizeBookDocument } from '@trek/shared';
 
 import { describe, it, expect, vi, beforeAll, beforeEach, afterAll } from 'vitest';
 
@@ -629,6 +629,9 @@ describe('editBook', () => {
  * of a server that cannot read the book whole.
  */
 describe('format revisions', () => {
+  /** A revision one past what this build reads. */
+  const NEWER = BOOK_SCHEMA_REV + 1;
+
   /** A journey whose stored book says it was written by revision `schemaRev`. */
   async function storedAt(schemaRev: number) {
     const { user } = createUser(testDb);
@@ -646,7 +649,7 @@ describe('format revisions', () => {
     thrown instanceof DomainError ? [thrown.getStatus(), thrown.code, thrown.toBody().code] : thrown;
 
   it('JBOOK-011: refuses a save from a writer older than the stored book with 409 and the code, writing and sending nothing', async () => {
-    const { user, journey } = await storedAt(2);
+    const { user, journey } = await storedAt(NEWER);
     const rec = await recordSends();
     try {
       const thrown = await catchDomainError(() =>
@@ -655,11 +658,11 @@ describe('format revisions', () => {
       expect(refusalOf(thrown)).toEqual([409, 'book_schema_newer', 'book_schema_newer']);
       expect(thrown instanceof DomainError && thrown.toBody()).toMatchObject({
         error: 'Book was saved by a newer version of TREK Studio',
-        schemaRev: 2,
+        schemaRev: NEWER,
       });
       expect(rec.sent).toEqual([]);
       const stored = await books.getBook(journey.id, user.id);
-      expect([stored?.version, stored?.document.title, stored?.document.schemaRev]).toEqual([1, 'newer', 2]);
+      expect([stored?.version, stored?.document.title, stored?.document.schemaRev]).toEqual([1, 'newer', NEWER]);
     } finally {
       rec.restore();
     }
@@ -697,7 +700,7 @@ describe('format revisions', () => {
   });
 
   it('JBOOK-014: the book tools leave a book this server cannot read whole alone, before any edit runs', async () => {
-    const { user, journey } = await storedAt(2);
+    const { user, journey } = await storedAt(NEWER);
     const rec = await recordSends();
     try {
       const edit = vi.fn(() => ({ title: 'T', document: normalizeBookDocument(doc('tool')), result: null }));
@@ -716,7 +719,7 @@ describe('format revisions', () => {
     const { user, journey } = await storedAt(1);
     const rec = await recordSends();
     try {
-      const ahead = normalizeBookDocument({ ...doc('ahead'), schemaRev: 2 });
+      const ahead = normalizeBookDocument({ ...doc('ahead'), schemaRev: NEWER });
       const thrown = await catchDomainError(() =>
         books.editBook(journey.id, user.id, () => ({ title: 'T', document: ahead, result: null })),
       );

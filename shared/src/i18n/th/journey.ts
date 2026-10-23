@@ -569,7 +569,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.mosaic': 'โมเสก',
   'journey.studio.tpl.bandQuote': 'คำระหว่าง',
   'journey.studio.tpl.staggerFour': '4 ภาพเหลื่อมกัน',
-  'journey.studio.weightMissing': 'แบบอักษรนี้ไม่ได้มีน้ำหนักขนาดนั้น',
   'journey.studio.mapSource': 'แหล่งที่มาของแผนที่',
   'journey.studio.mapSourceVector': 'โครงร่าง',
   'journey.studio.mapSourceRelief': 'ภูมิประเทศ',

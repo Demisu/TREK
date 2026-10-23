@@ -1,3 +1,4 @@
+import { bookFontHasWeight } from '../book-fonts';
 import { bookPageSetupSchema, type BookDocument, type BookTextElement } from '../book.schema';
 import { designBook, type BookDesignInput } from './design-book';
 import { bookDesignDirectivesSchema, type BookDesignDirectivesInput } from './design-directives.schema';
@@ -7,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-// BOOKSTY-001 to BOOKSTY-004
+// BOOKSTY-001 to BOOKSTY-007
 
 /**
  * The type scale of a designed book: `type.scale` reaches a poster's sizes,
@@ -76,5 +77,31 @@ describe('the cover title', () => {
     expect((largest?.frame.y ?? 0) + (largest?.frame.h ?? 0)).toBeLessThanOrEqual(page.pageHeight);
     // The box under the title is the foot of the cover, below its 60 % line.
     expect((big?.frame.y ?? 0) + (big?.frame.h ?? 0)).toBeLessThanOrEqual(page.pageHeight);
+  });
+});
+
+describe('the typefaces by their roles', () => {
+  it('BOOKSTY-005: keeps a body face that sets running text, and falls back to the style for one that does not', () => {
+    expect(lookOf({ style: 'classic', type: { body: 'garamond' } }).body).toBe('garamond');
+    // A poster face and a script are a title's, never a story's.
+    expect(lookOf({ style: 'classic', type: { body: 'anton' } }).body).toBe('sans');
+    expect(lookOf({ style: 'editorial', type: { body: 'caveat' } }).body).toBe('garamond');
+  });
+
+  it('BOOKSTY-006: sets the travel elements in the heading face, unless that is a script or a mono face', () => {
+    expect(lookOf({ style: 'bold' }).figures).toBe('bebas');
+    const script = lookOf({ style: 'journal', type: { heading: 'caveat' } });
+    expect([script.heading, script.figures]).toEqual(['caveat', 'garamond']);
+    expect(lookOf({ style: 'classic', type: { heading: 'mono', body: 'inter' } }).figures).toBe('inter');
+  });
+
+  it('BOOKSTY-007: sets every text and travel element at a weight its family really has', () => {
+    const { doc } = designBook(null, rich(), { style: 'bold', type: { heading: 'anton' } });
+    const typeset = doc.spreads.flatMap((s) => s.elements.filter((e) => 'weight' in e && 'font' in e));
+    expect(typeset.length).toBeGreaterThan(0);
+    for (const el of typeset) {
+      if ('weight' in el && 'font' in el) expect(bookFontHasWeight(el.font, el.weight), el.id).toBe(true);
+    }
+    expect(typeset.some((e) => 'font' in e && e.font === 'anton')).toBe(true);
   });
 });

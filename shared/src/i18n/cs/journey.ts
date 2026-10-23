@@ -591,7 +591,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.mosaic': 'Mozaika',
   'journey.studio.tpl.bandQuote': 'Slova uprostřed',
   'journey.studio.tpl.staggerFour': 'Čtyři přesazené',
-  'journey.studio.weightMissing': 'Toto písmo tento řez nemá',
   'journey.studio.mapSource': 'Zdroj mapy',
   'journey.studio.mapSourceVector': 'Obrysy',
   'journey.studio.mapSourceRelief': 'Reliéf',

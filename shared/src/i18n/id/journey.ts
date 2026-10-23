@@ -576,7 +576,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.mosaic': 'Mozaik',
   'journey.studio.tpl.bandQuote': 'Kata di tengah',
   'journey.studio.tpl.staggerFour': 'Empat berselang',
-  'journey.studio.weightMissing': 'Huruf ini tidak punya ketebalan itu',
   'journey.studio.mapSource': 'Sumber peta',
   'journey.studio.mapSourceVector': 'Garis luar',
   'journey.studio.mapSourceRelief': 'Relief',

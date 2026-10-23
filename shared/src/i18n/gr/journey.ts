@@ -590,7 +590,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.mosaic': 'Ψηφιδωτό',
   'journey.studio.tpl.bandQuote': 'Λέξεις ανάμεσα',
   'journey.studio.tpl.staggerFour': 'Τέσσερις σε κλιμάκωση',
-  'journey.studio.weightMissing': 'Αυτή η γραμματοσειρά δεν έχει αυτό το βάρος',
   'journey.studio.mapSource': 'Πηγή χάρτη',
   'journey.studio.mapSourceVector': 'Περιγράμματα',
   'journey.studio.mapSourceRelief': 'Ανάγλυφο',

@@ -28,7 +28,7 @@ import { MikroORM } from '@mikro-orm/core';
 import { Client } from '@modelcontextprotocol/sdk/client/index';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory';
 import type { INestApplication } from '@nestjs/common';
-import { bookWriteResultSchema } from '@trek/shared';
+import { BOOK_SCHEMA_REV, bookWriteResultSchema } from '@trek/shared';
 
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
@@ -125,6 +125,9 @@ async function journeyWithBook() {
   return { owner, editor, viewer, journey, inner, everyone: [owner.id, editor.id, viewer.id].sort((a, b) => a - b) };
 }
 
+/** A revision one past what this build reads. */
+const NEWER = BOOK_SCHEMA_REV + 1;
+
 describe('Studio book over MCP and REST', () => {
   it('JBE2E-001: an MCP write is what GET reads next, and a viewer is refused in the words a tool answers', async () => {
     const { editor, viewer, journey, inner } = await journeyWithBook();
@@ -209,7 +212,7 @@ describe('Studio book over MCP and REST', () => {
       .get(`/api/journeys/${journey.id}/book`)
       .set('Cookie', authCookie(owner.id));
     const row = await findRow(orm, JourneyBooks, { journey: journey.id });
-    const newer = JSON.stringify({ ...JSON.parse(String(row?.document)), schemaRev: 2 });
+    const newer = JSON.stringify({ ...JSON.parse(String(row?.document)), schemaRev: NEWER });
     await updateRows(orm, JourneyBooks, { journey: journey.id }, { document: newer });
 
     const saved = await request(app.getHttpServer())
@@ -220,7 +223,7 @@ describe('Studio book over MCP and REST', () => {
     expect(saved.body).toEqual({
       error: 'Book was saved by a newer version of TREK Studio',
       code: 'book_schema_newer',
-      schemaRev: 2,
+      schemaRev: NEWER,
     });
 
     const tool = await callTool(owner.id, 'edit_book_page', {
@@ -249,12 +252,12 @@ describe('Studio book over MCP and REST', () => {
     const saved = await request(app.getHttpServer())
       .put(`/api/journeys/${journey.id}/book`)
       .set('Cookie', authCookie(owner.id))
-      .send({ title: before.body.book.title, document: { ...document, schemaRev: 2 }, baseVersion: 1 });
+      .send({ title: before.body.book.title, document: { ...document, schemaRev: NEWER }, baseVersion: 1 });
     expect(saved.status).toBe(409);
     expect(saved.body).toEqual({
       error: 'Book was saved by a newer version of TREK Studio',
       code: 'book_schema_newer',
-      schemaRev: 2,
+      schemaRev: NEWER,
     });
     expect(sent()).toEqual([]);
     const after = await findRow(orm, JourneyBooks, { journey: journey.id });

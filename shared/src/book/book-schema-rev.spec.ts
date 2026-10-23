@@ -21,6 +21,9 @@ import { describe, expect, it } from 'vitest';
 
 const frame = { x: 12, y: 18, w: 60, h: 40 };
 
+/** A revision one past what this build reads. */
+const NEWER = BOOK_SCHEMA_REV + 1;
+
 const doc = (over: Record<string, unknown> = {}) => ({
   version: 1,
   title: 'Lisbon',
@@ -40,7 +43,8 @@ const doc = (over: Record<string, unknown> = {}) => ({
 
 describe('the revision a document was written by', () => {
   it('BKREV-001: reads 1 for every document from before the field, and for anything that is not a whole number', () => {
-    expect(BOOK_SCHEMA_REV).toBe(1);
+    // Raised for the first time by the wider type: new families and weights an older reader drops.
+    expect(BOOK_SCHEMA_REV).toBeGreaterThanOrEqual(2);
     expect(bookSchemaRev(doc())).toBe(1);
     expect(bookSchemaRev(null)).toBe(1);
     expect(bookSchemaRev('{"schemaRev":4}')).toBe(1);
@@ -56,33 +60,34 @@ describe('the revision a document was written by', () => {
     expect(odd.success && odd.data.spreads[0]?.elements).toHaveLength(1);
   });
 
-  it('BKREV-003: leaves a book saved today as it was, with no revision written into it', () => {
+  it('BKREV-003: a writer at revision 1 leaves a book as it was, with no revision written into it', () => {
     const today = normalizeBookDocument(doc());
     expect('schemaRev' in today).toBe(false);
-    expect(stampBookSchemaRev(today)).toBe(today);
-    expect(JSON.stringify(stampBookSchemaRev(today))).toBe(JSON.stringify(today));
+    expect(stampBookSchemaRev(today, 1)).toBe(today);
+    expect(JSON.stringify(stampBookSchemaRev(today, 1))).toBe(JSON.stringify(today));
+    expect(stampBookSchemaRev(today).schemaRev).toBe(BOOK_SCHEMA_REV);
   });
 });
 
 describe('a reader older than the document', () => {
   it('BKREV-004: knows the document is newer than it, read from the raw value even when the rest will not parse', () => {
-    expect(isBookNewerThanReader(doc({ schemaRev: 2 }))).toBe(true);
+    expect(isBookNewerThanReader(doc({ schemaRev: NEWER }))).toBe(true);
     expect(isBookNewerThanReader(doc({ schemaRev: 1 }))).toBe(false);
     expect(isBookNewerThanReader(doc())).toBe(false);
     // A reader of a later revision reads the same document as its own.
-    expect(isBookNewerThanReader(doc({ schemaRev: 2 }), 2)).toBe(false);
-    const unreadable = doc({ schemaRev: 5, page: 'not a page' });
+    expect(isBookNewerThanReader(doc({ schemaRev: NEWER }), NEWER)).toBe(false);
+    const unreadable = doc({ schemaRev: NEWER + 3, page: 'not a page' });
     expect(isBookNewerThanReader(unreadable)).toBe(true);
   });
 
   it('BKREV-005: reads a newer book as far as it can and says so, so nothing it dropped is saved', () => {
     const sticker = { id: 'x1', kind: 'sticker', frame, stickerId: 'lemon' };
-    const raw = doc({ schemaRev: 2 });
+    const raw = doc({ schemaRev: NEWER });
     const spread = (raw.spreads as { elements: unknown[] }[])[0];
     if (spread) spread.elements.push(sticker);
     const read = readBookDocument(raw);
     expect(read.newer).toBe(true);
-    expect(read.document.schemaRev).toBe(2);
+    expect(read.document.schemaRev).toBe(NEWER);
     expect(read.document.spreads[0]?.elements.map((e) => e.id)).toEqual(['t1']);
     expect(readBookDocument(doc()).newer).toBe(false);
   });
@@ -99,10 +104,10 @@ describe('a reader older than the document', () => {
 describe('a save request carrying a newer book', () => {
   it('BKREV-007: reaches the server as its revision alone, so the save is refused there rather than at the pipe', () => {
     const sticker = { id: 'x1', kind: 'sticker', frame, stickerId: 'lemon' };
-    const raw = doc({ schemaRev: 2 });
+    const raw = doc({ schemaRev: NEWER });
     const spread = (raw.spreads as { elements: unknown[] }[])[0];
     if (spread) spread.elements.push(sticker);
-    expect(bookSaveRequestSchema.parse({ title: 'T', document: raw }).document).toEqual({ schemaRev: 2 });
+    expect(bookSaveRequestSchema.parse({ title: 'T', document: raw }).document).toEqual({ schemaRev: NEWER });
     // A book of today still reads whole, revision or none.
     const today = bookSaveRequestSchema.parse({ title: 'T', document: doc() }).document;
     expect(today).toEqual(bookDocumentSchema.parse(doc()));

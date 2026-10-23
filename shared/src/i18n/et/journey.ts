@@ -585,7 +585,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.mosaic': 'Mosaiik',
   'journey.studio.tpl.bandQuote': 'Sõnad vahel',
   'journey.studio.tpl.staggerFour': 'Neli nihkega',
-  'journey.studio.weightMissing': 'Sellel kirjatüübil pole seda paksust',
   'journey.studio.mapSource': 'Kaardi allikas',
   'journey.studio.mapSourceVector': 'Kontuurid',
   'journey.studio.mapSourceRelief': 'Reljeef',

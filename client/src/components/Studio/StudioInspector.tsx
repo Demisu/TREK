@@ -13,7 +13,9 @@ import { Swatches } from './StudioSwatches'
 import { formatBookCoords } from '@trek/shared'
 import { iconComponent, iconLabel, searchIcons } from './iconLibrary'
 import { Choice, Line, NumField, Section, Switch } from './StudioControls'
-import { FontButtons, WeightLine } from './StudioTypeControls'
+import { StudioFontPicker } from './StudioFontPicker'
+import { WeightLine } from './StudioTypeControls'
+import { italicTitle } from './fontPicker'
 import type { JourneySource } from './StudioSidebar'
 import { Tooltip } from '../shared/Tooltip'
 
@@ -323,7 +325,7 @@ export function StudioInspector({
                 nothing about a typeface — and grouped, because "which serif"
                 is a different question from "serif or sans".
               */}
-              <FontButtons font={el.font} weight={el.weight} onPick={patch => set(patch)} />
+              <StudioFontPicker font={el.font} weight={el.weight} onPick={patch => set(patch)} t={t} />
               <div style={{ marginTop: 10 }}>
                 <WeightLine font={el.font} weight={el.weight} onPick={weight => set({ weight })} t={t} />
                 <Line label={t('journey.studio.align')}>
@@ -344,7 +346,7 @@ export function StudioInspector({
                     <button type="button"
                       className={`st-chip is-icon ${el.italic ? 'is-on' : ''}`}
                       onClick={() => set({ italic: !el.italic })}
-                      title={t('journey.studio.italic')}
+                      title={italicTitle(el.font, el.weight, t)}
                       aria-label={t('journey.studio.italic')}
                       aria-pressed={el.italic}
                     >

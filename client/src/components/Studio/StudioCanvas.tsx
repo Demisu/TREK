@@ -5,7 +5,7 @@ import { SpreadFold, SpreadView } from './SpreadView'
 import { PeerCursors } from './PeerCursors'
 import type { PeerCursor } from './useBookPresence'
 import { bookElementId as elementId } from '@trek/shared'
-import { fontStack } from './bookFonts'
+import { fontStack, nearestWeight } from './bookFonts'
 import { useSpreadInteraction, type HandleId } from './useSpreadInteraction'
 import { useStudioStore } from '../../store/studioStore'
 import { useTranslation } from '../../i18n'
@@ -325,7 +325,7 @@ export function StudioCanvas({
               // The document is in pt; the overlay is on screen at the same zoom.
               fontSize: `${el.size * (96 / 72) * zoom}px`,
               fontFamily: fontStack(el.font),
-              fontWeight: el.weight,
+              fontWeight: nearestWeight(el.font, el.weight),
               fontStyle: el.italic ? 'italic' : undefined,
               lineHeight: el.leading,
               letterSpacing: `${el.tracking}em`,

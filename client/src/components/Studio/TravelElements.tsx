@@ -7,7 +7,7 @@ import {
   Camera, CalendarDays, Footprints, Globe, MapPin, Navigation, Route,
   type LucideIcon,
 } from 'lucide-react'
-import { fontStack } from './bookFonts'
+import { fontStack, lighterWeight, nearestWeight } from './bookFonts'
 import { haversineKm } from '../../utils/geo'
 import { brightness } from './folioColour'
 import { COUNTRY_SHAPES, countryParts, countryWorldPath, projectMercator, unprojectMercator } from './countryShapes'
@@ -140,8 +140,8 @@ export function TravelElementView({ el, frameStyle, big = false }: {
  * `textScale` moves their size. Hard-coded 700s meant the only way to lighten a
  * stats block was to not use one.
  */
-const heavy = (el: { weight: number }) => el.weight
-const light = (el: { weight: number }) => Math.max(400, el.weight - 100)
+const heavy = (el: { font: string; weight: number }) => nearestWeight(el.font, el.weight)
+const light = (el: { font: string; weight: number }) => lighterWeight(el.font, el.weight)
 
 const MAP_PALETTES = {
   minimal: { land: '#e9e5dc', border: '#d6d0c4', onDark: false },

@@ -28,6 +28,7 @@ import {
   undoReadsOf,
 } from '../../../../../../src/nest/assistant/cards/registry';
 import {
+  BOOK_FONTS_IDS,
   bookDesignCardSchema,
   MAX_CARD_CHARS,
   type AssistantChangePreview,
@@ -250,7 +251,11 @@ describe('the designer in the Studio', () => {
     // The cover tier carries a big title alone, and the faces named are faces the book has.
     expect(BOOK_DESIGN_PROMPT).toContain('type.display (up to 6.5');
     expect(BOOK_DESIGN_PROMPT).toContain('type.scale between 0.9 and 1.1');
-    expect(BOOK_DESIGN_PROMPT).not.toMatch(/script/i);
+    for (const face of ['caveat', 'pacifico', 'vibes', 'marker', 'playfair']) {
+      expect(BOOK_FONTS_IDS, face).toContain(face);
+      expect(BOOK_DESIGN_PROMPT, face).toContain(face);
+    }
+    expect(BOOK_DESIGN_PROMPT).toContain('a script or a mono line not counted');
     expect(BOOK_DESIGN_PROMPT).toContain('210 mm page and scaled with the page width');
     const rubric = BOOK_DESIGN_PROMPT.slice(BOOK_DESIGN_PROMPT.indexOf('answer silently'));
     expect(rubric.slice(0, rubric.indexOf('Fix what fails')).match(/\?/g)).toHaveLength(8);

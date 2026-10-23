@@ -1,4 +1,5 @@
 import { bookVisiblePart, sortBookFindings } from './book-findings-design';
+import { bookFontFace } from './book-fonts';
 import type { BookPhotoInfo } from './book-ops-core';
 import type { BookFinding } from './book-ops.schema';
 import type { BookElement, BookPageSetup, BookPhotoElement, BookSpread, BookTextElement } from './book.schema';
@@ -66,16 +67,8 @@ export function photoDpi(el: BookPhotoElement, info: BookPhotoInfo | undefined):
   return Math.round(25.4 / mmPerPx);
 }
 
-/** Average letter width per em at weight 400, per family: measured on story text as the Studio sets each family. */
-const LETTER_EM: Record<BookTextElement['font'], number> = {
-  sans: 0.507,
-  inter: 0.478,
-  serif: 0.469,
-  garamond: 0.383,
-  playfair: 0.454,
-  display: 0.492,
-  bebas: 0.339,
-};
+/** Average letter width per em at weight 400, per family: the catalogue's measure (book-fonts.data.ts). */
+const letterEm = (font: string) => bookFontFace(font)?.letterEm ?? 0.5;
 
 /**
  * The headroom on letter width the design engine sizes a text frame with. A
@@ -121,7 +114,7 @@ function wrappedLines(para: string, perLine: number): number {
 export function textHeightNeeded(el: BookTextElement, headroom = 1): number {
   const sizeMm = (orDefault(el.size, 11) * 25.4) / 72;
   const tracking = orDefault(el.tracking, 0);
-  const letter = sizeMm * ((LETTER_EM[el.font] ?? 0.5) * (el.weight >= 600 ? 1.06 : 1) * headroom + tracking);
+  const letter = sizeMm * (letterEm(el.font) * (el.weight >= 600 ? 1.06 : 1) * headroom + tracking);
   const perLine = Math.max(1, Math.floor(el.frame.w / Math.max(letter, 0.1)));
   const lines = el.text.split('\n').reduce((sum, para) => sum + wrappedLines(para.trimEnd(), perLine), 0);
   return lines * sizeMm * orDefault(el.leading, 1.45);

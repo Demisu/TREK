@@ -576,7 +576,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.mosaic': 'Khảm',
   'journey.studio.tpl.bandQuote': 'Chữ ở giữa',
   'journey.studio.tpl.staggerFour': 'Bốn so le',
-  'journey.studio.weightMissing': 'Phông chữ này không có độ đậm đó',
   'journey.studio.mapSource': 'Nguồn bản đồ',
   'journey.studio.mapSourceVector': 'Đường viền',
   'journey.studio.mapSourceRelief': 'Địa hình',

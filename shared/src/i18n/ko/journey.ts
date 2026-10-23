@@ -572,7 +572,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.mosaic': '모자이크',
   'journey.studio.tpl.bandQuote': '가운데 글',
   'journey.studio.tpl.staggerFour': '네 칸 엇갈림',
-  'journey.studio.weightMissing': '이 서체에는 해당 굵기가 없습니다',
   'journey.studio.mapSource': '지도 소스',
   'journey.studio.mapSourceVector': '윤곽선',
   'journey.studio.mapSourceRelief': '음영 지형',

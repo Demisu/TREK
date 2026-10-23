@@ -602,7 +602,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.mosaic': 'Мозаика',
   'journey.studio.tpl.bandQuote': 'Слова посередине',
   'journey.studio.tpl.staggerFour': 'Четыре со сдвигом',
-  'journey.studio.weightMissing': 'У этой гарнитуры нет такого начертания',
   'journey.studio.mapSource': 'Источник карты',
   'journey.studio.mapSourceVector': 'Контуры',
   'journey.studio.mapSourceRelief': 'Рельеф',

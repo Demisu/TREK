@@ -1,6 +1,7 @@
 import { relayoutSpread } from './auto/auto-book';
 import type { AutoEntry, AutoInput } from './auto/auto-types';
 import { bookElementPropsSchema, type BOOK_ELEMENT_OP_SCHEMAS, type BookNewElement } from './book-element-ops.schema';
+import { withRealWeight } from './book-fonts';
 import { bookGridElements, defaultBookGridBox, findBookGrid } from './book-grids';
 import {
   bookBoundWords,
@@ -138,7 +139,11 @@ function lookKeys(shape: object): string[] {
   return Object.keys(shape).filter((k) => k !== 'kind');
 }
 
-/** The element with the given look fields set; millimetre fields rounded as the document stores them. */
+/**
+ * The element with the given look fields set; millimetre fields rounded as the
+ * document stores them, and the weight moved onto one its family has, as the
+ * Studio's weight control does.
+ */
 function withProps(el: BookElement, props: Record<string, unknown>): BookElement {
   const keys = PROP_KEYS.get(el.kind) ?? [];
   const next: Record<string, unknown> = { ...el };
@@ -147,7 +152,7 @@ function withProps(el: BookElement, props: Record<string, unknown>): BookElement
     if (value === undefined) continue;
     next[key] = (key === 'radius' || key === 'strokeWidth') && typeof value === 'number' ? round2(value) : value;
   }
-  return next as unknown as BookElement;
+  return withRealWeight(next as unknown as BookElement);
 }
 
 // ── add ────────────────────────────────────────────────────────────────────

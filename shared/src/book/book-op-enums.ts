@@ -1,3 +1,4 @@
+import { bookFontIndex } from './book-fonts';
 import { BOOK_ICON_NAMES } from './book-icons';
 import {
   BOOK_BADGES,
@@ -37,14 +38,20 @@ const text = bookTextElementSchema.shape;
 const shape = bookShapeElementSchema.shape;
 const map = bookMapElementSchema.shape;
 
-/** The book's typefaces, with the face each id sets. */
+/**
+ * The book's typefaces by what they are for, each with its face, the weights
+ * it has and an i where it has a real italic. A weight a family lacks is set
+ * at its nearest one, as in the Studio.
+ */
 export const bookFontIdSchema = z
   .enum(BOOK_FONTS_IDS)
-  .describe(
-    'Typeface: sans Poppins, inter Inter, serif Lora, garamond EB Garamond, playfair Playfair Display, display MuseoModerno, bebas Bebas Neue (caps, one weight).',
-  );
+  .describe(`Typeface by role; weights a family lacks snap to its nearest. ${bookFontIndex()}`);
 /** The typeface of a travel element, where the full line above would repeat ten times. */
 export const bookTypesetFontSchema = z.enum(BOOK_FONTS_IDS).describe('Typeface id, as for text.');
+/** How heavy type is set, 100 thin to 900 black. */
+export const bookWeightSchema = bookTextElementSchema.shape.weight
+  .unwrap()
+  .describe('Weight 100 thin to 900 black, 400 regular, 700 bold; snapped to one the family has.');
 
 /** Every shape the Studio draws, and so every mask a photo can be cut to. */
 export const bookShapeIdSchema = z

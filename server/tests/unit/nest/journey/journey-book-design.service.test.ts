@@ -34,7 +34,12 @@ import { makeUser } from '../../../helpers/factories/users';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../../helpers/test-module';
 import { createTestOrm, type TestOrm } from '../../../helpers/test-orm';
-import { bookDesignAnswerSchema, bookDesignApplyResultSchema, type BookDesignAnswer } from '@trek/shared';
+import {
+  BOOK_SCHEMA_REV,
+  bookDesignAnswerSchema,
+  bookDesignApplyResultSchema,
+  type BookDesignAnswer,
+} from '@trek/shared';
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
@@ -327,7 +332,7 @@ describe('taking a design back', () => {
     const applied = await designs.apply(journey.id, owner.id, { designId: answer.design_id });
     const revisionId = applied.revision_id ?? 0;
     const kept = await findRow(orm, JourneyBookRevisions, { id: revisionId });
-    const newer = JSON.stringify({ ...JSON.parse(String(kept?.document)), schemaRev: 2 });
+    const newer = JSON.stringify({ ...JSON.parse(String(kept?.document)), schemaRev: BOOK_SCHEMA_REV + 1 });
     await updateRows(orm, JourneyBookRevisions, { id: revisionId }, { document: newer });
     t.realtime.reset();
 

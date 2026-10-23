@@ -3,7 +3,7 @@ import type {
   BookElement, BookIconElement, BookPageSetup, BookPhotoElement, BookShapeElement, BookSpread,
 } from '@trek/shared'
 import { photoSrc } from './bookRender'
-import { fontStack } from './bookFonts'
+import { fontStack, nearestWeight } from './bookFonts'
 import { iconComponent } from './iconLibrary'
 import { HOLED_SHAPES, SHAPE_PATHS, scalePath, unitPath } from './shapes'
 import { TravelElementView } from './TravelElements'
@@ -417,7 +417,7 @@ export function ElementView({
         // the conversion exactly.
         fontSize: `${el.size}pt`,
         fontFamily: fontStack(el.font),
-        fontWeight: el.weight,
+        fontWeight: nearestWeight(el.font, el.weight),
         fontStyle: el.italic ? 'italic' : undefined,
         lineHeight: el.leading,
         letterSpacing: `${el.tracking}em`,

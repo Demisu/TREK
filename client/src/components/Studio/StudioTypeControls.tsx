@@ -1,58 +1,27 @@
-import type { BookTextElement } from '@trek/shared';
-import type { BookFontId } from './bookFonts';
-import { BOOK_FONTS, BOOK_FONT_ORDER, hasWeight, nearestWeight } from './bookFonts';
-import { Choice, Line } from './StudioControls';
+import type { BookWeight } from '@trek/shared';
+import { BOOK_FONTS, nearestWeight, type BookFontId } from './bookFonts';
+import { Line } from './StudioControls';
 
 /**
- * The typeface buttons and the weight line, shared by the text inspector and
- * the travel inspector so both set type the same way.
+ * The weight line, shared by the text inspector and the travel inspector so
+ * both set type the same way. The typeface itself is picked in
+ * StudioFontPicker.tsx, the italic's title comes from fontPicker.ts.
  */
 
-/** The weight set the book schema allows, taken from it so there is one list. */
-type BookWeight = BookTextElement['weight'];
+type T = (key: string) => string;
 
-const WEIGHTS = [400, 500, 600, 700] as const;
+/** The weights a family ships, lightest first; Poppins' for a family this build does not know. */
+const weightsOf = (font: string) => (BOOK_FONTS[font as BookFontId] ?? BOOK_FONTS.sans).weights;
 
-/** One button per bundled family, each set in its own face. */
-export function FontButtons({
-  font,
-  weight,
-  onPick,
-}: {
-  font: string;
-  weight: BookWeight;
-  onPick: (patch: { font: BookFontId; weight: BookWeight }) => void;
-}) {
-  return (
-    <div className="st-fonts">
-      {BOOK_FONT_ORDER.map((id) => {
-        const face = BOOK_FONTS[id];
-        return (
-          <button
-            type="button"
-            key={id}
-            className={`st-font ${font === id ? 'is-on' : ''}`}
-            style={{ fontFamily: face.stack }}
-            onClick={() =>
-              onPick({
-                font: id,
-                // A family that does not ship this weight would render a
-                // synthesised bold, a smeared regular in print, so the
-                // weight moves to the nearest one it really has.
-                weight: nearestWeight(id, weight) as BookWeight,
-              })
-            }
-            title={face.name}
-          >
-            {face.name}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-/** The four weights, with the ones the family does not ship greyed out. */
+/**
+ * A slider over the weights the family really has, and only those.
+ *
+ * Nine chips from 100 to 900 with most of them greyed out read as a broken
+ * control for a family with two weights, and as a wall for one with nine.
+ * The slider steps through what exists, says the weight by its name and its
+ * number, and a family with a single weight shows that weight and nothing to
+ * drag.
+ */
 export function WeightLine({
   font,
   weight,
@@ -60,22 +29,36 @@ export function WeightLine({
   t,
 }: {
   font: string;
-  weight: BookWeight;
+  weight: number;
   onPick: (weight: BookWeight) => void;
-  t: (k: string) => string;
+  t: T;
 }) {
+  const weights = weightsOf(font);
+  const drawn = nearestWeight(font, weight);
+  const at = Math.max(0, weights.indexOf(drawn as BookWeight));
+  const word = `${t(`journey.studio.weight.${drawn}`)} ${drawn}`;
   return (
     <Line label={t('journey.studio.weight')}>
-      <Choice
-        value={weight}
-        options={WEIGHTS.map((w) => ({
-          value: w,
-          label: String(w),
-          disabled: !hasWeight(font, w),
-          title: hasWeight(font, w) ? undefined : t('journey.studio.weightMissing'),
-        }))}
-        onPick={onPick}
-      />
+      <div className="st-field st-weight">
+        {weights.length > 1 ? (
+          <input
+            type="range"
+            min={0}
+            max={weights.length - 1}
+            step={1}
+            value={at}
+            aria-label={t('journey.studio.weight')}
+            aria-valuetext={word}
+            onChange={(e) => {
+              const next = weights[Number(e.target.value)];
+              if (next !== undefined) onPick(next);
+            }}
+          />
+        ) : (
+          <span className="st-weight-only">{t('journey.studio.weightOnly')}</span>
+        )}
+        <span className="st-weight-value">{word}</span>
+      </div>
     </Line>
   );
 }

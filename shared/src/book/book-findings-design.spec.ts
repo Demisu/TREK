@@ -140,6 +140,12 @@ describe('book level and the page in words', () => {
     const mixOf = (pages: typeof fonts) => bookLevelFindings(bookOf(pages)).filter((f) => f.code === 'font_mix');
     expect(mixOf(fonts.slice(0, 3))).toEqual([]);
     expect(mixOf(fonts.slice(0, 2))).toEqual([]);
+    // A script laid over a title and a mono line on a ticket dress a page; they are not a fourth voice.
+    const dressed = ['caveat', 'mono'].map((font, i) => [
+      text(`d-${i}`, 'Hi', { x: 230, y: 40, w: 60, h: 10 }, { font }),
+    ]);
+    expect(mixOf([...fonts.slice(0, 3), ...dressed])).toEqual([]);
+    expect(mixOf([...fonts, ...dressed])[0]?.message).toMatch(/4 typefaces \(bebas, playfair, sans, serif\)/);
   });
 
   it('BOOKQA-010: notes colours outside the book own and the same page three times running', () => {

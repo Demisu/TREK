@@ -1,6 +1,7 @@
 import { buildBook, distributeGallery } from '../auto/auto-book';
 import type { AutoEntry, AutoInput, AutoPhoto } from '../auto/auto-types';
 import { bookLevelFindings, sortBookFindings } from '../book-findings-design';
+import { withRealWeight } from '../book-fonts';
 import { bookElementId } from '../book-ids';
 import type { BookPhotoInfo } from '../book-ops-core';
 import type { BookFinding } from '../book-ops.schema';
@@ -252,7 +253,9 @@ export function designBook(
   const repairCtx = { page, photos: input.photos, look, newId };
   const designed = [...framing, ...inner.spreads, ...closing].map((d): DesignedSpread => {
     const fixed = repairSpread(d.spread, repairCtx);
-    return { ...d, spread: fixed.spread, findings: fixed.findings };
+    // Every face at a weight its family has: a travel element's bold in a one-weight poster face would be faked.
+    const spread = { ...fixed.spread, elements: fixed.spread.elements.map(withRealWeight) };
+    return { ...d, spread, findings: fixed.findings };
   });
 
   const merged = mergeDesign(doc, designed, directives.keep);

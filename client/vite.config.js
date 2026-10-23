@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { rtlTextAlias, plyrSpriteAlias } from './rtlTextAlias.js';
+import { withoutRuntimeFonts } from './bookFontPrecache.js';
 import { readFileSync } from 'node:fs';
 
 // The version this bundle is built as, baked in at build time. The Docker build
@@ -77,6 +78,11 @@ export default defineConfig(({ mode }) => ({
         // matching the globs below is fetched at service-worker install by every
         // user, whether or not they ever reach the code.
         globPatterns: ['**/*.{js,css,html,svg,png,woff,woff2,ttf}'],
+        // Except most of the book's typefaces: of thirty four families only the
+        // latin files of the seven the book first shipped with are installed,
+        // the rest wait in the book-fonts rule below for a book that uses them
+        // (bookFontPrecache.js).
+        manifestTransforms: [withoutRuntimeFonts],
         // build:analyze drops a treemap next to the app; it must never end up in a
         // precache manifest if someone ships that build by accident.
         // The assistant's chat (@assistant-ui, about 110 kB gzip) only runs online, so
@@ -92,6 +98,21 @@ export default defineConfig(({ mode }) => ({
           /^\/plugin-frame\//,
         ],
         runtimeCaching: [
+          {
+            // The book's typefaces the precache leaves out (bookFontPrecache.js):
+            // fetched the first time a page is set in them, and up front for
+            // every face of a book the Studio opens (bookFontWarm.ts), so the
+            // book still reads in its own type offline. Same-origin build
+            // assets only; the files are content-hashed, so a cached one never
+            // goes stale. First in the list so no broader rule takes them.
+            urlPattern: /\/assets\/[^/?#]+\.woff2?(?:\?.*)?$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'book-fonts',
+              expiration: { maxEntries: 600, maxAgeSeconds: 365 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
           {
             // Carto map tiles (default provider)
             // maxEntries MUST stay >= MAX_TILES in src/sync/tilePrefetcher.ts

@@ -28,7 +28,7 @@ import type { BookDocument } from './book.schema';
  * saves only once that is above 1, so a book saved today stores exactly what
  * it stored before this existed.
  */
-export const BOOK_SCHEMA_REV = 1;
+export const BOOK_SCHEMA_REV = 2;
 
 /** The `code` a refused save carries in its body when the stored book is newer than the writer. */
 export const BOOK_SCHEMA_NEWER_CODE = 'book_schema_newer';

@@ -5,7 +5,8 @@ import type {
 } from '@trek/shared'
 import { BOOK_METRICS, MAX_PATH_POINTS, MAX_PATH_SEGMENTS, isStale, refreshPatch } from '@trek/shared'
 import { Swatches } from './StudioSwatches'
-import { FontButtons, WeightLine } from './StudioTypeControls'
+import { StudioFontPicker } from './StudioFontPicker'
+import { WeightLine } from './StudioTypeControls'
 import { sourceIdOf, useMapSources } from './mapSources'
 import { printDpi, tileView } from './mapTiles'
 import { useCartoApiKey } from '../../hooks/useTileUrl'
@@ -82,7 +83,7 @@ export function TravelInspector({ el, stats, path, set, t }: TravelInspectorProp
        * wrong typeface and no way to fix it.
        */}
       <Section label={t('journey.studio.typography')} defaultOpen={false}>
-        <FontButtons font={el.font} weight={el.weight} onPick={patch => set(patch as Partial<BookElement>)} />
+        <StudioFontPicker font={el.font} weight={el.weight} onPick={patch => set(patch as Partial<BookElement>)} t={t} />
         <div style={{ marginTop: 10 }}>
           <WeightLine
             font={el.font}

@@ -567,7 +567,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.mosaic': '马赛克',
   'journey.studio.tpl.bandQuote': '文字居中',
   'journey.studio.tpl.staggerFour': '四张错落',
-  'journey.studio.weightMissing': '该字体没有此字重',
   'journey.studio.mapSource': '地图来源',
   'journey.studio.mapSourceVector': '轮廓',
   'journey.studio.mapSourceRelief': '地形晕渲',

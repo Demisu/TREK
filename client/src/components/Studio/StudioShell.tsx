@@ -26,6 +26,7 @@ import { useStudioAssistant, type StudioAssistant } from './useStudioAssistant'
 import '../../styles/dashboard.css'
 import '../../styles/studio.css'
 import './bookFontFaces'
+import { useWarmBookFaces } from './bookFontWarm'
 import HelpButton from '../Help/HelpButton'
 
 /**
@@ -45,6 +46,8 @@ export default function StudioShell() {
   const [bookView, setBookView] = useState(true)
   const [exporting, setExporting] = useState(false)
   const assistant = useStudioAssistant({ journeyId: s.journeyId, flush: s.flushBook })
+  // The book's faces into the offline cache as it opens (bookFontWarm.ts).
+  useWarmBookFaces()
 
   if (s.isMobile) {
     return createPortal(

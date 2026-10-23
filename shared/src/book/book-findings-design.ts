@@ -1,5 +1,6 @@
 import { compareCodeUnits } from '../common/compare';
 import { contrastOfLuminance, deltaE, greyLuminance, luminance, parseHex, requiredContrast } from './book-colour';
+import { bookFontCountsInMix, bookFontsUsed } from './book-fonts';
 import type { BookPhotoInfo } from './book-ops-core';
 import { BOOK_OP_LIMITS, type BookFinding } from './book-ops.schema';
 import type { BookDocument, BookElement, BookFrame, BookPageSetup, BookPhotoElement, BookSpread } from './book.schema';
@@ -306,16 +307,13 @@ export function designFindings(
   return sortBookFindings(ctx.out);
 }
 
-/** The typefaces a book is set in: its texts, its travel elements and its page numbers when shown. */
+/**
+ * The typefaces that make a book's voice: its texts, its travel elements and
+ * its page numbers when shown, leaving out the scripts and mono faces, which
+ * dress a page rather than set it.
+ */
 function familiesOf(doc: BookDocument): string[] {
-  const used = new Set<string>();
-  for (const spread of doc.spreads) {
-    for (const el of spread.elements) {
-      if ('font' in el && (el.kind !== 'text' || el.text.trim())) used.add(el.font);
-    }
-  }
-  if (doc.page.pageNumbers.show) used.add(doc.page.pageNumbers.font);
-  return [...used].sort(compareCodeUnits);
+  return bookFontsUsed(doc).filter(bookFontCountsInMix).sort(compareCodeUnits);
 }
 
 /** The colours a book paints with: its type and its filled shapes, with how often each is used. */
@@ -342,10 +340,10 @@ function signatureOf(spread: BookSpread): string {
 
 /**
  * How many typefaces a book may be set in before it reads as a type sampler:
- * a display face, a body face and one more, a script laid over a title or a
- * face for figures. Two was the rule while the book had seven faces and no
- * scripts, and it told every lively book that set its title apart to stop.
- * Once fonts carry roles, script and mono faces will not count towards it.
+ * a display face, a body face and one more for figures or a subtitle. Two was
+ * the rule while the book had seven faces and no scripts, and it told every
+ * lively book that set its title apart to stop. Script and mono faces do not
+ * count towards it (`bookFontCountsInMix`).
  */
 const MAX_BOOK_FAMILIES = 3;
 
@@ -358,7 +356,7 @@ export function bookLevelFindings(doc: BookDocument): BookFinding[] {
       code: 'font_mix',
       severity: 'warn',
       elementIds: [],
-      message: `the book is set in ${families.length} typefaces (${families.join(', ')}); keep to three: a display face, a body face and one more`,
+      message: `the book is set in ${families.length} typefaces (${families.join(', ')}); keep to three: a display face, a body face and one more; scripts and mono faces do not count`,
     });
   }
   const colours = [...coloursOf(doc)].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));

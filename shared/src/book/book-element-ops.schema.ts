@@ -25,6 +25,7 @@ import {
   bookStrokeStyleSchema,
   bookTextAlignSchema,
   bookTypesetFontSchema,
+  bookWeightSchema,
 } from './book-op-enums';
 import { bookElementIdSchema, bookGridIdSchema, bookSpreadIdSchema } from './book-op-ids';
 import {
@@ -99,7 +100,7 @@ const PHOTO_PROPS = {
 export const TEXT_STYLE_FIELDS = {
   font: bookFontIdSchema.optional(),
   size: text.size.unwrap().optional(),
-  weight: text.weight.unwrap().optional(),
+  weight: bookWeightSchema.optional(),
   italic: text.italic.unwrap().optional(),
   align: bookTextAlignSchema.optional(),
   leading: text.leading.unwrap().optional(),

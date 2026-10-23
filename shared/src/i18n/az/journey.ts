@@ -641,8 +641,6 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.bandQuote': 'Arada sitat',
   'journey.studio.tpl.staggerFour': 'Pilləli dördlük',
 
-  'journey.studio.weightMissing': 'Bu şriftdə həmin qalınlıq mövcud deyil',
-
   'journey.studio.mapSource': 'Xəritə mənbəyi',
   'journey.studio.mapSourceVector': 'Konturlar',
   'journey.studio.mapSourceRelief': 'Relyef',

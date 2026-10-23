@@ -161,7 +161,7 @@ export function composeSummary(
   const textSide = mapSide === 'left' ? 'right' : 'left';
   const els: BookElement[] = [];
   const map = bookTravelMap(c.travel, stats, { id: c.newId('mp'), frame: liveBox(c, mapSide), scope: 'journey' });
-  els.push({ ...map, style: c.look.mapStyle, font: c.look.heading, color: c.look.ink, accent: c.look.accent });
+  els.push({ ...map, style: c.look.mapStyle, font: c.look.figures, color: c.look.ink, accent: c.look.accent });
   const head = label(c, words, textSide);
   els.push(...head.els);
   const metrics = metricsOf(c, stats);
@@ -169,7 +169,7 @@ export function composeSummary(
     const box = liveBox(c, textSide);
     const frame = frameOf(box.x, head.bottom, box.w, Math.min(box.h * 0.6, box.y + box.h - head.bottom));
     const figures = bookTravelStats(stats, { id: c.newId('st'), frame, metrics });
-    els.push({ ...figures, font: c.look.heading, color: c.look.ink, accent: c.look.accent });
+    els.push({ ...figures, font: c.look.figures, color: c.look.ink, accent: c.look.accent });
   }
   return els;
 }
@@ -179,7 +179,7 @@ export function composeCountries(c: ComposeCtx, words: string): BookElement[] {
   const head = label(c, words, 'left');
   const box = liveBox(c, 'right');
   const countries = bookTravelCountries(c.travel, { id: c.newId('co'), frame: box });
-  return [...head.els, { ...countries, font: c.look.heading, color: c.look.ink, accent: c.look.accent }];
+  return [...head.els, { ...countries, font: c.look.figures, color: c.look.ink, accent: c.look.accent }];
 }
 
 /**
