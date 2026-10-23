@@ -22,6 +22,8 @@ import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import StudioAssistantPanel, { StudioAssistantColumn, StudioAssistantToggle } from './StudioAssistantPanel';
 import type { StudioAssistant } from './useStudioAssistant';
 
+/** The assistant's surface is loaded lazily, which can outlast findBy's default second on CI. */
+const LAZY = { timeout: 10_000 };
 const JOURNEY = 12;
 const KEY = assistantChatKey({ kind: 'journey', journeyId: JOURNEY });
 const INITIAL = useAssistantStore.getState();
@@ -75,7 +77,8 @@ describe('StudioAssistantPanel', () => {
     render(<StudioAssistantPanel assistant={assistant()} title="Lisbon" />);
 
     expect(screen.getByRole('complementary', { name: 'Book assistant' })).toBeInTheDocument();
-    expect(await screen.findByText('What should the book look like?')).toBeInTheDocument();
+    // The chat is a lazy chunk; on a busy runner it can take longer than findBy's default second.
+    expect(await screen.findByText('What should the book look like?', undefined, LAZY)).toBeInTheDocument();
     const notice = screen.getByRole('note');
     expect(notice.textContent).toContain('Only that page goes to Anthropic');
 
@@ -97,7 +100,8 @@ describe('StudioAssistantPanel', () => {
 
     useAssistantStore.setState({ status: { ...STATUS, studioImagesAcked: true } });
     render(<StudioAssistantPanel assistant={assistant()} title="Lisbon" />);
-    expect(await screen.findByText('What should the book look like?')).toBeInTheDocument();
+    // The chat is a lazy chunk; on a busy runner it can take longer than findBy's default second.
+    expect(await screen.findByText('What should the book look like?', undefined, LAZY)).toBeInTheDocument();
     expect(screen.queryByRole('note')).toBeNull();
   });
 
@@ -144,7 +148,8 @@ describe('StudioAssistantPanel', () => {
   it('FE-STUDIO-ASTPANEL-005: the journey chat offers no trip notes, which only a trip turn reads', async () => {
     render(<StudioAssistantPanel assistant={assistant()} title="Lisbon" />);
 
-    expect(await screen.findByText('What should the book look like?')).toBeInTheDocument();
+    // The chat is a lazy chunk; on a busy runner it can take longer than findBy's default second.
+    expect(await screen.findByText('What should the book look like?', undefined, LAZY)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Recent chats' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Trip notes' })).toBeNull();
   });
@@ -175,7 +180,8 @@ describe('StudioAssistantPanel', () => {
     });
     render(<StudioAssistantPanel assistant={assistant()} title="Lisbon" />);
 
-    expect(await screen.findByText('What should the book look like?')).toBeInTheDocument();
+    // The chat is a lazy chunk; on a busy runner it can take longer than findBy's default second.
+    expect(await screen.findByText('What should the book look like?', undefined, LAZY)).toBeInTheDocument();
     expect(screen.queryByRole('note')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Show it pages' })).toBeNull();
   });
@@ -207,7 +213,8 @@ describe('StudioAssistantPanel', () => {
 
     render(<StudioAssistantColumn assistant={assistant()} />);
     expect(screen.getByRole('complementary', { name: 'Book assistant' })).toBeInTheDocument();
-    expect(await screen.findByText('What should the book look like?')).toBeInTheDocument();
+    // The chat is a lazy chunk; on a busy runner it can take longer than findBy's default second.
+    expect(await screen.findByText('What should the book look like?', undefined, LAZY)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Journey' })).toBeInTheDocument();
   });
 });
