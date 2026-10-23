@@ -1,4 +1,5 @@
 import { bookElementId } from './book-ids';
+import { isBookOrnamentText } from './book-layouts';
 import {
   MAX_SPREAD_ELEMENTS,
   type BookElement,
@@ -69,10 +70,14 @@ export function applySavedBookLayout(spread: BookSpread, layout: BookLayout, pag
   const sy = page.pageHeight / layout.pageHeight;
   const pool = [...spread.elements, ...(spread.parked ?? [])];
   const photos = pool.filter((e) => e.kind === 'photo' && e.photoId != null);
-  const texts = pool.filter((e) => e.kind === 'text' && e.text.trim()).sort((a, b) => textSize(b) - textSize(a));
+  // A mark set as text, a quotation mark, is design on either side: never the spread's words, never a box for them.
+  const isWords = (e: BookElement) => e.kind === 'text' && !!e.text.trim() && !isBookOrnamentText(e);
+  const texts = pool.filter(isWords).sort((a, b) => textSize(b) - textSize(a));
 
   // Which of the layout's text boxes takes which of the spread's words.
-  const slots = layout.elements.filter((e) => e.kind === 'text').sort((a, b) => textSize(b) - textSize(a));
+  const slots = layout.elements
+    .filter((e) => e.kind === 'text' && !isBookOrnamentText(e))
+    .sort((a, b) => textSize(b) - textSize(a));
   const wordsFor = new Map<BookElement, BookElement>();
   slots.forEach((slot, i) => {
     const words = texts[i];

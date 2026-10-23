@@ -60,6 +60,28 @@ export function formatBookDate(iso: string | null, locale: string): string {
 }
 
 /**
+ * The entry's day as a date mark shows it: the day of the month as a numeral
+ * and the month spelled out in capitals beneath it; null for anything that is
+ * not a date. The auto layout, the travel marks and the decorated templates
+ * all set a mark with this.
+ */
+export function bookDateMarkValue(
+  iso: string | null | undefined,
+  locale: string,
+): { text: string; sub: string } | null {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return null;
+  const d = new Date(`${iso.slice(0, 10)}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return null;
+  let month: string;
+  try {
+    month = d.toLocaleDateString(locale, { month: 'long' });
+  } catch {
+    month = d.toLocaleDateString('en', { month: 'long' });
+  }
+  return { text: String(d.getDate()), sub: month.toUpperCase() };
+}
+
+/**
  * What a point is, as one string: the raw value a coordinates binding keeps,
  * so re-reading it compares the fact behind the words and not the words.
  */

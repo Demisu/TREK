@@ -1,4 +1,4 @@
-import { formatBookCoords } from '../book-text';
+import { bookDateMarkValue, formatBookCoords } from '../book-text';
 import {
   MAX_BOOK_COUNTRIES,
   MAX_COUNTRY_NAME,
@@ -339,11 +339,8 @@ export function placeMap(
 
 /** The day of the month as a numeral with its month beneath: a mark rather than a line of information. */
 export function dateMark(newId: NewId, iso: string | null, locale: string, frame: BookFrame): BookElement | null {
-  if (!iso) return null;
-  const d = new Date(`${iso}T00:00:00`);
-  if (Number.isNaN(d.getTime())) return null;
-  const value = { text: String(d.getDate()), sub: d.toLocaleDateString(locale, { month: 'long' }).toUpperCase() };
-  return badgeEl(newId, frame, 'date', value, { style: 'stacked' });
+  const value = bookDateMarkValue(iso, locale);
+  return value ? badgeEl(newId, frame, 'date', value, { style: 'stacked' }) : null;
 }
 
 /** A full-bleed frame: out past the trim on every side the page is cut on. */

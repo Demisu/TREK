@@ -1,7 +1,7 @@
 import { statsValues } from './auto/auto-elements';
 import type { AutoEntry } from './auto/auto-types';
 import { BOOK_MAP_SOURCES } from './book-map-sources';
-import { formatBookCoords } from './book-text';
+import { bookDateMarkValue, formatBookCoords } from './book-text';
 import {
   MAX_BOOK_COUNTRIES,
   MAX_COUNTRY_NAME,
@@ -330,10 +330,8 @@ export function bookBadgeValue(
       return day ? { text: bookDayText(ctx.labels.day, day), sub: '', code: null } : null;
     }
     case 'date': {
-      const d = date ? new Date(`${date}T00:00:00`) : null;
-      if (!d || Number.isNaN(d.getTime())) return null;
-      const month = d.toLocaleDateString(ctx.locale, { month: 'long' }).toUpperCase();
-      return { text: String(d.getDate()), sub: month, code: null };
+      const mark = bookDateMarkValue(date, ctx.locale);
+      return mark ? { ...mark, code: null } : null;
     }
     case 'coords': {
       if (lat == null || lng == null) return null;

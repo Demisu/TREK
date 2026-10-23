@@ -10,8 +10,9 @@ import type { BookDocument, BookElement, BookSpread, BookTextElement } from './b
  * `size`, the largest size up to it at which the words hold the frame. The
  * renderer reads `size` like any other text, so the page stays synchronous and
  * a reader from before fitting existed draws the fitted size, which is the one
- * that was designed. The solver uses the same letter measure as the overflow
- * check, so a text it fitted is never reported as overflowing.
+ * that was designed. The solver uses the overflow check's letter measure with
+ * `FIT_HEADROOM` on top, so a text it fitted is never reported as overflowing,
+ * and the words still hold the frame in the type the page really sets.
  *
  * Who runs it: the Studio after every change to the document, and the edit
  * engine after a page's operations, both through `fitSpreadTexts`. A size that
@@ -22,6 +23,18 @@ import type { BookDocument, BookElement, BookSpread, BookTextElement } from './b
 
 /** The smallest size the solver goes to: the document's own floor. */
 const MIN_SIZE = 4;
+
+/**
+ * The headroom on letter width a text is fitted with. The letter measure is a
+ * family's average letter, and real type runs wider in places: set in the
+ * browser, the bold weights of the condensed faces and several scripts came
+ * out up to 9 % wider than it, capitals of the heavy display faces about as
+ * much. A fit solved at exactly the measure lands on the edge of a line
+ * break, so a few percent too wide wraps the last word onto a line the frame
+ * has no room for. Eight percent keeps the words inside the frame and costs a
+ * fitted text well under one percent of its size on average.
+ */
+const FIT_HEADROOM = 1.08;
 
 const ptToMm = (pt: number) => (pt * 25.4) / 72;
 
@@ -45,25 +58,22 @@ export function bookTextRunMm(el: BookTextElement, run: string): number {
   return [...run].length * bookLetterMm(el);
 }
 
-/** Whether a text at its current size holds its frame, as the checks measure it. */
+/** Whether a text at its current size holds its frame, measured with the fit's headroom (`FIT_HEADROOM`). */
 export function bookTextFits(el: BookTextElement): boolean {
   if (!el.text.trim()) return true;
+  const letter = bookLetterMm(el, FIT_HEADROOM);
+  const run = (s: string) => [...s].length * letter;
   if (bookTextIsDrawn(el)) {
     const lines = bookDrawnLines(el);
-    const widest = Math.max(0, ...lines.map((l) => bookTextRunMm(el, l)));
+    const widest = Math.max(0, ...lines.map(run));
     if (el.curve) {
       const path = bookTextCurvePath(el.curve, el.frame.w, el.frame.h, ptToMm(el.size));
       return widest <= path.length * 0.98;
     }
     return widest <= el.frame.w && lines.length * ptToMm(el.size) * el.leading <= el.frame.h * 1.02;
   }
-  const longest = Math.max(
-    0,
-    ...bookCasedText(el)
-      .split(/\s+/)
-      .map((w) => bookTextRunMm(el, w)),
-  );
-  return longest <= el.frame.w && textHeightNeeded(el) <= el.frame.h * 1.02;
+  const longest = Math.max(0, ...bookCasedText(el).split(/\s+/).map(run));
+  return longest <= el.frame.w && textHeightNeeded(el, FIT_HEADROOM) <= el.frame.h * 1.02;
 }
 
 /** The size a fitted text is set at: its ceiling when that holds, else the largest quarter point that does. */

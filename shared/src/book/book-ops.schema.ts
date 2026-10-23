@@ -40,6 +40,7 @@ import {
   bookTextElementSchema,
 } from './book.schema';
 import { PHOTO_PICK } from './photo-pick';
+import { isBookTemplateId } from './templates/template-catalogue';
 
 import { z } from 'zod';
 
@@ -85,10 +86,17 @@ export const bookTemplateIdSchema = z
 export const bookCoverTemplateIdSchema = z
   .enum(idsOf(BOOK_COVER_TEMPLATES))
   .describe('A built-in cover or back layout by id; list_book_layouts says what each one holds.');
-/** Either set: which one fits is the page's question, answered when the operation runs. */
+/**
+ * A layout of either set, built-in or decorated: which one fits is the page's
+ * question, answered when the operation runs. A string checked against the
+ * catalogue rather than an enum, so the decorated set's ids stay out of the
+ * tool schema; `list_book_layouts` names them.
+ */
 export const bookAnyTemplateIdSchema = z
-  .enum([...idsOf(BOOK_TEMPLATES), ...idsOf(BOOK_COVER_TEMPLATES)])
-  .describe('A built-in layout by id: the cover-* ones fit a single page, the rest a double page.');
+  .string()
+  .max(40)
+  .refine(isBookTemplateId, { message: 'no such layout; list_book_layouts names them' })
+  .describe('A layout id from list_book_layouts: a built-in or a decorated template, of the page kind it lists.');
 
 const text = bookTextElementSchema.shape;
 

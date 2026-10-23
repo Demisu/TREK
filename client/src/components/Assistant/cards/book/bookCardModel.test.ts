@@ -67,6 +67,9 @@ describe('bookCardModel', () => {
   it('FE-AI-BOOKPAGE-011: a layout is named by its template, its grid, its own name or as laid out again', () => {
     expect(layoutLabel({ kind: 'template', id: 'two-up', name: null }, t)).toBe('journey.studio.tpl.twoUp');
     expect(layoutLabel({ kind: 'template', id: 'cover-full', name: null }, t)).toBe('journey.studio.tpl.coverFull');
+    expect(layoutLabel({ kind: 'template', id: 'postcard-houses', name: null }, t)).toBe(
+      'studio.templates.name.postcardHouses'
+    );
     expect(layoutLabel({ kind: 'grid', id: 'two-across', name: null }, t)).toBe('assistant.card.book.grid {"count":2}');
     expect(layoutLabel({ kind: 'saved', id: 'lay-1', name: 'Mine' }, t)).toBe('Mine');
     expect(layoutLabel({ kind: 'saved', id: 'lay-1', name: null }, t)).toBe('lay-1');

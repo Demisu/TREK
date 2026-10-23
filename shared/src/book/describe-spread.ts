@@ -25,6 +25,7 @@ import {
   type BookSpread,
 } from './book.schema';
 import { bookEdgeWords, bookLineWords } from './describe-lines';
+import { decoratedTemplateRow, decoratedTemplatesFor } from './templates/template-catalogue';
 import { bookThemeLine, themeBackgroundWords, themeLinkWords } from './theme/book-theme-describe';
 
 /**
@@ -335,6 +336,8 @@ const BOOK_LAYOUT_NOTES = {
     "A template or saved layout re-pours the photos and texts of the page into its slots and parks what it has no room for; the page's own shapes, maps, badges, stats, lists, icons and stickers are dropped (a saved layout brings its own), and the write answer names them in dropped.",
   grids:
     'A grid re-pours every photo of the page, placed or parked, into its cells and parks the rest; the old frames go, empty ones too. Texts, shapes and travel elements stay where they are.',
+  decorated:
+    "A decorated template is a whole designed page: the page's photos fill its frames in order, its words go into the roles the row names (title, subtitle, date, body, caption) and a map into its map, its colours and faces follow the book's theme, and it brings its own shapes, stickers and lines.",
 } as const;
 
 /** `list_book_layouts`: what a page can be laid out on, for a double spread, a single page, or both. */
@@ -344,6 +347,10 @@ export function listBookLayouts(doc: BookDocument | null, page: BookPageSetup, r
     notes: BOOK_LAYOUT_NOTES,
     inner: want('inner') ? BOOK_TEMPLATES.map((t) => templateRow(t, page)) : [],
     single: want('single') ? BOOK_COVER_TEMPLATES.map((t) => templateRow(t, page)) : [],
+    decorated: {
+      inner: want('inner') ? decoratedTemplatesFor('inner').map(decoratedTemplateRow) : [],
+      single: want('single') ? decoratedTemplatesFor('single').map(decoratedTemplateRow) : [],
+    },
     grids: BOOK_GRIDS.map((g) => ({ id: g.id, cells: g.cells.length })),
     saved: (doc?.layouts ?? [])
       .filter((l) => want(l.role))

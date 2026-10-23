@@ -4,6 +4,7 @@ import {
   bookCasedText,
   bookDrawnLines,
   bookTextFits,
+  bookTextRunMm,
   fitBookTexts,
   fitSpreadTexts,
   solveBookTextFit,
@@ -86,6 +87,15 @@ describe('the fit solver', () => {
     const filled = text({ text: 'LISBON\nPORTO', fillPaint: { type: 'photo', photoId: 2 }, size: 200 });
     expect(solveBookTextFit(filled)).toBeLessThan(200);
     expect(bookTextFits({ ...filled, text: '   ' })).toBe(true);
+  });
+
+  it('BKFIT-011: leaves room for type that sets wider than the average letter of its family', () => {
+    const el = text({ text: 'Lisbon', frame: { x: 0, y: 0, w: 80, h: 200 }, size: 200 });
+    const size = solveBookTextFit(el);
+    const measured = bookTextRunMm({ ...el, size }, 'Lisbon');
+    expect(measured * 1.08).toBeLessThanOrEqual(el.frame.w + 0.01);
+    expect(measured * 1.08).toBeGreaterThan(el.frame.w * 0.97);
+    expect(bookTextFits({ ...el, size, frame: { ...el.frame, w: measured } })).toBe(false);
   });
 });
 

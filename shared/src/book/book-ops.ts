@@ -36,6 +36,8 @@ import {
   type BookSpread,
   type BookTextElement,
 } from './book.schema';
+import { findDecoratedTemplate } from './templates/template-catalogue';
+import { opDecoratedLayout } from './templates/template-op';
 
 import { z } from 'zod';
 
@@ -182,12 +184,17 @@ function opLayout(spread: BookSpread, op: Op<'layout'>, env: Env): BookSpread {
   if (elements.length > MAX_SPREAD_ELEMENTS) {
     throw failOp('too_many_elements', `the layout and the locked elements exceed ${MAX_SPREAD_ELEMENTS}`, env.opIndex);
   }
-  return { ...next, elements };
+  // A locked group keeps its name, also through a layout that writes the page's groups anew.
+  const have = new Set((next.groups ?? []).map((g) => g.id));
+  const lost = (spread.groups ?? []).filter((g) => !have.has(g.id) && locked.some(({ el }) => el.group === g.id));
+  return { ...next, elements, ...(lost.length ? { groups: [...(next.groups ?? []), ...lost] } : {}) };
 }
 
 function layoutFree(spread: BookSpread, op: Op<'layout'>, env: Env): BookSpread {
   const single = spread.role !== 'inner';
   if (op.template !== undefined) {
+    const decorated = findDecoratedTemplate(op.template);
+    if (decorated) return opDecoratedLayout(spread, decorated, env);
     const tpl = findBookTemplate(op.template);
     if (!tpl) throw failOp('layout_not_found', `no layout ${op.template}`, env.opIndex);
     if ((tpl.role === 'single') !== single) {

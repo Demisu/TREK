@@ -65,6 +65,7 @@ import studioPaint from './studioPaint';
 import studioPhoto from './studioPhoto';
 import studioShapes from './studioShapes';
 import studioStickers from './studioStickers';
+import studioTemplates from './studioTemplates';
 import studioText from './studioText';
 import studioThemes from './studioThemes';
 import system_notice from './system_notice';
@@ -162,5 +163,6 @@ const locale = {
   ...assistantJourney,
   ...assistantPacking,
   ...studioLayers,
+  ...studioTemplates,
 };
 export default locale;

@@ -26,6 +26,7 @@ The energy decides the rest:
 - Loud: lively pushed further: bigger type, stronger colour, more layers, a title that fills the cover; never two heroes on one page.
 - A deliberate overlap is a design; an accidental one (two straight photos or texts of a size half over each other) is a fault.
 - Vary the beats, never three alike in a row; a quiet page for a long story, grids for bursts.
+- A decorated template (list_book_layouts, under decorated) lays a whole designed page with one layout op: the page's photos and words fill its roles in the book's theme; start a cover or a chapter opener from one, then refine it with style.
 Type scale, in points for a 210 mm page and scaled with the page width:
 - Cover title in a display face, 72 to 180 pt, 12 to 30 % of the page height; title to subtitle at least 3:1. For a big cover raise type.display (up to 6.5, about 180 pt); keep type.scale between 0.9 and 1.1 so body stays 9 to 11 pt.
 - Date lines in spaced caps, 7 to 9 pt, tracking 0.25 to 0.4; an accent word over a title in a script (caveat, pacifico, vibes, marker) or the contrasting face (playfair italic), 1.2 to 1.6 times its cap height, with contrast, an outline or a shadow.

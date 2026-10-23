@@ -10,6 +10,7 @@ import {
   type BookSpread,
   findBookGrid,
   findBookTemplate,
+  findDecoratedTemplate,
   setBookCover,
 } from '@trek/shared';
 
@@ -87,7 +88,7 @@ export function layoutLabel(layout: BookCardLayout | null, t: Translate): string
     const grid = findBookGrid(layout.id);
     return grid ? t('assistant.card.book.grid', { count: grid.cells.length }) : null;
   }
-  const template = findBookTemplate(layout.id);
+  const template = findBookTemplate(layout.id) ?? findDecoratedTemplate(layout.id);
   return template ? t(template.labelKey) : null;
 }
 

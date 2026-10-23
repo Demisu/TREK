@@ -430,6 +430,15 @@ function textEl(
 }
 
 /**
+ * A text of marks and no words, such as a large opening quotation mark: a
+ * piece of the design like a shape, so a layout never takes it for the
+ * page's title or story, and it goes with the old design.
+ */
+export function isBookOrnamentText(el: BookElement): boolean {
+  return el.kind === 'text' && el.text.trim() !== '' && !/[\p{L}\p{N}]/u.test(el.text);
+}
+
+/**
  * Which of a spread's texts is its heading, its story and its date line.
  *
  * Size decides the heading first, and length only sorts what is left. The
@@ -444,11 +453,12 @@ export function classifyBookTexts(texts: readonly BookElement[]): {
   body: BookElement | null;
   meta: BookElement | null;
 } {
+  const words = texts.filter((t) => !isBookOrnamentText(t));
   const heading =
-    [...texts]
+    [...words]
       .filter((t) => t.kind === 'text' && t.size >= 14)
       .sort((a, b) => (b.kind === 'text' ? b.size : 0) - (a.kind === 'text' ? a.size : 0))[0] ?? null;
-  const rest = texts.filter((t) => t !== heading);
+  const rest = words.filter((t) => t !== heading);
   const body =
     [...rest].sort((a, b) => (b.kind === 'text' ? b.text.length : 0) - (a.kind === 'text' ? a.text.length : 0))[0] ??
     null;
@@ -471,7 +481,7 @@ export function applyBookTemplate(spread: BookSpread, tpl: BookTemplate, page: B
   // queue up behind them.
   const pool = [...spread.elements, ...(spread.parked ?? [])];
   const photos = pool.filter((e) => e.kind === 'photo');
-  const texts = pool.filter((e) => e.kind === 'text');
+  const texts = pool.filter((e) => e.kind === 'text' && !isBookOrnamentText(e));
   const { heading, body, meta } = classifyBookTexts(texts);
 
   let pi = 0;

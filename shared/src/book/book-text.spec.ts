@@ -1,5 +1,5 @@
 import { bookPath } from './book-path';
-import { bookCoordValue, formatBookCoords, formatBookDate } from './book-text';
+import { bookCoordValue, bookDateMarkValue, formatBookCoords, formatBookDate } from './book-text';
 
 import { describe, expect, it } from 'vitest';
 
@@ -29,6 +29,15 @@ describe('book text', () => {
 
   it('BOOKTXT-004: keeps a point as the raw value a coordinates binding compares', () => {
     expect(bookCoordValue(63.4027, -19.0448)).toBe('63.4027,-19.0448');
+  });
+
+  it('BOOKTXT-008: sets a date mark as the day numeral and the month in capitals, and nothing for what is no date', () => {
+    expect(bookDateMarkValue('2026-06-03', 'de-DE')).toEqual({ text: '3', sub: 'JUNI' });
+    expect(bookDateMarkValue('2026-06-03T10:00:00Z', 'en')).toEqual({ text: '3', sub: 'JUNE' });
+    // A language tag the platform cannot read spells the month in English rather than failing the page.
+    expect(bookDateMarkValue('2026-06-03', 'en_US')).toEqual({ text: '3', sub: 'JUNE' });
+    expect(bookDateMarkValue('June', 'en')).toBeNull();
+    expect(bookDateMarkValue(null, 'en')).toBeNull();
   });
 });
 
