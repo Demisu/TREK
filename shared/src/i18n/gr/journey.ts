@@ -657,6 +657,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Περιστροφή αριστερά',
   'journey.studio.rotateRight': 'Περιστροφή δεξιά',
   'journey.studio.saveReadOnly': 'Μόνο για ανάγνωση, δεν αποθηκεύεται',
+  'journey.studio.saveNewer': 'Μια νεότερη έκδοση του Studio αποθήκευσε αυτό το βιβλίο. Φορτώστε ξανά για επεξεργασία.',
+  'journey.studio.saveReload': 'Επαναφόρτωση',
   'journey.studio.filterPhotos': 'Φιλτράρισμα φωτογραφιών',
   'journey.studio.filterAll': 'Όλες οι φωτογραφίες',
   'journey.studio.filterLoose': 'Χωρίς καταχώρηση',

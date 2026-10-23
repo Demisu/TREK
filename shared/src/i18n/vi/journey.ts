@@ -640,6 +640,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Xoay trái',
   'journey.studio.rotateRight': 'Xoay phải',
   'journey.studio.saveReadOnly': 'Chỉ đọc, không lưu',
+  'journey.studio.saveNewer': 'Cuốn sách này đã được lưu bằng phiên bản Studio mới hơn. Tải lại để chỉnh sửa.',
+  'journey.studio.saveReload': 'Tải lại',
   'journey.studio.filterPhotos': 'Lọc ảnh',
   'journey.studio.filterAll': 'Tất cả ảnh',
   'journey.studio.filterLoose': 'Không thuộc mục nào',

@@ -650,6 +650,9 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Sola döndür',
   'journey.studio.rotateRight': 'Sağa döndür',
   'journey.studio.saveReadOnly': 'Salt okunur, kaydedilmiyor',
+  'journey.studio.saveNewer':
+    'Bu kitap Studio’nun daha yeni bir sürümüyle kaydedildi. Düzenlemek için yeniden yükleyin.',
+  'journey.studio.saveReload': 'Yeniden yükle',
   'journey.studio.filterPhotos': 'Fotoğrafları filtrele',
   'journey.studio.filterAll': 'Tüm fotoğraflar',
   'journey.studio.filterLoose': 'Bir kayıtta değil',

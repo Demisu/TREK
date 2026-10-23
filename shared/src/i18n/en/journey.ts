@@ -648,6 +648,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Rotate left',
   'journey.studio.rotateRight': 'Rotate right',
   'journey.studio.saveReadOnly': 'Read-only, not saved',
+  'journey.studio.saveNewer': 'A newer Studio saved this book. Reload to edit it.',
+  'journey.studio.saveReload': 'Reload',
   'journey.studio.filterPhotos': 'Filter photos',
   'journey.studio.filterAll': 'All photos',
   'journey.studio.filterLoose': 'Not in an entry',

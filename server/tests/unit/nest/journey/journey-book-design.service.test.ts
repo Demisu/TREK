@@ -15,7 +15,7 @@
  * stale version, and forgets the draft; a journey without a book gets a new
  * one and no revision; restoring the revision puts the book back only at the
  * version the apply left, and never writes a revision that does not read
- * back; five revisions are kept.
+ * back or that a newer TREK kept; five revisions are kept.
  */
 import { JourneyBookRevisions } from '../../../../src/db/entities/JourneyBookRevisions.entity';
 import { JourneyEntryPhotos } from '../../../../src/db/entities/JourneyEntryPhotos.entity';
@@ -316,6 +316,25 @@ describe('taking a design back', () => {
     expect(await refusal(() => designs.restoreRevision(journey.id, owner.id, back))).toEqual({
       status: 409,
       code: 'book_revision_unreadable',
+    });
+    expect(await version(journey.id, owner.id)).toBe(applied.version);
+    expect(told()).toEqual([]);
+  });
+
+  it('JBDSN-011: a revision kept by a newer TREK is refused, never put back stripped of what this one cannot read', async () => {
+    const { journey, owner } = await crew();
+    const answer = await designs.design(journey.id, owner.id);
+    const applied = await designs.apply(journey.id, owner.id, { designId: answer.design_id });
+    const revisionId = applied.revision_id ?? 0;
+    const kept = await findRow(orm, JourneyBookRevisions, { id: revisionId });
+    const newer = JSON.stringify({ ...JSON.parse(String(kept?.document)), schemaRev: 2 });
+    await updateRows(orm, JourneyBookRevisions, { id: revisionId }, { document: newer });
+    t.realtime.reset();
+
+    const back = { revisionId, expectedVersion: applied.version };
+    expect(await refusal(() => designs.restoreRevision(journey.id, owner.id, back))).toEqual({
+      status: 409,
+      code: 'book_schema_newer',
     });
     expect(await version(journey.id, owner.id)).toBe(applied.version);
     expect(told()).toEqual([]);

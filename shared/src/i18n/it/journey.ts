@@ -651,6 +651,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Ruota a sinistra',
   'journey.studio.rotateRight': 'Ruota a destra',
   'journey.studio.saveReadOnly': 'Sola lettura, non si salva',
+  'journey.studio.saveNewer': 'Una versione più recente di Studio ha salvato questo libro. Ricarica per modificarlo.',
+  'journey.studio.saveReload': 'Ricarica',
   'journey.studio.filterPhotos': 'Filtra foto',
   'journey.studio.filterAll': 'Tutte le foto',
   'journey.studio.filterLoose': 'Senza voce',

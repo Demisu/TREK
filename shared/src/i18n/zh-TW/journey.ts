@@ -629,6 +629,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': '向左旋轉',
   'journey.studio.rotateRight': '向右旋轉',
   'journey.studio.saveReadOnly': '唯讀，不會儲存',
+  'journey.studio.saveNewer': '此書由較新版本的 Studio 儲存。請重新載入後再編輯。',
+  'journey.studio.saveReload': '重新載入',
   'journey.studio.filterPhotos': '篩選照片',
   'journey.studio.filterAll': '全部照片',
   'journey.studio.filterLoose': '不屬於任何條目',

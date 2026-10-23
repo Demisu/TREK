@@ -636,6 +636,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': '왼쪽으로 회전',
   'journey.studio.rotateRight': '오른쪽으로 회전',
   'journey.studio.saveReadOnly': '읽기 전용, 저장되지 않음',
+  'journey.studio.saveNewer': '이 책은 더 새로운 버전의 Studio에서 저장되었습니다. 편집하려면 새로고침하세요.',
+  'journey.studio.saveReload': '새로고침',
   'journey.studio.filterPhotos': '사진 필터',
   'journey.studio.filterAll': '모든 사진',
   'journey.studio.filterLoose': '항목에 없음',

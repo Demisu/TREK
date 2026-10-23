@@ -660,6 +660,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Otočiť doľava',
   'journey.studio.rotateRight': 'Otočiť doprava',
   'journey.studio.saveReadOnly': 'Iba na čítanie, neukladá sa',
+  'journey.studio.saveNewer': 'Túto knihu uložila novšia verzia aplikácie Studio. Na úpravy ju načítajte znova.',
+  'journey.studio.saveReload': 'Načítať znova',
   'journey.studio.filterPhotos': 'Filtrovať fotografie',
   'journey.studio.filterAll': 'Všetky fotografie',
   'journey.studio.filterLoose': 'Bez záznamu',

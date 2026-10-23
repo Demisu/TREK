@@ -1,5 +1,6 @@
 import { BOOK_GRIDS, bookGridElements, defaultBookGridBox } from './book-grids';
 import { BOOK_COVER_TEMPLATES, BOOK_TEMPLATES, applyBookTemplate, type BookTemplate } from './book-layouts';
+import { normalizeBookDocument } from './book-normalize';
 import {
   applySavedBookLayout,
   bookLayoutFromSpread,
@@ -7,7 +8,7 @@ import {
   bookLayoutRole,
   nextBookLayoutName,
 } from './book-saved-layouts';
-import { normalizeBookDocument, type BookDocument } from './book.schema';
+import type { BookDocument } from './book.schema';
 
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';

@@ -633,6 +633,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'หมุนไปทางซ้าย',
   'journey.studio.rotateRight': 'หมุนไปทางขวา',
   'journey.studio.saveReadOnly': 'อ่านอย่างเดียว ไม่ได้บันทึก',
+  'journey.studio.saveNewer': 'หนังสือเล่มนี้ถูกบันทึกโดย Studio เวอร์ชันที่ใหม่กว่า โปรดโหลดใหม่เพื่อแก้ไข',
+  'journey.studio.saveReload': 'โหลดใหม่',
   'journey.studio.filterPhotos': 'กรองรูปภาพ',
   'journey.studio.filterAll': 'รูปภาพทั้งหมด',
   'journey.studio.filterLoose': 'ไม่อยู่ในรายการ',

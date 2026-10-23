@@ -37,6 +37,15 @@ interface StudioState {
    * 4.2). Not part of the book or its history; opening a book clears it.
    */
   hintSpread: string | null
+  /**
+   * Whether the open book is held as it is. True for a book a newer Studio
+   * saved (useBookStore's `newer`): this build has already dropped what
+   * it cannot read from its copy, so every edit, undo and redo is refused
+   * rather than shown as work that can never be saved. Loading and taking a
+   * remote version still work, so the page stays current while it is shown.
+   */
+  readOnly: boolean
+  setReadOnly: (readOnly: boolean) => void
 
   load: (doc: BookDocument) => void
   /**
@@ -135,7 +144,9 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   gestureBase: null,
   clipboard: null,
   hintSpread: null,
+  readOnly: false,
 
+  setReadOnly: readOnly => set({ readOnly, gestureBase: null }),
   load: doc => set({ doc, selection: [], activeSpread: 0, past: [], future: [], gestureBase: null, hintSpread: null }),
   adoptRemote: (doc, opts) => set(s => {
     if (!s.doc) return { doc, selection: [], activeSpread: 0, past: [], future: [], gestureBase: null }
@@ -180,13 +191,13 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   }),
 
   commit: fn => set(s => {
-    if (!s.doc) return {}
+    if (!s.doc || s.readOnly) return {}
     const next = fn(s.doc)
     if (next === s.doc) return {}
     return { doc: next, past: [...s.past, s.doc].slice(-HISTORY_LIMIT), future: [] }
   }),
 
-  apply: fn => set(s => (s.doc ? { doc: fn(s.doc) } : {})),
+  apply: fn => set(s => (s.doc && !s.readOnly ? { doc: fn(s.doc) } : {})),
 
   updateElement: (spreadIndex, id, patch) => get().apply(doc =>
     replaceSpread(doc, spreadIndex, sp => ({
@@ -420,16 +431,16 @@ export const useStudioStore = create<StudioState>((set, get) => ({
 
   undo: () => set(s => {
     const prev = s.past[s.past.length - 1]
-    if (!prev || !s.doc) return {}
+    if (!prev || !s.doc || s.readOnly) return {}
     return { doc: prev, past: s.past.slice(0, -1), future: [s.doc, ...s.future].slice(0, HISTORY_LIMIT), selection: [] }
   }),
 
   redo: () => set(s => {
     const next = s.future[0]
-    if (!next || !s.doc) return {}
+    if (!next || !s.doc || s.readOnly) return {}
     return { doc: next, future: s.future.slice(1), past: [...s.past, s.doc].slice(-HISTORY_LIMIT), selection: [] }
   }),
 
-  canUndo: () => get().past.length > 0,
-  canRedo: () => get().future.length > 0,
+  canUndo: () => !get().readOnly && get().past.length > 0,
+  canRedo: () => !get().readOnly && get().future.length > 0,
 }))

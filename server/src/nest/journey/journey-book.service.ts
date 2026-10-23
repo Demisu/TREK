@@ -8,7 +8,14 @@ import { JourneyDomainService } from './journey-domain.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import type { BookDocument, BookRecord, BookSummary } from '@trek/shared';
-import { BOOK_DESIGN_LIMITS, normalizeBookDocument } from '@trek/shared';
+import {
+  BOOK_DESIGN_LIMITS,
+  BOOK_SCHEMA_NEWER_CODE,
+  BOOK_SCHEMA_REV,
+  bookSchemaRev,
+  normalizeBookDocument,
+  stampBookSchemaRev,
+} from '@trek/shared';
 
 /**
  * What an edit of the book hands back to `editBook`: the record's title and
@@ -59,6 +66,15 @@ interface BookEditOptions extends BookWriteOrigin {
  *
  * The alternative — last write wins — is not a simpler version of this. It is
  * the same thing with the failure moved somewhere nobody sees it.
+ *
+ * ── Format revisions ─────────────────────────────────────────────────────
+ *
+ * A book says which revision of the format wrote it (book-schema-rev.ts in
+ * @trek/shared). A save from a writer older than the stored book is refused,
+ * because that writer has already dropped whatever it could not read; so is
+ * one newer than this server, which would drop the same on the way in. The
+ * book tools write only books this server reads whole, and stamp what they
+ * write with its revision.
  */
 @Injectable()
 export class JourneyBookService {
@@ -166,6 +182,7 @@ export class JourneyBookService {
     userId: number,
     input: { title: string; document: unknown; baseVersion?: number },
   ): Promise<{ record: BookRecord } | { conflict: BookRecord }> {
+    refuseNewerThanServer(bookSchemaRev(input.document));
     const document = JSON.stringify(normalizeBookDocument(input.document));
 
     // M1 (rule 11/24) — JB3's existing-link read and JB4's insert are
@@ -186,6 +203,10 @@ export class JourneyBookService {
         const id = await this.booksRepo.insertBook(journeyId, input.title, document, userId);
         return { record: (await this.byId(id))! };
       }
+
+      // An older writer has already lost what it could not read; it does not get to save that loss.
+      const stored = storedSchemaRev(existing.document);
+      if (stored > bookSchemaRev(input.document)) throw newerBook(stored);
 
       /*
        * The version goes in the WHERE clause rather than being checked first.
@@ -249,11 +270,15 @@ export class JourneyBookService {
       if (options.expectedVersion !== undefined && current?.version !== options.expectedVersion) {
         throw bookMoved(current);
       }
+      // `current` is the book as this server reads it, which for a newer book is the book minus what it dropped.
+      if (row) refuseNewerThanServer(storedSchemaRev(row.document));
       const next = await edit(current);
+      // What the edit hands back is checked too: a kept revision from a newer server, put back after a downgrade, would land stripped yet still stamped newer.
+      refuseNewerThanServer(bookSchemaRev(next.document));
       if (current && next.unchanged) {
         return { record: current, result: next.result, wrote: false, revisionId: null };
       }
-      const document = JSON.stringify(normalizeBookDocument(next.document));
+      const document = JSON.stringify(normalizeBookDocument(stampBookSchemaRev(next.document)));
       if (!row) {
         const id = await this.booksRepo.insertBook(journeyId, next.title, document, userId);
         return { record: await this.written(id), result: next.result, wrote: true, revisionId: null };
@@ -339,6 +364,31 @@ function bookMoved(current: BookRecord | null): DomainError {
     details: { current },
     mcpMessage: 'The book was changed since that version. Read it again with get_book before changing it.',
   });
+}
+
+/**
+ * The book was written by a newer revision of the format than the writer (or
+ * this server) knows. 409 like a moved book, with the code the Studio reads to
+ * open the book read-only and ask for a reload; no `current`, because there is
+ * nothing here an older writer could safely take.
+ */
+function newerBook(schemaRev: number): DomainError {
+  return new DomainError(409, 'Book was saved by a newer version of TREK Studio', {
+    code: BOOK_SCHEMA_NEWER_CODE,
+    details: { code: BOOK_SCHEMA_NEWER_CODE, schemaRev },
+    mcpMessage:
+      'This book was saved by a newer version of TREK than this server runs. Changing it here would drop what that version added, so it stays as it is.',
+  });
+}
+
+/** Refuse a book written by a revision this server cannot read whole. */
+function refuseNewerThanServer(schemaRev: number): void {
+  if (schemaRev > BOOK_SCHEMA_REV) throw newerBook(schemaRev);
+}
+
+/** The revision a stored row's document says it was written by; broken JSON reads as 1, like its document. */
+function storedSchemaRev(raw: string): number {
+  return bookSchemaRev(safeParse(raw));
 }
 
 /** JSON that will not parse is an empty document, never an exception. */

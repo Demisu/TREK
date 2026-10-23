@@ -648,6 +648,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Rotera åt vänster',
   'journey.studio.rotateRight': 'Rotera åt höger',
   'journey.studio.saveReadOnly': 'Skrivskyddad, sparas inte',
+  'journey.studio.saveNewer': 'En nyare version av Studio har sparat den här boken. Ladda om för att redigera.',
+  'journey.studio.saveReload': 'Ladda om',
   'journey.studio.filterPhotos': 'Filtrera foton',
   'journey.studio.filterAll': 'Alla foton',
   'journey.studio.filterLoose': 'Inte i något inlägg',

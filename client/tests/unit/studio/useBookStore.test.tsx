@@ -776,3 +776,88 @@ describe('unmounting', () => {
     expect(api.saveBook).not.toHaveBeenCalled()
   })
 })
+
+// -- A book a newer Studio saved ----------------------------------------------
+
+/*
+ * This build reads such a book as far as it can, and what it cannot read is
+ * already gone from its copy. Showing it is fine; writing it would delete the
+ * rest for everyone, so nothing is written until a reload.
+ */
+describe('a book a newer Studio saved', () => {
+  const newer = (title = 'newer') => ({ ...doc(title), schemaRev: 99 }) as unknown as BookDocument
+
+  /** A 409 for a book a newer Studio saved since this tab read it. */
+  function newerError() {
+    return Object.assign(new Error('Request failed'), {
+      response: { status: 409, data: { error: 'Book was saved by a newer version of TREK Studio', code: 'book_schema_newer', schemaRev: 2 } },
+    })
+  }
+
+  it('FE-STUDIO-REV-002: opens it, says so, and writes nothing, not even on flush', async () => {
+    api.getBook.mockResolvedValue({ book: record({ version: 5, document: newer() }) })
+    const { result } = await mount()
+
+    expect(result.current.state.status).toBe('newer')
+    expect(result.current.record?.document.title).toBe('newer')
+    act(() => { result.current.queueSave(doc('edited'), 'T') })
+    await tick()
+    let ok: boolean | undefined
+    await act(async () => { ok = await result.current.flush() })
+
+    expect(ok).toBe(false)
+    expect(api.saveBook).not.toHaveBeenCalled()
+  })
+
+  it('FE-STUDIO-REV-003: stops on the server refusing a save over a newer book, and does not try again', async () => {
+    api.saveBook.mockRejectedValue(newerError())
+    const { result } = await mount()
+
+    act(() => { result.current.queueSave(doc('a'), 'T') })
+    await tick()
+    expect(result.current.state.status).toBe('newer')
+
+    act(() => { result.current.queueSave(doc('b'), 'T') })
+    await tick()
+    expect(api.saveBook).toHaveBeenCalledTimes(1)
+  })
+
+  it('FE-STUDIO-REV-004: shows a newer version another editor saved, and holds it the same way', async () => {
+    api.getBook.mockResolvedValue({ book: record({ version: 4, document: doc('ours') }) })
+    const onRemote = vi.fn()
+    const { result } = renderHook(() => useBookStore(9, onRemote))
+    await tick(0)
+    api.getBook.mockResolvedValue({ book: record({ version: 6, document: newer('theirs') }) })
+
+    await remoteSave(6)
+
+    expect(onRemote.mock.calls[0][0].title).toBe('theirs')
+    expect(result.current.state.status).toBe('newer')
+    act(() => { result.current.queueSave(doc('mine'), 'T') })
+    await tick()
+    expect(api.saveBook).not.toHaveBeenCalled()
+  })
+
+  it('FE-STUDIO-REV-005: taking their side of a conflict holds the book when theirs is newer', async () => {
+    const theirs = record({ version: 6, document: newer('theirs') })
+    api.saveBook.mockRejectedValueOnce(conflictError(theirs))
+    const { result } = await mount()
+
+    act(() => { result.current.queueSave(doc('mine'), 'T') })
+    await tick()
+    expect(result.current.state.status).toBe('conflict')
+
+    act(() => { result.current.acceptTheirs(theirs) })
+    expect(result.current.state.status).toBe('newer')
+  })
+
+  /* A book of today goes out exactly as it went out before the revision existed. */
+  it('FE-STUDIO-REV-006: sends a book of today without a revision in it', async () => {
+    const { result } = await mount()
+
+    act(() => { result.current.queueSave(doc('a'), 'T') })
+    await tick()
+
+    expect(api.saveBook.mock.calls[0][1].document).not.toHaveProperty('schemaRev')
+  })
+})

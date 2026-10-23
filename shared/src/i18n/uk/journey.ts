@@ -671,6 +671,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Повернути ліворуч',
   'journey.studio.rotateRight': 'Повернути праворуч',
   'journey.studio.saveReadOnly': 'Лише для читання, не зберігається',
+  'journey.studio.saveNewer': 'Цю книгу збережено новішою версією Studio. Перезавантажте, щоб редагувати.',
+  'journey.studio.saveReload': 'Перезавантажити',
   'journey.studio.filterPhotos': 'Фільтр фото',
   'journey.studio.filterAll': 'Усі фото',
   'journey.studio.filterLoose': 'Без запису',

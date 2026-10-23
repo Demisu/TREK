@@ -260,7 +260,10 @@ function PhotoView({ el, big, print, dropLabel }: {
           src={photoSrc(el.photoId!, big)}
           alt=""
           draggable={false}
-          loading="lazy"
+          // Lazy on the canvas, where a long book scrolls past; eager in print,
+          // where every sheet is laid out at once and a picture the browser put
+          // off is a picture missing from the PDF.
+          loading={print ? 'eager' : 'lazy'}
           style={{
             width: '100%',
             height: '100%',

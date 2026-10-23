@@ -68,7 +68,7 @@ function seedJourney() {
 beforeEach(() => {
   seedJourney()
   buildBook.mockClear()
-  useStudioStore.setState({ doc: null, selection: [], activeSpread: 0, past: [], future: [] })
+  useStudioStore.setState({ doc: null, selection: [], activeSpread: 0, past: [], future: [], readOnly: false })
   vi.spyOn(journeyApi, 'getBook').mockResolvedValue({ book: null } as never)
   vi.spyOn(journeyApi, 'saveBook').mockResolvedValue({} as never)
   vi.spyOn(journeyApi, 'stats').mockResolvedValue(stats() as never)
@@ -295,6 +295,31 @@ describe('pictures and stops', () => {
 
     expect(result.current.canEdit).toBe(false)
   })
+
+  /*
+   * A book a newer Studio saved has already lost, in this copy, what this build
+   * cannot read. It is shown and never changed, for every role, and let go once
+   * Studio closes so the next book opens as it should.
+   */
+  it('FE-STUDIO-REV-001: holds a book a newer Studio saved read-only until Studio closes', async () => {
+    const document = { ...shared.blankBook({ title: 'Iceland' }), schemaRev: shared.BOOK_SCHEMA_REV + 1 }
+    vi.mocked(journeyApi.getBook).mockResolvedValue({
+      book: { id: 3, journeyId: 9, title: 'Iceland', version: 4, updatedAt: '', updatedBy: 1, document },
+    } as never)
+    const { result, unmount } = await mountStudio()
+
+    await waitFor(() => expect(result.current.saveState.status).toBe('newer'))
+    expect(result.current.canEdit).toBe(false)
+    expect(result.current.canUndo).toBe(false)
+    expect(useStudioStore.getState().readOnly).toBe(true)
+    const before = useStudioStore.getState().doc
+    act(() => { useStudioStore.getState().commit(d => ({ ...d, title: 'edited' })) })
+    expect(useStudioStore.getState().doc).toBe(before)
+    expect(journeyApi.saveBook).not.toHaveBeenCalled()
+
+    unmount()
+    expect(useStudioStore.getState().readOnly).toBe(false)
+  })
 })
 
 /**
@@ -355,7 +380,7 @@ describe('saves from elsewhere', () => {
     const { ok } = await openAndFlush()
     expect(ok).toBe(true)
     const calls = vi.mocked(journeyApi.saveBook).mock.calls
-    expect(calls[calls.length - 1][1].document.title).toBe('edited')
+    expect((calls[calls.length - 1][1].document as { title?: string }).title).toBe('edited')
   })
 
   it('FE-STUDIO-WIRE-002: a save of this user keeps the page by its id and is one undo away', async () => {

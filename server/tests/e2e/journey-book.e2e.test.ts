@@ -9,14 +9,18 @@
  * viewer's write is refused with the tool's own words, and an operation the
  * engine refuses with the operation it names; a REST save and an MCP write
  * send the same event to the same users, REST leaving out the tab that saved
- * and MCP none; and the tools are gone while the Journey addon is off.
+ * and MCP none; the tools are gone while the Journey addon is off; and a book
+ * a newer Studio wrote is refused with 409 and its code over both, even when
+ * its document holds what this build cannot parse.
  */
 import { ADDON_IDS } from '../../src/addons';
 import { buildApp } from '../../src/bootstrap';
+import { JourneyBooks } from '../../src/db/entities/JourneyBooks.entity';
 import { createLocalMcpServer, McpRegistryService } from '../../src/nest-mcp';
 import { withRequestContext } from '../../src/nest/database/request-context';
 import { authCookie } from '../helpers/auth';
 import { addJourneyContributor, makeJourney } from '../helpers/factories/journeys';
+import { findRow, updateRows } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
 import { makeUser } from '../helpers/factories/users';
 import { spyOnRealtime, type RealtimeSpies } from '../helpers/fake-realtime';
@@ -197,5 +201,63 @@ describe('Studio book over MCP and REST', () => {
     );
     expect(names.filter((name) => BOOK_TOOLS.includes(name))).toEqual([]);
     expect(names.length).toBeGreaterThan(0);
+  });
+
+  it('JBE2E-005: a book a newer Studio saved refuses a REST save with 409 and its code, and an MCP write in its words', async () => {
+    const { owner, journey, inner } = await journeyWithBook();
+    const before = await request(app.getHttpServer())
+      .get(`/api/journeys/${journey.id}/book`)
+      .set('Cookie', authCookie(owner.id));
+    const row = await findRow(orm, JourneyBooks, { journey: journey.id });
+    const newer = JSON.stringify({ ...JSON.parse(String(row?.document)), schemaRev: 2 });
+    await updateRows(orm, JourneyBooks, { journey: journey.id }, { document: newer });
+
+    const saved = await request(app.getHttpServer())
+      .put(`/api/journeys/${journey.id}/book`)
+      .set('Cookie', authCookie(owner.id))
+      .send({ title: before.body.book.title, document: before.body.book.document, baseVersion: 1 });
+    expect(saved.status).toBe(409);
+    expect(saved.body).toEqual({
+      error: 'Book was saved by a newer version of TREK Studio',
+      code: 'book_schema_newer',
+      schemaRev: 2,
+    });
+
+    const tool = await callTool(owner.id, 'edit_book_page', {
+      journeyId: journey.id,
+      spreadId: inner,
+      ops: [{ op: 'background', color: '#202020' }],
+    });
+    expect(tool).toEqual({
+      error:
+        'This book was saved by a newer version of TREK than this server runs. Changing it here would drop what that version added, so it stays as it is.',
+    });
+    expect(sent()).toEqual([]);
+    const after = await findRow(orm, JourneyBooks, { journey: journey.id });
+    expect([after?.version, after?.document]).toEqual([1, newer]);
+  });
+
+  it('JBE2E-006: a save of a book a newer Studio wrote, with a kind this one cannot read, is a 409 with its code, not a 400', async () => {
+    const { owner, journey } = await journeyWithBook();
+    const before = await request(app.getHttpServer())
+      .get(`/api/journeys/${journey.id}/book`)
+      .set('Cookie', authCookie(owner.id));
+    const document = before.body.book.document as { spreads: Array<{ elements: unknown[] }> };
+    const frame = { x: 10, y: 10, w: 40, h: 40 };
+    document.spreads[0]?.elements.push({ id: 'from-later', kind: 'sticker', frame, stickerId: 'lemon' });
+
+    const saved = await request(app.getHttpServer())
+      .put(`/api/journeys/${journey.id}/book`)
+      .set('Cookie', authCookie(owner.id))
+      .send({ title: before.body.book.title, document: { ...document, schemaRev: 2 }, baseVersion: 1 });
+    expect(saved.status).toBe(409);
+    expect(saved.body).toEqual({
+      error: 'Book was saved by a newer version of TREK Studio',
+      code: 'book_schema_newer',
+      schemaRev: 2,
+    });
+    expect(sent()).toEqual([]);
+    const after = await findRow(orm, JourneyBooks, { journey: journey.id });
+    expect(after?.version).toBe(1);
   });
 });

@@ -649,6 +649,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Forgatás balra',
   'journey.studio.rotateRight': 'Forgatás jobbra',
   'journey.studio.saveReadOnly': 'Csak olvasható, nem mentődik',
+  'journey.studio.saveNewer': 'Ezt a könyvet a Studio egy újabb verziója mentette. Töltsd újra a szerkesztéshez.',
+  'journey.studio.saveReload': 'Újratöltés',
   'journey.studio.filterPhotos': 'Fotók szűrése',
   'journey.studio.filterAll': 'Összes fotó',
   'journey.studio.filterLoose': 'Nincs bejegyzésben',

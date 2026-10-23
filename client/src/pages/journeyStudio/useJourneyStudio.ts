@@ -78,6 +78,7 @@ export function useJourneyStudio() {
   const past = useStudioStore(s => s.past)
   const future = useStudioStore(s => s.future)
   const commit = useStudioStore(s => s.commit)
+  const setReadOnly = useStudioStore(s => s.setReadOnly)
 
   const journeyId = Number(id)
   const backTo = `/journey/${id}`
@@ -116,6 +117,21 @@ export function useJourneyStudio() {
   // Pulled out because close() needs it and the store object itself is new on
   // every render — depending on that made the save effect fire per render.
   const { queueSave, saveNow, loaded: bookLoaded } = book
+
+  /*
+   * A book a newer Studio saved is shown and never changed here.
+   *
+   * This build read it as far as it could, and what it could not read is gone
+   * from its copy, so an edit made now could only ever be saved by deleting
+   * the rest. The store refuses edits while this holds and the controls that
+   * add to the book go with `canEdit`; the save indicator asks for a reload.
+   * Released when Studio closes, so the next book opens as it should.
+   */
+  const newerBook = book.state.status === 'newer'
+  useEffect(() => {
+    setReadOnly(newerBook)
+    return () => setReadOnly(false)
+  }, [newerBook, setReadOnly])
 
   /*
    * Who else is in here, and where their pointers are.
@@ -595,9 +611,10 @@ export function useJourneyStudio() {
   /*
    * A viewer may open the book and change nothing: not the pages, not the
    * journey behind them. The server refuses either anyway; this keeps the
-   * controls that would only ever answer with a 403 off the screen.
+   * controls that would only ever answer with a 403 off the screen. A book a
+   * newer Studio saved is held the same way, for everyone (see `newerBook`).
    */
-  const canEdit = (journey?.my_role ?? 'owner') !== 'viewer'
+  const canEdit = (journey?.my_role ?? 'owner') !== 'viewer' && !newerBook
   const toast = useToast()
 
   /**
@@ -798,8 +815,8 @@ export function useJourneyStudio() {
 
     undo,
     redo,
-    canUndo: past.length > 0,
-    canRedo: future.length > 0,
+    canUndo: !newerBook && past.length > 0,
+    canRedo: !newerBook && future.length > 0,
 
     pxPerMm: PX_PER_MM,
   }

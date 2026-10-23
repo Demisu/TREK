@@ -639,6 +639,9 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': '左に回転',
   'journey.studio.rotateRight': '右に回転',
   'journey.studio.saveReadOnly': '閲覧のみ・保存されません',
+  'journey.studio.saveNewer':
+    'この本は新しいバージョンの Studio で保存されました。編集するには再読み込みしてください。',
+  'journey.studio.saveReload': '再読み込み',
   'journey.studio.filterPhotos': '写真を絞り込む',
   'journey.studio.filterAll': 'すべての写真',
   'journey.studio.filterLoose': 'エントリーに属さない',

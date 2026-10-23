@@ -620,6 +620,116 @@ describe('editBook', () => {
   });
 });
 
+// -- Format revisions ---------------------------------------------------------
+
+/*
+ * A book written by a newer revision of the format than the writer knows. The
+ * older writer has already dropped what it could not read, so its save, from
+ * an old tab or a replayed offline copy, must not land; nor may the book tools
+ * of a server that cannot read the book whole.
+ */
+describe('format revisions', () => {
+  /** A journey whose stored book says it was written by revision `schemaRev`. */
+  async function storedAt(schemaRev: number) {
+    const { user } = createUser(testDb);
+    const journey = createJourney(testDb, user.id);
+    await insertRow(await sharedTestOrm(testDb), JourneyBooks, {
+      journey: journey.id,
+      title: 'T',
+      document: JSON.stringify({ ...doc('newer'), schemaRev }),
+      version: 1,
+    });
+    return { user, journey };
+  }
+
+  const refusalOf = (thrown: unknown) =>
+    thrown instanceof DomainError ? [thrown.getStatus(), thrown.code, thrown.toBody().code] : thrown;
+
+  it('JBOOK-011: refuses a save from a writer older than the stored book with 409 and the code, writing and sending nothing', async () => {
+    const { user, journey } = await storedAt(2);
+    const rec = await recordSends();
+    try {
+      const thrown = await catchDomainError(() =>
+        books.saveBook(journey.id, user.id, { title: 'T', document: doc('older'), baseVersion: 1 }),
+      );
+      expect(refusalOf(thrown)).toEqual([409, 'book_schema_newer', 'book_schema_newer']);
+      expect(thrown instanceof DomainError && thrown.toBody()).toMatchObject({
+        error: 'Book was saved by a newer version of TREK Studio',
+        schemaRev: 2,
+      });
+      expect(rec.sent).toEqual([]);
+      const stored = await books.getBook(journey.id, user.id);
+      expect([stored?.version, stored?.document.title, stored?.document.schemaRev]).toEqual([1, 'newer', 2]);
+    } finally {
+      rec.restore();
+    }
+  });
+
+  it('JBOOK-012: refuses a document newer than this server reads, first save and later save alike', async () => {
+    const { user } = createUser(testDb);
+    const journey = createJourney(testDb, user.id);
+    const ahead = { ...doc('ahead'), schemaRev: 9 };
+    const first = await catchDomainError(() => books.saveBook(journey.id, user.id, { title: 'T', document: ahead }));
+    expect(refusalOf(first)).toEqual([409, 'book_schema_newer', 'book_schema_newer']);
+    expect(await books.getBook(journey.id, user.id)).toBeNull();
+
+    await books.saveBook(journey.id, user.id, { title: 'T', document: doc('one') });
+    const later = await catchDomainError(() =>
+      books.saveBook(journey.id, user.id, { title: 'T', document: ahead, baseVersion: 1 }),
+    );
+    expect(refusalOf(later)).toEqual([409, 'book_schema_newer', 'book_schema_newer']);
+    expect((await books.getBook(journey.id, user.id))?.document.title).toBe('one');
+  });
+
+  it('JBOOK-013: a save at the stored revision or above it lands as before, and a book of today stores no revision', async () => {
+    const { user, journey } = await storedAt(1);
+    const same = await books.saveBook(journey.id, user.id, {
+      title: 'T',
+      document: { ...doc('same'), schemaRev: 1 },
+      baseVersion: 1,
+    });
+    expect(same && 'record' in same && same.record.version).toBe(2);
+
+    const plain = await books.saveBook(journey.id, user.id, { title: 'T', document: doc('plain'), baseVersion: 2 });
+    expect(plain && 'record' in plain && plain.record.version).toBe(3);
+    const row = await findRow(await sharedTestOrm(testDb), JourneyBooks, { journey: journey.id });
+    expect(JSON.parse(String(row?.document))).not.toHaveProperty('schemaRev');
+  });
+
+  it('JBOOK-014: the book tools leave a book this server cannot read whole alone, before any edit runs', async () => {
+    const { user, journey } = await storedAt(2);
+    const rec = await recordSends();
+    try {
+      const edit = vi.fn(() => ({ title: 'T', document: normalizeBookDocument(doc('tool')), result: null }));
+      const thrown = await catchDomainError(() => books.editBook(journey.id, user.id, edit));
+      expect(refusalOf(thrown)).toEqual([409, 'book_schema_newer', 'book_schema_newer']);
+      expect(thrown instanceof DomainError && thrown.mcpMessage).toMatch(/newer version of TREK/);
+      expect(edit).not.toHaveBeenCalled();
+      expect(rec.sent).toEqual([]);
+      expect((await books.getBook(journey.id, user.id))?.document.title).toBe('newer');
+    } finally {
+      rec.restore();
+    }
+  });
+
+  it('JBOOK-015: an edit that hands back a document newer than this server reads is refused, the stored book untouched', async () => {
+    const { user, journey } = await storedAt(1);
+    const rec = await recordSends();
+    try {
+      const ahead = normalizeBookDocument({ ...doc('ahead'), schemaRev: 2 });
+      const thrown = await catchDomainError(() =>
+        books.editBook(journey.id, user.id, () => ({ title: 'T', document: ahead, result: null })),
+      );
+      expect(refusalOf(thrown)).toEqual([409, 'book_schema_newer', 'book_schema_newer']);
+      expect(rec.sent).toEqual([]);
+      const stored = await books.getBook(journey.id, user.id);
+      expect([stored?.version, stored?.document.title, stored?.document.schemaRev]).toEqual([1, 'newer', 1]);
+    } finally {
+      rec.restore();
+    }
+  });
+});
+
 // -- Deleting -----------------------------------------------------------------
 
 describe('deleting', () => {

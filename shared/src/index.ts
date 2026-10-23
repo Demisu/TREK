@@ -116,6 +116,8 @@ export * from './journey/journey-recording-prep.schema';
 export * from './journey/journey-map.schema';
 export * from './journey/trip-journal-link.schema';
 export * from './book/book.schema';
+export * from './book/book-normalize';
+export * from './book/book-schema-rev';
 export * from './book/journey-stats.schema';
 export * from './book/book-store.schema';
 export * from './book/book-ids';

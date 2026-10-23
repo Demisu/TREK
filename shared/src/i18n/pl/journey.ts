@@ -668,6 +668,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Obróć w lewo',
   'journey.studio.rotateRight': 'Obróć w prawo',
   'journey.studio.saveReadOnly': 'Tylko do odczytu, nie zapisuje się',
+  'journey.studio.saveNewer': 'Nowsza wersja Studio zapisała tę książkę. Odśwież, aby ją edytować.',
+  'journey.studio.saveReload': 'Odśwież',
   'journey.studio.filterPhotos': 'Filtruj zdjęcia',
   'journey.studio.filterAll': 'Wszystkie zdjęcia',
   'journey.studio.filterLoose': 'Bez wpisu',

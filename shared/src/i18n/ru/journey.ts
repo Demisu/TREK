@@ -667,6 +667,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Повернуть влево',
   'journey.studio.rotateRight': 'Повернуть вправо',
   'journey.studio.saveReadOnly': 'Только чтение, не сохраняется',
+  'journey.studio.saveNewer': 'Эту книгу сохранила более новая версия Studio. Перезагрузите, чтобы редактировать.',
+  'journey.studio.saveReload': 'Перезагрузить',
   'journey.studio.filterPhotos': 'Фильтр фото',
   'journey.studio.filterAll': 'Все фото',
   'journey.studio.filterLoose': 'Без записи',

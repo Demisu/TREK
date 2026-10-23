@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { BookDocument, BookRecord } from '@trek/shared'
-import { normalizeBookDocument } from '@trek/shared'
+import { BOOK_SCHEMA_NEWER_CODE, readBookDocument, stampBookSchemaRev } from '@trek/shared'
 import { journeyApi } from '../../api/client'
 import { addListener, removeListener } from '../../api/websocket'
 
@@ -54,6 +54,16 @@ import { addListener, removeListener } from '../../api/websocket'
  * either: it is remembered and read once that work has reached the server,
  * because the save response and the broadcast travel on different channels and
  * either can arrive first.
+ *
+ * ── Why a book from a newer Studio is never written ───────────────────────
+ *
+ * A document says which revision of the format wrote it (book-schema-rev.ts).
+ * This build reads a newer one as far as it can, and what it cannot read is
+ * already gone from the copy it holds: saving that copy would delete the rest
+ * for everyone. So such a book is shown and never written, the same way a
+ * viewer's is, until a reload brings the Studio that wrote it. The server
+ * refuses the save as well, which covers a tab that loaded the book before the
+ * newer Studio saved it.
  */
 
 /** How long the document has to stay still before it is written. */
@@ -69,6 +79,8 @@ export type SaveState =
   | { status: 'conflict'; current: BookRecord }
   /** The journey is open to this user, but they may not write it (role 'viewer'). */
   | { status: 'readonly' }
+  /** The book was saved by a newer Studio than this one: shown, never written, until a reload. */
+  | { status: 'newer' }
   | { status: 'error' }
 
 /** What the editor needs to know about a version it is handed from elsewhere. */
@@ -176,7 +188,12 @@ export function useBookStore(
          * agreed document by identity, so a consumer that normalised on its own
          * would hand back a different object and turn every open into a save.
          */
-        const book = res.book ? { ...res.book, document: normalizeBookDocument(res.book.document) } : null
+        const read = res.book ? readBookDocument(res.book.document) : null
+        const book = res.book && read ? { ...res.book, document: read.document } : null
+        if (read?.newer) {
+          blocked.current = true
+          setState({ status: 'newer' })
+        }
         setRecord(book)
         version.current = book?.version ?? null
         bookId.current = book?.id ?? null
@@ -201,7 +218,8 @@ export function useBookStore(
     try {
       const saved = await journeyApi.saveBook(journeyId, {
         title: next.title,
-        document: next.document,
+        // Stamped on the way out only: `synced` below keeps the editor's own object.
+        document: stampBookSchemaRev(next.document),
         baseVersion: version.current ?? undefined,
       })
       setRecord(saved)
@@ -217,8 +235,12 @@ export function useBookStore(
        * not need a second request: the editor can offer to take their version
        * or keep going from here, and either way it can say whose work it is.
        */
-      const res = (err as { response?: { status?: number; data?: { current?: BookRecord } } }).response
-      if (res?.status === 409 && res.data?.current) {
+      const res = (err as { response?: { status?: number; data?: { current?: BookRecord; code?: string } } }).response
+      if (res?.status === 409 && res.data?.code === BOOK_SCHEMA_NEWER_CODE) {
+        // A newer Studio saved the book since this tab read it: nothing here may be written over it.
+        blocked.current = true
+        setState({ status: 'newer' })
+      } else if (res?.status === 409 && res.data?.current) {
         blocked.current = true
         setState({ status: 'conflict', current: res.data.current })
       } else if (res?.status === 403) {
@@ -305,15 +327,15 @@ export function useBookStore(
 
   /** Take the other version, discarding the local one. */
   const acceptTheirs = useCallback((current: BookRecord) => {
-    const document = normalizeBookDocument(current.document)
-    blocked.current = false
+    const { document, newer } = readBookDocument(current.document)
+    blocked.current = newer
     setRecord({ ...current, document })
     version.current = current.version
     bookId.current = current.id
     synced.current = document
     latest.current = document
     pending.current = null
-    setState({ status: 'idle' })
+    setState(newer ? { status: 'newer' } : { status: 'idle' })
     // A save from elsewhere passed over while the conflict was open may be
     // newer than the record it carried.
     catchUp.current()
@@ -388,8 +410,12 @@ export function useBookStore(
           if (sameBook && !isNewer(res.book.version)) return
           // Normalised for the same reason the initial load is: a document
           // written by an older build is missing whatever the contract has
-          // gained since.
-          const document = normalizeBookDocument(res.book.document)
+          // gained since. One written by a newer build is shown and held.
+          const { document, newer } = readBookDocument(res.book.document)
+          if (newer) {
+            blocked.current = true
+            setState({ status: 'newer' })
+          }
           const held = version.current
           const taken = res.book.version
           // Undoable only when every save it folds in, past the version held,

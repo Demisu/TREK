@@ -641,6 +641,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Putar ke kiri',
   'journey.studio.rotateRight': 'Putar ke kanan',
   'journey.studio.saveReadOnly': 'Hanya baca, tidak disimpan',
+  'journey.studio.saveNewer': 'Buku ini disimpan oleh versi Studio yang lebih baru. Muat ulang untuk mengeditnya.',
+  'journey.studio.saveReload': 'Muat ulang',
   'journey.studio.filterPhotos': 'Filter foto',
   'journey.studio.filterAll': 'Semua foto',
   'journey.studio.filterLoose': 'Tidak dalam entri',

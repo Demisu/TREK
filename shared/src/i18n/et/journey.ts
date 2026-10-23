@@ -649,6 +649,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Pööra vasakule',
   'journey.studio.rotateRight': 'Pööra paremale',
   'journey.studio.saveReadOnly': 'Ainult lugemiseks, salvestamata',
+  'journey.studio.saveNewer': 'Selle raamatu salvestas Studio uuem versioon. Muutmiseks laadi leht uuesti.',
+  'journey.studio.saveReload': 'Laadi uuesti',
   'journey.studio.filterPhotos': 'Filtreeri fotosid',
   'journey.studio.filterAll': 'Kõik fotod',
   'journey.studio.filterLoose': 'Sissekandega sidumata',

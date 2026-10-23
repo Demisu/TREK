@@ -712,6 +712,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'Sola fırlat',
   'journey.studio.rotateRight': 'Sağa fırlat',
   'journey.studio.saveReadOnly': 'Yalnız oxuma rejimi — yadda saxlanılmadı',
+  'journey.studio.saveNewer': 'Bu kitabı Studio-nun daha yeni versiyası saxlayıb. Redaktə etmək üçün yenidən yükləyin.',
+  'journey.studio.saveReload': 'Yenidən yüklə',
 
   'journey.studio.filterPhotos': 'Fotoları filtrlə',
   'journey.studio.filterAll': 'Bütün fotolar',

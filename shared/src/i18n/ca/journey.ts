@@ -653,6 +653,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': "Gira cap a l'esquerra",
   'journey.studio.rotateRight': 'Gira cap a la dreta',
   'journey.studio.saveReadOnly': 'Només lectura, no es desa',
+  'journey.studio.saveNewer': 'Una versió més recent de Studio ha desat aquest llibre. Recarrega per editar-lo.',
+  'journey.studio.saveReload': 'Recarrega',
   'journey.studio.filterPhotos': 'Filtra les fotos',
   'journey.studio.filterAll': 'Totes les fotos',
   'journey.studio.filterLoose': 'Sense entrada',

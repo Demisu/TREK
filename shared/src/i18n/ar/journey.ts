@@ -677,6 +677,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotateLeft': 'تدوير لليسار',
   'journey.studio.rotateRight': 'تدوير لليمين',
   'journey.studio.saveReadOnly': 'للقراءة فقط، لا يتم الحفظ',
+  'journey.studio.saveNewer': 'حفظ إصدار أحدث من Studio هذا الكتاب. أعد التحميل لتعديله.',
+  'journey.studio.saveReload': 'إعادة التحميل',
   'journey.studio.filterPhotos': 'تصفية الصور',
   'journey.studio.filterAll': 'كل الصور',
   'journey.studio.filterLoose': 'ليست ضمن إدخال',
