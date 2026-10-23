@@ -180,7 +180,10 @@ export function textEl(c: ComposeCtx, at: TextAt, words: string, role: TextRole,
   return { ...el, frame: frameOf(at.x, at.y, at.w, textHeightNeeded(el, DESIGN_TEXT_HEADROOM) + 1.2) };
 }
 
-/** A heading that fits `maxH`: set smaller, down to the sub size, until it does. */
+/**
+ * A heading that fits `maxH`: set at `opts.size` (the heading size when none
+ * is given), then smaller, down to the sub size, until it does.
+ */
 export function headingEl(
   c: ComposeCtx,
   at: TextAt,
@@ -188,7 +191,7 @@ export function headingEl(
   maxH: number,
   opts: TextOpts = {},
 ): BookTextElement {
-  let size = c.look.sizes.heading;
+  let size = opts.size ?? c.look.sizes.heading;
   let el = textEl(c, at, words, 'heading', { ...opts, size });
   while (el.frame.h > maxH && size > c.look.sizes.sub) {
     size = Math.max(c.look.sizes.sub, size - 2);

@@ -145,35 +145,106 @@ const placedPhotos = (spread: BookSpread) => spread.elements.filter((e): e is Bo
 /**
  * A photo under a quarter of the size of the one it lies on is an inset: the
  * auto layout sets a small picture over the hero on purpose. Context, not a
- * fault; two pictures of a size on top of each other are.
+ * fault; two pictures of a size on top of each other are. The same holds for
+ * a small line of type set over display type, never over running text.
  */
 const INSET_RATIO = 0.25;
 
+/**
+ * Under this many degrees off straight an element reads as unturned; past it,
+ * as laid down at an angle on purpose. Above the scrapbook style's own tilt of
+ * 2 degrees, so a page of that style is not layered by its look alone.
+ */
+const TURNED_DEG = 3;
+
+/** Past this share of the smaller one covered, two photos or texts are an accident however they are turned or framed. */
+const LAYERED_MAX_SHARE = 0.5;
+
+/** Display type, which a small line may be set over: a few words at the heading floor of the styles or larger. */
+const DISPLAY_MAX_CHARS = 40;
+const DISPLAY_MIN_PT = 14;
+
+/** The most overlap findings one page reports, the severe ones first. */
+const MAX_OVERLAPS = 6;
+
+/** How far an element is turned from straight, 0 to 180 degrees, whichever way and however many turns. */
+function turnOf(el: BookElement): number {
+  const rest = el.rotation % 360;
+  const turned = rest < 0 ? rest + 360 : rest;
+  return Math.min(turned, 360 - turned);
+}
+
+/**
+ * Whether two elements on top of each other read as layered on purpose: either
+ * of them turned, or the upper one a photo in a frame (a polaroid, a border, a
+ * shadow), which is how a print laid on a page looks. `upper` is the one
+ * painted later.
+ */
+function layered(lower: BookElement, upper: BookElement): boolean {
+  if (turnOf(lower) >= TURNED_DEG || turnOf(upper) >= TURNED_DEG) return true;
+  return upper.kind === 'photo' && upper.frameStyle !== 'none';
+}
+
+/** Whether a text is display type: a few words, set at heading size or larger. */
+function isDisplay(el: BookElement): boolean {
+  return el.kind === 'text' && el.text.trim().length <= DISPLAY_MAX_CHARS && el.size >= DISPLAY_MIN_PT;
+}
+
+/** Whether the smaller of two is an inset on the larger: any small photo, a small text only over display type. */
+function isInset(small: BookElement, large: BookElement, smaller: number, larger: number): boolean {
+  if (smaller >= larger * INSET_RATIO) return false;
+  return small.kind === 'photo' || isDisplay(large);
+}
+
+/**
+ * Two photos or two texts on top of each other, `a` painted under `b`.
+ *
+ * Severe when it looks like an accident: both straight, of a size, the upper
+ * one unframed, or more than half of the smaller one covered whatever the
+ * look. A small one set over a large one, a turned or framed picture laid
+ * partly over another, is how a lively page is made, and is said as context.
+ * A title over a photo or a photo over a shape is never compared at all:
+ * different kinds layered are a design.
+ */
 function overlapFinding(a: BookElement, b: BookElement, ba: Box, bb: Box, shared: number): BookFinding {
   const [small, large] = area(ba) <= area(bb) ? [a, b] : [b, a];
   const smaller = Math.min(area(ba), area(bb));
-  const pct = Math.round((shared / Math.max(smaller, 1)) * 100);
-  if (a.kind === 'photo' && smaller < Math.max(area(ba), area(bb)) * INSET_RATIO) {
+  const share = shared / Math.max(smaller, 1);
+  const pct = Math.round(share * 100);
+  const what = a.kind === 'photo' ? 'photo' : 'text';
+  if (isInset(small, large, smaller, Math.max(area(ba), area(bb)))) {
     return {
       code: 'overlap',
       severity: 'info',
       elementIds: [small.id, large.id],
-      message: `photo ${small.id} is set as an inset over ${large.id} (${pct}% of it on the larger one)`,
+      message: `${what} ${small.id} is set as an inset over ${large.id} (${pct}% of it on the larger one)`,
+    };
+  }
+  if (share <= LAYERED_MAX_SHARE && layered(a, b)) {
+    return {
+      code: 'overlap',
+      severity: 'info',
+      elementIds: [a.id, b.id],
+      message: `${what}s ${a.id} and ${b.id} are layered on purpose, turned or framed (${pct}% of the smaller one covered); check nothing that matters is hidden`,
     };
   }
   return {
     code: 'overlap',
     severity: 'severe',
     elementIds: [a.id, b.id],
-    message: `${a.kind === 'photo' ? 'photos' : 'texts'} ${a.id} and ${b.id} overlap (${pct}% of the smaller one)`,
+    message: `${what}s ${a.id} and ${b.id} overlap (${pct}% of the smaller one)`,
   };
 }
 
+/**
+ * Every pair of photos or texts on top of each other, reported severe first up
+ * to the cap, so pairs layered on purpose never crowd out an accident.
+ */
 function overlaps(ctx: Ctx): void {
   const content = ctx.spread.elements.filter((e) => e.kind === 'photo' || e.kind === 'text');
-  let found = 0;
-  for (let i = 0; i < content.length && found < 6; i++) {
-    for (let j = i + 1; j < content.length && found < 6; j++) {
+  const found: BookFinding[] = [];
+  for (let i = 0; i < content.length; i++) {
+    for (let j = i + 1; j < content.length; j++) {
       const a = content[i] as BookElement;
       const b = content[j] as BookElement;
       if (a.kind !== b.kind) continue;
@@ -181,10 +252,12 @@ function overlaps(ctx: Ctx): void {
       const bb = elementBox(b);
       const shared = overlapArea(ba, bb);
       if (shared < 4 || shared < Math.min(area(ba), area(bb)) * 0.05) continue;
-      found += 1;
-      add(ctx, overlapFinding(a, b, ba, bb, shared));
+      found.push(overlapFinding(a, b, ba, bb, shared));
     }
   }
+  const severe = found.filter((f) => f.severity === 'severe');
+  const context = found.filter((f) => f.severity !== 'severe');
+  for (const f of [...severe, ...context].slice(0, MAX_OVERLAPS)) add(ctx, f);
 }
 
 /**

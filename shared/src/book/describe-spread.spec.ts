@@ -188,6 +188,82 @@ describe('findings', () => {
     expect(codes(list)).not.toContain('severe:overlap');
   });
 
+  it('BOOKDESC-025: takes photos laid over each other at an angle, or in a frame, as layered on purpose', () => {
+    const under = photo('p-a', 1, { x: 230, y: 20, w: 80, h: 60 });
+    const over = { x: 260, y: 40, w: 80, h: 60 };
+    for (const look of [{ rotation: 4 }, { rotation: -3 }, { rotation: 357 }, { frameStyle: 'polaroid' as const }]) {
+      const list = findings([under, photo('p-b', 1, over, look)]);
+      expect(
+        list.find((f) => f.code === 'overlap'),
+        JSON.stringify(look),
+      ).toMatchObject({
+        severity: 'info',
+        elementIds: ['p-a', 'p-b'],
+      });
+    }
+    // A frame on the lower picture does not make the upper one look laid down.
+    const framedUnder = photo('p-a', 1, { x: 230, y: 20, w: 80, h: 60 }, { frameStyle: 'white' });
+    expect(codes(findings([framedUnder, photo('p-b', 1, over)]))).toContain('severe:overlap');
+    // Framed as the journal style frames every photo, but four fifths covered: an accident all the same.
+    const stacked = photo('p-b', 1, { x: 238, y: 26, w: 80, h: 60 }, { frameStyle: 'white', rotation: 4 });
+    expect(codes(findings([photo('p-a', 1, { x: 230, y: 20, w: 80, h: 60 }), stacked]))).toContain('severe:overlap');
+  });
+
+  it('BOOKDESC-026: keeps an accident severe: two straight photos of a size, under 3 degrees off, a full turn included', () => {
+    const under = photo('p-a', 1, { x: 230, y: 20, w: 80, h: 60 }, { rotation: 1.5 });
+    // 2 degrees is the scrapbook style's own tilt, so it does not make a pair layered on its own.
+    for (const rotation of [0, -1, 2, -2.5, 359, 720]) {
+      const list = findings([under, photo('p-b', 1, { x: 260, y: 40, w: 80, h: 60 }, { rotation })]);
+      expect(codes(list), String(rotation)).toContain('severe:overlap');
+    }
+  });
+
+  it('BOOKDESC-027: sets a small line over display type as context, over running text or a text of a size as a fault', () => {
+    const title = text('t-big', 'Lisbon', { x: 230, y: 40, w: 160, h: 60 }, { size: 60 });
+    const accent = text('t-over', 'travel', { x: 240, y: 70, w: 40, h: 12 });
+    expect(findings([title, accent]).find((f) => f.code === 'overlap')).toMatchObject({
+      severity: 'info',
+      elementIds: ['t-over', 't-big'],
+    });
+    // The same small line on a story block prints words over words.
+    const story = text('t-story', 'A long day on the ice, and the harbour after it. '.repeat(3).trim(), {
+      x: 230,
+      y: 40,
+      w: 160,
+      h: 60,
+    });
+    expect(findings([story, accent]).find((f) => f.code === 'overlap')).toMatchObject({ severity: 'severe' });
+    const twin = text('t-twin', 'Porto', { x: 240, y: 60, w: 160, h: 60 });
+    expect(codes(findings([title, twin]))).toContain('severe:overlap');
+    const tilted = text('t-tilt', 'Porto', { x: 310, y: 90, w: 80, h: 30 }, { rotation: -6 });
+    expect(codes(findings([title, tilted]))).toContain('info:overlap');
+  });
+
+  it('BOOKDESC-028: never compares a title over a photo, or a photo over a shape', () => {
+    const shape = bookShapeElementSchema.parse({
+      id: 's-block',
+      kind: 'shape',
+      frame: { x: 220, y: 10, w: 120, h: 90 },
+    });
+    const list = findings([
+      shape as BookElement,
+      photo('p-a', 1, { x: 230, y: 20, w: 80, h: 60 }),
+      text('t-a', 'Over it', { x: 235, y: 30, w: 70, h: 20 }),
+    ]);
+    expect(list.filter((f) => f.code === 'overlap')).toEqual([]);
+  });
+
+  it('BOOKDESC-029: reports an accident on a busy layered page, however many insets come before it', () => {
+    const hero = photo('p-hero', 1, { x: 230, y: 20, w: 180, h: 170 });
+    const insets = Array.from({ length: 8 }, (_, i) =>
+      photo(`p-in-${i}`, 1, { x: 235 + (i % 4) * 42, y: 30 + Math.floor(i / 4) * 40, w: 20, h: 15 }),
+    );
+    const pair = [photo('p-a', 1, { x: 20, y: 20, w: 80, h: 60 }), photo('p-b', 1, { x: 50, y: 40, w: 80, h: 60 })];
+    const overlaps = findings([hero, ...insets, ...pair]).filter((f) => f.code === 'overlap');
+    expect(overlaps).toHaveLength(6);
+    expect(overlaps.find((f) => f.severity === 'severe')?.elementIds).toEqual(['p-a', 'p-b']);
+  });
+
   it('BOOKDESC-013: puts severe first and stops at the cap', () => {
     // 45 texts past the trim, each too small for its words: 90 severe findings before the cap.
     const many = Array.from({ length: 45 }, (_, i) => text(`t-${i}`, 'Cut', { x: -10, y: 5 + i * 4, w: 40, h: 3 }));

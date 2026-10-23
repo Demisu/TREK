@@ -156,13 +156,18 @@ describe('add', () => {
     expect(addRefusal({ kind: 'text', binding: { source: 'photo.caption' }, text: 'x' })).toBe('invalid_op');
   });
 
-  it('BOOKEL-003: adds a rule as a hairline, a banner wide, and an icon from the shelf only', () => {
+  it('BOOKEL-003: adds a rule as a hairline, a banner wide, and any icon the Studio offers, by lucide name only', () => {
     expect(added({ kind: 'shape', shape: 'line' })).toMatchObject({ shape: 'rect', frame: { w: 105, h: 0.5 } });
     const banner = added({ kind: 'shape', shape: 'banner-ribbon', fill: null });
     expect(banner).toMatchObject({ fill: null, frame: { w: 107.1, h: 34.65 } });
     const icon = added({ kind: 'icon', name: 'Compass', color: '#c2410c' });
     expect(icon).toMatchObject({ name: 'Compass', color: '#c2410c', frame: { w: 37.8, h: 37.8 } });
-    expect(addRefusal({ kind: 'icon', name: 'NotAnIcon' } as unknown as NewElement)).toBe('invalid_op');
+    // Past the travel shelf: the whole library, its old names too, as the icon tab lists it.
+    expect(added({ kind: 'icon', name: 'Pizza' })).toMatchObject({ kind: 'icon', name: 'Pizza' });
+    expect(added({ kind: 'icon', name: 'AlertTriangle' })).toMatchObject({ name: 'AlertTriangle' });
+    for (const name of ['NotAnIcon', 'PizzaIcon', 'pizza', 'Icon']) {
+      expect(addRefusal({ kind: 'icon', name } as unknown as NewElement), name).toBe('invalid_op');
+    }
   });
 
   it('BOOKEL-004: adds the travel kinds from the journey, and refuses them without its figures', () => {

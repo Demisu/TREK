@@ -48,7 +48,11 @@ interface CoverWords {
   ownSubtitle?: string;
 }
 
-/** The cover: a photo to the bleed with the title on a scrim at its foot, or the title alone on the paper. */
+/**
+ * The cover: a photo to the bleed with the title on a scrim at its foot, or
+ * the title alone on the paper. The title starts at the display size and is
+ * set smaller only as far as its box needs.
+ */
 export function composeCover(c: ComposeCtx, words: CoverWords, photo: AutoPhoto | null): BookSpread {
   const { pageWidth: PW, pageHeight: H, bleed: b, margin: m } = c.grid;
   const els: BookElement[] = [];
@@ -64,7 +68,8 @@ export function composeCover(c: ComposeCtx, words: CoverWords, photo: AutoPhoto 
   const y = photo ? box.y : box.y + box.h * 0.35;
   if (title.words.trim()) {
     const binding = title.bound ? { source: 'journey.title' as const } : null;
-    const head = headingEl(c, { x: box.x, y, w: box.w }, title.words, box.h * 0.6, { binding, color: colour });
+    const size = c.look.sizes.display;
+    const head = headingEl(c, { x: box.x, y, w: box.w }, title.words, box.h * 0.6, { binding, color: colour, size });
     els.push(head);
     if (sub.words.trim()) {
       const subBinding = sub.bound ? { source: 'journey.subtitle' as const } : null;

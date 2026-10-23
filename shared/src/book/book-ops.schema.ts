@@ -1,6 +1,15 @@
 import { idSchema } from '../common/primitives.schema';
 import { BOOK_ELEMENT_OP_SCHEMAS, TEXT_STYLE_FIELDS, bindingNamesItsSource } from './book-element-ops.schema';
 import { BOOK_COVER_TEMPLATES, BOOK_TEMPLATES } from './book-layouts';
+import {
+  BOOK_BINDING_HINT,
+  bookFontIdSchema,
+  bookFrameStyleSchema,
+  bookPagePresetSchema,
+  bookPhotoFilterSchema,
+  bookPhotoFitSchema,
+  bookPhotoMaskSchema,
+} from './book-op-enums';
 import { bookElementIdSchema, bookGridIdSchema, bookSpreadIdSchema } from './book-op-ids';
 import {
   MAX_BOOK_TITLE,
@@ -9,7 +18,6 @@ import {
   bookLayoutSchema,
   bookPageNumbersSchema,
   bookPageSetupSchema,
-  bookPhotoElementSchema,
   bookSpreadSchema,
   bookTextElementSchema,
 } from './book.schema';
@@ -52,13 +60,18 @@ export const BOOK_OP_LIMITS = {
 const idsOf = (list: readonly { id: string }[]) => list.map((t) => t.id) as [string, ...string[]];
 
 /** The spread layouts, by id. */
-export const bookTemplateIdSchema = z.enum(idsOf(BOOK_TEMPLATES));
+export const bookTemplateIdSchema = z
+  .enum(idsOf(BOOK_TEMPLATES))
+  .describe('A built-in double page layout by id; list_book_layouts says what each one holds.');
 /** The single-page (cover and back) layouts, by id. */
-export const bookCoverTemplateIdSchema = z.enum(idsOf(BOOK_COVER_TEMPLATES));
+export const bookCoverTemplateIdSchema = z
+  .enum(idsOf(BOOK_COVER_TEMPLATES))
+  .describe('A built-in cover or back layout by id; list_book_layouts says what each one holds.');
 /** Either set: which one fits is the page's question, answered when the operation runs. */
-export const bookAnyTemplateIdSchema = z.enum([...idsOf(BOOK_TEMPLATES), ...idsOf(BOOK_COVER_TEMPLATES)]);
+export const bookAnyTemplateIdSchema = z
+  .enum([...idsOf(BOOK_TEMPLATES), ...idsOf(BOOK_COVER_TEMPLATES)])
+  .describe('A built-in layout by id: the cover-* ones fit a single page, the rest a double page.');
 
-const photo = bookPhotoElementSchema.shape;
 const text = bookTextElementSchema.shape;
 
 /** A position in millimetres, inside the bounds the document takes. */
@@ -107,7 +120,7 @@ export const bookPageOpSchema = z.discriminatedUnion('op', [
       }),
       z.literal('new'),
     ]),
-    fit: photo.fit.unwrap().optional(),
+    fit: bookPhotoFitSchema.optional(),
     focalX: unit01.optional(),
     focalY: unit01.optional(),
   }),
@@ -116,12 +129,12 @@ export const bookPageOpSchema = z.discriminatedUnion('op', [
     .strictObject({
       op: z.literal('photo_look'),
       elementId: bookElementIdSchema,
-      fit: photo.fit.unwrap().optional(),
+      fit: bookPhotoFitSchema.optional(),
       focalX: unit01.optional(),
       focalY: unit01.optional(),
-      mask: photo.mask.unwrap().optional(),
-      frameStyle: photo.frameStyle.unwrap().optional(),
-      filter: photo.filter.unwrap().optional(),
+      mask: bookPhotoMaskSchema.optional(),
+      frameStyle: bookFrameStyleSchema.optional(),
+      filter: bookPhotoFilterSchema.optional(),
       radius: z.number().finite().min(0).max(500).optional(),
     })
     .refine((v) => has(v, LOOK_KEYS), { message: 'name at least one of the look fields' }),
@@ -138,9 +151,12 @@ export const bookPageOpSchema = z.discriminatedUnion('op', [
     .strictObject({
       op: z.literal('text'),
       elementId: bookElementIdSchema.optional(),
-      role: z.enum(['heading', 'body', 'meta']).optional(),
+      role: z
+        .enum(['heading', 'body', 'meta'])
+        .describe('heading is the largest type on the page, body the longest of the rest, meta the next.')
+        .optional(),
       text: z.string().max(BOOK_OP_LIMITS.text).optional(),
-      binding: text.binding.unwrap().optional(),
+      binding: text.binding.unwrap().describe(`${BOOK_BINDING_HINT} Null unbinds.`).optional(),
       ...TEXT_STYLE_FIELDS,
     })
     .refine((v) => v.elementId !== undefined || v.role !== undefined, { message: 'name an elementId or a role' })
@@ -227,7 +243,7 @@ export const setBookCoverArgs = {
 };
 export const createBookArgs = {
   title: z.string().max(MAX_BOOK_TITLE).optional(),
-  preset: bookPageSetupSchema.shape.preset.unwrap().optional(),
+  preset: bookPagePresetSchema.optional(),
 };
 /**
  * A page as it was before a write, for the assistant's undo: `index` is where
@@ -276,14 +292,21 @@ export const restoreBookPageArgs = {
 export const bookDesignIdSchema = z.string().regex(/^[\w-]{1,40}$/);
 
 export const describeBookPageArgs = { spreadId: bookSpreadIdSchema, designId: bookDesignIdSchema.optional() };
-export const listBookLayoutsArgs = { role: z.enum(['inner', 'single']).optional() };
+export const listBookLayoutsArgs = {
+  role: z.enum(['inner', 'single']).describe('inner for double pages, single for the cover and back.').optional(),
+};
 export const suggestBookPhotosArgs = {
   entryId: idSchema.optional(),
   date: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .optional(),
-  purpose: z.enum(['page', 'cover']).optional(),
+  purpose: z
+    .enum(['page', 'cover'])
+    .describe(
+      'cover prefers wide or square pictures with enough pixels for a whole cover (2400 px on the long edge); page is for an inner page.',
+    )
+    .optional(),
   limit: z.number().int().min(1).max(PHOTO_PICK.maxLimit).optional(),
 };
 
@@ -295,7 +318,7 @@ const pageNumbers = bookPageNumbersSchema.shape;
  * answer carries `previous_setup` to set it back.
  */
 export const setBookSetupArgs = {
-  preset: bookPageSetupSchema.shape.preset.unwrap().optional(),
+  preset: bookPagePresetSchema.optional(),
   pageWidth: z.number().finite().min(60).max(500).optional(),
   pageHeight: z.number().finite().min(60).max(500).optional(),
   bleed: z.number().finite().min(0).max(20).optional(),
@@ -304,12 +327,15 @@ export const setBookSetupArgs = {
     .strictObject({
       show: pageNumbers.show.unwrap().optional(),
       startAt: pageNumbers.startAt.unwrap().optional(),
-      position: pageNumbers.position.unwrap().optional(),
+      position: pageNumbers.position
+        .unwrap()
+        .describe('outer edge, inner edge by the fold, or centre of the foot.')
+        .optional(),
       margin: z.number().finite().min(0).max(60).optional(),
       size: pageNumbers.size.unwrap().optional(),
       autoColor: pageNumbers.autoColor.unwrap().optional(),
       color: pageNumbers.color.unwrap().optional(),
-      font: pageNumbers.font.unwrap().optional(),
+      font: bookFontIdSchema.optional(),
     })
     .optional(),
   /** The assistant's undo sets the setup back only while the book is still at the version the change left. */

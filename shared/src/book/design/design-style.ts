@@ -9,9 +9,12 @@ import type { BookDesignDirectives, BookDesignStyle } from './design-directives.
  *
  * At most two families per book; badges, figures, maps and lists take the
  * heading face. Sizes are set for a 210 mm page and scale with the page
- * width, times `type.scale`, never under what a reader can read. Every
- * colour a text is set in is checked against the paper to WCAG contrast;
- * a pair that fails falls back to the ink.
+ * width, times `type.scale`, never under what a reader can read and never
+ * over what a text element takes. The cover title has a tier of its own,
+ * `display`, the heading size times `type.display`: 1 by default, so a book
+ * designed without it is set exactly as before, and up to 6.5 for a title
+ * that fills the cover. Every colour a text is set in is checked against the paper
+ * to WCAG contrast; a pair that fails falls back to the ink.
  */
 
 export interface BookDesignLook {
@@ -28,7 +31,8 @@ export interface BookDesignLook {
   onScrim: string;
   heading: BookFontFamily;
   body: BookFontFamily;
-  sizes: { heading: number; sub: number; body: number; caption: number; meta: number };
+  /** Points. `display` is the cover title's, the heading's unless `type.display` raises it. */
+  sizes: { display: number; heading: number; sub: number; body: number; caption: number; meta: number };
   /** The frame decoration and the slight turn a scrapbook gives its pictures. */
   frameStyle: BookPhotoElement['frameStyle'];
   tilt: number;
@@ -114,6 +118,8 @@ const PRESETS: Record<BookDesignStyle, StylePreset> = {
 const BASE_SIZES = { heading: 28, sub: 14, body: 10, caption: 7.5, meta: 7 };
 /** Never under these: running text reads from 7 pt, a caption or meta line from 5.5 pt (with room to spare). */
 const FLOOR = { heading: 14, sub: 9, body: 8, caption: 7, meta: 6 };
+/** Never over this: the largest size a text element takes (book.schema.ts). */
+const MAX_PT = 200;
 
 const round1 = (v: number) => Math.round(v * 10) / 10;
 
@@ -163,7 +169,8 @@ export function designLook(
   const softer = mix(ink, colours.paper, 0.3);
   const muted = contrastRatio(softer, colours.paper) >= 4.6 ? softer : ink;
   const scale = (page.pageWidth / 210) * (directives.type?.scale ?? 1);
-  const size = (role: keyof typeof BASE_SIZES) => Math.max(FLOOR[role], round1(BASE_SIZES[role] * scale));
+  const size = (role: keyof typeof BASE_SIZES, times = 1) =>
+    Math.min(MAX_PT, Math.max(FLOOR[role], round1(BASE_SIZES[role] * scale * times)));
   const heading = directives.type?.heading ?? preset.heading;
   return {
     style: directives.style,
@@ -177,6 +184,7 @@ export function designLook(
     heading,
     body: directives.type?.body ?? preset.body,
     sizes: {
+      display: size('heading', directives.type?.display ?? 1),
       heading: size('heading'),
       sub: size('sub'),
       body: size('body'),

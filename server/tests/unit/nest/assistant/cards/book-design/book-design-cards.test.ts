@@ -224,11 +224,42 @@ describe('the designer in the Studio', () => {
   it('ASTBD-008: the Studio instructions end with the design rules, cache-stable and without dashes', () => {
     const prompt = studioPrompt('German', true);
     expect(prompt.endsWith(BOOK_DESIGN_PROMPT)).toBe(true);
-    expect(BOOK_DESIGN_PROMPT.split('\n').length).toBeLessThanOrEqual(14);
+    // The print rules, the energy, the type scale and the critique, on a budget the cache carries every turn.
+    expect(BOOK_DESIGN_PROMPT.split('\n').length).toBeLessThanOrEqual(30);
+    expect(BOOK_DESIGN_PROMPT.length).toBeLessThan(6000);
     for (const tool of ['design_book', 'revise_book_design', 'apply_book_design', 'preview_book_page']) {
       expect(BOOK_DESIGN_PROMPT).toContain(tool);
     }
     expect(BOOK_DESIGN_PROMPT).not.toMatch(/[\u2013\u2014]/);
     expect(studioPrompt('German', true)).toBe(prompt);
+  });
+
+  it('ASTBD-009: restraint is one energy among three, beside print rules that hold for every book', () => {
+    for (const rule of ['200 dpi', 'fold', 'trim', 'bleed', 'binding', 'safe area']) {
+      expect(BOOK_DESIGN_PROMPT, rule).toContain(rule);
+    }
+    for (const energy of ['- Calm:', '- Lively:', '- Loud:']) expect(BOOK_DESIGN_PROMPT).toContain(energy);
+    expect(BOOK_DESIGN_PROMPT).toContain('A deliberate overlap is a design');
+  });
+
+  it('ASTBD-010: gives the type scale in numbers against the page, and the critique to answer before a proposal', () => {
+    for (const figure of ['72 to 180 pt', '12 to 30 % of the page height', 'at least 3:1', 'Body 9 to 11 pt']) {
+      expect(BOOK_DESIGN_PROMPT, figure).toContain(figure);
+    }
+    expect(BOOK_DESIGN_PROMPT).toContain('captions 6.5 to 8 pt');
+    // The cover tier carries a big title alone, and the faces named are faces the book has.
+    expect(BOOK_DESIGN_PROMPT).toContain('type.display (up to 6.5');
+    expect(BOOK_DESIGN_PROMPT).toContain('type.scale between 0.9 and 1.1');
+    expect(BOOK_DESIGN_PROMPT).not.toMatch(/script/i);
+    expect(BOOK_DESIGN_PROMPT).toContain('210 mm page and scaled with the page width');
+    const rubric = BOOK_DESIGN_PROMPT.slice(BOOK_DESIGN_PROMPT.indexOf('answer silently'));
+    expect(rubric.slice(0, rubric.indexOf('Fix what fails')).match(/\?/g)).toHaveLength(8);
+    expect(BOOK_DESIGN_PROMPT).toContain('preview the cover at least twice');
+  });
+
+  it('ASTBD-011: the Studio instructions take a layered page for a design and only an accidental overlap for a fault', () => {
+    const prompt = studioPrompt('German', true);
+    expect(prompt).toContain('photos or texts overlapping by accident');
+    expect(prompt).toContain('a layered page (a title over a photo, a turned photo over a shape) is a design');
   });
 });

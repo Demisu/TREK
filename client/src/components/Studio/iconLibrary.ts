@@ -60,9 +60,10 @@ export const ICON_NAMES: string[] = buildNames()
  * of them quietly drops it instead of drawing a fallback in the shelf.
  */
 /*
- * The shelf itself lives in @trek/shared (book-icons.ts), because the book
- * engine places icons from the same list: the assistant may only name a
- * drawing a person could pick here.
+ * The shelf itself lives in @trek/shared (book-icons.ts), beside the whole
+ * list the book engine takes (BOOK_ICON_NAMES): the assistant may name any
+ * drawing a person could pick here, and iconLibrary.test.ts holds that list
+ * to ICON_NAMES.
  */
 const FEATURED: readonly string[] = BOOK_DESIGN_ICONS
 

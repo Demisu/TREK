@@ -8,6 +8,7 @@ import {
   MAX_SPREADS,
   MAX_SPREAD_ELEMENTS,
   bookDocumentSchema,
+  bookPhotoElementSchema,
   bookTextElementSchema,
   type BookDocument,
   type BookElement,
@@ -760,6 +761,33 @@ describe('design_book', () => {
     expect(textHeightNeeded(cut, DESIGN_TEXT_HEADROOM)).toBeLessThanOrEqual(frame.h);
     const more = { ...cut, text: `${cut.text} A long day on the ice.` };
     expect(textHeightNeeded(more, DESIGN_TEXT_HEADROOM)).toBeGreaterThan(frame.h);
+  });
+
+  it('BOOKDSN-031: pulls two photos apart that lie mostly on top of each other, framed as the journal style frames them', () => {
+    const page = input('rich').page;
+    const look = designLook(bookDesignDirectivesSchema.parse({ style: 'journal' }), page, []);
+    const framed = (id: string, x: number, y: number) =>
+      bookPhotoElementSchema.parse({
+        id,
+        kind: 'photo',
+        frame: { x, y, w: 80, h: 60 },
+        photoId: 1,
+        frameStyle: 'white',
+      });
+    const spread: BookSpread = {
+      id: 'sp-in',
+      role: 'inner',
+      background: '#ffffff',
+      elements: [framed('p-a', 230, 20), framed('p-b', 238, 26)],
+      parked: [],
+      entryId: null,
+    };
+    const photos = [{ photoId: 1, width: 4000, height: 3000 }];
+    expect(pageFindings(spread, page, photos).map((f) => `${f.severity}:${f.code}`)).toContain('severe:overlap');
+    let n = 0;
+    const fixed = repairSpread(spread, { page, photos, look, newId: (p) => `${p}-${++n}` });
+    expect(fixed.findings.filter((f) => f.code === 'overlap')).toEqual([]);
+    expect(fixed.spread.elements.find((e) => e.id === 'p-b')?.frame.y).toBe(82);
   });
 });
 

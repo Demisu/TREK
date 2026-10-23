@@ -129,12 +129,15 @@ describe('book level and the page in words', () => {
     return { ...doc, spreads: [doc.spreads[0] as BookSpread, ...inner, doc.spreads[4] as BookSpread] };
   }
 
-  it('BOOKQA-009: finds more than two typefaces in a book, and says so once', () => {
-    const fonts = ['sans', 'serif', 'bebas'].map((font, i) => [
+  it('BOOKQA-009: finds more than three typefaces in a book, and says so once', () => {
+    const fonts = ['sans', 'serif', 'bebas', 'playfair'].map((font, i) => [
       text(`t-${i}`, 'Hi', { x: 230, y: 20, w: 60, h: 10 }, { font }),
     ]);
     const list = bookLevelFindings(bookOf(fonts));
     expect(list.filter((f) => f.code === 'font_mix')).toHaveLength(1);
+    expect(list.find((f) => f.code === 'font_mix')?.message).toMatch(/4 typefaces .*keep to three/);
+    // A display face, a body face and one more is a book, not a sampler.
+    expect(bookLevelFindings(bookOf(fonts.slice(0, 3)))).toEqual([]);
     expect(bookLevelFindings(bookOf(fonts.slice(0, 2)))).toEqual([]);
   });
 

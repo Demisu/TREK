@@ -1,12 +1,33 @@
+import { BOOK_ICON_NAMES_A_E } from './book-icon-names-a-e.data';
+import { BOOK_ICON_NAMES_F_P } from './book-icon-names-f-p.data';
+import { BOOK_ICON_NAMES_Q_Z } from './book-icon-names-q-z.data';
+
 /**
- * The drawings the assistant may put on a page, by their lucide names.
+ * Every drawing the Studio's icon tab offers, by its lucide name: the
+ * library as the client ships it, its old names included, the way the tab
+ * lists them (client/src/components/Studio/iconLibrary.ts). The book engine
+ * takes a new icon by any of these names, so the assistant may place every
+ * drawing a person could pick by hand.
  *
- * The Studio's icon tab opens on this shelf (client/src/components/Studio/iconLibrary.ts
- * filters it against the lucide version it ships), and the book engine takes a
- * new icon only from it: an icon element stores a free name the renderer
- * resolves, and a model that names a drawing lucide does not have would place
- * the fallback glyph. A curated list keeps the assistant to drawings that exist
- * and that a travel page actually reaches for.
+ * A set of names rather than the enum the contract usually spells: the page
+ * edit's tool schema carries no `$ref`, and some two thousand names written
+ * into it three times over would take it far past its size ceiling. The names
+ * are checked against this set instead, which refuses exactly what an enum
+ * would. A client test holds the set to the lucide version the client runs,
+ * so an icon is never named here that would draw as the fallback glyph.
+ */
+export const BOOK_ICON_NAMES: ReadonlySet<string> = new Set([
+  ...BOOK_ICON_NAMES_A_E,
+  ...BOOK_ICON_NAMES_F_P,
+  ...BOOK_ICON_NAMES_Q_Z,
+]);
+
+/**
+ * The shelf the Studio's icon tab opens on, by lucide name: the drawings a
+ * travel page reaches for first, in the order somebody would look for them
+ * (iconLibrary.ts filters it against the lucide version it ships). The tool
+ * schema names a few of them as examples, so a model starts from a drawing
+ * that belongs on a travel page rather than from the alphabet.
  */
 export const BOOK_DESIGN_ICONS = [
   'Plane',

@@ -340,16 +340,25 @@ function signatureOf(spread: BookSpread): string {
   return spread.elements.map((e) => `${e.kind}:${cm(e.frame.x)},${cm(e.frame.y)},${cm(e.frame.w)}`).join('|');
 }
 
+/**
+ * How many typefaces a book may be set in before it reads as a type sampler:
+ * a display face, a body face and one more, a script laid over a title or a
+ * face for figures. Two was the rule while the book had seven faces and no
+ * scripts, and it told every lively book that set its title apart to stop.
+ * Once fonts carry roles, script and mono faces will not count towards it.
+ */
+const MAX_BOOK_FAMILIES = 3;
+
 /** Findings about the book as a whole: typefaces, colours, and the same page three times running. */
 export function bookLevelFindings(doc: BookDocument): BookFinding[] {
   const out: BookFinding[] = [];
   const families = familiesOf(doc);
-  if (families.length > 2) {
+  if (families.length > MAX_BOOK_FAMILIES) {
     out.push({
       code: 'font_mix',
       severity: 'warn',
       elementIds: [],
-      message: `the book is set in ${families.length} typefaces (${families.join(', ')}); keep to two`,
+      message: `the book is set in ${families.length} typefaces (${families.join(', ')}); keep to three: a display face, a body face and one more`,
     });
   }
   const colours = [...coloursOf(doc)].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
