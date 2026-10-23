@@ -4,6 +4,7 @@ import { bookFontCountsInMix, bookFontsUsed } from './book-fonts';
 import { visibleSpread } from './book-groups';
 import type { BookPhotoInfo } from './book-ops-core';
 import { BOOK_OP_LIMITS, type BookFinding } from './book-ops.schema';
+import { photoZoomBox, photoZoomOf } from './book-photo-look';
 import type { BookDocument, BookElement, BookFrame, BookPageSetup, BookPhotoElement, BookSpread } from './book.schema';
 
 /**
@@ -42,7 +43,7 @@ const centreIn = (b: Box, px: number, py: number) => px >= b.x && px <= b.x + b.
  */
 export function bookPhotoCrop(el: BookPhotoElement, info: BookPhotoInfo | undefined): Box | null {
   if (!info?.width || !info.height) return null;
-  const f = el.frame;
+  const f = photoZoomBox(el.frame, photoZoomOf(el), el.focalX, el.focalY);
   const pick = el.fit === 'contain' ? Math.min : Math.max;
   const scale = pick(f.w / info.width, f.h / info.height);
   const w = info.width * scale;
@@ -64,7 +65,9 @@ export function bookBusyUnder(el: BookPhotoElement, info: BookPhotoInfo | undefi
   const crop = bookPhotoCrop(el, info);
   const grid = info?.busy;
   if (!crop || !grid || grid.length !== 64) return null;
-  const onPhoto = overlap(box, el.frame);
+  // A mirrored picture shows under the box what lies under its mirror image.
+  const under = el.flipX ? { ...box, x: 2 * el.frame.x + el.frame.w - box.x - box.w } : box;
+  const onPhoto = overlap(under, el.frame);
   const area = onPhoto && overlap(onPhoto, crop);
   if (!area) return null;
   const cw = crop.w / 8;

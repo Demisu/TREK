@@ -29,6 +29,7 @@ import {
 } from './book-op-enums';
 import { bookElementIdSchema, bookGridIdSchema, bookSpreadIdSchema } from './book-op-ids';
 import { bookPaintInSchema } from './book-paint.schema';
+import { BOOK_PHOTO_LOOK_PROPS } from './book-photo-look.schema';
 import { bookStickerIdSchema } from './book-sticker';
 import {
   MAX_BOOK_COUNTRIES,
@@ -196,7 +197,8 @@ const METRICS = z.array(bookMetricSchema).min(1).max(7);
  * resolves them from the journey, exactly as the Travel panel does.
  */
 export const bookElementPropsSchema = z.discriminatedUnion('kind', [
-  z.strictObject({ kind: z.literal('photo'), ...PHOTO_PROPS }),
+  // The photo look only here, not on `add`: a new frame is styled after it exists, and the field list stays out of the add schema twice over.
+  z.strictObject({ kind: z.literal('photo'), ...PHOTO_PROPS, ...BOOK_PHOTO_LOOK_PROPS }),
   z.strictObject({ kind: z.literal('text'), ...TEXT_PROPS }),
   z.strictObject({ kind: z.literal('shape'), shape: bookShapeIdSchema.optional(), ...SHAPE_PROPS }),
   z.strictObject({ kind: z.literal('icon'), ...ICON_PROPS }),

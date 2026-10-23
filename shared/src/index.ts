@@ -164,6 +164,8 @@ export * from './book/book-map-sources';
 export * from './book/book-colour';
 export * from './book/book-paint.schema';
 export * from './book/book-paint';
+export * from './book/book-photo-look.schema';
+export * from './book/book-photo-look';
 export * from './book/book-findings-design';
 export * from './book/book-groups';
 export * from './book/book-arrange';

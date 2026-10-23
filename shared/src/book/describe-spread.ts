@@ -13,6 +13,7 @@ import type {
   BookSpreadSummary,
 } from './book-ops.schema';
 import { paintWords } from './book-paint';
+import { photoLookWords } from './book-photo-look';
 import { bookStickerWords } from './book-sticker';
 import {
   bookPageSetupSchema,
@@ -78,6 +79,7 @@ function photoWords(el: BookPhotoElement, info: BookPhotoInfo | undefined): stri
   if (el.mask) parts.push(`mask ${el.mask}`);
   if (el.frameStyle !== 'none') parts.push(`frame style ${el.frameStyle}`);
   if (el.radius > 0) parts.push(`radius ${n(el.radius)}`);
+  parts.push(...photoLookWords(el));
   return parts.join(', ');
 }
 

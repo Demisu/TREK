@@ -264,4 +264,28 @@ describe('Studio book over MCP and REST', () => {
     const after = await findRow(orm, JourneyBooks, { journey: journey.id });
     expect(after?.version).toBe(1);
   });
+
+  it('JBE2E-007: the photo look set over MCP is what GET reads next, stamped with the revision that wrote it', async () => {
+    const { owner, journey, inner } = await journeyWithBook();
+    await callTool(owner.id, 'edit_book_page', {
+      journeyId: journey.id,
+      spreadId: inner,
+      ops: [{ op: 'add', element: { kind: 'photo' } }],
+    });
+    const read = async () =>
+      (await request(app.getHttpServer()).get(`/api/journeys/${journey.id}/book`).set('Cookie', authCookie(owner.id)))
+        .body.book.document as { schemaRev?: number; spreads: Array<{ elements: Array<Record<string, unknown>> }> };
+    const frame = (await read()).spreads[2]?.elements.find((e) => e.kind === 'photo');
+    const look = { border: { width: 5, color: '#ffffff' }, zoom: 1.5, flipX: true, adjust: { warmth: 0.4 } };
+
+    const styled = await callTool(owner.id, 'edit_book_page', {
+      journeyId: journey.id,
+      spreadId: inner,
+      ops: [{ op: 'style', elementId: frame?.id, set: { kind: 'photo', ...look } }],
+    });
+    expect(bookWriteResultSchema.safeParse(styled).success).toBe(true);
+    const after = await read();
+    expect(after.schemaRev).toBe(BOOK_SCHEMA_REV);
+    expect(after.spreads[2]?.elements.find((e) => e.id === frame?.id)).toMatchObject(look);
+  });
 });

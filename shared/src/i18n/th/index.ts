@@ -62,6 +62,7 @@ import storage from './storage';
 import studioFonts from './studioFonts';
 import studioLayers from './studioLayers';
 import studioPaint from './studioPaint';
+import studioPhoto from './studioPhoto';
 import studioStickers from './studioStickers';
 import system_notice from './system_notice';
 import todo from './todo';
@@ -122,6 +123,7 @@ const locale = {
   ...studioFonts,
   ...studioPaint,
   ...studioStickers,
+  ...studioPhoto,
   ...oauth,
   ...system_notice,
   ...transport,

@@ -19,6 +19,7 @@ import {
 import { newStickerElement } from './book-ops-sticker';
 import { withShapePaint } from './book-paint';
 import type { BookPaint } from './book-paint.schema';
+import { BOOK_PHOTO_LOOK_KEYS } from './book-photo-look.schema';
 import {
   bookBadgeValue,
   bookCountryMark,
@@ -139,6 +140,7 @@ function statsOf(env: ElementOpEnv) {
 }
 
 /** The look fields a kind takes, from the props schema, so `add` and `style` set exactly what `style` may set. */
+const PHOTO_LOOK_KEYS = new Set<string>(BOOK_PHOTO_LOOK_KEYS);
 const PROP_KEYS = new Map(bookElementPropsSchema.options.map((o) => [o.shape.kind.value, lookKeys(o.shape)]));
 
 function lookKeys(shape: object): string[] {
@@ -156,6 +158,11 @@ function withProps(el: BookElement, props: Record<string, unknown>): BookElement
   for (const key of keys) {
     const value = props[key];
     if (value === undefined || key === 'paint') continue;
+    // A photo look part set to null is turned off, which leaves it out of the document.
+    if (value === null && PHOTO_LOOK_KEYS.has(key)) {
+      delete next[key];
+      continue;
+    }
     next[key] = (key === 'radius' || key === 'strokeWidth') && typeof value === 'number' ? round2(value) : value;
   }
   const made = withRealWeight(next as unknown as BookElement);

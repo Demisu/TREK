@@ -19,6 +19,7 @@ import { Choice, Line, NumField, Section, Switch } from './StudioControls'
 import { StudioFontPicker } from './StudioFontPicker'
 import { WeightLine } from './StudioTypeControls'
 import { italicTitle } from './fontPicker'
+import { PhotoCropExtras, PhotoLookSections } from './photo/StudioPhotoLook'
 import type { JourneySource } from './StudioSidebar'
 import { Tooltip } from '../shared/Tooltip'
 import { StudioArrangeSection } from './StudioArrangeSection'
@@ -421,6 +422,7 @@ export function StudioInspector({
               ) : (
                 <p className="st-hint" style={{ paddingTop: 8 }}>{t('journey.studio.emptyFrame')}</p>
               )}
+              <PhotoCropExtras el={el} set={set} live={live} t={t} />
             </Section>
 
             <Section label={t('journey.studio.look')}>
@@ -466,6 +468,8 @@ export function StudioInspector({
                 </div>
               )}
             </Section>
+
+            <PhotoLookSections el={el} set={set} live={live} t={t} />
 
             <Section label={t('journey.studio.mask')} defaultOpen={false}>
               <div className="st-mini-shapes">
