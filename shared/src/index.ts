@@ -183,6 +183,7 @@ export * from './book/book-text-findings';
 export * from './book/book-text-describe';
 export * from './book/book-text-ops.schema';
 export * from './book/book-lockups';
+export * from './book/book-archetypes';
 export * from './book/book-lockups.data';
 export * from './book/auto/auto-types';
 export * from './book/auto/auto-book';
