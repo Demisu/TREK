@@ -2,6 +2,7 @@ import type { BookDesignCard, BookDesignDraftResponse, BookDocument, BookPageSet
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { bookDesignRepo } from '../../../../repo/bookDesignRepo';
+import { useAssistantStore } from '../../../../store/assistantStore';
 import { useStudioStore } from '../../../../store/studioStore';
 import { useAssistantScope, useAssistantView } from '../../assistantViewContext';
 import { studioTarget } from '../book/bookLook';
@@ -15,8 +16,12 @@ import { appliedPairs, draftPairs, toggledSelection, type DesignPair } from './b
  *
  * A choice is shown at once and sent 300 ms after the last press, the whole
  * selection in one request; a refusal puts back what the server last kept and
- * says so. A choice still waiting is sent at once when the pointer or the
- * focus leaves the pages (the way to Apply) and when the card goes away.
+ * says so, and an answer never overwrites a newer choice. A choice still
+ * waiting is sent at once when the pointer or the focus leaves the pages (the
+ * way to Apply) and when the card goes away. A decision of the chat waits for
+ * the choice: it sends one still waiting, and goes out once every request sent
+ * for the pages has landed, one sent by a card that went away since too, so
+ * Apply applies the pages shown.
  */
 
 /** How long the card waits after the last press before it sends the selection. */
@@ -104,12 +109,18 @@ interface Outbox {
 function useSelection(card: BookDesignCard, draft: BookDesignDraftResponse | null, editable: boolean) {
   const { journeyId, designId } = card;
   const key = draft ? `${journeyId}:${designId}` : null;
+  const chatKey = useAssistantView().tripId;
+  const holdDecisions = useAssistantStore((s) => s.holdDecisions);
   const [chosen, setChosen] = useState<{ key: string; ids: string[] } | null>(null);
   const [failed, setFailed] = useState(false);
   const outbox = useRef<Outbox>({ timer: null, flush: null });
   // The newest selection the server answered, with the request it answered: an older answer arriving last never wins.
   const confirmed = useRef<{ seq: number; ids: string[] } | null>(null);
   const sent = useRef(0);
+  // The choices made here: an answer to a request made before the newest choice never overwrites it.
+  const edits = useRef(0);
+  // The newest request sent for the pages: a decision of the chat waits for it once it sent the choice still waiting.
+  const latest = useRef<Promise<unknown> | null>(null);
   const selection = useMemo(
     () => (key !== null && chosen?.key === key ? chosen.ids : (draft?.selection ?? [])),
     [key, chosen, draft]
@@ -125,24 +136,32 @@ function useSelection(card: BookDesignCard, draft: BookDesignDraftResponse | nul
       const proposed = draft.selection;
       sent.current += 1;
       const mine = sent.current;
-      bookDesignRepo.select(journeyId, designId, ids).then(
+      const edit = edits.current;
+      const request = bookDesignRepo.select(journeyId, designId, ids).then(
         (kept) => {
           if (confirmed.current === null || mine > confirmed.current.seq) confirmed.current = { seq: mine, ids: kept };
-          if (mine === sent.current) setChosen({ key, ids: kept });
+          // A newer request, or a newer choice still waiting for its pause, decides what is shown.
+          if (mine === sent.current && edit === edits.current) setChosen({ key, ids: kept });
         },
         () => {
-          if (mine !== sent.current) return;
+          if (mine !== sent.current || edit !== edits.current) return;
           setChosen({ key, ids: confirmed.current?.ids ?? proposed });
           setFailed(true);
         }
       );
+      latest.current = request;
+      // Each request holds the chat's decisions back until it landed, past the card: one that went away and came back
+      // still waits for what it sent before.
+      const release = holdDecisions(chatKey, () => request);
+      void request.finally(release);
     },
-    [key, draft, journeyId, designId]
+    [key, draft, journeyId, designId, chatKey, holdDecisions]
   );
 
   const toggle = useCallback(
     (spreadId: string) => {
       if (key === null || !editable) return;
+      edits.current += 1;
       const next = toggledSelection(selection, spreadId, order);
       setChosen({ key, ids: next });
       setFailed(false);
@@ -167,6 +186,15 @@ function useSelection(card: BookDesignCard, draft: BookDesignDraftResponse | nul
     box.flush?.();
   }, []);
   useEffect(() => flush, [flush]);
+
+  // While the pages can be chosen, a decision of this chat first sends a choice still waiting: the apply reads the
+  // selection the server holds. The store asks the holds it found before this one sends, so it answers for the request
+  // it sent itself; the requests sent before hold by themselves.
+  const settle = useCallback(() => {
+    flush();
+    return latest.current ?? Promise.resolve();
+  }, [flush]);
+  useEffect(() => (editable ? holdDecisions(chatKey, settle) : undefined), [editable, chatKey, holdDecisions, settle]);
 
   const chosenSet = useMemo(() => new Set(selection), [selection]);
   return { chosen: chosenSet, toggle, flush, failed };

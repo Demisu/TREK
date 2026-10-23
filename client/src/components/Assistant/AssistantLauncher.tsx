@@ -2,6 +2,7 @@ import { Sparkles } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 import { useTranslation } from '../../i18n';
+import { assistantScopeOf } from '../../store/assistantChatKey';
 import { useAssistantStore } from '../../store/assistantStore';
 import Tooltip from '../shared/Tooltip';
 import { useAssistantHints } from './useAssistantHints';
@@ -34,9 +35,12 @@ export default function AssistantLauncher({
   const available = useAssistantStore((s) => s.status?.available === true);
   const open = useAssistantStore((s) => s.window.open && !s.window.minimized);
   const toggle = useAssistantStore((s) => s.toggle);
-  // An answer still being written in a closed window: the floating button breathes until it is opened.
+  // An answer still being written in a closed window: the floating button breathes until it is opened. Only a
+  // trip's chat counts: an answer still running in the Studio is not one this window opens on.
   const busy = useAssistantStore((s) =>
-    !s.window.open || s.window.minimized ? Object.values(s.byTrip).some((c) => c?.isRunning) : false
+    !s.window.open || s.window.minimized
+      ? Object.entries(s.byTrip).some(([key, c]) => c.isRunning && assistantScopeOf(Number(key)).kind === 'trip')
+      : false
   );
   const keys = useAssistantShortcutKeys();
   const hints = useAssistantHints(variant === 'floating' ? tripId : null, { withStays: false });

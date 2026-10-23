@@ -1,10 +1,8 @@
 import { TriangleAlert } from 'lucide-react';
 
 import { useTranslation } from '../../../../i18n';
-import { chatOf, useAssistantStore } from '../../../../store/assistantStore';
 import { SoftPill } from '../../../Planner/planParts';
 import type { ChangeItem } from '../../assistantParts';
-import { useAssistantView } from '../../assistantViewContext';
 import { verbLookOf } from '../cardLooks';
 import VacayBalance from './VacayBalance';
 import {
@@ -36,17 +34,18 @@ function dateLabel(locale: string, date: string): string {
 export default function VacayChangeGroup({
   items,
   excluded,
+  disabled,
   onToggle,
   place,
 }: {
   items: readonly ChangeItem[];
   excluded: ReadonlySet<string>;
+  /** The chat runs: the held days wait, as the change card's own choices do. */
+  disabled: boolean;
   onToggle(id: string): void;
   place: 'head' | 'foot';
 }) {
   const { t, locale } = useTranslation();
-  const { tripId } = useAssistantView();
-  const isRunning = useAssistantStore((s) => chatOf(s, tripId).isRunning);
   if (place !== 'head') return null;
   const view = mergeVacayCards(vacayCardsOf(items).map((entry) => entry.card));
   const placed = placedProposals(items, excluded);
@@ -65,7 +64,7 @@ export default function VacayChangeGroup({
         <VacayMonthStrip
           view={view}
           placed={placed}
-          onToggle={waiting && !isRunning ? onToggle : undefined}
+          onToggle={waiting && !disabled ? onToggle : undefined}
           labelOf={labelOf}
         />
       )}

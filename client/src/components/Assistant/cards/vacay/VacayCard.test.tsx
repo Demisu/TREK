@@ -1,18 +1,18 @@
 /**
- * FE-AI-VACAY-010 to FE-AI-VACAY-015
+ * FE-AI-VACAY-010 to FE-AI-VACAY-016
  *
  * The vacation card as the chat draws it: an answer as a month calendar with
  * the days left and the way into Vacay, a change card's vacation rows under
  * one calendar whose held days are taken in or left out with a tap, the days
- * left following the choice, each row's facts, a decided card, and the phone,
- * where one month fills the row.
+ * left following the choice, each row's facts, a decided card, the phone,
+ * where one month fills the row, and held days that wait while the chat runs.
  */
 import type { AssistantApplied, AssistantChangeVerbKey, VacayCard, VacayCardProposal } from '@trek/shared';
 import type { ReactElement } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { buildUser } from '../../../../../tests/helpers/factories';
-import { fireEvent, render, screen } from '../../../../../tests/helpers/render';
+import { act, fireEvent, render, screen } from '../../../../../tests/helpers/render';
 import { chatOf, useAssistantStore } from '../../../../store/assistantStore';
 import { useAuthStore } from '../../../../store/authStore';
 import AssistantChangeCard from '../../AssistantChangeCard';
@@ -211,5 +211,19 @@ describe('the vacation card', () => {
     });
     expect(container.querySelector('li.w-full')).not.toBeNull();
     expect(screen.getByRole('button', { name: 'Tue, Oct 27: Take a day off' })).toHaveClass('size-9');
+  });
+
+  it('FE-AI-VACAY-016: while the chat runs a held day waits, and takes a tap again once it ends', () => {
+    inView(<AssistantChangeCard items={[row('c1', 'addVacationDay', proposal())]} />);
+    const cell = { name: 'Tue, Oct 27: Take a day off' };
+    const running = (isRunning: boolean) =>
+      act(() => useAssistantStore.setState((s) => ({ byTrip: { [TRIP]: { ...chatOf(s, TRIP), isRunning } } })));
+    expect(screen.getByRole('button', cell)).toBeInTheDocument();
+    running(true);
+    expect(screen.queryByRole('button', cell)).toBeNull();
+    // The day stays on the calendar and in the list read aloud.
+    expect(screen.getByText('Tue, Oct 27: Take a day off')).toBeInTheDocument();
+    running(false);
+    expect(screen.getByRole('button', cell)).toBeInTheDocument();
   });
 });

@@ -1,12 +1,13 @@
 /**
- * FE-AI-STORE-STUDIO-001 to FE-AI-STORE-STUDIO-005
+ * FE-AI-STORE-STUDIO-001 to FE-AI-STORE-STUDIO-006
  *
  * A journey's chat hosted by TREK Studio (journey-studio.md 3.1, 4.5): before
  * a question or a decision goes out the Studio writes the book's local work,
  * and the turn says the Studio draws pages; the page a turn asks for goes to
  * the host with the turn's signal; an unhosted chat sends neither; a host
  * that ends leaves a newer one in place; agreeing to page images is stored
- * for the connection. The repos are faked, nothing reaches Dexie.
+ * for the connection; a decision waits for what a card of its chat still
+ * sends (a book design's pages). The repos are faked, nothing reaches Dexie.
  */
 import type { AiStatusResponse, AssistantPageRender, UiStreamChunk } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -60,7 +61,7 @@ function fakeHost(order: string[], landed = true) {
 }
 
 beforeEach(() => {
-  useAssistantStore.setState({ status: null, byTrip: {}, studioHosts: {}, lastApplied: null });
+  useAssistantStore.setState({ status: null, byTrip: {}, studioHosts: {}, decisionHolds: {}, lastApplied: null });
   useSettingsStore.setState((s) => ({ settings: { ...s.settings, language: 'en' } }));
 });
 afterEach(() => vi.restoreAllMocks());
@@ -148,5 +149,49 @@ describe('assistantStore: a chat hosted by the Studio', () => {
     expect(store().status?.studioImagesAcked).toBe(true);
     // The messages' own acknowledgement is a different one and stays as it was.
     expect(store().status?.privacyAcked).toBe(true);
+  });
+
+  it('FE-AI-STORE-STUDIO-006: a decision waits for what a card of its chat still sends; a hold ended or of another chat is not asked', async () => {
+    const order: string[] = [];
+    let land: () => void = () => undefined;
+    const held = vi.fn(() => {
+      order.push('hold');
+      return new Promise<void>((resolve) => {
+        land = () => {
+          order.push('landed');
+          resolve();
+        };
+      });
+    });
+    // A hold whose send fails still lets the decision go on.
+    const refused = vi.fn(() => Promise.reject(new Error('offline')));
+    const ended = vi.fn(async () => undefined);
+    const elsewhere = vi.fn(async () => undefined);
+    store().holdDecisions(KEY, held);
+    store().holdDecisions(KEY, refused);
+    store().holdDecisions(KEY, ended)();
+    store().holdDecisions(4, elsewhere);
+    store().hostStudio(KEY, fakeHost(order));
+    useAssistantStore.setState({ byTrip: { [KEY]: { ...chatOf(store(), KEY), threadId: 9 } } });
+    const decide = vi.spyOn(assistantRepo, 'decide').mockImplementationOnce(async () => {
+      order.push('decide');
+      return streamOf([{ type: 'finish', finishReason: 'stop' }]);
+    });
+
+    const deciding = store().decide(KEY, [{ toolCallId: WRITE_ID, approved: true }]);
+    // The hold is asked at once, and nothing goes out while what it sends is on its way.
+    expect(held).toHaveBeenCalledTimes(1);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(decide).not.toHaveBeenCalled();
+    expect(chatOf(store(), KEY).isRunning).toBe(true);
+
+    land();
+    await deciding;
+
+    expect(order).toEqual(['hold', 'landed', 'flush', 'decide']);
+    expect(refused).toHaveBeenCalledTimes(1);
+    expect(ended).not.toHaveBeenCalled();
+    expect(elsewhere).not.toHaveBeenCalled();
+    expect(chatOf(store(), KEY).error).toBeNull();
   });
 });

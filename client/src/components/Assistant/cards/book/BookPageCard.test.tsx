@@ -1,14 +1,21 @@
 /**
- * FE-AI-BOOKPAGE-001 to FE-AI-BOOKPAGE-005
+ * FE-AI-BOOKPAGE-001 to FE-AI-BOOKPAGE-006
  *
  * The photo book's change rows in the Studio's chat: the pages a change works
  * on named as the Studio names them, its facts as badges (new pages, where a
  * moved page lands, the layout, new photos, findings to check), the page
- * before and after drawn from the book open in the Studio, a thumbnail that
- * shows its page, each finding named once, and a receipt that opens the
- * Studio on the page.
+ * before and after drawn from the book open in the Studio (each page of a
+ * delete alone), a thumbnail that shows its page, each finding named once, a
+ * receipt that opens the Studio on the page, and a discarded change struck
+ * through with no page drawn.
  */
-import { type AssistantApplied, type AssistantChangePreview, blankBook, type BookPageCard } from '@trek/shared';
+import {
+  type AssistantApplied,
+  type AssistantChangePreview,
+  blankBook,
+  blankSpread,
+  type BookPageCard,
+} from '@trek/shared';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -142,9 +149,21 @@ describe('the book page card', () => {
       { spreadId: 'sp-9', index: 3, role: 'inner' as const, number: 2, photos: 1 },
     ];
     const gone = card({ change: 'willDelete', pages, count: 2, ops: [], layout: null, photosAdded: 0, findings: [] });
+    // The book holds a second double page (sp-9) after sp-3.
+    const doc = book();
+    const two = {
+      ...doc,
+      spreads: [...doc.spreads.slice(0, 3), blankSpread('inner', () => 'sp-9'), ...doc.spreads.slice(3)],
+    };
+    useStudioStore.setState({ doc: two, activeSpread: 0 });
     inView(<AssistantChangeCard items={[item('pending', { ...gone, moreFindings: 0 }, 'removeBookPages')]} />);
     expect(screen.getByText('Double page 1, Double page 2')).toBeInTheDocument();
     expect(screen.getByText('Delete pages from the book')).toBeInTheDocument();
+    const thumbs = await screen.findAllByRole('button', { name: 'Show this page' });
+    expect(thumbs).toHaveLength(2);
+    expect(screen.queryByText('Before')).toBeNull();
+    fireEvent.click(thumbs[1] as HTMLElement);
+    expect(useStudioStore.getState().activeSpread).toBe(3);
   });
 
   it('FE-AI-BOOKPAGE-004: a receipt shows the page as it is now and opens the Studio on it; a deleted page opens the book', async () => {
@@ -189,5 +208,18 @@ describe('the book page card', () => {
     };
     expect(await drawsIn(-9)).toBe(0);
     expect(await drawsIn(4)).toBe(0);
+  });
+
+  it('FE-AI-BOOKPAGE-006: a discarded edit is struck through and draws no page; a warning with no fault reads as a warning', async () => {
+    useStudioStore.setState({ doc: book() });
+    const warned = card({ findings: [{ code: 'low_dpi', severity: 'warn' }], moreFindings: 0 });
+    inView(<AssistantChangeCard items={[item('discarded', warned, 'editBookPage')]} />);
+    expect(screen.getByText('Double page 1')).toHaveClass('line-through');
+    // The words sit in their badge, whose tone is a warning, not a fault.
+    expect(screen.getByText('1 thing to check').parentElement).toHaveClass('text-warning');
+    await act(async () => {
+      await import('./BookPageThumbs');
+    });
+    expect(screen.queryByRole('button', { name: 'Show this page' })).toBeNull();
   });
 });

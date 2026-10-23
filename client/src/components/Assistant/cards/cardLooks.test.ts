@@ -50,6 +50,8 @@ describe('cardLooks', () => {
     for (const [tool, look] of Object.entries(TOOL_LABELS)) expect(look?.labelKey).toBe(`assistant.tool.${tool}`);
     for (const look of Object.values(STEP_LOOKS)) expect(look?.stepKey).toMatch(/^assistant\.step\./);
     expect(STEP_LOOKS.get_trip_summary?.stepKey).toBe('assistant.step.reading');
+    // The Studio's page preview is the server's own read; it waits for the page and says so.
+    expect(STEP_LOOKS.preview_book_page?.stepKey).toBe('assistant.step.lookingAtPage');
   });
 
   it('FE-AI-LOOK-003: a place, a stop, a note, a booking and a stay show on the map; a kept note never', () => {

@@ -12,7 +12,8 @@ import type { PackLook } from '../cardTypes';
  *
  * The changes touch pages of the book, so they name the photo book's own
  * entity (`book_page`, bookLook.ts) and add none; the card opens its pages
- * itself, each one in the Studio.
+ * itself, each one in the Studio, and the entity's look opens an applied
+ * design's receipt on the first page it wrote.
  */
 export const BOOK_DESIGN_LOOK = {
   verbs: {

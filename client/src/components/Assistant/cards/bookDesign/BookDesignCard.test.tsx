@@ -1,5 +1,5 @@
 /**
- * FE-BOOKDSN-010 to FE-BOOKDSN-017
+ * FE-BOOKDSN-010 to FE-BOOKDSN-019, FE-BOOKDSN-022, FE-BOOKDSN-030 to FE-BOOKDSN-036
  *
  * The whole-book design in the Studio's chat: the held apply named by its
  * style with its facts, each page it changes drawn beside the page it
@@ -10,7 +10,12 @@
  * choice still waiting sent as the card goes away, and a book that cannot be
  * read; a choice sent at once when the pointer leaves the pages (the way to
  * Apply), and an older answer arriving last never taken for what the server
- * kept.
+ * kept; a page pointed at outlined in the Studio's page rail; an answer or a
+ * refusal never overwriting a newer choice, Apply waiting for the choice it
+ * applies, a page kept for a photo gone, one typeface named once, findings
+ * with no fault read as a warning, the receipt opening the Studio on the
+ * first page the design wrote, and Apply on a card that came back waiting
+ * for the choice the card before it sent.
  */
 import {
   type AssistantApplied,
@@ -21,11 +26,14 @@ import {
   type BookDesignDraftResponse,
   type BookDocument,
   type BookSpread,
+  type UiStreamChunk,
 } from '@trek/shared';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { act, fireEvent, render, screen, waitFor } from '../../../../../tests/helpers/render';
+import { assistantRepo } from '../../../../repo/assistantRepo';
+import { chatOf, useAssistantStore } from '../../../../store/assistantStore';
 import { useStudioStore } from '../../../../store/studioStore';
 import AssistantChangeCard from '../../AssistantChangeCard';
 import type { ChangeItem } from '../../assistantParts';
@@ -37,6 +45,7 @@ const repo = vi.hoisted(() => ({ draft: vi.fn(), book: vi.fn(), select: vi.fn() 
 vi.mock('../../../../repo/bookDesignRepo', () => ({ bookDesignRepo: repo }));
 
 const STUDIO = useStudioStore.getState();
+const ASSISTANT = useAssistantStore.getState();
 
 /** sp-1 the cover, sp-2 the first page, sp-3 a double page, sp-4 the last page, sp-5 the back. */
 function book(): BookDocument {
@@ -149,6 +158,15 @@ function pagesArea(): HTMLElement {
   return screen.getByRole('list', { name: 'Pages of the design' }).parentElement as HTMLElement;
 }
 
+async function* streamOf(chunks: UiStreamChunk[]): AsyncGenerator<UiStreamChunk> {
+  for (const chunk of chunks) yield chunk;
+}
+
+/** The receipt of the design applied, with the pages it left as they were. */
+function applied(skipped: BookDesignCard['skipped'] = []): ChangeItem {
+  return item('applied', card({ change: 'applied', revisionId: 8, skipped }));
+}
+
 beforeEach(() => {
   repo.draft.mockResolvedValue(draft());
   repo.book.mockResolvedValue(stored());
@@ -157,7 +175,9 @@ beforeEach(() => {
 
 afterEach(() => {
   useStudioStore.setState(STUDIO, true);
+  useAssistantStore.setState(ASSISTANT, true);
   vi.clearAllMocks();
+  vi.restoreAllMocks();
 });
 
 describe('the whole-book design card', () => {
@@ -255,6 +275,9 @@ describe('the whole-book design card', () => {
     const own = inView(<AssistantChangeCard items={[item('pending', card())]} />, { onOpen });
     const sheets = await screen.findAllByRole('button', { name: 'Show this page' });
     fireEvent.click(sheets[0] as HTMLElement);
+    expect(useStudioStore.getState().activeSpread).toBe(2);
+    // The new page (sp-9) is not in the book yet: pressing it leaves the Studio on the page it shows.
+    fireEvent.click(sheets[2] as HTMLElement);
     expect(useStudioStore.getState().activeSpread).toBe(2);
     expect(onOpen).not.toHaveBeenCalled();
     own.unmount();
@@ -364,5 +387,245 @@ describe('the whole-book design card', () => {
     expect(await screen.findByText('The choice of pages could not be saved and was put back.')).toBeInTheDocument();
     expect(choice('Double page 2', 0)).toHaveAttribute('aria-pressed', 'true');
     expect(choice('Double page 2', 1)).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('FE-BOOKDSN-022: pointing at a page outlines the page of the book it stands for in the rail; a new page outlines none', async () => {
+    useStudioStore.setState({ doc: stored() });
+    inView(<AssistantChangeCard items={[item('pending', card())]} />);
+    await screen.findByText('Before');
+    // sp-3 before and after, the new sp-9, the dropped sp-7.
+    const [before, after, added, dropped] = screen.getAllByRole('button', { name: 'Show this page' });
+    const hinted = () => useStudioStore.getState().hintSpread;
+
+    // The design's page points at the page it replaces, as the book's own page does.
+    fireEvent.pointerEnter(after);
+    expect(hinted()).toBe('sp-3');
+    fireEvent.pointerLeave(after);
+    expect(hinted()).toBeNull();
+    fireEvent.pointerEnter(before);
+    expect(hinted()).toBe('sp-3');
+    fireEvent.pointerLeave(before);
+    expect(hinted()).toBeNull();
+
+    // The new page is not in the book yet; the dropped one still is, reached by focus too.
+    fireEvent.pointerEnter(added);
+    expect(hinted()).toBeNull();
+    fireEvent.focus(dropped);
+    expect(hinted()).toBe('sp-7');
+    fireEvent.blur(dropped);
+    expect(hinted()).toBeNull();
+  });
+});
+
+describe('the whole-book design card: answers, decisions and facts', () => {
+  it('FE-BOOKDSN-030: an answer arriving while a newer choice waits leaves that choice shown, and the next press starts from it', async () => {
+    useStudioStore.setState({ doc: stored() });
+    let release: (ids: string[]) => void = () => undefined;
+    repo.select.mockImplementationOnce(
+      () =>
+        new Promise<string[]>((resolve) => {
+          release = resolve;
+        })
+    );
+    inView(<AssistantChangeCard items={[item('pending', card())]} />);
+    await screen.findByText('Before');
+
+    // sp-3 out and sent (its answer held back), then sp-7 out while that request is on its way.
+    fireEvent.click(choice('Double page 1'));
+    fireEvent.pointerLeave(pagesArea());
+    expect(repo.select).toHaveBeenCalledWith(3, 'd-1', ['sp-9', 'sp-7']);
+    fireEvent.click(choice('Double page 2', 1));
+    await act(async () => {
+      release(['sp-9', 'sp-7']);
+      await Promise.resolve();
+    });
+    expect(choice('Double page 1')).toHaveAttribute('aria-pressed', 'false');
+    expect(choice('Double page 2', 1)).toHaveAttribute('aria-pressed', 'false');
+
+    // The next press starts from what is shown: sp-3 back in, sp-7 still out. The pause may have sent the waiting
+    // choice by now or not; no request after the first puts sp-7 back.
+    fireEvent.click(choice('Double page 1'));
+    fireEvent.pointerLeave(pagesArea());
+    const later = repo.select.mock.calls.slice(1).map((call) => call[2] as string[]);
+    expect(later.flat()).not.toContain('sp-7');
+    expect(repo.select).toHaveBeenLastCalledWith(3, 'd-1', ['sp-3', 'sp-9']);
+  });
+
+  it('FE-BOOKDSN-031: a refusal arriving while a newer choice waits, or after a newer request went out, puts nothing back', async () => {
+    useStudioStore.setState({ doc: stored() });
+    const refusals: ((err: Error) => void)[] = [];
+    const held = () =>
+      new Promise<string[]>((_resolve, reject) => {
+        refusals.push(reject);
+      });
+    repo.select.mockImplementationOnce(held).mockImplementationOnce(held);
+    inView(<AssistantChangeCard items={[item('pending', card())]} />);
+    await screen.findByText('Before');
+    const putBack = 'The choice of pages could not be saved and was put back.';
+
+    // sp-3 out and sent, then sp-7 out while that request is on its way; the first request is refused.
+    fireEvent.click(choice('Double page 1'));
+    fireEvent.pointerLeave(pagesArea());
+    fireEvent.click(choice('Double page 2', 1));
+    await act(async () => {
+      refusals[0]?.(new Error('down'));
+      await Promise.resolve();
+    });
+    expect(screen.queryByText(putBack)).toBeNull();
+    expect(choice('Double page 1')).toHaveAttribute('aria-pressed', 'false');
+    expect(choice('Double page 2', 1)).toHaveAttribute('aria-pressed', 'false');
+
+    // That choice goes out (refused later), then sp-7 back in, answered at once.
+    fireEvent.pointerLeave(pagesArea());
+    fireEvent.click(choice('Double page 2', 1));
+    fireEvent.pointerLeave(pagesArea());
+    expect(repo.select).toHaveBeenCalledTimes(3);
+    expect(repo.select).toHaveBeenLastCalledWith(3, 'd-1', ['sp-9', 'sp-7']);
+    await act(async () => {
+      refusals[1]?.(new Error('down'));
+      await Promise.resolve();
+    });
+    expect(screen.queryByText(putBack)).toBeNull();
+    expect(choice('Double page 1')).toHaveAttribute('aria-pressed', 'false');
+    expect(choice('Double page 2', 1)).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('FE-BOOKDSN-032: Apply sends a choice still waiting at once and goes out once it landed; a running row holds nothing', async () => {
+    useStudioStore.setState({ doc: stored() });
+    useAssistantStore.setState({ byTrip: { [-3]: { ...chatOf(useAssistantStore.getState(), -3), threadId: 9 } } });
+    let land: (ids: string[]) => void = () => undefined;
+    repo.select.mockImplementationOnce(
+      () =>
+        new Promise<string[]>((resolve) => {
+          land = resolve;
+        })
+    );
+    const decide = vi
+      .spyOn(assistantRepo, 'decide')
+      .mockImplementation(async () => streamOf([{ type: 'finish', finishReason: 'stop' }]));
+    const view = inView(<AssistantChangeCard items={[item('pending', card())]} />);
+    await screen.findByText('Before');
+
+    // sp-3 out, then Apply straight away: neither the pointer nor the focus left the pages.
+    fireEvent.click(choice('Double page 1'));
+    fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
+    expect(repo.select).toHaveBeenCalledTimes(1);
+    expect(repo.select).toHaveBeenCalledWith(3, 'd-1', ['sp-9', 'sp-7']);
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(decide).not.toHaveBeenCalled();
+
+    // The selection landed: the decision goes out.
+    await act(async () => {
+      land(['sp-9', 'sp-7']);
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(decide).toHaveBeenCalledTimes(1));
+    expect(decide.mock.calls[0]?.[2]).toMatchObject({ decisions: [{ toolCallId: 'w1', approved: true }] });
+    await waitFor(() => expect(chatOf(useAssistantStore.getState(), -3).isRunning).toBe(false));
+
+    // The row runs: its pages can no longer be chosen, so it holds no decision back.
+    const running = <AssistantChangeCard items={[item('applying', card())]} />;
+    view.rerender(
+      <AssistantViewContext.Provider value={{ tripId: -3, variant: 'window' }}>{running}</AssistantViewContext.Provider>
+    );
+    expect(useAssistantStore.getState().decisionHolds[-3]).toEqual([]);
+    expect(repo.select).toHaveBeenCalledTimes(1);
+  });
+
+  it('FE-BOOKDSN-033: a receipt names a page kept for a photo gone, and draws nothing where it wrote no page', async () => {
+    useStudioStore.setState({ doc: designed() });
+    const skipped: BookDesignCard['skipped'] = [
+      { spreadId: 'sp-3', reason: 'photo_gone' },
+      { spreadId: 'sp-9', reason: 'changed_since' },
+    ];
+    inView(<AssistantChangeCard items={[applied(skipped)]} />);
+    expect(screen.getByText('1 page kept, a photo left the gallery')).toBeInTheDocument();
+    expect(screen.getByText('1 page changed since, kept as it is')).toBeInTheDocument();
+    await act(async () => {
+      await import('./BookDesignSpreadStrip');
+    });
+    expect(screen.queryByRole('list', { name: 'Pages of the design' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Show this page' })).toBeNull();
+  });
+
+  it('FE-BOOKDSN-034: one typeface for both is named once, and findings with no fault read as a warning', async () => {
+    useStudioStore.setState({ doc: stored() });
+    const quiet = card().spreads.map((spread) => ({ ...spread, severe: 0 }));
+    const held = card({ heading: 'garamond', body: 'garamond', spreads: quiet });
+    inView(<AssistantChangeCard items={[item('pending', held)]} />);
+    expect(screen.getAllByText('EB Garamond')).toHaveLength(1);
+    expect(screen.queryByText(/Playfair/)).toBeNull();
+    // The words sit in their badge, whose tone is a warning, not a fault.
+    expect(screen.getByText('3 things to check').parentElement).toHaveClass('text-warning');
+    expect(await screen.findByText('Before')).toBeInTheDocument();
+  });
+
+  it('FE-BOOKDSN-035: an applied design opens the Studio on the first page it wrote, past the ones it left', async () => {
+    useStudioStore.setState({ doc: designed() });
+    const onOpen = vi.fn();
+    const open = () => fireEvent.click(screen.getByRole('button', { name: 'Show in the Studio' }));
+    const first = inView(<AssistantChangeCard items={[applied()]} />, { onOpen });
+    expect(await screen.findAllByRole('button', { name: 'Show this page' })).toHaveLength(2);
+    open();
+    // The cover was kept as it was: the first page written is the double page laid out again.
+    expect(onOpen).toHaveBeenLastCalledWith({ kind: 'page', path: '/journey/3/studio?page=sp-3' });
+    first.unmount();
+
+    const changed: BookDesignCard['skipped'] = [{ spreadId: 'sp-3', reason: 'changed_since' }];
+    const second = inView(<AssistantChangeCard items={[applied(changed)]} />, { onOpen });
+    open();
+    expect(onOpen).toHaveBeenLastCalledWith({ kind: 'page', path: '/journey/3/studio?page=sp-9' });
+    second.unmount();
+
+    // Every page it would write was left as it was: the book opens as it is.
+    const all: BookDesignCard['skipped'] = [...changed, { spreadId: 'sp-9', reason: 'photo_gone' }];
+    inView(<AssistantChangeCard items={[applied(all)]} />, { onOpen });
+    open();
+    expect(onOpen).toHaveBeenLastCalledWith({ kind: 'page', path: '/journey/3/studio' });
+  });
+
+  it('FE-BOOKDSN-036: Apply on a card that came back waits for the choice the card before it sent as it went away', async () => {
+    useStudioStore.setState({ doc: stored() });
+    useAssistantStore.setState({ byTrip: { [-3]: { ...chatOf(useAssistantStore.getState(), -3), threadId: 9 } } });
+    let land: (ids: string[]) => void = () => undefined;
+    repo.select.mockImplementationOnce(
+      () =>
+        new Promise<string[]>((resolve) => {
+          land = resolve;
+        })
+    );
+    const decide = vi
+      .spyOn(assistantRepo, 'decide')
+      .mockImplementation(async () => streamOf([{ type: 'finish', finishReason: 'stop' }]));
+    const first = inView(<AssistantChangeCard items={[item('pending', card())]} />);
+    await screen.findByText('Before');
+
+    // sp-3 out, then the card goes away (the window closed): the choice goes out, its answer on its way.
+    fireEvent.click(choice('Double page 1'));
+    first.unmount();
+    expect(repo.select).toHaveBeenCalledWith(3, 'd-1', ['sp-9', 'sp-7']);
+
+    // The card comes back and Apply is pressed before that answer: the decision waits for it.
+    inView(<AssistantChangeCard items={[item('pending', card())]} />);
+    await screen.findByText('Before');
+    fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(decide).not.toHaveBeenCalled();
+    // The request the first card sent holds the chat, beside the hold of the card that came back.
+    expect(useAssistantStore.getState().decisionHolds[-3]).toHaveLength(2);
+
+    await act(async () => {
+      land(['sp-9', 'sp-7']);
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(decide).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(chatOf(useAssistantStore.getState(), -3).isRunning).toBe(false));
+    // Landed, that request holds nothing any more; the card that came back sent nothing itself.
+    expect(useAssistantStore.getState().decisionHolds[-3]).toHaveLength(1);
+    expect(repo.select).toHaveBeenCalledTimes(1);
   });
 });

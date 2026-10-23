@@ -104,8 +104,8 @@ export function distinctFindings(card: BookPageCard): BookCardFinding[] {
   });
 }
 
-/** What a page card draws: where the page stands, and the page before the change and after it. */
-interface BookPageView {
+/** What a page card draws of one page: where it stands, and the page before the change and after it. */
+export interface BookPageView {
   index: number;
   before: BookSpread | null;
   after: BookSpread | null;
@@ -127,20 +127,33 @@ function afterOf(card: BookPageCard, doc: BookDocument, spreadId: string): BookS
   return made.doc.spreads.find((spread) => spread.id === spreadId) ?? null;
 }
 
-/**
- * The spreads a page card draws from the Studio's book: while the change
- * waits, its page as it is and as the change would leave it (a move and a
- * delete show the page alone); once applied, the page as it is now. Nothing
- * for new pages not made yet, for a change that did not run, or where the
- * book on screen does not hold the page (another book, or none open).
- */
-export function pageViewOf(card: BookPageCard, doc: BookDocument | null, state: ChangeState): BookPageView | null {
-  const spreadId = card.pages[0]?.spreadId;
-  if (!doc || !spreadId || GONE.has(state)) return null;
+/** Where a page stands in the book on screen, and the page; null where the book does not hold it. */
+function spreadAt(doc: BookDocument, spreadId: string): { index: number; current: BookSpread } | null {
   const index = doc.spreads.findIndex((spread) => spread.id === spreadId);
   const current = doc.spreads[index];
-  if (!current) return null;
-  if (state === 'applied') return { index, before: null, after: current };
-  if (card.change === 'new') return null;
-  return { index, before: current, after: afterOf(card, doc, spreadId) };
+  return current ? { index, current } : null;
+}
+
+/**
+ * The spreads a page card draws from the Studio's book, one view per page:
+ * while the change waits, its page as it is and as the change would leave it
+ * (a move shows its page alone, a delete each page it takes alone); once
+ * applied, the page as it is now. Nothing for new pages not made yet, for a
+ * change that did not run, or where the book on screen does not hold the
+ * page (another book, or none open).
+ */
+export function pageViewOf(card: BookPageCard, doc: BookDocument | null, state: ChangeState): BookPageView[] {
+  if (!doc || GONE.has(state)) return [];
+  if (card.change === 'willDelete' && state !== 'applied') {
+    return card.pages.flatMap((page) => {
+      const found = spreadAt(doc, page.spreadId);
+      return found ? [{ index: found.index, before: found.current, after: null }] : [];
+    });
+  }
+  const spreadId = card.pages[0]?.spreadId;
+  const found = spreadId ? spreadAt(doc, spreadId) : null;
+  if (!spreadId || !found) return [];
+  if (state === 'applied') return [{ index: found.index, before: null, after: found.current }];
+  if (card.change === 'new') return [];
+  return [{ index: found.index, before: found.current, after: afterOf(card, doc, spreadId) }];
 }

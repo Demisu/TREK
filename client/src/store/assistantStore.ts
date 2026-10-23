@@ -149,6 +149,8 @@ interface AssistantState {
   mapView: { tripId: number; view: AssistantMapView } | null;
   /** The TREK Studio hosting a journey's chat, by the chat's key, while that chat is open there. */
   studioHosts: Record<AssistantChatKey, AssistantStudioHost>;
+  /** What the cards of a chat still send before its decisions go out (a book design's pages), by the chat's key. */
+  decisionHolds: Partial<Record<AssistantChatKey, readonly AssistantDecisionHold[]>>;
 
   loadStatus: () => Promise<void>;
   ackPrivacy: () => Promise<void>;
@@ -156,6 +158,8 @@ interface AssistantState {
   ackStudioImages: () => Promise<void>;
   /** Hosts a journey's chat in the Studio; the returned function ends it, unless another host took the key since. */
   hostStudio: (key: AssistantChatKey, host: AssistantStudioHost) => () => void;
+  /** Makes the decisions of a chat wait for `settle` first; the returned function ends it. */
+  holdDecisions: (key: AssistantChatKey, settle: AssistantDecisionHold) => () => void;
 
   open: () => void;
   close: () => void;
@@ -226,6 +230,24 @@ export interface AssistantStudioHost {
   render: (request: AssistantPageRender, signal: AbortSignal) => void;
   /** Writes the local work of the book; false when it could not land (a conflict, a viewer, offline). */
   flush: () => Promise<boolean>;
+}
+
+/**
+ * What a card sends before a decision of its chat goes out, a choice the
+ * decision reads on the server (the pages a book design applies): it sends
+ * what still waits and settles once that landed. A request already on its
+ * way holds the chat by itself until it lands, past the card that sent it.
+ */
+type AssistantDecisionHold = () => Promise<unknown>;
+
+/**
+ * Asks every hold of the chat under `key` at once and settles when they did; a failed one lets the decision go on.
+ * The holds are read once, before any is asked: one a hold adds while it sends is not asked, so a hold answers for
+ * what it sends itself.
+ */
+async function settleHolds(ctx: Ctx, key: AssistantChatKey): Promise<void> {
+  const holds = ctx.get().decisionHolds[key] ?? [];
+  await Promise.allSettled(holds.map((settle) => settle()));
 }
 
 /** The Studio hosting the chat under `key`, if one does. */
@@ -553,6 +575,13 @@ function shellActions(ctx: Ctx) {
         }));
       };
     },
+    holdDecisions: (key: AssistantChatKey, settle: AssistantDecisionHold) => {
+      ctx.set((s) => ({ decisionHolds: { ...s.decisionHolds, [key]: [...(s.decisionHolds[key] ?? []), settle] } }));
+      return () =>
+        ctx.set((s) => ({
+          decisionHolds: { ...s.decisionHolds, [key]: (s.decisionHolds[key] ?? []).filter((held) => held !== settle) },
+        }));
+    },
     open: () => ctx.set({ window: { open: true, minimized: false } }),
     // Closing leaves the map as the plan is now: "after", nothing hovered, no preview pin.
     close: () =>
@@ -842,16 +871,20 @@ function turnActions(ctx: Ctx) {
       const c = chat(ctx, tripId);
       const threadId = c.threadId;
       if (c.isRunning || threadId === null || decisions.length === 0) return;
+      // Asked before anything re-renders: a card's choice still on its way lands first, so the decision reads it.
+      const settled = settleHolds(ctx, tripId);
       const body = { ...clientContext(), decisions };
       patch(ctx, tripId, { compare: compareFor(tripId, c.messages, decisions) });
       await runTurn(ctx, tripId, {
         messages: markDecisions(c.messages, decisions),
         before: c.messages,
         unsent: null,
-        open: (signal) =>
-          hostedOpen(ctx, tripId, (renders) =>
+        open: async (signal) => {
+          await settled;
+          return hostedOpen(ctx, tripId, (renders) =>
             assistantRepo.decide(assistantTargetOf(tripId), threadId, { ...body, ...renders }, signal)
-          ),
+          );
+        },
       });
       // Refused before anything ran: there is no "after" to compare with.
       if (chat(ctx, tripId).error) patch(ctx, tripId, { compare: null });
@@ -885,6 +918,7 @@ export const useAssistantStore = create<AssistantState>((set, get) => {
     windowRect: null,
     mapView: null,
     studioHosts: {},
+    decisionHolds: {},
     ...NO_ROUTE,
     ...shellActions(ctx),
     ...threadActions(ctx),

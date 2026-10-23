@@ -138,16 +138,24 @@ export function draftPairs(draft: BookDesignDraftResponse, book: BookDocument | 
 }
 
 /**
- * The pages an applied design wrote, as the book holds them now: every page
- * it replaced or added and did not leave as it was. A dropped page is gone,
- * and the draft is gone with the apply, so nothing is drawn before.
+ * The rows of the pages an applied design wrote, in the card's order: every
+ * page it replaced or added and did not leave as it was. The receipt draws
+ * them and opens the Studio on the first (bookLook.ts), so both read this.
  */
-export function appliedPairs(card: BookDesignCard, book: BookDocument | null): DesignPair[] {
+export function writtenRows(card: BookDesignCard): BookDesignCard['spreads'] {
   const skipped = new Set(card.skipped.map((page) => page.spreadId));
-  const written = card.spreads.filter(
+  return card.spreads.filter(
     (row) => (row.action === 'replace' || row.action === 'insert') && !skipped.has(row.spreadId)
   );
-  return written.flatMap((row) => {
+}
+
+/**
+ * The pages an applied design wrote, as the book holds them now. A dropped
+ * page is gone, and the draft is gone with the apply, so nothing is drawn
+ * before.
+ */
+export function appliedPairs(card: BookDesignCard, book: BookDocument | null): DesignPair[] {
+  return writtenRows(card).flatMap((row) => {
     const now = spreadIn(book, row.spreadId);
     return now.spread ? [{ ...pairOf(row, null, null), page: now.page, after: now.spread }] : [];
   });

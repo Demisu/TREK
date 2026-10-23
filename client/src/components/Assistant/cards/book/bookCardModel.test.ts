@@ -3,10 +3,10 @@
  *
  * The pure side of the book's page card: a page named as the Studio names
  * it, a layout and a finding by their words, the findings worth a look, the
- * spreads the card draws from the book on screen for each state of a change,
- * and where an applied change opens the Studio.
+ * spreads the card draws from the book on screen for each state of a change
+ * (each page of a delete alone), and where an applied change opens the Studio.
  */
-import { blankBook, type BookCardPage, type BookPageCard } from '@trek/shared';
+import { blankBook, blankSpread, type BookCardPage, type BookPageCard } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -90,9 +90,9 @@ describe('bookCardModel', () => {
     expect(findingLabel({ code: 'low_dpi', severity: 'warn' }, t)).toBe('assistant.card.book.finding.low_dpi');
   });
 
-  it('FE-AI-BOOKPAGE-013: a waiting edit or cover draws before and after; a move alone; new pages, other books and failures none', () => {
+  it('FE-AI-BOOKPAGE-013: a waiting edit or cover draws before and after; a move alone, a delete each page alone; new pages, other books and failures none', () => {
     const doc = book();
-    const edit = pageViewOf(card(), doc, 'pending');
+    const [edit] = pageViewOf(card(), doc, 'pending');
     expect(edit?.index).toBe(2);
     expect(edit?.before?.elements).toEqual([]);
     expect(edit?.after?.elements.filter((element) => element.kind === 'photo')).toHaveLength(2);
@@ -101,20 +101,38 @@ describe('bookCardModel', () => {
       ops: [],
       cover: { template: 'cover-full', photoId: null, title: 'Portugal', subtitle: null },
     });
-    expect(pageViewOf(cover, doc, 'applying')?.after?.id).toBe('sp-1');
-    expect(pageViewOf(card({ change: 'moved', ops: [], movedTo: 1 }), doc, 'pending')).toMatchObject({ after: null });
-    expect(pageViewOf(card({ change: 'new' }), doc, 'pending')).toBeNull();
-    expect(pageViewOf(card({ pages: [{ ...INNER, spreadId: 'sp-elsewhere' }] }), doc, 'pending')).toBeNull();
-    expect(pageViewOf(card(), null, 'pending')).toBeNull();
-    for (const state of ['failed', 'discarded', 'expired'] as const) expect(pageViewOf(card(), doc, state)).toBeNull();
+    expect(pageViewOf(cover, doc, 'applying')[0]?.after?.id).toBe('sp-1');
+    expect(pageViewOf(card({ change: 'moved', ops: [], movedTo: 1 }), doc, 'pending')).toMatchObject([{ after: null }]);
+    expect(pageViewOf(card({ change: 'new' }), doc, 'pending')).toEqual([]);
+    expect(pageViewOf(card({ pages: [] }), doc, 'pending')).toEqual([]);
+    expect(pageViewOf(card({ pages: [{ ...INNER, spreadId: 'sp-elsewhere' }] }), doc, 'pending')).toEqual([]);
+    expect(pageViewOf(card(), null, 'pending')).toEqual([]);
+    for (const state of ['failed', 'discarded', 'expired'] as const) expect(pageViewOf(card(), doc, state)).toEqual([]);
     // An operation the book on screen refuses draws the page as it is, nothing after it.
     const refused = card({ ops: [{ op: 'remove', elementIds: ['p-nowhere'], park: true }] });
-    expect(pageViewOf(refused, doc, 'pending')).toMatchObject({ after: null });
+    expect(pageViewOf(refused, doc, 'pending')).toMatchObject([{ after: null }]);
+
+    // A delete draws every page it takes, each alone, in the order it names them; one the book does not hold, none.
+    const two = {
+      ...doc,
+      spreads: [...doc.spreads.slice(0, 3), blankSpread('inner', () => 'sp-9'), ...doc.spreads.slice(3)],
+    };
+    const pages = [INNER, { ...INNER, spreadId: 'sp-elsewhere' }, { ...INNER, spreadId: 'sp-9', index: 3, number: 2 }];
+    const gone = card({ change: 'willDelete', ops: [], pages });
+    expect(pageViewOf(gone, two, 'applying')).toMatchObject([
+      { index: 2, before: { id: 'sp-3' }, after: null },
+      { index: 3, before: { id: 'sp-9' }, after: null },
+    ]);
   });
 
   it('FE-AI-BOOKPAGE-014: once applied the page is drawn as it is now, and it opens the Studio on that page', () => {
     const doc = book();
-    expect(pageViewOf(card({ change: 'new' }), doc, 'applied')).toMatchObject({ before: null, after: { id: 'sp-3' } });
+    expect(pageViewOf(card({ change: 'new' }), doc, 'applied')).toMatchObject([
+      { before: null, after: { id: 'sp-3' } },
+    ]);
+    // The pages a delete took are gone from the book: nothing is drawn.
+    const gone = card({ change: 'willDelete', ops: [], pages: [{ ...INNER, spreadId: 'sp-taken' }] });
+    expect(pageViewOf(gone, doc, 'applied')).toEqual([]);
     expect(studioTarget(3, 'sp-3')).toEqual({ kind: 'page', path: '/journey/3/studio?page=sp-3' });
     expect(studioTarget(3, null)).toEqual({ kind: 'page', path: '/journey/3/studio' });
   });
