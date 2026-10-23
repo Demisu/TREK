@@ -1,6 +1,6 @@
 import { bookVisiblePart, sortBookFindings } from './book-findings-design';
-import { photoLookChecks } from './book-findings-photo';
 import { strokeFindings } from './book-findings-lines';
+import { photoLookChecks } from './book-findings-photo';
 import { stickerFindings } from './book-findings-sticker';
 import { bookFontFace } from './book-fonts';
 import { visibleSpread } from './book-groups';

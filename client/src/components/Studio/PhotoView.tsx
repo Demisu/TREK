@@ -5,8 +5,8 @@ import { fontStack } from './bookFonts';
 import { photoSrc } from './bookRender';
 import { usePaintId } from './paint/usePaintId';
 import { pictureFilter, silhouetteShadows, svgFilterMatrices, zoomPlacement } from './photo/photoLook';
-import { HOLED_SHAPES, SHAPE_PATHS, scalePath } from './shapes';
 import { photoClip } from './shapeOutline';
+import { HOLED_SHAPES, SHAPE_PATHS, scalePath } from './shapes';
 
 /**
  * A picture on the page: possibly cut to a shape, possibly sitting in
