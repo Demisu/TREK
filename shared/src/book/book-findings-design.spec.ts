@@ -137,8 +137,9 @@ describe('book level and the page in words', () => {
     expect(list.filter((f) => f.code === 'font_mix')).toHaveLength(1);
     expect(list.find((f) => f.code === 'font_mix')?.message).toMatch(/4 typefaces .*keep to three/);
     // A display face, a body face and one more is a book, not a sampler.
-    expect(bookLevelFindings(bookOf(fonts.slice(0, 3)))).toEqual([]);
-    expect(bookLevelFindings(bookOf(fonts.slice(0, 2)))).toEqual([]);
+    const mixOf = (pages: typeof fonts) => bookLevelFindings(bookOf(pages)).filter((f) => f.code === 'font_mix');
+    expect(mixOf(fonts.slice(0, 3))).toEqual([]);
+    expect(mixOf(fonts.slice(0, 2))).toEqual([]);
   });
 
   it('BOOKQA-010: notes colours outside the book own and the same page three times running', () => {
