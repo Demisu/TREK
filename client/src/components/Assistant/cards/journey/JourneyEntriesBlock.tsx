@@ -45,18 +45,28 @@ const TILE = 'flex-none snap-start';
 
 type Open = ((entryId: number | null) => void) | null;
 
-/** The journal's name and the way into it, under the card. */
-function JournalFooter({ open }: { open: Open }) {
+/**
+ * The way into the journal under its entries: in the foot bar of the card, or
+ * under the strip of tiles with how many entries it holds, which the strip
+ * has no band to say.
+ */
+function JournalFooter({ open, count }: { open: Open; count?: number }) {
   const { t } = useTranslation();
   const { variant } = useAssistantView();
-  if (!open) return null;
+  const button = open && (
+    <button type="button" onClick={() => open(null)} className={variant === 'fullscreen' ? OPEN_TALL : OPEN}>
+      {t('assistant.card.journey.open')}
+      <ArrowUpRight size={12} aria-hidden="true" className="rtl:-scale-x-100" />
+    </button>
+  );
+  if (count === undefined) return button ? <CardFoot>{button}</CardFoot> : null;
   return (
-    <CardFoot>
-      <button type="button" onClick={() => open(null)} className={variant === 'fullscreen' ? OPEN_TALL : OPEN}>
-        {t('assistant.card.journey.open')}
-        <ArrowUpRight size={12} aria-hidden="true" className="rtl:-scale-x-100" />
-      </button>
-    </CardFoot>
+    <div className="mt-1 flex items-center gap-2 text-caption">
+      <span className="min-w-0 flex-1 truncate tabular-nums text-content-muted">
+        {t('assistant.card.journey.entries', { count })}
+      </span>
+      {button}
+    </div>
   );
 }
 
@@ -152,7 +162,7 @@ function JournalStrip({ journal, fallbackRef }: { journal: JournalEntries; fallb
           </li>
         )}
       </CardStrip>
-      <JournalFooter open={open} />
+      <JournalFooter open={open} count={journal.entries.length + journal.more} />
     </div>
   );
 }
