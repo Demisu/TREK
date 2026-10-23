@@ -1,5 +1,5 @@
 import type { AutoEntry, AutoPhoto } from '../auto/auto-types';
-import { MIN_PRINT_DPI, textHeightNeeded } from '../book-findings';
+import { DESIGN_TEXT_HEADROOM, MIN_PRINT_DPI, textHeightNeeded } from '../book-findings';
 import type { BookPhotoInfo } from '../book-ops-core';
 import { formatBookDate } from '../book-text';
 import { bookBadgeValue, bookTravelBadge, type BookTravelContext } from '../book-travel';
@@ -177,7 +177,7 @@ export function textEl(c: ComposeCtx, at: TextAt, words: string, role: TextRole,
     binding: opts.binding ?? null,
     overridden: opts.overridden ?? false,
   };
-  return { ...el, frame: frameOf(at.x, at.y, at.w, textHeightNeeded(el) + 1.2) };
+  return { ...el, frame: frameOf(at.x, at.y, at.w, textHeightNeeded(el, DESIGN_TEXT_HEADROOM) + 1.2) };
 }
 
 /** A heading that fits `maxH`: set smaller, down to the sub size, until it does. */

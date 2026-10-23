@@ -1,5 +1,5 @@
 import { readableInk } from '../book-colour';
-import { MIN_PRINT_DPI, photoDpi, textHeightNeeded } from '../book-findings';
+import { DESIGN_TEXT_HEADROOM, MIN_PRINT_DPI, photoDpi, textHeightNeeded } from '../book-findings';
 import type { BookPhotoInfo } from '../book-ops-core';
 import type { BookFinding } from '../book-ops.schema';
 import {
@@ -89,7 +89,10 @@ const dropIds = (spread: BookSpread, ids: ReadonlySet<string>): BookSpread => ({
   elements: spread.elements.filter((e) => !ids.has(e.id)),
 });
 
-/** A text that overflows: half a point smaller down to its floor, then its words cut to the frame. */
+/**
+ * A text that overflows: half a point smaller down to its floor, then its
+ * words cut to what the frame holds as the engine measures a frame it sizes.
+ */
 function fitText(el: BookTextElement, ctx: RepairCtx): BookTextElement {
   const floor = el.text.length > 80 ? ctx.look.sizes.body * 0.9 : ctx.look.sizes.caption;
   if (el.size - 0.5 >= floor) return { ...el, size: r2(el.size - 0.5) };
@@ -98,7 +101,7 @@ function fitText(el: BookTextElement, ctx: RepairCtx): BookTextElement {
   while (lo < hi) {
     const mid = Math.ceil((lo + hi) / 2);
     const tried = { ...el, text: cutWords(el.text, mid) };
-    if (textHeightNeeded(tried) <= el.frame.h) lo = mid;
+    if (textHeightNeeded(tried, DESIGN_TEXT_HEADROOM) <= el.frame.h) lo = mid;
     else hi = mid - 1;
   }
   const text = cutWords(el.text, lo);

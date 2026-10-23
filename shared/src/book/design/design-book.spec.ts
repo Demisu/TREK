@@ -1,4 +1,5 @@
 import type { AutoEntry, AutoPhoto } from '../auto/auto-types';
+import { DESIGN_TEXT_HEADROOM, textHeightNeeded } from '../book-findings';
 import { bookLevelFindings } from '../book-findings-design';
 import type { BookPhotoInfo } from '../book-ops-core';
 import { blankBook } from '../book-pages';
@@ -13,6 +14,7 @@ import {
   type BookListElement,
   type BookMapElement,
   type BookSpread,
+  type BookTextElement,
 } from '../book.schema';
 import { pageFindings } from '../describe-spread';
 import type { PhotoPickCandidate } from '../photo-pick';
@@ -20,6 +22,8 @@ import { designBook, type BookDesignInput, type BookDesignResult } from './desig
 import { bookDesignDirectivesSchema, type BookDesignDirectivesInput } from './design-directives.schema';
 import { newRhythm, planChapter, type DesignChapter } from './design-pacing';
 import { burstOf, type BookDesignLeftOut } from './design-photos';
+import { repairSpread } from './design-repair';
+import { designLook } from './design-style';
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +40,8 @@ import { describe, expect, it } from 'vitest';
  * current (no travel element out of date with the journey once placed) and
  * for losing no story unsaid (every entry's words on its pages, or named in
  * the notes). The pacing of a chapter (its bursts, the photo beats) is also
- * read straight from the plan.
+ * read straight from the plan, and the repair of words that run long straight
+ * from a page.
  */
 
 type Name = 'rich' | 'sparse' | 'nostats';
@@ -721,6 +726,40 @@ describe('design_book', () => {
     expect(opens).toHaveLength(2);
     const eight = input('rich').entries.find((e) => e.id === 8);
     expect(storySet(twice, 8)).toBe(squashed(eight?.story ?? ''));
+  });
+
+  it('BOOKDSN-030: cuts words the findings say run long at a sentence, to what the engine measures their frame to hold', () => {
+    const page = input('rich').page;
+    const look = designLook(bookDesignDirectivesSchema.parse({ style: 'classic' }), page, []);
+    // At the floor of a story's size already, so the repair cuts the words rather than setting them smaller.
+    const words = 'A long day on the ice. '.repeat(40).trim();
+    const frame = { x: 230, y: 20, w: 160, h: 30 };
+    const long = bookTextElementSchema.parse({
+      id: 't-long',
+      kind: 'text',
+      frame,
+      text: words,
+      size: 9,
+      leading: 1.5,
+    }) as BookTextElement;
+    const spread: BookSpread = {
+      id: 'sp-in',
+      role: 'inner',
+      background: '#ffffff',
+      elements: [long],
+      parked: [],
+      entryId: null,
+    };
+    expect(pageFindings(spread, page, []).map((f) => f.code)).toContain('text_overflow');
+    let n = 0;
+    const fixed = repairSpread(spread, { page, photos: [], look, newId: (p) => `${p}-${++n}` });
+    expect(fixed.findings.map((f) => f.code)).not.toContain('text_overflow');
+    // Six lines of 94 letters hold 24 of its sentences; at the best estimate's 99 letters a line, 25 would be set.
+    const cut = fixed.spread.elements[0] as BookTextElement;
+    expect(cut.text).toBe('A long day on the ice. '.repeat(24).trim());
+    expect(textHeightNeeded(cut, DESIGN_TEXT_HEADROOM)).toBeLessThanOrEqual(frame.h);
+    const more = { ...cut, text: `${cut.text} A long day on the ice.` };
+    expect(textHeightNeeded(more, DESIGN_TEXT_HEADROOM)).toBeGreaterThan(frame.h);
   });
 });
 

@@ -1,9 +1,10 @@
-import { MIN_PRINT_DPI, photoDpi, spreadFindings } from './book-findings';
+import { DESIGN_TEXT_HEADROOM, MIN_PRINT_DPI, photoDpi, spreadFindings, textHeightNeeded } from './book-findings';
 import { applyBookTemplate, findBookTemplate, type BookTemplate } from './book-layouts';
 import type { BookPhotoInfo } from './book-ops-core';
 import { BOOK_OP_LIMITS, bookPageDescriptionSchema, bookOverviewSchema, type BookFinding } from './book-ops.schema';
 import { blankBook } from './book-pages';
 import {
+  BOOK_FONTS_IDS,
   bookBadgeElementSchema,
   bookCountriesElementSchema,
   bookIconElementSchema,
@@ -197,6 +198,87 @@ describe('findings', () => {
     expect(list.every((f) => f.severity === 'severe')).toBe(true);
     const order = list.map((f) => ({ severe: 0, warn: 1, info: 2 })[f.severity]);
     expect(order).toEqual([...order].sort((a, b) => a - b));
+  });
+});
+
+/** A story of 898 characters the Studio sets in ten lines across 178.5 mm, at 10 pt in sans. */
+const LISBON = [
+  'Wir stehen früh auf und laufen von der Sé hinauf in die Alfama, bevor die Busse kommen. Die Gassen',
+  'sind noch nass vom Wischen, aus den Fenstern hängt Wäsche, und eine ältere Frau stellt Geranien auf',
+  'die Treppe. Am Largo das Portas do Sol trinken wir den ersten Galão und schauen auf die Dächer, die',
+  'bis zum Tejo hinunterfallen. Ein Straßenmusiker spielt Fado auf einer portugiesischen Gitarre,',
+  'leise, als wolle er niemanden wecken. Danach verlaufen wir uns absichtlich. Jede Treppe führt zu',
+  'einem kleinen Platz, jeder Platz zu einer neuen Aussicht. In einer Tasca essen wir gegrillte',
+  'Sardinen mit Brot, und der Wirt erklärt uns mit Händen und Füßen, warum man sie nicht entgräten',
+  'muss. Gegen Mittag wird es warm, die Azulejos glänzen in der Sonne, und wir setzen uns in den',
+  'Schatten des Castelo de São Jorge. Von oben sieht die Stadt aus wie ein Modell, die Brücke des 25.',
+  'April schimmert im Dunst.',
+].join(' ');
+
+/** A text as the design engine sets a story: sans at 10 pt, weight 400, a leading of 1.5, no tracking. */
+const story = (words: string, w: number, h = 40) =>
+  bookTextElementSchema.parse({
+    id: 't-m',
+    kind: 'text',
+    frame: { x: 225.75, y: 64, w, h },
+    text: words,
+    font: 'sans',
+    size: 10,
+    weight: 400,
+    leading: 1.5,
+    tracking: 0,
+  }) as BookTextElement;
+
+/** One line of such a story, in millimetres. */
+const LINE = ((10 * 25.4) / 72) * 1.5;
+
+describe('the measure of a text', () => {
+  it('BOOKMEAS-001: measures the story the Studio sets in ten lines at ten lines, and flags a frame two lines short', () => {
+    expect(LISBON).toHaveLength(898);
+    expect(textHeightNeeded(story(LISBON, 178.5), DESIGN_TEXT_HEADROOM)).toBeCloseTo(10 * LINE, 6);
+    expect(textHeightNeeded(story(LISBON, 178.5))).toBeCloseTo(10 * LINE, 6);
+    // The findings allow a tenth over a frame: the nine lines the engine gave the story before pass, eight do not.
+    const overflow = (h: number) => findings([story(LISBON, 178.5, h)]).find((f) => f.code === 'text_overflow');
+    expect(overflow(48.83)).toBeUndefined();
+    expect(overflow(8 * LINE + 1.2)).toMatchObject({ severity: 'severe', elementIds: ['t-m'] });
+  });
+
+  it('BOOKMEAS-002: breaks lines at spaces, a word longer than a line inside it, and sets each paragraph on lines of its own', () => {
+    // Ten letters a line at 18 mm.
+    const lines = (words: string) => textHeightNeeded(story(words, 18)) / LINE;
+    expect(lines('aaaaaa bbbbbb cccccc')).toBeCloseTo(3, 6);
+    expect(lines('abcdefghijklmnopqrstuvwxy')).toBeCloseTo(3, 6);
+    expect(lines('ab abcdefghijklmnopqrstuvwxy')).toBeCloseTo(4, 6);
+    expect(lines('abcdefghij k')).toBeCloseTo(2, 6);
+    expect(lines('ab cd')).toBeCloseTo(1, 6);
+    expect(lines('')).toBeCloseTo(1, 6);
+    expect(lines('ab\ncd')).toBeCloseTo(2, 6);
+    expect(lines('ab\n\ncd   ')).toBeCloseTo(3, 6);
+  });
+
+  it('BOOKMEAS-003: never counts fewer lines with the design headroom than the best estimate, and a line more where one is tight', () => {
+    const texts = [LISBON, 'A long day on the ice. '.repeat(12), 'Harbour', ''];
+    const sized = [30, 60, 120, 178.5].flatMap((w) => [7, 10, 14].map((size) => ({ w, size })));
+    const sets = BOOK_FONTS_IDS.flatMap((font) => sized.map((set) => ({ ...set, font })));
+    for (const { font, w, size } of sets) {
+      for (const words of texts) {
+        for (const weight of [400, 700] as const) {
+          const el = { ...story(words, w), font, size, weight };
+          expect(textHeightNeeded(el, DESIGN_TEXT_HEADROOM)).toBeGreaterThanOrEqual(textHeightNeeded(el));
+        }
+      }
+    }
+    expect(textHeightNeeded(story(LISBON, 150))).toBeCloseTo(11 * LINE, 6);
+    expect(textHeightNeeded(story(LISBON, 150), DESIGN_TEXT_HEADROOM)).toBeCloseTo(12 * LINE, 6);
+  });
+
+  it('BOOKMEAS-004: widens the letters by the design headroom and leaves the tracking as it is', () => {
+    // With 0.1 em of tracking a letter takes 0.507 em times the headroom plus 0.1 em, 2.231 mm at 10 pt: forty fit
+    // 89.5 mm but not 89 mm. Were the tracking widened too, 89.5 mm would hold 39.
+    const tracked = (w: number) => ({ ...story('a'.repeat(40), w), tracking: 0.1 });
+    expect(textHeightNeeded(tracked(89.5), DESIGN_TEXT_HEADROOM)).toBeCloseTo(LINE, 6);
+    expect(textHeightNeeded(tracked(89), DESIGN_TEXT_HEADROOM)).toBeCloseTo(2 * LINE, 6);
+    expect(textHeightNeeded(tracked(89))).toBeCloseTo(LINE, 6);
   });
 });
 

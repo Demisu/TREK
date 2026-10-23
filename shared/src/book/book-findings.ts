@@ -66,29 +66,64 @@ export function photoDpi(el: BookPhotoElement, info: BookPhotoInfo | undefined):
   return Math.round(25.4 / mmPerPx);
 }
 
-/** Average letter width per em, per family: enough to tell one line from three. */
+/** Average letter width per em at weight 400, per family: measured on story text as the Studio sets each family. */
 const LETTER_EM: Record<BookTextElement['font'], number> = {
-  sans: 0.5,
-  inter: 0.52,
-  serif: 0.47,
-  garamond: 0.44,
-  playfair: 0.5,
-  display: 0.48,
-  bebas: 0.38,
+  sans: 0.507,
+  inter: 0.478,
+  serif: 0.469,
+  garamond: 0.383,
+  playfair: 0.454,
+  display: 0.492,
+  bebas: 0.339,
 };
+
+/**
+ * The headroom on letter width the design engine sizes a text frame with. A
+ * frame the engine sizes must hold its words, and a few percent of width
+ * covers the letters wider than the average: measured against the Studio on
+ * 1512 texts, the lines counted with it fall short in under 1% of them, where
+ * counting characters fell short in 27%. The findings keep the best estimate,
+ * so a frame a person sized is not flagged for a few percent of width.
+ */
+export const DESIGN_TEXT_HEADROOM = 1.05;
 
 /** A number the text carries, or the schema's default when it carries none (a layout's meta line sets no leading). */
 const orDefault = (v: number | undefined, fallback: number) => (Number.isFinite(v) ? (v as number) : fallback);
 
-/** How many millimetres a text needs to be set at its frame's width, roughly. */
-export function textHeightNeeded(el: BookTextElement): number {
+/**
+ * How many lines a paragraph takes at `perLine` letters a line, broken at
+ * spaces as the Studio breaks it: a word that does not fit the rest of a line
+ * starts the next one, a word longer than a line breaks inside it, and an
+ * empty paragraph is one line.
+ */
+function wrappedLines(para: string, perLine: number): number {
+  let lines = 1;
+  let used = 0;
+  for (const word of para.split(' ')) {
+    if (used > 0 && used + 1 + word.length <= perLine) {
+      used += 1 + word.length;
+      continue;
+    }
+    if (used > 0) lines += 1;
+    lines += Math.max(0, Math.ceil(word.length / perLine) - 1);
+    used = word.length % perLine || Math.min(word.length, perLine);
+  }
+  return lines;
+}
+
+/**
+ * How many millimetres a text needs to be set at its frame's width, roughly:
+ * its words wrapped at the family's average letter width times `headroom`,
+ * plus its tracking, which is the same for every letter and so takes no
+ * headroom. The default, 1, is the best estimate; the design engine sizes its
+ * frames with `DESIGN_TEXT_HEADROOM`.
+ */
+export function textHeightNeeded(el: BookTextElement, headroom = 1): number {
   const sizeMm = (orDefault(el.size, 11) * 25.4) / 72;
   const tracking = orDefault(el.tracking, 0);
-  const letter = sizeMm * ((LETTER_EM[el.font] ?? 0.5) * (el.weight >= 600 ? 1.06 : 1) + tracking);
+  const letter = sizeMm * ((LETTER_EM[el.font] ?? 0.5) * (el.weight >= 600 ? 1.06 : 1) * headroom + tracking);
   const perLine = Math.max(1, Math.floor(el.frame.w / Math.max(letter, 0.1)));
-  const lines = el.text
-    .split('\n')
-    .reduce((sum, para) => sum + Math.max(1, Math.ceil(para.trimEnd().length / perLine)), 0);
+  const lines = el.text.split('\n').reduce((sum, para) => sum + wrappedLines(para.trimEnd(), perLine), 0);
   return lines * sizeMm * orDefault(el.leading, 1.45);
 }
 
