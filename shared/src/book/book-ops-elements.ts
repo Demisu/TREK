@@ -1,8 +1,10 @@
 import { relayoutSpread } from './auto/auto-book';
 import type { AutoEntry, AutoInput } from './auto/auto-types';
+import { alignElements, arrangeElements, distributableCount, distributeElements } from './book-arrange';
 import { bookElementPropsSchema, type BOOK_ELEMENT_OP_SCHEMAS, type BookNewElement } from './book-element-ops.schema';
 import { withRealWeight } from './book-fonts';
 import { bookGridElements, defaultBookGridBox, findBookGrid } from './book-grids';
+import { regroupCopies, tidyGroups, withCopies, withoutGroup } from './book-groups';
 import {
   bookBoundWords,
   failOp,
@@ -427,94 +429,26 @@ function opLock(spread: BookSpread, op: Op<'lock'>, env: ElementOpEnv): BookSpre
   );
 }
 
-// ── arrange ────────────────────────────────────────────────────────────────
-
-function opArrange(spread: BookSpread, op: Op<'arrange'>, env: ElementOpEnv): BookSpread {
-  const chosen = new Set(namedElements(spread, op.elementIds, env).map((e) => e.id));
-  const pick = (want: boolean) => spread.elements.filter((e) => chosen.has(e.id) === want);
-  if (op.to === 'front') return { ...spread, elements: [...pick(false), ...pick(true)] };
-  if (op.to === 'back') return { ...spread, elements: [...pick(true), ...pick(false)] };
-  const els = spread.elements.slice();
-  const step = op.to === 'forward' ? 1 : -1;
-  const order = els.map((_, i) => i);
-  if (step === 1) order.reverse();
-  for (const i of order) {
-    const here = els[i];
-    const there = els[i + step];
-    if (!here || !there || !chosen.has(here.id) || chosen.has(there.id)) continue;
-    els[i] = there;
-    els[i + step] = here;
-  }
-  return { ...spread, elements: els };
-}
-
-// ── align, distribute ──────────────────────────────────────────────────────
+// ── arrange, align, distribute (book-arrange.ts) ───────────────────────────
 
 /** A frame in millimetres, as the book types it, so a zod-inferred `el.frame` passes in every compile mode. */
 type Box = BookFrame;
 
-function boundsOf(frames: readonly Box[]): Box {
-  const x = Math.min(...frames.map((f) => f.x));
-  const y = Math.min(...frames.map((f) => f.y));
-  const right = Math.max(...frames.map((f) => f.x + f.w));
-  const bottom = Math.max(...frames.map((f) => f.y + f.h));
-  return { x, y, w: right - x, h: bottom - y };
-}
-
-/** The page an element's centre is on, or its safe area. */
-function pageBox(spread: BookSpread, page: BookPageSetup, f: Box, safe: boolean): Box {
-  const onRight = isInner(spread) && f.x + f.w / 2 >= page.pageWidth;
-  const x = onRight ? page.pageWidth : 0;
-  const inset = safe ? page.safe : 0;
-  return { x: x + inset, y: inset, w: page.pageWidth - inset * 2, h: page.pageHeight - inset * 2 };
-}
-
-function alignedFrame(f: Box, box: Box, edge: Op<'align'>['edge']): BookFrame {
-  switch (edge) {
-    case 'left':
-      return { ...f, x: round2(box.x) };
-    case 'center':
-      return { ...f, x: round2(box.x + (box.w - f.w) / 2) };
-    case 'right':
-      return { ...f, x: round2(box.x + box.w - f.w) };
-    case 'top':
-      return { ...f, y: round2(box.y) };
-    case 'middle':
-      return { ...f, y: round2(box.y + (box.h - f.h) / 2) };
-    case 'bottom':
-      return { ...f, y: round2(box.y + box.h - f.h) };
-  }
+function opArrange(spread: BookSpread, op: Op<'arrange'>, env: ElementOpEnv): BookSpread {
+  const chosen = namedElements(spread, op.elementIds, env).map((e) => e.id);
+  return arrangeElements(spread, chosen, op.to);
 }
 
 function opAlign(spread: BookSpread, op: Op<'align'>, env: ElementOpEnv): BookSpread {
-  const els = namedElements(spread, op.elementIds, env);
-  const selection = boundsOf(els.map((e) => e.frame));
-  const next = els.map((e) => {
-    const box = op.to === 'selection' ? selection : pageBox(spread, env.page, e.frame, op.to === 'safe');
-    return { ...e, frame: alignedFrame(e.frame, box, op.edge) } as BookElement;
-  });
-  return replaceAll(spread, next);
+  return alignElements(spread, env.page, namedElements(spread, op.elementIds, env), op.edge, op.to);
 }
 
 function opDistribute(spread: BookSpread, op: Op<'distribute'>, env: ElementOpEnv): BookSpread {
   const els = namedElements(spread, op.elementIds, env);
-  if (els.length < 3) throw failOp('not_enough_elements', 'distribute needs three different elements', env.opIndex);
-  const across = op.axis === 'horizontal';
-  const start = (f: Box) => (across ? f.x : f.y);
-  const size = (f: Box) => (across ? f.w : f.h);
-  const sorted = els.slice().sort((a, b) => start(a.frame) - start(b.frame));
-  const first = sorted[0] as BookElement;
-  const last = sorted[sorted.length - 1] as BookElement;
-  const total = sorted.reduce((sum, e) => sum + size(e.frame), 0);
-  const span = start(last.frame) + size(last.frame) - start(first.frame);
-  const gap = op.gap ?? (span - total) / (sorted.length - 1);
-  let cursor = start(first.frame);
-  const next = sorted.map((e) => {
-    const at = round2(cursor);
-    cursor += size(e.frame) + gap;
-    return { ...e, frame: across ? { ...e.frame, x: at } : { ...e.frame, y: at } } as BookElement;
-  });
-  return replaceAll(spread, next);
+  if (distributableCount(spread, els) < 3) {
+    throw failOp('not_enough_elements', 'distribute needs three different elements or groups', env.opIndex);
+  }
+  return distributeElements(spread, els, op.axis, op.gap);
 }
 
 // ── duplicate, fill, copy_from ─────────────────────────────────────────────
@@ -530,7 +464,7 @@ function opDuplicate(spread: BookSpread, op: Op<'duplicate'>, env: ElementOpEnv)
     const frame = { ...e.frame, x: round2(e.frame.x + dx), y: round2(e.frame.y + dy) };
     return { ...e, id: env.newId(prefixOf(e)), frame } as BookElement;
   });
-  return { ...spread, elements: [...spread.elements, ...copies] };
+  return withCopies(spread, regroupCopies(copies, spread, env.newId));
 }
 
 /** The inspector's fill: the photo to the bleed of the page its centre is on, or of the spread, at the back. */
@@ -548,8 +482,9 @@ function opFill(spread: BookSpread, op: Op<'fill'>, env: ElementOpEnv): BookSpre
     w: (spanning ? 2 : 1) * pageWidth + 2 * bleed,
     h: pageHeight + 2 * bleed,
   };
-  const filled: BookElement = { ...el, frame, rotation: 0, fit: 'cover' };
-  return { ...spread, elements: [filled, ...spread.elements.filter((e) => e.id !== el.id)] };
+  // A picture that is the page is nobody's lockup: it leaves its group.
+  const filled: BookElement = { ...withoutGroup(el), frame, rotation: 0, fit: 'cover' };
+  return tidyGroups({ ...spread, elements: [filled, ...spread.elements.filter((e) => e.id !== el.id)] });
 }
 
 /** Which page of its spread an element is on: the left (or only) page is 0, the right one starts at the fold. */
@@ -568,7 +503,7 @@ function opCopyFrom(spread: BookSpread, op: Op<'copy_from'>, env: ElementOpEnv):
     const x = sameKind ? e.frame.x : e.frame.x - pageOrigin(source, env.page, e.frame) + target;
     return { ...e, id: env.newId(prefixOf(e)), frame: { ...e.frame, x: round2(x) } } as BookElement;
   });
-  return { ...spread, elements: [...spread.elements, ...copies] };
+  return withCopies(spread, regroupCopies(copies, source, env.newId));
 }
 
 // ── refresh_travel, add_grid ───────────────────────────────────────────────

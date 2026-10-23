@@ -171,6 +171,10 @@ export type BookShapeId = (typeof BOOK_SHAPES)[number];
 export { BOOK_FONTS_IDS, type BookFontFamily };
 const bookWeightSchema = z.literal(BOOK_WEIGHTS);
 
+/** How long a group id and a layer's name may be. */
+export const BOOK_GROUP_ID_MAX = 40;
+export const BOOK_LAYER_NAME_MAX = 60;
+
 export const bookFrameSchema = z.object({
   /** Millimetres from the left edge of the spread. Negative means bleed. */
   x: mm,
@@ -188,6 +192,16 @@ const elementBase = {
   rotation: z.number().finite().default(0),
   opacity: z.number().min(0).max(1).default(1),
   locked: z.boolean().default(false),
+  /**
+   * The group the element belongs to on its spread, by the group's id (see
+   * book-groups.ts). Absent for an element on its own. Optional rather than
+   * defaulted, so a book without groups stores what it stored before.
+   */
+  group: z.string().min(1).max(BOOK_GROUP_ID_MAX).optional(),
+  /** What the layers panel calls it. Absent means the name of its kind. */
+  name: z.string().max(BOOK_LAYER_NAME_MAX).optional(),
+  /** Kept in the layers panel but left off the page, on screen and in print. */
+  hidden: z.boolean().optional(),
 };
 
 export const bookPhotoElementSchema = z.object({
@@ -840,6 +854,13 @@ export type BookBadgeElement = z.infer<typeof bookBadgeElementSchema>;
 export type BookListElement = z.infer<typeof bookListElementSchema>;
 export type BookUnits = z.infer<typeof bookUnitsSchema>;
 
+/** A named group of a spread. */
+export const bookGroupSchema = z.object({
+  id: z.string().min(1).max(BOOK_GROUP_ID_MAX),
+  name: z.string().max(BOOK_LAYER_NAME_MAX).optional(),
+});
+export type BookGroup = z.infer<typeof bookGroupSchema>;
+
 export const bookSpreadSchema = z.object({
   id: z.string().min(1),
   /**
@@ -870,6 +891,12 @@ export const bookSpreadSchema = z.object({
   parked: z.array(bookElementSchema).max(MAX_SPREAD_ELEMENTS).default([]),
   /** The journey entry this spread was generated from, if any. */
   entryId: z.number().int().nullable().default(null),
+  /**
+   * The names of the spread's groups. Membership is on the elements (`group`);
+   * a group without a row here is simply unnamed. A list that does not read is
+   * dropped rather than the page.
+   */
+  groups: z.array(bookGroupSchema).max(MAX_SPREAD_ELEMENTS).optional().catch(undefined),
 });
 export type BookSpread = z.infer<typeof bookSpreadSchema>;
 

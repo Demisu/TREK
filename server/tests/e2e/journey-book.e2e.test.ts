@@ -33,6 +33,9 @@ import { BOOK_SCHEMA_REV, bookWriteResultSchema } from '@trek/shared';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
+/** A format revision newer than this build reads. */
+const NEWER = BOOK_SCHEMA_REV + 1;
+
 const BOOK_TOOLS = [
   'get_book',
   'describe_book_page',

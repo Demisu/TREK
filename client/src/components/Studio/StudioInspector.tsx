@@ -21,6 +21,8 @@ import { WeightLine } from './StudioTypeControls'
 import { italicTitle } from './fontPicker'
 import type { JourneySource } from './StudioSidebar'
 import { Tooltip } from '../shared/Tooltip'
+import { StudioArrangeSection } from './StudioArrangeSection'
+import { selectionTitle } from './studioLayerRows'
 
 /** How many icons the swap grid offers at once. A search narrows it below this. */
 const ICON_CHOICES = 60
@@ -240,7 +242,7 @@ export function StudioInspector({
       */}
       <div className="st-panel-head st-inspector-head">
         <span className="st-what">
-          {one ? t(`journey.studio.kind.${el.kind}`) : t('journey.studio.multiple')}
+          {one ? t(`journey.studio.kind.${el.kind}`) : selectionTitle(spread, selection, t)}
           {sel.length > 1 && <em>{sel.length}</em>}
         </span>
         <span className="st-head-acts">
@@ -659,18 +661,20 @@ export function StudioInspector({
           </Section>
         )}
 
+        <StudioArrangeSection spreadIndex={spreadIndex} t={t} />
+
         <Section label={t('journey.studio.arrange')} defaultOpen={false}>
           <div className="st-row">
-            <button type="button" className="st-chip is-icon" onClick={() => raise(spreadIndex, el.id, 'front')} title={t('journey.studio.toFront')}>
+            <button type="button" className="st-chip is-icon" onClick={() => raise(spreadIndex, selection, 'front')} title={t('journey.studio.toFront')}>
               <ChevronsUp size={14} />
             </button>
-            <button type="button" className="st-chip is-icon" onClick={() => raise(spreadIndex, el.id, 'up')} title={t('journey.studio.forward')}>
+            <button type="button" className="st-chip is-icon" onClick={() => raise(spreadIndex, selection, 'up')} title={t('journey.studio.forward')}>
               <ArrowUp size={14} />
             </button>
-            <button type="button" className="st-chip is-icon" onClick={() => raise(spreadIndex, el.id, 'down')} title={t('journey.studio.backward')}>
+            <button type="button" className="st-chip is-icon" onClick={() => raise(spreadIndex, selection, 'down')} title={t('journey.studio.backward')}>
               <ArrowDown size={14} />
             </button>
-            <button type="button" className="st-chip is-icon" onClick={() => raise(spreadIndex, el.id, 'back')} title={t('journey.studio.toBack')}>
+            <button type="button" className="st-chip is-icon" onClick={() => raise(spreadIndex, selection, 'back')} title={t('journey.studio.toBack')}>
               <ChevronsDown size={14} />
             </button>
           </div>

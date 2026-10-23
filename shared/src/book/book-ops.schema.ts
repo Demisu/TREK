@@ -1,5 +1,6 @@
 import { idSchema } from '../common/primitives.schema';
 import { BOOK_ELEMENT_OP_SCHEMAS, TEXT_STYLE_FIELDS, bindingNamesItsSource } from './book-element-ops.schema';
+import { BOOK_GROUP_OP_SCHEMAS } from './book-group-ops.schema';
 import { BOOK_COVER_TEMPLATES, BOOK_TEMPLATES } from './book-layouts';
 import {
   BOOK_BINDING_HINT,
@@ -198,6 +199,7 @@ export const bookPageOpSchema = z.discriminatedUnion('op', [
     })
     .refine((v) => (v.color === undefined) !== (v.paint === undefined), { message: 'give the color or the paint' }),
   ...BOOK_ELEMENT_OP_SCHEMAS,
+  ...BOOK_GROUP_OP_SCHEMAS,
 ]);
 export type BookPageOp = z.infer<typeof bookPageOpSchema>;
 export type BookPageOpInput = z.input<typeof bookPageOpSchema>;
@@ -459,6 +461,10 @@ export const bookElementSummarySchema = z.object({
   photoId: z.number().int().nullable().optional(),
   text: z.string().max(80).optional(),
   binding: z.string().optional(),
+  /** The group it is in, its layer name, and whether it is hidden; absent when not. */
+  group: z.string().optional(),
+  name: z.string().optional(),
+  hidden: z.boolean().optional(),
 });
 export type BookElementSummary = z.infer<typeof bookElementSummarySchema>;
 

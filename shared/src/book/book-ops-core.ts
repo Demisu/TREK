@@ -43,6 +43,7 @@ export const BOOK_OP_ERROR_CODES = [
   'sticker_unknown',
   'not_enough_elements',
   'layouts_full',
+  'group_not_found',
 ] as const;
 export type BookOpErrorCode = (typeof BOOK_OP_ERROR_CODES)[number];
 

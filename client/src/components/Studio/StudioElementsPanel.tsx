@@ -3,7 +3,7 @@ import { Minus, Quote, Search, Square, X } from 'lucide-react'
 import type { BookElement, BookPageSetup, BookShapeId } from '@trek/shared'
 import { useStudioStore } from '../../store/studioStore'
 import { FRAME_SHAPES, HOLED_SHAPES, SHAPE_GROUPS, SHAPE_PATHS } from './shapes'
-import { BOOK_GRIDS as GRIDS, bookGridElements as gridElements, defaultBookGridBox as defaultGridBox } from '@trek/shared'
+import { BOOK_GRIDS as GRIDS, bookElementId, bookGridElements as gridElements, defaultBookGridBox as defaultGridBox } from '@trek/shared'
 import { PanelHead } from './StudioPanelHead'
 import { FEATURED_ICONS, iconComponent, iconLabel, searchIcons } from './iconLibrary'
 
@@ -16,7 +16,8 @@ import { FEATURED_ICONS, iconComponent, iconLabel, searchIcons } from './iconLib
  * hold them separately stops being faster to hit than a word would be.
  */
 
-const uid = (p: string) => `${p}-${Math.random().toString(36).slice(2, 9)}`
+// The book's own ids, the ones the layouts and the assistant mint (shared/src/book/book-ids.ts).
+const uid = bookElementId
 
 /** How many icons the grid draws at a time. Two screens' worth at four across. */
 const ICON_PAGE = 120

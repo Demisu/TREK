@@ -53,7 +53,7 @@
   "components/Studio/PageNumbers.tsx": 1,
   "components/Studio/PeerCursors.tsx": 1,
   "components/Studio/SpreadView.tsx": 8,
-  "components/Studio/StudioCanvas.tsx": 22,
+  "components/Studio/StudioCanvas.tsx": 12,
   "components/Studio/StudioElementsPanel.tsx": 1,
   "components/Studio/StudioExport.tsx": 1,
   "components/Studio/StudioInspector.tsx": 1,

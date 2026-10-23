@@ -593,7 +593,8 @@ export function useJourneyStudio() {
         if (e.shiftKey) redo(); else undo()
         return
       }
-      if (e.key !== 'Escape' || typing) return
+      // Taken already: the sheet stepped out of a group with it (useStudioKeys).
+      if (e.key !== 'Escape' || typing || e.defaultPrevented) return
       // An editor's Escape clears the selection first; only a second one leaves.
       if (selection.length) {
         e.preventDefault()

@@ -2,6 +2,7 @@ import { photoDpi, spreadFindings } from './book-findings';
 import { designFindings, sortBookFindings } from './book-findings-design';
 import { bookFontRole, bookWeightWord, nearestBookWeight } from './book-fonts';
 import { BOOK_GRIDS } from './book-grids';
+import { bookGroupName, groupMembers, spreadGroupIds } from './book-groups';
 import { BOOK_COVER_TEMPLATES, BOOK_TEMPLATES, type BookTemplate } from './book-layouts';
 import type { BookPhotoInfo } from './book-ops-core';
 import type {
@@ -150,9 +151,24 @@ function elementLine(el: BookElement, i: number, photos: readonly BookPhotoInfo[
     el.rotation ? `turned ${n(el.rotation)} deg` : '',
     el.opacity < 1 ? `opacity ${n(el.opacity)}` : '',
     el.locked ? 'locked' : '',
+    el.hidden ? 'hidden (not on the page or in print)' : '',
+    el.group ? `in group ${el.group}` : '',
+    el.name ? `named "${head(el.name, 40)}"` : '',
   ].filter(Boolean);
   const tail = extra.length ? `; ${extra.join(', ')}` : '';
   return `${i + 1}. ${el.kind} ${el.id} at ${n(x)}, ${n(y)}, ${n(w)} x ${n(h)}: ${elementWords(el, photos)}${tail}`;
+}
+
+/** The page's groups by id, with their names and members, so a model can move or align one as a whole. */
+function groupsLine(spread: BookSpread): string | null {
+  const ids = spreadGroupIds(spread);
+  if (!ids.length) return null;
+  const rows = ids.map((id) => {
+    const name = bookGroupName(spread, id);
+    const members = groupMembers(spread, id).map((e) => e.id);
+    return `${id}${name ? ` "${head(name, 40)}"` : ''} (${members.join(', ')})`;
+  });
+  return `Groups, each picked, moved, aligned and arranged as one: ${rows.join('; ')}`;
 }
 
 function parkedLine(spread: BookSpread): string | null {
@@ -200,6 +216,9 @@ function elementSummary(el: BookElement): BookElementSummary {
     ...(el.kind === 'photo' ? { photoId: el.photoId } : {}),
     ...(el.kind === 'text' ? { text: head(el.text, 80) } : {}),
     ...(el.kind === 'text' && el.binding ? { binding: el.binding.source } : {}),
+    ...(el.group ? { group: el.group } : {}),
+    ...(el.name ? { name: el.name } : {}),
+    ...(el.hidden ? { hidden: true } : {}),
   };
 }
 
@@ -238,6 +257,8 @@ export function describeSpread(
   } else {
     lines.push('The page is empty.');
   }
+  const groups = groupsLine(spread);
+  if (groups) lines.push(groups);
   const parked = parkedLine(spread);
   if (parked) lines.push(parked);
   lines.push(findings.length ? 'Findings:' : 'Findings: none.');

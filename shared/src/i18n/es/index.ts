@@ -61,6 +61,7 @@ import storage from './storage';
 import studioFonts from './studioFonts';
 import studioPaint from './studioPaint';
 import studioStickers from './studioStickers';
+import studioLayers from './studioLayers';
 import system_notice from './system_notice';
 import todo from './todo';
 import tourCollection from './tourCollection';
@@ -150,5 +151,6 @@ const locale = {
   ...assistantVacay,
   ...assistantJourney,
   ...assistantPacking,
+  ...studioLayers,
 };
 export default locale;

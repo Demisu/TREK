@@ -20,12 +20,6 @@ import { describe, expect, it } from 'vitest';
  */
 
 const frame = { x: 12, y: 18, w: 60, h: 40 };
-/** A revision newer than this build reads. */
-const NEWER = BOOK_SCHEMA_REV + 1;
-
-/** A revision one past what this build reads. */
-const NEWER = BOOK_SCHEMA_REV + 1;
-
 /** A revision above this build's, and an element kind no revision of it knows. */
 const NEWER = BOOK_SCHEMA_REV + 1;
 const fromLater = { id: 'x1', kind: 'hologram', frame, glow: 'lemon' };

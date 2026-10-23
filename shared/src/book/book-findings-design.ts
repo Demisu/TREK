@@ -1,6 +1,7 @@
 import { compareCodeUnits } from '../common/compare';
 import { contrastOfLuminance, deltaE, greyLuminance, luminance, parseHex, requiredContrast } from './book-colour';
 import { bookFontCountsInMix, bookFontsUsed } from './book-fonts';
+import { visibleSpread } from './book-groups';
 import type { BookPhotoInfo } from './book-ops-core';
 import { BOOK_OP_LIMITS, type BookFinding } from './book-ops.schema';
 import type { BookDocument, BookElement, BookFrame, BookPageSetup, BookPhotoElement, BookSpread } from './book.schema';
@@ -300,7 +301,7 @@ export function designFindings(
   page: BookPageSetup,
   photos?: readonly BookPhotoInfo[],
 ): BookFinding[] {
-  const ctx: Ctx = { spread, page, photos, out: [] };
+  const ctx: Ctx = { spread: visibleSpread(spread), page, photos, out: [] };
   contrastAndBusy(ctx);
   smallText(ctx);
   crowded(ctx);

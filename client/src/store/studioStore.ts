@@ -5,6 +5,8 @@ import {
   bookLayoutFromSpread as layoutFromSpread, canEditSpread as isMovableSpread, innerSpreadBounds as innerBounds,
 } from '@trek/shared'
 import { pastedElements, type StudioClipboard } from '../components/Studio/studioClipboard'
+import { regroupCopies, tidyGroups, withCopies, bookElementId } from '@trek/shared'
+import { studioLayerActions, type StudioLayerActions } from './studioLayers'
 
 /**
  * The book being edited.
@@ -22,7 +24,7 @@ import { pastedElements, type StudioClipboard } from '../components/Studio/studi
 
 const HISTORY_LIMIT = 60
 
-interface StudioState {
+interface StudioState extends StudioLayerActions {
   doc: BookDocument | null
   selection: string[]
   activeSpread: number
@@ -86,8 +88,6 @@ interface StudioState {
   setRotation: (spreadIndex: number, id: string, rotation: number) => void
   addElement: (spreadIndex: number, el: BookElement) => void
   removeElements: (spreadIndex: number, ids: string[]) => void
-  duplicate: (spreadIndex: number, ids: string[]) => void
-  raise: (spreadIndex: number, id: string, to: 'front' | 'back' | 'up' | 'down') => void
   /** Copy elements of a spread to the clipboard (#2316). */
   copy: (spreadIndex: number, ids: string[]) => void
   /** Put the clipboard onto a spread, as one undo step, and select what arrived. */
@@ -136,6 +136,8 @@ function replaceSpread(doc: BookDocument, index: number, fn: (s: BookSpread) => 
 }
 
 export const useStudioStore = create<StudioState>((set, get) => ({
+  // Groups, layers, align, nudge, duplicate and paste style: studioLayers.ts.
+  ...studioLayerActions(set, get),
   doc: null,
   selection: [],
   activeSpread: 0,
@@ -147,7 +149,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   readOnly: false,
 
   setReadOnly: readOnly => set({ readOnly, gestureBase: null }),
-  load: doc => set({ doc, selection: [], activeSpread: 0, past: [], future: [], gestureBase: null, hintSpread: null }),
+  load: doc => set({ doc, selection: [], enteredGroup: null, activeSpread: 0, past: [], future: [], gestureBase: null, hintSpread: null }),
   adoptRemote: (doc, opts) => set(s => {
     if (!s.doc) return { doc, selection: [], activeSpread: 0, past: [], future: [], gestureBase: null }
     if (doc === s.doc) return {}
@@ -163,6 +165,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
       doc,
       activeSpread,
       selection: found >= 0 ? s.selection.filter(id => onPage.has(id)) : [],
+      enteredGroup: found >= 0 ? s.enteredGroup : null,
       past: opts?.undoable === false ? [] : [...s.past, replaced].slice(-HISTORY_LIMIT),
       // A new branch: redoing what was undone before this arrived would write over it.
       future: [],
@@ -171,9 +174,10 @@ export const useStudioStore = create<StudioState>((set, get) => ({
       gestureBase: s.gestureBase ? doc : null,
     }
   }),
-  setActiveSpread: i => set({ activeSpread: i, selection: [] }),
+  setActiveSpread: i => set({ activeSpread: i, selection: [], enteredGroup: null }),
   setHintSpread: spreadId => set({ hintSpread: spreadId }),
-  select: ids => set({ selection: ids }),
+  // Nothing selected is outside every group too.
+  select: ids => set(ids.length ? { selection: ids } : { selection: ids, enteredGroup: null }),
   toggleSelect: (id, additive) => set(s => {
     if (!additive) return { selection: [id] }
     return { selection: s.selection.includes(id) ? s.selection.filter(x => x !== id) : [...s.selection, id] }
@@ -232,44 +236,13 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   },
 
   removeElements: (spreadIndex, ids) => {
-    get().commit(doc => replaceSpread(doc, spreadIndex, sp => ({
+    // A group left with one member is no group any more.
+    get().commit(doc => replaceSpread(doc, spreadIndex, sp => tidyGroups({
       ...sp,
       elements: sp.elements.filter(e => !ids.includes(e.id)),
     })))
-    set({ selection: [] })
+    set({ selection: [], enteredGroup: null })
   },
-
-  duplicate: (spreadIndex, ids) => {
-    // Offset the copy so it is visibly a second thing rather than an exact
-    // overlay you cannot tell apart from the original.
-    const OFFSET = 4
-    const made: string[] = []
-    get().commit(doc => replaceSpread(doc, spreadIndex, sp => {
-      const copies = sp.elements
-        .filter(e => ids.includes(e.id))
-        .map(e => {
-          const id = `${e.kind[0]}-${Math.random().toString(36).slice(2, 9)}`
-          made.push(id)
-          return { ...e, id, frame: { ...e.frame, x: e.frame.x + OFFSET, y: e.frame.y + OFFSET } }
-        })
-      return { ...sp, elements: [...sp.elements, ...copies] }
-    }))
-    if (made.length) set({ selection: made })
-  },
-
-  raise: (spreadIndex, id, to) => get().commit(doc =>
-    replaceSpread(doc, spreadIndex, sp => {
-      const i = sp.elements.findIndex(e => e.id === id)
-      if (i < 0) return sp
-      const els = sp.elements.slice()
-      const [el] = els.splice(i, 1)
-      const at = to === 'front' ? els.length
-        : to === 'back' ? 0
-        : to === 'up' ? Math.min(els.length, i + 1)
-        : Math.max(0, i - 1)
-      els.splice(at, 0, el)
-      return { ...sp, elements: els }
-    })),
 
   copy: (spreadIndex, ids) => {
     const sp = get().doc?.spreads[spreadIndex]
@@ -285,10 +258,12 @@ export const useStudioStore = create<StudioState>((set, get) => ({
     // The spread's own cap: a paste that would push it past what the contract
     // accepts takes what fits rather than making the book unsaveable.
     const room = Math.max(0, MAX_SPREAD_ELEMENTS - target.elements.length)
-    const copies = pastedElements(clipboard, target, doc.page).slice(0, room)
-    if (!copies.length) return
-    get().commit(d => replaceSpread(d, spreadIndex, sp => ({ ...sp, elements: [...sp.elements, ...copies] })))
-    set({ selection: copies.map(e => e.id) })
+    const source = doc.spreads.find(sp => sp.id === clipboard.fromSpreadId)
+    // A copied group arrives as a group of its own, never as part of one already on the page.
+    const copies = regroupCopies(pastedElements(clipboard, target, doc.page).slice(0, room), source, bookElementId)
+    if (!copies.elements.length) return
+    get().commit(d => replaceSpread(d, spreadIndex, sp => withCopies(sp, copies)))
+    set({ selection: copies.elements.map(e => e.id), enteredGroup: null })
   },
 
   saveLayout: (spreadIndex, name) => {
@@ -432,13 +407,13 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   undo: () => set(s => {
     const prev = s.past[s.past.length - 1]
     if (!prev || !s.doc || s.readOnly) return {}
-    return { doc: prev, past: s.past.slice(0, -1), future: [s.doc, ...s.future].slice(0, HISTORY_LIMIT), selection: [] }
+    return { doc: prev, past: s.past.slice(0, -1), future: [s.doc, ...s.future].slice(0, HISTORY_LIMIT), selection: [], enteredGroup: null }
   }),
 
   redo: () => set(s => {
     const next = s.future[0]
     if (!next || !s.doc || s.readOnly) return {}
-    return { doc: next, future: s.future.slice(1), past: [...s.past, s.doc].slice(-HISTORY_LIMIT), selection: [] }
+    return { doc: next, future: s.future.slice(1), past: [...s.past, s.doc].slice(-HISTORY_LIMIT), selection: [], enteredGroup: null }
   }),
 
   canUndo: () => !get().readOnly && get().past.length > 0,

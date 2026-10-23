@@ -1,4 +1,5 @@
 {
-  "pages/tripPlanner/PlanMapStage.tsx": 4,
-  "mobile/components/trek3d/MascotClip.tsx": 1
+  "components/Studio/StudioSelectionChrome.tsx": 2,
+  "mobile/components/trek3d/MascotClip.tsx": 1,
+  "pages/tripPlanner/PlanMapStage.tsx": 4
 }

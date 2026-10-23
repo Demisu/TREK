@@ -498,7 +498,8 @@ export function SpreadView({
         <SpreadPaint paint={spread.backgroundPaint} width={w} height={page.pageHeight} bleed={page.bleed} idPrefix={spread.id} />
       )}
 
-      {spread.elements.map(el => (
+      {/* A hidden layer stays in the layers panel and off the page, here and in print. */}
+      {spread.elements.filter(el => !el.hidden).map(el => (
         <ElementView
           key={el.id}
           el={el}
