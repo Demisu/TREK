@@ -22,6 +22,7 @@ import {
 } from './book-ops-core';
 import { applyElementOp, autoRelayout } from './book-ops-elements';
 import { BOOK_OP_LIMITS, bookPageOpSchema, type BookPageOp } from './book-ops.schema';
+import { withSpreadPaint } from './book-paint';
 import { applySavedBookLayout, bookLayoutRole } from './book-saved-layouts';
 import {
   MAX_SPREAD_ELEMENTS,
@@ -119,7 +120,10 @@ function applyOne(spread: BookSpread, op: BookPageOp, env: Env): BookSpread {
     case 'remove':
       return opRemove(spread, op, env);
     case 'background':
-      return { ...spread, background: op.color };
+      return withSpreadPaint(
+        spread,
+        op.paint !== undefined ? op.paint : op.color ? { type: 'solid', color: op.color } : null,
+      );
     default:
       return applyElementOp(spread, op, env);
   }

@@ -13,6 +13,7 @@ import { ProviderPicker } from '../Journey/JourneyDetailPageProviderPicker'
 import { useAuthStore } from '../../store/authStore'
 import { StudioCanvas } from './StudioCanvas'
 import { StudioInspector } from './StudioInspector'
+import { StudioPaletteScope } from './paint/StudioPalette'
 import { StudioWordmark } from './StudioWordmark'
 import { SaveIndicator } from './SaveIndicator'
 import { downloadSpread } from './spreadFile'
@@ -127,16 +128,18 @@ export default function StudioShell() {
             onBrowseProvider={s.browseProvider}
           />
           <Workbench s={s} bookView={bookView} />
-          <StudioInspector
-            spreadIndex={s.activeSpread}
-            page={s.page}
-            stats={s.stats}
-            path={s.path}
-            source={s.source}
-            setPageNumbers={s.setPageNumbers}
-            t={s.t}
-            locale={s.locale}
-          />
+          <StudioPaletteScope spreadIndex={s.activeSpread} t={s.t}>
+            <StudioInspector
+              spreadIndex={s.activeSpread}
+              page={s.page}
+              stats={s.stats}
+              path={s.path}
+              source={s.source}
+              setPageNumbers={s.setPageNumbers}
+              t={s.t}
+              locale={s.locale}
+            />
+          </StudioPaletteScope>
         </div>
         <StudioAssistantColumn assistant={assistant} title={s.journey?.title} bookVersion={s.bookVersion} />
         <StudioPageStage assistant={assistant} />

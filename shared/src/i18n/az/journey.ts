@@ -540,12 +540,8 @@ const journey: TranslationStrings = {
   'journey.studio.rotation': 'Fırlanma',
   'journey.studio.opacity': 'Şəffaflıq',
   'journey.studio.fill': 'Dolğu',
-  'journey.studio.fillOn': 'Doldurulmuş',
   'journey.studio.stroke': 'Kontur',
   'journey.studio.strokeWidth': 'Qalınlıq',
-  'journey.studio.gradient': 'Keçid',
-  'journey.studio.gradientDown': 'Aşağıya',
-  'journey.studio.gradientUp': 'Yuxarıya',
 
   'journey.studio.showIcons': 'İkonlar',
   'journey.studio.mapFit': 'Sığdırma',

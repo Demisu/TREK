@@ -128,6 +128,13 @@ function pick(c: HTMLElement, label: string) {
   fireEvent.click(chip!)
 }
 
+/** A kind of paint, from the picker's tabs. */
+function tab(c: HTMLElement, label: string) {
+  const button = [...c.querySelectorAll('.st-paint-tab')].find(b => b.textContent === label)
+  if (!button) throw new Error(`no ${label} tab`)
+  fireEvent.click(button)
+}
+
 /** On or off: the app switch, on its own line beside the words. */
 function toggle(c: HTMLElement, label: string) {
   const row = [...c.querySelectorAll('.st-switch')]
@@ -441,36 +448,46 @@ describe('a shape', () => {
 
   /*
    * The rule that matters here: a shape with neither fill nor stroke is a
-   * shape nobody can see or find again, so turning the fill off has to bring
+   * shape nobody can see or find again, so taking the fill away has to bring
    * the outline on with it.
    */
-  it('cannot be turned invisible by switching the fill off', () => {
+  it('cannot be turned invisible by taking the fill away', () => {
     load([shape({ fill: '#111827', stroke: null, strokeWidth: 0 })])
     const { container } = draw()
 
-    toggle(container, 'journey.studio.fillOn')
+    tab(container, 'journey.studio.paint.none')
 
     expect(el()).toMatchObject({ fill: null, stroke: '#141414', strokeWidth: 0.5 })
   })
 
-  it('brings the fill back when it is switched on again', () => {
+  it('brings a fill back when one colour is chosen again', () => {
     load([shape({ fill: null, stroke: '#141414', strokeWidth: 0.5 })])
     const { container } = draw()
 
-    toggle(container, 'journey.studio.fillOn')
+    tab(container, 'journey.studio.paint.solid')
 
     expect(el()).toMatchObject({ fill: '#111111', stroke: '#141414' })
   })
 
-  it('fades the fill, and takes a direction once it does', () => {
-    load([shape()])
+  it('paints a gradient from its own colour, and keeps fill as the colour that stands for it', () => {
+    load([shape({ fill: '#1e3a8a' })])
     const { container } = draw()
 
-    toggle(container, 'journey.studio.gradient')
-    expect(el()).toMatchObject({ gradient: 'down' })
+    tab(container, 'journey.studio.paint.gradient')
 
-    pick(container, 'journey.studio.gradientUp')
-    expect(el()).toMatchObject({ gradient: 'up' })
+    const painted = el() as Extract<BookElement, { kind: 'shape' }>
+    expect(painted.paint).toMatchObject({ type: 'linear', angle: 180, stops: [{ at: 0, color: '#1e3a8a' }, { at: 1 }] })
+    expect(painted.fill).toMatch(/^#[0-9a-f]{6}$/)
+    expect(painted.gradient).toBe('none')
+  })
+
+  /* A cover fade from before paint reads as the gradient it draws, so the picker opens on it. */
+  it('shows an old fade as a gradient', () => {
+    load([shape({ gradient: 'up' })])
+    const { container } = draw()
+
+    const on = container.querySelector('.st-paint-tab[aria-selected="true"]')
+    expect(on?.textContent).toBe('journey.studio.paint.gradient')
   })
 })
 

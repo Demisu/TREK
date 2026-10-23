@@ -14,6 +14,8 @@ import {
   unlockedElement,
   type BookOpsContext,
 } from './book-ops-core';
+import { withShapePaint } from './book-paint';
+import type { BookPaint } from './book-paint.schema';
 import {
   bookBadgeValue,
   bookCountryMark,
@@ -34,6 +36,7 @@ import type {
   BookFrame,
   BookPageSetup,
   BookPhotoElement,
+  BookShapeElement,
   BookSpread,
   BookTextElement,
 } from './book.schema';
@@ -149,10 +152,24 @@ function withProps(el: BookElement, props: Record<string, unknown>): BookElement
   const next: Record<string, unknown> = { ...el };
   for (const key of keys) {
     const value = props[key];
-    if (value === undefined) continue;
+    if (value === undefined || key === 'paint') continue;
     next[key] = (key === 'radius' || key === 'strokeWidth') && typeof value === 'number' ? round2(value) : value;
   }
-  return withRealWeight(next as unknown as BookElement);
+  const made = withRealWeight(next as unknown as BookElement);
+  return made.kind === 'shape' ? withPaintProps(made, props) : made;
+}
+
+/**
+ * A shape's paint, kept in step with its fill: a paint given is written
+ * through withShapePaint, and a plain fill or fade given without one replaces
+ * the paint the shape had, since the newer instruction is the one meant.
+ */
+function withPaintProps(el: BookShapeElement, props: Record<string, unknown>): BookShapeElement {
+  const paint = props.paint as BookPaint | null | undefined;
+  if (paint !== undefined) return withShapePaint(el, paint);
+  if (props.fill === undefined && props.gradient === undefined) return el;
+  const { paint: _replaced, ...rest } = el;
+  return rest;
 }
 
 // ── add ────────────────────────────────────────────────────────────────────

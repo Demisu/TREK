@@ -1,4 +1,5 @@
 import { BOOK_FONTS_IDS, BOOK_WEIGHTS, type BookFontFamily } from './book-fonts.data';
+import { bookPaintFieldSchema } from './book-paint.schema';
 
 import { z } from 'zod';
 
@@ -299,6 +300,8 @@ export const bookShapeElementSchema = z.object({
    * the picture keep going and still leaves the words readable.
    */
   gradient: z.enum(['none', 'up', 'down']).default('none'),
+  /** A fill beyond one flat colour (book-paint.schema.ts); `fill` keeps the colour that stands for it. */
+  paint: bookPaintFieldSchema,
   stroke: hex.nullable().default(null),
   strokeWidth: mm.default(0),
   /**
@@ -827,6 +830,8 @@ export const bookSpreadSchema = z.object({
    */
   role: z.enum(['cover', 'first', 'inner', 'last', 'back']).default('inner'),
   background: hex.nullable().default(null),
+  /** A page painted beyond one flat colour; `background` keeps the colour that stands for it. */
+  backgroundPaint: bookPaintFieldSchema,
   /** Back to front. */
   elements: z.array(bookElementSchema).max(MAX_SPREAD_ELEMENTS).default([]),
   /**
@@ -931,6 +936,7 @@ export const bookLayoutSchema = z.object({
   pageWidth: z.number().positive().max(2000),
   pageHeight: z.number().positive().max(2000),
   background: hex.nullable().default(null),
+  backgroundPaint: bookPaintFieldSchema,
   elements: z.array(bookElementSchema).max(MAX_SPREAD_ELEMENTS).default([]),
 });
 export type BookLayout = z.infer<typeof bookLayoutSchema>;

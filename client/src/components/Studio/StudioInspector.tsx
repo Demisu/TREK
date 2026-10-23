@@ -10,6 +10,8 @@ import { FRAME_SHAPES, SHAPE_GROUPS } from './shapes'
 import { ShapeGlyph } from './StudioElementsPanel'
 import { TravelInspector } from './StudioTravelInspector'
 import { Swatches } from './StudioSwatches'
+import { StudioBackgroundSection } from './StudioBackgroundSection'
+import { StudioShapePaint } from './StudioShapePaint'
 import { formatBookCoords } from '@trek/shared'
 import { iconComponent, iconLabel, searchIcons } from './iconLibrary'
 import { Choice, Line, NumField, Section, Switch } from './StudioControls'
@@ -102,6 +104,8 @@ export function StudioInspector({
       <aside className="st-panel st-inspector">
         <div className="st-panel-head"><span>{t('journey.studio.document')}</span></div>
         <div className="st-panel-scroll">
+          <StudioBackgroundSection spreadIndex={spreadIndex} page={page} source={source} t={t} />
+
           <Section label={t('journey.studio.pageNumbers')}>
             <Switch
               label={t('journey.studio.pageNumbers')}
@@ -517,54 +521,13 @@ export function StudioInspector({
               </div>
             </Section>
 
-            <Section label={t('journey.studio.colour')}>
-              {/*
-                Fill and stroke, both named. The panel used to show one
-                unlabelled swatch row that wrote `fill`, so on an outline-only
-                shape it lit up a colour that was not being drawn and there was
-                no way to reach the line you could actually see.
-              */}
-              <Line label={t('journey.studio.fill')} wide>
-                <Swatches value={el.fill ?? '#111111'} onPick={c => set({ fill: c })} />
-              </Line>
-              <Line label={t('journey.studio.stroke')} wide>
-                <Swatches
-                  value={el.stroke ?? '#141414'}
-                  onPick={c => set({ stroke: c, strokeWidth: el.strokeWidth || 0.5 })}
-                />
-              </Line>
-              <div style={{ marginTop: 10 }}>
-                <Switch
-                  label={t('journey.studio.fillOn')}
-                  on={el.fill !== null}
-                  onToggle={() => set({
-                    // Turning the fill off on a shape with no stroke would make
-                    // it invisible, so the outline comes on with it.
-                    fill: el.fill === null ? '#111111' : null,
-                    ...(el.fill !== null && !el.stroke ? { stroke: '#141414', strokeWidth: el.strokeWidth || 0.5 } : {}),
-                  })}
-                />
-                <Switch
-                  label={t('journey.studio.gradient')}
-                  on={el.gradient !== 'none'}
-                  onToggle={() => set({ gradient: el.gradient === 'none' ? 'down' : 'none' })}
-                />
-              </div>
-              {el.gradient !== 'none' && (
-                <div style={{ marginTop: 10 }}>
-                  <Line label={t('journey.studio.gradient')}>
-                    <Choice
-                      value={el.gradient}
-                      options={[
-                        { value: 'down' as const, label: t('journey.studio.gradientDown') },
-                        { value: 'up' as const, label: t('journey.studio.gradientUp') },
-                      ]}
-                      onPick={gradient => set({ gradient })}
-                    />
-                  </Line>
-                </div>
-              )}
-            </Section>
+            <StudioShapePaint
+              el={el}
+              spreadIndex={spreadIndex}
+              selection={selection}
+              onStroke={c => set({ stroke: c, strokeWidth: el.strokeWidth || 0.5 })}
+              t={t}
+            />
 
             <Section label={t('journey.studio.strokeStyle')} defaultOpen={false}>
               <Line label={t('journey.studio.strokeStyle')} wide>

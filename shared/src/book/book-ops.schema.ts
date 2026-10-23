@@ -11,6 +11,7 @@ import {
   bookPhotoMaskSchema,
 } from './book-op-enums';
 import { bookElementIdSchema, bookGridIdSchema, bookSpreadIdSchema } from './book-op-ids';
+import { bookPaintInSchema } from './book-paint.schema';
 import {
   MAX_BOOK_TITLE,
   MAX_SPREADS,
@@ -188,8 +189,14 @@ export const bookPageOpSchema = z.discriminatedUnion('op', [
     elementIds: z.array(bookElementIdSchema).min(1).max(BOOK_OP_LIMITS.removePerOp),
     park: z.boolean().default(true),
   }),
-  /** The page colour; null is the paper. */
-  z.strictObject({ op: z.literal('background'), color: bookSpreadSchema.shape.background.unwrap() }),
+  /** The page colour or paint; null is the paper. Exactly one of the two. */
+  z
+    .strictObject({
+      op: z.literal('background'),
+      color: bookSpreadSchema.shape.background.unwrap().optional(),
+      paint: bookPaintInSchema.nullable().optional(),
+    })
+    .refine((v) => (v.color === undefined) !== (v.paint === undefined), { message: 'give the color or the paint' }),
   ...BOOK_ELEMENT_OP_SCHEMAS,
 ]);
 export type BookPageOp = z.infer<typeof bookPageOpSchema>;

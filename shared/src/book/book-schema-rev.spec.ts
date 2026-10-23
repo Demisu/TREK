@@ -20,6 +20,8 @@ import { describe, expect, it } from 'vitest';
  */
 
 const frame = { x: 12, y: 18, w: 60, h: 40 };
+/** A revision newer than this build reads. */
+const NEWER = BOOK_SCHEMA_REV + 1;
 
 /** A revision one past what this build reads. */
 const NEWER = BOOK_SCHEMA_REV + 1;
@@ -43,7 +45,6 @@ const doc = (over: Record<string, unknown> = {}) => ({
 
 describe('the revision a document was written by', () => {
   it('BKREV-001: reads 1 for every document from before the field, and for anything that is not a whole number', () => {
-    // Raised for the first time by the wider type: new families and weights an older reader drops.
     expect(BOOK_SCHEMA_REV).toBeGreaterThanOrEqual(2);
     expect(bookSchemaRev(doc())).toBe(1);
     expect(bookSchemaRev(null)).toBe(1);
@@ -60,7 +61,7 @@ describe('the revision a document was written by', () => {
     expect(odd.success && odd.data.spreads[0]?.elements).toHaveLength(1);
   });
 
-  it('BKREV-003: a writer at revision 1 leaves a book as it was, with no revision written into it', () => {
+  it('BKREV-003: a writer of revision 1 leaves a book as it was, and this build stamps its own revision', () => {
     const today = normalizeBookDocument(doc());
     expect('schemaRev' in today).toBe(false);
     expect(stampBookSchemaRev(today, 1)).toBe(today);
@@ -72,6 +73,7 @@ describe('the revision a document was written by', () => {
 describe('a reader older than the document', () => {
   it('BKREV-004: knows the document is newer than it, read from the raw value even when the rest will not parse', () => {
     expect(isBookNewerThanReader(doc({ schemaRev: NEWER }))).toBe(true);
+    expect(isBookNewerThanReader(doc({ schemaRev: BOOK_SCHEMA_REV }))).toBe(false);
     expect(isBookNewerThanReader(doc({ schemaRev: 1 }))).toBe(false);
     expect(isBookNewerThanReader(doc())).toBe(false);
     // A reader of a later revision reads the same document as its own.

@@ -11,6 +11,7 @@ import type {
   BookPageDescription,
   BookSpreadSummary,
 } from './book-ops.schema';
+import { paintWords } from './book-paint';
 import {
   bookPageSetupSchema,
   type BookDocument,
@@ -102,8 +103,8 @@ function elementWords(el: BookElement, photos: readonly BookPhotoInfo[] | undefi
 }
 
 function shapeWords(el: Extract<BookElement, { kind: 'shape' }>): string {
-  const parts = [`${el.shape}, fill ${el.fill ?? 'none'}`];
-  if (el.gradient !== 'none') parts.push(`fading ${el.gradient}`);
+  const parts = el.paint ? [`${el.shape}, paint ${paintWords(el.paint)}`] : [`${el.shape}, fill ${el.fill ?? 'none'}`];
+  if (!el.paint && el.gradient !== 'none') parts.push(`fading ${el.gradient}`);
   if (el.stroke) parts.push(`stroke ${el.stroke} ${n(el.strokeWidth)} mm ${el.strokeStyle}`);
   if (el.radius > 0) parts.push(`radius ${n(el.radius)}`);
   return parts.join(', ');
@@ -173,7 +174,12 @@ function pageLine(doc: BookDocument, spread: BookSpread, index: number): string 
     ? `${n(p.pageWidth)} x ${n(p.pageHeight)} mm`
     : `${n(p.pageWidth * 2)} x ${n(p.pageHeight)} mm (two pages of ${n(p.pageWidth)} x ${n(p.pageHeight)}), fold at x ${n(p.pageWidth)}`;
   const entry = spread.entryId != null ? ` From entry ${spread.entryId}.` : '';
-  return `Page ${index + 1} of ${doc.spreads.length} (${spread.id}): ${ROLE_WORDS[spread.role]}, ${size}; bleed ${n(p.bleed)}, safe ${n(p.safe)}. Background ${spread.background ?? 'paper (none set)'}.${entry}`;
+  return `Page ${index + 1} of ${doc.spreads.length} (${spread.id}): ${ROLE_WORDS[spread.role]}, ${size}; bleed ${n(p.bleed)}, safe ${n(p.safe)}. Background ${backgroundWords(spread)}.${entry}`;
+}
+
+function backgroundWords(spread: BookSpread): string {
+  if (spread.backgroundPaint) return `${paintWords(spread.backgroundPaint)} (reads as ${spread.background ?? 'paper'})`;
+  return spread.background ?? 'paper (none set)';
 }
 
 function findingLine(f: BookFinding): string {

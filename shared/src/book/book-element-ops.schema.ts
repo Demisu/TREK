@@ -28,6 +28,7 @@ import {
   bookWeightSchema,
 } from './book-op-enums';
 import { bookElementIdSchema, bookGridIdSchema, bookSpreadIdSchema } from './book-op-ids';
+import { bookPaintInSchema } from './book-paint.schema';
 import {
   MAX_BOOK_COUNTRIES,
   bookBadgeElementSchema,
@@ -112,6 +113,8 @@ const SHAPE_PROPS = {
   ...COMMON,
   fill: shape.fill.unwrap().optional(),
   gradient: bookShapeGradientSchema.optional(),
+  /** Overrides fill and gradient when given; null takes the fill away. A plain fill or gradient clears it. */
+  paint: bookPaintInSchema.nullable().optional(),
   stroke: shape.stroke.unwrap().optional(),
   strokeWidth: z.number().finite().min(0).max(20).optional(),
   strokeStyle: bookStrokeStyleSchema.optional(),

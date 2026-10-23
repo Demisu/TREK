@@ -33,6 +33,7 @@ export function bookLayoutFromSpread(spread: BookSpread, page: BookPageSetup, na
     pageWidth: page.pageWidth,
     pageHeight: page.pageHeight,
     background: spread.background,
+    ...(spread.backgroundPaint ? { backgroundPaint: spread.backgroundPaint } : {}),
     // The design, not the pictures: every frame comes out empty.
     elements: spread.elements.map((el) => (el.kind === 'photo' ? { ...el, photoId: null } : el)),
   };
@@ -123,7 +124,9 @@ export function applySavedBookLayout(spread: BookSpread, layout: BookLayout, pag
   const used = new Set(wordsFor.values());
   const parked = [...photos.slice(pi), ...texts.filter((t) => !used.has(t))].slice(0, MAX_SPREAD_ELEMENTS);
 
-  return { ...spread, background: layout.background, elements: out, parked };
+  const { backgroundPaint: _old, ...rest } = spread;
+  const backgroundPaint = layout.backgroundPaint ? { backgroundPaint: layout.backgroundPaint } : {};
+  return { ...rest, background: layout.background, ...backgroundPaint, elements: out, parked };
 }
 
 /** A saved layout drawn as a spread on this book's page, for its card. Nothing is filled in. */
@@ -134,6 +137,7 @@ export function bookLayoutPreview(layout: BookLayout, page: BookPageSetup): Book
     id: layout.id,
     role: layout.role === 'inner' ? 'inner' : 'first',
     background: layout.background,
+    ...(layout.backgroundPaint ? { backgroundPaint: layout.backgroundPaint } : {}),
     elements: layout.elements.map(
       (el) =>
         ({

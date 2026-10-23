@@ -8,6 +8,9 @@ import { iconComponent } from './iconLibrary'
 import { HOLED_SHAPES, SHAPE_PATHS, scalePath, unitPath } from './shapes'
 import { TravelElementView } from './TravelElements'
 import { PageNumbers } from './PageNumbers'
+import { PaintedShapeView } from './paint/PaintedShape'
+import { SpreadPaint } from './paint/paintRender'
+import { usePaintId } from './paint/usePaintId'
 
 /**
  * One spread, drawn.
@@ -86,7 +89,8 @@ const FRAME_INSET: Record<string, { pad: number; bottom: number }> = {
  */
 function ShapeView({ el }: { el: BookShapeElement }) {
   const fill = el.fill ?? 'transparent'
-  const gradientId = `g-${el.id}`
+  // Per mounted copy: page mode draws a spread twice (paint/paintRender.tsx).
+  const gradientId = usePaintId(`g-${el.id}`)
   const gradient = el.gradient !== 'none' && el.fill
 
   if (el.shape === 'rect' || el.shape === 'ellipse') {
@@ -171,7 +175,7 @@ function PhotoView({ el, big, print, dropLabel }: {
   // stylesheet that a person may well end up reading.
   const pad = round2(deco.pad * side)
   const bottom = round2(deco.bottom * side)
-  const clipId = `c-${el.id}`
+  const clipId = usePaintId(`c-${el.id}`)
   const clipped = el.mask && el.mask !== 'rect'
 
   /*
@@ -394,7 +398,9 @@ export function ElementView({
     return <PhotoView el={el} big={big} print={print} dropLabel={dropLabel} />
   }
 
-  if (el.kind === 'shape') return <ShapeView el={el} />
+  if (el.kind === 'shape') {
+    return el.paint ? <PaintedShapeView el={el} paint={el.paint} frameStyle={frameStyle(el)} /> : <ShapeView el={el} />
+  }
 
   // Above the catch-all below, which routes everything that is not text into
   // the travel elements and draws null for anything they do not know.
@@ -474,7 +480,8 @@ export function SpreadView({
       style={{
         position: 'absolute',
         inset: 0,
-        background: spread.background ?? '#ffffff', // theme-lint-disable — paper, not app chrome
+        // Under a paint the sheet is the paper, which a see-through paint lets show.
+        background: (spread.backgroundPaint ? null : spread.background) ?? '#ffffff', // theme-lint-disable: paper, not app chrome
         /*
          * On screen the page ends at the trim, so anything past it is clipped.
          * In print it must not be: the bleed is the part that runs off the edge
@@ -485,6 +492,10 @@ export function SpreadView({
         overflow: print ? 'visible' : 'hidden',
       }}
     >
+      {spread.backgroundPaint && (
+        <SpreadPaint paint={spread.backgroundPaint} width={w} height={page.pageHeight} bleed={page.bleed} idPrefix={spread.id} />
+      )}
+
       {spread.elements.map(el => (
         <ElementView
           key={el.id}

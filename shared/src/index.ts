@@ -152,6 +152,8 @@ export * from './book/book-path';
 export * from './book/book-icons';
 export * from './book/book-map-sources';
 export * from './book/book-colour';
+export * from './book/book-paint.schema';
+export * from './book/book-paint';
 export * from './book/book-findings-design';
 export * from './book/auto/auto-types';
 export * from './book/auto/auto-book';

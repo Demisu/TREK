@@ -851,8 +851,8 @@ describe('a book a newer Studio saved', () => {
     expect(result.current.state.status).toBe('newer')
   })
 
-  /* A book goes out stamped with the revision of the Studio that wrote it, so an older one cannot save over it. */
-  it('FE-STUDIO-REV-006: sends a book stamped with the revision of this build', async () => {
+  /* A book goes out stamped with the revision this build writes, so an older Studio opens it read-only. */
+  it('FE-STUDIO-REV-006: sends a book stamped with the revision this build writes', async () => {
     const { result } = await mount()
 
     act(() => { result.current.queueSave(doc('a'), 'T') })
