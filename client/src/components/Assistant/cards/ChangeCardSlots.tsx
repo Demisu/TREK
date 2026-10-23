@@ -120,8 +120,8 @@ function ChangeHead({ item, view, struck }: { item: ChangeItem; view: View | nul
       ) : (
         <SubjectLine subject={preview.subject} struck={struck} aside={view?.Aside && aside} />
       )}
-      <span className="mt-0.5 flex min-w-0 items-center gap-2.5 text-caption text-content-faint">
-        <span className="truncate">{verbLabel(preview, t)}</span>
+      <span className="mt-0.5 flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-caption text-content-faint">
+        <span className="max-w-full truncate">{verbLabel(preview, t)}</span>
         <DomainChip domain={preview.domain} />
         <Slot item={item} view={view} name="Facts" />
       </span>

@@ -21,12 +21,17 @@ import { Amount, NotePill, PaymentFaces, PaymentNames } from './budgetParts';
  * strikes through the people and the amount it replaces.
  */
 
+/** The day of a payment. */
+function PaymentDate({ date }: { date: string }) {
+  const format = useCardFormat();
+  return <Fact icon={CalendarDays} label={format.date(date)} />;
+}
+
 /** The day of a payment and its note. */
 function PaymentFacts({ row }: { row: CardPayment }) {
-  const format = useCardFormat();
   return (
     <>
-      {row.date && <Fact icon={CalendarDays} label={format.date(row.date)} />}
+      {row.date && <PaymentDate date={row.date} />}
       {row.note && <NotePill note={row.note} />}
     </>
   );
@@ -118,19 +123,22 @@ export function PaymentChangeFacts({ card }: SlotProps) {
   return (
     <>
       {was && <PeopleChange was={was} now={row} />}
-      <PaymentFacts row={row} />
+      {row.date && <PaymentDate date={row.date} />}
     </>
   );
 }
 
-/** Under a payment's change row: the two people, face to face. */
+/** Under a payment's change row: the two people, face to face, and the payment's note under them. */
 export function PaymentBody({ card }: SlotProps) {
   const row = card.rows[0];
   if (!row) return null;
   return (
-    <span className="flex items-center gap-2 text-caption text-content-secondary">
-      <PaymentFaces from={row.from} to={row.to} size={20} />
-      <PaymentNames from={row.from} to={row.to} />
+    <span className="flex flex-col items-start gap-1">
+      <span className="flex items-center gap-2 text-caption text-content-secondary">
+        <PaymentFaces from={row.from} to={row.to} size={20} />
+        <PaymentNames from={row.from} to={row.to} />
+      </span>
+      {row.note && <NotePill note={row.note} />}
     </span>
   );
 }

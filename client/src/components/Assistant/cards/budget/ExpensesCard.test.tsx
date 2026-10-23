@@ -138,9 +138,15 @@ describe('an expense in a change row', () => {
     expect(screen.getByText('Split unevenly')).toHaveClass('line-through');
     expect(screen.getByText('Split evenly')).toBeInTheDocument();
     expect(screen.getByText('1 receipt')).toBeInTheDocument();
-    expect(screen.getByText('Window table')).toBeInTheDocument();
+    // The note is too long for the faint line beside the row's buttons: it sits under the row.
+    expect(screen.queryByText('Window table')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: /Lokanta/ }));
     expect(onOpen).toHaveBeenCalledWith({ kind: 'map', placeId: 12, dayId: null });
+  });
+
+  it('FE-AI-CARD-BUD-012b: the note of an expense sits under its split', () => {
+    inView(<ExpenseBody card={expenses([expense({ note: 'Window table' })])} item={changeItem('a', null)} />);
+    expect(screen.getByText('Window table')).toBeInTheDocument();
   });
 
   it('FE-AI-CARD-BUD-013: the split shows who paid and each part, paid ones green, the ones it is about in the accent', () => {

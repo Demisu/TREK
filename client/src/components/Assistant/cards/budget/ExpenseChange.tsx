@@ -14,7 +14,7 @@ import { Amount, NotePill, SplitLine } from './budgetParts';
  * An expense inside a change row, waiting or decided: its amount at the end
  * of the subject line (the one an update replaces struck through before it),
  * its category, day and place on the faint line with what an update changes,
- * and under it the whole split, the part the user decides on. A run of new
+ * and under it the whole split, the part the user decides on, and its note. A run of new
  * expenses in one currency says what they add up to.
  */
 
@@ -88,14 +88,20 @@ export function ExpenseFacts({ card }: SlotProps) {
         />
       )}
       {row.receipts > 0 && <Fact icon={Receipt} label={t('assistant.card.budget.receipts', { count: row.receipts })} />}
-      {row.note && <NotePill note={row.note} />}
     </>
   );
 }
 
+/** The split under the row, and the expense's note under it: too long for the faint line beside the icons. */
 export function ExpenseBody({ card }: SlotProps) {
   const row = card.rows[0];
-  return row ? <SplitLine row={row} /> : null;
+  if (!row) return null;
+  return (
+    <span className="flex flex-col items-start gap-1">
+      <SplitLine row={row} />
+      {row.note && <NotePill note={row.note} />}
+    </span>
+  );
 }
 
 /** Under a run of waiting expenses: what the included ones add up to, when they are two or more in one currency. */

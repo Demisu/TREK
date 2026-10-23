@@ -72,6 +72,15 @@ describe('payments', () => {
     expect(screen.getByRole('img', { name: 'Cleo' })).toBeInTheDocument();
   });
 
+  it('FE-AI-CARD-BUD-016b: a payment note sits under the two people, not on the faint line', () => {
+    const card = payments([payment({ note: 'Taxi back' })]);
+    const facts = inView(<PaymentChangeFacts card={card} item={changeItem('a', card)} />);
+    expect(screen.queryByText('Taxi back')).toBeNull();
+    facts.unmount();
+    inView(<PaymentBody card={card} item={changeItem('a', card)} />);
+    expect(screen.getByText('Taxi back')).toBeInTheDocument();
+  });
+
   it('FE-AI-CARD-BUD-017: a payment that goes, or a change that will not happen, is struck through', () => {
     const gone = payments([payment({ change: 'willDelete' })]);
     const first = inView(<PaymentAside card={gone} item={changeItem('a', gone)} />);
