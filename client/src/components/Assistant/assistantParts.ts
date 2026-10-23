@@ -146,6 +146,22 @@ function rememberedNote(part: Extract<AssistantMessagePart, { type: 'tool-call' 
   return typeof note === 'string' && note.trim() !== '' ? note.trim() : null;
 }
 
+/** The strip of the answer's found places, named ones first; null when it names none or none is left. */
+function placesBlock(
+  message: AssistantMessage,
+  effects: readonly AssistantChangeEffect[],
+  index: number
+): MessageBlock | null {
+  const found = allFound(message.parts);
+  const text = message.parts.map((p) => (p.type === 'text' ? p.text : '')).join(' ');
+  const places = namedFirst(
+    found.places.filter((place) => !proposed(place, effects)),
+    text
+  );
+  if (!places || places.length === 0) return null;
+  return { kind: 'places', key: `places-${index}`, found: { ...found, places } };
+}
+
 /** Every day the answer's weather steps looked up, one entry per date (the later look wins), by date. */
 function weatherDays(parts: readonly AssistantMessagePart[]): AssistantWeatherDay[] {
   const byDate = new Map<string, AssistantWeatherDay>();
@@ -319,14 +335,8 @@ export function messageBlocks(
       return;
     }
     if (part.type === 'data-trek-places' && index === lastPlaces && !placesHidden) {
-      const found = allFound(message.parts);
-      const text = message.parts.map((p) => (p.type === 'text' ? p.text : '')).join(' ');
-      const places = namedFirst(
-        found.places.filter((place) => !proposed(place, effects)),
-        text
-      );
-      if (places && places.length > 0)
-        blocks.push({ kind: 'places', key: `places-${index}`, found: { ...found, places } });
+      const strip = placesBlock(message, effects, index);
+      if (strip) blocks.push(strip);
       return;
     }
     if (part.type === 'data-trek-sources') {

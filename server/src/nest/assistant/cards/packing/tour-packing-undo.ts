@@ -55,7 +55,10 @@ export const UNLINK_TOUR_PACKING: ToolCards = {
       return { placeId: args.placeId, category: typeof category === 'string' ? category : null };
     },
     reads: (args) => [{ tool: 'get_tour_packing', args: { placeId: args.placeId } }],
-    unchanged: (_result, snapshot, call?: UndoCall) =>
-      !!call && linkedCategory(readOf(snapshot, 'get_tour_packing', { placeId: call.args.placeId })) === undefined,
+    // Only a link there was can go back, and only while the tour points at nothing since.
+    unchanged: (result, snapshot, call?: UndoCall) =>
+      !!call &&
+      linkedCategory({ packing_link: recordOf(result).previous_link }) !== undefined &&
+      linkedCategory(readOf(snapshot, 'get_tour_packing', { placeId: call.args.placeId })) === undefined,
   },
 };

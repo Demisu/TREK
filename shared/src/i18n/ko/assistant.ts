@@ -237,7 +237,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': '내가 비용을 부담하는 동안에만 계산됩니다.',
   'assistant.admin.retention': '채팅 보관',
   'assistant.admin.webSearch': '웹 검색',
-  'assistant.admin.webSearchHint': '어시스턴트가 연결된 AI 제공자의 검색으로 웹을 찾아볼 수 있습니다(리뷰, 영업시간, 행사). ChatGPT, Anthropic, OpenRouter에서 작동하며 검색은 해당 제공자에게만 전달됩니다.',
+  'assistant.admin.webSearchHint':
+    '어시스턴트가 연결된 AI 제공자의 검색으로 웹을 찾아볼 수 있습니다(리뷰, 영업시간, 행사). ChatGPT, Anthropic, OpenRouter에서 작동하며 검색은 해당 제공자에게만 전달됩니다.',
   'assistant.admin.retentionDays': '{count}일',
   'assistant.admin.retentionForever': '영구',
   'assistant.claude.title': 'Claude와 연결',

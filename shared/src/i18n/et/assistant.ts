@@ -246,7 +246,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'Loeb ainult siis, kui maksad sina.',
   'assistant.admin.retention': 'Vestluste säilitamine',
   'assistant.admin.webSearch': 'Veebiotsing',
-  'assistant.admin.webSearchHint': 'Assistent võib veebist järele vaadata (arvustused, lahtiolekuajad, üritused) selle tehisintellekti teenuse otsinguga, kellega ta räägib. Töötab ChatGPT, Anthropicu ja OpenRouteriga; otsingud lähevad ainult sellele teenusele.',
+  'assistant.admin.webSearchHint':
+    'Assistent võib veebist järele vaadata (arvustused, lahtiolekuajad, üritused) selle tehisintellekti teenuse otsinguga, kellega ta räägib. Töötab ChatGPT, Anthropicu ja OpenRouteriga; otsingud lähevad ainult sellele teenusele.',
   'assistant.admin.retentionDays': '{count} päeva',
   'assistant.admin.retentionDays.one': '{count} päev',
   'assistant.admin.retentionForever': 'Igavesti',

@@ -249,7 +249,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'Počíta sa len vtedy, keď platíš ty.',
   'assistant.admin.retention': 'Uchovávať chaty',
   'assistant.admin.webSearch': 'Vyhľadávanie na webe',
-  'assistant.admin.webSearchHint': 'Asistent môže hľadať na webe (recenzie, otváracie hodiny, podujatia) cez vyhľadávanie poskytovateľa AI, s ktorým hovorí. Funguje s ChatGPT, Anthropic a OpenRouter; vyhľadávania idú len k tomuto poskytovateľovi.',
+  'assistant.admin.webSearchHint':
+    'Asistent môže hľadať na webe (recenzie, otváracie hodiny, podujatia) cez vyhľadávanie poskytovateľa AI, s ktorým hovorí. Funguje s ChatGPT, Anthropic a OpenRouter; vyhľadávania idú len k tomuto poskytovateľovi.',
   'assistant.admin.retentionDays': '{count} dní',
   'assistant.admin.retentionDays.one': '{count} deň',
   'assistant.admin.retentionDays.few': '{count} dni',

@@ -1,6 +1,6 @@
 import type { Described, PreviewContext, ToolArgs, ToolCards, UndoCall, UndoSnapshot } from '../card-types';
 import { argId, readKey, recordOf, type Row } from '../card-values';
-import { Rows, text } from '../preview-format';
+import { Rows } from '../preview-format';
 
 /**
  * The smaller writes on a saved tour, each with its card and, where the answer

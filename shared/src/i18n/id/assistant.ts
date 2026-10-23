@@ -241,7 +241,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'Hanya dihitung selama kamu yang membayar.',
   'assistant.admin.retention': 'Simpan obrolan',
   'assistant.admin.webSearch': 'Pencarian web',
-  'assistant.admin.webSearchHint': 'Asisten boleh mencari di web (ulasan, jam buka, acara) lewat pencarian penyedia AI yang ia gunakan. Berfungsi dengan ChatGPT, Anthropic, dan OpenRouter; pencarian hanya dikirim ke penyedia itu.',
+  'assistant.admin.webSearchHint':
+    'Asisten boleh mencari di web (ulasan, jam buka, acara) lewat pencarian penyedia AI yang ia gunakan. Berfungsi dengan ChatGPT, Anthropic, dan OpenRouter; pencarian hanya dikirim ke penyedia itu.',
   'assistant.admin.retentionDays': '{count} hari',
   'assistant.admin.retentionForever': 'Selamanya',
   'assistant.claude.title': 'Hubungkan dengan Claude',

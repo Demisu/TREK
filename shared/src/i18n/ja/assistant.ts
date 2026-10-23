@@ -239,7 +239,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'あなたが支払っている間だけカウントされます。',
   'assistant.admin.retention': 'チャットの保存期間',
   'assistant.admin.webSearch': 'ウェブ検索',
-  'assistant.admin.webSearchHint': 'アシスタントは、接続しているAIプロバイダーの検索でウェブを調べられます（口コミ、営業時間、イベントなど）。ChatGPT、Anthropic、OpenRouterで使え、検索はそのプロバイダーにだけ送られます。',
+  'assistant.admin.webSearchHint':
+    'アシスタントは、接続しているAIプロバイダーの検索でウェブを調べられます（口コミ、営業時間、イベントなど）。ChatGPT、Anthropic、OpenRouterで使え、検索はそのプロバイダーにだけ送られます。',
   'assistant.admin.retentionDays': '{count} 日',
   'assistant.admin.retentionForever': '無期限',
   'assistant.claude.title': 'Claude と接続',

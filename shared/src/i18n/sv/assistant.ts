@@ -247,7 +247,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'Räknas bara medan du betalar.',
   'assistant.admin.retention': 'Spara chattar',
   'assistant.admin.webSearch': 'Webbsökning',
-  'assistant.admin.webSearchHint': 'Assistenten får slå upp saker på webben (recensioner, öppettider, evenemang) via sökningen hos den AI-leverantör den pratar med. Fungerar med ChatGPT, Anthropic och OpenRouter; sökningarna går bara till den leverantören.',
+  'assistant.admin.webSearchHint':
+    'Assistenten får slå upp saker på webben (recensioner, öppettider, evenemang) via sökningen hos den AI-leverantör den pratar med. Fungerar med ChatGPT, Anthropic och OpenRouter; sökningarna går bara till den leverantören.',
   'assistant.admin.retentionDays': '{count} dagar',
   'assistant.admin.retentionDays.one': '{count} dag',
   'assistant.admin.retentionForever': 'För alltid',

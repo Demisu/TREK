@@ -246,7 +246,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'Yalnız siz ödədiyiniz müddətdə sayılır.',
   'assistant.admin.retention': 'Söhbətləri saxla',
   'assistant.admin.webSearch': 'Veb axtarış',
-  'assistant.admin.webSearchHint': 'Assistent danışdığı Sİ provayderinin axtarışı ilə internetdə məlumat axtara bilər (rəylər, iş saatları, tədbirlər). ChatGPT, Anthropic və OpenRouter ilə işləyir; axtarışlar yalnız həmin provayderə gedir.',
+  'assistant.admin.webSearchHint':
+    'Assistent danışdığı Sİ provayderinin axtarışı ilə internetdə məlumat axtara bilər (rəylər, iş saatları, tədbirlər). ChatGPT, Anthropic və OpenRouter ilə işləyir; axtarışlar yalnız həmin provayderə gedir.',
   'assistant.admin.retentionDays': '{count} gün',
   'assistant.admin.retentionDays.one': '{count} gün',
   'assistant.admin.retentionForever': 'Həmişəlik',

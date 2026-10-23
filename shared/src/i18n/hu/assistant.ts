@@ -249,7 +249,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'Csak addig számít, amíg te fizetsz.',
   'assistant.admin.retention': 'Csevegések megőrzése',
   'assistant.admin.webSearch': 'Webes keresés',
-  'assistant.admin.webSearchHint': 'Az asszisztens utánanézhet a weben (értékelések, nyitvatartás, események) annak az MI-szolgáltatónak a keresőjével, amellyel beszél. ChatGPT-vel, Anthropickal és OpenRouterrel működik; a keresések csak ehhez a szolgáltatóhoz mennek.',
+  'assistant.admin.webSearchHint':
+    'Az asszisztens utánanézhet a weben (értékelések, nyitvatartás, események) annak az MI-szolgáltatónak a keresőjével, amellyel beszél. ChatGPT-vel, Anthropickal és OpenRouterrel működik; a keresések csak ehhez a szolgáltatóhoz mennek.',
   'assistant.admin.retentionDays': '{count} nap',
   'assistant.admin.retentionDays.one': '{count} nap',
   'assistant.admin.retentionForever': 'Örökre',

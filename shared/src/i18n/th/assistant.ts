@@ -237,7 +237,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'นับเฉพาะตอนที่คุณเป็นผู้จ่าย',
   'assistant.admin.retention': 'เก็บแชต',
   'assistant.admin.webSearch': 'ค้นหาบนเว็บ',
-  'assistant.admin.webSearchHint': 'ผู้ช่วยค้นข้อมูลบนเว็บได้ (รีวิว เวลาเปิดปิด งานอีเวนต์) ผ่านการค้นหาของผู้ให้บริการ AI ที่ใช้อยู่ ใช้ได้กับ ChatGPT, Anthropic และ OpenRouter และการค้นหาจะส่งไปที่ผู้ให้บริการนั้นเท่านั้น',
+  'assistant.admin.webSearchHint':
+    'ผู้ช่วยค้นข้อมูลบนเว็บได้ (รีวิว เวลาเปิดปิด งานอีเวนต์) ผ่านการค้นหาของผู้ให้บริการ AI ที่ใช้อยู่ ใช้ได้กับ ChatGPT, Anthropic และ OpenRouter และการค้นหาจะส่งไปที่ผู้ให้บริการนั้นเท่านั้น',
   'assistant.admin.retentionDays': '{count} วัน',
   'assistant.admin.retentionForever': 'ตลอดไป',
   'assistant.claude.title': 'เชื่อมต่อกับ Claude',

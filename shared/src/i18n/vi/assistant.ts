@@ -239,7 +239,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'Chỉ tính khi bạn trả phí.',
   'assistant.admin.retention': 'Giữ cuộc trò chuyện',
   'assistant.admin.webSearch': 'Tìm kiếm trên web',
-  'assistant.admin.webSearchHint': 'Trợ lý có thể tra cứu trên web (đánh giá, giờ mở cửa, sự kiện) qua công cụ tìm kiếm của nhà cung cấp AI mà nó dùng. Hoạt động với ChatGPT, Anthropic và OpenRouter; các lượt tìm chỉ gửi đến nhà cung cấp đó.',
+  'assistant.admin.webSearchHint':
+    'Trợ lý có thể tra cứu trên web (đánh giá, giờ mở cửa, sự kiện) qua công cụ tìm kiếm của nhà cung cấp AI mà nó dùng. Hoạt động với ChatGPT, Anthropic và OpenRouter; các lượt tìm chỉ gửi đến nhà cung cấp đó.',
   'assistant.admin.retentionDays': '{count} ngày',
   'assistant.admin.retentionForever': 'Mãi mãi',
   'assistant.claude.title': 'Kết nối với Claude',

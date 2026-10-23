@@ -250,7 +250,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'Μετράει μόνο όσο πληρώνετε εσείς.',
   'assistant.admin.retention': 'Διατήρηση συνομιλιών',
   'assistant.admin.webSearch': 'Αναζήτηση στο web',
-  'assistant.admin.webSearchHint': 'Ο βοηθός μπορεί να ψάξει στο web (κριτικές, ωράρια, εκδηλώσεις) μέσω της αναζήτησης του παρόχου AI με τον οποίο μιλά. Λειτουργεί με ChatGPT, Anthropic και OpenRouter· οι αναζητήσεις πηγαίνουν μόνο σε αυτόν τον πάροχο.',
+  'assistant.admin.webSearchHint':
+    'Ο βοηθός μπορεί να ψάξει στο web (κριτικές, ωράρια, εκδηλώσεις) μέσω της αναζήτησης του παρόχου AI με τον οποίο μιλά. Λειτουργεί με ChatGPT, Anthropic και OpenRouter· οι αναζητήσεις πηγαίνουν μόνο σε αυτόν τον πάροχο.',
   'assistant.admin.retentionDays': '{count} ημέρες',
   'assistant.admin.retentionDays.one': '{count} ημέρα',
   'assistant.admin.retentionForever': 'Για πάντα',

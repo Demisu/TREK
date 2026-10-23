@@ -234,7 +234,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': '仅在由你付费时计数。',
   'assistant.admin.retention': '保留对话',
   'assistant.admin.webSearch': '网页搜索',
-  'assistant.admin.webSearchHint': '助手可以通过其所连接的 AI 提供商的搜索功能在网上查询信息（评价、营业时间、活动）。适用于 ChatGPT、Anthropic 和 OpenRouter；搜索只会发送给该提供商。',
+  'assistant.admin.webSearchHint':
+    '助手可以通过其所连接的 AI 提供商的搜索功能在网上查询信息（评价、营业时间、活动）。适用于 ChatGPT、Anthropic 和 OpenRouter；搜索只会发送给该提供商。',
   'assistant.admin.retentionDays': '{count} 天',
   'assistant.admin.retentionForever': '永久',
   'assistant.claude.title': '与 Claude 连接',

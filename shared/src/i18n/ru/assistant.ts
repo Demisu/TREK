@@ -255,7 +255,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'Учитывается, только пока платите вы.',
   'assistant.admin.retention': 'Хранить чаты',
   'assistant.admin.webSearch': 'Поиск в интернете',
-  'assistant.admin.webSearchHint': 'Ассистент может искать в интернете (отзывы, часы работы, события) через поиск того ИИ-провайдера, с которым он работает. Работает с ChatGPT, Anthropic и OpenRouter; запросы уходят только этому провайдеру.',
+  'assistant.admin.webSearchHint':
+    'Ассистент может искать в интернете (отзывы, часы работы, события) через поиск того ИИ-провайдера, с которым он работает. Работает с ChatGPT, Anthropic и OpenRouter; запросы уходят только этому провайдеру.',
   'assistant.admin.retentionDays': '{count} дня',
   'assistant.admin.retentionDays.one': '{count} день',
   'assistant.admin.retentionDays.few': '{count} дня',

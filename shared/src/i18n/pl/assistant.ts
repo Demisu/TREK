@@ -255,7 +255,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'Liczy się tylko wtedy, gdy Ty płacisz.',
   'assistant.admin.retention': 'Przechowuj czaty',
   'assistant.admin.webSearch': 'Wyszukiwanie w sieci',
-  'assistant.admin.webSearchHint': 'Asystent może sprawdzać informacje w sieci (opinie, godziny otwarcia, wydarzenia) przez wyszukiwarkę dostawcy AI, z którym rozmawia. Działa z ChatGPT, Anthropic i OpenRouter; wyszukiwania trafiają tylko do tego dostawcy.',
+  'assistant.admin.webSearchHint':
+    'Asystent może sprawdzać informacje w sieci (opinie, godziny otwarcia, wydarzenia) przez wyszukiwarkę dostawcy AI, z którym rozmawia. Działa z ChatGPT, Anthropic i OpenRouter; wyszukiwania trafiają tylko do tego dostawcy.',
   'assistant.admin.retentionDays': '{count} dnia',
   'assistant.admin.retentionDays.one': '{count} dzień',
   'assistant.admin.retentionDays.few': '{count} dni',

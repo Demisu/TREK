@@ -245,7 +245,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'Solo cuenta mientras pagas tú.',
   'assistant.admin.retention': 'Conservar chats',
   'assistant.admin.webSearch': 'Búsqueda web',
-  'assistant.admin.webSearchHint': 'El asistente puede consultar la web (reseñas, horarios, eventos) con la búsqueda del proveedor de IA con el que habla. Funciona con ChatGPT, Anthropic y OpenRouter; las búsquedas solo van a ese proveedor.',
+  'assistant.admin.webSearchHint':
+    'El asistente puede consultar la web (reseñas, horarios, eventos) con la búsqueda del proveedor de IA con el que habla. Funciona con ChatGPT, Anthropic y OpenRouter; las búsquedas solo van a ese proveedor.',
   'assistant.admin.retentionDays': '{count} días',
   'assistant.admin.retentionDays.one': '{count} día',
   'assistant.admin.retentionForever': 'Para siempre',

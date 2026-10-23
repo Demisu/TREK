@@ -248,7 +248,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'Només compta mentre pagues tu.',
   'assistant.admin.retention': 'Conserva els xats',
   'assistant.admin.webSearch': 'Cerca web',
-  'assistant.admin.webSearchHint': 'L’assistent pot consultar el web (ressenyes, horaris, esdeveniments) amb la cerca del proveïdor d’IA amb qui parla. Funciona amb ChatGPT, Anthropic i OpenRouter; les cerques només van a aquest proveïdor.',
+  'assistant.admin.webSearchHint':
+    'L’assistent pot consultar el web (ressenyes, horaris, esdeveniments) amb la cerca del proveïdor d’IA amb qui parla. Funciona amb ChatGPT, Anthropic i OpenRouter; les cerques només van a aquest proveïdor.',
   'assistant.admin.retentionDays': '{count} dies',
   'assistant.admin.retentionDays.one': '{count} dia',
   'assistant.admin.retentionForever': 'Per sempre',

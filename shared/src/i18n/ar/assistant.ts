@@ -259,7 +259,8 @@ const assistant: TranslationStrings = {
   'assistant.admin.dailyLimitHint': 'يُحتسب فقط ما دمت أنت من يدفع.',
   'assistant.admin.retention': 'الاحتفاظ بالمحادثات',
   'assistant.admin.webSearch': 'البحث في الويب',
-  'assistant.admin.webSearchHint': 'يمكن للمساعد البحث في الويب (التقييمات وأوقات العمل والفعاليات) عبر بحث مزوّد الذكاء الاصطناعي الذي يتحدث إليه. يعمل مع ChatGPT وAnthropic وOpenRouter، ولا تذهب عمليات البحث إلا إلى ذلك المزوّد.',
+  'assistant.admin.webSearchHint':
+    'يمكن للمساعد البحث في الويب (التقييمات وأوقات العمل والفعاليات) عبر بحث مزوّد الذكاء الاصطناعي الذي يتحدث إليه. يعمل مع ChatGPT وAnthropic وOpenRouter، ولا تذهب عمليات البحث إلا إلى ذلك المزوّد.',
   'assistant.admin.retentionDays': '{count} يوم',
   'assistant.admin.retentionDays.zero': '{count} يوم',
   'assistant.admin.retentionDays.one': 'يوم واحد',
