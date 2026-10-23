@@ -21,6 +21,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.peekClose': 'ปิดเส้นทาง',
   'assistant.card.tour.list': 'รายการทัวร์',
   'assistant.card.tour.ways': '{count} เส้นทาง',
+  'assistant.card.tour.waysPick': 'เลือกเส้นทาง',
   'assistant.card.tour.deltaTo': 'เทียบกับเส้นทาง {letter}',
   'assistant.card.tour.deltaBefore': 'เทียบกับเส้นทางปัจจุบัน',
   'assistant.card.tour.day': 'วันที่ {day}',

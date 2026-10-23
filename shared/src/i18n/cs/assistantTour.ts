@@ -23,6 +23,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.ways': '{count} cest',
   'assistant.card.tour.ways.one': '{count} cesta',
   'assistant.card.tour.ways.few': '{count} cesty',
+  'assistant.card.tour.waysPick': 'Vyberte cestu',
   'assistant.card.tour.deltaTo': 'Ve srovnání s cestou {letter}',
   'assistant.card.tour.deltaBefore': 'Ve srovnání se stávající cestou',
   'assistant.card.tour.day': 'Den {day}',

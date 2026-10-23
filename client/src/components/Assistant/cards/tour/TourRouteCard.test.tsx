@@ -115,11 +115,11 @@ afterEach(() => {
 });
 
 describe('TourRouteCard', () => {
-  it('FE-AI-TOUR-021: states the name, the figures as badges, the day and the hardest grade, uncertain when little is graded', () => {
+  it('FE-AI-TOUR-021: states the name, the figures as framed fields, the day and the hardest grade, uncertain when little is graded', () => {
     const { container } = renderCard(HIKE);
     expect(screen.getByText('Hochfelln from Bergen')).toBeInTheDocument();
     for (const figure of ['time', 'distance', 'ascent', 'descent']) {
-      expect(container.querySelector(`[data-figure="${figure}"]`)).not.toBeNull();
+      expect(container.querySelector(`[data-field="${figure}"]`)).not.toBeNull();
     }
     expect(screen.getByText('8.2 km')).toBeInTheDocument();
     expect(screen.getAllByText('640 m')).toHaveLength(2);
@@ -159,7 +159,7 @@ describe('TourRouteCard', () => {
 
   it('FE-AI-TOUR-024: a stop chip moves the spot in focus to the stop while pointed at', () => {
     renderCard(HIKE);
-    const hut = screen.getByRole('button', { name: 'Strausshütte, 09:40' });
+    const hut = screen.getByRole('button', { name: /^Strausshütte, 09:40/ });
     fireEvent.mouseEnter(hut);
     expect(useAssistantStore.getState().routeFocus?.focus.distanceMeters).toBeCloseTo(2400, 0);
     fireEvent.mouseLeave(hut);
@@ -171,11 +171,11 @@ describe('TourRouteCard', () => {
   it('FE-AI-TOUR-024b: the stops run as a timeline, each walk on the line between two stops and read with the one it leads to', () => {
     renderCard(HIKE);
     const list = screen.getByRole('list', { name: 'Stops along the way' });
-    // One row per stop; the lines between them are not rows.
-    expect(list.querySelectorAll('[role="listitem"]')).toHaveLength(5);
+    // One row per stop; the walks between them are hidden, read with the stop they lead to.
+    expect(list.querySelectorAll('li:not([aria-hidden="true"])')).toHaveLength(5);
     // The place beside the way has no time: the hut measures from the start, then each stop from the last.
     expect(screen.getAllByText(/from the last stop$/)).toHaveLength(3);
-    const legs = [...list.querySelectorAll('[aria-hidden="true"]')].map((leg) => leg.textContent).filter(Boolean);
+    const legs = [...list.querySelectorAll('li[aria-hidden="true"]')].map((leg) => leg.textContent).filter(Boolean);
     expect(legs).toHaveLength(3);
   });
 

@@ -21,6 +21,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.peekClose': '關閉路線',
   'assistant.card.tour.list': '路線清單',
   'assistant.card.tour.ways': '{count}條道路',
+  'assistant.card.tour.waysPick': '選擇路線',
   'assistant.card.tour.deltaTo': '與道路{letter}相比',
   'assistant.card.tour.deltaBefore': '與現有道路相比',
   'assistant.card.tour.day': '第{day}天',

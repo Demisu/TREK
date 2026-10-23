@@ -22,6 +22,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.list': 'Turlar',
   'assistant.card.tour.ways': '{count} yol',
   'assistant.card.tour.ways.one': '{count} yol',
+  'assistant.card.tour.waysPick': 'Yol seçin',
   'assistant.card.tour.deltaTo': '{letter} yolu ilə müqayisədə',
   'assistant.card.tour.deltaBefore': 'Hazırkı yolla müqayisədə',
   'assistant.card.tour.day': 'Gün {day}',

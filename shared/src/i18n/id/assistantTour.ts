@@ -21,6 +21,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.peekClose': 'Tutup rute',
   'assistant.card.tour.list': 'Daftar tur',
   'assistant.card.tour.ways': '{count} jalan',
+  'assistant.card.tour.waysPick': 'Pilih jalur',
   'assistant.card.tour.deltaTo': 'Dibandingkan dengan jalan {letter}',
   'assistant.card.tour.deltaBefore': 'Dibandingkan dengan jalan saat ini',
   'assistant.card.tour.day': 'Hari {day}',

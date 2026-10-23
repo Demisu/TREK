@@ -22,6 +22,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.list': 'Εκδρομές',
   'assistant.card.tour.ways': '{count} διαδρομές',
   'assistant.card.tour.ways.one': '{count} διαδρομή',
+  'assistant.card.tour.waysPick': 'Επιλέξτε διαδρομή',
   'assistant.card.tour.deltaTo': 'Σε σύγκριση με τη διαδρομή {letter}',
   'assistant.card.tour.deltaBefore': 'Σε σύγκριση με την τωρινή διαδρομή',
   'assistant.card.tour.day': 'Ημέρα {day}',

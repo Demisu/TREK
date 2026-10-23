@@ -22,6 +22,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.list': 'Túrák',
   'assistant.card.tour.ways': '{count} út',
   'assistant.card.tour.ways.one': '{count} út',
+  'assistant.card.tour.waysPick': 'Válassz utat',
   'assistant.card.tour.deltaTo': 'A(z) {letter} úthoz képest',
   'assistant.card.tour.deltaBefore': 'A jelenlegi úthoz képest',
   'assistant.card.tour.day': '{day}. nap',

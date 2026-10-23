@@ -22,6 +22,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.list': 'Turer',
   'assistant.card.tour.ways': '{count} vägar',
   'assistant.card.tour.ways.one': '{count} väg',
+  'assistant.card.tour.waysPick': 'Välj en väg',
   'assistant.card.tour.deltaTo': 'Jämfört med väg {letter}',
   'assistant.card.tour.deltaBefore': 'Jämfört med den nuvarande vägen',
   'assistant.card.tour.day': 'Dag {day}',

@@ -22,6 +22,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.list': 'Retked',
   'assistant.card.tour.ways': '{count} teed',
   'assistant.card.tour.ways.one': '{count} tee',
+  'assistant.card.tour.waysPick': 'Vali tee',
   'assistant.card.tour.deltaTo': 'Võrreldes teega {letter}',
   'assistant.card.tour.deltaBefore': 'Võrreldes praeguse teega',
   'assistant.card.tour.day': 'Päev {day}',

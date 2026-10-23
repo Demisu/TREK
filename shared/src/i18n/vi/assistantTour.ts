@@ -21,6 +21,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.peekClose': 'Đóng lộ trình',
   'assistant.card.tour.list': 'Chuyến tham quan',
   'assistant.card.tour.ways': '{count} lối đi',
+  'assistant.card.tour.waysPick': 'Chọn một lối đi',
   'assistant.card.tour.deltaTo': 'So với lối đi {letter}',
   'assistant.card.tour.deltaBefore': 'So với lối đi hiện tại',
   'assistant.card.tour.day': 'Ngày {day}',

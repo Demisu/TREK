@@ -26,6 +26,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.ways.two': 'طريقان',
   'assistant.card.tour.ways.few': '{count} طرق',
   'assistant.card.tour.ways.many': '{count} طريقًا',
+  'assistant.card.tour.waysPick': 'اختر طريقًا',
   'assistant.card.tour.deltaTo': 'مقارنةً بالطريق {letter}',
   'assistant.card.tour.deltaBefore': 'مقارنةً بالطريق الحالي',
   'assistant.card.tour.day': 'اليوم {day}',

@@ -21,6 +21,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.peekClose': '경로 닫기',
   'assistant.card.tour.list': '투어 목록',
   'assistant.card.tour.ways': '길 {count}개',
+  'assistant.card.tour.waysPick': '경로 선택',
   'assistant.card.tour.deltaTo': '길 {letter}과 비교',
   'assistant.card.tour.deltaBefore': '지금 길과 비교',
   'assistant.card.tour.day': '{day}일차',

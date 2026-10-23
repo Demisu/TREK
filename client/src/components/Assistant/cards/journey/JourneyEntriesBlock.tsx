@@ -1,15 +1,16 @@
 import type { AssistantMessage, JourneyEntryLook } from '@trek/shared';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, BookOpen } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { useTranslation } from '../../../../i18n';
 import { DAY_COLORS } from '../../../Journey/dayColors';
 import { cardTitle } from '../../../Journey/journeyCard';
 import JourneyEntryCover from '../../../Journey/JourneyEntryCover';
-import { LinkedJournalIcon } from '../../../Trips/LinkedJournalIcon';
 import { useAssistantView } from '../../assistantViewContext';
 import type { CardEntry } from '../cardTypes';
 import CardFrame from '../parts/CardFrame';
+import CardHeader from '../parts/CardHeader';
+import { CardFoot } from '../parts/CardSection';
 import CardStrip from '../parts/CardStrip';
 import { type JournalEntries, coverEntryOf, mergeJournalCards, titleSourceOf } from './journeyCardModel';
 import { EntryMarks, EntryStory, EntryThumb, EntryWhen } from './JourneyEntryParts';
@@ -34,8 +35,6 @@ const TITLE_BUTTON =
 /** The phone's taller target, the title still at the top of the row. */
 const TITLE_BUTTON_TALL = `${TITLE_BUTTON} min-h-10`;
 const FOOTER = 'mt-1 flex items-center gap-2 border-t border-edge-faint pt-2 text-caption';
-const FOOTER_TITLE = 'min-w-0 flex-1 truncate text-content-muted';
-const FAINT = 'text-content-faint';
 const OPEN = 'inline-flex flex-none items-center gap-1 font-medium text-accent hover:underline';
 const OPEN_TALL = 'inline-flex h-10 flex-none items-center gap-1 font-medium text-accent hover:underline';
 /** The size and corners of the journal's own tile, so the count stands in the row like one more entry. */
@@ -51,23 +50,23 @@ type Open = ((entryId: number | null) => void) | null;
 function JournalFooter({ journal, open }: { journal: JournalEntries; open: Open }) {
   const { t } = useTranslation();
   const { variant } = useAssistantView();
+  if (!open) return null;
+  return (
+    <CardFoot>
+      <button type="button" onClick={() => open(null)} className={variant === 'fullscreen' ? OPEN_TALL : OPEN}>
+        {t('assistant.card.journey.open')}
+        <ArrowUpRight size={12} aria-hidden="true" className="rtl:-scale-x-100" />
+      </button>
+    </CardFoot>
+  );
+}
+
+/** The band of the entries: the journal's name, and how many entries it holds once there are more than two. */
+function JournalHead({ journal }: { journal: JournalEntries }) {
+  const { t } = useTranslation();
   const title = journal.journalTitle ?? t('assistant.card.journey.label');
   const count = journal.entries.length + journal.more;
-  return (
-    <div className={FOOTER}>
-      <LinkedJournalIcon size={12} className={FAINT} />
-      <span title={title} className={FOOTER_TITLE}>
-        <bdi>{title}</bdi>
-        {count > 2 && <span className="ms-1.5 tabular-nums">{t('assistant.card.journey.entries', { count })}</span>}
-      </span>
-      {open && (
-        <button type="button" onClick={() => open(null)} className={variant === 'fullscreen' ? OPEN_TALL : OPEN}>
-          {t('assistant.card.journey.open')}
-          <ArrowUpRight size={12} aria-hidden="true" className="rtl:-scale-x-100" />
-        </button>
-      )}
-    </div>
-  );
+  return <CardHeader icon={BookOpen} tone="info" title={title} count={count > 2 ? count : undefined} />;
 }
 
 /** One entry as a row: its photo, its title (the way to it), its facts and the start of its text. */
@@ -116,6 +115,7 @@ function JournalRows({ journal, fallbackRef }: { journal: JournalEntries; fallba
   const hover = useEntryHover(journal.journeyId, fallbackRef);
   return (
     <CardFrame label={t('assistant.card.journey.label')}>
+      <JournalHead journal={journal} />
       {journal.entries.map((look, index) => (
         <EntryRow key={look.entryId ?? `new-${index}`} look={look} divided={index > 0} open={open} hover={hover} />
       ))}

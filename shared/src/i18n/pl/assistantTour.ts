@@ -24,6 +24,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.ways.one': '{count} droga',
   'assistant.card.tour.ways.few': '{count} drogi',
   'assistant.card.tour.ways.many': '{count} dróg',
+  'assistant.card.tour.waysPick': 'Wybierz drogę',
   'assistant.card.tour.deltaTo': 'W porównaniu z drogą {letter}',
   'assistant.card.tour.deltaBefore': 'W porównaniu z obecną drogą',
   'assistant.card.tour.day': 'Dzień {day}',
