@@ -16,6 +16,7 @@ import { proposalCard, savedTourCard } from './tour-route.cards';
 import { cityWalkCard, paddleCard, skiCard } from './tour-sport.cards';
 import { DELETE_CREATED_TOUR, DELETE_IMPORTED_TOUR } from './tour-undo';
 import { describeVisit, loadVisit, SET_VISIT_UNDO } from './tour-visit.cards';
+import { TOUR_WRITE_CARDS } from './tour-writes.cards';
 
 /**
  * The tours in the assistant chat. A tour is a place with a route: its id is
@@ -74,6 +75,7 @@ export const TOUR_CARDS: DomainCards = {
       undo: DELETE_CREATED_TOUR,
     },
     update_tour: updateTour,
+    ...TOUR_WRITE_CARDS,
     set_city_walk_visit: {
       write: { verbKey: 'markVisited', entity: 'tour' },
       load: loadVisit,

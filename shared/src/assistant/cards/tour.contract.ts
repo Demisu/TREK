@@ -14,6 +14,19 @@ export * from './tour-route.card';
 export const TOUR_CARD_SCHEMAS = [tourRouteCardSchema, tourListCardSchema] as const;
 /** addTour, updateTour and importTour sit in the core list already. */
 /** A station of a city walk checked off on its day: visited, skipped, or the mark taken back. */
-export const TOUR_VERB_KEYS = ['markVisited', 'markSkipped', 'markPlanned'] as const;
+export const TOUR_VERB_KEYS = [
+  'markVisited',
+  'markSkipped',
+  'markPlanned',
+  // A recorded track put on a tour as the way it was done, or taken off it.
+  'assignTrack',
+  'unassignTrack',
+  // A tour left out of the user's activity sums, or counted again.
+  'excludeTour',
+  'countTour',
+  // A tour pointed at its trip's packing list, or let go of it.
+  'linkPacking',
+  'unlinkPacking',
+] as const;
 /** 'tour' is a core entity already. */
 export const TOUR_APPLIED_ENTITIES = [] as const;

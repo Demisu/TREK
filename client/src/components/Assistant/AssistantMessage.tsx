@@ -13,6 +13,7 @@ import AssistantMentionText from './AssistantMentionText';
 import AssistantPlaceStrip from './AssistantPlaceStrip';
 import AssistantRemembered from './AssistantRemembered';
 import AssistantShareDialog from './AssistantShareDialog';
+import AssistantSources from './AssistantSources';
 import AssistantToolSteps from './AssistantToolSteps';
 import AssistantWeatherStrip from './AssistantWeatherStrip';
 import { messageBlocks } from './assistantParts';
@@ -130,6 +131,7 @@ function Answer({ message }: { message: StoredMessage }) {
           return <AssistantPlaceStrip key={block.key} found={block.found} message={message} />;
         }
         if (block.kind === 'weather') return <AssistantWeatherStrip key={block.key} days={block.days} />;
+        if (block.kind === 'sources') return <AssistantSources key={block.key} sources={block.sources} />;
         if (block.kind === 'remembered') {
           return <AssistantRemembered key={block.key} note={block.note} live={writing} />;
         }

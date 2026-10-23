@@ -7,6 +7,7 @@ import {
   type AssistantChangePreview,
   type AssistantErrorCode,
   type AssistantFollowUps,
+  type AssistantSources,
   type AssistantPageRender,
   type AssistantPageView,
   type AssistantPlaces,
@@ -98,6 +99,11 @@ export class UiStreamWriter {
   /** The weather a step looked up, one entry per date. */
   weather(weather: AssistantWeather): void {
     this.send({ type: 'data-trek-weather', data: weather });
+  }
+
+  /** The pages an answer cites from the provider's web search. */
+  sources(sources: AssistantSources): void {
+    this.send({ type: 'data-trek-sources', data: sources });
   }
 
   /** What the model offers to ask next, at the end of an answer. */

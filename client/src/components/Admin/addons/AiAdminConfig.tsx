@@ -1,6 +1,7 @@
 import { Check, Loader2, Sparkles } from 'lucide-react';
 import React, { useId, useState } from 'react';
 import { useTranslation } from '../../../i18n';
+import ToggleSwitch from '../../Settings/ToggleSwitch';
 import AiConnectPanel, { ProviderMark } from '../../Settings/ai/AiConnectPanel';
 import { CONNECTION_STATUS } from '../../Settings/ai/aiConnectModel';
 import { SETTINGS_BUTTON, SETTINGS_BUTTON_DANGER, SettingsHint, StatusPill } from '../../Settings/settingsKit';
@@ -136,7 +137,7 @@ function InstanceConnection({ A }: { A: AiAdmin }) {
   );
 }
 
-/** The assistant's own limits: turns a day while the instance pays, and how long chats are kept. */
+/** The assistant's own limits: turns a day while the instance pays, how long chats are kept, whether it searches the web. */
 function AssistantLimits({ A }: { A: AiAdmin }) {
   const { t } = useTranslation();
   const fieldId = useId();
@@ -170,6 +171,19 @@ function AssistantLimits({ A }: { A: AiAdmin }) {
           size="sm"
         />
       </EditorField>
+      {A.settings && (
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-body font-medium text-content">{t('assistant.admin.webSearch')}</span>
+            <ToggleSwitch
+              on={A.settings.webSearch}
+              onToggle={() => A.setWebSearch(!A.settings?.webSearch)}
+              label={t('assistant.admin.webSearch')}
+            />
+          </div>
+          <SettingsHint>{t('assistant.admin.webSearchHint')}</SettingsHint>
+        </div>
+      )}
     </div>
   );
 }

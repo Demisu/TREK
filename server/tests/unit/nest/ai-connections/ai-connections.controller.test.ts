@@ -210,7 +210,12 @@ describe('AiAdminController', () => {
     const { s, controller } = adminController();
     const admin = { id: 1, role: 'admin' } as User;
     await controller.settings();
-    const settings = { policy: 'instance' as const, dailyTurns: 10, retention: { mode: 'forever' as const } };
+    const settings = {
+      policy: 'instance' as const,
+      dailyTurns: 10,
+      retention: { mode: 'forever' as const },
+      webSearch: true,
+    };
     await controller.saveSettings(admin, settings);
     expect(s.connections.writeSettings).toHaveBeenCalledWith(1, settings);
     await controller.connection();

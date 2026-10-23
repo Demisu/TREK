@@ -40,7 +40,7 @@ function retentionOf(value: string): AiRetention {
   return value === FOREVER ? { mode: 'forever' } : { mode: 'days', days: Number(value) };
 }
 
-/** Policy, daily limit and retention: each change is saved at once and taken back when the server refuses it. */
+/** Policy, daily limit, retention and web search: each change is saved at once and taken back when the server refuses it. */
 function useAdminSettings(onSaved: () => void) {
   const { t } = useTranslation();
   const toast = useToast();
@@ -92,6 +92,7 @@ function useAdminSettings(onSaved: () => void) {
       { value: FOREVER, label: t('assistant.admin.retentionForever') },
     ],
     setRetention: (value: string) => void save({ retention: retentionOf(value) }),
+    setWebSearch: (webSearch: boolean) => void save({ webSearch }),
   };
 }
 

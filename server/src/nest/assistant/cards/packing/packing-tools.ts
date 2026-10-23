@@ -24,6 +24,7 @@ import {
   updateItemCard,
 } from './packing-changes';
 import { idsOf, itemRow, listItemsOf, packingCard, packingGroups, positiveId, rowsOf, tripItem } from './packing-rows';
+import { LINK_TOUR_PACKING_UNDO, UNLINK_TOUR_PACKING } from './tour-packing-undo';
 import type { AssistantChangePreview, PackingListCard, TrekCard } from '@trek/shared';
 
 /**
@@ -163,7 +164,8 @@ export const PACKING_TOOLS: Readonly<Record<string, ToolCards>> = {
   list_packing_items: { answer: listItemsAnswer },
   list_packing_bags: { answer: listBagsAnswer },
   get_tour_packing: { answer: tourPackingAnswer },
-  link_tour_packing: { change: linkTourCard },
+  link_tour_packing: { change: linkTourCard, undo: LINK_TOUR_PACKING_UNDO },
+  unlink_tour_packing: UNLINK_TOUR_PACKING,
   create_packing_item: {
     load: loadBagsWhenNamed,
     change: createItemCard,

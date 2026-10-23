@@ -5,6 +5,8 @@ import type {
   AiChatRequest,
   AiFinishReason,
   AiImage,
+  AiProviderState,
+  AiSource,
   AiToolCall,
 } from '../ai-chat-client.interface';
 import { AI_BASE_URLS } from '../ai-connections.constants';
@@ -57,6 +59,8 @@ export function toAnthropicMessages(messages: AiChatMessage[]): AnthropicMessage
   for (const message of messages) {
     if (message.role === 'user') {
       push('user', [...(message.images ?? []).map(imageBlock), { type: 'text', text: message.text }]);
+    } else if (message.role === 'assistant' && message.providerState?.adapter === 'anthropic-messages') {
+      push('assistant', message.providerState.blocks.map(replayed));
     } else if (message.role === 'assistant') {
       push('assistant', [
         ...(message.text ? [{ type: 'text', text: message.text }] : []),
@@ -77,6 +81,18 @@ export function toAnthropicMessages(messages: AiChatMessage[]): AnthropicMessage
   }
   return out;
 }
+
+/**
+ * A block of an answer as it goes back to the provider: as it came, but a text
+ * block without the citations it carried, which the provider checks against
+ * the search results and which the history needs no more than their words.
+ */
+function replayed(block: ContentBlock): ContentBlock {
+  return block.type === 'text' ? { type: 'text', text: asText(block.text) } : block;
+}
+
+/** Anthropic's own web search, a server tool; a few searches a step keep the turn short. */
+const WEB_SEARCH_TOOL = { type: 'web_search_20250305', name: 'web_search', max_uses: 5 } as const;
 
 /** The most cache breakpoints Anthropic takes in one request; the system blocks use the first ones. */
 const MAX_CACHE_BREAKPOINTS = 4;
@@ -113,6 +129,7 @@ const STOP_REASONS: Record<string, AiFinishReason> = { tool_use: 'tool-calls', m
  */
 export class AnthropicMessagesClient implements AiChatClient {
   readonly kind = 'anthropic' as const;
+  readonly webSearch = true;
 
   constructor(
     readonly model: string,
@@ -132,13 +149,16 @@ export class AnthropicMessagesClient implements AiChatClient {
       stream: true,
       system,
       messages,
-      ...(request.tools.length > 0
+      ...(request.tools.length > 0 || request.webSearch
         ? {
-            tools: request.tools.map((tool) => ({
-              name: tool.name,
-              description: tool.description,
-              input_schema: toProviderSchema(tool.parameters, this.kind),
-            })),
+            tools: [
+              ...request.tools.map((tool) => ({
+                name: tool.name,
+                description: tool.description,
+                input_schema: toProviderSchema(tool.parameters, this.kind),
+              })),
+              ...(request.webSearch ? [WEB_SEARCH_TOOL] : []),
+            ],
           }
         : {}),
     };
@@ -164,8 +184,7 @@ export class AnthropicMessagesClient implements AiChatClient {
       const event = parseEventData(sse.data);
       if (!event) continue;
       if (event.type === 'error') throw providerFailure(this.kind, 0, errorCodeOf(event));
-      const out = turn.apply(event);
-      if (out) yield out;
+      yield* turn.apply(event);
     }
     if (!turn.finished) throw new AiProviderError('provider_unavailable', 0, true, undefined, 'stream_cut');
     yield {
@@ -174,21 +193,35 @@ export class AnthropicMessagesClient implements AiChatClient {
       cachedInputTokens: turn.cachedInputTokens,
       outputTokens: turn.outputTokens,
     };
+    const state = turn.state();
+    if (state) yield { type: 'provider-state', state };
     yield { type: 'finish', reason: turn.reason };
   }
 }
 
-/** What one streamed Messages API turn has said so far, fed one event at a time. */
+/** A content block while it streams: as it started, with the JSON of its input so far. */
+interface OpenBlock {
+  block: ContentBlock;
+  json: string;
+}
+
+/**
+ * What one streamed Messages API turn has said so far, fed one event at a
+ * time. It keeps every content block as it came, so an answer that searched
+ * the web can be replayed with its search and its results (state()); an
+ * answer that did not is rebuilt from its text and calls as before.
+ */
 class AnthropicTurn {
   inputTokens = 0;
   cachedInputTokens = 0;
   outputTokens = 0;
   reason: AiFinishReason = 'stop';
   finished = false;
-  private readonly blocks = new Map<number, { call?: Omit<AiToolCall, 'args'>; json: string }>();
+  private readonly blocks = new Map<number, OpenBlock>();
+  private readonly cited = new Set<string>();
+  private searched = false;
 
-  /** Takes one event in; answers what the caller learns from it now, if anything. */
-  apply(event: Record<string, unknown>): AiChatEvent | null {
+  *apply(event: Record<string, unknown>): Generator<AiChatEvent> {
     const index = asCount(event.index);
     switch (event.type) {
       case 'message_start': {
@@ -199,36 +232,70 @@ class AnthropicTurn {
           asCount(usage.cache_read_input_tokens);
         this.cachedInputTokens = asCount(usage.cache_read_input_tokens);
         this.outputTokens = asCount(usage.output_tokens);
-        return null;
+        return;
       }
       case 'content_block_start': {
-        const block = asRecord(event.content_block);
-        const call = block.type === 'tool_use' ? { id: asText(block.id), name: asText(block.name) } : undefined;
-        this.blocks.set(index, { call, json: '' });
-        return null;
+        const block = { ...asRecord(event.content_block) };
+        if (block.type === 'text') block.text = asText(block.text);
+        this.blocks.set(index, { block, json: '' });
+        return;
       }
       case 'content_block_delta': {
         const delta = asRecord(event.delta);
-        if (delta.type === 'text_delta' && asText(delta.text)) return { type: 'text-delta', delta: asText(delta.text) };
-        const block = this.blocks.get(index);
-        if (delta.type === 'input_json_delta' && block) block.json += asText(delta.partial_json);
-        return null;
+        const open = this.blocks.get(index);
+        if (delta.type === 'text_delta' && asText(delta.text)) {
+          if (open) open.block.text = asText(open.block.text) + asText(delta.text);
+          yield { type: 'text-delta', delta: asText(delta.text) };
+        } else if (delta.type === 'input_json_delta' && open) {
+          open.json += asText(delta.partial_json);
+        } else if (delta.type === 'citations_delta') {
+          const source = sourceOf(asRecord(delta.citation));
+          if (source && !this.cited.has(source.url)) {
+            this.cited.add(source.url);
+            yield { type: 'source', source };
+          }
+        }
+        return;
       }
       case 'content_block_stop': {
-        const block = this.blocks.get(index);
-        return block?.call ? { type: 'tool-call', call: { ...block.call, args: parseToolArgs(block.json) } } : null;
+        const open = this.blocks.get(index);
+        if (!open) return;
+        const { block } = open;
+        if (block.type === 'tool_use' || block.type === 'server_tool_use') block.input = parseToolArgs(open.json);
+        if (block.type === 'tool_use') {
+          const call: AiToolCall = { id: asText(block.id), name: asText(block.name), args: asRecord(block.input) };
+          yield { type: 'tool-call', call };
+        } else if (block.type === 'server_tool_use' && block.name === WEB_SEARCH_TOOL.name) {
+          this.searched = true;
+          yield { type: 'web-search', query: asText(asRecord(block.input).query) || null };
+        }
+        return;
       }
       case 'message_delta': {
         const stop = asText(asRecord(event.delta).stop_reason);
         if (stop) this.reason = STOP_REASONS[stop] ?? 'stop';
         this.outputTokens = asCount(asRecord(event.usage).output_tokens) || this.outputTokens;
-        return null;
+        return;
       }
       case 'message_stop':
         this.finished = true;
-        return null;
+        return;
       default:
-        return null;
+        return;
     }
   }
+
+  /** The blocks to replay, for an answer that searched the web; null for one rebuilt from its text and calls. */
+  state(): AiProviderState | null {
+    if (!this.searched) return null;
+    const blocks = [...this.blocks.entries()].sort(([a], [b]) => a - b).map(([, open]) => open.block);
+    return { adapter: 'anthropic-messages', blocks };
+  }
+}
+
+/** The page a citation of a web search result names, null for any other citation. */
+function sourceOf(citation: Record<string, unknown>): AiSource | null {
+  const url = asText(citation.url);
+  if (citation.type !== 'web_search_result_location' || !/^https?:\/\//.test(url)) return null;
+  return { url, title: asText(citation.title) || url };
 }

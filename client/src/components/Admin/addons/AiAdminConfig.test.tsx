@@ -22,7 +22,12 @@ vi.mock('../../../repo/aiConnectionsRepo', () => ({ aiConnectionsRepo: repo }));
 
 const { default: AiSettingsDialog } = await import('./AiAdminConfig');
 
-const SETTINGS: AiAdminSettings = { policy: 'instance_or_user', dailyTurns: 50, retention: { mode: 'days', days: 90 } };
+const SETTINGS: AiAdminSettings = {
+  policy: 'instance_or_user',
+  dailyTurns: 50,
+  webSearch: true,
+  retention: { mode: 'days', days: 90 },
+};
 const LIVE: AiAdminConnectionResponse = {
   connection: {
     scope: 'instance',
@@ -100,6 +105,17 @@ describe('the connection and the assistant', () => {
     await user.click(screen.getByRole('button', { name: 'AI Assistant' }));
     expect(screen.getByDisplayValue('50')).toBeInTheDocument();
     expect(screen.getByText('Keep chats')).toBeInTheDocument();
+  });
+
+  it('FE-COMP-AI-ADMIN-001b: the web search is on as it ships and is switched off on the assistant tab', async () => {
+    const user = userEvent.setup();
+    renderDialog();
+    await user.click(await screen.findByRole('button', { name: 'AI Assistant' }));
+    const toggle = screen.getByRole('button', { name: 'Web search' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText(/through the search of the AI provider it talks to/)).toBeInTheDocument();
+    await user.click(toggle);
+    expect(repo.saveAdminSettings).toHaveBeenCalledWith({ ...SETTINGS, webSearch: false });
   });
 
   it('FE-COMP-AI-ADMIN-002: "Everyone uses their own" drops the connection and the limit', async () => {

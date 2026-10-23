@@ -129,6 +129,8 @@ export const TOOL_LABELS: Readonly<Partial<Record<string, { labelKey: string }>>
 /** How each reading tool is named while it runs; a tool not listed reads "Working on it". */
 export const STEP_LOOKS: Readonly<Partial<Record<string, StepLook>>> = {
   get_trip_summary: { stepKey: 'assistant.step.reading' },
+  // The provider's own web search, told as a step of its own (ASSISTANT_WEB_SEARCH_STEP).
+  web_search: { stepKey: 'assistant.step.webSearch', live: { liveKey: 'assistant.step.webSearchFor', param: 'query' } },
   list_places: { stepKey: 'assistant.step.reading' },
   search_place: {
     stepKey: 'assistant.step.searching',

@@ -322,12 +322,16 @@ describe('the instance connection', () => {
       policy: 'instance_or_user',
       dailyTurns: 50,
       retention: { mode: 'days', days: 90 },
+      webSearch: true,
     });
     await setAppSetting(orm(), 'ai_assistant_retention', '{"mode":"weeks"}');
     expect((await service().readSettings()).retention).toEqual({ mode: 'days', days: 90 });
-    const next = { policy: 'user' as const, dailyTurns: 20, retention: { mode: 'forever' as const } };
+    const next = { policy: 'user' as const, dailyTurns: 20, retention: { mode: 'forever' as const }, webSearch: false };
     expect(await service().writeSettings(admin, next)).toEqual(next);
     expect(await service().readSettings()).toEqual(next);
+    // Only "false" switches the search off: an odd row leaves it on, as it ships.
+    await setAppSetting(orm(), 'ai_assistant_web_search', 'maybe');
+    expect((await service().readSettings()).webSearch).toBe(true);
   });
 
   it('AICS-015: removing the instance connection, and refusing when there is none', async () => {

@@ -183,7 +183,18 @@ describe('AI connections e2e', () => {
       .set(as(ADMIN))
       .send({ policy: 'instance', dailyTurns: 25, retention: { mode: 'days', days: 30 } });
     expect(settings.status).toBe(200);
-    expect(settings.body).toEqual({ policy: 'instance', dailyTurns: 25, retention: { mode: 'days', days: 30 } });
+    // A client that sends no webSearch leaves the search on.
+    expect(settings.body).toEqual({
+      policy: 'instance',
+      dailyTurns: 25,
+      retention: { mode: 'days', days: 30 },
+      webSearch: true,
+    });
+    const off = await request(server)
+      .put('/api/admin/ai/settings')
+      .set(as(ADMIN))
+      .send({ policy: 'instance', dailyTurns: 25, retention: { mode: 'days', days: 30 }, webSearch: false });
+    expect(off.body.webSearch).toBe(false);
 
     const saved = await request(server)
       .put('/api/admin/ai/connection')

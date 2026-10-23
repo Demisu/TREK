@@ -6,6 +6,7 @@ import type {
   AiChatRequest,
   AiImage,
   AiProviderState,
+  AiSource,
 } from '../ai-chat-client.interface';
 import { AI_BASE_URLS } from '../ai-connections.constants';
 import { AiProviderError, errorCodeOf, providerFailure } from './provider-errors';
@@ -21,6 +22,7 @@ import {
 } from './provider-http';
 import { imageDataUrl, toolImageCaption, toolImagesEndingAt } from './provider-images';
 import { readSseEvents } from './sse-lines';
+import type { AiConnectionKind } from '@trek/shared';
 
 /** The namespace the tools are grouped in, as Sign in with ChatGPT asks for. */
 const TOOL_NAMESPACE = 'trek';
@@ -84,6 +86,45 @@ function toItems(message: AiChatMessage): Record<string, unknown>[] {
 }
 
 /**
+ * The tools of a request as the Responses API takes them: TREK's in one
+ * namespace, and the provider's own web search beside them when asked for.
+ */
+function toolsOf(request: AiChatRequest, kind: AiConnectionKind): Record<string, unknown> {
+  const tools: Record<string, unknown>[] = [];
+  if (request.tools.length > 0) {
+    tools.push({
+      type: 'namespace',
+      name: TOOL_NAMESPACE,
+      description: 'TREK trip tools',
+      tools: request.tools.map((tool) => ({
+        type: 'function',
+        name: tool.name,
+        description: tool.description,
+        parameters: toProviderSchema(tool.parameters, kind),
+        strict: false,
+      })),
+    });
+  }
+  if (request.webSearch) tools.push({ type: 'web_search' });
+  return tools.length > 0 ? { tools, tool_choice: 'auto', parallel_tool_calls: true } : {};
+}
+
+/** The pages an output message cites, as its text's URL annotations name them. */
+export function citedSources(item: Record<string, unknown>): AiSource[] {
+  if (item.type !== 'message' || !Array.isArray(item.content)) return [];
+  return item.content.flatMap((part: unknown) => {
+    const annotations = asRecord(part).annotations;
+    if (!Array.isArray(annotations)) return [];
+    return annotations.flatMap((raw: unknown) => {
+      const annotation = asRecord(raw);
+      const url = asText(annotation.url);
+      if (annotation.type !== 'url_citation' || !/^https?:\/\//.test(url)) return [];
+      return [{ url, title: asText(annotation.title) || url }];
+    });
+  });
+}
+
+/**
  * OpenAI's Responses API on a ChatGPT plan (Sign in with ChatGPT). Within the
  * preview's limits: nothing stored, streamed, no output cap or temperature,
  * the instructions as `instructions`, the tools in one namespace that carries
@@ -92,6 +133,7 @@ function toItems(message: AiChatMessage): Record<string, unknown>[] {
  */
 export class OpenAiResponsesClient implements AiChatClient {
   readonly kind = 'chatgpt' as const;
+  readonly webSearch = true;
 
   constructor(
     readonly model: string,
@@ -106,26 +148,7 @@ export class OpenAiResponsesClient implements AiChatClient {
       stream: true,
       instructions: request.system,
       input: toResponsesInput(request),
-      ...(request.tools.length > 0
-        ? {
-            tools: [
-              {
-                type: 'namespace',
-                name: TOOL_NAMESPACE,
-                description: 'TREK trip tools',
-                tools: request.tools.map((tool) => ({
-                  type: 'function',
-                  name: tool.name,
-                  description: tool.description,
-                  parameters: toProviderSchema(tool.parameters, this.kind),
-                  strict: false,
-                })),
-              },
-            ],
-            tool_choice: 'auto',
-            parallel_tool_calls: true,
-          }
-        : {}),
+      ...toolsOf(request, this.kind),
       reasoning: { effort: 'low' },
       include: ['reasoning.encrypted_content'],
       ...(request.cacheKey ? { prompt_cache_key: request.cacheKey } : {}),
@@ -133,6 +156,7 @@ export class OpenAiResponsesClient implements AiChatClient {
     const events = await this.open(body, request.cacheKey, signal);
 
     const items: Record<string, unknown>[] = [];
+    const cited = new Set<string>();
     let usage = { inputTokens: 0, cachedInputTokens: 0, outputTokens: 0 };
     let completed = false;
     for await (const sse of readSseEvents(events)) {
@@ -140,9 +164,16 @@ export class OpenAiResponsesClient implements AiChatClient {
       if (!event) continue;
       if (event.type === 'response.output_text.delta' && asText(event.delta)) {
         yield { type: 'text-delta', delta: asText(event.delta) };
+      } else if (event.type === 'response.output_item.added' && asRecord(event.item).type === 'web_search_call') {
+        yield { type: 'web-search', query: null };
       } else if (event.type === 'response.output_item.done') {
         const item = asRecord(event.item);
         items.push(item);
+        for (const source of citedSources(item)) {
+          if (cited.has(source.url)) continue;
+          cited.add(source.url);
+          yield { type: 'source', source };
+        }
         if (item.type === 'function_call') {
           yield {
             type: 'tool-call',

@@ -633,3 +633,163 @@ describe('images for a model that reads them', () => {
     expect(isImageRefusal(new Error('image'))).toBe(false);
   });
 });
+
+describe('web search through the provider', () => {
+  const ASK: AiChatRequest = { ...REQUEST, webSearch: true };
+
+  it('WEB-001: the Responses API gets its web_search tool beside the namespace, and tells the search and the cited pages', async () => {
+    const SEARCH = {
+      type: 'web_search_call',
+      id: 'ws_1',
+      status: 'completed',
+      action: { query: 'harbour restaurants' },
+    };
+    const MESSAGE = {
+      type: 'message',
+      role: 'assistant',
+      content: [
+        {
+          type: 'output_text',
+          text: 'Try the harbour.',
+          annotations: [
+            { type: 'url_citation', url: 'https://www.example.org/harbour', title: 'Harbour guide' },
+            { type: 'url_citation', url: 'https://www.example.org/harbour', title: 'Harbour guide' },
+            { type: 'url_citation', url: 'ftp://nowhere', title: 'Not a page' },
+            { type: 'file_citation', file_id: 'f1' },
+          ],
+        },
+      ],
+    };
+    const http = fetchAnswering(
+      streamResponse([
+        { type: 'response.output_item.added', item: { type: 'web_search_call', id: 'ws_1' } },
+        { type: 'response.output_item.done', item: SEARCH },
+        { type: 'response.output_text.delta', delta: 'Try the harbour.' },
+        { type: 'response.output_item.done', item: MESSAGE },
+        { type: 'response.completed', response: { usage: {} } },
+      ]),
+    );
+    const client = new OpenAiResponsesClient('m', async () => 'at', http.fetcher);
+    expect(client.webSearch).toBe(true);
+    const events = await run(client.stream(ASK, signal()));
+    expect(dig(http.body(), 'tools', 1)).toEqual({ type: 'web_search' });
+    expect(events.filter((e) => e.type === 'web-search' || e.type === 'source')).toEqual([
+      { type: 'web-search', query: null },
+      { type: 'source', source: { url: 'https://www.example.org/harbour', title: 'Harbour guide' } },
+    ]);
+    // The search goes back with the rest of the step's items.
+    expect(events).toContainEqual({
+      type: 'provider-state',
+      state: { adapter: 'openai-responses', items: [SEARCH, MESSAGE] },
+    });
+    // Without tools of its own a request still gets the search.
+    const alone = fetchAnswering(streamResponse([{ type: 'response.completed', response: { usage: {} } }]));
+    await run(new OpenAiResponsesClient('m', async () => 'at', alone.fetcher).stream({ ...ASK, tools: [] }, signal()));
+    expect(alone.body().tools).toEqual([{ type: 'web_search' }]);
+    // Without asking for it, none.
+    const plain = fetchAnswering(streamResponse([{ type: 'response.completed', response: { usage: {} } }]));
+    await run(new OpenAiResponsesClient('m', async () => 'at', plain.fetcher).stream(REQUEST, signal()));
+    expect(plain.body().tools).toHaveLength(1);
+  });
+
+  it('WEB-002: Anthropic gets its web search server tool, tells the query and the cited pages, and replays the searched answer', async () => {
+    const RESULT = {
+      type: 'web_search_tool_result',
+      tool_use_id: 'srv_1',
+      content: [{ type: 'web_search_result', url: 'https://a.example', title: 'A', encrypted_content: 'xyz' }],
+    };
+    const START = { type: 'message_start', message: { usage: { input_tokens: 10, output_tokens: 1 } } };
+    const TEXT = [
+      { type: 'content_block_start', index: 2, content_block: { type: 'text', text: '' } },
+      { type: 'content_block_delta', index: 2, delta: { type: 'text_delta', text: 'Eat at A.' } },
+      {
+        type: 'content_block_delta',
+        index: 2,
+        delta: {
+          type: 'citations_delta',
+          citation: { type: 'web_search_result_location', url: 'https://a.example', title: 'A', cited_text: 'x' },
+        },
+      },
+      { type: 'content_block_stop', index: 2 },
+      { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 5 } },
+      { type: 'message_stop' },
+    ];
+    const STREAM = [
+      START,
+      {
+        type: 'content_block_start',
+        index: 0,
+        content_block: { type: 'server_tool_use', id: 'srv_1', name: 'web_search' },
+      },
+      {
+        type: 'content_block_delta',
+        index: 0,
+        delta: { type: 'input_json_delta', partial_json: '{"query":"Rostock harbour"}' },
+      },
+      { type: 'content_block_stop', index: 0 },
+      { type: 'content_block_start', index: 1, content_block: RESULT },
+      { type: 'content_block_stop', index: 1 },
+      ...TEXT,
+    ];
+    const http = fetchAnswering(streamResponse(STREAM));
+    const client = new AnthropicMessagesClient('m', 'k', http.fetcher);
+    expect(client.webSearch).toBe(true);
+    const events = await run(client.stream(ASK, signal()));
+    expect(dig(http.body(), 'tools', 1)).toEqual({ type: 'web_search_20250305', name: 'web_search', max_uses: 5 });
+    expect(events.filter((e) => e.type !== 'usage')).toEqual([
+      { type: 'web-search', query: 'Rostock harbour' },
+      { type: 'text-delta', delta: 'Eat at A.' },
+      { type: 'source', source: { url: 'https://a.example', title: 'A' } },
+      {
+        type: 'provider-state',
+        state: {
+          adapter: 'anthropic-messages',
+          blocks: [
+            { type: 'server_tool_use', id: 'srv_1', name: 'web_search', input: { query: 'Rostock harbour' } },
+            RESULT,
+            { type: 'text', text: 'Eat at A.' },
+          ],
+        },
+      },
+      { type: 'finish', reason: 'stop' },
+    ]);
+    const state = events.find((e) => e.type === 'provider-state');
+    if (state?.type !== 'provider-state') throw new Error('no state');
+    const replayed = toAnthropicMessages([
+      { role: 'user', text: 'Where to eat?' },
+      { role: 'assistant', text: 'Eat at A.', toolCalls: [], providerState: state.state },
+    ]);
+    expect(replayed[1]?.content.map((block) => block.type)).toEqual([
+      'server_tool_use',
+      'web_search_tool_result',
+      'text',
+    ]);
+    // A request that does not ask for the search, and a step that did not search, keep no state.
+    const plain = fetchAnswering(streamResponse([START, ...TEXT]));
+    const quiet = await run(new AnthropicMessagesClient('m', 'k', plain.fetcher).stream(REQUEST, signal()));
+    expect(plain.body().tools).toHaveLength(1);
+    expect(quiet.some((e) => e.type === 'provider-state')).toBe(false);
+  });
+
+  it('WEB-003: OpenRouter asks its web plugin and tells the cited pages; another Chat Completions provider has no search', async () => {
+    const CITE = { type: 'url_citation', url_citation: { url: 'https://a.example', title: 'A' } };
+    const STREAM = [
+      { choices: [{ delta: { content: 'See A.' } }] },
+      { choices: [{ delta: { annotations: [CITE, CITE] }, finish_reason: 'stop' }] },
+      '[DONE]',
+    ];
+    const http = fetchAnswering(streamResponse(STREAM));
+    const router = new OpenAiChatClient('openrouter', 'm', 'https://x', 'k', http.fetcher);
+    expect(router.webSearch).toBe(true);
+    const events = await run(router.stream(ASK, signal()));
+    expect(http.body().plugins).toEqual([{ id: 'web', max_results: 5 }]);
+    expect(events.filter((e) => e.type === 'source')).toEqual([
+      { type: 'source', source: { url: 'https://a.example', title: 'A' } },
+    ]);
+    const other = fetchAnswering(streamResponse(['[DONE]']));
+    const openai = new OpenAiChatClient('openai', 'm', 'https://x', 'k', other.fetcher);
+    expect(openai.webSearch).toBe(false);
+    await run(openai.stream(ASK, signal()));
+    expect(other.body().plugins).toBeUndefined();
+  });
+});

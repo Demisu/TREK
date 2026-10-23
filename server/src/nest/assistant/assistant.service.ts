@@ -861,6 +861,8 @@ export class AssistantService {
           describe: this.cardContext.forTurn(gate.reader, card, spec.locale, today).describe,
           refusalOf: gate.refusalOf,
           vision: seeing.vision,
+          // The admin's switch; the provider's own search, so nothing goes anywhere the conversation does not.
+          webSearch: (await this.inContext(() => this.settings.getAppSetting('ai_assistant_web_search'))) !== 'false',
           newId: randomUUID,
           quota: spec.quota,
           card,

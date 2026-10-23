@@ -215,6 +215,12 @@ export const aiAdminSettingsSchema = z
     policy: aiPolicySchema,
     dailyTurns: z.number().int().min(1).max(10000),
     retention: aiRetentionSchema,
+    /**
+     * Whether the assistant may search the web, through the provider's own
+     * search (ChatGPT, Anthropic, OpenRouter); left out by older clients, it
+     * stays on.
+     */
+    webSearch: z.boolean().default(true),
   })
   .strict();
 export type AiAdminSettings = z.infer<typeof aiAdminSettingsSchema>;

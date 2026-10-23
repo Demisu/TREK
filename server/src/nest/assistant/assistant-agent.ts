@@ -5,6 +5,7 @@ import {
   type AiChatClient,
   type AiChatMessage,
   type AiImage,
+  type AiSource,
   type AiToolCall,
   type AiToolSpec,
 } from '../ai-connections/ai-chat-client.interface';
@@ -21,6 +22,8 @@ import type { UiStreamWriter } from './ui-stream.writer';
 import {
   ASSISTANT_FOLLOW_UPS_TOOL,
   ASSISTANT_PAGE_IMAGE,
+  ASSISTANT_WEB_SEARCH_STEP,
+  MAX_ASSISTANT_SOURCES,
   type AssistantChangePreview,
   type AssistantErrorCode,
   type AssistantMessagePart,
@@ -102,6 +105,8 @@ export interface AgentDeps {
   refusalOf?: (tool: string, args: ToolArgs) => Promise<string | null>;
   /** A Studio turn's page images; without it no image ever goes to the model. */
   vision?: AgentVision | null;
+  /** Whether the model may search the web with its provider's own search (the admin's switch). */
+  webSearch?: boolean;
 }
 
 export interface AgentInput {
@@ -258,6 +263,10 @@ interface StepAnswer {
   received: AiToolCall[];
   providerState: AiProviderState | null;
   cutOff: boolean;
+  /** The provider's own web searches of the step, as the steps the chat lists. */
+  searches: AssistantMessagePart[];
+  /** The pages the answer cites, in order, each once. */
+  sources: AiSource[];
 }
 
 /**
@@ -293,10 +302,44 @@ function dropImagesAfter(turn: Turn, err: unknown): boolean {
   return true;
 }
 
+/**
+ * A web search the provider runs itself, told as a step while it runs and
+ * kept as one (ASSISTANT_WEB_SEARCH_STEP); the history leaves it out, since
+ * the provider holds its own record of it.
+ */
+function searchStep(deps: AgentDeps, w: UiStreamWriter, query: string | null): AssistantMessagePart {
+  const toolCallId = `web-${deps.newId()}`;
+  const args = query ? { query: query.slice(0, 200) } : {};
+  w.toolInput(toolCallId, ASSISTANT_WEB_SEARCH_STEP, args);
+  return { type: 'tool-call', toolCallId, toolName: ASSISTANT_WEB_SEARCH_STEP, args, result: WEB_SEARCH_DONE };
+}
+
+/** What a finished web search step keeps as its result: the provider's results stay with the provider. */
+const WEB_SEARCH_DONE = 'searched';
+
+/** The searches of a step, told as done, and the pages its answer cites, as parts of the step. */
+function searchParts(
+  w: UiStreamWriter,
+  answer: StepAnswer,
+): { lead: AssistantMessagePart[]; tail: AssistantMessagePart[] } {
+  for (const part of answer.searches) if (part.type === 'tool-call') w.toolOutput(part.toolCallId, WEB_SEARCH_DONE);
+  if (answer.sources.length === 0) return { lead: answer.searches, tail: [] };
+  const sources = { sources: answer.sources };
+  w.sources(sources);
+  return { lead: answer.searches, tail: [{ type: 'data-trek-sources', data: sources }] };
+}
+
 /** Streams one answer of the model; a failure or a stop ends the turn here, saved as far as it got. */
 async function streamAnswer(turn: Turn, rowId: number): Promise<StepAnswer | AgentOutcome> {
   const { deps, input, w, signal } = turn;
-  const answer: StepAnswer = { text: '', received: [], providerState: null, cutOff: false };
+  const answer: StepAnswer = {
+    text: '',
+    received: [],
+    providerState: null,
+    cutOff: false,
+    searches: [],
+    sources: [],
+  };
   try {
     const events = deps.client.stream(
       {
@@ -305,6 +348,7 @@ async function streamAnswer(turn: Turn, rowId: number): Promise<StepAnswer | Age
         messages: limitImages(turn.history, ASSISTANT_PAGE_IMAGE.perRequest),
         tools: deps.tools.specs(),
         cacheKey: input.cacheKey,
+        webSearch: deps.webSearch === true && deps.client.webSearch,
       },
       signal,
     );
@@ -319,6 +363,10 @@ async function streamAnswer(turn: Turn, rowId: number): Promise<StepAnswer | Age
         turn.usage.outputTokens += event.outputTokens;
       } else if (event.type === 'provider-state') answer.providerState = event.state;
       else if (event.type === 'finish') answer.cutOff = event.reason === 'length';
+      else if (event.type === 'web-search') answer.searches.push(searchStep(deps, w, event.query));
+      else if (event.type === 'source' && answer.sources.length < MAX_ASSISTANT_SOURCES) {
+        answer.sources.push({ url: event.source.url.slice(0, 2000), title: event.source.title.slice(0, 200) });
+      }
     }
     return answer;
   } catch (err) {
@@ -459,7 +507,12 @@ async function runStep(turn: Turn, step: number): Promise<AgentOutcome | null> {
   const asks = all.filter((call) => call.name === ASSISTANT_FOLLOW_UPS_TOOL);
   const received = all.filter((call) => call.name !== ASSISTANT_FOLLOW_UPS_TOOL);
 
-  const parts: AssistantMessagePart[] = text ? [{ type: 'text', text }] : [];
+  const searched = searchParts(w, answer);
+  const parts: AssistantMessagePart[] = [
+    ...searched.lead,
+    ...(text ? [{ type: 'text' as const, text }] : []),
+    ...searched.tail,
+  ];
   const empty = received.length === 0 && !text.trim();
   // An answer that offered follow-ups is finished, however it ends.
   const settled = asks.length > 0 && !empty;

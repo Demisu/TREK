@@ -79,7 +79,12 @@ describe('aiConnectionsRepo', () => {
   });
 
   it('FE-AI-CONN-REPO-004: reads and writes the admin settings and the instance connection', async () => {
-    const settings = { policy: 'user' as const, dailyTurns: 50, retention: { mode: 'forever' as const } };
+    const settings = {
+      policy: 'user' as const,
+      dailyTurns: 50,
+      webSearch: true,
+      retention: { mode: 'forever' as const },
+    };
     const connection: AiAdminConnectionResponse = {
       connection: {
         ...VIEW,
@@ -102,6 +107,7 @@ describe('aiConnectionsRepo', () => {
     await expect(aiConnectionsRepo.saveAdminSettings({ ...settings, dailyTurns: 20 })).resolves.toEqual({
       ...settings,
       dailyTurns: 20,
+      webSearch: true,
     });
     await expect(aiConnectionsRepo.adminConnection()).resolves.toEqual(connection);
     await expect(aiConnectionsRepo.adminModels()).resolves.toEqual([

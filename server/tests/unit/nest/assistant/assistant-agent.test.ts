@@ -43,11 +43,12 @@ import { describe, expect, it, vi } from 'vitest';
 type Step = AiChatEvent[] | Error;
 
 /** A client that answers each request with the next scripted step, and remembers what it was asked. */
-function scriptedClient(steps: Step[]) {
+function scriptedClient(steps: Step[], webSearch = false) {
   const requests: AiChatRequest[] = [];
   const client: AiChatClient = {
     kind: 'openai',
     model: 'fake',
+    webSearch,
     async *stream(request: AiChatRequest) {
       requests.push({ ...request, messages: [...request.messages] });
       const step = steps.shift() ?? [{ type: 'finish', reason: 'stop' }];
@@ -133,8 +134,8 @@ const preview = (toolCallId: string): AssistantChangePreview => ({
   undoable: true,
 });
 
-function setup(steps: Step[], overrides: Partial<AgentDeps> = {}) {
-  const { client, requests } = scriptedClient(steps);
+function setup(steps: Step[], overrides: Partial<AgentDeps> = {}, webSearch = false) {
+  const { client, requests } = scriptedClient(steps, webSearch);
   const tools = fakeTools();
   const memory = memoryStore();
   const { chunks, writer } = chunkStream();
@@ -481,6 +482,7 @@ describe('runAgentLoop', () => {
     const client: AiChatClient = {
       kind: 'openai',
       model: 'fake',
+      webSearch: false,
       async *stream() {
         yield { type: 'text-delta', delta: 'Half' } as AiChatEvent;
         controller.abort();
@@ -815,5 +817,45 @@ describe('runAgentLoop', () => {
     });
     expect(followUpsOf({ questions: [] })).toBeNull();
     expect(followUpsOf({})).toBeNull();
+  });
+
+  it('ASTAGT-039: a provider web search is a step of its own, the cited pages a part after the text, neither sent back as a call', async () => {
+    const t = setup(
+      [
+        [
+          { type: 'web-search', query: 'Rostock harbour restaurants' },
+          { type: 'text-delta', delta: 'Eat at the Alter Strom.' },
+          { type: 'source', source: { url: 'https://a.example', title: 'A guide' } },
+          { type: 'finish', reason: 'stop' },
+        ],
+      ],
+      { webSearch: true },
+      true,
+    );
+    await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+    expect(t.requests[0]?.webSearch).toBe(true);
+    expect(t.memory.saved[0]?.step.parts).toEqual([
+      {
+        type: 'tool-call',
+        toolCallId: 'web-id-1',
+        toolName: 'web_search',
+        args: { query: 'Rostock harbour restaurants' },
+        result: 'searched',
+      },
+      { type: 'text', text: 'Eat at the Alter Strom.' },
+      { type: 'data-trek-sources', data: { sources: [{ url: 'https://a.example', title: 'A guide' }] } },
+    ]);
+    expect(types(t.chunks)).toEqual(
+      expect.arrayContaining(['tool-input-available', 'tool-output-available', 'data-trek-sources']),
+    );
+  });
+
+  it('ASTAGT-040: the search is asked for only where the admin allows it and the provider can search', async () => {
+    const off = setup([[{ type: 'finish', reason: 'stop' }]], { webSearch: false }, true);
+    await runAgentLoop(off.deps, off.input, off.writer, new AbortController().signal);
+    expect(off.requests[0]?.webSearch).toBe(false);
+    const unable = setup([[{ type: 'finish', reason: 'stop' }]], { webSearch: true }, false);
+    await runAgentLoop(unable.deps, unable.input, unable.writer, new AbortController().signal);
+    expect(unable.requests[0]?.webSearch).toBe(false);
   });
 });

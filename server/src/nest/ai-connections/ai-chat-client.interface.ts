@@ -52,6 +52,14 @@ export interface AiChatRequest {
   tools: AiToolSpec[];
   /** Keeps a conversation on the provider's prompt cache (the thread id). */
   cacheKey?: string;
+  /** Lets the model search the web with its provider's own search; a client without one ignores it. */
+  webSearch?: boolean;
+}
+
+/** A page the model's answer draws on, from its web search. */
+export interface AiSource {
+  url: string;
+  title: string;
 }
 
 export type AiFinishReason = 'stop' | 'tool-calls' | 'length';
@@ -68,10 +76,16 @@ export type AiChatEvent =
   /** `cachedInputTokens` is the part of `inputTokens` the provider read from its prompt cache. */
   | { type: 'usage'; inputTokens: number; cachedInputTokens: number; outputTokens: number }
   | { type: 'provider-state'; state: AiProviderState }
+  /** The provider started a web search of its own; `query` where it says what it looks for. */
+  | { type: 'web-search'; query: string | null }
+  /** A page the answer cites, each once. */
+  | { type: 'source'; source: AiSource }
   | { type: 'finish'; reason: AiFinishReason };
 
 export interface AiChatClient {
   readonly kind: AiConnectionKind;
   readonly model: string;
+  /** Whether the provider can search the web itself when a request asks it to. */
+  readonly webSearch: boolean;
   stream(request: AiChatRequest, signal: AbortSignal): AsyncIterable<AiChatEvent>;
 }

@@ -167,6 +167,9 @@ export const ASSISTANT_CHANGE_LABEL_KEYS = [
   'route',
   // The hardest SAC grade a hike's way may take, T1 to T6.
   'difficulty',
+  // The recorded track a tour was done on; the part of the packing list a tour points at.
+  'track',
+  'packing',
   // A new order of a day's places or of the days, as the names in that order.
   'order',
   // An argument of a tool without a card of its own; the row names it in `field`.
@@ -507,6 +510,35 @@ export const assistantFollowUpsSchema = z.object({
 });
 export type AssistantFollowUps = z.infer<typeof assistantFollowUpsSchema>;
 
+/**
+ * The step a provider's own web search shows as in the chat: a tool call the
+ * server records for the step list, never sent back to the model as one.
+ */
+export const ASSISTANT_WEB_SEARCH_STEP = 'web_search';
+
+/** How many pages one answer names as its sources at most. */
+export const MAX_ASSISTANT_SOURCES = 12;
+
+/**
+ * The pages an answer drew on from the provider's web search, in the order
+ * they were cited, each once: a link to open and its title.
+ */
+export const assistantSourcesSchema = z.object({
+  sources: z
+    .array(
+      z.object({
+        url: z
+          .string()
+          .max(2000)
+          .regex(/^https?:\/\//),
+        title: z.string().max(200),
+      }),
+    )
+    .min(1)
+    .max(MAX_ASSISTANT_SOURCES),
+});
+export type AssistantSources = z.infer<typeof assistantSourcesSchema>;
+
 /** Where a running step looks: a point with a radius, or a box. */
 export const assistantActivityAreaSchema = z.discriminatedUnion('type', [
   z.object({
@@ -610,6 +642,8 @@ function messagePartSchema<
     z.object({ type: z.literal('data-trek-weather'), data: assistantWeatherSchema }),
     // What the model offers to ask next, at the end of an answer.
     z.object({ type: z.literal('data-trek-follow-ups'), data: assistantFollowUpsSchema }),
+    // The pages the answer cites from the provider's web search.
+    z.object({ type: z.literal('data-trek-sources'), data: assistantSourcesSchema }),
     // The card of one tool call: a read's beside the answer, an applied write's on the message that proposed it.
     z.object({ type: z.literal('data-trek-card'), data: card }),
     // Only on a user message.
@@ -710,6 +744,7 @@ export const uiStreamChunkSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('data-trek-places'), data: assistantPlacesSchema }),
   z.object({ type: z.literal('data-trek-weather'), data: assistantWeatherSchema }),
   z.object({ type: z.literal('data-trek-follow-ups'), data: assistantFollowUpsSchema }),
+  z.object({ type: z.literal('data-trek-sources'), data: assistantSourcesSchema }),
   z.object({ type: z.literal('data-trek-card'), data: assistantCardSchema }),
   // Live progress of a running step; the message never keeps it.
   z.object({

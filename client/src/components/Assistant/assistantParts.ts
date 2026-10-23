@@ -8,6 +8,7 @@ import {
   type AssistantMessage,
   type AssistantMessagePart,
   type AssistantPlaces,
+  type AssistantSources,
   type AssistantWeatherDay,
   type TrekCard,
 } from '@trek/shared';
@@ -68,6 +69,8 @@ type MessageBlock =
   | { kind: 'weather'; key: string; days: AssistantWeatherDay[] }
   // A note the model kept in the trip notes on its own, as a quiet line.
   | { kind: 'remembered'; key: string; note: string }
+  // The pages the answer cites from the provider's web search, under its text.
+  | { kind: 'sources'; key: string; sources: AssistantSources['sources'] }
   | CardsBlock;
 
 /** How cards are laid out: the group each joins, and which ones give way to a change they served. */
@@ -326,6 +329,10 @@ export function messageBlocks(
         blocks.push({ kind: 'places', key: `places-${index}`, found: { ...found, places } });
       return;
     }
+    if (part.type === 'data-trek-sources') {
+      blocks.push({ kind: 'sources', key: `sources-${index}`, sources: part.data.sources });
+      return;
+    }
     if (part.type === 'data-trek-weather' && index === firstWeather) {
       blocks.push({ kind: 'weather', key: `weather-${index}`, days: weatherDays(message.parts) });
       return;
@@ -436,4 +443,6 @@ export const CHANGE_LABELS: Record<AssistantChangeLabelKey, { labelKey: string }
   members: { labelKey: 'assistant.change.label.members' },
   route: { labelKey: 'assistant.change.label.route' },
   difficulty: { labelKey: 'assistant.change.label.difficulty' },
+  track: { labelKey: 'assistant.change.label.track' },
+  packing: { labelKey: 'assistant.change.label.packing' },
 };

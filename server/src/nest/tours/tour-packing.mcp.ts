@@ -82,8 +82,9 @@ export class TourPackingMcp {
   ) {
     const refused = await this.refusal(tripId, ctx.userId, true);
     if (refused) return refused;
+    const before = await this.packingLinks.read(tripId, placeId);
     const detail = await this.packingLinks.link(String(tripId), String(placeId), { category }, ctx.userId);
-    return ok({ packing_link: detail.packing_link ?? null });
+    return ok({ packing_link: detail.packing_link ?? null, previous_link: before.packing_link });
   }
 
   @Tool({
@@ -98,7 +99,8 @@ export class TourPackingMcp {
   async unlinkTourPacking({ tripId, placeId }: { tripId: number; placeId: number }, ctx: McpContext) {
     const refused = await this.refusal(tripId, ctx.userId, true);
     if (refused) return refused;
+    const before = await this.packingLinks.read(tripId, placeId);
     const detail = await this.packingLinks.unlink(String(tripId), String(placeId));
-    return ok({ packing_link: detail.packing_link ?? null });
+    return ok({ packing_link: detail.packing_link ?? null, previous_link: before.packing_link });
   }
 }

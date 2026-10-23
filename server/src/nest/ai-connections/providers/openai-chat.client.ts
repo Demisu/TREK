@@ -5,6 +5,7 @@ import type {
   AiChatRequest,
   AiFinishReason,
   AiImage,
+  AiSource,
   AiToolCall,
 } from '../ai-chat-client.interface';
 import { AiProviderError, errorCodeOf, providerFailure } from './provider-errors';
@@ -80,6 +81,11 @@ const FINISH_REASONS: Record<string, AiFinishReason> = { tool_calls: 'tool-calls
  * schemas, OpenAI the prompt cache key, which the others do not know.
  */
 export class OpenAiChatClient implements AiChatClient {
+  /** OpenRouter searches the web for any model through its web plugin; the others have no search here. */
+  get webSearch(): boolean {
+    return this.kind === 'openrouter';
+  }
+
   constructor(
     readonly kind: AiConnectionKind,
     readonly model: string,
@@ -108,6 +114,7 @@ export class OpenAiChatClient implements AiChatClient {
           }
         : {}),
       ...(this.kind === 'openai' && request.cacheKey ? { prompt_cache_key: request.cacheKey } : {}),
+      ...(request.webSearch && this.webSearch ? { plugins: [{ id: 'web', max_results: 5 }] } : {}),
     };
     const events = await openProviderStream(
       this.fetcher,
@@ -136,6 +143,7 @@ export class OpenAiChatClient implements AiChatClient {
       if (chunk.error) throw providerFailure(this.kind, 0, errorCodeOf(chunk));
       const delta = turn.apply(chunk);
       if (delta) yield { type: 'text-delta', delta };
+      for (const source of turn.newSources()) yield { type: 'source', source };
     }
     if (!turn.done && !turn.reason) throw new AiProviderError('provider_unavailable', 0, true, undefined, 'stream_cut');
     for (const call of turn.calls()) yield { type: 'tool-call', call };
@@ -161,6 +169,8 @@ class ChatTurn {
   reason: string | null = null;
   done = false;
   private readonly pending = new Map<number, { id: string; name: string; args: string }>();
+  private readonly cited = new Set<string>();
+  private fresh: AiSource[] = [];
 
   /** Takes one chunk in; answers its text, if it carried any. */
   apply(chunk: Record<string, unknown>): string {
@@ -174,6 +184,16 @@ class ChatTurn {
     const finish = asText(choice.finish_reason);
     if (finish) this.reason = finish;
     const delta = asRecord(choice.delta);
+    // OpenRouter's web plugin names the pages it read as URL annotations of the message.
+    const annotations: unknown[] = Array.isArray(delta.annotations) ? delta.annotations : [];
+    for (const raw of annotations) {
+      const annotation = asRecord(raw);
+      const cite = asRecord(annotation.url_citation);
+      const url = asText(cite.url);
+      if (annotation.type !== 'url_citation' || !/^https?:\/\//.test(url) || this.cited.has(url)) continue;
+      this.cited.add(url);
+      this.fresh.push({ url, title: asText(cite.title) || url });
+    }
     const calls: unknown[] = Array.isArray(delta.tool_calls) ? delta.tool_calls : [];
     calls.forEach((raw, position) => {
       const piece = asRecord(raw);
@@ -186,6 +206,13 @@ class ChatTurn {
       this.pending.set(index, call);
     });
     return asText(delta.content);
+  }
+
+  /** The pages cited since the last ask, each once. */
+  newSources(): AiSource[] {
+    const out = this.fresh;
+    this.fresh = [];
+    return out;
   }
 
   calls(): AiToolCall[] {

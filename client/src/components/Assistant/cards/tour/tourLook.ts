@@ -1,5 +1,5 @@
 import { type AssistantApplied, cumulativeMetres, type TourRouteCard, type TrekCard } from '@trek/shared';
-import { Circle, CircleCheck, CircleSlash, Route } from 'lucide-react';
+import { ChartNoAxesColumn, Circle, CircleCheck, CircleSlash, Footprints, Luggage, Route } from 'lucide-react';
 
 import type { RouteLineSpec, RouteUse } from '../../../../types/assistantMap';
 import type { EntityTarget, PackLook } from '../cardTypes';
@@ -89,6 +89,12 @@ export const TOUR_LOOK = {
     markVisited: { Icon: CircleCheck, tone: 'success', labelKey: 'assistant.change.verb.markVisited' },
     markSkipped: { Icon: CircleSlash, tone: 'info', labelKey: 'assistant.change.verb.markSkipped' },
     markPlanned: { Icon: Circle, tone: 'info', labelKey: 'assistant.change.verb.markPlanned' },
+    assignTrack: { Icon: Footprints, tone: 'success', labelKey: 'assistant.change.verb.assignTrack' },
+    unassignTrack: { Icon: Footprints, tone: 'danger', labelKey: 'assistant.change.verb.unassignTrack' },
+    excludeTour: { Icon: ChartNoAxesColumn, tone: 'info', labelKey: 'assistant.change.verb.excludeTour' },
+    countTour: { Icon: ChartNoAxesColumn, tone: 'success', labelKey: 'assistant.change.verb.countTour' },
+    linkPacking: { Icon: Luggage, tone: 'success', labelKey: 'assistant.change.verb.linkPacking' },
+    unlinkPacking: { Icon: Luggage, tone: 'info', labelKey: 'assistant.change.verb.unlinkPacking' },
   },
   tools: {},
   steps: {

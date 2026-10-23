@@ -13,7 +13,12 @@ import {
   READ_BOOKING_FILE_TOOL,
   TAKE_PROPOSAL_TOOL,
 } from './assistant-tools.constants';
-import type { AssistantMessage, AssistantMessagePart, AssistantToolApproval } from '@trek/shared';
+import {
+  ASSISTANT_WEB_SEARCH_STEP,
+  type AssistantMessage,
+  type AssistantMessagePart,
+  type AssistantToolApproval,
+} from '@trek/shared';
 
 /**
  * A thread's stored messages, read two ways: as the conversation the
@@ -149,7 +154,11 @@ export function toChatHistory(
       return;
     }
     const earlier = first + offset < lastUser;
-    const allCalls = parts.filter((part) => part.type === 'tool-call');
+    // A web search the provider ran is its own record, replayed with the provider state, never as a call.
+    const allCalls = parts.filter(
+      (part): part is Extract<AssistantMessagePart, { type: 'tool-call' }> =>
+        part.type === 'tool-call' && part.toolName !== ASSISTANT_WEB_SEARCH_STEP,
+    );
     const serverCalls = allCalls.filter((part) => ASSISTANT_SERVER_TOOLS.has(part.toolName));
     // Told as the user's side of the conversation: the history then ends on it
     // when a decision on these bookings starts the next answer.

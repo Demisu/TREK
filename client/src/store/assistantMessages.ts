@@ -63,6 +63,8 @@ export function applyChunk(
       ]);
     case 'data-trek-weather':
       return withCurrent(messages, now, (parts) => [...parts, { type: 'data-trek-weather', data: chunk.data }]);
+    case 'data-trek-sources':
+      return withCurrent(messages, now, (parts) => [...parts, { type: 'data-trek-sources', data: chunk.data }]);
     case 'data-trek-follow-ups':
       return withCurrent(messages, now, (parts) => [...parts, { type: 'data-trek-follow-ups', data: chunk.data }]);
     case 'data-trek-card':

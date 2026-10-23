@@ -135,6 +135,8 @@ export const APP_SETTINGS = {
   ai_assistant_policy: { schema: aiPolicySchema, default: 'instance_or_user' },
   ai_assistant_daily_turns: { schema: intText, default: '50' },
   ai_assistant_retention: { schema: text, default: '{"mode":"days","days":90}' },
+  /** Whether the assistant may search the web through its provider's own search, where the provider has one. */
+  ai_assistant_web_search: { schema: flag, default: 'true' },
   /** `urn:uuid:<uuid>`: this install as one host to Sign in with ChatGPT, created on the first sign-in. */
   ai_siwc_host_id: { schema: text, default: null },
 } as const satisfies Record<string, AppSettingDef>;

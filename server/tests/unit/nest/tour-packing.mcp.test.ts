@@ -77,7 +77,10 @@ describe('TourPackingMcp', () => {
     });
 
     const linked = read(await mcp.linkTourPacking({ ...ids, category: 'Hiking gear' }, ctx(f.user.id)));
-    expect(linked).toEqual({ packing_link: { category: 'Hiking gear', linked_at: expect.any(String) } });
+    expect(linked).toEqual({
+      packing_link: { category: 'Hiking gear', linked_at: expect.any(String) },
+      previous_link: null,
+    });
     expect(read(await mcp.getTourPacking(ids, ctx(f.user.id)))).toMatchObject({
       state: 'ready',
       items: [
@@ -88,7 +91,11 @@ describe('TourPackingMcp', () => {
       total: 2,
     });
 
-    expect(read(await mcp.unlinkTourPacking(ids, ctx(f.user.id)))).toEqual({ packing_link: null });
+    // Each answer names what the tour pointed at before, so the change can be taken back.
+    expect(read(await mcp.unlinkTourPacking(ids, ctx(f.user.id)))).toEqual({
+      packing_link: null,
+      previous_link: { category: 'Hiking gear', linked_at: expect.any(String) },
+    });
     expect(await countRows(orm, TourPackingLinks)).toBe(0);
     expect(await countRows(orm, PackingItems)).toBe(2);
   });

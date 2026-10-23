@@ -8,7 +8,8 @@ import { randomUUID } from 'node:crypto';
 
 /**
  * The assistant's instance settings (`app_settings`): the policy, the daily
- * limit on the instance's connection and how long chats are kept. A stored
+ * limit on the instance's connection, how long chats are kept and whether it
+ * may search the web. A stored
  * value that does not read as what it should falls back to the default, so a
  * hand-edited row never switches the assistant to something nobody chose.
  */
@@ -26,6 +27,8 @@ export class AiSettingsService {
       policy: policy.success ? policy.data : AI_DEFAULT_POLICY,
       dailyTurns: Number.isInteger(turns) && turns >= 1 && turns <= 10_000 ? turns : AI_DEFAULT_DAILY_TURNS,
       retention: parseRetention(await this.settings.getAppSetting('ai_assistant_retention')),
+      // Off only when switched off: a missing or odd row leaves the search on, as it ships.
+      webSearch: (await this.settings.getAppSetting('ai_assistant_web_search')) !== 'false',
     };
   }
 
@@ -34,6 +37,7 @@ export class AiSettingsService {
       ai_assistant_policy: next.policy,
       ai_assistant_daily_turns: String(next.dailyTurns),
       ai_assistant_retention: JSON.stringify(next.retention),
+      ai_assistant_web_search: next.webSearch ? 'true' : 'false',
     });
     return this.read();
   }

@@ -30,7 +30,12 @@ const wrapper = ({ children }: { children: ReactNode }) =>
     createElement(TranslationProvider, null, children)
   );
 
-const SETTINGS: AiAdminSettings = { policy: 'instance_or_user', dailyTurns: 50, retention: { mode: 'days', days: 90 } };
+const SETTINGS: AiAdminSettings = {
+  policy: 'instance_or_user',
+  dailyTurns: 50,
+  webSearch: true,
+  retention: { mode: 'days', days: 90 },
+};
 const NONE: AiAdminConnectionResponse = { connection: null, prefill: null };
 const LIVE: AiAdminConnectionResponse = {
   connection: {

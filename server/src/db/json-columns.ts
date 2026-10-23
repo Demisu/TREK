@@ -365,10 +365,17 @@ export const ASSISTANT_MESSAGE_PARTS_WRITE: JsonColumn<AssistantMessagePart[]> =
  * the provider's side. A broken row reads as none, and the history is rebuilt
  * from the parts instead.
  */
-const aiProviderStateSchema = z.object({
-  adapter: z.literal('openai-responses'),
-  items: z.array(z.record(z.string(), z.unknown())),
-});
+const aiProviderStateSchema = z.discriminatedUnion('adapter', [
+  z.object({
+    adapter: z.literal('openai-responses'),
+    items: z.array(z.record(z.string(), z.unknown())),
+  }),
+  // Anthropic's content blocks of an answer that searched the web, replayed with their search results.
+  z.object({
+    adapter: z.literal('anthropic-messages'),
+    blocks: z.array(z.record(z.string(), z.unknown())),
+  }),
+]);
 export type AiProviderState = z.infer<typeof aiProviderStateSchema>;
 
 export const ASSISTANT_PROVIDER_STATE: JsonColumn<AiProviderState | null> = {
