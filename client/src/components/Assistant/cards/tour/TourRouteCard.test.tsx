@@ -234,18 +234,21 @@ describe('TourRouteCard', () => {
     const decide = vi.fn(async (_key: number, decisions: { toolCallId: string; approved: boolean }[]) => {
       // The server applies the take; the thread shows it applied with the new tour's place.
       const chat = chatOf(useAssistantStore.getState(), TRIP);
-      const applied = heldTake(true);
-      applied.parts.push({
+      // The server sends the answer back with the take joined to it, now applied with the new tour's place.
+      const applied = proposed();
+      applied.parts.push(...heldTake(true).parts, {
         type: 'data-trek-applied',
         data: { toolCallId: decisions[0]?.toolCallId ?? '', entity: 'tour', ids: [77], dayId: 22, undoUntil: null },
       });
-      useAssistantStore.setState({ byTrip: { [TRIP]: { ...chat, messages: [proposed(), applied] } } });
+      useAssistantStore.setState({ byTrip: { [TRIP]: { ...chat, messages: [applied] } } });
     });
     seed([proposed()]);
     useAssistantStore.setState({ decide });
     takeProposal.mockImplementationOnce(async () => {
       const chat = chatOf(useAssistantStore.getState(), TRIP);
-      useAssistantStore.setState({ byTrip: { [TRIP]: { ...chat, messages: [proposed(), heldTake(undefined)] } } });
+      const joined = proposed();
+      joined.parts.push(...heldTake(undefined).parts);
+      useAssistantStore.setState({ byTrip: { [TRIP]: { ...chat, messages: [joined] } } });
       return 'held';
     });
     renderCard(HIKE, { onOpen });
