@@ -134,7 +134,7 @@ export default function StudioShell() {
             t={s.t}
             locale={s.locale}
           />
-          <StudioAssistantColumn assistant={assistant} title={s.journey?.title} />
+          <StudioAssistantColumn assistant={assistant} title={s.journey?.title} bookVersion={s.bookVersion} />
         </div>
         <StudioPageStage assistant={assistant} />
 

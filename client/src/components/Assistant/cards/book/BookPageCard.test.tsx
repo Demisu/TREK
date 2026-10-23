@@ -1,13 +1,14 @@
 /**
- * FE-AI-BOOKPAGE-001 to FE-AI-BOOKPAGE-006
+ * FE-AI-BOOKPAGE-001 to FE-AI-BOOKPAGE-007
  *
  * The photo book's change rows in the Studio's chat: the pages a change works
  * on named as the Studio names them, its facts as badges (new pages, where a
  * moved page lands, the layout, new photos, findings to check), the page
  * before and after drawn from the book open in the Studio (each page of a
- * delete alone), a thumbnail that shows its page, each finding named once, a
- * receipt that opens the Studio on the page, and a discarded change struck
- * through with no page drawn.
+ * delete alone, the page after as the server made it when the card carries
+ * it and the book is still at the trial's version), a thumbnail that shows
+ * its page, each finding named once, a receipt that opens the Studio on the
+ * page, and a discarded change struck through with no page drawn.
  */
 import {
   type AssistantApplied,
@@ -15,6 +16,7 @@ import {
   blankBook,
   blankSpread,
   type BookPageCard,
+  bookTextElementSchema,
 } from '@trek/shared';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -221,5 +223,37 @@ describe('the book page card', () => {
       await import('./BookPageThumbs');
     });
     expect(screen.queryByRole('button', { name: 'Show this page' })).toBeNull();
+  });
+
+  it('FE-AI-BOOKPAGE-007: a waiting edit draws the page after as the server made it, where the Studio alone could not run it, until the book moves on', async () => {
+    useStudioStore.setState({ doc: book(), activeSpread: 0 });
+    // A caption the book on screen cannot word: run in the Studio it comes to nothing, so only the page before shows.
+    const caption = card({ ops: [{ op: 'caption', photoElementId: 'p-81' }] });
+    const first = inView(<AssistantChangeCard items={[item('pending', caption, 'editBookPage')]} />);
+    expect(await screen.findAllByRole('button', { name: 'Show this page' })).toHaveLength(1);
+    expect(screen.queryByText('After')).toBeNull();
+    first.unmount();
+
+    // The page the server's trial made, its caption worded from the journey, is drawn after it.
+    const words = bookTextElementSchema.parse({
+      id: 't-cap',
+      kind: 'text',
+      frame: { x: 20, y: 150, w: 120, h: 8 },
+      text: 'Tram 28 at dawn',
+    });
+    const made = { ...blankSpread('inner', () => 'sp-3'), elements: [words] };
+    const drawn = item('pending', { ...caption, after: made }, 'editBookPage');
+    const second = inView(<AssistantChangeCard items={[drawn]} />, { bookVersion: 4 });
+    expect(await screen.findByText('After')).toBeInTheDocument();
+    expect(screen.getByText('Before')).toBeInTheDocument();
+    expect(screen.getByText('Tram 28 at dawn')).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Show this page' })).toHaveLength(2);
+    second.unmount();
+
+    // The book moved on since the trial (another change applied, a save): its page is not what the change would leave.
+    inView(<AssistantChangeCard items={[drawn]} />, { bookVersion: 5 });
+    expect(await screen.findAllByRole('button', { name: 'Show this page' })).toHaveLength(1);
+    expect(screen.queryByText('After')).toBeNull();
+    expect(screen.queryByText('Tram 28 at dawn')).toBeNull();
   });
 });

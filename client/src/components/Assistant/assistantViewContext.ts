@@ -27,6 +27,13 @@ export interface AssistantView {
   onFocusDay?: (dayId: number) => void;
   /** Brings the map into view where the chat covers it (the phone), before the map moves. */
   onRevealMap?: () => void;
+  /**
+   * The stored book's version the book open in TREK Studio stands on, null
+   * before it has one; left out outside the Studio. A book card draws the page
+   * after as the server's trial made it only while the book is still at the
+   * version the trial ran on.
+   */
+  bookVersion?: number | null;
 }
 
 export const AssistantViewContext = createContext<AssistantView | null>(null);

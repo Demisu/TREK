@@ -6,17 +6,18 @@ import { useStudioStore } from '../../../../store/studioStore';
 import { SpreadThumb } from '../../../Studio/SpreadThumb';
 import { useStudioPageHint } from '../../../Studio/useStudioPageHint';
 import type { ChangeItem } from '../../assistantParts';
-import { useAssistantScope } from '../../assistantViewContext';
+import { useAssistantScope, useAssistantView } from '../../assistantViewContext';
 import { type BookPageView, pageViewOf } from './bookCardModel';
 
 /**
  * The page of a book change drawn small, from the book open in the Studio:
  * while the change waits, the page as it is and as the change would leave it
- * (a delete draws each page it takes); once applied, the page as it is now.
- * Each is the editor's own view under a scale, so the card can never look
- * different from the page. Pressing one shows that page in the Studio.
- * Nothing where the Studio does not hold the page, outside the Studio or on
- * another book.
+ * (the page the server's trial made, which the card carries, while the book
+ * is at the version the trial ran on; a delete draws each page it takes);
+ * once applied, the page as it is now. Each is the editor's own view under a
+ * scale, so the card can never look different from the page. Pressing one
+ * shows that page in the Studio. Nothing where the Studio does not hold the
+ * page, outside the Studio or on another book.
  */
 
 /** A thumbnail's height in pixels; its width follows the page. */
@@ -83,9 +84,10 @@ function PageViewThumbs({ view, page, onShow }: { view: BookPageView; page: Book
 
 export default function BookPageThumbs({ card, item }: { card: BookPageCard; item: ChangeItem }) {
   const scope = useAssistantScope();
+  const version = useAssistantView().bookVersion ?? null;
   const doc = useStudioStore((s) => s.doc);
   const setActiveSpread = useStudioStore((s) => s.setActiveSpread);
-  const views = useMemo(() => pageViewOf(card, doc, item.state), [card, doc, item.state]);
+  const views = useMemo(() => pageViewOf(card, doc, item.state, version), [card, doc, item.state, version]);
   // The Studio's book is this card's only in this journey's chat; anywhere else it may be another or an old copy.
   const ownBook = scope.kind === 'journey' && scope.journeyId === card.journeyId;
   if (!ownBook || views.length === 0 || !doc) return null;

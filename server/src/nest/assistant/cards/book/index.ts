@@ -6,12 +6,13 @@ import type { AssistantChangeVerbKey } from '@trek/shared';
 
 /**
  * The photo book in the Studio's chat. A held book write shows the pages it
- * works on, before and after, drawn in the Studio from the operations the
- * card carries, with what it brings and what the server's check of the result
- * found; once applied, the pages as it left them. Edits, the cover and
- * deleted pages are taken back with `restore_book_page`, new pages deleted
- * again, a moved page moved back: an edit while its page is as the change
- * left it, the others while nothing was saved to the book since.
+ * works on, before and after, drawn in the Studio from the page the server's
+ * trial made (or the operations the card carries, for a card without that
+ * page or a book moved on since), with what it brings and what the server's
+ * check of the result found; once applied, the pages as it left them. Edits,
+ * the cover and deleted pages are taken back with `restore_book_page`, new
+ * pages deleted again, a moved page moved back: an edit while its page is as
+ * the change left it, the others while nothing was saved to the book since.
  *
  * The check itself is the turn's gate (assistant-book-gate.ts): it tries the
  * call on the stored book, refuses what the engine refuses and sends a change

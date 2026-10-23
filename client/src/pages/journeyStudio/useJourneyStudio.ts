@@ -777,6 +777,8 @@ export function useJourneyStudio() {
     saveNow: book.saveNow,
     /** Writes everything local and says whether it landed: before an assistant turn or apply. */
     flushBook: book.flush,
+    /** The stored book's version the open book stands on, null before it has one: the chat's book cards read it. */
+    bookVersion: book.record?.version ?? null,
     acceptTheirs: book.acceptTheirs,
     keepMine: book.keepMine,
     spread,

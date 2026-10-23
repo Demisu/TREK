@@ -51,6 +51,12 @@ export interface BookTrialRan {
   before: BookCardPage[];
   /** The pages it leaves, as they would stand. */
   after: BookCardPage[];
+  /**
+   * The same pages as the engine made them, with the journey's photos, words
+   * and figures: what the change card draws after an edit or the cover, as
+   * the tool would write it.
+   */
+  spreads: BookSpread[];
   /** The findings on the pages it leaves, the most severe first. */
   findings: BookFinding[];
   /**
@@ -235,6 +241,7 @@ function ranOf(
     version: input.version,
     before: pagesOf(before, targets),
     after: pagesOf(made.doc, ids),
+    spreads: made.doc.spreads.filter((spread) => ids.includes(spread.id)),
     findings,
     fresh,
     photosAdded,
@@ -279,7 +286,8 @@ export function tryBookChange(tool: string, args: ToolArgs, input: BookTrialInpu
 /** A trial as the card's lookup gets it back from the reader; null for anything else. */
 export function trialFrom(value: unknown): BookTrial | null {
   const record = recordOf(value);
-  if (record.ok === true && Array.isArray(record.after) && Array.isArray(record.findings)) return value as BookTrialRan;
+  const ran = record.ok === true && Array.isArray(record.after) && Array.isArray(record.spreads);
+  if (ran && Array.isArray(record.findings)) return value as BookTrialRan;
   if (record.ok === false && typeof record.refusal === 'string') return value as BookTrialRefused;
   return null;
 }

@@ -133,7 +133,16 @@ export function StudioPageStage({ assistant }: { assistant: StudioAssistant }) {
   );
 }
 
-export default function StudioAssistantPanel({ assistant, title }: { assistant: StudioAssistant; title: string }) {
+export default function StudioAssistantPanel({
+  assistant,
+  title,
+  bookVersion,
+}: {
+  assistant: StudioAssistant;
+  title: string;
+  /** The stored book's version the open book stands on, for the book's cards in the chat. */
+  bookVersion?: number | null;
+}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const thread = useAssistantThread(assistant.chatKey);
@@ -174,6 +183,7 @@ export default function StudioAssistantPanel({ assistant, title }: { assistant: 
         variant="window"
         density="compact"
         onOpen={onOpen}
+        bookVersion={bookVersion}
       />
     </aside>
   );
@@ -198,8 +208,16 @@ export function StudioAssistantToggle({ assistant }: { assistant: StudioAssistan
 }
 
 /** The chat column at the end of the Studio's body, while it is open, named after the journey. */
-export function StudioAssistantColumn({ assistant, title }: { assistant: StudioAssistant; title?: string }) {
+export function StudioAssistantColumn({
+  assistant,
+  title,
+  bookVersion,
+}: {
+  assistant: StudioAssistant;
+  title?: string;
+  bookVersion?: number | null;
+}) {
   const { t } = useTranslation();
   if (!assistant.open) return null;
-  return <StudioAssistantPanel assistant={assistant} title={title || t('journey.title')} />;
+  return <StudioAssistantPanel assistant={assistant} title={title || t('journey.title')} bookVersion={bookVersion} />;
 }

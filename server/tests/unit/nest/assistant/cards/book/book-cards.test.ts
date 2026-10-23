@@ -1,14 +1,16 @@
 /**
- * ASTCARD-BKPG-001 to ASTCARD-BKPG-011
+ * ASTCARD-BKPG-001 to ASTCARD-BKPG-014
  *
  * The photo book's cards in the Studio's chat: a held book write tried on the
  * stored book with the shared engine (the pages before and after, numbered
  * among the double pages, the photos it brings, the findings it leaves and the
  * new severe ones among them, the engine's refusal in the tool's words), the
  * change card built from that trial and checked against the shared union, the
- * receipt from the tool's answer, the change row's words, and the way back
- * from every book write but a new book. Cards go through the registry's guard,
- * as a turn builds them.
+ * page an edit or the cover leaves as the trial made it with the journey's
+ * context (within the card's cap, in place of the operations if it must, and
+ * never one the book's schema refuses), the receipt from the tool's answer,
+ * the change row's words, and the way back from every book write but a new
+ * book. Cards go through the registry's guard, as a turn builds them.
  */
 import { buildTripCard } from '../../../../../../src/nest/assistant/assistant-context';
 import { toolOutputForProvider } from '../../../../../../src/nest/assistant/assistant-output';
@@ -42,11 +44,13 @@ import {
   applyBookOps,
   blankBook,
   bookPageCardSchema,
+  bookSpreadSchema,
   MAX_CARD_CHARS,
   type AssistantChangePreview,
   type BookDocument,
   type BookEditResult,
   type BookPageCard,
+  type BookTextElement,
 } from '@trek/shared';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -227,6 +231,8 @@ describe('the change card', () => {
     const heavy = { spreadId: 'sp-3', ops: words };
     const light = cardOf(changeCardOf('edit_book_page', ctx, heavy, loaded(ran('edit_book_page', heavy))));
     expect(light.ops).toEqual([]);
+    // The page they leave is light (one body text, rewritten twenty times), so it still rides for the Studio to draw.
+    expect(light.after?.id).toBe('sp-3');
     expect(JSON.stringify(light).length).toBeLessThan(MAX_CARD_CHARS);
   });
 
@@ -442,5 +448,118 @@ describe('the receipt and the way back', () => {
     expect(await loadBook('edit_book_page', args, refused)).toEqual({ trial: null });
     expect(trialFrom({ ok: true })).toBeNull();
     expect(trialFrom('text')).toBeNull();
+  });
+});
+
+describe('the page after', () => {
+  /** sp-3 holding photo 81, and a gallery that keeps the photo's caption: the context the server's trial has. */
+  function captionable() {
+    const place = { op: 'place_photo', photoId: 81, target: 'new' };
+    const doc = edited(applyBookOps(book(), { spreadId: 'sp-3', ops: [place] }));
+    const frame = doc.spreads[2]?.elements.find((element) => element.kind === 'photo')?.id ?? '';
+    const base = input(doc);
+    const photos = [{ photoId: 81, caption: 'Tram 28 at dawn' }, { photoId: 82 }];
+    return { doc, frame, from: { ...base, ctx: { ...base.ctx, photos } } };
+  }
+
+  /** A trial whose page holds `count` texts of `chars` characters each: a page as heavy as a test needs. */
+  function weighed(trial: BookTrialRan, count: number, chars: number): BookTrialRan {
+    const page = trial.spreads[0];
+    const words = page?.elements.find((element): element is BookTextElement => element.kind === 'text');
+    if (!page || !words) throw new Error('the fixture page has no text');
+    const elements = Array.from({ length: count }, (_, i) => ({ ...words, id: `t-w${i}`, text: 'w'.repeat(chars) }));
+    return { ...trial, spreads: [{ ...page, elements }] };
+  }
+
+  it('ASTCARD-BKPG-012: an edit and the cover carry their page as the trial made it, a caption read from the gallery', () => {
+    const { doc, frame, from } = captionable();
+    const args = { spreadId: 'sp-3', ops: [{ op: 'caption', photoElementId: frame }] };
+    const trial = ran('edit_book_page', args, from);
+    expect(trial.spreads.map((spread) => spread.id)).toEqual(['sp-3']);
+    const card = cardOf(changeCardOf('edit_book_page', ctx, args, loaded(trial)));
+    // The page itself, as the shared schema reads it: no second run of the operations, here or in the Studio.
+    expect(card.after).toEqual(bookSpreadSchema.parse(trial.spreads[0]));
+    expect(card.after?.id).toBe('sp-3');
+    // The caption's words are the photo's in the journey, which only the server's context knows.
+    expect(card.after?.elements).toContainEqual(
+      expect.objectContaining({
+        kind: 'text',
+        text: 'Tram 28 at dawn',
+        binding: expect.objectContaining({ source: 'photo.caption', photoId: 81 }),
+      }),
+    );
+    // Run without that context, as the Studio runs a card's operations, the same edit is refused.
+    expect(applyBookOps(doc, args)).toMatchObject({ ok: false, error: { code: 'caption_missing' } });
+    expect(card.ops).toHaveLength(1);
+
+    const cover = { template: 'cover-full', photoId: 82, title: 'Portugal' };
+    const covered = ran('set_book_cover', cover);
+    const coverCard = cardOf(changeCardOf('set_book_cover', ctx, cover, loaded(covered)));
+    expect(coverCard.after).toEqual(bookSpreadSchema.parse(covered.spreads[0]));
+    expect(coverCard.after?.id).toBe('sp-1');
+    expect(coverCard.after?.elements).toContainEqual(expect.objectContaining({ kind: 'photo', photoId: 82 }));
+    expect(coverCard.after?.elements).toContainEqual(expect.objectContaining({ kind: 'text', text: 'Portugal' }));
+
+    // Once applied the Studio draws the page as it is: the receipt carries no page of the trial.
+    const answer = { version: 4, pages: [{ index: 2, id: 'sp-3', role: 'inner', photoIds: [81] }], findings: [] };
+    const preview: AssistantChangePreview = {
+      toolCallId: 'c1',
+      verbKey: 'editBookPage',
+      subject: '',
+      rows: [],
+      dayId: null,
+      placeIds: [],
+      undoable: true,
+      card,
+    };
+    const receipt = cardOf(appliedCardOf('edit_book_page', { args, result: answer, preview }));
+    expect(receipt).toMatchObject({ baseVersion: 4, ops: card.ops });
+    expect(receipt.after).toBeUndefined();
+  });
+
+  it('ASTCARD-BKPG-013: the page rides within the cap, in place of the operations if it must; other writes carry none', () => {
+    const texts = Array.from({ length: 5 }, () => ({ op: 'text', role: 'body', text: 'w'.repeat(2000) }));
+    const args = { spreadId: 'sp-3', ops: texts };
+    const trial = ran('edit_book_page', args);
+    // Two texts of 7,000 characters and the operations' 10,000 pass the cap together, not apart: the page goes
+    // without the operations, since the Studio draws the page from it.
+    const roomy = cardOf(changeCardOf('edit_book_page', ctx, args, loaded(weighed(trial, 2, 7000))));
+    expect(roomy.ops).toEqual([]);
+    expect(roomy.after?.elements).toHaveLength(2);
+    expect(JSON.stringify(roomy).length).toBeLessThan(MAX_CARD_CHARS);
+    // Too heavy even then: the card keeps its operations, for the Studio to run, and no page.
+    const heavy = cardOf(changeCardOf('edit_book_page', ctx, args, loaded(weighed(trial, 3, 8000))));
+    expect(heavy.ops).toHaveLength(5);
+    expect(heavy.after).toBeUndefined();
+    expect(JSON.stringify(heavy).length).toBeLessThan(MAX_CARD_CHARS);
+    // A page that fits rides with the operations.
+    expect(cardOf(changeCardOf('edit_book_page', ctx, args, loaded(trial)))).toMatchObject({ after: { id: 'sp-3' } });
+    expect(cardOf(changeCardOf('edit_book_page', ctx, args, loaded(trial))).ops).toHaveLength(5);
+
+    // New pages, a move and a delete draw no page after: their cards carry none.
+    const add = { afterSpreadId: 'sp-3', count: 2 };
+    expect(cardOf(changeCardOf('add_book_pages', ctx, add, loaded(ran('add_book_pages', add)))).after).toBeUndefined();
+    const move = { spreadId: 'sp-3', toIndex: 4 };
+    const moved = loaded(ran('move_book_page', move, input(threeSpreads())));
+    expect(cardOf(changeCardOf('move_book_page', ctx, move, moved)).after).toBeUndefined();
+    const gone = { spreadIds: ['sp-3'] };
+    const deleting = loaded(ran('delete_book_pages', gone));
+    expect(cardOf(changeCardOf('delete_book_pages', ctx, gone, deleting)).after).toBeUndefined();
+    // A trial without its pages is no trial the card reads.
+    expect(trialFrom({ ok: true, after: [], findings: [] })).toBeNull();
+  });
+
+  it('ASTCARD-BKPG-014: a page the book schema refuses never rides: the card goes out whole with its operations, logged', () => {
+    const args = { spreadId: 'sp-3', ops: [TWO_UP] };
+    const trial = ran('edit_book_page', args);
+    const unreadable = { ...trial, spreads: trial.spreads.map((spread) => ({ ...spread, background: 'white' })) };
+    const card = cardOf(changeCardOf('edit_book_page', ctx, args, loaded(unreadable)));
+    expect(card).toMatchObject({ kind: 'bookPage', pages: [{ spreadId: 'sp-3' }], ops: [TWO_UP] });
+    expect(card.after).toBeUndefined();
+    expect(logMock.logWarn).toHaveBeenCalledWith(expect.stringContaining('the page after of edit_book_page'));
+    // The same trial with a page it reads carries that page, and logs nothing.
+    vi.clearAllMocks();
+    expect(cardOf(changeCardOf('edit_book_page', ctx, args, loaded(trial))).after?.id).toBe('sp-3');
+    expect(logMock.logWarn).not.toHaveBeenCalled();
   });
 });

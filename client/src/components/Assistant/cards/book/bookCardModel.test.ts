@@ -1,10 +1,12 @@
 /**
- * FE-AI-BOOKPAGE-010 to FE-AI-BOOKPAGE-014
+ * FE-AI-BOOKPAGE-010 to FE-AI-BOOKPAGE-016
  *
  * The pure side of the book's page card: a page named as the Studio names
  * it, a layout and a finding by their words, the findings worth a look, the
  * spreads the card draws from the book on screen for each state of a change
- * (each page of a delete alone), and where an applied change opens the Studio.
+ * (each page of a delete alone, the page after as the server made it when
+ * the card carries it and the book is still at the trial's version), and
+ * where an applied change opens the Studio.
  */
 import { blankBook, blankSpread, type BookCardPage, type BookPageCard } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
@@ -135,5 +137,60 @@ describe('bookCardModel', () => {
     expect(pageViewOf(gone, doc, 'applied')).toEqual([]);
     expect(studioTarget(3, 'sp-3')).toEqual({ kind: 'page', path: '/journey/3/studio?page=sp-3' });
     expect(studioTarget(3, null)).toEqual({ kind: 'page', path: '/journey/3/studio' });
+  });
+
+  it('FE-AI-BOOKPAGE-015: at the version of the trial a waiting edit or cover draws the page after the server made, never a run of its own; a card without it runs its operations', () => {
+    const doc = book();
+    const made = { ...blankSpread('inner', () => 'sp-3'), background: '#e6eef4' };
+    // A caption the Studio's book cannot word is refused when run here; the server's page draws it all the same.
+    const caption = card({ ops: [{ op: 'caption', photoElementId: 'p-81' }], after: made });
+    expect(pageViewOf(caption, doc, 'pending', 4)).toMatchObject([{ index: 2, before: { id: 'sp-3' } }]);
+    expect(pageViewOf(caption, doc, 'pending', 4)[0]?.after).toBe(made);
+    // Operations the book on screen would take are not run either: the page is the server's, frames and all.
+    expect(pageViewOf(card({ after: made }), doc, 'pending', 4)[0]?.after).toBe(made);
+    expect(pageViewOf(card({ after: made, ops: [] }), doc, 'pending', 4)[0]?.after).toBe(made);
+    const coverPage = { ...blankSpread('cover', () => 'sp-1'), background: '#f4efe6' };
+    const cover = card({
+      pages: [{ ...INNER, spreadId: 'sp-1', index: 0, role: 'cover', number: null }],
+      ops: [],
+      cover: { template: 'cover-full', photoId: null, title: 'Portugal', subtitle: null },
+      after: coverPage,
+    });
+    expect(pageViewOf(cover, doc, 'pending', 4)[0]?.after).toBe(coverPage);
+
+    // Without the page (a card from before it, or a page too heavy to carry), or with another page, the operations run.
+    const photos = (view: ReturnType<typeof pageViewOf>) =>
+      view[0]?.after?.elements.filter((element) => element.kind === 'photo').length;
+    expect(photos(pageViewOf(card(), doc, 'pending', 4))).toBe(2);
+    expect(photos(pageViewOf(card({ after: { ...made, id: 'sp-4' } }), doc, 'pending', 4))).toBe(2);
+    // Once applied, the page is the book's as it is now.
+    expect(pageViewOf(card({ after: made }), doc, 'applied', 4)[0]?.after).toBe(doc.spreads[2]);
+  });
+
+  it('FE-AI-BOOKPAGE-016: once the book moved on from the trial, or its version is not known, the change is run on the book as it is', () => {
+    const doc = book();
+    const made = { ...blankSpread('inner', () => 'sp-3'), background: '#e6eef4' };
+    const photos = (view: ReturnType<typeof pageViewOf>) =>
+      view[0]?.after?.elements.filter((element) => element.kind === 'photo').length;
+    // Another change applied or a save since: the change will run on this book, so its operations are run on it.
+    expect(photos(pageViewOf(card({ after: made }), doc, 'pending', 5))).toBe(2);
+    // A caption this book cannot word then draws no page after, never the trial's page of an older book.
+    const caption = card({ ops: [{ op: 'caption', photoElementId: 'p-81' }], after: made });
+    expect(pageViewOf(caption, doc, 'pending', 5)).toMatchObject([{ before: { id: 'sp-3' }, after: null }]);
+    // Nor does a card whose operations gave way to the page.
+    expect(pageViewOf(card({ after: made, ops: [] }), doc, 'pending', 5)).toMatchObject([{ after: null }]);
+    // A cover is set again on the cover as it is.
+    const cover = card({
+      pages: [{ ...INNER, spreadId: 'sp-1', index: 0, role: 'cover', number: null }],
+      ops: [],
+      cover: { template: 'cover-full', photoId: null, title: 'Portugal', subtitle: null },
+      after: { ...blankSpread('cover', () => 'sp-1'), background: '#f4efe6' },
+    });
+    const [covered] = pageViewOf(cover, doc, 'pending', 5);
+    expect(covered?.after?.id).toBe('sp-1');
+    expect(covered?.after).not.toBe(cover.after);
+    // Where the Studio does not say its version, or the card names none, the operations run too.
+    expect(photos(pageViewOf(card({ after: made }), doc, 'pending'))).toBe(2);
+    expect(photos(pageViewOf(card({ after: made, baseVersion: null }), doc, 'pending', null))).toBe(2);
   });
 });

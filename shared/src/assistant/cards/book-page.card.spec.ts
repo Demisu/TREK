@@ -4,7 +4,7 @@ import { storedTrekCardSchema, trekCardSchema } from './index';
 
 import { describe, expect, it } from 'vitest';
 
-// BOOKCARD-001 to BOOKCARD-006
+// BOOKCARD-001 to BOOKCARD-007
 
 function page(over: Partial<BookCardPage> = {}): BookCardPage {
   return { spreadId: 'sp-lisbon', index: 2, role: 'inner', number: 1, photos: 3, ...over };
@@ -101,5 +101,19 @@ describe('the book page card', () => {
       undoUntil: null,
     });
     expect(applied.entity).toBe('book_page');
+  });
+
+  it('BOOKCARD-007: carries the page after as the server made it; without one it reads, an unreadable one drops itself', () => {
+    const after = { id: 'sp-lisbon', role: 'inner', background: '#ffffff', elements: [], parked: [], entryId: null };
+    expect(bookPageCardSchema.parse(card({ after })).after).toEqual(after);
+    // A card from before the page rode on it, as the thread keeps it, reads as it was.
+    expect(bookPageCardSchema.parse(card()).after).toBeUndefined();
+    expect(storedTrekCardSchema.parse(card())).toMatchObject({ kind: 'bookPage', journeyId: 4 });
+    // A page a later build cannot read drops itself, never the card: the Studio then runs the operations.
+    const unread = { ...after, background: 'white' };
+    const kept = bookPageCardSchema.parse(card({ after: unread }));
+    expect(kept.after).toBeUndefined();
+    expect(kept.ops).toHaveLength(2);
+    expect(storedTrekCardSchema.parse(card({ after: unread }))).toMatchObject({ kind: 'bookPage', journeyId: 4 });
   });
 });

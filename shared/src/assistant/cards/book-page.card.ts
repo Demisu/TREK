@@ -14,10 +14,13 @@ import { z } from 'zod';
 /**
  * A change to a journey's photo book as the Studio's chat shows it: the pages
  * a held book write works on, what it lays them out on and brings onto them,
- * and what the server's check of the result found. The card carries the
- * page operations themselves, so the Studio draws the page before and after
- * with the same engine and the same view the editor uses, never from an image.
- * Once applied it names the pages as the change left them.
+ * and what the server's check of the result found. For an edit or the cover
+ * it carries the page after as the server's trial of the change made it, so
+ * the Studio draws the page before and after with the view the editor uses,
+ * never from an image, and the page after as the server would write it. The
+ * page operations ride along for a card without that page and for a book
+ * that moved on since the trial: the Studio runs them on its own book with
+ * the same engine. Once applied it names the pages as the change left them.
  */
 
 /** How much of a change a card carries; the server cuts to the same numbers. */
@@ -83,9 +86,25 @@ export const bookPageCardSchema = z.object({
   count: cardCountSchema,
   /** Where a moved page lands among the double pages, from 1. */
   movedTo: z.number().int().min(1).max(MAX_SPREADS).nullable(),
-  /** `edit_book_page`'s operations, to draw the page after; empty for another tool or when too long to carry. */
+  /**
+   * `edit_book_page`'s operations, to draw the page after where the card has
+   * no `after` or the Studio's book moved on from `baseVersion`; empty for
+   * another tool, when too long to carry, or when the page after needs their
+   * room.
+   */
   ops: z.array(bookPageOpSchema).max(BOOK_OP_LIMITS.opsPerCall),
   cover: bookCardCoverSchema.nullable(),
+  /**
+   * The page an edit or the cover leaves, as the server's trial of the change
+   * made it with the journey's photos, words and figures: a caption from its
+   * photo's caption, a text from its entry, a map from the route. The Studio
+   * draws the page after from it while its book is at `baseVersion`. Absent
+   * on a card from before it, on a page too heavy to carry and on another
+   * tool's card, where the Studio runs `ops` or `cover` on its own book, as
+   * it does once its book moved on; absent once applied, where it draws the
+   * page as it is. One a later build cannot read drops itself, never the card.
+   */
+  after: bookSpreadSchema.optional().catch(undefined),
   layout: bookCardLayoutSchema.nullable(),
   /** Photos the change brings onto its pages that were not on them. */
   photosAdded: cardCountSchema,

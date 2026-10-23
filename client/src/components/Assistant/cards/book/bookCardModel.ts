@@ -18,9 +18,13 @@ import type { ChangeState } from '../../assistantParts';
 /**
  * The pure side of the book's page card: how a page is named, what a layout
  * and a finding are called, and which spreads the card draws. The page before
- * and after a change comes from the Studio's own book with the shared engine,
- * the one the server tried the change with, so the card shows what the change
- * does to the page as it is on screen.
+ * a change comes from the Studio's own book; the page after is the one the
+ * server's trial of the change made with the journey's photos, words and
+ * figures, which the card carries, so it shows the page as the server would
+ * write it, while the Studio's book is at the version the trial ran on. A
+ * card without that page, or a book that moved on since, runs the card's
+ * operations on the Studio's book with the shared engine, the one the server
+ * tried the change with: the change will run on that book.
  */
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;
@@ -118,8 +122,18 @@ function coverArgs(cover: BookCardCover): Record<string, unknown> {
   return Object.fromEntries(Object.entries(cover).filter(([, value]) => value !== null));
 }
 
-/** The page as the change would leave it, run on the Studio's book; null when the card carries nothing to run. */
-function afterOf(card: BookPageCard, doc: BookDocument, spreadId: string): BookSpread | null {
+/**
+ * The page as the change would leave it: the one the server's trial made,
+ * when the card carries it for this page and the Studio's book is still at
+ * the version the trial ran on; else run on the Studio's book without the
+ * journey's photos, words and figures a binding or a travel element reads.
+ * A book that moved on (another change applied, a save by hand or by someone
+ * else) is the book the change will run on, so the trial's page would show
+ * the page as it no longer is. Null when the card carries nothing to run.
+ */
+function afterOf(card: BookPageCard, doc: BookDocument, spreadId: string, version: number | null): BookSpread | null {
+  const atTrial = card.baseVersion !== null && card.baseVersion === version;
+  if (atTrial && card.after?.id === spreadId) return card.after;
   let made: ReturnType<typeof applyBookOps> | null = null;
   if (card.cover) made = setBookCover(doc, coverArgs(card.cover));
   else if (card.ops.length > 0) made = applyBookOps(doc, { spreadId, ops: card.ops });
@@ -140,9 +154,15 @@ function spreadAt(doc: BookDocument, spreadId: string): { index: number; current
  * (a move shows its page alone, a delete each page it takes alone); once
  * applied, the page as it is now. Nothing for new pages not made yet, for a
  * change that did not run, or where the book on screen does not hold the
- * page (another book, or none open).
+ * page (another book, or none open). `version` is the stored book's version
+ * the book on screen stands on, null where the Studio does not say.
  */
-export function pageViewOf(card: BookPageCard, doc: BookDocument | null, state: ChangeState): BookPageView[] {
+export function pageViewOf(
+  card: BookPageCard,
+  doc: BookDocument | null,
+  state: ChangeState,
+  version: number | null = null
+): BookPageView[] {
   if (!doc || GONE.has(state)) return [];
   if (card.change === 'willDelete' && state !== 'applied') {
     return card.pages.flatMap((page) => {
@@ -155,5 +175,5 @@ export function pageViewOf(card: BookPageCard, doc: BookDocument | null, state: 
   if (!spreadId || !found) return [];
   if (state === 'applied') return [{ index: found.index, before: null, after: found.current }];
   if (card.change === 'new') return [];
-  return [{ index: found.index, before: found.current, after: afterOf(card, doc, spreadId) }];
+  return [{ index: found.index, before: found.current, after: afterOf(card, doc, spreadId, version) }];
 }

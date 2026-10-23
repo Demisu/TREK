@@ -1,3 +1,4 @@
+import { logWarn } from '../../../audit/audit-log.logger';
 import type { CardReader, Described, ToolArgs } from '../card-types';
 import { recordOf, type Row } from '../card-values';
 import { Rows, text } from '../preview-format';
@@ -8,6 +9,8 @@ import {
   bookCardFindingSchema,
   bookCardPageSchema,
   bookPageOpSchema,
+  bookSpreadSchema,
+  MAX_CARD_CHARS,
   setBookCoverArgs,
   setBookCoverRequestSchema,
   type AssistantChangePreview,
@@ -22,9 +25,11 @@ import {
  * The change card of a held book write and its receipt. Both are built from
  * the trial the turn's gate made of the call (book-trial.ts): the pages the
  * change works on with their place in the book, what it lays them out on and
- * brings onto them, and the findings on the pages it leaves. The card carries
- * the operations, so the Studio draws the page after with the same engine.
- * Once applied, the pages come from the tool's answer.
+ * brings onto them, and the findings on the pages it leaves. The card of an
+ * edit or the cover carries the page the trial made, so the Studio draws the
+ * page after as the tool would write it while its book is at the trial's
+ * version, and the operations for a book that moved on since or a card that
+ * cannot carry that page. Once applied, the pages come from the tool's answer.
  */
 
 /** What describing a held book write looked up: the gate's trial of it, null when there was none. */
@@ -44,10 +49,14 @@ const CHANGE_OF: Readonly<Record<string, BookPageCard['change']>> = {
 
 /**
  * Operations past this weight are not carried: twenty texts of two thousand
- * characters would push the card past MAX_CARD_CHARS and lose it whole, so
- * such a card shows its facts and no page after.
+ * characters would push the card past MAX_CARD_CHARS and lose it whole. Such
+ * a card shows its facts, and the page after only where it carries the page
+ * the trial made.
  */
 const MAX_OPS_CHARS = 12_000;
+
+/** The tools whose card the Studio draws the page after for: an edit and the cover. */
+const DRAWS_AFTER: ReadonlySet<string> = new Set(['edit_book_page', 'set_book_cover']);
 
 /** The trial of `tool` with these arguments, through the turn's reader; null without one or for a refused call. */
 export async function loadBook(tool: string, args: ToolArgs, read: CardReader): Promise<BookLoaded> {
@@ -115,6 +124,45 @@ function findingsOf(findings: readonly BookCardFinding[]): Pick<BookPageCard, 'f
   };
 }
 
+/**
+ * Whether a card stays within MAX_CARD_CHARS. Its page is already read as the
+ * union reads it and every other part is built in the union's shape, so the
+ * registry's parse adds nothing and this is the weight it measures, or more:
+ * carrying the page never costs the card itself.
+ */
+function fitsCard(card: BookPageCard): boolean {
+  return JSON.stringify(card).length <= MAX_CARD_CHARS;
+}
+
+/**
+ * The card with the page an edit or the cover leaves, as the trial made it
+ * with the journey's photos, words and figures (a caption from its photo's
+ * caption, a text from its entry, a map from the route): the Studio draws the
+ * page after from it rather than running the operations on its own book,
+ * which knows none of that. A page the book's schema refuses is never
+ * carried (logged), so the card goes out whole with its operations. A page
+ * that fits only without the operations goes without them: the Studio runs
+ * them only once its book moved on from the trial's version, and such a card
+ * then draws the page before alone. One too heavy even then (long texts, a
+ * long route) is left out, and the Studio runs the operations as for a card
+ * from before.
+ */
+function withAfter(tool: string, card: BookPageCard, trial: BookTrialRan): BookPageCard {
+  const spreadId = card.pages[0]?.spreadId;
+  const made = DRAWS_AFTER.has(tool) ? trial.spreads.find((spread) => spread.id === spreadId) : undefined;
+  if (!made) return card;
+  const parsed = bookSpreadSchema.safeParse(made);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    logWarn(`[assistant] the page after of ${tool} does not fit the book: ${issue?.path.join('.')} ${issue?.message}`);
+    return card;
+  }
+  const full = { ...card, after: parsed.data };
+  if (fitsCard(full)) return full;
+  const bare = { ...full, ops: [] };
+  return fitsCard(bare) ? bare : card;
+}
+
 /** How many pages a change adds (a new book: all of them) or deletes; none for any other change. */
 function countOf(change: BookPageCard['change'], trial: BookTrialRan): number {
   if (change === 'new') return trial.after.length;
@@ -124,14 +172,15 @@ function countOf(change: BookPageCard['change'], trial: BookTrialRan): number {
 /**
  * The card under a held book write: the pages it works on as they stand (the
  * page edited, the cover, the page moved, the pages deleted, the page new ones
- * follow), what it brings and what the check found. Null without a trial: a
- * card needs the journey and the book as the server read them.
+ * follow), what it brings, what the check found and the page an edit or the
+ * cover leaves. Null without a trial: a card needs the journey and the book as
+ * the server read them.
  */
 export function bookChangeCard(tool: string, args: ToolArgs, loaded: BookLoaded | null): BookPageCard | null {
   const trial = loaded?.trial ?? null;
   const change = CHANGE_OF[tool];
   if (!trial || !change) return null;
-  return {
+  const card: BookPageCard = {
     kind: 'bookPage',
     journeyId: trial.journeyId,
     change,
@@ -145,6 +194,7 @@ export function bookChangeCard(tool: string, args: ToolArgs, loaded: BookLoaded 
     photosAdded: trial.photosAdded,
     ...findingsOf(trial.findings),
   };
+  return withAfter(tool, card, trial);
 }
 
 /** A page of a write's answer (`get_book`'s row) as a card names it, numbered as the held card knew it. */
@@ -212,7 +262,8 @@ function receiptFindings(value: unknown, held: BookPageCard): Pick<BookPageCard,
 /**
  * The receipt's card: the held card with the pages as the change left them
  * (a deleted page as it was), the book's version after it and the findings
- * its answer carries. Null when the held change had no card.
+ * its answer carries, without the page the trial made: once applied, the
+ * Studio draws the page as it is. Null when the held change had no card.
  */
 export function bookAppliedCard(result: unknown, preview: AssistantChangePreview | null): BookPageCard | null {
   const held = preview?.card?.kind === 'bookPage' ? preview.card : null;
@@ -222,8 +273,9 @@ export function bookAppliedCard(result: unknown, preview: AssistantChangePreview
   const number = numberer(held, rows);
   const answered = rows.flatMap((row) => answeredPage(row, number) ?? []).slice(0, BOOK_OP_LIMITS.pagesPerCall);
   const kept = held.change === 'willDelete' || answered.length === 0;
+  const { after: _trialPage, ...facts } = held;
   return {
-    ...held,
+    ...facts,
     baseVersion: typeof answer.version === 'number' ? answer.version : held.baseVersion,
     pages: kept ? held.pages : answered,
     ...receiptFindings(answer.findings, held),

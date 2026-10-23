@@ -28,6 +28,7 @@ export default function AssistantSurface({
   onOpen,
   onFocusDay,
   onRevealMap,
+  bookVersion,
 }: AssistantSurfaceProps) {
   const runtime = useAssistantRuntime(tripId);
   // The phone is always compact; a window is what its width says.
@@ -39,8 +40,9 @@ export default function AssistantSurface({
       onOpen,
       onFocusDay,
       onRevealMap,
+      bookVersion,
     }),
-    [tripId, variant, density, onOpen, onFocusDay, onRevealMap]
+    [tripId, variant, density, onOpen, onFocusDay, onRevealMap, bookVersion]
   );
   return (
     <AssistantRuntimeProvider runtime={runtime}>

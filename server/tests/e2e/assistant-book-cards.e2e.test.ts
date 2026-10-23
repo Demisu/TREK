@@ -6,16 +6,16 @@
  *
  * Covered: a page edit that would leave empty frames goes back to the model
  * once, the same call made again is held with its page card (pages, the
- * operations, the findings), applied with a receipt card, and taken back in
- * one undo while nothing was saved since; an operation the engine refuses
- * never reaches the user; new pages are not taken back once the book moved on,
- * and neither is an edited page once that page was saved since (the restore
- * checks the page as the change left it). A save to another page does not
- * hold an edit's undo back, so of two changes to one page applied together
- * "undo all" takes back the newer, then the older; changes apply in the order
- * the decisions name them. A page is previewed with the ops of an edit before
- * it is proposed, nothing saved; on this text-only model the preview is the
- * page's description alone.
+ * operations, the findings, the page after as the trial made it), applied
+ * with a receipt card, and taken back in one undo while nothing was saved
+ * since; an operation the engine refuses never reaches the user; new pages
+ * are not taken back once the book moved on, and neither is an edited page
+ * once that page was saved since (the restore checks the page as the change
+ * left it). A save to another page does not hold an edit's undo back, so of
+ * two changes to one page applied together "undo all" takes back the newer,
+ * then the older; changes apply in the order the decisions name them. A page
+ * is previewed with the ops of an edit before it is proposed, nothing saved;
+ * on this text-only model the preview is the page's description alone.
  */
 import { buildApp } from '../../src/bootstrap';
 import { withRequestContext } from '../../src/nest/database/request-context';
@@ -240,6 +240,10 @@ describe('Studio book cards e2e', () => {
       code: 'empty_frame',
       severity: 'severe',
     });
+    // The page after rides on the card as the server's trial made it: the layout's two frames, both empty.
+    const trialPage = change?.data.card?.kind === 'bookPage' ? change.data.card.after : undefined;
+    expect(trialPage?.id).toBe(j.inner);
+    expect(trialPage?.elements.filter((element) => element.kind === 'photo')).toHaveLength(2);
     const threadId = ofType(turn, 'data-trek-thread')[0]?.data.threadId ?? 0;
 
     const decided = await approve(j.base, j.userId, threadId, held?.toolCallId ?? '');
@@ -248,6 +252,8 @@ describe('Studio book cards e2e', () => {
       toolCallId: held?.toolCallId,
       card: { kind: 'bookPage', baseVersion: 2, pages: [{ spreadId: j.inner }] },
     });
+    // Once applied the Studio draws the page as it is: the receipt carries no page of the trial.
+    expect(receipt?.data.card).not.toHaveProperty('after');
     // The pages the answer kept for the undo never reach the model or the chat.
     expect(JSON.stringify(ofType(decided, 'tool-output-available'))).not.toContain('previous_spreads');
     expect(JSON.stringify(ofType(decided, 'tool-output-available'))).not.toContain('page_digests');
