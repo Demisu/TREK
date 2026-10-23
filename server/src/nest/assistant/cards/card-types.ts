@@ -25,7 +25,8 @@ type CardPackageId =
   | 'journey'
   | 'packing'
   | 'book'
-  | 'bookDesign';
+  | 'bookDesign'
+  | 'home';
 
 /**
  * A read a card may make while a change is described: unaudited, made once

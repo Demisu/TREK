@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import {
   Archive, ArchiveRestore, ArrowRight, Bell, CalendarDays, CalendarPlus, Copy,
-  LayoutGrid, List, MapPin, Pencil, Plus, RefreshCw, Trash2, Users,
+  LayoutGrid, List, MapPin, Pencil, Plus, RefreshCw, Sparkles, Trash2, Users,
 } from 'lucide-react'
 import { useTranslation } from '../../../i18n'
 import MDancingTrek from '../../components/MDancingTrek'
@@ -12,6 +12,7 @@ import {
 import { useAuthStore } from '../../../store/authStore'
 import { useInAppNotificationStore } from '../../../store/inAppNotificationStore'
 import { useDashboardPlugins } from '../../../components/Dashboard/useDashboardPlugins'
+import { useAssistantHomeLauncher } from '../../../components/Assistant/useAssistantHome'
 import type { TripCardBadge } from '../../../api/client'
 import DemoBanner from '../../../components/Layout/DemoBanner'
 import { IcsSubscribeModal } from '../../../components/Planner/IcsSubscribeModal'
@@ -55,6 +56,7 @@ export default function MDashboard(): React.ReactElement {
   const unread = useInAppNotificationStore(s => s.unreadCount)
   const fetchUnreadCount = useInAppNotificationStore(s => s.fetchUnreadCount)
   const [menuOpen, setMenuOpen] = useState(false)
+  const { available: assistantAvailable, open: openAssistant } = useAssistantHomeLauncher()
   const [subOpen, setSubOpen] = useState(false)
 
   // Plugin dashboard widgets + trip-card badges, mirroring the desktop page:
@@ -219,6 +221,11 @@ export default function MDashboard(): React.ReactElement {
           </span>
         </button>
         <div className="min-w-0 flex-1" />
+        {assistantAvailable && (
+          <MIconBtn ariaLabel={t('assistant.launcher.tooltip')} onClick={openAssistant}>
+            <Sparkles size={18} strokeWidth={2} />
+          </MIconBtn>
+        )}
         <MIconBtn ariaLabel={t('notifications.title')} onClick={() => navigate('/notifications')}>
           <Bell size={18} strokeWidth={2} />
           {unread > 0 && (

@@ -26,6 +26,7 @@ import type {
 } from './card-types';
 import { COLLAB_CARDS } from './collab';
 import { COLLECTION_CARDS } from './collection';
+import { HOME_CARDS } from './home';
 import { JOURNEY_CARDS } from './journey';
 import { PACKING_CARDS } from './packing';
 import { ROADTRIP_CARDS } from './roadtrip';
@@ -59,6 +60,7 @@ export const DOMAINS: readonly DomainCards[] = [
   PACKING_CARDS,
   BOOK_CARDS,
   BOOK_DESIGN_CARDS,
+  HOME_CARDS,
 ];
 
 /** Prompt lines one package may add. */

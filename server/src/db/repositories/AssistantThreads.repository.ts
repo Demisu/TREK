@@ -3,7 +3,9 @@ import type { DB } from '../kysely/db';
 import type { AssertRowKeys } from './_shared/rows';
 import { TrekRepository } from './_shared/trek-repository';
 
-/** One `assistant_threads` row as stored: about a trip or about a journey, never both. */
+import type { ExpressionBuilder } from 'kysely';
+
+/** One `assistant_threads` row as stored: about a trip, about a journey, or (home) about neither; never both. */
 export interface AssistantThreadRow {
   id: number;
   user_id: number;
@@ -33,13 +35,23 @@ type RetentionKyselyDB = Pick<
 /** The column a thread names what it is about with. */
 type OwnerColumn = 'trip_id' | 'journey_id';
 
+/** What a thread is about: a trip or a journey by its column, or null for the home chat, which names neither. */
+type ThreadOwner = { column: OwnerColumn; id: number } | null;
+
+/** The rows of one owner: its column on its id, or for the home chat both columns empty. */
+function ownedBy(owner: ThreadOwner) {
+  return (eb: ExpressionBuilder<ThreadsKyselyDB, 'assistant_threads'>) =>
+    owner ? eb(owner.column, '=', owner.id) : eb.and([eb('trip_id', 'is', null), eb('journey_id', 'is', null)]);
+}
+
 const COLUMNS = ['id', 'user_id', 'trip_id', 'journey_id', 'title', 'created_at', 'last_message_at'] as const;
 
 /**
- * `assistant_threads`: a user's conversations about one trip, or (the Studio's)
- * about one journey. Every read and delete a request makes names the user and
- * the trip or journey next to the id, so a thread is only ever reached by its
- * owner on its own trip or journey.
+ * `assistant_threads`: a user's conversations about one trip, (the Studio's)
+ * about one journey, or (the home chat's, on the dashboard and the pages
+ * outside a trip) about neither. Every read and delete a request makes names
+ * the user and the trip, the journey or the home chat next to the id, so a
+ * thread is only ever reached by its owner in its own scope.
  */
 export class AssistantThreadsRepository extends TrekRepository<AssistantThreads> {
   private db() {
@@ -66,22 +78,42 @@ export class AssistantThreadsRepository extends TrekRepository<AssistantThreads>
     return row.id;
   }
 
+  /** A new thread of the home chat, about no one trip or journey; answers its id, as `createThread` does. */
+  async createHomeThread(userId: number, title: string, at: string): Promise<number> {
+    const row = await this.db()
+      .insertInto('assistant_threads')
+      .values({ user_id: userId, title, created_at: at, last_message_at: at })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    return row.id;
+  }
+
   async findOwned(id: number, userId: number, tripId: number): Promise<AssistantThreadRow | null> {
-    return this.findOwnedBy(id, userId, 'trip_id', tripId);
+    return this.findOwnedBy(id, userId, { column: 'trip_id', id: tripId });
   }
 
   async findOwnedOnJourney(id: number, userId: number, journeyId: number): Promise<AssistantThreadRow | null> {
-    return this.findOwnedBy(id, userId, 'journey_id', journeyId);
+    return this.findOwnedBy(id, userId, { column: 'journey_id', id: journeyId });
+  }
+
+  /** One of the user's home threads; null for a trip's or a journey's, or anyone else's. */
+  async findOwnedAtHome(id: number, userId: number): Promise<AssistantThreadRow | null> {
+    return this.findOwnedBy(id, userId, null);
   }
 
   /** The user's threads on a trip, the most recently used first. */
   async listRecent(userId: number, tripId: number, limit: number): Promise<AssistantThreadRow[]> {
-    return this.listRecentBy(userId, 'trip_id', tripId, limit);
+    return this.listRecentBy(userId, { column: 'trip_id', id: tripId }, limit);
   }
 
   /** The user's threads on a journey, the most recently used first. */
   async listRecentOnJourney(userId: number, journeyId: number, limit: number): Promise<AssistantThreadRow[]> {
-    return this.listRecentBy(userId, 'journey_id', journeyId, limit);
+    return this.listRecentBy(userId, { column: 'journey_id', id: journeyId }, limit);
+  }
+
+  /** The user's home threads, the most recently used first. */
+  async listRecentAtHome(userId: number, limit: number): Promise<AssistantThreadRow[]> {
+    return this.listRecentBy(userId, null, limit);
   }
 
   async touch(id: number, at: string): Promise<void> {
@@ -90,12 +122,17 @@ export class AssistantThreadsRepository extends TrekRepository<AssistantThreads>
 
   /** True when the thread was the user's on that trip and is gone now. */
   async deleteOwned(id: number, userId: number, tripId: number): Promise<boolean> {
-    return this.deleteOwnedBy(id, userId, 'trip_id', tripId);
+    return this.deleteOwnedBy(id, userId, { column: 'trip_id', id: tripId });
   }
 
   /** True when the thread was the user's on that journey and is gone now. */
   async deleteOwnedOnJourney(id: number, userId: number, journeyId: number): Promise<boolean> {
-    return this.deleteOwnedBy(id, userId, 'journey_id', journeyId);
+    return this.deleteOwnedBy(id, userId, { column: 'journey_id', id: journeyId });
+  }
+
+  /** True when the thread was one of the user's home threads and is gone now. */
+  async deleteOwnedAtHome(id: number, userId: number): Promise<boolean> {
+    return this.deleteOwnedBy(id, userId, null);
   }
 
   /** Retention: drops the threads nobody wrote in since `cutoff`; answers how many went. */
@@ -113,7 +150,9 @@ export class AssistantThreadsRepository extends TrekRepository<AssistantThreads>
    * A journey thread goes once its user neither owns the journey nor is on its
    * contributor list nor is named by one of its trip links. A link member who
    * left the linking trip keeps the thread until the link drops them; every
-   * request checks the access itself, so such a thread is never reached.
+   * request checks the access itself, so such a thread is never reached. A
+   * home thread is about nothing anyone can lose access to: it stays until it
+   * idles past the retention or its user goes.
    */
   async deleteWithoutAccess(): Promise<number> {
     const result = await this.kysely<RetentionKyselyDB>()
@@ -178,45 +217,35 @@ export class AssistantThreadsRepository extends TrekRepository<AssistantThreads>
     return Number(result.numDeletedRows);
   }
 
-  private async findOwnedBy(
-    id: number,
-    userId: number,
-    column: OwnerColumn,
-    ownerId: number,
-  ): Promise<AssistantThreadRow | null> {
+  private async findOwnedBy(id: number, userId: number, owner: ThreadOwner): Promise<AssistantThreadRow | null> {
     const row = await this.db()
       .selectFrom('assistant_threads')
       .select(COLUMNS)
       .where('id', '=', id)
       .where('user_id', '=', userId)
-      .where(column, '=', ownerId)
+      .where(ownedBy(owner))
       .executeTakeFirst();
     return row ?? null;
   }
 
-  private async listRecentBy(
-    userId: number,
-    column: OwnerColumn,
-    ownerId: number,
-    limit: number,
-  ): Promise<AssistantThreadRow[]> {
+  private async listRecentBy(userId: number, owner: ThreadOwner, limit: number): Promise<AssistantThreadRow[]> {
     return this.db()
       .selectFrom('assistant_threads')
       .select(COLUMNS)
       .where('user_id', '=', userId)
-      .where(column, '=', ownerId)
+      .where(ownedBy(owner))
       .orderBy('last_message_at', 'desc')
       .orderBy('id', 'desc')
       .limit(limit)
       .execute();
   }
 
-  private async deleteOwnedBy(id: number, userId: number, column: OwnerColumn, ownerId: number): Promise<boolean> {
+  private async deleteOwnedBy(id: number, userId: number, owner: ThreadOwner): Promise<boolean> {
     const result = await this.db()
       .deleteFrom('assistant_threads')
       .where('id', '=', id)
       .where('user_id', '=', userId)
-      .where(column, '=', ownerId)
+      .where(ownedBy(owner))
       .executeTakeFirst();
     return Number(result.numDeletedRows) > 0;
   }

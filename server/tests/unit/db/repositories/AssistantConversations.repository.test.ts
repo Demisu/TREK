@@ -218,6 +218,78 @@ describe('journey threads', () => {
   });
 });
 
+describe('home threads', () => {
+  it('ASTREPO-007: a home thread is found, listed and deleted only by its owner at home, never on a trip or a journey', async () => {
+    const { userId, tripId } = await ownerWithTrip();
+    const journey = await makeJourney(t, userId);
+    const { user: other } = await makeUser(t);
+    const older = await threads.createHomeThread(userId, 'Next trip', AT);
+    const newer = await threads.createHomeThread(userId, 'Atlas', AT);
+    const onTrip = await threads.createThread(userId, tripId, 'Kyoto', AT);
+    const onJourney = await threads.createJourneyThread(userId, journey.id, 'Book', AT);
+    await threads.createHomeThread(other.id, 'Theirs', AT);
+    await threads.touch(older, LATER);
+
+    expect((await threads.listRecentAtHome(userId, 20)).map((row) => row.id)).toEqual([older, newer]);
+    expect(await threads.listRecentAtHome(userId, 1)).toHaveLength(1);
+    expect((await threads.listRecent(userId, tripId, 20)).map((row) => row.id)).toEqual([onTrip]);
+    expect(await threads.findOwnedAtHome(older, userId)).toMatchObject({
+      title: 'Next trip',
+      trip_id: null,
+      journey_id: null,
+      last_message_at: LATER,
+    });
+    expect(await threads.findOwnedAtHome(older, other.id)).toBeNull();
+    expect(await threads.findOwnedAtHome(onTrip, userId)).toBeNull();
+    expect(await threads.findOwnedAtHome(onJourney, userId)).toBeNull();
+    expect(await threads.findOwned(older, userId, tripId)).toBeNull();
+    expect(await threads.findOwnedOnJourney(older, userId, journey.id)).toBeNull();
+
+    expect(await threads.deleteOwnedAtHome(older, other.id)).toBe(false);
+    expect(await threads.deleteOwnedAtHome(onTrip, userId)).toBe(false);
+    expect(await threads.deleteOwned(older, userId, tripId)).toBe(false);
+    expect(await threads.deleteOwnedAtHome(older, userId)).toBe(true);
+    expect(await threads.findOwnedAtHome(older, userId)).toBeNull();
+  });
+
+  it('ASTREPO-008: retention keeps a home thread while it is in use and its user stays', async () => {
+    const { user } = await makeUser(t);
+    const kept = await threads.createHomeThread(user.id, 'Kept', AT);
+    const idle = await threads.createHomeThread(user.id, 'Idle', '2026-01-01 00:00:00');
+
+    expect(await threads.deleteWithoutAccess()).toBe(0);
+    expect(await threads.deleteIdleBefore('2026-06-01 00:00:00')).toBe(1);
+    expect(await threads.findOwnedAtHome(kept, user.id)).not.toBeNull();
+    expect(await threads.findOwnedAtHome(idle, user.id)).toBeNull();
+
+    await deleteRows(t, Users, { id: user.id });
+    expect(await countRows(t, AssistantThreads, { id: kept })).toBe(0);
+  });
+
+  it('ASTREPO-009: a change of a home thread is found only through its own user, never on a trip or a journey', async () => {
+    const { userId, tripId } = await ownerWithTrip();
+    const { user: other } = await makeUser(t);
+    const threadId = await threads.createHomeThread(userId, 'Atlas', AT);
+    const messageId = await messages.append({
+      threadId,
+      role: 'assistant',
+      parts: '[]',
+      providerState: null,
+      status: 'awaiting_approval',
+      model: 'claude',
+      createdAt: AT,
+    });
+    await calls.insertProposals([proposal('h1', threadId, messageId)]);
+    expect(await calls.findOwnedAtHome('h1', userId)).toMatchObject({ id: 'h1', thread_id: threadId });
+    expect(await calls.findOwnedAtHome('h1', other.id)).toBeNull();
+    expect(await calls.findOwned('h1', userId, tripId)).toBeNull();
+
+    const { threadId: tripThread, messageId: tripMessage, userId: tripUser } = await threadWithMessage();
+    await calls.insertProposals([proposal('t1', tripThread, tripMessage)]);
+    expect(await calls.findOwnedAtHome('t1', tripUser)).toBeNull();
+  });
+});
+
 describe('messages', () => {
   it('ASTREPO-010: the latest messages come oldest first, and a message changes its parts and status', async () => {
     const { threadId, messageId } = await threadWithMessage();

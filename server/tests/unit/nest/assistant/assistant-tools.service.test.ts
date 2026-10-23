@@ -94,6 +94,9 @@ describe('the assistant tool catalog', () => {
     expect(checkToolCatalog([entry('import_booking')])).toContain('"import_booking" is the server\'s own step');
     expect(checkToolCatalog([entry('use_addon_tools')])).toContain('"use_addon_tools" is the server\'s own step');
     expect(checkToolCatalog([entry('preview_book_page')])).toContain('"preview_book_page" is the server\'s own step');
+    // The home chat's way into a trip's chat is the server's own, with cards of its own but no registry tool.
+    expect(checkToolCatalog([entry('open_trip_chat')])).toContain('"open_trip_chat" is the server\'s own step');
+    expect(checkToolCatalog([]).join()).not.toContain('"open_trip_chat" with cards');
     expect(checkDenylist(['create_party_invite'])).toEqual([
       '"create_party_invite" shares, invites or publishes; deny it or list it as safe',
     ]);

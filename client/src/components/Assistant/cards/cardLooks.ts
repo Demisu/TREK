@@ -28,6 +28,7 @@ import { BUDGET_LOOK } from './budget/budgetLook';
 import type { CardLook, EntityLook, StepLook, VerbLook } from './cardTypes';
 import { COLLAB_LOOK } from './collab/collabLook';
 import { COLLECTION_LOOK } from './collection/collectionLook';
+import { HOME_LOOK } from './home/homeLook';
 import { JOURNEY_LOOK } from './journey/journeyLook';
 import { PACKING_LOOK } from './packing/packingLook';
 import { ROADTRIP_LOOK } from './roadtrip/roadtripLook';
@@ -170,6 +171,7 @@ export const STEP_LOOKS: Readonly<Partial<Record<string, StepLook>>> = {
   ...PACKING_LOOK.steps,
   ...BOOK_LOOK.steps,
   ...BOOK_DESIGN_LOOK.steps,
+  ...HOME_LOOK.steps,
 };
 
 /** Shown on the map by its day: a stop or a note lives on one. */
@@ -234,6 +236,7 @@ export const CARD_LOOKS: { readonly [K in TrekCardKind]: CardLook<K> } = {
   ...PACKING_LOOK.cards,
   ...BOOK_LOOK.cards,
   ...BOOK_DESIGN_LOOK.cards,
+  ...HOME_LOOK.cards,
 };
 
 /** The look of the card in hand, typed for any kind. */

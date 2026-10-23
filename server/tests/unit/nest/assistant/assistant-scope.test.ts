@@ -15,6 +15,7 @@ import {
   type BookCard,
 } from '../../../../src/nest/assistant/assistant-book-context';
 import type { AssistantBookGate } from '../../../../src/nest/assistant/assistant-book-gate';
+import { homePrompt } from '../../../../src/nest/assistant/assistant-home';
 import {
   AssistantScopes,
   findScopedCall,
@@ -65,6 +66,10 @@ function threadRepo() {
     listRecentOnJourney: vi.fn(async () => [row]),
     deleteOwned: vi.fn(async () => true),
     deleteOwnedOnJourney: vi.fn(async () => true),
+    createHomeThread: vi.fn(async () => 13),
+    findOwnedAtHome: vi.fn(async () => row),
+    listRecentAtHome: vi.fn(async () => [row]),
+    deleteOwnedAtHome: vi.fn(async () => true),
   };
 }
 
@@ -146,12 +151,33 @@ describe('a scope reaches its own threads and changes', () => {
   });
 
   it('ASTSCP-003: a change is looked up in the scope it was proposed in', async () => {
-    const repo = { findOwned: vi.fn(async () => null), findOwnedOnJourney: vi.fn(async () => null) };
+    const repo = {
+      findOwned: vi.fn(async () => null),
+      findOwnedOnJourney: vi.fn(async () => null),
+      findOwnedAtHome: vi.fn(async () => null),
+    };
     const calls = repo as unknown as AssistantToolCallsRepository;
     await findScopedCall(calls, tripScope(5), 'tc-1', 7);
     await findScopedCall(calls, { kind: 'journey', journeyId: 12 }, 'tc-2', 7);
+    await findScopedCall(calls, { kind: 'home' }, 'tc-3', 7);
     expect(repo.findOwned).toHaveBeenCalledWith('tc-1', 7, 5);
     expect(repo.findOwnedOnJourney).toHaveBeenCalledWith('tc-2', 7, 12);
+    expect(repo.findOwnedAtHome).toHaveBeenCalledWith('tc-3', 7);
+  });
+
+  it('ASTSCP-004: the home scope goes through the home methods, with no trip and no journey', async () => {
+    const repo = threadRepo();
+    const threads = scopedThreads(repo as unknown as AssistantThreadsRepository, { kind: 'home' });
+    expect(await threads.create(7, 'Next trip', 'at')).toBe(13);
+    await threads.find(3, 7);
+    await threads.list(7, 20);
+    await threads.remove(3, 7);
+    expect(repo.createHomeThread).toHaveBeenCalledWith(7, 'Next trip', 'at');
+    expect(repo.findOwnedAtHome).toHaveBeenCalledWith(3, 7);
+    expect(repo.listRecentAtHome).toHaveBeenCalledWith(7, 20);
+    expect(repo.deleteOwnedAtHome).toHaveBeenCalledWith(3, 7);
+    expect(repo.createThread).not.toHaveBeenCalled();
+    expect(repo.createJourneyThread).not.toHaveBeenCalled();
   });
 });
 
@@ -392,7 +418,11 @@ describe('a scope opens its session and writes its turn', () => {
   };
 
   function scopesWith(canWrite: boolean) {
-    const tools = { open: vi.fn(async () => session), openJourney: vi.fn(async () => session) };
+    const tools = {
+      open: vi.fn(async () => session),
+      openJourney: vi.fn(async () => session),
+      openHome: vi.fn(async () => session),
+    };
     const books = {
       canEdit: vi.fn(async () => canWrite),
       cardOf: vi.fn(async () => card({ role: canWrite ? 'editor' : 'viewer' })),
@@ -448,6 +478,30 @@ describe('a scope opens its session and writes its turn', () => {
     // A viewer's turn reads the instructions without the designer's rules.
     const viewed = await viewer.scopes.turnOf(viewing, { kind: 'journey', journeyId: 12 }, turn);
     expect(viewed.system).toBe(studioPrompt('English', false));
+  });
+
+  it('ASTSCP-053: a home turn opens the home session, reads the user trips through it and the home prompt', async () => {
+    const { tools, scopes, books } = scopesWith(true);
+    const targets = new Set(['delete_collection']);
+    await scopes.open(7, { kind: 'home' }, targets);
+    expect(tools.openHome).toHaveBeenCalledWith(7, targets);
+    const homeSession = {
+      ...session,
+      read: vi.fn(async () => ({
+        ok: true,
+        value: { trips: [{ id: 5, title: 'Kyoto', start_date: '2026-08-01', end_date: '2026-08-09' }] },
+      })),
+    };
+    const read = await scopes.turnOf(homeSession as never, { kind: 'home' }, turn);
+    expect(homeSession.read).toHaveBeenCalledWith('list_trips', {});
+    expect(read.system).toBe(homePrompt('English'));
+    expect(read.context).toContain('<home_card>');
+    expect(read.context).toContain('5 | Kyoto | next, 2026-08-01 to 2026-08-09');
+    expect(read.context).toContain('temperatures in °C');
+    expect(read.card.tripId).toBe(0);
+    expect(books.cardOf).not.toHaveBeenCalled();
+    // The home chat's held calls pass as a trip's do.
+    expect(await read.gate.refusalOf('mark_country_visited', { country_code: 'JP' })).toBeNull();
   });
 
   it('ASTSCP-052: the trip card is read through the session, or on a session of its own two reads', async () => {

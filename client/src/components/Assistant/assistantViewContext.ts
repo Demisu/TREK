@@ -34,6 +34,17 @@ export interface AssistantView {
    * version the trial ran on.
    */
   bookVersion?: number | null;
+  /**
+   * Goes on in a trip's own chat with a question waiting there, from the home
+   * chat's card that offers it; left out where no chat can be switched to.
+   */
+  onOpenTripChat?: (trip: AssistantChatTrip, question: string | null) => void;
+}
+
+/** A trip as the chat switches to it: its id, which is its chat's key, and its title for the head. */
+export interface AssistantChatTrip {
+  id: number;
+  title: string;
 }
 
 export const AssistantViewContext = createContext<AssistantView | null>(null);

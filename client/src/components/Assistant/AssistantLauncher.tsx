@@ -15,7 +15,7 @@ export const LAUNCHER_SIZE = 48;
 /**
  * The way into the assistant: a button in the navbar, and in the planner a
  * round one floating at the bottom end of the screen. Both open and close the
- * window; outside a trip it opens on the trip picker. Nothing shows until the
+ * window; outside a trip it opens on the home chat. Nothing shows until the
  * assistant has a connection this user can use: no setup prompt in its place.
  * The floating one carries a dot while the trip has a warning the user has
  * not been shown; opening the chat counts them as seen.
@@ -35,11 +35,11 @@ export default function AssistantLauncher({
   const available = useAssistantStore((s) => s.status?.available === true);
   const open = useAssistantStore((s) => s.window.open && !s.window.minimized);
   const toggle = useAssistantStore((s) => s.toggle);
-  // An answer still being written in a closed window: the floating button breathes until it is opened. Only a
-  // trip's chat counts: an answer still running in the Studio is not one this window opens on.
+  // An answer still being written in a closed window: the floating button breathes until it is opened. A
+  // trip's chat and the home chat count: an answer still running in the Studio is not one this window opens on.
   const busy = useAssistantStore((s) =>
     !s.window.open || s.window.minimized
-      ? Object.entries(s.byTrip).some(([key, c]) => c.isRunning && assistantScopeOf(Number(key)).kind === 'trip')
+      ? Object.entries(s.byTrip).some(([key, c]) => c.isRunning && assistantScopeOf(Number(key)).kind !== 'journey')
       : false
   );
   const keys = useAssistantShortcutKeys();

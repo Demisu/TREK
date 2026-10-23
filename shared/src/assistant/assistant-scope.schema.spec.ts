@@ -1,4 +1,4 @@
-import { assistantScopeKey, assistantScopeSchema } from './assistant-scope.schema';
+import { assistantScopeKey, assistantScopeSchema, HOME_ASSISTANT_SCOPE } from './assistant-scope.schema';
 import { assistantFocusSchema } from './assistant.schema';
 
 import { describe, expect, it } from 'vitest';
@@ -20,6 +20,13 @@ describe('assistantScopeSchema', () => {
   it('ASTSCOPE-003: keys a trip and a journey with the same id apart', () => {
     expect(assistantScopeKey({ kind: 'trip', tripId: 7 })).toBe('trip:7');
     expect(assistantScopeKey({ kind: 'journey', journeyId: 7 })).toBe('journey:7');
+  });
+
+  it('ASTSCOPE-006: has a home scope that names no trip and no journey', () => {
+    expect(assistantScopeSchema.parse({ kind: 'home' })).toEqual(HOME_ASSISTANT_SCOPE);
+    expect(assistantScopeSchema.safeParse({ kind: 'home', tripId: 5 }).success).toBe(false);
+    expect(assistantScopeSchema.safeParse({ kind: 'home', journeyId: 12 }).success).toBe(false);
+    expect(assistantScopeKey(HOME_ASSISTANT_SCOPE)).toBe('home');
   });
 });
 

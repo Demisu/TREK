@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useTranslation } from '../../i18n'
-import { ChevronRight, MoreHorizontal, Plus, Search, Upload } from 'lucide-react'
+import { ChevronRight, MoreHorizontal, Plus, Search, Sparkles, Upload } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { normalizeAppearance } from '@trek/shared'
 import { useNavItems, splitMobileNav } from '../../components/Layout/navItems'
 import { isNavItemActive, useCreateAction } from '../../components/Layout/useCreateAction'
 import MFab from './MFab'
+import { useAssistantHomeLauncher } from '../../components/Assistant/useAssistantHome'
 
 interface NavItem { to: string; label: string; icon: LucideIcon }
 
@@ -26,6 +27,8 @@ export default function MBottomNav() {
   // the dock yields the slot instead (see screenFabSlot below, #1811).
   const create = useCreateAction(true)
   const [moreOpen, setMoreOpen] = useState(false)
+  // The home chat leads the More list on every page outside a trip, as the assistant tile leads a trip's.
+  const assistant = useAssistantHomeLauncher()
 
   // Close the popover when the route changes underneath it (browser back etc.).
   useEffect(() => setMoreOpen(false), [location.pathname])
@@ -42,6 +45,11 @@ export default function MBottomNav() {
 
   const isActive = (to: string) => isNavItemActive(location.pathname, to)
   const moreActive = moreItems.some(item => isActive(item.to))
+  const moreRows = [
+    ...(assistant.available ? [{ key: 'assistant', label: t('assistant.launcher.tooltip'), icon: Sparkles, go: assistant.open }] : []),
+    ...moreItems.map(({ to, label, icon }) => ({ key: to, label, icon, go: () => navigate(to) })),
+  ]
+  const hasMore = moreRows.length > 0
 
   // The FAB gives way to a decorative logo slot on screens without an add
   // action (settings/admin, demo Z. 1372/1429).
@@ -55,7 +63,7 @@ export default function MBottomNav() {
 
   // Split so the raised centre slot sits dead centre; the More slot always
   // closes the right group.
-  const slotCount = dockItems.length + (moreItems.length > 0 ? 1 : 0)
+  const slotCount = dockItems.length + (hasMore ? 1 : 0)
   const splitAt = Math.ceil(slotCount / 2)
   const left = dockItems.slice(0, splitAt)
   const right = dockItems.slice(splitAt)
@@ -94,11 +102,11 @@ export default function MBottomNav() {
             role="presentation"
             onClick={e => e.stopPropagation()}
           >
-            {moreItems.map(({ to, label, icon: Icon }) => (
+            {moreRows.map(({ key, label, icon: Icon, go }) => (
               <button
-                key={to}
+                key={key}
                 type="button"
-                onClick={() => { setMoreOpen(false); navigate(to) }}
+                onClick={() => { setMoreOpen(false); go() }}
                 className="flex items-center gap-[13px] rounded-[18px] bg-[color:var(--m-ic)] px-4 py-[14px] text-start"
               >
                 <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-[color:var(--m-ic)] text-m-ink">
@@ -136,7 +144,7 @@ export default function MBottomNav() {
 
         <div className="flex min-w-0 flex-1 items-center justify-around">
           {right.map(renderItem)}
-          {moreItems.length > 0 && (
+          {hasMore && (
             <button
               type="button"
               onClick={() => setMoreOpen(v => !v)}

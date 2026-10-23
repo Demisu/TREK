@@ -3,6 +3,7 @@ import { ArrowUp, CalendarDays, MapPin, Paperclip, Square, X } from 'lucide-reac
 import { type ReactNode, useEffect, useRef } from 'react';
 
 import { useTranslation } from '../../i18n';
+import { HOME_CHAT_KEY } from '../../store/assistantChatKey';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import PlaceAvatar from '../shared/PlaceAvatar';
 import Tooltip from '../shared/Tooltip';
@@ -45,7 +46,11 @@ export default function AssistantComposer({ tripId, tripTitle }: { tripId: numbe
   const empty = useAuiState((s) => s.composer.isEmpty);
   const { take, busy, accept, canAttach } = useAssistantAttach(tripId);
   const fileInput = useRef<HTMLInputElement>(null);
-  const fallback = t('assistant.composer.placeholder', { trip: tripTitle });
+  // The home chat is about no one trip, so its placeholder names none.
+  const fallback =
+    tripId === HOME_CHAT_KEY
+      ? t('assistant.home.placeholder')
+      : t('assistant.composer.placeholder', { trip: tripTitle });
   const placeholder = useTypewriterPlaceholder(
     suggestions.map((s) => s.prompt),
     fallback,

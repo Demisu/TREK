@@ -70,6 +70,15 @@
       "mobile": ["src/mobile/screens/trip/assistant/MAssistantScreen.tsx"]
     },
     {
+      "feature": "AI assistant home chat",
+      "hooks": ["src/components/Assistant/useAssistantHome.ts"],
+      "desktop": ["src/components/Assistant/AssistantWindow.tsx"],
+      "mobile": [
+        "src/mobile/screens/assistant/MAssistantHomeScreen.tsx",
+        "src/mobile/screens/dashboard/MDashboard.tsx"
+      ]
+    },
+    {
       "feature": "Assistant hints",
       "hooks": ["src/components/Assistant/useAssistantHints.ts"],
       "desktop": ["src/components/Assistant/AssistantHeader.tsx", "src/components/Assistant/AssistantLauncher.tsx"],

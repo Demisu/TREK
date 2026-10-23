@@ -1,8 +1,9 @@
 /**
- * FE-AI-WIN-001 to FE-AI-WIN-012
+ * FE-AI-WIN-001 to FE-AI-WIN-014
  *
  * The desktop window around the chat: when it shows at all, the button it
- * opens from, the trip picker outside a trip, closing that keeps the chat, and
+ * opens from, the home chat outside a trip with its way into one trip's chat
+ * and back, closing that keeps the chat, and
  * Escape, which stops an answer before it closes anything (and leaves the
  * header's menu to itself), and where the focus goes on the way; a trip's head
  * offers the notes its turns read. The geometry is
@@ -36,12 +37,14 @@ vi.mock('./AssistantSurfaceLazy', () => ({
     density,
     onFocusDay,
     onOpen,
+    onOpenTripChat,
   }: {
     tripId: number;
     tripTitle: string;
     density?: string;
     onFocusDay?: (dayId: number) => void;
     onOpen?: (target: EntityTarget) => void;
+    onOpenTripChat?: (trip: { id: number; title: string }, question: string | null) => void;
   }) => (
     <div>
       <p>
@@ -65,6 +68,11 @@ vi.mock('./AssistantSurfaceLazy', () => ({
             open page
           </button>
         </>
+      )}
+      {onOpenTripChat && (
+        <button type="button" onClick={() => onOpenTripChat({ id: 9, title: 'Lisbon' }, 'What is missing?')}>
+          go on in Lisbon
+        </button>
       )}
       <textarea aria-label="composer" />
     </div>
@@ -136,12 +144,36 @@ describe('AssistantWindow', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('FE-AI-WIN-004: outside a trip it asks which trip first, then chats there', async () => {
+  it('FE-AI-WIN-004: outside a trip it opens on the home chat, whose head opens one trip chat and goes back', async () => {
     seed({ open: true, minimized: false });
     render(<AssistantWindow trip={null} />);
-    expect(screen.getByRole('dialog', { name: 'Which trip?' })).toBeInTheDocument();
+    expect(screen.getByText('chat 0 Your travels')).toBeInTheDocument();
+    expect(resume).toHaveBeenCalledWith(0);
+    // The home chat has no trip notes.
+    expect(screen.queryByRole('button', { name: 'Trip notes' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Chat about one trip' }));
     fireEvent.click(await screen.findByRole('button', { name: /Lisbon/ }));
     expect(screen.getByText('chat 9 Lisbon')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Back to all trips' }));
+    expect(screen.getByText('chat 0 Your travels')).toBeInTheDocument();
+  });
+
+  it("FE-AI-WIN-013: the home chat's card goes on in the trip's chat with the question waiting there", () => {
+    seed({ open: true, minimized: false });
+    render(<AssistantWindow trip={null} />);
+    fireEvent.click(screen.getByRole('button', { name: 'go on in Lisbon' }));
+    expect(screen.getByText('chat 9 Lisbon')).toBeInTheDocument();
+    expect(chatOf(useAssistantStore.getState(), 9).draft).toBe('What is missing?');
+    // In a trip's chat there is no card to go on from.
+    expect(screen.queryByRole('button', { name: 'go on in Lisbon' })).not.toBeInTheDocument();
+  });
+
+  it('FE-AI-WIN-014: minimized outside a trip, the round button brings the home chat back', () => {
+    seed({ open: true, minimized: true });
+    render(<AssistantWindow trip={null} />);
+    expect(screen.getByText('chat 0 Your travels')).not.toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Assistant' }));
+    expect(useAssistantStore.getState().window.minimized).toBe(false);
   });
 
   it('FE-AI-WIN-005: closed while writing, the chat stays mounted and the round button breathes until it is opened', () => {
@@ -238,6 +270,10 @@ describe('AssistantWindow', () => {
         <Location />
       </>
     );
+    // From the home chat only another page opens.
+    fireEvent.click(screen.getByRole('button', { name: 'open page' }));
+    expect(screen.getByTestId('location')).toHaveTextContent('/atlas');
+    fireEvent.click(screen.getByRole('button', { name: 'Chat about one trip' }));
     fireEvent.click(await screen.findByRole('button', { name: /Lisbon/ }));
     fireEvent.click(screen.getByRole('button', { name: 'open tab' }));
     expect(screen.getByTestId('location')).toHaveTextContent('/trips/9?tab=finanzplan&expense=3');

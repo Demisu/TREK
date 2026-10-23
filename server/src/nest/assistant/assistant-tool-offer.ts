@@ -1,5 +1,6 @@
 import type { McpRegistryListing } from '../../nest-mcp';
 import type { AiToolSpec } from '../ai-connections/ai-chat-client.interface';
+import { PINNED_ARG } from './assistant-tools.constants';
 import { PACKAGE_HELD_READS, PACKAGE_TOOL_CONTROLLERS } from './cards/registry';
 
 /**
@@ -205,6 +206,33 @@ export function keptInJourney(
   return canWrite && isStudioController(className);
 }
 
+/**
+ * The arguments that name a trip or a journey, as the tools spell them: the
+ * collections' copy takes `trip_id`, a new journey its `trip_ids`.
+ */
+const TRIP_OR_JOURNEY_ARGS: ReadonlySet<string> = new Set([
+  PINNED_ARG,
+  JOURNEY_PINNED_ARG,
+  'trip_id',
+  'trip_ids',
+  'journey_id',
+]);
+
+/**
+ * Whether the home chat (no one trip, no one journey) keeps an attached tool
+ * once its schema and annotations are known: every read, a trip's or a
+ * journey's too, on the id the model names (the tool itself checks that the
+ * user may read it, as for any MCP client); and the writes that take neither
+ * a trip nor a journey (the atlas, the vacation planner, collections, the
+ * tour library, the settings). A trip's own changes belong in that trip's
+ * chat, which the home chat offers instead (open_trip_chat).
+ */
+export function keptAtHome(kind: 'read' | 'write', schemaArgs: Iterable<string>): boolean {
+  if (kind === 'read') return true;
+  for (const arg of schemaArgs) if (TRIP_OR_JOURNEY_ARGS.has(arg)) return false;
+  return true;
+}
+
 /** What is wrong with the denylist against the registry: a sharing tool that slipped through. */
 export function checkDenylist(names: Iterable<string>): string[] {
   const problems: string[] = [];
@@ -347,14 +375,45 @@ export function groupOf(entry: Pick<McpRegistryListing, 'className'>): string | 
 /** The server's own step that loads a group's tools for the rest of the turn. */
 export const USE_TOOLS_TOOL = 'use_addon_tools';
 
-export const USE_TOOLS_SPEC: AiToolSpec = {
-  name: USE_TOOLS_TOOL,
-  description:
+/** The step's description: the groups, and what needs nothing loaded in this kind of conversation. */
+function useToolsDescription(core: string): string {
+  return (
     'Load the tools of more parts of TREK for the rest of this turn. Call it before working with any of: ' +
     Object.entries(ASSISTANT_TOOL_GROUPS)
       .map(([group, { about }]) => `"${group}" (${about})`)
       .join('; ') +
-    '. The trip itself (days, places, bookings, packing, to-dos, budget, weather, search) needs nothing loaded.',
+    `. ${core}`
+  );
+}
+
+const USE_TOOLS_PARAMETERS: AiToolSpec['parameters'] = {
+  type: 'object',
+  properties: {
+    groups: {
+      type: 'array',
+      items: { type: 'string', enum: Object.keys(ASSISTANT_TOOL_GROUPS) },
+      minItems: 1,
+    },
+  },
+  required: ['groups'],
+  additionalProperties: false,
+};
+
+/** The same step in the home chat, where the core reads trips by the id the model passes. */
+export const HOME_USE_TOOLS_SPEC: AiToolSpec = {
+  name: USE_TOOLS_TOOL,
+  description: useToolsDescription(
+    'Reading the trips (list_trips, and a trip by its id: days, places, bookings, packing, to-dos, budget, weather) ' +
+      'needs nothing loaded.',
+  ),
+  parameters: USE_TOOLS_PARAMETERS,
+};
+
+export const USE_TOOLS_SPEC: AiToolSpec = {
+  name: USE_TOOLS_TOOL,
+  description: useToolsDescription(
+    'The trip itself (days, places, bookings, packing, to-dos, budget, weather, search) needs nothing loaded.',
+  ),
   parameters: {
     type: 'object',
     properties: {

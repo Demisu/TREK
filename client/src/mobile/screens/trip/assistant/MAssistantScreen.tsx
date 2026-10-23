@@ -17,6 +17,7 @@ import AssistantCompareSwitch from '../../../../components/Assistant/AssistantCo
 import AssistantMemoryDialog from '../../../../components/Assistant/AssistantMemoryDialog';
 import AssistantSurfaceLazy from '../../../../components/Assistant/AssistantSurfaceLazy';
 import { AI_SETTINGS_PATH } from '../../../../components/Assistant/assistantParts';
+import type { AssistantChatTrip } from '../../../../components/Assistant/assistantViewContext';
 import type { EntityTarget } from '../../../../components/Assistant/cards/cardTypes';
 import RoutePeekLazy from '../../../../components/Assistant/map/RoutePeekLazy';
 import { moveRoutePeek } from '../../../../components/Assistant/map/routePeekControl';
@@ -26,6 +27,7 @@ import { useAssistantThread } from '../../../../components/Assistant/useAssistan
 import { useTripMemory } from '../../../../components/Assistant/useTripMemory';
 import { useKeyboardInset } from '../../../../hooks/useKeyboardInset';
 import { useTranslation } from '../../../../i18n';
+import { assistantScopeOf } from '../../../../store/assistantChatKey';
 import { chatOf, useAssistantStore } from '../../../../store/assistantStore';
 import MDropdownPanel from '../../../components/MDropdownPanel';
 import MIconBtn from '../../../components/MIconBtn';
@@ -72,14 +74,17 @@ function useBackCloses(open: boolean, onClose: () => void): void {
   }, [open]);
 }
 
-/** The ways the chat hands the screen to the map, a tab of the trip or another page. */
-interface MapHops {
+/**
+ * The ways the chat hands the screen to the map, a tab of the trip or another
+ * page. Outside a trip (the home chat) only another page can be opened.
+ */
+export interface MapHops {
   /** What a card or an applied change points at: selected on the map, a tab opened, a page navigated to. */
   open: (target: EntityTarget) => void;
   /** A day picked in the chat (its weather): the day is selected. */
-  focusDay: (dayId: number) => void;
+  focusDay?: (dayId: number) => void;
   /** Before the map moves to something the chat points at, such as a found place. */
-  revealMap: () => void;
+  revealMap?: () => void;
 }
 
 /**
@@ -90,7 +95,7 @@ interface MapHops {
  * the chat closes with it. Read through a ref, so the chat does not re-render
  * with every render of the trip screen.
  */
-function useMapHops({ planner, shell }: MTripSheetsProps): MapHops {
+function useMapHops({ planner, shell }: MTripSheetsProps): Required<MapHops> {
   const navigate = useNavigate();
   const [, setSearchParams] = useSearchParams();
   const setMinimized = useAssistantStore((s) => s.setMinimized);
@@ -147,13 +152,21 @@ function useMapHops({ planner, shell }: MTripSheetsProps): MapHops {
 }
 
 interface ScreenProps {
+  /** The chat's key: a trip's id, or the home chat's. */
   tripId: number;
   tripTitle: string;
   hidden: boolean;
   hops: MapHops;
+  /** The home chat's way into one trip's own chat, from the card that offers it. */
+  onOpenTripChat?: (trip: AssistantChatTrip, question: string | null) => void;
 }
 
-function AssistantScreen({ tripId, tripTitle, hidden, hops }: ScreenProps) {
+/**
+ * The chat screen itself, the same over a trip and (the home chat) on the
+ * pages outside one: the head with the history and the menu, and the chat.
+ * The trip notes are a trip's, so the home chat's menu goes without them.
+ */
+export function AssistantScreen({ tripId, tripTitle, hidden, hops, onOpenTripChat }: ScreenProps) {
   const { t, locale } = useTranslation();
   const navigate = useNavigate();
   const thread = useAssistantThread(tripId);
@@ -163,6 +176,7 @@ function AssistantScreen({ tripId, tripTitle, hidden, hops }: ScreenProps) {
   const [confirming, setConfirming] = useState(false);
   const [memoryOpen, setMemoryOpen] = useState(false);
   const memory = useTripMemory(tripId);
+  const tripChat = assistantScopeOf(tripId).kind === 'trip';
   const hints = useAssistantHintsSetting();
   useBackCloses(!hidden, close);
 
@@ -247,11 +261,13 @@ function AssistantScreen({ tripId, tripTitle, hidden, hops }: ScreenProps) {
         onClose={() => setPanel(null)}
         className="end-4 top-[calc(var(--m-safe-top,12px)+48px)]"
       >
-        <MListRow
-          icon={NotebookPen}
-          label={t(memory.has ? 'assistant.memory.edit' : 'assistant.memory.title')}
-          onClick={() => pick(() => setMemoryOpen(true))}
-        />
+        {tripChat && (
+          <MListRow
+            icon={NotebookPen}
+            label={t(memory.has ? 'assistant.memory.edit' : 'assistant.memory.title')}
+            onClick={() => pick(() => setMemoryOpen(true))}
+          />
+        )}
         <MListRow
           icon={hints.on ? LightbulbOff : Lightbulb}
           label={t(hints.on ? 'assistant.hint.menuOff' : 'assistant.hint.menuOn')}
@@ -286,6 +302,7 @@ function AssistantScreen({ tripId, tripTitle, hidden, hops }: ScreenProps) {
           onOpen={hops.open}
           onFocusDay={hops.focusDay}
           onRevealMap={hops.revealMap}
+          onOpenTripChat={onOpenTripChat}
         />
       </div>
 

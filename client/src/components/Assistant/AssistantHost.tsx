@@ -17,7 +17,8 @@ function useRouteTripId(): number | null {
 
 /**
  * The desktop assistant, mounted once above the routes so a conversation
- * keeps going from page to page. Inside a trip it is about that trip; what a
+ * keeps going from page to page. Inside a trip it is about that trip, outside
+ * one it is the home chat about all of them (AssistantWindow); what a
  * card or an applied change opens goes through the planner's links: "Show on
  * map" opens the planner on the change (`?place=`, `?day=`), the same way a
  * notification opens a place, a tab of the trip opens as `?tab=` (a list's

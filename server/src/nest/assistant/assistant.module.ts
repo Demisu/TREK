@@ -35,6 +35,7 @@ import { AssistantVision } from './assistant-vision';
 import { AssistantController } from './assistant.controller';
 import { AssistantService } from './assistant.service';
 import { AssistantCardContext } from './cards/card-context';
+import { HomeAssistantController } from './home-assistant.controller';
 import { JourneyAssistantController } from './journey-assistant.controller';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
@@ -58,6 +59,10 @@ import { Module } from '@nestjs/common';
  * at a page as the Studio draws it (AssistantVision): the Studio tab uploads
  * the page to AssistantRendersController, which hands it to the waiting turn
  * through AssistantRenderRegistry, only the user's own photos drawn.
+ *
+ * Outside any one trip the same assistant is the home chat
+ * (HomeAssistantController): it reads the user's trips and works on what
+ * belongs to none of them, through the same registry tools.
  */
 @Module({
   imports: [
@@ -84,6 +89,7 @@ import { Module } from '@nestjs/common';
     AssistantController,
     AssistantAttachmentsController,
     JourneyAssistantController,
+    HomeAssistantController,
     AssistantRendersController,
   ],
   // The running turns and the page images they wait for stay in this

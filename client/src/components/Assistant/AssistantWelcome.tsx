@@ -28,20 +28,15 @@ export default function AssistantWelcome({
 }) {
   const { t } = useTranslation();
   const { tripId, variant } = useAssistantView();
-  // The Studio's chat is about a book, not a plan.
-  const book = useAssistantScope().kind === 'journey';
+  // The Studio's chat is about a book, not a plan; the home chat about all of the user's travels.
+  const scope = useAssistantScope().kind;
+  const book = scope === 'journey';
   const hints = useAssistantHints(tripId, { withStays: true });
   const crowded = Math.min(hints.hints.length, MAX_VISIBLE_HINTS) > SUGGESTIONS_UNDER_HINTS;
   const offered = crowded ? suggestions.slice(0, SUGGESTIONS_UNDER_HINTS) : suggestions;
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 py-6">
-      <EmptyState
-        scene="chat"
-        size={72}
-        compact
-        surface="var(--bg-elevated)"
-        title={book ? t('journey.studio.assistant.welcome') : t('assistant.empty.title')}
-      />
+      <EmptyState scene="chat" size={72} compact surface="var(--bg-elevated)" title={welcomeTitle(scope, t)} />
       {!canEdit && (
         <p className="m-0 max-w-xs text-center text-caption text-content-muted">
           {book ? t('journey.studio.assistant.readOnly') : t('assistant.empty.readOnly')}
@@ -51,6 +46,12 @@ export default function AssistantWelcome({
       {withSuggestions && offered.length > 0 && <AssistantSuggestions suggestions={offered} layout="stack" />}
     </div>
   );
+}
+
+/** The question over the empty chat, by what the chat is about. */
+function welcomeTitle(scope: 'trip' | 'journey' | 'home', t: (key: string) => string): string {
+  if (scope === 'journey') return t('journey.studio.assistant.welcome');
+  return scope === 'home' ? t('assistant.home.welcome') : t('assistant.empty.title');
 }
 
 export function AssistantSuggestions({

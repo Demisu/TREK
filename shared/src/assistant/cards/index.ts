@@ -5,6 +5,7 @@ import { BOOKING_CARD_SCHEMAS } from './booking.contract';
 import { BUDGET_CARD_SCHEMAS } from './budget.contract';
 import { COLLAB_CARD_SCHEMAS } from './collab.contract';
 import { COLLECTION_CARD_SCHEMAS } from './collection.contract';
+import { HOME_CARD_SCHEMAS } from './home.contract';
 import { JOURNEY_CARD_SCHEMAS } from './journey.contract';
 import { PACKING_CARD_SCHEMAS } from './packing.contract';
 import { ROADTRIP_CARD_SCHEMAS } from './roadtrip.contract';
@@ -21,6 +22,7 @@ export * from './booking.contract';
 export * from './budget.contract';
 export * from './collab.contract';
 export * from './collection.contract';
+export * from './home.contract';
 export * from './journey.contract';
 export * from './packing.contract';
 export * from './roadtrip.contract';
@@ -47,6 +49,7 @@ export const trekCardSchema = z.discriminatedUnion('kind', [
   ...PACKING_CARD_SCHEMAS,
   ...BOOK_CARD_SCHEMAS,
   ...BOOK_DESIGN_CARD_SCHEMAS,
+  ...HOME_CARD_SCHEMAS,
 ]);
 export type TrekCard = z.infer<typeof trekCardSchema>;
 export type TrekCardKind = TrekCard['kind'];

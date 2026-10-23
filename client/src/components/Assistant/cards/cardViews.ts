@@ -8,6 +8,7 @@ import { BUDGET_VIEWS } from './budget/budgetViews';
 import type { CardView } from './cardTypes';
 import { COLLAB_VIEWS } from './collab/collabViews';
 import { COLLECTION_VIEWS } from './collection/collectionViews';
+import { HOME_VIEWS } from './home/homeViews';
 import { JOURNEY_VIEWS } from './journey/journeyViews';
 import { PACKING_VIEWS } from './packing/packingViews';
 import { ROADTRIP_VIEWS } from './roadtrip/roadtripViews';
@@ -33,6 +34,7 @@ export const CARD_VIEWS: { readonly [K in TrekCardKind]: CardView<K> } = {
   ...PACKING_VIEWS,
   ...BOOK_VIEWS,
   ...BOOK_DESIGN_VIEWS,
+  ...HOME_VIEWS,
 };
 
 /** The view of the card in hand, typed for any kind. */

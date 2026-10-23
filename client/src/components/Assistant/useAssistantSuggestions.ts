@@ -6,7 +6,7 @@ import { useJourneyStore } from '../../store/journeyStore';
 import { useCanDo } from '../../store/permissionsStore';
 import { useTripStore } from '../../store/tripStore';
 import { localIsoDate } from '../../utils/localDate';
-import { suggestionsFor, tripPhase } from './assistantModel';
+import { HOME_SUGGESTIONS, suggestionsFor, tripPhase } from './assistantModel';
 import { useAssistantFocus } from './useAssistantFocus';
 
 export interface ReadySuggestion {
@@ -21,7 +21,9 @@ export interface ReadySuggestion {
  * (one picked from the dashboard) neither its dates nor its rights are at
  * hand, so it gets the general questions and none that would change it. A
  * journey's chat in TREK Studio gets none, since they all ask about a trip,
- * and its rights are the journey's role, as the Studio itself reads it.
+ * and its rights are the journey's role, as the Studio itself reads it. The
+ * home chat outside any one trip gets its own questions across the user's
+ * trips; what it may change the server decides, so nothing is held back here.
  */
 export function useAssistantSuggestions(tripId: number): { suggestions: ReadySuggestion[]; canEdit: boolean } {
   const { t } = useTranslation();
@@ -35,9 +37,11 @@ export function useAssistantSuggestions(tripId: number): { suggestions: ReadySug
   const journeyRole = useJourneyStore((s) =>
     scope.kind === 'journey' && s.current?.id === scope.journeyId ? s.current.my_role : undefined
   );
-  const canEdit = tripChat ? !!trip && can('place_edit', trip) : (journeyRole ?? 'owner') !== 'viewer';
+  const home = scope.kind === 'home';
+  const canEdit = tripChat ? !!trip && can('place_edit', trip) : home || (journeyRole ?? 'owner') !== 'viewer';
 
   const suggestions = useMemo((): ReadySuggestion[] => {
+    if (home) return HOME_SUGGESTIONS.map((s) => ({ id: s.id, prompt: t(s.labelKey) }));
     if (!tripChat) return [];
     const phase = trip
       ? tripPhase({
@@ -53,7 +57,7 @@ export function useAssistantSuggestions(tripId: number): { suggestions: ReadySug
       place: kind === 'place' ? label : null,
       day: kind === 'day' ? label : null,
     }).map((s) => ({ id: s.id, prompt: t(s.labelKey, s.params) }));
-  }, [tripChat, trip, hasPlaces, canEdit, kind, label, t]);
+  }, [home, tripChat, trip, hasPlaces, canEdit, kind, label, t]);
 
   return { suggestions, canEdit };
 }

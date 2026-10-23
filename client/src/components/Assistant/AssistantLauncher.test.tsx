@@ -101,6 +101,14 @@ describe('AssistantLauncher', () => {
     act(() => useAssistantStore.getState().open());
     expect(button).not.toHaveAttribute('aria-busy');
   });
+
+  it('FE-AI-LAUNCH-008: the floating button breathes for an answer of the home chat being written too', () => {
+    const home = assistantChatKey({ kind: 'home' });
+    const running = { ...chatOf(useAssistantStore.getState(), home), isRunning: true };
+    useAssistantStore.setState({ status: STATUS, byTrip: { [home]: running } });
+    render(<AssistantLauncher variant="floating" />);
+    expect(screen.getByRole('button', { name: 'Assistant' })).toHaveAttribute('aria-busy', 'true');
+  });
 });
 
 describe('the shortcut', () => {

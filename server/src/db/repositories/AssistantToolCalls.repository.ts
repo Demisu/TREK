@@ -103,6 +103,20 @@ export class AssistantToolCallsRepository extends TrekRepository<AssistantToolCa
     return this.findOwnedBy(id, userId, 'assistant_threads.journey_id', journeyId);
   }
 
+  /** A call of one of the user's home threads; null for anyone else's or one on a trip or a journey. */
+  async findOwnedAtHome(id: string, userId: number): Promise<AssistantToolCallRow | null> {
+    const row = await this.kysely<Pick<DB, 'assistant_tool_calls' | 'assistant_threads'>>()
+      .selectFrom('assistant_tool_calls')
+      .innerJoin('assistant_threads', 'assistant_threads.id', 'assistant_tool_calls.thread_id')
+      .selectAll('assistant_tool_calls')
+      .where('assistant_tool_calls.id', '=', id)
+      .where('assistant_threads.user_id', '=', userId)
+      .where('assistant_threads.trip_id', 'is', null)
+      .where('assistant_threads.journey_id', 'is', null)
+      .executeTakeFirst();
+    return row ?? null;
+  }
+
   private async findOwnedBy(
     id: string,
     userId: number,

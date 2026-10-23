@@ -226,6 +226,17 @@ const PHASE_SUGGESTIONS: Record<TripPhase, AssistantSuggestion[]> = {
 const MAX_SUGGESTIONS = 4;
 
 /**
+ * What the empty home chat offers, outside any one trip: questions across the
+ * user's trips and about the parts of TREK that belong to none of them.
+ */
+export const HOME_SUGGESTIONS: readonly AssistantSuggestion[] = [
+  { id: 'homeNext', labelKey: 'assistant.suggest.homeNext' },
+  { id: 'homeCompare', labelKey: 'assistant.suggest.homeCompare' },
+  { id: 'homeAtlas', labelKey: 'assistant.suggest.homeAtlas' },
+  { id: 'homeVacay', labelKey: 'assistant.suggest.homeVacay' },
+];
+
+/**
  * The questions the empty chat offers: about the place or day in focus first,
  * then what fits the trip's phase. The label is also the prompt, so a tapped
  * suggestion reads in the chat exactly as it was offered.

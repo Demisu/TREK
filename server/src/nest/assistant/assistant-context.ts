@@ -427,13 +427,19 @@ const UNIT_WORDING: Readonly<Record<string, string>> = {
   '24h': 'times in 24-hour format',
 };
 
-/** What the model reads next to its instructions on this turn: the date, the units and the trip card. */
-export function turnContext(card: TripCard, timeZone: string, now: Date, prefs: UserPrefs): string {
-  const lines = [`Today is ${todayIn(timeZone, now)} (time zone ${timeZone}).`];
+/** The units the user picked, as one sentence for the model; null when none is set. */
+export function unitsSentence(prefs: UserPrefs): string | null {
   const units = [prefs.temperature_unit, prefs.distance_unit, prefs.time_format]
     .map((value) => (typeof value === 'string' ? UNIT_WORDING[value] : undefined))
     .filter((wording): wording is string => !!wording);
-  if (units.length > 0) lines.push(`The user prefers ${units.join(', ')}.`);
+  return units.length > 0 ? `The user prefers ${units.join(', ')}.` : null;
+}
+
+/** What the model reads next to its instructions on this turn: the date, the units and the trip card. */
+export function turnContext(card: TripCard, timeZone: string, now: Date, prefs: UserPrefs): string {
+  const lines = [`Today is ${todayIn(timeZone, now)} (time zone ${timeZone}).`];
+  const units = unitsSentence(prefs);
+  if (units) lines.push(units);
   if (prefs.assistant_cost_estimates !== false) {
     lines.push(
       'When you add a place that costs money (a restaurant, a ticketed sight, an activity) and create_budget_item is ' +

@@ -67,6 +67,7 @@ const OAuthAuthorizePage = lazyWithRetry(() => import('./pages/OAuthAuthorizePag
 const TourSaveToCollectionHost = lazyWithRetry(() => import('./components/Tours/collection/TourSaveToCollectionHost'))
 // The desktop assistant window: its own chunk, and nothing at all until a connection is set up.
 const AssistantHost = lazyWithRetry(() => import('./components/Assistant/AssistantHost'))
+const MAssistantHomeScreen = lazyWithRetry(() => import('./mobile/screens/assistant/MAssistantHomeScreen'))
 
 // The ten phone screens are chunks of their own, alongside the desktop pages
 // rather than inside them. Each page used to import its M screen statically and
@@ -410,10 +411,10 @@ export default function App() {
       {!hideAuthedWidgets && <ErrorBoundary boundaryId="widget:background-tasks" fallback={null}><BackgroundTasksWidget /></ErrorBoundary>}
       {!hideAuthedWidgets && (isPhone ? <MSaveToCollectionSheet /> : <SaveToCollectionModal />)}
       {!hideAuthedWidgets && keepingTour && <ErrorBoundary boundaryId="widget:keep-tour" fallback={null}><Suspense fallback={null}><TourSaveToCollectionHost /></Suspense></ErrorBoundary>}
-      {/* The phone has its own assistant screen inside the trip. */}
-      {!hideAuthedWidgets && isAuthenticated && !isPhone && (
+      {/* The phone has its own assistant screen inside the trip, and the home chat's outside it. */}
+      {!hideAuthedWidgets && isAuthenticated && (
         <ErrorBoundary boundaryId="widget:assistant" fallback={null}>
-          <Suspense fallback={null}><AssistantHost /></Suspense>
+          <Suspense fallback={null}>{isPhone ? <MAssistantHomeScreen /> : <AssistantHost />}</Suspense>
         </ErrorBoundary>
       )}
       <ErrorBoundary boundaryId="widget:offline-banner" fallback={null}><OfflineBanner /></ErrorBoundary>

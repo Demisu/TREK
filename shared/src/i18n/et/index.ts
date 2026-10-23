@@ -9,6 +9,7 @@ import assistantBudget from './assistantBudget';
 import assistantCard from './assistantCard';
 import assistantCollab from './assistantCollab';
 import assistantCollection from './assistantCollection';
+import assistantHome from './assistantHome';
 import assistantJourney from './assistantJourney';
 import assistantPacking from './assistantPacking';
 import assistantRoadtrip from './assistantRoadtrip';
@@ -149,6 +150,7 @@ const locale = {
   ...assistantCollection,
   ...assistantAtlas,
   ...assistantVacay,
+  ...assistantHome,
   ...assistantJourney,
   ...assistantPacking,
   ...studioLayers,

@@ -6,8 +6,9 @@ import { Spinner } from '../shared/Spinner';
 import { type PickerTrip, useAssistantTripPicker } from './useAssistantTripPicker';
 
 /**
- * Outside a trip the assistant first asks which one: the chat, its history
- * and its changes all belong to one trip. The running and the next trip lead.
+ * The user's trips to go on with in one trip's own chat, from the home chat's
+ * head: that chat, its history and its changes belong to the trip. The
+ * running and the next trip lead.
  */
 export default function AssistantTripPicker({ onPick }: { onPick: (trip: PickerTrip) => void }) {
   const { t } = useTranslation();

@@ -4,6 +4,7 @@ import { AuditService } from '../audit/audit.service';
 import { traceEntry } from '../audit/entry-trace.logger';
 import { withRequestContext } from '../database/request-context';
 import { FOLLOW_UPS_SPEC } from './assistant-follow-ups';
+import { OPEN_TRIP_CHAT_SPEC, OPEN_TRIP_CHAT_TOOL, openTripChat } from './assistant-home';
 import { REMEMBER_SPEC } from './assistant-memory';
 import {
   ASSISTANT_TOOL_GROUPS,
@@ -11,10 +12,12 @@ import {
   checkStudioTools,
   groupOf,
   HELD_READS,
+  HOME_USE_TOOLS_SPEC,
   isOfferedInJourney,
   isOfferedTool,
   isStudioController,
   JOURNEY_PINNED_ARG,
+  keptAtHome,
   keptInJourney,
   USE_TOOLS_SPEC,
   USE_TOOLS_TOOL,
@@ -77,16 +80,20 @@ interface ListedTool {
 
 /**
  * A trip turn's session offers every tool (the core first, the rest by group);
- * a journey turn's offers the Studio's tools at once and nothing else; an
- * undo's holds its one target.
+ * a journey turn's offers the Studio's tools at once and nothing else; a home
+ * turn's offers the reads and the writes that belong to no trip, by group like
+ * a trip's; an undo's holds its one target.
  */
-type SessionMode = 'turn' | 'journey' | 'undo';
+type SessionMode = 'turn' | 'journey' | 'home' | 'undo';
 
 /** The argument every pinned tool runs with, and its value: the conversation's trip or journey. */
 interface SessionPin {
   arg: string;
   id: number;
 }
+
+/** What the home chat pins: nothing, so a trip's read runs on the trip the model names. */
+const NO_PIN: SessionPin = { arg: '', id: 0 };
 
 /** The registered tools by name, as the registry lists them. */
 type ToolCatalog = ReadonlyMap<string, McpRegistryListing>;
@@ -131,7 +138,7 @@ export function checkToolCatalog(
     if (!tools.has(name)) problems.push(`tool "${name}" with a card of its own is not registered`);
   }
   for (const name of Object.keys(cards)) {
-    if (!tools.has(name) && !ASSISTANT_SERVER_TOOLS.has(name)) {
+    if (!tools.has(name) && !ASSISTANT_SERVER_TOOLS.has(name) && name !== OPEN_TRIP_CHAT_TOOL) {
       problems.push(`tool "${name}" with cards of a package is neither registered nor the server's own`);
     }
   }
@@ -145,7 +152,13 @@ export function checkToolCatalog(
     if (!tools.has(name)) problems.push(`held read "${name}" of a package is not registered`);
   }
   // The server's own steps and tools are told apart from the registry's by name alone.
-  for (const name of [...ASSISTANT_SERVER_TOOLS, USE_TOOLS_TOOL, PREVIEW_BOOK_PAGE_TOOL, ASSISTANT_FOLLOW_UPS_TOOL]) {
+  for (const name of [
+    ...ASSISTANT_SERVER_TOOLS,
+    USE_TOOLS_TOOL,
+    PREVIEW_BOOK_PAGE_TOOL,
+    ASSISTANT_FOLLOW_UPS_TOOL,
+    OPEN_TRIP_CHAT_TOOL,
+  ]) {
     if (tools.has(name)) problems.push(`"${name}" is the server's own step`);
   }
   return [...problems, ...checkDenylist(tools), ...checkStudioTools(listing)];
@@ -163,7 +176,8 @@ function kindOf(name: string, readOnly: boolean): AssistantToolKind {
 
 function hiddenArgs(name: string, pinArg: string = PINNED_ARG): Set<string> {
   const policy = ASSISTANT_ARG_POLICY[name];
-  return new Set([pinArg, ...Object.keys(policy?.forced ?? {}), ...(policy?.stripped ?? [])]);
+  const pinned = pinArg ? [pinArg] : [];
+  return new Set([...pinned, ...Object.keys(policy?.forced ?? {}), ...(policy?.stripped ?? [])]);
 }
 
 /** The tool's JSON Schema without the arguments the server sets or takes away. */
@@ -206,7 +220,9 @@ function readResult(result: unknown): ToolRun {
  *
  * Every tool that takes a trip runs on the conversation's trip: the model
  * never sees that argument, and one it sends anyway must name this trip. A
- * Studio conversation pins its journey the same way, through `journeyId`.
+ * Studio conversation pins its journey the same way, through `journeyId`. The
+ * home chat pins nothing (`pinArg` empty): a trip's read runs on the trip the
+ * model names, and only for a user who may read it.
  */
 export class AssistantToolSession {
   constructor(
@@ -225,6 +241,11 @@ export class AssistantToolSession {
   /** The groups this turn loaded; the core is always there. */
   private readonly loaded = new Set<string>();
 
+  /** Whether the session offers its tools by group: a trip's turn and a home turn do. */
+  private get grouped(): boolean {
+    return this.mode === 'turn' || this.mode === 'home';
+  }
+
   /**
    * The tools as the model is offered them: the core and the groups it
    * loaded, the trip notes, and the step that loads the other groups. A
@@ -232,15 +253,18 @@ export class AssistantToolSession {
    */
   specs(): AiToolSpec[] {
     const listed = [...this.tools.values()]
-      .filter((tool) => this.mode !== 'turn' || tool.hint.group === null || this.loaded.has(tool.hint.group))
+      .filter((tool) => !this.grouped || tool.hint.group === null || this.loaded.has(tool.hint.group))
       .map((tool) => ({
         name: tool.name,
         description: tool.description,
         parameters: modelSchema(tool.name, tool.inputSchema, this.pinArg),
       }));
     if (this.mode === 'undo') return listed;
-    if (this.mode !== 'turn') return [...listed, FOLLOW_UPS_SPEC];
+    if (!this.grouped) return [...listed, FOLLOW_UPS_SPEC];
     const more = Object.keys(ASSISTANT_TOOL_GROUPS).some((group) => !this.loaded.has(group));
+    if (this.mode === 'home') {
+      return [...listed, OPEN_TRIP_CHAT_SPEC, ...(more ? [HOME_USE_TOOLS_SPEC] : []), FOLLOW_UPS_SPEC];
+    }
     return [...listed, REMEMBER_SPEC, ...(more ? [USE_TOOLS_SPEC] : []), FOLLOW_UPS_SPEC];
   }
 
@@ -248,7 +272,9 @@ export class AssistantToolSession {
     if (name === REMEMBER_TOOL) return this.mode === 'turn' ? 'write' : null;
     // The follow-ups change nothing; the agent loop answers them itself in every turn.
     if (name === ASSISTANT_FOLLOW_UPS_TOOL) return this.mode === 'undo' ? null : 'read';
-    if (name === USE_TOOLS_TOOL) return this.mode === 'turn' ? 'read' : null;
+    if (name === USE_TOOLS_TOOL) return this.grouped ? 'read' : null;
+    // Offering a trip's chat changes nothing; the user decides on the card.
+    if (name === OPEN_TRIP_CHAT_TOOL) return this.mode === 'home' ? 'read' : null;
     return this.tools.get(name)?.kind ?? null;
   }
 
@@ -263,7 +289,7 @@ export class AssistantToolSession {
    * conversation's is refused.
    */
   pinArgs(name: string, args: ToolArgs): { args: ToolArgs } | { error: string } {
-    const given = args[this.pinArg];
+    const given = this.pinArg ? args[this.pinArg] : undefined;
     if (given !== undefined && Number(given) !== this.pinnedId) {
       const about = this.pinArg === PINNED_ARG ? 'trip' : 'journey';
       return { error: `This conversation is about one ${about}; its id is set by the app and cannot be changed.` };
@@ -275,6 +301,7 @@ export class AssistantToolSession {
   /** Runs a tool on the user's behalf (a read the model asked for, an applied change, an undo), audited. */
   async call(name: string, args: ToolArgs): Promise<ToolRun> {
     if (name === USE_TOOLS_TOOL) return this.load(args);
+    if (name === OPEN_TRIP_CHAT_TOOL && this.mode === 'home') return this.offerTripChat(args);
     const final = name === TRANSIT_CREATE_TOOL ? await this.withFoundItinerary(args) : args;
     const run = await this.invoke(name, final);
     this.audit(name);
@@ -295,6 +322,15 @@ export class AssistantToolSession {
     const run = await this.invoke(TRANSIT_SEARCH_TOOL, again);
     if (run.ok) this.itineraries.keep(run.value);
     return restoreItinerary(this.itineraries, args);
+  }
+
+  /**
+   * The way into a trip's own chat: the trip the model names, read from the
+   * user's own trips, so a card never names a trip the user cannot open.
+   */
+  private async offerTripChat(args: ToolArgs): Promise<ToolRun> {
+    // Today in UTC: a day's difference at midnight moves no trip between under way and next that matters here.
+    return openTripChat(args, await this.invoke('list_trips', {}), new Date().toISOString().slice(0, 10));
   }
 
   /** Reads for the server's own use (the trip card, the undo check), not audited as the user's calls. */
@@ -322,7 +358,8 @@ export class AssistantToolSession {
     const tool = this.tools.get(name);
     if (!tool) return { ok: false, value: `Unknown tool: ${name}` };
     const forced = ASSISTANT_ARG_POLICY[name]?.forced ?? {};
-    const final = { ...args, ...(tool.pinned ? { [this.pinArg]: this.pinnedId } : {}), ...forced };
+    const pin = tool.pinned && this.pinArg ? { [this.pinArg]: this.pinnedId } : {};
+    const final = { ...args, ...pin, ...forced };
     try {
       return readResult(await this.client.callTool({ name, arguments: final }));
     } catch (err) {
@@ -382,6 +419,22 @@ export class AssistantToolsService implements OnApplicationBootstrap {
     return this.session(userId, { arg: JOURNEY_PINNED_ARG, id: journeyId }, mode, { catalog, include, keep });
   }
 
+  /**
+   * A session for the home chat, about no one trip or journey: for a turn
+   * every read the assistant is offered and the writes that take neither a
+   * trip nor a journey (keptAtHome), nothing pinned; for an undo only the
+   * named targets. The book's own tools stay out, as in a trip chat.
+   */
+  async openHome(userId: number, undoTargets?: ReadonlySet<string>) {
+    const catalog = this.catalog();
+    const include = (name: string) =>
+      undoTargets ? undoTargets.has(name) : isOfferedTool(name) && !isStudioController(catalog.get(name)?.className);
+    const keep = (tool: ListedTool) =>
+      !!undoTargets || keptAtHome(tool.kind, Object.keys((tool.inputSchema.properties as object | undefined) ?? {}));
+    const mode: SessionMode = undoTargets ? 'undo' : 'home';
+    return this.session(userId, NO_PIN, mode, { catalog, include, keep });
+  }
+
   /** The registered tools by name, read once per session. */
   private catalog(): ToolCatalog {
     return new Map(
@@ -428,7 +481,7 @@ export class AssistantToolsService implements OnApplicationBootstrap {
         description: tool.description ?? '',
         inputSchema,
         kind,
-        pinned: pin.arg in properties,
+        pinned: pin.arg !== '' && pin.arg in properties,
         hint: {
           destructive: annotations.destructiveHint === true,
           creates: annotations.idempotentHint === false,

@@ -165,4 +165,46 @@ describe('assistantApi JSON calls', () => {
     await assistantApi.stop(journey);
     expect(hits).toEqual(['threads', 'undo', 'stop']);
   });
+
+  it('FE-AI-API-009: the home scope reaches the routes outside any trip', async () => {
+    const home = { kind: 'home' } as const;
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => streamResponse('data: [DONE]\n\n'));
+    const signal = new AbortController().signal;
+    await assistantApi.chat(home, BODY, signal);
+    await assistantApi.decide(home, 7, { locale: 'en', timeZone: 'UTC', decisions: [] }, signal);
+    expect(fetchSpy.mock.calls.map(([url]) => url)).toEqual([
+      '/api/assistant/chat',
+      '/api/assistant/threads/7/decisions',
+    ]);
+
+    const hits: string[] = [];
+    server.use(
+      http.get('/api/assistant/threads', () => {
+        hits.push('threads');
+        return HttpResponse.json({ threads: [] });
+      }),
+      http.get('/api/assistant/threads/3', () => {
+        hits.push('thread');
+        return HttpResponse.json({ thread: { id: 3, title: 't', lastMessageAt: 'x' }, messages: [] });
+      }),
+      http.delete('/api/assistant/threads/3', () => {
+        hits.push('delete');
+        return HttpResponse.json({ success: true });
+      }),
+      http.post('/api/assistant/tool-calls/:id/undo', () => {
+        hits.push('undo');
+        return HttpResponse.json({ undone: true });
+      }),
+      http.post('/api/assistant/stop', () => {
+        hits.push('stop');
+        return HttpResponse.json({ success: true });
+      })
+    );
+    await assistantApi.threads(home);
+    await assistantApi.thread(home, 3);
+    await assistantApi.deleteThread(home, 3);
+    await assistantApi.undo(home, 'c1');
+    await assistantApi.stop(home);
+    expect(hits).toEqual(['threads', 'thread', 'delete', 'undo', 'stop']);
+  });
 });

@@ -103,14 +103,16 @@ const tripBase = (tripId: number) => `/trips/${tripId}/assistant`;
 
 /**
  * What a conversation call is about: a trip's id (the planner's chat), or a
- * scope, which also reaches a journey's chat in TREK Studio. Threads, turns,
- * decisions, undo and stop exist under both; files, found places, proposals
- * and sharing belong to a trip and take its id.
+ * scope, which also reaches a journey's chat in TREK Studio and the home chat
+ * outside any one trip. Threads, turns, decisions, undo and stop exist under
+ * all three; files, found places, proposals and sharing belong to a trip and
+ * take its id.
  */
 export type AssistantTarget = number | AssistantScope;
 
 function scopeBase(target: AssistantTarget): string {
   if (typeof target === 'number') return tripBase(target);
+  if (target.kind === 'home') return '/assistant';
   return target.kind === 'trip' ? tripBase(target.tripId) : `/journeys/${target.journeyId}/assistant`;
 }
 

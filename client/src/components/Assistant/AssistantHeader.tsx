@@ -1,4 +1,16 @@
-import { Ellipsis, History, Lightbulb, LightbulbOff, NotebookPen, Plus, Settings, Trash2, X } from 'lucide-react';
+import {
+  Ellipsis,
+  History,
+  House,
+  Lightbulb,
+  LightbulbOff,
+  Luggage,
+  NotebookPen,
+  Plus,
+  Settings,
+  Trash2,
+  X,
+} from 'lucide-react';
 import { type HTMLAttributes, type MouseEvent, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -12,7 +24,9 @@ import Tooltip from '../shared/Tooltip';
 import { PopoverListPanel } from '../shared/dialogParts';
 import { usePopoverList } from '../shared/usePopoverList';
 import AssistantMemoryDialog from './AssistantMemoryDialog';
+import AssistantTripPicker from './AssistantTripPicker';
 import { AI_SETTINGS_PATH } from './assistantParts';
+import type { AssistantChatTrip } from './assistantViewContext';
 import { useAssistantHintsSetting } from './useAssistantHints';
 import { useAssistantLiveStep } from './useAssistantLiveStep';
 import type { useAssistantThread } from './useAssistantThread';
@@ -29,6 +43,16 @@ interface AssistantHeaderProps {
   onClose: () => void;
   /** Moves the window: spread on the title, which is the part of the header to grab. */
   dragProps: HTMLAttributes<HTMLElement>;
+  /**
+   * The way between the home chat and one trip's: the home chat picks a trip
+   * (`onPick`), a trip's chat opened from outside it goes back (`onHome`).
+   */
+  tripSwitch?: TripSwitch;
+}
+
+interface TripSwitch {
+  onPick?: (trip: AssistantChatTrip) => void;
+  onHome?: () => void;
 }
 
 /**
@@ -39,7 +63,14 @@ interface AssistantHeaderProps {
  * keeps the conversation, and an answer being written goes on. The model is not picked here;
  * that lives in the settings. Notes are a trip's: a journey's chat in TREK Studio shows no notes button.
  */
-export default function AssistantHeader({ tripId, thread, tripTitle, onClose, dragProps }: AssistantHeaderProps) {
+export default function AssistantHeader({
+  tripId,
+  thread,
+  tripTitle,
+  onClose,
+  dragProps,
+  tripSwitch,
+}: AssistantHeaderProps) {
   const { t, locale } = useTranslation();
   const live = useAssistantLiveStep(tripId);
   const memory = useTripMemory(tripId);
@@ -122,6 +153,7 @@ export default function AssistantHeader({ tripId, thread, tripTitle, onClose, dr
         onPointerDown={(e) => e.stopPropagation()}
         onDoubleClick={(e) => e.stopPropagation()}
       >
+        {tripSwitch && <TripSwitchButton {...tripSwitch} />}
         {tripChat && (
           <Tooltip label={t(memory.has ? 'assistant.memory.edit' : 'assistant.memory.title')}>
             <button
@@ -216,5 +248,51 @@ export default function AssistantHeader({ tripId, thread, tripTitle, onClose, dr
         confirmLabel={t('common.delete')}
       />
     </header>
+  );
+}
+
+/**
+ * Between the home chat and a trip's: from the home chat a list of the user's
+ * trips (the running and the next one first) opens that trip's chat in the
+ * window; from a trip's chat opened outside it, one press goes back home.
+ */
+function TripSwitchButton({ onPick, onHome }: TripSwitch) {
+  const { t } = useTranslation();
+  const list = usePopoverList(0, { estimatedHeight: 360 });
+  const { open, triggerRef, listId, toggle, close } = list;
+  if (onHome) {
+    return (
+      <Tooltip label={t('assistant.home.back')}>
+        <button type="button" onClick={onHome} aria-label={t('assistant.home.back')} className={ICON_BUTTON}>
+          <House size={13} aria-hidden="true" />
+        </button>
+      </Tooltip>
+    );
+  }
+  if (!onPick) return null;
+  return (
+    <>
+      <Tooltip label={t('assistant.home.switch')}>
+        <button
+          ref={triggerRef}
+          type="button"
+          onClick={toggle}
+          aria-label={t('assistant.home.switch')}
+          aria-expanded={open}
+          aria-controls={open ? listId : undefined}
+          className={ICON_BUTTON}
+        >
+          <Luggage size={13} aria-hidden="true" />
+        </button>
+      </Tooltip>
+      <PopoverListPanel list={list} label={t('assistant.picker.title')} className="flex w-72 flex-col">
+        <AssistantTripPicker
+          onPick={({ id, title }) => {
+            close();
+            onPick({ id, title });
+          }}
+        />
+      </PopoverListPanel>
+    </>
   );
 }
