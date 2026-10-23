@@ -23,7 +23,7 @@ export function bookThemeLine(theme: BookTheme | undefined): string {
 
 /** What an element follows of the theme, as words for its line ('' when nothing). */
 export function themeLinkWords(el: BookElement): string {
-  if (el.kind === 'photo' || el.kind === 'sticker') return '';
+  if (el.kind === 'photo' || el.kind === 'sticker' || el.kind === 'line') return '';
   const parts: string[] = [];
   if (el.token) parts.push(`${el.kind === 'shape' ? 'fill' : 'colour'} ${el.token}`);
   if (el.kind === 'shape' && el.strokeToken) parts.push(`stroke ${el.strokeToken}`);

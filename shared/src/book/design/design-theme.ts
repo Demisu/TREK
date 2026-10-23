@@ -111,6 +111,8 @@ function linkToLook(el: BookElement, spread: BookSpread, look: BookDesignLook): 
   switch (el.kind) {
     case 'photo':
     case 'sticker':
+    // A line keeps the colour it was drawn in (book-line.schema.ts has no theme link).
+    case 'line':
       return el;
     case 'text': {
       const token = lookToken(el.color, look, true);

@@ -66,6 +66,8 @@ export function themedElement<E extends BookElement>(el: E, theme: BookTheme): E
   switch (el.kind) {
     case 'photo':
     case 'sticker':
+    // A line keeps the colour it was drawn in (book-line.schema.ts has no theme link).
+    case 'line':
       return el;
     case 'text': {
       tokenColour(next, theme, 'color', el.token);

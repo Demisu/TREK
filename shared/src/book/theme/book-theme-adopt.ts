@@ -61,6 +61,8 @@ function chromaticInks(el: BookElement): string[] {
   switch (el.kind) {
     case 'photo':
     case 'sticker':
+    // A line keeps the colour it was drawn in (book-line.schema.ts has no theme link).
+    case 'line':
       return [];
     case 'text':
     case 'icon':
@@ -157,6 +159,8 @@ function adoptElement(
     // A sticker keeps the colours of its slots: they are a drawing, not the page's inks.
     case 'photo':
     case 'sticker':
+    // A line keeps the colour it was drawn in (book-line.schema.ts has no theme link).
+    case 'line':
       return el;
     case 'text': {
       const token = el.token ?? inkToken(el.color, ground, map, prev, el.size <= 9);
