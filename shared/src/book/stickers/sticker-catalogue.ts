@@ -1,3 +1,4 @@
+import { rankAssets, type AssetKey } from '../book-asset-search';
 import type { BookStickerLookup } from '../book-sticker';
 import { ASIA_STICKERS } from './data/asia.data';
 import { DOODLES_STICKERS } from './data/doodles.data';
@@ -62,30 +63,10 @@ export function bookStickersOf(theme: BookStickerTheme): BookStickerDef[] {
   return BOOK_STICKERS.filter((s) => s.theme === theme);
 }
 
-const norm = (s: string) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
-
-/** The words a sticker is found by: its id split at the capitals, its tags, its theme and its description. */
-function haystack(s: BookStickerDef): string {
+/** The words a sticker is found by: its id split at the capitals, its theme, its tags and its description. */
+function keyOf(s: BookStickerDef): AssetKey {
   const idWords = s.id.replace(/([a-z])([A-Z])/g, '$1 $2');
-  return norm([s.id, idWords, s.theme, ...s.tags, s.descr].join(' '));
-}
-
-/**
- * How well a sticker answers a query: every word of the query has to be found,
- * and a word that is a tag or the id itself counts for more than one buried in
- * the description, so "lemon" lists the lemon before the vase of lemons.
- */
-function score(s: BookStickerDef, words: readonly string[]): number {
-  const hay = haystack(s);
-  const tags = s.tags.map(norm);
-  let total = 0;
-  for (const w of words) {
-    if (!hay.includes(w)) return 0;
-    if (norm(s.id) === w || tags.includes(w)) total += 3;
-    else if (tags.some((t) => t.split(' ').includes(w)) || norm(s.id).startsWith(w)) total += 2;
-    else total += 1;
-  }
-  return total;
+  return { id: s.id, words: [s.id, idWords, s.theme, ...s.tags, s.descr], tags: s.tags };
 }
 
 export interface BookStickerSearch {
@@ -95,22 +76,15 @@ export interface BookStickerSearch {
   limit?: number;
 }
 
-/** Stickers matching a search, best first, library order between equals. */
+/**
+ * Stickers matching a search, best first, library order between equals:
+ * every word of the query has to be found, and a word that is a tag or the id
+ * itself counts for more than one buried in the description, so "lemon" lists
+ * the lemon before the vase of lemons (book-asset-search.ts).
+ */
 export function searchBookStickers(search: BookStickerSearch = {}): BookStickerDef[] {
-  const words = norm(search.query ?? '')
-    .split(/\s+/)
-    .filter(Boolean);
-  const tags = (search.tags ?? []).map(norm);
-  const pool = BOOK_STICKERS.filter(
-    (s) => (!search.theme || s.theme === search.theme) && tags.every((t) => s.tags.map(norm).includes(t)),
-  );
-  const ranked = words.length
-    ? pool
-        .map((s, i) => ({ s, i, n: score(s, words) }))
-        .filter((r) => r.n > 0)
-        .sort((a, b) => b.n - a.n || a.i - b.i)
-        .map((r) => r.s)
-    : pool;
+  const pool = BOOK_STICKERS.filter((s) => !search.theme || s.theme === search.theme);
+  const ranked = rankAssets(pool, keyOf, search.query, search.tags);
   return ranked.slice(0, search.limit ?? ranked.length);
 }
 

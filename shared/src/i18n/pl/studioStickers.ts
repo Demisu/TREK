@@ -16,7 +16,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Odbij lustrzanie',
   'journey.studio.stickerTurnLeft': 'Obróć w lewo',
   'journey.studio.stickerTurnRight': 'Obróć w prawo',
-  'assistant.step.bookStickers': 'Przegląda naklejki',
   'journey.studio.stickerTheme.ephemera': 'Rzeczy z podróży',
   'journey.studio.stickerTheme.landmarks': 'Zabytki',
   'journey.studio.stickerTheme.tropical': 'Tropiki',

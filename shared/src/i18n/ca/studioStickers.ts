@@ -16,7 +16,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Emmiralla',
   'journey.studio.stickerTurnLeft': 'Gira a l’esquerra',
   'journey.studio.stickerTurnRight': 'Gira a la dreta',
-  'assistant.step.bookStickers': 'Repassant els adhesius',
   'journey.studio.stickerTheme.ephemera': 'Coses de viatge',
   'journey.studio.stickerTheme.landmarks': 'Monuments',
   'journey.studio.stickerTheme.tropical': 'Tròpic',

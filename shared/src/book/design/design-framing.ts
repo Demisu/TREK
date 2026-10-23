@@ -18,6 +18,9 @@ import {
   textEl,
   type ComposeCtx,
 } from './design-compose';
+import { composeArchetypeCover, lockupCover } from './design-cover';
+import type { CoverMaterial } from './design-cover-kit';
+import { titleWords, type CoverWords } from './design-cover-words';
 import { paperBackground } from './design-style';
 
 /**
@@ -36,24 +39,22 @@ const single = (c: ComposeCtx, role: BookSpread['role'], elements: BookElement[]
   entryId: null,
 });
 
-/** A title the journey owns, bound to it, or the person's own words, not bound. */
-function titleWords(own: string | undefined, journey: string): { words: string; bound: boolean } {
-  return own !== undefined && own.trim() ? { words: own, bound: false } : { words: journey, bound: true };
-}
-
-interface CoverWords {
-  title: string;
-  subtitle: string | null;
-  ownTitle?: string;
-  ownSubtitle?: string;
-}
-
 /**
  * The cover: a photo to the bleed with the title on a scrim at its foot, or
  * the title alone on the paper. The title starts at the display size and is
- * set smaller only as far as its box needs.
+ * set smaller only as far as its box needs. An archetype the directives name
+ * composes the cover instead (design-cover.ts), from `more`, the photos and
+ * entries the book holds; a lockup without one sets the title on the scrim.
  */
-export function composeCover(c: ComposeCtx, words: CoverWords, photo: AutoPhoto | null): BookSpread {
+export function composeCover(
+  c: ComposeCtx,
+  words: CoverWords,
+  photo: AutoPhoto | null,
+  more: CoverMaterial = { photos: photo ? [photo] : [], entries: [] },
+): BookSpread {
+  const archetype = c.directives.cover?.archetype;
+  if (archetype) return composeArchetypeCover(c, archetype, words, more);
+  if (c.directives.cover?.lockup) return lockupCover(c, words, more);
   const { pageWidth: PW, pageHeight: H, bleed: b, margin: m } = c.grid;
   const els: BookElement[] = [];
   const title = titleWords(words.ownTitle, words.title);

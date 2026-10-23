@@ -16,7 +16,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Specchia',
   'journey.studio.stickerTurnLeft': 'Ruota a sinistra',
   'journey.studio.stickerTurnRight': 'Ruota a destra',
-  'assistant.step.bookStickers': 'Sta guardando gli adesivi',
   'journey.studio.stickerTheme.ephemera': 'Oggetti di viaggio',
   'journey.studio.stickerTheme.landmarks': 'Monumenti',
   'journey.studio.stickerTheme.tropical': 'Tropici',

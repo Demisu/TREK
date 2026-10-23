@@ -15,7 +15,10 @@
  * stale version, and forgets the draft; a journey without a book gets a new
  * one and no revision; restoring the revision puts the book back only at the
  * version the apply left, and never writes a revision that does not read
- * back or that a newer TREK kept; five revisions are kept.
+ * back or that a newer TREK kept; five revisions are kept; a design made
+ * with a brief composes its archetype cover and is decorated from the sticker
+ * library the service hands the engine, and a page of it revised later is
+ * judged against that brief.
  */
 import { JourneyBookRevisions } from '../../../../src/db/entities/JourneyBookRevisions.entity';
 import { JourneyEntryPhotos } from '../../../../src/db/entities/JourneyEntryPhotos.entity';
@@ -40,6 +43,7 @@ import {
   bookDesignApplyResultSchema,
   type BookDesignAnswer,
 } from '@trek/shared';
+import { BOOK_STICKERS } from '@trek/shared/stickers';
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
@@ -366,5 +370,51 @@ describe('taking a design back', () => {
     expect(kept.every((id) => typeof id === 'number')).toBe(true);
     expect(await countRows(orm, JourneyBookRevisions, { journey: journey.id })).toBe(5);
     expect(await findRow(orm, JourneyBookRevisions, { id: kept[0] ?? 0 })).toBeNull();
+  });
+});
+
+describe('the art direction', () => {
+  it('JBDSN-012: design_book composes the archetype cover and decorates from the theme motifs of the library', async () => {
+    const { journey, owner } = await crew();
+    const directives = { brief: { energy: 'loud' as const, decoration: 'rich' as const, theme: 'tropical' as const } };
+    const answer = await designs.design(journey.id, owner.id, { ...directives, cover: { archetype: 'poster-pop' } });
+
+    expect(answer.style.style).toBe('tropical');
+    const { document } = await designs.draftView(journey.id, owner.id, answer.design_id);
+    expect(document.theme?.id).toBe('tropical');
+    const cover = document.spreads[0];
+    expect(cover?.elements.some((e) => e.kind === 'shape' && e.shape === 'sunburst-24')).toBe(true);
+    const tropical = new Set(BOOK_STICKERS.filter((s) => s.theme === 'tropical').map((s) => s.id));
+    const stickers = document.spreads.flatMap((s) => s.elements).flatMap((e) => (e.kind === 'sticker' ? [e] : []));
+    expect(stickers.length).toBeGreaterThanOrEqual(3);
+    expect(stickers.every((s) => tropical.has(s.stickerId))).toBe(true);
+    expect(answer.findings.filter((f) => f.severity === 'severe')).toEqual([]);
+  });
+
+  it('JBDSN-013: a revised page of a design made with a brief is judged against it; one made without is not', async () => {
+    const { journey, owner } = await crew();
+    const framing = new Set(['cover', 'first', 'closing', 'last', 'back']);
+    const photoPage = (answer: BookDesignAnswer) =>
+      answer.plan.find((row) => row.photoIds.length > 0 && !framing.has(row.beat))?.spreadId ?? '';
+    const sticker = [
+      { op: 'add' as const, element: { kind: 'sticker' as const, stickerId: BOOK_STICKERS[0]?.id ?? '' } },
+    ];
+    // Decoration none: a sticker on a photo page is more than the brief asked for.
+    const bare = await designs.design(journey.id, owner.id, { brief: { decoration: 'none' } });
+    const page = photoPage(bare);
+    expect(page).not.toBe('');
+    const revised = await designs.revise(journey.id, owner.id, {
+      designId: bare.design_id,
+      spreadId: page,
+      ops: sticker,
+    });
+    expect(revised.findings).toContainEqual(expect.objectContaining({ code: 'energy_mismatch', severity: 'info' }));
+    const plain = await designs.design(journey.id, owner.id, {});
+    const free = await designs.revise(journey.id, owner.id, {
+      designId: plain.design_id,
+      spreadId: photoPage(plain),
+      ops: sticker,
+    });
+    expect(free.findings.map((f) => f.code)).not.toContain('energy_mismatch');
   });
 });

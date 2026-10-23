@@ -1,6 +1,7 @@
 /**
- * list_book_assets and the sticker kind (JBASSET-*): the Studio's sticker
- * library searched through JourneyBookMcp, and a sticker placed with
+ * list_book_assets (JBASSET-*): the Studio's catalogues searched through
+ * JourneyBookMcp, the sticker library and the shapes, faces, lockups, themes
+ * and patterns beside it, and a sticker placed with
  * edit_book_page from the library the edit context hands the engine. Taken
  * from JourneyBookModule over a snapshot test db.
  *
@@ -21,7 +22,7 @@ import { makeUser } from '../../helpers/factories/users';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
 import { createTestOrm, type TestOrm } from '../../helpers/test-orm';
-import { bookOverviewSchema, bookWriteResultSchema } from '@trek/shared';
+import { bookOverviewSchema, bookWriteResultSchema, type ListBookAssetsRequest } from '@trek/shared';
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -97,6 +98,41 @@ describe('list_book_assets', () => {
     await expect(mcp.listAssets({ journeyId: journey.id, kind: 'sticker' }, ctx(stranger.id))).rejects.toThrow(
       'Journey not found',
     );
+  });
+
+  it('JBASSET-005: lists the shapes, faces, lockups, themes and patterns too, each row an id, a line and its tags', async () => {
+    const { user: owner } = await makeUser(orm);
+    const journey = await makeJourney(orm, owner.id);
+    const list = async (args: ListBookAssetsRequest) =>
+      json(await mcp.listAssets({ journeyId: journey.id, ...args }, ctx(owner.id)));
+
+    const arches = await list({ kind: 'shape', query: 'arch', limit: 3 });
+    expect(arches).toMatchObject({ kind: 'shape', rows: [{ id: 'arch' }, {}, {}] });
+    expect(arches.total).toBeGreaterThan(3);
+    expect(arches.rows[0]).toMatchObject({ frame: true, edges: true, tags: expect.arrayContaining(['basic']) });
+    const scripts = await list({ kind: 'font', tags: ['script'] });
+    expect(scripts.rows.length).toBeGreaterThanOrEqual(10);
+    expect(scripts.rows.every((r: { tags: string[] }) => r.tags.includes('script'))).toBe(true);
+    const badge = await list({ kind: 'lockup', query: 'postmark' });
+    expect(badge.rows[0]).toMatchObject({ id: 'postmark', words: expect.arrayContaining(['place', 'dates']) });
+    const themes = await list({ kind: 'theme', query: 'tropical' });
+    const tropical = themes.rows.find((r: { id: string }) => r.id === 'tropical');
+    expect(tropical).toMatchObject({ palette: { paper: expect.any(String) }, fonts: { display: expect.any(String) } });
+    const patterns = await list({ kind: 'pattern' });
+    expect(patterns.rows.map((r: { id: string }) => r.id)).toContain('gingham');
+    // A theme narrows stickers only; the other kinds pay it no heed.
+    expect((await list({ kind: 'pattern', theme: 'paper' })).total).toBe(patterns.total);
+  });
+
+  it('JBASSET-006: says what each kind lists, and that templates are list_book_layouts', () => {
+    const entry = getEntry(JourneyBookMcp as unknown as ClassRef, 'listAssets');
+    if (entry?.kind !== 'tool') throw new Error('listAssets is no tool');
+    const description = entry.options.description ?? '';
+    for (const kind of ['kind sticker', 'kind shape', 'kind font', 'kind lockup', 'kind theme', 'kind pattern']) {
+      expect(description).toContain(kind);
+    }
+    expect(description).toContain("Templates are list_book_layouts'");
+    expect(description).not.toMatch(/[\u2013\u2014]/);
   });
 });
 

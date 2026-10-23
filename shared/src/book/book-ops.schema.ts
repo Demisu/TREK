@@ -549,6 +549,10 @@ export const BOOK_FINDING_CODES = [
   'edge_unused',
   'curve_overflow',
   'effect_heavy',
+  'flat_cover',
+  'weak_hierarchy',
+  'off_theme',
+  'energy_mismatch',
 ] as const;
 export type BookFindingCode = (typeof BOOK_FINDING_CODES)[number];
 

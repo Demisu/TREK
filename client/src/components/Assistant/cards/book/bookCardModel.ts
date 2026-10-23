@@ -63,6 +63,10 @@ const FINDING_LOOK: Readonly<Record<BookFindingCode, { labelKey: string }>> = {
   edge_unused: { labelKey: 'assistant.card.book.finding.edge_unused' },
   curve_overflow: { labelKey: 'assistant.card.book.finding.curve_overflow' },
   effect_heavy: { labelKey: 'assistant.card.book.finding.effect_heavy' },
+  flat_cover: { labelKey: 'assistant.card.book.finding.flat_cover' },
+  weak_hierarchy: { labelKey: 'assistant.card.book.finding.weak_hierarchy' },
+  off_theme: { labelKey: 'assistant.card.book.finding.off_theme' },
+  energy_mismatch: { labelKey: 'assistant.card.book.finding.energy_mismatch' },
 };
 
 /** A page as the Studio names it: the cover, the first page, double page 3. */

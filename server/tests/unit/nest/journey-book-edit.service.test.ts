@@ -229,6 +229,15 @@ describe('editing a page', () => {
     expect(sent()).toEqual(saved(everyone));
   });
 
+  it('JBEDIT-016: an edit answers whether the page reads as designed: a cover with a small title alone is flat', async () => {
+    const { journey, editor, cover } = await crew();
+    const answer = await edit.editPage(journey.id, editor.id, {
+      spreadId: cover,
+      ops: [{ op: 'text', role: 'heading', text: 'Lisbon', size: 24 }],
+    });
+    expect(answer.findings).toContainEqual(expect.objectContaining({ code: 'flat_cover', severity: 'warn' }));
+  });
+
   it('JBEDIT-005: previous_spreads holds the page as it was, only when the call asks for it', async () => {
     const { journey, owner, inner } = await crew();
     const photo = await galleryPhoto(journey.id, owner.id);

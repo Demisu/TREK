@@ -12,6 +12,7 @@ import type {
   BookShapeElement,
   BookTextElement,
 } from '../book.schema';
+import type { DesignArt } from './design-art';
 import type { BookDesignDirectives } from './design-directives.schema';
 import { dpiIn } from './design-photos';
 import type { BookDesignGrid, BookDesignLook } from './design-style';
@@ -38,6 +39,8 @@ export interface ComposeCtx {
   travel: BookTravelContext;
   directives: BookDesignDirectives;
   notes: string[];
+  /** The brief's art direction (design-art.ts); a context without one composes calm. */
+  art?: DesignArt;
 }
 
 export type Side = 'left' | 'right' | 'single';

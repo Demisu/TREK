@@ -15,7 +15,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': '좌우 반전',
   'journey.studio.stickerTurnLeft': '왼쪽으로 회전',
   'journey.studio.stickerTurnRight': '오른쪽으로 회전',
-  'assistant.step.bookStickers': '스티커를 살펴보는 중',
   'journey.studio.stickerTheme.ephemera': '여행 소품',
   'journey.studio.stickerTheme.landmarks': '명소',
   'journey.studio.stickerTheme.tropical': '열대',

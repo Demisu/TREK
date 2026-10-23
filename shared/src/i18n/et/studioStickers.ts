@@ -15,7 +15,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Peegelda',
   'journey.studio.stickerTurnLeft': 'Pööra vasakule',
   'journey.studio.stickerTurnRight': 'Pööra paremale',
-  'assistant.step.bookStickers': 'Vaatab kleebiseid',
   'journey.studio.stickerTheme.ephemera': 'Reisiasjad',
   'journey.studio.stickerTheme.landmarks': 'Vaatamisväärsused',
   'journey.studio.stickerTheme.tropical': 'Troopika',

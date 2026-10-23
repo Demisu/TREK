@@ -1,10 +1,5 @@
 import type { BookElement, BookFrame, BookPageSetup, BookStickerElement } from './book.schema';
-import {
-  BOOK_STICKER_THEMES,
-  type BookStickerDef,
-  type BookStickerLayer,
-  type BookStickerSlot,
-} from './stickers/sticker-types';
+import type { BookStickerDef, BookStickerLayer, BookStickerSlot } from './stickers/sticker-types';
 
 import { z } from 'zod';
 
@@ -119,27 +114,3 @@ export const bookStickerIdSchema = z
   .regex(BOOK_STICKER_ID_PATTERN, 'expected a sticker id')
   .max(MAX_STICKER_ID)
   .describe('A sticker of the Studio library by id, as list_book_assets names it: hibiscus, eiffelTower, washiDots.');
-
-/** The asset kinds list_book_assets answers for. Stickers for now; fonts, themes and templates join it later. */
-export const BOOK_ASSET_KINDS = ['sticker'] as const;
-
-/** `list_book_assets`: search the Studio's catalogue of things to put on a page. */
-export const listBookAssetsArgs = {
-  kind: z.enum(BOOK_ASSET_KINDS).describe('What to list: sticker, the illustrations of the Studio library.'),
-  query: z
-    .string()
-    .trim()
-    .max(80)
-    .optional()
-    .describe('Words to search the ids, tags and descriptions by, such as lemon, paris or washi tape.'),
-  tags: z.array(z.string().trim().min(1).max(40)).max(8).optional().describe('Tags every result must carry.'),
-  theme: z
-    .enum(BOOK_STICKER_THEMES)
-    .optional()
-    .describe(
-      'Only stickers of this theme: ephemera, landmarks, tropical, mediterranean, sea, mountains, nordic, asia, food, paper, doodles or ornaments.',
-    ),
-  limit: z.number().int().min(1).max(40).optional().describe('At most this many rows, 40 by default.'),
-};
-export const listBookAssetsRequestSchema = z.strictObject(listBookAssetsArgs);
-export type ListBookAssetsRequest = z.infer<typeof listBookAssetsRequestSchema>;

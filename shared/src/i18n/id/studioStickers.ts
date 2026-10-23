@@ -16,7 +16,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Cerminkan',
   'journey.studio.stickerTurnLeft': 'Putar ke kiri',
   'journey.studio.stickerTurnRight': 'Putar ke kanan',
-  'assistant.step.bookStickers': 'Melihat-lihat stiker',
   'journey.studio.stickerTheme.ephemera': 'Barang perjalanan',
   'journey.studio.stickerTheme.landmarks': 'Landmark terkenal',
   'journey.studio.stickerTheme.tropical': 'Tropis',

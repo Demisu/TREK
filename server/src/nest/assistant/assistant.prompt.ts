@@ -1,4 +1,5 @@
 import { BOOK_DESIGN_PROMPT } from './assistant-book-design.prompt';
+import { BOOK_RECIPES_PROMPT } from './assistant-book-recipes.prompt';
 import { CARD_PROMPT_LINES } from './cards/registry';
 
 /**
@@ -78,12 +79,13 @@ const READER_PHOTO_SOURCES = 'the book or suggest_book_photos';
 
 /**
  * The Studio's standing instructions, telling the model which language to
- * answer in. The designer's rules and the design draft come only with the
- * right to change the book, as the design's tools do; each of the two
- * variants is the same text every turn, so the provider's cache holds.
+ * answer in. The art director's index and recipes, the designer's rules and
+ * the design draft come only with the right to change the book, as the
+ * design's tools do; each of the two variants is the same text every turn,
+ * so the provider's cache holds.
  */
 export function studioPrompt(language: string, canWrite: boolean): string {
   const sources = canWrite ? WRITER_PHOTO_SOURCES : READER_PHOTO_SOURCES;
   const base = STUDIO_INSTRUCTIONS.replace('{language}', language).replace('{photoSources}', sources);
-  return canWrite ? `${base}\n\n${BOOK_DESIGN_PROMPT}` : base;
+  return canWrite ? `${base}\n\n${BOOK_RECIPES_PROMPT}\n\n${BOOK_DESIGN_PROMPT}` : base;
 }

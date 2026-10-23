@@ -15,7 +15,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'عكس أفقي',
   'journey.studio.stickerTurnLeft': 'تدوير لليسار',
   'journey.studio.stickerTurnRight': 'تدوير لليمين',
-  'assistant.step.bookStickers': 'يتصفح الملصقات',
   'journey.studio.stickerTheme.ephemera': 'أغراض السفر',
   'journey.studio.stickerTheme.landmarks': 'معالم شهيرة',
   'journey.studio.stickerTheme.tropical': 'استوائي',

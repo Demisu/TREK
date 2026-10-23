@@ -16,7 +16,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Tükrözés',
   'journey.studio.stickerTurnLeft': 'Forgatás balra',
   'journey.studio.stickerTurnRight': 'Forgatás jobbra',
-  'assistant.step.bookStickers': 'Átnézi a matricákat',
   'journey.studio.stickerTheme.ephemera': 'Úti holmik',
   'journey.studio.stickerTheme.landmarks': 'Nevezetességek',
   'journey.studio.stickerTheme.tropical': 'Trópusok',

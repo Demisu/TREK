@@ -25,9 +25,11 @@ import {
   BOOK_DESIGN_LIMITS,
   BOOK_OP_LIMITS,
   bookPageSetupForPreset,
+  briefFindings,
   describeSpread,
   designBook,
   normalizeBookDocument,
+  pageArtFindings,
   sortBookFindings,
   spreadFindings,
   summarizeSpread,
@@ -49,6 +51,7 @@ import {
   type RestoreBookRevisionRequest,
   type ReviseBookDesignRequest,
 } from '@trek/shared';
+import { BOOK_STICKERS } from '@trek/shared/stickers';
 
 import { randomUUID } from 'node:crypto';
 
@@ -109,11 +112,13 @@ export class JourneyBookDesignService {
       selection: result.plan
         .filter((row) => row.action !== 'keep' && (row.action !== 'drop' || freshBook))
         .map((row) => row.spreadId),
-      style: { style: directives.style ?? 'classic', ...result.style },
+      // The brief's theme takes the place of the style, as the engine reads it.
+      style: { style: directives.brief?.theme ?? directives.style ?? 'classic', ...result.style },
       usedPhotos: result.photos.used.length,
       leftOut: result.photos.left_out,
       findings: result.findings,
       notes: result.notes,
+      ...(result.brief ? { brief: result.brief } : {}),
       expiresAt: Date.now() + BOOK_DESIGN_DRAFTS.ttlMs,
     };
     await this.drafts.put(draft);
@@ -142,7 +147,9 @@ export class JourneyBookDesignService {
     const index = made.doc.spreads.findIndex((s) => s.id === args.spreadId);
     const spread = made.doc.spreads[index];
     if (!described || !spread) throw new DomainError(404, `No page ${args.spreadId} in this design`);
-    const findings = described.findings;
+    // The page judged against the design's brief too: its stickers and turns as the energy asked.
+    const brief = draft.brief ? briefFindings(made.doc, draft.brief, { only: [args.spreadId] }) : [];
+    const findings = sortBookFindings([...described.findings, ...brief]);
     const count = (severity: 'severe' | 'warn') => findings.filter((f) => f.severity === severity).length;
     const plan = draft.plan.map((row): BookDesignPlanRow =>
       row.spreadId === args.spreadId
@@ -347,6 +354,8 @@ export class JourneyBookDesignService {
       candidates,
       photos,
       gallery: facts.map((f) => ({ photoId: f.photo_id, width: f.width, height: f.height, caption: f.caption })),
+      // The sticker library's facts, for the stickers a decorated design places.
+      stickers: BOOK_STICKERS,
     };
   }
 }
@@ -384,7 +393,12 @@ function pagesAnswer(record: BookRecord, spreadIds: readonly string[]): BookWrit
   const doc = record.document;
   const named = new Set(spreadIds);
   const pages = doc.spreads.flatMap((s, i) => (named.has(s.id) ? [{ spread: s, index: i }] : []));
-  const findings = sortBookFindings(pages.flatMap(({ spread }) => spreadFindings(spread, doc.page)));
+  const findings = sortBookFindings(
+    pages.flatMap(({ spread }) => [
+      ...spreadFindings(spread, doc.page),
+      ...pageArtFindings(spread, doc.page, doc.theme),
+    ]),
+  );
   return {
     version: record.version,
     spread_ids: pages.map(({ spread }) => spread.id),

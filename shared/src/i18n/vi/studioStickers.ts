@@ -15,7 +15,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Lật ngang',
   'journey.studio.stickerTurnLeft': 'Xoay trái',
   'journey.studio.stickerTurnRight': 'Xoay phải',
-  'assistant.step.bookStickers': 'Đang xem các nhãn dán',
   'journey.studio.stickerTheme.ephemera': 'Đồ du lịch',
   'journey.studio.stickerTheme.landmarks': 'Danh thắng',
   'journey.studio.stickerTheme.tropical': 'Nhiệt đới',

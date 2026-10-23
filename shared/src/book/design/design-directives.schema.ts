@@ -4,6 +4,13 @@ import { bookCoverTemplateIdSchema } from '../book-ops.schema';
 import { MAX_BOOK_TITLE } from '../book.schema';
 import { bookThemeCatalogue } from '../theme/book-theme-describe';
 import { BOOK_THEME_IDS } from '../theme/book-theme.schema';
+import {
+  MAX_BOOK_DESIGN_OVERRIDES,
+  bookCoverArchetypeSchema,
+  bookCoverLockupSchema,
+  bookDesignBriefSchema,
+  bookDesignPageOverrideSchema,
+} from './design-brief.schema';
 
 import { z } from 'zod';
 
@@ -43,8 +50,20 @@ export const bookDesignDirectivesSchema = z.strictObject({
     .enum(['airy', 'balanced', 'rich'])
     .describe('Photos per spread: airy 1 to 2, balanced 2 to 4, rich 4 to 6.')
     .default('balanced'),
-  /** Inner spreads, the covers and the first and last page not counted. */
-  pages: z.strictObject({ min: pageCount.optional(), max: pageCount.optional() }).optional(),
+  /** The art direction (design-brief.schema.ts): energy, decoration, collages and the theme. */
+  brief: bookDesignBriefSchema.optional(),
+  /** Inner spreads, the covers and the first and last page not counted; `overrides` recompose single pages. */
+  pages: z
+    .strictObject({
+      min: pageCount.optional(),
+      max: pageCount.optional(),
+      overrides: z
+        .array(bookDesignPageOverrideSchema)
+        .max(MAX_BOOK_DESIGN_OVERRIDES)
+        .describe('Pages of the plan given another beat or layout, by index.')
+        .optional(),
+    })
+    .optional(),
   scope: z.strictObject({ entryIds: ids200.optional(), from: isoDate.optional(), to: isoDate.optional() }).optional(),
   chapters: z
     .enum(['entry', 'day', 'place'])
@@ -66,6 +85,8 @@ export const bookDesignDirectivesSchema = z.strictObject({
   cover: z
     .strictObject({
       template: bookCoverTemplateIdSchema.optional(),
+      archetype: bookCoverArchetypeSchema.optional(),
+      lockup: bookCoverLockupSchema.optional(),
       title: z.string().max(MAX_BOOK_TITLE).optional(),
       subtitle: z.string().max(MAX_BOOK_TITLE).optional(),
     })

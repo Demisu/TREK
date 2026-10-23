@@ -3,6 +3,7 @@ import type { BookPhotoInfo } from '../book-ops-core';
 import { bookEntryListItems } from '../book-travel';
 import type { BookPageSetup } from '../book.schema';
 import { pickBookPhotos, type PhotoPickCandidate } from '../photo-pick';
+import { BOOK_DESIGN_LIVELY_BEATS } from './design-brief.schema';
 import type { BookDesignDirectives } from './design-directives.schema';
 import { burstOf, heroWorthy, isPanorama, pickEntriesOf, type BookDesignLeftOut } from './design-photos';
 
@@ -12,7 +13,8 @@ import { burstOf, heroWorthy, isPanorama, pickEntriesOf, type BookDesignLeftOut 
  * words that run long, two, three or a grid of photos, a burst as one grid, a
  * panorama), paced so the book breathes: never one photo beat three times
  * running, a loud spread followed by a calm one, at most one hero in four
- * spreads.
+ * spreads. A lively or loud book makes some of them lively afterwards
+ * (design-lively-pacing.ts).
  */
 
 export const BOOK_DESIGN_BEATS = [
@@ -33,6 +35,7 @@ export const BOOK_DESIGN_BEATS = [
   'closing',
   'last',
   'back',
+  ...BOOK_DESIGN_LIVELY_BEATS,
 ] as const;
 export type BookDesignBeat = (typeof BOOK_DESIGN_BEATS)[number];
 

@@ -16,7 +16,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Κατοπτρισμός',
   'journey.studio.stickerTurnLeft': 'Στροφή αριστερά',
   'journey.studio.stickerTurnRight': 'Στροφή δεξιά',
-  'assistant.step.bookStickers': 'Κοιτάζει τα αυτοκόλλητα',
   'journey.studio.stickerTheme.ephemera': 'Ταξιδιωτικά',
   'journey.studio.stickerTheme.landmarks': 'Αξιοθέατα',
   'journey.studio.stickerTheme.tropical': 'Τροπικά',

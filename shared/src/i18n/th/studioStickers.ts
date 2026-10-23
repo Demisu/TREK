@@ -15,7 +15,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'กลับด้านซ้ายขวา',
   'journey.studio.stickerTurnLeft': 'หมุนไปทางซ้าย',
   'journey.studio.stickerTurnRight': 'หมุนไปทางขวา',
-  'assistant.step.bookStickers': 'กำลังดูสติกเกอร์',
   'journey.studio.stickerTheme.ephemera': 'ของใช้เดินทาง',
   'journey.studio.stickerTheme.landmarks': 'สถานที่สำคัญ',
   'journey.studio.stickerTheme.tropical': 'เขตร้อน',

@@ -61,7 +61,7 @@ export class JourneyBookDesignMcp {
 
   @Tool({
     name: 'design_book',
-    description: `Design the whole photo book of a journey as a draft: chapters, pacing, the pages, the photos picked for each, type and colours, with the engine's own check run on every page and repaired where it can. directives says what the person wants (style, density, page count, scope, chapters, photos, cover, type, palette, words, travel pages, what to keep). It answers the draft's design_id, the plan page by page (what each page becomes and its findings), the look, the photos left out and why, and the findings left. ${DRAFT_FLOW} ${LIMITS} Only the book's owner and editors can design it.`,
+    description: `Design the whole photo book of a journey as a draft: chapters, pacing, the pages, the photos picked for each, type and colours, with the engine's own check run on every page and repaired where it can. directives says what the person wants (style, density, page count, scope, chapters, photos, cover, type, palette, words, travel pages, what to keep) and the art direction: the brief (energy, decoration, collages, theme), the cover's archetype and lockup, and pages.overrides giving single pages of the plan another beat or layout. It answers the draft's design_id, the plan page by page (what each page becomes and its findings), the look, the photos left out and why, and the findings left. ${DRAFT_FLOW} ${LIMITS} Only the book's owner and editors can design it.`,
     inputSchema: { journeyId: idSchema, ...designBookArgs },
     annotations: TOOL_ANNOTATIONS_READONLY,
     when: journeyAddonOn,

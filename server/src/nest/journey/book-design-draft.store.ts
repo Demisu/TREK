@@ -1,6 +1,13 @@
 import { DomainError } from '../common/domain-error';
 import { Injectable } from '@nestjs/common';
-import type { BookDesignLeftOut, BookDesignPlanRow, BookDesignStyleOut, BookDocument, BookFinding } from '@trek/shared';
+import type {
+  BookBriefArt,
+  BookDesignLeftOut,
+  BookDesignPlanRow,
+  BookDesignStyleOut,
+  BookDocument,
+  BookFinding,
+} from '@trek/shared';
 
 /**
  * Whole-book designs waiting for the person's yes (journey-studio-wp13.md
@@ -38,6 +45,8 @@ export interface BookDesignDraft {
   leftOut: BookDesignLeftOut[];
   findings: BookFinding[];
   notes: string[];
+  /** The brief the design was made against, so a revised page is judged by it too; none for a design without one. */
+  brief?: BookBriefArt;
   /** Epoch milliseconds. */
   expiresAt: number;
 }

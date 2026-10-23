@@ -16,7 +16,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Віддзеркалити',
   'journey.studio.stickerTurnLeft': 'Повернути ліворуч',
   'journey.studio.stickerTurnRight': 'Повернути праворуч',
-  'assistant.step.bookStickers': 'Переглядає наліпки',
   'journey.studio.stickerTheme.ephemera': 'Дорожні речі',
   'journey.studio.stickerTheme.landmarks': 'Пам’ятки',
   'journey.studio.stickerTheme.tropical': 'Тропіки',

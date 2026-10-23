@@ -15,7 +15,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Zrcadlit',
   'journey.studio.stickerTurnLeft': 'Otočit doleva',
   'journey.studio.stickerTurnRight': 'Otočit doprava',
-  'assistant.step.bookStickers': 'Prochází samolepky',
   'journey.studio.stickerTheme.ephemera': 'Cestovní věci',
   'journey.studio.stickerTheme.landmarks': 'Památky',
   'journey.studio.stickerTheme.tropical': 'Tropy',

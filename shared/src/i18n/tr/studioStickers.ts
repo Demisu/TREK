@@ -16,7 +16,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Aynala',
   'journey.studio.stickerTurnLeft': 'Sola döndür',
   'journey.studio.stickerTurnRight': 'Sağa döndür',
-  'assistant.step.bookStickers': 'Çıkartmalara bakıyor',
   'journey.studio.stickerTheme.ephemera': 'Seyahat eşyaları',
   'journey.studio.stickerTheme.landmarks': 'Simge yapılar',
   'journey.studio.stickerTheme.tropical': 'Tropikal',

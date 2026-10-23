@@ -1,5 +1,5 @@
 /**
- * FE-AI-BOOKPAGE-010 to FE-AI-BOOKPAGE-016
+ * FE-AI-BOOKPAGE-010 to FE-AI-BOOKPAGE-017
  *
  * The pure side of the book's page card: a page named as the Studio names
  * it, a layout and a finding by their words, the findings worth a look, the
@@ -8,7 +8,7 @@
  * the card carries it and the book is still at the trial's version), and
  * where an applied change opens the Studio.
  */
-import { blankBook, blankSpread, type BookCardPage, type BookPageCard } from '@trek/shared';
+import { BOOK_FINDING_CODES, blankBook, blankSpread, type BookCardPage, type BookPageCard } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -93,6 +93,15 @@ describe('bookCardModel', () => {
     const named = distinctFindings(card({ findings }));
     expect(named.map((finding) => finding.code)).toEqual(['overlap', 'low_dpi', 'parked']);
     expect(findingLabel({ code: 'low_dpi', severity: 'warn' }, t)).toBe('assistant.card.book.finding.low_dpi');
+  });
+
+  it('FE-AI-BOOKPAGE-017: every finding the checks answer with has its words, the art checks among them', () => {
+    for (const code of BOOK_FINDING_CODES) {
+      expect(findingLabel({ code, severity: 'info' }, t)).toBe(`assistant.card.book.finding.${code}`);
+    }
+    for (const code of ['flat_cover', 'weak_hierarchy', 'off_theme', 'energy_mismatch'] as const) {
+      expect(BOOK_FINDING_CODES).toContain(code);
+    }
   });
 
   it('FE-AI-BOOKPAGE-013: a waiting edit or cover draws before and after; a move alone, a delete each page alone; new pages, other books and failures none', () => {

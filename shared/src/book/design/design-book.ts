@@ -1,5 +1,6 @@
 import { buildBook, distributeGallery } from '../auto/auto-book';
 import type { AutoEntry, AutoInput, AutoPhoto } from '../auto/auto-types';
+import { briefFindings, type BookBriefArt } from '../book-findings-art';
 import { bookLevelFindings, sortBookFindings } from '../book-findings-design';
 import { withRealWeight } from '../book-fonts';
 import { bookElementId } from '../book-ids';
@@ -10,7 +11,9 @@ import type { BookTravelContext } from '../book-travel';
 import { MAX_BOOK_TITLE, MAX_SPREADS, type BookDocument, type BookPageSetup, type BookSpread } from '../book.schema';
 import { pageFindings } from '../describe-spread';
 import type { PhotoPickCandidate } from '../photo-pick';
+import { designArt, livelyLook, type BookDesignSticker } from './design-art';
 import type { ComposeCtx } from './design-compose';
+import type { CoverMaterial } from './design-cover-kit';
 import {
   bookDesignDirectivesSchema,
   type BookDesignDirectives,
@@ -18,7 +21,9 @@ import {
 } from './design-directives.schema';
 import { composeBack, composeCover, composeTitlePage, stationsPerSpread } from './design-framing';
 import { composeDesignedInner, type FramingNeeds } from './design-inner';
+import { isLivelyBeat } from './design-lively-pacing';
 import { keepsStored, mergeDesign, type BookDesignPlanRow, type DesignedSpread } from './design-merge';
+import { applyPageOverrides } from './design-overrides';
 import type { BookDesignBeat } from './design-pacing';
 import { choosePhotos, type BookDesignLeftOut } from './design-photos';
 import { repairSpread } from './design-repair';
@@ -35,6 +40,13 @@ import { themeDesignedSpread, unlinkDrifted } from './design-theme';
  * every other design composes the book from chapters, pacing, a page
  * grid, the photos' own palette and type, repairs every page against the
  * findings and answers what is left.
+ *
+ * The art direction (design-brief.schema.ts) shapes it further: a cover
+ * composed on its archetype (design-cover.ts), lively spreads and stickers
+ * for a lively or loud book (design-lively-pacing.ts, design-stickers.ts),
+ * single pages of the plan recomposed (design-overrides.ts), and the book
+ * judged against its brief (book-findings-art.ts). A design asked for none of
+ * it is composed exactly as before.
  */
 
 export interface BookDesignInput extends AutoInput {
@@ -47,6 +59,11 @@ export interface BookDesignInput extends AutoInput {
   distanceLabel?: string;
   prosLabel?: string;
   consLabel?: string;
+  /**
+   * The sticker library's facts (`BOOK_STICKERS` of `@trek/shared/stickers`),
+   * for the stickers a decorated design places; without it nothing is stuck on.
+   */
+  stickers?: readonly BookDesignSticker[];
 }
 
 export interface BookDesignResult {
@@ -62,6 +79,8 @@ export interface BookDesignResult {
    * fit a page, so a reader keeping only the first few keeps what matters most.
    */
   notes: string[];
+  /** The brief the book was designed against, so a page revised later is judged by it; none without a brief. */
+  brief?: BookBriefArt;
 }
 
 /** The entries the directives' scope names, in the order they came. */
@@ -97,7 +116,7 @@ function pageFor(doc: BookDocument | null, input: BookDesignInput, directives: B
  * is dropped without a word. Scope, keep, format and seed the Auto path honours.
  */
 function classicOnly(d: BookDesignDirectives): boolean {
-  if (d.style !== 'classic' || d.photos || d.palette || d.type) return false;
+  if (d.style !== 'classic' || d.photos || d.palette || d.type || d.brief) return false;
   if (d.pages || d.cover || d.text || d.travel) return false;
   return d.chapters === 'entry' && d.density === 'balanced';
 }
@@ -208,7 +227,7 @@ export function designBook(
   input: BookDesignInput,
   raw: BookDesignDirectivesInput,
 ): BookDesignResult {
-  const directives = bookDesignDirectivesSchema.parse(raw);
+  const directives = withBriefTheme(bookDesignDirectivesSchema.parse(raw));
   const entries = inScope(input.entries, directives.scope);
   if (classicOnly(directives)) return classicDesign(doc, input, directives, entries);
 
@@ -219,7 +238,10 @@ export function designBook(
   const choice = choosePhotos(placed, input.candidates, directives, input.photos);
   const usedPhotos = [...choice.byEntry.values()].flat();
   const usedInfos = input.photos.filter((p) => usedPhotos.some((u) => u.photoId === p.photoId));
-  const look = designLook(directives, page, usedInfos);
+  const plain = designLook(directives, page, usedInfos);
+  const art = designArt(directives, plain.theme, input.stickers);
+  // A lively or loud book turns and frames its prints and sets its cover title larger.
+  const look = livelyLook(plain, art, directives);
   const c: ComposeCtx = {
     look,
     page,
@@ -230,6 +252,7 @@ export function designBook(
     travel: travelOf(input, placed),
     directives,
     notes: [],
+    art,
   };
   const needs: FramingNeeds = { room: roomFor(doc, directives.keep), perStations: stationsPerSpread(c) };
   const inner = composeDesignedInner(c, placed, choice, input, needs);
@@ -244,7 +267,12 @@ export function designBook(
   const titlePage = TITLE_PAGE_STYLES.has(directives.style);
   const first = titlePage ? composeTitlePage(c, words, placed) : blank(c, 'first');
   const framing: DesignedSpread[] = [
-    { spread: composeCover(c, words, cover), beat: 'cover', chapter: null, findings: [] },
+    {
+      spread: composeCover(c, words, cover, coverMaterial(cover, usedPhotos, placed)),
+      beat: 'cover',
+      chapter: null,
+      findings: [],
+    },
     { spread: first, beat: 'first', chapter: null, findings: [] },
   ];
   const closing: DesignedSpread[] = [
@@ -252,25 +280,39 @@ export function designBook(
     { spread: composeBack(c, words, placed), beat: 'back', chapter: null, findings: [] },
   ];
   const repairCtx = { page, photos: input.photos, look, newId };
-  const designed = [...framing, ...inner.spreads, ...closing].map((d): DesignedSpread => {
-    const fixed = repairSpread(themeDesignedSpread(d.spread, look), repairCtx);
+  const finish = (spread: BookSpread) => {
+    const fixed = repairSpread(themeDesignedSpread(spread, look), repairCtx);
     // Every face at a weight its family has: a travel element's bold in a one-weight poster face would be faked.
     const weighted = { ...fixed.spread, elements: fixed.spread.elements.map(withRealWeight) };
-    return { ...d, spread: unlinkDrifted(weighted, look.theme), findings: fixed.findings };
-  });
+    return { spread: unlinkDrifted(weighted, look.theme), findings: fixed.findings };
+  };
+  const designed = [...framing, ...inner.spreads, ...closing].map((d): DesignedSpread => ({
+    ...d,
+    ...finish(d.spread),
+  }));
 
-  const merged = mergeDesign(doc, designed, directives.keep);
+  const laid = mergeDesign(doc, designed, directives.keep);
   const title = (directives.cover?.title ?? input.title).slice(0, MAX_BOOK_TITLE);
   const pageNumbers = { ...page.pageNumbers, font: look.body };
-  const result: BookDocument = {
+  const built: BookDocument = {
     version: 1,
     title,
     page: { ...page, pageNumbers: { ...pageNumbers, startAt: 1 } },
-    spreads: merged.spreads,
+    spreads: laid.spreads,
     ...(doc?.layouts ? { layouts: doc.layouts } : {}),
     theme: look.theme,
   };
-  const residual = designed.flatMap((d) => d.findings.filter((f) => f.severity !== 'info'));
+  const overrides = directives.pages?.overrides ?? [];
+  const env = { c, entries: placed, finish, ops: { photos: input.photos, newId } };
+  const merged = overrides.length
+    ? applyPageOverrides(built, laid.plan, overrides, env)
+    : { doc: built, plan: laid.plan, notes: [] };
+  const result = merged.doc;
+  const residual = overrides.length
+    ? redesignedFindings(result, merged.plan, input.photos)
+    : designed.flatMap((d) => d.findings.filter((f) => f.severity !== 'info'));
+  const judged = briefOf(c);
+  const brief = judged ? briefFindings(result, judged, briefScope(merged.plan)) : [];
   return {
     doc: result,
     plan: merged.plan,
@@ -279,9 +321,57 @@ export function designBook(
       used: [...new Set(merged.plan.flatMap((r) => (r.action === 'drop' ? [] : r.photoIds)))],
       left_out: [...choice.leftOut, ...inner.leftOut],
     },
-    findings: sortBookFindings([...residual, ...bookLevelFindings(result)]),
-    notes: [...new Set([...inner.notes, ...c.notes])],
+    findings: sortBookFindings([...residual, ...bookLevelFindings(result), ...brief]),
+    notes: [...new Set([...inner.notes, ...c.notes, ...merged.notes])],
+    ...(judged ? { brief: judged } : {}),
   };
+}
+
+/** The brief a design is judged against, when it was made with one. */
+function briefOf(c: ComposeCtx): BookBriefArt | undefined {
+  const art = c.art;
+  if (!art?.briefed) return undefined;
+  return { energy: art.energy, decoration: art.decoration, bare: art.bare, tilt: art.tilt };
+}
+
+/** The pages the plan kept as they were, and whether it made lively ones: what the brief's findings read of it. */
+function briefScope(plan: readonly BookDesignPlanRow[]): { kept: string[]; lively: boolean } {
+  const kept = plan.filter((r) => r.action === 'keep').map((r) => r.spreadId);
+  return { kept, lively: plan.some((r) => r.action !== 'keep' && isLivelyBeat(r.beat)) };
+}
+
+/** What the repair left on the pages a design writes, measured afresh once pages were overridden. */
+function redesignedFindings(
+  doc: BookDocument,
+  plan: readonly BookDesignPlanRow[],
+  photos: BookDesignInput['photos'],
+): BookFinding[] {
+  const kept = new Set(plan.filter((r) => r.action === 'keep').map((r) => r.spreadId));
+  return doc.spreads
+    .filter((s) => !kept.has(s.id))
+    .flatMap((s) => pageFindings(s, doc.page, photos).filter((f) => f.severity !== 'info'));
+}
+
+/**
+ * The photos a composed cover may use: the cover photo first, then one from
+ * each part of the book in turn, so a grid or a collage of the cover shows
+ * the journey and not one afternoon of it.
+ */
+function coverMaterial(
+  cover: AutoPhoto | null,
+  used: readonly AutoPhoto[],
+  entries: readonly AutoEntry[],
+): CoverMaterial {
+  const rest = used.filter((p) => p.photoId !== cover?.photoId);
+  const picks = [0.2, 0.5, 0.8, 0.35, 0.65].map((at) => rest[Math.floor(at * rest.length)]);
+  const spread = [...new Map(picks.flatMap((p) => (p ? [[p.photoId, p] as const] : []))).values()];
+  return { photos: [...(cover ? [cover] : []), ...spread], entries };
+}
+
+/** The directives with the brief's theme as the style it takes the place of. */
+function withBriefTheme(d: BookDesignDirectives): BookDesignDirectives {
+  const theme = d.brief?.theme;
+  return theme && theme !== d.style ? { ...d, style: theme } : d;
 }
 
 /** The styles that open the book on a title page: the quiet, bookish ones. */

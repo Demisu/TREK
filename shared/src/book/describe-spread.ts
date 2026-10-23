@@ -1,4 +1,5 @@
 import { photoDpi, spreadFindings } from './book-findings';
+import { themeFindings } from './book-findings-art';
 import { designFindings, sortBookFindings } from './book-findings-design';
 import { bookFontRole, bookWeightWord, nearestBookWeight } from './book-fonts';
 import { BOOK_GRIDS } from './book-grids';
@@ -27,6 +28,7 @@ import {
 import { bookEdgeWords, bookLineWords } from './describe-lines';
 import { decoratedTemplateRow, decoratedTemplatesFor } from './templates/template-catalogue';
 import { bookThemeLine, themeBackgroundWords, themeLinkWords } from './theme/book-theme-describe';
+import type { BookTheme } from './theme/book-theme.schema';
 
 /**
  * A page in words, for a model that cannot see it and as the text beside a
@@ -238,14 +240,17 @@ function elementSummary(el: BookElement): BookElementSummary {
 
 /**
  * Every finding of one page, the print faults and the design checks
- * (book-findings-design.ts) together, severe first, at most the cap.
+ * (book-findings-design.ts) together, severe first, at most the cap; with the
+ * book's theme also what strays from it (book-findings-art.ts).
  */
 export function pageFindings(
   spread: BookSpread,
   page: BookPageSetup,
   photos?: readonly BookPhotoInfo[],
+  theme?: BookTheme,
 ): BookFinding[] {
-  return sortBookFindings([...spreadFindings(spread, page, photos), ...designFindings(spread, page, photos)]);
+  const design = [...designFindings(spread, page, photos), ...themeFindings(spread, theme)];
+  return sortBookFindings([...spreadFindings(spread, page, photos), ...design]);
 }
 
 /**
@@ -263,7 +268,7 @@ export function describeSpread(
   const index = doc.spreads.findIndex((s) => s.id === spreadId);
   const spread = doc.spreads[index];
   if (!spread) return null;
-  const findings = pageFindings(spread, doc.page, photos);
+  const findings = pageFindings(spread, doc.page, photos, doc.theme);
   const lines = [pageLine(doc, spread, index), bookThemeLine(doc.theme)];
   if (spread.elements.length) {
     lines.push('Elements, back to front (frame in mm: x, y, w x h):');

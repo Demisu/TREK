@@ -1,3 +1,4 @@
+import { listBookAssetsRequestSchema } from './book-assets';
 import { normalizeBookDocument } from './book-normalize';
 import {
   STICKER_INK,
@@ -8,7 +9,6 @@ import {
   bookStickerSlotColor,
   bookStickerWords,
   isBookSticker,
-  listBookAssetsRequestSchema,
 } from './book-sticker';
 import { bookElementSchema, bookStickerElementSchema } from './book.schema';
 
@@ -100,7 +100,7 @@ describe('the sticker element and the asset search in the contract', () => {
     expect(doc.spreads[0]?.elements.map((e) => e.id)).toEqual(['good']);
   });
 
-  it('STK-006: list_book_assets takes a kind, a query, tags, a theme and a limit, nothing else', () => {
+  it('STK-006: list_book_assets takes a kind of the catalogues, a query, tags, a theme and a limit, nothing else', () => {
     expect(
       listBookAssetsRequestSchema.parse({ kind: 'sticker', query: ' lemon ', theme: 'mediterranean', limit: 5 }),
     ).toEqual({
@@ -109,7 +109,9 @@ describe('the sticker element and the asset search in the contract', () => {
       theme: 'mediterranean',
       limit: 5,
     });
-    expect(listBookAssetsRequestSchema.safeParse({ kind: 'font' }).success).toBe(false);
+    // Templates are list_book_layouts': not a kind of this tool.
+    expect(listBookAssetsRequestSchema.safeParse({ kind: 'template' }).success).toBe(false);
+    expect(listBookAssetsRequestSchema.safeParse({ kind: 'font' }).success).toBe(true);
     expect(listBookAssetsRequestSchema.safeParse({ kind: 'sticker', limit: 41 }).success).toBe(false);
     expect(listBookAssetsRequestSchema.safeParse({ kind: 'sticker', theme: 'moon' }).success).toBe(false);
     expect(listBookAssetsRequestSchema.safeParse({ kind: 'sticker', extra: 1 }).success).toBe(false);

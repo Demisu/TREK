@@ -16,7 +16,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': '左右反転',
   'journey.studio.stickerTurnLeft': '左に回転',
   'journey.studio.stickerTurnRight': '右に回転',
-  'assistant.step.bookStickers': 'ステッカーを探しています',
   'journey.studio.stickerTheme.ephemera': '旅の小物',
   'journey.studio.stickerTheme.landmarks': '名所',
   'journey.studio.stickerTheme.tropical': '南国',

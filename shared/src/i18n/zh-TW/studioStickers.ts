@@ -15,7 +15,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': '水平翻轉',
   'journey.studio.stickerTurnLeft': '向左旋轉',
   'journey.studio.stickerTurnRight': '向右旋轉',
-  'assistant.step.bookStickers': '正在瀏覽貼紙',
   'journey.studio.stickerTheme.ephemera': '旅行小物',
   'journey.studio.stickerTheme.landmarks': '地標',
   'journey.studio.stickerTheme.tropical': '熱帶',

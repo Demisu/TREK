@@ -16,7 +16,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Spegelvänd',
   'journey.studio.stickerTurnLeft': 'Vrid åt vänster',
   'journey.studio.stickerTurnRight': 'Vrid åt höger',
-  'assistant.step.bookStickers': 'Tittar igenom klistermärkena',
   'journey.studio.stickerTheme.ephemera': 'Resesaker',
   'journey.studio.stickerTheme.landmarks': 'Sevärdheter',
   'journey.studio.stickerTheme.tropical': 'Tropikerna',

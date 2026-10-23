@@ -12,6 +12,7 @@ import {
   editBookPageArgs,
   moveBookPage,
   moveBookPageArgs,
+  pageArtFindings,
   setBookCover,
   setBookCoverArgs,
   spreadFindings,
@@ -191,7 +192,12 @@ function freshOn(was: readonly BookFinding[], now: readonly BookFinding[], creat
 function findingsOn(doc: BookDocument, ids: readonly string[], ctx: BookOpsContext): Map<string, BookFinding[]> {
   const found = new Map<string, BookFinding[]>();
   for (const spread of doc.spreads) {
-    if (ids.includes(spread.id)) found.set(spread.id, spreadFindings(spread, doc.page, ctx.photos));
+    if (!ids.includes(spread.id)) continue;
+    // As the write answers them: the print faults, then whether the page reads as designed.
+    found.set(spread.id, [
+      ...spreadFindings(spread, doc.page, ctx.photos),
+      ...pageArtFindings(spread, doc.page, doc.theme),
+    ]);
   }
   return found;
 }

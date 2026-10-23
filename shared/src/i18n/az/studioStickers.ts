@@ -16,7 +16,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Güzgü kimi çevir',
   'journey.studio.stickerTurnLeft': 'Sola döndər',
   'journey.studio.stickerTurnRight': 'Sağa döndər',
-  'assistant.step.bookStickers': 'Stikerlərə baxır',
   'journey.studio.stickerTheme.ephemera': 'Səyahət əşyaları',
   'journey.studio.stickerTheme.landmarks': 'Görməli yerlər',
   'journey.studio.stickerTheme.tropical': 'Tropiklər',

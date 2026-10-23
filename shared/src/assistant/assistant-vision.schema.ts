@@ -32,6 +32,12 @@ export const ASSISTANT_PAGE_IMAGE = {
   /** Previews of a proposed change one step and one turn may ask for. */
   previewsPerStep: 3,
   previewsPerTurn: 8,
+  /**
+   * Previews a turn may ask for once a whole-book design is in play (it
+   * called design_book or revise_book_design, or looks at a draft): a design
+   * is judged on many pages, the cover twice. Still three images a request.
+   */
+  previewsPerDesignTurn: 16,
 } as const;
 
 /**

@@ -16,7 +16,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerFlip': 'Reflejar',
   'journey.studio.stickerTurnLeft': 'Girar a la izquierda',
   'journey.studio.stickerTurnRight': 'Girar a la derecha',
-  'assistant.step.bookStickers': 'Revisando las pegatinas',
   'journey.studio.stickerTheme.ephemera': 'Cosas de viaje',
   'journey.studio.stickerTheme.landmarks': 'Monumentos',
   'journey.studio.stickerTheme.tropical': 'Trópico',

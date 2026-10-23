@@ -4,6 +4,7 @@ import type { BookElement, BookSpread } from '../book.schema';
 import type { BookDesignInput } from './design-book';
 import type { ComposeCtx } from './design-compose';
 import { composeCountries, composeStations, composeSummary } from './design-framing';
+import { composeLively, livelyPlans, rhythmBeat } from './design-lively-pacing';
 import type { DesignedSpread } from './design-merge';
 import {
   buildChapters,
@@ -32,6 +33,7 @@ import {
   type FlowItem,
   type Words,
 } from './design-spreads';
+import { decorateSpread } from './design-stickers';
 
 /**
  * The inner pages of a designed book: the journey at a glance and its
@@ -161,10 +163,18 @@ function chapterWords(c: ComposeCtx, chapter: DesignChapter, told: ReadonlySet<n
  * back the rest; a hero and the photo spreads take none, so the words wait
  * for the next page that does.
  */
-function composePlanned(c: ComposeCtx, plan: PlannedSpread, hand: 'left' | 'right', words: Words): Composed {
+function composePlanned(
+  c: ComposeCtx,
+  plan: PlannedSpread,
+  hand: 'left' | 'right',
+  words: Words,
+  at: number,
+): Composed {
   const entry = plan.entry;
   const entryId = plan.chapter.entries[0]?.id ?? null;
   const [first, ...more] = plan.photos;
+  const lively = composeLively(c, plan, hand, at);
+  if (lively) return lively;
   switch (plan.beat) {
     case 'hero':
       if (entry && first) return composeHero(c, entry, first, hand);
@@ -217,8 +227,8 @@ function chapterSpreads(
     const hand = (start + i + (c.directives.seed ?? 0)) % 2 === 0 ? 'left' : 'right';
     // Every quiet page takes words, one photo's too, so a list with no room where it falls can wait for one.
     const later = plans.slice(i + 1).some((p) => p.beat === 'quiet');
-    const done = composePlanned(c, plan, hand, { flow, later });
-    const spread: BookSpread = innerSpread(c, done.elements, entryId);
+    const done = composePlanned(c, plan, hand, { flow, later }, start + i);
+    const spread: BookSpread = decorateSpread(c, innerSpread(c, done.elements, entryId), `deco:${start + i}`);
     const rest = done.rest ?? flow;
     for (const id of endedOn(flow, rest)) ends.set(id, spread.id);
     flow = rest;
@@ -322,6 +332,7 @@ export function composeDesignedInner(
   }
   const shares = shareSpreads(chapters, chapters.map(naturalOf), budget);
   const rhythm = newRhythm();
+  const lively = { seen: 0 };
   const plan = { directives: c.directives, page: c.page, infos: c.infos };
   const body: DesignedSpread[] = [];
   // By entry id, the page its story is set to the end on.
@@ -334,12 +345,12 @@ export function composeDesignedInner(
       return;
     }
     const from = rhythm.beats.length;
-    const plans = planChapter(chapter, shares[i] ?? 1, rhythm, plan, leftOut);
+    const plans = livelyPlans(c, planChapter(chapter, shares[i] ?? 1, rhythm, plan, leftOut), lively);
     const made = chapterSpreads(c, chapter, plans, body.length, told);
     settleRhythm(
       rhythm,
       from,
-      made.spreads.map((d) => d.beat),
+      made.spreads.map((d) => rhythmBeat(d.beat)),
     );
     body.push(...made.spreads);
     for (const [id, at] of made.ends) ends.set(id, at);

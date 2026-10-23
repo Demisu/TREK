@@ -134,14 +134,14 @@ export class JourneyBookMcp {
   @Tool({
     name: 'list_book_assets',
     description:
-      "The Studio's library of things to put on a page of a journey's book, searchable, the same one the Studio's panels show. kind sticker lists the illustrations: flat, multi-coloured drawings of landmarks, travel things, tropical and Mediterranean motifs, the sea, mountains, the north, Asia, food, paper and tape, hand-drawn doodles and ornaments. Each row has its id, theme, one sentence of what it shows, its tags, its aspect (width over height) and its colour slots with their defaults. query searches ids, tags and descriptions in English; tags and theme narrow it; at most limit rows, 40 by default, with the total found. Place one with edit_book_page add { kind: 'sticker', stickerId }, recolour it with colors (one per slot, in order) and mirror it with flipX. Stickers are decoration: put them beside or over a photo, never over words.",
+      "The Studio's catalogues of things to put on a page of a journey's book, searchable, the ones the Studio's panels show; every row has its id, one line on what it is and its tags, at most limit rows (40 by default) with the total found. kind sticker: flat, multi-coloured illustrations (landmarks, travel things, tropical and Mediterranean motifs, the sea, mountains, the north, Asia, food, paper and tape, doodles, ornaments) with their aspect and colour slots; place one with edit_book_page add { kind: 'sticker', stickerId }, recolour it with colors and mirror it with flipX; beside or over a photo, never over words. kind shape: the outlines a shape draws and a photo is cut to (mask), tagged frame when it holds a photo and edge when it takes a cut edge. kind font: the typefaces by role (display, heading, body, script, mono) with their weights. kind lockup: the set titles, badges, postmarks and quotes add_lockup places, with the word roles each takes. kind theme: the built-in themes with palette, faces and motifs, for set_book_theme and design_book's brief. kind pattern: the repeats a paint takes. query searches ids, tags and descriptions in English; tags narrow it; theme narrows stickers. Templates are list_book_layouts'.",
     inputSchema: { journeyId: idSchema, ...listBookAssetsArgs },
     annotations: TOOL_ANNOTATIONS_READONLY,
     when: journeyAddonOn,
     access: { group: 'journey', mode: 'read' },
   })
-  async listAssets({ journeyId, query, tags, theme, limit }: OnJourney & ListBookAssetsRequest, ctx: McpContext) {
-    return ok(await this.books.assets(journeyId, ctx.userId, { query, tags, theme, limit }));
+  async listAssets({ journeyId, ...search }: OnJourney & ListBookAssetsRequest, ctx: McpContext) {
+    return ok(await this.books.assets(journeyId, ctx.userId, search));
   }
 
   // ── Write ───────────────────────────────────────────────────────────────

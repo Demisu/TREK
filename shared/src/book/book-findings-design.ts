@@ -1,5 +1,6 @@
 import { compareCodeUnits } from '../common/compare';
 import { contrastOfLuminance, deltaE, greyLuminance, luminance, parseHex, requiredContrast } from './book-colour';
+import { artFindings } from './book-findings-art';
 import { bookFontCountsInMix, bookFontsUsed } from './book-fonts';
 import { visibleSpread } from './book-groups';
 import type { BookPhotoInfo } from './book-ops-core';
@@ -315,6 +316,8 @@ export function designFindings(
   smallText(ctx);
   crowded(ctx);
   offGrid(ctx);
+  // Whether the page reads as designed: a flat cover, a page without a lead (book-findings-art.ts).
+  for (const f of artFindings(spread, page)) add(ctx, f);
   return sortBookFindings(ctx.out);
 }
 

@@ -3,6 +3,7 @@ import airport from './airport';
 import assistant from './assistant';
 import assistantAtlas from './assistantAtlas';
 import assistantBook from './assistantBook';
+import assistantBookArt from './assistantBookArt';
 import assistantBookDesign from './assistantBookDesign';
 import assistantBooking from './assistantBooking';
 import assistantBudget from './assistantBudget';
@@ -153,6 +154,7 @@ const locale = {
   ...assistantBudget,
   ...assistantBook,
   ...assistantBookDesign,
+  ...assistantBookArt,
   ...studioThemes,
   ...assistantBooking,
   ...assistantCollab,

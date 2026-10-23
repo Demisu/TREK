@@ -24,8 +24,10 @@ import {
   deleteBookPages,
   describeSpread,
   duplicateBookPage,
+  listBookCatalogue,
   listBookLayouts,
   moveBookPage,
+  pageArtFindings,
   removeBookLayout,
   restoreBookLayout,
   restoreBookPage,
@@ -172,13 +174,16 @@ export class JourneyBookEditService {
   }
 
   /**
-   * `list_book_assets`: the Studio's sticker library, searched. Not of the
+   * `list_book_assets`: the Studio's catalogues searched, the stickers, the
+   * shapes, the faces, the lockups, the themes or the patterns. Not of the
    * journey, but asked on one, a member's read like the other book reads, so
    * the Studio chat keeps it (its tools are pinned to the journey).
    */
-  async assets(journeyId: number, userId: number, search: Omit<ListBookAssetsRequest, 'kind'>) {
+  async assets(journeyId: number, userId: number, search: ListBookAssetsRequest) {
     await this.readable(journeyId, userId);
-    return { kind: 'sticker' as const, ...listBookAssets(search) };
+    const { kind, theme, ...words } = search;
+    if (kind === 'sticker') return { kind, ...listBookAssets({ ...words, theme }) };
+    return { kind, ...listBookCatalogue(kind, words) };
   }
 
   /**
@@ -514,7 +519,8 @@ function pagesOf(doc: BookDocument, made: BookMade, ctx: BookOpsContext) {
     const spread = doc.spreads[index];
     if (!spread) continue;
     pages.push(summarizeSpread(spread, index));
-    findings.push(...spreadFindings(spread, doc.page, ctx.photos));
+    // The print faults, and whether the page reads as designed (a flat cover, a weak lead, colours off the theme).
+    findings.push(...spreadFindings(spread, doc.page, ctx.photos), ...pageArtFindings(spread, doc.page, doc.theme));
   }
   const order = { severe: 0, warn: 1, info: 2 } as const;
   findings.sort((a, b) => order[a.severity] - order[b.severity]);
