@@ -1,15 +1,15 @@
 /**
  * FE-STUDIO-ASTPANEL-001 to FE-STUDIO-ASTPANEL-009
  *
- * The assistant's column in TREK Studio (journey-studio.md 3.4, 4.5): the
+ * The assistant's floating window in TREK Studio (journey-studio.md 3.4, 4.5): the
  * journey's chat with its own question; the notice that images of a page
  * leave only once the user agreed, for the connection on screen, that "Not
  * now" keeps it text for the visit, and that a model reading no images is
- * never asked; every key inside the column belongs to the chat, so Studio
+ * never asked; every key inside the window belongs to the chat, so Studio
  * neither closes nor edits the page's selection, and Escape stops a running
  * answer first, while Escape in the header's menu only closes the menu; the
  * journey's chat offers no trip notes, and its privacy banner speaks of the
- * journey; the bar's switch and the column it opens.
+ * journey; the bar's switch and the window it opens.
  */
 import type { AiStatusResponse } from '@trek/shared';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -101,7 +101,7 @@ describe('StudioAssistantPanel', () => {
     expect(screen.queryByRole('note')).toBeNull();
   });
 
-  it('FE-STUDIO-ASTPANEL-003: keys in the column stay there, Escape stops a running answer first', () => {
+  it('FE-STUDIO-ASTPANEL-003: keys in the window stay there, Escape stops a running answer first', () => {
     const cancel = running();
     const studioKeys = vi.fn();
     window.addEventListener('keydown', studioKeys);
@@ -200,7 +200,7 @@ describe('StudioAssistantPanel', () => {
     expect(screen.getByRole('button', { name: 'Assistant' })).toHaveClass('is-on');
   });
 
-  it('FE-STUDIO-ASTPANEL-009: the column mounts only while it is open, named after the journey or as one', async () => {
+  it('FE-STUDIO-ASTPANEL-009: the window mounts only while it is open, named after the journey or as one', async () => {
     const { unmount } = render(<StudioAssistantColumn assistant={assistant({ open: false })} title="Lisbon" />);
     expect(screen.queryByRole('complementary', { name: 'Book assistant' })).toBeNull();
     unmount();

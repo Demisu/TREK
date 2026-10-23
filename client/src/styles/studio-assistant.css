@@ -1,29 +1,6 @@
-/* The assistant as a column of TREK Studio (journey-studio.md 4.5).
-   It takes the inspector's place at the end of the body; the inspector then
-   floats over the workbench beside it, as it does under 1280px, so the page
-   keeps the room it needs to stay legible. */
-
-.trek-dash .st-body.has-assistant {
-  grid-template-columns: 64px 236px minmax(0, 1fr) 360px;
-}
-
-.trek-dash .st-body.has-assistant .st-inspector {
-  position: absolute;
-  top: 56px;
-  inset-inline-end: 360px;
-  bottom: 0;
-  width: 300px;
-  box-shadow: var(--sh-lg);
-  /* Over the page the glass would show the page through it, and in the dark
-     scheme the inspector's light text would sit on white paper. */
-  background: var(--surface);
-}
-
-@media (max-width: 1079px) {
-  .trek-dash .st-body.has-assistant {
-    grid-template-columns: 64px minmax(0, 1fr) 360px;
-  }
-}
+/* The assistant in TREK Studio (journey-studio.md 4.5) floats over the
+   Studio in the planner's window (assistantFrame.tsx), so the page and the
+   inspector keep all their room. */
 
 /* The toggle is the bar's newest tool, so it gives up its label first: from 1360
    to 1519 it is an icon while the others keep theirs, and the bar fits where it
@@ -44,12 +21,6 @@
 
 .trek-dash .st-bar .st-back > svg {
   flex: none;
-}
-
-.trek-dash .st-assistant {
-  min-width: 0;
-  overflow: hidden;
-  border-inline-start: 1px solid var(--glass-border);
 }
 
 .trek-dash .st-assistant-notice {

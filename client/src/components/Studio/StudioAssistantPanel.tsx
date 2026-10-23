@@ -1,34 +1,42 @@
 import '../../styles/studio-assistant.css';
+import '../Assistant/assistant.css';
 
 import { ImageIcon, MessageSquare } from 'lucide-react';
-import { type HTMLAttributes, type KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { type KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { useTranslation } from '../../i18n';
 import { useAssistantStore } from '../../store/assistantStore';
+import { FRAME_CLASS, useAssistantFrame } from '../Assistant/assistantFrame';
+import AssistantFrameEdges from '../Assistant/AssistantFrameEdges';
 import AssistantHeader from '../Assistant/AssistantHeader';
 import AssistantSurfaceLazy from '../Assistant/AssistantSurfaceLazy';
 import type { EntityTarget } from '../Assistant/cards/cardTypes';
 import { providerLabel } from '../Assistant/providerCatalog';
 import { useAssistantThread } from '../Assistant/useAssistantThread';
 import { useToast } from '../shared/Toast';
-import { SpreadView } from './SpreadView';
 import { sheetSizePx } from './pageSnapshot';
+import { SpreadView } from './SpreadView';
 import type { StudioAssistant, StudioRenderJob } from './useStudioAssistant';
 
 /**
- * The assistant as a column of TREK Studio (journey-studio.md 4.5): the same
- * chat as the planner's window, on the journey's conversations, beside the
- * page it talks about. Desktop only, like the Studio itself.
+ * The assistant in TREK Studio (journey-studio.md 4.5): the same chat as the
+ * planner's window, on the journey's conversations, in the same floating
+ * window, moved by its head and resized from its edges, so it never takes
+ * room from the page it talks about. Desktop only, like the Studio itself.
  *
  * Studio closes on Escape and edits the selection on Delete, copy and paste.
- * Inside the column every key belongs to the chat, so it stops here, and
+ * Inside the window every key belongs to the chat, so it stops here, and
  * Escape stops a running answer first. A key from the header's menu, which
  * sits in a portal, is not the chat's to act on.
  */
 
-/** The column is not a window: its head moves nothing. */
-const NO_DRAG: HTMLAttributes<HTMLElement> = { style: { cursor: 'default' } };
+/** Where the Studio's window is kept between visits, apart from the planner's. */
+const STUDIO_WINDOW_STORAGE = 'trek.studioAssistantWindow';
+/** The Studio's own bar at the top, which the window's head never goes under. */
+const STUDIO_BAR_PX = 56;
+/** Narrower than this, the chat lays its cards out compact, as in the planner's window. */
+const ROOMY_WIDTH = 480;
 
 /**
  * Images of a page leave only once the user agreed, per connection. Until
@@ -147,6 +155,7 @@ export default function StudioAssistantPanel({
   const navigate = useNavigate();
   const thread = useAssistantThread(assistant.chatKey);
   const { isRunning, stop } = thread;
+  const frame = useAssistantFrame(STUDIO_WINDOW_STORAGE, STUDIO_BAR_PX);
 
   // A card points at a page of this book (`?page=`) or somewhere else in the app.
   const onOpen = useCallback(
@@ -156,7 +165,7 @@ export default function StudioAssistantPanel({
     [navigate]
   );
 
-  // Every key pressed in the column is the chat's: the editor's own keys
+  // Every key pressed in the window is the chat's: the editor's own keys
   // (Delete, Backspace, copy, paste, undo, Escape) listen on the window and
   // would otherwise act on the page's selection from a focused chat button.
   // Keys from a portal (the header's menu) bubble here through React too;
@@ -164,32 +173,42 @@ export default function StudioAssistantPanel({
   const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     const inside = e.currentTarget.contains(e.target as Node);
     e.stopPropagation();
-    if (inside && e.key === 'Escape' && isRunning && !e.defaultPrevented) stop();
+    if (!inside) return;
+    frame.onKeyDown(e);
+    if (e.key === 'Escape' && isRunning && !e.defaultPrevented) stop();
   };
 
   return (
-    <aside className="st-panel st-assistant" aria-label={t('journey.studio.assistant.panel')} onKeyDown={onKeyDown}>
-      <AssistantHeader
-        tripId={assistant.chatKey}
-        thread={thread}
-        tripTitle={title}
-        dragProps={NO_DRAG}
-        onClose={assistant.toggle}
-      />
-      <StudioImagesNotice />
-      <AssistantSurfaceLazy
-        tripId={assistant.chatKey}
-        tripTitle={title}
-        variant="window"
-        density="compact"
-        onOpen={onOpen}
-        bookVersion={bookVersion}
-      />
+    <aside
+      className={`st-assistant ${FRAME_CLASS} flex ${frame.active ? 'select-none' : 'trek-assistant-settle'}`}
+      aria-label={t('journey.studio.assistant.panel')}
+      onKeyDown={onKeyDown}
+      style={{ insetInlineStart: frame.rect.x, top: frame.rect.y, width: frame.rect.width, height: frame.rect.height }}
+    >
+      <AssistantFrameEdges frame={frame} />
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl">
+        <AssistantHeader
+          tripId={assistant.chatKey}
+          thread={thread}
+          tripTitle={title}
+          dragProps={frame.handleProps}
+          onClose={assistant.toggle}
+        />
+        <StudioImagesNotice />
+        <AssistantSurfaceLazy
+          tripId={assistant.chatKey}
+          tripTitle={title}
+          variant="window"
+          density={frame.rect.width < ROOMY_WIDTH ? 'compact' : 'roomy'}
+          onOpen={onOpen}
+          bookVersion={bookVersion}
+        />
+      </div>
     </aside>
   );
 }
 
-/** The Studio bar's switch for the column; only where the assistant can run for this user. */
+/** The Studio bar's switch for the window; only where the assistant can run for this user. */
 export function StudioAssistantToggle({ assistant }: { assistant: StudioAssistant }) {
   const { t } = useTranslation();
   if (!assistant.available) return null;
@@ -207,7 +226,7 @@ export function StudioAssistantToggle({ assistant }: { assistant: StudioAssistan
   );
 }
 
-/** The chat column at the end of the Studio's body, while it is open, named after the journey. */
+/** The chat window over the Studio, while it is open, named after the journey. */
 export function StudioAssistantColumn({
   assistant,
   title,

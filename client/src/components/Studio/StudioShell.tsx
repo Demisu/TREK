@@ -107,7 +107,7 @@ export default function StudioShell() {
           />
         )}
 
-        <div className={`st-body ${assistant.open ? 'has-assistant' : ''}`}>
+        <div className="st-body">
           <StudioSidebar
             page={s.page}
             pxPerMm={s.pxPerMm}
@@ -134,8 +134,8 @@ export default function StudioShell() {
             t={s.t}
             locale={s.locale}
           />
-          <StudioAssistantColumn assistant={assistant} title={s.journey?.title} bookVersion={s.bookVersion} />
         </div>
+        <StudioAssistantColumn assistant={assistant} title={s.journey?.title} bookVersion={s.bookVersion} />
         <StudioPageStage assistant={assistant} />
 
         {exporting && s.doc && (

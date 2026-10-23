@@ -4,13 +4,15 @@ import { Sparkles, X } from 'lucide-react';
 import { type CSSProperties, type KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { type ResizeEdge, type WindowRect, type WindowSize, useDragResize } from '../../hooks/useDragResize';
+import type { WindowRect } from '../../hooks/useDragResize';
 import { useTranslation } from '../../i18n';
 import { useAssistantStore } from '../../store/assistantStore';
+import AssistantFrameEdges from './AssistantFrameEdges';
 import AssistantHeader from './AssistantHeader';
 import AssistantLauncher, { LAUNCHER_INSET, LAUNCHER_SIZE } from './AssistantLauncher';
 import AssistantSurfaceLazy from './AssistantSurfaceLazy';
 import AssistantTripPicker from './AssistantTripPicker';
+import { FRAME_CLASS, useAssistantFrame } from './assistantFrame';
 import { plannerSearchOf } from './assistantShowOnMap';
 import type { EntityTarget } from './cards/cardTypes';
 import { useAssistantHotkey } from './useAssistantHotkey';
@@ -44,6 +46,8 @@ interface AssistantWindowProps {
   onOpen?: (target: EntityTarget) => void;
   /** Selects a day in the planner on screen. */
   onFocusDay?: (dayId: number) => void;
+  /** Brings the planner's map on screen, from whichever of its tabs is open. */
+  onRevealMap?: () => void;
 }
 
 /** Narrower than this, the chat lays its cards out compact. */
@@ -51,45 +55,6 @@ const ROOMY_WIDTH = 480;
 
 /** Where the window's place and size are kept between visits. */
 const WINDOW_STORAGE = 'trek.assistantWindow';
-const MIN_SIZE: WindowSize = { width: 340, height: 420 };
-const DEFAULT_SIZE: WindowSize = { width: 400, height: 600 };
-/** Never closer to the screen's edge than this. */
-const MARGIN = 16;
-/** The default distance from the edges, and how near a corner a released window snaps into it. */
-const GAP = 24;
-const expandedSize = (viewport: WindowSize): WindowSize => ({
-  width: Math.min(720, viewport.width - 2 * MARGIN),
-  height: Math.round(viewport.height * 0.8),
-});
-
-const EDGES: { edge: ResizeEdge; className: string; cursor: 'ns' | 'ew' | 'corner-start' | 'corner-end' }[] = [
-  { edge: 'n', className: 'inset-x-3 -top-1 h-2', cursor: 'ns' },
-  { edge: 's', className: 'inset-x-3 -bottom-1 h-2', cursor: 'ns' },
-  { edge: 'start', className: 'inset-y-3 -start-1 w-2', cursor: 'ew' },
-  { edge: 'end', className: 'inset-y-3 -end-1 w-2', cursor: 'ew' },
-  { edge: 'n-start', className: '-start-1 -top-1 h-4 w-4', cursor: 'corner-start' },
-  { edge: 's-end', className: '-bottom-1 -end-1 h-4 w-4', cursor: 'corner-start' },
-  { edge: 'n-end', className: '-end-1 -top-1 h-4 w-4', cursor: 'corner-end' },
-  { edge: 's-start', className: '-bottom-1 -start-1 h-4 w-4', cursor: 'corner-end' },
-];
-
-function edgeCursor(kind: (typeof EDGES)[number]['cursor'], rtl: boolean): string {
-  if (kind === 'ns') return 'ns-resize';
-  if (kind === 'ew') return 'ew-resize';
-  // The top-start corner is the top left in a left-to-right page and the top right in Arabic.
-  return (kind === 'corner-start') !== rtl ? 'nwse-resize' : 'nesw-resize';
-}
-
-/** The fixed navbar's height (`--nav-h`, a calc() and 0 where there is none), measured. */
-function navbarHeight(): number {
-  if (typeof document === 'undefined') return 0;
-  const probe = document.createElement('div');
-  probe.style.cssText = 'position:fixed;visibility:hidden;height:var(--nav-h, 0px)';
-  document.body.appendChild(probe);
-  const height = probe.offsetHeight;
-  probe.remove();
-  return height;
-}
 
 /** Where the floating button's middle sits inside the window, so the window grows out of it. */
 function originFrom(rect: WindowRect, rtl: boolean): string {
@@ -104,28 +69,20 @@ function ChatWindow({
   hidden,
   onOpen,
   onFocusDay,
+  onRevealMap,
 }: {
   trip: WindowTrip;
   hidden: boolean;
   onOpen?: (target: EntityTarget) => void;
   onFocusDay?: (dayId: number) => void;
+  onRevealMap?: () => void;
 }) {
   const { t } = useTranslation();
   const thread = useAssistantThread(trip.id);
   const close = useAssistantStore((s) => s.close);
   const setMinimized = useAssistantStore((s) => s.setMinimized);
   const setWindowRect = useAssistantStore((s) => s.setWindowRect);
-  // The navbar sits on the same layer and later in the page: the head never goes under it.
-  const [topInset] = useState(navbarHeight);
-  const frame = useDragResize({
-    storageKey: WINDOW_STORAGE,
-    minSize: MIN_SIZE,
-    defaultSize: DEFAULT_SIZE,
-    expandedSize,
-    margin: MARGIN,
-    gap: GAP,
-    topInset,
-  });
+  const frame = useAssistantFrame(WINDOW_STORAGE);
   const rtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
   const [origin] = useState(() => originFrom(frame.rect, rtl));
   const returnFocus = useRef<Element | null>(typeof document !== 'undefined' ? document.activeElement : null);
@@ -182,19 +139,11 @@ function ChatWindow({
       hidden={hidden}
       onKeyDown={onKeyDown}
       style={style}
-      className={`trek-assistant-pop fixed z-[var(--z-nav)] ${hidden ? 'hidden' : 'flex'} flex-col overflow-visible rounded-xl border border-edge-faint bg-surface-elevated shadow-[var(--sidebar-shadow)] backdrop-blur-2xl backdrop-saturate-150 ${
+      className={`trek-assistant-pop ${FRAME_CLASS} ${hidden ? 'hidden' : 'flex'} ${
         frame.active ? 'select-none' : 'trek-assistant-settle'
       }`}
     >
-      {EDGES.map(({ edge, className, cursor }) => (
-        <div
-          key={edge}
-          aria-hidden="true"
-          {...frame.edgeProps(edge)}
-          className={`absolute z-10 touch-none ${className}`}
-          style={{ cursor: edgeCursor(cursor, rtl) }}
-        />
-      ))}
+      <AssistantFrameEdges frame={frame} />
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl">
         <AssistantHeader
           tripId={trip.id}
@@ -212,13 +161,14 @@ function ChatWindow({
           density={width < ROOMY_WIDTH ? 'compact' : 'roomy'}
           onOpen={onOpen}
           onFocusDay={onFocusDay}
+          onRevealMap={onRevealMap}
         />
       </div>
     </section>
   );
 }
 
-export default function AssistantWindow({ trip, onOpen, onFocusDay }: AssistantWindowProps) {
+export default function AssistantWindow({ trip, onOpen, onFocusDay, onRevealMap }: AssistantWindowProps) {
   const navigate = useNavigate();
   const available = useAssistantStore((s) => s.status?.available === true);
   const open = useAssistantStore((s) => s.window.open);
@@ -268,8 +218,9 @@ export default function AssistantWindow({ trip, onOpen, onFocusDay }: AssistantW
         trip={current}
         hidden={minimized}
         onOpen={onScreen ? onOpen && openOnScreen : openPicked}
-        // Only the planner on screen has days to select.
+        // Only the planner on screen has days to select and a map to bring back.
         onFocusDay={onScreen ? onFocusDay : undefined}
+        onRevealMap={onScreen ? onRevealMap : undefined}
       />
       {minimized && trip && <AssistantLauncher variant="floating" tripId={trip.id} focusOnMount />}
     </>
