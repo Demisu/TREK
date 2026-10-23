@@ -147,6 +147,11 @@ describe('TranslationProvider', () => {
   });
 
   it('FE-COMP-I18NCTX-018: plural forms follow the language of the strings on screen, not the one still loading', async () => {
+    // The chunk is loaded here first: FE-COMP-I18NCTX-011a starts every locale at
+    // once without waiting, and the Russian one could otherwise queue behind the
+    // others past any timeout. The provider still switches asynchronously, so the
+    // first render below is English all the same.
+    await import('@trek/shared/i18n/ru');
     withLanguage('ru');
     render(<TranslationProvider><Probe tKey="places.count" params={{ count: 21 }} /></TranslationProvider>);
 
