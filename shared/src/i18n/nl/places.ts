@@ -171,7 +171,8 @@ const places: TranslationStrings = {
   'places.image.current': 'Huidige afbeelding',
   'places.image.own': 'Jouw afbeelding',
   'places.image.none': 'Geen afbeelding',
-  'places.image.needsConnection': 'Een nieuwe afbeelding heeft een verbinding nodig. Sla opnieuw op zodra je online bent.',
+  'places.image.needsConnection':
+    'Een nieuwe afbeelding heeft een verbinding nodig. Sla opnieuw op zodra je online bent.',
   'places.openPhotos': 'Foto’s bekijken',
   'places.imageUploadError': 'Afbeelding uploaden mislukt',
 };
