@@ -183,11 +183,20 @@ describe('add', () => {
   });
 
   it('BOOKEL-017: a flag or country mark asked for by its own code is labelled with that country', () => {
-    expect(added({ kind: 'badge', variant: 'flag' })).toMatchObject({ code: 'IS', sub: 'Iceland' });
-    expect(added({ kind: 'badge', variant: 'flag', code: 'PT' })).toMatchObject({ code: 'PT', sub: 'Portugal' });
+    // A flag sets the name beside the flag (sub); a country mark has it as its words, the outline beside them.
+    expect(added({ kind: 'badge', variant: 'flag' })).toMatchObject({ code: 'IS', text: '', sub: 'Iceland' });
+    const portugal = added({ kind: 'badge', variant: 'flag', code: 'PT' });
+    expect(portugal).toMatchObject({ code: 'PT', text: '', sub: 'Portugal' });
+    expect(added({ kind: 'badge', variant: 'country' })).toMatchObject({ code: 'IS', text: 'Iceland', sub: '' });
     const norway = added({ kind: 'badge', variant: 'country', entryId: 7, code: 'NO' });
-    expect(norway).toMatchObject({ code: 'NO', sub: 'Norway' });
+    expect(norway).toMatchObject({ code: 'NO', text: 'Norway', sub: '' });
     expect(added({ kind: 'badge', variant: 'flag', code: 'PT', sub: 'Lisboa' })).toMatchObject({ sub: 'Lisboa' });
+    const lisboa = added({ kind: 'badge', variant: 'country', code: 'PT', text: 'Lisboa' });
+    expect(lisboa).toMatchObject({ code: 'PT', text: 'Lisboa', sub: '' });
+    // Its own code names the country on a journey whose figures name none; without one there is nothing to show.
+    const noCountries: BookOpsContext = { ...ctx, travel: { ...travel, stats: { ...stats, countries: [] } } };
+    expect(added({ kind: 'badge', variant: 'flag', code: 'PT' }, noCountries)).toMatchObject({ sub: 'Portugal' });
+    expect(addRefusal({ kind: 'badge', variant: 'flag' }, noCountries)).toBe('text_required');
     // Another mark's code is its own (a mood, the weather) and names no country.
     expect(added({ kind: 'badge', variant: 'mood', code: 'good', text: 'Good' })).toMatchObject({ sub: '' });
   });

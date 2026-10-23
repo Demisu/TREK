@@ -1,6 +1,6 @@
-// STTRV-001 to STTRV-006: the Travel panel places what the book engine's factories build, so a figure, a map, a
-// country or a mark added by hand is the element the assistant's `add` adds. Only the frame is the panel's own:
-// centred across the spread rather than on the right-hand page.
+// STTRV-001 to STTRV-006 and STTRV-009: the Travel panel places what the book engine's factories build, so a figure,
+// a map, a country or a mark added by hand is the element the assistant's `add` adds. Only the frame is the panel's
+// own: centred across the spread rather than on the right-hand page.
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { BookDocument, BookElement, BookFrame, BookTravelContext, JourneyStats } from '@trek/shared';
@@ -94,7 +94,7 @@ const travel: BookTravelContext = {
   path: PATH,
   entries: [],
   labels: {
-    day: 'journey.studio.dayWord',
+    day: 'journey.studio.day',
     stations: 'journey.studio.stations',
     summary: 'journey.studio.summary',
     countries: 'journey.studio.countries',
@@ -117,13 +117,14 @@ const ANY_FRAME: BookFrame = { x: 0, y: 0, w: 1, h: 1 };
 /** An element apart from what the panel decides itself: the id it mints and where the frame goes. */
 const content = (el: BookElement) => ({ ...el, id: '', frame: ANY_FRAME });
 
-function open(journey: JourneyStats = stats) {
+/** The panel on a journey, its words answered by `t`: the key itself unless a case says otherwise. */
+function open(journey: JourneyStats = stats, t: (k: string) => string = (k) => k) {
   return render(
     <StudioTravelPanel
       page={page}
       stats={journey}
       path={PATH}
-      t={(k) => k}
+      t={t}
       locale="en"
       canEdit={false}
       onToggleStop={async () => true}
@@ -225,7 +226,7 @@ describe('the Travel panel builds through the book engine', () => {
 
     expect(screen.queryByRole('button', { name: 'journey.studio.dateMark' })).toBeNull();
     fireEvent.click(card('journey.studio.dayMark'));
-    expect(placed()).toMatchObject({ variant: 'day', text: 'journey.studio.dayWord 1', style: 'chip' });
+    expect(placed()).toMatchObject({ variant: 'day', text: 'journey.studio.day 1', style: 'chip' });
 
     const [outline, mark] = screen.getAllByRole('button', { name: 'Iceland' });
     fireEvent.click(outline);
@@ -236,5 +237,21 @@ describe('the Travel panel builds through the book engine', () => {
 
     fireEvent.click(mark);
     expect(placed()).toMatchObject({ kind: 'badge', variant: 'country', text: 'Iceland', sub: '', code: 'IS' });
+  });
+
+  it('STTRV-009: places a country mark as the engine makes one, and the day where its word puts it', () => {
+    open(stats, (k) => (k === 'journey.studio.day' ? '{day}日目' : k));
+
+    const [, mark] = screen.getAllByRole('button', { name: 'Iceland' });
+    fireEvent.click(mark);
+    const value = bookBadgeValue(travel, 'country', null);
+    expect(value).toEqual({ text: 'Iceland', sub: '', code: 'IS' });
+    if (!value) throw new Error('the engine has no country mark for this journey');
+    const engine = bookTravelBadge({ id: 'bd', frame: ANY_FRAME, variant: 'country', value });
+    expect(content(placed())).toEqual(content(engine));
+    expect(placed().frame).toEqual(spreadCentre(bookTravelSize('badge', page, { variant: 'country' })));
+
+    fireEvent.click(card('journey.studio.dayMark'));
+    expect(placed()).toMatchObject({ variant: 'day', text: '1日目' });
   });
 });

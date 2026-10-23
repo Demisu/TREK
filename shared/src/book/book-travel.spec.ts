@@ -1,7 +1,11 @@
+import { buildBook } from './auto/auto-book';
+import { applyAutoTemplate } from './auto/auto-template-apply';
 import type { AutoEntry } from './auto/auto-types';
 import {
   bookBadgeValue,
+  bookCountryMark,
   bookCountryName,
+  bookDayText,
   bookEntryListItems,
   bookTravelCountries,
   bookTravelMap,
@@ -13,7 +17,7 @@ import {
   routeFor,
   type BookTravelContext,
 } from './book-travel';
-import { bookElementSchema, bookPageSetupSchema, type BookElement } from './book.schema';
+import { bookBadgeElementSchema, bookElementSchema, bookPageSetupSchema, type BookElement } from './book.schema';
 import type { JourneyStats } from './journey-stats.schema';
 
 import { describe, expect, it } from 'vitest';
@@ -172,5 +176,74 @@ describe('book travel', () => {
     expect(isStale(map, moved)).toBe(true);
     expect(refreshPatch(map, moved)).toMatchObject({ countries: ['IS'] });
     expect(isStale(figures, null)).toBe(false);
+  });
+
+  it('BOOKTRV-008: puts the day number where the label says, and after a label that does not say', () => {
+    expect(bookDayText('DAY {day}', 5)).toBe('DAY 5');
+    expect(bookDayText('{day}日目', 3)).toBe('3日目');
+    expect(bookDayText('第{day}天', 12)).toBe('第12天');
+    expect(bookDayText('DAY', 5)).toBe('DAY 5');
+    const japanese: BookTravelContext = { ...ctx, labels: { ...ctx.labels, day: '{day}日目' } };
+    expect(bookBadgeValue(japanese, 'day', entry)).toEqual({ text: '5日目', sub: '', code: null });
+    expect(bookBadgeValue(japanese, 'day', null)?.text).toBe('1日目');
+    // The auto layout's chip at the foot of an entry says it the same way.
+    const doc = buildBook({
+      locale: 'ja',
+      title: 'North',
+      subtitle: null,
+      coverPhotoId: null,
+      entries: [{ ...entry, story: 'Whales off the harbour.' }],
+      page: bookPageSetupSchema.parse({}),
+      stats,
+      stationsLabel: 'Stations',
+      dayLabel: '{day}日目',
+      summaryLabel: 'Summary',
+      countriesLabel: 'Countries',
+      templates: [],
+    });
+    const elements = doc.spreads.flatMap((s) => s.elements);
+    const days = elements.flatMap((e) => (e.kind === 'badge' && e.variant === 'day' ? [e.text] : []));
+    expect(days).toEqual(['5日目']);
+  });
+
+  it('BOOKTRV-009: names the country as the words of a country mark and beside the flag of a flag mark', () => {
+    expect(bookBadgeValue(ctx, 'country', entry)).toEqual({ text: 'Iceland', sub: '', code: 'IS' });
+    expect(bookBadgeValue({ ...ctx, locale: 'de' }, 'country', null)).toEqual({ text: 'Island', sub: '', code: 'IS' });
+    expect(bookBadgeValue(ctx, 'flag', null)).toEqual({ text: '', sub: 'Iceland', code: 'IS' });
+    expect(bookBadgeValue({ ...ctx, stats: null }, 'country', null)).toBeNull();
+    expect(bookCountryMark('country', 'PT', 'Portugal')).toEqual({ text: 'Portugal', sub: '', code: 'PT' });
+    expect(bookCountryMark('flag', 'PT', 'Portugal')).toEqual({ text: '', sub: 'Portugal', code: 'PT' });
+  });
+
+  it('BOOKTRV-010: fills the day and country marks of a template by the same rules, a flag where it was drawn', () => {
+    const frame = { x: 0.1, y: 0.1, w: 0.2, h: 0.05 };
+    const mark = (variant: 'day' | 'country' | 'flag', text: string, sub: string) =>
+      bookBadgeElementSchema.parse({ id: variant, kind: 'badge', variant, text, sub, frame });
+    // Flags set the auto layout's way (the name as its words, or no words yet) and one placed from the panel.
+    const template = {
+      id: 'marks',
+      background: null,
+      elements: [
+        mark('day', 'DAY 1', ''),
+        mark('country', 'FRANCE', 'Paris'),
+        mark('flag', 'FRANCE', ''),
+        mark('flag', '', ''),
+        mark('flag', '', 'France'),
+      ],
+    };
+    const fill = {
+      page: bookPageSetupSchema.parse({}),
+      locale: 'en',
+      stats,
+      dayLabel: '{day}日目',
+      newId: (p: string) => p,
+    };
+    expect(applyAutoTemplate(template, entry, fill).elements).toMatchObject([
+      { variant: 'day', text: '5日目' },
+      { variant: 'country', text: 'Iceland', sub: '', code: 'IS' },
+      { variant: 'flag', text: 'ICELAND', sub: '', code: 'IS' },
+      { variant: 'flag', text: 'ICELAND', sub: '', code: 'IS' },
+      { variant: 'flag', text: '', sub: 'Iceland', code: 'IS' },
+    ]);
   });
 });

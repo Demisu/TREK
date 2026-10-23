@@ -297,7 +297,7 @@ const journey: TranslationStrings = {
   'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
-  'journey.studio.day': 'NAP',
+  'journey.studio.day': '{day}. NAP',
   'journey.studio.stations': 'Állomások',
   'journey.studio.peersHere': 'itt',
   'journey.studio.folioAuto': 'Automatikus',
@@ -451,7 +451,6 @@ const journey: TranslationStrings = {
   'journey.studio.marks': 'Jelek',
   'journey.studio.dateMark': 'Dátum',
   'journey.studio.dayMark': 'Napszámláló',
-  'journey.studio.dayWord': 'NAP',
   'journey.studio.coordsMark': 'Koordináták',
   'journey.studio.coordsDms': 'Fok',
   'journey.studio.coordsDecimal': 'Tizedes',

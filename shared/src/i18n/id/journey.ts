@@ -290,7 +290,7 @@ const journey: TranslationStrings = {
   'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
-  'journey.studio.day': 'HARI',
+  'journey.studio.day': 'HARI {day}',
   'journey.studio.stations': 'Persinggahan',
   'journey.studio.peersHere': 'di sini',
   'journey.studio.folioAuto': 'Otomatis',
@@ -443,7 +443,6 @@ const journey: TranslationStrings = {
   'journey.studio.marks': 'Tanda',
   'journey.studio.dateMark': 'Tanggal',
   'journey.studio.dayMark': 'Penghitung hari',
-  'journey.studio.dayWord': 'HARI',
   'journey.studio.coordsMark': 'Koordinat',
   'journey.studio.coordsDms': 'Derajat',
   'journey.studio.coordsDecimal': 'Desimal',

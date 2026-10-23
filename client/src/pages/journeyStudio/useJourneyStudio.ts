@@ -296,6 +296,8 @@ export function useJourneyStudio() {
       // line over a route somebody had actually walked.
       path,
       stationsLabel: t('journey.studio.stations'),
+      // The template as it stands ("DAY {day}", "{day}日目"): without params `t`
+      // leaves the `{day}` alone, and the layout puts each chip's number there.
       dayLabel: t('journey.studio.day'),
       summaryLabel: t('journey.studio.summary'),
       countriesLabel: t('journey.studio.countries'),

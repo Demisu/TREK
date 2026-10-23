@@ -302,7 +302,7 @@ const journey: TranslationStrings = {
   'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
-  'journey.studio.day': 'DEN',
+  'journey.studio.day': 'DEN {day}',
   'journey.studio.stations': 'Zastávky',
   'journey.studio.peersHere': 'zde',
   'journey.studio.folioAuto': 'Automaticky',
@@ -458,7 +458,6 @@ const journey: TranslationStrings = {
   'journey.studio.marks': 'Značky',
   'journey.studio.dateMark': 'Datum',
   'journey.studio.dayMark': 'Počítadlo dní',
-  'journey.studio.dayWord': 'DEN',
   'journey.studio.coordsMark': 'Souřadnice',
   'journey.studio.coordsDms': 'Stupně',
   'journey.studio.coordsDecimal': 'Desetinné',

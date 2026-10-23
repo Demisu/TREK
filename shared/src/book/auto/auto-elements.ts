@@ -256,10 +256,12 @@ export function coordsMark(
   return badgeEl(newId, frame, 'coords', { text: formatBookCoords(lat, lng) }, { style: 'plain', textScale: 0.7 });
 }
 
-/** The "DAY 5" chip. Small, solid, and the only filled shape on most pages. */
-export function dayChip(newId: NewId, frame: BookFrame, day: number | null | undefined, label: string) {
-  if (!day) return null;
-  return badgeEl(newId, frame, 'day', { text: `${label} ${day}` }, { style: 'chip', textScale: 0.75 });
+/**
+ * The "DAY 5" chip, its words made by `bookDayText`. Small, solid, and the
+ * only filled shape on most pages.
+ */
+export function dayChip(newId: NewId, frame: BookFrame, text: string) {
+  return badgeEl(newId, frame, 'day', { text }, { style: 'chip', textScale: 0.75 });
 }
 
 /** A rule along the foot with a dot showing how far into the journey this is. */

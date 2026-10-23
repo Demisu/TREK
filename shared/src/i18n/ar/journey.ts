@@ -320,7 +320,7 @@ const journey: TranslationStrings = {
   'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
-  'journey.studio.day': 'اليوم',
+  'journey.studio.day': 'اليوم {day}',
   'journey.studio.stations': 'المحطات',
   'journey.studio.peersHere': 'هنا',
   'journey.studio.folioAuto': 'تلقائي',
@@ -481,7 +481,6 @@ const journey: TranslationStrings = {
   'journey.studio.marks': 'العلامات',
   'journey.studio.dateMark': 'التاريخ',
   'journey.studio.dayMark': 'عدّاد الأيام',
-  'journey.studio.dayWord': 'اليوم',
   'journey.studio.coordsMark': 'الإحداثيات',
   'journey.studio.coordsDms': 'درجات',
   'journey.studio.coordsDecimal': 'عشرية',

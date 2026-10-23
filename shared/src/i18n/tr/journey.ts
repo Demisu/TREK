@@ -295,7 +295,7 @@ const journey: TranslationStrings = {
   'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
-  'journey.studio.day': 'GÜN',
+  'journey.studio.day': '{day}. GÜN',
   'journey.studio.stations': 'Duraklar',
   'journey.studio.peersHere': 'burada',
   'journey.studio.folioAuto': 'Otomatik',
@@ -452,7 +452,6 @@ const journey: TranslationStrings = {
   'journey.studio.marks': 'İşaretler',
   'journey.studio.dateMark': 'Tarih',
   'journey.studio.dayMark': 'Gün sayacı',
-  'journey.studio.dayWord': 'GÜN',
   'journey.studio.coordsMark': 'Koordinatlar',
   'journey.studio.coordsDms': 'Derece',
   'journey.studio.coordsDecimal': 'Ondalık',

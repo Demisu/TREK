@@ -1,4 +1,5 @@
 import { bookCoordValue, formatBookCoords, formatBookDate } from '../book-text';
+import { bookCountryMark, bookCountryName, bookDayText } from '../book-travel';
 import {
   MAX_TEXT_LENGTH,
   type BookBadgeElement,
@@ -32,7 +33,7 @@ export interface AutoTemplateContext {
   page: BookPageSetup;
   locale: string;
   stats: JourneyStats | null;
-  /** Already translated, because this module has no translation context. */
+  /** The day mark's label ("DAY {day}"), already translated, because this module has no translation context. */
   dayLabel: string;
   newId: NewId;
 }
@@ -143,14 +144,11 @@ function fillText(
  * answer keeps the one it was drawn with.
  */
 function fillBadge(el: BookBadgeElement, entry: AutoEntry, ctx: AutoTemplateContext): void {
-  if (el.variant === 'day' && entry.dayNumber) el.text = `${ctx.dayLabel} ${entry.dayNumber}`;
+  if (el.variant === 'day' && entry.dayNumber) el.text = bookDayText(ctx.dayLabel, entry.dayNumber);
   if (el.variant === 'coords' && entry.lat != null && entry.lng != null) {
     el.text = formatBookCoords(entry.lat, entry.lng);
   }
-  if ((el.variant === 'flag' || el.variant === 'country') && entry.country) {
-    el.code = entry.country;
-    el.text = countryName(entry.country, ctx).toUpperCase();
-  }
+  if ((el.variant === 'flag' || el.variant === 'country') && entry.country) fillCountry(el, entry.country, ctx);
   if (el.variant === 'date' && entry.date) {
     const d = new Date(`${entry.date}T00:00:00`);
     if (!Number.isNaN(d.getTime())) {
@@ -163,11 +161,20 @@ function fillBadge(el: BookBadgeElement, entry: AutoEntry, ctx: AutoTemplateCont
   }
 }
 
-function countryName(code: string, ctx: AutoTemplateContext): string {
-  const known = ctx.stats?.countries.find((c) => c.code === code);
-  try {
-    return new Intl.DisplayNames([ctx.locale], { type: 'region' }).of(code) ?? known?.name ?? code;
-  } catch {
-    return known?.name ?? code;
+/**
+ * A country mark takes the rule the engine and the Travel panel follow
+ * (`bookCountryMark`): the name as its words, and the drawn words beside them
+ * go. A flag keeps the place its template set the name in: in capitals as its
+ * words, the way the auto layout sets a flag, or beside the flag (`sub`) where
+ * it was placed from the panel, so no drawn name is left next to the new one.
+ */
+function fillCountry(el: BookBadgeElement, code: string, ctx: AutoTemplateContext): void {
+  const name = bookCountryName(code, ctx.locale, ctx.stats);
+  if (el.variant === 'country') {
+    Object.assign(el, bookCountryMark('country', code, name));
+    return;
   }
+  el.code = code;
+  if (el.text || !el.sub) el.text = name.toUpperCase();
+  else el.sub = name;
 }

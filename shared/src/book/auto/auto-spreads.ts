@@ -1,4 +1,5 @@
 import { formatBookDate } from '../book-text';
+import { bookDayText } from '../book-travel';
 import type { BookElement, BookSpread } from '../book.schema';
 import {
   ACCENT,
@@ -138,8 +139,7 @@ function footMarks(ctx: EntryContext, els: BookElement[], at: { x: number; y: nu
   const t = total && total > 1 ? Math.min(1, Math.max(0, (day - 1) / (total - 1))) : 0;
   const cw = 24;
   const cx = Math.min(x + w - cw, Math.max(x, x + w * t - cw / 2));
-  const chip = dayChip(newId, { x: cx, y: y - 11, w: cw, h: 7 }, day, input.dayLabel);
-  if (chip) els.push(chip);
+  els.push(dayChip(newId, { x: cx, y: y - 11, w: cw, h: 7 }, bookDayText(input.dayLabel, day)));
 }
 
 /** The story, bound to the entry, set in a column. */

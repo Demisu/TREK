@@ -310,7 +310,7 @@ const journey: TranslationStrings = {
   'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
-  'journey.studio.day': 'ДЕНЬ',
+  'journey.studio.day': 'ДЕНЬ {day}',
   'journey.studio.stations': 'Остановки',
   'journey.studio.peersHere': 'здесь',
   'journey.studio.folioAuto': 'Автоматически',
@@ -469,7 +469,6 @@ const journey: TranslationStrings = {
   'journey.studio.marks': 'Метки',
   'journey.studio.dateMark': 'Дата',
   'journey.studio.dayMark': 'Счётчик дней',
-  'journey.studio.dayWord': 'ДЕНЬ',
   'journey.studio.coordsMark': 'Координаты',
   'journey.studio.coordsDms': 'Градусы',
   'journey.studio.coordsDecimal': 'Десятичные',

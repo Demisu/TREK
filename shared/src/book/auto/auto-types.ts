@@ -67,7 +67,11 @@ export interface AutoInput {
   stats: JourneyStats | null;
   /** The heading over a list of bare stops, already translated. */
   stationsLabel: string;
-  /** The word before a day number on a chip ("DAY 5"). Already translated. */
+  /**
+   * The words of a day chip, already translated: `{day}` stands where the
+   * number goes ("DAY {day}", "{day}日目"), and a word without it is followed
+   * by the number ("DAY 5"). See `bookDayText`.
+   */
   dayLabel: string;
   /**
    * The real geometry of the route, when the journey has any (GPX and KML

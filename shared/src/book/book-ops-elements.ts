@@ -1,5 +1,5 @@
 import { relayoutSpread } from './auto/auto-book';
-import type { AutoInput } from './auto/auto-types';
+import type { AutoEntry, AutoInput } from './auto/auto-types';
 import { bookElementPropsSchema, type BOOK_ELEMENT_OP_SCHEMAS, type BookNewElement } from './book-element-ops.schema';
 import { bookGridElements, defaultBookGridBox, findBookGrid } from './book-grids';
 import {
@@ -15,6 +15,7 @@ import {
 } from './book-ops-core';
 import {
   bookBadgeValue,
+  bookCountryMark,
   bookCountryName,
   bookEntryListItems,
   bookTravelBadge,
@@ -334,7 +335,7 @@ function newBadge(spec: Extract<TravelSpec, { kind: 'badge' }>, id: string, at: 
   if (spec.entryId !== undefined && !entry) {
     throw failOp('entry_not_found', `entry ${spec.entryId} is not in this journey`, env.opIndex);
   }
-  const resolved = travel ? bookBadgeValue(travel, spec.variant, entry) : null;
+  const resolved = travel ? badgeValue(spec, travel, entry) : null;
   const ownCode = spec.variant === 'mood' ? entry?.mood : spec.variant === 'weather' ? entry?.weather : undefined;
   const text = spec.text ?? resolved?.text;
   if (text === undefined || (!text && !resolved)) {
@@ -343,29 +344,25 @@ function newBadge(spec: Extract<TravelSpec, { kind: 'badge' }>, id: string, at: 
   }
   const value = {
     text,
-    sub: spec.sub ?? badgeSub(spec, resolved?.sub, resolved?.code, travel) ?? '',
+    sub: spec.sub ?? resolved?.sub ?? '',
     code: spec.code ?? ownCode ?? resolved?.code ?? null,
   };
   const frame = at(bookTravelSize('badge', env.page, { variant: spec.variant }));
   return bookTravelBadge({ id, frame, variant: spec.variant, value });
 }
 
-/** The marks whose code names a country. */
-const COUNTRY_MARKS: ReadonlySet<string> = new Set(['flag', 'country']);
-
 /**
- * A flag or country mark asked for by its own code is labelled with that
- * country; the journey's value names its first country, the one a mark
- * without a code shows.
+ * The words the journey gives a mark. A flag or country mark asked for by its
+ * own code is labelled with that country, its name where the mark's rule puts
+ * it (`bookCountryMark`); without a code it shows the entry's country or the
+ * journey's first.
  */
-function badgeSub(
-  spec: Extract<TravelSpec, { kind: 'badge' }>,
-  sub: string | undefined,
-  code: string | null | undefined,
-  travel: BookTravelContext | undefined,
-): string | undefined {
-  if (!travel || !spec.code || !COUNTRY_MARKS.has(spec.variant)) return sub;
-  return spec.code === code ? sub : bookCountryName(spec.code, travel.locale, travel.stats);
+function badgeValue(spec: Extract<TravelSpec, { kind: 'badge' }>, travel: BookTravelContext, entry: AutoEntry | null) {
+  const { variant, code } = spec;
+  if (code && (variant === 'flag' || variant === 'country')) {
+    return bookCountryMark(variant, code, bookCountryName(code, travel.locale, travel.stats));
+  }
+  return bookBadgeValue(travel, variant, entry);
 }
 
 function newList(spec: Extract<TravelSpec, { kind: 'list' }>, id: string, at: At, env: ElementOpEnv): BookElement {

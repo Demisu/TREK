@@ -300,7 +300,7 @@ const journey: TranslationStrings = {
   'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
-  'journey.studio.day': 'ΗΜΕΡΑ',
+  'journey.studio.day': 'ΗΜΕΡΑ {day}',
   'journey.studio.stations': 'Στάσεις',
   'journey.studio.peersHere': 'εδώ',
   'journey.studio.folioAuto': 'Αυτόματα',
@@ -457,7 +457,6 @@ const journey: TranslationStrings = {
   'journey.studio.marks': 'Σημάνσεις',
   'journey.studio.dateMark': 'Ημερομηνία',
   'journey.studio.dayMark': 'Μετρητής ημερών',
-  'journey.studio.dayWord': 'ΗΜΕΡΑ',
   'journey.studio.coordsMark': 'Συντεταγμένες',
   'journey.studio.coordsDms': 'Μοίρες',
   'journey.studio.coordsDecimal': 'Δεκαδικές',

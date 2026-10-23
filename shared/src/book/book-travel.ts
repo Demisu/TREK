@@ -121,6 +121,7 @@ export function refreshPatch(el: BookElement, stats: JourneyStats): Partial<Book
 
 /** What the factories know about the journey, the words already in the book's language. */
 export interface BookTravelLabels {
+  /** The day mark's words, `{day}` standing where the number goes (`bookDayText`). */
   day: string;
   stations: string;
   summary: string;
@@ -283,6 +284,34 @@ export function bookTravelCountries(
   };
 }
 
+/** Where the number goes in a day mark's label. */
+const DAY_SLOT = '{day}';
+
+/**
+ * A day mark's words. The label says where the number goes with `{day}`, so a
+ * language that puts it first or inside the word reads as it should ("3日目",
+ * "第3天"); a label without one (a word stored before the placeholder, or a
+ * caller's own) is followed by the number, the way it always was ("DAY 3").
+ */
+export function bookDayText(label: string, day: number): string {
+  // `replace`, not `replaceAll`: the client compiles this file against an ES2020 lib. A label holds the slot once.
+  return label.includes(DAY_SLOT) ? label.replace(DAY_SLOT, String(day)) : `${label} ${day}`;
+}
+
+/**
+ * A flag or a country mark's words for one country, the one rule for the
+ * engine's value, the Travel panel's mark and a template's country mark. A
+ * country mark draws the outline beside the name, so the name is its words
+ * (`text`); a flag mark sets the name in small capitals beside the flag (`sub`).
+ */
+export function bookCountryMark(
+  variant: 'flag' | 'country',
+  code: string,
+  name: string,
+): { text: string; sub: string; code: string } {
+  return variant === 'country' ? { text: name, sub: '', code } : { text: '', sub: name, code };
+}
+
 /** The words a mark carries, resolved from an entry or the journey; null when nothing says what it would show. */
 export function bookBadgeValue(
   ctx: BookTravelContext,
@@ -298,7 +327,7 @@ export function bookBadgeValue(
   switch (variant) {
     case 'day': {
       const day = entry ? entry.dayNumber : 1;
-      return day ? { text: `${ctx.labels.day} ${day}`, sub: '', code: null } : null;
+      return day ? { text: bookDayText(ctx.labels.day, day), sub: '', code: null } : null;
     }
     case 'date': {
       const d = date ? new Date(`${date}T00:00:00`) : null;
@@ -313,7 +342,7 @@ export function bookBadgeValue(
     }
     case 'flag':
     case 'country':
-      return country ? { text: '', sub: bookCountryName(country, ctx.locale, stats), code: country } : null;
+      return country ? bookCountryMark(variant, country, bookCountryName(country, ctx.locale, stats)) : null;
     case 'distance':
       if (!stats) return null;
       return { text: formatDistance(stats.distance, ctx.locale), sub: ctx.labels.distance, code: null };

@@ -4,8 +4,8 @@ import type {
   BookBadgeVariant, BookElement, BookMapScope, BookMetric, BookPageSetup, BookTravelContext, JourneyStats,
 } from '@trek/shared'
 import {
-  BOOK_METRICS, bookBadgeValue, bookCountryName, bookElementId as uid, bookTravelBadge, bookTravelCountries,
-  bookTravelMap, bookTravelSize, bookTravelStats,
+  BOOK_METRICS, bookBadgeValue, bookCountryMark, bookCountryName, bookElementId as uid, bookTravelBadge,
+  bookTravelCountries, bookTravelMap, bookTravelSize, bookTravelStats,
 } from '@trek/shared'
 import { useStudioStore } from '../../store/studioStore'
 import { PanelHead } from './StudioPanelHead'
@@ -170,16 +170,14 @@ export function StudioTravelPanel({
    * What the book engine's factories read: the journey, its recorded way and
    * the words in the reader's language. Every tile below is built by the
    * factory the engine's `add` calls. Where it lands is the panel's own:
-   * centred across the spread, where `add` takes the right page. Two words are
-   * still the panel's too, so a mark placed here and one the assistant adds
-   * can read differently: the country mark carries the name in `text`, where
-   * the engine's value has it in `sub`, and the day mark says `dayWord`, where
-   * the engine says `day` (the two differ in ja, ko, zh and zh-TW).
+   * centred across the spread, where `add` takes the right page. The day word
+   * is the engine's too, handed over as its template: `t` leaves the `{day}`
+   * in it untouched, and `bookDayText` puts the number there.
    */
   const travel: BookTravelContext = {
     locale, stats, path, entries: [],
     labels: {
-      day: t('journey.studio.dayWord'), stations: t('journey.studio.stations'), summary: t('journey.studio.summary'),
+      day: t('journey.studio.day'), stations: t('journey.studio.stations'), summary: t('journey.studio.summary'),
       countries: t('journey.studio.countries'), distance: t('journey.studio.metric.distance'),
       pros: t('journey.editor.pros'), cons: t('journey.editor.cons'),
     },
@@ -564,7 +562,7 @@ export function StudioTravelPanel({
               */}
               <div className="st-travel-grid" style={{ marginTop: 6 }}>
                 {stats.countries.slice(0, 12).map(c => {
-                  const el = badgeEl('country', { text: countryName(c.code), sub: '', code: c.code })
+                  const el = badgeEl('country', bookCountryMark('country', c.code, countryName(c.code)))
                   return (
                     <Card key={`mark-${c.code}`} label={countryName(c.code)} onClick={() => place(el)}>
                       <TravelPreview el={el} minHeight={30} maxHeight={44} />

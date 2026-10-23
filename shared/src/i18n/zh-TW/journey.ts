@@ -284,7 +284,7 @@ const journey: TranslationStrings = {
   'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
-  'journey.studio.day': '第',
+  'journey.studio.day': '第{day}天',
   'journey.studio.stations': '途經地',
   'journey.studio.peersHere': '在線',
   'journey.studio.folioAuto': '自動',
@@ -435,7 +435,6 @@ const journey: TranslationStrings = {
   'journey.studio.marks': '標記',
   'journey.studio.dateMark': '日期',
   'journey.studio.dayMark': '天數計數',
-  'journey.studio.dayWord': 'DAY',
   'journey.studio.coordsMark': '座標',
   'journey.studio.coordsDms': '度分秒',
   'journey.studio.coordsDecimal': '十進位',

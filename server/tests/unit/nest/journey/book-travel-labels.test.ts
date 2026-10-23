@@ -19,12 +19,17 @@ describe('the book words', () => {
   it('JBLBL-002: the words come from the locale table, in the locale the book formats in', async () => {
     const french = await loadBookWords('fr');
     expect(french.locale).toBe('fr-FR');
-    expect(french.labels).toMatchObject({ day: 'JOUR', stations: 'Étapes', summary: 'Résumé', countries: 'Pays' });
+    expect(french.labels).toMatchObject({
+      day: 'JOUR {day}',
+      stations: 'Étapes',
+      summary: 'Résumé',
+      countries: 'Pays',
+    });
     const english = await loadBookWords('xx');
     expect(english).toEqual({
       locale: 'en-US',
       labels: {
-        day: 'DAY',
+        day: 'DAY {day}',
         stations: 'Stations',
         summary: 'Summary',
         countries: 'Countries',

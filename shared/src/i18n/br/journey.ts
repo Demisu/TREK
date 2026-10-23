@@ -298,7 +298,7 @@ const journey: TranslationStrings = {
   'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
-  'journey.studio.day': 'DIA',
+  'journey.studio.day': 'DIA {day}',
   'journey.studio.stations': 'Etapas',
   'journey.studio.peersHere': 'aqui',
   'journey.studio.folioAuto': 'Automático',
@@ -454,7 +454,6 @@ const journey: TranslationStrings = {
   'journey.studio.marks': 'Marcas',
   'journey.studio.dateMark': 'Data',
   'journey.studio.dayMark': 'Contador de dias',
-  'journey.studio.dayWord': 'DIA',
   'journey.studio.coordsMark': 'Coordenadas',
   'journey.studio.coordsDms': 'Graus',
   'journey.studio.coordsDecimal': 'Decimal',

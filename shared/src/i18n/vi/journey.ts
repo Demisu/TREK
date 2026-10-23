@@ -291,7 +291,7 @@ const journey: TranslationStrings = {
   'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
-  'journey.studio.day': 'NGÀY',
+  'journey.studio.day': 'NGÀY {day}',
   'journey.studio.stations': 'Chặng dừng',
   'journey.studio.peersHere': 'ở đây',
   'journey.studio.folioAuto': 'Tự động',
@@ -443,7 +443,6 @@ const journey: TranslationStrings = {
   'journey.studio.marks': 'Dấu',
   'journey.studio.dateMark': 'Ngày',
   'journey.studio.dayMark': 'Bộ đếm ngày',
-  'journey.studio.dayWord': 'NGÀY',
   'journey.studio.coordsMark': 'Tọa độ',
   'journey.studio.coordsDms': 'Độ',
   'journey.studio.coordsDecimal': 'Thập phân',

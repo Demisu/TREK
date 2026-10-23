@@ -286,7 +286,7 @@ const journey: TranslationStrings = {
   'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
-  'journey.studio.day': '일차',
+  'journey.studio.day': '{day}일차',
   'journey.studio.stations': '경유지',
   'journey.studio.peersHere': '접속 중',
   'journey.studio.folioAuto': '자동',
@@ -438,7 +438,6 @@ const journey: TranslationStrings = {
   'journey.studio.marks': '표시',
   'journey.studio.dateMark': '날짜',
   'journey.studio.dayMark': '일수 카운터',
-  'journey.studio.dayWord': 'DAY',
   'journey.studio.coordsMark': '좌표',
   'journey.studio.coordsDms': '도분초',
   'journey.studio.coordsDecimal': '십진도',
