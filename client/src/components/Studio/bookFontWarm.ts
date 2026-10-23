@@ -53,9 +53,12 @@ export async function warmBookFaces(
  * Warms the faces of the book the Studio holds whenever the set of faces it
  * uses changes; typing into a text does not, so an edit costs nothing here.
  */
+/** A key compares by code units: the same faces give the same key whatever the locale. */
+const byCodeUnits = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+
 export function useWarmBookFaces(): void {
   const doc = useStudioStore((s) => s.doc);
-  const key = useMemo(() => (doc ? bookFacesUsed(doc).map(faceSpec).sort().join('|') : ''), [doc]);
+  const key = useMemo(() => (doc ? bookFacesUsed(doc).map(faceSpec).sort(byCodeUnits).join('|') : ''), [doc]);
   useEffect(() => {
     const current = useStudioStore.getState().doc;
     // A face that will not load is drawn in its fallback, which the picker already shows; nothing to tell anyone.

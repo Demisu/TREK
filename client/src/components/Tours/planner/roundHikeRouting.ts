@@ -64,14 +64,15 @@ export async function findRoundHikes(
 ): Promise<void> {
   const state = await searchRoundLoops(request.start, request.targetM, (spots) => askLoop(request, spots, signal), {
     signal,
-    onStep: ({ found, asked }) => report({ phase: 'searching', candidates: found.map(candidateOf), asked }),
+    onStep: ({ found, asked }) =>
+      report({ phase: 'searching', candidates: found.map((loop, i) => candidateOf(loop, i)), asked }),
   });
   if (signal.aborted) return;
   if (state.answered === 0) {
     report({ phase: 'failed', candidates: [], asked: state.asked });
     return;
   }
-  const found = state.found.map(candidateOf);
+  const found = state.found.map((loop, i) => candidateOf(loop, i));
   let candidates = [...found];
   report({ phase: 'done', candidates, asked: state.asked });
   for (const round of found) {

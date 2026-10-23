@@ -120,8 +120,9 @@ export function pickFaceRules(rules: readonly FaceRule[], uses: FaceUses): FaceR
     const slanted = ofFamily.filter((r) => r.italic === (italicText === 'true'));
     const styled = slanted.length ? slanted : ofFamily.filter((r) => !r.italic);
     if (!styled.length) continue;
-    const nearest = styled.reduce((best, r) =>
-      Math.abs(r.weight - weight) < Math.abs(best.weight - weight) ? r : best
+    const nearest = styled.reduce(
+      (best, r) => (Math.abs(r.weight - weight) < Math.abs(best.weight - weight) ? r : best),
+      styled[0]
     ).weight;
     for (const rule of styled) {
       if (rule.weight === nearest && coversAny(rule.unicodeRange, chars)) picked.set(rule.url, rule);
