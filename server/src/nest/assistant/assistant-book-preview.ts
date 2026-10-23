@@ -21,15 +21,25 @@ import { ASSISTANT_PAGE_IMAGE, previewBookPageRequestSchema } from '@trek/shared
 
 const EDIT_TOOL = 'edit_book_page';
 
-const DESCRIPTION =
-  'Look at one page of the book before you change it or after: its elements, its findings (overlaps, words past ' +
-  'their frame, empty frames, low resolution, content in the fold) and, when your model reads images, the page as ' +
-  'the Studio draws it, with photos of other contributors left as empty frames. With ops (the same ops ' +
-  'edit_book_page takes) you see the page as that edit would leave it, without saving anything. Preview a page ' +
-  'once before you propose an edit of it, fix what the findings or the image show, then propose the edit. ' +
-  'With designId (from design_book) you see the page of that design draft instead of the book. ' +
+/** What a look answers, whoever looks. */
+const SEES =
+  'its elements, its findings (overlaps, words past their frame, empty frames, low resolution, content in the ' +
+  'fold) and, when your model reads images, the page as the Studio draws it, with photos of other contributors ' +
+  'left as empty frames.';
+
+const CAPS =
   `At most ${ASSISTANT_PAGE_IMAGE.previewsPerStep} previews per step and ${ASSISTANT_PAGE_IMAGE.previewsPerTurn} ` +
   'per turn.';
+
+/** For a session that may change the book: a proposed edit and a design draft can be looked at too. */
+const EDITOR_DESCRIPTION =
+  `Look at one page of the book before you change it or after: ${SEES} With ops (the same ops edit_book_page ` +
+  'takes) you see the page as that edit would leave it, without saving anything. Preview a page once before you ' +
+  'propose an edit of it, fix what the findings or the image show, then propose the edit. With designId (from ' +
+  `design_book) you see the page of that design draft instead of the book. ${CAPS}`;
+
+/** For a session without edit_book_page (a viewer's): the page as it stands, nothing it could not ask for. */
+const READER_DESCRIPTION = `Look at one page of the book as it stands: ${SEES} ${CAPS}`;
 
 /** The draft a preview may look at instead of the book, by design_book's design_id. */
 const DESIGN_ID = { type: 'string', pattern: '^[\\w-]{1,40}$', description: 'A design draft, by its design_id.' };
@@ -48,7 +58,7 @@ function previewSpec(specs: readonly AiToolSpec[]): AiToolSpec {
   for (const key of ['$defs', 'definitions']) if (edit?.parameters[key]) shared[key] = edit.parameters[key];
   return {
     name: PREVIEW_BOOK_PAGE_TOOL,
-    description: DESCRIPTION,
+    description: ops ? EDITOR_DESCRIPTION : READER_DESCRIPTION,
     parameters: {
       type: 'object',
       properties: {

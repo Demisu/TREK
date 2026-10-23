@@ -2,25 +2,29 @@
  * The vacation planner's cards: what a held day off looks up first, what it
  * would do to the day (taken, given back, changed, refused) and to the days
  * left, the company holiday and the new allowance, the applied card against
- * what the tool says it did, and the answer cards of the planner's reads,
- * each checked against the card union.
+ * what the tool says it did, the way back from a toggled day while it is as
+ * the change left it, and the answer cards of the planner's reads, each
+ * checked against the card union.
  */
 import { buildTripCard } from '../../../../../../src/nest/assistant/assistant-context';
-import type { CardReader, PreviewContext } from '../../../../../../src/nest/assistant/cards/card-types';
+import { unchangedSinceApplied } from '../../../../../../src/nest/assistant/assistant-undo.helpers';
+import type { CardReader, PreviewContext, UndoSnapshot } from '../../../../../../src/nest/assistant/cards/card-types';
 import { readKey } from '../../../../../../src/nest/assistant/cards/card-values';
 import {
   answerCardOf,
   appliedCardOf,
+  ASSISTANT_UNDO_MAP,
   ASSISTANT_WRITE_TOOLS,
   CARD_PROMPT_LINES,
   changeCardOf,
   TOOL_CARDS,
+  undoReadsOf,
 } from '../../../../../../src/nest/assistant/cards/registry';
 import { VACAY_CARDS } from '../../../../../../src/nest/assistant/cards/vacay';
 import { loadDay, loadStats, type VacayLoaded } from '../../../../../../src/nest/assistant/cards/vacay/vacay-load';
 import { entriesOf, holidaysOf, planOf, statsOf } from '../../../../../../src/nest/assistant/cards/vacay/vacay-reads';
 import { appliedChange, describeToolCall } from '../../../../../../src/nest/assistant/tool-call-preview.helpers';
-import { trekCardSchema, VACAY_CARD_MAX_DAYS, type VacayCard } from '@trek/shared';
+import { trekCardSchema, VACAY_CARD_MAX_DAYS, type AssistantChangePreview, type VacayCard } from '@trek/shared';
 
 import { describe, expect, it } from 'vitest';
 
@@ -375,6 +379,11 @@ describe('a held day off', () => {
     expect(remove.card?.kind).toBe('vacay');
     const convert = describeToolCall('toggle_vacay_entry', 'v2', { date: '2026-10-27' }, ctx, found);
     expect(convert.verbKey).toBe('changeVacationDay');
+    // A day added or converted has a way back (ASTVAC-015), a day cleared none, nor a call whose lookup failed.
+    const add = describeToolCall('toggle_vacay_entry', 'v4', { date: '2026-10-28' }, ctx, found);
+    expect(add).toMatchObject({ verbKey: 'addVacationDay', undoable: true });
+    expect(convert.undoable).toBe(true);
+    expect(remove.undoable).toBe(false);
     const bare = describeToolCall('toggle_vacay_entry', 'v3', { date: '2026-10-26' }, ctx, null);
     expect(bare).toMatchObject({ verbKey: 'addVacationDay', subject: 'Mon, Oct 26', undoable: false });
     expect(bare.card).toBeUndefined();
@@ -430,6 +439,90 @@ describe('a held day off', () => {
   });
 });
 
+describe('the way back from a day off', () => {
+  const ADDED = { action: 'added', fraction: 1, kind: 'vacation' };
+  /** What a toggle answers when it converted a day to a whole vacation day. */
+  const CONVERTED = { action: 'updated', fraction: 1, kind: 'vacation' };
+  const undoArgs = (args: Record<string, unknown>, result: unknown, preview: AssistantChangePreview | null) =>
+    ASSISTANT_UNDO_MAP.toggle_vacay_entry?.args(args, result, preview);
+
+  it('ASTVAC-015: an added day is cleared and a converted one set back, for the person held; a cleared day stays', async () => {
+    const found = await loaded();
+    const held = (args: Record<string, unknown>) => describeToolCall('toggle_vacay_entry', 'v1', args, ctx, found);
+    const day = { date: '2026-10-28' };
+    expect(undoArgs(day, ADDED, held(day))).toEqual({
+      date: '2026-10-28',
+      fraction: 1,
+      kind: 'vacation',
+      targetUserId: ANA,
+    });
+    const ben = { date: '2026-10-28', targetUserId: BEN, kind: 'comp' };
+    expect(undoArgs(ben, { action: 'added', fraction: 1, kind: 'comp' }, held(ben))).toEqual({
+      date: '2026-10-28',
+      fraction: 1,
+      kind: 'comp',
+      targetUserId: BEN,
+    });
+    // Ana's half day made whole goes back to half a day.
+    const half = { date: '2026-10-27' };
+    expect(undoArgs(half, CONVERTED, held(half))).toEqual({
+      date: '2026-10-27',
+      fraction: 0.5,
+      kind: 'vacation',
+      targetUserId: ANA,
+    });
+    // Cleared, done otherwise than the card foresaw, without the card or on another day: no way back.
+    const full = { date: '2026-10-26' };
+    expect(undoArgs(full, { action: 'removed' }, held(full))).toBeNull();
+    expect(undoArgs(day, CONVERTED, held(day))).toBeNull();
+    expect(undoArgs(half, { action: 'updated', fraction: 1, kind: 'comp' }, held(half))).toBeNull();
+    expect(undoArgs(half, ADDED, held(half))).toBeNull();
+    expect(undoArgs(day, ADDED, null)).toBeNull();
+    expect(undoArgs({ date: '2026-10-29' }, ADDED, held(day))).toBeNull();
+    expect(undoArgs(day, { action: 'added', fraction: 2, kind: 'vacation' }, held(day))).toBeNull();
+    expect(undoReadsOf('toggle_vacay_entry', day, ADDED)).toEqual([
+      { tool: 'get_vacay_entries', args: { year: 2026 } },
+      { tool: 'get_vacay_entries', args: { year: 2025 } },
+    ]);
+  });
+
+  it('ASTVAC-016: the undo runs only while the day is as the change left it and the toggle back does just that', async () => {
+    const found = await loaded();
+    const day = { date: '2026-10-28' };
+    const call = { args: day, preview: describeToolCall('toggle_vacay_entry', 'v1', day, ctx, found) };
+    const none = { entries: { entries: [], companyHolidays: [] } };
+    const snapshot = (rows: unknown[], company: unknown[] = [], earlier: unknown = none): UndoSnapshot => ({
+      summary: null,
+      places: null,
+      reads: new Map([
+        [readKey('get_vacay_entries', { year: 2026 }), { entries: { entries: rows, companyHolidays: company } }],
+        [readKey('get_vacay_entries', { year: 2025 }), earlier],
+      ]),
+    });
+    const check = (result: unknown, snap: UndoSnapshot, made = call) =>
+      unchangedSinceApplied('toggle_vacay_entry', result, snap, made);
+    expect(check(ADDED, snapshot([entry(ANA, '2026-10-28')]))).toBe(true);
+    // The grid of the year before can show the day too: it is read there as well.
+    const before = { entries: { entries: [entry(ANA, '2026-10-28')], companyHolidays: [] } };
+    expect(check(ADDED, snapshot([], [], before))).toBe(true);
+    // Changed by hand, cleared, or only someone else's day: changed since.
+    expect(check(ADDED, snapshot([entry(ANA, '2026-10-28', 0.5)]))).toBe(false);
+    expect(check(ADDED, snapshot([entry(BEN, '2026-10-28')]))).toBe(false);
+    expect(check(ADDED, snapshot([]))).toBe(false);
+    // Half a company holiday since makes every toggle half a day: a whole day is not cleared that way.
+    const halfCompany = (date: string) => [{ date, fraction: 0.5 }];
+    expect(check(ADDED, snapshot([entry(ANA, '2026-10-28')], halfCompany('2026-10-28')))).toBe(false);
+    // A read that failed, or no call to tell the day by, reads as changed since.
+    expect(check(ADDED, snapshot([entry(ANA, '2026-10-28')], [], null))).toBe(false);
+    expect(unchangedSinceApplied('toggle_vacay_entry', ADDED, snapshot([entry(ANA, '2026-10-28')]))).toBe(false);
+    expect(TOOL_CARDS.toggle_vacay_entry?.undo?.unchanged(ADDED, snapshot([entry(ANA, '2026-10-28')]))).toBe(false);
+    // Half a day set back on half a company holiday is just what the toggle does there.
+    const half = { date: '2026-10-27' };
+    const converted = { args: half, preview: describeToolCall('toggle_vacay_entry', 'v2', half, ctx, found) };
+    expect(check(CONVERTED, snapshot([entry(ANA, '2026-10-27')], halfCompany('2026-10-27')), converted)).toBe(true);
+  });
+});
+
 describe('a held company holiday and allowance', () => {
   it('ASTVAC-020: a whole company holiday gives back what was logged that day, a half one half of a whole day', async () => {
     const found = await loaded();
@@ -474,14 +567,16 @@ describe('a held company holiday and allowance', () => {
     });
   });
 
-  it('ASTVAC-022: the package registers its writes, reads and one prompt line, and no undo', () => {
+  it('ASTVAC-022: the package registers its writes, reads, one prompt line and the way back of a toggle only', () => {
     expect(ASSISTANT_WRITE_TOOLS.toggle_vacay_entry).toEqual({ verbKey: 'addVacationDay', entity: 'vacay' });
     expect(ASSISTANT_WRITE_TOOLS.toggle_company_holiday?.verbKey).toBe('setCompanyHoliday');
     expect(ASSISTANT_WRITE_TOOLS.update_vacay_stats?.verbKey).toBe('setVacationAllowance');
     for (const tool of ['get_vacay_entries', 'get_vacay_stats', 'list_holidays']) {
       expect(TOOL_CARDS[tool]?.answer, tool).toBeTypeOf('function');
     }
-    expect(TOOL_CARDS.toggle_vacay_entry?.undo).toBeUndefined();
+    expect(TOOL_CARDS.toggle_vacay_entry?.undo?.tool).toBe('toggle_vacay_entry');
+    expect(TOOL_CARDS.toggle_company_holiday?.undo).toBeUndefined();
+    expect(TOOL_CARDS.update_vacay_stats?.undo).toBeUndefined();
     expect(TOOL_CARDS.toggle_vacay_entry?.applied).toBeTypeOf('function');
     expect(TOOL_CARDS.toggle_company_holiday?.applied).toBeTypeOf('function');
     expect(CARD_PROMPT_LINES).toContain(VACAY_CARDS.prompt?.[0]);

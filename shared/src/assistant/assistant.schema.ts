@@ -356,6 +356,8 @@ export const assistantChangePreviewWriteSchema = z.object({
   domain: z.string().max(40).optional(),
   // What the change will do, drawn as a card; absent on older rows and on cards without one.
   card: trekCardSchema.nullable().optional(),
+  // The proposal a change held by "Plan this" was taken from (its call id); absent on every other change.
+  takenFrom: assistantTakeProposalRequestSchema.shape.toolCallId.optional(),
 });
 
 /**

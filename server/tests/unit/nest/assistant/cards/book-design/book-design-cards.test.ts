@@ -222,13 +222,13 @@ describe('the book-level changes', () => {
 
 describe('the designer in the Studio', () => {
   it('ASTBD-008: the Studio instructions end with the design rules, cache-stable and without dashes', () => {
-    const prompt = studioPrompt('German');
+    const prompt = studioPrompt('German', true);
     expect(prompt.endsWith(BOOK_DESIGN_PROMPT)).toBe(true);
     expect(BOOK_DESIGN_PROMPT.split('\n').length).toBeLessThanOrEqual(14);
     for (const tool of ['design_book', 'revise_book_design', 'apply_book_design', 'preview_book_page']) {
       expect(BOOK_DESIGN_PROMPT).toContain(tool);
     }
     expect(BOOK_DESIGN_PROMPT).not.toMatch(/[\u2013\u2014]/);
-    expect(studioPrompt('German')).toBe(prompt);
+    expect(studioPrompt('German', true)).toBe(prompt);
   });
 });

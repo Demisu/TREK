@@ -1,5 +1,6 @@
-import type { ToolArgs, ToolCards, UndoSnapshot } from '../card-types';
-import { readKey, recordOf } from '../card-values';
+import { BOOK_READ, bookUnmoved, versionOf, type BookUndo } from '../book/book-undo';
+import type { ToolArgs } from '../card-types';
+import { recordOf } from '../card-values';
 
 /**
  * The way back from the book-level changes (journey-studio-wp13.md 6.1). An
@@ -8,26 +9,9 @@ import { readKey, recordOf } from '../card-values';
  * layout with `remove_book_layout`, a removed one with `restore_book_layout`.
  * Each call names the version the change left, so a save landing in between
  * is refused (409, "changed since") rather than overwritten; the ones that
- * can only tell from the book also read `get_book` first, like the page
- * undos of the photo book (book-undo.ts), whose version is the whole book's.
+ * can only tell from the book also read `get_book` first, with the same
+ * version check as the photo book's new and moved pages (book-undo.ts).
  */
-
-type BookUndo = NonNullable<ToolCards['undo']>;
-
-/** The version a write's answer left the book at; null for an answer that names none. */
-function versionOf(result: unknown): number | null {
-  const version = recordOf(result).version;
-  return typeof version === 'number' && Number.isInteger(version) && version > 0 ? version : null;
-}
-
-/** The book as the undo reads it before it checks. */
-const BOOK_READ = { tool: 'get_book', args: {} } as const;
-
-/** Nothing was saved to the book since the change: `get_book` still reads the version it left. */
-function bookUnmoved(result: unknown, snapshot: UndoSnapshot): boolean {
-  const left = versionOf(result);
-  return left !== null && versionOf(snapshot.reads.get(readKey(BOOK_READ.tool, BOOK_READ.args))) === left;
-}
 
 /** The revision an applied design kept; null when the journey had no book before it. */
 function revisionOf(result: unknown): number | null {

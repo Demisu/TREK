@@ -9,11 +9,13 @@
  * operations, the findings), applied with a receipt card, and taken back in
  * one undo while nothing was saved since; an operation the engine refuses
  * never reaches the user; new pages are not taken back once the book moved on,
- * and neither is an edited page (the restore's version check refuses it). The
- * version is the whole book's, so of two book changes applied together only
- * the newer one can be taken back: a known limit, pinned here. A page is
- * previewed with the ops of an edit before it is proposed, nothing saved; on
- * this text-only model the preview is the page's description alone.
+ * and neither is an edited page once that page was saved since (the restore
+ * checks the page as the change left it). A save to another page does not
+ * hold an edit's undo back, so of two changes to one page applied together
+ * "undo all" takes back the newer, then the older; changes apply in the order
+ * the decisions name them. A page is previewed with the ops of an edit before
+ * it is proposed, nothing saved; on this text-only model the preview is the
+ * page's description alone.
  */
 import { buildApp } from '../../src/bootstrap';
 import { withRequestContext } from '../../src/nest/database/request-context';
@@ -248,6 +250,7 @@ describe('Studio book cards e2e', () => {
     });
     // The pages the answer kept for the undo never reach the model or the chat.
     expect(JSON.stringify(ofType(decided, 'tool-output-available'))).not.toContain('previous_spreads');
+    expect(JSON.stringify(ofType(decided, 'tool-output-available'))).not.toContain('page_digests');
     expect((await bookOf(j)).spreads[2]?.emptyFrames).toBe(2);
 
     const undone = await undo(j.base, j.userId, held?.toolCallId ?? '');
@@ -308,7 +311,7 @@ describe('Studio book cards e2e', () => {
     expect([after.version, after.spreads[2]?.elements]).toEqual([3, 1]);
   });
 
-  it('ASTBKE2E-005: of two book changes applied together, the newer is taken back and the older then answers stale', async () => {
+  it('ASTBKE2E-005: of two changes to one page applied together, "undo all" takes back the newer, then the older', async () => {
     const j = await ownerWithBook();
     provider.script = [callTools(paper('call_a', j.inner, '#f4efe6'), paper('call_b', j.inner, '#e6eef4'))];
     const first = await stream(`${j.base}/chat`, j.userId, { ...CTX, threadId: null, text: 'Try two papers' });
@@ -316,14 +319,16 @@ describe('Studio book cards e2e', () => {
     expect(held).toHaveLength(2);
     const threadId = ofType(first, 'data-trek-thread')[0]?.data.threadId ?? 0;
     await approve(j.base, j.userId, threadId, ...held);
-    expect((await bookOf(j)).version).toBe(3);
+    // Applied in the order the decisions name them, which is the order they were proposed in: the second paper stays.
+    const applied = await bookOf(j);
+    expect([applied.version, applied.spreads[2]?.background]).toEqual([3, '#e6eef4']);
 
-    // Newest first, as "undo all" runs: the newer change goes back, the older is behind the version that left.
+    // Newest first, as "undo all" runs: each restore checks only its own page, as its change left it.
     expect((await undo(j.base, j.userId, held[1] ?? '')).status).toBe(200);
-    const older = await undo(j.base, j.userId, held[0] ?? '');
-    expect(older.status).toBe(409);
-    expect(older.body).toMatchObject({ code: 'stale' });
-    expect((await bookOf(j)).version).toBe(4);
+    expect((await bookOf(j)).spreads[2]?.background).toBe('#f4efe6');
+    expect((await undo(j.base, j.userId, held[0] ?? '')).status).toBe(200);
+    const after = await bookOf(j);
+    expect([after.version, after.spreads[2]?.background]).toEqual([5, null]);
   });
 
   it('ASTBKE2E-006: a preview shows a proposed page in words, saves nothing, asks a text model no image', async () => {
@@ -344,5 +349,28 @@ describe('Studio book cards e2e', () => {
     expect(answer?.content).toContain('"proposed":true');
     expect(answer?.content).toContain('Findings');
     expect((await bookOf(j)).version).toBe(1);
+  });
+
+  it('ASTBKE2E-007: an edited page is put back though another page was saved since, and that save stays', async () => {
+    const j = await ownerWithBook();
+    provider.script = [callTools(paper('call_bg', j.inner, '#f4efe6'))];
+    const first = await stream(`${j.base}/chat`, j.userId, { ...CTX, threadId: null, text: 'Warmer paper' });
+    const [held] = ofType(first, 'tool-approval-request');
+    const threadId = ofType(first, 'data-trek-thread')[0]?.data.threadId ?? 0;
+    await approve(j.base, j.userId, threadId, held?.toolCallId ?? '');
+
+    // The Studio saves the first page after the change: the book's version moves on, the edited page does not.
+    const firstPage = (await bookOf(j)).spreads.find((spread) => spread.role === 'first')?.id ?? 'no first page';
+    const dark: BookPageOp[] = [{ op: 'background', color: '#101010' }];
+    await inContext(() => books.editPage(j.journeyId, j.userId, { spreadId: firstPage, ops: dark }));
+    expect((await undo(j.base, j.userId, held?.toolCallId ?? '')).status).toBe(200);
+    const after = await bookOf(j);
+    expect(after.version).toBe(4);
+    expect(after.spreads.map((spread) => [spread.id, spread.background])).toEqual(
+      expect.arrayContaining([
+        [j.inner, null],
+        [firstPage, '#101010'],
+      ]),
+    );
   });
 });

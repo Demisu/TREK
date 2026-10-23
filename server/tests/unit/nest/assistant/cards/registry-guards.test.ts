@@ -40,6 +40,20 @@ vi.mock('../../../../../src/nest/assistant/cards/vacay', () => {
           undo: { tool: 'delete_probe', args: boom, reads: boom, unchanged: boom },
         },
         list_probe: { appliedIds: () => [3, 0, -1, 2.5, 'x'] },
+        // Names an id only from what the receipt is read with: the stored preview and the chat's trip.
+        from_probe: {
+          appliedIds: (_args: unknown, _result: unknown, from: { preview: unknown; tripId: number | null }) =>
+            from.preview && from.tripId === 5 ? [11] : [],
+        },
+        // Tells the undo the call's own arguments are still what it reads.
+        call_probe: {
+          undo: {
+            tool: 'delete_probe',
+            args: () => ({}),
+            unchanged: (_result: unknown, _snapshot: unknown, call: { args: Record<string, unknown> }) =>
+              call.args.date === '2026-06-12',
+          },
+        },
       },
     },
   };
@@ -78,6 +92,18 @@ describe('the guarded package hooks', () => {
       expect.stringContaining('the undo check of plan_probe failed'),
       expect.stringContaining('the name of probeId of plan_probe failed'),
     ]);
+  });
+
+  it("ASTREG-034: the preview and the trip reach a package's receipt ids, and the call its undo check", () => {
+    const preview = describeToolCall('create_place', 'c3', { name: 'Lake' }, ctx);
+    expect(appliedChange('from_probe', 'c3', {}, {}, null, null, { preview, tripId: 5 })?.ids).toEqual([11]);
+    expect(appliedChange('from_probe', 'c3', {}, {}, null, null)?.ids).toEqual([]);
+    const snapshot = { summary: {}, places: {} };
+    const call = { args: { date: '2026-06-12' }, preview: null };
+    expect(unchangedSinceApplied('call_probe', {}, snapshot, call)).toBe(true);
+    // Without the call the check reads empty arguments, as the core's own checks do.
+    expect(unchangedSinceApplied('call_probe', {}, snapshot)).toBe(false);
+    expect(logged()).toEqual([]);
   });
 
   it('ASTREG-033: a projection that throws hands the provider the answer as it came', () => {

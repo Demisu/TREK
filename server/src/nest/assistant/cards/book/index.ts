@@ -10,18 +10,19 @@ import type { AssistantChangeVerbKey } from '@trek/shared';
  * card carries, with what it brings and what the server's check of the result
  * found; once applied, the pages as it left them. Edits, the cover and
  * deleted pages are taken back with `restore_book_page`, new pages deleted
- * again, a moved page moved back, each only while nothing was saved since.
+ * again, a moved page moved back: an edit while its page is as the change
+ * left it, the others while nothing was saved to the book since.
  *
  * The check itself is the turn's gate (assistant-book-gate.ts): it tries the
  * call on the stored book, refuses what the engine refuses and sends a change
  * with new faults back to the model once, and the card reads that same trial.
  */
 
-/** A write's answer as the model and the chat see it: without the pages it kept for its undo. */
+/** A write's answer as the model and the chat see it: without the pages and their digests it kept for its undo. */
 function withoutPrevious(value: unknown): unknown {
   const answer = recordOf(value);
-  if (!('previous_spreads' in answer)) return value;
-  const { previous_spreads: _kept, ...rest } = answer;
+  if (!('previous_spreads' in answer) && !('page_digests' in answer)) return value;
+  const { previous_spreads: _kept, page_digests: _digests, ...rest } = answer;
   return rest;
 }
 

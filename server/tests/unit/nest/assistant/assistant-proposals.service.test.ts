@@ -167,7 +167,14 @@ describe('AssistantProposalsService', () => {
       start_time: '08:00',
     });
     const preview = JSON.parse(call?.preview ?? '{}') as Record<string, unknown>;
-    expect(preview).toMatchObject({ verbKey: 'addTour', subject: 'Herzogstand', dayId: 32, undoable: true });
+    // It names the proposal it was taken from, so the chat tells which card was taken.
+    expect(preview).toMatchObject({
+      verbKey: 'addTour',
+      subject: 'Herzogstand',
+      dayId: 32,
+      undoable: true,
+      takenFrom: 'h1',
+    });
     // The card the answer showed, waiting, under the name the change saves.
     expect(preview.card).toEqual({ ...tourRouteCard(), source: 'pending', name: 'Herzogstand' });
     expect(message.parts).toContainEqual(
@@ -188,7 +195,7 @@ describe('AssistantProposalsService', () => {
       stations: WALK_RESULT.stations_for_create,
     });
     const preview = JSON.parse(call?.preview ?? '{}') as Record<string, unknown>;
-    expect(preview).toMatchObject({ verbKey: 'addTour', subject: 'Marienplatz → Hofgarten' });
+    expect(preview).toMatchObject({ verbKey: 'addTour', subject: 'Marienplatz → Hofgarten', takenFrom: 'w1' });
   });
 
   it('ASTPROP-003: a call the thread does not hold, or one that proposed nothing, is not found', async () => {

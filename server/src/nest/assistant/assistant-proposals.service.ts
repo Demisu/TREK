@@ -230,9 +230,11 @@ export class AssistantProposalsService {
     const args = proposal ? takeArgsOf(proposal) : null;
     if (!proposal || !args) throw aiRefusal('generic', 'Nothing can be created from this proposal: ask for it again');
     const ctx = this.cardContext.contextOf(card, categories, req.locale, today);
+    // The proposal it came from, so the thread tells which card was taken, whatever way it creates.
     const preview = {
       ...describeToolCall(TAKE_PROPOSAL_TOOL, id, args, ctx),
       card: pendingCardOf(proposal.card, args),
+      takenFrom: req.toolCallId,
     };
     const parts: AssistantMessagePart[] = [
       { type: 'tool-call', toolCallId: id, toolName: TAKE_PROPOSAL_TOOL, args, approval: { id } },

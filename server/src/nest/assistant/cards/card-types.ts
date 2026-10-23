@@ -66,6 +66,12 @@ export interface Described {
   verbKey?: AssistantChangeVerbKey;
   tool?: string;
   domain?: string;
+  /**
+   * False when the package already sees that this held call has no way back,
+   * though its tool has one (a toggle that would clear a day); the card is
+   * then not offered as undoable. Left out, the tool's undo decides.
+   */
+  undoable?: boolean;
 }
 
 /** What an answer card is built from: a read that ran, with its raw value (never the redacted one). */
@@ -86,6 +92,19 @@ export interface UndoSnapshot {
   summary: unknown;
   places: unknown;
   reads: ReadonlyMap<string, unknown>;
+}
+
+/** What a receipt is read with beyond the call: the stored preview, and the trip the conversation is on. */
+export interface AppliedFrom {
+  preview: AssistantChangePreview | null;
+  /** Null in a Studio conversation, which is about a journey. */
+  tripId: number | null;
+}
+
+/** What an undo is checked with beyond the answer and the reads: the call's arguments and its stored preview. */
+export interface UndoCall {
+  args: ToolArgs;
+  preview: AssistantChangePreview | null;
 }
 
 /** The way back from an applied change: the removing tool and its arguments, null when there is none. */
@@ -121,7 +140,7 @@ export interface ToolCards<L = unknown> {
   /** The card of the applied change, from the stored preview card and the tool's raw answer. */
   applied?(input: { args: ToolArgs; result: unknown; preview: AssistantChangePreview | null }): TrekCard | null;
   /** The ids the receipt names, when the answer does not name them under the usual keys. */
-  appliedIds?(args: ToolArgs, result: unknown): number[];
+  appliedIds?(args: ToolArgs, result: unknown, from: AppliedFrom): number[];
   /** The way back, with what it reads first and how it tells that nothing changed since. */
   undo?: ToolUndo & {
     /**
@@ -130,7 +149,12 @@ export interface ToolCards<L = unknown> {
      * tools it names may not depend on them (their arguments may).
      */
     reads?(args: ToolArgs, result: unknown): ReadonlyArray<{ tool: string; args: ToolArgs }>;
-    unchanged(result: unknown, snapshot: UndoSnapshot): boolean;
+    /**
+     * Whether what the change did is still as it left it. `call` names what
+     * the answer may not (a date, a person); the undo always hands it in, and
+     * a check that needs it reads its absence as changed since.
+     */
+    unchanged(result: unknown, snapshot: UndoSnapshot, call?: UndoCall): boolean;
   };
   /** The name of an id argument the trip card cannot name, for the generic card. */
   nameArg?(key: string, value: number, card: TripCard): string | null;

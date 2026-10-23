@@ -132,6 +132,13 @@ describe('assistantChangePreviewSchema', () => {
     expect(assistantChangePreviewWriteSchema.safeParse({ ...preview, card: { kind: 'nope' } }).success).toBe(false);
   });
 
+  it('names the proposal a taken change came from by its call id, bounded like the take request', () => {
+    expect(assistantChangePreviewWriteSchema.parse({ ...preview, takenFrom: 'call_hike' }).takenFrom).toBe('call_hike');
+    expect(assistantChangePreviewSchema.parse(preview).takenFrom).toBeUndefined();
+    expect(assistantChangePreviewWriteSchema.safeParse({ ...preview, takenFrom: '' }).success).toBe(false);
+    expect(assistantChangePreviewWriteSchema.safeParse({ ...preview, takenFrom: 'c'.repeat(65) }).success).toBe(false);
+  });
+
   it('holds at most twelve rows', () => {
     const rows = ASSISTANT_CHANGE_LABEL_KEYS.slice(0, 13).map((labelKey) => ({
       op: 'add',

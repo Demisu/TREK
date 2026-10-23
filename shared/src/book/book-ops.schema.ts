@@ -1,5 +1,5 @@
 import { idSchema } from '../common/primitives.schema';
-import { BOOK_ELEMENT_OP_SCHEMAS, bindingNamesItsSource } from './book-element-ops.schema';
+import { BOOK_ELEMENT_OP_SCHEMAS, TEXT_STYLE_FIELDS, bindingNamesItsSource } from './book-element-ops.schema';
 import { BOOK_COVER_TEMPLATES, BOOK_TEMPLATES } from './book-layouts';
 import { bookElementIdSchema, bookGridIdSchema, bookSpreadIdSchema } from './book-op-ids';
 import {
@@ -141,14 +141,7 @@ export const bookPageOpSchema = z.discriminatedUnion('op', [
       role: z.enum(['heading', 'body', 'meta']).optional(),
       text: z.string().max(BOOK_OP_LIMITS.text).optional(),
       binding: text.binding.unwrap().optional(),
-      font: text.font.unwrap().optional(),
-      size: text.size.unwrap().optional(),
-      weight: text.weight.unwrap().optional(),
-      italic: text.italic.unwrap().optional(),
-      align: text.align.unwrap().optional(),
-      leading: text.leading.unwrap().optional(),
-      tracking: text.tracking.unwrap().optional(),
-      color: text.color.unwrap().optional(),
+      ...TEXT_STYLE_FIELDS,
     })
     .refine((v) => v.elementId !== undefined || v.role !== undefined, { message: 'name an elementId or a role' })
     .refine((v) => bindingNamesItsSource(v.binding), {
@@ -251,12 +244,33 @@ export const bookPreviousSpreadSchema = z.object({
 export type BookPreviousSpread = z.infer<typeof bookPreviousSpreadSchema>;
 
 /**
+ * A page as a write left it, for the assistant's undo: its id and a digest of
+ * the page as the book stores it, which the write answered under
+ * `page_digests` (with `returnPrevious`). A null digest names a page the
+ * write took out of the book.
+ */
+export const bookPageDigestSchema = z.strictObject({
+  spreadId: bookSpreadIdSchema,
+  digest: z
+    .string()
+    .regex(/^[0-9a-f]{16}$/)
+    .nullable(),
+});
+export type BookPageDigest = z.infer<typeof bookPageDigestSchema>;
+
+/**
  * The pages a write answered under `previous_spreads`, put back in one call
- * (several deleted pages are one undo), lowest index first.
+ * (several deleted pages are one undo), lowest index first. The book must
+ * still be at `expectedVersion`. Every page `expectedPages` names must still
+ * be as its digest says, and only when they name every page put back with a
+ * digest do they replace the version, so a later save to another page does
+ * not hold the undo back; a page put back that they leave out or name as
+ * gone keeps the version's check.
  */
 export const restoreBookPageArgs = {
   pages: z.array(bookPreviousSpreadSchema).min(1).max(BOOK_OP_LIMITS.pagesPerCall),
   expectedVersion: z.number().int().nonnegative(),
+  expectedPages: z.array(bookPageDigestSchema).min(1).max(BOOK_OP_LIMITS.pagesPerCall).optional(),
 };
 /** A design draft's id, as `design_book` answers it. */
 export const bookDesignIdSchema = z.string().regex(/^[\w-]{1,40}$/);
@@ -428,9 +442,9 @@ export type BookPageDescription = z.infer<typeof bookPageDescriptionSchema>;
 
 /**
  * What a book write answers. `dropped` names the elements whose content left
- * the page (a layout, a hard remove). `previous_spreads` only when the call
- * asked with `returnPrevious`; `from_index` only from a move, where the page
- * stood before it, so a move can be taken back.
+ * the page (a layout, a hard remove). `previous_spreads` and `page_digests`
+ * only when the call asked with `returnPrevious`; `from_index` only from a
+ * move, where the page stood before it, so a move can be taken back.
  */
 export const bookWriteResultSchema = z.object({
   version: z.number().int().nonnegative(),
@@ -439,6 +453,8 @@ export const bookWriteResultSchema = z.object({
   findings: z.array(bookFindingSchema).max(BOOK_OP_LIMITS.findings),
   dropped: z.array(z.string()).max(MAX_SPREAD_ELEMENTS * 2),
   previous_spreads: z.array(bookPreviousSpreadSchema).optional(),
+  /** The pages the write touched as it left them, for an undo that checks only those (`expectedPages`). */
+  page_digests: z.array(bookPageDigestSchema).max(MAX_SPREADS).optional(),
   from_index: z.number().int().nonnegative().optional(),
   /** From `set_book_setup`: the setup as it was, to set it back. */
   previous_setup: bookPageSetupSchema.optional(),

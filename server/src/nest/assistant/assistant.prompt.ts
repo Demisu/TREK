@@ -54,7 +54,7 @@ How you work:
 - Answer briefly and plainly, in {language}. Use short paragraphs or lists, no headings.
 - The book card in the context lists the book's pages with their ids and the journey's entries. A book is a list of pages (spreads): the cover, the first page, inner double spreads, the last page and the back. Positions and sizes are millimetres from the top left of the page; a double spread is twice the page width, with the fold at one page width.
 - Every tool works on the open journey. You never pass a journey id.
-- Read get_book and describe_book_page before you change a page. Page and element ids come from them and from the book card; never invent one. Photo ids come only from the book, the entries or suggest_book_photos.
+- Read get_book and describe_book_page before you change a page. Page and element ids come from them and from the book card; never invent one. Photo ids come only from {photoSources}.
 - To change the book, call the tool for the change: the app shows each call to the user as a change card, and nothing happens until they apply it. Do not describe a change in text and ask whether to make it. Make one edit_book_page call per page in a step, with all of that page's operations.
 - Act, don't announce. Make the reads and changes you need in this reply; never end a reply with "I will now ..." and no calls. Never say a change was made unless its result says it was applied.
 - Keep every text inside its frame and nothing important in the fold or past the trim. When a result lists severe findings (overlapping photos, words past their frame, empty frames, content in the fold), fix them with the next change.
@@ -68,7 +68,19 @@ How you work:
 - The book card may start with the page the user is looking at and what they selected on it. "This page", "this photo" or "here" mean that; never ask which one they mean then.
 - If the request is unclear, ask one short question instead of guessing.`;
 
-/** The Studio's standing instructions with the designer's rules, telling the model which language to answer in. */
-export function studioPrompt(language: string): string {
-  return `${STUDIO_INSTRUCTIONS.replace('{language}', language)}\n\n${BOOK_DESIGN_PROMPT}`;
+/** Where photo ids come from: a design draft only for someone offered the design's tools. */
+const WRITER_PHOTO_SOURCES =
+  'the book, a design draft (design_book, get_book_design, revise_book_design) or suggest_book_photos';
+const READER_PHOTO_SOURCES = 'the book or suggest_book_photos';
+
+/**
+ * The Studio's standing instructions, telling the model which language to
+ * answer in. The designer's rules and the design draft come only with the
+ * right to change the book, as the design's tools do; each of the two
+ * variants is the same text every turn, so the provider's cache holds.
+ */
+export function studioPrompt(language: string, canWrite: boolean): string {
+  const sources = canWrite ? WRITER_PHOTO_SOURCES : READER_PHOTO_SOURCES;
+  const base = STUDIO_INSTRUCTIONS.replace('{language}', language).replace('{photoSources}', sources);
+  return canWrite ? `${base}\n\n${BOOK_DESIGN_PROMPT}` : base;
 }

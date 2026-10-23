@@ -1,4 +1,5 @@
 import {
+  compareCodeUnits,
   MAX_SPREADS,
   type BookDesignPlanRow,
   type BookDesignSkipped,
@@ -32,13 +33,18 @@ interface AppliedDesign {
   skipped: BookDesignSkipped[];
 }
 
-/** JSON with the keys of every object sorted, so two equal pages read alike whatever order their keys came in. */
-function canonical(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+/**
+ * JSON with the keys of every object sorted, so two equal pages read alike
+ * whatever order their keys came in. The one compare of pages: the apply
+ * here, and the digest a page restore checks (journey-book-edit.service.ts).
+ * Keys sort by code unit, so the text is the same on every machine.
+ */
+export function canonical(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map((item) => canonical(item)).join(',')}]`;
   if (value !== null && typeof value === 'object') {
     const entries = Object.entries(value as Record<string, unknown>)
       .filter(([, v]) => v !== undefined)
-      .sort(([a], [b]) => a.localeCompare(b, 'en'));
+      .sort(([a], [b]) => compareCodeUnits(a, b));
     return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${canonical(v)}`).join(',')}}`;
   }
   return JSON.stringify(value);
@@ -147,13 +153,14 @@ export function applyDesignDraft(
   const skipped: BookDesignSkipped[] = [];
   const skip = (spreadId: string, reason: BookDesignSkipped['reason']) => skipped.push({ spreadId, reason });
   const frame = current ? bookFrame(current, draft) : null;
-  if (!current || !frame) {
+  // A missing base already leaves no frame; naming it here lets the reads below take the base as it is.
+  if (!current || !draft.base || !frame) {
     for (const row of draft.plan) if (row.action !== 'keep') skip(row.spreadId, 'changed_since');
     return { doc: current ?? draft.doc, applied, skipped };
   }
   const chosen = new Set(draft.selection);
   const designed = new Map(draft.doc.spreads.map((s) => [s.id, s]));
-  const base = new Map((draft.base?.spreads ?? []).map((s) => [s.id, s]));
+  const base = new Map(draft.base.spreads.map((s) => [s.id, s]));
   const spreads = [...current.spreads];
   draft.plan.forEach((row, i) => {
     if (row.action === 'keep') return;

@@ -1,3 +1,4 @@
+import { JourneyAiPhotosService } from '../journey/journey-ai-photos.service';
 import { JourneyBookEditService } from '../journey/journey-book-edit.service';
 import { JourneyDomainService } from '../journey/journey-domain.service';
 import { PhotoSignalsService } from '../photos/photo-signals.service';
@@ -7,8 +8,9 @@ import type { AssistantFocus, BookOverview, BookSpreadSummary } from '@trek/shar
 
 /**
  * The journey as the Studio assistant knows it on a turn: the journey, what
- * the user may do on it, its book page by page, its gallery in numbers and its
- * entries. Built from the journey and book services with the user's own
+ * the user may do on it, its book page by page, its gallery in numbers with
+ * how many of its photos a page image may show (journey-studio.md 4.1), and
+ * its entries. Built from the journey and book services with the user's own
  * rights, it gives the model the page and entry ids it works with.
  */
 
@@ -29,6 +31,8 @@ interface BookCardGallery {
   photos: number;
   withTime: number;
   withGps: number;
+  /** The photos the user contributed: the only ones a page image draws, every other one an empty frame there. */
+  own: number;
 }
 
 export interface BookCard {
@@ -115,11 +119,26 @@ function bookLines(book: BookOverview, role: BookRole): string[] {
   return lines;
 }
 
-/** The gallery in one line: how many photos a pick chooses from, and how many it can place by time or on the map. */
-function galleryLine({ photos, withTime, withGps }: BookCardGallery): string {
+/**
+ * Which of the photos a page image may show: only the user's own, so a photo
+ * of another contributor is an empty frame there. Said as the rule, since a
+ * turn of a model that reads no images gets none.
+ */
+function shownLine(photos: number, own: number): string {
+  if (own >= photos) return 'All of them are yours, so a page image may show every one.';
+  if (own === 0) return 'None of them are yours, so a page image shows each of them as an empty frame.';
+  const others = 'photos of other contributors are empty frames there on purpose';
+  return `${own} of them are yours; a page image shows only those, and ${others}.`;
+}
+
+/**
+ * The gallery in one line: how many photos a pick chooses from, how many it
+ * can place by time or on the map, and how many a page image may show.
+ */
+function galleryLine({ photos, withTime, withGps, own }: BookCardGallery): string {
   if (photos === 0) return 'Gallery: no photos yet.';
   const known = `${withTime} with the time taken, ${withGps} with a GPS position`;
-  return `Gallery: ${photos} photos (videos left out), ${known}.`;
+  return `Gallery: ${photos} photos (videos left out), ${known}. ${shownLine(photos, own)}`;
 }
 
 /**
@@ -161,17 +180,23 @@ function listedEntries<T extends { dismissed: boolean; type?: string | null }>(e
 
 /** A gallery photo as far as the card counts it. */
 interface GalleryFact {
+  photo_id: number;
   taken_at: string | null;
   lat: number | null;
   lng: number | null;
 }
 
-/** A gallery's photos, and how many of them carry the time taken and a position. */
-function galleryOf(photos: readonly GalleryFact[]): BookCardGallery {
+/**
+ * A gallery's photos, how many of them carry the time taken and a position,
+ * and how many are the user's own (`own`): counted among these photos, so a
+ * video of theirs is not.
+ */
+function galleryOf(photos: readonly GalleryFact[], own: ReadonlySet<number>): BookCardGallery {
   return {
     photos: photos.length,
     withTime: photos.filter((photo) => !!photo.taken_at).length,
     withGps: photos.filter((photo) => photo.lat !== null && photo.lng !== null).length,
+    own: photos.filter((photo) => own.has(photo.photo_id)).length,
   };
 }
 
@@ -185,6 +210,8 @@ export class AssistantBookContext {
     private readonly journeys: JourneyDomainService,
     private readonly books: JourneyBookEditService,
     private readonly photos: PhotoSignalsService,
+    // Which gallery photos are the user's own, the ones a page image may draw.
+    private readonly aiPhotos: JourneyAiPhotosService,
   ) {}
 
   /** Whether the user may open the journey: its owner and every contributor. */
@@ -201,7 +228,8 @@ export class AssistantBookContext {
    * The card of one turn. The book is read as get_book reads it, so a journey
    * the user can no longer open is refused there (404), as by every tool; the
    * entries are read as list_journey_entries reads them and the gallery as
-   * suggest_book_photos reads it. The journey row, read once, names its owner.
+   * suggest_book_photos reads it, its photos of the user's own as a page image
+   * draws them. The journey row, read once, names its owner.
    */
   async cardOf(userId: number, journeyId: number, focus: AssistantFocus | null): Promise<BookCard> {
     const book = await this.books.overview(journeyId, userId);
@@ -209,13 +237,14 @@ export class AssistantBookContext {
     const role = await this.roleOf(userId, journeyId, journey?.user_id === userId);
     const entries = (await this.journeys.listEntries(journeyId, userId)) ?? [];
     const gallery = journey ? await this.photos.galleryFacts(journeyId) : [];
+    const own = journey ? await this.aiPhotos.ownPhotoIds(journeyId, userId) : new Set<number>();
     return {
       journeyId,
       title: journey?.title ?? '',
       subtitle: journey?.subtitle ?? null,
       role,
       book,
-      gallery: galleryOf(gallery),
+      gallery: galleryOf(gallery, own),
       entries: listedEntries(entries).map((entry) => ({
         id: entry.id,
         date: entry.entry_date,

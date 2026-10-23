@@ -72,8 +72,8 @@ const PHOTO_PROPS = {
   filter: photo.filter.unwrap().optional(),
   radius: z.number().finite().min(0).max(500).optional(),
 };
-const TEXT_PROPS = {
-  ...COMMON,
+/** How a text is set, each field left as it is when not named: the style op's and the page edit's text op's. */
+export const TEXT_STYLE_FIELDS = {
   font: text.font.unwrap().optional(),
   size: text.size.unwrap().optional(),
   weight: text.weight.unwrap().optional(),
@@ -83,6 +83,7 @@ const TEXT_PROPS = {
   tracking: text.tracking.unwrap().optional(),
   color: text.color.unwrap().optional(),
 };
+const TEXT_PROPS = { ...COMMON, ...TEXT_STYLE_FIELDS };
 const SHAPE_PROPS = {
   ...COMMON,
   fill: shape.fill.unwrap().optional(),

@@ -1,7 +1,7 @@
 import type { CardPlace } from './assistant-context';
 import { noteOf } from './assistant-memory';
 import { ASSISTANT_SERVER_WRITE_TOOLS, REMEMBER_TOOL, writeToolOf } from './assistant-tools.constants';
-import type { Described, PreviewContext } from './cards/card-types';
+import type { AppliedFrom, Described, PreviewContext } from './cards/card-types';
 import {
   categoryName,
   clip,
@@ -337,7 +337,7 @@ export function describeToolCall(
     rows: described.rows.rows.slice(0, MAX_ROWS),
     dayId: described.dayId,
     placeIds: described.placeIds,
-    undoable: runs in ASSISTANT_UNDO_MAP,
+    undoable: runs in ASSISTANT_UNDO_MAP && described.undoable !== false,
     effect: planned ?? null,
     ...(described.tool ? { tool: described.tool } : {}),
     ...(described.domain ? { domain: described.domain } : {}),
@@ -383,7 +383,8 @@ function bookedDay(result: unknown): number | null {
  * The receipt of an applied change: what it touched (the created row from its
  * answer, the changed one from its arguments), the day "Show on map" goes to
  * (the card's, else the one a created booking landed on), and until when it
- * can be undone.
+ * can be undone. A package that names the ids itself reads `from` too: the
+ * stored preview, and the trip the conversation is on.
  */
 export function appliedChange(
   toolName: string,
@@ -392,11 +393,12 @@ export function appliedChange(
   result: unknown,
   dayId: number | null,
   undoUntil: string | null,
+  from: AppliedFrom = { preview: null, tripId: null },
 ): AssistantApplied | null {
   // A tool without a card of its own touched something the client has no view for.
   const runs = writeToolOf(toolName, args);
   const tool = writeTool(runs) ?? { entity: 'other' as const };
-  const own = TOOL_CARDS[runs]?.appliedIds?.(args, result) ?? [];
+  const own = TOOL_CARDS[runs]?.appliedIds?.(args, result, from) ?? [];
   const created = own.length > 0 ? own : createdIds(result);
   const named = ARG_KEYS.map((key) => id(args, key)).filter((value): value is number => value !== null);
   return {

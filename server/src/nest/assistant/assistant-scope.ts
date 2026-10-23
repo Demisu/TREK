@@ -128,6 +128,7 @@ export class AssistantScopes {
     const book = await withRequestContext(this.orm, () => this.books.cardOf(turn.userId, journeyId, turn.focus));
     const context = bookTurnContext(book, turn.timeZone, turn.now);
     const gate = this.bookGate.forTurn(turn.userId, journeyId, session);
-    return { card: emptyTripCard(turn.userId), system: studioPrompt(language), context, gate };
+    const system = studioPrompt(language, book.role !== 'viewer');
+    return { card: emptyTripCard(turn.userId), system, context, gate };
   }
 }

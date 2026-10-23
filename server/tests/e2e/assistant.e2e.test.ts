@@ -13,8 +13,9 @@
  * booking file attached in the chat (the extractor, an external binary, is
  * stubbed on the booking import), the cards a search and a weather lookup
  * make (the place search and the forecast are stubbed on their services), a
- * found place suggested for a day without the model, mentions, an answer
- * shared in the trip chat, and a vacation day held with its calendar card.
+ * found place suggested for a day without the model (only with the right to
+ * edit places), mentions, an answer shared in the trip chat, and a vacation
+ * day held with its calendar card, applied and taken back.
  */
 import { buildApp } from '../../src/bootstrap';
 import { AssistantMessages } from '../../src/db/entities/AssistantMessages.entity';
@@ -39,7 +40,7 @@ import { makeCollabMessage } from '../helpers/factories/collab';
 import { makePlace } from '../helpers/factories/places';
 import { countRows, deleteRows, findRow, updateRows } from '../helpers/factories/rows';
 import { setAddonEnabled, setCollabFeature } from '../helpers/factories/settings';
-import { makeTrip, readTripDays } from '../helpers/factories/trips';
+import { addTripMember, makeTrip, readTripDays } from '../helpers/factories/trips';
 import { makeUser } from '../helpers/factories/users';
 import { spyOnRealtime, type RealtimeSpies } from '../helpers/fake-realtime';
 import { resetRateLimits } from '../helpers/test-db';
@@ -895,6 +896,33 @@ describe('Trip assistant e2e', () => {
     expect(provider.requests).toHaveLength(2);
   });
 
+  it('ASTE2E-024: "+ Day" asks for the right to edit places: 403 and nothing held without it, 404 outside the trip', async () => {
+    const t = await travelerWithTrip();
+    const { user: member } = await makeUser(orm);
+    await addTripMember(orm, t.tripId, member.id);
+    const [day] = await readTripDays(orm, t.tripId);
+    const { threadId } = await searchTurn({ userId: member.id, base: t.base });
+    const path = `${t.base}/threads/${threadId}/found-places`;
+
+    const permissions = vi.spyOn(nestApp.get(PermissionsService), 'checkPermission');
+    permissions.mockImplementation((action: string) => Promise.resolve(action !== 'place_edit'));
+    try {
+      const refused = await addFound(path, member.id, { ref: 'call_find:0', dayId: day.id });
+      expect([refused.status, refused.body]).toEqual([403, { error: 'No permission' }]);
+      expect(permissions).toHaveBeenCalledWith('place_edit', expect.any(String), t.userId, member.id, true);
+    } finally {
+      permissions.mockRestore();
+    }
+    expect(await countRows(orm, AssistantToolCalls, { thread: threadId })).toBe(0);
+
+    const { user: stranger } = await makeUser(orm);
+    const outside = await addFound(path, stranger.id, { ref: 'call_find:0', dayId: day.id });
+    expect([outside.status, outside.body]).toEqual([404, { error: 'Trip not found' }]);
+
+    // With the right, the same member holds the same place for the day.
+    expect((await addFound(path, member.id, { ref: 'call_find:0', dayId: day.id })).status).toBe(200);
+  });
+
   it('ASTE2E-020: mentions reach the model as the trip names them, and the message keeps the checked ones', async () => {
     const t = await travelerWithTrip();
     const [day] = await readTripDays(orm, t.tripId);
@@ -1042,7 +1070,7 @@ describe('Trip assistant e2e', () => {
     });
   });
 
-  it('ASTE2E-023: a vacation day is held on its month with the days left, applied, and told to the own tabs', async () => {
+  it('ASTE2E-023: a vacation day is held on its month with the days left, applied, told to the own tabs and taken back', async () => {
     await setAddonEnabled(orm, 'vacay', true);
     const t = await travelerWithTrip();
     provider.script = [callTools({ id: 'call_day', name: 'toggle_vacay_entry', args: { date: '2026-06-12' } })];
@@ -1069,7 +1097,7 @@ describe('Trip assistant e2e', () => {
       toolCallId: held.toolCallId,
       entity: 'vacay',
       ids: [],
-      undoUntil: null,
+      undoUntil: expect.any(String),
     });
     // The applied card follows the tool's answer, which took the day as the held card foresaw.
     const [receipt] = ofType(decided.chunks, 'data-trek-card');
@@ -1080,6 +1108,28 @@ describe('Trip assistant e2e', () => {
     expect(broadcasts.broadcastToUser).toHaveBeenCalledWith(t.userId, { type: 'vacay:update' }, undefined);
     const shown = await get(`${t.base}/threads/${threadId}`, t.userId);
     expect(shown.status).toBe(200);
+
+    // The day made half a day in the planner since: the undo would not put back what was there.
+    const toggle = (body: object) =>
+      request(nestApp.getHttpServer())
+        .post('/api/addons/vacay/entries/toggle')
+        .set('Cookie', sessionCookie(t.userId))
+        .send({ date: '2026-06-12', ...body });
+    const undo = () =>
+      request(nestApp.getHttpServer())
+        .post(`${t.base}/tool-calls/${held.toolCallId}/undo`)
+        .set('Cookie', sessionCookie(t.userId))
+        .send({});
+    expect((await toggle({ fraction: 0.5 })).body).toMatchObject({ action: 'updated', fraction: 0.5 });
+    const stale = await undo();
+    expect([stale.status, stale.body.code]).toEqual([409, 'stale']);
+    // A whole day again, as the change left it: the undo clears it, once.
+    expect((await toggle({ fraction: 1 })).body).toMatchObject({ action: 'updated', fraction: 1 });
+    expect((await undo()).status).toBe(200);
+    const left = await get('/api/addons/vacay/entries/2026', t.userId);
+    const days = (left.body.entries as Array<{ date: string; user_id: number }>).filter((e) => e.date === '2026-06-12');
+    expect(days).toEqual([]);
+    expect((await undo()).body).toMatchObject({ code: 'stale' });
   });
 
   it('ASTE2E-ATLAS-001: a country mark is held with its flag and counter, applied with the exact count, and told to the own tabs', async () => {

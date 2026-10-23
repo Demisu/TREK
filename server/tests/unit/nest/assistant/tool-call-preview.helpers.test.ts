@@ -594,6 +594,21 @@ describe('the cards of tours', () => {
     );
     expect(applied).toMatchObject({ entity: 'place', ids: [77] });
     expect(appliedChange('create_place', 'tc', {}, { place: { id: 5 } }, null, null)).toMatchObject({ ids: [5] });
+    // The hook reads what the receipt is made with: the stored preview and the trip of the chat, or none of them.
+    const preview = describe_('create_place', { name: 'Kinkaku-ji' });
+    const seen: unknown[] = [];
+    const hook = (_args: unknown, _result: unknown, from: unknown): number[] => {
+      seen.push(from);
+      return [];
+    };
+    withCards('create_place', { appliedIds: hook }, null, () => {
+      appliedChange('create_place', 'tc', {}, {}, null, null, { preview, tripId: 1 });
+      return appliedChange('create_place', 'tc', {}, {}, null, null);
+    });
+    expect(seen).toEqual([
+      { preview, tripId: 1 },
+      { preview: null, tripId: null },
+    ]);
   });
 
   it('ASTPRV-031: a package names its ids first; a place id of a tool outside the trip is no trip place', () => {

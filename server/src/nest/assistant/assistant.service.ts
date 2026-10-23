@@ -102,6 +102,8 @@ interface AppliedSink {
   unrun: Set<string>;
   outcomes: Map<string, Outcome>;
   receipts: AssistantMessagePart[];
+  /** The trip the conversation is on, for the receipts; null in a Studio conversation. */
+  tripId: number | null;
 }
 
 /**
@@ -344,13 +346,11 @@ export class AssistantService {
           renders: req.renders === true,
         };
         await this.converse(spec, stream, w, signal, (session) =>
-          this.applyDecisions(
-            (name, args) => this.runChange(session, userId, scope, name, args),
-            threadId,
-            decided,
+          this.applyDecisions((name, args) => this.runChange(session, userId, scope, name, args), threadId, decided, {
             w,
             unrun,
-          ),
+            scope,
+          }),
         );
       } finally {
         if (unrun.size > 0) await this.failUnrun(threadId, decided, unrun);
@@ -383,7 +383,7 @@ export class AssistantService {
         const session = await this.scopes.open(userId, scope);
         opened = session;
         const run = (name: string, args: Record<string, unknown>) => this.runChange(session, userId, scope, name, args);
-        await this.applyDecisions(run, threadId, decided, w, unrun);
+        await this.applyDecisions(run, threadId, decided, { w, unrun, scope });
         w.finish('stop');
       } catch (err) {
         const reason = err instanceof Error ? err.message : String(err);
@@ -444,7 +444,7 @@ export class AssistantService {
     const session = await this.scopes.open(userId, scope, undoTargetsOf(undo.tool, tool, args, result, onTrip));
     try {
       const snapshot = await undoSnapshotOf(session, tool, args, result, { tripReads: onTrip });
-      if (!snapshot || !unchangedSinceApplied(tool, result, snapshot)) throw stale();
+      if (!snapshot || !unchangedSinceApplied(tool, result, snapshot, { args, preview })) throw stale();
       if (!(await this.toolCalls.claimUndo(call.id, userId, dbNow()))) throw stale();
       const run = await session.call(undo.tool, undoArgs);
       if (!run.ok) {
@@ -658,8 +658,12 @@ export class AssistantService {
     }
     const now = new Date();
     const notBefore = dbNow(new Date(now.getTime() - APPROVAL_TTL_MS));
+    // In the order the decisions name them, the order the chat shows the changes in: the changes of one step
+    // share their time, and their ids sort at random, so only this order lets "undo all" walk them back.
+    const position = new Map(decisions.map((decision, i) => [decision.toolCallId, i]));
+    const ordered = [...open].sort((a, b) => (position.get(a.id) ?? 0) - (position.get(b.id) ?? 0));
     const decided = await this.uow.transactional(async () => {
-      const claims = open.map((call) => ({ call, approved: wanted.get(call.id) === true }));
+      const claims = ordered.map((call) => ({ call, approved: wanted.get(call.id) === true }));
       const taken = await Promise.all(
         claims.map(({ call, approved }) =>
           this.toolCalls.claimDecision(call.id, threadId, approved, notBefore, dbNow(now)),
@@ -687,15 +691,15 @@ export class AssistantService {
     run: (name: string, args: Record<string, unknown>) => Promise<ToolRun>,
     threadId: number,
     decided: Array<{ call: AssistantToolCallRow; approved: boolean }>,
-    w: UiStreamWriter,
-    unrun: Set<string>,
+    { w, unrun, scope }: { w: UiStreamWriter; unrun: Set<string>; scope: AssistantScope },
   ): Promise<void> {
     const outcomes = new Map<string, Outcome>();
     const receipts: AssistantMessagePart[] = [];
+    const tripId = scope.kind === 'trip' ? scope.tripId : null;
     // One after another: a change may build on the one before it.
     await decided.reduce<Promise<void>>(async (previous, { call, approved }) => {
       await previous;
-      await this.applyOne(run, call, approved, { w, unrun, outcomes, receipts });
+      await this.applyOne(run, call, approved, { w, unrun, outcomes, receipts, tripId });
     }, Promise.resolve());
     await this.recordDecided(threadId, decided[0].call.message_id, outcomes, receipts);
   }
@@ -705,7 +709,7 @@ export class AssistantService {
     run: (name: string, args: Record<string, unknown>) => Promise<ToolRun>,
     call: AssistantToolCallRow,
     approved: boolean,
-    { w, unrun, outcomes, receipts }: AppliedSink,
+    { w, unrun, outcomes, receipts, tripId }: AppliedSink,
   ): Promise<void> {
     if (!approved) {
       w.toolDenied(call.id);
@@ -740,6 +744,7 @@ export class AssistantService {
       ran.value,
       preview?.dayId ?? null,
       utcSuffix(undoUntil),
+      { preview, tripId },
     );
     if (applied) {
       w.applied(applied);

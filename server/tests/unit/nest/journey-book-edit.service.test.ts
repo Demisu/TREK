@@ -12,9 +12,11 @@
  * gallery; `previous_spreads` comes back only when asked for; a move answers
  * where the page stood and a move to where it is writes nothing; a restore
  * lands only at the version it names, all the pages of one delete at once,
- * held to the gallery like an edit; and a move or a delete that names a
- * version (the assistant's undo) lands only there too. A held change is tried on the stored book
- * with the journey's gallery and entries, read with a member's rights.
+ * held to the gallery like an edit, or, naming the pages' digests the change
+ * answered, only while those pages are as it left them; and a move or a
+ * delete that names a version (the assistant's undo) lands only there too. A
+ * held change is tried on the stored book with the journey's gallery and
+ * entries, read with a member's rights.
  */
 import { JourneyPhotos } from '../../../src/db/entities/JourneyPhotos.entity';
 import { TrekPhotos } from '../../../src/db/entities/TrekPhotos.entity';
@@ -455,5 +457,74 @@ describe('adding, moving, deleting and restoring pages', () => {
     expect(moved.version).toBe(added.version + 1);
     const gone = await edit.deletePages(journey.id, owner.id, { spreadIds: [fresh], expectedVersion: moved.version });
     expect(gone.version).toBe(moved.version + 1);
+  });
+
+  it('JBEDIT-015: a restore naming expectedPages checks those pages only: another page saved since lets it land, the page itself not', async () => {
+    const { journey, owner, inner, first } = await crew();
+    const edited = await edit.editPage(journey.id, owner.id, {
+      spreadId: inner,
+      ops: [{ op: 'background', color: '#f4efe6' }],
+      returnPrevious: true,
+    });
+    const pages = edited.previous_spreads ?? [];
+    const expectedPages = edited.page_digests ?? [];
+    expect(expectedPages).toEqual([{ spreadId: inner, digest: expect.stringMatching(/^[0-9a-f]{16}$/) }]);
+    const dark = await edit.editPage(journey.id, owner.id, {
+      spreadId: first,
+      ops: [{ op: 'background', color: '#101010' }],
+      returnPrevious: true,
+    });
+    expect(dark.page_digests).toEqual([{ spreadId: first, digest: expect.stringMatching(/^[0-9a-f]{16}$/) }]);
+
+    // The book moved on with the first page, the edited page did not: the version refuses, the page lets it land.
+    const byVersion = () => edit.restorePage(journey.id, owner.id, { pages, expectedVersion: edited.version });
+    expect(await refusal(byVersion)).toMatchObject({ status: 409, code: 'book_conflict' });
+    // Digests that leave out a page put back do not stand in for the version, even while they hold.
+    const others = () =>
+      edit.restorePage(journey.id, owner.id, {
+        pages,
+        expectedVersion: edited.version,
+        expectedPages: dark.page_digests ?? [],
+      });
+    expect(await refusal(others)).toMatchObject({ status: 409, code: 'book_conflict' });
+    const byPage = () =>
+      edit.restorePage(journey.id, owner.id, { pages, expectedVersion: edited.version, expectedPages });
+    expect(firstPage(await byPage())).toMatchObject({ id: inner, background: null });
+    const kept = await edit.overview(journey.id, owner.id);
+    expect(kept.spreads.find((s) => s.id === first)?.background).toBe('#101010');
+
+    // Once the page itself was saved since, the same restore is refused: nothing written, nothing sent.
+    const again = await edit.editPage(journey.id, owner.id, {
+      spreadId: inner,
+      ops: [{ op: 'background', color: '#222222' }],
+    });
+    expect(again).not.toHaveProperty('page_digests');
+    const version = (await edit.overview(journey.id, owner.id)).version;
+    t.realtime.reset();
+    expect(await refusal(byPage)).toMatchObject({ status: 409, code: 'book_conflict' });
+    expect((await edit.overview(journey.id, owner.id)).version).toBe(version);
+    expect(sent()).toEqual([]);
+
+    // A page the change took out has no digest; one named with a digest refuses, whatever the version says.
+    const gone = await edit.deletePages(journey.id, owner.id, { spreadIds: [inner], returnPrevious: true });
+    expect(gone.page_digests).toEqual([{ spreadId: inner, digest: null }]);
+    const restore = (expected: Array<{ spreadId: string; digest: string | null }>, expectedVersion: number) =>
+      edit.restorePage(journey.id, owner.id, {
+        pages: gone.previous_spreads ?? [],
+        expectedVersion,
+        expectedPages: expected,
+      });
+    const named = [{ spreadId: inner, digest: '0123456789abcdef' }];
+    expect(await refusal(() => restore(named, 0))).toMatchObject({ status: 409, code: 'book_conflict' });
+    // A page named as gone goes back at its old index, which means the same only at the version: a stale one refuses.
+    const asGone = [{ spreadId: inner, digest: null }];
+    expect(await refusal(() => restore(asGone, 0))).toMatchObject({ status: 409, code: 'book_conflict' });
+    // A page named as gone that is still in the book refuses even at the version.
+    const stillThere = [...asGone, { spreadId: first, digest: null }];
+    expect(await refusal(() => restore(stillThere, gone.version))).toMatchObject({
+      status: 409,
+      code: 'book_conflict',
+    });
+    expect(firstPage(await restore(asGone, gone.version))).toMatchObject({ id: inner, index: 2 });
   });
 });

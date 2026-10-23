@@ -30,6 +30,7 @@ import {
 import type { AssistantToolsService } from '../../../../src/nest/assistant/assistant-tools.service';
 import { readTripCard, tripCardFrom } from '../../../../src/nest/assistant/assistant-trip-scope';
 import { studioPrompt, systemPrompt } from '../../../../src/nest/assistant/assistant.prompt';
+import type { JourneyAiPhotosService } from '../../../../src/nest/journey/journey-ai-photos.service';
 import type { JourneyBookEditService } from '../../../../src/nest/journey/journey-book-edit.service';
 import type { JourneyDomainService } from '../../../../src/nest/journey/journey-domain.service';
 import type { PhotoSignalsService } from '../../../../src/nest/photos/photo-signals.service';
@@ -108,7 +109,7 @@ function card(overrides: Partial<BookCard> = {}): BookCard {
     subtitle: 'Two weeks by train',
     role: 'editor',
     book: BOOK,
-    gallery: { photos: 120, withTime: 118, withGps: 90 },
+    gallery: { photos: 120, withTime: 118, withGps: 90, own: 100 },
     entries: [{ id: 40, date: '2026-04-02', title: 'Alfama', place: 'Lisbon', photos: 3 }],
     focus: null,
     ...overrides,
@@ -168,8 +169,11 @@ describe('the tools of a Studio conversation', () => {
     expect(isOfferedInJourney('get_book', undefined)).toBe(false);
   });
 
-  it('ASTSCP-011: keeps what works on the journey: every read, the book writes only for an editor', () => {
+  it('ASTSCP-011: keeps what works on the journey: every read, design reads and book writes only for an editor', () => {
     expect(keptInJourney('JourneyMcp', 'read', true, false)).toBe(true);
+    expect(keptInJourney(undefined, 'read', true, false)).toBe(true);
+    expect(keptInJourney('JourneyBookDesignMcp', 'read', true, false)).toBe(false);
+    expect(keptInJourney('JourneyBookDesignMcp', 'read', true, true)).toBe(true);
     expect(keptInJourney('JourneyBookMcp', 'write', true, true)).toBe(true);
     expect(keptInJourney('JourneyBookMcp', 'write', true, false)).toBe(false);
     expect(keptInJourney('JourneyMcp', 'write', true, true)).toBe(false);
@@ -196,6 +200,11 @@ describe('the book card', () => {
     expect(text).toContain('1 | sp-alfama | inner | 40 | 813, 814 | ');
     expect(text).toContain('Saved layouts: Three in a row (lay-1, inner)');
     expect(text).toContain('Gallery: 120 photos (videos left out), 118 with the time taken, 90 with a GPS position.');
+    // Which photos a page image may show, said as the rule: a text turn learns it too.
+    expect(text).toContain('100 of them are yours; a page image shows only those');
+    const gallery = { photos: 120, withTime: 118, withGps: 90 };
+    expect(renderBookCard(card({ gallery: { ...gallery, own: 120 } }))).toContain('All of them are yours');
+    expect(renderBookCard(card({ gallery: { ...gallery, own: 0 } }))).toContain('None of them are yours');
     expect(text).toContain('40 | 2026-04-02 | Alfama | Lisbon | 3');
     expect(text).not.toContain('The user is looking at');
     expect(text).not.toMatch(/[\u2013\u2014]/);
@@ -204,7 +213,7 @@ describe('the book card', () => {
   it('ASTSCP-026: keeps every row on one line whatever the user typed, and says when the gallery is empty', () => {
     const book = { ...BOOK, spreads: BOOK.spreads.map((spread) => ({ ...spread, texts: ['Lisbon\nin\tspring'] })) };
     const entries = [{ id: 40, date: '2026-04-02', title: 'Alfama\nat night', place: ' Lisbon\r\n', photos: 3 }];
-    const gallery = { photos: 0, withTime: 0, withGps: 0 };
+    const gallery = { photos: 0, withTime: 0, withGps: 0, own: 0 };
     const text = renderBookCard(card({ book, entries, title: 'Portugal\n2026', gallery }));
     expect(text).toContain('Journey: Portugal 2026');
     expect(text).toContain('0 | sp-cover | cover |  | 812 | "Lisbon in spring"');
@@ -261,14 +270,27 @@ describe('the book card', () => {
 
 describe('the Studio instructions', () => {
   it('ASTSCP-030: answer in the user language and teach the book; the trip prompt only points to the Studio', () => {
-    const prompt = studioPrompt('German');
+    const prompt = studioPrompt('German', true);
     expect(prompt).toContain('in German');
     expect(prompt).not.toContain('{language}');
     expect(prompt).toContain('get_book');
     expect(prompt).toContain('describe_book_page');
     expect(prompt).toContain('suggest_book_photos');
     expect(prompt).toContain('preview_book_page');
+    // A design draft names photo ids too: the plan's rows and the photos it left out.
+    expect(prompt).toContain(
+      'a design draft (design_book, get_book_design, revise_book_design) or suggest_book_photos',
+    );
     expect(prompt).not.toMatch(/[\u2013\u2014]/);
+    expect(prompt).not.toContain('{photoSources}');
+    // A viewer is offered none of the design's tools, so its prompt names none of them.
+    const viewer = studioPrompt('German', false);
+    expect(viewer).toContain('in German');
+    expect(viewer).toContain('Photo ids come only from the book or suggest_book_photos.');
+    for (const tool of ['design_book', 'get_book_design', 'revise_book_design', 'apply_book_design']) {
+      expect(viewer, tool).not.toContain(tool);
+    }
+    expect(prompt.startsWith(viewer)).toBe(false);
     expect(systemPrompt('German')).toContain('You are the trip assistant inside TREK');
     expect(systemPrompt('German')).not.toContain('TREK Studio');
     expect(systemPrompt('German')).toContain('tell the user to open Studio from the journey');
@@ -308,26 +330,30 @@ describe('the book context', () => {
     const books = { overview: vi.fn(async () => BOOK) };
     const photos = {
       galleryFacts: vi.fn(async () => [
-        { taken_at: '2026-04-02 10:00:00', lat: 38.71, lng: -9.13 },
-        { taken_at: '2026-04-02 11:00:00', lat: null, lng: null },
-        { taken_at: null, lat: 38.7, lng: null },
+        { photo_id: 1, taken_at: '2026-04-02 10:00:00', lat: 38.71, lng: -9.13 },
+        { photo_id: 2, taken_at: '2026-04-02 11:00:00', lat: null, lng: null },
+        { photo_id: 3, taken_at: null, lat: 38.7, lng: null },
       ]),
     };
+    // The user's own: photo 1 of the gallery, and 99, a video of theirs the facts leave out.
+    const aiPhotos = { ownPhotoIds: vi.fn(async () => new Set([1, 99])) };
     const context = new AssistantBookContext(
       journeys as unknown as JourneyDomainService,
       books as unknown as JourneyBookEditService,
       photos as unknown as PhotoSignalsService,
+      aiPhotos as unknown as JourneyAiPhotosService,
     );
-    return { journeys, books, photos, context };
+    return { journeys, books, photos, aiPhotos, context };
   }
 
   it('ASTSCP-040: reads the card with the user rights: the book, the journey, the role, the gallery, the entries', async () => {
-    const { books, journeys, photos, context } = contextWith('owner');
+    const { books, journeys, photos, aiPhotos, context } = contextWith('owner');
     const read = await context.cardOf(7, 12, { spreadId: 'sp-cover' });
     expect(books.overview).toHaveBeenCalledWith(12, 7);
     expect(photos.galleryFacts).toHaveBeenCalledWith(12);
+    expect(aiPhotos.ownPhotoIds).toHaveBeenCalledWith(12, 7);
     expect(read).toMatchObject({ journeyId: 12, title: 'Portugal', subtitle: null, role: 'owner', book: BOOK });
-    expect(read.gallery).toEqual({ photos: 3, withTime: 2, withGps: 1 });
+    expect(read.gallery).toEqual({ photos: 3, withTime: 2, withGps: 1, own: 1 });
     expect(read.entries).toEqual([{ id: 40, date: '2026-04-02', title: 'Alfama', place: null, photos: 2 }]);
     expect(read.focus).toEqual({ spreadId: 'sp-cover' });
     // The owner is read off the journey row, not asked for again.
@@ -408,7 +434,7 @@ describe('a scope opens its session and writes its turn', () => {
     const targets = new Set(['restore_book_page']);
     const read = await editor.scopes.turnOf(opened, { kind: 'journey', journeyId: 12 }, turn);
     expect(editor.books.cardOf).toHaveBeenCalledWith(7, 12, null);
-    expect(read.system).toBe(studioPrompt('English'));
+    expect(read.system).toBe(studioPrompt('English', true));
     expect(read.context).toContain('<book_card>');
     expect(read.card.tripId).toBe(0);
     expect(session.read).not.toHaveBeenCalled();
@@ -417,8 +443,11 @@ describe('a scope opens its session and writes its turn', () => {
     expect(read.gate).toBe(editor.studioGate);
 
     const viewer = scopesWith(false);
-    await viewer.scopes.open(7, { kind: 'journey', journeyId: 12 }, targets);
+    const viewing = await viewer.scopes.open(7, { kind: 'journey', journeyId: 12 }, targets);
     expect(viewer.tools.openJourney).toHaveBeenCalledWith(7, 12, false, targets);
+    // A viewer's turn reads the instructions without the designer's rules.
+    const viewed = await viewer.scopes.turnOf(viewing, { kind: 'journey', journeyId: 12 }, turn);
+    expect(viewed.system).toBe(studioPrompt('English', false));
   });
 
   it('ASTSCP-052: the trip card is read through the session, or on a session of its own two reads', async () => {

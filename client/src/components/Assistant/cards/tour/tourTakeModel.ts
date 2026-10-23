@@ -1,11 +1,11 @@
-import type { AssistantMessage, TourRouteCard } from '@trek/shared';
+import type { AssistantChangePreview, AssistantMessage, TourRouteCard } from '@trek/shared';
 
 /**
  * Whether a proposal was already taken ("Plan this"), read from the thread
  * rather than from the card, so a card drawn again (the chat reopened, the
  * thread loaded anew, a long answer scrolled away and back) does not offer
- * the same tour twice. The change the server holds names the way it creates,
- * not the card it came from, so it is matched by its way.
+ * the same tour twice. The change the server holds names the proposal it was
+ * taken from (`takenFrom`); one held before it did is matched by its way.
  */
 
 /** The tool a change held by "Plan this" runs under, as the server names it. */
@@ -21,6 +21,12 @@ function sameWay(a: TourRouteCard, b: TourRouteCard): boolean {
   return aStart === bStart && aEnd === bEnd;
 }
 
+/** Whether a held take came from the proposal: by the proposal it names, or, held before it named one, by its way. */
+function takenFromProposal(change: AssistantChangePreview, toolCallId: string, card: TourRouteCard): boolean {
+  if (change.takenFrom !== undefined) return change.takenFrom === toolCallId;
+  return change.card?.kind === 'tourRoute' && sameWay(change.card, card);
+}
+
 /** The index of the answer that drew the proposal's card; -1 when the thread no longer holds it. */
 function proposalIndex(messages: readonly AssistantMessage[], toolCallId: string): number {
   return messages.findIndex((message) =>
@@ -32,7 +38,7 @@ function proposalIndex(messages: readonly AssistantMessage[], toolCallId: string
 type ThreadTake = 'waiting' | 'applied' | null;
 
 /**
- * The take a later answer holds for the same way, still waiting or applied.
+ * The take a later answer holds for the proposal, still waiting or applied.
  * One discarded, cancelled or expired leaves the proposal free to be taken
  * again.
  */
@@ -50,9 +56,9 @@ export function takeInThread(
       if (part.approval?.approved !== false) open.set(part.toolCallId, part.approval?.approved ? 'applied' : 'waiting');
     }
     for (const part of message.parts) {
-      if (part.type !== 'data-trek-change' || part.data.card?.kind !== 'tourRoute') continue;
+      if (part.type !== 'data-trek-change') continue;
       const take = open.get(part.data.toolCallId);
-      if (take && sameWay(part.data.card, card)) return take;
+      if (take && takenFromProposal(part.data, toolCallId, card)) return take;
     }
   }
   return null;

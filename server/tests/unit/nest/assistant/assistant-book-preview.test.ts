@@ -52,6 +52,19 @@ describe('withPagePreview', () => {
     expect(viewer?.parameters).not.toHaveProperty('$defs');
   });
 
+  it('ASTPVW-006: a session without edit_book_page is told of no ops, design drafts or edit tools', () => {
+    const viewer = setup([]).tools.specs()[0];
+    expect(viewer?.description).toContain('as it stands');
+    expect(viewer?.description).not.toMatch(/edit_book_page|design_book|designId|ops/);
+    const editor = setup().tools.specs()[1];
+    expect(editor?.description).toContain('edit_book_page');
+    expect(editor?.description).toContain('designId');
+    for (const spec of [viewer, editor]) {
+      expect(spec?.description).toContain(`At most ${ASSISTANT_PAGE_IMAGE.previewsPerStep} previews per step`);
+      expect(spec?.description).not.toMatch(/[\u2013\u2014]/);
+    }
+  });
+
   it('ASTPVW-002: the preview is a read through the vision; every other tool stays the session one', async () => {
     const { tools, session, vision, looked } = setup();
     expect(tools.kindOf('preview_book_page')).toBe('read');

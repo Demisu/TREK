@@ -5,6 +5,7 @@ import type { JourneyPhotosRepository } from '../../db/repositories/JourneyPhoto
 import { DomainError } from '../common/domain-error';
 import { PhotoSignalsService } from '../photos/photo-signals.service';
 import { SettingsService } from '../settings/settings.service';
+import { canonical } from './book-design-apply';
 import { BookDesignDraftStore, designExpired } from './book-design-draft.store';
 import { bookEntriesOf } from './book-journey-input';
 import { bookLanguage, loadBookWords, type BookWords } from './book-travel-labels';
@@ -41,8 +42,10 @@ import {
   type BookOpsContext,
   type BookOverview,
   type BookPageDescription,
+  type BookPageDigest,
   type BookPhotoInfo,
   type BookPreviousSpread,
+  type BookSpread,
   type BookSpreadSummary,
   type BookTravelContext,
   type BookWriteResult,
@@ -58,6 +61,8 @@ import {
   type SetBookCoverRequest,
   type SetBookSetupRequest,
 } from '@trek/shared';
+
+import { createHash } from 'node:crypto';
 
 /** A book write's answer, in the shared result's shape. */
 export type BookWriteAnswer = BookWriteResult;
@@ -280,14 +285,31 @@ export class JourneyBookEditService {
    * Pages put back as they were, for the assistant's undo: all the pages one
    * change answered under `previous_spreads` in one call, and only while the
    * book is still at `expectedVersion`, so an undo never overwrites what anyone
-   * saved after the change it takes back (409 instead). The engine holds a
-   * restore to an edit's rules: photos from the gallery or the book, locked
-   * elements as they are.
+   * saved after the change it takes back (409 instead). `expectedPages` (the
+   * change's `page_digests`) are checked in the write's transaction: every
+   * page they name must still be as the change left them. They stand in for
+   * the version only when they name every page put back with a digest, so
+   * "undo all" over several page edits takes each back while a later save to
+   * another page stands; a page put back that they do not name, or name as
+   * gone (a deleted page goes back at its old index, which means the same
+   * only at the version), keeps the whole book's check, and so does an MCP
+   * client that names only the version. The engine holds a restore to an
+   * edit's rules: photos from the gallery or the book, locked elements as
+   * they are.
    */
   async restorePage(journeyId: number, userId: number, args: RestoreBookPageRequest): Promise<BookWriteAnswer> {
-    return this.write(journeyId, userId, (doc, ctx) => restoreBookPage(stored(doc), args, ctx), {
-      expectedVersion: args.expectedVersion,
-    });
+    const pinned = args.expectedPages;
+    const covered = pinned !== undefined && args.pages.every((page) => digestNamed(pinned, page.spread.id));
+    return this.write(
+      journeyId,
+      userId,
+      (doc, ctx) => {
+        const book = stored(doc);
+        if (pinned && !pagesAsLeft(book, pinned)) throw pageMoved();
+        return restoreBookPage(book, args, ctx);
+      },
+      { expectedVersion: covered ? undefined : args.expectedVersion },
+    );
   }
 
   /**
@@ -417,10 +439,41 @@ export class JourneyBookEditService {
       pages: answer.pages,
       findings: answer.findings,
       dropped: result.made.dropped,
-      ...(options.returnPrevious ? { previous_spreads: previousOf(result.before, result.made.spreadIds) } : {}),
+      ...(options.returnPrevious
+        ? {
+            previous_spreads: previousOf(result.before, result.made.spreadIds),
+            page_digests: digestsOf(record.document, result.made.spreadIds),
+          }
+        : {}),
       ...options.extra?.(result.before, result.made),
     };
   }
+}
+
+/** A page as the book stores it, as a restore checks it: a digest of its canonical JSON. */
+function pageDigest(spread: BookSpread): string {
+  return createHash('sha256').update(canonical(spread)).digest('hex').slice(0, 16);
+}
+
+/** The pages a write touched as it left them; null for one it took out of the book. */
+function digestsOf(doc: BookDocument, spreadIds: readonly string[]): BookPageDigest[] {
+  return spreadIds.map((spreadId) => {
+    const spread = doc.spreads.find((s) => s.id === spreadId);
+    return { spreadId, digest: spread ? pageDigest(spread) : null };
+  });
+}
+
+/** The digests name this page as the write left it in the book, not as one it took out. */
+function digestNamed(expected: readonly BookPageDigest[], spreadId: string): boolean {
+  return expected.some((row) => row.spreadId === spreadId && row.digest !== null);
+}
+
+/** Every page named is as its digest says: there and unchanged, or still gone for a null digest. */
+function pagesAsLeft(doc: BookDocument, expected: readonly BookPageDigest[]): boolean {
+  return expected.every(({ spreadId, digest }) => {
+    const spread = doc.spreads.find((s) => s.id === spreadId);
+    return spread ? digest !== null && pageDigest(spread) === digest : digest === null;
+  });
 }
 
 /** The pages a write touched as they are stored now, with their findings, severe first and capped. */
@@ -472,6 +525,14 @@ function noBook(): DomainError {
   return new DomainError(404, 'This journey has no book yet', {
     code: 'book_missing',
     mcpMessage: 'This journey has no book yet: create_book makes one.',
+  });
+}
+
+/** A page a restore names was saved since the change it takes back: the 409 a moved book gets. */
+function pageMoved(): DomainError {
+  return new DomainError(409, 'Book was changed by someone else', {
+    code: 'book_conflict',
+    mcpMessage: 'A page was changed since that change. Read the book again with get_book before changing it.',
   });
 }
 

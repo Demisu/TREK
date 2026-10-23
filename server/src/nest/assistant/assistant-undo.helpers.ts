@@ -1,5 +1,5 @@
 import type { AssistantToolSession } from './assistant-tools.service';
-import type { ToolArgs, UndoSnapshot } from './cards/card-types';
+import type { ToolArgs, UndoCall, UndoSnapshot } from './cards/card-types';
 import { readKey, recordOf, type Row } from './cards/card-values';
 import { TOOL_CARDS, undoReadsOf } from './cards/registry';
 import {
@@ -55,24 +55,36 @@ const CORE_CHECKS: Readonly<Record<string, (result: Row, snapshot: UndoSnapshot)
   },
 };
 
+/** One check: the change's answer, the snapshot, and the call it answered (its arguments, its stored preview). */
+type Check = (result: Row, snapshot: UndoSnapshot, call: UndoCall) => boolean;
+
 /**
  * The core checks and each package's `undo.unchanged`, which the registry
  * guards (one that throws reads as changed) and keeps off the core's tools.
  */
-const CHECKS: Readonly<Record<string, (result: Row, snapshot: UndoSnapshot) => boolean>> = {
+const CHECKS: Readonly<Partial<Record<string, Check>>> = {
   ...CORE_CHECKS,
   ...Object.fromEntries(
-    Object.entries(TOOL_CARDS).flatMap(([tool, cards]) => {
+    Object.entries(TOOL_CARDS).flatMap(([tool, cards]): Array<[string, Check]> => {
       const undo = cards.undo;
-      return undo ? [[tool, (result: Row, snapshot: UndoSnapshot) => undo.unchanged(result, snapshot)]] : [];
+      return undo ? [[tool, (result, snapshot, call) => undo.unchanged(result, snapshot, call)]] : [];
     }),
   ),
 };
 
-/** True when the change `toolName` made (its stored `result`) is still as it left it. */
-export function unchangedSinceApplied(toolName: string, result: unknown, snapshot: TripSnapshot): boolean {
+/**
+ * True when the change `toolName` made (its stored `result`) is still as it
+ * left it. `call` is what the answer may not name (the day a vacation toggle
+ * was for, the person); a check that needs none ignores it.
+ */
+export function unchangedSinceApplied(
+  toolName: string,
+  result: unknown,
+  snapshot: TripSnapshot,
+  call: UndoCall = { args: {}, preview: null },
+): boolean {
   const check = CHECKS[toolName];
-  return !!check && check(recordOf(result), { ...snapshot, reads: snapshot.reads ?? new Map() });
+  return !!check && check(recordOf(result), { ...snapshot, reads: snapshot.reads ?? new Map() }, call);
 }
 
 /**

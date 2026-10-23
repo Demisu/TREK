@@ -116,9 +116,13 @@ export class AssistantController {
     await this.assistant.decide(user.id, tripScope(Number(tripId)), idParam(threadId), body, channelOf(res));
   }
 
-  /** "+ Day 3" on a place a search found: a change card for the day, held like any other, no model turn. */
+  /**
+   * "+ Day 3" on a place a search found: a change card for the day, held like any other, no model turn.
+   * It holds a new place or a place planned on a day, so it asks for the right the place routes ask for.
+   */
   @Post('threads/:threadId/found-places')
   @HttpCode(200)
+  @RequirePermission('place_edit')
   @ResponseContract(assistantAddFoundPlaceResponseSchema)
   addFoundPlace(
     @CurrentUser() user: User,

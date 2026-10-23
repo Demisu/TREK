@@ -1,4 +1,4 @@
-import type { ToolArgs, ToolCards, UndoSnapshot } from '../card-types';
+import type { AppliedFrom, ToolArgs, ToolCards, UndoSnapshot } from '../card-types';
 import { argId, clipped, readKey, recordOf, type Row } from '../card-values';
 import { rowsOf, same } from '../undo-snapshot';
 import { listsCard } from './collection-answers';
@@ -136,24 +136,35 @@ export const COLLECTION_APPLIED: Readonly<Partial<Record<string, (input: Applied
   update_collection_label: labelApplied,
 };
 
+type AppliedIds = (args: ToolArgs, result: unknown, from: AppliedFrom) => number[];
+
+/** The list the held card showed the change in; none for a change across lists or without a card. */
+const shownList: AppliedIds = (_args, _result, { preview }) =>
+  idsOf(positiveId(previewCard(preview, 'collectionPlaces')?.list?.id));
+
 /** The ids a receipt names where the answer does not name them under the usual keys. */
-export const COLLECTION_APPLIED_IDS: Readonly<Partial<Record<string, (args: ToolArgs, result: unknown) => number[]>>> =
-  {
-    create_collection: (_args, result) => idsOf(positiveId(recordOf(recordOf(result).collection).id)),
-    update_collection: (args) => idsOf(argId(args, 'collectionId')),
-    delete_collection: (args) => idsOf(argId(args, 'collectionId')),
-    save_trip_places_to_collection: (args) => idsOf(argId(args, 'collectionId')),
-    accept_collection_invite: (args) => idsOf(argId(args, 'collectionId')),
-    decline_collection_invite: (args) => idsOf(argId(args, 'collectionId')),
-    cancel_collection_invite: (args) => idsOf(argId(args, 'collectionId')),
-    create_collection_label: (args) => idsOf(argId(args, 'collection_id')),
-    update_collection_label: (_args, result) => idsOf(positiveId(recordOf(recordOf(result).label).collection_id)),
-    // The new trip places, so "Show on map" opens the first of them.
-    copy_collection_places_to_trip: (_args, result) =>
-      rowsOf(recordOf(result).created)
-        .map((row) => positiveId(row.id))
-        .filter((id): id is number => id !== null),
-  };
+export const COLLECTION_APPLIED_IDS: Readonly<Partial<Record<string, AppliedIds>>> = {
+  create_collection: (_args, result) => idsOf(positiveId(recordOf(recordOf(result).collection).id)),
+  update_collection: (args) => idsOf(argId(args, 'collectionId')),
+  delete_collection: (args) => idsOf(argId(args, 'collectionId')),
+  save_trip_places_to_collection: (args) => idsOf(argId(args, 'collectionId')),
+  accept_collection_invite: (args) => idsOf(argId(args, 'collectionId')),
+  decline_collection_invite: (args) => idsOf(argId(args, 'collectionId')),
+  cancel_collection_invite: (args) => idsOf(argId(args, 'collectionId')),
+  create_collection_label: (args) => idsOf(argId(args, 'collection_id')),
+  update_collection_label: (_args, result) => idsOf(positiveId(recordOf(recordOf(result).label).collection_id)),
+  set_collection_place_status_from_trip: shownList,
+  assign_collection_labels: shownList,
+  delete_collection_label: shownList,
+  // The new places of a copy into the chat's own trip, so "Show on map" opens the first of them; a copy
+  // into another trip names none, since the map shows the chat's trip, where those places are not.
+  copy_collection_places_to_trip: (args, result, { tripId }) =>
+    tripId !== null && argId(args, 'trip_id') === tripId
+      ? rowsOf(recordOf(result).created)
+          .map((row) => positiveId(row.id))
+          .filter((id): id is number => id !== null)
+      : [],
+};
 
 function idsOf(id: number | null): number[] {
   return id === null ? [] : [id];

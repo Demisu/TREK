@@ -3,6 +3,7 @@ import { VACAY_ANSWER_CARDS } from './vacay-answer';
 import { appliedCompany, appliedToggle } from './vacay-applied';
 import { VACAY_CHANGE_CARDS, VACAY_DESCRIBERS } from './vacay-change';
 import { loadDay, loadStats, type VacayLoaded, type VacayStatsLoaded } from './vacay-load';
+import { TOGGLE_BACK } from './vacay-undo';
 
 /**
  * The vacation planner in the assistant chat. Its reads show the days off,
@@ -13,10 +14,12 @@ import { loadDay, loadStats, type VacayLoaded, type VacayStatsLoaded } from './v
  * can come hours after the hold, so the applied card follows what the tool
  * says it did, not what the held card foresaw (`applied`).
  *
- * A toggle cannot be undone from the chat yet: whether the day is still as
- * the change left it needs the change's own date, which an undo check is not
- * handed (`undo.unchanged` gets the result only, and the result names no
- * date). The other vacation writes stay cards built from their arguments.
+ * A day the assistant added or converted is taken back with the toggle once
+ * more, while the day is still as the change left it (vacay-undo.ts); a day
+ * it cleared is not, since the toggle cannot give back a note the day may
+ * have carried. The held card says so up front (`undoable` only for a day it
+ * would add or convert, never before the lookup ran). The company holiday and
+ * the allowance have no way back.
  */
 
 const toggle: ToolCards<VacayLoaded> = {
@@ -25,6 +28,7 @@ const toggle: ToolCards<VacayLoaded> = {
   describe: VACAY_DESCRIBERS.toggle_vacay_entry,
   change: VACAY_CHANGE_CARDS.toggle_vacay_entry,
   applied: appliedToggle,
+  undo: TOGGLE_BACK,
 };
 
 const companyHoliday: ToolCards<VacayLoaded> = {

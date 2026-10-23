@@ -14,12 +14,14 @@ import { BOOKING_CARDS } from './booking';
 import { BUDGET_CARDS } from './budget';
 import type {
   AnswerInput,
+  AppliedFrom,
   Described,
   DomainCards,
   PreviewContext,
   ToolArgs,
   ToolCards,
   ToolUndo,
+  UndoCall,
   UndoSnapshot,
 } from './card-types';
 import { COLLAB_CARDS } from './collab';
@@ -129,8 +131,8 @@ function guardUndo(tool: string, undo: Undo): Undo {
             safely<UndoReads>(tool, 'undo reads', [], () => undo.reads?.(args, result) ?? []),
         }
       : {}),
-    unchanged: (result: unknown, snapshot: UndoSnapshot) =>
-      safely(tool, 'undo check', false, () => undo.unchanged(result, snapshot)),
+    unchanged: (result: unknown, snapshot: UndoSnapshot, call?: UndoCall) =>
+      safely(tool, 'undo check', false, () => undo.unchanged(result, snapshot, call)),
   };
 }
 
@@ -156,9 +158,9 @@ function guardTool(tool: string, cards: ToolCards): ToolCards {
       : {}),
     ...(cards.appliedIds
       ? {
-          appliedIds: (args: ToolArgs, result: unknown) =>
+          appliedIds: (args: ToolArgs, result: unknown, from: AppliedFrom) =>
             safely<number[]>(tool, 'applied ids', [], () =>
-              (cards.appliedIds?.(args, result) ?? []).filter((value) => idSchema.safeParse(value).success),
+              (cards.appliedIds?.(args, result, from) ?? []).filter((value) => idSchema.safeParse(value).success),
             ),
         }
       : {}),

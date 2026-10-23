@@ -1,14 +1,15 @@
 /**
- * ASTCOL-040 to ASTCOL-048: what an applied change of the collections shows
- * in place of its preview, what its receipt names, and the way back from a
- * created list or a saved place.
+ * ASTCOL-040 to ASTCOL-049: what an applied change of the collections shows
+ * in place of its preview, what its receipt names (the new places of a copy
+ * only on the chat's own trip, the list a held card showed), and the way back
+ * from a created list or a saved place.
  */
 import { unchangedSinceApplied } from '../../../../../../src/nest/assistant/assistant-undo.helpers';
 import { readKey } from '../../../../../../src/nest/assistant/cards/card-values';
 import type { CollectionLookup } from '../../../../../../src/nest/assistant/cards/collection/collection-load';
 import { appliedCardOf, ASSISTANT_UNDO_MAP, undoReadsOf } from '../../../../../../src/nest/assistant/cards/registry';
 import { appliedChange, describeToolCall } from '../../../../../../src/nest/assistant/tool-call-preview.helpers';
-import { collectionValue, ctx, itemsValue, savedPlace } from './collection-fixtures';
+import { collectionValue, ctx, itemsValue, savedPlace, TRIP_ID } from './collection-fixtures';
 import type { CollectionListsCard, CollectionPlacesCard } from '@trek/shared';
 
 import { describe, expect, it, vi } from 'vitest';
@@ -121,7 +122,7 @@ describe('applied collection cards', () => {
 
   it('ASTCOL-045: a receipt names a list, a saved place, or the new trip places of a copy', () => {
     const receipt = (tool: string, args: Record<string, unknown>, result: unknown) =>
-      appliedChange(tool, 'c', args, result, null, null);
+      appliedChange(tool, 'c', args, result, null, null, { preview: null, tripId: TRIP_ID });
     const made = receipt('create_collection', { name: 'Rome' }, { collection: { id: 44 } });
     expect(made).toMatchObject({ entity: 'collection', ids: [44] });
     expect(receipt('save_place_to_collection', SAVE, { place: { id: 77 } })).toMatchObject({
@@ -140,6 +141,35 @@ describe('applied collection cards', () => {
     expect(copy).toMatchObject({ entity: 'place', ids: [900, 901] });
     const kept = receipt('save_trip_places_to_collection', { collectionId: 12 }, { copied: 1 });
     expect(kept).toMatchObject({ entity: 'collection', ids: [12] });
+  });
+
+  it('ASTCOL-049: a copy into another trip names no places, and a change shown in one list names that list', () => {
+    const created = [{ id: 950, source_id: 34 }];
+    const copy = (tripId: number | null, into: number) => {
+      const args = { trip_id: into, place_ids: [34] };
+      const chat = { preview: null, tripId };
+      return appliedChange('copy_collection_places_to_trip', 'c', args, { created }, null, null, chat)?.ids;
+    };
+    expect(copy(TRIP_ID, TRIP_ID)).toEqual([950]);
+    // The map shows the chat's trip, where the places of another trip are not; a Studio chat has no trip.
+    expect(copy(TRIP_ID, 8)).toEqual([]);
+    expect(copy(null, TRIP_ID)).toEqual([]);
+
+    // The held card showed the labels on Septime in list 12: the receipt opens that list.
+    const labelled = { label_ids: [53], place_ids: [34] };
+    const preview = previewOf('assign_collection_labels', labelled, { items: itemsValue([savedPlace()]) });
+    const from = { preview, tripId: TRIP_ID };
+    const receipt = appliedChange('assign_collection_labels', 'c', labelled, { success: true }, null, null, from);
+    expect(receipt).toMatchObject({ entity: 'collection', ids: [12] });
+    // Without the held card, or set across every list, the receipt names no list.
+    expect(appliedChange('assign_collection_labels', 'c', labelled, {}, null, null)?.ids).toEqual([]);
+    const marked = { trip_id: TRIP_ID, place_ids: [5], status: 'visited' };
+    const across = previewOf('set_collection_place_status_from_trip', marked, {});
+    const set = appliedChange('set_collection_place_status_from_trip', 'c', marked, {}, null, null, {
+      preview: across,
+      tripId: TRIP_ID,
+    });
+    expect(set?.ids).toEqual([]);
   });
 
   it('ASTCOL-046: a created list is taken back while it is empty, unshared and unchanged', () => {

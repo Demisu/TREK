@@ -15,6 +15,7 @@ import {
 } from './vacay-frame';
 import { dateArg, yearArg, type VacayLoaded, type VacayStatsLoaded } from './vacay-load';
 import type { Fraction, VacayEntryRow } from './vacay-reads';
+import { takesBack } from './vacay-undo';
 import {
   VACAY_CARD_MAX_HOLIDAYS,
   type AssistantChangeVerbKey,
@@ -201,11 +202,13 @@ function dayDescribed(ctx: PreviewContext, args: ToolArgs): Described {
 }
 
 export const VACAY_DESCRIBERS = {
+  /** Undoable only when the lookup ran and the toggle would add or convert the day (vacay-undo.ts). */
   toggle_vacay_entry: (ctx: PreviewContext, args: ToolArgs, loaded: VacayLoaded | null): Described => {
     const described = dayDescribed(ctx, args);
     const date = dateArg(args);
-    if (!loaded || !date) return described;
-    return { ...described, verbKey: TOGGLE_VERBS[toggleProposal(ctx.card.viewerId, args, loaded, date).outcome] };
+    if (!loaded || !date) return { ...described, undoable: false };
+    const proposal = toggleProposal(ctx.card.viewerId, args, loaded, date);
+    return { ...described, verbKey: TOGGLE_VERBS[proposal.outcome], undoable: takesBack(proposal) };
   },
   toggle_company_holiday: (ctx: PreviewContext, args: ToolArgs): Described => {
     const described = dayDescribed(ctx, args);

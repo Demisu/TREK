@@ -182,6 +182,9 @@ describe('Studio page images e2e', () => {
     // The friend may open the journey, but the turn is not theirs.
     expect((await upload({ ...base, userId: s.friendId })).status).toBe(404);
     expect((await upload({ ...base, userId: s.userId, threadId: 5 })).status).toBe(404);
+    // A thread id that is none asks for no page, before the file is looked at.
+    const noThread = await upload({ ...base, userId: s.userId, threadId: 0 });
+    expect([noThread.status, noThread.body]).toEqual([404, { error: 'No page was asked for' }]);
     expect((await upload({ ...base, userId: s.userId, requestId: randomUUID() })).status).toBe(404);
     const stale = await upload({ ...base, userId: s.userId, fields: { bookVersion: '2', spreadId: 'sp-2' } });
     expect(stale.status).toBe(409);

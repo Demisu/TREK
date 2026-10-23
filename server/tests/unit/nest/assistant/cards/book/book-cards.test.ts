@@ -369,7 +369,7 @@ describe('the receipt and the way back', () => {
     expect(receipt(full, 3)).toMatchObject({ moreFindings: 34 });
   });
 
-  it('ASTCARD-BKPG-009: edits, the cover and deletes go back by restore at their version; new pages and moves while unmoved', () => {
+  it('ASTCARD-BKPG-009: edits and the cover go back by restore checking their pages, deletes at their version; new pages and moves while unmoved', () => {
     const previous = [{ index: 2, spread: book().spreads[2] }];
     const result = { version: 4, spread_ids: ['sp-3'], previous_spreads: previous };
     for (const tool of ['edit_book_page', 'set_book_cover', 'delete_book_pages']) {
@@ -382,6 +382,27 @@ describe('the receipt and the way back', () => {
       // The pages kept for the undo never reach the model or the chat.
       expect(toolOutputForProvider(tool, result)).toEqual({ version: 4, spread_ids: ['sp-3'] });
     }
+    // With the digest of every page it puts back, the restore checks those pages only, not the book's version.
+    const digests = [{ spreadId: 'sp-3', digest: '0123456789abcdef' }];
+    const digested = { ...result, page_digests: digests };
+    for (const tool of ['edit_book_page', 'set_book_cover']) {
+      expect(ASSISTANT_UNDO_MAP[tool]?.args({}, digested, null), tool).toEqual({
+        pages: previous,
+        expectedVersion: 4,
+        expectedPages: digests,
+      });
+      // The digests stay with the undo too: neither the model nor the chat sees them.
+      expect(toolOutputForProvider(tool, digested)).toEqual({ version: 4, spread_ids: ['sp-3'] });
+    }
+    // A deleted page has no digest, and digests that miss a page leave the version to guard the restore.
+    const deleted = { ...result, page_digests: [{ spreadId: 'sp-3', digest: null }] };
+    expect(ASSISTANT_UNDO_MAP.delete_book_pages?.args({}, deleted, null)).toEqual({
+      pages: previous,
+      expectedVersion: 4,
+    });
+    const partial = { ...result, page_digests: [{ spreadId: 'sp-9', digest: '0123456789abcdef' }, 'odd'] };
+    expect(ASSISTANT_UNDO_MAP.edit_book_page?.args({}, partial, null)).toEqual({ pages: previous, expectedVersion: 4 });
+    expect(toolOutputForProvider('edit_book_page', { version: 4, page_digests: digests })).toEqual({ version: 4 });
     // The undo of new pages and of a move names the version the change left, so a save since refuses it.
     expect(ASSISTANT_UNDO_MAP.add_book_pages?.args({}, { version: 4, spread_ids: ['sp-x', 'sp-y'] }, null)).toEqual({
       spreadIds: ['sp-x', 'sp-y'],

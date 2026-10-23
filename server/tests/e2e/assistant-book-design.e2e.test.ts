@@ -460,8 +460,12 @@ describe('the whole-book design through the Studio chat', () => {
     const names = toolNames(provider.requests[0]);
     expect(names).toContain('get_book');
     for (const name of BOOK_WRITES) expect(names, name).not.toContain(name);
+    // The design's reads go only to someone who may change the book, like its writes.
+    for (const name of ['design_book', 'get_book_design', 'revise_book_design'])
+      expect(names, name).not.toContain(name);
     const refused = ofType(turn.chunks, 'tool-output-error');
     expect(refused.map((part) => part.toolCallId)).toEqual(['call_design', 'call_apply']);
+    expect(refused[0]?.errorText).toBe('Unknown tool: design_book');
     expect(refused[1]?.errorText).toBe('Unknown tool: apply_book_design');
     expect(ofType(turn.chunks, 'tool-approval-request')).toEqual([]);
     expect(ofType(turn.chunks, 'data-trek-change')).toEqual([]);

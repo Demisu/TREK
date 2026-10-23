@@ -1,5 +1,5 @@
 /**
- * ASTBGATE-001 to ASTBGATE-007
+ * ASTBGATE-001 to ASTBGATE-008
  *
  * The book check of a Studio turn: a held book write is tried on the stored
  * book before the user sees it; what the engine refuses goes back to the
@@ -7,8 +7,8 @@
  * goes back once a turn per tool and page with its findings, after which the
  * same call is held. Filling some of a page's empty frames and new pages laid
  * out on a template are not new faults. The book is read once per turn and every call tried once,
- * whether the gate or its change card asks first. A book that cannot be read
- * holds every call as it is.
+ * whether the gate or its change card asks first. A book that cannot be read,
+ * or a fault in the engine, holds every call as it is.
  */
 import { AssistantBookGate, bounceText, openGate } from '../../../../src/nest/assistant/assistant-book-gate';
 import { BOOK_TRIAL_READ } from '../../../../src/nest/assistant/cards/book/book-trial';
@@ -135,6 +135,29 @@ describe('the book check of a Studio turn', () => {
       ok: false,
     });
     expect(logMock.logWarn).toHaveBeenCalledWith(expect.stringContaining('Journey not found'));
+  });
+
+  it('ASTBGATE-008: a fault in the engine holds the call as it is, and says so in the log', async () => {
+    const found = base();
+    // The gallery fails as the engine reads it: a plain fault, not a refusal of the change.
+    const broken = {
+      ...found,
+      ctx: {
+        journey: found.ctx.journey,
+        get photos(): never {
+          throw new Error('the gallery is gone');
+        },
+      },
+    };
+    const { turn } = gateOver(broken);
+    const gate = turn();
+    expect(await gate.refusalOf('edit_book_page', EMPTY_FRAMES)).toBeNull();
+    expect(await gate.reader.read(BOOK_TRIAL_READ, { tool: 'edit_book_page', args: EMPTY_FRAMES })).toMatchObject({
+      ok: false,
+    });
+    expect(logMock.logWarn).toHaveBeenCalledWith(
+      expect.stringContaining('the trial of edit_book_page failed: the gallery is gone'),
+    );
   });
 
   it("ASTBGATE-005: a trip conversation's gate sends nothing back and its cards read the session itself", async () => {
