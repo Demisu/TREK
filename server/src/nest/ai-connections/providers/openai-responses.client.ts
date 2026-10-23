@@ -110,7 +110,7 @@ function toolsOf(request: AiChatRequest, kind: AiConnectionKind): Record<string,
 }
 
 /** The pages an output message cites, as its text's URL annotations name them. */
-export function citedSources(item: Record<string, unknown>): AiSource[] {
+function citedSources(item: Record<string, unknown>): AiSource[] {
   if (item.type !== 'message' || !Array.isArray(item.content)) return [];
   return item.content.flatMap((part: unknown) => {
     const annotations = asRecord(part).annotations;
