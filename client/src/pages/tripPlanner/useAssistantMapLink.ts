@@ -282,6 +282,7 @@ function useCameraProp(tripId: number, isMobile: boolean): AssistantMapProps['as
       mode: camera.mode,
       animate: !prefersReducedMotion(),
       auto: camera.why === 'auto',
+      at: camera.at,
       cover,
     };
   }, [camera, isMobile, windowRect]);

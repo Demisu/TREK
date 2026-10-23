@@ -131,7 +131,15 @@ interface AssistantState {
    */
   mapLink: { tripId: number; hoveredId: string | null; source: AssistantMapSource } | null;
   /** The latest request to move the map; `seq` tells a new one from the same points asked again. */
-  camera: { tripId: number; seq: number; points: LatLng[]; mode: 'fit' | 'pan'; why: 'user' | 'auto' } | null;
+  camera: {
+    tripId: number;
+    seq: number;
+    points: LatLng[];
+    mode: 'fit' | 'pan';
+    why: 'user' | 'auto';
+    /** When it was asked for, so a map that mounts right after (the chat switched to it) still moves. */
+    at: number;
+  } | null;
   /**
    * A spot a card points at (a found place, a row), drawn on the map until
    * the pointer leaves; a place of the trip pulses its own pin instead.
@@ -794,7 +802,7 @@ async function holdWithoutTurn(
 function requestCameraOn(ctx: Ctx, tripId: number, points: LatLng[], mode: 'fit' | 'pan', why: 'user' | 'auto') {
   if (points.length === 0) return;
   const seq = (ctx.get().camera?.seq ?? 0) + 1;
-  ctx.set({ camera: { tripId, seq, points, mode, why } });
+  ctx.set({ camera: { tripId, seq, points, mode, why, at: Date.now() } });
 }
 
 function mapActions(ctx: Ctx) {

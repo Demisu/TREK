@@ -16,6 +16,8 @@ export const ASSISTANT_CAMERA_MS = 600;
 const USER_MOVE_QUIET_MS = 5000;
 /** How long a pin that just arrived keeps its pop class; the animation itself is shorter. */
 const POP_HOLD_MS = 400;
+/** A request this young when the map mounts was meant for this map: the chat switched to it to show something. */
+const FRESH_REQUEST_MS = 5000;
 
 /** The renderer's padding, widened on the side the assistant's window covers. */
 export function coverPadding(base: ViewportPadding, cover: AssistantCamera['cover']): ViewportPadding {
@@ -52,7 +54,8 @@ export function useUserMoveClock(getContainer: () => HTMLElement | null, ready: 
 
 /**
  * The request the camera should carry out now, or null. The one present when
- * the map mounts is skipped (it was meant for a map that is gone), as is a
+ * the map mounts is skipped (it was meant for a map that is gone) unless it
+ * was asked for a moment ago (the chat switched to the map to show it), as is a
  * repeated key, and a move the user did not ask for while they are moving
  * the map themselves.
  */
@@ -60,8 +63,15 @@ export function useCameraRequest(
   camera: AssistantCamera | null | undefined,
   userMovedAt: { readonly current: number }
 ): (run: (camera: AssistantCamera) => void) => void {
-  const seen = useRef(camera?.key ?? null);
+  // The request on screen when the map mounted, judged on the first run: young enough, it was meant for this map.
+  const mounted = useRef(camera ?? null);
+  const seen = useRef<string | null>(null);
   return (run) => {
+    const first = mounted.current;
+    if (first) {
+      mounted.current = null;
+      if (!(first.at && Date.now() - first.at < FRESH_REQUEST_MS)) seen.current = first.key;
+    }
     if (!camera || camera.key === seen.current) return;
     seen.current = camera.key;
     if (camera.auto && Date.now() - userMovedAt.current < USER_MOVE_QUIET_MS) return;

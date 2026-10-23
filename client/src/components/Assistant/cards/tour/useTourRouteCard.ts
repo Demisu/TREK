@@ -10,8 +10,9 @@ import type { RouteProfileFocus } from '../../../../utils/routeGeometry';
 import { hasUndecided } from '../../assistantParts';
 import { useAssistantView } from '../../assistantViewContext';
 import { useChangeHover } from '../../useChangeHover';
+import { tourTarget } from './tourLook';
 import { canTake, routePoints } from './tourRouteModel';
-import { takeInThread } from './tourTakeModel';
+import { takeInThread, takeOfProposal } from './tourTakeModel';
 
 /**
  * What a route card and the phone's route peek share: the spot of the route
@@ -103,10 +104,13 @@ function stateAfter(outcome: HoldOutcome, error: string | null): TakeState {
 }
 
 /**
- * "Plan this" on a proposed hike or city walk: the server holds the tour it
- * creates as a change below, to decide like any other, without a model turn.
- * It shows for someone who may add places to the trip, and waits (saying
- * why) while offline, while the assistant answers or while another change is
+ * "Plan this" on a proposed hike or city walk: one tap adds the tour. The
+ * server holds the tour it creates as a change, without a model turn, and
+ * the tap decides it at once, since tapping "Plan this" already is the
+ * decision; the assistant then answers to what was added. Once the tour is
+ * there, the desktop opens it in the Tours tab to be edited. It shows for
+ * someone who may add places to the trip, and waits (saying why) while
+ * offline, while the assistant answers or while another change is
  * undecided, since one decision answers every open card. A proposal the
  * server can no longer find or create is refused; the card then asks for it
  * to be asked again. Taken is read from the thread too, so a card drawn again
@@ -129,7 +133,11 @@ export function useTakeProposal(toolCallId: string, card: TourRouteCard) {
     })
   );
   const takeProposal = useAssistantStore((s) => s.takeProposal);
+  const decide = useAssistantStore((s) => s.decide);
+  const { variant, onOpen } = useAssistantView();
   const [tapped, setState] = useState<TakeState>('idle');
+  // The take this card started and decides; its tour opens once it is applied, and only then.
+  const [started, setStarted] = useState<string | null>(null);
   const state: TakeState = held !== null && tapped !== 'busy' ? 'taken' : tapped;
   const mounted = useRef(true);
   useEffect(() => {
@@ -151,7 +159,28 @@ export function useTakeProposal(toolCallId: string, card: TourRouteCard) {
     if (!mounted.current) return;
     // A refusal is kept as the chat's error, read only when the take was refused.
     setState(stateAfter(outcome, chatOf(useAssistantStore.getState(), tripId).error));
-  }, [takeProposal, tripId, toolCallId]);
+    if (outcome !== 'held') return;
+    const waiting = takeOfProposal(chatOf(useAssistantStore.getState(), tripId).messages, toolCallId, card);
+    if (waiting?.state !== 'waiting') return;
+    setStarted(waiting.id);
+    await decide(tripId, [{ toolCallId: waiting.id, approved: true }]);
+  }, [takeProposal, decide, tripId, toolCallId, card]);
 
-  return { visible, disabled, reasonKey, state, applied: held === 'applied', take };
+  // The tour this card added opens in the Tours tab, where it is edited; the phone has no such tab.
+  const appliedPlace = useAssistantStore((s) => {
+    if (!started) return null;
+    const found = takeOfProposal(chatOf(s, tripId).messages, toolCallId, card);
+    return found?.id === started && found.state === 'applied' ? found.placeId : null;
+  });
+  // Opened once per take, whatever renders follow.
+  const opened = useRef<string | null>(null);
+  useEffect(() => {
+    if (appliedPlace === null || opened.current === started) return;
+    opened.current = started;
+    if (variant !== 'fullscreen' && onOpen) onOpen(tourTarget(appliedPlace));
+  }, [appliedPlace, started, variant, onOpen]);
+
+  // While the take this card started is being decided, the card says it is being planned, not that it waits below.
+  const deciding = started !== null && held === 'waiting';
+  return { visible, disabled, reasonKey, state, applied: held === 'applied', deciding, take };
 }

@@ -52,10 +52,11 @@ function proposed(): AssistantMessage {
   };
 }
 
-/** The change "Plan this" held for that hike: applied (`true`) or discarded (`false`). */
-function heldTake(approved: boolean): AssistantMessage {
+/** The change "Plan this" held for that hike: applied (`true`), discarded (`false`) or still waiting (none). */
+function heldTake(approved?: boolean): AssistantMessage {
+  const approval = approved === undefined ? { id: 't1' } : { id: 't1', approved };
   const parts: AssistantMessagePart[] = [
-    { type: 'tool-call', toolCallId: 't1', toolName: 'take_proposal', args: {}, approval: { id: 't1', approved } },
+    { type: 'tool-call', toolCallId: 't1', toolName: 'take_proposal', args: {}, approval },
     {
       type: 'data-trek-change',
       data: {
@@ -167,6 +168,17 @@ describe('TourRouteCard', () => {
     expect(screen.getByRole('list', { name: 'Stops along the way' })).toBeInTheDocument();
   });
 
+  it('FE-AI-TOUR-024b: the stops run as a timeline, each walk on the line between two stops and read with the one it leads to', () => {
+    renderCard(HIKE);
+    const list = screen.getByRole('list', { name: 'Stops along the way' });
+    // One row per stop; the lines between them are not rows.
+    expect(list.querySelectorAll('[role="listitem"]')).toHaveLength(5);
+    // The place beside the way has no time: the hut measures from the start, then each stop from the last.
+    expect(screen.getAllByText(/from the last stop$/)).toHaveLength(3);
+    const legs = [...list.querySelectorAll('[aria-hidden="true"]')].map((leg) => leg.textContent).filter(Boolean);
+    expect(legs).toHaveLength(3);
+  });
+
   it('FE-AI-TOUR-025: lays out the day with the sun and the walk, the forecast hours with likely rain, and the warnings', () => {
     renderCard(HIKE);
     expect(
@@ -215,6 +227,35 @@ describe('TourRouteCard', () => {
     });
     expect(third).toBeEnabled();
     expect(screen.getAllByText('This can no longer be planned from here. Ask for it again.')).toHaveLength(1);
+  });
+
+  it('FE-AI-TOUR-026b: one tap plans the hike: the held take is decided at once and the tour opens in the Tours tab', async () => {
+    const onOpen = vi.fn();
+    const decide = vi.fn(async (_key: number, decisions: { toolCallId: string; approved: boolean }[]) => {
+      // The server applies the take; the thread shows it applied with the new tour's place.
+      const chat = chatOf(useAssistantStore.getState(), TRIP);
+      const applied = heldTake(true);
+      applied.parts.push({
+        type: 'data-trek-applied',
+        data: { toolCallId: decisions[0]?.toolCallId ?? '', entity: 'tour', ids: [77], dayId: 22, undoUntil: null },
+      });
+      useAssistantStore.setState({ byTrip: { [TRIP]: { ...chat, messages: [proposed(), applied] } } });
+    });
+    seed([proposed()]);
+    useAssistantStore.setState({ decide });
+    takeProposal.mockImplementationOnce(async () => {
+      const chat = chatOf(useAssistantStore.getState(), TRIP);
+      useAssistantStore.setState({ byTrip: { [TRIP]: { ...chat, messages: [proposed(), heldTake(undefined)] } } });
+      return 'held';
+    });
+    renderCard(HIKE, { onOpen });
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Plan this' }));
+    });
+    expect(decide).toHaveBeenCalledWith(TRIP, [{ toolCallId: 't1', approved: true }]);
+    expect(onOpen).toHaveBeenCalledWith({ kind: 'tab', tab: 'tour-planner', params: { tour: '77' } });
+    expect(screen.getByText('Added to the trip')).toBeInTheDocument();
+    expect(screen.queryByText('Added below for you to confirm')).toBeNull();
   });
 
   it('FE-AI-TOUR-027: "Plan this" is off while offline or while another change waits, and absent where nothing can be taken', () => {

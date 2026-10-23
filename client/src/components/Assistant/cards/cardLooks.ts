@@ -247,6 +247,7 @@ function lookOf(card: TrekCard): CardLook<TrekCardKind> {
 export const CARD_RULES: CardRules = {
   group: (card) => lookOf(card).group?.(card) ?? card.kind,
   yieldsToChange: (answer, change) => lookOf(answer).yieldsToChange?.(answer, change) ?? false,
+  hidesFoundPlaces: (card) => lookOf(card).hidesFoundPlaces === true,
 };
 
 /** What the plan's map draws for a card through its kind's look; nothing for a kind that draws nothing. */

@@ -266,6 +266,8 @@ export interface AssistantCamera {
   mode: 'fit' | 'pan';
   animate: boolean;
   auto: boolean;
+  /** When it was asked for (ms since the epoch): a map that mounts right after still carries it out. */
+  at?: number;
   cover?: { side: 'left' | 'right'; px: number } | null;
 }
 

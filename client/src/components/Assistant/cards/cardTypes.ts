@@ -73,6 +73,12 @@ export interface CardLook<K extends TrekCardKind> {
   lines?(card: TrekCardOf<K>, use: RouteUse): RouteLineSpec[];
   ghosts?(card: TrekCardOf<K>): GhostPoint[];
   hidesEffectGhost?(card: TrekCardOf<K>): boolean;
+  /**
+   * Whether an answer holding this card leaves out the strip of places its
+   * searches found: a planned tour searched only to find its start, and a
+   * strip of hotels beside it would read as suggestions.
+   */
+  hidesFoundPlaces?: boolean;
 }
 
 /** One part of TREK's pure look, for the kinds `K` it owns. */

@@ -37,6 +37,33 @@ function proposalIndex(messages: readonly AssistantMessage[], toolCallId: string
 /** Where a take of the proposal stands in the thread: waiting for a decision, applied, or none. */
 type ThreadTake = 'waiting' | 'applied' | null;
 
+/** The take a later answer holds for the proposal, with the id of its change; null when none waits or was applied. */
+export function takeOfProposal(
+  messages: readonly AssistantMessage[],
+  toolCallId: string,
+  card: TourRouteCard
+): { id: string; state: 'waiting' | 'applied'; placeId: number | null } | null {
+  const from = proposalIndex(messages, toolCallId);
+  if (from < 0) return null;
+  for (const message of messages.slice(from + 1)) {
+    const open = new Map<string, 'waiting' | 'applied'>();
+    for (const part of message.parts) {
+      if (part.type !== 'tool-call' || part.toolName !== TAKE_TOOL || part.approval?.resolution) continue;
+      if (part.approval?.approved !== false) open.set(part.toolCallId, part.approval?.approved ? 'applied' : 'waiting');
+    }
+    for (const part of message.parts) {
+      if (part.type !== 'data-trek-change') continue;
+      const state = open.get(part.data.toolCallId);
+      if (!state || !takenFromProposal(part.data, toolCallId, card)) continue;
+      const id = part.data.toolCallId;
+      const receipt = message.parts.find((p) => p.type === 'data-trek-applied' && p.data.toolCallId === id);
+      const placeId = receipt?.type === 'data-trek-applied' ? (receipt.data.ids[0] ?? null) : null;
+      return { id, state, placeId };
+    }
+  }
+  return null;
+}
+
 /**
  * The take a later answer holds for the proposal, still waiting or applied.
  * One discarded, cancelled or expired leaves the proposal free to be taken
@@ -47,19 +74,5 @@ export function takeInThread(
   toolCallId: string,
   card: TourRouteCard
 ): ThreadTake {
-  const from = proposalIndex(messages, toolCallId);
-  if (from < 0) return null;
-  for (const message of messages.slice(from + 1)) {
-    const open = new Map<string, ThreadTake>();
-    for (const part of message.parts) {
-      if (part.type !== 'tool-call' || part.toolName !== TAKE_TOOL || part.approval?.resolution) continue;
-      if (part.approval?.approved !== false) open.set(part.toolCallId, part.approval?.approved ? 'applied' : 'waiting');
-    }
-    for (const part of message.parts) {
-      if (part.type !== 'data-trek-change') continue;
-      const take = open.get(part.data.toolCallId);
-      if (take && takenFromProposal(part.data, toolCallId, card)) return take;
-    }
-  }
-  return null;
+  return takeOfProposal(messages, toolCallId, card)?.state ?? null;
 }

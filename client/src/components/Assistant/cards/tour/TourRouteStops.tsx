@@ -1,6 +1,6 @@
 import type { TourRouteCard, TourRouteStop } from '@trek/shared';
 import { AlertTriangle, Flag, MapPin, MountainSnow, type LucideIcon } from 'lucide-react';
-import { createElement } from 'react';
+import { createElement, type ReactNode } from 'react';
 
 import { useTranslation } from '../../../../i18n';
 import {
@@ -17,12 +17,13 @@ import { chipStops } from './tourRouteModel';
 import { FLAG_LOOK, stopName } from './tourRouteWords';
 
 /**
- * The stops of a route as chips in the order they lie along it: the start
- * and the end, the huts, summits and stations on the way with their clock,
- * the walking time between them faint, and what lies a little off the way
- * quieter still. Pointing at a chip or tapping it moves the spot in focus
- * there, on the profile and on the map alike. Past eight the middle ones
- * fold into a count that names them.
+ * The stops of a route as a timeline in the order they lie along it: one row
+ * per stop (the start and the end, the huts, summits and stations on the way
+ * with their clock, what lies a little off the way quieter), joined by a line
+ * that carries the walking time of the stretch between two stops, so a time
+ * is never read as belonging to the stop beside it. Pointing at a chip or
+ * tapping it moves the spot in focus there, on the profile and on the map
+ * alike. Past eight the middle ones fold into a count that names them.
  */
 
 /** A stop's glyph: the flag at either end, the mountain at the highest point, the place's own for a kind. */
@@ -105,12 +106,44 @@ function StopChip({
   );
 }
 
-/** The walking time from one chip to the next, faint between them; nothing where it is not known. */
-function Between({ from, to }: { from: TourRouteStop; to: TourRouteStop }) {
+/** The walking time of the stretch from one stop to the next, on the line between them; null where it is not known. */
+function legMinutes(from: TourRouteStop | undefined, to: TourRouteStop): number | null {
+  if (!from || from.minutes === null || to.minutes === null || to.minutes <= from.minutes) return null;
+  return to.minutes - from.minutes;
+}
+
+/** The line between two rows, with the stretch's walking time on it. */
+function Leg({ minutes }: { minutes: number | null }) {
   const format = useCardFormat();
-  if (from.minutes === null || to.minutes === null || to.minutes <= from.minutes) return null;
   return (
-    <span className="text-caption tabular-nums text-content-faint">{format.minutes(to.minutes - from.minutes)}</span>
+    // Read with the stop it leads to; a list holds only its rows.
+    <span aria-hidden="true" className="flex min-h-[14px] items-stretch gap-2">
+      <span className="flex w-2.5 flex-none justify-center">
+        <span className="w-px bg-edge" />
+      </span>
+      {minutes !== null && (
+        <span className="text-caption tabular-nums leading-tight text-content-faint">{format.minutes(minutes)}</span>
+      )}
+    </span>
+  );
+}
+
+/** One row of the timeline: its dot on the line, then the stop, read after the walk that leads to it. */
+function Row({ end, leg, children }: { end: boolean; leg?: number | null; children: ReactNode }) {
+  const { t } = useTranslation();
+  const format = useCardFormat();
+  return (
+    <span role="listitem" className="flex items-center gap-2">
+      {leg != null && (
+        <span className="sr-only">{t('assistant.card.tour.legTime', { time: format.minutes(leg) })}</span>
+      )}
+      <span className="flex w-2.5 flex-none justify-center">
+        <span
+          className={`h-2 w-2 rounded-full ${end ? 'bg-content-muted' : 'border border-content-faint bg-surface-card'}`}
+        />
+      </span>
+      <span className="flex min-w-0 flex-wrap items-center gap-1.5">{children}</span>
+    </span>
   );
 }
 
@@ -126,44 +159,42 @@ export default function TourRouteStops({
   const { t } = useTranslation();
   const { head, folded, tail } = chipStops(card);
   if (head.length === 0) return null;
-  const chip = (stop: TourRouteStop, index: number, list: readonly TourRouteStop[]) => {
-    // The time is walked from the last chip that has one: a place beside the way has none.
-    const before = list
-      .slice(0, index)
-      .reverse()
-      .find((other) => other.minutes !== null);
-    return (
-      <span className="inline-flex items-center gap-1.5">
-        {before && <Between from={before} to={stop} />}
-        <StopChip stop={stop} samples={samples} onFocus={onFocus} />
-      </span>
-    );
-  };
   const names = folded.map((stop) => stopName(stop, t)).join(', ');
+  // The time is walked from the last stop that has one: a place beside the way has none.
+  let walked: TourRouteStop | undefined;
+  const rows: ReactNode[] = [];
+  const pushStop = (stop: TourRouteStop, key: string) => {
+    const leg = legMinutes(walked, stop);
+    if (rows.length > 0) rows.push(<Leg key={`${key}-leg`} minutes={leg} />);
+    rows.push(
+      <Row key={key} end={stop.role === 'start' || stop.role === 'end'} leg={leg}>
+        <StopChip stop={stop} samples={samples} onFocus={onFocus} />
+      </Row>
+    );
+    if (stop.minutes !== null) walked = stop;
+  };
+  head.forEach((stop, index) => pushStop(stop, `h-${index}`));
+  if (folded.length > 0) {
+    rows.push(<Leg key="f-leg" minutes={null} />);
+    rows.push(
+      <Row key="f" end={false}>
+        <Tooltip label={names}>
+          <span className="inline-flex">
+            <WhiteBadge>
+              {t('assistant.card.tour.stopsMore', { count: folded.length })}
+              <span className="sr-only">{`: ${names}`}</span>
+            </WhiteBadge>
+          </span>
+        </Tooltip>
+      </Row>
+    );
+    // The folded stretch's time is not one leg; the next stop measures from the last folded one.
+    walked = [...folded].reverse().find((stop) => stop.minutes !== null) ?? walked;
+  }
+  tail.forEach((stop, index) => pushStop(stop, `t-${index}`));
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-1.5" role="list" aria-label={t('assistant.card.tour.stops')}>
-      {head.map((stop, index) => (
-        <span key={`h-${index}`} role="listitem" className="inline-flex">
-          {chip(stop, index, head)}
-        </span>
-      ))}
-      {folded.length > 0 && (
-        <span role="listitem" className="inline-flex">
-          <Tooltip label={names}>
-            <span className="inline-flex">
-              <WhiteBadge>
-                {t('assistant.card.tour.stopsMore', { count: folded.length })}
-                <span className="sr-only">{`: ${names}`}</span>
-              </WhiteBadge>
-            </span>
-          </Tooltip>
-        </span>
-      )}
-      {tail.map((stop, index) => (
-        <span key={`t-${index}`} role="listitem" className="inline-flex">
-          {chip(stop, index, tail)}
-        </span>
-      ))}
+    <div className="mt-2 flex flex-col" role="list" aria-label={t('assistant.card.tour.stops')}>
+      {rows}
     </div>
   );
 }

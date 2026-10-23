@@ -21,7 +21,8 @@ function useRouteTripId(): number | null {
  * map" opens the planner on the change (`?place=`, `?day=`), the same way a
  * notification opens a place, a tab of the trip opens as `?tab=` (a list's
  * own tab remembered first), and another page is simply navigated to. A day
- * picked in the chat (its weather) selects that day the same way.
+ * picked in the chat (its weather) selects that day the same way, and "On
+ * map" on a card brings the planner's map back first.
  */
 export default function AssistantHost() {
   const navigate = useNavigate();
@@ -53,6 +54,8 @@ export default function AssistantHost() {
     [navigate, openPlanner, tripId]
   );
   const focusDay = useCallback((dayId: number) => openPlanner(`?day=${dayId}`), [openPlanner]);
+  // "On map" from another tab of the planner (Tours, Costs, ...) first brings the map back.
+  const revealMap = useCallback(() => openPlanner('?tab=plan'), [openPlanner]);
 
-  return <AssistantWindow trip={trip} onOpen={open} onFocusDay={focusDay} />;
+  return <AssistantWindow trip={trip} onOpen={open} onFocusDay={focusDay} onRevealMap={revealMap} />;
 }

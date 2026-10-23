@@ -1,14 +1,15 @@
-import type {
-  AssistantApplied,
-  AssistantChangeEffect,
-  AssistantChangeLabelKey,
-  AssistantChangePreview,
-  AssistantFoundPlace,
-  AssistantMessage,
-  AssistantMessagePart,
-  AssistantPlaces,
-  AssistantWeatherDay,
-  TrekCard,
+import {
+  ASSISTANT_FOLLOW_UPS_TOOL,
+  type AssistantApplied,
+  type AssistantChangeEffect,
+  type AssistantChangeLabelKey,
+  type AssistantChangePreview,
+  type AssistantFoundPlace,
+  type AssistantMessage,
+  type AssistantMessagePart,
+  type AssistantPlaces,
+  type AssistantWeatherDay,
+  type TrekCard,
 } from '@trek/shared';
 
 import { CARD_RULES } from './cards/cardLooks';
@@ -71,6 +72,8 @@ type MessageBlock =
 export interface CardRules {
   group(card: TrekCard): string;
   yieldsToChange(answer: TrekCard, change: TrekCard): boolean;
+  /** Whether an answer holding the card leaves out its found places. */
+  hidesFoundPlaces?(card: TrekCard): boolean;
 }
 
 /** The change "+ Day 3" on a found place makes; the server holds it without a model turn. */
@@ -251,13 +254,16 @@ export function messageBlocks(
     else if (part.type === 'tool-call' && part.approval) changeIds.add(part.toolCallId);
   });
 
+  // An answer about a tour shows the tour, not the places its searches went through to find it.
+  const changeCards = message.parts.flatMap((p) => (p.type === 'data-trek-change' && p.data.card ? [p.data.card] : []));
+  const placesHidden = [...cards.values(), ...changeCards].some((card) => rules.hidesFoundPlaces?.(card) === true);
   const blocks: MessageBlock[] = [];
   message.parts.forEach((part, index) => {
     if (part.type === 'text') {
       if (part.text.trim()) blocks.push({ kind: 'text', key: `text-${index}`, text: part.text });
       return;
     }
-    if (part.type === 'data-trek-places' && index === lastPlaces) {
+    if (part.type === 'data-trek-places' && index === lastPlaces && !placesHidden) {
       const found = allFound(message.parts);
       const places = found.places.filter((place) => !proposed(place, effects));
       if (places.length > 0) blocks.push({ kind: 'places', key: `places-${index}`, found: { ...found, places } });
@@ -273,7 +279,8 @@ export function messageBlocks(
       if (card && !changeIds.has(toolCallId)) pushCard(blocks, { toolCallId, card }, rules.group(card));
       return;
     }
-    if (part.type !== 'tool-call') return;
+    // The follow-ups the model offered are chips under the answer, never a step.
+    if (part.type !== 'tool-call' || part.toolName === ASSISTANT_FOLLOW_UPS_TOOL) return;
     const item = changeItemOf(part, previews.get(part.toolCallId) ?? null, receipts, cards);
     if (item) {
       pushChange(blocks, item, fromStrip);

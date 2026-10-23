@@ -11,6 +11,23 @@ import { useTakeProposal } from './useTourRouteCard';
 /** What "Open" says: the phone opens the tour's place on the plan, the desktop the Tours tab. */
 const OPEN_LABEL = { phoneKey: 'assistant.card.tour.openPhone', desktopKey: 'assistant.card.tour.open' } as const;
 
+/** Where a tapped "Plan this" stands: being planned, added, or (held without the tap) waiting below. */
+function TakenPill({ deciding, applied }: { deciding: boolean; applied: boolean }) {
+  const { t } = useTranslation();
+  if (deciding) {
+    return (
+      <SoftPill icon={<Loader2 size={10} className="animate-spin" aria-hidden="true" />}>
+        {t('assistant.card.tour.adding')}
+      </SoftPill>
+    );
+  }
+  return (
+    <SoftPill tone="success" icon={<Check size={10} strokeWidth={2.4} aria-hidden="true" />}>
+      {applied ? t('assistant.card.tour.added') : t('assistant.card.tour.taken')}
+    </SoftPill>
+  );
+}
+
 /**
  * The foot of a route card: "On map" always; "Plan this" on a proposed hike
  * or city walk for someone who may add to the trip, off with its reason said
@@ -57,11 +74,7 @@ export default function TourRouteActions({
             labelKey={phone ? OPEN_LABEL.phoneKey : OPEN_LABEL.desktopKey}
           />
         )}
-        {take.visible && take.state === 'taken' && (
-          <SoftPill tone="success" icon={<Check size={10} strokeWidth={2.4} aria-hidden="true" />}>
-            {take.applied ? t('assistant.card.tour.added') : t('assistant.card.tour.taken')}
-          </SoftPill>
-        )}
+        {take.visible && take.state === 'taken' && <TakenPill deciding={take.deciding} applied={take.applied} />}
         {take.visible && take.state !== 'taken' && (
           <button
             type="button"

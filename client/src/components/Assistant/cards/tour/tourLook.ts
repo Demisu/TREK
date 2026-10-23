@@ -124,8 +124,10 @@ export const TOUR_LOOK = {
       lines: tourRouteLines,
       // A routed way draws its own line and stops: the pin of the place it adds would only cover its start.
       hidesEffectGhost: (card) => card.routed && card.line.length >= 2,
+      hidesFoundPlaces: true,
     },
     tourList: {
+      hidesFoundPlaces: true,
       followUps: [{ id: 'tourFit', labelKey: 'assistant.followUp.tourFit' }],
     },
   },
