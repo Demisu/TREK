@@ -1,5 +1,6 @@
 import { bookVisiblePart, sortBookFindings } from './book-findings-design';
 import { photoLookChecks } from './book-findings-photo';
+import { strokeFindings } from './book-findings-lines';
 import { stickerFindings } from './book-findings-sticker';
 import { bookFontFace } from './book-fonts';
 import { visibleSpread } from './book-groups';
@@ -510,5 +511,6 @@ export function spreadFindings(
   ctx.out.push(...photoLookChecks(spread, page));
   parked(ctx);
   for (const f of stickerFindings(spread)) add(ctx, f);
+  for (const f of strokeFindings(spread)) add(ctx, f);
   return sortBookFindings(ctx.out);
 }

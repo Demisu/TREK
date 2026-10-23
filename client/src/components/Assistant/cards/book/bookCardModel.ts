@@ -58,6 +58,8 @@ const FINDING_LOOK: Readonly<Record<BookFindingCode, { labelKey: string }>> = {
   palette_drift: { labelKey: 'assistant.card.book.finding.palette_drift' },
   repeat_layout: { labelKey: 'assistant.card.book.finding.repeat_layout' },
   raster_effect: { labelKey: 'assistant.card.book.finding.raster_effect' },
+  hairline: { labelKey: 'assistant.card.book.finding.hairline' },
+  edge_unused: { labelKey: 'assistant.card.book.finding.edge_unused' },
 };
 
 /** A page as the Studio names it: the cover, the first page, double page 3. */

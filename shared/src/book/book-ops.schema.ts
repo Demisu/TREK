@@ -413,6 +413,8 @@ export const BOOK_FINDING_CODES = [
   'palette_drift',
   'repeat_layout',
   'raster_effect',
+  'hairline',
+  'edge_unused',
 ] as const;
 export type BookFindingCode = (typeof BOOK_FINDING_CODES)[number];
 

@@ -1,4 +1,5 @@
 import { idSchema } from '../common/primitives.schema';
+import { BOOK_EDGE_PROPS, LINE_PROPS } from './book-line-ops.schema';
 import {
   BOOK_BINDING_HINT,
   bookBadgeStyleSchema,
@@ -100,6 +101,7 @@ const PHOTO_PROPS = {
   frameStyle: bookFrameStyleSchema.optional(),
   filter: bookPhotoFilterSchema.optional(),
   radius: z.number().finite().min(0).max(500).optional(),
+  ...BOOK_EDGE_PROPS,
 };
 /** How a text is set, each field left as it is when not named: the style op's and the page edit's text op's. */
 export const TEXT_STYLE_FIELDS = {
@@ -123,6 +125,7 @@ const SHAPE_PROPS = {
   strokeWidth: z.number().finite().min(0).max(20).optional(),
   strokeStyle: bookStrokeStyleSchema.optional(),
   radius: z.number().finite().min(0).max(500).optional(),
+  ...BOOK_EDGE_PROPS,
 };
 const ICON_PROPS = {
   ...COMMON,
@@ -208,6 +211,7 @@ export const bookElementPropsSchema = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('countries'), ...COUNTRIES_PROPS }),
   z.strictObject({ kind: z.literal('badge'), ...BADGE_PROPS }),
   z.strictObject({ kind: z.literal('list'), ...LIST_PROPS }),
+  z.strictObject({ kind: z.literal('line'), ...LINE_PROPS }),
 ]);
 export type BookElementProps = z.infer<typeof bookElementPropsSchema>;
 
@@ -301,6 +305,7 @@ export const bookNewElementSchema = z.discriminatedUnion('kind', [
     .refine((v) => (v.entryId === undefined) !== (v.items === undefined), {
       message: 'give an entryId or the items, not both',
     }),
+  z.strictObject({ kind: z.literal('line'), ...LINE_PROPS }),
 ]);
 export type BookNewElement = z.infer<typeof bookNewElementSchema>;
 

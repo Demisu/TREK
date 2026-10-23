@@ -194,7 +194,8 @@ function pagesOf(ctx: Ctx): Box[] {
   return [first, { x: w, y: 0, w, h }];
 }
 
-const isContent = (el: BookElement) => el.kind !== 'shape' || el.frame.w > 2 || el.frame.h > 2;
+// A drawn line is a rule however long it runs, so it never counts as content.
+const isContent = (el: BookElement) => el.kind !== 'line' && (el.kind !== 'shape' || el.frame.w > 2 || el.frame.h > 2);
 
 /** How much of a page's live area (inside the safe margin) is covered, rastered in 4 mm cells. */
 function coverage(page: Box, safe: number, els: readonly BookElement[]): number {
@@ -265,7 +266,9 @@ function offGrid(ctx: Ctx): void {
   const baseX = [-bleed, 0, safe, W - safe, W, W + bleed, ...(inner ? [PW, PW - safe, PW + safe] : [])];
   const baseY = [-bleed, 0, safe, H - safe, H, H + bleed];
   // Shapes and stickers are laid freely; only the content is held to the grid.
-  const content = ctx.spread.elements.filter((e) => e.kind !== 'shape' && e.kind !== 'sticker' && !e.rotation);
+  const content = ctx.spread.elements.filter(
+    (e) => e.kind !== 'shape' && e.kind !== 'sticker' && e.kind !== 'line' && !e.rotation,
+  );
   const near = (v: number, lines: number[]) => lines.some((l) => Math.abs(v - l) > 0.5 && Math.abs(v - l) < 3);
   const onLine = (v: number, lines: number[]) => lines.some((l) => Math.abs(v - l) <= 0.5);
   const misses = (edges: number[], lines: number[]) => edges.some((v) => near(v, lines) && !onLine(v, lines));

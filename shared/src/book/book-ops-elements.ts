@@ -16,10 +16,12 @@ import {
   unlockedElement,
   type BookOpsContext,
 } from './book-ops-core';
+import { bookLineStyled, bookNewLine } from './book-ops-line';
 import { newStickerElement } from './book-ops-sticker';
 import { withShapePaint } from './book-paint';
 import type { BookPaint } from './book-paint.schema';
 import { BOOK_PHOTO_LOOK_KEYS } from './book-photo-look.schema';
+import { bookShapeSize } from './book-shapes-more';
 import {
   bookBadgeValue,
   bookCountryMark,
@@ -147,12 +149,15 @@ function lookKeys(shape: object): string[] {
   return Object.keys(shape).filter((k) => k !== 'kind');
 }
 
+const MM_KEYS: ReadonlySet<string> = new Set(['radius', 'strokeWidth', 'edgeSize']);
+
 /**
  * The element with the given look fields set; millimetre fields rounded as the
  * document stores them, and the weight moved onto one its family has, as the
  * Studio's weight control does.
  */
 function withProps(el: BookElement, props: Record<string, unknown>): BookElement {
+  if (el.kind === 'line') return bookLineStyled(el, props);
   const keys = PROP_KEYS.get(el.kind) ?? [];
   const next: Record<string, unknown> = { ...el };
   for (const key of keys) {
@@ -163,7 +168,7 @@ function withProps(el: BookElement, props: Record<string, unknown>): BookElement
       delete next[key];
       continue;
     }
-    next[key] = (key === 'radius' || key === 'strokeWidth') && typeof value === 'number' ? round2(value) : value;
+    next[key] = MM_KEYS.has(key) && typeof value === 'number' ? round2(value) : value;
   }
   const made = withRealWeight(next as unknown as BookElement);
   return made.kind === 'shape' ? withPaintProps(made, props) : made;
@@ -215,6 +220,8 @@ function created(spread: BookSpread, spec: BookNewElement, frame: BookFrame | nu
       return newText(spec, at, env);
     case 'shape':
       return newShape(spec, frame, spread, env);
+    case 'line':
+      return bookNewLine(spec, { id: env.newId('l'), frame, inner: isInner(spread), page: env.page });
     case 'icon': {
       const side = Math.min(env.page.pageWidth, env.page.pageHeight) * 0.18;
       return {
@@ -313,7 +320,7 @@ function newShape(
   const rule = s === 'line';
   const size = rule
     ? { w: env.page.pageWidth * 0.5, h: 0.5 }
-    : { w: wide ? side * 1.7 : side, h: tall ? side * 1.35 : wide ? side * 0.55 : side };
+    : (bookShapeSize(s, side) ?? { w: wide ? side * 1.7 : side, h: tall ? side * 1.35 : wide ? side * 0.55 : side });
   return {
     ...BASE,
     id: env.newId('s'),

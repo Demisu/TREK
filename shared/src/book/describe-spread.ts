@@ -23,6 +23,7 @@ import {
   type BookPhotoElement,
   type BookSpread,
 } from './book.schema';
+import { bookEdgeWords, bookLineWords } from './describe-lines';
 
 /**
  * A page in words, for a model that cannot see it and as the text beside a
@@ -78,6 +79,8 @@ function photoWords(el: BookPhotoElement, info: BookPhotoInfo | undefined): stri
   if (el.filter !== 'none') parts.push(`filter ${el.filter}`);
   if (el.mask) parts.push(`mask ${el.mask}`);
   if (el.frameStyle !== 'none') parts.push(`frame style ${el.frameStyle}`);
+  const edge = bookEdgeWords(el);
+  if (edge) parts.push(edge);
   if (el.radius > 0) parts.push(`radius ${n(el.radius)}`);
   parts.push(...photoLookWords(el));
   return parts.join(', ');
@@ -103,6 +106,8 @@ function elementWords(el: BookElement, photos: readonly BookPhotoInfo[] | undefi
       return `icon ${el.name}, ${el.color}, line ${n(el.lineWidth)}`;
     case 'sticker':
       return bookStickerWords(el);
+    case 'line':
+      return bookLineWords(el);
     default:
       return travelWords(el);
   }
@@ -113,6 +118,8 @@ function shapeWords(el: Extract<BookElement, { kind: 'shape' }>): string {
   if (!el.paint && el.gradient !== 'none') parts.push(`fading ${el.gradient}`);
   if (el.stroke) parts.push(`stroke ${el.stroke} ${n(el.strokeWidth)} mm ${el.strokeStyle}`);
   if (el.radius > 0) parts.push(`radius ${n(el.radius)}`);
+  const edge = bookEdgeWords(el);
+  if (edge) parts.push(edge);
   return parts.join(', ');
 }
 

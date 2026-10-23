@@ -15,6 +15,7 @@ import {
   bookShapeElementSchema,
   bookStatsElementSchema,
   bookTextElementSchema,
+  type BookShapeId,
 } from './book.schema';
 
 import { z } from 'zod';
@@ -58,15 +59,26 @@ export const bookWeightSchema = bookTextElementSchema.shape.weight
 export const bookShapeIdSchema = z
   .enum(BOOK_SHAPES)
   .describe(
-    'A filled outline: rect, ellipse, line (a rule), polygons, arch and circle parts, stars, burst, seal, sparkle, arrows, chevrons, speech bubbles, nature and travel motifs, blobs and banners.',
+    'A filled outline: rect, ellipse, line (a rule), polygons, arches and circle parts, stars, burst, seal, sparkle, arrows, chevrons, speech bubbles, nature and travel motifs, blobs, banners and ribbons, paper cut-outs (leaf, coral, organic), stamps and badges, photo frames, ornaments (flourish, laurel, fleuron).',
   );
 
 export const bookPhotoFitSchema = photo.fit
   .unwrap()
   .describe('cover fills the frame, cropped at the focal point; contain shows all of it.');
-export const bookPhotoMaskSchema = photo.mask
-  .unwrap()
-  .describe('A shape id to cut the photo to; null is the plain rectangle.');
+const SHAPE_IDS: ReadonlySet<string> = new Set(BOOK_SHAPES);
+
+/**
+ * A shape id to cut a photo to. Checked against the set rather than listed:
+ * the list is in the schema already under `shape`, and repeating it on every
+ * photo field doubled the page edit's schema.
+ */
+export const bookPhotoMaskSchema = z
+  .string()
+  .max(40)
+  .refine((s) => SHAPE_IDS.has(s), { message: 'not a shape the Studio draws' })
+  .transform((s) => s as BookShapeId)
+  .nullable()
+  .describe('A shape id, as for a shape, to cut the photo to; null is the plain rectangle.');
 export const bookFrameStyleSchema = photo.frameStyle
   .unwrap()
   .describe('polaroid (deep bottom border), white border, shadow, film or tape around it; none is a plain print.');

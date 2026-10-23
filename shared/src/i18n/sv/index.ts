@@ -64,6 +64,7 @@ import studioLayers from './studioLayers';
 import studioPaint from './studioPaint';
 import studioPhoto from './studioPhoto';
 import studioStickers from './studioStickers';
+import studioShapes from './studioShapes';
 import system_notice from './system_notice';
 import todo from './todo';
 import tourCollection from './tourCollection';
@@ -124,6 +125,7 @@ const locale = {
   ...studioPaint,
   ...studioStickers,
   ...studioPhoto,
+  ...studioShapes,
   ...oauth,
   ...system_notice,
   ...transport,

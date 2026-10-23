@@ -6,6 +6,7 @@ import { PeerCursors } from './PeerCursors'
 import type { PeerCursor } from './useBookPresence'
 import { bookElementId as elementId } from '@trek/shared'
 import { fontStack, nearestWeight } from './bookFonts'
+import { LineHandles } from './LineHandles'
 import { useSpreadInteraction } from './useSpreadInteraction'
 import { useStudioKeys } from './useStudioKeys'
 import { selectClass, selectionShape } from './studioGestures'
@@ -408,7 +409,12 @@ export function StudioCanvas({
               </div>
             ))}
 
-            {sel.length === 1 && !dragging && !el.locked && <ResizeHandles onResize={startResize} />}
+            {/* A line is shaped by its points rather than its box. */}
+            {sel.length === 1 && !el.locked && el.kind === 'line' && (
+              <LineHandles el={el} spreadIndex={spreadIndex} scaled={scaled} t={t} />
+            )}
+
+            {sel.length === 1 && !dragging && !el.locked && el.kind !== 'line' && <ResizeHandles onResize={startResize} />}
           </div>
         ))}
 

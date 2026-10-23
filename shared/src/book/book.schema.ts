@@ -1,6 +1,8 @@
 import { BOOK_FONTS_IDS, BOOK_WEIGHTS, type BookFontFamily } from './book-fonts.data';
+import { BOOK_LINE_FIELDS } from './book-line.schema';
 import { bookPaintFieldSchema } from './book-paint.schema';
 import { BOOK_PHOTO_LOOK_FIELDS } from './book-photo-look.schema';
+import { BOOK_EDGE_FIELDS, BOOK_SHAPES_MORE } from './book-shapes-more';
 import { MAX_STICKER_SLOTS } from './stickers/sticker-types';
 
 import { z } from 'zod';
@@ -158,6 +160,8 @@ export const BOOK_SHAPES = [
   'banner-pennant',
   'banner-bookmark',
   'banner-flag',
+
+  ...BOOK_SHAPES_MORE,
 ] as const;
 export type BookShapeId = (typeof BOOK_SHAPES)[number];
 
@@ -256,6 +260,8 @@ export const bookPhotoElementSchema = z.object({
   frameStyle: z.enum(['none', 'polaroid', 'white', 'shadow', 'film', 'tape']).default('none'),
   /** Border, hard shadow, zoom, mirror, adjustments, duotone and cutout (book-photo-look.schema.ts). */
   ...BOOK_PHOTO_LOOK_FIELDS,
+  /** A cut edge along the mask, or along the rectangle (book-shapes-more.ts). */
+  ...BOOK_EDGE_FIELDS,
 });
 
 export const bookTextElementSchema = z.object({
@@ -343,7 +349,12 @@ export const bookShapeElementSchema = z.object({
    */
   strokeStyle: z.enum(['solid', 'dashed', 'dotted']).default('solid'),
   radius: mm.default(0),
+  /** A cut edge along the outline (book-shapes-more.ts). */
+  ...BOOK_EDGE_FIELDS,
 });
+
+/** A drawn line with two or more points (book-line.schema.ts). */
+export const bookLineElementSchema = z.object({ ...elementBase, ...BOOK_LINE_FIELDS });
 
 /**
  * ── The travel elements ────────────────────────────────────────────────────
@@ -857,10 +868,12 @@ export const bookElementSchema = z.discriminatedUnion('kind', [
   bookListElementSchema,
   bookIconElementSchema,
   bookStickerElementSchema,
+  bookLineElementSchema,
 ]);
 export type BookElement = z.infer<typeof bookElementSchema>;
 export type BookIconElement = z.infer<typeof bookIconElementSchema>;
 export type BookStickerElement = z.infer<typeof bookStickerElementSchema>;
+export type BookLineElement = z.infer<typeof bookLineElementSchema>;
 export type BookPhotoElement = z.infer<typeof bookPhotoElementSchema>;
 export type BookTextElement = z.infer<typeof bookTextElementSchema>;
 export type BookShapeElement = z.infer<typeof bookShapeElementSchema>;

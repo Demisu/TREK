@@ -36,8 +36,10 @@ import type { BookDocument } from './book.schema';
  * - 4: the sticker kind (book-sticker.ts, stickers/).
  * - 5: groups, names and hidden layers (`group`, `name`, `hidden`, a spread's `groups`).
  * - 6: the photo look (`border`, `shadow`, `zoom`, `flipX`, `adjust`, `duotone`, `cutout`, book-photo-look.schema.ts).
+ * - 7: the second shelf of shapes, the cut edge of a shape and a photo (`edge`, `edgeSize`,
+ *   book-shapes-more.ts) and the line kind (book-line.schema.ts).
  */
-export const BOOK_SCHEMA_REV = 6;
+export const BOOK_SCHEMA_REV = 7;
 
 /** The `code` a refused save carries in its body when the stored book is newer than the writer. */
 export const BOOK_SCHEMA_NEWER_CODE = 'book_schema_newer';

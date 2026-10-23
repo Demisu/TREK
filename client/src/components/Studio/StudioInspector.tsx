@@ -24,6 +24,8 @@ import type { JourneySource } from './StudioSidebar'
 import { Tooltip } from '../shared/Tooltip'
 import { StudioArrangeSection } from './StudioArrangeSection'
 import { selectionTitle } from './studioLayerRows'
+import { EdgeSection } from './StudioEdgeControls'
+import { LineInspector } from './StudioLineInspector'
 
 /** How many icons the swap grid offers at once. A search narrows it below this. */
 const ICON_CHOICES = 60
@@ -492,6 +494,14 @@ export function StudioInspector({
                 ))}
               </div>
             </Section>
+
+            <EdgeSection
+              edge={el.edge}
+              edgeSize={el.edgeSize}
+              outline={el.mask && el.mask !== 'rect' ? el.mask : null}
+              onSet={patch => set(patch)}
+              t={t}
+            />
           </>
         )}
 
@@ -535,6 +545,8 @@ export function StudioInspector({
               onStroke={c => set({ stroke: c, strokeWidth: el.strokeWidth || 0.5 })}
               t={t}
             />
+
+            <EdgeSection edge={el.edge} edgeSize={el.edgeSize} outline={el.shape} onSet={patch => set(patch)} t={t} />
 
             <Section label={t('journey.studio.strokeStyle')} defaultOpen={false}>
               <Line label={t('journey.studio.strokeStyle')} wide>
@@ -623,6 +635,7 @@ export function StudioInspector({
         )}
 
         {el.kind === 'sticker' && <StudioStickerInspector el={el} set={set} t={t} />}
+        {el.kind === 'line' && <LineInspector el={el} spreadIndex={spreadIndex} t={t} />}
 
         <TravelInspector el={el} stats={stats} path={path} set={set} t={t} locale={locale} />
 

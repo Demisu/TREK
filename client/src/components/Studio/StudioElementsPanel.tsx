@@ -2,8 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Minus, Quote, Search, Square, X } from 'lucide-react'
 import type { BookElement, BookPageSetup, BookShapeId } from '@trek/shared'
 import { useStudioStore } from '../../store/studioStore'
-import { FRAME_SHAPES, HOLED_SHAPES, SHAPE_GROUPS, SHAPE_PATHS } from './shapes'
-import { BOOK_GRIDS as GRIDS, bookElementId, bookGridElements as gridElements, defaultBookGridBox as defaultGridBox } from '@trek/shared'
+import { FRAME_SHAPES, HOLED_SHAPES, SHAPE_GROUPS } from './shapes'
+import { BOOK_GRIDS as GRIDS, bookElementId, bookShapeSize, bookGridElements as gridElements, defaultBookGridBox as defaultGridBox } from '@trek/shared'
+import { shapeTile } from './shapeOutline'
+import { StudioLineShelf } from './StudioLineShelf'
 import { PanelHead } from './StudioPanelHead'
 import { FEATURED_ICONS, iconComponent, iconLabel, searchIcons } from './iconLibrary'
 import '../../styles/studio-elements.css'
@@ -35,8 +37,9 @@ type FrameStyle = 'none' | 'polaroid' | 'white' | 'shadow' | 'film' | 'tape'
  */
 export function ShapeGlyph({ shape, photo = false }: { shape: BookShapeId; photo?: boolean }) {
   const gid = `sg-${photo ? 'p' : 's'}-${shape}`
+  const tile = shapeTile(shape)
   return (
-    <svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden>
+    <svg viewBox={`0 0 ${tile.w} ${tile.h}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden>
       {photo && (
         <defs>
           {/* theme-lint-disable — a frame preview stands in for a photograph, not for UI chrome */}
@@ -49,7 +52,7 @@ export function ShapeGlyph({ shape, photo = false }: { shape: BookShapeId; photo
         </defs>
       )}
       <path
-        d={SHAPE_PATHS[shape]}
+        d={tile.d}
         fill={photo ? `url(#${gid})` : 'currentColor'}
         fillRule={HOLED_SHAPES.has(shape) ? 'evenodd' : undefined}
       />
@@ -145,10 +148,12 @@ export function StudioElementsPanel({ page, t }: { page: BookPageSetup; t: (k: s
       || shape === 'capsule'
     const tall = shape === 'pin' || shape === 'drop' || shape === 'arrow-up' || shape === 'arrow-down'
     const isRule = shape === 'line'
+    const own = bookShapeSize(shape, side)
     addElement(active, {
       id: uid('s'), kind: 'shape',
       frame: isRule
         ? centre(page.pageWidth * 0.5, 0.5)
+        : own ? centre(own.w, own.h)
         : centre(wide ? side * 1.7 : side, tall ? side * 1.35 : wide ? side * 0.55 : side),
       rotation: 0, opacity: 1, locked: false,
       // A rule is a shape too — a hairline box rather than its own element type,
@@ -282,6 +287,8 @@ export function StudioElementsPanel({ page, t }: { page: BookPageSetup; t: (k: s
                 </button>
               </div>
             </div>
+
+            <StudioLineShelf page={page} single={single} onAdd={el => addElement(active, el)} t={t} />
 
             {SHAPE_GROUPS.map(group => (
               <div className="st-section" key={group.id}>

@@ -5,7 +5,9 @@ import type {
 import { fontStack, nearestWeight } from './bookFonts'
 import { iconComponent } from './iconLibrary'
 import { PhotoView } from './PhotoView'
-import { HOLED_SHAPES, SHAPE_PATHS, scalePath } from './shapes'
+import { HOLED_SHAPES } from './shapes'
+import { hasEdge, shapeOutline } from './shapeOutline'
+import { LineView } from './LineView'
 import { TravelElementView } from './TravelElements'
 import { PageNumbers } from './PageNumbers'
 import { PaintedShapeView } from './paint/PaintedShape'
@@ -64,7 +66,7 @@ function ShapeView({ el }: { el: BookShapeElement }) {
   const gradientId = usePaintId(`g-${el.id}`)
   const gradient = el.gradient !== 'none' && el.fill
 
-  if (el.shape === 'rect' || el.shape === 'ellipse') {
+  if ((el.shape === 'rect' || el.shape === 'ellipse') && !hasEdge(el, el.shape)) {
     const background = !gradient
       ? fill
       : `linear-gradient(${el.gradient === 'up' ? 'to top' : 'to bottom'},`
@@ -87,7 +89,7 @@ function ShapeView({ el }: { el: BookShapeElement }) {
   const sw = el.stroke ? el.strokeWidth : 0
   const w = Math.max(0.01, el.frame.w - sw)
   const h = Math.max(0.01, el.frame.h - sw)
-  const d = scalePath(SHAPE_PATHS[el.shape], w, h)
+  const d = shapeOutline(el, w, h)
 
   // Proportional to the stroke, so a dashed outline keeps its rhythm whether it
   // is a hairline on a caption rule or a 2mm band around a cover panel.
@@ -177,6 +179,7 @@ export function ElementView({
   // the travel elements and draws null for anything they do not know.
   if (el.kind === 'icon') return <IconView el={el} />
   if (el.kind === 'sticker') return <StickerView el={el} frameStyle={frameStyle(el)} />
+  if (el.kind === 'line') return <LineView el={el} frameStyle={frameStyle(el)} />
 
   if (el.kind !== 'text') {
     // map, stats, countries, badge — the elements drawn from the journey's own

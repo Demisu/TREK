@@ -188,6 +188,8 @@ function elementColours(el: BookElement): string[] {
       return [lower(el.color)];
     case 'sticker':
       return el.colors.map(lower);
+    case 'line':
+      return [lower(el.stroke)];
     default:
       return [lower(el.color), lower(el.accent)];
   }
