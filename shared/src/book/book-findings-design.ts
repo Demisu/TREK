@@ -5,6 +5,7 @@ import { visibleSpread } from './book-groups';
 import type { BookPhotoInfo } from './book-ops-core';
 import { BOOK_OP_LIMITS, type BookFinding } from './book-ops.schema';
 import { photoZoomBox, photoZoomOf } from './book-photo-look';
+import { bookTextHasOwnGround } from './book-text-findings';
 import type { BookDocument, BookElement, BookFrame, BookPageSetup, BookPhotoElement, BookSpread } from './book.schema';
 
 /**
@@ -142,6 +143,8 @@ const add = (ctx: Ctx, f: BookFinding) => ctx.out.push({ ...f, message: f.messag
 function contrastAndBusy(ctx: Ctx): void {
   ctx.spread.elements.forEach((el, i) => {
     if (!READ.has(el.kind)) return;
+    // A band, an outline or a picture in the letters is the text's own ground (book-text-findings.ts).
+    if (el.kind === 'text' && bookTextHasOwnGround(el)) return;
     const ink = inkOf(el);
     const ground = groundOf(ctx.spread, i, el.frame, ctx.photos);
     if (ground.kind === 'photo') {

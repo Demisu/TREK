@@ -60,6 +60,8 @@ const FINDING_LOOK: Readonly<Record<BookFindingCode, { labelKey: string }>> = {
   raster_effect: { labelKey: 'assistant.card.book.finding.raster_effect' },
   hairline: { labelKey: 'assistant.card.book.finding.hairline' },
   edge_unused: { labelKey: 'assistant.card.book.finding.edge_unused' },
+  curve_overflow: { labelKey: 'assistant.card.book.finding.curve_overflow' },
+  effect_heavy: { labelKey: 'assistant.card.book.finding.effect_heavy' },
 };
 
 /** A page as the Studio names it: the cover, the first page, double page 3. */

@@ -49,5 +49,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': 'Fontes demais',
   'assistant.card.book.finding.palette_drift': 'Cores que não combinam',
   'assistant.card.book.finding.repeat_layout': 'O mesmo layout de novo e de novo',
+  'assistant.card.book.finding.curve_overflow': 'Texto curvo passa do fim da curva',
+  'assistant.card.book.finding.effect_heavy': 'Um contorno grosso demais',
 };
 export default assistantBook;

@@ -49,5 +49,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': 'Çok fazla yazı tipi',
   'assistant.card.book.finding.palette_drift': 'Uyumsuz renkler',
   'assistant.card.book.finding.repeat_layout': 'Hep aynı düzen',
+  'assistant.card.book.finding.curve_overflow': 'Kavisli metin kavisini aşıyor',
+  'assistant.card.book.finding.effect_heavy': 'Çok kalın bir kontur',
 };
 export default assistantBook;

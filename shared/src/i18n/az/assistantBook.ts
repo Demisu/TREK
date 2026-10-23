@@ -49,5 +49,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': 'Həddən çox şrift',
   'assistant.card.book.finding.palette_drift': 'Uyğun gəlməyən rənglər',
   'assistant.card.book.finding.repeat_layout': 'Təkrar-təkrar eyni düzən',
+  'assistant.card.book.finding.curve_overflow': 'Əyilmiş mətn öz qövsündən kənara çıxır',
+  'assistant.card.book.finding.effect_heavy': 'Həddən artıq qalın kontur',
 };
 export default assistantBook;

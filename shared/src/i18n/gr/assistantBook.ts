@@ -49,5 +49,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': 'Πάρα πολλές γραμματοσειρές',
   'assistant.card.book.finding.palette_drift': 'Χρώματα που δεν ταιριάζουν',
   'assistant.card.book.finding.repeat_layout': 'Η ίδια διάταξη ξανά και ξανά',
+  'assistant.card.book.finding.curve_overflow': 'Το καμπύλο κείμενο ξεπερνά την καμπύλη του',
+  'assistant.card.book.finding.effect_heavy': 'Πολύ παχύ περίγραμμα',
 };
 export default assistantBook;

@@ -13,13 +13,14 @@ import { StudioStickerInspector } from './StudioStickerInspector'
 import { Swatches } from './StudioSwatches'
 import { StudioBackgroundSection } from './StudioBackgroundSection'
 import { StudioShapePaint } from './StudioShapePaint'
-import { formatBookCoords, withThemeLinks } from '@trek/shared'
+import { MAX_BOOK_TEXT_SIZE, formatBookCoords, withThemeLinks } from '@trek/shared'
 import { iconComponent, iconLabel, searchIcons } from './iconLibrary'
 import { Choice, Line, NumField, Section, Switch } from './StudioControls'
 import { StudioFontPicker } from './StudioFontPicker'
 import { WeightLine } from './StudioTypeControls'
 import { italicTitle } from './fontPicker'
 import { PhotoCropExtras, PhotoLookSections } from './photo/StudioPhotoLook'
+import { StudioTextEffects } from './StudioTextEffects'
 import type { JourneySource } from './StudioSidebar'
 import { Tooltip } from '../shared/Tooltip'
 import { StudioArrangeSection } from './StudioArrangeSection'
@@ -368,7 +369,7 @@ export function StudioInspector({
                 </Line>
               </div>
               <div className="st-grid2" style={{ marginTop: 10 }}>
-                <NumField label={t('journey.studio.size')} value={el.size} min={4} max={200} step={0.5} unit="pt" onChange={v => set({ size: v })} />
+                <NumField label={t('journey.studio.size')} value={el.size} min={4} max={MAX_BOOK_TEXT_SIZE} step={0.5} unit="pt" onChange={v => set({ size: v })} />
                 <NumField label={t('journey.studio.leading')} value={el.leading} min={0.7} max={3} step={0.05} onChange={v => set({ leading: v })} />
               </div>
               <div style={{ marginTop: 10 }}>
@@ -381,7 +382,7 @@ export function StudioInspector({
                   label={t('journey.studio.tracking')}
                   value={el.tracking}
                   min={-0.2}
-                  max={1}
+                  max={1.5}
                   step={0.01}
                   unit="em"
                   onChange={v => set({ tracking: v })}
@@ -396,6 +397,8 @@ export function StudioInspector({
                   onLink={(token, color) => set({ color, token })} onUnlink={() => set({ token: undefined })} />
               </Line>
             </Section>
+
+            <StudioTextEffects el={el} set={set} live={live} photos={source.photos} spread={spread} t={t} />
           </>
         )}
 
@@ -739,7 +742,7 @@ export function StudioInspector({
  * predict what "X 0.62" does to a photograph. Dragging the point over the actual
  * image answers the question by showing it.
  */
-function FocalPad({
+export function FocalPad({
   photoId, x, y, onDrag, onCommit, hint,
 }: {
   photoId: number

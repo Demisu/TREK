@@ -22,7 +22,7 @@ Always, whatever the energy:
 - Bound texts keep the journal in sync: prefer bindings over copied words; never invent captions or facts.
 The energy decides the rest:
 - Calm: one dominant element per page; heading, then body, then captions; whitespace as a beat after a loud spread; margins at least the safe area plus 6 mm; everything on the margin grid and the gutter; one accent from the photos and two typefaces.
-- Lively: still one hero per page, now layered: a photo over a colour block or a shape, the title over a photo, photos turned 2 to 6 degrees in a white or polaroid frame, oversize display type, colour blocking in the accent.
+- Lively: still one hero per page, now layered: a photo over a colour block or a shape, the title over a photo, photos turned 2 to 6 degrees in a white or polaroid frame, oversize display type, colour blocking in the accent; set a cover title or a chapter mark with add_lockup, and give type on a photo an outline, a hard shadow or a band (style) rather than a scrim.
 - Loud: lively pushed further: bigger type, stronger colour, more layers, a title that fills the cover; never two heroes on one page.
 - A deliberate overlap is a design; an accidental one (two straight photos or texts of a size half over each other) is a fault.
 - Vary the beats, never three alike in a row; a quiet page for a long story, grids for bursts.

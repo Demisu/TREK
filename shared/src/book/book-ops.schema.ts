@@ -415,6 +415,8 @@ export const BOOK_FINDING_CODES = [
   'raster_effect',
   'hairline',
   'edge_unused',
+  'curve_overflow',
+  'effect_heavy',
 ] as const;
 export type BookFindingCode = (typeof BOOK_FINDING_CODES)[number];
 

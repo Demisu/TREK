@@ -49,5 +49,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': 'Liiga palju kirjatüüpe',
   'assistant.card.book.finding.palette_drift': 'Omavahel sobimatud värvid',
   'assistant.card.book.finding.repeat_layout': 'Ikka ja jälle sama paigutus',
+  'assistant.card.book.finding.curve_overflow': 'Kõverdatud tekst ulatub üle oma kaare',
+  'assistant.card.book.finding.effect_heavy': 'Liiga paks kontuur',
 };
 export default assistantBook;

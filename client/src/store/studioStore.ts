@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { BookDocument, BookElement, BookFrame, BookLayout, BookSpread } from '@trek/shared'
 import {
   MAX_BOOK_LAYOUTS, MAX_SPREAD_ELEMENTS, applySavedBookLayout as applySavedLayout,
-  bookLayoutFromSpread as layoutFromSpread, canEditSpread as isMovableSpread, innerSpreadBounds as innerBounds,
+  bookLayoutFromSpread as layoutFromSpread, canEditSpread as isMovableSpread, fitBookTexts, innerSpreadBounds as innerBounds,
   withThemeLinks,
 } from '@trek/shared'
 import { pastedElements, type StudioClipboard } from '../components/Studio/studioClipboard'
@@ -195,14 +195,15 @@ export const useStudioStore = create<StudioState>((set, get) => ({
     }
   }),
 
+  // A text set to fit its frame is solved after every change (book-text-fit.ts in shared).
   commit: fn => set(s => {
     if (!s.doc || s.readOnly) return {}
-    const next = fn(s.doc)
+    const next = fitBookTexts(fn(s.doc), s.doc)
     if (next === s.doc) return {}
     return { doc: next, past: [...s.past, s.doc].slice(-HISTORY_LIMIT), future: [] }
   }),
 
-  apply: fn => set(s => (s.doc && !s.readOnly ? { doc: fn(s.doc) } : {})),
+  apply: fn => set(s => (s.doc && !s.readOnly ? { doc: fitBookTexts(fn(s.doc), s.doc) } : {})),
 
   // A colour or face set by hand stops following the theme; a link set here takes the theme's value.
   updateElement: (spreadIndex, id, patch) => get().apply(doc =>

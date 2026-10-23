@@ -53,5 +53,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': 'Příliš mnoho písem',
   'assistant.card.book.finding.palette_drift': 'Barvy, které k sobě neladí',
   'assistant.card.book.finding.repeat_layout': 'Pořád stejné rozvržení',
+  'assistant.card.book.finding.curve_overflow': 'Zakřivený text přesahuje svůj oblouk',
+  'assistant.card.book.finding.effect_heavy': 'Příliš silný obrys',
 };
 export default assistantBook;

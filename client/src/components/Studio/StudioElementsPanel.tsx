@@ -9,6 +9,8 @@ import { StudioLineShelf } from './StudioLineShelf'
 import { PanelHead } from './StudioPanelHead'
 import { FEATURED_ICONS, iconComponent, iconLabel, searchIcons } from './iconLibrary'
 import '../../styles/studio-elements.css'
+import { StudioTextStyles } from './StudioTextStyles'
+import type { ShelfSource } from './textStylesModel'
 
 /**
  * Everything you can add that does not come from the journey: type, shapes,
@@ -97,8 +99,55 @@ function IconCell({ name, onPick }: { name: string; onPick: (name: string) => vo
   )
 }
 
-export function StudioElementsPanel({ page, t }: { page: BookPageSetup; t: (k: string) => string }) {
-  const [tab, setTab] = useState<'shapes' | 'frames' | 'grids' | 'icons'>('shapes')
+/** A plain text style: size, weight, its sample words and anything else it sets. */
+type AddText = (size: number, weight: 400 | 500 | 600 | 700, sample: string, extra?: Partial<BookElement>) => void
+
+/** The type tab: the four plain styles, then the lockups of the Text styles shelf. */
+function TextTab({ page, source, t, addText }: {
+  page: BookPageSetup
+  source: ShelfSource
+  t: (k: string) => string
+  addText: AddText
+}) {
+  return (
+    <>
+      <div className="st-section">
+        <div className="st-section-label">{t('journey.studio.text')}</div>
+        <div className="st-stack">
+          <button type="button" className="st-tile" onClick={() => addText(30, 700, t('journey.studio.sampleHeading'))}>
+            <span style={{ fontSize: 19, fontWeight: 700, letterSpacing: '-0.02em' }}>
+              {t('journey.studio.styleTitle')}
+            </span>
+          </button>
+          <button type="button" className="st-tile" onClick={() => addText(16, 600, t('journey.studio.sampleSubheading'))}>
+            <span style={{ fontSize: 14, fontWeight: 600 }}>{t('journey.studio.styleSubtitle')}</span>
+          </button>
+          <button type="button" className="st-tile" onClick={() => addText(10, 400, t('journey.studio.sampleBody'))}>
+            <span style={{ fontSize: 12.5 }}>{t('journey.studio.styleBody')}</span>
+          </button>
+          <button type="button"
+            className="st-tile"
+            onClick={() => addText(7.5, 600, t('journey.studio.sampleCaption'), { tracking: 0.14, color: '#8a8578' })}
+          >
+            <span style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+              {t('journey.studio.styleCaption')}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <StudioTextStyles page={page} source={source} t={t} />
+    </>
+  )
+}
+
+export function StudioElementsPanel({ page, t, source }: {
+  page: BookPageSetup
+  t: (k: string) => string
+  /** The journal, for the year and the point a lockup is filled with. */
+  source: ShelfSource
+}) {
+  const [tab, setTab] = useState<'text' | 'shapes' | 'frames' | 'grids' | 'icons'>('text')
   const [iconQuery, setIconQuery] = useState('')
   /*
    * How much of the library is on screen.
@@ -223,6 +272,9 @@ export function StudioElementsPanel({ page, t }: { page: BookPageSetup; t: (k: s
       <PanelHead label={t('journey.studio.elements')} />
 
       <div className="st-tabs is-fluid">
+        <button type="button" className={tab === 'text' ? 'is-on' : ''} onClick={() => setTab('text')}>
+          {t('journey.studio.text')}
+        </button>
         <button type="button" className={tab === 'shapes' ? 'is-on' : ''} onClick={() => setTab('shapes')}>
           {t('journey.studio.shapes')}
         </button>
@@ -238,33 +290,14 @@ export function StudioElementsPanel({ page, t }: { page: BookPageSetup; t: (k: s
       </div>
 
       <div className="st-panel-scroll">
+        {/*
+          Type first: the plain styles, then the lockups, set titles and marks
+          drawn with the book's own words (StudioTextStyles.tsx).
+        */}
+        {tab === 'text' && <TextTab page={page} source={source} t={t} addText={addText} />}
+
         {tab === 'shapes' && (
           <>
-            <div className="st-section">
-              <div className="st-section-label">{t('journey.studio.text')}</div>
-              <div className="st-stack">
-                <button type="button" className="st-tile" onClick={() => addText(30, 700, t('journey.studio.sampleHeading'))}>
-                  <span style={{ fontSize: 19, fontWeight: 700, letterSpacing: '-0.02em' }}>
-                    {t('journey.studio.styleTitle')}
-                  </span>
-                </button>
-                <button type="button" className="st-tile" onClick={() => addText(16, 600, t('journey.studio.sampleSubheading'))}>
-                  <span style={{ fontSize: 14, fontWeight: 600 }}>{t('journey.studio.styleSubtitle')}</span>
-                </button>
-                <button type="button" className="st-tile" onClick={() => addText(10, 400, t('journey.studio.sampleBody'))}>
-                  <span style={{ fontSize: 12.5 }}>{t('journey.studio.styleBody')}</span>
-                </button>
-                <button type="button"
-                  className="st-tile"
-                  onClick={() => addText(7.5, 600, t('journey.studio.sampleCaption'), { tracking: 0.14, color: '#8a8578' })}
-                >
-                  <span style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
-                    {t('journey.studio.styleCaption')}
-                  </span>
-                </button>
-              </div>
-            </div>
-
             <div className="st-section">
               <div className="st-section-label">{t('journey.studio.lines')}</div>
               <div className="st-shape-grid">

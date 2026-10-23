@@ -17,6 +17,7 @@ import {
   type BookOpsContext,
 } from './book-ops-core';
 import { bookLineStyled, bookNewLine } from './book-ops-line';
+import { checkTextFillPhoto, opAddLockup } from './book-ops-lockup';
 import { newStickerElement } from './book-ops-sticker';
 import { withShapePaint } from './book-paint';
 import type { BookPaint } from './book-paint.schema';
@@ -54,7 +55,7 @@ import type { z } from 'zod';
 /**
  * The element operations of the book engine: what `add`, `style`, `arrange`,
  * `align`, `distribute`, `lock`, `duplicate`, `fill`, `copy_from`,
- * `refresh_travel` and `add_grid` do to a page, and the `auto` layout. Called
+ * `refresh_travel`, `add_grid` and `add_lockup` do to a page, and the `auto` layout. Called
  * from `applyBookOps` (book-ops.ts), which parses, runs a call all or nothing
  * and checks the page it hands back against the document's schema.
  *
@@ -99,6 +100,8 @@ export function applyElementOp(spread: BookSpread, op: ElementOp, env: ElementOp
       return opRefreshTravel(spread, op, env);
     case 'add_grid':
       return opAddGrid(spread, op, env);
+    case 'add_lockup':
+      return opAddLockup(spread, op, env);
   }
 }
 
@@ -195,6 +198,7 @@ function opAdd(spread: BookSpread, op: Op<'add'>, env: ElementOpEnv): BookSpread
   roomFor(spread, 1, env.opIndex);
   const blank = created(spread, op.element, op.frame ? roundFrame(op.frame) : null, env);
   const made = withProps(blank, lookOf(op.element), env.doc.theme);
+  checkTextFillPhoto(made, env);
   const el = op.rotation !== undefined ? { ...made, rotation: op.rotation } : made;
   const parked =
     el.kind === 'photo' && el.photoId != null
@@ -435,7 +439,9 @@ function opStyle(spread: BookSpread, op: Op<'style'>, env: ElementOpEnv): BookSp
   if (op.set.kind !== el.kind) {
     throw failOp('wrong_kind', `${el.id} is a ${el.kind}; set.kind says ${op.set.kind}`, env.opIndex, el.id);
   }
-  return replaceAll(spread, [withProps(el, op.set, env.doc.theme)]);
+  const styled = withProps(el, op.set, env.doc.theme);
+  checkTextFillPhoto(styled, env);
+  return replaceAll(spread, [styled]);
 }
 
 function opLock(spread: BookSpread, op: Op<'lock'>, env: ElementOpEnv): BookSpread {

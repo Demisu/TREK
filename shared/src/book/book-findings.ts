@@ -7,6 +7,8 @@ import { visibleSpread } from './book-groups';
 import type { BookPhotoInfo } from './book-ops-core';
 import type { BookFinding } from './book-ops.schema';
 import { photoZoomOf } from './book-photo-look';
+import { bookTextIsDrawn } from './book-text-effects.schema';
+import { textEffectFindings } from './book-text-findings';
 import type { BookElement, BookPageSetup, BookPhotoElement, BookSpread, BookTextElement } from './book.schema';
 
 /**
@@ -110,6 +112,21 @@ function wrappedLines(para: string, perLine: number): number {
   return lines;
 }
 
+/** How much wider capitals set than the family's average letter; a capitals-only face is set in them already. */
+const CASE_WIDTH: Record<string, number> = { upper: 1.18, smallcaps: 1.08 };
+
+/**
+ * The average advance of one letter of a text in millimetres, its tracking
+ * included: the family's letter width at the text's size, a little more when
+ * bold, and more again when it is set in capitals.
+ */
+export function bookLetterMm(el: BookTextElement, headroom = 1): number {
+  const sizeMm = (orDefault(el.size, 11) * 25.4) / 72;
+  const tracking = orDefault(el.tracking, 0);
+  const caps = bookFontFace(el.font)?.caps ? 1 : (CASE_WIDTH[el.transform ?? 'none'] ?? 1);
+  return sizeMm * (letterEm(el.font) * (el.weight >= 600 ? 1.06 : 1) * caps * headroom + tracking);
+}
+
 /**
  * How many millimetres a text needs to be set at its frame's width, roughly:
  * its words wrapped at the family's average letter width times `headroom`,
@@ -119,8 +136,7 @@ function wrappedLines(para: string, perLine: number): number {
  */
 export function textHeightNeeded(el: BookTextElement, headroom = 1): number {
   const sizeMm = (orDefault(el.size, 11) * 25.4) / 72;
-  const tracking = orDefault(el.tracking, 0);
-  const letter = sizeMm * (letterEm(el.font) * (el.weight >= 600 ? 1.06 : 1) * headroom + tracking);
+  const letter = bookLetterMm(el, headroom);
   const perLine = Math.max(1, Math.floor(el.frame.w / Math.max(letter, 0.1)));
   const lines = el.text.split('\n').reduce((sum, para) => sum + wrappedLines(para.trimEnd(), perLine), 0);
   return lines * sizeMm * orDefault(el.leading, 1.45);
@@ -240,7 +256,8 @@ function overlapFinding(a: BookElement, b: BookElement, ba: Box, bb: Box, shared
  * to the cap, so pairs layered on purpose never crowd out an accident.
  */
 function overlaps(ctx: Ctx): void {
-  const content = ctx.spread.elements.filter((e) => e.kind === 'photo' || e.kind === 'text');
+  // A curved text's ink is its curve, not its frame: a badge's rim runs round what it holds.
+  const content = ctx.spread.elements.filter((e) => e.kind === 'photo' || (e.kind === 'text' && !e.curve));
   const found: BookFinding[] = [];
   for (let i = 0; i < content.length; i++) {
     for (let j = i + 1; j < content.length; j++) {
@@ -461,7 +478,8 @@ function salientCut(ctx: Ctx, el: BookPhotoElement): void {
 
 function overflow(ctx: Ctx): void {
   for (const el of ctx.spread.elements) {
-    if (el.kind !== 'text' || !el.text.trim()) continue;
+    // A curved or photo-filled text is set as written, unwrapped: its own check measures it.
+    if (el.kind !== 'text' || !el.text.trim() || bookTextIsDrawn(el)) continue;
     const need = textHeightNeeded(el);
     if (need <= el.frame.h * 1.1 + 0.5) continue;
     add(ctx, {
@@ -512,5 +530,6 @@ export function spreadFindings(
   parked(ctx);
   for (const f of stickerFindings(spread)) add(ctx, f);
   for (const f of strokeFindings(spread)) add(ctx, f);
+  ctx.out.push(...textEffectFindings(spread, photos));
   return sortBookFindings(ctx.out);
 }

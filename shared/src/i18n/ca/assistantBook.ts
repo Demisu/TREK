@@ -49,5 +49,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': 'Massa tipografies',
   'assistant.card.book.finding.palette_drift': 'Colors que no combinen',
   'assistant.card.book.finding.repeat_layout': 'El mateix disseny una vegada i una altra',
+  'assistant.card.book.finding.curve_overflow': 'El text corbat surt de la seva corba',
+  'assistant.card.book.finding.effect_heavy': 'Un contorn massa gruixut',
 };
 export default assistantBook;

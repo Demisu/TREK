@@ -45,5 +45,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': '글꼴이 너무 많습니다',
   'assistant.card.book.finding.palette_drift': '어울리지 않는 색',
   'assistant.card.book.finding.repeat_layout': '같은 레이아웃의 반복',
+  'assistant.card.book.finding.curve_overflow': '곡선 글자가 곡선을 넘어갑니다',
+  'assistant.card.book.finding.effect_heavy': '너무 두꺼운 윤곽선',
 };
 export default assistantBook;

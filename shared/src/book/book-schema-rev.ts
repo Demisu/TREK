@@ -40,8 +40,11 @@ import type { BookDocument } from './book.schema';
  *   book-shapes-more.ts) and the line kind (book-line.schema.ts).
  * - 8: themes (the document's `theme`, and the `token`, `strokeToken`, `accentToken`,
  *   `fontRole` and `backgroundToken` links, theme/book-theme.schema.ts).
+ * - 9: text effects and fitting (`transform`, `vAlign`, `outline`, `shadow`, `highlight`,
+ *   `curve`, `fillPaint`, `fit`, `fitMax`, book-text-effects.schema.ts), text up to 400 pt and
+ *   tracking up to 1.5 em.
  */
-export const BOOK_SCHEMA_REV = 8;
+export const BOOK_SCHEMA_REV = 9;
 
 /** The `code` a refused save carries in its body when the stored book is newer than the writer. */
 export const BOOK_SCHEMA_NEWER_CODE = 'book_schema_newer';

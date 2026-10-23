@@ -26,6 +26,7 @@ import { applyGroupOp, isGroupOp } from './book-ops-groups';
 import { BOOK_OP_LIMITS, bookPageOpSchema, type BookPageOp } from './book-ops.schema';
 import { withSpreadPaint } from './book-paint';
 import { applySavedBookLayout, bookLayoutRole } from './book-saved-layouts';
+import { fitSpreadTexts } from './book-text-fit';
 import {
   MAX_SPREAD_ELEMENTS,
   type BookDocument,
@@ -92,6 +93,8 @@ export function applyBookOps(
     });
     // A removal or a layout can leave a group with one member: it goes, with its name.
     spread = tidyGroups(spread);
+    // A text set to fit its frame is solved once the page's operations are done (book-text-fit.ts).
+    spread = fitSpreadTexts(spread, original);
     checkedSpread(spread, null);
     const spreads = doc.spreads.slice();
     spreads[index] = spread;

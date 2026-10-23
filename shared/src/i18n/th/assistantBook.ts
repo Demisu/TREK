@@ -45,5 +45,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': 'ใช้ฟอนต์มากเกินไป',
   'assistant.card.book.finding.palette_drift': 'สีที่ไม่เข้ากัน',
   'assistant.card.book.finding.repeat_layout': 'เลย์เอาต์เดิมซ้ำไปซ้ำมา',
+  'assistant.card.book.finding.curve_overflow': 'ข้อความโค้งยาวเกินส่วนโค้ง',
+  'assistant.card.book.finding.effect_heavy': 'เส้นขอบหนาเกินไป',
 };
 export default assistantBook;

@@ -49,5 +49,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': 'Túl sok betűtípus',
   'assistant.card.book.finding.palette_drift': 'Össze nem illő színek',
   'assistant.card.book.finding.repeat_layout': 'Újra és újra ugyanaz az elrendezés',
+  'assistant.card.book.finding.curve_overflow': 'Az ívelt szöveg túlfut az ívén',
+  'assistant.card.book.finding.effect_heavy': 'Túl vastag körvonal',
 };
 export default assistantBook;

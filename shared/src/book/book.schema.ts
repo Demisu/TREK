@@ -3,6 +3,7 @@ import { BOOK_LINE_FIELDS } from './book-line.schema';
 import { bookPaintFieldSchema } from './book-paint.schema';
 import { BOOK_PHOTO_LOOK_FIELDS } from './book-photo-look.schema';
 import { BOOK_EDGE_FIELDS, BOOK_SHAPES_MORE } from './book-shapes-more';
+import { BOOK_TEXT_EFFECT_FIELDS, MAX_BOOK_TEXT_SIZE } from './book-text-effects.schema';
 import { MAX_STICKER_SLOTS } from './stickers/sticker-types';
 import * as themed from './theme/book-theme.schema';
 
@@ -270,15 +271,15 @@ export const bookTextElementSchema = z.object({
   kind: z.literal('text'),
   text: z.string().max(MAX_TEXT_LENGTH).default(''),
   font: bookCatalogueIdSchema(BOOK_FONTS_IDS).default('sans'),
-  /** Points. */
-  size: z.number().min(4).max(200).default(11),
+  /** Points, up to a word across a whole cover. */
+  size: z.number().min(4).max(MAX_BOOK_TEXT_SIZE).default(11),
   weight: bookWeightSchema.default(400),
   italic: z.boolean().default(false),
   align: z.enum(['left', 'center', 'right', 'justify']).default('left'),
   /** Multiple of the font size. */
   leading: z.number().min(0.7).max(3).default(1.45),
-  /** Ems, may be negative. */
-  tracking: z.number().min(-0.2).max(1).default(0),
+  /** Ems, may be negative; wide enough for very spaced capitals. */
+  tracking: z.number().min(-0.2).max(1.5).default(0),
   color: hex.default('#1a1a1a'),
   ...themed.THEMED_TEXT,
   /** Where this text came from, when it came from the journey. */
@@ -327,6 +328,8 @@ export const bookTextElementSchema = z.object({
     .default(null),
   /** True once a human edited the text; stops it re-reading its source. */
   overridden: z.boolean().default(false),
+  /** Outline, shadow, band, curve, fill, case, vertical place and fit (book-text-effects.schema.ts). */
+  ...BOOK_TEXT_EFFECT_FIELDS,
 });
 
 export const bookShapeElementSchema = z.object({

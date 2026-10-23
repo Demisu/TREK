@@ -32,6 +32,7 @@ import { bookElementIdSchema, bookGridIdSchema, bookSpreadIdSchema } from './boo
 import { bookPaintInSchema } from './book-paint.schema';
 import { BOOK_PHOTO_LOOK_PROPS } from './book-photo-look.schema';
 import { bookStickerIdSchema } from './book-sticker';
+import { TEXT_EFFECT_PROPS, bookAddLockupOpSchema } from './book-text-ops.schema';
 import {
   MAX_BOOK_COUNTRIES,
   bookBadgeElementSchema,
@@ -51,7 +52,7 @@ import { z } from 'zod';
 /**
  * The element operations of a book page: create any of the ten kinds, style
  * one, arrange, align, distribute, lock, duplicate, fill, copy from another
- * page, refresh the travel figures, drop in a photo grid. They join the page
+ * page, refresh the travel figures, drop in a photo grid, set a lockup. They join the page
  * operations of book-ops.schema.ts, so `edit_book_page` takes them and the one
  * engine (`applyBookOps`) runs them; nothing else implements them.
  *
@@ -116,7 +117,8 @@ export const TEXT_STYLE_FIELDS = {
   tracking: text.tracking.unwrap().optional(),
   color: text.color.unwrap().optional(),
 };
-const TEXT_PROPS = { ...COMMON, ...TEXT_STYLE_FIELDS, ...THEMED_TEXT_IN };
+/** A text's look for `style` and `add`: its setting, its theme links and its effects (book-text-ops.schema.ts). */
+const TEXT_PROPS = { ...COMMON, ...TEXT_STYLE_FIELDS, ...THEMED_TEXT_IN, ...TEXT_EFFECT_PROPS };
 const SHAPE_PROPS = {
   ...COMMON,
   fill: shape.fill.unwrap().optional(),
@@ -379,4 +381,6 @@ export const BOOK_ELEMENT_OP_SCHEMAS = [
   z.strictObject({ op: z.literal('refresh_travel'), elementIds: ids30.optional() }),
   /** A photo grid as empty frames in a box, the page's safe area by default. */
   z.strictObject({ op: z.literal('add_grid'), grid: bookGridIdSchema, box: bookFrameInSchema.optional() }),
+  /** A lockup: a set title, badge, postmark, quote, caption or chapter mark (book-text-ops.schema.ts). */
+  bookAddLockupOpSchema,
 ] as const;

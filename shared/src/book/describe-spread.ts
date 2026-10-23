@@ -15,6 +15,7 @@ import type {
 import { paintWords } from './book-paint';
 import { photoLookWords } from './book-photo-look';
 import { bookStickerWords } from './book-sticker';
+import { bookTextEffectWords } from './book-text-describe';
 import {
   bookPageSetupSchema,
   type BookDocument,
@@ -99,7 +100,8 @@ function elementWords(el: BookElement, photos: readonly BookPhotoInfo[] | undefi
       const set = `${el.font} (${bookFontRole(el.font)}) ${n(el.size)} pt${weight === 400 ? '' : ` ${bookWeightWord(weight)}`}`;
       const style = `${set}${el.italic ? ' italic' : ''}, ${el.align}, ${el.color}`;
       const bound = el.binding ? `, bound to ${el.binding.source}${el.overridden ? ' (overridden)' : ''}` : '';
-      return `${style}: "${head(el.text, 80)}"${bound}`;
+      const effects = bookTextEffectWords(el);
+      return `${style}${effects ? `, ${effects}` : ''}: "${head(el.text, 80)}"${bound}`;
     }
     case 'shape':
       return shapeWords(el);

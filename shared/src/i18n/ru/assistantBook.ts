@@ -57,5 +57,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': 'Слишком много шрифтов',
   'assistant.card.book.finding.palette_drift': 'Цвета, которые не сочетаются',
   'assistant.card.book.finding.repeat_layout': 'Снова и снова один и тот же макет',
+  'assistant.card.book.finding.curve_overflow': 'Изогнутый текст выходит за свою дугу',
+  'assistant.card.book.finding.effect_heavy': 'Слишком толстый контур',
 };
 export default assistantBook;

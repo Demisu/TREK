@@ -9,6 +9,8 @@ import { HOLED_SHAPES } from './shapes'
 import { hasEdge, shapeOutline } from './shapeOutline'
 import { LineView } from './LineView'
 import { TravelElementView } from './TravelElements'
+import { TextEffectsView } from './TextEffectsView'
+import { hasTextEffects } from './textEffects'
 import { PageNumbers } from './PageNumbers'
 import { PaintedShapeView } from './paint/PaintedShape'
 import { SpreadPaint } from './paint/paintRender'
@@ -188,6 +190,9 @@ export function ElementView({
     // with one property set.
     return <TravelElementView el={el} frameStyle={frameStyle(el)} big={big} />
   }
+
+  // Outlines, shadows, bands, curves and fills draw in their own file; a plain text stays here, as it always drew.
+  if (hasTextEffects(el)) return <TextEffectsView el={el} frameStyle={frameStyle(el)} big={big} />
 
   return (
     <div

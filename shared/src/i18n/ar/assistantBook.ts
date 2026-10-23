@@ -65,5 +65,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': 'خطوط كثيرة جدًا',
   'assistant.card.book.finding.palette_drift': 'ألوان غير متناسقة',
   'assistant.card.book.finding.repeat_layout': 'التخطيط نفسه مرارًا',
+  'assistant.card.book.finding.curve_overflow': 'النص المنحني يتجاوز قوسه',
+  'assistant.card.book.finding.effect_heavy': 'حدّ سميك أكثر من اللازم',
 };
 export default assistantBook;

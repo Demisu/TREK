@@ -45,5 +45,7 @@ const assistantBook: TranslationStrings = {
   'assistant.card.book.finding.font_mix': 'Quá nhiều phông chữ',
   'assistant.card.book.finding.palette_drift': 'Màu sắc không hợp nhau',
   'assistant.card.book.finding.repeat_layout': 'Lặp lại cùng một bố cục',
+  'assistant.card.book.finding.curve_overflow': 'Chữ uốn cong vượt quá đường cong',
+  'assistant.card.book.finding.effect_heavy': 'Viền quá dày',
 };
 export default assistantBook;

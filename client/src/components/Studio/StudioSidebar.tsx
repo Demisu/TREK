@@ -151,7 +151,7 @@ export function StudioSidebar({
           <ContentPanel source={source} page={page} t={t} locale={locale} canEdit={canEdit} onUpload={onUpload}
             providers={providers} onBrowseProvider={onBrowseProvider} />
         )}
-        {section === 'elements' && <StudioElementsPanel page={page} t={t} />}
+        {section === 'elements' && <StudioElementsPanel page={page} t={t} source={source} />}
         {section === 'stickers' && <StudioStickersPanel page={page} t={t} />}
         {section === 'travel' && (
           <StudioTravelPanel
