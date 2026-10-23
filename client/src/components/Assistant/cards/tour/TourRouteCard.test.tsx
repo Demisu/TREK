@@ -174,7 +174,7 @@ describe('TourRouteCard', () => {
     // One row per stop; the walks between them are hidden, read with the stop they lead to.
     expect(list.querySelectorAll('li:not([aria-hidden="true"])')).toHaveLength(5);
     // The place beside the way has no time: the hut measures from the start, then each stop from the last.
-    expect(screen.getAllByText(/from the last stop$/)).toHaveLength(3);
+    expect(screen.getAllByRole('button', { name: /from the last stop$/ })).toHaveLength(3);
     const legs = [...list.querySelectorAll('li[aria-hidden="true"]')].map((leg) => leg.textContent).filter(Boolean);
     expect(legs).toHaveLength(3);
   });

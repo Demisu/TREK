@@ -34,7 +34,6 @@ const TITLE_BUTTON =
   'block w-full rounded-md text-start outline-none hover:underline focus-visible:ring-2 focus-visible:ring-accent';
 /** The phone's taller target, the title still at the top of the row. */
 const TITLE_BUTTON_TALL = `${TITLE_BUTTON} min-h-10`;
-const FOOTER = 'mt-1 flex items-center gap-2 border-t border-edge-faint pt-2 text-caption';
 const OPEN = 'inline-flex flex-none items-center gap-1 font-medium text-accent hover:underline';
 const OPEN_TALL = 'inline-flex h-10 flex-none items-center gap-1 font-medium text-accent hover:underline';
 /** The size and corners of the journal's own tile, so the count stands in the row like one more entry. */
@@ -47,7 +46,7 @@ const TILE = 'flex-none snap-start';
 type Open = ((entryId: number | null) => void) | null;
 
 /** The journal's name and the way into it, under the card. */
-function JournalFooter({ journal, open }: { journal: JournalEntries; open: Open }) {
+function JournalFooter({ open }: { open: Open }) {
   const { t } = useTranslation();
   const { variant } = useAssistantView();
   if (!open) return null;
@@ -120,7 +119,7 @@ function JournalRows({ journal, fallbackRef }: { journal: JournalEntries; fallba
       {journal.entries.map((look, index) => (
         <EntryRow key={look.entryId ?? `new-${index}`} look={look} divided={index > 0} open={open} hover={hover} />
       ))}
-      <JournalFooter journal={journal} open={open} />
+      <JournalFooter open={open} />
     </CardFrame>
   );
 }
@@ -153,7 +152,7 @@ function JournalStrip({ journal, fallbackRef }: { journal: JournalEntries; fallb
           </li>
         )}
       </CardStrip>
-      <JournalFooter journal={journal} open={open} />
+      <JournalFooter open={open} />
     </div>
   );
 }
