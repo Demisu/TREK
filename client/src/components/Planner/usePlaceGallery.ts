@@ -9,7 +9,7 @@ import { readCachedEnrichment, storeEnrichment, type PlaceDetailsSelection } fro
 import { photoCaption } from './placePhotoCredit';
 
 /** What the lightbox renders; mirrors Journey/PhotoLightbox's private photo shape. */
-export interface GalleryPhoto {
+interface GalleryPhoto {
   id: string;
   src: string;
   caption: string | null;
