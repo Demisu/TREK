@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Nhãn dán',
   'journey.studio.kind.sticker': 'Nhãn dán',
   'journey.studio.searchStickers': 'Tìm nhãn dán',
-  'journey.studio.stickerThemes': 'Chủ đề nhãn dán',
-  'journey.studio.stickersAll': 'Tất cả',
   'journey.studio.stickersRecent': 'Dùng gần đây',
   'journey.studio.stickersHint': 'Nhấp vào một nhãn dán để đặt nó vào giữa trang, hoặc kéo nó đến chỗ cần đặt.',
   'journey.studio.stickerColours': 'Màu sắc',

@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Sticker',
   'journey.studio.kind.sticker': 'Sticker', // same-as-en
   'journey.studio.searchStickers': 'Sticker suchen',
-  'journey.studio.stickerThemes': 'Sticker-Themen',
-  'journey.studio.stickersAll': 'Alle',
   'journey.studio.stickersRecent': 'Zuletzt verwendet',
   'journey.studio.stickersHint':
     'Klicke einen Sticker an, um ihn mitten auf die Seite zu setzen, oder zieh ihn an die gewünschte Stelle.',

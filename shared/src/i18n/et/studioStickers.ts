@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Kleebised',
   'journey.studio.kind.sticker': 'Kleebis',
   'journey.studio.searchStickers': 'Otsi kleebiseid',
-  'journey.studio.stickerThemes': 'Kleebiste teemad',
-  'journey.studio.stickersAll': 'Kõik',
   'journey.studio.stickersRecent': 'Hiljuti kasutatud',
   'journey.studio.stickersHint': 'Klõpsa kleebisel, et panna see lehe keskele, või lohista see sinna, kuhu see käib.',
   'journey.studio.stickerColours': 'Värvid',

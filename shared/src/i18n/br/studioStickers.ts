@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Adesivos',
   'journey.studio.kind.sticker': 'Adesivo',
   'journey.studio.searchStickers': 'Buscar adesivos',
-  'journey.studio.stickerThemes': 'Temas de adesivos',
-  'journey.studio.stickersAll': 'Todos',
   'journey.studio.stickersRecent': 'Usados recentemente',
   'journey.studio.stickersHint':
     'Clique em um adesivo para colocá-lo no meio da página, ou arraste-o até onde ele deve ficar.',

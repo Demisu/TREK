@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Adhesius',
   'journey.studio.kind.sticker': 'Adhesiu',
   'journey.studio.searchStickers': 'Cerca adhesius',
-  'journey.studio.stickerThemes': 'Temes d’adhesius',
-  'journey.studio.stickersAll': 'Tots',
   'journey.studio.stickersRecent': 'Usats fa poc',
   'journey.studio.stickersHint':
     'Fes clic en un adhesiu per posar-lo al mig de la pàgina, o arrossega’l on hagi d’anar.',

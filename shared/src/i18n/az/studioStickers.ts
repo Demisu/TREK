@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Stikerlər',
   'journey.studio.kind.sticker': 'Stiker',
   'journey.studio.searchStickers': 'Stiker axtar',
-  'journey.studio.stickerThemes': 'Stiker mövzuları',
-  'journey.studio.stickersAll': 'Hamısı',
   'journey.studio.stickersRecent': 'Son istifadə olunanlar',
   'journey.studio.stickersHint':
     'Səhifənin ortasına qoymaq üçün stikerə klikləyin və ya onu lazım olan yerə sürükləyin.',

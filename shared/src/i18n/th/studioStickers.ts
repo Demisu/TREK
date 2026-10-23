@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'สติกเกอร์',
   'journey.studio.kind.sticker': 'สติกเกอร์',
   'journey.studio.searchStickers': 'ค้นหาสติกเกอร์',
-  'journey.studio.stickerThemes': 'ธีมสติกเกอร์',
-  'journey.studio.stickersAll': 'ทั้งหมด',
   'journey.studio.stickersRecent': 'ใช้ล่าสุด',
   'journey.studio.stickersHint': 'คลิกสติกเกอร์เพื่อวางไว้กลางหน้า หรือลากไปวางตรงตำแหน่งที่ต้องการ',
   'journey.studio.stickerColours': 'สี',

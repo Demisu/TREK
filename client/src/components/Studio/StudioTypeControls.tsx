@@ -1,4 +1,5 @@
 import type { BookWeight } from '@trek/shared';
+import '../../styles/studio-paint.css';
 import { BOOK_FONTS, nearestWeight, type BookFontId } from './bookFonts';
 import { Line } from './StudioControls';
 
@@ -41,19 +42,21 @@ export function WeightLine({
     <Line label={t('journey.studio.weight')}>
       <div className="st-field st-weight">
         {weights.length > 1 ? (
-          <input
-            type="range"
-            min={0}
-            max={weights.length - 1}
-            step={1}
-            value={at}
-            aria-label={t('journey.studio.weight')}
-            aria-valuetext={word}
-            onChange={(e) => {
-              const next = weights[Number(e.target.value)];
-              if (next !== undefined) onPick(next);
-            }}
-          />
+          <span className="st-paint-slider st-weight-slider">
+            <input
+              type="range"
+              min={0}
+              max={weights.length - 1}
+              step={1}
+              value={at}
+              aria-label={t('journey.studio.weight')}
+              aria-valuetext={word}
+              onChange={(e) => {
+                const next = weights[Number(e.target.value)];
+                if (next !== undefined) onPick(next);
+              }}
+            />
+          </span>
         ) : (
           <span className="st-weight-only">{t('journey.studio.weightOnly')}</span>
         )}

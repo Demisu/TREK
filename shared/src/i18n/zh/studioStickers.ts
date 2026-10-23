@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': '贴纸',
   'journey.studio.kind.sticker': '贴纸',
   'journey.studio.searchStickers': '搜索贴纸',
-  'journey.studio.stickerThemes': '贴纸主题',
-  'journey.studio.stickersAll': '全部',
   'journey.studio.stickersRecent': '最近使用',
   'journey.studio.stickersHint': '点击贴纸即可放到页面中央，也可以把它拖到想放的位置。',
   'journey.studio.stickerColours': '颜色',

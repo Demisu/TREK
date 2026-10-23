@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'الملصقات',
   'journey.studio.kind.sticker': 'ملصق',
   'journey.studio.searchStickers': 'ابحث في الملصقات',
-  'journey.studio.stickerThemes': 'موضوعات الملصقات',
-  'journey.studio.stickersAll': 'الكل',
   'journey.studio.stickersRecent': 'المستخدمة مؤخرًا',
   'journey.studio.stickersHint': 'انقر على ملصق لوضعه في منتصف الصفحة، أو اسحبه إلى المكان الذي يجب أن يكون فيه.',
   'journey.studio.stickerColours': 'الألوان',

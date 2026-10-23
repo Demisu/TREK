@@ -148,6 +148,10 @@
 .trek-dash .st-weight {
   width: 100%;
 }
+.trek-dash .st-weight > .st-weight-slider {
+  flex: 1;
+  min-width: 0;
+}
 .trek-dash .st-weight > .st-weight-value,
 .trek-dash .st-weight > .st-weight-only {
   font-size: calc(11.5px * var(--fs-scale-caption, 1));

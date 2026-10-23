@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Samolepky',
   'journey.studio.kind.sticker': 'Samolepka',
   'journey.studio.searchStickers': 'Hledat samolepky',
-  'journey.studio.stickerThemes': 'Témata samolepek',
-  'journey.studio.stickersAll': 'Vše',
   'journey.studio.stickersRecent': 'Naposledy použité',
   'journey.studio.stickersHint': 'Kliknutím samolepku vložíte doprostřed stránky, nebo ji přetáhněte tam, kam patří.',
   'journey.studio.stickerColours': 'Barvy',

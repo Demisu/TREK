@@ -106,12 +106,10 @@ describe('the stickers panel', () => {
     expect(screen.getByText('journey.studio.stickersRecent')).toBeTruthy();
   });
 
-  it('filters by theme and by what is typed, and says when nothing matches', () => {
+  it('finds stickers by what is typed, and says when nothing matches', () => {
     render(<StudioStickersPanel page={page} t={t} />);
-    fireEvent.click(screen.getByRole('radio', { name: 'journey.studio.stickerTheme.food' }));
-    expect(screen.getByRole('button', { name: 'journey.studio.sticker.croissant' })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'journey.studio.sticker.eiffelTower' })).toBeNull();
-    fireEvent.click(screen.getByRole('radio', { name: 'journey.studio.stickersAll' }));
+    // No theme chips: the library is browsed by its theme sections and searched by name.
+    expect(screen.queryByRole('radiogroup')).toBeNull();
     fireEvent.change(screen.getByRole('textbox', { name: 'journey.studio.searchStickers' }), {
       target: { value: 'zzzz' },
     });

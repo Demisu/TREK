@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Pegatinas',
   'journey.studio.kind.sticker': 'Pegatina',
   'journey.studio.searchStickers': 'Buscar pegatinas',
-  'journey.studio.stickerThemes': 'Temas de pegatinas',
-  'journey.studio.stickersAll': 'Todas',
   'journey.studio.stickersRecent': 'Usadas recientemente',
   'journey.studio.stickersHint':
     'Haz clic en una pegatina para colocarla en el centro de la página, o arrástrala adonde deba ir.',

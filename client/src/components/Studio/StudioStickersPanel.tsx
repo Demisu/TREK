@@ -1,9 +1,10 @@
-import { BOOK_STICKER_THEMES, type BookPageSetup, type BookStickerTheme } from '@trek/shared';
+import { BOOK_STICKER_THEMES, type BookPageSetup } from '@trek/shared';
 import { bookStickersOf, type BookStickerDef } from '@trek/shared/stickers';
 import { Search, X } from 'lucide-react';
 import { useMemo, useState, type DragEvent } from 'react';
 
 import { useStudioStore } from '../../store/studioStore';
+import '../../styles/studio-stickers.css';
 import { StickerArt } from './StickerView';
 import { PanelHead } from './StudioPanelHead';
 import {
@@ -37,7 +38,7 @@ function StickerTile({ def, t, onPick }: { def: BookStickerDef; t: Translate; on
   return (
     <button
       type="button"
-      className="st-shape-btn is-glyph"
+      className="st-shape-btn st-sticker-btn"
       draggable
       onDragStart={onDragStart}
       onClick={() => onPick(def)}
@@ -70,15 +71,14 @@ function StickerGrid({
 
 export function StudioStickersPanel({ page, t }: { page: BookPageSetup; t: Translate }) {
   const [query, setQuery] = useState('');
-  const [theme, setTheme] = useState<BookStickerTheme | null>(null);
   const [recent, setRecent] = useState<BookStickerDef[]>(readRecentStickers);
   const addElement = useStudioStore((s) => s.addElement);
   const active = useStudioStore((s) => s.activeSpread);
   const role = useStudioStore((s) => s.doc?.spreads[s.activeSpread]?.role);
   const single = role !== undefined && role !== 'inner';
 
-  const matches = useMemo(() => matchStickers(query, theme, t), [query, theme, t]);
-  const browsing = !query.trim() && theme === null;
+  const matches = useMemo(() => matchStickers(query, null, t), [query, t]);
+  const browsing = !query.trim();
 
   const place = (def: BookStickerDef) => {
     addElement(active, newStickerElement(def, page, single));
@@ -105,32 +105,6 @@ export function StudioStickersPanel({ page, t }: { page: BookPageSetup; t: Trans
       </div>
 
       <div className="st-panel-scroll">
-        <div className="st-section">
-          <div className="st-row" role="radiogroup" aria-label={t('journey.studio.stickerThemes')}>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={theme === null}
-              className={`st-chip ${theme === null ? 'is-on' : ''}`}
-              onClick={() => setTheme(null)}
-            >
-              {t('journey.studio.stickersAll')}
-            </button>
-            {BOOK_STICKER_THEMES.map((id) => (
-              <button
-                type="button"
-                key={id}
-                role="radio"
-                aria-checked={theme === id}
-                className={`st-chip ${theme === id ? 'is-on' : ''}`}
-                onClick={() => setTheme(theme === id ? null : id)}
-              >
-                {stickerThemeLabel(t, id)}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {browsing && recent.length > 0 && (
           <div className="st-section">
             <div className="st-section-label">{t('journey.studio.stickersRecent')}</div>
@@ -138,7 +112,7 @@ export function StudioStickersPanel({ page, t }: { page: BookPageSetup; t: Trans
           </div>
         )}
 
-        {/* Browsing, the library by theme; searching or filtered, one grid of what matches. */}
+        {/* Browsing, the library by theme; searching, one grid of what matches. */}
         {browsing ? (
           BOOK_STICKER_THEMES.map((id) => (
             <div className="st-section" key={id}>

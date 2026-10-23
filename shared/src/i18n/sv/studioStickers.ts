@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Klistermärken',
   'journey.studio.kind.sticker': 'Klistermärke',
   'journey.studio.searchStickers': 'Sök klistermärken',
-  'journey.studio.stickerThemes': 'Teman för klistermärken',
-  'journey.studio.stickersAll': 'Alla',
   'journey.studio.stickersRecent': 'Senast använda',
   'journey.studio.stickersHint':
     'Klicka på ett klistermärke för att lägga det mitt på sidan, eller dra det dit det ska sitta.',

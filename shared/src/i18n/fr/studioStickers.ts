@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Autocollants',
   'journey.studio.kind.sticker': 'Autocollant',
   'journey.studio.searchStickers': 'Rechercher un autocollant',
-  'journey.studio.stickerThemes': 'Thèmes d’autocollants',
-  'journey.studio.stickersAll': 'Tous',
   'journey.studio.stickersRecent': 'Utilisés récemment',
   'journey.studio.stickersHint':
     'Cliquez sur un autocollant pour le placer au milieu de la page, ou faites-le glisser à l’endroit voulu.',

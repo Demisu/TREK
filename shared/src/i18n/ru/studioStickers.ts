@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Стикеры',
   'journey.studio.kind.sticker': 'Стикер',
   'journey.studio.searchStickers': 'Искать стикеры',
-  'journey.studio.stickerThemes': 'Темы стикеров',
-  'journey.studio.stickersAll': 'Все',
   'journey.studio.stickersRecent': 'Недавние',
   'journey.studio.stickersHint':
     'Нажмите на стикер, чтобы поставить его в центр страницы, или перетащите его туда, где он нужен.',

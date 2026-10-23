@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Αυτοκόλλητα',
   'journey.studio.kind.sticker': 'Αυτοκόλλητο',
   'journey.studio.searchStickers': 'Αναζήτηση αυτοκόλλητων',
-  'journey.studio.stickerThemes': 'Θέματα αυτοκόλλητων',
-  'journey.studio.stickersAll': 'Όλα',
   'journey.studio.stickersRecent': 'Πρόσφατα',
   'journey.studio.stickersHint':
     'Πατήστε ένα αυτοκόλλητο για να το βάλετε στη μέση της σελίδας ή σύρετέ το εκεί που πρέπει να μπει.',

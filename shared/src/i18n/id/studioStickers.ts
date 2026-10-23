@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Stiker',
   'journey.studio.kind.sticker': 'Stiker',
   'journey.studio.searchStickers': 'Cari stiker',
-  'journey.studio.stickerThemes': 'Tema stiker',
-  'journey.studio.stickersAll': 'Semua',
   'journey.studio.stickersRecent': 'Baru dipakai',
   'journey.studio.stickersHint':
     'Klik stiker untuk menaruhnya di tengah halaman, atau seret ke tempat yang diinginkan.',

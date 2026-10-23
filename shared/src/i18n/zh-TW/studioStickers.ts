@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': '貼紙',
   'journey.studio.kind.sticker': '貼紙',
   'journey.studio.searchStickers': '搜尋貼紙',
-  'journey.studio.stickerThemes': '貼紙主題',
-  'journey.studio.stickersAll': '全部',
   'journey.studio.stickersRecent': '最近使用',
   'journey.studio.stickersHint': '點一下貼紙即可放在頁面中央，也可以把它拖到想放的位置。',
   'journey.studio.stickerColours': '顏色',

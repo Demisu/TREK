@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Çıkartmalar',
   'journey.studio.kind.sticker': 'Çıkartma',
   'journey.studio.searchStickers': 'Çıkartma ara',
-  'journey.studio.stickerThemes': 'Çıkartma temaları',
-  'journey.studio.stickersAll': 'Tümü',
   'journey.studio.stickersRecent': 'Son kullanılanlar',
   'journey.studio.stickersHint':
     'Sayfanın ortasına yerleştirmek için bir çıkartmaya tıklayın ya da gitmesi gereken yere sürükleyin.',

@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Naklejki',
   'journey.studio.kind.sticker': 'Naklejka',
   'journey.studio.searchStickers': 'Szukaj naklejek',
-  'journey.studio.stickerThemes': 'Motywy naklejek',
-  'journey.studio.stickersAll': 'Wszystkie',
   'journey.studio.stickersRecent': 'Ostatnio używane',
   'journey.studio.stickersHint':
     'Kliknij naklejkę, aby umieścić ją na środku strony, albo przeciągnij ją tam, gdzie ma się znaleźć.',

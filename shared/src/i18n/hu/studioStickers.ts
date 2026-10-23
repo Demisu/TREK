@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Matricák',
   'journey.studio.kind.sticker': 'Matrica',
   'journey.studio.searchStickers': 'Matricák keresése',
-  'journey.studio.stickerThemes': 'Matricatémák',
-  'journey.studio.stickersAll': 'Mind',
   'journey.studio.stickersRecent': 'Legutóbb használt',
   'journey.studio.stickersHint':
     'Kattints egy matricára, hogy az oldal közepére kerüljön, vagy húzd oda, ahová szánod.',

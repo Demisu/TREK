@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'Наліпки',
   'journey.studio.kind.sticker': 'Наліпка',
   'journey.studio.searchStickers': 'Шукати наліпки',
-  'journey.studio.stickerThemes': 'Теми наліпок',
-  'journey.studio.stickersAll': 'Усі',
   'journey.studio.stickersRecent': 'Нещодавні',
   'journey.studio.stickersHint':
     'Натисніть на наліпку, щоб поставити її в центр сторінки, або перетягніть її туди, де вона потрібна.',

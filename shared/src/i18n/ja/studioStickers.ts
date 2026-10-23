@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': 'ステッカー',
   'journey.studio.kind.sticker': 'ステッカー',
   'journey.studio.searchStickers': 'ステッカーを検索',
-  'journey.studio.stickerThemes': 'ステッカーのテーマ',
-  'journey.studio.stickersAll': 'すべて',
   'journey.studio.stickersRecent': '最近使ったもの',
   'journey.studio.stickersHint':
     'ステッカーをクリックするとページの中央に置かれます。置きたい場所までドラッグすることもできます。',

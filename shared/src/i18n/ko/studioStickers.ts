@@ -5,8 +5,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickers': '스티커',
   'journey.studio.kind.sticker': '스티커',
   'journey.studio.searchStickers': '스티커 검색',
-  'journey.studio.stickerThemes': '스티커 테마',
-  'journey.studio.stickersAll': '전체',
   'journey.studio.stickersRecent': '최근 사용',
   'journey.studio.stickersHint': '스티커를 클릭하면 페이지 가운데에 놓이고, 원하는 위치로 끌어다 놓을 수도 있습니다.',
   'journey.studio.stickerColours': '색상',
