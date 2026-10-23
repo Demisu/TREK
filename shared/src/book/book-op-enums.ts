@@ -79,6 +79,13 @@ export const bookPhotoMaskSchema = z
   .transform((s) => s as BookShapeId)
   .nullable()
   .describe('A shape id, as for a shape, to cut the photo to; null is the plain rectangle.');
+/** A shape id where `add` already lists them: checked against the same set, not listed a second time. */
+export const bookShapeIdRefSchema = z
+  .string()
+  .max(40)
+  .refine((s) => SHAPE_IDS.has(s), { message: 'not a shape the Studio draws' })
+  .transform((s) => s as BookShapeId)
+  .describe("Another outline, by the ids add's shape lists.");
 export const bookFrameStyleSchema = photo.frameStyle
   .unwrap()
   .describe('polaroid (deep bottom border), white border, shadow, film or tape around it; none is a plain print.');

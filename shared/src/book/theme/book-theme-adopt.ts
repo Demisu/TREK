@@ -59,9 +59,9 @@ function previousToken(hex: string, prev: BookTheme | null): BookColorToken | un
 /** The coloured inks an element is drawn in, as adoption would read them. */
 function chromaticInks(el: BookElement): string[] {
   switch (el.kind) {
+    // A line keeps the colour it was drawn in (book-line.schema.ts has no theme link).
     case 'photo':
     case 'sticker':
-    // A line keeps the colour it was drawn in (book-line.schema.ts has no theme link).
     case 'line':
       return [];
     case 'text':
@@ -156,10 +156,10 @@ function adoptElement(
 ): BookElement {
   if (el.locked) return el;
   switch (el.kind) {
-    // A sticker keeps the colours of its slots: they are a drawing, not the page's inks.
+    // A sticker keeps the colours of its slots: they are a drawing, not the page's inks. A line
+    // keeps the colour it was drawn in (book-line.schema.ts has no theme link).
     case 'photo':
     case 'sticker':
-    // A line keeps the colour it was drawn in (book-line.schema.ts has no theme link).
     case 'line':
       return el;
     case 'text': {

@@ -44,6 +44,7 @@ export const BOOK_OP_ERROR_CODES = [
   'not_enough_elements',
   'layouts_full',
   'group_not_found',
+  'id_in_use',
 ] as const;
 export type BookOpErrorCode = (typeof BOOK_OP_ERROR_CODES)[number];
 

@@ -66,7 +66,8 @@ describe('on the page', () => {
     const { container } = render(<SpreadView spread={spread([rect, plain, photo])} page={page} />);
     const cut = container.querySelectorAll('svg path')[0];
     expect(cut.getAttribute('d')?.split('L').length).toBeGreaterThan(40);
-    expect(container.querySelector('#c-p1 path')?.getAttribute('d')).toMatch(/^M0 0L/);
+    // The clip's id is the photo's with a suffix of its own, so a spread drawn twice keeps them apart.
+    expect(container.querySelector('clipPath[id^="c-p1-"] path')?.getAttribute('d')).toMatch(/^M0 0L/);
   });
 });
 
@@ -123,6 +124,11 @@ describe('the inspector', () => {
     expect(first().frame.h).toBeGreaterThan(before);
     fireEvent.click(getByText('journey.studio.swapEnds'));
     expect(first()).toMatchObject({ startCap: 'arrow', endCap: 'none' });
+    // The ornaments stay folded away until a line has one.
+    const ornaments = [...document.querySelectorAll('.st-section-head')].find(
+      (b) => b.textContent === 'journey.studio.ornamentTitle'
+    ) as HTMLElement;
+    fireEvent.click(ornaments);
     fireEvent.click(getByTitle('journey.studio.ornament.heart'));
     expect(first().ornament).toBe('heart');
   });

@@ -1,5 +1,11 @@
 import { idSchema } from '../common/primitives.schema';
-import { BOOK_ELEMENT_OP_SCHEMAS, TEXT_STYLE_FIELDS, bindingNamesItsSource } from './book-element-ops.schema';
+import {
+  BOOK_ELEMENT_EDIT_OP_SCHEMAS,
+  BOOK_ELEMENT_OP_SCHEMAS,
+  TEXT_STYLE_FIELDS,
+  bindingNamesItsSource,
+  bookAddOpInSchema,
+} from './book-element-ops.schema';
 import { BOOK_GROUP_OP_SCHEMAS } from './book-group-ops.schema';
 import { BOOK_COVER_TEMPLATES, BOOK_TEMPLATES } from './book-layouts';
 import {
@@ -17,10 +23,20 @@ import {
   MAX_BOOK_TITLE,
   MAX_SPREADS,
   MAX_SPREAD_ELEMENTS,
+  bookBadgeElementSchema,
+  bookCountriesElementSchema,
+  bookIconElementSchema,
   bookLayoutSchema,
+  bookLineElementSchema,
+  bookListElementSchema,
+  bookMapElementSchema,
   bookPageNumbersSchema,
   bookPageSetupSchema,
+  bookPhotoElementSchema,
+  bookShapeElementSchema,
   bookSpreadSchema,
+  bookStatsElementSchema,
+  bookStickerElementSchema,
   bookTextElementSchema,
 } from './book.schema';
 import { PHOTO_PICK } from './photo-pick';
@@ -89,8 +105,8 @@ const LOOK_KEYS = ['fit', 'focalX', 'focalY', 'mask', 'frameStyle', 'filter', 'r
 const FRAME_KEYS = ['x', 'y', 'w', 'h', 'rotation'] as const;
 const LAYOUT_KEYS = ['template', 'grid', 'saved', 'auto'] as const;
 
-/** One edit of one page. Discriminated on `op`. */
-export const bookPageOpSchema = z.discriminatedUnion('op', [
+/** The operations on a page as a whole, the first of `bookPageOpSchema`'s. */
+const PAGE_OP_SCHEMAS = [
   /**
    * Lay the page out again: a built-in layout, a photo grid, one of the book's
    * own layouts, or `auto`, the Studio's "this page again" from the entry the
@@ -198,10 +214,38 @@ export const bookPageOpSchema = z.discriminatedUnion('op', [
       paint: bookPaintInSchema.nullable().optional(),
     })
     .refine((v) => (v.color === undefined) !== (v.paint === undefined), { message: 'give the color or the paint' }),
+] as const;
+
+/** One edit of one page, as the engine runs it. Discriminated on `op`. */
+const bookPageOpUnion = z.discriminatedUnion('op', [
+  ...PAGE_OP_SCHEMAS,
   ...BOOK_ELEMENT_OP_SCHEMAS,
   ...BOOK_GROUP_OP_SCHEMAS,
 ]);
+type BookPageOpUnion = typeof bookPageOpUnion;
+/** The operations under a name of their own, for the same reason as `BookElementSchema` (book.schema.ts). */
+export interface BookPageOpSchema extends BookPageOpUnion {
+  readonly options: BookPageOpUnion['options'];
+}
+export const bookPageOpSchema: BookPageOpSchema = bookPageOpUnion;
 export type BookPageOp = z.infer<typeof bookPageOpSchema>;
+
+/**
+ * The same operations as the book tools take them: `add` names what the
+ * element is and `style` its look, so no look field is described twice in the
+ * schema every MCP client loads. Each parses into a `BookPageOp`.
+ */
+const bookPageOpInUnion = z.discriminatedUnion('op', [
+  ...PAGE_OP_SCHEMAS,
+  bookAddOpInSchema,
+  ...BOOK_ELEMENT_EDIT_OP_SCHEMAS,
+  ...BOOK_GROUP_OP_SCHEMAS,
+]);
+type BookPageOpInUnion = typeof bookPageOpInUnion;
+export interface BookPageOpInSchema extends BookPageOpInUnion {
+  readonly options: BookPageOpInUnion['options'];
+}
+const bookPageOpInSchema: BookPageOpInSchema = bookPageOpInUnion;
 export type BookPageOpInput = z.input<typeof bookPageOpSchema>;
 
 /*
@@ -219,7 +263,7 @@ const expectedVersion = z.number().int().nonnegative().optional();
 
 export const editBookPageArgs = {
   spreadId: bookSpreadIdSchema,
-  ops: z.array(bookPageOpSchema).min(1).max(BOOK_OP_LIMITS.opsPerCall),
+  ops: z.array(bookPageOpInSchema).min(1).max(BOOK_OP_LIMITS.opsPerCall),
   returnPrevious,
 };
 export const addBookPagesArgs = {
@@ -292,8 +336,88 @@ export type BookPageDigest = z.infer<typeof bookPageDigestSchema>;
  * not hold the undo back; a page put back that they leave out or name as
  * gone keeps the version's check.
  */
+/*
+ * ── A page as restore_book_page takes it back ───────────────────────────
+ *
+ * The same page as `bookPreviousSpreadSchema`, written so its schema states
+ * each field once: what every element has, then what each kind adds, and no
+ * defaults, since the page comes back whole as the change answered it. A page
+ * holds two lists of elements (placed and parked), and spelled out kind by
+ * kind the tool's schema, which every client loads with tools/list, outgrew
+ * its size. It takes the same values: restoreBookPage parses the page again as
+ * a spread, which sets every default, before it puts it back.
+ */
+const ELEMENT_BASE = {
+  id: true,
+  frame: true,
+  rotation: true,
+  opacity: true,
+  locked: true,
+  group: true,
+  hidden: true,
+} as const;
+
+/** An element's fields with their defaults left to the spread's own parse. */
+function restoredFields(schema: z.ZodObject): z.ZodObject {
+  const shape = Object.entries(schema.shape).map(([key, field]) => [
+    key,
+    field instanceof z.ZodDefault ? (field.unwrap() as z.ZodType).optional() : field,
+  ]);
+  return z.object(Object.fromEntries(shape) as z.ZodRawShape);
+}
+const TRAVEL_TYPE = {
+  font: true,
+  color: true,
+  accent: true,
+  textScale: true,
+  weight: true,
+  stale: true,
+  token: true,
+  accentToken: true,
+  fontRole: true,
+} as const;
+const kindIn = (schema: z.ZodObject) => restoredFields(schema.omit(ELEMENT_BASE));
+const travelIn = (schema: z.ZodObject) => restoredFields(schema.omit({ ...ELEMENT_BASE, ...TRAVEL_TYPE }));
+// Each union says what it holds: a described union stays one part of the intersection instead of
+// zod writing the shared fields out into every kind again.
+const restoredElementIn = z.intersection(
+  restoredFields(bookPhotoElementSchema.pick(ELEMENT_BASE)),
+  z
+    .union([
+      kindIn(bookPhotoElementSchema),
+      kindIn(bookTextElementSchema),
+      kindIn(bookShapeElementSchema),
+      kindIn(bookIconElementSchema),
+      kindIn(bookStickerElementSchema),
+      kindIn(bookLineElementSchema),
+      z.intersection(
+        restoredFields(bookMapElementSchema.pick(TRAVEL_TYPE)),
+        z
+          .union([
+            travelIn(bookMapElementSchema),
+            travelIn(bookStatsElementSchema),
+            travelIn(bookCountriesElementSchema),
+            travelIn(bookBadgeElementSchema),
+            travelIn(bookListElementSchema),
+          ])
+          .describe('A travel element: the type the five share, then its own fields.'),
+      ),
+    ])
+    .describe("What the element's kind adds to the fields every element has."),
+);
+const restoredElementsIn = z.array(restoredElementIn).max(MAX_SPREAD_ELEMENTS).optional();
+const restoredPageIn = z.object({
+  index: bookPreviousSpreadSchema.shape.index,
+  spread: z.object({
+    ...restoredFields(bookSpreadSchema.omit({ id: true, elements: true, parked: true })).shape,
+    id: bookSpreadSchema.shape.id,
+    elements: restoredElementsIn,
+    parked: restoredElementsIn,
+  }),
+});
+
 export const restoreBookPageArgs = {
-  pages: z.array(bookPreviousSpreadSchema).min(1).max(BOOK_OP_LIMITS.pagesPerCall),
+  pages: z.array(restoredPageIn).min(1).max(BOOK_OP_LIMITS.pagesPerCall),
   expectedVersion: z.number().int().nonnegative(),
   expectedPages: z.array(bookPageDigestSchema).min(1).max(BOOK_OP_LIMITS.pagesPerCall).optional(),
 };

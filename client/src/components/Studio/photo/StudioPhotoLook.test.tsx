@@ -1,7 +1,7 @@
 import { PHOTO_DUOTONES, PHOTO_LOOK_STARTS, bookPhotoElementSchema, type BookPhotoElement } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { fireEvent, render, screen } from '../../../../tests/helpers/render';
+import { cleanup, fireEvent, render, screen } from '../../../../tests/helpers/render';
 import { PhotoCropExtras, PhotoLookSections } from './StudioPhotoLook';
 
 /**
@@ -40,9 +40,13 @@ describe('beside the crop', () => {
     expect(set).not.toHaveBeenCalled();
     fireEvent.pointerUp(slider);
     expect(set).toHaveBeenCalledWith({ zoom: 1.5 });
-    fireEvent.change(slider, { target: { value: '1' } });
-    fireEvent.blur(slider);
-    expect(set).toHaveBeenLastCalledWith({ zoom: undefined });
+    // A zoomed picture taken back to 100 % leaves the zoom out of the document.
+    cleanup();
+    const zoomed = mount('crop', photo({ zoom: 1.5 }));
+    const back = screen.getByRole('slider');
+    fireEvent.change(back, { target: { value: '1' } });
+    fireEvent.blur(back);
+    expect(zoomed.set).toHaveBeenLastCalledWith({ zoom: undefined });
   });
 
   it('FE-STUDIO-LOOKUI-002: mirrors the picture and takes the mirror away again', () => {
@@ -71,7 +75,9 @@ describe('beside the crop', () => {
     mount('crop', photo({ zoom: 2 }));
     expect(screen.getByText('journey.studio.photo.dpi 127')).toBeTruthy();
     expect(screen.getByText('journey.studio.photo.dpiLow 200')).toBeTruthy();
-    expect(screen.getByRole('status').className).toContain('is-low');
+    // The slider's own readout is an output, a status too; the warning is the one marked low.
+    const warning = screen.getAllByRole('status').find((el) => el.classList.contains('st-photo-dpi'));
+    expect(warning?.className).toContain('is-low');
   });
 
   it('FE-STUDIO-LOOKUI-006: shows nothing for an empty frame', () => {

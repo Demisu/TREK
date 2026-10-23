@@ -104,14 +104,15 @@ describe('a sticker on a page', () => {
   it('JBASSET-003: edit_book_page places a sticker the library holds, in its proportions and the colours asked for', async () => {
     const { user: owner } = await makeUser(orm);
     const { journey, inner } = await bookFor(owner.id);
-    const element = { kind: 'sticker' as const, stickerId: 'eiffelTower', colors: ['#1d3557'] };
+    const element = { kind: 'sticker' as const, stickerId: 'eiffelTower' };
+    // The look follows the add in the same call, by the id the add gave it.
+    const colours = { kind: 'sticker' as const, colors: ['#1d3557'] };
+    const ops = [
+      { op: 'add' as const, element, id: 'tower' },
+      { op: 'style' as const, elementId: 'tower', set: colours },
+    ];
     const written = bookWriteResultSchema.parse(
-      json(
-        await mcp.editBookPage(
-          { journeyId: journey.id, spreadId: inner, ops: [{ op: 'add', element }] },
-          ctx(owner.id),
-        ),
-      ),
+      json(await mcp.editBookPage({ journeyId: journey.id, spreadId: inner, ops }, ctx(owner.id))),
     );
     expect(written.spread_ids).toEqual([inner]);
     const page = json(await mcp.describeBookPage({ journeyId: journey.id, spreadId: inner }, ctx(owner.id)));

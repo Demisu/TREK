@@ -196,10 +196,15 @@ function withPaintProps(el: BookShapeElement, props: Record<string, unknown>): B
 
 function opAdd(spread: BookSpread, op: Op<'add'>, env: ElementOpEnv): BookSpread {
   roomFor(spread, 1, env.opIndex);
+  // An id of the caller's own lets the operations after this one style or group the element it makes.
+  if (op.id !== undefined && [...spread.elements, ...spread.parked].some((e) => e.id === op.id)) {
+    throw failOp('id_in_use', `${op.id} is already on this page; choose another id`, env.opIndex, op.id);
+  }
   const blank = created(spread, op.element, op.frame ? roundFrame(op.frame) : null, env);
   const made = withProps(blank, lookOf(op.element), env.doc.theme);
   checkTextFillPhoto(made, env);
-  const el = op.rotation !== undefined ? { ...made, rotation: op.rotation } : made;
+  const turned = op.rotation !== undefined ? { ...made, rotation: op.rotation } : made;
+  const el = op.id !== undefined ? { ...turned, id: op.id } : turned;
   const parked =
     el.kind === 'photo' && el.photoId != null
       ? spread.parked.filter((p) => !(p.kind === 'photo' && p.photoId === el.photoId))

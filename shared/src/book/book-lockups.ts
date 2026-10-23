@@ -1,4 +1,5 @@
 import { groupElements } from './book-groups';
+import type { BookLockupRole } from './book-lockup-roles';
 import { BOOK_LOCKUPS } from './book-lockups.data';
 import type { BookTextCurve, BookTextTransform } from './book-text-effects.schema';
 import { solveBookTextFit } from './book-text-fit';
@@ -42,21 +43,7 @@ import type {
  * a double click still reaches a single part.
  */
 
-export const BOOK_LOCKUP_ROLES = [
-  'title',
-  'subtitle',
-  'kicker',
-  'overlay',
-  'year',
-  'place',
-  'dates',
-  'quote',
-  'caption',
-  'number',
-  'label',
-  'coords',
-] as const;
-export type BookLockupRole = (typeof BOOK_LOCKUP_ROLES)[number];
+export { BOOK_LOCKUP_ROLES, type BookLockupRole } from './book-lockup-roles';
 export type BookLockupWords = Partial<Record<BookLockupRole, string>>;
 
 /** The colours a lockup is set in, by what they do. */

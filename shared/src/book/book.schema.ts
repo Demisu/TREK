@@ -865,7 +865,7 @@ export const bookListElementSchema = z.object({
  */
 export const MAX_SPREAD_ELEMENTS = 90;
 
-export const bookElementSchema = z.discriminatedUnion('kind', [
+const bookElementUnion = z.discriminatedUnion('kind', [
   bookPhotoElementSchema,
   bookTextElementSchema,
   bookShapeElementSchema,
@@ -878,6 +878,18 @@ export const bookElementSchema = z.discriminatedUnion('kind', [
   bookStickerElementSchema,
   bookLineElementSchema,
 ]);
+type BookElementUnion = typeof bookElementUnion;
+/**
+ * The element contract under a name of its own. The declarations of every
+ * schema that holds elements (a spread, a document, the assistant's cards and
+ * renders) then refer to it rather than spelling out all eleven kinds again;
+ * those copies made the server's typecheck run out of memory. The one member
+ * keeps the interface from being empty; it is the union's own.
+ */
+export interface BookElementSchema extends BookElementUnion {
+  readonly options: BookElementUnion['options'];
+}
+export const bookElementSchema: BookElementSchema = bookElementUnion;
 export type BookElement = z.infer<typeof bookElementSchema>;
 export type BookIconElement = z.infer<typeof bookIconElementSchema>;
 export type BookStickerElement = z.infer<typeof bookStickerElementSchema>;
@@ -899,7 +911,7 @@ export const bookGroupSchema = z.object({
 });
 export type BookGroup = z.infer<typeof bookGroupSchema>;
 
-export const bookSpreadSchema = z.object({
+const bookSpreadObject = z.object({
   id: z.string().min(1),
   /**
    * Which leaf of the bound book this is.
@@ -937,6 +949,12 @@ export const bookSpreadSchema = z.object({
    */
   groups: z.array(bookGroupSchema).max(MAX_SPREAD_ELEMENTS).optional().catch(undefined),
 });
+type BookSpreadObject = typeof bookSpreadObject;
+/** The spread contract under a name of its own, for the same reason as `BookElementSchema`. */
+export interface BookSpreadSchema extends BookSpreadObject {
+  readonly shape: BookSpreadObject['shape'];
+}
+export const bookSpreadSchema: BookSpreadSchema = bookSpreadObject;
 export type BookSpread = z.infer<typeof bookSpreadSchema>;
 
 /**
@@ -1031,7 +1049,7 @@ export const bookLayoutSchema = z.object({
 });
 export type BookLayout = z.infer<typeof bookLayoutSchema>;
 
-export const bookDocumentSchema = z.object({
+const bookDocumentObject = z.object({
   /** In the document, not in a column: a format bump must not need a migration. */
   version: z.literal(1).catch(1).default(1),
   /** The format revision that wrote it (book-schema-rev.ts); absent, or unreadable and so dropped, reads as 1. */
@@ -1044,4 +1062,10 @@ export const bookDocumentSchema = z.object({
   /** Palette, typefaces and motifs; elements link to it through the fields of theme/book-theme.schema.ts. */
   theme: themed.bookThemeFieldSchema,
 });
+type BookDocumentObject = typeof bookDocumentObject;
+/** The document contract under a name of its own, for the same reason as `BookElementSchema`. */
+export interface BookDocumentSchema extends BookDocumentObject {
+  readonly shape: BookDocumentObject['shape'];
+}
+export const bookDocumentSchema: BookDocumentSchema = bookDocumentObject;
 export type BookDocument = z.infer<typeof bookDocumentSchema>;

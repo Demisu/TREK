@@ -149,24 +149,19 @@ export const bookFontSlotFieldSchema = z.enum(BOOK_FONT_SLOTS).optional().catch(
 /*
  * ── As the operations take them ─────────────────────────────────────────
  *
- * Strict and described, as every operation is: the tool schema is all a
- * model reads. Null on a link takes it away, so the element keeps its colour
- * and stops following the theme.
+ * Strict, as every operation is. Null on a link takes it away, so the element
+ * keeps its colour and stops following the theme.
  */
 
-export const bookColorTokenInSchema = z
-  .enum(BOOK_COLOR_TOKENS)
-  .nullable()
-  .describe(
-    "Link the colour to the book's theme: paper, ink, muted (the softer ink of captions), accent, accent2 or accent3. The colour is taken from the theme and follows it when the theme changes; null unlinks it and keeps the colour.",
-  );
+export const bookColorTokenInSchema = z.enum(BOOK_COLOR_TOKENS).nullable();
+export const bookFontSlotInSchema = z.enum(BOOK_FONT_SLOTS).nullable();
 
-export const bookFontSlotInSchema = z
-  .enum(BOOK_FONT_SLOTS)
-  .nullable()
-  .describe(
-    "Link the typeface to the theme's display (cover titles), heading, body or script face; it is set in that face now and whenever the theme changes. Null unlinks it.",
-  );
+/**
+ * What the links mean, said once in the page edit's description rather than
+ * on each of the fourteen fields that carry one (the tool schema's size).
+ */
+export const BOOK_THEME_LINK_HINT =
+  "token, strokeToken and accentToken link a colour to the book's theme (paper, ink, muted for captions, accent, accent2, accent3): it takes the theme's colour and follows it; fontRole links the typeface to the theme's display, heading, body or script face. null unlinks and keeps the colour or face.";
 
 const paletteIn = z.strictObject({
   paper: hex.optional(),

@@ -65,7 +65,9 @@ export function caseStyle(el: BookTextElement): {
   return {};
 }
 
-const ANCHOR = { left: 'start', center: 'middle', right: 'end', justify: 'start' } as const;
+/** The SVG anchor of a text's alignment, in the page's own left to right coordinates; justified sets from the start. */
+const anchorOf = (align: BookTextElement['align']): 'start' | 'middle' | 'end' =>
+  align === 'center' ? 'middle' : align === 'right' ? 'end' : 'start';
 /** How far across the frame, and along a curve, each anchor sits. */
 const ACROSS = { start: 0, middle: 0.5, end: 1 } as const;
 /** How far down the frame's spare room the block of lines sits. */
@@ -76,13 +78,13 @@ export function lineAnchor(
   align: BookTextElement['align'],
   w: number
 ): { x: number; anchor: 'start' | 'middle' | 'end' } {
-  const anchor = ANCHOR[align];
+  const anchor = anchorOf(align);
   return { x: w * ACROSS[anchor], anchor };
 }
 
 /** The same anchor along a curve: where on the path the words are pinned. */
 export function curveAnchor(align: BookTextElement['align']): { offset: string; anchor: 'start' | 'middle' | 'end' } {
-  const anchor = ANCHOR[align];
+  const anchor = anchorOf(align);
   return { offset: `${ACROSS[anchor] * 100}%`, anchor };
 }
 

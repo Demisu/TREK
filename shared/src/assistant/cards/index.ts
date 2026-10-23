@@ -36,7 +36,7 @@ export * from './vacay.contract';
  * `<pkg>.contract.ts`; the server builds every card from the tool's own
  * answer and checks it against this union before it is sent.
  */
-export const trekCardSchema = z.discriminatedUnion('kind', [
+const trekCardUnion = z.discriminatedUnion('kind', [
   ...TOUR_CARD_SCHEMAS,
   ...ROADTRIP_CARD_SCHEMAS,
   ...BUDGET_CARD_SCHEMAS,
@@ -51,6 +51,17 @@ export const trekCardSchema = z.discriminatedUnion('kind', [
   ...BOOK_DESIGN_CARD_SCHEMAS,
   ...HOME_CARD_SCHEMAS,
 ]);
+type TrekCardUnion = typeof trekCardUnion;
+/**
+ * The card union under a name of its own: the message, part and thread
+ * schemas that hold cards then refer to it instead of spelling out every kind
+ * again, which made the server's typecheck run out of memory. The one member
+ * keeps the interface from being empty; it is the union's own.
+ */
+export interface TrekCardSchema extends TrekCardUnion {
+  readonly options: TrekCardUnion['options'];
+}
+export const trekCardSchema: TrekCardSchema = trekCardUnion;
 export type TrekCard = z.infer<typeof trekCardSchema>;
 export type TrekCardKind = TrekCard['kind'];
 export type TrekCardOf<K extends TrekCardKind> = Extract<TrekCard, { kind: K }>;

@@ -1,5 +1,5 @@
 import { idSchema } from '../common/primitives.schema';
-import { BOOK_LOCKUP_ROLES } from './book-lockups';
+import { BOOK_LOCKUP_ROLES } from './book-lockup-roles';
 import { BOOK_LOCKUPS } from './book-lockups.data';
 import { BOOK_TEXT_EFFECT_FIELDS } from './book-text-effects.schema';
 

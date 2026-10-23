@@ -146,13 +146,11 @@ export function LineInspector({
           <Line label={t('journey.studio.strokeStyle')} wide>
             <Choice
               value={el.dash}
-              options={(
-                [
-                  ['solid', 'strokeSolid'],
-                  ['dashed', 'strokeDashed'],
-                  ['dotted', 'strokeDotted'],
-                ] as const
-              ).map(([value, key]) => ({ value, label: t(`journey.studio.${key}`) }))}
+              options={[
+                { value: 'solid' as const, label: t('journey.studio.strokeSolid') },
+                { value: 'dashed' as const, label: t('journey.studio.strokeDashed') },
+                { value: 'dotted' as const, label: t('journey.studio.strokeDotted') },
+              ]}
               onPick={(dash) => set({ dash })}
             />
           </Line>

@@ -673,7 +673,7 @@ describe('format revisions', () => {
   it('JBOOK-012: refuses a document newer than this server reads, first save and later save alike', async () => {
     const { user } = createUser(testDb);
     const journey = createJourney(testDb, user.id);
-    const ahead = { ...doc('ahead'), schemaRev: 9 };
+    const ahead = { ...doc('ahead'), schemaRev: BOOK_SCHEMA_REV + 1 };
     const first = await catchDomainError(() => books.saveBook(journey.id, user.id, { title: 'T', document: ahead }));
     expect(refusalOf(first)).toEqual([409, 'book_schema_newer', 'book_schema_newer']);
     expect(await books.getBook(journey.id, user.id)).toBeNull();

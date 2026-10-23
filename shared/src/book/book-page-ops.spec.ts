@@ -6,6 +6,7 @@ import {
   bookDocumentSchema,
   bookPageSetupSchema,
   bookPhotoElementSchema,
+  bookSpreadSchema,
   bookTextElementSchema,
   type BookDocument,
   type BookPhotoElement,
@@ -257,6 +258,40 @@ describe('restore', () => {
     expect(refused(restoreBookPage(doc, args({ ...page, elements: [] })))).toBe('locked');
     const newLock = { ...lockedText, id: 't-new' };
     expect(refused(restoreBookPage(doc, args({ ...page, elements: [lockedText, newLock] })))).toBe('locked');
+  });
+
+  it('BOOKPG-027: reads a page put back as a spread reads it, every kind placed or parked, with or without its defaults', () => {
+    const base = book(1);
+    const frame = { x: 20, y: 20, w: 60, h: 40 };
+    // As an undo kept from before a field existed would hold it: only what was set.
+    const raw = {
+      id: 'sp-in1',
+      elements: [
+        { id: 'p1', kind: 'photo', frame, photoId: null },
+        { id: 't1', kind: 'text', frame, text: 'Hi', outline: { color: '#000000', width: 0.5 }, group: 'g1' },
+        { id: 's1', kind: 'shape', frame, shape: 'ellipse' },
+        { id: 'm1', kind: 'stats', frame, metrics: ['distance'], token: 'accent' },
+        {
+          id: 'l1',
+          kind: 'line',
+          frame,
+          points: [
+            { x: 0, y: 0 },
+            { x: 1, y: 1 },
+          ],
+        },
+      ],
+      parked: [{ id: 'b1', kind: 'badge', frame, text: '2 June' }],
+    };
+    const spread = bookSpreadSchema.parse(raw);
+    for (const given of [spread, raw]) {
+      const back = ok(restoreBookPage(base, { pages: [{ spread: given, index: 2 }], expectedVersion: 1 }));
+      expect(back.spreads[2]).toEqual(spread);
+    }
+    const wrong = { ...raw, elements: [{ id: 't2', kind: 'text', frame, text: 'Hi', color: 'red' }] };
+    expect(refused(restoreBookPage(base, { pages: [{ spread: wrong, index: 2 }], expectedVersion: 1 }))).toBe(
+      'invalid_op',
+    );
   });
 });
 

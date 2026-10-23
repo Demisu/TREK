@@ -109,9 +109,9 @@ function isCoverTitle(el: Extract<BookElement, { kind: 'text' }>, spread: BookSp
 /** A designed element with its links to the look. */
 function linkToLook(el: BookElement, spread: BookSpread, look: BookDesignLook): BookElement {
   switch (el.kind) {
+    // A line keeps the colour it was drawn in (book-line.schema.ts has no theme link).
     case 'photo':
     case 'sticker':
-    // A line keeps the colour it was drawn in (book-line.schema.ts has no theme link).
     case 'line':
       return el;
     case 'text': {

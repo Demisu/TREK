@@ -64,9 +64,9 @@ export function themedElement<E extends BookElement>(el: E, theme: BookTheme): E
   if (el.locked) return el;
   const next: Record<string, unknown> = { ...el };
   switch (el.kind) {
+    // A line keeps the colour it was drawn in (book-line.schema.ts has no theme link).
     case 'photo':
     case 'sticker':
-    // A line keeps the colour it was drawn in (book-line.schema.ts has no theme link).
     case 'line':
       return el;
     case 'text': {

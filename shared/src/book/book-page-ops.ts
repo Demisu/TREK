@@ -23,6 +23,7 @@ import {
 import { blankSpread, canEditSpread, innerSpreadBounds } from './book-pages';
 import {
   MAX_SPREADS,
+  bookSpreadSchema,
   type BookDocument,
   type BookElement,
   type BookPhotoElement,
@@ -140,8 +141,11 @@ export function deleteBookPages(doc: BookDocument, args: unknown): BookEditResul
 export function restoreBookPage(doc: BookDocument, args: unknown, ctx: BookOpsContext = {}): BookEditResult {
   const parsed = restoreBookPageRequestSchema.safeParse(args);
   if (!parsed.success) return { ok: false, error: invalidOp(parsed.error, null) };
-  const pages = [...parsed.data.pages].sort((a, b) => a.index - b.index);
   return caught(() => {
+    // Read again as the spread it is: the tool takes it in a shape that states each field once (book-ops.schema.ts).
+    const pages = parsed.data.pages
+      .map((p) => ({ index: p.index, spread: bookSpreadSchema.parse(p.spread) }))
+      .sort((a, b) => a.index - b.index);
     let cur = doc;
     for (const { spread, index } of pages) {
       restorablePhotos(spread, cur, ctx);

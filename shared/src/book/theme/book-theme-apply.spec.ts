@@ -121,8 +121,10 @@ describe('adopting what is not linked', () => {
     const sp = page([photo(), scrim, white, locked]);
     const done = adoptSpread(sp, adoptionMap(book([sp]), null), null);
     const byId = new Map(done.elements.map((e) => [e.id, e]));
-    expect(byId.get('sc')).toBe(scrim);
-    expect(byId.get('l')).toBe(locked);
+    // The page's own objects come back, the parse having copied the ones handed in.
+    const own = new Map(sp.elements.map((e) => [e.id, e]));
+    expect(byId.get('sc')).toBe(own.get('sc'));
+    expect(byId.get('l')).toBe(own.get('l'));
     expect((byId.get('w') as BookElement & { token?: string }).token).toBeUndefined();
     expect('token' in (byId.get('w') as object)).toBe(false);
   });

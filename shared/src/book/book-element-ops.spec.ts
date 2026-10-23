@@ -1,7 +1,7 @@
 import type { AutoEntry } from './auto/auto-types';
 import { applyBookOps } from './book-ops';
 import type { BookOpsContext } from './book-ops-core';
-import type { BookPageOpInput } from './book-ops.schema';
+import { editBookPageRequestSchema, type BookPageOpInput } from './book-ops.schema';
 import { blankBook } from './book-pages';
 import type { BookTravelContext } from './book-travel';
 import {
@@ -337,5 +337,30 @@ describe('travel figures, grids and the auto layout', () => {
     const op = { op: 'text' as const, elementId: 't-1', italic: true, leading: 2, tracking: 0.1 };
     const doc = ok(run(book([text('t-1', 'Hi')]), [op]));
     expect(find(doc, 't-1')).toMatchObject({ italic: true, leading: 2, tracking: 0.1 });
+  });
+});
+
+describe('a new element and its look', () => {
+  it('BOOKEL-018: add takes an id of its own, style names it in the same call, and a second element cannot take the id', () => {
+    const doc = ok(
+      run(book([]), [
+        { op: 'add', element: { kind: 'text', text: 'Reykjavik' }, id: 'title' },
+        { op: 'style', elementId: 'title', set: { kind: 'text', size: 40, color: '#c0392b' } },
+      ]),
+    );
+    expect(find(doc, 'title')).toMatchObject({ kind: 'text', text: 'Reykjavik', size: 40, color: '#c0392b' });
+    const again = run(doc, [{ op: 'add', element: { kind: 'text', text: 'Again' }, id: 'title' }]);
+    expect(refusal(again)).toBe('id_in_use');
+  });
+
+  it('BOOKEL-019: the page edit takes add by what the element is, while a change kept with its look still runs', () => {
+    const edit = (element: Record<string, unknown>) => ({ spreadId: 'sp-in', ops: [{ op: 'add', element }] });
+    expect(editBookPageRequestSchema.safeParse(edit({ kind: 'text', text: 'Hi' })).success).toBe(true);
+    expect(editBookPageRequestSchema.safeParse(edit({ kind: 'text', text: 'Hi', size: 30 })).success).toBe(false);
+    expect(
+      editBookPageRequestSchema.safeParse(edit({ kind: 'shape', shape: 'ellipse', fill: '#ff0000' })).success,
+    ).toBe(false);
+    const kept = ok(run(book([]), [{ op: 'add', element: { kind: 'text', text: 'Hi', size: 30 }, id: 'kept' }]));
+    expect(find(kept, 'kept')).toMatchObject({ size: 30 });
   });
 });

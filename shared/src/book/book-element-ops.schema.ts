@@ -1,5 +1,5 @@
 import { idSchema } from '../common/primitives.schema';
-import { BOOK_EDGE_PROPS, LINE_PROPS } from './book-line-ops.schema';
+import { BOOK_EDGE_PROPS, LINE_PROPS, bookLinePointsInSchema } from './book-line-ops.schema';
 import {
   BOOK_BINDING_HINT,
   bookBadgeStyleSchema,
@@ -21,6 +21,7 @@ import {
   bookRouteDashSchema,
   bookRouteStyleSchema,
   bookShapeGradientSchema,
+  bookShapeIdRefSchema,
   bookShapeIdSchema,
   bookStatsLayoutSchema,
   bookStrokeStyleSchema,
@@ -95,14 +96,16 @@ const TYPESET = {
   ...THEMED_TYPESET_IN,
 };
 
+// The page edit's photo_look says in full what each of these means; `style` points there.
+const AS_PHOTO_LOOK = 'As photo_look takes it.';
 const PHOTO_PROPS = {
   ...COMMON,
-  fit: bookPhotoFitSchema.optional(),
+  fit: bookPhotoFitSchema.describe(AS_PHOTO_LOOK).optional(),
   focalX: unit01.optional(),
   focalY: unit01.optional(),
-  mask: bookPhotoMaskSchema.optional(),
-  frameStyle: bookFrameStyleSchema.optional(),
-  filter: bookPhotoFilterSchema.optional(),
+  mask: bookPhotoMaskSchema.describe(AS_PHOTO_LOOK).optional(),
+  frameStyle: bookFrameStyleSchema.describe(AS_PHOTO_LOOK).optional(),
+  filter: bookPhotoFilterSchema.describe(AS_PHOTO_LOOK).optional(),
   radius: z.number().finite().min(0).max(500).optional(),
   ...BOOK_EDGE_PROPS,
 };
@@ -118,13 +121,21 @@ export const TEXT_STYLE_FIELDS = {
   color: text.color.unwrap().optional(),
 };
 /** A text's look for `style` and `add`: its setting, its theme links and its effects (book-text-ops.schema.ts). */
-const TEXT_PROPS = { ...COMMON, ...TEXT_STYLE_FIELDS, ...THEMED_TEXT_IN, ...TEXT_EFFECT_PROPS };
+const TEXT_PROPS = {
+  ...COMMON,
+  ...TEXT_STYLE_FIELDS,
+  // The text operation says what each face and weight is; here they point there, so the schema says it once.
+  font: bookFontIdSchema.describe('A typeface id, as the text operation lists them.').optional(),
+  weight: bookWeightSchema.describe('100 to 900, as for the text operation.').optional(),
+  ...THEMED_TEXT_IN,
+  ...TEXT_EFFECT_PROPS,
+};
 const SHAPE_PROPS = {
   ...COMMON,
   fill: shape.fill.unwrap().optional(),
   gradient: bookShapeGradientSchema.optional(),
   /** Overrides fill and gradient when given; null takes the fill away. A plain fill or gradient clears it. */
-  paint: bookPaintInSchema.nullable().optional(),
+  paint: bookPaintInSchema.describe('A paint, as background takes it; null takes the fill away.').nullable().optional(),
   stroke: shape.stroke.unwrap().optional(),
   strokeWidth: z.number().finite().min(0).max(20).optional(),
   strokeStyle: bookStrokeStyleSchema.optional(),
@@ -209,7 +220,7 @@ export const bookElementPropsSchema = z.discriminatedUnion('kind', [
   // The photo look only here, not on `add`: a new frame is styled after it exists, and the field list stays out of the add schema twice over.
   z.strictObject({ kind: z.literal('photo'), ...PHOTO_PROPS, ...BOOK_PHOTO_LOOK_PROPS }),
   z.strictObject({ kind: z.literal('text'), ...TEXT_PROPS }),
-  z.strictObject({ kind: z.literal('shape'), shape: bookShapeIdSchema.optional(), ...SHAPE_PROPS }),
+  z.strictObject({ kind: z.literal('shape'), shape: bookShapeIdRefSchema.optional(), ...SHAPE_PROPS }),
   z.strictObject({ kind: z.literal('icon'), ...ICON_PROPS }),
   z.strictObject({ kind: z.literal('sticker'), ...STICKER_PROPS }),
   z.strictObject({ kind: z.literal('map'), ...MAP_PROPS }),
@@ -258,77 +269,109 @@ const listItem = z.strictObject({
  */
 const mapScope = z.union([z.literal('journey'), z.strictObject({ tripId: idSchema })]);
 
-/**
- * What to create: the kind, where its content comes from, and its look. A text
+/*
+ * What a new element is, kind by kind: where its content comes from. A text
  * needs its words or a binding (the engine has no translated sample words); a
  * list needs an entry (its pros and cons) or its lines.
  */
-export const bookNewElementSchema = z.discriminatedUnion('kind', [
-  z.strictObject({ kind: z.literal('photo'), photoId: idSchema.optional(), ...PHOTO_PROPS }),
-  z
-    .strictObject({
-      kind: z.literal('text'),
-      preset: z
-        .enum(BOOK_TEXT_PRESETS)
-        .describe('A Studio text preset: heading, subheading, body, caption, or quote (the large quotation mark).')
-        .optional(),
-      text: z.string().max(2000).optional(),
-      binding: bindingIn.optional(),
-      ...TEXT_PROPS,
-    })
-    .refine((v) => v.text !== undefined || v.binding !== undefined, { message: 'give the words or a binding' }),
-  z.strictObject({ kind: z.literal('shape'), shape: bookShapeIdSchema, ...SHAPE_PROPS }),
-  z.strictObject({ kind: z.literal('icon'), name: bookIconNameSchema, ...ICON_PROPS }),
-  z.strictObject({ kind: z.literal('sticker'), stickerId: bookStickerIdSchema, ...STICKER_PROPS }),
-  z.strictObject({
-    kind: z.literal('map'),
-    scope: mapScope,
-    source: bookMapSourceSchema.optional(),
-    ...MAP_PROPS,
-  }),
-  z.strictObject({ kind: z.literal('stats'), metrics: METRICS, ...STATS_PROPS }),
-  z.strictObject({
-    kind: z.literal('countries'),
-    codes: z.array(iso2).max(MAX_BOOK_COUNTRIES).optional(),
-    ...COUNTRIES_PROPS,
-  }),
-  z.strictObject({
-    kind: z.literal('badge'),
+const textContent = {
+  preset: z
+    .enum(BOOK_TEXT_PRESETS)
+    .describe('A Studio text preset: heading, subheading, body, caption, or quote (the large quotation mark).')
+    .optional(),
+  text: z.string().max(2000).optional(),
+  binding: bindingIn.describe('Words read from the journey, bound as the text operation binds them.').optional(),
+};
+const hasWords = (v: { text?: string; binding?: unknown }) => v.text !== undefined || v.binding !== undefined;
+const WORDS_NEEDED = { message: 'give the words or a binding' };
+const listContent = { entryId: idSchema.optional(), items: z.array(listItem).max(60).optional() };
+const oneListSource = (v: { entryId?: number; items?: unknown[] }) =>
+  (v.entryId === undefined) !== (v.items === undefined);
+const ONE_LIST_SOURCE = { message: 'give an entryId or the items, not both' };
+const NEW_CONTENT = {
+  photo: { photoId: idSchema.optional() },
+  shape: { shape: bookShapeIdSchema },
+  icon: { name: bookIconNameSchema },
+  sticker: { stickerId: bookStickerIdSchema },
+  map: { scope: mapScope, source: bookMapSourceSchema.optional() },
+  stats: { metrics: METRICS },
+  countries: { codes: z.array(iso2).max(MAX_BOOK_COUNTRIES).optional() },
+  badge: {
     variant: bookBadgeVariantSchema,
     entryId: idSchema.optional(),
     code: z.string().max(24).optional(),
     text: z.string().max(200).optional(),
     sub: z.string().max(200).optional(),
-    ...BADGE_PROPS,
-  }),
-  z
-    .strictObject({
-      kind: z.literal('list'),
-      entryId: idSchema.optional(),
-      items: z.array(listItem).max(60).optional(),
-      ...LIST_PROPS,
-    })
-    .refine((v) => (v.entryId === undefined) !== (v.items === undefined), {
-      message: 'give an entryId or the items, not both',
-    }),
+  },
+  line: { points: bookLinePointsInSchema.optional() },
+};
+
+/**
+ * What to create with its look, as the engine runs `add`: the content and any
+ * field `style` takes for the kind. A change kept in an assistant card holds
+ * its operations in this form, so it reads whichever way it was written.
+ */
+export const bookNewElementSchema = z.discriminatedUnion('kind', [
+  z.strictObject({ kind: z.literal('photo'), ...NEW_CONTENT.photo, ...PHOTO_PROPS }),
+  z.strictObject({ kind: z.literal('text'), ...textContent, ...TEXT_PROPS }).refine(hasWords, WORDS_NEEDED),
+  z.strictObject({ kind: z.literal('shape'), ...NEW_CONTENT.shape, ...SHAPE_PROPS }),
+  z.strictObject({ kind: z.literal('icon'), ...NEW_CONTENT.icon, ...ICON_PROPS }),
+  z.strictObject({ kind: z.literal('sticker'), ...NEW_CONTENT.sticker, ...STICKER_PROPS }),
+  z.strictObject({ kind: z.literal('map'), ...NEW_CONTENT.map, ...MAP_PROPS }),
+  z.strictObject({ kind: z.literal('stats'), ...NEW_CONTENT.stats, ...STATS_PROPS }),
+  z.strictObject({ kind: z.literal('countries'), ...NEW_CONTENT.countries, ...COUNTRIES_PROPS }),
+  z.strictObject({ kind: z.literal('badge'), ...NEW_CONTENT.badge, ...BADGE_PROPS }),
+  z.strictObject({ kind: z.literal('list'), ...listContent, ...LIST_PROPS }).refine(oneListSource, ONE_LIST_SOURCE),
   z.strictObject({ kind: z.literal('line'), ...LINE_PROPS }),
 ]);
 export type BookNewElement = z.infer<typeof bookNewElementSchema>;
 
+/**
+ * What the book tools take for a new element: its kind and content only. Its
+ * look is `style`'s, every field described there once; this keeps the page
+ * edit's tool schema, which every MCP client loads, within its size.
+ */
+const bookNewElementInSchema = z
+  .discriminatedUnion('kind', [
+    z.strictObject({ kind: z.literal('photo'), ...NEW_CONTENT.photo }),
+    z.strictObject({ kind: z.literal('text'), ...textContent }).refine(hasWords, WORDS_NEEDED),
+    z.strictObject({ kind: z.literal('shape'), ...NEW_CONTENT.shape }),
+    z.strictObject({ kind: z.literal('icon'), ...NEW_CONTENT.icon }),
+    z.strictObject({ kind: z.literal('sticker'), ...NEW_CONTENT.sticker }),
+    z.strictObject({ kind: z.literal('map'), ...NEW_CONTENT.map }),
+    z.strictObject({ kind: z.literal('stats'), ...NEW_CONTENT.stats }),
+    z.strictObject({ kind: z.literal('countries'), ...NEW_CONTENT.countries }),
+    z.strictObject({ kind: z.literal('badge'), ...NEW_CONTENT.badge }),
+    z.strictObject({ kind: z.literal('list'), ...listContent }).refine(oneListSource, ONE_LIST_SOURCE),
+    z.strictObject({ kind: z.literal('line'), ...NEW_CONTENT.line }),
+  ])
+  .describe(
+    'The kind and its content. Its look (colours, type, effects, the crop of a photo) is set with style: give the element an id here and style it by that id in the same call.',
+  );
+
 const hasProps = (set: Record<string, unknown>) => Object.keys(set).some((k) => k !== 'kind' && set[k] !== undefined);
 
+const ADD_FIELDS = {
+  frame: bookFrameInSchema.optional(),
+  rotation: z.number().finite().min(-360).max(360).optional(),
+  id: bookElementIdSchema
+    .describe('An id of your own for the new element, unused on the page, so later operations of the call can name it.')
+    .optional(),
+};
+/** Create an element; the frame defaults to the Studio panel's size, centred on the page. */
+const bookAddOpSchema = z.strictObject({ op: z.literal('add'), element: bookNewElementSchema, ...ADD_FIELDS });
+/** `add` as the book tools take it (book-ops.schema.ts joins it into their operations). */
+export const bookAddOpInSchema = z.strictObject({
+  op: z.literal('add'),
+  element: bookNewElementInSchema,
+  ...ADD_FIELDS,
+});
+
 /**
- * The new page operations, joined into `bookPageOpSchema` (book-ops.schema.ts
- * spreads them into its union).
+ * The element operations but `add`, which the engine's and the tools' unions
+ * each take in their own form (book-ops.schema.ts).
  */
-export const BOOK_ELEMENT_OP_SCHEMAS = [
-  /** Create an element; the frame defaults to the Studio panel's size, centred on the page. */
-  z.strictObject({
-    op: z.literal('add'),
-    element: bookNewElementSchema,
-    frame: bookFrameInSchema.optional(),
-    rotation: z.number().finite().min(-360).max(360).optional(),
-  }),
+export const BOOK_ELEMENT_EDIT_OP_SCHEMAS = [
   /** Restyle an element; `set.kind` must be the element's kind. */
   z
     .strictObject({ op: z.literal('style'), elementId: bookElementIdSchema, set: bookElementPropsSchema })
@@ -380,7 +423,14 @@ export const BOOK_ELEMENT_OP_SCHEMAS = [
   /** Bring travel figures up to date with the journey: the named elements, or every one on the page. */
   z.strictObject({ op: z.literal('refresh_travel'), elementIds: ids30.optional() }),
   /** A photo grid as empty frames in a box, the page's safe area by default. */
-  z.strictObject({ op: z.literal('add_grid'), grid: bookGridIdSchema, box: bookFrameInSchema.optional() }),
+  z.strictObject({
+    op: z.literal('add_grid'),
+    grid: bookGridIdSchema.describe('A grid id, as layout takes it.'),
+    box: bookFrameInSchema.optional(),
+  }),
   /** A lockup: a set title, badge, postmark, quote, caption or chapter mark (book-text-ops.schema.ts). */
   bookAddLockupOpSchema,
 ] as const;
+
+/** Every element operation as the engine runs it, joined into `bookPageOpSchema`. */
+export const BOOK_ELEMENT_OP_SCHEMAS = [bookAddOpSchema, ...BOOK_ELEMENT_EDIT_OP_SCHEMAS] as const;
