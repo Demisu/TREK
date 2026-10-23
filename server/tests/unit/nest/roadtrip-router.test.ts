@@ -588,3 +588,89 @@ describe('server Roadtrip router, a hike: its costing, heights and ways', () => 
     await expect(setup().router.wayIds(1, line(3))).rejects.toThrow();
   });
 });
+
+describe('server Roadtrip router: other ways on foot (RTE-02)', () => {
+  const trip = (points: Array<[number, number]>) => ({
+    legs: [{ shape: valhallaPolyline(points), summary: { length: 1.2, time: 900 } }],
+  });
+
+  it('ROUTER-WAYS-001: asks Valhalla once on foot under the hike’s costing, its own way first', async () => {
+    vi.mocked(safeFetchAdminConfigured).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          trip: trip([
+            [47, 11],
+            [47.01, 11.01],
+          ]),
+          alternates: [
+            {
+              trip: trip([
+                [47, 11],
+                [47.02, 11],
+                [47.01, 11.01],
+              ]),
+            },
+          ],
+        }),
+      ),
+    );
+    const { router } = setup({ valhalla_base_url: 'https://valhalla.internal/' });
+    const ways = await router.alternatesOnFoot(
+      1,
+      { lat: 47, lng: 11 },
+      { lat: 47.01, lng: 11.01 },
+      { max_hiking_difficulty: 3 },
+      3,
+    );
+    expect(ways).toEqual([
+      [
+        [47, 11],
+        [47.01, 11.01],
+      ],
+      [
+        [47, 11],
+        [47.02, 11],
+        [47.01, 11.01],
+      ],
+    ]);
+    const [url, init] = vi.mocked(safeFetchAdminConfigured).mock.calls[0] ?? [];
+    expect(url).toBe('https://valhalla.internal/route');
+    expect(JSON.parse(String((init as RequestInit).body))).toMatchObject({
+      costing: 'pedestrian',
+      costing_options: { pedestrian: { max_hiking_difficulty: 3 } },
+      alternates: 3,
+      locations: [
+        { lat: 47, lon: 11 },
+        { lat: 47.01, lon: 11.01 },
+      ],
+    });
+  });
+
+  it('ROUTER-WAYS-002: an answer without alternates is the one way; no Valhalla refuses before asking', async () => {
+    vi.mocked(safeFetchAdminConfigured).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          trip: trip([
+            [47, 11],
+            [47.01, 11.01],
+          ]),
+        }),
+      ),
+    );
+    const ways = await setup().router.alternatesOnFoot(1, { lat: 47, lng: 11 }, { lat: 47.01, lng: 11.01 }, {}, 0);
+    expect(ways).toHaveLength(1);
+    const body = JSON.parse(String((vi.mocked(safeFetchAdminConfigured).mock.calls[0]?.[1] as RequestInit).body));
+    expect(body.alternates).toBeUndefined();
+    vi.mocked(safeFetchAdminConfigured).mockClear();
+    await expect(
+      setup({ routing_base_url: 'http://router.internal' }).router.alternatesOnFoot(
+        1,
+        { lat: 47, lng: 11 },
+        { lat: 47.01, lng: 11.01 },
+        {},
+        3,
+      ),
+    ).rejects.toMatchObject({ why: 'no_valhalla' });
+    expect(safeFetchAdminConfigured).not.toHaveBeenCalled();
+  });
+});

@@ -1,9 +1,8 @@
-import { isClosedLoop, type PlannableTourType } from '@trek/shared';
+import { distanceWindow, isClosedLoop, isRoundTarget, spotToward, type PlannableTourType } from '@trek/shared';
 import type { DistanceUnit } from '../../../types';
 import { convertDistance } from '../../../utils/units';
 import type { CostingOptions } from '../../Map/valhallaRoute';
 import { OTHER_WAY_KEYS, type LegVariant } from './legVariants';
-import { spotToward } from './roundHikeGeometry';
 import type { TourPlannerWaypoint } from './tourPlannerWaypoints';
 import { closeLoop } from './tourRouteActions';
 
@@ -15,15 +14,6 @@ import { closeLoop } from './tourRouteActions';
  */
 
 type Spot = { lat: number; lng: number };
-
-/** How far a round may lie off the wished length and still be offered: a fifth either way. */
-export const ROUND_TOLERANCE = 0.2;
-/** The shortest round asked for, in metres: below it there is hardly a loop to walk. */
-export const ROUND_MIN_M = 1_000;
-/** The longest round asked for, in metres: a long day on foot, and as far as the router is asked to plan in one go. */
-export const ROUND_MAX_M = 60_000;
-/** The length a search starts with, in metres, until one was asked for. */
-export const ROUND_DEFAULT_M = 10_000;
 
 /** The rounds one search offers at most, lettered and coloured like the other ways of a section. */
 export const ROUND_KEYS = OTHER_WAY_KEYS;
@@ -46,22 +36,6 @@ export interface RoundRequest {
   key: string;
 }
 
-/** The shortest and longest round that fits a wish of `targetM`. */
-export function distanceWindow(targetM: number): { minM: number; maxM: number } {
-  return { minM: targetM * (1 - ROUND_TOLERANCE), maxM: targetM * (1 + ROUND_TOLERANCE) };
-}
-
-/** Whether a round of `distanceM` fits a wish of `targetM`. */
-export function fitsWish(distanceM: number, targetM: number): boolean {
-  const { minM, maxM } = distanceWindow(targetM);
-  return distanceM >= minM && distanceM <= maxM;
-}
-
-/** How far a round lies off the wish, as a signed share: 0.08 is 8 % longer, -0.05 is 5 % shorter. */
-export function deviationOf(distanceM: number, targetM: number): number {
-  return (distanceM - targetM) / targetM;
-}
-
 /**
  * A length as typed in the traveller's unit, in metres; a comma reads as a
  * decimal point. Null while the text is no number.
@@ -76,11 +50,6 @@ export function metersTyped(text: string, unit: DistanceUnit): number | null {
 /** A length in metres as the field shows it: in the traveller's unit, to one decimal. */
 export function typedLength(meters: number, unit: DistanceUnit): string {
   return String(Math.round(convertDistance(meters / 1000, unit) * 10) / 10);
-}
-
-/** Whether a wished length can be asked for at all. */
-export function isRoundTarget(targetM: number | null): targetM is number {
-  return targetM !== null && Number.isFinite(targetM) && targetM >= ROUND_MIN_M && targetM <= ROUND_MAX_M;
 }
 
 /**

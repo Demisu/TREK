@@ -1,7 +1,8 @@
 /**
  * RTE-03: the plain geometry a round hike is searched with. Where the loop is
  * steered through, and how much of a routed line covers the same ground twice
- * or the ground of another line. Nothing here asks a router.
+ * or the ground of another line. Nothing here asks a router: the planner in
+ * the browser and the assistant on the server search with the same rules.
  */
 
 type Spot = { lat: number; lng: number };
@@ -56,21 +57,26 @@ interface Sample {
   along: number;
 }
 
+type Projector = (point: readonly [number, number]) => { x: number; y: number };
+
 /** A flat projection in metres around one latitude, good for the few kilometres a hike spans. */
-function projector(refLat: number) {
+function projector(refLat: number): Projector {
   const perDegLat = (Math.PI * EARTH_M) / 180;
   const perDegLng = perDegLat * Math.cos(toRad(refLat));
-  return ([lat, lng]: readonly [number, number]) => ({ x: lng * perDegLng, y: lat * perDegLat });
+  return ([lat, lng]) => ({ x: lng * perDegLng, y: lat * perDegLat });
 }
 
 /** The line as samples every few metres, each with how far along the line it lies. */
-function samplesOf(line: Line, project: ReturnType<typeof projector>): Sample[] {
+function samplesOf(line: Line, project: Projector): Sample[] {
   const samples: Sample[] = [];
   let along = 0;
   let next = 0;
   for (let i = 1; i < line.length; i += 1) {
-    const a = project(line[i - 1]);
-    const b = project(line[i]);
+    const before = line[i - 1];
+    const here = line[i];
+    if (!before || !here) continue;
+    const a = project(before);
+    const b = project(here);
     const length = Math.hypot(b.x - a.x, b.y - a.y);
     while (next <= along + length) {
       const share = length > 0 ? (next - along) / length : 0;
@@ -117,20 +123,22 @@ function hasNeighbour(grid: Map<string, Sample[]>, sample: Sample, counts: (othe
  * back shares all of it.
  */
 export function retracedShare(line: Line): number {
-  if (line.length < 2) return 0;
-  const samples = samplesOf(line, projector(line[0][0]));
+  const first = line[0];
+  if (!first || line.length < 2) return 0;
+  const samples = samplesOf(line, projector(first[0]));
   if (samples.length < 2) return 0;
   const grid = gridOf(samples);
   const twice = samples.filter((sample) =>
-    hasNeighbour(grid, sample, (other) => Math.abs(other.along - sample.along) > SECOND_PASS_M)
+    hasNeighbour(grid, sample, (other) => Math.abs(other.along - sample.along) > SECOND_PASS_M),
   ).length;
   return twice / samples.length;
 }
 
 /** The share of line `a` that lies on the ground of line `b`, from 0 to 1. */
 export function sharedShare(a: Line, b: Line): number {
-  if (a.length < 2 || b.length < 2) return 0;
-  const project = projector(a[0][0]);
+  const first = a[0];
+  if (!first || a.length < 2 || b.length < 2) return 0;
+  const project = projector(first[0]);
   const samples = samplesOf(a, project);
   if (samples.length === 0) return 0;
   const grid = gridOf(samplesOf(b, project));

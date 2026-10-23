@@ -132,6 +132,11 @@ export const TOUR_LOOK = {
     search_tour_pois: { stepKey: 'assistant.step.tourPois' },
     get_city_walk_progress: { stepKey: 'assistant.step.readingTour' },
     get_tour_trail_details: { stepKey: 'assistant.step.readingTour' },
+    propose_round_hike: { stepKey: 'assistant.step.findingRounds' },
+    propose_hike_leg_way: { stepKey: 'assistant.step.findingWays' },
+    search_wanderer_trails: { stepKey: 'assistant.step.searchingWanderer' },
+    preview_wanderer_trail: { stepKey: 'assistant.step.readingTrail' },
+    check_tour_source: { stepKey: 'assistant.step.checkingSource' },
   },
   entities: {
     tour: {

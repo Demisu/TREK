@@ -1,17 +1,11 @@
-// FE-TOUR-ROUND-HIKES-001 to FE-TOUR-ROUND-HIKES-007: the model of round hikes out of a stop,
+// FE-TOUR-ROUND-HIKES-002 to FE-TOUR-ROUND-HIKES-007: the model of round hikes out of a stop,
 // when a round fits the wish, what a search asks and the plan a chosen round becomes (RTE-03).
 import { isClosedLoop } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 import { haversineKm } from '../../../utils/geo';
 import {
   canStartRound,
-  deviationOf,
-  distanceWindow,
-  fitsWish,
-  isRoundTarget,
   metersTyped,
-  ROUND_MAX_M,
-  ROUND_MIN_M,
   roundPlanOf,
   roundRequestOf,
   roundStarts,
@@ -27,25 +21,7 @@ const BACK: TourPlannerWaypoint = { id: 'back', lat: 47.5, lng: 11.1, role: 'end
 const COSTING = { max_hiking_difficulty: 2 };
 
 describe('the wished length', () => {
-  it('FE-TOUR-ROUND-HIKES-001: a round fits within a fifth either way, and its deviation is signed', () => {
-    const { minM, maxM } = distanceWindow(10_000);
-    expect(minM).toBeCloseTo(8_000);
-    expect(maxM).toBeCloseTo(12_000);
-    expect(fitsWish(8_001, 10_000)).toBe(true);
-    expect(fitsWish(11_999, 10_000)).toBe(true);
-    expect(fitsWish(7_999, 10_000)).toBe(false);
-    expect(fitsWish(12_001, 10_000)).toBe(false);
-    expect(deviationOf(10_800, 10_000)).toBeCloseTo(0.08);
-    expect(deviationOf(9_500, 10_000)).toBeCloseTo(-0.05);
-  });
-
-  it('FE-TOUR-ROUND-HIKES-002: only a number in range can be asked for, typed in either unit', () => {
-    expect(isRoundTarget(null)).toBe(false);
-    expect(isRoundTarget(Number.NaN)).toBe(false);
-    expect(isRoundTarget(ROUND_MIN_M - 1)).toBe(false);
-    expect(isRoundTarget(ROUND_MIN_M)).toBe(true);
-    expect(isRoundTarget(ROUND_MAX_M)).toBe(true);
-    expect(isRoundTarget(ROUND_MAX_M + 1)).toBe(false);
+  it('FE-TOUR-ROUND-HIKES-002: a length is typed in either unit', () => {
     expect(metersTyped('12,5', 'metric')).toBe(12_500);
     expect(metersTyped(' 10 ', 'metric')).toBe(10_000);
     expect(metersTyped('', 'metric')).toBeNull();

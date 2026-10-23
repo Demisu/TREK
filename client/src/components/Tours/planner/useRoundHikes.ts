@@ -1,5 +1,6 @@
 import {
   hikingCosting,
+  ROUND_DEFAULT_M,
   type HikingPreferences,
   type PlannableTourType,
   type TourMaxHikingDifficulty,
@@ -10,7 +11,6 @@ import type { CostingOptions } from '../../Map/valhallaRoute';
 import { findRoundHikes, type RoundSearchReport } from './roundHikeRouting';
 import {
   canStartRound,
-  ROUND_DEFAULT_M,
   roundPlanOf,
   roundRequestOf,
   searchAreaOf,

@@ -83,6 +83,8 @@ const valhallaSchema = z.object({
   }),
 });
 type Point = { lat: number; lng: number };
+/** A Valhalla answer that asked for alternates: its own way, then each other way it offers. */
+const alternatesSchema = valhallaSchema.extend({ alternates: z.array(valhallaSchema).max(5).optional() });
 export interface RoadtripRoute {
   leg: RoutedLeg;
   parts: { distance: number; duration: number }[];
@@ -593,5 +595,34 @@ export class RoadtripRouterService {
     const valhalla = await this.valhallaFor(userId);
     if (!valhalla) throw new RouteRefusal('no_valhalla', 'No Valhalla is set to describe a line with');
     return tracedWaysOf(await this.request(`${valhalla}/trace_attributes`, traceBody(line), TRACE_TIMEOUT_MS));
+  }
+
+  /**
+   * RTE-02: the ways on foot between two points under a hike's own costing,
+   * the router's own first and then each other way it offers, at most
+   * `count` besides, as the planner asks them (`valhallaAlternates`). Asked of
+   * Valhalla alone through the paced queue: only Valhalla knows a hiking limit
+   * and offers alternates on foot. A `RouteRefusal` where there is no Valhalla
+   * or no way within the limit.
+   */
+  async alternatesOnFoot(
+    userId: number,
+    from: Point,
+    to: Point,
+    costingOptions: NonNullable<RouteOptions['costingOptions']>,
+    count: number,
+  ): Promise<Array<[number, number][]>> {
+    const valhalla = await this.valhallaFor(userId);
+    if (!valhalla) throw new RouteRefusal('no_valhalla', 'No Valhalla is set to plan a hike with');
+    const payload = await this.request(`${valhalla}/route`, {
+      locations: [from, to].map((p) => ({ lat: p.lat, lon: p.lng, radius: 50 })),
+      costing: 'pedestrian',
+      costing_options: { pedestrian: { ...costingOptions } },
+      directions_options: { units: 'kilometers' },
+      ...(count > 0 ? { alternates: count } : {}),
+    });
+    const parsed = alternatesSchema.parse(payload);
+    const trips = [parsed.trip, ...(parsed.alternates ?? []).map((alternate) => alternate.trip)];
+    return trips.map((trip) => trip.legs.flatMap((leg) => decode(leg.shape)));
   }
 }

@@ -7,6 +7,8 @@ import { PaddleRoutingService } from '../../../src/nest/paddle-routing/paddle-ro
 import { RoadtripRouterService } from '../../../src/nest/roadtrip/roadtrip-router.service';
 import { SkiRoutingService } from '../../../src/nest/ski-routing/ski-routing.service';
 import { proposalIdOf } from '../../../src/nest/tours/tour-change-proposal';
+import { ToursWandererService } from '../../../src/nest/tours/tours-wanderer.service';
+import { WandererService } from '../../../src/nest/wanderer/wanderer.service';
 import { makeDayAssignment } from '../../helpers/factories/itinerary';
 import { makePlace } from '../../helpers/factories/places';
 import { createRow, deleteRows, updateRows } from '../../helpers/factories/rows';
@@ -252,6 +254,53 @@ const gpxOf = (s: Scene) =>
   `<gpx><trk><name>Ridge ${s.n}</name><trkseg><trkpt lat="47.6" lon="11.3"><ele>800</ele></trkpt>` +
   '<trkpt lat="47.61" lon="11.3"><ele>1000</ele></trkpt></trkseg></trk></gpx>';
 
+/** The fingerprint of the wanderer trail a case's setup previewed, by the scene's number. */
+const trailHashFor = new Map<number, string>();
+
+function trailHash(s: Scene): string {
+  const hash = trailHashFor.get(s.n);
+  if (hash === undefined) throw new Error(`scene ${s.n}: the case's setup previewed no trail`);
+  return hash;
+}
+
+/** No wanderer instance in a test: the owner's own trail, found and downloaded as the connection would. */
+function wandererTrail(app: INestApplication): () => void {
+  const wanderer = app.get(WandererService);
+  const summary = {
+    id: 'trail-1',
+    name: 'Kesselberg',
+    description: null,
+    location: 'Kochel',
+    distanceM: 2200,
+    durationS: 3600,
+    elevationGainM: 200,
+    elevationLossM: 0,
+    difficulty: 'moderate' as const,
+    public: false,
+    author: 'owner',
+    line: [],
+    externalUrl: 'https://wanderer.example/trail/view/trail-1',
+  };
+  const found = vi.spyOn(wanderer, 'findTrail').mockResolvedValue(summary);
+  const download = vi.spyOn(wanderer, 'download').mockResolvedValue({
+    instance: 'https://wanderer.example',
+    trail: { id: 'trail-1', name: 'Kesselberg', description: null, author: 'owner', updated: null } as never,
+    gpx:
+      '<gpx><trk><name>Kesselberg</name><trkseg><trkpt lat="47.6" lon="11.3"><ele>800</ele></trkpt>' +
+      '<trkpt lat="47.62" lon="11.3"><ele>1000</ele></trkpt></trkseg></trk></gpx>',
+  });
+  return () => {
+    found.mockRestore();
+    download.mockRestore();
+  };
+}
+
+/** The trail previewed first, as the traveller sees it before the import: its fingerprint is what the import takes. */
+async function previewTrail(s: Scene, app: INestApplication): Promise<void> {
+  const preview = await app.get(ToursWandererService).preview(String(s.trip.id), s.owner.id, 'trail-1');
+  trailHashFor.set(s.n, preview.contentHash);
+}
+
 const roadtripDay = (s: Scene) => `/api/trips/${s.trip.id}/roadtrip/days/${s.days[0].id}`;
 const tourPath = (s: Scene) => `/api/trips/${s.trip.id}/tours/${s.tourPlace.id}`;
 
@@ -473,6 +522,18 @@ export const toursRoadtrip: CaseGroup = {
       args: (s) => ({ tripId: s.trip.id, gpx: gpxOf(s), file_name: 'ridge.gpx' }),
       // A multipart upload, which the parity harness does not send.
       twin: 'POST /api/trips/:tripId/tours/import/gpx with the file',
+      expect: ['tours:changed', 'place:created'],
+    },
+    {
+      tool: 'import_wanderer_trail',
+      setup: previewTrail,
+      args: (s) => ({ tripId: s.trip.id, trailId: 'trail-1', contentHash: trailHash(s) }),
+      rest: {
+        method: 'post',
+        path: (s) => `/api/trips/${s.trip.id}/tours/wanderer/import`,
+        body: (s) => ({ trailId: 'trail-1', contentHash: trailHash(s) }),
+      },
+      stub: wandererTrail,
       expect: ['tours:changed', 'place:created'],
     },
     {

@@ -1,6 +1,5 @@
-import { hikingTimeMinutes, type PlannableTourType } from '@trek/shared';
+import { hikingTimeMinutes, otherWaysOf, type PlannableTourType } from '@trek/shared';
 import { analyzeRouteGeometry } from '../../../utils/routeGeometry';
-import { sameRoad } from '../../Map/RouteCalculator';
 import type { CostingOptions, ValhallaLeg } from '../../Map/valhallaRoute';
 import { legSpanOf } from './routeLegAt';
 import type { TourPlannerWaypoint } from './tourPlannerWaypoints';
@@ -137,32 +136,27 @@ export function currentVariantOf(
   };
 }
 
-const roadOf = (coordinates: [number, number][]) => ({ coordinates, distance: 0, duration: 0 });
-
 /**
  * The way the section takes now first, then each other way the router
- * offered that is not the same way again, lettered in the order the router
- * gave them and at most three. The router's first answer is never one of
- * them: it is its own way between the two points under the same rules, the
- * one the tour already routes the section by, so choosing it could change
- * nothing even where it is drawn a little apart from the route. Their heights
- * are still to be asked for.
+ * offered that is not the same way again (`otherWaysOf`), lettered in the
+ * order the router gave them and at most three. The router's first answer is
+ * never one of them: it is its own way between the two points under the same
+ * rules, the one the tour already routes the section by, so choosing it could
+ * change nothing even where it is drawn a little apart from the route. Their
+ * heights are still to be asked for.
  */
 export function offeredVariants(current: LegVariant, offers: readonly ValhallaLeg[]): LegVariant[] {
-  const variants: LegVariant[] = [current];
-  for (const offer of offers.slice(1)) {
-    const key = OTHER_WAY_KEYS[variants.length - 1];
-    if (!key) break;
-    if (variants.some((known) => sameRoad(roadOf(known.coordinates), roadOf(offer.coordinates)))) continue;
-    variants.push({
-      key,
+  const others = otherWaysOf(current, offers, OTHER_WAY_KEYS.length);
+  return [
+    current,
+    ...others.map((offer, index): LegVariant => ({
+      key: OTHER_WAY_KEYS[index] ?? 'c',
       current: false,
       coordinates: offer.coordinates,
       ...figuresOf(offer.coordinates),
       heights: 'pending',
-    });
-  }
-  return variants;
+    })),
+  ];
 }
 
 /** A way with the heights the router answered, or with its heights unknown when there were none. */

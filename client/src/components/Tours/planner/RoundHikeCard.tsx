@@ -1,3 +1,12 @@
+import {
+  deviationOf,
+  distanceWindow,
+  isRoundTarget,
+  MAX_ROUND_ASKS,
+  ROUND_MAX_M,
+  ROUND_MIN_M,
+  ROUND_TOLERANCE,
+} from '@trek/shared';
 import { AlertTriangle, Check, Loader2, Mountain, RefreshCcwDot, Search, Target } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '../../../i18n';
@@ -11,19 +20,7 @@ import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { TourNotice } from '../tourParts';
 import { MapCard, MapCardActions, MapCornerOverlay, StopDisc, VariantFigures, WayChoice } from './mapCardParts';
-import { MAX_ROUND_ASKS } from './roundHikeRouting';
-import {
-  deviationOf,
-  distanceWindow,
-  isRoundTarget,
-  metersTyped,
-  ROUND_MAX_M,
-  ROUND_MIN_M,
-  ROUND_TOLERANCE,
-  roundStarts,
-  typedLength,
-  type RoundCandidate,
-} from './roundHikes';
+import { metersTyped, roundStarts, typedLength, type RoundCandidate } from './roundHikes';
 import { stopNumbersOf } from './tourPlannerWaypoints';
 import type { RoundHikeView } from './useRoundHikes';
 import type { TourPlannerController } from './useTourPlanner';

@@ -25,6 +25,7 @@ import {
 import { cityWalkCard, paddleCard, skiCard } from './tour-sport.cards';
 import { DELETE_CREATED_TOUR, DELETE_IMPORTED_TOUR } from './tour-undo';
 import { describeVisit, loadVisit, SET_VISIT_UNDO } from './tour-visit.cards';
+import { IMPORT_WANDERER_TRAIL, legWayCard, roundHikeCard, wandererPreviewCard } from './tour-ways.cards';
 import { TOUR_WRITE_CARDS } from './tour-writes.cards';
 
 /**
@@ -99,6 +100,10 @@ export const TOUR_CARDS: DomainCards = {
     propose_hike: { argPolicy: WITH_GEOMETRY, answer: proposalCard },
     propose_tour: { argPolicy: WITH_GEOMETRY, answer: proposalCard },
     propose_city_walk: { argPolicy: WITH_GEOMETRY, answer: cityWalkCard },
+    propose_round_hike: { argPolicy: WITH_GEOMETRY, answer: roundHikeCard },
+    propose_hike_leg_way: { argPolicy: WITH_GEOMETRY, answer: legWayCard },
+    preview_wanderer_trail: { argPolicy: WITH_GEOMETRY, answer: wandererPreviewCard },
+    import_wanderer_trail: IMPORT_WANDERER_TRAIL,
     plan_paddle_route: { argPolicy: WITH_GEOMETRY, answer: paddleCard },
     plan_ski_route: { argPolicy: WITH_GEOMETRY, answer: skiCard },
     get_tour_plan: { project: withoutPreview, answer: savedTourCard },
@@ -143,7 +148,7 @@ export const TOUR_CARDS: DomainCards = {
   },
   prompt: [
     "Every tour type can be planned and saved. Pick the tool by what the user does: a hike (also a trek over several days) propose_hike then create_hike; a bike tour or a run propose_tour (activity bike or run) then create_tour; a city walk propose_city_walk then create_city_walk; a paddle tour plan_paddle_route then create_paddle_tour (it needs water_context river or lake); a ski or winter tour (alpine, snowboard, cross-country, ski touring, snowshoe, winter hike) plan_ski_route then create_ski_tour with the same points, discipline and options, passing the plan's points in order (the from of the first leg and the to of every leg). Profiles: a bike tour is touring (city or trekking bike, the default), road (asphalt only), gravel (gravel and farm tracks) or mtb (rough tracks and trails); a run is running (mostly paved, the default) or trail; ask when it is not clear. A run needs the runner's pace (run_pace_seconds_per_km, 330 for 5:30 min/km): ask for it, never guess one. A hike: propose_hike with a name, and day_id and start_time when known; to compare ways call it up to three times in one step, each with a variant_label and along false, the way you recommend first; create_hike only once the user chose a way. A hike over several days is one hike: stage_end on each stop a day ends at (no day_id), then each stage on its day with assign_place_to_day and tourStageKey.",
-    "The app draws a proposed, planned or saved tour (route, profile, stops, times, weather, warnings) and lists of tours as cards: do not repeat their figures or list them again, say in one sentence what matters. Once a tour is planned, offer what goes with it: places along it (search_tour_pois), what to pack (get_tour_packing, link_tour_packing), the GPX file (export_tour_gpx). To change a saved tour: a city walk's stations (name, stay, importance, protection, opening hours), its direction or its loop through prepare_tour_change and save_tour_change (edit, reverse, close_loop); a hike's direction or loop with update_tour and reshape; breaks, website, words and planned time of any tour with update_tour_details; its colour with set_tour_route_color; a variant with copy_tour first.",
+    "The app draws a proposed, planned or saved tour (route, profile, stops, times, weather, warnings) and lists of tours as cards: do not repeat their figures or list them again, say in one sentence what matters. Once a tour is planned, offer what goes with it: places along it (search_tour_pois), what to pack (get_tour_packing, link_tour_packing), the GPX file (export_tour_gpx). To change a saved tour: a city walk's stations (name, stay, importance, protection, opening hours), its direction or its loop through prepare_tour_change and save_tour_change (edit, reverse, close_loop); a hike's direction or loop with update_tour and reshape; breaks, website, words and planned time of any tour with update_tour_details; its colour with set_tour_route_color; a variant with copy_tour first. A round of about so many km from one point: propose_round_hike with round a, b and c in one step; other ways for one leg of a hike: propose_hike_leg_way with way a, b and c; then create_hike with the chosen create_with (update_tour for a saved hike). Wanderer trails of the user: search_wanderer_trails, preview_wanderer_trail, and import_wanderer_trail only after a yes.",
   ],
   // P8, P9: edits besides the route, and the writes and reads a ski, paddle or horse tour has of its own.
   toolControllers: { tours: ['TourEditMcp', 'TourSportWritesMcp'] },

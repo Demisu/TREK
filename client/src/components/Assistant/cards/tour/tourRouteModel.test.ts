@@ -151,6 +151,8 @@ describe('tourRouteModel', () => {
     expect(canTake({ ...HIKE, activity: 'ski', source: 'plan', warnings: failed })).toBe(false);
     expect(canTake({ ...HIKE, source: 'plan' })).toBe(false);
     expect(canTake({ ...HIKE, source: 'pending' })).toBe(false);
+    // Another way for a leg of a saved hike changes that hike; it is not created anew.
+    expect(canTake({ ...HIKE, placeId: 12 })).toBe(false);
   });
 
   it("FE-AI-TOUR-060: a run waits for the runner's pace; a bike tour, a hike and a run with a pace wait for nothing", () => {

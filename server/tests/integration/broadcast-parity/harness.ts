@@ -28,7 +28,7 @@ import { makePackingBag, makePackingItem } from '../../helpers/factories/packing
 import { makeCategory, makePlace, makeTag } from '../../helpers/factories/places';
 import { makeReservation } from '../../helpers/factories/reservations';
 import { createRow, findRow, insertRow, updateRows } from '../../helpers/factories/rows';
-import { setAddonEnabled, setCollabFeature } from '../../helpers/factories/settings';
+import { setAddonEnabled, setAppSetting, setCollabFeature } from '../../helpers/factories/settings';
 import { makeTodoItem } from '../../helpers/factories/todos';
 import { makeTour } from '../../helpers/factories/tours';
 import { addTripMember, makeTrip, readTripDays } from '../../helpers/factories/trips';
@@ -221,6 +221,8 @@ export async function openHarness(): Promise<ParityHarness> {
   const orm = app.get(MikroORM);
   await oneByOne(Object.values(ADDON_IDS), (addon) => setAddonEnabled(orm, addon, true));
   await oneByOne(['chat', 'notes', 'polls', 'whatsnext'] as const, (feature) => setCollabFeature(orm, feature, true));
+  // The wanderer tools show only while wanderer is allowed under Tours.
+  await setAppSetting(orm, 'tours_wanderer_enabled', 'true');
   // The photo search tools show only while a provider is on.
   await updateRows(orm, PhotoProviders, { id: { $in: ['immich', 'synologyphotos'] } }, { enabled: 1 });
 

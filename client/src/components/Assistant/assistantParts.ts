@@ -138,6 +138,9 @@ const TOUR_PLANNING_TOOLS: ReadonlySet<string> = new Set([
   'plan_ski_route',
   'prepare_tour_change',
   'save_tour_change',
+  'propose_round_hike',
+  'propose_hike_leg_way',
+  'import_wanderer_trail',
 ]);
 
 /** The tool that keeps a note in the trip notes; kept at once, without a card. */

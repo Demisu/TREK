@@ -23,6 +23,7 @@ import { UnitOfWork } from '../database/unit-of-work';
 import { buildTripCard, categoriesFrom, todayIn, type TripCard } from './assistant-context';
 import { partsOf, toThreadMessages } from './assistant-history';
 import { isSportPlan, SPORT_CREATES, sportTakeArgsOf, tourTypeWord } from './assistant-proposal-sports';
+import { isWayProposal, WAY_CREATES, wayTakeArgsOf } from './assistant-proposal-ways';
 import { AssistantStreamRegistry } from './assistant-stream.registry';
 import { TAKE_PROPOSAL_TOOL, TURNS_PER_MINUTE } from './assistant-tools.constants';
 import { AssistantToolsService, type ToolRun } from './assistant-tools.service';
@@ -84,6 +85,7 @@ const CREATES: Readonly<Record<string, string>> = {
   propose_tour: 'create_tour',
   propose_city_walk: 'create_city_walk',
   ...SPORT_CREATES,
+  ...WAY_CREATES,
 };
 const PROPOSING: ReadonlySet<string> = new Set(Object.keys(CREATES));
 
@@ -196,6 +198,9 @@ const TOUR_FIELDS = [
  * nothing can be created from.
  */
 export function takeArgsOf(proposal: StoredProposal, fallbackName = ''): Row | null {
+  if (isWayProposal(proposal.toolName)) {
+    return wayTakeArgsOf(proposal.toolName, proposal.args, proposal.result, proposal.card);
+  }
   const via = CREATES[proposal.toolName];
   if (via === 'create_hike' || via === 'create_tour') {
     if (!proposal.card.routed) return null;

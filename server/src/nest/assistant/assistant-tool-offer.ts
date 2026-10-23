@@ -229,9 +229,10 @@ const CORE_TOOL_GROUPS: ToolGroups = {
     about:
       'Tours: hikes (also over several days in stages), city walks, bike tours (road, gravel, mountain bike), ' +
       'runs (road and trail), rides, paddling and ski and winter tours; plan and save every one of them, change ' +
-      'and export them (hikes with their heights and SAC grades), search along a ' +
-      'tour, check off a city walk under way, the recorded tracks and tour stats, their packing, tours in ' +
-      'collections, the tour library and imports from GPX files and Google Maps walks.',
+      'and export them (hikes with their heights and SAC grades), round hikes of a wished length and other ' +
+      'ways for one leg, search along a tour, check off a city walk under way, the recorded tracks and tour ' +
+      'stats, their packing, tours in collections, the tour library, wanderer trails and imports from GPX ' +
+      'files and Google Maps walks.',
     controllers: [
       'ToursMcp',
       'CityWalkMcp',
@@ -247,6 +248,8 @@ const CORE_TOOL_GROUPS: ToolGroups = {
       'CollectionToursMcp',
       'PaddleRoutingMcp',
       'SkiRoutingMcp',
+      'HikeWaysMcp',
+      'ToursWandererMcp',
     ],
   },
   roadtrip: {

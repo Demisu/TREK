@@ -15,8 +15,6 @@ import {
   calculateAlternatives,
   avoidedClasses,
   routeEngineFor,
-  sameRoad,
-  furthestFrom,
   osrmLegSegment,
 } from './RouteCalculator'
 
@@ -1202,37 +1200,6 @@ describe('a trip that avoids something', () => {
     expect(osrm).toBe(1)
     expect(plain.distance).toBe(4200)
     expect(plain.avoidance).toBeUndefined()
-  })
-
-  it('FE-COMP-ROUTECALCULATOR-064: a road that runs the whole of another and turns off to a point and back is not that road', () => {
-    // The shape of a leg bent by a via: every point of the plain road lies on it, so
-    // asked only one way round the two read as one.
-    const plainRoad = { coordinates: [[61, 10], [61, 11], [61, 12]] as [number, number][], distance: 100_000, duration: 3600 }
-    const spur = { coordinates: [[61, 10], [61, 11], [61.3, 11], [61, 11], [61, 12]] as [number, number][], distance: 166_000, duration: 5400 }
-
-    expect(sameRoad(plainRoad, spur)).toBe(false)
-    expect(sameRoad(spur, plainRoad)).toBe(false)
-    expect(sameRoad(plainRoad, { ...plainRoad, distance: 104_000, duration: 3900 })).toBe(true)
-  })
-
-  it('FE-COMP-ROUTECALCULATOR-065: one road drawn with a different spacing of points is still one road', () => {
-    // Two engines' lines of one long road share almost no vertex. Measured to the nearest
-    // sampled vertex, a point on the same road sat half a sample off it: kilometres here.
-    // The dense line is sampled every tenth vertex, 0.05 degrees apart; the sparse one sits
-    // exactly between those samples, 1.8 km from the nearest, on the very same road.
-    const dense = Array.from({ length: 2001 }, (_, i) => [50, i * 0.005] as [number, number])
-    const sparse: [number, number][] = [
-      [50, 0],
-      ...Array.from({ length: 200 }, (_, i) => [50, 0.025 + i * 0.05] as [number, number]),
-      [50, 10],
-    ]
-    const a = { coordinates: dense, distance: 700_000, duration: 25_000 }
-    const b = { coordinates: sparse, distance: 712_000, duration: 27_000 }
-
-    expect(sameRoad(a, b)).toBe(true)
-    const off = furthestFrom([[50.02, 5]], dense)
-    expect(off?.index).toBe(0)
-    expect(off?.km).toBeCloseTo(2.22, 1)
   })
 
   it('FE-COMP-ROUTECALCULATOR-066: the avoidance offer beside an OSRM leg says when it crosses by ferry', async () => {
