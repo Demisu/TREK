@@ -5,7 +5,8 @@ import { fontStack } from './bookFonts';
 import { photoSrc } from './bookRender';
 import { usePaintId } from './paint/usePaintId';
 import { pictureFilter, silhouetteShadows, svgFilterMatrices, zoomPlacement } from './photo/photoLook';
-import { HOLED_SHAPES, SHAPE_PATHS, scalePath, unitPath } from './shapes';
+import { HOLED_SHAPES, SHAPE_PATHS, scalePath } from './shapes';
+import { photoClip } from './shapeOutline';
 
 /**
  * A picture on the page: possibly cut to a shape, possibly sitting in
@@ -271,7 +272,9 @@ export function PhotoView({
   const filterRef = usePaintId(`f-${el.id}`);
   // The shape the picture is cut to; a rect mask is no mask at all.
   const mask = el.mask && el.mask !== 'rect' ? el.mask : null;
-  const clipped = mask !== null;
+  // The cut as a unit path: the mask, its cut edge, or a cut edge on the rectangle (shapeOutline.ts).
+  const clip = photoClip(el, el.frame.w - pad * 2, el.frame.h - pad - (bottom || pad));
+  const clipped = clip !== null;
   // An empty frame wears the frame style but none of the look: a border or a
   // shadow around a hatch would read as part of the picture to come.
   const empty = el.photoId == null;
@@ -356,12 +359,12 @@ export function PhotoView({
         <ShapeSilhouette frame={el.frame} mask={mask} look={look} />
       )}
 
-      {(mask || filterId) && (
+      {(clip || filterId) && (
         <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden>
           <defs>
-            {mask && (
+            {clip && (
               <clipPath id={clipId} clipPathUnits="objectBoundingBox">
-                <path d={unitPath(SHAPE_PATHS[mask])} />
+                <path d={clip} />
               </clipPath>
             )}
             {filterId && (
