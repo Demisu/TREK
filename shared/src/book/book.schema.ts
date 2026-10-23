@@ -4,6 +4,7 @@ import { bookPaintFieldSchema } from './book-paint.schema';
 import { BOOK_PHOTO_LOOK_FIELDS } from './book-photo-look.schema';
 import { BOOK_EDGE_FIELDS, BOOK_SHAPES_MORE } from './book-shapes-more';
 import { MAX_STICKER_SLOTS } from './stickers/sticker-types';
+import * as themed from './theme/book-theme.schema';
 
 import { z } from 'zod';
 
@@ -279,6 +280,7 @@ export const bookTextElementSchema = z.object({
   /** Ems, may be negative. */
   tracking: z.number().min(-0.2).max(1).default(0),
   color: hex.default('#1a1a1a'),
+  ...themed.THEMED_TEXT,
   /** Where this text came from, when it came from the journey. */
   binding: z
     .object({
@@ -341,6 +343,7 @@ export const bookShapeElementSchema = z.object({
   /** A fill beyond one flat colour (book-paint.schema.ts); `fill` keeps the colour that stands for it. */
   paint: bookPaintFieldSchema,
   stroke: hex.nullable().default(null),
+  ...themed.THEMED_SHAPE,
   strokeWidth: mm.default(0),
   /**
    * A dashed rule is a different thing from a solid one — it reads as a fold, a
@@ -413,6 +416,7 @@ const typeset = {
   weight: bookWeightSchema.default(700),
   /** Set when the journey has moved on since these values were taken. */
   stale: z.boolean().default(false),
+  ...themed.THEMED_TYPESET,
 };
 
 /** Kilometres or miles. Stored metric; the element converts when it draws. */
@@ -778,6 +782,7 @@ export const bookIconElementSchema = z.object({
     .regex(/^[A-Z][A-Za-z0-9]*$/, 'expected a lucide icon name')
     .max(60),
   color: hex.default('#111827'),
+  ...themed.THEMED_ICON,
   /**
    * How heavy the drawing is, against lucide's own 24-unit grid — not
    * millimetres, which is why it is not called `strokeWidth`: three separate
@@ -907,6 +912,7 @@ export const bookSpreadSchema = z.object({
   background: hex.nullable().default(null),
   /** A page painted beyond one flat colour; `background` keeps the colour that stands for it. */
   backgroundPaint: bookPaintFieldSchema,
+  ...themed.THEMED_SPREAD,
   /** Back to front. */
   elements: z.array(bookElementSchema).max(MAX_SPREAD_ELEMENTS).default([]),
   /**
@@ -1032,5 +1038,7 @@ export const bookDocumentSchema = z.object({
   spreads: z.array(bookSpreadSchema).max(MAX_SPREADS).default([]),
   /** The book's own layouts (#2316). Optional so a document from before still reads. */
   layouts: z.array(bookLayoutSchema).max(MAX_BOOK_LAYOUTS).optional(),
+  /** Palette, typefaces and motifs; elements link to it through the fields of theme/book-theme.schema.ts. */
+  theme: themed.bookThemeFieldSchema,
 });
 export type BookDocument = z.infer<typeof bookDocumentSchema>;

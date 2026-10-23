@@ -105,6 +105,7 @@ const TOOLS: Array<[ClassRef, string, string, 'read' | 'write']> = [
   [JourneyBookDesignMcp as unknown as ClassRef, 'applyBookDesign', 'apply_book_design', 'write'],
   [JourneyBookDesignMcp as unknown as ClassRef, 'restoreBookRevision', 'restore_book_revision', 'write'],
   [JourneyBookMcp as unknown as ClassRef, 'setBookSetup', 'set_book_setup', 'write'],
+  [JourneyBookMcp as unknown as ClassRef, 'setBookTheme', 'set_book_theme', 'write'],
   [JourneyBookMcp as unknown as ClassRef, 'duplicateBookPage', 'duplicate_book_page', 'write'],
   [JourneyBookMcp as unknown as ClassRef, 'saveBookLayout', 'save_book_layout', 'write'],
   [JourneyBookMcp as unknown as ClassRef, 'removeBookLayout', 'remove_book_layout', 'write'],
@@ -165,6 +166,9 @@ describe('the design tools', () => {
     await expect(designs.designBook({ journeyId: journey.id }, ctx(stranger.id))).rejects.toThrow('Journey not found');
     const format = { journeyId: journey.id, preset: 'a4-portrait' as const };
     await expect(books.setBookSetup(format, ctx(viewer.id))).rejects.toThrow('Not allowed');
+    const theme = { journeyId: journey.id, theme: 'alpine' as const };
+    await expect(books.setBookTheme(theme, ctx(viewer.id))).rejects.toThrow('Not allowed');
+    await expect(books.setBookTheme(theme, ctx(stranger.id))).rejects.toThrow('Journey not found');
   });
 
   it('JBDMCP-004: the book-level tools answer as book writes, with what takes them back', async () => {
@@ -194,6 +198,10 @@ describe('the design tools', () => {
     const back = { journeyId: journey.id, layout, expectedVersion: removed.version };
     const restored = bookWriteResultSchema.parse(answered(await books.restoreBookLayout(back, ctx(owner.id))));
     expect(restored.version).toBe(removed.version + 1);
+    const themed = bookWriteResultSchema.parse(
+      answered(await books.setBookTheme({ journeyId: journey.id, theme: 'riviera' }, ctx(owner.id))),
+    );
+    expect(themed.revision_id).toBeGreaterThan(0);
   });
 
   it('JBDMCP-005: the other tools refuse an outsider, and a viewer every change, before a draft is read', async () => {

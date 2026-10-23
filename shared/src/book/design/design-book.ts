@@ -23,6 +23,7 @@ import type { BookDesignBeat } from './design-pacing';
 import { choosePhotos, type BookDesignLeftOut } from './design-photos';
 import { repairSpread } from './design-repair';
 import { designGrid, designLook, paperBackground, type BookDesignLook } from './design-style';
+import { themeDesignedSpread, unlinkDrifted } from './design-theme';
 
 /**
  * The assistant designs the whole photo book.
@@ -240,7 +241,7 @@ export function designBook(
     ownSubtitle: directives.cover?.subtitle,
   };
   const cover = coverPhoto(input, directives, usedPhotos);
-  const titlePage = directives.style === 'editorial' || directives.style === 'journal';
+  const titlePage = TITLE_PAGE_STYLES.has(directives.style);
   const first = titlePage ? composeTitlePage(c, words, placed) : blank(c, 'first');
   const framing: DesignedSpread[] = [
     { spread: composeCover(c, words, cover), beat: 'cover', chapter: null, findings: [] },
@@ -252,10 +253,10 @@ export function designBook(
   ];
   const repairCtx = { page, photos: input.photos, look, newId };
   const designed = [...framing, ...inner.spreads, ...closing].map((d): DesignedSpread => {
-    const fixed = repairSpread(d.spread, repairCtx);
+    const fixed = repairSpread(themeDesignedSpread(d.spread, look), repairCtx);
     // Every face at a weight its family has: a travel element's bold in a one-weight poster face would be faked.
-    const spread = { ...fixed.spread, elements: fixed.spread.elements.map(withRealWeight) };
-    return { ...d, spread, findings: fixed.findings };
+    const weighted = { ...fixed.spread, elements: fixed.spread.elements.map(withRealWeight) };
+    return { ...d, spread: unlinkDrifted(weighted, look.theme), findings: fixed.findings };
   });
 
   const merged = mergeDesign(doc, designed, directives.keep);
@@ -267,6 +268,7 @@ export function designBook(
     page: { ...page, pageNumbers: { ...pageNumbers, startAt: 1 } },
     spreads: merged.spreads,
     ...(doc?.layouts ? { layouts: doc.layouts } : {}),
+    theme: look.theme,
   };
   const residual = designed.flatMap((d) => d.findings.filter((f) => f.severity !== 'info'));
   return {
@@ -281,6 +283,9 @@ export function designBook(
     notes: [...new Set([...inner.notes, ...c.notes])],
   };
 }
+
+/** The styles that open the book on a title page: the quiet, bookish ones. */
+const TITLE_PAGE_STYLES: ReadonlySet<string> = new Set(['editorial', 'journal', 'fabric-classic', 'minimal-serif']);
 
 /** An empty single page of a role, on the book's paper. */
 function blank(c: ComposeCtx, role: 'first' | 'last'): BookSpread {

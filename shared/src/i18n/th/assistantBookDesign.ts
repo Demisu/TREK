@@ -3,6 +3,7 @@ import type { TranslationStrings } from '../types';
 const assistantBookDesign: TranslationStrings = {
   'assistant.change.verb.designBook': 'ใช้ดีไซน์โฟโต้บุ๊ก',
   'assistant.change.verb.setBookSetup': 'เปลี่ยนรูปแบบหน้า',
+  'assistant.change.verb.setBookTheme': 'ใช้ธีมกับหนังสือ',
   'assistant.change.verb.duplicateBookPage': 'ทำสำเนาหน้า',
   'assistant.change.verb.saveBookLayout': 'บันทึกหน้าเป็นเลย์เอาต์',
   'assistant.change.verb.removeBookLayout': 'ลบเลย์เอาต์ที่บันทึกไว้',

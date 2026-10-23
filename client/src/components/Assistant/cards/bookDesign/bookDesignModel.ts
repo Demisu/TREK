@@ -24,6 +24,19 @@ const STYLE_LOOK: Readonly<Record<BookDesignStyle, { labelKey: string }>> = {
   journal: { labelKey: 'assistant.card.bookDesign.style.journal' },
   bold: { labelKey: 'assistant.card.bookDesign.style.bold' },
   scrapbook: { labelKey: 'assistant.card.bookDesign.style.scrapbook' },
+  // A design in one of the themes is called by the theme's own name.
+  'poster-pop': { labelKey: 'studio.theme.name.posterPop' },
+  cutout: { labelKey: 'studio.theme.name.cutout' },
+  postcard: { labelKey: 'studio.theme.name.postcard' },
+  riviera: { labelKey: 'studio.theme.name.riviera' },
+  'fabric-classic': { labelKey: 'studio.theme.name.fabricClassic' },
+  'minimal-serif': { labelKey: 'studio.theme.name.minimalSerif' },
+  'grid-badge': { labelKey: 'studio.theme.name.gridBadge' },
+  'scrapbook-script': { labelKey: 'studio.theme.name.scrapbookScript' },
+  tropical: { labelKey: 'studio.theme.name.tropical' },
+  nordic: { labelKey: 'studio.theme.name.nordic' },
+  alpine: { labelKey: 'studio.theme.name.alpine' },
+  'india-stamp': { labelKey: 'studio.theme.name.indiaStamp' },
 };
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;

@@ -46,6 +46,8 @@ import type {
   BookSpread,
   BookTextElement,
 } from './book.schema';
+import { withThemeLinks } from './theme/book-theme-links';
+import type { BookTheme } from './theme/book-theme.schema';
 
 import type { z } from 'zod';
 
@@ -153,10 +155,10 @@ const MM_KEYS: ReadonlySet<string> = new Set(['radius', 'strokeWidth', 'edgeSize
 
 /**
  * The element with the given look fields set; millimetre fields rounded as the
- * document stores them, and the weight moved onto one its family has, as the
- * Studio's weight control does.
+ * document stores them, the weight moved onto one its family has, as the
+ * Studio's weight control does, and its theme links kept in step (book-theme-links.ts).
  */
-function withProps(el: BookElement, props: Record<string, unknown>): BookElement {
+function withProps(el: BookElement, props: Record<string, unknown>, theme?: BookTheme): BookElement {
   if (el.kind === 'line') return bookLineStyled(el, props);
   const keys = PROP_KEYS.get(el.kind) ?? [];
   const next: Record<string, unknown> = { ...el };
@@ -171,7 +173,7 @@ function withProps(el: BookElement, props: Record<string, unknown>): BookElement
     next[key] = MM_KEYS.has(key) && typeof value === 'number' ? round2(value) : value;
   }
   const made = withRealWeight(next as unknown as BookElement);
-  return made.kind === 'shape' ? withPaintProps(made, props) : made;
+  return withThemeLinks(made.kind === 'shape' ? withPaintProps(made, props) : made, props, theme);
 }
 
 /**
@@ -191,7 +193,8 @@ function withPaintProps(el: BookShapeElement, props: Record<string, unknown>): B
 
 function opAdd(spread: BookSpread, op: Op<'add'>, env: ElementOpEnv): BookSpread {
   roomFor(spread, 1, env.opIndex);
-  const made = withProps(created(spread, op.element, op.frame ? roundFrame(op.frame) : null, env), lookOf(op.element));
+  const blank = created(spread, op.element, op.frame ? roundFrame(op.frame) : null, env);
+  const made = withProps(blank, lookOf(op.element), env.doc.theme);
   const el = op.rotation !== undefined ? { ...made, rotation: op.rotation } : made;
   const parked =
     el.kind === 'photo' && el.photoId != null
@@ -432,7 +435,7 @@ function opStyle(spread: BookSpread, op: Op<'style'>, env: ElementOpEnv): BookSp
   if (op.set.kind !== el.kind) {
     throw failOp('wrong_kind', `${el.id} is a ${el.kind}; set.kind says ${op.set.kind}`, env.opIndex, el.id);
   }
-  return replaceAll(spread, [withProps(el, op.set)]);
+  return replaceAll(spread, [withProps(el, op.set, env.doc.theme)]);
 }
 
 function opLock(spread: BookSpread, op: Op<'lock'>, env: ElementOpEnv): BookSpread {

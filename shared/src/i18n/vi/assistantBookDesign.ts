@@ -3,6 +3,7 @@ import type { TranslationStrings } from '../types';
 const assistantBookDesign: TranslationStrings = {
   'assistant.change.verb.designBook': 'Áp dụng thiết kế sách ảnh',
   'assistant.change.verb.setBookSetup': 'Đổi khổ trang',
+  'assistant.change.verb.setBookTheme': 'Áp dụng chủ đề cho sách',
   'assistant.change.verb.duplicateBookPage': 'Nhân bản trang',
   'assistant.change.verb.saveBookLayout': 'Lưu trang thành bố cục',
   'assistant.change.verb.removeBookLayout': 'Xóa bố cục đã lưu',

@@ -161,6 +161,19 @@ describe('the book-level changes', () => {
     expect(BOOK_DESIGN_CARDS.tools.design_book?.write).toBeUndefined();
   });
 
+  it('ASTBD-005b: a theme is a book change named by its theme, taken back through the revision it kept', () => {
+    expect(ASSISTANT_WRITE_TOOLS.set_book_theme).toEqual({ verbKey: 'setBookTheme', entity: 'book_page' });
+    const rows = describedOf('set_book_theme', ctx, { theme: 'riviera', palette: { accent: '#aa0000' } }, null);
+    expect(rows?.rows.rows.map((r) => [r.labelKey, r.after])).toEqual([
+      ['type', 'riviera'],
+      ['color', '#aa0000'],
+    ]);
+    expect(describedOf('set_book_theme', ctx, { decoration: 'rich' }, null)?.rows.rows).toEqual([]);
+    const undo = ASSISTANT_UNDO_MAP.set_book_theme;
+    expect(undo?.tool).toBe('restore_book_revision');
+    expect(undo?.args({}, { revision_id: 31, version: 9 }, null)).toEqual({ revisionId: 31, expectedVersion: 9 });
+  });
+
   it('ASTBD-006: an applied design goes back to its revision at the version it left; none without a revision', () => {
     const undo = ASSISTANT_UNDO_MAP.apply_book_design;
     expect(undo?.tool).toBe('restore_book_revision');

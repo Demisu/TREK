@@ -65,6 +65,7 @@ import studioPaint from './studioPaint';
 import studioPhoto from './studioPhoto';
 import studioStickers from './studioStickers';
 import studioShapes from './studioShapes';
+import studioThemes from './studioThemes';
 import system_notice from './system_notice';
 import todo from './todo';
 import tourCollection from './tourCollection';
@@ -149,6 +150,7 @@ const locale = {
   ...assistantBudget,
   ...assistantBook,
   ...assistantBookDesign,
+  ...studioThemes,
   ...assistantBooking,
   ...assistantCollab,
   ...assistantCollection,

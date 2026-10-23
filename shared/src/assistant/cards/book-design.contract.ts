@@ -13,6 +13,7 @@ export const BOOK_DESIGN_CARD_SCHEMAS = [bookDesignCardSchema] as const;
 export const BOOK_DESIGN_VERB_KEYS = [
   'designBook',
   'setBookSetup',
+  'setBookTheme',
   'duplicateBookPage',
   'saveBookLayout',
   'removeBookLayout',

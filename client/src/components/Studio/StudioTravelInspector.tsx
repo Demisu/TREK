@@ -12,6 +12,8 @@ import { printDpi, tileView } from './mapTiles'
 import { useCartoApiKey } from '../../hooks/useTileUrl'
 import { Choice, Line, Picks, Section, Switch } from './StudioControls'
 import { fetchRoads } from './roadRoute'
+import { useStudioStore } from '../../store/studioStore'
+import { StudioThemeLink } from './theme/StudioThemeLink'
 
 /**
  * Properties of the travel elements.
@@ -40,6 +42,7 @@ interface Props<T> {
 }
 
 export function TravelInspector({ el, stats, path, set, t }: TravelInspectorProps) {
+  const theme = useStudioStore(s => s.doc?.theme)
   if (
     el.kind !== 'map' && el.kind !== 'stats' && el.kind !== 'countries'
     && el.kind !== 'badge' && el.kind !== 'list'
@@ -120,6 +123,9 @@ export function TravelInspector({ el, stats, path, set, t }: TravelInspectorProp
       <Section label={t('journey.studio.colour')}>
         <Line label={t('journey.studio.accent')} wide>
           <Swatches value={el.accent} onPick={c => set({ accent: c } as Partial<BookElement>)} />
+          <StudioThemeLink theme={theme} token={el.accentToken} t={t}
+            onLink={(accentToken, accent) => set({ accent, accentToken } as Partial<BookElement>)}
+            onUnlink={() => set({ accentToken: undefined } as Partial<BookElement>)} />
         </Line>
         <Line label={t('journey.studio.text')} wide>
           {/*
@@ -134,6 +140,11 @@ export function TravelInspector({ el, stats, path, set, t }: TravelInspectorProp
               (el.kind === 'badge' ? { color: c, autoColor: false } : { color: c }) as Partial<BookElement>,
             )}
           />
+          <StudioThemeLink theme={theme} token={el.token} t={t}
+            onLink={(token, color) => set(
+              (el.kind === 'badge' ? { color, token, autoColor: false } : { color, token }) as Partial<BookElement>,
+            )}
+            onUnlink={() => set({ token: undefined } as Partial<BookElement>)} />
         </Line>
         {el.kind === 'badge' && (
           <div style={{ marginTop: 10 }}>

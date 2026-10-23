@@ -228,6 +228,7 @@ const BOOK_WRITES = [
   'apply_book_design',
   'restore_book_revision',
   'set_book_setup',
+  'set_book_theme',
   'duplicate_book_page',
   'save_book_layout',
   'remove_book_layout',

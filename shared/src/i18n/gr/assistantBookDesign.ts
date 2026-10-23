@@ -3,6 +3,7 @@ import type { TranslationStrings } from '../types';
 const assistantBookDesign: TranslationStrings = {
   'assistant.change.verb.designBook': 'Εφαρμογή σχεδίου βιβλίου',
   'assistant.change.verb.setBookSetup': 'Αλλαγή μορφής σελίδας',
+  'assistant.change.verb.setBookTheme': 'Εφαρμογή θέματος στο βιβλίο',
   'assistant.change.verb.duplicateBookPage': 'Αντιγραφή της σελίδας',
   'assistant.change.verb.saveBookLayout': 'Αποθήκευση σελίδας ως διάταξη',
   'assistant.change.verb.removeBookLayout': 'Αφαίρεση αποθηκευμένης διάταξης',

@@ -3,6 +3,7 @@ import type { TranslationStrings } from '../types';
 const assistantBookDesign: TranslationStrings = {
   'assistant.change.verb.designBook': 'Rakenda raamatu kujundus',
   'assistant.change.verb.setBookSetup': 'Muuda lehekülje formaati',
+  'assistant.change.verb.setBookTheme': 'Rakenda raamatule teema',
   'assistant.change.verb.duplicateBookPage': 'Tee leheküljest koopia',
   'assistant.change.verb.saveBookLayout': 'Salvesta lehekülg paigutusena',
   'assistant.change.verb.removeBookLayout': 'Eemalda salvestatud paigutus',

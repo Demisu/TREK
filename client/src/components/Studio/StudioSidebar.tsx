@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Camera, ChevronDown, ImagePlus, ChevronUp, Compass, Copy, FileDown, Files, ImageIcon, Layers, LayoutTemplate,
-  Plus, Search, Shapes, Sticker, Trash2, Upload, X,
+  Palette, Plus, Search, Shapes, Sticker, Trash2, Upload, X,
 } from 'lucide-react'
 import type { BookElement, BookPageSetup, JourneyStats } from '@trek/shared'
 import { useElementSize } from '../../hooks/useElementSize'
@@ -24,6 +24,7 @@ import { StudioElementsPanel } from './StudioElementsPanel'
 import { StudioStickersPanel } from './StudioStickersPanel'
 import { StudioLayersPanel } from './StudioLayersPanel'
 import { StudioTravelPanel } from './StudioTravelPanel'
+import { StudioThemePanel } from './theme/StudioThemePanel'
 import { StudioSavedLayouts } from './StudioSavedLayouts'
 import { MAX_SPREAD_FILE_BYTES, importSpread } from './spreadFile'
 import { StudioContentFilter } from './StudioContentFilter'
@@ -41,7 +42,7 @@ import type { StudioUploader } from './studioUpload'
  * costs 52px and gives the panel the room a photo browser actually needs.
  */
 
-type Section = 'pages' | 'content' | 'elements' | 'stickers' | 'travel' | 'templates' | 'layers'
+type Section = 'pages' | 'content' | 'elements' | 'stickers' | 'travel' | 'templates' | 'layers' | 'theme'
 
 export interface JourneySource {
   entries: {
@@ -124,6 +125,7 @@ export function StudioSidebar({
     { id: 'travel', icon: Compass, labelKey: 'journey.studio.travel' },
     { id: 'templates', icon: LayoutTemplate, labelKey: 'journey.studio.templates' },
     { id: 'layers', icon: Layers, labelKey: 'journey.studio.layers' },
+    { id: 'theme', icon: Palette, labelKey: 'studio.theme.panel' },
   ]
 
   return (
@@ -163,6 +165,7 @@ export function StudioSidebar({
           />
         )}
         {section === 'layers' && <StudioLayersPanel t={t} />}
+        {section === 'theme' && <StudioThemePanel t={t} />}
         {section === 'templates' && <TemplatesPanel page={page} pxPerMm={pxPerMm} t={t} onOpenContent={() => setSection('content')} />}
       </aside>
     </>

@@ -3,6 +3,7 @@ import type { TranslationStrings } from '../types';
 const assistantBookDesign: TranslationStrings = {
   'assistant.change.verb.designBook': 'Kitab dizaynını tətbiq et',
   'assistant.change.verb.setBookSetup': 'Səhifə formatını dəyiş',
+  'assistant.change.verb.setBookTheme': 'Kitaba mövzu tətbiq et',
   'assistant.change.verb.duplicateBookPage': 'Səhifənin surətini çıxar',
   'assistant.change.verb.saveBookLayout': 'Səhifəni maket kimi saxla',
   'assistant.change.verb.removeBookLayout': 'Saxlanmış maketi sil',

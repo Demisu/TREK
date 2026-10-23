@@ -1111,6 +1111,14 @@ const bookCases: ParityCase[] = [
     expect: [{ event: 'journey:book:saved', user: 'actor' }],
   },
   {
+    tool: 'set_book_theme',
+    needs: ['journey'],
+    setup: seedBook,
+    args: (s) => ({ journeyId: s.journey.id, theme: 'nordic' }),
+    rest: saveBook(1),
+    expect: [{ event: 'journey:book:saved', user: 'actor' }],
+  },
+  {
     tool: 'duplicate_book_page',
     needs: ['journey'],
     setup: seedBook,

@@ -13,7 +13,7 @@ import { StudioStickerInspector } from './StudioStickerInspector'
 import { Swatches } from './StudioSwatches'
 import { StudioBackgroundSection } from './StudioBackgroundSection'
 import { StudioShapePaint } from './StudioShapePaint'
-import { formatBookCoords } from '@trek/shared'
+import { formatBookCoords, withThemeLinks } from '@trek/shared'
 import { iconComponent, iconLabel, searchIcons } from './iconLibrary'
 import { Choice, Line, NumField, Section, Switch } from './StudioControls'
 import { StudioFontPicker } from './StudioFontPicker'
@@ -26,6 +26,7 @@ import { StudioArrangeSection } from './StudioArrangeSection'
 import { selectionTitle } from './studioLayerRows'
 import { EdgeSection } from './StudioEdgeControls'
 import { LineInspector } from './StudioLineInspector'
+import { StudioThemeLink } from './theme/StudioThemeLink'
 
 /** How many icons the swap grid offers at once. A search narrows it below this. */
 const ICON_CHOICES = 60
@@ -202,7 +203,8 @@ export function StudioInspector({
     ...d,
     spreads: d.spreads.map((sp, i) => (i !== spreadIndex ? sp : {
       ...sp,
-      elements: sp.elements.map(e => (selection.includes(e.id) ? ({ ...e, ...patch } as BookElement) : e)),
+      // A colour or face set by hand stops following the theme; a link set here takes the theme's value.
+      elements: sp.elements.map(e => (selection.includes(e.id) ? withThemeLinks({ ...e, ...patch } as BookElement, patch, d.theme) : e)),
     })),
   }))
 
@@ -390,6 +392,8 @@ export function StudioInspector({
             <Section label={t('journey.studio.colour')}>
               <Line label={t('journey.studio.text')} wide>
                 <Swatches value={el.color} onPick={c => set({ color: c })} />
+                <StudioThemeLink theme={doc?.theme} token={el.token} t={t}
+                  onLink={(token, color) => set({ color, token })} onUnlink={() => set({ token: undefined })} />
               </Line>
             </Section>
           </>
@@ -543,6 +547,8 @@ export function StudioInspector({
               spreadIndex={spreadIndex}
               selection={selection}
               onStroke={c => set({ stroke: c, strokeWidth: el.strokeWidth || 0.5 })}
+              theme={doc?.theme}
+              set={set}
               t={t}
             />
 
@@ -619,6 +625,8 @@ export function StudioInspector({
             <Section label={t('journey.studio.colour')}>
               <Line label={t('journey.studio.icon')} wide>
                 <Swatches value={el.color} onPick={c => set({ color: c })} />
+                <StudioThemeLink theme={doc?.theme} token={el.token} t={t}
+                  onLink={(token, color) => set({ color, token })} onUnlink={() => set({ token: undefined })} />
               </Line>
               <div style={{ marginTop: 10 }}>
                 <NumField

@@ -187,6 +187,14 @@ export { BOOK_DESIGN_BEATS, type BookDesignBeat } from './book/design/design-pac
 export type { BookDesignLeftOut, BookDesignLeftOutReason } from './book/design/design-photos';
 export type { BookDesignLook } from './book/design/design-style';
 export * from './book/book-design-tools.schema';
+export * from './book/theme/book-theme.schema';
+export * from './book/theme/book-themes.data';
+export * from './book/theme/book-theme';
+export * from './book/theme/book-theme-apply';
+export * from './book/theme/book-theme-links';
+export * from './book/theme/book-theme-ops';
+export * from './book/theme/book-theme-photos';
+export { bookThemeCatalogue, bookThemeLine } from './book/theme/book-theme-describe';
 export * from './share/share.schema';
 export * from './storage/storage.schema';
 export * from './settings/settings.schema';

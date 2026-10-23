@@ -504,5 +504,7 @@ export const bookWriteResultSchema = z.object({
   previous_layout: bookLayoutSchema.optional(),
   /** From `save_book_layout`: the new layout's id, to take it away again. */
   layout_id: z.string().max(40).optional(),
+  /** From `set_book_theme`: the revision the book was kept as before it, null for a book that was new. */
+  revision_id: z.number().int().positive().nullable().optional(),
 });
 export type BookWriteResult = z.infer<typeof bookWriteResultSchema>;

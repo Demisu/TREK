@@ -3,6 +3,7 @@ import type { TranslationStrings } from '../types';
 const assistantBookDesign: TranslationStrings = {
   'assistant.change.verb.designBook': '포토북 디자인 적용',
   'assistant.change.verb.setBookSetup': '페이지 형식 변경',
+  'assistant.change.verb.setBookTheme': '책에 테마 적용',
   'assistant.change.verb.duplicateBookPage': '페이지 복제',
   'assistant.change.verb.saveBookLayout': '페이지를 레이아웃으로 저장',
   'assistant.change.verb.removeBookLayout': '저장한 레이아웃 삭제',

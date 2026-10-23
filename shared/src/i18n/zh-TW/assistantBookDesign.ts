@@ -3,6 +3,7 @@ import type { TranslationStrings } from '../types';
 const assistantBookDesign: TranslationStrings = {
   'assistant.change.verb.designBook': '套用相片書設計',
   'assistant.change.verb.setBookSetup': '變更頁面尺寸',
+  'assistant.change.verb.setBookTheme': '為書套用主題',
   'assistant.change.verb.duplicateBookPage': '複製頁面',
   'assistant.change.verb.saveBookLayout': '將頁面儲存為版面',
   'assistant.change.verb.removeBookLayout': '刪除已儲存的版面',

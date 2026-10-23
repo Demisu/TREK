@@ -36,6 +36,7 @@ const STUDIO_ONLY_TOOLS: Readonly<Record<string, string>> = Object.fromEntries(
     'set_book_cover',
     'suggest_book_photos',
     'set_book_setup',
+    'set_book_theme',
     'duplicate_book_page',
     'save_book_layout',
     'remove_book_layout',

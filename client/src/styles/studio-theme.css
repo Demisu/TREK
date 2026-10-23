@@ -1,0 +1,267 @@
+/* ============================================================================
+   TREK Studio: the Theme panel and the inspector's theme colour row.
+
+   Scoped under `.trek-dash` like every Studio rule (see the head of
+   studio.css for why), and drawn in the dashboard tokens. The only colours
+   that are not tokens are the themes' own, set inline from the data: a theme
+   card shows its paper, ink and accents because that is what it offers.
+   ============================================================================ */
+
+.trek-dash .st-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.trek-dash .st-theme-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 12px;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  text-align: start;
+  transition:
+    border-color 0.16s,
+    box-shadow 0.16s,
+    transform 0.16s;
+}
+.trek-dash .st-theme-card:hover {
+  border-color: color-mix(in oklch, var(--accent) 45%, var(--line-2));
+}
+.trek-dash .st-theme-card:active {
+  transform: scale(0.98);
+}
+.trek-dash .st-theme-card.is-on {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.trek-dash .st-theme-card:focus {
+  outline: none;
+}
+.trek-dash .st-theme-card:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--accent-soft),
+    0 0 0 3px var(--accent);
+}
+
+/* The theme's own paper, as a little page. Flat like every sheet in Studio. */
+.trek-dash .st-theme-sheet {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+  height: 58px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--ink) 8%, transparent);
+  overflow: hidden;
+}
+.trek-dash .st-theme-word {
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.trek-dash .st-theme-dots {
+  display: flex;
+  gap: 3px;
+  padding-bottom: 2px;
+}
+.trek-dash .st-theme-dots > span {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--ink) 12%, transparent);
+}
+
+.trek-dash .st-theme-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-width: 0;
+  padding: 0 3px 2px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.trek-dash .st-theme-name > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.trek-dash .st-theme-inuse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-text, #fff);
+}
+
+.trek-dash .st-theme-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  padding: 4px 2px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-3);
+  transition: color 0.14s;
+}
+.trek-dash .st-theme-reset:hover {
+  color: var(--ink);
+}
+
+.trek-dash .st-theme-palette {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+.trek-dash .st-theme-colour {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  cursor: pointer;
+}
+.trek-dash .st-theme-chip {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  border: 1px solid var(--line-2);
+  box-shadow: var(--sh-xs);
+  overflow: hidden;
+  transition: transform 0.14s;
+}
+.trek-dash .st-theme-colour:hover .st-theme-chip {
+  transform: scale(1.05);
+}
+.trek-dash .st-theme-chip input {
+  position: absolute;
+  inset: -6px;
+  opacity: 0;
+  cursor: pointer;
+}
+.trek-dash .st-theme-colour-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10.5px;
+  color: var(--ink-3);
+}
+
+.trek-dash .st-theme-photos,
+.trek-dash .st-theme-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  transition:
+    background 0.16s,
+    color 0.16s,
+    border-color 0.16s,
+    opacity 0.16s;
+}
+.trek-dash .st-theme-photos {
+  margin-top: 10px;
+  border: 1px dashed var(--line-2);
+  color: var(--ink-3);
+}
+.trek-dash .st-theme-photos:hover:not(:disabled) {
+  background: var(--surface);
+  border-color: color-mix(in oklch, var(--accent) 45%, var(--line-2));
+  color: var(--ink);
+}
+.trek-dash .st-theme-photos:disabled,
+.trek-dash .st-theme-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.trek-dash .st-theme-script {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+.trek-dash .st-theme-script .st-hint {
+  padding: 0 2px;
+}
+
+.trek-dash .st-theme-apply {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-2);
+}
+.trek-dash .st-theme-apply .st-hint {
+  padding: 0 2px;
+  margin-top: -4px;
+}
+.trek-dash .st-theme-btn {
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  color: var(--ink);
+}
+.trek-dash .st-theme-btn:hover:not(:disabled) {
+  border-color: color-mix(in oklch, var(--accent) 45%, var(--line-2));
+}
+.trek-dash .st-theme-btn.is-primary {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-text, #fff);
+}
+.trek-dash .st-theme-btn.is-primary:hover:not(:disabled) {
+  background: color-mix(in oklch, var(--accent) 88%, var(--ink));
+}
+
+/* The inspector's row of theme colours, under a colour's own swatches. */
+.trek-dash .st-theme-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+.trek-dash .st-theme-link-label {
+  flex-basis: 100%;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.trek-dash .st-theme-link .st-swatch.is-linked {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.trek-dash .st-theme-unlink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  color: var(--ink-3);
+  transition:
+    background 0.14s,
+    color 0.14s;
+}
+.trek-dash .st-theme-unlink:hover {
+  background: color-mix(in oklch, var(--ink) 8%, transparent);
+  color: var(--ink);
+}

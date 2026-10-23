@@ -1,4 +1,4 @@
-import { BookmarkMinus, BookmarkPlus, Copy, Ruler, Sparkles } from 'lucide-react';
+import { BookmarkMinus, BookmarkPlus, Copy, Palette, Ruler, Sparkles } from 'lucide-react';
 
 import type { PackLook } from '../cardTypes';
 
@@ -19,6 +19,7 @@ export const BOOK_DESIGN_LOOK = {
   verbs: {
     designBook: { Icon: Sparkles, tone: 'info', labelKey: 'assistant.change.verb.designBook' },
     setBookSetup: { Icon: Ruler, tone: 'info', labelKey: 'assistant.change.verb.setBookSetup' },
+    setBookTheme: { Icon: Palette, tone: 'info', labelKey: 'assistant.change.verb.setBookTheme' },
     duplicateBookPage: { Icon: Copy, tone: 'success', labelKey: 'assistant.change.verb.duplicateBookPage' },
     saveBookLayout: { Icon: BookmarkPlus, tone: 'success', labelKey: 'assistant.change.verb.saveBookLayout' },
     removeBookLayout: { Icon: BookmarkMinus, tone: 'danger', labelKey: 'assistant.change.verb.removeBookLayout' },

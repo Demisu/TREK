@@ -32,6 +32,8 @@ import {
   saveBookLayoutArgs,
   setBookCoverArgs,
   setBookSetupArgs,
+  setBookThemeArgs,
+  bookThemeCatalogue,
   type AddBookPagesRequest,
   type CreateBookRequest,
   type DeleteBookPagesRequest,
@@ -45,6 +47,7 @@ import {
   type SaveBookLayoutRequest,
   type SetBookCoverRequest,
   type SetBookSetupRequest,
+  type SetBookThemeRequest,
 } from '@trek/shared';
 
 const journeyAddonOn = addonGate(ADDON_IDS.JOURNEY);
@@ -224,6 +227,18 @@ export class JourneyBookMcp {
   })
   async setBookSetup({ journeyId, ...args }: OnJourney & SetBookSetupRequest, ctx: McpContext) {
     return ok(await this.books.setSetup(journeyId, ctx.userId, args));
+  }
+
+  @Tool({
+    name: 'set_book_theme',
+    description: `Apply a theme to a journey's book: its paper, ink and three accents, its display, heading, body and script faces, and the motifs and decoration it suits. Start from a built-in theme (theme) or the book's own, change any colour, face, motif or decoration on top, and apply it to every page or only to spreadIds. Only colours and texts linked to the theme change (describe_book_page says what each element follows); with adopt (the default) what is not linked yet is linked first, words in white over photos staying as they are. Positions, photos and words never move. The themes: ${bookThemeCatalogue()} The answer names the revision the book was kept as before it, under revision_id. ${WRITE_ANSWER}`,
+    inputSchema: { journeyId: idSchema, ...setBookThemeArgs },
+    annotations: TOOL_ANNOTATIONS_WRITE,
+    when: journeyAddonOn,
+    access: { group: 'journey', mode: 'write' },
+  })
+  async setBookTheme({ journeyId, ...args }: OnJourney & SetBookThemeRequest, ctx: McpContext) {
+    return ok(await this.books.setTheme(journeyId, ctx.userId, args));
   }
 
   @Tool({

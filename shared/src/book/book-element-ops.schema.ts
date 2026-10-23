@@ -44,6 +44,7 @@ import {
   bookStickerElementSchema,
   bookTextElementSchema,
 } from './book.schema';
+import { THEMED_ICON_IN, THEMED_SHAPE_IN, THEMED_TEXT_IN, THEMED_TYPESET_IN } from './theme/book-theme.schema';
 
 import { z } from 'zod';
 
@@ -90,6 +91,7 @@ const TYPESET = {
   accent: map.accent.unwrap().optional(),
   textScale: map.textScale.unwrap().optional(),
   weight: map.weight.unwrap().optional(),
+  ...THEMED_TYPESET_IN,
 };
 
 const PHOTO_PROPS = {
@@ -114,7 +116,7 @@ export const TEXT_STYLE_FIELDS = {
   tracking: text.tracking.unwrap().optional(),
   color: text.color.unwrap().optional(),
 };
-const TEXT_PROPS = { ...COMMON, ...TEXT_STYLE_FIELDS };
+const TEXT_PROPS = { ...COMMON, ...TEXT_STYLE_FIELDS, ...THEMED_TEXT_IN };
 const SHAPE_PROPS = {
   ...COMMON,
   fill: shape.fill.unwrap().optional(),
@@ -126,9 +128,11 @@ const SHAPE_PROPS = {
   strokeStyle: bookStrokeStyleSchema.optional(),
   radius: z.number().finite().min(0).max(500).optional(),
   ...BOOK_EDGE_PROPS,
+  ...THEMED_SHAPE_IN,
 };
 const ICON_PROPS = {
   ...COMMON,
+  ...THEMED_ICON_IN,
   color: icon.color.unwrap().optional(),
   lineWidth: icon.lineWidth.unwrap().optional(),
 };

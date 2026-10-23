@@ -3,6 +3,7 @@ import type { BookDocument, BookElement, BookFrame, BookLayout, BookSpread } fro
 import {
   MAX_BOOK_LAYOUTS, MAX_SPREAD_ELEMENTS, applySavedBookLayout as applySavedLayout,
   bookLayoutFromSpread as layoutFromSpread, canEditSpread as isMovableSpread, innerSpreadBounds as innerBounds,
+  withThemeLinks,
 } from '@trek/shared'
 import { pastedElements, type StudioClipboard } from '../components/Studio/studioClipboard'
 import { regroupCopies, tidyGroups, withCopies, bookElementId } from '@trek/shared'
@@ -203,10 +204,11 @@ export const useStudioStore = create<StudioState>((set, get) => ({
 
   apply: fn => set(s => (s.doc && !s.readOnly ? { doc: fn(s.doc) } : {})),
 
+  // A colour or face set by hand stops following the theme; a link set here takes the theme's value.
   updateElement: (spreadIndex, id, patch) => get().apply(doc =>
     replaceSpread(doc, spreadIndex, sp => ({
       ...sp,
-      elements: sp.elements.map(e => (e.id === id ? ({ ...e, ...patch } as BookElement) : e)),
+      elements: sp.elements.map(e => (e.id === id ? withThemeLinks({ ...e, ...patch } as BookElement, patch, doc.theme) : e)),
     }))),
 
   setFrame: (spreadIndex, id, frame) => get().apply(doc =>

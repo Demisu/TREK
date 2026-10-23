@@ -38,8 +38,10 @@ import type { BookDocument } from './book.schema';
  * - 6: the photo look (`border`, `shadow`, `zoom`, `flipX`, `adjust`, `duotone`, `cutout`, book-photo-look.schema.ts).
  * - 7: the second shelf of shapes, the cut edge of a shape and a photo (`edge`, `edgeSize`,
  *   book-shapes-more.ts) and the line kind (book-line.schema.ts).
+ * - 8: themes (the document's `theme`, and the `token`, `strokeToken`, `accentToken`,
+ *   `fontRole` and `backgroundToken` links, theme/book-theme.schema.ts).
  */
-export const BOOK_SCHEMA_REV = 7;
+export const BOOK_SCHEMA_REV = 8;
 
 /** The `code` a refused save carries in its body when the stored book is newer than the writer. */
 export const BOOK_SCHEMA_NEWER_CODE = 'book_schema_newer';

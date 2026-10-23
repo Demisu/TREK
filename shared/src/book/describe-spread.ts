@@ -24,6 +24,7 @@ import {
   type BookSpread,
 } from './book.schema';
 import { bookEdgeWords, bookLineWords } from './describe-lines';
+import { bookThemeLine, themeBackgroundWords, themeLinkWords } from './theme/book-theme-describe';
 
 /**
  * A page in words, for a model that cannot see it and as the text beside a
@@ -163,6 +164,7 @@ function elementLine(el: BookElement, i: number, photos: readonly BookPhotoInfo[
     el.hidden ? 'hidden (not on the page or in print)' : '',
     el.group ? `in group ${el.group}` : '',
     el.name ? `named "${head(el.name, 40)}"` : '',
+    themeLinkWords(el),
   ].filter(Boolean);
   const tail = extra.length ? `; ${extra.join(', ')}` : '';
   return `${i + 1}. ${el.kind} ${el.id} at ${n(x)}, ${n(y)}, ${n(w)} x ${n(h)}: ${elementWords(el, photos)}${tail}`;
@@ -202,7 +204,7 @@ function pageLine(doc: BookDocument, spread: BookSpread, index: number): string 
     ? `${n(p.pageWidth)} x ${n(p.pageHeight)} mm`
     : `${n(p.pageWidth * 2)} x ${n(p.pageHeight)} mm (two pages of ${n(p.pageWidth)} x ${n(p.pageHeight)}), fold at x ${n(p.pageWidth)}`;
   const entry = spread.entryId != null ? ` From entry ${spread.entryId}.` : '';
-  return `Page ${index + 1} of ${doc.spreads.length} (${spread.id}): ${ROLE_WORDS[spread.role]}, ${size}; bleed ${n(p.bleed)}, safe ${n(p.safe)}. Background ${backgroundWords(spread)}.${entry}`;
+  return `Page ${index + 1} of ${doc.spreads.length} (${spread.id}): ${ROLE_WORDS[spread.role]}, ${size}; bleed ${n(p.bleed)}, safe ${n(p.safe)}. Background ${backgroundWords(spread)}.${themeBackgroundWords(spread)}${entry}`;
 }
 
 function backgroundWords(spread: BookSpread): string {
@@ -259,7 +261,7 @@ export function describeSpread(
   const spread = doc.spreads[index];
   if (!spread) return null;
   const findings = pageFindings(spread, doc.page, photos);
-  const lines = [pageLine(doc, spread, index)];
+  const lines = [pageLine(doc, spread, index), bookThemeLine(doc.theme)];
   if (spread.elements.length) {
     lines.push('Elements, back to front (frame in mm: x, y, w x h):');
     spread.elements.forEach((el, i) => lines.push(elementLine(el, i, photos)));

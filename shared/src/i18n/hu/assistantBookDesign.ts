@@ -3,6 +3,7 @@ import type { TranslationStrings } from '../types';
 const assistantBookDesign: TranslationStrings = {
   'assistant.change.verb.designBook': 'Könyvterv alkalmazása',
   'assistant.change.verb.setBookSetup': 'Oldalformátum módosítása',
+  'assistant.change.verb.setBookTheme': 'Téma alkalmazása a könyvre',
   'assistant.change.verb.duplicateBookPage': 'Oldal megkettőzése',
   'assistant.change.verb.saveBookLayout': 'Oldal mentése elrendezésként',
   'assistant.change.verb.removeBookLayout': 'Mentett elrendezés eltávolítása',

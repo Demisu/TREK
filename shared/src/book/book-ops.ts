@@ -123,11 +123,14 @@ function applyOne(spread: BookSpread, op: BookPageOp, env: Env): BookSpread {
       return opFrame(spread, op, env);
     case 'remove':
       return opRemove(spread, op, env);
-    case 'background':
+    case 'background': {
+      // A colour set by hand stops following the theme's paper.
+      const { backgroundToken: _unlinked, ...rest } = spread;
       return withSpreadPaint(
-        spread,
+        rest,
         op.paint !== undefined ? op.paint : op.color ? { type: 'solid', color: op.color } : null,
       );
+    }
     default:
       return isGroupOp(op) ? applyGroupOp(spread, op, env) : applyElementOp(spread, op, env);
   }

@@ -36,6 +36,12 @@ function describeSetup(args: ToolArgs): Described {
   return described(new Rows().add('type', text(args.preset)).add('position', text(numbers.position)));
 }
 
+/** A theme names the theme it starts from and the accent it sets, when it sets one. */
+function describeTheme(args: ToolArgs): Described {
+  const palette = args.palette && typeof args.palette === 'object' ? (args.palette as ToolArgs) : {};
+  return described(new Rows().add('type', text(args.theme)).add('color', text(palette.accent)));
+}
+
 /** A layout kept or taken away, by its name or its id. */
 function describeLayout(args: ToolArgs, key: 'name' | 'layoutId'): Described {
   return described(new Rows().add('name', text(args[key])));
@@ -63,6 +69,11 @@ export const BOOK_DESIGN_CARDS: DomainCards = {
       argPolicy: { stripped: UNDO_PINNED },
       describe: (_ctx, args) => describeSetup(args),
       undo: SETUP_BACK,
+    },
+    set_book_theme: {
+      write: { verbKey: 'setBookTheme', entity: 'book_page' },
+      describe: (_ctx, args) => describeTheme(args),
+      undo: RESTORE_REVISION,
     },
     duplicate_book_page: {
       write: { verbKey: 'duplicateBookPage', entity: 'book_page' },

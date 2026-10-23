@@ -32,6 +32,7 @@ import {
   saveBookLayout,
   setBookCover,
   setBookSetup,
+  setBookTheme,
   spreadFindings,
   summarizeBook,
   summarizeSpread,
@@ -61,6 +62,7 @@ import {
   type SetBookCoverRequest,
   type SetBookSetupRequest,
   type ListBookAssetsRequest,
+  type SetBookThemeRequest,
 } from '@trek/shared';
 import { bookStickerLookup, listBookAssets } from '@trek/shared/stickers';
 
@@ -96,6 +98,8 @@ interface WriteOptions {
   extra?: (before: BookDocument | null, made: BookMade) => Partial<BookWriteResult>;
   /** The engine needs the journey's figures, route and entries (travel elements, a page laid out again). */
   travel?: boolean;
+  /** Keep the book as it was as a revision, and answer its `revision_id`: the undo of a book-wide change. */
+  keepRevision?: boolean;
 }
 
 /**
@@ -336,6 +340,16 @@ export class JourneyBookEditService {
     });
   }
 
+  /**
+   * `set_book_theme`: a theme applied to the whole book or to some pages. It
+   * can recolour every page at once, so the book as it was is kept as a
+   * revision and `revision_id` names it; the assistant's undo puts it back
+   * with `restore_book_revision` while nothing was saved since.
+   */
+  async setTheme(journeyId: number, userId: number, args: SetBookThemeRequest): Promise<BookWriteAnswer> {
+    return this.write(journeyId, userId, (doc) => setBookTheme(stored(doc), args), { keepRevision: true });
+  }
+
   /** `duplicate_book_page`: a copy of an inner page with new ids, right after it. */
   async duplicatePage(journeyId: number, userId: number, args: DuplicateBookPageRequest): Promise<BookWriteAnswer> {
     return this.write(journeyId, userId, (doc, ctx) => duplicateBookPage(stored(doc), args, ctx));
@@ -432,7 +446,7 @@ export class JourneyBookEditService {
     if (!journey) throw journeyNotFound();
     // Read before the transaction: the figures take a while and need not be read in it.
     const travel = options.travel ? await this.travelContext(journeyId, userId) : undefined;
-    const { record, result } = await this.books.editBook(
+    const { record, result, revisionId } = await this.books.editBook(
       journeyId,
       userId,
       async (current) => {
@@ -444,7 +458,7 @@ export class JourneyBookEditService {
         const title = current?.title ?? made.doc.title;
         return { title, document: made.doc, unchanged, result: { before, made, ctx } };
       },
-      { expectedVersion: options.expectedVersion },
+      { expectedVersion: options.expectedVersion, keepRevision: options.keepRevision },
     );
     const answer = pagesOf(record.document, result.made, result.ctx);
     return {
@@ -459,6 +473,7 @@ export class JourneyBookEditService {
             page_digests: digestsOf(record.document, result.made.spreadIds),
           }
         : {}),
+      ...(options.keepRevision ? { revision_id: revisionId } : {}),
       ...options.extra?.(result.before, result.made),
     };
   }

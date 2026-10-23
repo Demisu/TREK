@@ -288,4 +288,26 @@ describe('Studio book over MCP and REST', () => {
     expect(after.schemaRev).toBe(BOOK_SCHEMA_REV);
     expect(after.spreads[2]?.elements.find((e) => e.id === frame?.id)).toMatchObject(look);
   });
+
+  it('JBE2E-008: a theme set over MCP is what GET reads next, every page in its paper, stamped with this revision', async () => {
+    const { owner, viewer, journey, everyone } = await journeyWithBook();
+
+    const themed = bookWriteResultSchema.parse(
+      await callTool(owner.id, 'set_book_theme', { journeyId: journey.id, theme: 'nordic' }),
+    );
+    expect(themed.revision_id).toBeGreaterThan(0);
+    expect(sent()).toEqual(everyone.map((id) => [id, 'journey:book:saved', undefined]));
+    const res = await request(app.getHttpServer())
+      .get(`/api/journeys/${journey.id}/book`)
+      .set('Cookie', authCookie(viewer.id));
+    expect(res.body.book.document.theme.id).toBe('nordic');
+    expect(res.body.book.document.schemaRev).toBe(BOOK_SCHEMA_REV);
+    const papers = new Set(
+      (res.body.book.document.spreads as Array<{ background: string | null }>).map((s) => s.background),
+    );
+    expect([...papers]).toEqual(['#f3f1ec']);
+    expect(await callTool(viewer.id, 'set_book_theme', { journeyId: journey.id, theme: 'alpine' })).toEqual({
+      error: "You can read this journey's book but not change it: only its owner and editors can.",
+    });
+  });
 });

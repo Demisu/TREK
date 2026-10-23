@@ -1,8 +1,16 @@
-import { accentFromPalettes, contrastRatio, parseHex, readPalette, readableInk, toHex } from '../book-colour';
+import { accentFromPalettes, contrastRatio, readPalette } from '../book-colour';
 import { bookFontCountsInMix, bookFontSuits } from '../book-fonts';
 import type { BookPhotoInfo } from '../book-ops-core';
 import type { BookFontFamily, BookPageSetup, BookPhotoElement } from '../book.schema';
-import type { BookDesignDirectives, BookDesignStyle } from './design-directives.schema';
+import { mutedOn, readableOn } from '../theme/book-theme';
+import type { BookTheme } from '../theme/book-theme.schema';
+import {
+  isBookDesignLook,
+  type BookDesignDirectives,
+  type BookDesignLookStyle,
+  type BookDesignStyle,
+} from './design-directives.schema';
+import { designTheme, themeStylePreset } from './design-theme';
 
 /**
  * The look of a designed book: its paper, ink, accent, the two typefaces,
@@ -45,9 +53,11 @@ export interface BookDesignLook {
   tilt: number;
   /** The map style that reads on this paper. */
   mapStyle: 'minimal' | 'outline' | 'dark' | 'paper';
+  /** The theme the designed book is kept in, so "apply theme" can take it on from there. */
+  theme: BookTheme;
 }
 
-interface StylePreset {
+export interface StylePreset {
   paper: string;
   ink: string;
   accent: string;
@@ -58,7 +68,7 @@ interface StylePreset {
   mapStyle: BookDesignLook['mapStyle'];
 }
 
-const PRESETS: Record<BookDesignStyle, StylePreset> = {
+const PRESETS: Record<BookDesignLookStyle, StylePreset> = {
   classic: {
     paper: '#ffffff',
     ink: '#1a1a1a',
@@ -130,18 +140,9 @@ const MAX_PT = 200;
 
 const round1 = (v: number) => Math.round(v * 10) / 10;
 
-/** A colour part way from `a` to `b`. */
-function mix(a: string, b: string, t: number): string {
-  const ca = parseHex(a);
-  const cb = parseHex(b);
-  if (!ca || !cb) return a;
-  return toHex({ r: ca.r + (cb.r - ca.r) * t, g: ca.g + (cb.g - ca.g) * t, b: ca.b + (cb.b - ca.b) * t });
-}
-
-/** The ink, unless it reads under 4.5:1 on the paper, then whichever of near black and white reads better. */
-function readableOn(paper: string, ink: string): string {
-  return contrastRatio(ink, paper) >= 4.5 ? ink : readableInk(paper);
-}
+/** The preset of a style: one of the six looks below, or one of the themes (design-theme.ts). */
+const presetOf = (style: BookDesignStyle): StylePreset =>
+  isBookDesignLook(style) ? PRESETS[style] : themeStylePreset(style);
 
 /** The paper, ink and accent the palette directive asks for. */
 function paletteOf(
@@ -170,11 +171,10 @@ export function designLook(
   page: BookPageSetup,
   usedPhotos: readonly BookPhotoInfo[],
 ): BookDesignLook {
-  const preset = PRESETS[directives.style];
+  const preset = presetOf(directives.style);
   const colours = paletteOf(preset, directives.palette, usedPhotos);
   const ink = readableOn(colours.paper, colours.ink);
-  const softer = mix(ink, colours.paper, 0.3);
-  const muted = contrastRatio(softer, colours.paper) >= 4.6 ? softer : ink;
+  const muted = mutedOn(colours.paper, ink);
   const scale = (page.pageWidth / 210) * (directives.type?.scale ?? 1);
   const size = (role: keyof typeof BASE_SIZES, times = 1) =>
     Math.min(MAX_PT, Math.max(FLOOR[role], round1(BASE_SIZES[role] * scale * times)));
@@ -204,6 +204,7 @@ export function designLook(
     frameStyle: preset.frameStyle,
     tilt: preset.tilt,
     mapStyle: preset.mapStyle,
+    theme: designTheme(directives.style, { paper: colours.paper, ink, accent: colours.accent }, { heading, body }),
   };
 }
 

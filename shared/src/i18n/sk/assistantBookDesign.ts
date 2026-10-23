@@ -3,6 +3,7 @@ import type { TranslationStrings } from '../types';
 const assistantBookDesign: TranslationStrings = {
   'assistant.change.verb.designBook': 'Použiť návrh knihy',
   'assistant.change.verb.setBookSetup': 'Zmeniť formát strán',
+  'assistant.change.verb.setBookTheme': 'Použiť motív na knihu',
   'assistant.change.verb.duplicateBookPage': 'Duplikovať stranu',
   'assistant.change.verb.saveBookLayout': 'Uložiť stranu ako rozloženie',
   'assistant.change.verb.removeBookLayout': 'Odstrániť uložené rozloženie',

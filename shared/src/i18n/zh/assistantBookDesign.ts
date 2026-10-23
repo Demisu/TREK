@@ -3,6 +3,7 @@ import type { TranslationStrings } from '../types';
 const assistantBookDesign: TranslationStrings = {
   'assistant.change.verb.designBook': '应用相册书设计',
   'assistant.change.verb.setBookSetup': '更改页面尺寸',
+  'assistant.change.verb.setBookTheme': '为书应用主题',
   'assistant.change.verb.duplicateBookPage': '复制页面',
   'assistant.change.verb.saveBookLayout': '将页面保存为版式',
   'assistant.change.verb.removeBookLayout': '删除已保存的版式',

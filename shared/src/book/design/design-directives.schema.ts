@@ -2,6 +2,8 @@ import { idSchema } from '../../common/primitives.schema';
 import { bookFontIdSchema, bookMetricSchema, bookPagePresetSchema } from '../book-op-enums';
 import { bookCoverTemplateIdSchema } from '../book-ops.schema';
 import { MAX_BOOK_TITLE } from '../book.schema';
+import { bookThemeCatalogue } from '../theme/book-theme-describe';
+import { BOOK_THEME_IDS } from '../theme/book-theme.schema';
 
 import { z } from 'zod';
 
@@ -18,14 +20,22 @@ const pageCount = z.number().int().min(1).max(146);
 const ids300 = z.array(idSchema).max(300);
 const ids200 = z.array(idSchema).max(200);
 
-export const BOOK_DESIGN_STYLES = ['classic', 'minimal', 'editorial', 'journal', 'bold', 'scrapbook'] as const;
+/** The six looks the design engine started with. */
+export const BOOK_DESIGN_LOOKS = ['classic', 'minimal', 'editorial', 'journal', 'bold', 'scrapbook'] as const;
+export type BookDesignLookStyle = (typeof BOOK_DESIGN_LOOKS)[number];
+/** Every style a design takes: the six looks, then each built-in theme by its id (theme/book-themes.data.ts). */
+export const BOOK_DESIGN_STYLES = [...BOOK_DESIGN_LOOKS, ...BOOK_THEME_IDS] as const;
 export type BookDesignStyle = (typeof BOOK_DESIGN_STYLES)[number];
+
+/** Whether a style is one of the six looks rather than a theme. */
+export const isBookDesignLook = (style: BookDesignStyle): style is BookDesignLookStyle =>
+  (BOOK_DESIGN_LOOKS as readonly string[]).includes(style);
 
 export const bookDesignDirectivesSchema = z.strictObject({
   style: z
     .enum(BOOK_DESIGN_STYLES)
     .describe(
-      'The look: classic (white, sans, one warm accent), minimal (white, Inter, grey), editorial (cream, Playfair over Garamond), journal (warm paper, framed photos), bold (black paper, Bebas caps, strong accent), scrapbook (cream paper, MuseoModerno headings, polaroids turned a little).',
+      `The look: classic (white, sans, one warm accent), minimal (white, Inter, grey), editorial (cream, Playfair over Garamond), journal (warm paper, framed photos), bold (black paper, Bebas caps, strong accent), scrapbook (cream paper, MuseoModerno headings, polaroids turned a little), or one of the themes, which also keep the book in that theme for set_book_theme: ${bookThemeCatalogue()}`,
     )
     .default('classic'),
   /** Photos per spread: airy 1 to 2, balanced 2 to 4, rich 4 to 6. */
