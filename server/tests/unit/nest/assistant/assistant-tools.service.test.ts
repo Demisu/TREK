@@ -24,7 +24,7 @@ import { ASSISTANT_ARG_POLICY, ASSISTANT_WRITE_TOOLS } from '../../../../src/nes
 import { withRequestContext } from '../../../../src/nest/database/request-context';
 import { makePlace } from '../../../helpers/factories/places';
 import { findRows } from '../../../helpers/factories/rows';
-import { setAddonEnabled } from '../../../helpers/factories/settings';
+import { setAddonEnabled, setAppSetting } from '../../../helpers/factories/settings';
 import { makeTrip } from '../../../helpers/factories/trips';
 import { makeUser } from '../../../helpers/factories/users';
 import { FakeRealtimeService } from '../../../helpers/fake-realtime';
@@ -77,6 +77,8 @@ beforeAll(async () => {
   tools = app.get(AssistantToolsService);
   const addons = ['packing', 'budget', 'collections', 'journey', 'roadtrip'];
   await Promise.all(addons.map((addon) => setAddonEnabled(orm, addon, true)));
+  // The wanderer tools show only while the admin allows wanderer under Tours.
+  await setAppSetting(orm, 'tours_wanderer_enabled', 'true');
   const { user } = await makeUser(orm);
   listed = await listRaw(user.id);
 });

@@ -8,20 +8,22 @@ import { escapeHtml, type GeometryPoint } from '@trek/shared';
  * holds no times, is written as GPX from its points.
  */
 
+type TrackTag = 'trk' | 'rte';
+
 /** Where every `<trk>` and `<rte>` element of a GPX text starts and ends, in order. */
-function trackBlocks(gpx: string): Array<{ from: number; to: number }> {
-  const blocks: Array<{ from: number; to: number }> = [];
+function trackBlocks(gpx: string): Array<{ tag: TrackTag; from: number; to: number }> {
+  const blocks: Array<{ tag: TrackTag; from: number; to: number }> = [];
   let at = 0;
   for (;;) {
     const trk = openingAt(gpx, 'trk', at);
     const rte = openingAt(gpx, 'rte', at);
     const next = [trk, rte].filter((found) => found >= 0).sort((a, b) => a - b)[0];
     if (next === undefined) return blocks;
-    const tag = next === trk ? 'trk' : 'rte';
+    const tag: TrackTag = next === trk ? 'trk' : 'rte';
     const close = gpx.indexOf(`</${tag}>`, next);
     if (close < 0) return blocks;
     const to = close + tag.length + 3;
-    blocks.push({ from: next, to });
+    blocks.push({ tag, from: next, to });
     at = to;
   }
 }
@@ -38,12 +40,19 @@ function openingAt(text: string, tag: string, at: number): number {
   }
 }
 
+/** One piece cut out of a GPX file: whether it is a track or a route, and its own GPX text. */
+export interface GpxTrackPiece {
+  tag: TrackTag;
+  gpx: string;
+}
+
 /**
- * One GPX text per track and route of a GPX file: the file's head (its
- * declaration, the `<gpx>` element and its metadata) around each element.
- * Empty where the file holds none the cut can find (a namespace prefix, say).
+ * One GPX text per track and route of a GPX file, in the file's order: the
+ * file's head (its declaration, the `<gpx>` element and its metadata) around
+ * each element. Empty where the file holds none the cut can find (a
+ * namespace prefix, say).
  */
-export function splitGpxTracks(gpx: string): string[] {
+export function splitGpxTrackPieces(gpx: string): GpxTrackPiece[] {
   const blocks = trackBlocks(gpx);
   const first = blocks[0];
   if (!first) return [];
@@ -51,7 +60,12 @@ export function splitGpxTracks(gpx: string): string[] {
   // The head ends before the first waypoint as well: an import never takes loose points.
   const wpt = openingAt(head, 'wpt', 0);
   const kept = wpt >= 0 ? head.slice(0, wpt) : head;
-  return blocks.map(({ from, to }) => `${kept}${gpx.slice(from, to)}\n</gpx>\n`);
+  return blocks.map(({ tag, from, to }) => ({ tag, gpx: `${kept}${gpx.slice(from, to)}\n</gpx>\n` }));
+}
+
+/** The GPX texts of splitGpxTrackPieces, in the file's order. */
+export function splitGpxTracks(gpx: string): string[] {
+  return splitGpxTrackPieces(gpx).map((piece) => piece.gpx);
 }
 
 /** A line read from a KML or KMZ file as a GPX text of one track. */

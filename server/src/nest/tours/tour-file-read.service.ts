@@ -2,7 +2,7 @@ import { PlaceImportService } from '../place-import/place-import.service';
 import type { PreparedGpxPlace } from '../place-import/place-import.types';
 import { PlacesService } from '../places/places.service';
 import { readTourFile } from './tour-file-import.helpers';
-import { gpxOfLine, splitGpxTracks } from './tour-file-split.helpers';
+import { gpxOfLine, splitGpxTrackPieces } from './tour-file-split.helpers';
 import { computeTourMetrics, parseRouteGeometry } from './tours.helpers';
 import { Injectable } from '@nestjs/common';
 import { TOUR_GPX_TEXT_MAX, type TourFileLeftOut } from '@trek/shared';
@@ -56,27 +56,51 @@ export class TourFileReadService {
     const { rows, leftOut } = await readTourFile(this.placeImport, buffer, fileName);
     if (rows.length === 0) return { tracks: [], whole: false };
     const duplicates = await this.places.gpxDuplicates(String(tripId), rows);
-    const texts = isGpxName(fileName) ? this.cutGpx(buffer.toString('utf8'), rows.length, fileName) : null;
     const extra = leftOut ? { left_out: leftOut } : {};
-    if (isGpxName(fileName) && !texts) {
-      return { tracks: [this.wholeFile(buffer.toString('utf8'), rows, fileName)], whole: true, ...extra };
+    if (!isGpxName(fileName)) {
+      const tracks = rows.map((row, index) =>
+        this.trackOf(
+          row,
+          gpxOfLine(row.name, row.description, parseRouteGeometry(row.routeGeometry)),
+          duplicates[index] ?? false,
+        ),
+      );
+      return { tracks, whole: false, ...extra };
     }
-    const tracks = rows.map((row, index) => {
-      const own = texts?.[index] ?? gpxOfLine(row.name, row.description, parseRouteGeometry(row.routeGeometry));
-      return this.trackOf(row, own, duplicates[index] ?? false);
-    });
+    const text = buffer.toString('utf8');
+    const pieces = this.cutGpx(text, rows, fileName);
+    if (!pieces) return { tracks: [this.wholeFile(text, rows, fileName)], whole: true, ...extra };
+    const tracks = pieces.map(({ row, gpx, index }) => this.trackOf(row, gpx, duplicates[index] ?? false));
     return { tracks, whole: false, ...extra };
   }
 
-  /** A GPX text cut into its tracks; null where a piece does not read back as exactly the one it should. */
-  private cutGpx(text: string, count: number, fileName: string): string[] | null {
-    const pieces = splitGpxTracks(text);
-    if (pieces.length !== count) return null;
-    const readable = pieces.every((piece) => {
-      const rows = this.placeImport.readGpx(Buffer.from(piece, 'utf8'), { ...GPX_OPTIONS, defaultName: fileName });
-      return rows.length === 1;
-    });
-    return readable ? pieces : null;
+  /**
+   * A GPX text cut into its tracks, in the file's order, each paired with the
+   * row the reader made of it. The reader gives every route before every
+   * track, so the k-th `<rte>` is row k and the k-th `<trk>` the row after all
+   * routes. Null where the cut does not find one piece per row, or a piece
+   * does not read back as exactly the line of its row.
+   */
+  private cutGpx(
+    text: string,
+    rows: readonly PreparedGpxPlace[],
+    fileName: string,
+  ): Array<{ row: PreparedGpxPlace; gpx: string; index: number }> | null {
+    const pieces = splitGpxTrackPieces(text);
+    if (pieces.length !== rows.length) return null;
+    const routeCount = pieces.filter((piece) => piece.tag === 'rte').length;
+    let routes = 0;
+    let tracks = 0;
+    const paired: Array<{ row: PreparedGpxPlace; gpx: string; index: number }> = [];
+    for (const piece of pieces) {
+      const index = piece.tag === 'rte' ? routes++ : routeCount + tracks++;
+      const row = rows[index];
+      if (!row) return null;
+      const back = this.placeImport.readGpx(Buffer.from(piece.gpx, 'utf8'), { ...GPX_OPTIONS, defaultName: fileName });
+      if (back.length !== 1 || back[0]?.routeGeometry !== row.routeGeometry) return null;
+      paired.push({ row, gpx: piece.gpx, index });
+    }
+    return paired;
   }
 
   private trackOf(row: PreparedGpxPlace, gpx: string, duplicate: boolean): TourFileTrack {

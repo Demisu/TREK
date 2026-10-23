@@ -3,6 +3,7 @@ import { Places } from '../../../src/db/entities/Places.entity';
 import { TourChangeSteps } from '../../../src/db/entities/TourChangeSteps.entity';
 import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../src/db/entities/Tours.entity';
+import { withRequestContext } from '../../../src/nest/database/request-context';
 import { PaddleRoutingService } from '../../../src/nest/paddle-routing/paddle-routing.service';
 import { RoadtripRouterService } from '../../../src/nest/roadtrip/roadtrip-router.service';
 import { SkiRoutingService } from '../../../src/nest/ski-routing/ski-routing.service';
@@ -297,7 +298,10 @@ function wandererTrail(app: INestApplication): () => void {
 
 /** The trail previewed first, as the traveller sees it before the import: its fingerprint is what the import takes. */
 async function previewTrail(s: Scene, app: INestApplication): Promise<void> {
-  const preview = await app.get(ToursWandererService).preview(String(s.trip.id), s.owner.id, 'trail-1');
+  // Called straight on the service, outside a request: it reads the snapshots through repositories, which need a context.
+  const preview = await withRequestContext(ormOf(app), () =>
+    app.get(ToursWandererService).preview(String(s.trip.id), s.owner.id, 'trail-1'),
+  );
   trailHashFor.set(s.n, preview.contentHash);
 }
 

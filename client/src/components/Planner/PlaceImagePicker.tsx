@@ -1,7 +1,7 @@
 import type { PlacePhotoCandidate } from '@trek/shared';
 import { Check, ImageOff, ImagePlus, Loader2 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchImageAsBlob } from '../../api/authUrl';
+import { placePictureRepo } from '../../repo/placePictureRepo';
 import type { TranslationFn, TripFile } from '../../types';
 import { normalizeImageFile } from '../../utils/convertHeic';
 import { Tooltip } from '../shared/Tooltip';
@@ -308,7 +308,8 @@ function AttachedTile({
   const [src, setSrc] = useState<string | null>(null);
   useEffect(() => {
     let current = true;
-    fetchImageAsBlob(file.url)
+    placePictureRepo
+      .attachedImage(file.url)
       .then((url) => {
         if (current) setSrc(url);
       })

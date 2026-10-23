@@ -1,7 +1,7 @@
 import type { PlacePhotoCandidate } from '@trek/shared';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { mapsApi } from '../../api/client';
 import { translateApiError, useTranslation } from '../../i18n';
+import { placePictureRepo } from '../../repo/placePictureRepo';
 import { useAuthStore } from '../../store/authStore';
 import type { Place } from '../../types';
 import { useToast } from '../shared/Toast';
@@ -117,8 +117,8 @@ export function usePlaceGallery(place: Place, language: string): UsePlaceGallery
     // An answer for a place the user has left is kept for that place, but opens nothing and says nothing.
     const current = () => shownRef.current === placeId;
     setLoadingFor(placeId);
-    mapsApi
-      .placeEnrichment({ ...selection, lang: language })
+    placePictureRepo
+      .enrichment({ ...selection, lang: language })
       .then((result) => {
         storeEnrichment(selection, language, result);
         if (current()) apply(result.photos);

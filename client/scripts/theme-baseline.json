@@ -251,7 +251,7 @@
   "mobile/screens/trip/sheets/MMehrSheet.tsx": 3,
   "mobile/screens/trip/sheets/MNoteSheet.tsx": 1,
   "mobile/screens/trip/sheets/MPlaceEditSheet.tsx": 2,
-  "mobile/screens/trip/sheets/MPlaceSheet.tsx": 27,
+  "mobile/screens/trip/sheets/MPlaceSheet.tsx": 23,
   "mobile/screens/trip/sheets/MReservationSheet.tsx": 2,
   "mobile/screens/trip/sheets/MTransportFormSheet.tsx": 9,
   "mobile/screens/trip/sheets/MTransportSheet.tsx": 12,

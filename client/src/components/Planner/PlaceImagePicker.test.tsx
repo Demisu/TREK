@@ -6,12 +6,12 @@ import type { PlacePhotoCandidate } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { buildTripFile } from '../../../tests/helpers/factories';
-import { fetchImageAsBlob } from '../../api/authUrl';
+import { placePictureRepo } from '../../repo/placePictureRepo';
 import { normalizeImageFile } from '../../utils/convertHeic';
 import PlaceImagePicker, { PhotoCredit, type PlaceImageOwn } from './PlaceImagePicker';
 import type { ChosenImage } from './placeImageChoice';
 
-vi.mock('../../api/authUrl', () => ({ fetchImageAsBlob: vi.fn() }));
+vi.mock('../../repo/placePictureRepo', () => ({ placePictureRepo: { attachedImage: vi.fn() } }));
 vi.mock('../../utils/convertHeic', () => ({
   normalizeImageFile: vi.fn(async (file: File) => new File([file], `normalized-${file.name}`, { type: 'image/jpeg' })),
 }));
@@ -81,8 +81,8 @@ function renderPicker(
 const fileInput = () => document.querySelector('input[type="file"]') as HTMLInputElement;
 
 beforeEach(() => {
-  vi.mocked(fetchImageAsBlob).mockReset();
-  vi.mocked(fetchImageAsBlob).mockResolvedValue('blob:attached');
+  vi.mocked(placePictureRepo.attachedImage).mockReset();
+  vi.mocked(placePictureRepo.attachedImage).mockResolvedValue('blob:attached');
   vi.mocked(normalizeImageFile).mockClear();
 });
 
@@ -168,19 +168,19 @@ describe('PlaceImagePicker', () => {
     renderPicker({ own: mine });
     const tile = screen.getByRole('button', { name: 'facade.png' });
     await waitFor(() => expect(tile.querySelector('img')).toHaveAttribute('src', 'blob:attached'));
-    expect(fetchImageAsBlob).toHaveBeenCalledWith('/api/files/41');
+    expect(placePictureRepo.attachedImage).toHaveBeenCalledWith('/api/files/41');
 
     fireEvent.click(tile);
     expect(mine.onPickAttached).toHaveBeenCalledWith(ATTACHED);
   });
 
   it('FE-PLANNER-PLIMGPICK-009: a chosen attached image is ticked and named under the grid; one that fails to load stays blank', async () => {
-    vi.mocked(fetchImageAsBlob).mockRejectedValue(new Error('gone'));
+    vi.mocked(placePictureRepo.attachedImage).mockRejectedValue(new Error('gone'));
     renderPicker({ own: own({ attached: [ATTACHED] }), chosen: { kind: 'attached', fileId: 41 } });
     const tile = screen.getByRole('button', { name: 'facade.png' });
     expect(tile).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByText('facade.png')).toBeInTheDocument();
-    await waitFor(() => expect(fetchImageAsBlob).toHaveBeenCalled());
+    await waitFor(() => expect(placePictureRepo.attachedImage).toHaveBeenCalled());
     expect(tile.querySelector('img')).toBeNull();
 
     // Focusing it names it as well, and the name stays once it is left.

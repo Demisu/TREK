@@ -82,7 +82,6 @@
     "server/src/nest/backup/backup-archive.ts": 1,
     "server/src/nest/backup/backup.impl.ts": 3,
     "server/src/nest/budget/budget.service.ts": 1,
-    "server/src/nest/common/validate-managed-routes.ts": 1,
     "server/src/nest/day-notes/day-notes.service.ts": 1,
     "server/src/nest/doc-sync/providers/paperless.client.ts": 7,
     "server/src/nest/doc-sync/providers/paperless.provider.ts": 1,

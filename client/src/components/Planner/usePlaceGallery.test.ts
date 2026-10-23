@@ -13,10 +13,8 @@ import { __clearEnrichmentCacheForTests, readCachedEnrichment, storeEnrichment }
 import { usePlaceGallery } from './usePlaceGallery';
 
 const placeEnrichment = vi.fn();
-// Partial: the store registry behind resetAllStores needs the real default client.
-vi.mock('../../api/client', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../api/client')>()),
-  mapsApi: { placeEnrichment: (...a: unknown[]) => placeEnrichment(...a) },
+vi.mock('../../repo/placePictureRepo', () => ({
+  placePictureRepo: { enrichment: (...a: unknown[]) => placeEnrichment(...a) },
 }));
 // One toast for every render, the way the real hook memoises it.
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn() }));
