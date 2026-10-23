@@ -48,6 +48,7 @@ import {
   type TourPoiSearchResponse,
   type UnroutedHikePlan,
   type WeatherResult,
+  hikePlanRequestSchema,
 } from '@trek/shared';
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -648,6 +649,18 @@ describe('HikePlanMcp: propose_hike', () => {
         ctx(f.user.id),
       ),
     ).rejects.toThrow('a stage ends at a stop between start and end');
+  });
+
+  it('HIKE-MCP-022b: the router gets the points without their stage ends, which its strict request refuses', async () => {
+    const f = await fixture();
+    const [first, middle, last] = WAYPOINTS;
+    await mcp.proposeHike(
+      { tripId: f.trip.id, name: 'Two days', waypoints: [first, { ...middle, stage_end: true }, last] },
+      ctx(f.user.id),
+    );
+    const sent = plan.mock.calls.at(-1)?.[2];
+    expect(sent?.waypoints).toEqual(WAYPOINTS);
+    expect(hikePlanRequestSchema.safeParse(sent).success).toBe(true);
   });
 });
 

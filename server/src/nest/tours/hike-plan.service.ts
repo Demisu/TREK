@@ -158,10 +158,17 @@ export class HikePlanService {
     preferences: HikingPreferences | null | undefined,
     grades: boolean,
   ): Promise<PlannedHike> {
+    // The router takes the points only: where a stage ends is the hike's, not the way's.
+    const waypoints = points.map(({ lat, lng, name, poi_category }) => ({
+      lat,
+      lng,
+      ...(name === undefined ? {} : { name }),
+      ...(poi_category === undefined ? {} : { poi_category }),
+    }));
     return await this.routing.plan(
       userId,
       tripId,
-      { waypoints: points, max_hiking_difficulty: limit, hiking_preferences: preferences },
+      { waypoints, max_hiking_difficulty: limit, hiking_preferences: preferences },
       { grades },
     );
   }
