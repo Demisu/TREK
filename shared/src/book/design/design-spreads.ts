@@ -1,4 +1,5 @@
 import type { AutoEntry, AutoPhoto } from '../auto/auto-types';
+import { formatBookDate } from '../book-text';
 import { bookEntryListItems, bookTravelList, bookTravelMap, bookTravelSize } from '../book-travel';
 import type { BookElement, BookFrame, BookSpread, BookTextElement } from '../book.schema';
 import type { JourneyStats } from '../journey-stats.schema';
@@ -25,20 +26,43 @@ import { paperBackground } from './design-style';
 
 /**
  * The spreads of a chapter, one composer per beat: the opener, the hero, a
- * quiet page for a long story, two, three and four to six photos, and a
- * panorama across the fold. Each takes the photos the plan gave it and the
- * page (left or right) its photos lead on, and hands back the elements and
- * whatever of the story it could not set. An entry's pros and cons go under
- * its words where they leave room: on the opener, the panorama or a quiet
- * page, which also sets them beside its photo when it has no words.
+ * quiet page for the words that run long, two, three and four to six photos,
+ * and a panorama across the fold. Each takes the photos the plan gave it and
+ * the page (left or right) its photos lead on, and hands back the elements and
+ * whatever of the chapter's words it could not set. The words flow in reading
+ * order from the opener (or the panorama) onto the quiet pages: the first
+ * entry's story, its pros and cons under it where they leave room, then the
+ * story of every further entry of the chapter under a small heading of its
+ * title. Pros and cons with no room where they fall wait, with the words after
+ * them, for a later page that takes words.
  */
+
+/** An entry's story still to be set: the whole of it, or what a page before left of it. */
+interface Passage {
+  kind: 'story';
+  entry: AutoEntry;
+  words: string;
+  /** Whether a page before set its start, so the part left is set unbound. */
+  begun: boolean;
+  /** Whether a small heading of the entry's title goes over its first words: an entry after its chapter's first. */
+  headed: boolean;
+}
+
+/** What a chapter still has to set, in reading order: stories, and its first entry's pros and cons after its story. */
+export type FlowItem = Passage | { kind: 'list'; entry: AutoEntry };
+
+/** A chapter's words as a page gets them. */
+export interface Words {
+  /** What is still to set, in reading order. */
+  flow: readonly FlowItem[];
+  /** Whether a later page of the chapter takes words, so pros and cons with no room where they fall wait for it. */
+  later: boolean;
+}
 
 export interface Composed {
   elements: BookElement[];
-  /** The part of the story still to be set, for the next quiet page. */
-  rest: string;
-  /** Whether the entry's pros and cons were set on this page. */
-  listed?: boolean;
+  /** The chapter's words still to be set, for the next page that takes words; absent on a page that takes none. */
+  rest?: FlowItem[];
 }
 
 type Hand = 'left' | 'right';
@@ -103,9 +127,11 @@ interface Foot {
   bottom: number;
 }
 
-function footUnder(c: ComposeCtx, words: BookTextElement | null, column: BookFrame): Foot {
-  const top = words ? words.frame.y + words.frame.h + c.grid.gutter : column.y;
-  return { x: column.x, w: column.w, top, bottom: column.y + column.h };
+/** How tall an entry's pros and cons are as a list: a row for each on the longer side. */
+function listHeight(c: ComposeCtx, entry: AutoEntry): number {
+  const items = bookEntryListItems(entry);
+  const pros = items.filter((i) => i.tone === 'pro').length;
+  return bookTravelSize('list', c.page, { rows: Math.max(pros, items.length - pros) }).h;
 }
 
 /**
@@ -116,8 +142,7 @@ function footUnder(c: ComposeCtx, words: BookTextElement | null, column: BookFra
 function listUnder(c: ComposeCtx, entry: AutoEntry, foot: Foot): BookElement | null {
   const items = bookEntryListItems(entry);
   if (!items.length) return null;
-  const pros = items.filter((i) => i.tone === 'pro').length;
-  const { h } = bookTravelSize('list', c.page, { rows: Math.max(pros, items.length - pros) });
+  const h = listHeight(c, entry);
   if (foot.top + h > foot.bottom) return null;
   const labels = { pros: c.travel.labels.pros, cons: c.travel.labels.cons };
   const list = bookTravelList(labels, { id: c.newId('li'), frame: frameOf(foot.x, foot.top, foot.w, h), items });
@@ -125,10 +150,106 @@ function listUnder(c: ComposeCtx, entry: AutoEntry, foot: Foot): BookElement | n
 }
 
 /**
- * The chapter opens: the title block and the story on one page, a photo to
- * the bleed on the other. Without a photo the story runs on across both pages.
+ * A small heading over a later entry's story, bound to the entry: its title,
+ * else its place (as the title block sets them), else its date; null when it
+ * has none of them.
  */
-export function composeOpener(c: ComposeCtx, entry: AutoEntry, photo: AutoPhoto | null, hand: Hand): Composed {
+function runIn(c: ComposeCtx, entry: AutoEntry, foot: Foot): BookTextElement | null {
+  const at = { x: foot.x, y: foot.top, w: foot.w };
+  const name = entry.title || entry.location;
+  if (name) return textEl(c, at, name, 'sub', { binding: { source: 'entry.title', entryId: entry.id } });
+  const iso = entry.date ?? '';
+  const date = formatBookDate(iso, c.locale);
+  if (!date) return null;
+  return textEl(c, at, date, 'sub', { binding: { source: 'entry.date', entryId: entry.id, value: iso } });
+}
+
+/** One step down a column: what it set, where that ends, the words left after it. */
+interface Step {
+  els: BookElement[];
+  end: number;
+  rest: FlowItem[];
+  /** Whether a story was cut: the column is full and the rest of it goes to the next page. */
+  cut: boolean;
+}
+
+/**
+ * As much of a story as the room holds, under its heading where it opens (a
+ * heading is never left without words under it), `after` the words that come
+ * next; null when not a line of it fits.
+ */
+function setPassage(c: ComposeCtx, passage: Passage, after: readonly FlowItem[], foot: Foot): Step | null {
+  const head = passage.headed && !passage.begun ? runIn(c, passage.entry, foot) : null;
+  const top = head ? head.frame.y + head.frame.h + 3 : foot.top;
+  const box = frameOf(foot.x, top, foot.w, foot.bottom - top);
+  const story = storyEl(c, passage.entry, passage.words, box, !passage.begun);
+  if (!story.el) return null;
+  const left: FlowItem[] = story.rest ? [{ ...passage, words: story.rest, begun: true }] : [];
+  return {
+    els: head ? [head, story.el] : [story.el],
+    end: story.el.frame.y + story.el.frame.h,
+    rest: [...left, ...after],
+    cut: left.length > 0,
+  };
+}
+
+/**
+ * The next of a chapter's words, `item`, in the room under those set: a
+ * story, or the list where it has room. A list with no room where it falls
+ * waits, with the words `after` it, when a later page `waits` for them and
+ * holds it; else the words go on without it, and the notes say it is left
+ * out. Null when nothing fits.
+ */
+function setNext(c: ComposeCtx, item: FlowItem, after: readonly FlowItem[], foot: Foot, waits: boolean): Step | null {
+  if (item.kind === 'story') return setPassage(c, item, after, foot);
+  const list = listUnder(c, item.entry, foot);
+  if (list) return { els: [list], end: list.frame.y + list.frame.h, rest: after, cut: false };
+  if (waits && listHeight(c, item.entry) <= liveBox(c, 'left').h) return null;
+  const [next, ...later] = after;
+  return next?.kind === 'story' ? setPassage(c, next, later, foot) : null;
+}
+
+interface Flowed {
+  elements: BookElement[];
+  rest: FlowItem[];
+}
+
+/**
+ * A chapter's words down a column in reading order, each a gutter under the
+ * one before: a story as far as it fits (cut at a sentence, the rest handed
+ * on), every further entry's under a small heading of its title, the first
+ * entry's pros and cons under its story where they leave room, else on a
+ * later page when one `waits` for the words.
+ */
+function flowWords(c: ComposeCtx, flow: readonly FlowItem[], column: BookFrame, waits: boolean): Flowed {
+  const elements: BookElement[] = [];
+  let top = column.y;
+  let rest = [...flow];
+  let item: FlowItem | undefined = rest[0];
+  while (item) {
+    const foot = { x: column.x, w: column.w, top, bottom: column.y + column.h };
+    const step = setNext(c, item, rest.slice(1), foot, waits);
+    if (!step) break;
+    elements.push(...step.els);
+    top = step.end + c.grid.gutter;
+    rest = step.rest;
+    item = step.cut ? undefined : rest[0];
+  }
+  return { elements, rest };
+}
+
+/**
+ * The chapter opens: the title block and the chapter's words on one page, a
+ * photo to the bleed on the other. Without a photo the words run on across
+ * both pages.
+ */
+export function composeOpener(
+  c: ComposeCtx,
+  entry: AutoEntry,
+  photo: AutoPhoto | null,
+  hand: Hand,
+  words: Words,
+): Composed {
   const textSide = photo ? other(hand) : 'left';
   const box = liveBox(c, textSide);
   const head = titleBlock(c, entry, box);
@@ -139,25 +260,16 @@ export function composeOpener(c: ComposeCtx, entry: AutoEntry, photo: AutoPhoto 
     els.push(map);
     bottom = map.frame.y - c.grid.gutter;
   }
-  const storyBox = frameOf(box.x, head.bottom + 2, box.w, bottom - head.bottom - 2);
-  const first = storyEl(c, entry, (entry.story ?? '').trim(), storyBox, true);
-  if (first.el) els.push(first.el);
-  let rest = first.el ? first.rest : (entry.story ?? '').trim();
-  let foot = footUnder(c, first.el, storyBox);
+  const column = frameOf(box.x, head.bottom + 2, box.w, bottom - head.bottom - 2);
+  const set = flowWords(c, words.flow, column, words.later || !photo);
+  els.push(...set.elements);
   if (photo) {
     els.unshift(photoEl(c, photo, bleedPage(c, hand), { bleed: { side: hand } }));
-  } else if (rest) {
-    const right = liveBox(c, 'right');
-    const next = storyEl(c, entry, rest, right, false);
-    if (next.el) {
-      els.push(next.el);
-      foot = footUnder(c, next.el, right);
-    }
-    rest = next.el ? next.rest : rest;
+    return { elements: els, rest: set.rest };
   }
-  const list = listUnder(c, entry, foot);
-  if (list) els.push(list);
-  return { elements: els, rest, listed: list !== null };
+  if (!set.rest.length) return { elements: els, rest: set.rest };
+  const more = flowWords(c, set.rest, liveBox(c, 'right'), words.later);
+  return { elements: [...els, ...more.elements], rest: more.rest };
 }
 
 /** The trip a chapter's stop is on: the stop read from its entry, else the one at its place; null for none. */
@@ -187,7 +299,8 @@ function chapterMap(c: ComposeCtx, entry: AutoEntry, box: BookFrame): BookElemen
 
 /**
  * One photo across the whole spread, the title on a scrim at the foot of a
- * page. The detail is kept off the fold; the story goes to the next page.
+ * page. The detail is kept off the fold; the chapter's words go to the next
+ * page that takes words.
  */
 export function composeHero(c: ComposeCtx, entry: AutoEntry, photo: AutoPhoto, hand: Hand): Composed {
   const { pageWidth: PW, pageHeight: H, bleed: b, margin: m } = c.grid;
@@ -199,40 +312,43 @@ export function composeHero(c: ComposeCtx, entry: AutoEntry, photo: AutoPhoto, h
   els.push(scrimEl(c, frameOf(textSide === 'left' ? -b : PW, top, PW + b, H - top + b)));
   const box = frameOf(pageX(c, textSide) + m, top + m * 0.6, PW - m * 2, H - top - m * 1.6);
   els.push(...titleBlock(c, entry, box, { onScrim: true }).els);
-  return { elements: els, rest: (entry.story ?? '').trim() };
+  return { elements: els };
+}
+
+/** The narrow column of a quiet page: the page's live area, set in on both sides. */
+function quietColumn(c: ComposeCtx, side: Hand): BookFrame {
+  const box = liveBox(c, side);
+  const inset = box.w * 0.08;
+  return frameOf(box.x + inset, box.y, box.w - inset * 2, box.h);
 }
 
 /**
- * A long story's next page: the words in a narrow column, a photo on the
- * other page when there is one, and the pros and cons of `list` (the
- * chapter's entry, when they have not found a page yet) under the words, or
- * at the head of the column on a photo's page that sets none.
+ * A page for the chapter's words the pages before had no room for: the words
+ * in a narrow column, the first entry's pros and cons in their place among
+ * them (at the head of the column when its words were all set before), a
+ * photo on the other page when there is one. Without a photo the column runs
+ * on from the left page onto the right, so a day of several stories keeps to
+ * its one spread.
  */
 export function composeQuiet(
   c: ComposeCtx,
-  entry: AutoEntry | null,
-  words: string,
+  words: Words,
   photo: AutoPhoto | null,
   hand: Hand,
-  list: AutoEntry | null = null,
+  entryId: number | null,
 ): Composed {
-  const textSide = photo ? other(hand) : 'left';
-  const box = liveBox(c, textSide);
-  const inset = box.w * 0.08;
-  const column = frameOf(box.x + inset, box.y, box.w - inset * 2, box.h);
+  const sides: Hand[] = photo ? [other(hand)] : ['left', 'right'];
   const els: BookElement[] = [];
-  let rest = words;
-  let set: BookTextElement | null = null;
-  if (entry && words) {
-    const story = storyEl(c, entry, words, column, false);
-    set = story.el;
-    if (set) els.push(set);
-    rest = set ? story.rest : words;
+  let rest = [...words.flow];
+  for (const side of sides) {
+    if (!rest.length) break;
+    // The left page of a spread without a photo hands on to the right one.
+    const set = flowWords(c, rest, quietColumn(c, side), words.later || (!photo && side === 'left'));
+    els.push(...set.elements);
+    rest = set.rest;
   }
-  const pros = list ? listUnder(c, list, footUnder(c, set, column)) : null;
-  if (pros) els.push(pros);
-  if (photo) els.push(...pagePhotos(c, [photo], hand, entry?.id ?? null));
-  return { elements: els, rest, listed: pros !== null };
+  if (photo) els.push(...pagePhotos(c, [photo], hand, entryId));
+  return { elements: els, rest };
 }
 
 /** Two photos: one to the bleed of its page, the other framed on the facing page. */
@@ -241,7 +357,7 @@ export function composeDuo(c: ComposeCtx, list: readonly AutoPhoto[], hand: Hand
   const els: BookElement[] = [];
   if (a) els.push(photoEl(c, a, bleedPage(c, hand), { bleed: { side: hand } }));
   els.push(...pagePhotos(c, rest.slice(0, 1), other(hand), entryId));
-  return { elements: els, rest: '' };
+  return { elements: els };
 }
 
 /** Three photos: one to the bleed of its page, two framed on the facing page. */
@@ -250,7 +366,7 @@ export function composeTrio(c: ComposeCtx, list: readonly AutoPhoto[], hand: Han
   const els: BookElement[] = [];
   if (a) els.push(photoEl(c, a, bleedPage(c, hand), { bleed: { side: hand } }));
   els.push(...pagePhotos(c, rest.slice(0, 2), other(hand), entryId));
-  return { elements: els, rest: '' };
+  return { elements: els };
 }
 
 /** Four to six photos, framed on both pages, the fuller page on the leading side. */
@@ -260,12 +376,12 @@ export function composeGrid(c: ComposeCtx, list: readonly AutoPhoto[], hand: Han
     ...pagePhotos(c, list.slice(0, lead), hand, entryId),
     ...pagePhotos(c, list.slice(lead, lead + 3), other(hand), entryId),
   ];
-  return { elements: els, rest: '' };
+  return { elements: els };
 }
 
 /**
- * A panorama across the top of the spread, the title and the story under it
- * on one page, up to two photos under it on the other.
+ * A panorama across the top of the spread, the title and the chapter's words
+ * under it on one page, up to two photos under it on the other.
  */
 export function composePano(
   c: ComposeCtx,
@@ -273,6 +389,7 @@ export function composePano(
   pano: AutoPhoto,
   others: readonly AutoPhoto[],
   hand: Hand,
+  words: Words,
 ): Composed {
   const { pageWidth: PW, pageHeight: H, bleed: b, margin: m, gutter: g } = c.grid;
   const band = frameOf(-b, -b, PW * 2 + b * 2, H * 0.5 + b);
@@ -282,11 +399,9 @@ export function composePano(
   const box = frameOf(pageX(c, textSide) + m, top, PW - m * 2, H - m - top);
   const head = titleBlock(c, entry, box);
   els.push(...head.els);
-  const storyBox = frameOf(box.x, head.bottom + 2, box.w, box.y + box.h - head.bottom - 2);
-  const set = storyEl(c, entry, (entry.story ?? '').trim(), storyBox, true);
-  if (set.el) els.push(set.el);
-  const list = listUnder(c, entry, footUnder(c, set.el, storyBox));
-  if (list) els.push(list);
+  const column = frameOf(box.x, head.bottom + 2, box.w, box.y + box.h - head.bottom - 2);
+  const set = flowWords(c, words.flow, column, words.later);
+  els.push(...set.elements);
   const row = others.slice(0, 2);
   const cell = frameOf(pageX(c, hand) + m, top, PW - m * 2, H - m - top);
   const w = row.length > 1 ? (cell.w - g) / 2 : cell.w;
@@ -294,7 +409,7 @@ export function composePano(
     const frame = frameOf(cell.x + i * (w + g), cell.y, w, cell.h);
     els.push(photoEl(c, p, frame, { turn: turnOf(c, i) }));
   });
-  return { elements: els, rest: set.el ? set.rest : (entry.story ?? '').trim(), listed: list !== null };
+  return { elements: els, rest: set.rest };
 }
 
 /** Whether a panorama can run across the top of the spread at print resolution. */

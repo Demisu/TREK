@@ -32,10 +32,11 @@ import { describe, expect, it } from 'vitest';
  * and excerpts, chapter maps, a locked page kept. Each design is checked for
  * its structure (the framing in order, every chapter there, the rhythm, the
  * budget, the caps, a document the save route takes), for being clean (no
- * severe and no warn finding left on any page or on the book) and for being
- * current (no travel element out of date with the journey once placed).
- * The pacing of a chapter (its bursts, the photo beats) is also read straight
- * from the plan.
+ * severe and no warn finding left on any page or on the book), for being
+ * current (no travel element out of date with the journey once placed) and
+ * for losing no story unsaid (every entry's words on its pages, or named in
+ * the notes). The pacing of a chapter (its bursts, the photo beats) is also
+ * read straight from the plan.
  */
 
 type Name = 'rich' | 'sparse' | 'nostats';
@@ -148,6 +149,53 @@ function checkCoverage(result: BookDesignResult, entryIds: readonly number[]): v
   expect(entryIds.filter((id) => !told.has(id))).toEqual([]);
 }
 
+/** Text with its spacing taken out: so the pieces of a story set on several pages compare with the story. */
+const squashed = (words: string) => words.replace(/\s+/g, '');
+
+/** What a design sets of an entry's story, its pieces in page order, the mark a cut adds taken off. */
+function storySet(result: BookDesignResult, entryId: number): string {
+  let words = '';
+  for (const spread of result.doc.spreads) {
+    for (const el of spread.elements) {
+      if (el.kind !== 'text' || el.binding?.source !== 'entry.story' || el.binding.entryId !== entryId) continue;
+      words += el.text.replace(/…$/, '');
+    }
+  }
+  return squashed(words);
+}
+
+/** The entries whose stories, all of them or a part, the notes say are left out. */
+function storiesNoted(result: BookDesignResult): number[] {
+  const said = result.notes.filter((n) => /stor(y|ies) of /.test(n) && n.endsWith('left out'));
+  return said.flatMap((n) => (n.match(/\d+/g) ?? []).map(Number));
+}
+
+/**
+ * No story lost unsaid: every entry in scope has its story on its pages in
+ * full (its excerpt, when excerpts are asked for), or a note names it.
+ */
+function checkStories(
+  result: BookDesignResult,
+  entries: readonly AutoEntry[],
+  directives: BookDesignDirectivesInput,
+): void {
+  const asked = bookDesignDirectivesSchema.parse(directives);
+  const story = asked.text?.story ?? 'full';
+  const scope = asked.scope?.entryIds;
+  const noted = new Set(storiesNoted(result));
+  for (const entry of entries) {
+    const words = squashed(entry.story ?? '');
+    if (!words || story === 'none' || noted.has(entry.id) || (scope && !scope.includes(entry.id))) continue;
+    const set = storySet(result, entry.id);
+    const told = story === 'excerpt' ? set.length > 0 : set.includes(words);
+    expect({ entry: entry.id, told }).toEqual({ entry: entry.id, told: true });
+  }
+}
+
+/** The entries the texts of one source among these elements are bound to, in order. */
+const boundTo = (elements: readonly BookElement[], source: string) =>
+  elements.flatMap((e) => (e.kind === 'text' && e.binding?.source === source ? [e.binding.entryId] : []));
+
 const substantive = (name: Name, ids?: readonly number[]) =>
   fixtures[name].input.entries
     .filter((e) => !ids || ids.includes(e.id))
@@ -156,13 +204,14 @@ const substantive = (name: Name, ids?: readonly number[]) =>
 
 describe('design_book', () => {
   for (const [label, name, directives] of VARIANTS) {
-    it(`BOOKDSN-001: designs the ${label} variant with its framing in order, its pages valid and none left with a fault`, () => {
+    it(`BOOKDSN-001: designs the ${label} variant with its framing in order, its pages valid, none left with a fault and no story lost unsaid`, () => {
       const fx = input(name);
       const result = designBook(null, fx, directives);
       checkStructure(result);
       checkRhythm(result);
       checkClean(result, fx.photos);
       checkCurrent(result, fx.stats);
+      checkStories(result, fx.entries, directives);
     });
   }
 
@@ -429,11 +478,13 @@ describe('design_book', () => {
         conLabel: 'Cons',
       });
     }
-    // Entry 2 opens on a hero and has no quiet page; entry 4 opens on a panorama or on a hero with its quiet
-    // page; entry 12 has no photo, so its long story runs on across both pages and the list goes under it.
+    // Entry 2 has one spread for its story, so it opens on the opener and its list goes under its words; entry 4
+    // opens on a panorama or on a hero with its quiet page; entry 12 has no photo, so its long story runs on across
+    // both pages and the list goes under it; entry 11 tells no story and opens on a hero with no page for its list.
     const more: Partial<Record<number, Partial<AutoEntry>>> = {
       2: { pros: ['Tram 28'] },
       4: { story: 'Over the bridge at dusk.', pros: ['The bridge'], cons: ['The climb'] },
+      11: { pros: ['The surf'] },
       12: { story: 'We walked the old town. '.repeat(130), cons: ['The rain'] },
     };
     const entries = input('rich').entries.map((e): AutoEntry => ({ ...e, ...more[e.id] }));
@@ -443,10 +494,11 @@ describe('design_book', () => {
       checkStructure(result);
       checkRhythm(result);
       checkClean(result, fx.photos);
+      expect(listsOf(result, 2)).toHaveLength(1);
       expect(listsOf(result, 4)).toHaveLength(1);
       expect(listsOf(result, 12)).toHaveLength(1);
-      expect(listsOf(result, 2)).toEqual([]);
-      expect(result.notes).toContain('the pros and cons of entry 2 found no room on its pages and are left out');
+      expect(listsOf(result, 11)).toEqual([]);
+      expect(result.notes).toContain('the pros and cons of entry 11 found no room on its pages and are left out');
     }
   });
 
@@ -486,6 +538,189 @@ describe('design_book', () => {
     const onThree = days.doc.spreads.filter((s) => s.entryId === 3).flatMap((s) => s.elements);
     expect(onThree.filter((e) => e.kind === 'list')).toHaveLength(1);
     expect(days.notes).toContain('the pros and cons of entries 1 and 4 found no room on their pages and are left out');
+  });
+
+  it('BOOKDSN-027: sets the story of every entry of a day, each later one under its title, and names the ones the budget cuts', () => {
+    // Entries 7 and 8 share entry 6's day: one chapter, opened by entry 6, the stories of 7 and 8 after its own.
+    const moved: Partial<Record<number, Partial<AutoEntry>>> = {
+      7: { date: '2026-05-06' },
+      8: { date: '2026-05-06' },
+    };
+    const entries = input('rich').entries.map((e): AutoEntry => ({ ...e, ...moved[e.id] }));
+    const fx = { ...input('rich'), entries };
+    const day: BookDesignDirectivesInput = { style: 'minimal', chapters: 'day' };
+    const result = designBook(null, fx, day);
+    checkStructure(result);
+    checkRhythm(result);
+    checkClean(result, fx.photos);
+    checkCurrent(result, fx.stats);
+    checkStories(result, entries, day);
+    const story = (id: number) => squashed(entries.find((e) => e.id === id)?.story ?? '');
+    for (const id of [6, 7, 8]) expect(storySet(result, id)).toContain(story(id));
+    expect(storiesNoted(result).filter((id) => [6, 7, 8].includes(id))).toEqual([]);
+    // The chapter is entry 6's: its title opens it, the titles of 7 and 8 head their stories, each bound to its entry.
+    const onDay = result.doc.spreads.filter((s) => s.entryId === 6).flatMap((s) => s.elements);
+    expect(boundTo(onDay, 'entry.title')).toEqual([6, 7, 8]);
+    expect([...new Set(boundTo(onDay, 'entry.story'))]).toEqual([6, 7, 8]);
+
+    // With one spread the day opens on the opener, as a hero would leave its words no page; with two, on a hero and
+    // a quiet page beside a photo. Either holds the stories of 6 and 7 and the start of 8, and the note says the
+    // rest of 8 is left out.
+    const scoped: BookDesignDirectivesInput = { ...day, scope: { entryIds: [6, 7, 8] } };
+    const tight = designBook(null, fx, { ...scoped, pages: { max: 3 } });
+    const roomier = designBook(null, fx, { ...scoped, pages: { max: 4 } });
+    const dayBeats = (cut: BookDesignResult) => cut.plan.filter((r) => r.entryId === 6).map((r) => r.beat);
+    expect(dayBeats(tight)).toEqual(['opener']);
+    expect(dayBeats(roomier)).toEqual(['hero', 'quiet']);
+    for (const cut of [tight, roomier]) {
+      checkStructure(cut);
+      checkClean(cut, fx.photos);
+      checkStories(cut, entries, scoped);
+      for (const id of [6, 7]) expect(storySet(cut, id)).toContain(story(id));
+      expect(storySet(cut, 8).length).toBeGreaterThan(0);
+      expect(cut.notes).toContain('part of the story of entry 8 found no room on its pages and is left out');
+    }
+    // With no stories asked for, no page sets one and no note misses one.
+    const silent = designBook(null, fx, { ...day, text: { story: 'none' } });
+    checkStructure(silent);
+    expect(silent.doc.spreads.flatMap((s) => boundTo(s.elements, 'entry.story'))).toEqual([]);
+    expect(storiesNoted(silent)).toEqual([]);
+
+    // The page for words is planned from the whole day's words: entry 7's own story is short, entry 8's is long.
+    const byId = (id: number) => entries.find((e) => e.id === id) as AutoEntry;
+    const seven: AutoEntry = { ...byId(7), photos: tall(940, 4) };
+    const pair: DesignChapter = { ...chapterOf(seven, []), entries: [seven, byId(8)] };
+    const plans = planChapter(pair, 3, newRhythm(), planOf('balanced'), []);
+    expect(plans.map((p) => p.beat)).toEqual(['opener', 'quiet', 'trio']);
+    expect(plans.map((p) => p.photos.length)).toEqual([1, 0, 3]);
+  });
+
+  it('BOOKDSN-028: opens on a hero or a panorama only when a page for the words follows, gives a long day the pages its words want, and lets pros and cons wait for the next of them', () => {
+    // A hero sets no words and a panorama's half page is too small to count on: a chapter that tells a story opens
+    // on either only with a spread after it, one that tells none on either at once.
+    const bare = input('rich').entries[0] as AutoEntry;
+    const told: AutoEntry = { ...bare, story: 'A short day by the sea.' };
+    const hero: AutoPhoto = { photoId: 10, width: 4000, height: 3000 };
+    const pano: AutoPhoto = { photoId: 20, width: 4000, height: 1500 };
+    const opened = (entry: AutoEntry, photo: AutoPhoto, spreads: number) => {
+      const chapter = chapterOf({ ...entry, photos: [photo] }, []);
+      return planChapter(chapter, spreads, newRhythm(), planOf('balanced'), []).map((p) => p.beat);
+    };
+    expect(opened(told, hero, 1)).toEqual(['opener']);
+    expect(opened(told, hero, 2)).toEqual(['hero', 'quiet']);
+    expect(opened(bare, hero, 1)).toEqual(['hero']);
+    expect(opened(told, pano, 1)).toEqual(['opener']);
+    expect(opened(told, pano, 2)).toEqual(['pano', 'quiet']);
+    expect(opened(bare, pano, 1)).toEqual(['pano']);
+    // So entries 2 and 10, one photo and one spread each, open on the opener, and every story of the journey is set.
+    for (const style of ['minimal', 'editorial', 'scrapbook'] as const) {
+      const natural = designBook(null, input('rich'), { style });
+      const beatsOf = (id: number) => natural.plan.filter((r) => r.entryId === id).map((r) => r.beat);
+      expect(beatsOf(2)).toEqual(['opener']);
+      expect(beatsOf(10)).toEqual(['opener']);
+      expect(storiesNoted(natural)).toEqual([]);
+    }
+
+    // A long day: entry 6 with five pros and the start of a long story, 7 and 8 moved to its day, 7 with a story of
+    // its own. Its words want two pages after the hero, and the natural budget gives them: every story is set whole.
+    // The first holds the story of 6 with no room under it for the list, so the list waits for the second and heads
+    // it, before the story of 7.
+    const long = (input('rich').entries[2] as AutoEntry).story ?? '';
+    const more: Partial<Record<number, Partial<AutoEntry>>> = {
+      6: { story: long.slice(0, 1750), pros: ['P1', 'P2', 'P3', 'P4', 'P5'] },
+      7: { date: '2026-05-06', story: long.slice(0, 700) },
+      8: { date: '2026-05-06' },
+    };
+    const entries = input('rich').entries.map((e): AutoEntry => ({ ...e, ...more[e.id] }));
+    const fx = { ...input('rich'), entries };
+    const day: BookDesignDirectivesInput = { style: 'minimal', chapters: 'day' };
+    const result = designBook(null, fx, day);
+    checkStructure(result);
+    checkRhythm(result);
+    checkClean(result, fx.photos);
+    checkCurrent(result, fx.stats);
+    const story = (id: number) => squashed(entries.find((e) => e.id === id)?.story ?? '');
+    for (const id of [6, 7, 8]) expect(storySet(result, id)).toContain(story(id));
+    expect(storiesNoted(result)).toEqual([]);
+    const beats = result.plan.filter((r) => r.entryId === 6).map((r) => r.beat);
+    expect(beats.slice(0, 3)).toEqual(['hero', 'quiet', 'quiet']);
+    const onDay = result.doc.spreads.filter((s) => s.entryId === 6);
+    expect(onDay.flatMap((s) => s.elements.filter((e) => e.kind === 'list'))).toHaveLength(1);
+    const second = onDay[2]?.elements ?? [];
+    expect(second[0]?.kind).toBe('list');
+    expect(boundTo(second, 'entry.title')[0]).toBe(7);
+    expect(result.notes.filter((n) => n.includes('pros and cons of entry 6'))).toEqual([]);
+  });
+
+  it('BOOKDSN-029: names the words no page holds ahead of the stories cut to fit, heads a later entry by its place or date, and tells an entry two chapters by place name once', () => {
+    const long = 'We walked the old town. '.repeat(130);
+    const budgeted = (ids: number[], max: number, more: Partial<Record<number, Partial<AutoEntry>>>) => {
+      const entries = input('rich').entries.map((e): AutoEntry => ({ ...e, ...more[e.id] }));
+      const directives: BookDesignDirectivesInput = {
+        style: 'minimal',
+        scope: { entryIds: ids },
+        pages: { max },
+        travel: { summary: false, countries: false },
+      };
+      return designBook(null, { ...input('rich'), entries }, directives);
+    };
+    // One spread for entries 2 and 4: it holds the start of 2's long story and none of 4's.
+    const one = budgeted([2, 4], 1, { 2: { story: long } });
+    const part = one.notes.indexOf('part of the story of entry 2 found no room on its pages and is left out');
+    const cut = one.notes.indexOf('the story of entry 2 is cut to fit its page and no longer follows the journal');
+    expect(one.notes).toContain('the story of entry 4 found no room on its pages and is left out');
+    expect(part).toBeGreaterThanOrEqual(0);
+    expect(cut).toBeGreaterThan(part);
+    // A spread each for entries 3 and 8, both with long stories: each holds the start of its own.
+    const two = budgeted([3, 8], 2, { 3: { story: long }, 8: { story: long } });
+    expect(two.notes).toContain('part of the stories of entries 3 and 8 found no room on their pages and is left out');
+    // With no page after it, the words go on without a list that finds no room: 4's story follows 3's whole, and
+    // the note names the list.
+    const three = (input('rich').entries[2] as AutoEntry).story ?? '';
+    const pros = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
+    const listed = budgeted([3, 4], 1, { 3: { story: three.slice(0, 1000), pros } });
+    const four = input('rich').entries.find((e) => e.id === 4);
+    expect(storySet(listed, 4)).toBe(squashed(four?.story ?? ''));
+    expect(listed.notes).toContain('the pros and cons of entry 3 found no room on its pages and are left out');
+    // An entry with no title, place or date runs on under the story before it, with no heading.
+    const nameless = budgeted([8, 12], 1, { 12: { title: null, location: null, date: null, story: 'Rain all day.' } });
+    const page = nameless.doc.spreads.filter((s) => s.entryId === 8).flatMap((s) => s.elements);
+    expect(storySet(nameless, 12)).toBe(squashed('Rain all day.'));
+    expect(boundTo(page, 'entry.title')).toEqual([8]);
+    expect(boundTo(page, 'entry.date')).toEqual([8]);
+
+    // A later entry of a day with no title is headed by its place, one with neither by its date, each bound to it.
+    const unnamed: Partial<Record<number, Partial<AutoEntry>>> = {
+      7: { date: '2026-05-06', title: null },
+      8: { date: '2026-05-06', title: null, location: null },
+    };
+    const entries = input('rich').entries.map((e): AutoEntry => ({ ...e, ...unnamed[e.id] }));
+    const headed = designBook(null, { ...input('rich'), entries }, { style: 'minimal', chapters: 'day' });
+    checkStructure(headed);
+    checkClean(headed, input('rich').photos);
+    const onDay = headed.doc.spreads.filter((s) => s.entryId === 6).flatMap((s) => s.elements);
+    const heading = (id: number, source: string) =>
+      onDay.find((e) => e.kind === 'text' && e.binding?.source === source && e.binding.entryId === id);
+    expect(boundTo(onDay, 'entry.title')).toEqual([6, 7]);
+    expect(boundTo(onDay, 'entry.date')).toEqual([6, 8]);
+    expect(heading(7, 'entry.title')).toMatchObject({ text: 'Oviedo' });
+    const dated = { source: 'entry.date', entryId: 8, value: '2026-05-06' };
+    expect(heading(8, 'entry.date')).toMatchObject({ binding: dated });
+    expect([...new Set(boundTo(onDay, 'entry.story'))]).toEqual([6, 7, 8]);
+
+    // Entry 8's last photos, taken a couple of kilometres on, make a second place of its day: two chapters by place
+    // open with entry 8, and its story is set in the first of them only.
+    const apart = (p: PhotoPickCandidate): PhotoPickCandidate => {
+      if (!p.entryIds.includes(8) || p.photoId <= 120 || p.lat === null) return p;
+      return { ...p, lat: p.lat + 0.02 };
+    };
+    const places = { ...input('rich'), candidates: input('rich').candidates.map(apart) };
+    const twice = designBook(null, places, { style: 'bold', chapters: 'place' });
+    checkStructure(twice);
+    const opens = twice.plan.filter((r) => r.entryId === 8 && (r.beat === 'opener' || r.beat === 'hero'));
+    expect(opens).toHaveLength(2);
+    const eight = input('rich').entries.find((e) => e.id === 8);
+    expect(storySet(twice, 8)).toBe(squashed(eight?.story ?? ''));
   });
 });
 

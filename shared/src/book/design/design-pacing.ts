@@ -8,8 +8,8 @@ import { burstOf, heroWorthy, isPanorama, pickEntriesOf, type BookDesignLeftOut 
 
 /**
  * The story of the book before its pages: which chapters, how many spreads
- * each gets, and the beat of every spread (opener or hero, a quiet page for a
- * long story, two, three or a grid of photos, a burst as one grid, a
+ * each gets, and the beat of every spread (opener or hero, quiet pages for
+ * words that run long, two, three or a grid of photos, a burst as one grid, a
  * panorama), paced so the book breathes: never one photo beat three times
  * running, a loud spread followed by a calm one, at most one hero in four
  * spreads.
@@ -52,7 +52,11 @@ export interface DesignChapter {
 export interface PlannedSpread {
   beat: BookDesignBeat;
   chapter: DesignChapter;
-  /** The entry whose words the spread sets, when it sets any. */
+  /**
+   * The chapter's first entry, on its opening spread and on the pages planned
+   * for its words; null on a photo spread. A quiet spread of one photo still
+   * sets the chapter's words that wait for a page, as every quiet page does.
+   */
   entry: AutoEntry | null;
   photos: AutoPhoto[];
 }
@@ -183,17 +187,51 @@ const DENSITY = { airy: { aim: 1.5, max: 2 }, balanced: { aim: 3, max: 4 }, rich
 /** Characters an opener's text page holds before the story needs a page of its own. */
 const OPENER_STORY_CHARS = 1400;
 
-/** The spreads a chapter wants with nothing holding it back. */
+/**
+ * Characters a page for words holds at the least: a narrow column beside a
+ * photo. Without one its column runs on across both pages and holds twice as
+ * many.
+ */
+const QUIET_STORY_CHARS = 1400;
+
+/** The room, in characters of a story, the small heading over a later entry's story takes. */
+const HEADING_CHARS = 250;
+
+/** The room, in characters of a story, a row of pros and cons takes. */
+const LIST_ROW_CHARS = 200;
+
+/**
+ * The room a chapter's words take, in characters of a story: every entry's
+ * story (its excerpt when excerpts are asked for), a small heading over each
+ * after the first, and its first entry's pros and cons, a row each and one
+ * for their labels. None when the chapter tells no story: a list alone never
+ * asks for a page of its own.
+ */
+function wordsRoom(chapter: DesignChapter, directives: BookDesignDirectives): number {
+  const mode = directives.text?.story ?? 'full';
+  if (mode === 'none') return 0;
+  const most = mode === 'excerpt' ? (directives.text?.excerptChars ?? 600) : Infinity;
+  const told = chapter.entries.map((e) => Math.min(most, (e.story ?? '').trim().length));
+  const stories = told.reduce((n, chars, i) => n + chars + (chars > 0 && i > 0 ? HEADING_CHARS : 0), 0);
+  if (stories === 0) return 0;
+  const items = chapter.entries.slice(0, 1).flatMap((e) => bookEntryListItems(e));
+  const pros = items.filter((item) => item.tone === 'pro').length;
+  return stories + (items.length ? LIST_ROW_CHARS * (Math.max(pros, items.length - pros) + 1) : 0);
+}
+
+/** The spreads a chapter wants with nothing holding it back: its opening, its photo spreads, its pages for words. */
 export function naturalSpreads(chapter: DesignChapter, directives: BookDesignDirectives, perStations: number): number {
   if (chapter.stations) return Math.max(1, Math.ceil(chapter.entries.length / perStations));
   const aim = DENSITY[directives.density].aim;
   const rest = Math.max(0, chapter.photos.length - 1);
-  const words = storyChars(chapter.entries) > OPENER_STORY_CHARS && directives.text?.story !== 'excerpt' ? 1 : 0;
+  const words = Math.ceil(Math.max(0, wordsRoom(chapter, directives) - OPENER_STORY_CHARS) / QUIET_STORY_CHARS);
   return 1 + Math.ceil(rest / aim) + words;
 }
 
-/** The most spreads a chapter can fill: one photo each, a quiet page for its words. */
-const fullest = (chapter: DesignChapter) => (chapter.stations ? 1 : 1 + Math.max(0, chapter.photos.length - 1) + 1);
+/** The most spreads a chapter can fill: one photo each and a quiet page for its words, or what its words want. */
+function fullest(chapter: DesignChapter, natural: number): number {
+  return chapter.stations ? 1 : Math.max(natural, 1 + Math.max(0, chapter.photos.length - 1) + 1);
+}
 
 /**
  * Spreads per chapter for a total, by largest remainder on the chapters'
@@ -208,14 +246,14 @@ export function shareSpreads(chapters: readonly DesignChapter[], natural: readon
   const floor = chapters.map(() => 1);
   const room = Math.max(0, total - chapters.length);
   const raw = weight.map((w) => (room * w) / sum);
-  const out = raw.map((r, i) => Math.min((floor[i] ?? 1) + Math.floor(r), fullest(chapters[i] as DesignChapter)));
+  const most = chapters.map((chapter, i) => fullest(chapter, natural[i] as number));
+  const out = raw.map((r, i) => Math.min((floor[i] ?? 1) + Math.floor(r), most[i] as number));
   const order = raw.map((r, i) => ({ i, rem: r - Math.floor(r) })).sort((a, b) => b.rem - a.rem || a.i - b.i);
   let left = total - out.reduce((a, b) => a + b, 0);
   for (let pass = 0; left > 0 && pass < 4; pass++) {
     for (const { i } of order) {
-      const chapter = chapters[i] as DesignChapter;
       if (left <= 0) break;
-      if ((out[i] ?? 0) >= fullest(chapter)) continue;
+      if ((out[i] ?? 0) >= (most[i] as number)) continue;
       out[i] = (out[i] ?? 0) + 1;
       left--;
     }
@@ -282,15 +320,28 @@ interface PlanInput {
   infos: ReadonlyMap<number, BookPhotoInfo>;
 }
 
-/** The chapter's opening spread: a hero when it has a photo for one and the rhythm allows, else the opener. */
-function opening(chapter: DesignChapter, photos: AutoPhoto[], rhythm: Rhythm, input: PlanInput): PlannedSpread {
+/**
+ * The chapter's opening spread, out of its `spreads`: a hero when it has a
+ * photo for one and the rhythm allows, else a panorama, else the opener. A
+ * hero sets none of the words and a panorama's half page is too small to
+ * count on, so a chapter that tells a story opens on either only when a
+ * spread for its words can follow.
+ */
+function opening(
+  chapter: DesignChapter,
+  photos: AutoPhoto[],
+  rhythm: Rhythm,
+  input: PlanInput,
+  spreads: number,
+): PlannedSpread {
   const entry = chapter.entries[0] ?? null;
-  const hero = photos.find((p) => heroWorthy(p, input.infos.get(p.photoId), input.page));
+  const loudFits = spreads > 1 || wordsRoom(chapter, input.directives) === 0;
+  const hero = loudFits ? photos.find((p) => heroWorthy(p, input.infos.get(p.photoId), input.page)) : undefined;
   if (entry && hero && loudAllowed(rhythm, 'hero')) {
     photos.splice(photos.indexOf(hero), 1);
     return { beat: 'hero', chapter, entry, photos: [hero] };
   }
-  const pano = photos[0] && isPanorama(photos[0]) && loudAllowed(rhythm, 'pano') ? photos[0] : null;
+  const pano = loudFits && photos[0] && isPanorama(photos[0]) && loudAllowed(rhythm, 'pano') ? photos[0] : null;
   if (entry && pano) return { beat: 'pano', chapter, entry, photos: photos.splice(0, 3) };
   const first = photos.shift();
   return { beat: first ? 'opener' : 'story', chapter, entry, photos: first ? [first] : [] };
@@ -312,13 +363,14 @@ function burstGrid(chapter: DesignChapter, photos: AutoPhoto[], rhythm: Rhythm):
 /**
  * The photos a quiet page takes, out of `photos`, with `left` spreads still
  * to plan: none while more follow, so the words stand alone; one beside them
- * on the chapter's last spread, or when the entry has pros and cons, which
- * then still have a page should the opener hold the whole story. The photo is
- * the first outside the burst, which stays whole for its grid.
+ * on the chapter's last spread, or on its `first` page for words when the
+ * entry has pros and cons, which then still have a page should the opening
+ * hold the whole story. The photo is the first outside the burst, which stays
+ * whole for its grid.
  */
-function quietPhotos(chapter: DesignChapter, photos: AutoPhoto[], left: number): AutoPhoto[] {
+function quietPhotos(chapter: DesignChapter, photos: AutoPhoto[], left: number, first: boolean): AutoPhoto[] {
   const entry = chapter.entries[0];
-  if (left > 1 && !(entry && bookEntryListItems(entry).length > 0)) return [];
+  if (left > 1 && !(first && entry && bookEntryListItems(entry).length > 0)) return [];
   const at = photos.findIndex((p) => !chapter.burst.includes(p.photoId));
   return photos.splice(Math.max(0, at), 1);
 }
@@ -337,10 +389,36 @@ function photoTake(rhythm: Rhythm, count: number): number {
 }
 
 /**
- * The spreads of one chapter for its share of the budget: the opening, a
- * quiet page when the words run long, its burst as one grid, then the photos
- * spread evenly over what is left, at most the density's maximum a spread;
- * photos that find no spread are left out and said.
+ * The quiet pages a chapter's words want after its `open`ing, out of `left`
+ * spreads and of `photos`: one for every page's worth of the room its words
+ * take (the room of all its entries' words, as `naturalSpreads` counts it)
+ * that the opening cannot hold, a page holding a column beside a photo or two
+ * without one.
+ */
+function wordsPages(
+  chapter: DesignChapter,
+  photos: AutoPhoto[],
+  open: PlannedSpread,
+  left: number,
+  directives: BookDesignDirectives,
+): PlannedSpread[] {
+  const out: PlannedSpread[] = [];
+  const entry = chapter.entries[0] ?? null;
+  const held = open.beat === 'hero' || open.beat === 'pano' ? 0 : OPENER_STORY_CHARS;
+  let words = wordsRoom(chapter, directives) - held;
+  while (words > 0 && out.length < left) {
+    const beside = quietPhotos(chapter, photos, left - out.length, out.length === 0);
+    out.push({ beat: 'quiet', chapter, entry, photos: beside });
+    words -= beside.length ? QUIET_STORY_CHARS : QUIET_STORY_CHARS * 2;
+  }
+  return out;
+}
+
+/**
+ * The spreads of one chapter for its share of the budget: the opening, the
+ * quiet pages its words want, its burst as one grid, then the photos spread
+ * evenly over what is left, at most the density's maximum a spread; photos
+ * that find no spread are left out and said.
  */
 export function planChapter(
   chapter: DesignChapter,
@@ -357,14 +435,11 @@ export function planChapter(
     if (s.beat === 'hero') rhythm.lastHero = rhythm.beats.length;
     rhythm.beats.push(s.beat);
   };
-  push(opening(chapter, photos, rhythm, input));
-  const long = storyChars(chapter.entries.slice(0, 1)) > OPENER_STORY_CHARS || out[0]?.beat === 'hero';
-  const wantsWords = long && (input.directives.text?.story ?? 'full') === 'full';
-  let left = spreads - 1;
-  if (wantsWords && left > 0 && storyChars(chapter.entries.slice(0, 1)) > 0) {
-    push({ beat: 'quiet', chapter, entry: chapter.entries[0] ?? null, photos: quietPhotos(chapter, photos, left) });
-    left--;
-  }
+  const open = opening(chapter, photos, rhythm, input, spreads);
+  push(open);
+  const pages = wordsPages(chapter, photos, open, spreads - 1, input.directives);
+  pages.forEach(push);
+  let left = spreads - 1 - pages.length;
   const grid = left > 0 ? burstGrid(chapter, photos, rhythm) : null;
   if (grid) {
     push(grid);

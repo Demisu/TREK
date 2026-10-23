@@ -29,6 +29,8 @@ import {
   panoFits,
   tripOf,
   type Composed,
+  type FlowItem,
+  type Words,
 } from './design-spreads';
 
 /**
@@ -134,17 +136,32 @@ function stationsSpreads(c: ComposeCtx, chapter: DesignChapter, input: BookDesig
 const chapterName = (chapter: DesignChapter) => chapter.label ?? chapter.entries[0]?.title ?? null;
 
 /**
- * One planned spread, composed; the story still to set is carried from the
- * opener to its quiet page, and a quiet page takes the pros and cons of
- * `list`, the chapter's entry, when the pages before it had no room for them.
+ * What a chapter has to say, in reading order: its first entry's story (the
+ * chapter's title block is that entry's), that entry's pros and cons, then
+ * the story of every further entry (the other entries of a day, or of the
+ * chapters the budget combined), each under a small heading of its title.
+ * With no stories asked for, only the pros and cons. An entry a chapter
+ * before has `told` (a place may name one entry for two chapters) says
+ * nothing again.
  */
-function composePlanned(
-  c: ComposeCtx,
-  plan: PlannedSpread,
-  hand: 'left' | 'right',
-  carry: string,
-  list: AutoEntry | null,
-): Composed {
+function chapterWords(c: ComposeCtx, chapter: DesignChapter, told: ReadonlySet<number>): FlowItem[] {
+  const stories = (c.directives.text?.story ?? 'full') !== 'none';
+  return chapter.entries.flatMap((entry, i): FlowItem[] => {
+    if (told.has(entry.id)) return [];
+    const words = stories ? (entry.story ?? '').trim() : '';
+    const story: FlowItem[] = words ? [{ kind: 'story', entry, words, begun: false, headed: i > 0 }] : [];
+    const list: FlowItem[] = i === 0 && bookEntryListItems(entry).length ? [{ kind: 'list', entry }] : [];
+    return [...story, ...list];
+  });
+}
+
+/**
+ * One planned spread, composed. The pages that take words (the opener, the
+ * panorama, a quiet page) set what they can of the chapter's `words` and hand
+ * back the rest; a hero and the photo spreads take none, so the words wait
+ * for the next page that does.
+ */
+function composePlanned(c: ComposeCtx, plan: PlannedSpread, hand: 'left' | 'right', words: Words): Composed {
   const entry = plan.entry;
   const entryId = plan.chapter.entries[0]?.id ?? null;
   const [first, ...more] = plan.photos;
@@ -153,10 +170,10 @@ function composePlanned(
       if (entry && first) return composeHero(c, entry, first, hand);
       break;
     case 'pano':
-      if (entry && first && panoFits(c, first)) return composePano(c, entry, first, more, hand);
+      if (entry && first && panoFits(c, first)) return composePano(c, entry, first, more, hand, words);
       break;
     case 'quiet':
-      return composeQuiet(c, entry, carry, first ?? null, hand, list);
+      return composeQuiet(c, words, first ?? null, hand, entryId);
     case 'duo':
       return composeDuo(c, plan.photos, hand, entryId);
     case 'trio':
@@ -166,38 +183,89 @@ function composePlanned(
     default:
       break;
   }
-  if (entry) return composeOpener(c, entry, first ?? null, hand);
+  if (entry) return composeOpener(c, entry, first ?? null, hand, words);
   return composeGrid(c, plan.photos, hand, entryId);
 }
 
-/** A chapter's spreads, composed from its plan, the photo page alternating across the book. */
-function chapterSpreads(c: ComposeCtx, chapter: DesignChapter, plans: readonly PlannedSpread[], start: number) {
-  const out: DesignedSpread[] = [];
-  const entry = chapter.entries[0];
-  let carry = '';
-  // The entry whose pros and cons still look for a page: none once they are set, or when it has none.
-  let unlisted = entry && bookEntryListItems(entry).length ? entry : null;
+/** The entries whose stories a page sets to the end: those in its `flow` that the words it hands on, `rest`, lack. */
+function endedOn(flow: readonly FlowItem[], rest: readonly FlowItem[]): number[] {
+  const open = new Set(rest.flatMap((w) => (w.kind === 'story' ? [w.entry.id] : [])));
+  return flow.flatMap((w) => (w.kind === 'story' && !open.has(w.entry.id) ? [w.entry.id] : []));
+}
+
+/**
+ * A chapter's spreads, composed from its plan, the photo page alternating
+ * across the book, its words flowing from page to page as far as the pages
+ * that take words hold them (none of an entry a chapter before has `told`);
+ * and, by entry id, the page the last of each story is set on.
+ */
+function chapterSpreads(
+  c: ComposeCtx,
+  chapter: DesignChapter,
+  plans: readonly PlannedSpread[],
+  start: number,
+  told: ReadonlySet<number>,
+) {
+  const spreads: DesignedSpread[] = [];
+  const ends = new Map<number, string>();
+  const entryId = chapter.entries[0]?.id ?? null;
+  let flow = chapterWords(c, chapter, told);
   plans.forEach((plan, i) => {
-    // A quiet page with no words left to set and no photo would be an empty spread, or one holding only a list:
+    // A quiet page with no story left to set and no photo would be an empty spread, or one holding only a list:
     // it is left out (the planner gives the quiet page of an entry with pros and cons a photo for them).
-    if (plan.beat === 'quiet' && !carry && !plan.photos.length) return;
+    if (plan.beat === 'quiet' && !plan.photos.length && !flow.some((w) => w.kind === 'story')) return;
     const hand = (start + i + (c.directives.seed ?? 0)) % 2 === 0 ? 'left' : 'right';
-    const done = composePlanned(c, plan, hand, carry, unlisted);
-    carry = done.rest;
-    if (done.listed) unlisted = null;
-    const spread: BookSpread = innerSpread(c, done.elements, entry?.id ?? null);
-    out.push({ spread, beat: plan.beat, chapter: chapterName(chapter), findings: [] });
+    // Every quiet page takes words, one photo's too, so a list with no room where it falls can wait for one.
+    const later = plans.slice(i + 1).some((p) => p.beat === 'quiet');
+    const done = composePlanned(c, plan, hand, { flow, later });
+    const spread: BookSpread = innerSpread(c, done.elements, entryId);
+    const rest = done.rest ?? flow;
+    for (const id of endedOn(flow, rest)) ends.set(id, spread.id);
+    flow = rest;
+    spreads.push({ spread, beat: plan.beat, chapter: chapterName(chapter), findings: [] });
   });
-  if (carry && entry && (c.directives.text?.story ?? 'full') === 'full') {
-    c.notes.push(`part of the story of entry ${entry.id} found no page within the budget and is left out`);
-  }
-  return out;
+  return { spreads, ends };
 }
 
 /** "entry 3", or "entries 3, 4 and 6", in a note. */
 function entriesNamed(ids: readonly number[]): string {
   if (ids.length < 2) return `entry ${ids.join('')}`;
   return `entries ${ids.slice(0, -1).join(', ')} and ${ids.slice(-1).join('')}`;
+}
+
+/** The entry whose story a page element sets, as a list of one; empty for any other element. */
+function storyOn(e: BookElement): number[] {
+  const id = e.kind === 'text' && e.binding?.source === 'entry.story' ? e.binding.entryId : undefined;
+  return id === undefined ? [] : [id];
+}
+
+/**
+ * The stories the pages could not hold, said in the notes as the pros and
+ * cons are: those a page holds only a part of, and those no page holds (the
+ * chapter's pages full, or past the budget). `ends` holds, by entry id, the
+ * page the last of each story was set on.
+ */
+function storiesUnsaid(
+  c: ComposeCtx,
+  entries: readonly AutoEntry[],
+  body: readonly DesignedSpread[],
+  ends: ReadonlyMap<number, string>,
+): string[] {
+  if ((c.directives.text?.story ?? 'full') === 'none') return [];
+  const kept = new Set(body.map((d) => d.spread.id));
+  const begun = new Set(body.flatMap((d) => d.spread.elements.flatMap(storyOn)));
+  const short = entries.filter((e) => (e.story ?? '').trim() && !kept.has(ends.get(e.id) ?? ''));
+  const none = short.filter((e) => !begun.has(e.id)).map((e) => e.id);
+  const part = short.filter((e) => begun.has(e.id)).map((e) => e.id);
+  const out: string[] = [];
+  if (none.length === 1) out.push(`the story of ${entriesNamed(none)} found no room on its pages and is left out`);
+  if (none.length > 1) out.push(`the stories of ${entriesNamed(none)} found no room on their pages and are left out`);
+  if (part.length) {
+    const what = part.length === 1 ? 'story' : 'stories';
+    const their = part.length === 1 ? 'its' : 'their';
+    out.push(`part of the ${what} of ${entriesNamed(part)} found no room on ${their} pages and is left out`);
+  }
+  return out;
 }
 
 /**
@@ -256,6 +324,10 @@ export function composeDesignedInner(
   const rhythm = newRhythm();
   const plan = { directives: c.directives, page: c.page, infos: c.infos };
   const body: DesignedSpread[] = [];
+  // By entry id, the page its story is set to the end on.
+  const ends = new Map<number, string>();
+  // The entries a chapter has told: a place may name one entry for two chapters, and its words go in the first.
+  const told = new Set<number>();
   chapters.forEach((chapter, i) => {
     if (chapter.stations) {
       body.push(...stationsSpreads(c, chapter, input));
@@ -263,17 +335,19 @@ export function composeDesignedInner(
     }
     const from = rhythm.beats.length;
     const plans = planChapter(chapter, shares[i] ?? 1, rhythm, plan, leftOut);
-    const made = chapterSpreads(c, chapter, plans, body.length);
+    const made = chapterSpreads(c, chapter, plans, body.length, told);
     settleRhythm(
       rhythm,
       from,
-      made.map((d) => d.beat),
+      made.spreads.map((d) => d.beat),
     );
-    body.push(...made);
+    body.push(...made.spreads);
+    for (const [id, at] of made.ends) ends.set(id, at);
+    for (const entry of chapter.entries) told.add(entry.id);
   });
   const head = framing.filter((k) => k !== 'closing').map((k) => framingSpread(c, k, input));
   const tail = framing.filter((k) => k === 'closing').map((k) => framingSpread(c, k, input));
   const fitted = withinCap(body, cap - head.length - tail.length, leftOut, notes);
-  notes.push(...leftUnsaid(c, entries, fitted));
+  notes.push(...storiesUnsaid(c, entries, fitted, ends), ...leftUnsaid(c, entries, fitted));
   return { spreads: [...head, ...fitted, ...tail], leftOut, notes };
 }

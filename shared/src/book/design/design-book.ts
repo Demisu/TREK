@@ -54,6 +54,11 @@ export interface BookDesignResult {
   photos: { used: number[]; left_out: BookDesignLeftOut[] };
   /** What the repair passes could not fix, severe first. */
   findings: BookFinding[];
+  /**
+   * What the design changed or left out, said once each: the book-wide notes
+   * first (the budget, the words and lists no page holds), then a story cut to
+   * fit a page, so a reader keeping only the first few keeps what matters most.
+   */
   notes: string[];
 }
 
@@ -270,7 +275,7 @@ export function designBook(
       left_out: [...choice.leftOut, ...inner.leftOut],
     },
     findings: sortBookFindings([...residual, ...bookLevelFindings(result)]),
-    notes: [...new Set([...c.notes, ...inner.notes])],
+    notes: [...new Set([...inner.notes, ...c.notes])],
   };
 }
 
