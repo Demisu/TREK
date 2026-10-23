@@ -65,7 +65,7 @@ const painted = (): BookSpread => ({
     shape('g1', { paint: linear }),
     shape('h1', { shape: 'heart', paint: dots, stroke: '#000000', strokeWidth: 1 }),
     shape('r1', { shape: 'rect', radius: 4, paint: dots }),
-    shape('old', { fill: '#336699', gradient: 'down', shape: 'star' }),
+    shape('old', { fill: '#336699', gradient: 'down', shape: 'star-5' }),
     bookPhotoElementSchema.parse({ id: 'p1', kind: 'photo', frame, photoId: 3, mask: 'heart' }) as BookElement,
   ],
   parked: [],

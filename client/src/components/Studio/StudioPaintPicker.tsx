@@ -8,7 +8,7 @@ import {
   type BookPatternPaint,
 } from '@trek/shared';
 import { ArrowLeftRight, Ban, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import '../../styles/studio-paint.css';
 import { NumField } from './StudioControls';
 import type { StudioT } from './StudioSidebar';
@@ -339,6 +339,8 @@ function Slider({
     return log ? min * (max / min) ** t : min + (max - min) * t;
   };
   const pos = Math.round((log ? Math.log(value / min) / Math.log(max / min) : (value - min) / (max - min)) * steps);
+  // What the slider was last moved to: a controlled input may still show the old value when it is let go.
+  const moved = useRef(value);
   return (
     <label className="st-paint-slider">
       <span className="st-paint-slider-head">
@@ -351,9 +353,18 @@ function Slider({
         max={steps}
         step={1}
         value={pos}
-        onChange={(e) => onChange(toValue(e.target.value), false)}
-        onPointerUp={(e) => onChange(toValue(e.currentTarget.value), true)}
-        onKeyUp={(e) => onChange(toValue(e.currentTarget.value), true)}
+        onPointerDown={() => {
+          moved.current = value;
+        }}
+        onKeyDown={() => {
+          moved.current = value;
+        }}
+        onChange={(e) => {
+          moved.current = toValue(e.target.value);
+          onChange(moved.current, false);
+        }}
+        onPointerUp={() => onChange(moved.current, true)}
+        onKeyUp={() => onChange(moved.current, true)}
       />
     </label>
   );

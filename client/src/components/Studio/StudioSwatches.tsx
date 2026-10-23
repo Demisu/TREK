@@ -114,7 +114,13 @@ export function AlphaSlider({ color, value, onChange, label }: {
   label?: string
 }) {
   const pct = Math.round(value * 100)
-  const finish = (raw: string) => onChange(Math.max(0, Math.min(100, Number(raw))) / 100, true)
+  // What the slider was last moved to: a controlled input may still show the old value when it is let go.
+  const moved = useRef(value)
+  const move = (raw: string) => {
+    moved.current = Math.max(0, Math.min(100, Number(raw))) / 100
+    onChange(moved.current, false)
+  }
+  const finish = () => onChange(moved.current, true)
   return (
     <div className="st-alpha">
       <div className="st-alpha-track" style={{ ['--st-alpha-colour' as string]: color }}>
@@ -125,9 +131,11 @@ export function AlphaSlider({ color, value, onChange, label }: {
           step={1}
           value={pct}
           aria-label={label}
-          onChange={e => onChange(Number(e.target.value) / 100, false)}
-          onPointerUp={e => finish(e.currentTarget.value)}
-          onKeyUp={e => finish(e.currentTarget.value)}
+          onPointerDown={() => { moved.current = value }}
+          onKeyDown={() => { moved.current = value }}
+          onChange={e => move(e.target.value)}
+          onPointerUp={finish}
+          onKeyUp={finish}
         />
       </div>
       <span className="st-alpha-value">{pct}%</span>
