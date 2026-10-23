@@ -66,7 +66,8 @@ function JournalHead({ journal }: { journal: JournalEntries }) {
   const { t } = useTranslation();
   const title = journal.journalTitle ?? t('assistant.card.journey.label');
   const count = journal.entries.length + journal.more;
-  return <CardHeader icon={BookOpen} tone="info" title={title} count={count > 2 ? count : undefined} />;
+  const meta = count > 2 ? t('assistant.card.journey.entries', { count }) : undefined;
+  return <CardHeader icon={BookOpen} tone="info" title={title} meta={meta} />;
 }
 
 /** One entry as a row: its photo, its title (the way to it), its facts and the start of its text. */
