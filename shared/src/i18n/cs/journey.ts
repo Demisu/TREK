@@ -920,6 +920,7 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': 'Navrhněte knihu společně s asistentem',
   'journey.studio.assistant.panel': 'Asistent knihy',
   'journey.studio.assistant.welcome': 'Jak má kniha vypadat?',
+  'journey.studio.assistant.readOnly': 'Tuhle knihu můžeš jen prohlížet, takže odpovím na otázky, ale nic nezměním.',
   'journey.studio.assistant.notice':
     'Asistent se může podívat na stránku, na které pracujete. Na {provider} jde jen tato stránka, jako obrázek, na kterém jsou jen fotky, které jste přidali sami. Kdo je na vašich fotkách, nelze rozpoznat.',
   'journey.studio.assistant.noticeAllow': 'Ukázat stránky',

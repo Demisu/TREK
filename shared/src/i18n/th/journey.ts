@@ -857,6 +857,7 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': 'ออกแบบหนังสือร่วมกับผู้ช่วย',
   'journey.studio.assistant.panel': 'ผู้ช่วยหนังสือ',
   'journey.studio.assistant.welcome': 'อยากให้หนังสือออกมาเป็นแบบไหน?',
+  'journey.studio.assistant.readOnly': 'คุณดูหนังสือเล่มนี้ได้อย่างเดียว ฉันจึงตอบคำถามได้แต่เปลี่ยนแปลงอะไรไม่ได้',
   'journey.studio.assistant.notice':
     'ผู้ช่วยสามารถดูหน้าที่คุณกำลังทำอยู่ได้ มีเพียงหน้านั้นที่ส่งไปยัง {provider} ในรูปแบบภาพที่แสดงเฉพาะรูปภาพที่คุณเพิ่มเอง ไม่สามารถตรวจจับได้ว่าใครอยู่ในรูปภาพของคุณ',
   'journey.studio.assistant.noticeAllow': 'แสดงหน้าให้ดู',

@@ -844,6 +844,7 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': '与助手一起设计这本书',
   'journey.studio.assistant.panel': '书籍助手',
   'journey.studio.assistant.welcome': '这本书想做成什么样子？',
+  'journey.studio.assistant.readOnly': '你只能查看这本书，所以我可以回答问题，但不能做任何更改。',
   'journey.studio.assistant.notice':
     '助手可以查看你正在编辑的页面。只有这一页会以图片形式发送给 {provider}，图片中只显示你自己添加的照片。无法识别照片中的人物是谁。',
   'journey.studio.assistant.noticeAllow': '允许查看页面',

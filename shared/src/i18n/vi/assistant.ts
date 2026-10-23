@@ -72,6 +72,11 @@ const assistant: TranslationStrings = {
   'assistant.privacy.shared': 'Tin nhắn của bạn và thông tin chuyến đi mà trợ lý đọc, như địa điểm, ngày và đặt chỗ.',
   'assistant.privacy.notShared': 'Không bao gồm mật khẩu, tệp hay các chuyến đi khác của bạn.',
   'assistant.privacy.provider': '{provider} xử lý dữ liệu này theo điều khoản bảo mật riêng của họ.',
+  'assistant.privacy.bannerBook': 'Tin nhắn của bạn và dữ liệu hành trình mà trợ lý đọc sẽ được gửi đến {provider}.',
+  'assistant.privacy.sharedBook':
+    'Tin nhắn của bạn và những gì trợ lý đọc từ hành trình này, như các ghi chép, địa điểm và trang sách.',
+  'assistant.privacy.notSharedBook':
+    'Không bao gồm mật khẩu hay các hành trình khác của bạn. Ảnh của một trang chỉ được gửi sau khi bạn cho phép.',
   'assistant.empty.title': 'Chúng ta lên kế hoạch gì đây?',
   'assistant.empty.readOnly':
     'Bạn chỉ có thể xem chuyến đi này, nên tôi có thể trả lời câu hỏi nhưng không thay đổi gì.',

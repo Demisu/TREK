@@ -882,6 +882,8 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': 'Rancang buku bersama asisten',
   'journey.studio.assistant.panel': 'Asisten buku',
   'journey.studio.assistant.welcome': 'Seperti apa bukunya nanti?',
+  'journey.studio.assistant.readOnly':
+    'Kamu hanya bisa melihat buku ini, jadi aku bisa menjawab pertanyaan tapi tidak bisa mengubah apa pun.',
   'journey.studio.assistant.notice':
     'Asisten dapat melihat halaman yang sedang Anda kerjakan. Hanya halaman itu yang dikirim ke {provider}, sebagai gambar yang hanya menampilkan foto yang Anda tambahkan sendiri. Siapa yang ada di foto Anda tidak dapat dideteksi.',
   'journey.studio.assistant.noticeAllow': 'Tunjukkan halaman',

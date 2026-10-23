@@ -75,6 +75,12 @@ const assistant: TranslationStrings = {
     'I tuoi messaggi e i dettagli del viaggio letti dall’assistente, come luoghi, giorni e prenotazioni.',
   'assistant.privacy.notShared': 'Non la tua password, i tuoi file né gli altri tuoi viaggi.',
   'assistant.privacy.provider': '{provider} li tratta secondo la propria informativa sulla privacy.',
+  'assistant.privacy.bannerBook':
+    'I tuoi messaggi e i dati del diario di viaggio letti dall’assistente vengono inviati a {provider}.',
+  'assistant.privacy.sharedBook':
+    'I tuoi messaggi e ciò che l’assistente legge di questo diario di viaggio, come voci, luoghi e pagine del libro.',
+  'assistant.privacy.notSharedBook':
+    'Non la tua password né gli altri tuoi diari di viaggio. L’immagine di una pagina viene inviata solo dopo che l’hai permesso.',
   'assistant.empty.title': 'Cosa pianifichiamo?',
   'assistant.empty.readOnly':
     'Puoi solo visualizzare questo viaggio, quindi posso rispondere alle domande ma non modificare nulla.',

@@ -43,7 +43,9 @@ export default function AssistantWelcome({
         title={book ? t('journey.studio.assistant.welcome') : t('assistant.empty.title')}
       />
       {!canEdit && (
-        <p className="m-0 max-w-xs text-center text-caption text-content-muted">{t('assistant.empty.readOnly')}</p>
+        <p className="m-0 max-w-xs text-center text-caption text-content-muted">
+          {book ? t('journey.studio.assistant.readOnly') : t('assistant.empty.readOnly')}
+        </p>
       )}
       <AssistantHints view={hints} phone={variant === 'fullscreen'} />
       {withSuggestions && offered.length > 0 && <AssistantSuggestions suggestions={offered} layout="stack" />}

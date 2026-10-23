@@ -844,6 +844,7 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': '與助理一起設計這本書',
   'journey.studio.assistant.panel': '書籍助理',
   'journey.studio.assistant.welcome': '這本書想做成什麼樣子？',
+  'journey.studio.assistant.readOnly': '你只能檢視這本書，所以我可以回答問題，但不能做任何變更。',
   'journey.studio.assistant.notice':
     '助理可以查看你正在編輯的頁面。只有這一頁會以圖片形式傳送給 {provider}，圖片中只顯示你自己新增的照片。無法辨識照片中的人物是誰。',
   'journey.studio.assistant.noticeAllow': '允許查看頁面',

@@ -113,10 +113,12 @@ async function picturesLoaded(root: Element, hidden: ReadonlySet<number>): Promi
 }
 
 /**
- * The sheet under `root` as a JPEG, its long edge at most
- * `ASSISTANT_PAGE_IMAGE.longEdge` pixels. `size` is the sheet's own size in
- * CSS pixels (`sheetSizePx`). Null when the image comes out larger than the
- * server takes, so the turn goes on with the page's description.
+ * The sheet under `root` as a JPEG, its long edge at
+ * `ASSISTANT_PAGE_IMAGE.longEdge` pixels (journey-studio.md 3.2: a double
+ * spread 1280 x 640, a single page 1280 on its long edge). `size` is the
+ * sheet's own size in CSS pixels (`sheetSizePx`). Null when the image comes
+ * out larger than the server takes, so the turn goes on with the page's
+ * description.
  */
 export async function snapshotSpread(
   root: HTMLElement,
@@ -124,7 +126,8 @@ export async function snapshotSpread(
   hiddenPhotoIds: ReadonlySet<number>
 ): Promise<PageSnapshot | null> {
   await picturesLoaded(root, hiddenPhotoIds);
-  const scale = Math.min(1, ASSISTANT_PAGE_IMAGE.longEdge / Math.max(size.width, size.height));
+  // A single page is drawn up to the long edge too: a larger scale renders the page sharper, it stretches no pixels.
+  const scale = ASSISTANT_PAGE_IMAGE.longEdge / Math.max(size.width, size.height);
   const { domToBlob } = await import('modern-screenshot');
   const image = await domToBlob(root, {
     width: size.width,

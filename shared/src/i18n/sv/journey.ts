@@ -900,6 +900,8 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': 'Formge boken tillsammans med assistenten',
   'journey.studio.assistant.panel': 'Bokassistent',
   'journey.studio.assistant.welcome': 'Hur ska boken se ut?',
+  'journey.studio.assistant.readOnly':
+    'Du kan bara visa den här boken, så jag kan svara på frågor men inte ändra något.',
   'journey.studio.assistant.notice':
     'Assistenten kan titta på sidan du arbetar med. Bara den sidan skickas till {provider}, som en bild som bara visar foton du själv har lagt till. Vem som finns på dina foton går inte att upptäcka.',
   'journey.studio.assistant.noticeAllow': 'Visa sidor',

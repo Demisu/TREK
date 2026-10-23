@@ -73,6 +73,12 @@ const assistant: TranslationStrings = {
     'Mesajların ve asistanın okuduğu gezi bilgileri, örneğin yerler, günler ve rezervasyonlar.',
   'assistant.privacy.notShared': 'Şifren, dosyaların ve diğer gezilerin paylaşılmaz.',
   'assistant.privacy.provider': '{provider} bunu kendi gizlilik koşullarına göre işler.',
+  'assistant.privacy.bannerBook':
+    'Mesajların ve asistanın okuduğu seyahat günlüğü verileri {provider} hizmetine gider.',
+  'assistant.privacy.sharedBook':
+    'Mesajların ve asistanın bu seyahat günlüğünden okudukları, örneğin kayıtlar, yerler ve kitabın sayfaları.',
+  'assistant.privacy.notSharedBook':
+    'Şifren ve diğer seyahat günlüklerin paylaşılmaz. Bir sayfanın görüntüsü ancak sen izin verdikten sonra gider.',
   'assistant.empty.title': 'Ne planlıyoruz?',
   'assistant.empty.readOnly':
     'Bu geziyi yalnızca görüntüleyebiliyorsun, bu yüzden soruları yanıtlarım ama bir şey değiştiremem.',

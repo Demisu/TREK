@@ -1,6 +1,6 @@
 import '../../styles/studio-assistant.css';
 
-import { ImageIcon } from 'lucide-react';
+import { ImageIcon, MessageSquare } from 'lucide-react';
 import { type HTMLAttributes, type KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -23,7 +23,8 @@ import type { StudioAssistant, StudioRenderJob } from './useStudioAssistant';
  *
  * Studio closes on Escape and edits the selection on Delete, copy and paste.
  * Inside the column every key belongs to the chat, so it stops here, and
- * Escape stops a running answer first.
+ * Escape stops a running answer first. A key from the header's menu, which
+ * sits in a portal, is not the chat's to act on.
  */
 
 /** The column is not a window: its head moves nothing. */
@@ -32,17 +33,20 @@ const NO_DRAG: HTMLAttributes<HTMLElement> = { style: { cursor: 'default' } };
 /**
  * Images of a page leave only once the user agreed, per connection. Until
  * then the Studio's assistant reads the pages as text. "Not now" hides the
- * notice for this visit; the next one asks again.
+ * notice for this visit; the next one asks again. A model that reads no
+ * images (a custom server, OpenRouter, an OpenAI text-only model) is never
+ * asked: its pages always go as text.
  */
 function StudioImagesNotice() {
   const { t } = useTranslation();
   const toast = useToast();
   const effective = useAssistantStore((s) => s.status?.effective ?? null);
+  const reads = useAssistantStore((s) => s.status?.studioImages === true);
   const acked = useAssistantStore((s) => s.status?.studioImagesAcked === true);
   const ackStudioImages = useAssistantStore((s) => s.ackStudioImages);
   const [later, setLater] = useState(false);
 
-  if (!effective || acked || later) return null;
+  if (!effective || !reads || acked || later) return null;
   const provider = providerLabel(effective.kind, effective.host);
 
   const allow = async () => {
@@ -146,9 +150,12 @@ export default function StudioAssistantPanel({ assistant, title }: { assistant: 
   // Every key pressed in the column is the chat's: the editor's own keys
   // (Delete, Backspace, copy, paste, undo, Escape) listen on the window and
   // would otherwise act on the page's selection from a focused chat button.
+  // Keys from a portal (the header's menu) bubble here through React too;
+  // they stop here as well, but they are not the chat's to act on.
   const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
+    const inside = e.currentTarget.contains(e.target as Node);
     e.stopPropagation();
-    if (e.key === 'Escape' && isRunning && !e.defaultPrevented) stop();
+    if (inside && e.key === 'Escape' && isRunning && !e.defaultPrevented) stop();
   };
 
   return (
@@ -170,4 +177,29 @@ export default function StudioAssistantPanel({ assistant, title }: { assistant: 
       />
     </aside>
   );
+}
+
+/** The Studio bar's switch for the column; only where the assistant can run for this user. */
+export function StudioAssistantToggle({ assistant }: { assistant: StudioAssistant }) {
+  const { t } = useTranslation();
+  if (!assistant.available) return null;
+  return (
+    <button
+      type="button"
+      className={`st-tool ${assistant.open ? 'is-on' : ''}`}
+      onClick={assistant.toggle}
+      aria-pressed={assistant.open}
+      title={t('journey.studio.assistant.toggleHint')}
+    >
+      <MessageSquare size={14} />
+      <span className="st-tool-label">{t('journey.studio.assistant.toggle')}</span>
+    </button>
+  );
+}
+
+/** The chat column at the end of the Studio's body, while it is open, named after the journey. */
+export function StudioAssistantColumn({ assistant, title }: { assistant: StudioAssistant; title?: string }) {
+  const { t } = useTranslation();
+  if (!assistant.open) return null;
+  return <StudioAssistantPanel assistant={assistant} title={title || t('journey.title')} />;
 }

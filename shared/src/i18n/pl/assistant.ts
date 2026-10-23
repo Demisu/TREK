@@ -76,6 +76,12 @@ const assistant: TranslationStrings = {
     'Twoje wiadomości i szczegóły podróży, które czyta asystent, np. miejsca, dni i rezerwacje.',
   'assistant.privacy.notShared': 'Nie Twoje hasło, pliki ani inne podróże.',
   'assistant.privacy.provider': '{provider} przetwarza je zgodnie z własną polityką prywatności.',
+  'assistant.privacy.bannerBook':
+    'Twoje wiadomości i dane dziennika podróży, które czyta asystent, trafiają do {provider}.',
+  'assistant.privacy.sharedBook':
+    'Twoje wiadomości i to, co asystent czyta z tego dziennika podróży, np. wpisy, miejsca i strony książki.',
+  'assistant.privacy.notSharedBook':
+    'Nie Twoje hasło ani inne dzienniki podróży. Obraz strony trafia dalej dopiero wtedy, gdy na to pozwolisz.',
   'assistant.empty.title': 'Co planujemy?',
   'assistant.empty.readOnly': 'Możesz tylko przeglądać tę podróż, więc odpowiem na pytania, ale niczego nie zmienię.',
   'assistant.suggest.planFirstDays': 'Zaplanuj mi pierwsze dni',

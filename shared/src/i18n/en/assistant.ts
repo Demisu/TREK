@@ -72,6 +72,11 @@ const assistant: TranslationStrings = {
   'assistant.privacy.shared': 'Your messages and the trip details the assistant reads, like places, days and bookings.',
   'assistant.privacy.notShared': 'Not your password, your files or your other trips.',
   'assistant.privacy.provider': '{provider} handles this under its own privacy terms.',
+  'assistant.privacy.bannerBook': 'Your messages and the journey data the assistant reads go to {provider}.',
+  'assistant.privacy.sharedBook':
+    'Your messages and what the assistant reads of this journey, like its entries, places and book pages.',
+  'assistant.privacy.notSharedBook':
+    'Not your password or your other journeys. A picture of a page goes only once you allow it.',
   'assistant.empty.title': 'What are we planning?',
   'assistant.empty.readOnly': 'You can only view this trip, so I can answer questions but not change anything.',
   'assistant.suggest.planFirstDays': 'Plan the first days for me',

@@ -4,7 +4,7 @@
  * The page image the Studio sends the assistant (journey-studio.md 3.1, 3.4):
  * a sheet's size in CSS pixels, the filter that leaves out pictures from
  * other servers and hidden photos before anything is rasterised, the photos
- * the upload declares read off what is kept, and the JPEG at most 1280 pixels
+ * the upload declares read off what is kept, and the JPEG at 1280 pixels
  * on its long edge. modern-screenshot is faked; a real browser draws the page
  * in the Playwright flows.
  */
@@ -102,13 +102,13 @@ describe('pageSnapshot', () => {
     expect(filter?.(picture('/api/photos/7/thumbnail'))).toBe(true);
   });
 
-  it('FE-STUDIO-SNAP-005: an image too large for the server is not sent, a small sheet is not enlarged', async () => {
+  it('FE-STUDIO-SNAP-005: an image too large for the server is not sent, a small sheet is drawn to the long edge', async () => {
     vi.mocked(domToBlob).mockResolvedValueOnce(new Blob([new Uint8Array(ASSISTANT_PAGE_IMAGE.maxBytes + 1)]));
     expect(await snapshotSpread(sheet(), { width: 1600, height: 800 }, HIDDEN)).toBeNull();
 
     vi.mocked(domToBlob).mockResolvedValueOnce(new Blob(['jpeg'], { type: 'image/jpeg' }));
     const small = await snapshotSpread(sheet(), { width: 400, height: 300 }, HIDDEN);
-    expect(small).toMatchObject({ width: 400, height: 300 });
-    expect(blobCalls()[1]?.[1]).toMatchObject({ scale: 1 });
+    expect(small).toMatchObject({ width: 1280, height: 960 });
+    expect(blobCalls()[1]?.[1]).toMatchObject({ width: 400, height: 300, scale: 3.2 });
   });
 });

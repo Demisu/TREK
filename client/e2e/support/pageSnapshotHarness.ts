@@ -11,7 +11,8 @@ import { sheetSizePx, snapshotSpread } from '../../src/components/Studio/pageSna
  * server serves it as a module: draws a seeded spread with the editor's own
  * SpreadView and turns it into the JPEG the Studio sends the assistant, so a
  * real Chromium and a real WebKit prove the rasteriser works end to end. A map
- * tile from another server sits on the sheet and must be left out.
+ * tile from another server sits on the sheet and must be left out; the flow
+ * names the tile and watches its server.
  */
 
 export interface SeededSnapshot {
@@ -25,11 +26,7 @@ export interface SeededSnapshot {
   decodedWidth: number;
   decodedHeight: number;
   drawnPhotoIds: number[];
-  /** Whether the snapshot reached the map tile's server at all. */
-  tileRequested: boolean;
 }
-
-const TILE = 'https://tile.openstreetmap.org/5/16/10.png';
 
 function seededSpread(): BookSpread {
   return {
@@ -50,7 +47,7 @@ function seededSpread(): BookSpread {
   };
 }
 
-export async function snapshotSeededSpread(): Promise<SeededSnapshot | null> {
+export async function snapshotSeededSpread(tileUrl: string): Promise<SeededSnapshot | null> {
   const page = bookPageSetupForPreset('square-210');
   const spread = seededSpread();
   const size = sheetSizePx(spread, page);
@@ -64,15 +61,13 @@ export async function snapshotSeededSpread(): Promise<SeededSnapshot | null> {
   const root = createRoot(sheet);
   flushSync(() => root.render(createElement(SpreadView, { spread, page, print: true })));
   const tile = document.createElement('img');
-  tile.src = TILE;
+  tile.src = tileUrl;
   sheet.firstElementChild?.appendChild(tile);
-  const before = performance.getEntriesByType('resource').length;
   try {
     const shot = await snapshotSpread(sheet, size, new Set());
     if (!shot) return null;
     const head = [...new Uint8Array(await shot.image.slice(0, 3).arrayBuffer())];
     const bitmap = await createImageBitmap(shot.image);
-    const fetched = performance.getEntriesByType('resource').slice(before);
     return {
       type: shot.image.type,
       bytes: shot.image.size,
@@ -82,7 +77,6 @@ export async function snapshotSeededSpread(): Promise<SeededSnapshot | null> {
       decodedWidth: bitmap.width,
       decodedHeight: bitmap.height,
       drawnPhotoIds: shot.drawnPhotoIds,
-      tileRequested: fetched.some((entry) => entry.name === TILE && entry.initiatorType !== 'img'),
     };
   } finally {
     root.unmount();

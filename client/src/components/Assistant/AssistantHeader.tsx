@@ -3,6 +3,7 @@ import { type HTMLAttributes, type MouseEvent, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { useTranslation } from '../../i18n';
+import { assistantScopeOf } from '../../store/assistantChatKey';
 import { PopoverItem } from '../Packing/PackingPopover';
 import ConfirmDialog from '../shared/ConfirmDialog';
 import { ContextMenu, useContextMenu } from '../shared/ContextMenu';
@@ -36,12 +37,14 @@ interface AssistantHeaderProps {
  * grabbed to move it. On the end side the recent chats (a new chat starts at
  * the top of that list), more and close, as round raised buttons. Closing
  * keeps the conversation, and an answer being written goes on. The model is not picked here;
- * that lives in the settings.
+ * that lives in the settings. Notes are a trip's: a journey's chat in TREK Studio shows no notes button.
  */
 export default function AssistantHeader({ tripId, thread, tripTitle, onClose, dragProps }: AssistantHeaderProps) {
   const { t, locale } = useTranslation();
   const live = useAssistantLiveStep(tripId);
   const memory = useTripMemory(tripId);
+  // Trip notes belong to a trip: a journey's turns never read them (assistant-scope.ts turnOf).
+  const tripChat = assistantScopeOf(tripId).kind === 'trip';
   const [memoryOpen, setMemoryOpen] = useState(false);
   const navigate = useNavigate();
   const menu = useContextMenu();
@@ -123,22 +126,24 @@ export default function AssistantHeader({ tripId, thread, tripTitle, onClose, dr
         onPointerDown={(e) => e.stopPropagation()}
         onDoubleClick={(e) => e.stopPropagation()}
       >
-        <Tooltip label={t(memory.has ? 'assistant.memory.edit' : 'assistant.memory.title')}>
-          <button
-            type="button"
-            onClick={() => setMemoryOpen(true)}
-            aria-label={t('assistant.memory.title')}
-            className={`relative ${ICON_BUTTON}`}
-          >
-            <NotebookPen size={13} aria-hidden="true" />
-            {memory.has && (
-              <span
-                aria-hidden="true"
-                className="absolute -end-0.5 -top-0.5 h-2 w-2 rounded-full bg-accent ring-2 ring-[color:var(--bg-elevated)]"
-              />
-            )}
-          </button>
-        </Tooltip>
+        {tripChat && (
+          <Tooltip label={t(memory.has ? 'assistant.memory.edit' : 'assistant.memory.title')}>
+            <button
+              type="button"
+              onClick={() => setMemoryOpen(true)}
+              aria-label={t('assistant.memory.title')}
+              className={`relative ${ICON_BUTTON}`}
+            >
+              <NotebookPen size={13} aria-hidden="true" />
+              {memory.has && (
+                <span
+                  aria-hidden="true"
+                  className="absolute -end-0.5 -top-0.5 h-2 w-2 rounded-full bg-accent ring-2 ring-[color:var(--bg-elevated)]"
+                />
+              )}
+            </button>
+          </Tooltip>
+        )}
         <Tooltip label={t('assistant.history.open')}>
           <button
             ref={historyTrigger}

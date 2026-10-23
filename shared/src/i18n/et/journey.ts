@@ -900,6 +900,8 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': 'Kujunda raamat koos assistendiga',
   'journey.studio.assistant.panel': 'Raamatu assistent',
   'journey.studio.assistant.welcome': 'Milline peaks raamat välja nägema?',
+  'journey.studio.assistant.readOnly':
+    'Sa saad seda raamatut ainult vaadata, seega saan küsimustele vastata, kuid mitte midagi muuta.',
   'journey.studio.assistant.notice':
     'Assistent saab vaadata lehte, mille kallal töötad. {provider} saab ainult selle lehe, pildina, millel on näha ainult sinu enda lisatud fotod. Seda, kes sinu fotodel on, ei saa tuvastada.',
   'journey.studio.assistant.noticeAllow': 'Näita lehti',

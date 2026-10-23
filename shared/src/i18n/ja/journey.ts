@@ -868,6 +868,7 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': 'アシスタントと一緒に本をデザイン',
   'journey.studio.assistant.panel': '本のアシスタント',
   'journey.studio.assistant.welcome': 'どんな本にしますか？',
+  'journey.studio.assistant.readOnly': 'この本は閲覧のみなので、質問には答えられますが、変更はできません。',
   'journey.studio.assistant.notice':
     'アシスタントは作業中のページを見ることができます。{provider} に送られるのはそのページだけで、あなた自身が追加した写真だけが写った画像として送られます。写真に誰が写っているかは判別できません。',
   'journey.studio.assistant.noticeAllow': 'ページを見せる',

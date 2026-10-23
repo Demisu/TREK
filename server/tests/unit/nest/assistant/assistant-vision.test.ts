@@ -2,14 +2,17 @@
  * AssistantVision (ASTVSN-*): a Studio turn looking at a page. Images go only
  * when the client draws pages, the model reads images and the user let the
  * connection receive them; only the user's own photos are drawn; no image in
- * time is the description alone; a refused image makes the model text-only
- * for the process; a decision's turn starts with views of the pages the
- * applied book writes left. The book, the photos and the acknowledgement are
- * fakes; the registry is the real in-memory one, the request context a real
- * ORM over a snapshot test db.
+ * time is the description alone; a refused image makes the model text-only,
+ * which the connections remember for the process; a decision's turn starts
+ * with views of the pages the applied book writes left. The book, the photos
+ * and the connections are fakes; the registry is the real in-memory one, the
+ * request context a real ORM over a snapshot test db. A proposal goes to the
+ * Studio as the page the server applied, with the book context the Studio
+ * does not hold.
  */
 import type { AiChatMessage } from '../../../../src/nest/ai-connections/ai-chat-client.interface';
 import type { AiConnectionsService } from '../../../../src/nest/ai-connections/ai-connections.service';
+import { modelReadsImages } from '../../../../src/nest/ai-connections/model-catalog.service';
 import { InMemoryAssistantRenderRegistry } from '../../../../src/nest/assistant/assistant-render.registry';
 import type { AssistantToolSession } from '../../../../src/nest/assistant/assistant-tools.service';
 import { AssistantVision, type VisionTurnInput } from '../../../../src/nest/assistant/assistant-vision';
@@ -63,7 +66,12 @@ interface Fakes {
 
 function setup(fakes: Fakes = {}) {
   const registry = new InMemoryAssistantRenderRegistry();
-  const connections = { studioImagesAcked: vi.fn(async () => fakes.acked ?? true) };
+  const connections = {
+    studioImagesAcked: vi.fn(async () => fakes.acked ?? true),
+    // What the model's name says; the models refused an image are AiConnectionsService's own (AICS-018).
+    readsImages: vi.fn(({ kind, model }: VisionTurnInput['connection']) => modelReadsImages(kind, model)),
+    refuseImages: vi.fn(),
+  };
   const fixture = book();
   const books = {
     trialBase: vi.fn(async () => ({
@@ -142,11 +150,16 @@ describe('AssistantVision', () => {
     expect(run.value).not.toHaveProperty('image');
   });
 
-  it('ASTVSN-004: a proposal is drawn on a copy with its ops; no image in time leaves the description', async () => {
+  it('ASTVSN-004: a proposal goes as the page applied on a copy; no image in time leaves the description', async () => {
     const t = setup({ upload: false });
     const ops = [{ op: 'background' as const, color: '#112233' }];
     const run = await (await t.vision.forTurn(t.input)).look(t.inner, ops);
-    expect(t.asked[0]).toMatchObject({ spreadId: t.inner, bookVersion: 4, ops });
+    expect(t.asked[0]).toMatchObject({
+      spreadId: t.inner,
+      bookVersion: 4,
+      spread: { id: t.inner, background: '#112233' },
+    });
+    expect(t.asked[0]).not.toHaveProperty('ops');
     expect(run.ok).toBe(true);
     expect(run.images).toBeUndefined();
     expect(run.value).toMatchObject({ proposed: true, image: expect.stringContaining('did not send') });
@@ -167,15 +180,19 @@ describe('AssistantVision', () => {
     expect(t.asked).toEqual([]);
   });
 
-  it('ASTVSN-006: a refused image makes the model text-only, for this turn and the next', async () => {
+  it('ASTVSN-006: a refused image makes the model text-only, for this turn and, told to the connections, the next', async () => {
     const t = setup();
     const vision = await t.vision.forTurn(t.input);
+    expect(t.connections.readsImages).toHaveBeenCalledWith(t.input.connection);
     vision.refused();
     expect(vision.sendsImages()).toBe(false);
     expect((await vision.look(t.inner)).images).toBeUndefined();
+    expect(t.connections.refuseImages).toHaveBeenCalledWith(t.input.connection);
+    // The connections now say the model reads no images: the next turn asks for none and is not asked to say yes.
+    t.connections.readsImages.mockReturnValueOnce(false);
+    t.connections.studioImagesAcked.mockClear();
     expect((await t.vision.forTurn(t.input)).sendsImages()).toBe(false);
-    const other = { ...t.input.connection, model: 'claude-opus-5' };
-    expect((await t.vision.forTurn({ ...t.input, connection: other })).sendsImages()).toBe(true);
+    expect(t.connections.studioImagesAcked).not.toHaveBeenCalled();
   });
 
   it('ASTVSN-007: a decision turn starts with a view of each page the applied book writes left', async () => {
@@ -240,6 +257,24 @@ describe('AssistantVision', () => {
     t.photos.ownPhotoIds.mockRejectedValueOnce(new DomainError(404, 'Journey not found'));
     expect(await vision.look(t.inner)).toEqual({ ok: false, value: 'Journey not found' });
     expect(t.asked).toEqual([]);
+  });
+
+  it('ASTVSN-012: a proposal is drawn as the server applied it, with journey words the Studio lacks', async () => {
+    const t = setup();
+    // The journal's caption of photo 1: only the server's book context holds it.
+    const photos = [{ photoId: 1, caption: 'Alfama at dusk' }, { photoId: 2 }];
+    t.books.trialBase.mockResolvedValueOnce({ doc: book().doc, version: 4, ctx: { photos } });
+    const vision = await t.vision.forTurn(t.input);
+
+    const run = await vision.look(t.inner, [{ op: 'caption', photoElementId: 'p-own' }]);
+
+    expect(run.ok).toBe(true);
+    const drawn = t.asked[0]?.spread;
+    expect(drawn?.id).toBe(t.inner);
+    expect(drawn?.elements.some((el) => el.kind === 'text' && el.text === 'Alfama at dusk')).toBe(true);
+    // The page as it stands is drawn from the book the Studio reads, never sent along.
+    await vision.look(t.inner);
+    expect(t.asked[1]).not.toHaveProperty('spread');
   });
 
   it('ASTVSN-011: a page of a design draft is read from the draft and the Studio is told to draw it from there', async () => {

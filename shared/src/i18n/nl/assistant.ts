@@ -74,6 +74,12 @@ const assistant: TranslationStrings = {
     'Je berichten en de reisgegevens die de assistent leest, zoals plekken, dagen en boekingen.',
   'assistant.privacy.notShared': 'Niet je wachtwoord, je bestanden of je andere reizen.',
   'assistant.privacy.provider': '{provider} verwerkt dit volgens de eigen privacyvoorwaarden.',
+  'assistant.privacy.bannerBook':
+    'Je berichten en de gegevens van het reisverslag die de assistent leest, gaan naar {provider}.',
+  'assistant.privacy.sharedBook':
+    'Je berichten en wat de assistent van dit reisverslag leest, zoals de vermeldingen, plekken en pagina’s van het boek.',
+  'assistant.privacy.notSharedBook':
+    'Niet je wachtwoord of je andere reisverslagen. Een afbeelding van een pagina gaat pas mee als jij dat toestaat.',
   'assistant.empty.title': 'Wat gaan we plannen?',
   'assistant.empty.readOnly': 'Je kunt deze reis alleen bekijken, dus ik beantwoord vragen maar verander niets.',
   'assistant.suggest.planFirstDays': 'Plan de eerste dagen voor me',

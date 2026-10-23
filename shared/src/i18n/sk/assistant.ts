@@ -74,6 +74,11 @@ const assistant: TranslationStrings = {
     'Tvoje správy a podrobnosti o ceste, ktoré asistent číta, napríklad miesta, dni a rezervácie.',
   'assistant.privacy.notShared': 'Nie tvoje heslo, tvoje súbory ani tvoje ďalšie cesty.',
   'assistant.privacy.provider': '{provider} s tým nakladá podľa vlastných podmienok ochrany súkromia.',
+  'assistant.privacy.bannerBook': 'Tvoje správy a údaje cestovného denníka, ktoré asistent číta, idú do {provider}.',
+  'assistant.privacy.sharedBook':
+    'Tvoje správy a to, čo asistent z tohto cestovného denníka číta, napríklad záznamy, miesta a strany knihy.',
+  'assistant.privacy.notSharedBook':
+    'Nie tvoje heslo ani tvoje ďalšie cestovné denníky. Obrázok strany odíde, až keď to povolíš.',
   'assistant.empty.title': 'Čo plánujeme?',
   'assistant.empty.readOnly': 'Túto cestu môžeš len prezerať, takže odpoviem na otázky, ale nič nezmením.',
   'assistant.suggest.planFirstDays': 'Naplánuj mi prvé dni',

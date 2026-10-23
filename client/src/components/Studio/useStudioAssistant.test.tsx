@@ -5,8 +5,8 @@
  * hosts the journey's chat while the column shows; it draws the page a turn
  * asks for off screen, with other members' photos as empty frames, and sends
  * it at the version the turn named; a page of a design draft comes from the
- * draft; a preview runs on an unsaved copy; each question carries the page on
- * screen; `?page=` shows a page. The snapshot
+ * draft; a preview draws the page the server applied, nothing saved; each
+ * question carries the page on screen; `?page=` shows a page. The snapshot
  * and the repo are faked: a real browser draws the page in the Playwright flows.
  */
 import {
@@ -198,20 +198,25 @@ describe('useStudioAssistant', () => {
     expect(background).toMatch(/#abcdef|171, 205, 239/i);
   });
 
-  it('FE-STUDIO-AST-004:a preview runs its ops on an unsaved copy, nothing is drawn when they fail', () => {
+  it('FE-STUDIO-AST-004: a preview draws the page the server applied, the stored book untouched', () => {
     const doc = book();
     const deadline = { signal: new AbortController().signal, release: vi.fn() };
+    const stored = doc.spreads[2];
+    if (!stored) throw new Error('no inner spread');
 
-    const job = renderJobOf(doc, { ...REQUEST, ops: [{ op: 'background', color: '#123456' }] }, deadline);
+    const job = renderJobOf(doc, { ...REQUEST, spread: { ...stored, background: '#123456' } }, deadline);
 
     expect(job?.spread.background).toBe('#123456');
+    expect(job?.page).toBe(doc.page);
     expect(job?.folios.length).toBeGreaterThan(0);
     expect([...(job?.hidden ?? [])]).toEqual([31]);
     expect(doc.spreads[2]?.background).toBeNull();
+    // Without a proposal the page is drawn as the book holds it; a page the book lacks is not drawn.
+    expect(renderJobOf(doc, REQUEST, deadline)?.spread).toBe(stored);
     expect(renderJobOf(doc, { ...REQUEST, spreadId: 'sp-99' }, deadline)).toBeNull();
-    // An element the page does not hold refuses the whole edit.
-    const missing: AssistantPageRender = { ...REQUEST, ops: [{ op: 'remove', elementIds: ['nope'], park: true }] };
-    expect(renderJobOf(doc, missing, deadline)).toBeNull();
+    // A page sent for another spread is never drawn in this one's place.
+    const other: AssistantPageRender = { ...REQUEST, spread: { ...stored, id: 'sp-4', background: '#654321' } };
+    expect(renderJobOf(doc, other, deadline)?.spread).toBe(stored);
   });
 
   it('FE-STUDIO-AST-005: each question carries the page on screen and the elements selected on it', () => {

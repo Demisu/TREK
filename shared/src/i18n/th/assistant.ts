@@ -71,6 +71,11 @@ const assistant: TranslationStrings = {
   'assistant.privacy.shared': 'ข้อความของคุณและรายละเอียดทริปที่ผู้ช่วยอ่าน เช่น สถานที่ วัน และการจอง',
   'assistant.privacy.notShared': 'ไม่รวมรหัสผ่าน ไฟล์ และทริปอื่นของคุณ',
   'assistant.privacy.provider': '{provider} จัดการข้อมูลนี้ตามเงื่อนไขความเป็นส่วนตัวของตนเอง',
+  'assistant.privacy.bannerBook': 'ข้อความของคุณและข้อมูลการเดินทางที่ผู้ช่วยอ่านจะถูกส่งไปยัง {provider}',
+  'assistant.privacy.sharedBook':
+    'ข้อความของคุณและสิ่งที่ผู้ช่วยอ่านจากการเดินทางนี้ เช่น บันทึก สถานที่ และหน้าในหนังสือ',
+  'assistant.privacy.notSharedBook':
+    'ไม่รวมรหัสผ่านและการเดินทางอื่นของคุณ ภาพของหน้าจะถูกส่งก็ต่อเมื่อคุณอนุญาตแล้วเท่านั้น',
   'assistant.empty.title': 'เราจะวางแผนอะไรกันดี',
   'assistant.empty.readOnly': 'คุณดูทริปนี้ได้อย่างเดียว ฉันจึงตอบคำถามได้แต่เปลี่ยนแปลงอะไรไม่ได้',
   'assistant.suggest.planFirstDays': 'ช่วยวางแผนวันแรก ๆ ให้หน่อย',

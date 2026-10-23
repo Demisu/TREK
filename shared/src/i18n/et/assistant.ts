@@ -74,6 +74,12 @@ const assistant: TranslationStrings = {
     'Sinu sõnumid ja reisi üksikasjad, mida assistent loeb, näiteks kohad, päevad ja broneeringud.',
   'assistant.privacy.notShared': 'Mitte sinu parool, failid ega teised reisid.',
   'assistant.privacy.provider': '{provider} töötleb neid oma privaatsustingimuste järgi.',
+  'assistant.privacy.bannerBook':
+    'Sinu sõnumid ja reisiloo andmed, mida assistent loeb, saadetakse teenusele {provider}.',
+  'assistant.privacy.sharedBook':
+    'Sinu sõnumid ja see, mida assistent sellest reisiloost loeb, näiteks sissekanded, kohad ja raamatu lehed.',
+  'assistant.privacy.notSharedBook':
+    'Mitte sinu parool ega teised reisilood. Lehe pilt saadetakse alles siis, kui sa selle lubad.',
   'assistant.empty.title': 'Mida me planeerime?',
   'assistant.empty.readOnly':
     'Sa saad seda reisi ainult vaadata, seega saan küsimustele vastata, kuid mitte midagi muuta.',

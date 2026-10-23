@@ -23,7 +23,7 @@ import { maskHint, openSecrets, sealSecrets } from './ai-secrets';
 import { AiSettingsService } from './ai-settings.service';
 import { AiUsageService } from './ai-usage.service';
 import { ChatgptAuthService } from './chatgpt-auth.service';
-import { ModelCatalogService, pickDefaultModel, type CatalogTarget } from './model-catalog.service';
+import { ModelCatalogService, modelReadsImages, pickDefaultModel, type CatalogTarget } from './model-catalog.service';
 import { AiProviderError } from './providers/provider-errors';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
@@ -89,6 +89,9 @@ export class AiConnectionsService implements SharedAiConnectionPort {
     private readonly audit: AuditService,
   ) {}
 
+  /** `kind:model` of the models a provider refused an image for, while this process runs. */
+  private readonly textOnly = new Set<string>();
+
   /** Whether the assistant exists here at all: the addon is on and the install is not centrally administered. */
   async enabled(): Promise<boolean> {
     return !readEnv().managed.enabled && (await this.addons.isAddonEnabled(ADDON_IDS.AI_ASSISTANT));
@@ -129,6 +132,7 @@ export class AiConnectionsService implements SharedAiConnectionPort {
           ? { used: await this.usage.instanceTurnsToday(userId), limit: settings.dailyTurns }
           : null,
       privacyAcked: acked,
+      studioImages: !!effective && this.readsImages({ kind: kindOf(effective), model: effective.model }),
       studioImagesAcked: !!effective && (await this.studioImagesAckedFor(userId, `${kindOf(effective)}@${host}`)),
       retention: settings.retention,
       openrouterOAuth: openrouterOAuthAvailable(),
@@ -245,6 +249,21 @@ export class AiConnectionsService implements SharedAiConnectionPort {
 
   private async studioImagesAckedFor(userId: number, target: string): Promise<boolean> {
     return (await this.settings.getDecryptedUserSetting(userId, AI_STUDIO_IMAGES_ACK_SETTING)) === target;
+  }
+
+  /**
+   * Whether a model is shown the Studio's pages as images: its name says it
+   * reads them, and no provider refused an image for it while this process
+   * runs. Status asks this too, so the Studio offers images only where a turn
+   * would send them.
+   */
+  readsImages({ kind, model }: Pick<ResolvedAiConnection, 'kind' | 'model'>): boolean {
+    return modelReadsImages(kind, model) && !this.textOnly.has(`${kind}:${model}`);
+  }
+
+  /** A provider refused an image for this model: it reads pages in words until the process restarts. */
+  refuseImages({ kind, model }: Pick<ResolvedAiConnection, 'kind' | 'model'>): void {
+    this.textOnly.add(`${kind}:${model}`);
   }
 
   // ── The instance's connection (admin) ──────────────────────────────────────

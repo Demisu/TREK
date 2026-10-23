@@ -92,6 +92,9 @@ export const aiStatusResponseSchema = z.object({
   privacyAcked: z.boolean(),
   // Whether the user also let kind@host receive images of their Studio pages, with their own photos on them.
   studioImagesAcked: z.boolean().optional(),
+  // Whether the model the effective connection runs on reads images (its name says so and no provider refused one for
+  // it since the server started), so a Studio page can go as a picture.
+  studioImages: z.boolean().optional(),
   retention: aiRetentionSchema,
   // OpenRouter's OAuth needs an https callback; without one the client offers the key field instead.
   openrouterOAuth: z.boolean(),

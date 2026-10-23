@@ -168,6 +168,8 @@ function PagesPanel({
 }: { page: BookPageSetup; pxPerMm: number; bookView: boolean; t: (k: string) => string }) {
   const doc = useStudioStore(s => s.doc)
   const active = useStudioStore(s => s.activeSpread)
+  // The page a chat card points at, outlined here (journey-studio.md 4.2).
+  const hinted = useStudioStore(s => s.hintSpread)
   const setActive = useStudioStore(s => s.setActiveSpread)
   const addSpread = useStudioStore(s => s.addSpread)
   const insertSpread = useStudioStore(s => s.insertSpread)
@@ -194,7 +196,7 @@ function PagesPanel({
             return (
               <div className="st-thumb-row" key={sp.id}>
                 <button type="button"
-                  className={`st-thumb ${i === active ? 'is-active' : ''}`}
+                  className={`st-thumb ${i === active ? 'is-active' : ''} ${sp.id === hinted ? 'is-hinted' : ''}`}
                   onClick={() => setActive(i)}
                 >
                   <SpreadThumb

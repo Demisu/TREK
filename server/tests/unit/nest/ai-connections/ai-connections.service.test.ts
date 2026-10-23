@@ -288,6 +288,34 @@ describe('the instance connection', () => {
     expect((await service().status(id)).studioImagesAcked).toBe(false);
   });
 
+  it('AICS-017: status says whether the model the user runs on reads images, so Studio asks only then', async () => {
+    const admin = await user();
+    const id = await user();
+    await service().saveInstance(admin, { kind: 'anthropic', apiKey: 'sk-ant-instance' });
+    expect((await service().status(id)).studioImages).toBe(true);
+    // A custom server cannot be told to read images from its model's name: its pages go as text.
+    await service().saveInstance(admin, { kind: 'custom', baseUrl: 'http://ollama.lan:11434/v1', model: 'qwen3:14b' });
+    expect((await service().status(id)).studioImages).toBe(false);
+    await service().removeInstance(admin);
+    expect((await service().status(id)).studioImages).toBe(false);
+  });
+
+  it('AICS-018: a model a provider refused an image for reads pages in words from then on, and status says so', async () => {
+    const admin = await user();
+    const id = await user();
+    // The service, and what it remembers, lives for the whole file: no later test asks whether Haiku reads images.
+    await service().saveInstance(admin, { kind: 'anthropic', apiKey: 'sk-ant-instance', model: 'claude-haiku' });
+    const haiku = { kind: 'anthropic' as const, model: 'claude-haiku' };
+    expect(service().readsImages(haiku)).toBe(true);
+    expect((await service().status(id)).studioImages).toBe(true);
+
+    service().refuseImages(haiku);
+    expect(service().readsImages(haiku)).toBe(false);
+    expect((await service().status(id)).studioImages).toBe(false);
+    // Only that model: another one of the same provider still gets its pages as pictures.
+    expect(service().readsImages({ ...haiku, model: 'claude-sonnet' })).toBe(true);
+  });
+
   it('AICS-014: settings are read with their defaults and written back', async () => {
     const admin = await user();
     expect(await service().readSettings()).toEqual({

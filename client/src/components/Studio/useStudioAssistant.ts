@@ -1,6 +1,5 @@
 import {
   ASSISTANT_PAGE_IMAGE,
-  applyBookOps,
   bookElementIdSchema,
   bookSpreadIdSchema,
   type AssistantPageRender,
@@ -27,7 +26,8 @@ import { sheetSizePx, snapshotSpread } from './pageSnapshot';
  * - Each question carries the page on screen and the elements selected on it.
  * - A page a turn asks to look at is drawn here, by the editor's own
  *   SpreadView off screen, and uploaded as an image (3.1): a page of the
- *   book, or of a design draft the assistant has not applied yet.
+ *   book, of a design draft the assistant has not applied yet, or a
+ *   proposal's page as the server applied it.
  * - `?page=<spread id>`, which a page card opens, shows that page.
  */
 
@@ -83,29 +83,27 @@ function withDeadline(signal: AbortSignal): { signal: AbortSignal; release: () =
 }
 
 /**
- * The page a request asks for, from the book at the version it names: with
- * the request's ops applied to an unsaved copy (a preview). Null when the
- * page is gone or the ops do not apply, so nothing is drawn.
+ * The page a request asks for, from the book at the version it names. A
+ * preview carries the proposal's page as the server applied it, with the
+ * journey's photos, words and figures this tab does not hold: that page is
+ * drawn in place of the stored one, nothing saved. A proposal changes only
+ * its own page, so the page setup and the folios stay the book's. Null when
+ * the page is gone, so nothing is drawn.
  */
 export function renderJobOf(
   doc: BookDocument,
   request: AssistantPageRender,
   deadline: { signal: AbortSignal; release: () => void }
 ): StudioRenderJob | null {
-  let next = doc;
-  if (request.ops) {
-    const made = applyBookOps(doc, { spreadId: request.spreadId, ops: request.ops });
-    if (made.ok === false) return null;
-    next = made.doc;
-  }
-  const index = next.spreads.findIndex((s) => s.id === request.spreadId);
-  const spread = next.spreads[index];
-  if (!spread) return null;
+  const index = doc.spreads.findIndex((s) => s.id === request.spreadId);
+  const stored = doc.spreads[index];
+  if (!stored) return null;
+  const spread = request.spread?.id === stored.id ? request.spread : stored;
   return {
     request,
     spread,
-    page: next.page,
-    folios: foliosOf(next.spreads, index, next.page.pageNumbers.startAt),
+    page: doc.page,
+    folios: foliosOf(doc.spreads, index, doc.page.pageNumbers.startAt),
     hidden: new Set(request.hiddenPhotoIds),
     ...deadline,
   };

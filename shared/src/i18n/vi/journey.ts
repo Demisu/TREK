@@ -877,6 +877,8 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': 'Thiết kế cuốn sách cùng trợ lý',
   'journey.studio.assistant.panel': 'Trợ lý sách',
   'journey.studio.assistant.welcome': 'Cuốn sách nên trông như thế nào?',
+  'journey.studio.assistant.readOnly':
+    'Bạn chỉ có thể xem cuốn sách này, nên tôi có thể trả lời câu hỏi nhưng không thay đổi gì.',
   'journey.studio.assistant.notice':
     'Trợ lý có thể xem trang bạn đang làm. Chỉ trang đó được gửi tới {provider}, dưới dạng ảnh chỉ hiển thị những ảnh do chính bạn thêm vào. Không thể nhận biết ai có trong ảnh của bạn.',
   'journey.studio.assistant.noticeAllow': 'Cho xem trang',

@@ -32,6 +32,11 @@ interface StudioState {
   gestureBase: BookDocument | null
   /** Elements copied for pasting onto any page of the book (#2316). Kept across page switches. */
   clipboard: StudioClipboard | null
+  /**
+   * The page a chat card points at, outlined in the page rail (journey-studio.md
+   * 4.2). Not part of the book or its history; opening a book clears it.
+   */
+  hintSpread: string | null
 
   load: (doc: BookDocument) => void
   /**
@@ -50,6 +55,7 @@ interface StudioState {
    */
   adoptRemote: (doc: BookDocument, opts?: { undoable?: boolean }) => void
   setActiveSpread: (i: number) => void
+  setHintSpread: (spreadId: string | null) => void
   select: (ids: string[]) => void
   toggleSelect: (id: string, additive: boolean) => void
 
@@ -128,8 +134,9 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   future: [],
   gestureBase: null,
   clipboard: null,
+  hintSpread: null,
 
-  load: doc => set({ doc, selection: [], activeSpread: 0, past: [], future: [], gestureBase: null }),
+  load: doc => set({ doc, selection: [], activeSpread: 0, past: [], future: [], gestureBase: null, hintSpread: null }),
   adoptRemote: (doc, opts) => set(s => {
     if (!s.doc) return { doc, selection: [], activeSpread: 0, past: [], future: [], gestureBase: null }
     if (doc === s.doc) return {}
@@ -154,6 +161,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
     }
   }),
   setActiveSpread: i => set({ activeSpread: i, selection: [] }),
+  setHintSpread: spreadId => set({ hintSpread: spreadId }),
   select: ids => set({ selection: ids }),
   toggleSelect: (id, additive) => set(s => {
     if (!additive) return { selection: [id] }

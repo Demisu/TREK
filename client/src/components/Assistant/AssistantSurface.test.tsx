@@ -1,11 +1,12 @@
 /**
- * FE-AI-SURF-001 to FE-AI-SURF-008
+ * FE-AI-SURF-001 to FE-AI-SURF-009
  *
  * The chat on the real @assistant-ui runtime, fed from the assistant store:
  * the empty chat with its suggestions, stored messages as the user sees
  * them, sending from the composer, the composer holding back while a change
  * waits for a decision, and a journey's chat under its own key, without the
- * trip's questions and booking upload.
+ * trip's questions and booking upload, read only for a viewer of the
+ * journey and in the book's words.
  */
 import type { AiStatusResponse, AssistantMessage } from '@trek/shared';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -13,10 +14,12 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import { fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
 import { assistantChatKey } from '../../store/assistantChatKey';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
+import { type JourneyDetail, useJourneyStore } from '../../store/journeyStore';
 import AssistantSurface from './AssistantSurface';
 
 const TRIP = 4;
 const INITIAL = useAssistantStore.getState();
+const JOURNEYS = useJourneyStore.getState();
 const AT = '2026-10-21T08:00:00.000Z';
 
 const STATUS: AiStatusResponse = {
@@ -52,7 +55,10 @@ beforeAll(() => {
 });
 
 beforeEach(() => send.mockClear());
-afterEach(() => useAssistantStore.setState(INITIAL, true));
+afterEach(() => {
+  useAssistantStore.setState(INITIAL, true);
+  useJourneyStore.setState(JOURNEYS, true);
+});
 
 describe('AssistantSurface', () => {
   it('FE-AI-SURF-001: the empty chat asks what to plan and offers questions that change nothing for an unknown trip', async () => {
@@ -226,11 +232,29 @@ describe('AssistantSurface', () => {
     // It asks about the book, not the plan.
     expect(screen.getByText('What should the book look like?')).toBeInTheDocument();
     expect(screen.queryByText('What are we planning?')).toBeNull();
+    // An owner of the journey, as the Studio reads one before the journey says otherwise.
+    expect(screen.queryByText(/You can only view/)).toBeNull();
     expect(screen.queryByRole('button', { name: 'Which days are still empty?' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Attach a booking' })).toBeNull();
 
     // A file dragged over the chat is left to the browser: nothing lights up to take it.
     fireEvent.dragEnter(input, { dataTransfer: { types: ['Files'], files: [] } });
     expect(screen.queryByText('Drop it here and I will read the booking')).toBeNull();
+  });
+
+  it('FE-AI-SURF-009: a viewer of the journey hears in the book words that the chat changes nothing', async () => {
+    const key = assistantChatKey({ kind: 'journey', journeyId: TRIP });
+    useAssistantStore.setState({
+      status: STATUS,
+      send,
+      byTrip: { [key]: { ...chatOf(useAssistantStore.getState(), key), messages: [] } },
+    });
+    useJourneyStore.setState({ current: { id: TRIP, my_role: 'viewer' } as JourneyDetail });
+    render(<AssistantSurface tripId={key} tripTitle="Lisbon" variant="window" />);
+
+    expect(
+      await screen.findByText('You can only view this book, so I can answer questions but not change anything.')
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/this trip/)).toBeNull();
   });
 });

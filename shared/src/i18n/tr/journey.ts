@@ -898,6 +898,8 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': 'Kitabı asistanla birlikte tasarla',
   'journey.studio.assistant.panel': 'Kitap asistanı',
   'journey.studio.assistant.welcome': 'Kitap nasıl görünsün?',
+  'journey.studio.assistant.readOnly':
+    'Bu kitabı yalnızca görüntüleyebiliyorsun, bu yüzden soruları yanıtlarım ama bir şey değiştiremem.',
   'journey.studio.assistant.notice':
     'Asistan üzerinde çalıştığın sayfaya bakabilir. {provider} hizmetine yalnızca bu sayfa, sadece kendi eklediğin fotoğrafları gösteren bir görüntü olarak gider. Fotoğraflarında kimin olduğu tespit edilemez.',
   'journey.studio.assistant.noticeAllow': 'Sayfaları göster',

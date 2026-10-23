@@ -4,6 +4,7 @@ import { type FocusEvent, useState } from 'react';
 
 import { useTranslation } from '../../../../i18n';
 import { SpreadThumb } from '../../../Studio/SpreadThumb';
+import { useStudioPageHint } from '../../../Studio/useStudioPageHint';
 import { pageLabel } from '../book/bookCardModel';
 import { ChangeMark } from '../parts/CardFacts';
 import type { DesignPair } from './bookDesignModel';
@@ -55,12 +56,19 @@ interface SheetProps {
   onShow: () => void;
 }
 
-/** One page drawn small; pressing it shows the page. */
+/** One page drawn small; pressing it shows the page, pointing at it outlines it in the Studio's page rail. */
 function Sheet({ spread, page, caption, onShow }: SheetProps) {
   const { t } = useTranslation();
+  const hint = useStudioPageHint(spread.id);
   const width = (SHEET_HEIGHT * (spread.role === 'inner' ? page.pageWidth * 2 : page.pageWidth)) / page.pageHeight;
   return (
-    <button type="button" onClick={onShow} aria-label={t('assistant.card.book.showPage')} className={SHEET_BUTTON}>
+    <button
+      type="button"
+      onClick={onShow}
+      {...hint}
+      aria-label={t('assistant.card.book.showPage')}
+      className={SHEET_BUTTON}
+    >
       <SpreadThumb spread={spread} page={page} width={width} className={SHEET} />
       {caption && <span className={SHEET_CAPTION}>{caption}</span>}
     </button>

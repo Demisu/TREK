@@ -1,7 +1,6 @@
 import type { AiChatMessage, AiImage } from '../ai-connections/ai-chat-client.interface';
 import { AiConnectionsService } from '../ai-connections/ai-connections.service';
 import type { ResolvedAiConnection } from '../ai-connections/ai-connections.types';
-import { modelReadsImages } from '../ai-connections/model-catalog.service';
 import { logDebug } from '../audit/audit-log.logger';
 import { DomainError } from '../common/domain-error';
 import { withRequestContext } from '../database/request-context';
@@ -23,6 +22,7 @@ import {
   type BookDocument,
   type BookElement,
   type BookPageOp,
+  type BookSpread,
 } from '@trek/shared';
 
 import { randomUUID } from 'node:crypto';
@@ -142,7 +142,7 @@ function reason(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
-/** Builds each Studio turn's vision, and remembers the models a provider refused an image for. */
+/** Builds each Studio turn's vision; the connections remember the models a provider refused an image for. */
 @Injectable()
 export class AssistantVision {
   constructor(
@@ -152,9 +152,6 @@ export class AssistantVision {
     private readonly registry: AssistantRenderRegistry,
     private readonly orm: MikroORM,
   ) {}
-
-  /** `kind:model` of the models a provider refused an image for, while this process runs. */
-  private readonly textOnly = new Set<string>();
 
   /** A turn's tools and its vision: a Studio turn's with the page preview beside them, a trip turn's as they are. */
   async turnTools(
@@ -168,18 +165,16 @@ export class AssistantVision {
   }
 
   async forTurn(input: VisionTurnInput): Promise<TurnVision> {
-    const model = `${input.connection.kind}:${input.connection.model}`;
     let images =
       input.renders &&
-      modelReadsImages(input.connection.kind, input.connection.model) &&
-      !this.textOnly.has(model) &&
+      this.connections.readsImages(input.connection) &&
       (await withRequestContext(this.orm, () => this.connections.studioImagesAcked(input.userId, input.connection)));
     const vision: TurnVision = {
       sendsImages: () => images,
       look: (spreadId, ops, designId) => this.look(input, images, spreadId, { ops, designId }),
       refused: () => {
         images = false;
-        this.textOnly.add(model);
+        this.connections.refuseImages(input.connection);
       },
       afterApply: (history) => (images ? this.afterApply(vision, history) : Promise.resolve([...history])),
     };
@@ -246,8 +241,10 @@ export class AssistantVision {
     const photos = (base.ctx.photos ?? []).map((p) => (hidden.includes(p.photoId) ? { ...p, hidden: true } : p));
     const described = describeSpread(doc, spreadId, photos);
     if (!described) return { ok: false, value: `This book has no page ${spreadId}: get_book lists its pages.` };
+    // A proposal goes as the page applied here, with the journey's photos, words and figures the Studio lacks.
+    const spread = ops ? doc.spreads.find((s) => s.id === spreadId) : undefined;
     const image = draws
-      ? await this.render(input, { spreadId, bookVersion: base.version, ops, designId, hidden })
+      ? await this.render(input, { spreadId, bookVersion: base.version, spread, designId, hidden })
       : null;
     const value = {
       spreadId,
@@ -265,18 +262,18 @@ export class AssistantVision {
   /** Asks the Studio tab for the page and waits for it; null when none came in time or the turn stopped. */
   private async render(
     input: VisionTurnInput,
-    page: { spreadId: string; bookVersion: number; ops?: BookPageOp[]; designId?: string; hidden: number[] },
+    page: { spreadId: string; bookVersion: number; spread?: BookSpread; designId?: string; hidden: number[] },
   ): Promise<PageImage | null> {
     const requestId = randomUUID();
     const { userId, journeyId, threadId, signal } = input;
-    const { spreadId, bookVersion, ops, designId, hidden } = page;
+    const { spreadId, bookVersion, spread, designId, hidden } = page;
     // Waiting before asking: an upload that comes back at once finds its turn.
     const waiting = this.registry.wait(
       { userId, journeyId, threadId, requestId, spreadId, bookVersion },
       signal,
       ASSISTANT_PAGE_IMAGE.timeoutMs,
     );
-    // A draft's page: the Studio draws it from the draft (GET .../book-designs/:designId).
+    // A draft's page: the Studio draws it from the draft (GET .../book-designs/:designId); a proposal's as sent.
     const asked = {
       requestId,
       threadId,
@@ -285,7 +282,7 @@ export class AssistantVision {
       hiddenPhotoIds: hidden,
       ...(designId ? { designId } : {}),
     };
-    input.w.renderRequest(ops ? { ...asked, ops } : asked);
+    input.w.renderRequest(spread ? { ...asked, spread } : asked);
     const image = await waiting;
     // Size and dimensions only: the page shows the user's photos.
     if (image) logDebug(`[assistant] page image ${image.width}x${image.height}, ${image.data.length} bytes`);

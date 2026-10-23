@@ -976,6 +976,7 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': 'صمّم الكتاب مع المساعد',
   'journey.studio.assistant.panel': 'مساعد الكتاب',
   'journey.studio.assistant.welcome': 'كيف تريد أن يبدو الكتاب؟',
+  'journey.studio.assistant.readOnly': 'يمكنك عرض هذا الكتاب فقط، لذا أستطيع الإجابة عن الأسئلة لكن لا أغيّر شيئًا.',
   'journey.studio.assistant.notice':
     'يمكن للمساعد رؤية الصفحة التي تعمل عليها. تُرسل هذه الصفحة وحدها إلى {provider} كصورة لا تظهر فيها إلا الصور التي أضفتها بنفسك. لا يمكن التعرّف على من يظهر في صورك.',
   'journey.studio.assistant.noticeAllow': 'اعرض الصفحات',

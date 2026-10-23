@@ -978,6 +978,8 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': 'Kitabı köməkçi ilə birlikdə tərtib et',
   'journey.studio.assistant.panel': 'Kitab köməkçisi',
   'journey.studio.assistant.welcome': 'Kitab necə görünsün?',
+  'journey.studio.assistant.readOnly':
+    'Bu kitaba yalnız baxa bilərsiniz, ona görə suallara cavab verə bilərəm, amma heç nəyi dəyişə bilmərəm.',
   'journey.studio.assistant.notice':
     'Köməkçi üzərində işlədiyin səhifəyə baxa bilər. {provider} xidmətinə yalnız bu səhifə, yalnız özün əlavə etdiyin fotoların göründüyü şəkil kimi göndərilir. Fotolarında kimin olduğunu müəyyən etmək mümkün deyil.',
   'journey.studio.assistant.noticeAllow': 'Səhifələri göstər',

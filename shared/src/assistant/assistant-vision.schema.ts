@@ -1,5 +1,6 @@
 import { bookSpreadIdSchema } from '../book/book-op-ids';
 import { bookDesignIdSchema, editBookPageArgs } from '../book/book-ops.schema';
+import { bookSpreadSchema } from '../book/book.schema';
 import { idSchema } from '../common/primitives.schema';
 
 import { z } from 'zod';
@@ -35,17 +36,23 @@ export const ASSISTANT_PAGE_IMAGE = {
 
 /**
  * A page the server asks the Studio to draw, streamed while the turn waits.
- * `ops` are a proposal to draw on an unsaved copy (a preview); without them
- * the page is drawn as the book stands at `bookVersion`. The photos in
- * `hiddenPhotoIds` are drawn as empty frames, and a map stop showing one as
- * a plain dot: only the asking user's own photos leave the browser.
+ * `spread` is a proposal's page as the server applied it (a preview): the
+ * Studio draws that one in place of the stored page; without it the page is
+ * drawn as the book stands at `bookVersion`. The photos in `hiddenPhotoIds`
+ * are drawn as empty frames, and a map stop showing one as a plain dot: only
+ * the asking user's own photos leave the browser.
  */
 export const assistantPageRenderSchema = z.object({
   requestId: z.uuid(),
   threadId: idSchema,
   spreadId: bookSpreadIdSchema,
   bookVersion: z.number().int().nonnegative(),
-  ops: editBookPageArgs.ops.optional(),
+  /**
+   * A proposal's page as the server applied it, with the journey's photos,
+   * words and figures: the Studio draws this one in place of the stored page,
+   * nothing saved.
+   */
+  spread: bookSpreadSchema.optional(),
   /** A page of a design draft (design_book) rather than of the book: the Studio draws it from the draft. */
   designId: bookDesignIdSchema.optional(),
   hiddenPhotoIds: z.array(idSchema).max(ASSISTANT_PAGE_IMAGE.maxPagePhotos),

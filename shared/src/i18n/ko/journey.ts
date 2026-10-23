@@ -864,6 +864,7 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': '어시스턴트와 함께 책 디자인하기',
   'journey.studio.assistant.panel': '책 어시스턴트',
   'journey.studio.assistant.welcome': '책을 어떻게 꾸밀까요?',
+  'journey.studio.assistant.readOnly': '이 책은 보기만 할 수 있어서 질문에는 답하지만 아무것도 바꿀 수 없어요.',
   'journey.studio.assistant.notice':
     '어시스턴트가 작업 중인 페이지를 볼 수 있습니다. {provider}(으)로는 그 페이지만, 직접 추가한 사진만 보이는 이미지로 전송됩니다. 사진에 누가 있는지는 감지할 수 없습니다.',
   'journey.studio.assistant.noticeAllow': '페이지 보여주기',

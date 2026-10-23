@@ -1,10 +1,11 @@
 /**
- * FE-AI-WIN-001 to FE-AI-WIN-011
+ * FE-AI-WIN-001 to FE-AI-WIN-012
  *
  * The desktop window around the chat: when it shows at all, the button it
  * opens from, the trip picker outside a trip, closing that keeps the chat, and
  * Escape, which stops an answer before it closes anything (and leaves the
- * header's menu to itself), and where the focus goes on the way. The geometry is
+ * header's menu to itself), and where the focus goes on the way; a trip's head
+ * offers the notes its turns read. The geometry is
  * useDragResize's and has its own tests; here it is a fixed rect.
  */
 import type { AiStatusResponse } from '@trek/shared';
@@ -178,6 +179,12 @@ describe('AssistantWindow', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     expect(useAssistantStore.getState().window.minimized).toBe(true);
     expect(screen.getByText('chat 4 Kyoto')).not.toBeVisible();
+  });
+
+  it('FE-AI-WIN-012: a trip head offers the trip notes, which every turn on the trip reads', () => {
+    seed({ open: true, minimized: false });
+    render(<AssistantWindow trip={TRIP} />);
+    expect(screen.getByRole('button', { name: 'Trip notes' })).toBeInTheDocument();
   });
 
   it('FE-AI-WIN-008: closing hands the focus to the round button, opening hands it back to the composer', async () => {

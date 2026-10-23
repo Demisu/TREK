@@ -72,6 +72,11 @@ const assistant: TranslationStrings = {
   'assistant.privacy.shared': 'Pesanmu dan detail perjalanan yang dibaca asisten, seperti tempat, hari, dan pemesanan.',
   'assistant.privacy.notShared': 'Bukan kata sandimu, file-mu, atau perjalananmu yang lain.',
   'assistant.privacy.provider': '{provider} menanganinya sesuai ketentuan privasinya sendiri.',
+  'assistant.privacy.bannerBook': 'Pesanmu dan data jurnal perjalanan yang dibaca asisten dikirim ke {provider}.',
+  'assistant.privacy.sharedBook':
+    'Pesanmu dan apa yang dibaca asisten dari jurnal perjalanan ini, seperti catatan, tempat, dan halaman buku.',
+  'assistant.privacy.notSharedBook':
+    'Bukan kata sandimu atau jurnal perjalananmu yang lain. Gambar sebuah halaman baru dikirim setelah kamu mengizinkannya.',
   'assistant.empty.title': 'Kita merencanakan apa?',
   'assistant.empty.readOnly':
     'Kamu hanya bisa melihat perjalanan ini, jadi aku bisa menjawab pertanyaan tapi tidak bisa mengubah apa pun.',

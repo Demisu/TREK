@@ -21,11 +21,13 @@ const RENDER = {
 const VIEW = { spreadId: 'sp-1', bookVersion: 7, width: 1280, height: 640, bytes: 182_000, description: 'Page 2' };
 
 describe('the Studio page image', () => {
-  it('ASTVIS-001: a render request names the page, the version and the photos left out; ops are a proposal', () => {
+  it('ASTVIS-001: a render request names the page, the version and the photos left out; a proposal its page', () => {
     expect(assistantPageRenderSchema.safeParse(RENDER).success).toBe(true);
-    const ops = [{ op: 'background', color: '#ffffff' }];
-    expect(assistantPageRenderSchema.safeParse({ ...RENDER, ops }).success).toBe(true);
-    expect(assistantPageRenderSchema.safeParse({ ...RENDER, ops: [] }).success).toBe(false);
+    // A proposal comes as the page the server applied it to, for the Studio to draw as it is.
+    const spread = { id: 'sp-1', role: 'inner', background: '#ffffff', elements: [], parked: [], entryId: null };
+    expect(assistantPageRenderSchema.parse({ ...RENDER, spread }).spread).toEqual(spread);
+    const notAPage = { ...spread, background: 'white' };
+    expect(assistantPageRenderSchema.safeParse({ ...RENDER, spread: notAPage }).success).toBe(false);
     expect(assistantPageRenderSchema.safeParse({ ...RENDER, requestId: 'r1' }).success).toBe(false);
     expect(assistantPageRenderSchema.safeParse({ ...RENDER, spreadId: '../x' }).success).toBe(false);
   });

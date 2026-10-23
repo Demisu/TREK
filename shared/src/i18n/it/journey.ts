@@ -909,6 +909,8 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': 'Progetta il libro insieme all’assistente',
   'journey.studio.assistant.panel': 'Assistente del libro',
   'journey.studio.assistant.welcome': 'Come dovrebbe essere il libro?',
+  'journey.studio.assistant.readOnly':
+    'Puoi solo visualizzare questo libro, quindi posso rispondere alle domande ma non modificare nulla.',
   'journey.studio.assistant.notice':
     'L’assistente può guardare la pagina su cui stai lavorando. Solo quella pagina viene inviata a {provider}, come immagine che mostra soltanto le foto che hai aggiunto tu. Non è possibile riconoscere chi compare nelle tue foto.',
   'journey.studio.assistant.noticeAllow': 'Mostra le pagine',

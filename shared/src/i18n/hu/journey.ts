@@ -906,6 +906,8 @@ const journey: TranslationStrings = {
   'journey.studio.assistant.toggleHint': 'Tervezd meg a könyvet az asszisztenssel',
   'journey.studio.assistant.panel': 'Könyvasszisztens',
   'journey.studio.assistant.welcome': 'Milyen legyen a könyv?',
+  'journey.studio.assistant.readOnly':
+    'Ezt a könyvet csak megtekintheted, ezért kérdésekre válaszolok, de semmit nem módosítok.',
   'journey.studio.assistant.notice':
     'Az asszisztens megnézheti az oldalt, amelyen dolgozol. Csak ez az oldal kerül a(z) {provider} szolgáltatóhoz, képként, amelyen csak a saját magad által hozzáadott fotók látszanak. Azt, hogy ki szerepel a fotóidon, nem lehet felismerni.',
   'journey.studio.assistant.noticeAllow': 'Oldalak megmutatása',

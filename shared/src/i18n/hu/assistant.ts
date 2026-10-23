@@ -75,6 +75,12 @@ const assistant: TranslationStrings = {
     'Az üzeneteid és az utazás részletei, amelyeket az asszisztens elolvas, például helyek, napok és foglalások.',
   'assistant.privacy.notShared': 'A jelszavad, a fájljaid és a többi utazásod nem.',
   'assistant.privacy.provider': 'A(z) {provider} ezt a saját adatvédelmi feltételei szerint kezeli.',
+  'assistant.privacy.bannerBook':
+    'Az üzeneteid és az útinapló adatai, amelyeket az asszisztens elolvas, ide kerülnek: {provider}.',
+  'assistant.privacy.sharedBook':
+    'Az üzeneteid és amit az asszisztens ebből az útinaplóból elolvas, például bejegyzések, helyek és a könyv oldalai.',
+  'assistant.privacy.notSharedBook':
+    'A jelszavad és a többi útinaplód nem. Egy oldal képe csak akkor kerül el, ha engedélyezed.',
   'assistant.empty.title': 'Mit tervezünk?',
   'assistant.empty.readOnly':
     'Ezt az utazást csak megtekintheted, ezért kérdésekre válaszolok, de semmit nem módosítok.',

@@ -72,6 +72,10 @@ const assistant: TranslationStrings = {
   'assistant.privacy.shared': '메시지와 어시스턴트가 읽는 장소, 일정, 예약 같은 여행 정보.',
   'assistant.privacy.notShared': '비밀번호, 파일, 다른 여행은 공유되지 않습니다.',
   'assistant.privacy.provider': '{provider}은(는) 자체 개인정보 처리방침에 따라 이를 처리합니다.',
+  'assistant.privacy.bannerBook': '메시지와 어시스턴트가 읽는 여행 기록 데이터는 {provider}(으)로 전송됩니다.',
+  'assistant.privacy.sharedBook': '메시지와 어시스턴트가 이 여행 기록에서 읽는 항목, 장소, 책 페이지 같은 내용.',
+  'assistant.privacy.notSharedBook':
+    '비밀번호와 다른 여행 기록은 공유되지 않습니다. 페이지 이미지는 허용한 뒤에만 전송됩니다.',
   'assistant.empty.title': '무엇을 계획할까요?',
   'assistant.empty.readOnly': '이 여행은 보기만 할 수 있어서 질문에는 답하지만 아무것도 바꿀 수 없어요.',
   'assistant.suggest.planFirstDays': '처음 며칠 일정을 짜 줘',

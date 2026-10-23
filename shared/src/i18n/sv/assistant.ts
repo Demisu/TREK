@@ -75,6 +75,12 @@ const assistant: TranslationStrings = {
     'Dina meddelanden och de resedetaljer som assistenten läser, som platser, dagar och bokningar.',
   'assistant.privacy.notShared': 'Inte ditt lösenord, dina filer eller dina andra resor.',
   'assistant.privacy.provider': '{provider} hanterar detta enligt sina egna integritetsvillkor.',
+  'assistant.privacy.bannerBook':
+    'Dina meddelanden och de uppgifter ur resedagboken som assistenten läser skickas till {provider}.',
+  'assistant.privacy.sharedBook':
+    'Dina meddelanden och det assistenten läser i den här resedagboken, som inlägg, platser och bokens sidor.',
+  'assistant.privacy.notSharedBook':
+    'Inte ditt lösenord eller dina andra resedagböcker. En bild av en sida skickas först när du tillåter det.',
   'assistant.empty.title': 'Vad planerar vi?',
   'assistant.empty.readOnly': 'Du kan bara visa den här resan, så jag kan svara på frågor men inte ändra något.',
   'assistant.suggest.planFirstDays': 'Planera de första dagarna åt mig',
