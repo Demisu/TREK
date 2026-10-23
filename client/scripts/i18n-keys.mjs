@@ -92,13 +92,6 @@ export const MAX_IMPLICIT_MATCHES = 30;
  */
 export const DYNAMIC_ALLOWED = [
   {
-    file: 'components/Studio/stickerLibrary.ts',
-    template: 'journey.studio.sticker.${id}',
-    because:
-      'id is a sticker id of the library in @trek/shared/stickers; stickerLibrary.test.ts resolves the key of every ' +
-      'sticker the library holds against en',
-  },
-  {
     file: 'components/Trips/TripShareDialog.tsx',
     template: '${opt.label}Hint',
     because:
@@ -151,6 +144,13 @@ export const DYNAMIC_ALLOWED = [
           'memories.* key in en',
       }))
   ),
+  {
+    file: 'components/Studio/stickerLibrary.ts',
+    template: 'journey.studio.sticker.${id}',
+    because:
+      'id is a sticker id of the library in @trek/shared/stickers; stickerLibrary.test.ts resolves the key of every ' +
+      'sticker the library holds against en',
+  },
 ];
 
 const KEY_RE = /^[a-z][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_:-]+)+$/;
