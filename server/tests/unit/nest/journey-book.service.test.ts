@@ -561,9 +561,11 @@ describe('editBook', () => {
     const journey = createJourney(testDb, user.id);
     await books.saveBook(journey.id, user.id, { title: 'T', document: doc('one') });
 
+    // The Studio stamps its revision on every save, as the tool's write does, so the race is about the version alone.
+    const fromStudio = { ...doc('studio'), schemaRev: BOOK_SCHEMA_REV };
     const [tool, studio] = await Promise.all([
       catchDomainError(() => books.editBook(journey.id, user.id, edited('tool'), { expectedVersion: 1 })),
-      books.saveBook(journey.id, user.id, { title: 'T', document: doc('studio'), baseVersion: 1 }),
+      books.saveBook(journey.id, user.id, { title: 'T', document: fromStudio, baseVersion: 1 }),
     ]);
 
     const toolLost = tool instanceof DomainError && tool.getStatus() === 409;
