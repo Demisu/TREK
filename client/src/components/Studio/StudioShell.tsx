@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router'
 import {
-  ArrowLeft, BookOpen, Check, ChevronDown, ClipboardPaste, Download, Maximize2, MessageSquare, Minus, Plus,
+  ArrowLeft, BookOpen, Check, ChevronDown, ClipboardPaste, Download, Maximize2, Minus, Plus,
   Redo2, Sparkles, Undo2,
 } from 'lucide-react'
 import { useJourneyStudio } from '../../pages/journeyStudio/useJourneyStudio'
@@ -21,7 +21,7 @@ import { PeerBadges } from './PeerBadges'
 import { TrimField } from './TrimField'
 import { Tooltip } from '../shared/Tooltip'
 import { useStudioStore } from '../../store/studioStore'
-import StudioAssistantPanel, { StudioPageStage } from './StudioAssistantPanel'
+import { StudioAssistantColumn, StudioAssistantToggle, StudioPageStage } from './StudioAssistantPanel'
 import { useStudioAssistant, type StudioAssistant } from './useStudioAssistant'
 import '../../styles/dashboard.css'
 import '../../styles/studio.css'
@@ -128,12 +128,13 @@ export default function StudioShell() {
             spreadIndex={s.activeSpread}
             page={s.page}
             stats={s.stats}
+            path={s.path}
             source={s.source}
             setPageNumbers={s.setPageNumbers}
             t={s.t}
             locale={s.locale}
           />
-          <AssistantColumn s={s} assistant={assistant} />
+          <StudioAssistantColumn assistant={assistant} title={s.journey?.title} />
         </div>
         <StudioPageStage assistant={assistant} />
 
@@ -152,12 +153,6 @@ export default function StudioShell() {
 }
 
 type Studio = ReturnType<typeof useJourneyStudio>
-
-/** The chat column at the end of the body, while it is open. */
-function AssistantColumn({ s, assistant }: { s: Studio; assistant: StudioAssistant }) {
-  if (!assistant.open) return null
-  return <StudioAssistantPanel assistant={assistant} title={s.journey?.title || s.t('journey.title')} />
-}
 
 function StudioBar({
   s, bookView, setBookView, onExport, assistant,
@@ -238,17 +233,7 @@ function StudioBar({
 
         <AutoLayoutButton s={s} />
         {/* The book's assistant, as a column beside the page; only where it can run for this user. */}
-        {assistant.available && (
-          <button type="button"
-            className={`st-tool ${assistant.open ? 'is-on' : ''}`}
-            onClick={assistant.toggle}
-            aria-pressed={assistant.open}
-            title={s.t('journey.studio.assistant.toggleHint')}
-          >
-            <MessageSquare size={14} />
-            <span className="st-tool-label">{s.t('journey.studio.assistant.toggle')}</span>
-          </button>
-        )}
+        <StudioAssistantToggle assistant={assistant} />
         <button type="button"
           className="st-tool is-primary"
           onClick={onExport}

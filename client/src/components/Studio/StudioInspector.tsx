@@ -52,6 +52,7 @@ export function StudioInspector({
   spreadIndex,
   page,
   stats,
+  path,
   source,
   setPageNumbers,
   t,
@@ -62,6 +63,8 @@ export function StudioInspector({
   setPageNumbers: (patch: Partial<BookPageNumbers>) => void
   /** Live journey figures, so a travel element can be brought up to date. */
   stats: JourneyStats | null
+  /** The journey's recorded way, thinned, so a map of the whole journey can be given it again. */
+  path: [number, number][][]
   /** The journal itself, so a bound mark can be re-set from it. */
   source: JourneySource
   t: (k: string) => string
@@ -647,7 +650,7 @@ export function StudioInspector({
           </>
         )}
 
-        <TravelInspector el={el} stats={stats} set={set} t={t} locale={locale} />
+        <TravelInspector el={el} stats={stats} path={path} set={set} t={t} locale={locale} />
 
         {/*
           Where it sits, folded away.
