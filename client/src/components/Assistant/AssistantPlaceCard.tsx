@@ -1,5 +1,5 @@
 import type { AssistantFoundPlace } from '@trek/shared';
-import { Check, MapPin, Plus, Star } from 'lucide-react';
+import { Check, MapPin, Plus, Route, Star } from 'lucide-react';
 import { createElement, type ReactNode, useRef } from 'react';
 
 import { useTranslation } from '../../i18n';
@@ -22,6 +22,24 @@ function AddButton({ place, strip, tall }: { place: AssistantFoundPlace; strip: 
       <Plus size={12} aria-hidden="true" />
       <span className="truncate">{t('assistant.place.add')}</span>
     </button>
+  );
+}
+
+/** "+ Tour": takes the place into the saved tour open in the planner as a stop, held as a change in the chat. */
+function TourButton({ place, strip, tall }: { place: AssistantFoundPlace; strip: Strip; tall: boolean }) {
+  const { t } = useTranslation();
+  if (!strip.tour) return null;
+  return (
+    <Tooltip label={t('assistant.place.addToTourHint', { name: strip.tour.name })} placement="top">
+      <button
+        type="button"
+        onClick={() => strip.addToTour(place)}
+        className={`${ACTION} ${tall ? 'h-10' : 'h-7'} min-w-0 px-2`}
+      >
+        <Route size={12} aria-hidden="true" className="flex-shrink-0" />
+        <span className="truncate">{t('assistant.place.addToTour')}</span>
+      </button>
+    </Tooltip>
   );
 }
 
@@ -185,8 +203,9 @@ export default function AssistantPlaceCard({
           )}
         </span>
       </button>
-      <div className="mt-auto flex min-w-0 px-3 pb-3 pt-2.5">
+      <div className="mt-auto flex min-w-0 gap-1.5 px-3 pb-3 pt-2.5">
         <PlaceAction place={place} strip={strip} suggested={suggested} tall={tall} />
+        <TourButton place={place} strip={strip} tall={tall} />
       </div>
     </li>
   );

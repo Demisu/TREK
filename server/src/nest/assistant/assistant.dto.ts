@@ -8,6 +8,7 @@ import {
   assistantAttachmentRequestSchema,
   assistantChatRequestSchema,
   assistantDecisionsRequestSchema,
+  assistantInsertFoundPlaceRequestSchema,
   assistantRenderUploadRequestSchema,
   assistantShareRequestSchema,
   assistantStopRequestSchema,
@@ -21,6 +22,7 @@ export class AssistantAddFoundPlaceDto extends createZodDto(assistantAddFoundPla
 export class AssistantAttachmentDto extends createZodDto(assistantAttachmentRequestSchema) {}
 export class AssistantChatDto extends createZodDto(assistantChatRequestSchema) {}
 export class AssistantDecisionsDto extends createZodDto(assistantDecisionsRequestSchema) {}
+export class AssistantInsertFoundPlaceDto extends createZodDto(assistantInsertFoundPlaceRequestSchema) {}
 export class AssistantRenderUploadDto extends createZodDto(assistantRenderUploadRequestSchema) {}
 export class AssistantShareDto extends createZodDto(assistantShareRequestSchema) {}
 export class AssistantStopDto extends createZodDto(assistantStopRequestSchema) {}

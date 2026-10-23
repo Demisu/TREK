@@ -107,6 +107,7 @@ const ERRORS: Record<AssistantErrorCode, AssistantErrorView> = {
   decide_first: { messageKey: 'assistant.error.decideFirst', action: null },
   too_many_requests: { messageKey: 'assistant.error.rateLimited', action: null },
   no_bookings_found: { messageKey: 'assistant.error.noBookingsFound', action: null },
+  no_tracks_found: { messageKey: 'assistant.error.noTracksFound', action: null },
   import_unavailable: { messageKey: 'assistant.error.importUnavailable', action: null },
   generic: {
     messageKey: 'assistant.error.generic',

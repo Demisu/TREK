@@ -40,7 +40,10 @@ function make() {
     undo: vi.fn(async () => undefined),
     stop: vi.fn(async () => undefined),
   };
-  const foundPlaces = { add: vi.fn(async () => ({ message: { id: 'msg-3' } })) };
+  const foundPlaces = {
+    add: vi.fn(async () => ({ message: { id: 'msg-3' } })),
+    insertIntoTour: vi.fn(async () => ({ message: { id: 'msg-4' } })),
+  };
   const shares = { share: vi.fn(async () => ({ message: { id: 12, origin: 'assistant' } })) };
   const proposals = { take: vi.fn(async () => ({ message: { id: 'msg-4' } })) };
   const controller = new AssistantController(
@@ -112,6 +115,11 @@ describe('AssistantController', () => {
       path: 'threads/:threadId/found-places',
       httpCode: 200,
     });
+    expect(route('insertFoundPlace')).toEqual({
+      method: RequestMethod.POST,
+      path: 'threads/:threadId/found-places/tour',
+      httpCode: 200,
+    });
     expect(route('takeProposal')).toEqual({
       method: RequestMethod.POST,
       path: 'threads/:threadId/proposals',
@@ -148,6 +156,9 @@ describe('AssistantController', () => {
     });
     expect(shares.share).toHaveBeenCalledWith(user, 5, 9, 'msg-3', 'Hi all', 'sock-1');
     expect(() => controller.addFoundPlace(user, '5', 'x', body)).toThrow(DomainError);
+    const stop = { locale: 'en', timeZone: 'UTC', ref: 'call_1:0', tourId: 64 };
+    expect(await controller.insertFoundPlace(user, '5', '9', stop)).toEqual({ message: { id: 'msg-4' } });
+    expect(foundPlaces.insertIntoTour).toHaveBeenCalledWith(7, 5, 9, stop);
   });
 
   it('ASTCTL-008: sharing asks for the trip chat right, "Plan this" and "+ Day" for editing places; nothing else asks', () => {
@@ -155,6 +166,7 @@ describe('AssistantController', () => {
     expect(Reflect.getMetadata(TRIP_PERMISSION_KEY, handlers.share)).toBe('collab_edit');
     expect(Reflect.getMetadata(TRIP_PERMISSION_KEY, handlers.takeProposal)).toBe('place_edit');
     expect(Reflect.getMetadata(TRIP_PERMISSION_KEY, handlers.addFoundPlace)).toBe('place_edit');
+    expect(Reflect.getMetadata(TRIP_PERMISSION_KEY, handlers.insertFoundPlace)).toBe('place_edit');
     for (const name of ['chat', 'decide', 'undo']) {
       expect(Reflect.getMetadata(TRIP_PERMISSION_KEY, handlers[name]), name).toBeUndefined();
     }

@@ -1,9 +1,9 @@
-import { isClosedLoop, type PlannableTourType, type TourFixedLeg } from '@trek/shared';
+import { isClosedLoop, withPointAppended, type PlannableTourType, type TourFixedLeg } from '@trek/shared';
 import { useCallback, type Dispatch, type RefObject, type SetStateAction } from 'react';
 import { randomId } from '../../../utils/randomId';
 import { holdsHorseSection } from '../horse/horseLegs';
 import { unlinkedPoint, type TourPlannerWaypoint } from './tourPlannerWaypoints';
-import { closeLoop, reverseRoute, toggleFreeLeg, withPointAppended } from './tourRouteActions';
+import { closeLoop, reverseRoute, toggleFreeLeg } from './tourRouteActions';
 
 type WaypointChange = TourPlannerWaypoint[] | ((current: TourPlannerWaypoint[]) => TourPlannerWaypoint[]);
 

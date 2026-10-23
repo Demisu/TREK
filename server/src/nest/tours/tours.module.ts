@@ -78,6 +78,8 @@ import { TourSkiController } from './tour-ski.controller';
 import { TourSkiService } from './tour-ski.service';
 import { TourSportWritesMcp } from './tour-sport-writes.mcp';
 import { TourTrailDetailsService } from './tour-trail-details.service';
+import { TourStopsMcp } from './tour-stops.mcp';
+import { TourStopsService } from './tour-stops.service';
 import { TourTrailGradeController } from './tour-trail-grade.controller';
 import { TourTrailGradeService } from './tour-trail-grade.service';
 import { TourVisitsController } from './tour-visits.controller';
@@ -238,6 +240,7 @@ import { Module } from '@nestjs/common';
     TourChangePreviewService,
     TourChangeSaveService,
     TourChangeUndoService,
+    TourStopsService,
     TourDraftsService,
     TourActivitiesService,
     TourActivityStatsService,
@@ -261,6 +264,8 @@ import { Module } from '@nestjs/common';
     TourSportWritesMcp,
     HikeWaysMcp,
     ToursWandererMcp,
+    // P6: a found place taken into a saved hike or city walk, and out again.
+    TourStopsMcp,
   ],
 })
 export class ToursModule {}

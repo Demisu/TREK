@@ -37,6 +37,9 @@ export const TOUR_VERB_KEYS = [
   'setPaddlePlan',
   'decideObstacles',
   'restoreTrack',
+  // A found place taken into a saved tour as a stop, or taken out again (P6).
+  'addTourStop',
+  'removeTourStop',
 ] as const;
 /** 'tour' is a core entity already. */
 export const TOUR_APPLIED_ENTITIES = [] as const;

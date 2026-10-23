@@ -33,13 +33,17 @@ import { AssistantStreamRegistry } from './assistant-stream.registry';
 import { ADD_FOUND_PLACE_TOOL, TURNS_PER_MINUTE } from './assistant-tools.constants';
 import { AssistantToolsService } from './assistant-tools.service';
 import { AssistantCardContext } from './cards/card-context';
+import { recordOf } from './cards/card-values';
+import { defaultAfterKeyOf } from './cards/tour/tour-stop.cards';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import {
   categoryIdForKind,
+  TOUR_STOP_TYPES,
   type AssistantAddFoundPlaceRequest,
   type AssistantAddFoundPlaceResponse,
   type AssistantFoundPlace,
+  type AssistantInsertFoundPlaceRequest,
   type AssistantMessage,
   type AssistantMessagePart,
 } from '@trek/shared';
@@ -47,7 +51,22 @@ import {
 import { randomUUID } from 'node:crypto';
 
 /** What a suggestion reads of the trip: its days and places, and the categories a new place is filed in. */
-const TRIP_READS: ReadonlySet<string> = new Set(['get_trip_summary', 'list_places', 'list_categories']);
+const TRIP_READS: ReadonlySet<string> = new Set([
+  'get_trip_summary',
+  'list_places',
+  'list_categories',
+  'get_tour_plan',
+]);
+
+/** The tour types a found place is taken into as a stop ("+ Tour"), as insert_tour_stop takes them. */
+const STOP_TOURS: ReadonlySet<unknown> = new Set(TOUR_STOP_TYPES);
+
+/** What a suggestion reads of the trip: its card, its categories and, for "+ Tour", the tour. */
+interface TripRead {
+  card: TripCard;
+  categories: CardCategory[];
+  tour: unknown;
+}
 
 /** Message rows searched for the place a suggestion names; the history a turn sends the provider. */
 const SEARCHED_ROWS = 40;
@@ -104,6 +123,38 @@ function suggestionArgs(
   };
 }
 
+/** What either suggestion names: the place by its ref, and the user's language and zone for its card. */
+type SuggestionRequest = Pick<AssistantAddFoundPlaceRequest, 'ref' | 'locale' | 'timeZone'>;
+
+/** The arguments a suggestion holds, from the place and what was read of the trip; throws to refuse. */
+type ArgsOf = (place: AssistantFoundPlace, trip: TripRead) => Record<string, unknown>;
+
+/**
+ * The arguments a found place is taken into a saved tour with ("+ Tour"):
+ * insert_tour_stop's, against the revision read now, after the last point
+ * before the place along the way, with the tour's name for the history. A
+ * tour of another trip, one not read, or one of a type that takes no stop
+ * here is refused.
+ */
+export function stopArgs(place: AssistantFoundPlace, tourId: number, read: unknown): Record<string, unknown> {
+  const plan = recordOf(read);
+  const tour = recordOf(plan.tour);
+  if (tour.place_id !== tourId || typeof tour.revision !== 'number') {
+    throw aiRefusal('generic', 'Tour not found in this trip');
+  }
+  if (!STOP_TOURS.has(tour.tour_type)) throw aiRefusal('generic', 'Only a hike or a city walk takes a stop here');
+  const spot = { lat: place.lat, lng: place.lng };
+  const afterKey = defaultAfterKeyOf(plan, spot);
+  return {
+    via: 'insert_tour_stop',
+    placeId: tourId,
+    expected_revision: tour.revision,
+    stop: { ...spot, name: place.name },
+    ...(afterKey ? { after_key: afterKey } : {}),
+    tourName: typeof tour.name === 'string' ? tour.name : '',
+  };
+}
+
 /**
  * "+ Day 3" on a place a search found: the place is proposed for the day as a
  * change card, held and decided like one the model proposed, but without a
@@ -138,6 +189,39 @@ export class AssistantFoundPlacesService {
     threadId: number,
     req: AssistantAddFoundPlaceRequest,
   ): Promise<AssistantAddFoundPlaceResponse> {
+    return this.hold(userId, tripId, threadId, req, null, (place, trip) => {
+      if (!trip.card.days.some((day) => day.id === req.dayId)) throw aiRefusal('generic', 'Day not found in this trip');
+      return suggestionArgs(place, req.dayId, trip.card, trip.categories);
+    });
+  }
+
+  /**
+   * "+ Tour" on a place a search found, while a saved hike or city walk is
+   * open in the planner: the place is proposed as a stop of that tour, after
+   * the last point before it along the way, against the revision the tour has
+   * now. Held and decided like "+ Day 3"; applying it runs insert_tour_stop
+   * with the user's own rights, which checks the tour again.
+   */
+  async insertIntoTour(
+    userId: number,
+    tripId: number,
+    threadId: number,
+    req: AssistantInsertFoundPlaceRequest,
+  ): Promise<AssistantAddFoundPlaceResponse> {
+    return this.hold(userId, tripId, threadId, req, req.tourId, (place, trip) =>
+      stopArgs(place, req.tourId, trip.tour),
+    );
+  }
+
+  /** Holds the change `argsOf` builds for a found place, under the rules both suggestions share. */
+  private async hold(
+    userId: number,
+    tripId: number,
+    threadId: number,
+    req: SuggestionRequest,
+    tourId: number | null,
+    argsOf: ArgsOf,
+  ): Promise<AssistantAddFoundPlaceResponse> {
     if (!(await this.threads.findOwned(threadId, userId, tripId))) {
       throw aiRefusal('not_found', 'Conversation not found');
     }
@@ -149,7 +233,7 @@ export class AssistantFoundPlacesService {
       throw aiRefusal('busy', 'The assistant is already answering in another window');
     }
     try {
-      await this.propose(userId, tripId, threadId, req);
+      await this.propose(userId, tripId, threadId, req, tourId, argsOf);
     } finally {
       await this.streams.release(userId, controller);
     }
@@ -160,20 +244,21 @@ export class AssistantFoundPlacesService {
     userId: number,
     tripId: number,
     threadId: number,
-    req: AssistantAddFoundPlaceRequest,
+    req: SuggestionRequest,
+    tourId: number | null,
+    argsOf: ArgsOf,
   ): Promise<void> {
     if ((await this.toolCalls.listOpen(threadId)).length > 0) {
       throw aiRefusal('decide_first', 'Decide on the changes that are waiting first');
     }
     const place = foundPlace(await this.messages.listLatest(threadId, SEARCHED_ROWS), req.ref);
     if (!place) throw aiRefusal('generic', 'This place is not among the search results of the conversation');
-    const { card, categories } = await this.tripOf(userId, tripId);
-    if (!card.days.some((day) => day.id === req.dayId)) throw aiRefusal('generic', 'Day not found in this trip');
+    const trip = await this.tripOf(userId, tripId, tourId);
+    const args = argsOf(place, trip);
 
     const id = randomUUID();
-    const args = suggestionArgs(place, req.dayId, card, categories);
-    const names = new Map(categories.map((category): [number, string] => [category.id, category.name]));
-    const ctx = this.cardContext.contextOf(card, names, req.locale, todayIn(req.timeZone, new Date()));
+    const names = new Map(trip.categories.map((category): [number, string] => [category.id, category.name]));
+    const ctx = this.cardContext.contextOf(trip.card, names, req.locale, todayIn(req.timeZone, new Date()));
     const [{ preview }] = await this.cardContext.describeProposed(userId, tripId, ctx, [
       { id, toolName: ADD_FOUND_PLACE_TOOL, args },
     ]);
@@ -208,16 +293,21 @@ export class AssistantFoundPlacesService {
     });
   }
 
-  /** The trip card and the categories, read through the trip tools with the user's rights. */
-  private async tripOf(userId: number, tripId: number): Promise<{ card: TripCard; categories: CardCategory[] }> {
+  /**
+   * The trip card and the categories, read through the trip tools with the
+   * user's rights, and with `tourId` the saved tour a stop goes into.
+   */
+  private async tripOf(userId: number, tripId: number, tourId: number | null): Promise<TripRead> {
     const session = await this.tools.open(userId, tripId, TRIP_READS);
     try {
       const summary = await session.read('get_trip_summary');
       const places = await session.read('list_places');
       const listed = await session.read('list_categories');
+      const tour = tourId === null ? null : await session.read('get_tour_plan', { placeId: tourId });
       return {
         card: buildTripCard(tripId, userId, summary.ok ? summary.value : null, places.ok ? places.value : null, null),
         categories: categoriesFrom(listed.ok ? listed.value : null),
+        tour: tour?.ok ? tour.value : null,
       };
     } finally {
       await session.close();

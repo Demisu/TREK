@@ -228,6 +228,8 @@ interface AssistantState {
    * thread changed under it, and always skipped under a journey key.
    */
   takeProposal: (key: AssistantChatKey, toolCallId: string) => Promise<HoldOutcome>;
+  /** Takes a found place into the saved tour open in the planner as a stop ("+ Tour"), held as a change to decide. */
+  insertFoundPlace: (key: AssistantChatKey, ref: string, tourId: number) => Promise<HoldOutcome>;
 }
 
 /** What came of a change the server was asked to hold without a model turn. */
@@ -771,6 +773,10 @@ function compareActions(ctx: Ctx) {
     takeProposal: (tripId: number, toolCallId: string) =>
       holdWithoutTurn(ctx, tripId, (threadId) =>
         assistantRepo.takeProposal(tripId, threadId, { ...clientContext(), toolCallId })
+      ),
+    insertFoundPlace: (tripId: number, ref: string, tourId: number) =>
+      holdWithoutTurn(ctx, tripId, (threadId) =>
+        assistantRepo.insertFoundPlace(tripId, threadId, { ...clientContext(), ref, tourId })
       ),
   };
 }

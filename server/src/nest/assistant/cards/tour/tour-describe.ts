@@ -124,6 +124,8 @@ export const TOUR_DESCRIBERS = {
   take_over_tour: (_ctx, args) => ({ subject: text(args.name), rows: new Rows(), dayId: null, placeIds: [] }),
   import_tour_gpx: (_ctx, args) => {
     const rows = new Rows().add('type', text(args.tour_type));
-    return { subject: text(args.file_name) || gpxName(args.gpx) || 'GPX', rows, dayId: null, placeIds: [] };
+    // A track of a file attached in the chat names itself (track_name); the model's import names the file.
+    const subject = text(args.track_name) || text(args.file_name) || gpxName(args.gpx) || 'GPX';
+    return { subject, rows, dayId: null, placeIds: [] };
   },
 } satisfies Readonly<Record<string, (ctx: PreviewContext, args: ToolArgs) => Described>>;

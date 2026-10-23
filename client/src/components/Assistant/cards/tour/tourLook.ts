@@ -9,6 +9,8 @@ import {
   Footprints,
   History,
   Luggage,
+  MapPinMinus,
+  MapPinPlus,
   Palette,
   Repeat,
   Route,
@@ -119,6 +121,8 @@ export const TOUR_LOOK = {
     setPaddlePlan: { Icon: Waves, tone: 'info', labelKey: 'assistant.change.verb.setPaddlePlan' },
     decideObstacles: { Icon: TriangleAlert, tone: 'info', labelKey: 'assistant.change.verb.decideObstacles' },
     restoreTrack: { Icon: History, tone: 'info', labelKey: 'assistant.change.verb.restoreTrack' },
+    addTourStop: { Icon: MapPinPlus, tone: 'success', labelKey: 'assistant.change.verb.addTourStop' },
+    removeTourStop: { Icon: MapPinMinus, tone: 'danger', labelKey: 'assistant.change.verb.removeTourStop' },
   },
   tools: {},
   steps: {
@@ -137,6 +141,8 @@ export const TOUR_LOOK = {
     search_wanderer_trails: { stepKey: 'assistant.step.searchingWanderer' },
     preview_wanderer_trail: { stepKey: 'assistant.step.readingTrail' },
     check_tour_source: { stepKey: 'assistant.step.checkingSource' },
+    // P7: a route file attached in the chat, read by the server into its tracks.
+    read_tour_file: { stepKey: 'assistant.step.readingTourFile' },
   },
   entities: {
     tour: {

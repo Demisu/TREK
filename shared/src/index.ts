@@ -104,6 +104,8 @@ export * from './tours/paddle-check.schema';
 export * from './tours/paddle-check-basis';
 export * from './tours/paddle-check';
 export * from './tours/route-corridor';
+export * from './tours/poi-insertion';
+export * from './tours/tour-stop.schema';
 export * from './tours/horse-route.schema';
 export * from './wanderer/wanderer.schema';
 export * from './wanderer/wanderer-watch.schema';

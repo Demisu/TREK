@@ -9,10 +9,12 @@ import {
   assistantChatRequestSchema,
   assistantDecisionsRequestSchema,
   assistantFoundPlaceSchema,
+  assistantInsertFoundPlaceRequestSchema,
   assistantMessageSchema,
   assistantPlacesSchema,
   assistantStopRequestSchema,
   assistantWeatherSchema,
+  isAssistantTourFile,
   UI_STREAM_DONE,
   uiStreamChunkSchema,
   type UiStreamChunk,
@@ -260,6 +262,32 @@ describe('assistantAddFoundPlaceRequestSchema', () => {
     expect(parse({ ref: 'a:1', dayId: 0 }).success).toBe(false);
     expect(parse({ ref: 'a:1', dayId: 3, name: 'Elsewhere' }).success).toBe(false);
     expect(assistantAddFoundPlaceRequestSchema.safeParse({ ref: 'a:1', dayId: 3 }).success).toBe(false);
+  });
+});
+
+describe('assistantInsertFoundPlaceRequestSchema', () => {
+  const parse = (body: Record<string, unknown>) =>
+    assistantInsertFoundPlaceRequestSchema.safeParse({ ...ctx, ...body });
+
+  it('names a found place by its ref and the saved tour it goes into', () => {
+    expect(parse({ ref: 'toolu_01:2', tourId: 64 }).success).toBe(true);
+  });
+
+  it('refuses a bad tour, a day instead of a tour and anything about the stop itself', () => {
+    expect(parse({ ref: 'a:1', tourId: 0 }).success).toBe(false);
+    expect(parse({ ref: 'a:1', dayId: 3 }).success).toBe(false);
+    expect(parse({ ref: 'a:1', tourId: 64, after_key: 'abc123' }).success).toBe(false);
+    expect(assistantInsertFoundPlaceRequestSchema.safeParse({ ref: 'a:1', tourId: 64 }).success).toBe(false);
+  });
+});
+
+describe('route files attached in the chat', () => {
+  it('tells a GPX, KML or KMZ file by its name, whatever its case', () => {
+    expect(isAssistantTourFile('Herzogstand.GPX')).toBe(true);
+    expect(isAssistantTourFile('map.kml')).toBe(true);
+    expect(isAssistantTourFile('map.kmz')).toBe(true);
+    expect(isAssistantTourFile('ticket.pdf')).toBe(false);
+    expect(isAssistantTourFile('gpx')).toBe(false);
   });
 });
 

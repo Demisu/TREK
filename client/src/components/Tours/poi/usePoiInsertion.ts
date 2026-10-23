@@ -1,4 +1,4 @@
-import type { TourPoi } from '@trek/shared';
+import { chosenAfterId, insertionBlock, insertionSlots, withPointAfter, type TourPoi } from '@trek/shared';
 import { useCallback } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useTourPoiStore, type InsertedTourPoi } from '../../../store/tourPoiStore';
@@ -6,7 +6,6 @@ import { randomId } from '../../../utils/randomId';
 import { TOUR_POI_LOOKS } from '../../Map/poiCategories';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import type { TourPlannerController, TourPlannerStatus } from '../planner/useTourPlanner';
-import { chosenAfterId, insertionBlock, insertionSlots, withPointAfter } from './poiInsertion';
 
 /** The route is planned through and its measures can be read. */
 const SETTLED: readonly TourPlannerStatus[] = ['ready', 'saved', 'elevation-failed'];

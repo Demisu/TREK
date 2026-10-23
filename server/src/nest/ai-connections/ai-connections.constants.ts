@@ -64,6 +64,7 @@ const REFUSAL_STATUS: Record<AiRefusalCode, number> = {
   empty_answer: 502,
   offline: 503,
   no_bookings_found: 422,
+  no_tracks_found: 422,
   import_unavailable: 503,
   decide_first: 409,
   too_many_requests: 429,

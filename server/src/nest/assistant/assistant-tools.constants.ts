@@ -113,6 +113,18 @@ export const READ_BOOKING_FILE_TOOL = 'read_booking_file';
 export const IMPORT_BOOKING_TOOL = 'import_booking';
 
 /**
+ * P7: the step that reads a route file the user attached (GPX, KML, KMZ),
+ * run by the server itself like the booking read, and each track or route it
+ * found held as a change that takes it in as a tour through the model's
+ * import_tour_gpx, named in its `via` argument.
+ */
+export const READ_TOUR_FILE_TOOL = 'read_tour_file';
+export const IMPORT_TOUR_FILE_TOOL = 'import_tour_file';
+
+/** What a held track of a route file runs as. */
+const TOUR_FILE_VIA = 'import_tour_gpx';
+
+/**
  * A place from the search results of an answer, suggested for a day by the
  * user ("+ Day 3"). Held as a change card like any write, without a model turn.
  */
@@ -143,7 +155,12 @@ export const REMEMBER_TOOL = 'remember_for_trip';
 export const PREVIEW_BOOK_PAGE_TOOL = 'preview_book_page';
 
 /** The model's tools a found place is added through: a new place for the day, or one the trip has already. */
-const FOUND_PLACE_VIA: ReadonlySet<string> = new Set(['create_and_assign_place', 'assign_place_to_day']);
+const FOUND_PLACE_VIA: ReadonlySet<string> = new Set([
+  'create_and_assign_place',
+  'assign_place_to_day',
+  // "+ Tour": the place taken into the saved tour open in the planner as a stop (P6).
+  'insert_tour_stop',
+]);
 
 /** The model's tools a taken proposal is created through: a hike, a bike tour or a run, a city walk, a paddle or ski tour, a wanderer trail imported. */
 const PROPOSAL_VIA: ReadonlySet<string> = new Set([
@@ -166,6 +183,7 @@ const PROPOSAL_VIA: ReadonlySet<string> = new Set([
  */
 export const ASSISTANT_SERVER_WRITE_TOOLS: Readonly<Record<string, AssistantWriteTool>> = {
   [IMPORT_BOOKING_TOOL]: { verbKey: 'importBooking', entity: 'reservation' },
+  [IMPORT_TOUR_FILE_TOOL]: { verbKey: 'importTour', entity: 'tour' },
   // The card names the verb of the `via` tool; these are its fallbacks.
   [ADD_FOUND_PLACE_TOOL]: { verbKey: 'addPlaceToDay', entity: 'place', quiet: true },
   [TAKE_PROPOSAL_TOOL]: { verbKey: 'addTour', entity: 'tour', quiet: true },
@@ -182,12 +200,22 @@ export function writeToolOf(toolName: string, args: Record<string, unknown>): st
   const via = typeof args.via === 'string' ? args.via : '';
   if (toolName === ADD_FOUND_PLACE_TOOL) return FOUND_PLACE_VIA.has(via) ? via : toolName;
   if (toolName === TAKE_PROPOSAL_TOOL) return PROPOSAL_VIA.has(via) ? via : toolName;
+  if (toolName === IMPORT_TOUR_FILE_TOOL) return via === TOUR_FILE_VIA ? via : toolName;
   return toolName;
 }
 
 /** The arguments a found place or a taken proposal runs its `via` tool with: what that tool takes, nothing else. */
 export function foundPlaceArgs(args: Record<string, unknown>): Record<string, unknown> {
   if (args.via === 'assign_place_to_day') return { dayId: args.dayId, placeId: args.placeId };
+  if (args.via === TOUR_FILE_VIA) {
+    // The track's own name stays with the card; the import takes the file's text, its name and the type.
+    const { gpx, file_name, tour_type } = args;
+    return { gpx, ...(file_name !== undefined ? { file_name } : {}), tour_type };
+  }
+  if (args.via === 'insert_tour_stop') {
+    const { placeId, expected_revision, stop, after_key } = args;
+    return { placeId, expected_revision, stop, ...(after_key !== undefined ? { after_key } : {}) };
+  }
   const { via: _via, ...rest } = args;
   return rest;
 }
@@ -195,6 +223,7 @@ export function foundPlaceArgs(args: Record<string, unknown>): Record<string, un
 /** Calls the server makes on its own: replayed to the model as a note, never as a call of an unknown tool. */
 export const ASSISTANT_SERVER_TOOLS: ReadonlySet<string> = new Set([
   READ_BOOKING_FILE_TOOL,
+  READ_TOUR_FILE_TOOL,
   ...Object.keys(ASSISTANT_SERVER_WRITE_TOOLS),
 ]);
 

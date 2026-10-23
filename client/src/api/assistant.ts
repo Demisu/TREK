@@ -18,6 +18,7 @@ import {
   type AssistantChatRequest,
   type AssistantDecisionsRequest,
   type AssistantErrorCode,
+  type AssistantInsertFoundPlaceRequest,
   type AssistantRenderUploadResponse,
   type AssistantScope,
   type AssistantShareRequest,
@@ -143,6 +144,13 @@ export const assistantApi = {
     body: AssistantAddFoundPlaceRequest
   ): Promise<AssistantAddFoundPlaceResponse> =>
     apiClient.post(`${tripBase(tripId)}/threads/${threadId}/found-places`, body).then((r) => r.data),
+  // "+ Tour": a found place taken into the saved tour open in the planner, held as a change like "+ Day 3".
+  insertFoundPlace: (
+    tripId: number,
+    threadId: number,
+    body: AssistantInsertFoundPlaceRequest
+  ): Promise<AssistantAddFoundPlaceResponse> =>
+    apiClient.post(`${tripBase(tripId)}/threads/${threadId}/found-places/tour`, body).then((r) => r.data),
   // A proposal an answer showed as a card ("Plan this"): answers like a found place, with the message holding it.
   takeProposal: (
     tripId: number,

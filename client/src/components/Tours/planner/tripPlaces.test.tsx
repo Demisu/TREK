@@ -1,4 +1,5 @@
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
+import { withPointAppended } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildCategory, buildPlace } from '../../../../tests/helpers/factories';
 import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
@@ -10,7 +11,6 @@ import {
   unlinkedPoint,
   type TourPlannerWaypoint,
 } from './tourPlannerWaypoints';
-import { withPointAppended } from './tourRouteActions';
 import { TripPlacePicker } from './TripPlacePicker';
 import type { TourPlannerController } from './useTourPlanner';
 import { useTripPlaceWaypoints } from './useTripPlaceWaypoints';

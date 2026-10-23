@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
+import { useOpenTourStore } from '../../store/openTourStore';
 import { useCanDo } from '../../store/permissionsStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useTripStore } from '../../store/tripStore';
@@ -41,6 +42,10 @@ function lastSpot(stops: readonly Assignment[] | undefined): { lat: number; lng:
  * Adding opens the planner's own place form, filled in with the place and on
  * the day in focus: the traveller sees everything about it and saves it as
  * any other place, so nothing waits for the chat's open decisions.
+ *
+ * P6: while a saved hike or city walk is open in the planner, "+ Tour" takes
+ * a place into it as a stop: held as a change in the chat like any other,
+ * so the stop is only saved once the traveller applies it.
  */
 export function useAssistantPlaceStrip() {
   const { tripId, onRevealMap } = useAssistantView();
@@ -60,6 +65,8 @@ export function useAssistantPlaceStrip() {
   );
   const focusDayId = useAssistantStore((s) => chatOf(s, tripId).focus?.dayId ?? null);
   const openPlaceDraft = useAssistantStore((s) => s.openPlaceDraft);
+  const insertFoundPlace = useAssistantStore((s) => s.insertFoundPlace);
+  const openTour = useOpenTourStore((s) => (s.open?.tripId === tripId ? s.open : null));
   const point = useCardPoint();
 
   const focusDay = (days ?? []).find((d) => d.id === focusDayId) ?? null;
@@ -85,6 +92,14 @@ export function useAssistantPlaceStrip() {
     openPlaceDraft(trip.id, place, focusDay?.id ?? null);
   };
 
+  /** The saved tour a place can be taken into as a stop, null while none is open or nothing can be added. */
+  const tour = canAdd ? openTour : null;
+
+  /** Holds the place as a stop of the open tour, to decide in the chat. */
+  const addToTour = (place: AssistantFoundPlace) => {
+    if (tour) void insertFoundPlace(tripId, place.ref, tour.placeId);
+  };
+
   /** Shows the place on the map; on the phone the chat steps aside first. */
   const show = point.show;
 
@@ -96,5 +111,5 @@ export function useAssistantPlaceStrip() {
     [hoverPoint]
   );
 
-  return { canAdd, categoryOf, distanceOf, open, show, hover };
+  return { canAdd, categoryOf, distanceOf, open, show, hover, tour, addToTour };
 }

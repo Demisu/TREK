@@ -7,6 +7,7 @@ import {
   type AssistantAddFoundPlaceRequest,
   type AssistantChatRequest,
   type AssistantDecisionsRequest,
+  type AssistantInsertFoundPlaceRequest,
   type AssistantShareRequest,
   type AssistantTakeProposalRequest,
   type BookDocument,
@@ -84,6 +85,12 @@ export const assistantRepo = {
   async addFoundPlace(tripId: number, threadId: number, body: AssistantAddFoundPlaceRequest) {
     requireOnline();
     return assistantAddFoundPlaceResponseSchema.parse(await assistantApi.addFoundPlace(tripId, threadId, body));
+  },
+
+  /** A found place taken into a saved tour as a stop ("+ Tour"), held as a change; no model runs for it. */
+  async insertFoundPlace(tripId: number, threadId: number, body: AssistantInsertFoundPlaceRequest) {
+    requireOnline();
+    return assistantAddFoundPlaceResponseSchema.parse(await assistantApi.insertFoundPlace(tripId, threadId, body));
   },
 
   /** A proposal an answer showed as a card ("Plan this"), held as a change; no model runs for it. */

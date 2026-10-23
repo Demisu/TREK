@@ -21,6 +21,7 @@ import { fetchPhoto } from '../../services/photoService';
 import { assistantChatKey } from '../../store/assistantChatKey';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { useAuthStore } from '../../store/authStore';
+import { setOpenTour } from '../../store/openTourStore';
 import { useTripStore } from '../../store/tripStore';
 import { setForcedOffline } from '../../sync/networkMode';
 import AssistantPlaceStrip from './AssistantPlaceStrip';
@@ -105,6 +106,7 @@ afterEach(() => {
   useAuthStore.setState(AUTH, true);
   globalThis.IntersectionObserver = RealObserver;
   setForcedOffline(false);
+  setOpenTour(null);
   vi.clearAllMocks();
 });
 
@@ -236,5 +238,24 @@ describe('AssistantPlaceStrip', () => {
     });
     expect(screen.getByText('Trattoria s1:0')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Add to trip' })).toBeNull();
+  });
+});
+
+describe('"+ Tour" on a found place (P6)', () => {
+  it('FE-AI-PLACES-011: shows only while a saved tour of this trip is open, and holds the place as its stop', () => {
+    seed();
+    const insertFoundPlace = vi.fn(async () => 'held' as const);
+    useAssistantStore.setState({ insertFoundPlace });
+    setOpenTour({ tripId: TRIP, placeId: 64, name: 'Herzogstand' });
+    renderStrip({ toolCallId: 's1', places: [place('s1:0')], more: 0 });
+    fireEvent.click(screen.getByRole('button', { name: 'Add to tour' }));
+    expect(insertFoundPlace).toHaveBeenCalledWith(TRIP, 's1:0', 64);
+  });
+
+  it('FE-AI-PLACES-012: a tour open on another trip, or a traveller who may not edit, gets no "+ Tour"', () => {
+    seed();
+    setOpenTour({ tripId: TRIP + 1, placeId: 64, name: 'Elsewhere' });
+    renderStrip({ toolCallId: 's1', places: [place('s1:0')], more: 0 });
+    expect(screen.queryByRole('button', { name: 'Add to tour' })).toBeNull();
   });
 });

@@ -15,6 +15,7 @@ import { PermissionsModule } from '../permissions/permissions.module';
 import { PhotoSignalsModule } from '../photos/photo-signals.module';
 import { SchedulingModule } from '../scheduling/scheduling.module';
 import { SettingsModule } from '../settings/settings.module';
+import { TourFilesModule } from '../tours/tour-files.module';
 import { TripMembershipModule } from '../trip-membership/trip-membership.module';
 import { AssistantAttachmentsController } from './assistant-attachments.controller';
 import { AssistantBookContext } from './assistant-book-context';
@@ -29,6 +30,7 @@ import { AssistantScopes } from './assistant-scope';
 import { AssistantShareService } from './assistant-share.service';
 import { AssistantStreamRegistry, InMemoryAssistantStreamRegistry } from './assistant-stream.registry';
 import { AssistantToolsService } from './assistant-tools.service';
+import { AssistantTourFileService } from './assistant-tour-file.service';
 import { AssistantVision } from './assistant-vision';
 import { AssistantController } from './assistant.controller';
 import { AssistantService } from './assistant.service';
@@ -74,6 +76,8 @@ import { Module } from '@nestjs/common';
     SchedulingModule,
     SettingsModule,
     TripMembershipModule,
+    // P7: a route file attached in the chat, read into its tracks.
+    TourFilesModule,
     MikroOrmModule.forFeature([AssistantThreads, AssistantMessages, AssistantToolCalls]),
   ],
   controllers: [
@@ -89,6 +93,7 @@ import { Module } from '@nestjs/common';
     AssistantService,
     AssistantToolsService,
     AssistantBookingImportService,
+    AssistantTourFileService,
     AssistantFoundPlacesService,
     AssistantProposalsService,
     AssistantShareService,

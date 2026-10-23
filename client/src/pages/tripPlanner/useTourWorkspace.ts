@@ -5,6 +5,7 @@ import { usePaddleChecklist } from '../../components/Tours/paddle/usePaddleCheck
 import { useTrackPaddlePlan } from '../../components/Tours/paddle/useTrackPaddlePlan';
 import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner';
 import { useTourRevisionWatch } from '../../components/Tours/planner/useTourRevisionWatch';
+import { usePublishOpenTour } from '../../components/Tours/poi/usePublishOpenTour';
 import { useSkiClassification } from '../../components/Tours/ski/useSkiClassification';
 import { useRecordedTrack } from '../../components/Tours/useRecordedTrack';
 import { useTourGpxImport } from '../../components/Tours/useTourGpxImport';
@@ -85,6 +86,7 @@ export function useTourWorkspace(planner: TripPlanner, canPlaceEdit: boolean, ca
   });
 
   useTourRevisionWatch(tourPlanner, tours); // P2C-03: a save made elsewhere reaches the open editor
+  usePublishOpenTour(tourPlanner, activeTab === 'tour-planner' && !isMobile); // P6: the chat's "+ Tour" takes a found place into the tour open here
   const { viewImportedTour, openTourInPlanner } = useTourOpeners(tourPlanner, places, tours);
 
   // The tours workspace's GPX import, shared by its button and its file drop. One new

@@ -68,6 +68,8 @@ export const ASSISTANT_ERROR_CODES = [
   'empty_answer',
   'offline',
   'no_bookings_found',
+  // An attached GPX, KML or KMZ file without a single track or route to take in as a tour.
+  'no_tracks_found',
   'import_unavailable',
   // A found place was suggested while the thread still holds changes nobody decided on.
   'decide_first',
@@ -292,6 +294,30 @@ export const assistantAddFoundPlaceRequestSchema = assistantClientCtxSchema
   })
   .strict();
 export type AssistantAddFoundPlaceRequest = z.infer<typeof assistantAddFoundPlaceRequestSchema>;
+
+/**
+ * POST /threads/:threadId/found-places/tour: "+ Tour" on a place a search
+ * found, while a saved tour is open in the planner. Held like "+ Day 3": the
+ * place comes from the stored search results, the tour must be one of this
+ * trip's, and the server picks where along it the stop goes.
+ */
+export const assistantInsertFoundPlaceRequestSchema = assistantClientCtxSchema
+  .extend({
+    ref: z.string().min(1).max(80),
+    tourId: idSchema,
+  })
+  .strict();
+export type AssistantInsertFoundPlaceRequest = z.infer<typeof assistantInsertFoundPlaceRequestSchema>;
+
+/** The route files the chat takes in as tours (P7), beside the booking files. */
+export const ASSISTANT_TOUR_FILE_EXTENSIONS = ['.gpx', '.kml', '.kmz'] as const;
+
+/** Whether a file the user attached is a route file, by its name. */
+export function isAssistantTourFile(fileName: string): boolean {
+  const dot = fileName.lastIndexOf('.');
+  const ext = dot < 0 ? '' : fileName.slice(dot).toLowerCase();
+  return (ASSISTANT_TOUR_FILE_EXTENSIONS as readonly string[]).includes(ext);
+}
 
 /**
  * POST /threads/:threadId/proposals: take a proposal an answer showed as a

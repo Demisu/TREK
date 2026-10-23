@@ -1,7 +1,7 @@
+import { chosenAfterId, insertionPreview } from '@trek/shared';
 import { useMemo } from 'react';
 import { useTourPoiStore } from '../../../store/tourPoiStore';
 import type { TourPlannerController } from '../planner/useTourPlanner';
-import { chosenAfterId, insertionPreview } from './poiInsertion';
 import { useSelectedPoi } from './useTourPoiSearch';
 
 /**

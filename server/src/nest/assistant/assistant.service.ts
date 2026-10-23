@@ -33,6 +33,7 @@ import { withRequestContext } from '../database/request-context';
 import { UnitOfWork } from '../database/unit-of-work';
 import { SettingsService } from '../settings/settings.service';
 import { runAgentLoop, type AgentStore, type HeldCall, type StepRecord } from './assistant-agent';
+import type { AttachedFileReader } from './assistant-attached-file';
 import { AssistantBookingImportService } from './assistant-booking-import.service';
 import { mentionItems } from './assistant-cards.helpers';
 import { todayIn } from './assistant-context';
@@ -48,13 +49,13 @@ import {
   ASSISTANT_SERVER_WRITE_TOOLS,
   foundPlaceArgs,
   IMPORT_BOOKING_TOOL,
-  READ_BOOKING_FILE_TOOL,
   REMEMBER_TOOL,
   TURNS_PER_MINUTE,
   UNDO_WINDOW_MS,
   writeToolOf,
 } from './assistant-tools.constants';
 import { AssistantToolsService, type AssistantToolSession, type ToolRun } from './assistant-tools.service';
+import { AssistantTourFileService } from './assistant-tour-file.service';
 import { readTripCard } from './assistant-trip-scope';
 import { unchangedSinceApplied, undoSnapshotOf, undoTargetsOf } from './assistant-undo.helpers';
 import { AssistantVision } from './assistant-vision';
@@ -78,8 +79,8 @@ import type {
   AssistantThreadListResponse,
   AssistantThreadResponse,
   AssistantThreadSummary,
-  BookingImportPreviewItem,
 } from '@trek/shared';
+import { isAssistantTourFile } from '@trek/shared';
 
 import { randomUUID } from 'node:crypto';
 
@@ -171,6 +172,7 @@ export class AssistantService {
     private readonly usage: AiUsageService,
     private readonly tools: AssistantToolsService,
     private readonly bookings: AssistantBookingImportService,
+    private readonly tourFiles: AssistantTourFileService,
     private readonly settings: SettingsService,
     private readonly rateLimit: RateLimitService,
     private readonly streams: AssistantStreamRegistry,
@@ -251,9 +253,9 @@ export class AssistantService {
 
   /**
    * A file the user attached, in a thread of theirs on this trip or (no
-   * threadId) a new one, answered as a stream: the file is read into bookings
-   * and each is proposed as a change card, applied or discarded like any
-   * other. No model is asked here; the decision on the cards starts the next
+   * threadId) a new one, answered as a stream: the file is read into bookings,
+   * or a route file (GPX, KML, KMZ) into its tracks, and each is proposed as a
+   * change card, applied or discarded like any other. No model is asked here; the decision on the cards starts the next
    * answer. Refused like a chat turn, and also when nothing here reads files.
    *
    * @txIndependent the opening rows are one transaction and the proposals
@@ -267,7 +269,8 @@ export class AssistantService {
     channel: TurnChannel,
   ): Promise<void> {
     await this.admit(userId);
-    await this.bookings.ensureReadable(userId, file);
+    const reader: AttachedFileReader = isAssistantTourFile(file.originalname) ? this.tourFiles : this.bookings;
+    await reader.ensureReadable(userId, file);
     const connection = await this.connections.resolveForUser(userId);
     await this.withinDailyLimit(userId, connection);
     await this.claimed(userId, channel.signal, async (signal) => {
@@ -283,7 +286,7 @@ export class AssistantService {
       try {
         const { locale, timeZone } = req;
         const turn = { userId, tripId, threadId: begun.threadId, rowId: begun.rowId, locale, timeZone, name };
-        await this.proposeBookings(turn, file, w, signal);
+        await this.proposeFromFile(turn, file, reader, w, signal);
       } catch (err) {
         const reason = err instanceof Error ? err.message : String(err);
         logError(`[assistant] attachment in thread ${begun.threadId} failed: ${reason}`);
@@ -539,16 +542,18 @@ export class AssistantService {
 
   /**
    * Reads the attached file and proposes what it found, in the answer's first
-   * row: the read step, then one held `import_booking` change per booking,
-   * each with its card. A file without bookings ends the answer with
-   * `no_bookings_found`; one that cannot be read, with `generic`.
+   * row: the read step, then one held change per booking (`import_booking`)
+   * or track (`import_tour_file`), each with its card. A file without any
+   * ends the answer with the reader's code; one that cannot be read, with
+   * `generic`.
    *
    * @txIndependent the row is written once the file was read, in a
    * transaction of its own.
    */
-  private async proposeBookings(
+  private async proposeFromFile(
     turn: { userId: number; tripId: number; threadId: number; rowId: number; name: string } & AssistantClientCtx,
     file: Express.Multer.File,
+    reader: AttachedFileReader,
     w: UiStreamWriter,
     signal: AbortSignal,
   ): Promise<void> {
@@ -557,17 +562,17 @@ export class AssistantService {
     const readPart = (result: unknown, isError = false): AssistantMessagePart => ({
       type: 'tool-call',
       toolCallId: readId,
-      toolName: READ_BOOKING_FILE_TOOL,
+      toolName: reader.readTool,
       args: readArgs,
       result,
       ...(isError ? { isError: true } : {}),
     });
     const fieldsOf = (parts: AssistantMessagePart[]) => ({ parts: encodeParts(parts), providerState: null });
     w.startStep();
-    w.toolInput(readId, READ_BOOKING_FILE_TOOL, readArgs);
-    let items: BookingImportPreviewItem[];
+    w.toolInput(readId, reader.readTool, readArgs);
+    let read: Awaited<ReturnType<AttachedFileReader['propose']>>;
     try {
-      items = await this.inContext(() => this.bookings.read(turn.userId, file));
+      read = await this.inContext(() => reader.propose(turn.userId, turn.tripId, file));
     } catch (err) {
       logError(`[assistant] reading ${turn.name} failed: ${err instanceof Error ? err.message : String(err)}`);
       await this.saveRow(turn.threadId, turn.rowId, fieldsOf([readPart(FILE_UNREADABLE, true)]), 'error');
@@ -576,27 +581,25 @@ export class AssistantService {
       w.finish('error');
       return;
     }
-    const found = { bookings: items.map((item) => item.title) };
+    const { found, proposals } = read;
     if (signal.aborted) {
       await this.saveRow(turn.threadId, turn.rowId, fieldsOf([readPart(found)]), 'aborted');
       w.abort();
       return;
     }
     w.toolOutput(readId, found);
-    if (items.length === 0) {
+    if (proposals.length === 0) {
       await this.saveRow(turn.threadId, turn.rowId, fieldsOf([readPart(found)]), 'error');
       w.finishStep();
-      w.error('no_bookings_found');
+      w.error(reader.emptyCode);
       w.finish('error');
       return;
     }
     const card = await readTripCard(this.tools, turn.userId, turn.tripId);
     const ctx = this.cardContext.contextOf(card, new Map(), turn.locale, todayIn(turn.timeZone, new Date()));
-    const proposed = items.map((item) => ({
-      id: randomUUID(),
-      toolName: IMPORT_BOOKING_TOOL,
-      args: item as Record<string, unknown>,
-    }));
+    const proposed = proposals.map((proposal) => ({ ...proposal, id: randomUUID() }));
+    // The thread shows a call as the reader shows it; the held call keeps everything it runs with.
+    const shown = new Map<string, Record<string, unknown>>(proposed.map((c) => [c.id, c.shownArgs ?? c.args]));
     const described = await this.cardContext.describeProposed(turn.userId, turn.tripId, ctx, proposed);
     const held: HeldCall[] = described.map((change) => ({ ...change, providerCallId: `import_${change.id}` }));
     const parts: AssistantMessagePart[] = [
@@ -605,14 +608,14 @@ export class AssistantService {
         type: 'tool-call',
         toolCallId: change.id,
         toolName: change.toolName,
-        args: change.args,
+        args: shown.get(change.id) ?? change.args,
         approval: { id: change.id },
       })),
       ...held.map((change): AssistantMessagePart => ({ type: 'data-trek-change', data: change.preview })),
     ];
     await this.holdChanges(turn.threadId, turn.rowId, fieldsOf(parts), held);
     for (const change of held) {
-      w.toolInput(change.id, change.toolName, change.args);
+      w.toolInput(change.id, change.toolName, shown.get(change.id) ?? change.args);
       w.approvalRequest(change.id);
       w.change(change.preview);
     }

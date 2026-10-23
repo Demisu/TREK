@@ -1,11 +1,10 @@
-import { nearnessToLine } from '@trek/shared';
+import { nearnessToLine, withPointAppended } from '@trek/shared';
 import { useCallback, useMemo } from 'react';
 import { useTripStore } from '../../../store/tripStore';
 import type { Category, Place } from '../../../types';
 import { randomId } from '../../../utils/randomId';
 import { useLinkedPlaceOf } from '../walk/useWalkSchedule';
 import { unlinkedPoint, type TourPlannerWaypoint } from './tourPlannerWaypoints';
-import { withPointAppended } from './tourRouteActions';
 import type { TourPlannerController } from './useTourPlanner';
 
 /** A place of the trip as the picker offers it. */

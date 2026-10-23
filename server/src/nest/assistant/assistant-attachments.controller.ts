@@ -23,13 +23,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { LLM_PHOTO_EXTENSIONS } from '@trek/shared';
+import { ASSISTANT_TOUR_FILE_EXTENSIONS, LLM_PHOTO_EXTENSIONS } from '@trek/shared';
 
 import type { Response } from 'express';
 import { memoryStorage } from 'multer';
 import { extname } from 'node:path';
 
-/** What the assistant reads bookings from: the booking import's formats, plus calendar files. */
+/** What the assistant reads: the booking import's formats, calendar files, and route files taken in as tours (P7). */
 const ACCEPTED_EXTENSIONS: ReadonlySet<string> = new Set([
   '.eml',
   '.pdf',
@@ -39,10 +39,11 @@ const ACCEPTED_EXTENSIONS: ReadonlySet<string> = new Set([
   '.htm',
   '.txt',
   ...LLM_PHOTO_EXTENSIONS,
+  ...ASSISTANT_TOUR_FILE_EXTENSIONS,
 ]);
 
 const PHOTO_LABEL = LLM_PHOTO_EXTENSIONS.map((ext) => ext.slice(1).toUpperCase()).join(', ');
-const ACCEPTED_LABEL = `EML, PDF, PKPass, ICS, HTML, TXT, ${PHOTO_LABEL}`;
+const ACCEPTED_LABEL = `EML, PDF, PKPass, ICS, HTML, TXT, ${PHOTO_LABEL}, GPX, KML, KMZ`;
 
 const UPLOAD = {
   storage: memoryStorage(),

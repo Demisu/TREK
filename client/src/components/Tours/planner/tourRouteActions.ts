@@ -42,18 +42,6 @@ function stationSplit<T extends RoutePoint>(point: T & StationParts): { station:
 }
 
 /**
- * A new point at the end of the tour; a loop keeps returning to its start,
- * so there the point goes in before the way back.
- */
-export function withPointAppended<T extends { lat: number; lng: number; role: string }>(
-  points: readonly T[],
-  point: T
-): T[] {
-  if (!isClosedLoop(points)) return [...points, { ...point, role: 'end' }];
-  return [...points.slice(0, -1), { ...point, role: 'via' }, points[points.length - 1]];
-}
-
-/**
  * The tour taken back from its last point to its start: one end point on the
  * start's spot, not a second copy of the start among the stops. `newId` names
  * it; a tour that already returns, or has nothing to return from, is left as it is.

@@ -554,6 +554,32 @@ export const toursRoadtrip: CaseGroup = {
       expect: ['tours:changed', 'place:updated'],
     },
     {
+      // P6: a found place taken into the walk as a station, saved as save_tour_change saves one change.
+      tool: 'insert_tour_stop',
+      needs: ['tour'],
+      setup: planWalk,
+      args: (s) => ({
+        tripId: s.trip.id,
+        placeId: s.tourPlace.id,
+        expected_revision: 1,
+        stop: { lat: 48.106, lng: 11.5, name: 'Fountain' },
+        after_key: 'walk-market',
+      }),
+      // The planner takes a found place in as a point of its draft and saves the walk through the same route write.
+      rest: { method: 'put', path: tourPath, body: () => walkBody(1) },
+      stub: routerDown,
+      expect: ['tours:changed', 'place:updated'],
+    },
+    {
+      tool: 'remove_tour_stop',
+      needs: ['tour'],
+      setup: planWalk,
+      args: (s) => ({ tripId: s.trip.id, placeId: s.tourPlace.id, expected_revision: 1, key: 'walk-market' }),
+      rest: { method: 'put', path: tourPath, body: () => walkBody(1) },
+      stub: routerDown,
+      expect: ['tours:changed', 'place:updated'],
+    },
+    {
       tool: 'undo_tour_change',
       needs: ['tour'],
       setup: walkWithSavedStep,

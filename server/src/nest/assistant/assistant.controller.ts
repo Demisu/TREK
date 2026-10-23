@@ -17,6 +17,7 @@ import {
   AssistantAddFoundPlaceDto,
   AssistantChatDto,
   AssistantDecisionsDto,
+  AssistantInsertFoundPlaceDto,
   AssistantShareDto,
   AssistantStopDto,
   AssistantTakeProposalDto,
@@ -131,6 +132,23 @@ export class AssistantController {
     @Body() body: AssistantAddFoundPlaceDto,
   ) {
     return this.foundPlaces.add(user.id, Number(tripId), idParam(threadId), body);
+  }
+
+  /**
+   * "+ Tour" on a place a search found, while a saved tour is open: a change card that takes it in as a
+   * stop, no model turn. It changes a tour, so it asks for the right the tour routes ask for.
+   */
+  @Post('threads/:threadId/found-places/tour')
+  @HttpCode(200)
+  @RequirePermission('place_edit')
+  @ResponseContract(assistantAddFoundPlaceResponseSchema)
+  insertFoundPlace(
+    @CurrentUser() user: User,
+    @Param('tripId') tripId: string,
+    @Param('threadId') threadId: string,
+    @Body() body: AssistantInsertFoundPlaceDto,
+  ) {
+    return this.foundPlaces.insertIntoTour(user.id, Number(tripId), idParam(threadId), body);
   }
 
   /**

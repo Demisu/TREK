@@ -3,7 +3,8 @@ import { BookingImportService } from '../booking-import/booking-import.service';
 import { DemoService } from '../common/demo.service';
 import { McpToolGuardsService } from '../mcp-shared/mcp-tool-guards.service';
 import { TripAccessService } from '../trip-membership/trip-access.service';
-import { MAX_WRITES_PER_STEP } from './assistant-tools.constants';
+import type { AttachedFileReader, FileRead } from './assistant-attached-file';
+import { IMPORT_BOOKING_TOOL, MAX_WRITES_PER_STEP, READ_BOOKING_FILE_TOOL } from './assistant-tools.constants';
 import type { ToolRun } from './assistant-tools.service';
 import { Injectable } from '@nestjs/common';
 import { bookingImportPreviewItemSchema, LLM_PHOTO_EXTENSIONS, type BookingImportPreviewItem } from '@trek/shared';
@@ -24,7 +25,10 @@ const BROKEN = 'This booking can no longer be read.';
  * and the `reservation_edit` right, taken when it is applied.
  */
 @Injectable()
-export class AssistantBookingImportService {
+export class AssistantBookingImportService implements AttachedFileReader {
+  readonly readTool = READ_BOOKING_FILE_TOOL;
+  readonly emptyCode = 'no_bookings_found' as const;
+
   constructor(
     private readonly bookingImport: BookingImportService,
     private readonly trips: TripAccessService,
@@ -56,6 +60,15 @@ export class AssistantBookingImportService {
     const preview = await this.bookingImport.preview([file], mode, userId);
     // One file proposes no more bookings than one step may hold changes; the rest are left out.
     return preview.items.slice(0, MAX_WRITES_PER_STEP);
+  }
+
+  /** The bookings of the file as the changes the chat holds, one import_booking each. */
+  async propose(userId: number, _tripId: number, file: Express.Multer.File): Promise<FileRead> {
+    const items = await this.read(userId, file);
+    return {
+      found: { bookings: items.map((item) => item.title) },
+      proposals: items.map((item) => ({ toolName: IMPORT_BOOKING_TOOL, args: item as Record<string, unknown> })),
+    };
   }
 
   /**

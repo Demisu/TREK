@@ -1,5 +1,5 @@
 import type { TourPoi, WalkTheme } from '@trek/shared';
-import { TOUR_POI_CORRIDORS_M } from '@trek/shared';
+import { placesInTour, TOUR_POI_CORRIDORS_M } from '@trek/shared';
 import {
   Check,
   ChevronDown,
@@ -30,7 +30,6 @@ import { usePopoverList } from '../../shared/usePopoverList';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { RailCard, TourNotice } from '../tourParts';
 import { formatPlannedTourDuration } from '../tourPresentation';
-import { placesInTour } from './poiInsertion';
 import { SearchNotices } from './TourPoiSearchNotices';
 import { usePoiInsertion, type InsertionOutcome } from './usePoiInsertion';
 import { useSelectedPoi, useTourPoiSearch, type TourPoiSearch } from './useTourPoiSearch';

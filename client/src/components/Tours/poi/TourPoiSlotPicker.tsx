@@ -1,5 +1,5 @@
 import type { TourPoi } from '@trek/shared';
-import { isClosedLoop } from '@trek/shared';
+import { insertionPreview, isClosedLoop, straightDetourM, type InsertionSlot } from '@trek/shared';
 import { ChevronDown, CornerDownRight, Flag, Info, Plus } from 'lucide-react';
 import { useTranslation } from '../../../i18n';
 import { formatDistance } from '../../../utils/units';
@@ -12,7 +12,6 @@ import { usePopoverList } from '../../shared/usePopoverList';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { useWaypointPlaceNames } from '../planner/useWaypointPlaceNames';
-import { insertionPreview, straightDetourM, type InsertionSlot } from './poiInsertion';
 import type { usePoiInsertion } from './usePoiInsertion';
 
 type Unit = Parameters<typeof formatDistance>[1];

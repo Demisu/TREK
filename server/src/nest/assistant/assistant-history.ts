@@ -4,13 +4,16 @@ import type { AssistantToolCallRow } from '../../db/repositories/AssistantToolCa
 import { parseDbTimestamp, utcSuffix } from '../../db/types';
 import { decodeJson } from '../../utils/json-column';
 import type { AiChatMessage, AiToolCall } from '../ai-connections/ai-chat-client.interface';
+import { tourFileOutcome, tourFileReadNote, tourStopOutcome } from './assistant-history-tours';
 import { fitToSize } from './assistant-output';
 import {
   ADD_FOUND_PLACE_TOOL,
   APPROVAL_TTL_MS,
   ASSISTANT_SERVER_TOOLS,
   IMPORT_BOOKING_TOOL,
+  IMPORT_TOUR_FILE_TOOL,
   READ_BOOKING_FILE_TOOL,
+  READ_TOUR_FILE_TOOL,
   TAKE_PROPOSAL_TOOL,
 } from './assistant-tools.constants';
 import {
@@ -115,6 +118,14 @@ function takenProposalOutcome(part: ToolCallPart): string {
   return `The user took the proposed ${what} ${name} to add it; it waits for them to add or discard it.`;
 }
 
+/** The note of a server step about tours (P6, P7), null for any other. */
+function tourStepNote(part: ToolCallPart): string | null {
+  if (part.toolName === ADD_FOUND_PLACE_TOOL && part.args.via === 'insert_tour_stop') return tourStopOutcome(part);
+  if (part.toolName === READ_TOUR_FILE_TOOL) return tourFileReadNote(part);
+  if (part.toolName === IMPORT_TOUR_FILE_TOOL) return tourFileOutcome(part);
+  return null;
+}
+
 /**
  * The server's own steps of a message (reading an attached file, the bookings
  * it found) as one note in plain words. They are no tools the provider knows,
@@ -124,7 +135,10 @@ function takenProposalOutcome(part: ToolCallPart): string {
 export function serverStepsNote(calls: readonly ToolCallPart[]): string {
   const lines: string[] = [];
   for (const part of calls) {
-    if (part.toolName === READ_BOOKING_FILE_TOOL) {
+    const tourNote = tourStepNote(part);
+    if (tourNote !== null) {
+      lines.push(tourNote);
+    } else if (part.toolName === READ_BOOKING_FILE_TOOL) {
       const result = (part.result ?? {}) as { bookings?: unknown };
       const titles = Array.isArray(result.bookings) ? result.bookings.map(quoted) : [];
       const file = quoted(part.args.name);
