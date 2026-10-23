@@ -38,7 +38,8 @@ type ChatgptTokenSource = (rejected?: string) => Promise<string>;
  * The provider-neutral history as Responses API input items. An assistant
  * message this adapter wrote carries its output items, which are replayed as
  * they came (reasoning with its encrypted content, the function calls with
- * their namespace), since `store: false` keeps nothing on the provider's side.
+ * their namespace), since `store: false` keeps nothing on the provider's side;
+ * its web search calls are not, as the provider cannot resolve them again.
  * One written by another adapter is rebuilt from its text and its calls.
  */
 export function toResponsesInput(request: AiChatRequest): Record<string, unknown>[] {
@@ -70,7 +71,11 @@ function toItems(message: AiChatMessage): Record<string, unknown>[] {
   if (message.role === 'tool') {
     return [{ type: 'function_call_output', call_id: message.toolCallId, output: message.output }];
   }
-  if (message.providerState?.adapter === 'openai-responses') return message.providerState.items;
+  // A web search the provider ran is left out: with nothing stored it cannot find the call again and
+  // refuses the whole request, and what the search found is in the answer's text and its sources.
+  if (message.providerState?.adapter === 'openai-responses') {
+    return message.providerState.items.filter((item) => item.type !== 'web_search_call');
+  }
   return [
     ...(message.text
       ? [{ type: 'message', role: 'assistant', content: [{ type: 'output_text', text: message.text }] }]

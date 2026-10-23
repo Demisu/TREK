@@ -474,6 +474,29 @@ describe('OpenAiResponsesClient', () => {
     ]);
   });
 
+  it('OARS-003b: leaves its own web search calls out of a replay, which the provider cannot resolve without storage', () => {
+    const search = {
+      type: 'web_search_call',
+      id: 'ws_1',
+      status: 'completed',
+      action: { type: 'search', query: 'Harz' },
+    };
+    const input = toResponsesInput({
+      ...REQUEST,
+      context: undefined,
+      messages: [
+        {
+          role: 'assistant',
+          text: 'ignored',
+          toolCalls: [],
+          providerState: { adapter: 'openai-responses', items: [REASONING, search, CALL] },
+        },
+        { role: 'tool', toolCallId: 'call_x', name: 'create_place', output: 'ok' },
+      ],
+    });
+    expect(input).toEqual([REASONING, CALL, { type: 'function_call_output', call_id: 'call_x', output: 'ok' }]);
+  });
+
   it('OARS-003: replays its own items verbatim and rebuilds another adapter turn from text and calls', () => {
     const input = toResponsesInput({
       ...REQUEST,
