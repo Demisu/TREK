@@ -45,6 +45,8 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "@hono/node-server": "^1.19.13",
+    "body-parser@^1.20.0": "^1.20.9",
+    "body-parser@^2.0.0": "^2.4.0",
     "brace-expansion@^2.0.0": "^2.1.7",
     "dompurify": "^3.4.17",
     "fast-uri": "^3.1.8",
