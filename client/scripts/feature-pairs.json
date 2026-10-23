@@ -601,7 +601,6 @@
       "hooks": ["src/components/Planner/usePlaceActions.ts"],
       "desktop": [
         "src/components/Planner/PlaceInspector.tsx",
-        "src/components/shared/PlaceAvatarUpload.tsx",
         "src/pages/tripPlanner/useTripPlannerPage.ts"
       ],
       "mobile": ["src/mobile/screens/trip/sheets/MPlaceSheet.tsx"]

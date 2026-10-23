@@ -1576,7 +1576,8 @@ describe('PlaceInspector', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Show photos' }));
     const gallery = await screen.findByRole('dialog', { name: 'Show photos' });
-    expect(mapsApi.placeEnrichment).toHaveBeenCalledWith(expect.objectContaining({ lat: place.lat, lng: place.lng, name: 'Eiffel Tower' }));
+    // The query, then the signal the repo passes on (placePictureRepo.ts).
+    expect(vi.mocked(mapsApi.placeEnrichment).mock.calls[0]?.[0]).toMatchObject({ lat: place.lat, lng: place.lng, name: 'Eiffel Tower' });
     expect(within(gallery).getByRole('img')).toHaveAttribute('src', '/api/maps/place-photo/gp~p0/bytes');
     expect(within(gallery).getByRole('link', { name: 'Alice, CC BY 4.0' })).toHaveAttribute(
       'href', 'https://commons.wikimedia.org/wiki/File:T.jpg',
