@@ -18,7 +18,6 @@
   "components/Journey/JourneyMap.tsx": 1,
   "components/Journey/JourneyMapGL.tsx": 2,
   "components/Journey/MobileEntryView.tsx": 1,
-  "components/Journey/PhotoLightbox.tsx": 3,
   "components/Journey/journeyPhotoLayer.ts": 1,
   "components/Layout/Navbar.tsx": 1,
   "components/Layout/OfflineBanner.tsx": 1,

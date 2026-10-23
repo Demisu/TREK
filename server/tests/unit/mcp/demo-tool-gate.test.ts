@@ -15,7 +15,7 @@ import { db as testDb } from '../../../src/db/database';
 import { DEMO_UNGATED_WRITE_TOOLS, isDemoGatedTool, trekDemoToolGate } from '../../../src/mcp/nest-mcp-policy';
 import type { McpContext, McpRegistry, McpRegistryListing } from '../../../src/nest-mcp';
 import { withRequestContext } from '../../../src/nest/database/request-context';
-import { createUser } from '../../helpers/factories';
+import { createUser, setAppSetting } from '../../helpers/factories';
 import { createMcpTestRegistry } from '../../helpers/mcp-test-controllers';
 import { bootTestApp } from '../../helpers/test-app';
 import { resetTestDb, setAddonEnabled } from '../../helpers/test-db';
@@ -77,6 +77,8 @@ beforeAll(async () => {
 beforeEach(() => {
   resetTestDb(testDb);
   for (const id of Object.values(ADDON_IDS)) setAddonEnabled(testDb, id, true);
+  // The wanderer tools show only while wanderer is allowed under Tours.
+  setAppSetting(testDb, 'tours_wanderer_enabled', 'true');
 });
 
 afterEach(() => {

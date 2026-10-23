@@ -59,6 +59,7 @@ export const UNRESET_STORES: Record<string, string> = {
     'its own tests put it back with clear(); it holds one open collection and nothing else reads it',
   useDocSyncOfferStore: NOT_YET,
   useHelpStore: NOT_YET,
+  useOpenTourStore: 'the saved tour open in the Tours tab, set by its stage; the tests that read it set it themselves',
   usePluginStore: NOT_YET,
   useRoadtripPreferencesStore: NOT_YET,
   useSaveToCollectionStore: NOT_YET,

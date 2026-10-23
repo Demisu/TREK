@@ -39,7 +39,8 @@ describe('TripChatBlock', () => {
     expect(screen.getByRole('region', { name: 'Continue in a trip chat' })).toBeInTheDocument();
     expect(screen.getByText('Kyoto')).toBeInTheDocument();
     expect(screen.getByText('Trip chat')).toBeInTheDocument();
-    expect(screen.getByText(/ to /)).toBeInTheDocument();
+    // The dates, not the hidden label of the question, which has a "to" of its own.
+    expect(screen.getByText(/\d to \w/)).toBeInTheDocument();
     expect(screen.getByText('Next')).toBeInTheDocument();
     expect(screen.getByText('12 places')).toBeInTheDocument();
     expect(screen.getByText('What is still missing?')).toBeInTheDocument();
