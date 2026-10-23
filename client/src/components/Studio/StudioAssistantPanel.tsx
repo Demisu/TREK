@@ -186,7 +186,7 @@ export function StudioAssistantToggle({ assistant }: { assistant: StudioAssistan
   return (
     <button
       type="button"
-      className={`st-tool ${assistant.open ? 'is-on' : ''}`}
+      className={`st-tool st-assistant-toggle ${assistant.open ? 'is-on' : ''}`}
       onClick={assistant.toggle}
       aria-pressed={assistant.open}
       title={t('journey.studio.assistant.toggleHint')}
