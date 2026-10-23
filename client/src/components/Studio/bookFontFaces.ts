@@ -23,6 +23,10 @@
  * Real italics for the serifs, where the browser's slant reads as a mistake;
  * the sans faces keep the synthetic oblique they always had, which saves a
  * second file per weight nobody would tell apart.
+ *
+ * Big Shoulders Display is imported without `.css`: its package maps `./*` to
+ * `./*.css` and has no `./*.css` entry of its own, so `100.css` would resolve
+ * to `100.css.css` and fail the build.
  */
 import '@fontsource/poppins/100.css'
 import '@fontsource/poppins/200.css'
@@ -141,15 +145,15 @@ import '@fontsource/oswald/700.css'
 
 import '@fontsource/league-gothic/400.css'
 
-import '@fontsource/big-shoulders-display/100.css'
-import '@fontsource/big-shoulders-display/200.css'
-import '@fontsource/big-shoulders-display/300.css'
-import '@fontsource/big-shoulders-display/400.css'
-import '@fontsource/big-shoulders-display/500.css'
-import '@fontsource/big-shoulders-display/600.css'
-import '@fontsource/big-shoulders-display/700.css'
-import '@fontsource/big-shoulders-display/800.css'
-import '@fontsource/big-shoulders-display/900.css'
+import '@fontsource/big-shoulders-display/100'
+import '@fontsource/big-shoulders-display/200'
+import '@fontsource/big-shoulders-display/300'
+import '@fontsource/big-shoulders-display/400'
+import '@fontsource/big-shoulders-display/500'
+import '@fontsource/big-shoulders-display/600'
+import '@fontsource/big-shoulders-display/700'
+import '@fontsource/big-shoulders-display/800'
+import '@fontsource/big-shoulders-display/900'
 
 import '@fontsource/archivo-black/400.css'
 

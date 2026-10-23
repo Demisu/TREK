@@ -23,9 +23,9 @@ const STUDIO = 'src/components/Studio/bookFontFaces.ts'
 // Vitest runs with the client package as its root, so cwd is stable here.
 const read = (rel: string) => readFileSync(resolve(process.cwd(), rel), 'utf8')
 
-/** Every `@fontsource/<package>/<weight>[-italic].css` a file imports. */
+/** Every `@fontsource/<package>/<weight>[-italic][.css]` a file imports (see bookFontFaces.ts for the bare form). */
 function facesIn(rel: string): string[] {
-  return [...read(rel).matchAll(/@fontsource\/([a-z0-9-]+)\/(\d+(?:-italic)?)\.css/g)]
+  return [...read(rel).matchAll(/@fontsource\/([a-z0-9-]+)\/(\d+(?:-italic)?)(?:\.css)?'/g)]
     .map(m => `${m[1]}/${m[2]}`)
 }
 
