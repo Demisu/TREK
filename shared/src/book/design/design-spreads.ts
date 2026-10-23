@@ -203,7 +203,7 @@ function setPassage(c: ComposeCtx, passage: Passage, after: readonly FlowItem[],
 function setNext(c: ComposeCtx, item: FlowItem, after: readonly FlowItem[], foot: Foot, waits: boolean): Step | null {
   if (item.kind === 'story') return setPassage(c, item, after, foot);
   const list = listUnder(c, item.entry, foot);
-  if (list) return { els: [list], end: list.frame.y + list.frame.h, rest: after, cut: false };
+  if (list) return { els: [list], end: list.frame.y + list.frame.h, rest: [...after], cut: false };
   if (waits && listHeight(c, item.entry) <= liveBox(c, 'left').h) return null;
   const [next, ...later] = after;
   return next?.kind === 'story' ? setPassage(c, next, later, foot) : null;
