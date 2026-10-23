@@ -246,6 +246,8 @@ export class AssistantToolSession {
 
   kindOf(name: string): AssistantToolKind | null {
     if (name === REMEMBER_TOOL) return this.mode === 'turn' ? 'write' : null;
+    // The follow-ups change nothing; the agent loop answers them itself in every turn.
+    if (name === ASSISTANT_FOLLOW_UPS_TOOL) return this.mode === 'undo' ? null : 'read';
     if (name === USE_TOOLS_TOOL) return this.mode === 'turn' ? 'read' : null;
     return this.tools.get(name)?.kind ?? null;
   }
