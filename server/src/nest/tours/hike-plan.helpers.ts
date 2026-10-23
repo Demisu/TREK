@@ -18,6 +18,7 @@ import {
   type HikeHighPoint,
   type HikePlan,
   type HikePlanPoint,
+  type HikeStop,
   type HikeProposal,
   type HikeProposalSac,
   type HikeProposeRequest,
@@ -39,9 +40,10 @@ import {
  */
 
 /** The points a hike is planned through: as asked, and for a round trip back to its start. */
-export function hikePointsOf(waypoints: readonly HikePlanPoint[], roundTrip: boolean | undefined): HikePlanPoint[] {
+export function hikePointsOf(waypoints: readonly HikeStop[], roundTrip: boolean | undefined): HikeStop[] {
   const [start] = waypoints;
-  return roundTrip === true && start ? [...waypoints, { ...start }] : [...waypoints];
+  // The way back ends where the hike began: the start ends no stage there.
+  return roundTrip === true && start ? [...waypoints, { ...start, stage_end: undefined }] : [...waypoints];
 }
 
 /** Whether the way was planned, and why not, as the answers name it. */
@@ -49,17 +51,27 @@ export function routeOutcomeOf(plan: HikePlan): HikeRouteOutcome {
   return plan.kind === 'routed' ? { planned: true } : { planned: false, why: plan.why, position: plan.position };
 }
 
-/** The points as a tour keeps them: in order, the first the start and the last the end, with their names. */
-export function hikeWaypointsOf(points: readonly HikePlanPoint[]): TourWaypoint[] {
+/**
+ * The points as a tour keeps them: in order, the first the start and the
+ * last the end, with their names, and on a hike over several days the stops
+ * its stages end at.
+ */
+export function hikeWaypointsOf(points: readonly HikeStop[]): TourWaypoint[] {
   const last = points.length - 1;
-  return points.map(({ lat, lng, name, poi_category }, sequence) => ({
+  return points.map(({ lat, lng, name, poi_category, stage_end }, sequence) => ({
     lat,
     lng,
     ...(name ? { name } : {}),
     ...(poi_category ? { poi_category } : {}),
     role: sequence === 0 ? 'start' : sequence === last ? 'end' : 'via',
     sequence,
+    ...(stage_end === true && sequence > 0 && sequence < last ? { stage_end: true } : {}),
   }));
+}
+
+/** How many stages a hike's points make: one for a day hike. */
+export function hikeStagesOf(points: readonly HikeStop[]): number {
+  return 1 + points.filter((point) => point.stage_end === true).length;
 }
 
 /** The way a saved hike keeps from a plan: its whole line and walking time, or none, and how the planning went. */
@@ -93,7 +105,7 @@ export function keptWayOf({ plan, line }: PlannedHike): KeptWay {
  */
 export function hikeCreateCommandOf(
   request: HikeCreateRequest,
-  points: readonly HikePlanPoint[],
+  points: readonly HikeStop[],
   way: KeptWay,
   limit: number,
 ): TourCreateCommand {
@@ -135,13 +147,15 @@ function savedPointAt(point: { lat: number; lng: number }, saved: readonly TourW
  * keeps its link to the trip's place it stands for, and its name where the
  * new one gives none. A saved point no new one stands on goes, with its link.
  */
-export function repointedWaypoints(points: readonly HikePlanPoint[], saved: readonly TourWaypoint[]): TourWaypoint[] {
+export function repointedWaypoints(points: readonly HikeStop[], saved: readonly TourWaypoint[]): TourWaypoint[] {
   return hikeWaypointsOf(points).map((point) => {
     const same = savedPointAt(point, saved);
     if (!same) return point;
     const name = point.name ?? same.name;
+    // Its key too: a stage is put on its day by the key of the stop it starts at.
     return {
       ...point,
+      ...(same.key ? { key: same.key } : {}),
       ...(name ? { name } : {}),
       ...(same.linked_place_id ? { linked_place_id: same.linked_place_id } : {}),
     };
@@ -319,7 +333,7 @@ export interface HikeProposalContext {
  */
 export function hikeProposalOf(
   request: HikeProposeRequest,
-  points: readonly HikePlanPoint[],
+  points: readonly HikeStop[],
   planned: PlannedHike,
   context: HikeProposalContext,
 ): HikeProposal {
@@ -329,8 +343,9 @@ export function hikeProposalOf(
   const heights = routed?.has_heights && line ? heightRangeOf(line) : null;
   const minutes = routed && line && positions ? waypointMinutesOf(line, positions, routed.duration_minutes) : null;
   const arrivals = arrivalsOf(request.start_time ?? null, minutes ?? points.map(() => null));
+  // One day's sun and hours say nothing about a hike over several days.
   const day =
-    routed && context.date
+    routed && context.date && hikeStagesOf(points) === 1
       ? hikeScheduleOf({
           date: context.date,
           dayId: context.dayId,
@@ -357,11 +372,12 @@ export function hikeProposalOf(
       : {}),
     sac: proposalSacOf(routed?.grades ?? null),
     high_point: routed ? highPointOf(line) : null,
-    waypoints: points.map(({ lat, lng, name, poi_category }, index) => ({
+    waypoints: points.map(({ lat, lng, name, poi_category, stage_end }, index) => ({
       lat,
       lng,
       name: name || null,
       poi_category: poi_category ?? null,
+      stage_end: stage_end === true,
       at_m: positions?.[index] ?? null,
       snapped_m: routed ? (planned.snapped?.[index] ?? null) : null,
       minutes: minutes?.[index] ?? null,

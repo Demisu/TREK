@@ -464,6 +464,7 @@ describe('HikePlanMcp: propose_hike', () => {
         snapped_m: 12,
         minutes: 0,
         arrival: '08:30',
+        stage_end: false,
       },
       {
         lat: 47.505,
@@ -474,6 +475,7 @@ describe('HikePlanMcp: propose_hike', () => {
         snapped_m: 3,
         minutes: 26,
         arrival: '08:56',
+        stage_end: false,
       },
       {
         lat: 47.51,
@@ -484,6 +486,7 @@ describe('HikePlanMcp: propose_hike', () => {
         snapped_m: 40,
         minutes: 52,
         arrival: '09:22',
+        stage_end: false,
       },
     ]);
     expect(proposal.high_point).toEqual({ lat: 47.51, lng: 11.1, ele_m: 1000, at_m: 1112 });
@@ -634,6 +637,17 @@ describe('HikePlanMcp: propose_hike', () => {
         ctx(f.user.id),
       ),
     ).rejects.toThrow('Day not found');
+  });
+
+  it('HIKE-MCP-022: refuses a stage end at the start or the end of a hike, which ends no day', async () => {
+    const f = await fixture();
+    const [first, ...rest] = WAYPOINTS;
+    await expect(
+      mcp.proposeHike(
+        { tripId: f.trip.id, name: 'Wrong', waypoints: [{ ...first, stage_end: true }, ...rest] },
+        ctx(f.user.id),
+      ),
+    ).rejects.toThrow('a stage ends at a stop between start and end');
   });
 });
 

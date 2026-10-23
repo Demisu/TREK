@@ -226,9 +226,10 @@ type ToolGroups = Readonly<Record<string, { about: string; controllers: readonly
 const CORE_TOOL_GROUPS: ToolGroups = {
   tours: {
     about:
-      'Tours: hikes, bike tours, city walks, paddling and ski routes; plan, create, change and export them ' +
-      '(hikes with their heights and SAC grades), their packing, the tour library and imports from GPX files ' +
-      'and Google Maps walks.',
+      'Tours: hikes (also over several days in stages), city walks, bike tours, runs, rides, paddling and ski ' +
+      'routes; plan, create, change and export them (hikes with their heights and SAC grades), search along a ' +
+      'tour, check off a city walk under way, the recorded tracks and tour stats, their packing, tours in ' +
+      'collections, the tour library and imports from GPX files and Google Maps walks.',
     controllers: [
       'ToursMcp',
       'CityWalkMcp',

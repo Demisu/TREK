@@ -139,9 +139,16 @@ function waypointStops(waypoints: readonly Row[], start: string | null): TourRou
         atM: metresOf(point.at_m) ?? 0,
         minutes,
         clock: clockOf(point.arrival) ?? clockAfter(start, minutes),
+        stageEnd: point.stage_end === true && index > 0 && index < waypoints.length - 1,
       }),
     ];
   });
+}
+
+/** How many stages a proposed hike's stops make; null for a day hike, as a saved tour's card says it. */
+function stagesOf(stops: readonly TourRouteStop[]): number | null {
+  const count = 1 + stops.filter((stop) => stop.stageEnd).length;
+  return count >= 2 ? Math.min(count, 60) : null;
 }
 
 /** The places along a proposed way and its highest point, timed between the points around them. */
@@ -248,6 +255,7 @@ export function hikeCard(
     line,
     stretches: sacStretches(sac?.segments),
     stops: sortedStops([...own, ...alongStops(plan, own, start)]),
+    stages: stagesOf(own),
     schedule: scheduleOf(plan.schedule, card),
     warnings: warningsOf(plan.warnings),
   });

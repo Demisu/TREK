@@ -10,6 +10,7 @@ import {
   hikeCreateCommandOf,
   hikePointsOf,
   hikeProposalOf,
+  hikeStagesOf,
   hikeWaypointsOf,
   keptWayOf,
   positionsAlong,
@@ -35,7 +36,7 @@ import {
 
 import { describe, expect, it } from 'vitest';
 
-// HIKE-PLAN-001 to HIKE-PLAN-014
+// HIKE-PLAN-001 to HIKE-PLAN-017
 
 /** A plan with its line, as the router answers it: without the router's legs and snaps unless given. */
 const planned = (
@@ -391,5 +392,54 @@ describe('where and when a proposed hike reaches its points', () => {
       ['Top', 445, 8],
     ]);
     expect(alongPlacesOf([], LINE)).toEqual([]);
+  });
+});
+
+describe('a hike over several days', () => {
+  it('HIKE-PLAN-015: keeps a stage end only on a stop between the start and the end, and the way back of a round trip ends none', () => {
+    const hut = { lat: 47.002, lng: 11, name: 'Hut', stage_end: true };
+    expect(hikeWaypointsOf([{ ...START, stage_end: true }, hut, SUMMIT]).map((point) => point.stage_end)).toEqual([
+      undefined,
+      true,
+      undefined,
+    ]);
+    expect(hikeStagesOf([START, hut, SUMMIT])).toBe(2);
+    expect(hikeStagesOf([START, SUMMIT])).toBe(1);
+    const loop = hikePointsOf([START, hut, SUMMIT], true);
+    expect(loop.at(-1)).toMatchObject({ lat: START.lat, lng: START.lng });
+    expect(loop.at(-1)?.stage_end).toBeUndefined();
+  });
+
+  it('HIKE-PLAN-016: a proposal over several days names its stage ends and sets no schedule of a single day', () => {
+    const points = [START, { lat: 47.002, lng: 11, name: 'Hut', stage_end: true }, SUMMIT];
+    const day: HikeProposalContext = { dayId: 3, date: '2027-07-10', along: null, weather: null };
+    const proposal = hikeProposalOf({ name: 'Trek', waypoints: points }, points, planned(ROUTED, LINE), day);
+    expect(proposal.waypoints.map((point) => point.stage_end)).toEqual([false, true, false]);
+    expect(proposal.schedule).toBeNull();
+    expect(hikeProposalSchema.safeParse(proposal).success).toBe(true);
+    const single = hikeProposalOf(
+      { name: 'Day', waypoints: [START, SUMMIT] },
+      [START, SUMMIT],
+      planned(ROUTED, LINE),
+      day,
+    );
+    expect(single.schedule).not.toBeNull();
+  });
+
+  it('HIKE-PLAN-017: new points keep the key of a saved stop they stand on, so a stage keeps its day', () => {
+    const saved = [
+      { lat: 47, lng: 11, role: 'start' as const, sequence: 0, key: 'k-start' },
+      { lat: 47.002, lng: 11, role: 'via' as const, sequence: 1, key: 'k-hut', stage_end: true },
+      { lat: 47.004, lng: 11, role: 'end' as const, sequence: 2, key: 'k-end' },
+    ];
+    const repointed = repointedWaypoints(
+      [START, { lat: 47.002, lng: 11, stage_end: true }, { lat: 47.006, lng: 11 }],
+      saved,
+    );
+    expect(repointed.map((point) => [point.key, point.stage_end])).toEqual([
+      ['k-start', undefined],
+      ['k-hut', true],
+      [undefined, undefined],
+    ]);
   });
 });

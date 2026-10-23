@@ -15,6 +15,7 @@ import { hikeScheduleSchema, hikeWarningSchema, HIKE_WARNING_KINDS } from './hik
 import { includeGeometryFlagSchema } from './tour-display.schema';
 import { tourGpxImportFieldsSchema } from './tour-gpx-import.schema';
 import { tourPoiCategorySchema, type TourPoiCategory } from './tour-poi-category';
+import { tourStageIssues } from './tour-stages';
 import {
   hikingPreferencesSchema,
   plannedTourDurationMinutesSchema,
@@ -54,13 +55,56 @@ export const HIKE_ALONG_MAX = 12;
 /** The largest GPX text a tool takes in, as the road trip's GPX import does. */
 export const TOUR_GPX_TEXT_MAX = 1_000_000;
 
+/**
+ * A point of a hike the assistant plans: the planning point, and on a hike
+ * over several days whether a day's stage ends there (MDT-01), where the
+ * night is spent and the next stage starts.
+ */
+const hikeStopSchema = hikePlanPointSchema
+  .extend({
+    stage_end: z
+      .boolean()
+      .optional()
+      .describe(
+        'On a hike over several days: true on the point where a day ends (the hut or village the night is spent at), where the next stage starts. Only on points between the start and the end; leave it out on a day hike',
+      ),
+  })
+  .strict();
+export type HikeStop = z.infer<typeof hikeStopSchema>;
+
 const hikeWaypointsSchema = z
-  .array(hikePlanPointSchema)
+  .array(hikeStopSchema)
   .min(2)
   .max(HIKE_MAX_WAYPOINTS)
   .describe(
-    'The points the hike goes through in order: its start, the points on the way (a hut, a summit, a lake) and its end. For a round trip leave the end out and set round_trip',
+    'The points the hike goes through in order: its start, the points on the way (a hut, a summit, a lake) and its end. For a round trip leave the end out and set round_trip. A hike over several days marks the stop of each night with stage_end',
   );
+
+/**
+ * Where a hike's stage ends do not hold, as the tour's own rules read them
+ * (`tourStageIssues`): never at the start or the end, at most MAX_TOUR_STAGES
+ * stages. A round trip comes back to its start, so its last point given is a
+ * stop on the way.
+ */
+export function hikeStageIssues(
+  points: readonly Pick<HikeStop, 'lat' | 'lng' | 'stage_end'>[],
+  roundTrip: boolean | undefined,
+): ReturnType<typeof tourStageIssues> {
+  const last = roundTrip === true ? points.length : points.length - 1;
+  return tourStageIssues(
+    points.map((point, index) => ({
+      role: index === 0 ? ('start' as const) : index === last ? ('end' as const) : ('via' as const),
+      stage_end: point.stage_end,
+    })),
+  );
+}
+
+function refineStages(value: { waypoints?: readonly HikeStop[]; round_trip?: boolean }, ctx: z.RefinementCtx): void {
+  if (!value.waypoints) return;
+  for (const issue of hikeStageIssues(value.waypoints, value.round_trip)) {
+    ctx.addIssue({ code: 'custom', path: issue.path, message: issue.message });
+  }
+}
 
 const hikeLimitSchema = tourMaxHikingDifficultySchema.describe(
   'The hardest SAC grade the way may take, 1 (T1, hiking) to 6 (T6, difficult alpine hiking); 2 (T2, mountain hiking) when left out',
@@ -114,7 +158,8 @@ export const hikeProposeRequestSchema = z
       ),
     include_geometry: includeGeometryFlagSchema,
   })
-  .strict();
+  .strict()
+  .superRefine(refineStages);
 export type HikeProposeRequest = z.infer<typeof hikeProposeRequestSchema>;
 
 /** Whether the way was planned, and why not: the plan's reasons, with the point no way reaches. */
@@ -175,6 +220,8 @@ export const hikeProposalWaypointSchema = z.object({
   minutes: z.number().int().nonnegative().nullable(),
   /** When it is reached, HH:MM; null without a start. */
   arrival: clockTimeSchema.nullable(),
+  /** Whether a day's stage ends here, on a hike over several days. */
+  stage_end: z.boolean(),
 });
 export type HikeProposalWaypoint = z.infer<typeof hikeProposalWaypointSchema>;
 
@@ -240,7 +287,8 @@ export const hikeCreateRequestSchema = z
       .optional()
       .describe('When the hike starts on that day, HH:MM, kept as the start of its visit; only with day_id'),
   })
-  .strict();
+  .strict()
+  .superRefine(refineStages);
 export type HikeCreateRequest = z.infer<typeof hikeCreateRequestSchema>;
 
 export const tourUpdateRequestSchema = z
@@ -260,7 +308,8 @@ export const tourUpdateRequestSchema = z
     hiking_preferences: hikePreferencesSchema.optional(),
     planned_duration_minutes: plannedMinutesSchema.optional(),
   })
-  .strict();
+  .strict()
+  .superRefine(refineStages);
 export type TourUpdateRequest = z.infer<typeof tourUpdateRequestSchema>;
 
 /**

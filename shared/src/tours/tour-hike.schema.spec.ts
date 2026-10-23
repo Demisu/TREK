@@ -4,6 +4,7 @@ import {
   HIKE_MAX_WAYPOINTS,
   HIKE_PROPOSAL_SAC_SEGMENTS,
   hikeCreateRequestSchema,
+  hikeStageIssues,
   hikeProposalSchema,
   hikeProposeRequestSchema,
   hikeRouteOutcomeSchema,
@@ -50,6 +51,7 @@ const proposal = {
       snapped_m: 12,
       minutes: 0,
       arrival: '08:30',
+      stage_end: false,
     },
     {
       lat: 47.41,
@@ -60,6 +62,7 @@ const proposal = {
       snapped_m: 4,
       minutes: 200,
       arrival: '11:50',
+      stage_end: false,
     },
   ],
   along: [{ name: 'Hut', category: 'shelter', lat: 47.405, lng: 11.101, at_m: 4100, off_m: 40 }],
@@ -235,5 +238,27 @@ describe('a hike created, changed or taken in from a file over MCP', () => {
     expect(tourGpxImportRequestSchema.safeParse({ gpx: 'x'.repeat(TOUR_GPX_TEXT_MAX + 1) }).success).toBe(false);
     expect(tourGpxImportRequestSchema.safeParse({ gpx: '<gpx/>', file_name: 'x'.repeat(201) }).success).toBe(false);
     expect(Object.keys(tourGpxImportRequestSchema.shape)).toContain('tour_type');
+  });
+});
+
+describe('a hike over several days', () => {
+  const three = [point(0), { ...point(1), stage_end: true }, point(2)];
+
+  it('TOUR-HIKE-SCHEMA-010: takes a stage end on a stop between start and end, in a proposal, a create and a change', () => {
+    expect(hikeProposeRequestSchema.safeParse({ name: 'Trek', waypoints: three }).success).toBe(true);
+    expect(hikeCreateRequestSchema.safeParse({ name: 'Trek', waypoints: three }).success).toBe(true);
+    expect(tourUpdateRequestSchema.safeParse({ placeId: 4, expected_revision: 2, waypoints: three }).success).toBe(
+      true,
+    );
+  });
+
+  it('TOUR-HIKE-SCHEMA-011: refuses a stage end at the start or the end; the last point given of a round trip is a stop on the way', () => {
+    const atStart = [{ ...point(0), stage_end: true }, point(1)];
+    const atEnd = [point(0), { ...point(1), stage_end: true }];
+    expect(hikeProposeRequestSchema.safeParse({ name: 'X', waypoints: atStart }).success).toBe(false);
+    expect(hikeCreateRequestSchema.safeParse({ name: 'X', waypoints: atEnd }).success).toBe(false);
+    expect(hikeProposeRequestSchema.safeParse({ name: 'X', waypoints: atEnd, round_trip: true }).success).toBe(true);
+    expect(hikeStageIssues(atEnd, false).map((issue) => issue.path)).toEqual([['waypoints', 1, 'stage_end']]);
+    expect(hikeStageIssues(atEnd, true)).toEqual([]);
   });
 });

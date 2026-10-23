@@ -202,8 +202,8 @@ function proposalFor(asked: HikeProposeRequest): HikeProposal {
     sac: { segments: [{ from_m: 0, to_m: 1112, sac: 2 }], highest: 2, unknown_share: 0 },
     high_point: { lat: 47.61, lng: 11.3, ele_m: 880, at_m: 1112 },
     waypoints: [
-      { ...WAYPOINTS[0], poi_category: null, at_m: 0, snapped_m: 2, minutes: 0, arrival: null },
-      { ...WAYPOINTS[1], at_m: 1112, snapped_m: 3, minutes: 22, arrival: null },
+      { ...WAYPOINTS[0], poi_category: null, at_m: 0, snapped_m: 2, minutes: 0, arrival: null, stage_end: false },
+      { ...WAYPOINTS[1], at_m: 1112, snapped_m: 3, minutes: 22, arrival: null, stage_end: false },
     ],
     along: null,
     max_hiking_difficulty: 2,

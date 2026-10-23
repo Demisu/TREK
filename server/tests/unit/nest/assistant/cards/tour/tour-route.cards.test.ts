@@ -180,6 +180,16 @@ describe('the card of a proposed hike', () => {
     expect(shown.warnings).toEqual([{ kind: 'thunder', at: '08:00', count: null }]);
   });
 
+  it('ASTCARD-TOUR-001b: a hike over several days counts its stages and marks the stops they end at', () => {
+    const base = proposal();
+    const [start, summit] = base.waypoints as Array<Record<string, unknown>>;
+    const hut = { ...start, lat: 47.605, name: 'Hut', at_m: 556, minutes: 11, arrival: '08:11', stage_end: true };
+    const shown = route(answerCardOf(...input('propose_hike', { ...base, waypoints: [start, hut, summit] })));
+    expect(shown.stages).toBe(2);
+    expect(shown.stops.filter((stop) => stop.stageEnd).map((stop) => stop.name)).toEqual(['Hut']);
+    expect(route(answerCardOf(...input('propose_hike', proposal()))).stages).toBeNull();
+  });
+
   it('ASTCARD-TOUR-002: lists the points and the places along the way in the order walked, timed between', () => {
     const shown = route(answerCardOf(...input('propose_hike', proposal())));
     expect(shown.stops.map((stop) => [stop.role, stop.kind, stop.atM, stop.minutes, stop.clock])).toEqual([

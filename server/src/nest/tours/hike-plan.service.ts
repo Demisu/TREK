@@ -29,6 +29,7 @@ import {
   HIKE_ALONG_CATEGORIES,
   HIKE_ALONG_CORRIDOR_M,
   HIKE_PLAN_MAX_WAYPOINTS,
+  hikeStageIssues,
   hikingPreferencesOf,
   TOUR_POI_MAX_LINE_POINTS,
   tourGpxImportFieldsSchema,
@@ -37,6 +38,7 @@ import {
   type HikeAlongPlace,
   type HikeCreateRequest,
   type HikePlanPoint,
+  type HikeStop,
   type HikeProposal,
   type HikeProposeRequest,
   type HikingPreferences,
@@ -109,12 +111,19 @@ const HAND_DRAWN =
  * ends of its stages would go with the points they belong to, and a stage
  * that goes would leave its day. Null where new points take nothing away.
  */
-function repointingRefusal(saved: readonly TourWaypoint[]): string | null {
+function repointingRefusal(saved: readonly TourWaypoint[], points: readonly HikeStop[]): string | null {
   if (saved.some((point) => point.fixed_leg)) return HAND_DRAWN;
-  if (saved.some((point) => point.stage_end)) {
-    return 'This hike is split into stages over several days, which new points would end: change its points in the planner. A new limit or new preferences plan it anew here, its stages kept.';
+  // New points carry the stages of the hike themselves; without any, its stages would silently end.
+  if (saved.some((point) => point.stage_end) && !points.some((point) => point.stage_end)) {
+    return 'This hike is split into stages over several days: give stage_end again on each stop a day ends at, or the stages would end. A new limit or new preferences alone plan it anew here, its stages kept.';
   }
   return null;
+}
+
+/** Stage ends that do not hold (at the start or the end, too many stages): refused with their reason. */
+function refuseBadStages(points: readonly HikeStop[], roundTrip: boolean | undefined): void {
+  const issues = hikeStageIssues(points, roundTrip);
+  if (issues.length > 0) throw badRequest(issues.map((issue) => issue.message).join('; '));
 }
 
 /**
@@ -165,6 +174,7 @@ export class HikePlanService {
    * best effort: without them the proposal still answers.
    */
   async propose(userId: number, tripId: number, request: HikeProposeRequest): Promise<HikeProposal> {
+    refuseBadStages(request.waypoints, request.round_trip);
     const day = await this.dayOf(tripId, request.day_id, request.date);
     const points = hikePointsOf(request.waypoints, request.round_trip);
     const { max_hiking_difficulty: limit, hiking_preferences: preferences } = request;
@@ -231,6 +241,7 @@ export class HikePlanService {
    * drop onto the day tell it.
    */
   async create(userId: number, tripId: number, request: HikeCreateRequest): Promise<HikeCreated> {
+    refuseBadStages(request.waypoints, request.round_trip);
     const day = request.day_id === undefined ? null : await this.dayOf(tripId, request.day_id, undefined);
     const points = hikePointsOf(request.waypoints, request.round_trip);
     const { max_hiking_difficulty: limit, hiking_preferences: preferences } = request;
@@ -295,7 +306,8 @@ export class HikePlanService {
         'This hike is a recorded track without points of its own: give waypoints to plan it over (the recorded track is kept), or rename it with update_place.',
       );
     }
-    const repointing = request.waypoints ? repointingRefusal(saved.waypoints) : null;
+    if (request.waypoints) refuseBadStages(request.waypoints, false);
+    const repointing = request.waypoints ? repointingRefusal(saved.waypoints, request.waypoints) : null;
     if (repointing) throw badRequest(repointing);
     const kept = hikingPreferencesOf(tour.hiking_preferences);
     // A recorded track keeps no limit of its own; planned over, it takes the planner's.
