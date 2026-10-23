@@ -61,6 +61,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'Západ slnka {time}',
   'assistant.card.tour.nextDay': 'ďalší deň',
   'assistant.card.tour.latestStart': 'Vyraz najneskôr o {time}, aby si skončil pred západom slnka',
+  'assistant.card.tour.latestStartShort': 'Vyraziť do {time}',
   'assistant.card.tour.climate': 'Typické počasie pre dátum, zatiaľ bez predpovede',
   'assistant.card.tour.weatherNear': 'Počasie pri najvyššom bode',
   'assistant.card.tour.warn.thunder': 'Možné búrky od {time}',

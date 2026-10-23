@@ -59,6 +59,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'Δύση {time}',
   'assistant.card.tour.nextDay': 'την επόμενη μέρα',
   'assistant.card.tour.latestStart': 'Ξεκίνα έως τις {time} για να τελειώσεις πριν τη δύση',
+  'assistant.card.tour.latestStartShort': 'Αναχώρηση έως {time}',
   'assistant.card.tour.climate': 'Τυπικός καιρός για την ημερομηνία, χωρίς πρόγνωση ακόμη',
   'assistant.card.tour.weatherNear': 'Καιρός κοντά στο υψηλότερο σημείο',
   'assistant.card.tour.warn.thunder': 'Πιθανές καταιγίδες από τις {time}',

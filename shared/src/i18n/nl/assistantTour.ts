@@ -59,6 +59,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'Zonsondergang {time}',
   'assistant.card.tour.nextDay': 'volgende dag',
   'assistant.card.tour.latestStart': 'Vertrek uiterlijk om {time} om voor zonsondergang klaar te zijn',
+  'assistant.card.tour.latestStartShort': 'Vertrek uiterlijk {time}',
   'assistant.card.tour.climate': 'Gebruikelijk weer voor deze datum, nog geen verwachting',
   'assistant.card.tour.weatherNear': 'Weer bij het hoogste punt',
   'assistant.card.tour.warn.thunder': 'Kans op onweer vanaf {time}',

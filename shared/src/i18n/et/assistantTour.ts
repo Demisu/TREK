@@ -59,6 +59,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'Päikeseloojang {time}',
   'assistant.card.tour.nextDay': 'järgmisel päeval',
   'assistant.card.tour.latestStart': 'Alusta hiljemalt {time}, et jõuda enne päikeseloojangut',
+  'assistant.card.tour.latestStartShort': 'Start hiljemalt {time}',
   'assistant.card.tour.climate': 'Kuupäevale tüüpiline ilm, prognoosi veel pole',
   'assistant.card.tour.weatherNear': 'Ilm kõrgeima punkti lähedal',
   'assistant.card.tour.warn.thunder': 'Äike võimalik alates {time}',

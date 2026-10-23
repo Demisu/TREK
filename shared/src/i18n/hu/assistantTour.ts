@@ -59,6 +59,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'Napnyugta {time}',
   'assistant.card.tour.nextDay': 'másnap',
   'assistant.card.tour.latestStart': 'Indulj legkésőbb {time}-kor, hogy napnyugta előtt végezz',
+  'assistant.card.tour.latestStartShort': 'Indulás legkésőbb {time}',
   'assistant.card.tour.climate': 'A dátumra jellemző időjárás, még nincs előrejelzés',
   'assistant.card.tour.weatherNear': 'Időjárás a legmagasabb pont közelében',
   'assistant.card.tour.warn.thunder': 'Zivatar lehetséges {time}-tól',

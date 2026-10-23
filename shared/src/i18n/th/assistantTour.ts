@@ -57,6 +57,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'พระอาทิตย์ตก {time}',
   'assistant.card.tour.nextDay': 'วันถัดไป',
   'assistant.card.tour.latestStart': 'ออกเดินภายใน {time} เพื่อให้เสร็จก่อนพระอาทิตย์ตก',
+  'assistant.card.tour.latestStartShort': 'ออกเดินก่อน {time}',
   'assistant.card.tour.climate': 'สภาพอากาศตามปกติของวันนี้ ยังไม่มีพยากรณ์',
   'assistant.card.tour.weatherNear': 'สภาพอากาศใกล้จุดสูงสุด',
   'assistant.card.tour.warn.thunder': 'อาจมีพายุฝนฟ้าคะนองตั้งแต่ {time}',

@@ -377,7 +377,7 @@ describe('TourRouteCard', () => {
   it('FE-AI-TOUR-042: the day shows the latest start when none is set, and the walk in the dark in red', () => {
     const schedule = HIKE.schedule as NonNullable<Route['schedule']>;
     renderCard({ ...HIKE, schedule: { ...schedule, start: null, arrive: null, latestStart: '10:30' } });
-    expect(screen.getByText('Start by 10:30 to finish before sunset')).toBeInTheDocument();
+    expect(screen.getByText('Start by 10:30')).toBeInTheDocument();
 
     const { container } = renderCard({
       ...HIKE,
@@ -385,6 +385,6 @@ describe('TourRouteCard', () => {
       schedule: { ...schedule, start: '06:00', arrive: '19:00', latestStart: '10:30' },
     });
     expect(container.querySelectorAll('[data-testid="tour-day"] .bg-danger')).toHaveLength(2);
-    expect(screen.getAllByText('Start by 10:30 to finish before sunset')).toHaveLength(1);
+    expect(screen.getAllByText('Start by 10:30')).toHaveLength(1);
   });
 });

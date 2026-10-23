@@ -57,6 +57,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': '日落{time}',
   'assistant.card.tour.nextDay': '次日',
   'assistant.card.tour.latestStart': '最晚{time}出发，才能在日落前走完',
+  'assistant.card.tour.latestStartShort': '最晚 {time} 出发',
   'assistant.card.tour.climate': '该日期的典型天气，暂无预报',
   'assistant.card.tour.weatherNear': '最高点附近的天气',
   'assistant.card.tour.warn.thunder': '{time}起可能有雷暴',

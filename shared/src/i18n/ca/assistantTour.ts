@@ -59,6 +59,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'Posta de sol {time}',
   'assistant.card.tour.nextDay': 'l’endemà',
   'assistant.card.tour.latestStart': 'Surt abans de les {time} per acabar abans de la posta de sol',
+  'assistant.card.tour.latestStartShort': 'Sortida abans de les {time}',
   'assistant.card.tour.climate': 'Temps típic per a la data, encara sense previsió',
   'assistant.card.tour.weatherNear': 'Temps a prop del punt més alt',
   'assistant.card.tour.warn.thunder': 'Possibles tempestes a partir de les {time}',

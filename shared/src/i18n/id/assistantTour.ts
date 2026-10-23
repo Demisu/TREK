@@ -57,6 +57,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'Matahari terbenam {time}',
   'assistant.card.tour.nextDay': 'hari berikutnya',
   'assistant.card.tour.latestStart': 'Mulai paling lambat {time} agar selesai sebelum matahari terbenam',
+  'assistant.card.tour.latestStartShort': 'Berangkat paling lambat {time}',
   'assistant.card.tour.climate': 'Cuaca khas untuk tanggal ini, belum ada prakiraan',
   'assistant.card.tour.weatherNear': 'Cuaca di dekat titik tertinggi',
   'assistant.card.tour.warn.thunder': 'Kemungkinan badai petir mulai {time}',

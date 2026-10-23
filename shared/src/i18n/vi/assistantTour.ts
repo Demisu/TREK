@@ -57,6 +57,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'Mặt trời lặn {time}',
   'assistant.card.tour.nextDay': 'ngày hôm sau',
   'assistant.card.tour.latestStart': 'Xuất phát muộn nhất lúc {time} để xong trước khi mặt trời lặn',
+  'assistant.card.tour.latestStartShort': 'Xuất phát trước {time}',
   'assistant.card.tour.climate': 'Thời tiết thường gặp vào ngày này, chưa có dự báo',
   'assistant.card.tour.weatherNear': 'Thời tiết gần điểm cao nhất',
   'assistant.card.tour.warn.thunder': 'Có thể có giông từ {time}',

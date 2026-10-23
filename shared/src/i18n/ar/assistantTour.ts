@@ -67,6 +67,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'الغروب {time}',
   'assistant.card.tour.nextDay': 'اليوم التالي',
   'assistant.card.tour.latestStart': 'انطلق قبل {time} لتنتهي قبل الغروب',
+  'assistant.card.tour.latestStartShort': 'الانطلاق قبل {time}',
   'assistant.card.tour.climate': 'طقس معتاد لهذا التاريخ، لا توقعات بعد',
   'assistant.card.tour.weatherNear': 'الطقس قرب أعلى نقطة',
   'assistant.card.tour.warn.thunder': 'عواصف رعدية محتملة من {time}',

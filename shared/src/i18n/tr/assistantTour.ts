@@ -59,6 +59,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'Gün batımı {time}',
   'assistant.card.tour.nextDay': 'ertesi gün',
   'assistant.card.tour.latestStart': 'Gün batımından önce bitirmek için en geç {time} yola çık',
+  'assistant.card.tour.latestStartShort': 'En geç {time} başla',
   'assistant.card.tour.climate': 'Bu tarih için tipik hava, henüz tahmin yok',
   'assistant.card.tour.weatherNear': 'En yüksek nokta yakınındaki hava',
   'assistant.card.tour.warn.thunder': '{time} itibarıyla gök gürültülü fırtına olası',

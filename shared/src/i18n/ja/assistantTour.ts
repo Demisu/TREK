@@ -57,6 +57,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': '日の入り{time}',
   'assistant.card.tour.nextDay': '翌日',
   'assistant.card.tour.latestStart': '日没前に終えるには{time}までに出発',
+  'assistant.card.tour.latestStartShort': '{time}までに出発',
   'assistant.card.tour.climate': 'この日付の平年の天気、予報はまだありません',
   'assistant.card.tour.weatherNear': '最高地点付近の天気',
   'assistant.card.tour.warn.thunder': '{time}から雷雨の恐れ',

@@ -63,6 +63,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'Закат {time}',
   'assistant.card.tour.nextDay': 'на следующий день',
   'assistant.card.tour.latestStart': 'Выйдите не позже {time}, чтобы закончить до заката',
+  'assistant.card.tour.latestStartShort': 'Выход до {time}',
   'assistant.card.tour.climate': 'Обычная погода для этой даты, прогноза пока нет',
   'assistant.card.tour.weatherNear': 'Погода у высшей точки',
   'assistant.card.tour.warn.thunder': 'Возможны грозы с {time}',

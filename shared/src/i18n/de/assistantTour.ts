@@ -59,6 +59,7 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.sunset': 'Sonnenuntergang {time}',
   'assistant.card.tour.nextDay': 'am nächsten Tag',
   'assistant.card.tour.latestStart': 'Spätestens um {time} losgehen, um vor Sonnenuntergang fertig zu sein',
+  'assistant.card.tour.latestStartShort': 'Start spätestens {time}',
   'assistant.card.tour.climate': 'Typisches Wetter für das Datum, noch keine Vorhersage',
   'assistant.card.tour.weatherNear': 'Wetter nahe dem höchsten Punkt',
   'assistant.card.tour.warn.thunder': 'Gewitter möglich ab {time}',
