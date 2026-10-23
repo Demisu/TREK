@@ -1,5 +1,7 @@
 import type { AutoEntry, AutoPhoto } from '../auto/auto-types';
-import type { BookElement, BookFrame, BookSpread } from '../book.schema';
+import { bookEntryListItems, bookTravelList, bookTravelMap, bookTravelSize } from '../book-travel';
+import type { BookElement, BookFrame, BookSpread, BookTextElement } from '../book.schema';
+import type { JourneyStats } from '../journey-stats.schema';
 import {
   bleedPage,
   bleedSpread,
@@ -26,13 +28,17 @@ import { paperBackground } from './design-style';
  * quiet page for a long story, two, three and four to six photos, and a
  * panorama across the fold. Each takes the photos the plan gave it and the
  * page (left or right) its photos lead on, and hands back the elements and
- * whatever of the story it could not set.
+ * whatever of the story it could not set. An entry's pros and cons go under
+ * its words where they leave room: on the opener, the panorama or a quiet
+ * page, which also sets them beside its photo when it has no words.
  */
 
 export interface Composed {
   elements: BookElement[];
   /** The part of the story still to be set, for the next quiet page. */
   rest: string;
+  /** Whether the entry's pros and cons were set on this page. */
+  listed?: boolean;
 }
 
 type Hand = 'left' | 'right';
@@ -89,6 +95,35 @@ function cellsFor(photos: readonly AutoPhoto[], box: BookFrame, g: number, room:
   return [frameOf(box.x, box.y, box.w, top), frameOf(box.x, y2, w, low), frameOf(box.x + w + g, y2, w, low)];
 }
 
+/** Where a column has room left: from under the words set in it (a gutter apart) to its foot. */
+interface Foot {
+  x: number;
+  w: number;
+  top: number;
+  bottom: number;
+}
+
+function footUnder(c: ComposeCtx, words: BookTextElement | null, column: BookFrame): Foot {
+  const top = words ? words.frame.y + words.frame.h + c.grid.gutter : column.y;
+  return { x: column.x, w: column.w, top, bottom: column.y + column.h };
+}
+
+/**
+ * An entry's pros and cons as a list in the room under its words, headed in
+ * the book's language and set in its look; null when the entry has none or
+ * the room is too small. The words are never moved for it.
+ */
+function listUnder(c: ComposeCtx, entry: AutoEntry, foot: Foot): BookElement | null {
+  const items = bookEntryListItems(entry);
+  if (!items.length) return null;
+  const pros = items.filter((i) => i.tone === 'pro').length;
+  const { h } = bookTravelSize('list', c.page, { rows: Math.max(pros, items.length - pros) });
+  if (foot.top + h > foot.bottom) return null;
+  const labels = { pros: c.travel.labels.pros, cons: c.travel.labels.cons };
+  const list = bookTravelList(labels, { id: c.newId('li'), frame: frameOf(foot.x, foot.top, foot.w, h), items });
+  return { ...list, font: c.look.heading, color: c.look.ink, accent: c.look.accent };
+}
+
 /**
  * The chapter opens: the title block and the story on one page, a photo to
  * the bleed on the other. Without a photo the story runs on across both pages.
@@ -108,57 +143,46 @@ export function composeOpener(c: ComposeCtx, entry: AutoEntry, photo: AutoPhoto 
   const first = storyEl(c, entry, (entry.story ?? '').trim(), storyBox, true);
   if (first.el) els.push(first.el);
   let rest = first.el ? first.rest : (entry.story ?? '').trim();
+  let foot = footUnder(c, first.el, storyBox);
   if (photo) {
     els.unshift(photoEl(c, photo, bleedPage(c, hand), { bleed: { side: hand } }));
   } else if (rest) {
-    const next = storyEl(c, entry, rest, liveBox(c, 'right'), false);
-    if (next.el) els.push(next.el);
+    const right = liveBox(c, 'right');
+    const next = storyEl(c, entry, rest, right, false);
+    if (next.el) {
+      els.push(next.el);
+      foot = footUnder(c, next.el, right);
+    }
     rest = next.el ? next.rest : rest;
   }
-  return { elements: els, rest };
+  const list = listUnder(c, entry, foot);
+  if (list) els.push(list);
+  return { elements: els, rest, listed: list !== null };
 }
 
-/** A small map of the chapter's stop at the foot of the title page, when the directives ask for one. */
+/** The trip a chapter's stop is on: the stop read from its entry, else the one at its place; null for none. */
+export function tripOf(stats: JourneyStats, entry: AutoEntry): number | null {
+  const own = stats.points.find((p) => p.entryId === entry.id);
+  const stop = own ?? stats.points.find((p) => p.lat === entry.lat && p.lng === entry.lng);
+  return stop?.tripId ?? null;
+}
+
+/**
+ * A small map of the chapter's trip at the foot of the title page, when the
+ * directives ask for one. A stored map is of the journey or of one trip, so a
+ * map of the trip is current when placed and stays the trip's when refreshed;
+ * a stop on no trip gets none (the journey's map is the summary's).
+ */
 function chapterMap(c: ComposeCtx, entry: AutoEntry, box: BookFrame): BookElement | null {
   const stats = c.travel.stats;
-  if (!c.directives.travel?.chapterMaps || !stats || entry.lat == null || entry.lng == null) return null;
+  if (!c.directives.travel?.chapterMaps || !stats) return null;
+  const tripId = tripOf(stats, entry);
+  if (tripId === null) return null;
   const h = box.h * 0.3;
-  const point = { lat: entry.lat, lng: entry.lng, label: (entry.location ?? '').slice(0, 120), photoId: null };
-  return {
-    id: c.newId('mp'),
-    kind: 'map',
-    frame: frameOf(box.x, box.y + box.h - h, box.w, h),
-    rotation: 0,
-    opacity: 1,
-    locked: false,
-    font: c.look.heading,
-    color: c.look.ink,
-    accent: c.look.accent,
-    textScale: 1,
-    weight: 700,
-    stale: false,
-    source: 'vector',
-    tileUrl: '',
-    attribution: '',
-    zoom: null,
-    style: c.look.mapStyle,
-    showLand: true,
-    showRoute: false,
-    showPins: true,
-    showLabels: false,
-    routeStyle: 'plain',
-    routeArc: 'straight',
-    routeDash: 'solid',
-    pinStyle: 'dot',
-    countries: entry.country ? [entry.country] : [],
-    points: [point],
-    path: [],
-    roads: [],
-    fitPadding: 0.5,
-    fitToCountries: true,
-    clip: 'rect',
-    tripId: null,
-  };
+  const frame = frameOf(box.x, box.y + box.h - h, box.w, h);
+  const map = bookTravelMap(c.travel, stats, { id: c.newId('mp'), frame, scope: { tripId } });
+  const look = { style: c.look.mapStyle, font: c.look.heading, color: c.look.ink, accent: c.look.accent };
+  return { ...map, ...look, pinStyle: 'dot' };
 }
 
 /**
@@ -178,13 +202,19 @@ export function composeHero(c: ComposeCtx, entry: AutoEntry, photo: AutoPhoto, h
   return { elements: els, rest: (entry.story ?? '').trim() };
 }
 
-/** A long story's next page: the words in a narrow column, a photo on the other page when there is one. */
+/**
+ * A long story's next page: the words in a narrow column, a photo on the
+ * other page when there is one, and the pros and cons of `list` (the
+ * chapter's entry, when they have not found a page yet) under the words, or
+ * at the head of the column on a photo's page that sets none.
+ */
 export function composeQuiet(
   c: ComposeCtx,
   entry: AutoEntry | null,
   words: string,
   photo: AutoPhoto | null,
   hand: Hand,
+  list: AutoEntry | null = null,
 ): Composed {
   const textSide = photo ? other(hand) : 'left';
   const box = liveBox(c, textSide);
@@ -192,13 +222,17 @@ export function composeQuiet(
   const column = frameOf(box.x + inset, box.y, box.w - inset * 2, box.h);
   const els: BookElement[] = [];
   let rest = words;
+  let set: BookTextElement | null = null;
   if (entry && words) {
-    const set = storyEl(c, entry, words, column, false);
-    if (set.el) els.push(set.el);
-    rest = set.el ? set.rest : words;
+    const story = storyEl(c, entry, words, column, false);
+    set = story.el;
+    if (set) els.push(set);
+    rest = set ? story.rest : words;
   }
+  const pros = list ? listUnder(c, list, footUnder(c, set, column)) : null;
+  if (pros) els.push(pros);
   if (photo) els.push(...pagePhotos(c, [photo], hand, entry?.id ?? null));
-  return { elements: els, rest };
+  return { elements: els, rest, listed: pros !== null };
 }
 
 /** Two photos: one to the bleed of its page, the other framed on the facing page. */
@@ -251,6 +285,8 @@ export function composePano(
   const storyBox = frameOf(box.x, head.bottom + 2, box.w, box.y + box.h - head.bottom - 2);
   const set = storyEl(c, entry, (entry.story ?? '').trim(), storyBox, true);
   if (set.el) els.push(set.el);
+  const list = listUnder(c, entry, footUnder(c, set.el, storyBox));
+  if (list) els.push(list);
   const row = others.slice(0, 2);
   const cell = frameOf(pageX(c, hand) + m, top, PW - m * 2, H - m - top);
   const w = row.length > 1 ? (cell.w - g) / 2 : cell.w;
@@ -258,7 +294,7 @@ export function composePano(
     const frame = frameOf(cell.x + i * (w + g), cell.y, w, cell.h);
     els.push(photoEl(c, p, frame, { turn: turnOf(c, i) }));
   });
-  return { elements: els, rest: set.el ? set.rest : (entry.story ?? '').trim() };
+  return { elements: els, rest: set.el ? set.rest : (entry.story ?? '').trim(), listed: list !== null };
 }
 
 /** Whether a panorama can run across the top of the spread at print resolution. */

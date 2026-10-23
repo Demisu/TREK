@@ -4,8 +4,14 @@ import type { BookPhotoInfo } from './book-ops-core';
 import { BOOK_OP_LIMITS, bookPageDescriptionSchema, bookOverviewSchema, type BookFinding } from './book-ops.schema';
 import { blankBook } from './book-pages';
 import {
+  bookBadgeElementSchema,
+  bookCountriesElementSchema,
+  bookIconElementSchema,
+  bookListElementSchema,
+  bookMapElementSchema,
   bookPhotoElementSchema,
   bookShapeElementSchema,
+  bookStatsElementSchema,
   bookTextElementSchema,
   type BookDocument,
   type BookElement,
@@ -237,6 +243,87 @@ describe('describeSpread', () => {
     expect(d?.text).toMatch(/bound to journey\.title/);
     expect(d?.text).toMatch(/Parked off the page \(1\): photo 3/);
     expect(d?.elements[0]).toMatchObject({ id: 't-b', binding: 'journey.title', text: 'Iceland' });
+  });
+
+  it('BOOKDESC-024: says how a styled photo, a shape, an icon and every travel element are set', () => {
+    const f = (x: number, y: number) => ({ x, y, w: 40, h: 30 });
+    const els: BookElement[] = [
+      photo('p-s', 1, f(230, 10), { filter: 'bw', mask: 'ellipse', frameStyle: 'polaroid', radius: 2 }),
+      bookShapeElementSchema.parse({
+        id: 's-1',
+        kind: 'shape',
+        frame: f(280, 10),
+        gradient: 'down',
+        stroke: '#ff0000',
+        strokeWidth: 0.5,
+        strokeStyle: 'dashed',
+        radius: 2,
+        rotation: 5,
+        opacity: 0.5,
+        locked: true,
+      }) as BookElement,
+      bookIconElementSchema.parse({ id: 'ic-1', kind: 'icon', frame: f(330, 10), name: 'Compass' }) as BookElement,
+      bookMapElementSchema.parse({
+        id: 'm-1',
+        kind: 'map',
+        frame: f(230, 50),
+        tripId: 3,
+        path: [
+          [
+            [64.1, -21.9],
+            [64.2, -21.8],
+          ],
+          [[65.6, -18.1]],
+        ],
+      }) as BookElement,
+      bookMapElementSchema.parse({ id: 'm-2', kind: 'map', frame: f(280, 50) }) as BookElement,
+      bookStatsElementSchema.parse({
+        id: 'st-1',
+        kind: 'stats',
+        frame: f(330, 50),
+        metrics: ['distance', 'days'],
+        values: { distance: 1200 },
+        stale: true,
+      }) as BookElement,
+      bookCountriesElementSchema.parse({
+        id: 'c-1',
+        kind: 'countries',
+        frame: f(230, 90),
+        codes: ['IS', 'NO'],
+      }) as BookElement,
+      bookBadgeElementSchema.parse({
+        id: 'b-1',
+        kind: 'badge',
+        frame: f(280, 90),
+        text: '13',
+        sub: 'June',
+      }) as BookElement,
+      bookListElementSchema.parse({
+        id: 'l-1',
+        kind: 'list',
+        frame: f(330, 90),
+        items: [
+          { text: 'Hot springs', tone: 'pro' },
+          { text: 'Wind', tone: 'con' },
+        ],
+      }) as BookElement,
+    ];
+    const t = describeSpread(book(els), 'sp-in', gallery)?.text ?? '';
+    expect(t).toMatch(/1\. photo p-s .*, filter bw, mask ellipse, frame style polaroid, radius 2/);
+    expect(t).toMatch(
+      /2\. shape s-1 at .*: rect, fill #111827, fading down, stroke #ff0000 0\.5 mm dashed, radius 2; turned 5 deg, opacity 0\.5, locked/,
+    );
+    expect(t).toMatch(/3\. icon ic-1 at .*: icon Compass, #111827, line 2/);
+    expect(t).toMatch(
+      /4\. map m-1 at .*: minimal vector map of trip 3, 0 stops, 0 countries, a recorded track of 2 segments; sans bold, ink #1a1a1a, accent #111111, type x1/,
+    );
+    expect(t).toMatch(/5\. map m-2 at .*: minimal vector map of the whole journey, 0 stops, 0 countries; sans bold/);
+    expect(t).toMatch(
+      /6\. stats st-1 at .*: figures \(grid\): distance 1200, days 0; .*; its figures are out of date with the journey/,
+    );
+    expect(t).toMatch(/7\. countries c-1 at .*: 2 countries \(IS, NO\), list; /);
+    expect(t).toMatch(/8\. badge b-1 at .*: date mark "13" over "June", plain; /);
+    expect(t).toMatch(/9\. list l-1 at .*: list of 2 \(1 pros, 1 others\), columns; /);
   });
 });
 

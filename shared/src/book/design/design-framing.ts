@@ -1,3 +1,5 @@
+import { compareCodeUnits } from '../../common/compare';
+import { summaryMetrics } from '../auto/auto-book-spreads';
 import type { AutoEntry, AutoPhoto } from '../auto/auto-types';
 import { BOOK_COVER_TEMPLATES, applyBookTemplate } from '../book-layouts';
 import { formatBookDate } from '../book-text';
@@ -95,7 +97,7 @@ function withCoverTemplate(c: ComposeCtx, cover: BookSpread): BookSpread {
 /** The dates a journey ran, as two lines (the first day and the last), or none. */
 function spanLines(entries: readonly AutoEntry[], locale: string): string[] {
   const dated = entries.map((e) => e.date).filter((d): d is string => !!d);
-  const dates = [...dated].sort();
+  const dates = [...dated].sort(compareCodeUnits);
   const first = dates[0];
   const last = dates[dates.length - 1];
   if (!first || !last) return [];
@@ -131,22 +133,10 @@ export function composeTitlePage(c: ComposeCtx, words: CoverWords, entries: read
   return single(c, 'first', els);
 }
 
-/** The figures worth printing: the ones asked for, else everything the journey actually has, at most six. */
+/** The figures worth printing: the ones asked for, else the Auto layout's (all the journey has, at most six). */
 function metricsOf(c: ComposeCtx, stats: JourneyStats): BookMetric[] {
   const asked = c.directives.travel?.metrics;
-  if (asked) return [...asked];
-  const all: [BookMetric, number][] = [
-    ['distance', stats.distance],
-    ['days', stats.days],
-    ['steps', stats.steps],
-    ['photos', stats.photos],
-    ['countries', stats.countries.length],
-    ['furthest', stats.furthest],
-  ];
-  return all
-    .filter(([, v]) => v > 0)
-    .map(([k]) => k)
-    .slice(0, 6);
+  return asked ? [...asked] : summaryMetrics(stats);
 }
 
 /** A label over a page: small, in the ink, with a rule in the accent above it. */

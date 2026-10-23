@@ -1,3 +1,4 @@
+import { compareCodeUnits } from '../../common/compare';
 import { formatBookDate } from '../book-text';
 import {
   MAX_PATH_POINTS,
@@ -153,7 +154,7 @@ function formatKm(metres: number, locale: string): string {
 }
 
 /** Which figures are worth the space: everything the journey actually has, at most six. */
-function summaryMetrics(stats: JourneyStats): BookMetric[] {
+export function summaryMetrics(stats: JourneyStats): BookMetric[] {
   const all: [BookMetric, number][] = [
     ['distance', stats.distance],
     ['days', stats.days],
@@ -262,7 +263,7 @@ export function backSpread(input: AutoInput, newId: NewId): BookSpread {
   const dates = input.entries
     .map((e) => e.date)
     .filter((d): d is string => !!d)
-    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+    .sort(compareCodeUnits);
   const first = dates[0];
   const last = dates[dates.length - 1];
   const ends = first && last ? [formatBookDate(first, input.locale), formatBookDate(last, input.locale)] : [];

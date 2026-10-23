@@ -1,5 +1,8 @@
+import type { AutoEntry, AutoPhoto } from '../auto/auto-types';
 import { bookLevelFindings } from '../book-findings-design';
+import type { BookPhotoInfo } from '../book-ops-core';
 import { blankBook } from '../book-pages';
+import { isStale } from '../book-travel';
 import {
   MAX_SPREADS,
   MAX_SPREAD_ELEMENTS,
@@ -7,11 +10,16 @@ import {
   bookTextElementSchema,
   type BookDocument,
   type BookElement,
+  type BookListElement,
+  type BookMapElement,
   type BookSpread,
 } from '../book.schema';
 import { pageFindings } from '../describe-spread';
+import type { PhotoPickCandidate } from '../photo-pick';
 import { designBook, type BookDesignInput, type BookDesignResult } from './design-book';
-import type { BookDesignDirectivesInput } from './design-directives.schema';
+import { bookDesignDirectivesSchema, type BookDesignDirectivesInput } from './design-directives.schema';
+import { newRhythm, planChapter, type DesignChapter } from './design-pacing';
+import { burstOf, type BookDesignLeftOut } from './design-photos';
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -23,11 +31,16 @@ import { describe, expect, it } from 'vitest';
  * scope, chapters by day and by place, a palette from the photos, captions
  * and excerpts, chapter maps, a locked page kept. Each design is checked for
  * its structure (the framing in order, every chapter there, the rhythm, the
- * budget, the caps, a document the save route takes) and for being clean:
- * no severe and no warn finding left on any page or on the book.
+ * budget, the caps, a document the save route takes), for being clean (no
+ * severe and no warn finding left on any page or on the book) and for being
+ * current (no travel element out of date with the journey once placed).
+ * The pacing of a chapter (its bursts, the photo beats) is also read straight
+ * from the plan.
  */
 
 type Name = 'rich' | 'sparse' | 'nostats';
+/** A fixture journey, or the rich one with its stops on two trips. */
+type Journey = Name | 'rich-trips';
 
 const here = (file: string) => fileURLToPath(new URL(file, import.meta.url));
 const fixtures = JSON.parse(readFileSync(here('./design-book.fixtures.json'), 'utf8')) as Record<
@@ -36,12 +49,20 @@ const fixtures = JSON.parse(readFileSync(here('./design-book.fixtures.json'), 'u
 >;
 
 /** The journey with ids minted by a counter, so a design is the same every run. */
-function input(name: Name): BookDesignInput {
+function input(name: Journey): BookDesignInput {
   let n = 0;
-  return { ...fixtures[name].input, newId: (p) => `${p}-${++n}` };
+  const journey = name === 'rich-trips' ? withTrips(fixtures.rich.input) : fixtures[name].input;
+  return { ...journey, newId: (p) => `${p}-${++n}` };
 }
 
-const VARIANTS: [string, Name, BookDesignDirectivesInput][] = [
+/** The journey with its stops on two trips: the first four stops on trip 7, the others on trip 8. */
+function withTrips(journey: BookDesignInput): BookDesignInput {
+  if (!journey.stats) return journey;
+  const points = journey.stats.points.map((p) => ({ ...p, tripId: (p.entryId ?? 0) <= 4 ? 7 : 8 }));
+  return { ...journey, stats: { ...journey.stats, points } };
+}
+
+const VARIANTS: [string, Journey, BookDesignDirectivesInput][] = [
   ['minimal', 'rich', { style: 'minimal' }],
   ['editorial', 'rich', { style: 'editorial' }],
   ['journal', 'rich', { style: 'journal' }],
@@ -56,14 +77,13 @@ const VARIANTS: [string, Name, BookDesignDirectivesInput][] = [
   ['places', 'rich', { style: 'bold', chapters: 'place' }],
   ['palette', 'rich', { style: 'classic', palette: 'from_photos', type: { scale: 0.8 } }],
   ['captions', 'rich', { style: 'journal', text: { captions: 'photo', story: 'excerpt', excerptChars: 300 } }],
-  ['maps', 'rich', { style: 'editorial', travel: { chapterMaps: true, dayBadges: false } }],
+  ['maps', 'rich-trips', { style: 'editorial', travel: { chapterMaps: true, dayBadges: false } }],
   ['sparse', 'sparse', { style: 'scrapbook' }],
   ['sparse-all', 'sparse', { style: 'minimal', photos: { pick: 'all' } }],
   ['nostats', 'nostats', { style: 'editorial' }],
   ['nostats-a5', 'nostats', { style: 'bold', preset: 'a5-landscape' }],
 ];
 
-const FRAMING_ROLES = ['cover', 'first', 'last', 'back'];
 const inner = (doc: BookDocument) => doc.spreads.filter((s) => s.role === 'inner');
 const notInfo = (list: { severity: string }[]) => list.filter((f) => f.severity !== 'info');
 
@@ -89,7 +109,11 @@ function checkClean(result: BookDesignResult, photos: BookDesignInput['photos'])
   expect(notInfo(bookLevelFindings(result.doc))).toEqual([]);
 }
 
-/** A loud spread (a hero, a panorama) is followed by a calm one, and heroes are four spreads apart. */
+/**
+ * A loud spread (a hero, a panorama) is followed by a calm one, heroes are
+ * four spreads apart, and no photo beat (two, three or a grid) comes three
+ * spreads running.
+ */
 function checkRhythm(result: BookDesignResult): void {
   const beats = result.plan.filter((r) => r.action !== 'drop').map((r) => r.beat);
   const loud = (b: string) => b === 'hero' || b === 'pano';
@@ -100,6 +124,18 @@ function checkRhythm(result: BookDesignResult): void {
   heroes.forEach((at, i) => {
     if (i > 0) expect(at - (heroes[i - 1] as number)).toBeGreaterThanOrEqual(4);
   });
+  const photoBeat = (b: string) => b === 'duo' || b === 'trio' || b === 'grid';
+  beats.forEach((b, i) => {
+    if (i > 1 && photoBeat(b)) expect({ at: i, run: beats.slice(i - 2, i + 1) }).not.toEqual({ at: i, run: [b, b, b] });
+  });
+}
+
+/** Every travel element carries the journey's figures as they are: none is out of date the moment it is placed. */
+function checkCurrent(result: BookDesignResult, stats: BookDesignInput['stats']): void {
+  for (const spread of result.doc.spreads) {
+    const stale = spread.elements.filter((e) => isStale(e, stats)).map((e) => e.id);
+    expect({ spread: spread.id, stale }).toEqual({ spread: spread.id, stale: [] });
+  }
 }
 
 /** Every entry with something to show opens a spread of its own (or is listed among the stations). */
@@ -126,6 +162,7 @@ describe('design_book', () => {
       checkStructure(result);
       checkRhythm(result);
       checkClean(result, fx.photos);
+      checkCurrent(result, fx.stats);
     });
   }
 
@@ -286,6 +323,194 @@ describe('design_book', () => {
       expect(result.notes.length).toBeGreaterThan(0);
     }
   });
+
+  it('BOOKDSN-022: never sets one photo beat three spreads running, a rich chapter of sixteen photos included', () => {
+    const entry = { ...(input('rich').entries[1] as AutoEntry), photos: tall(900, 16) };
+    const leftOut: BookDesignLeftOut[] = [];
+    const plans = planChapter(chapterOf(entry, []), 4, newRhythm(), planOf('rich'), leftOut);
+    expect(plans.map((p) => p.beat)).toEqual(['opener', 'grid', 'grid', 'trio']);
+    expect(plans.map((p) => p.photos.length)).toEqual([1, 5, 5, 3]);
+    expect(leftOut).toEqual([
+      { photoId: 914, reason: 'page_budget' },
+      { photoId: 915, reason: 'page_budget' },
+    ]);
+  });
+
+  it('BOOKDSN-023: sets a burst as one grid, at an airy density too, and five of it after a loud spread', () => {
+    const quiet = input('rich').entries[0] as AutoEntry;
+    const fivePhotos = { ...quiet, photos: wide(1, 5) };
+    const opened = planChapter(chapterOf(fivePhotos, [2, 3, 4, 5]), 3, newRhythm(), planOf('airy'), []);
+    expect(opened.map((p) => p.beat)).toEqual(['opener', 'grid']);
+    expect(opened[1]?.photos.map((p) => p.photoId)).toEqual([2, 3, 4, 5]);
+
+    const hero: AutoPhoto = { photoId: 10, width: 4000, height: 3000 };
+    const eightPhotos = { ...quiet, photos: [hero, ...wide(11, 7)] };
+    const leftOut: BookDesignLeftOut[] = [];
+    const burst = [11, 12, 13, 14, 15, 16, 17];
+    const loud = planChapter(chapterOf(eightPhotos, burst), 3, newRhythm(), planOf('airy'), leftOut);
+    expect(loud.map((p) => p.beat)).toEqual(['hero', 'grid', 'duo']);
+    expect(loud[1]?.photos.map((p) => p.photoId)).toEqual([11, 12, 13, 14, 15]);
+    expect(leftOut).toEqual([]);
+
+    const shot = (photoId: number, takenAt: string | null): PhotoPickCandidate => ({
+      ...(input('rich').candidates[0] as PhotoPickCandidate),
+      photoId,
+      takenAt,
+    });
+    const pool = [
+      shot(1, '2026-05-01T09:00:00'),
+      shot(2, '2026-05-01T12:00:00'),
+      shot(3, '2026-05-01T12:05:00'),
+      shot(4, '2026-05-01T12:09:00'),
+      shot(5, '2026-05-01T12:14:00'),
+      shot(6, null),
+    ];
+    expect(burstOf(wide(1, 6), pool)).toEqual([2, 3, 4, 5]);
+    expect(burstOf(wide(1, 4), pool)).toEqual([]);
+  });
+
+  it('BOOKDSN-024: puts a map of its trip on a chapter opener, current when placed, and says which stops on no trip get none', () => {
+    // The structure, the rhythm and a clean page with chapter maps are the maps variant of BOOKDSN-001.
+    const fx = input('rich-trips');
+    const directives: BookDesignDirectivesInput = {
+      style: 'editorial',
+      travel: { chapterMaps: true, dayBadges: false },
+    };
+    const result = designBook(null, fx, directives);
+    checkCurrent(result, fx.stats);
+    const maps = result.doc.spreads
+      .filter((s) => s.entryId != null)
+      .flatMap((s) => s.elements.filter((e): e is BookMapElement => e.kind === 'map'));
+    expect(maps.length).toBeGreaterThan(1);
+    const points = fx.stats?.points ?? [];
+    for (const map of maps) {
+      expect([7, 8]).toContain(map.tripId);
+      const stops = points.filter((p) => p.tripId === map.tripId).map((p) => p.label);
+      expect(map.points.map((p) => p.label)).toEqual(stops);
+    }
+    expect(result.notes.filter((n) => n.includes('on no trip'))).toEqual([]);
+    // The stop of entry 2 on no trip: the note names that entry alone.
+    const loose = points.map((p) => (p.entryId === 2 ? { ...p, tripId: null } : p));
+    const oneOff = designBook(null, { ...fx, stats: fx.stats && { ...fx.stats, points: loose } }, directives);
+    expect(oneOff.notes).toContain('entry 2 is on no trip, so its chapter has no map');
+    const untripped = designBook(null, input('rich'), directives);
+    const anyMap = untripped.doc.spreads.some((s) => s.entryId != null && s.elements.some((e) => e.kind === 'map'));
+    expect(anyMap).toBe(false);
+    expect(untripped.notes).toContain(
+      'entries 2, 3, 4, 5, 6, 7, 8, 9, 10 and 11 are on no trip, so their chapters have no map',
+    );
+  });
+
+  it("BOOKDSN-025: sets an entry's pros and cons as a list under its words, and says when they find no room", () => {
+    const spreadsOf = (result: BookDesignResult, entryId: number) =>
+      result.doc.spreads.filter((s) => s.entryId === entryId);
+    const listsOf = (result: BookDesignResult, entryId: number) =>
+      spreadsOf(result, entryId).flatMap((s) => s.elements.filter((e): e is BookListElement => e.kind === 'list'));
+    const asked: BookDesignDirectivesInput[] = [
+      { style: 'editorial' },
+      { style: 'minimal' },
+      { style: 'journal', text: { story: 'excerpt' } },
+      { style: 'editorial', scope: { entryIds: [3, 4, 5, 6] } },
+    ];
+    for (const directives of asked) {
+      const result = designBook(null, input('rich'), directives);
+      // The list takes no spread of its own: entry 3 keeps two, each with more on it than the list.
+      const pages = spreadsOf(result, 3);
+      expect(pages).toHaveLength(2);
+      expect(pages.every((s) => s.elements.some((e) => e.kind !== 'list'))).toBe(true);
+      const lists = listsOf(result, 3);
+      expect(lists).toHaveLength(1);
+      expect(lists[0]).toMatchObject({
+        items: [
+          { text: 'The light', tone: 'pro' },
+          { text: 'The wind', tone: 'con' },
+        ],
+        proLabel: 'Pros',
+        conLabel: 'Cons',
+      });
+    }
+    // Entry 2 opens on a hero and has no quiet page; entry 4 opens on a panorama or on a hero with its quiet
+    // page; entry 12 has no photo, so its long story runs on across both pages and the list goes under it.
+    const more: Partial<Record<number, Partial<AutoEntry>>> = {
+      2: { pros: ['Tram 28'] },
+      4: { story: 'Over the bridge at dusk.', pros: ['The bridge'], cons: ['The climb'] },
+      12: { story: 'We walked the old town. '.repeat(130), cons: ['The rain'] },
+    };
+    const entries = input('rich').entries.map((e): AutoEntry => ({ ...e, ...more[e.id] }));
+    for (const directives of [{ style: 'editorial', travel: { dayBadges: false } }, { style: 'editorial' }] as const) {
+      const fx = { ...input('rich'), entries };
+      const result = designBook(null, fx, directives);
+      checkStructure(result);
+      checkRhythm(result);
+      checkClean(result, fx.photos);
+      expect(listsOf(result, 4)).toHaveLength(1);
+      expect(listsOf(result, 12)).toHaveLength(1);
+      expect(listsOf(result, 2)).toEqual([]);
+      expect(result.notes).toContain('the pros and cons of entry 2 found no room on its pages and are left out');
+    }
+  });
+
+  it('BOOKDSN-026: gives the quiet page of an entry with pros and cons a photo, and names the pros and cons left out', () => {
+    const listed = input('rich').entries[2] as AutoEntry;
+    const plain: AutoEntry = { ...listed, pros: [], cons: [] };
+    const beats = (entry: AutoEntry, burst: number[]) =>
+      planChapter(chapterOf(entry, burst), 3, newRhythm(), planOf('balanced'), []).map((p) => [
+        p.beat,
+        p.photos.map((f) => f.photoId),
+      ]);
+    expect(beats({ ...listed, photos: tall(920, 4) }, [])).toEqual([
+      ['opener', [920]],
+      ['quiet', [921]],
+      ['duo', [922, 923]],
+    ]);
+    expect(beats({ ...plain, photos: tall(920, 4) }, [])).toEqual([
+      ['opener', [920]],
+      ['quiet', []],
+      ['trio', [921, 922, 923]],
+    ]);
+    // The quiet page's photo comes from outside the burst, which stays whole for its grid.
+    expect(beats({ ...listed, photos: tall(930, 6) }, [931, 932, 933, 934])).toEqual([
+      ['opener', [930]],
+      ['quiet', [935]],
+      ['grid', [931, 932, 933, 934]],
+    ]);
+
+    // Entry 1 is a bare stop among the stations; entry 4 shares its day with entry 3, whose chapter it is.
+    const more: Partial<Record<number, Partial<AutoEntry>>> = {
+      1: { pros: ['The tram'] },
+      4: { date: '2026-05-03', pros: ['The bridge'] },
+    };
+    const entries = input('rich').entries.map((e): AutoEntry => ({ ...e, ...more[e.id] }));
+    const days = designBook(null, { ...input('rich'), entries }, { style: 'minimal', chapters: 'day' });
+    checkStructure(days);
+    const onThree = days.doc.spreads.filter((s) => s.entryId === 3).flatMap((s) => s.elements);
+    expect(onThree.filter((e) => e.kind === 'list')).toHaveLength(1);
+    expect(days.notes).toContain('the pros and cons of entries 1 and 4 found no room on their pages and are left out');
+  });
+});
+
+/** Photos of one shape, ids counted from `from`. */
+const photosOf = (from: number, n: number, width: number, height: number): AutoPhoto[] =>
+  Array.from({ length: n }, (_, i) => ({ photoId: from + i, width, height }));
+const tall = (from: number, n: number) => photosOf(from, n, 3000, 4000);
+/** Wider than tall, too small to run across a spread. */
+const wide = (from: number, n: number) => photosOf(from, n, 3000, 2000);
+
+/** One entry's chapter, with the photos of its burst. */
+const chapterOf = (entry: AutoEntry, burst: number[]): DesignChapter => ({
+  key: `e${entry.id}`,
+  label: null,
+  entries: [entry],
+  photos: entry.photos,
+  stations: false,
+  burst,
+});
+
+/** What a chapter is planned with: the density, the rich journey's page, no photo signals. */
+const planOf = (density: 'airy' | 'balanced' | 'rich') => ({
+  directives: bookDesignDirectivesSchema.parse({ density }),
+  page: input('rich').page,
+  infos: new Map<number, BookPhotoInfo>(),
 });
 
 /** A stored book: a page locked by hand, a page of entry 3, and a page made by hand. */

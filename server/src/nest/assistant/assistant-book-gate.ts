@@ -13,7 +13,7 @@ import type { ToolArgs } from './cards/card-types';
 import { readKey, recordOf } from './cards/card-values';
 import { MikroORM } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
-import type { BookFinding } from '@trek/shared';
+import { compareCodeUnits, type BookFinding } from '@trek/shared';
 
 /**
  * The check a Studio turn runs on every book write the model proposes, before
@@ -71,7 +71,7 @@ function pageOf(tool: string, args: ToolArgs): string {
   const page = args.spreadId ?? args.afterSpreadId;
   if (typeof page === 'string') return `${tool}:${page}`;
   const ids = Array.isArray(args.spreadIds) ? args.spreadIds.filter((id): id is string => typeof id === 'string') : [];
-  return ids.length > 0 ? `${tool}:${[...ids].sort().join(',')}` : tool;
+  return ids.length > 0 ? `${tool}:${[...ids].sort(compareCodeUnits).join(',')}` : tool;
 }
 
 function reason(err: unknown): string {

@@ -11,7 +11,10 @@ import {
   galleryPhoto,
   invalidOp,
   journeyEntry,
+  pageElement,
+  roomFor,
   round2,
+  unlockedElement,
   type BookEditResult,
   type BookOpsContext,
   type BookPhotoInfo,
@@ -125,24 +128,10 @@ type Op<K extends BookPageOp['op']> = Extract<BookPageOp, { op: K }>;
 
 // ── Lookups ────────────────────────────────────────────────────────────────
 
-function element(spread: BookSpread, id: string, env: Env): BookElement {
-  const el = spread.elements.find((e) => e.id === id);
-  if (el) return el;
-  const parked = spread.parked.some((e) => e.id === id);
-  throw failOp(
-    'element_not_found',
-    parked
-      ? `${id} is parked, not on the page; lay the page out again to bring it back`
-      : `no element ${id} on this page`,
-    env.opIndex,
-    id,
-  );
-}
+// The refusals' words live once, in book-ops-core, for the page ops and the element ops alike.
+const element = (spread: BookSpread, id: string, env: Env): BookElement => pageElement(spread, id, env.opIndex);
 
-function unlocked<E extends BookElement>(el: E, env: Env): E {
-  if (el.locked) throw failOp('locked', `${el.id} is locked; it is left as it is`, env.opIndex, el.id);
-  return el;
-}
+const unlocked = <E extends BookElement>(el: E, env: Env): E => unlockedElement(el, env.opIndex);
 
 function photoEl(spread: BookSpread, id: string, env: Env): BookPhotoElement {
   const el = element(spread, id, env);
@@ -161,11 +150,7 @@ const replaceEl = (spread: BookSpread, next: BookElement): BookSpread => ({
   elements: spread.elements.map((e) => (e.id === next.id ? next : e)),
 });
 
-function withRoom(spread: BookSpread, add: number, env: Env): void {
-  if (spread.elements.length + add > MAX_SPREAD_ELEMENTS) {
-    throw failOp('too_many_elements', `a page holds at most ${MAX_SPREAD_ELEMENTS} elements`, env.opIndex);
-  }
-}
+const withRoom = (spread: BookSpread, add: number, env: Env): void => roomFor(spread, add, env.opIndex);
 
 const spreadWidth = (spread: BookSpread, page: BookPageSetup) => page.pageWidth * (spread.role === 'inner' ? 2 : 1);
 

@@ -1,6 +1,6 @@
-import { bookVisiblePart } from './book-findings-design';
+import { bookVisiblePart, sortBookFindings } from './book-findings-design';
 import type { BookPhotoInfo } from './book-ops-core';
-import { BOOK_OP_LIMITS, type BookFinding } from './book-ops.schema';
+import type { BookFinding } from './book-ops.schema';
 import type { BookElement, BookPageSetup, BookPhotoElement, BookSpread, BookTextElement } from './book.schema';
 
 /**
@@ -378,8 +378,6 @@ function parked(ctx: Ctx): void {
   });
 }
 
-const SEVERITY_ORDER = { severe: 0, warn: 1, info: 2 } as const;
-
 /** Every finding on one page, severe first, at most `BOOK_OP_LIMITS.findings`. */
 export function spreadFindings(
   spread: BookSpread,
@@ -401,9 +399,5 @@ export function spreadFindings(
   overflow(ctx);
   photoChecks(ctx);
   parked(ctx);
-  return ctx.out
-    .map((f, i) => ({ f, i }))
-    .sort((a, b) => SEVERITY_ORDER[a.f.severity] - SEVERITY_ORDER[b.f.severity] || a.i - b.i)
-    .map(({ f }) => f)
-    .slice(0, BOOK_OP_LIMITS.findings);
+  return sortBookFindings(ctx.out);
 }

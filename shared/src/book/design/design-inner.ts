@@ -1,4 +1,5 @@
 import type { AutoEntry } from '../auto/auto-types';
+import { bookEntryListItems } from '../book-travel';
 import type { BookElement, BookSpread } from '../book.schema';
 import type { BookDesignInput } from './design-book';
 import type { ComposeCtx } from './design-compose';
@@ -26,6 +27,7 @@ import {
   composeTrio,
   innerSpread,
   panoFits,
+  tripOf,
   type Composed,
 } from './design-spreads';
 
@@ -131,8 +133,18 @@ function stationsSpreads(c: ComposeCtx, chapter: DesignChapter, input: BookDesig
 
 const chapterName = (chapter: DesignChapter) => chapter.label ?? chapter.entries[0]?.title ?? null;
 
-/** One planned spread, composed; the story still to set is carried from the opener to its quiet page. */
-function composePlanned(c: ComposeCtx, plan: PlannedSpread, hand: 'left' | 'right', carry: string): Composed {
+/**
+ * One planned spread, composed; the story still to set is carried from the
+ * opener to its quiet page, and a quiet page takes the pros and cons of
+ * `list`, the chapter's entry, when the pages before it had no room for them.
+ */
+function composePlanned(
+  c: ComposeCtx,
+  plan: PlannedSpread,
+  hand: 'left' | 'right',
+  carry: string,
+  list: AutoEntry | null,
+): Composed {
   const entry = plan.entry;
   const entryId = plan.chapter.entries[0]?.id ?? null;
   const [first, ...more] = plan.photos;
@@ -144,7 +156,7 @@ function composePlanned(c: ComposeCtx, plan: PlannedSpread, hand: 'left' | 'righ
       if (entry && first && panoFits(c, first)) return composePano(c, entry, first, more, hand);
       break;
     case 'quiet':
-      return composeQuiet(c, entry, carry, first ?? null, hand);
+      return composeQuiet(c, entry, carry, first ?? null, hand, list);
     case 'duo':
       return composeDuo(c, plan.photos, hand, entryId);
     case 'trio':
@@ -161,19 +173,57 @@ function composePlanned(c: ComposeCtx, plan: PlannedSpread, hand: 'left' | 'righ
 /** A chapter's spreads, composed from its plan, the photo page alternating across the book. */
 function chapterSpreads(c: ComposeCtx, chapter: DesignChapter, plans: readonly PlannedSpread[], start: number) {
   const out: DesignedSpread[] = [];
+  const entry = chapter.entries[0];
   let carry = '';
+  // The entry whose pros and cons still look for a page: none once they are set, or when it has none.
+  let unlisted = entry && bookEntryListItems(entry).length ? entry : null;
   plans.forEach((plan, i) => {
-    // A quiet page with no words left to set and no photo would be an empty spread: it is left out.
+    // A quiet page with no words left to set and no photo would be an empty spread, or one holding only a list:
+    // it is left out (the planner gives the quiet page of an entry with pros and cons a photo for them).
     if (plan.beat === 'quiet' && !carry && !plan.photos.length) return;
     const hand = (start + i + (c.directives.seed ?? 0)) % 2 === 0 ? 'left' : 'right';
-    const done = composePlanned(c, plan, hand, carry);
+    const done = composePlanned(c, plan, hand, carry, unlisted);
     carry = done.rest;
-    const spread: BookSpread = innerSpread(c, done.elements, chapter.entries[0]?.id ?? null);
+    if (done.listed) unlisted = null;
+    const spread: BookSpread = innerSpread(c, done.elements, entry?.id ?? null);
     out.push({ spread, beat: plan.beat, chapter: chapterName(chapter), findings: [] });
   });
-  const entry = chapter.entries[0];
   if (carry && entry && (c.directives.text?.story ?? 'full') === 'full') {
     c.notes.push(`part of the story of entry ${entry.id} found no page within the budget and is left out`);
+  }
+  return out;
+}
+
+/** "entry 3", or "entries 3, 4 and 6", in a note. */
+function entriesNamed(ids: readonly number[]): string {
+  if (ids.length < 2) return `entry ${ids.join('')}`;
+  return `entries ${ids.slice(0, -1).join(', ')} and ${ids.slice(-1).join('')}`;
+}
+
+/**
+ * What the pages leave out of the entries, said in the notes: the pros and
+ * cons that found no page (an entry among the stations, one after the first
+ * of its day's chapter, one whose pages had no room or fell past the budget),
+ * and with chapter maps asked for, the chapters that have none because their
+ * entry is on no trip.
+ */
+function leftUnsaid(c: ComposeCtx, entries: readonly AutoEntry[], body: readonly DesignedSpread[]): string[] {
+  const out: string[] = [];
+  const listed = new Set(
+    body.flatMap((d) => (d.spread.elements.some((e) => e.kind === 'list') ? [d.spread.entryId] : [])),
+  );
+  const unlisted = entries.filter((e) => bookEntryListItems(e).length > 0 && !listed.has(e.id)).map((e) => e.id);
+  if (unlisted.length) {
+    const their = unlisted.length === 1 ? 'its' : 'their';
+    out.push(`the pros and cons of ${entriesNamed(unlisted)} found no room on ${their} pages and are left out`);
+  }
+  const stats = c.travel.stats;
+  if (!c.directives.travel?.chapterMaps || !stats) return out;
+  const told = new Set(body.map((d) => d.spread.entryId));
+  const mapless = entries.filter((e) => told.has(e.id) && tripOf(stats, e) === null).map((e) => e.id);
+  if (mapless.length) {
+    const said = mapless.length === 1 ? 'is on no trip, so its chapter has' : 'are on no trip, so their chapters have';
+    out.push(`${entriesNamed(mapless)} ${said} no map`);
   }
   return out;
 }
@@ -224,5 +274,6 @@ export function composeDesignedInner(
   const head = framing.filter((k) => k !== 'closing').map((k) => framingSpread(c, k, input));
   const tail = framing.filter((k) => k === 'closing').map((k) => framingSpread(c, k, input));
   const fitted = withinCap(body, cap - head.length - tail.length, leftOut, notes);
+  notes.push(...leftUnsaid(c, entries, fitted));
   return { spreads: [...head, ...fitted, ...tail], leftOut, notes };
 }

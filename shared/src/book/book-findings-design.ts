@@ -1,3 +1,4 @@
+import { compareCodeUnits } from '../common/compare';
 import { contrastOfLuminance, deltaE, greyLuminance, luminance, parseHex, requiredContrast } from './book-colour';
 import type { BookPhotoInfo } from './book-ops-core';
 import { BOOK_OP_LIMITS, type BookFinding } from './book-ops.schema';
@@ -314,7 +315,7 @@ function familiesOf(doc: BookDocument): string[] {
     }
   }
   if (doc.page.pageNumbers.show) used.add(doc.page.pageNumbers.font);
-  return [...used].sort();
+  return [...used].sort(compareCodeUnits);
 }
 
 /** The colours a book paints with: its type and its filled shapes, with how often each is used. */

@@ -164,20 +164,29 @@ export function heroWorthy(photo: AutoPhoto, info: BookPhotoInfo | undefined, pa
   return sx === undefined || sx < 0.4 || sx > 0.6;
 }
 
+/** Photos taken within this long of the first of them make one burst. */
+const BURST_MS = 15 * 60 * 1000;
+
 /**
- * Whether a chapter has a burst: four or more photos taken within fifteen
- * minutes of each other, which reads best as a grid.
+ * A chapter's burst: the longest run of four or more of its photos taken
+ * within fifteen minutes of the run's first, which reads best as one grid;
+ * empty when it has none. A photo without a capture time is in no burst.
+ * Only the time is read: a near-duplicate set kept with `pick: 'all'` is a
+ * burst when it was taken within the window, as such sets usually are.
  */
-export function hasBurst(photos: readonly AutoPhoto[], candidates: readonly PhotoPickCandidate[]): boolean {
-  const times = photos
-    .map((p) => candidates.find((c) => c.photoId === p.photoId)?.takenAt ?? null)
-    .map((t) => (t ? Date.parse(t) : Number.NaN))
-    .filter((t) => Number.isFinite(t))
-    .sort((a, b) => a - b);
-  for (let i = 0; i + 3 < times.length; i++) {
-    const a = times[i] as number;
-    const b = times[i + 3] as number;
-    if (b - a <= 15 * 60 * 1000) return true;
-  }
-  return false;
+export function burstOf(photos: readonly AutoPhoto[], candidates: readonly PhotoPickCandidate[]): number[] {
+  const takenAt = new Map(candidates.map((c): [number, string | null] => [c.photoId, c.takenAt]));
+  // The sort is stable: photos taken at the same moment keep the chapter's order.
+  const timed = photos
+    .map((p) => ({ photoId: p.photoId, at: Date.parse(takenAt.get(p.photoId) ?? '') }))
+    .filter((p) => Number.isFinite(p.at))
+    .sort((a, b) => a.at - b.at);
+  const times = timed.map((p) => p.at);
+  let best: number[] = [];
+  let end = 0;
+  timed.forEach((first, i) => {
+    while (end < times.length && (times[end] as number) - first.at <= BURST_MS) end++;
+    if (end - i >= 4 && end - i > best.length) best = timed.slice(i, end).map((p) => p.photoId);
+  });
+  return best;
 }

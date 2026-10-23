@@ -15,6 +15,7 @@ import {
 } from './book-ops-core';
 import {
   bookBadgeValue,
+  bookCountryName,
   bookEntryListItems,
   bookTravelBadge,
   bookTravelCountries,
@@ -342,11 +343,29 @@ function newBadge(spec: Extract<TravelSpec, { kind: 'badge' }>, id: string, at: 
   }
   const value = {
     text,
-    sub: spec.sub ?? resolved?.sub ?? '',
+    sub: spec.sub ?? badgeSub(spec, resolved?.sub, resolved?.code, travel) ?? '',
     code: spec.code ?? ownCode ?? resolved?.code ?? null,
   };
   const frame = at(bookTravelSize('badge', env.page, { variant: spec.variant }));
   return bookTravelBadge({ id, frame, variant: spec.variant, value });
+}
+
+/** The marks whose code names a country. */
+const COUNTRY_MARKS: ReadonlySet<string> = new Set(['flag', 'country']);
+
+/**
+ * A flag or country mark asked for by its own code is labelled with that
+ * country; the journey's value names its first country, the one a mark
+ * without a code shows.
+ */
+function badgeSub(
+  spec: Extract<TravelSpec, { kind: 'badge' }>,
+  sub: string | undefined,
+  code: string | null | undefined,
+  travel: BookTravelContext | undefined,
+): string | undefined {
+  if (!travel || !spec.code || !COUNTRY_MARKS.has(spec.variant)) return sub;
+  return spec.code === code ? sub : bookCountryName(spec.code, travel.locale, travel.stats);
 }
 
 function newList(spec: Extract<TravelSpec, { kind: 'list' }>, id: string, at: At, env: ElementOpEnv): BookElement {

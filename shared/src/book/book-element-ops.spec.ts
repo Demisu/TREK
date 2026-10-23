@@ -181,6 +181,16 @@ describe('add', () => {
     expect(addRefusal({ kind: 'list', entryId: 7 }, bare)).toBe('travel_unavailable');
     expect(added({ kind: 'countries', codes: ['pt'] })).toMatchObject({ kind: 'countries', codes: ['PT'] });
   });
+
+  it('BOOKEL-017: a flag or country mark asked for by its own code is labelled with that country', () => {
+    expect(added({ kind: 'badge', variant: 'flag' })).toMatchObject({ code: 'IS', sub: 'Iceland' });
+    expect(added({ kind: 'badge', variant: 'flag', code: 'PT' })).toMatchObject({ code: 'PT', sub: 'Portugal' });
+    const norway = added({ kind: 'badge', variant: 'country', entryId: 7, code: 'NO' });
+    expect(norway).toMatchObject({ code: 'NO', sub: 'Norway' });
+    expect(added({ kind: 'badge', variant: 'flag', code: 'PT', sub: 'Lisboa' })).toMatchObject({ sub: 'Lisboa' });
+    // Another mark's code is its own (a mood, the weather) and names no country.
+    expect(added({ kind: 'badge', variant: 'mood', code: 'good', text: 'Good' })).toMatchObject({ sub: '' });
+  });
 });
 
 describe('style, lock, arrange', () => {

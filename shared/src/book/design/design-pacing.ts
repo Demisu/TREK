@@ -1,16 +1,18 @@
 import type { AutoEntry, AutoPhoto } from '../auto/auto-types';
 import type { BookPhotoInfo } from '../book-ops-core';
+import { bookEntryListItems } from '../book-travel';
 import type { BookPageSetup } from '../book.schema';
 import { pickBookPhotos, type PhotoPickCandidate } from '../photo-pick';
 import type { BookDesignDirectives } from './design-directives.schema';
-import { hasBurst, heroWorthy, isPanorama, pickEntriesOf, type BookDesignLeftOut } from './design-photos';
+import { burstOf, heroWorthy, isPanorama, pickEntriesOf, type BookDesignLeftOut } from './design-photos';
 
 /**
  * The story of the book before its pages: which chapters, how many spreads
  * each gets, and the beat of every spread (opener or hero, a quiet page for a
- * long story, two, three or a grid of photos, a panorama), paced so the book
- * breathes: never one beat three times running, a loud spread followed by a
- * calm one, at most one hero in four spreads.
+ * long story, two, three or a grid of photos, a burst as one grid, a
+ * panorama), paced so the book breathes: never one photo beat three times
+ * running, a loud spread followed by a calm one, at most one hero in four
+ * spreads.
  */
 
 export const BOOK_DESIGN_BEATS = [
@@ -43,7 +45,8 @@ export interface DesignChapter {
   photos: AutoPhoto[];
   /** Runs of bare stops, set as a list. */
   stations: boolean;
-  burst: boolean;
+  /** The photos of its burst (four or more within fifteen minutes), set as one grid; empty when it has none. */
+  burst: number[];
 }
 
 export interface PlannedSpread {
@@ -57,7 +60,7 @@ export interface PlannedSpread {
 const storyChars = (entries: readonly AutoEntry[]) => entries.reduce((n, e) => n + (e.story ?? '').trim().length, 0);
 
 function entryChapter(entry: AutoEntry, photos: AutoPhoto[], pool: readonly PhotoPickCandidate[]): DesignChapter {
-  const burst = hasBurst(photos, pool);
+  const burst = burstOf(photos, pool);
   return { key: `e${entry.id}`, label: null, entries: [entry], photos, stations: false, burst };
 }
 
@@ -68,7 +71,7 @@ const stationsChapter = (run: AutoEntry[]): DesignChapter => ({
   entries: run,
   photos: [],
   stations: true,
-  burst: false,
+  burst: [],
 });
 
 /** Entries with substance each open a chapter; runs of bare ones become a list of stations. */
@@ -116,7 +119,7 @@ function byDay(
       entries: list,
       photos,
       stations: !substance,
-      burst: hasBurst(photos, candidates),
+      burst: burstOf(photos, candidates),
     };
   });
 }
@@ -146,7 +149,7 @@ function byPlace(
       entries: entry ? [entry] : [],
       photos,
       stations: false,
-      burst: hasBurst(photos, candidates),
+      burst: burstOf(photos, candidates),
     };
     out.push({ day: group.day, chapter });
   }
@@ -243,7 +246,8 @@ export function fitChapters(chapters: readonly DesignChapter[], total: number): 
       entries: [...a.entries, ...b.entries],
       photos: [...a.photos, ...b.photos],
       stations: a.stations && b.stations,
-      burst: a.burst || b.burst,
+      // The longer burst of the two: together they would make a grid past six.
+      burst: a.burst.length >= b.burst.length ? a.burst : b.burst,
     };
     list.splice(best, 2, merged);
   }
@@ -293,10 +297,50 @@ function opening(chapter: DesignChapter, photos: AutoPhoto[], rhythm: Rhythm, in
 }
 
 /**
+ * The chapter's burst as one grid, taken out of `photos`: up to six of its
+ * photos, five after a loud spread (six make a loud grid), at any density;
+ * null when fewer than four of them are left once the chapter has opened.
+ */
+function burstGrid(chapter: DesignChapter, photos: AutoPhoto[], rhythm: Rhythm): PlannedSpread | null {
+  const most = loudAllowed(rhythm, 'grid') ? 6 : 5;
+  const take = photos.filter((p) => chapter.burst.includes(p.photoId)).slice(0, most);
+  if (take.length < 4) return null;
+  for (const p of take) photos.splice(photos.indexOf(p), 1);
+  return { beat: 'grid', chapter, entry: null, photos: take };
+}
+
+/**
+ * The photos a quiet page takes, out of `photos`, with `left` spreads still
+ * to plan: none while more follow, so the words stand alone; one beside them
+ * on the chapter's last spread, or when the entry has pros and cons, which
+ * then still have a page should the opener hold the whole story. The photo is
+ * the first outside the burst, which stays whole for its grid.
+ */
+function quietPhotos(chapter: DesignChapter, photos: AutoPhoto[], left: number): AutoPhoto[] {
+  const entry = chapter.entries[0];
+  if (left > 1 && !(entry && bookEntryListItems(entry).length > 0)) return [];
+  const at = photos.findIndex((p) => !chapter.burst.includes(p.photoId));
+  return photos.splice(Math.max(0, at), 1);
+}
+
+/**
+ * How many of `count` photos the next photo spread takes: five for a grid of
+ * six after a loud spread, and fewer until its beat is not the third alike
+ * running (a grid of five is still a grid).
+ */
+function photoTake(rhythm: Rhythm, count: number): number {
+  let take = count >= 6 && !loudAllowed(rhythm, 'grid') ? 5 : count;
+  const [before, last] = rhythm.beats.slice(-2);
+  const twice = before === last ? last : null;
+  while (take > 1 && photoBeat(take) === twice) take--;
+  return take;
+}
+
+/**
  * The spreads of one chapter for its share of the budget: the opening, a
- * quiet page when the words run long, then the photos spread evenly over
- * what is left, at most the density's maximum a spread; photos that find no
- * spread are left out and said.
+ * quiet page when the words run long, its burst as one grid, then the photos
+ * spread evenly over what is left, at most the density's maximum a spread;
+ * photos that find no spread are left out and said.
  */
 export function planChapter(
   chapter: DesignChapter,
@@ -318,15 +362,17 @@ export function planChapter(
   const wantsWords = long && (input.directives.text?.story ?? 'full') === 'full';
   let left = spreads - 1;
   if (wantsWords && left > 0 && storyChars(chapter.entries.slice(0, 1)) > 0) {
-    push({ beat: 'quiet', chapter, entry: chapter.entries[0] ?? null, photos: photos.splice(0, left > 1 ? 0 : 1) });
+    push({ beat: 'quiet', chapter, entry: chapter.entries[0] ?? null, photos: quietPhotos(chapter, photos, left) });
+    left--;
+  }
+  const grid = left > 0 ? burstGrid(chapter, photos, rhythm) : null;
+  if (grid) {
+    push(grid);
     left--;
   }
   const max = DENSITY[input.directives.density].max;
   while (left > 0 && photos.length) {
-    const count = Math.min(max, Math.ceil(photos.length / left));
-    let take = count >= 6 && !loudAllowed(rhythm, 'grid') ? 5 : count;
-    const prev = rhythm.beats.slice(-2);
-    if (take > 1 && prev.length === 2 && prev.every((b) => b === photoBeat(take))) take = Math.max(1, take - 1);
+    const take = photoTake(rhythm, Math.min(max, Math.ceil(photos.length / left)));
     push({ beat: photoBeat(take), chapter, entry: null, photos: photos.splice(0, take) });
     left--;
   }
