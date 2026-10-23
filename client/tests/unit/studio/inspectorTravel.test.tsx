@@ -101,6 +101,20 @@ const tick = (name: string) => fireEvent.click(screen.getByRole('checkbox', { na
 /** A switch, or any plain button: both answer to their accessible name. */
 const press = (name: string) => fireEvent.click(screen.getByRole('button', { name }))
 
+/** Opens the typeface list from its button and picks a family by the name its row is set in. */
+function pickFamily(name: string) {
+  fireEvent.click(screen.getByRole('button', { name: /^journey\.studio\.fonts\.change: / }))
+  const row = screen.getAllByRole('option').find(o => o.querySelector('.st-fontpick-face')?.textContent === name)
+  if (!row) throw new Error(`no typeface row named ${name}`)
+  fireEvent.click(row)
+}
+
+/** Drags the weight slider to the stop of a weight among those the family ships. */
+function slideWeight(weights: readonly number[], weight: number) {
+  const slider = screen.getByRole('slider', { name: 'journey.studio.weight' })
+  fireEvent.change(slider, { target: { value: String(weights.indexOf(weight)) } })
+}
+
 /** A section by its heading, since a label can repeat across sections. */
 function section(container: HTMLElement, label: string): HTMLElement {
   const found = [...container.querySelectorAll<HTMLElement>('.st-section')]
@@ -512,7 +526,7 @@ describe('the tail all five share', () => {
 
     // Bebas ships one weight; a bold it does not have prints as a smeared
     // regular, so the request moves rather than being passed through.
-    press('Bebas Neue')
+    pickFamily('Bebas Neue')
 
     expect(saved().font).toBe('bebas')
     expect(saved().weight).toBe(400)
@@ -522,7 +536,7 @@ describe('the tail all five share', () => {
     const { container } = show(statsEl({ font: 'sans', weight: 500 }))
     open(container, 'journey.studio.typography')
 
-    press('Lora')
+    pickFamily('Lora')
 
     expect(saved().font).toBe('serif')
     expect(saved().weight).toBe(500)
@@ -532,7 +546,8 @@ describe('the tail all five share', () => {
     const { container } = show(countriesEl())
     open(container, 'journey.studio.typography')
 
-    pick('500')
+    // Poppins ships 100 to 900, so 500 is the fifth stop.
+    slideWeight([100, 200, 300, 400, 500, 600, 700, 800, 900], 500)
 
     expect(saved().weight).toBe(500)
   })
