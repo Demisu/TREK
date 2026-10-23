@@ -980,7 +980,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Bir çift sayfaya yerleşim uygulayın',
   'help.guide.studio-layouts.goal': 'Bir çift sayfaya hazır bir fotoğraf ve metin çerçevesi düzeni uygulayın.',
   'help.guide.studio-layouts.step.1':
-    'Şeritte Layouts bölümünü açın. On üç çift sayfa düzeni sunar, ayrıca kapak, arka kapak ve tek sayfalar için ayrı bir küme vardır.',
+    'Şeritte Layouts bölümünü açın. Önce tasarlanmış sayfalar gelir: kitabın temasında hazırlanmış kapaklar ve çift sayfalar; stil düğmeleri bunları tek bir görünüme daraltır. Altlarında kitabın kendi düzenleri ve hazır düzenler yer alır.',
   'help.guide.studio-layouts.step.2':
     'Birine tıklayın. Çalışma alanındaki çift sayfa bu düzenin çerçevelerini alır; mevcut fotoğraflarınız ve metinleriniz bu çerçevelere yerleştirilir.',
   'help.guide.studio-layouts.result':

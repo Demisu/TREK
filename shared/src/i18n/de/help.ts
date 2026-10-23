@@ -1007,7 +1007,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Layout auf eine Doppelseite anwenden',
   'help.guide.studio-layouts.goal': 'Gib einer Doppelseite eine fertige Anordnung aus Foto- und Textrahmen.',
   'help.guide.studio-layouts.step.1':
-    'Öffne in der Leiste „Layouts“. Dort gibt es dreizehn Layouts für Doppelseiten und eigene für Cover, Rückseite und Einzelseiten.',
+    'Öffne in der Leiste „Layouts“. Zuerst kommen die gestalteten Seiten: ganze Cover und Doppelseiten im Thema des Buchs, die du über die Stile auf einen Look eingrenzt. Darunter folgen die eigenen Layouts des Buchs und die vorgefertigten.',
   'help.guide.studio-layouts.step.2':
     'Klick eines an. Die Doppelseite auf der Arbeitsfläche bekommt die Rahmen dieses Layouts, und deine vorhandenen Fotos und Texte werden darin platziert.',
   'help.guide.studio-layouts.result':

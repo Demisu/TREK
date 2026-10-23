@@ -827,7 +827,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': '为跨页应用版式',
   'help.guide.studio-layouts.goal': '为跨页套用一组现成的照片框和文字框排版。',
   'help.guide.studio-layouts.step.1':
-    '在侧栏中打开 Layouts。这里有十三种跨页版式，另有一组单独用于封面、封底和单页的版式。',
+    '在侧栏中打开 Layouts。最上面是设计好的页面：以书的主题呈现的完整封面和跨页，可用风格按钮筛选出一种风格。下面接着是这本书自己的版式和内置版式。',
   'help.guide.studio-layouts.step.2':
     '点击其中一个。工作台上的跨页会换成这个版式的相框，你已有的照片和文字会放进这些相框里。',
   'help.guide.studio-layouts.result': '空相框是内容的占位：把照片从“内容”拖到相框上，或使用“添加到此页”。',

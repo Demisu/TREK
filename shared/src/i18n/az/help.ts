@@ -1019,7 +1019,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Açılıma tərtibat tətbiq edin',
   'help.guide.studio-layouts.goal': 'Açılıma foto və mətn çərçivələrinin hazır düzülüşünü verin.',
   'help.guide.studio-layouts.step.1':
-    'Paneldə «Tərtibatlar» bölməsini açın. Burada on üç açılım tərtibatı, üzlük, arxa qabıq və tək səhifələr üçün isə ayrıca dəst var.',
+    'Paneldə «Tərtibatlar» bölməsini açın. Əvvəlcə dizayn olunmuş səhifələr gəlir: kitabın mövzusunda hazırlanmış bütöv üzlüklər və açılımlar; «Üslub» düymələri onları bir görünüşə qədər daraldır. Onların altında kitabın öz tərtibatları və daxili tərtibatlar gəlir.',
   'help.guide.studio-layouts.step.2':
     'Birinə klikləyin. İş masasındakı açılım bu tərtibatın çərçivələrini alır, mövcud fotolarınız və mətniniz də onlara yerləşdirilir.',
   'help.guide.studio-layouts.result':

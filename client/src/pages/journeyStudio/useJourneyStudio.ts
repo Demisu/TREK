@@ -174,6 +174,8 @@ export function useJourneyStudio() {
       }
     }
     return {
+      title: journey?.title || '',
+      subtitle: journey?.subtitle ?? null,
       entries: entries
         .filter((e: JourneyEntry) => !!(
           e.title || e.story || e.location_name || e.mood || e.weather

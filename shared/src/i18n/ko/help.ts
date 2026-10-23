@@ -882,7 +882,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': '펼침면에 레이아웃 적용하기',
   'help.guide.studio-layouts.goal': '사진과 텍스트 프레임이 미리 배치된 레이아웃을 펼침면에 적용해요.',
   'help.guide.studio-layouts.step.1':
-    '레일에서 Layouts를 여세요. 펼침면 레이아웃 열세 가지와 표지, 뒤표지, 낱쪽용 레이아웃 세트가 따로 있어요.',
+    '레일에서 Layouts를 여세요. 먼저 디자인된 페이지가 나와요. 책의 테마로 꾸민 표지와 펼침면 전체이고, 스타일 버튼으로 한 가지 느낌만 골라 볼 수 있어요. 그 아래에 이 책의 레이아웃과 기본 제공 레이아웃이 이어져요.',
   'help.guide.studio-layouts.step.2':
     '하나를 클릭하세요. 작업 공간의 펼침면에 이 레이아웃의 프레임이 적용되고, 기존 사진과 글이 그 안에 배치돼요.',
   'help.guide.studio-layouts.result':

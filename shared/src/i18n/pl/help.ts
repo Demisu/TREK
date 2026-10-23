@@ -985,7 +985,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Zastosuj układ do rozkładówki',
   'help.guide.studio-layouts.goal': 'Nadaj rozkładówce gotowy układ ramek na zdjęcia i tekst.',
   'help.guide.studio-layouts.step.1':
-    'Otwórz Layouts na pasku bocznym. Znajdziesz tam trzynaście układów rozkładówek oraz osobny zestaw dla okładki, tyłu i pojedynczych stron.',
+    'Otwórz Layouts na pasku bocznym. Najpierw są zaprojektowane strony: całe okładki i rozkładówki w motywie książki, które przyciski stylu zawężają do jednego wyglądu. Pod nimi są własne układy książki i układy wbudowane.',
   'help.guide.studio-layouts.step.2':
     'Kliknij jeden z układów. Rozkładówka na stole roboczym dostaje ramki tego układu, a Twoje dotychczasowe zdjęcia i teksty zostają w nich rozmieszczone.',
   'help.guide.studio-layouts.result':

@@ -1017,7 +1017,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Appliquer une mise en page à une double page',
   'help.guide.studio-layouts.goal': 'Appliquer à une double page une disposition toute prête de cadres photo et texte.',
   'help.guide.studio-layouts.step.1':
-    'Ouvrez « Layouts » dans la colonne de gauche. Vous y trouvez treize mises en page de double page, et une série à part pour la couverture, la quatrième de couverture et les pages simples.',
+    'Ouvrez « Layouts » dans la colonne de gauche. Les pages composées viennent d’abord : couvertures et doubles pages entières dans le thème du livre, que les pastilles de style restreignent à un seul style. Plus bas suivent les mises en page du livre et les mises en page intégrées.',
   'help.guide.studio-layouts.step.2':
     'Cliquez sur l’une d’elles. La double page du plan de travail reprend les cadres de cette mise en page, et vos photos et textes existants y sont placés.',
   'help.guide.studio-layouts.result':

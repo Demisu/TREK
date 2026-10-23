@@ -991,7 +991,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Aplicar um layout a uma página dupla',
   'help.guide.studio-layouts.goal': 'Aplique a uma página dupla uma disposição pronta de molduras de foto e texto.',
   'help.guide.studio-layouts.step.1':
-    'Abra “Layouts” na coluna. Ali há treze layouts de página dupla e um conjunto separado para a capa, a contracapa e as páginas avulsas.',
+    'Abra “Layouts” na coluna. Primeiro vêm as páginas desenhadas: capas e páginas duplas inteiras no tema do livro, que os botões de estilo filtram por um visual. Logo abaixo ficam os layouts do próprio livro e os prontos.',
   'help.guide.studio-layouts.step.2':
     'Clique em um. A página dupla na bancada recebe as molduras desse layout, e as fotos e textos que você já tinha são colocados nelas.',
   'help.guide.studio-layouts.result':

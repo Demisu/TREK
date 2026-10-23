@@ -996,7 +996,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Applicare un layout a una doppia pagina',
   'help.guide.studio-layouts.goal': 'Dai a una doppia pagina una disposizione già pronta di cornici per foto e testo.',
   'help.guide.studio-layouts.step.1':
-    'Apri «Layout» nella barra laterale. Trovi tredici layout per le doppie pagine e una serie a parte per copertina, retro e pagine singole.',
+    'Apri «Layout» nella barra laterale. Per prime ci sono le pagine progettate: copertine e doppie pagine intere nel tema del libro, che i pulsanti di stile restringono a un solo aspetto. Sotto seguono i layout del libro e quelli predefiniti.',
   'help.guide.studio-layouts.step.2':
     'Cliccane uno. La doppia pagina sul piano di lavoro riceve le cornici di quel layout, e le foto e i testi già presenti vengono inseriti al loro interno.',
   'help.guide.studio-layouts.result':

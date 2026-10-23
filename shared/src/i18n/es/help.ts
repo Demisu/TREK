@@ -1004,7 +1004,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.goal':
     'Aplica a una doble página una distribución predefinida de marcos de foto y de texto.',
   'help.guide.studio-layouts.step.1':
-    'Abre Diseños en la columna. Ofrece trece diseños de doble página y un conjunto aparte para la portada, la contraportada y las páginas sueltas.',
+    'Abre Diseños en la columna. Primero aparecen las páginas diseñadas: portadas y dobles páginas completas con el tema del libro, que los botones de estilo reducen a un solo aspecto. Debajo siguen los diseños propios del libro y los predefinidos.',
   'help.guide.studio-layouts.step.2':
     'Haz clic en una. La doble página de la mesa de trabajo toma los marcos de esa composición, y tus fotos y textos se colocan en ellos.',
   'help.guide.studio-layouts.result':

@@ -965,7 +965,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Áp dụng bố cục cho một trang đôi',
   'help.guide.studio-layouts.goal': 'Áp dụng cho trang đôi một cách sắp xếp sẵn của các khung ảnh và khung văn bản.',
   'help.guide.studio-layouts.step.1':
-    'Mở Layouts trên thanh bên. Có mười ba bố cục trang đôi, cùng một bộ riêng cho bìa, bìa sau và các trang đơn.',
+    'Mở Layouts trên thanh bên. Trước tiên là các trang thiết kế sẵn: bìa và trang đôi hoàn chỉnh theo chủ đề của sách, có thể lọc theo một phong cách bằng các nút phong cách. Bên dưới là các bố cục riêng của sách và các bố cục có sẵn.',
   'help.guide.studio-layouts.step.2':
     'Nhấn vào một bố cục. Trang đôi trên vùng làm việc sẽ có các khung của bố cục này, và ảnh cùng văn bản bạn đã có được đặt vào các khung đó.',
   'help.guide.studio-layouts.result':

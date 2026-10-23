@@ -965,7 +965,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Använd en layout på ett uppslag',
   'help.guide.studio-layouts.goal': 'Ge ett uppslag en färdig uppställning av foto- och textramar.',
   'help.guide.studio-layouts.step.1':
-    'Öppna ”Layouts” i sidofältet. Där finns tretton uppslagslayouter och en separat uppsättning för omslaget, baksidan och de enskilda sidorna.',
+    'Öppna ”Layouts” i sidofältet. Först kommer de formgivna sidorna: hela omslag och uppslag i bokens tema, som stilknapparna begränsar till ett uttryck. Under dem följer bokens egna layouter och de inbyggda.',
   'help.guide.studio-layouts.step.2':
     'Klicka på en. Uppslaget på arbetsytan får layoutens ramar, och dina befintliga foton och texter placeras i dem.',
   'help.guide.studio-layouts.result':

@@ -961,7 +961,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Použít rozvržení na dvojstranu',
   'help.guide.studio-layouts.goal': 'Dejte dvoustraně hotové rozvržení rámečků pro fotky a text.',
   'help.guide.studio-layouts.step.1':
-    'Otevřete v liště „Layouts“. Najdete tam třináct rozvržení dvoustran a zvláštní sadu pro obálku, zadní stranu a samostatné strany.',
+    'Otevřete v liště „Layouts“. Nejdřív jsou navržené stránky: celé obálky a dvoustrany v motivu knihy, které tlačítka stylu zúží na jeden vzhled. Pod nimi následují vlastní rozvržení knihy a vestavěná rozvržení.',
   'help.guide.studio-layouts.step.2':
     'Klikněte na jedno z nich. Dvojstrana na pracovní ploše dostane rámečky tohoto rozvržení a vaše stávající fotky a text se do nich umístí.',
   'help.guide.studio-layouts.result':

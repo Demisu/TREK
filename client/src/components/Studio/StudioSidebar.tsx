@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Camera, ChevronDown, ImagePlus, ChevronUp, Compass, Copy, FileDown, Files, ImageIcon, Layers, LayoutTemplate,
   Palette, Plus, Search, Shapes, Sticker, Trash2, Upload, X,
@@ -11,10 +11,7 @@ import { useToast } from '../shared/Toast'
 import { SpreadThumb } from './SpreadThumb'
 import { folioLabel, foliosOf } from './bookSheets'
 import { photoSrc } from './bookRender'
-import {
-  BOOK_COVER_TEMPLATES as COVER_TEMPLATES, BOOK_TEMPLATES as TEMPLATES, applyBookTemplate as applyTemplate,
-  bookElementId as uid,
-} from '@trek/shared'
+import { bookElementId as uid } from '@trek/shared'
 import {
   bookCoordValue as coordValue, formatBookCoords, formatBookDate, type BookCoordFormat as CoordFormat,
 } from '@trek/shared'
@@ -25,7 +22,7 @@ import { StudioStickersPanel } from './StudioStickersPanel'
 import { StudioLayersPanel } from './StudioLayersPanel'
 import { StudioTravelPanel } from './StudioTravelPanel'
 import { StudioThemePanel } from './theme/StudioThemePanel'
-import { StudioSavedLayouts } from './StudioSavedLayouts'
+import { StudioTemplatesPanel } from './templates/StudioTemplatesPanel'
 import { MAX_SPREAD_FILE_BYTES, importSpread } from './spreadFile'
 import { StudioContentFilter } from './StudioContentFilter'
 import { emptyKeyFor, matchingEntries, matchingPhotos, photosFor, type PhotoFilter } from './photoFilter'
@@ -45,6 +42,13 @@ import type { StudioUploader } from './studioUpload'
 type Section = 'pages' | 'content' | 'elements' | 'stickers' | 'travel' | 'templates' | 'layers' | 'theme'
 
 export interface JourneySource {
+  /**
+   * The journey's title and subtitle, which a cover is set in when the book has
+   * no title of its own. The Studio always gives them; a source built only for
+   * the content browser may leave them out.
+   */
+  title?: string
+  subtitle?: string | null
   entries: {
     id: number
     title: string | null
@@ -166,7 +170,10 @@ export function StudioSidebar({
         )}
         {section === 'layers' && <StudioLayersPanel t={t} />}
         {section === 'theme' && <StudioThemePanel t={t} />}
-        {section === 'templates' && <TemplatesPanel page={page} pxPerMm={pxPerMm} t={t} onOpenContent={() => setSection('content')} />}
+        {section === 'templates' && (
+          <StudioTemplatesPanel page={page} pxPerMm={pxPerMm} t={t} locale={locale} source={source} stats={stats}
+            path={path} onOpenContent={() => setSection('content')} />
+        )}
       </aside>
     </>
   )
@@ -770,106 +777,6 @@ function ContentPanel({
               </div>
             ))}
             {!entries.length && <p className="st-hint">{t('journey.studio.noMatches')}</p>}
-          </div>
-        )}
-      </div>
-    </>
-  )
-}
-
-/**
- * Layouts for the current spread.
- *
- * Each card draws the arrangement itself rather than naming it — "hero + story"
- * means nothing until you have seen it, and a diagram is faster to read than a
- * label anyway.
- */
-function TemplatesPanel({
-  page, pxPerMm, t, onOpenContent,
-}: { page: BookPageSetup; pxPerMm: number; t: (k: string) => string; onOpenContent: () => void }) {
-  const doc = useStudioStore(s => s.doc)
-  const active = useStudioStore(s => s.activeSpread)
-  const commit = useStudioStore(s => s.commit)
-  const spread = doc?.spreads[active]
-
-  const list = useElementSize<HTMLDivElement>()
-  const CARD_W = Math.max(MIN_PREVIEW_W, list.width - THUMB_CHROME)
-  const doc2 = doc
-  const cardIsSingle = (doc2?.spreads[active]?.role ?? 'inner') !== 'inner'
-  // A cover card is one page wide, not two — scaling it as a spread would draw
-  // the layout at half size in the left half of the card.
-  const scale = useMemo(
-    () => CARD_W / (page.pageWidth * (cardIsSingle ? 1 : 2) * pxPerMm),
-    [CARD_W, page.pageWidth, pxPerMm, cardIsSingle],
-  )
-
-  if (!spread) return null
-  const single = spread.role !== 'inner'
-  /*
-   * The cover has its own set. It used to have none — the panel said covers
-   * are designed by hand, which was true and unhelpful: the cover is the page
-   * people care most about and the one they had no starting point for.
-   */
-  const templates = single ? COVER_TEMPLATES : TEMPLATES
-
-  return (
-    <>
-      <Head label={t('journey.studio.templates')} count={templates.length} />
-      <div className="st-panel-scroll">
-        <StudioSavedLayouts page={page} width={CARD_W} pxPerMm={pxPerMm} t={t} />
-        {(
-          <div className="st-thumbs" ref={list.ref}>
-            {templates.map(tpl => {
-              const slots = tpl.build(page)
-              return (
-                <button
-                  type="button"
-                  key={tpl.id}
-                  className="st-thumb"
-                  onClick={() => {
-                    let empties = 0
-                    commit(d => ({
-                      ...d,
-                      spreads: d.spreads.map((sp, i) => {
-                        if (i !== active) return sp
-                        const next = applyTemplate(sp, tpl, page)
-                        empties = next.elements.filter(e => e.kind === 'photo' && e.photoId == null).length
-                        return next
-                      }),
-                    }))
-                    // The layout left frames waiting for a picture — so put the
-                    // pictures within reach instead of making the user go and
-                    // find the panel that holds them.
-                    if (empties > 0) onOpenContent()
-                  }}
-                >
-                  <div
-                    className="st-thumb-sheet"
-                    style={{ width: CARD_W, height: page.pageHeight * pxPerMm * scale }}
-                  >
-                    {slots.map((slot, i) => (
-                      <span
-                        key={i}
-                        className={`st-tpl-slot is-${slot.kind}`}
-                        style={{
-                          left: slot.frame.x * pxPerMm * scale,
-                          top: slot.frame.y * pxPerMm * scale,
-                          width: slot.frame.w * pxPerMm * scale,
-                          height: Math.max(2, slot.frame.h * pxPerMm * scale),
-                        }}
-                      />
-                    ))}
-                    {!single && (
-                      <span
-                        className="st-tpl-fold"
-                        style={{ left: page.pageWidth * pxPerMm * scale }}
-                      />
-                    )}
-                  </div>
-                  <span className="st-thumb-label">{t(tpl.labelKey)}</span>
-                </button>
-              )
-            })}
           </div>
         )}
       </div>

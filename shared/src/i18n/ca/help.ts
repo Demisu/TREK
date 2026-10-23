@@ -1000,7 +1000,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Aplicar un layout a una doble pàgina',
   'help.guide.studio-layouts.goal': 'Aplica a una doble pàgina una distribució predefinida de marcs de foto i de text.',
   'help.guide.studio-layouts.step.1':
-    'Obre «Disposicions» a la columna. Hi ha tretze disposicions de doble pàgina i un conjunt a part per a la coberta, la contracoberta i les pàgines soltes.',
+    'Obre «Disposicions» a la columna. Primer hi ha les pàgines dissenyades: cobertes i dobles pàgines senceres amb el tema del llibre, que els botons d’estil redueixen a un sol aspecte. A sota hi ha les disposicions del llibre i les predefinides.',
   'help.guide.studio-layouts.step.2':
     "Fes clic en una. La doble pàgina de la taula de treball rep els marcs d'aquesta composició, i les fotos i el text que ja hi tenies s'hi col·loquen.",
   'help.guide.studio-layouts.result':

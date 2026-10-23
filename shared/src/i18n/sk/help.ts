@@ -976,7 +976,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Použiť rozloženie na dvojstranu',
   'help.guide.studio-layouts.goal': 'Dajte dvojstrane hotové rozloženie rámčekov pre fotky a text.',
   'help.guide.studio-layouts.step.1':
-    'V paneli otvorte Rozloženia. Ponúka trinásť rozložení dvojstrán a samostatnú sadu pre obálku, zadnú stranu a jednotlivé strany.',
+    'V paneli otvorte Rozloženia. Najprv sú navrhnuté strany: celé obálky a dvojstrany v motíve knihy, ktoré tlačidlá štýlu zúžia na jeden vzhľad. Pod nimi nasledujú vlastné rozloženia knihy a vstavané rozloženia.',
   'help.guide.studio-layouts.step.2':
     'Kliknite na jedno z nich. Dvojstrana na pracovnej ploche dostane rámčeky tohto rozloženia a vaše existujúce fotky a texty sa do nich umiestnia.',
   'help.guide.studio-layouts.result':

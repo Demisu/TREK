@@ -924,7 +924,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': '見開きにレイアウトを適用する',
   'help.guide.studio-layouts.goal': '見開きに、写真とテキストのフレームを配置した既成のレイアウトを適用します。',
   'help.guide.studio-layouts.step.1':
-    'サイドバーの「レイアウト」を開きます。見開き用のレイアウトが13種類と、表紙、裏表紙、単ページ用のレイアウトが別に用意されています。',
+    'サイドバーの「レイアウト」を開きます。最初にデザイン済みページが並びます。本のテーマで組まれた表紙と見開きのページ全体で、スタイルのボタンで一つの雰囲気に絞り込めます。その下に、この本のレイアウトと標準のレイアウトが続きます。',
   'help.guide.studio-layouts.step.2':
     'レイアウトを1つクリックします。作業エリアの見開きにそのレイアウトのフレームが適用され、既存の写真とテキストがフレームに配置されます。',
   'help.guide.studio-layouts.result':

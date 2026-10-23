@@ -828,7 +828,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': '為跨頁套用版面',
   'help.guide.studio-layouts.goal': '為跨頁套用現成的照片框和文字框排版。',
   'help.guide.studio-layouts.step.1':
-    '在側欄開啟 Layouts。這裡提供十三種跨頁版面，另外還有一組專為封面、封底和單頁設計的版面。',
+    '在側欄開啟 Layouts。最上方是設計好的頁面：以書的主題呈現的完整封面與跨頁，可用風格按鈕篩選出一種風格。下方接著是這本書自己的版面和內建版面。',
   'help.guide.studio-layouts.step.2':
     '點選其中一個。工作區中的跨頁會套用這個版型的框，你原有的照片和文字也會放進這些框裡。',
   'help.guide.studio-layouts.result': '空框是內容的預留位置：從 Content 把照片拖到框上，或使用 Add to this page。',

@@ -978,7 +978,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Rakenda lehepaarile paigutus',
   'help.guide.studio-layouts.goal': 'Anna lehepaarile valmis paigutus foto- ja tekstiraamidega.',
   'help.guide.studio-layouts.step.1':
-    'Ava külgribal „Paigutused“. Seal on kolmteist lehepaari paigutust ning eraldi komplekt kaane, tagakaane ja üksiklehtede jaoks.',
+    'Ava külgribal „Paigutused“. Kõigepealt tulevad kujundatud lehed: terved kaaned ja lehepaarid raamatu teemas, mida stiilinupud ühe ilmeni kitsendavad. Nende all on raamatu enda paigutused ja sisseehitatud paigutused.',
   'help.guide.studio-layouts.step.2':
     'Klõpsa ühel neist. Tööpinnal olev lehepaar saab selle paigutuse raamid ning olemasolevad fotod ja tekst paigutatakse neisse.',
   'help.guide.studio-layouts.result':

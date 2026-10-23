@@ -1185,7 +1185,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Apply a layout to a spread',
   'help.guide.studio-layouts.goal': 'Give a spread a ready-made arrangement of photo and text frames.',
   'help.guide.studio-layouts.step.1':
-    'Open Layouts in the rail. It offers thirteen spread layouts, and a separate set for the cover, the back and the single pages.',
+    "Open Layouts in the rail. Designed pages come first: whole covers and spreads set in the book's theme, which the style chips narrow to one look. The book's own layouts and the built-in ones follow below them.",
   'help.guide.studio-layouts.step.2':
     'Click one. The spread on the workbench gets the frames of this layout, and your existing photos and text are placed into them.',
   'help.guide.studio-layouts.tip.1': 'A layout is an undo step like any other.',

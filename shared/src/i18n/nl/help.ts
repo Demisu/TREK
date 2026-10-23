@@ -992,7 +992,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.goal':
     "Geef een dubbele pagina een kant-en-klare indeling met kaders voor foto's en tekst.",
   'help.guide.studio-layouts.step.1':
-    "Open Layouts in de zijbalk. Daar vind je dertien lay-outs voor dubbele pagina's, en een aparte set voor de omslag, de achterkant en losse pagina's.",
+    'Open Layouts in de zijbalk. Eerst komen de ontworpen pagina’s: hele omslagen en dubbele pagina’s in het thema van het boek, die je met de stijlknoppen tot één uitstraling beperkt. Daaronder volgen de eigen lay-outs van het boek en de standaardlay-outs.',
   'help.guide.studio-layouts.step.2':
     "Klik op een opmaak. De dubbele pagina op het werkblad krijgt de kaders van die opmaak, en je bestaande foto's en tekst worden erin geplaatst.",
   'help.guide.studio-layouts.result':

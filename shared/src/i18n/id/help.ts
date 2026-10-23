@@ -986,7 +986,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Terapkan tata letak ke halaman ganda',
   'help.guide.studio-layouts.goal': 'Beri halaman ganda susunan bingkai foto dan teks yang siap pakai.',
   'help.guide.studio-layouts.step.1':
-    'Buka “Layouts” di panel samping. Ada tiga belas tata letak halaman ganda, serta satu set terpisah untuk sampul depan, sampul belakang, dan halaman tunggal.',
+    'Buka “Layouts” di panel samping. Halaman berdesain tampil lebih dulu: sampul dan halaman ganda utuh dengan tema buku, yang bisa dipersempit ke satu gaya lewat tombol gaya. Di bawahnya ada tata letak milik buku dan tata letak bawaan.',
   'help.guide.studio-layouts.step.2':
     'Klik salah satunya. Halaman ganda di area kerja mendapat bingkai-bingkai dari tata letak ini, dan foto serta teks yang sudah ada ditempatkan ke dalamnya.',
   'help.guide.studio-layouts.result':

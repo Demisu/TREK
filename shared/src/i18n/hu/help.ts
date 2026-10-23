@@ -1008,7 +1008,7 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Elrendezés alkalmazása egy oldalpárra',
   'help.guide.studio-layouts.goal': 'Adj egy oldalpárnak kész elrendezést fotó- és szövegkeretekkel.',
   'help.guide.studio-layouts.step.1':
-    'Nyisd meg az oldalsávban a „Layouts” részt. Tizenhárom oldalpár-elrendezés közül választhatsz, a borítóhoz, a hátlaphoz és az önálló oldalakhoz pedig külön készlet tartozik.',
+    'Nyisd meg az oldalsávban a „Layouts” részt. Elöl a megtervezett oldalak állnak: teljes borítók és oldalpárok a könyv témájában, amelyeket a stílusgombok egyetlen megjelenésre szűkítenek. Alattuk következnek a könyv saját elrendezései és a beépítettek.',
   'help.guide.studio-layouts.step.2':
     'Kattints egyre. A munkaterületen lévő kétoldalas nézet megkapja ennek az elrendezésnek a kereteit, a meglévő fotóid és szövegeid pedig bekerülnek a keretekbe.',
   'help.guide.studio-layouts.result':
