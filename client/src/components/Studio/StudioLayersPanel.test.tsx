@@ -141,8 +141,8 @@ describe('the layers panel', () => {
   });
 
   it('groups and ungroups the selection from its foot, and says when the page is empty', () => {
-    render(<StudioLayersPanel t={t} />);
     store().select(['a', 't']);
+    render(<StudioLayersPanel t={t} />);
     fireEvent.click(screen.getByText('journey.studio.layers.groupAction'));
     expect(el('a').group).toBeDefined();
     fireEvent.click(screen.getByText('journey.studio.layers.ungroup'));
