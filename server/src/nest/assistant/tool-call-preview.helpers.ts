@@ -379,6 +379,9 @@ function bookedDay(result: unknown): number | null {
   return reservation && typeof reservation === 'object' ? id(reservation as Args, 'day_id') : null;
 }
 
+/** Where a change came from when its caller does not say: no held card, no trip. */
+const NOT_FROM: AppliedFrom = { preview: null, tripId: null };
+
 /**
  * The receipt of an applied change: what it touched (the created row from its
  * answer, the changed one from its arguments), the day "Show on map" goes to
@@ -393,7 +396,7 @@ export function appliedChange(
   result: unknown,
   dayId: number | null,
   undoUntil: string | null,
-  from: AppliedFrom = { preview: null, tripId: null },
+  from: AppliedFrom = NOT_FROM,
 ): AssistantApplied | null {
   // A tool without a card of its own touched something the client has no view for.
   const runs = writeToolOf(toolName, args);

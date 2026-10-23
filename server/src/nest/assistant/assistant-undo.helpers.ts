@@ -72,6 +72,9 @@ const CHECKS: Readonly<Partial<Record<string, Check>>> = {
   ),
 };
 
+/** The call a check reads when its caller has none: no arguments, no held card. */
+const NO_CALL: UndoCall = { args: {}, preview: null };
+
 /**
  * True when the change `toolName` made (its stored `result`) is still as it
  * left it. `call` is what the answer may not name (the day a vacation toggle
@@ -81,7 +84,7 @@ export function unchangedSinceApplied(
   toolName: string,
   result: unknown,
   snapshot: TripSnapshot,
-  call: UndoCall = { args: {}, preview: null },
+  call: UndoCall = NO_CALL,
 ): boolean {
   const check = CHECKS[toolName];
   return !!check && check(recordOf(result), { ...snapshot, reads: snapshot.reads ?? new Map() }, call);
