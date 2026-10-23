@@ -130,7 +130,7 @@ const assistant: TranslationStrings = {
   'assistant.step.working': 'Arbeitet daran',
   'assistant.step.collapsed': '{count} Schritte',
   'assistant.step.collapsed.one': '{count} Schritt',
-  'assistant.change.title': 'Vorschlag für deinen Trip',
+  'assistant.change.title': 'Vorgeschlagene Änderungen',
   'assistant.change.doneTitle': 'Erledigt',
   'assistant.change.apply': 'Übernehmen',
   'assistant.change.applyN': '{count} übernehmen',
