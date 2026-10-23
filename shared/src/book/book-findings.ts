@@ -1,6 +1,6 @@
 import { bookVisiblePart, sortBookFindings } from './book-findings-design';
-import { bookFontFace } from './book-fonts';
 import { stickerFindings } from './book-findings-sticker';
+import { bookFontFace } from './book-fonts';
 import { visibleSpread } from './book-groups';
 import type { BookPhotoInfo } from './book-ops-core';
 import type { BookFinding } from './book-ops.schema';

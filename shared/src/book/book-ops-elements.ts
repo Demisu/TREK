@@ -16,9 +16,9 @@ import {
   unlockedElement,
   type BookOpsContext,
 } from './book-ops-core';
+import { newStickerElement } from './book-ops-sticker';
 import { withShapePaint } from './book-paint';
 import type { BookPaint } from './book-paint.schema';
-import { newStickerElement } from './book-ops-sticker';
 import {
   bookBadgeValue,
   bookCountryMark,
