@@ -186,6 +186,8 @@ function elementColours(el: BookElement): string[] {
     case 'text':
     case 'icon':
       return [lower(el.color)];
+    case 'sticker':
+      return el.colors.map(lower);
     default:
       return [lower(el.color), lower(el.accent)];
   }
