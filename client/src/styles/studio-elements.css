@@ -1,0 +1,12 @@
+/* The tabs of the elements panel: each as wide as its word, so a longer word
+   is never cut, and a strip that does not fit breaks onto a second row. */
+.trek-dash .st-tabs.is-fluid {
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.trek-dash .st-tabs.is-fluid button {
+  flex: 1 1 auto;
+  min-width: auto;
+  padding: 0 10px;
+  overflow: visible;
+}

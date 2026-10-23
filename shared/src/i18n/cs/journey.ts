@@ -554,6 +554,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Tečkovaný',
   'journey.studio.singleFigures': 'Jednotlivá čísla',
   'journey.studio.addPage': 'Přidat stranu',
+  'journey.studio.addPageShort': 'Stránka',
   'journey.studio.addPageAfter': 'Vložit stranu za tuto',
   'journey.studio.duplicatePage': 'Duplikovat stranu',
   'journey.studio.deletePage': 'Smazat stranu',

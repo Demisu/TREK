@@ -553,6 +553,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Με τελείες',
   'journey.studio.singleFigures': 'Μεμονωμένα στοιχεία',
   'journey.studio.addPage': 'Προσθήκη σελίδας',
+  'journey.studio.addPageShort': 'Σελίδα',
   'journey.studio.addPageAfter': 'Εισαγωγή σελίδας μετά',
   'journey.studio.duplicatePage': 'Διπλασιασμός σελίδας',
   'journey.studio.deletePage': 'Διαγραφή σελίδας',

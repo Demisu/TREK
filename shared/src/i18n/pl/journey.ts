@@ -566,6 +566,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Kropkowana',
   'journey.studio.singleFigures': 'Pojedyncze dane',
   'journey.studio.addPage': 'Dodaj stronę',
+  'journey.studio.addPageShort': 'Strona',
   'journey.studio.addPageAfter': 'Wstaw stronę po tej',
   'journey.studio.duplicatePage': 'Duplikuj stronę',
   'journey.studio.deletePage': 'Usuń stronę',

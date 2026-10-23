@@ -547,6 +547,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Pontozott',
   'journey.studio.singleFigures': 'Egyes számok',
   'journey.studio.addPage': 'Oldal hozzáadása',
+  'journey.studio.addPageShort': 'Oldal',
   'journey.studio.addPageAfter': 'Oldal beszúrása ez után',
   'journey.studio.duplicatePage': 'Oldal duplikálása',
   'journey.studio.deletePage': 'Oldal törlése',

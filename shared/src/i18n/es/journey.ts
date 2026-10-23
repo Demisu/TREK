@@ -550,6 +550,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Punteado',
   'journey.studio.singleFigures': 'Cifras sueltas',
   'journey.studio.addPage': 'Añadir página',
+  'journey.studio.addPageShort': 'Página',
   'journey.studio.addPageAfter': 'Insertar página detrás',
   'journey.studio.duplicatePage': 'Duplicar página',
   'journey.studio.deletePage': 'Eliminar página',

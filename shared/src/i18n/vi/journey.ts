@@ -539,6 +539,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Chấm',
   'journey.studio.singleFigures': 'Số riêng lẻ',
   'journey.studio.addPage': 'Thêm trang',
+  'journey.studio.addPageShort': 'Trang',
   'journey.studio.addPageAfter': 'Chèn trang sau trang này',
   'journey.studio.duplicatePage': 'Nhân bản trang',
   'journey.studio.deletePage': 'Xóa trang',

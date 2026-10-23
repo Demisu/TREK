@@ -535,6 +535,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': '점선',
   'journey.studio.singleFigures': '개별 수치',
   'journey.studio.addPage': '페이지 추가',
+  'journey.studio.addPageShort': '페이지',
   'journey.studio.addPageAfter': '뒤에 페이지 삽입',
   'journey.studio.duplicatePage': '페이지 복제',
   'journey.studio.deletePage': '페이지 삭제',

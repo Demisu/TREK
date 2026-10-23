@@ -548,6 +548,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Noktalı',
   'journey.studio.singleFigures': 'Tek rakamlar',
   'journey.studio.addPage': 'Sayfa ekle',
+  'journey.studio.addPageShort': 'Sayfa',
   'journey.studio.addPageAfter': 'Bundan sonra sayfa ekle',
   'journey.studio.duplicatePage': 'Sayfayı çoğalt',
   'journey.studio.deletePage': 'Sayfayı sil',

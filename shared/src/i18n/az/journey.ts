@@ -600,6 +600,7 @@ const journey: TranslationStrings = {
 
   'journey.studio.singleFigures': 'Ayrı-ayrı göstəricilər',
   'journey.studio.addPage': 'Açılım əlavə et',
+  'journey.studio.addPageShort': 'Səhifə',
   'journey.studio.addPageAfter': 'Bundan sonra açılım əlavə et',
   'journey.studio.duplicatePage': 'Açılımın dublikatını yarat',
   'journey.studio.deletePage': 'Açılımı sil',

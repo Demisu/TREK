@@ -538,6 +538,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': '点線',
   'journey.studio.singleFigures': '単独の数値',
   'journey.studio.addPage': 'ページを追加',
+  'journey.studio.addPageShort': 'ページ',
   'journey.studio.addPageAfter': 'この後にページを挿入',
   'journey.studio.duplicatePage': 'ページを複製',
   'journey.studio.deletePage': 'ページを削除',

@@ -547,6 +547,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Dotted',
   'journey.studio.singleFigures': 'Single figures',
   'journey.studio.addPage': 'Add spread',
+  'journey.studio.addPageShort': 'Page',
   'journey.studio.addPageAfter': 'Insert a spread after this one',
   'journey.studio.duplicatePage': 'Duplicate spread',
   'journey.studio.deletePage': 'Delete spread',

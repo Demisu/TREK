@@ -547,6 +547,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Prickad',
   'journey.studio.singleFigures': 'Enskilda siffror',
   'journey.studio.addPage': 'Lägg till uppslag',
+  'journey.studio.addPageShort': 'Sida',
   'journey.studio.addPageAfter': 'Infoga uppslag efter',
   'journey.studio.duplicatePage': 'Duplicera uppslag',
   'journey.studio.deletePage': 'Ta bort uppslag',

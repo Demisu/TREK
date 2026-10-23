@@ -530,6 +530,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': '點線',
   'journey.studio.singleFigures': '單一數據',
   'journey.studio.addPage': '新增頁面',
+  'journey.studio.addPageShort': '頁面',
   'journey.studio.addPageAfter': '在此後插入頁面',
   'journey.studio.duplicatePage': '複製頁面',
   'journey.studio.deletePage': '刪除頁面',

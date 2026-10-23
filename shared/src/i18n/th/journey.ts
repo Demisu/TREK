@@ -532,6 +532,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'ลายจุด',
   'journey.studio.singleFigures': 'ตัวเลขเดี่ยว',
   'journey.studio.addPage': 'เพิ่มหน้าคู่',
+  'journey.studio.addPageShort': 'หน้า',
   'journey.studio.addPageAfter': 'แทรกหน้าคู่ต่อจากนี้',
   'journey.studio.duplicatePage': 'ทำสำเนาหน้าคู่',
   'journey.studio.deletePage': 'ลบสเปรด',

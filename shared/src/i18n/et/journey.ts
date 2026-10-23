@@ -548,6 +548,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Punktiir',
   'journey.studio.singleFigures': 'Üksikud arvandmed',
   'journey.studio.addPage': 'Lisa lehepaar',
+  'journey.studio.addPageShort': 'Leht',
   'journey.studio.addPageAfter': 'Lisa lehepaar selle järele',
   'journey.studio.duplicatePage': 'Kopeeri lehepaar',
   'journey.studio.deletePage': 'Kustuta lehepaar',

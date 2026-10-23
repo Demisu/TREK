@@ -6,6 +6,7 @@ import { FRAME_SHAPES, HOLED_SHAPES, SHAPE_GROUPS, SHAPE_PATHS } from './shapes'
 import { BOOK_GRIDS as GRIDS, bookElementId, bookGridElements as gridElements, defaultBookGridBox as defaultGridBox } from '@trek/shared'
 import { PanelHead } from './StudioPanelHead'
 import { FEATURED_ICONS, iconComponent, iconLabel, searchIcons } from './iconLibrary'
+import '../../styles/studio-elements.css'
 
 /**
  * Everything you can add that does not come from the journey: type, shapes,
@@ -216,7 +217,7 @@ export function StudioElementsPanel({ page, t }: { page: BookPageSetup; t: (k: s
     <>
       <PanelHead label={t('journey.studio.elements')} />
 
-      <div className="st-tabs">
+      <div className="st-tabs is-fluid">
         <button type="button" className={tab === 'shapes' ? 'is-on' : ''} onClick={() => setTab('shapes')}>
           {t('journey.studio.shapes')}
         </button>

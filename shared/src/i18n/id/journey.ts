@@ -539,6 +539,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Titik-titik',
   'journey.studio.singleFigures': 'Angka tunggal',
   'journey.studio.addPage': 'Tambah halaman',
+  'journey.studio.addPageShort': 'Halaman',
   'journey.studio.addPageAfter': 'Sisipkan halaman setelah ini',
   'journey.studio.duplicatePage': 'Duplikat halaman',
   'journey.studio.deletePage': 'Hapus halaman',

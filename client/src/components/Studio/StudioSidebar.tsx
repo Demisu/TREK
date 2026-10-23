@@ -288,9 +288,10 @@ function PagesPanel({
           not a setting buried in a menu, it is the other half of "add".
         */}
         <div className="st-add-row">
-          <button type="button" className="st-add-page" onClick={() => addSpread(lastInner)}>
+          <button type="button" className="st-add-page" onClick={() => addSpread(lastInner)}
+            title={t('journey.studio.addPage')} aria-label={t('journey.studio.addPage')}>
             <Plus size={14} />
-            {t('journey.studio.addPage')}
+            {t('journey.studio.addPageShort')}
           </button>
           <button type="button"
             className="st-add-page is-import"

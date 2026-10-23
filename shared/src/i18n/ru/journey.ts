@@ -565,6 +565,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Пунктирная',
   'journey.studio.singleFigures': 'Отдельные числа',
   'journey.studio.addPage': 'Добавить разворот',
+  'journey.studio.addPageShort': 'Страница',
   'journey.studio.addPageAfter': 'Вставить разворот после',
   'journey.studio.duplicatePage': 'Дублировать разворот',
   'journey.studio.deletePage': 'Удалить разворот',

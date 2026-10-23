@@ -569,6 +569,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Пунктирна',
   'journey.studio.singleFigures': 'Окремі числа',
   'journey.studio.addPage': 'Додати розворот',
+  'journey.studio.addPageShort': 'Сторінка',
   'journey.studio.addPageAfter': 'Вставити розворот після',
   'journey.studio.duplicatePage': 'Дублювати розворот',
   'journey.studio.deletePage': 'Видалити розворот',

@@ -576,6 +576,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'منقّط',
   'journey.studio.singleFigures': 'أرقام مفردة',
   'journey.studio.addPage': 'إضافة صفحة',
+  'journey.studio.addPageShort': 'صفحة',
   'journey.studio.addPageAfter': 'إدراج صفحة بعد هذه',
   'journey.studio.duplicatePage': 'تكرار الصفحة',
   'journey.studio.deletePage': 'حذف الصفحة',

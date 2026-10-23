@@ -559,6 +559,7 @@ const journey: TranslationStrings = {
   'journey.studio.strokeDotted': 'Bodkovaný',
   'journey.studio.singleFigures': 'Jednotlivé čísla',
   'journey.studio.addPage': 'Pridať dvojstranu',
+  'journey.studio.addPageShort': 'Strana',
   'journey.studio.addPageAfter': 'Vložiť dvojstranu za túto',
   'journey.studio.duplicatePage': 'Duplikovať dvojstranu',
   'journey.studio.deletePage': 'Odstrániť dvojstranu',
