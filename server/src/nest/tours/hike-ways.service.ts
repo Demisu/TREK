@@ -31,7 +31,6 @@ import {
   type HikeLegWayRequest,
   type HikeRoundProposal,
   type HikeRoundProposeRequest,
-  type HikeStop,
   type HikeWayMiss,
   type HikeWayMissing,
   type HikeWayPoints,
@@ -55,9 +54,13 @@ interface RoundSearch {
   why: HikeWayMiss | null;
 }
 
-/** What the ways of one leg came to: the hike's points with each way pinned on, or why there are none. */
+/**
+ * What the ways of one leg came to: the pins that hold each way the router
+ * keeps to, or why there are none. Only what the router was asked is kept;
+ * each call sets the pins on its own points.
+ */
 interface LegWays {
-  ways: HikeStop[][];
+  pins: WayPin[][];
   why: HikeWayMiss | null;
 }
 
@@ -153,7 +156,12 @@ export class HikeWaysService {
     }
     const key = legWaysKey(userId, tripId, request);
     const search = await this.recall(key, () => this.searchLegWays(userId, tripId, request));
-    const { ways, why } = search as LegWays;
+    const { pins, why } = search as LegWays;
+    // Spots that read as one key may come with other names, stage ends or the way back given as a point.
+    const ways = pins.flatMap((held) => {
+      const pinned = pinnedPointsOf(request.waypoints, request.leg, held);
+      return pinned ? [pinned] : [];
+    });
     const index = wayIndexOf(request.way);
     const waypoints = ways[index];
     if (!waypoints) return wayMissing(request.way, ways.length, why);
@@ -254,9 +262,9 @@ export class HikeWaysService {
   /**
    * The other ways of one leg: the router's ways between its two ends under
    * the hike's costing, those that are no way already known, each held by
-   * the fewest pins the router keeps to (as the planner holds a way chosen),
-   * and the hike's points with those pins set on the leg. A way the router
-   * does not keep to, or that would take the hike past its points, is left out.
+   * the fewest pins the router keeps to (as the planner holds a way chosen).
+   * A way the router does not keep to is left out; one whose pins would take
+   * the hike past its points is left out where they are set on them.
    */
   private async searchLegWays(userId: number, tripId: number, request: HikeLegWayRequest): Promise<LegWays> {
     const ends = legEndsOf(request.waypoints, request.round_trip, request.leg);
@@ -268,10 +276,10 @@ export class HikeWaysService {
       offers = await this.router.alternatesOnFoot(userId, ends.from, ends.to, costingOptions, HIKE_WAY_KEYS.length);
     } catch (err: unknown) {
       if (!(err instanceof RouteRefusal)) logWarn(`[Hike] no other ways for trip ${tripId}: ${reasonOf(err)}`);
-      return { ways: [], why: missOf(err) };
+      return { pins: [], why: missOf(err) };
     }
     const [own] = offers;
-    if (!own) return { ways: [], why: 'no_way' };
+    if (!own) return { pins: [], why: 'no_way' };
     const current = roadOf(own);
     const route = async (pins: WayPin[]): Promise<RoadLine & { fellBack?: boolean }> => {
       try {
@@ -290,12 +298,11 @@ export class HikeWaysService {
       HIKE_WAY_KEYS.length,
     );
     // One way after another: each check asks the router's one paced queue.
-    const ways = await others.reduce<Promise<HikeStop[][]>>(async (before, offer) => {
+    const kept = await others.reduce<Promise<WayPin[][]>>(async (before, offer) => {
       const held = await before;
       const proof = await pinWay({ offer: roadOf(offer.coordinates), current, route });
-      const pinned = proof?.held ? pinnedPointsOf(request.waypoints, request.leg, proof.pins) : null;
-      return pinned ? [...held, pinned] : held;
+      return proof?.held ? [...held, proof.pins] : held;
     }, Promise.resolve([]));
-    return { ways, why: null };
+    return { pins: kept, why: null };
   }
 }

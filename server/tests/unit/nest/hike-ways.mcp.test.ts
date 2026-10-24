@@ -23,7 +23,7 @@ import type { HikeProposeRequest } from '@trek/shared';
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// HIKE-WAYS-MCP-001 to HIKE-WAYS-MCP-008
+// HIKE-WAYS-MCP-001 to HIKE-WAYS-MCP-009
 
 type Spot = { lat: number; lng: number };
 
@@ -229,5 +229,25 @@ describe('propose_hike_leg_way', () => {
       await mcp.proposeHikeLegWay({ tripId, name: 'H', waypoints: [A, B], leg: 1, tour_id: place.id }, ctx(userId)),
     );
     expect(answer.leg_way.tour_id).toBe(place.id);
+  });
+
+  it('HIKE-WAYS-MCP-009: a later call over the same spots asks the router nothing new, and its way follows its own points', async () => {
+    const { userId, tripId } = await tripOf();
+    // The way back of a round trip, B to A.
+    alternatesOnFoot.mockResolvedValue([[...OWN].reverse(), [...OTHER].reverse()]);
+    const pin = { lat: 47.51, lng: 11.12 };
+    const round = read(
+      await mcp.proposeHikeLegWay({ tripId, name: 'H', waypoints: [A, B], round_trip: true, leg: 2 }, ctx(userId)),
+    );
+    expect(round.create_with).toEqual({ waypoints: [A, B, pin], round_trip: true });
+    const asked = route.mock.calls.length;
+    // The same hike as get_tour_plan reads it: the way back given as its last point, and a night at the hut.
+    const hut = { ...B, stage_end: true };
+    const saved = read(await mcp.proposeHikeLegWay({ tripId, name: 'H', waypoints: [A, hut, A], leg: 2 }, ctx(userId)));
+    expect(alternatesOnFoot).toHaveBeenCalledTimes(1);
+    expect(route.mock.calls.length).toBe(asked);
+    expect(saved.leg_way).toMatchObject({ key: 'a', leg: 2, ways_found: 1 });
+    expect(saved.create_with).toEqual({ waypoints: [A, hut, pin, A], round_trip: false });
+    expect(propose.mock.calls.at(-1)?.[2]).toMatchObject({ waypoints: [A, hut, pin, A], round_trip: false });
   });
 });
