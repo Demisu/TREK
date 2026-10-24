@@ -254,7 +254,7 @@ A Homepage widget then needs no scripting:
 | `404` | no such trip, or not one of yours |
 | `429` | rate limit exceeded |
 
-**Which TREK is running.** To check the running version, for example against the latest GitHub release, call `GET /api/auth/app-config`. It needs no key and no login, and the `version` field holds the running version (such as `4.3.3`). It is not part of `/api/v1`, so it follows the app's own release rather than the promise below.
+**Which TREK is running.** To check the running version, for example against the latest GitHub release, call `GET /api/auth/app-config`. It needs no key and no login, and the `version` field holds the running version (such as `5.0.0`). It is not part of `/api/v1`, so it follows the app's own release rather than the promise below.
 
 **Versioning.** `/api/v1` may gain fields; it will not lose them or change their types. A breaking change ships as `/api/v2` and both run side by side for a transition period. Write your client to ignore fields it does not know.
 

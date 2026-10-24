@@ -162,7 +162,7 @@ plus a toolbar:
 - **Sort** — Name / Recently updated, plus **Updates first** in Installed and **Most
   downloads** in Discover. The view-specific option falls back to Name when you switch
   views.
-- **Upload** — sideload a plugin from a `.zip`/`.tar.gz` (see [Installing](#installing-a-plugin)).
+- **Upload plugin** — sideload a plugin from a `.zip`/`.tar.gz` (see [Installing](#installing-a-plugin)).
 - **Rescan** — rediscovers the on-disk plugins directory **and** force-pulls the
   remote registry, bypassing the 30-minute server cache and GitHub's CDN so a
   just-published plugin (or update) shows up immediately rather than up to ~35
@@ -221,7 +221,7 @@ Three ways, all from **Admin → Plugins**:
    one), safely unpacks it, re-validates the manifest, and registers it — **inactive**.
    Nothing runs yet.
 2. **By upload (sideload).** Drag a plugin `.zip`/`.tar.gz` onto the panel, or use
-   the **Upload** button. TREK extracts it into staging with the same hard guards as
+   the **Upload plugin** button. TREK extracts it into staging with the same hard guards as
    a registry install (slip/bomb-safe extract, strict manifest, no native binaries —
    only the registry SHA-256/signature checks don't apply, since there's no registry
    entry) and registers it **inactive**. A sideloaded plugin is marked **Sideloaded**,
@@ -232,6 +232,7 @@ Three ways, all from **Admin → Plugins**:
 3. **From disk.** Drop a plugin directory into the plugins code directory
    (`server/data/plugins`, or your `TREK_PLUGINS_DIR` volume) and click **Rescan**
    (or restart). TREK discovers it and registers it inactive.
+4. **Dev link (plugin authors only).** With `TREK_PLUGINS_DEV_LINK` turned on, the panel shows **Link a local plugin**: enter the absolute path of your plugin's build directory and click **Link**. The plugin gets a **Dev-Link** badge, is hot-reloaded against real data and skips the install-time checks, so never switch this on for an instance other people rely on. Like any new plugin it starts inactive. See [[Plugin Development|Plugin-Development]].
 
 ## Activating a plugin
 
