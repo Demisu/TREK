@@ -206,6 +206,29 @@ describe('toChatHistory', () => {
     ]);
   });
 
+  it('ASTHIS-005b: a file that held no booking says why, and a reason this build does not know adds nothing', () => {
+    const read = (reason: unknown) =>
+      serverStepsNote([
+        {
+          type: 'tool-call',
+          toolCallId: 'r',
+          toolName: 'read_booking_file',
+          args: { name: 'AirBnB Buchung.pdf' },
+          result: { bookings: [], reason },
+        },
+      ]);
+    expect(read('ai_not_configured')).toBe(
+      'TREK read the attached file "AirBnB Buchung.pdf" and found no booking in it: AI reading for imports is not ' +
+        "set up on this server, so only TREK's own reader looked at it.",
+    );
+    expect(read('ai_failed')).toContain('found no booking in it: the AI reader for imports could not read it.');
+    expect(read('no_text')).toContain('found no booking in it: it holds no readable text, most likely a scan.');
+    expect(read('nothing_found')).toContain(
+      "found no booking in it: neither TREK's reader nor the AI reader found one.",
+    );
+    expect(read('later_reason')).toBe('TREK read the attached file "AirBnB Buchung.pdf" and found no booking in it.');
+  });
+
   it('ASTHIS-006: a place the user picked from the search results is told as a note, whatever became of it', () => {
     const found = (approval: AssistantToolApproval, isError = false) =>
       serverStepsNote([

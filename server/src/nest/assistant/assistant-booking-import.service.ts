@@ -7,7 +7,12 @@ import type { AttachedFileReader, FileRead } from './assistant-attached-file';
 import { IMPORT_BOOKING_TOOL, MAX_WRITES_PER_STEP, READ_BOOKING_FILE_TOOL } from './assistant-tools.constants';
 import type { ToolRun } from './assistant-tools.service';
 import { Injectable } from '@nestjs/common';
-import { bookingImportPreviewItemSchema, LLM_PHOTO_EXTENSIONS, type BookingImportPreviewItem } from '@trek/shared';
+import {
+  bookingImportPreviewItemSchema,
+  LLM_PHOTO_EXTENSIONS,
+  type BookingImportPreviewItem,
+  type BookingImportPreviewResponse,
+} from '@trek/shared';
 
 import { extname } from 'node:path';
 
@@ -16,6 +21,37 @@ const PHOTO_EXTENSIONS: ReadonlySet<string> = new Set(LLM_PHOTO_EXTENSIONS);
 const NOT_ALLOWED = 'You are not allowed to add bookings to this trip.';
 const NOT_ADDED = 'The booking could not be added.';
 const BROKEN = 'This booking can no longer be read.';
+
+/**
+ * Why a file held no booking: AI reading is not set up for imports (only the
+ * extractor looked), the AI could not read it, it holds no text (a scan the
+ * model cannot see), or nothing in it reads as a booking.
+ */
+export const BOOKING_READ_REASONS = ['ai_not_configured', 'ai_failed', 'no_text', 'nothing_found'] as const;
+export type BookingReadReason = (typeof BOOKING_READ_REASONS)[number];
+
+/** What reading a file found: at most a step's worth of bookings, and why there were none. */
+export interface BookingRead {
+  items: BookingImportPreviewItem[];
+  /** Null when the file held bookings. */
+  reason: BookingReadReason | null;
+}
+
+/** The warnings of the AI fallback that say it could not read the file (llm-parse.service.ts words them). */
+const AI_FAILED = [/AI parsing failed/, /could not read file/, /does not read images/];
+const NO_TEXT = /no readable text found/;
+
+/**
+ * Why a preview of one file came back empty, from its warnings and its file
+ * report. The import dialog shows those warnings as text; the chat names the
+ * reason in its answer instead, so it reads them here once.
+ */
+export function emptyReason(preview: BookingImportPreviewResponse, aiAvailable: boolean): BookingReadReason {
+  if (!aiAvailable) return 'ai_not_configured';
+  if (preview.warnings.some((warning) => NO_TEXT.test(warning))) return 'no_text';
+  if (preview.warnings.some((warning) => AI_FAILED.some((pattern) => pattern.test(warning)))) return 'ai_failed';
+  return 'nothing_found';
+}
 
 /**
  * The booking import as the assistant uses it: a file attached in the chat is
@@ -52,21 +88,26 @@ export class AssistantBookingImportService implements AttachedFileReader {
   }
 
   /**
-   * The bookings in the file, at most a step's worth; the AI is asked only
-   * where the extractor found none. Persists nothing.
+   * The bookings in the file, at most a step's worth, and why there were
+   * none; the AI is asked only where the extractor found none. Persists
+   * nothing.
    */
-  async read(userId: number, file: Express.Multer.File): Promise<BookingImportPreviewItem[]> {
-    const mode = (await this.bookingImport.aiAvailable(userId)) ? 'fallback-on-empty' : 'no-ai';
-    const preview = await this.bookingImport.preview([file], mode, userId);
+  async read(userId: number, file: Express.Multer.File): Promise<BookingRead> {
+    const ai = await this.bookingImport.aiAvailable(userId);
+    const preview = await this.bookingImport.preview([file], ai ? 'fallback-on-empty' : 'no-ai', userId);
     // One file proposes no more bookings than one step may hold changes; the rest are left out.
-    return preview.items.slice(0, MAX_WRITES_PER_STEP);
+    const items = preview.items.slice(0, MAX_WRITES_PER_STEP);
+    return { items, reason: items.length > 0 ? null : emptyReason(preview, ai) };
   }
 
-  /** The bookings of the file as the changes the chat holds, one import_booking each. */
+  /**
+   * The bookings of the file as the changes the chat holds, one
+   * import_booking each; a file without any says why in its read step.
+   */
   async propose(userId: number, _tripId: number, file: Express.Multer.File): Promise<FileRead> {
-    const items = await this.read(userId, file);
+    const { items, reason } = await this.read(userId, file);
     return {
-      found: { bookings: items.map((item) => item.title) },
+      found: { bookings: items.map((item) => item.title), ...(reason ? { reason } : {}) },
       proposals: items.map((item) => ({ toolName: IMPORT_BOOKING_TOOL, args: item as Record<string, unknown> })),
     };
   }

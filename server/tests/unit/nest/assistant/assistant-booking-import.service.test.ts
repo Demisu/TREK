@@ -4,7 +4,10 @@
  * step's worth of bookings), and the checks a booking passes when the user
  * applies it, the same an MCP write runs.
  */
-import { AssistantBookingImportService } from '../../../../src/nest/assistant/assistant-booking-import.service';
+import {
+  AssistantBookingImportService,
+  emptyReason,
+} from '../../../../src/nest/assistant/assistant-booking-import.service';
 import { MAX_WRITES_PER_STEP } from '../../../../src/nest/assistant/assistant-tools.constants';
 import { BookingImportService } from '../../../../src/nest/booking-import/booking-import.service';
 import { DemoService } from '../../../../src/nest/common/demo.service';
@@ -85,13 +88,37 @@ describe('AssistantBookingImportService', () => {
 
   it("ASTBKI-002: reads with the AI only as a fallback, and keeps a step's worth of bookings", async () => {
     const plain = await make();
-    const items = await plain.service.read(7, file('a.pdf'));
+    const { items, reason } = await plain.service.read(7, file('a.pdf'));
     const given = expect.objectContaining({ originalname: 'a.pdf' });
     expect(plain.bookingImport.preview).toHaveBeenCalledWith([given], 'no-ai', 7);
     expect(items).toHaveLength(MAX_WRITES_PER_STEP);
+    expect(reason).toBeNull();
     const ai = await make({ ai: true });
     await ai.service.read(7, file('a.pdf'));
     expect(ai.bookingImport.preview.mock.calls[0][1]).toBe('fallback-on-empty');
+  });
+
+  it('ASTBKI-005: a file without a booking says why, in the read step the chat keeps', async () => {
+    const t = await make();
+    t.bookingImport.preview.mockResolvedValueOnce({ items: [], warnings: ['a.pdf: no reservations found'] });
+    expect(await t.service.propose(7, 5, file('a.pdf'))).toEqual({
+      found: { bookings: [], reason: 'ai_not_configured' },
+      proposals: [],
+    });
+    const found = await make();
+    const read = await found.service.propose(7, 5, file('a.pdf'));
+    expect(read.found).toEqual({ bookings: expect.any(Array) });
+  });
+
+  it('ASTBKI-006: reads the reason from the warnings of the preview, for each way it comes back empty', () => {
+    const preview = (...warnings: string[]) => ({ items: [], warnings });
+    expect(emptyReason(preview('a.pdf: no reservations found'), false)).toBe('ai_not_configured');
+    const scan = preview('a.pdf: no readable text found (a scanned PDF needs a model that reads images)');
+    expect(emptyReason(scan, true)).toBe('no_text');
+    expect(emptyReason(preview('a.pdf: AI parsing failed — 401'), true)).toBe('ai_failed');
+    expect(emptyReason(preview('a.pdf: could not read file — bad xref'), true)).toBe('ai_failed');
+    expect(emptyReason(preview('a.jpg: the configured model does not read images'), true)).toBe('ai_failed');
+    expect(emptyReason(preview('a.pdf: no reservations found'), true)).toBe('nothing_found');
   });
 
   it('ASTBKI-003: an applied booking is created through the import, on the trip, without a socket', async () => {
