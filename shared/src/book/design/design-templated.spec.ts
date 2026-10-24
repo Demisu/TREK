@@ -9,12 +9,13 @@ import {
 } from '../book.schema';
 import { pageFindings } from '../describe-spread';
 import { findDecoratedTemplate } from '../templates/template-catalogue';
+import { templatePhotoSlots } from '../templates/template-format';
 import { matchDecoratedTemplate } from '../templates/template-match';
 import { bookThemeColor, bookThemeOf } from '../theme/book-theme';
 import { applyBookTheme } from '../theme/book-theme-apply';
 import { designBook, type BookDesignInput, type BookDesignResult } from './design-book';
 import type { BookDesignDirectivesInput } from './design-directives.schema';
-import { THEME_ARCHETYPE } from './design-template-pick';
+import { ARCHETYPE_KIN, THEME_ARCHETYPE } from './design-template-pick';
 
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
@@ -329,6 +330,32 @@ describe('the book on the designed templates', () => {
     expect(composed.doc).toEqual(
       designBook(null, { ...input, newId: counter() }, { style: 'riso', seed: 1, layouts: 'composed' }).doc,
     );
+  });
+
+  it("AUTODSN-016: bare stops are listed on a words-only template of the book's styles, every name in its story", () => {
+    const base = parity.A as Fixture;
+    const entries = base.input.entries.map((e) => ({ ...e, story: null, photos: [] }));
+    const input = { ...base.input, entries, coverPhotoId: null, candidates: [], photos: [] };
+    for (const theme of THEMES) {
+      const { plan, doc } = laid(input, theme);
+      const lists = plan.filter((r) => r.beat === 'stations');
+      expect(lists.length, theme).toBeGreaterThan(0);
+      const words: string[] = [];
+      for (const r of lists) {
+        const tpl = findDecoratedTemplate(r.template ?? '');
+        expect(tpl && templatePhotoSlots(tpl), `${theme} ${r.template}`).toBe(0);
+        expect([THEME_ARCHETYPE[theme], ...ARCHETYPE_KIN[THEME_ARCHETYPE[theme]]]).toContain(tpl?.archetype);
+        const s = doc.spreads.find((x) => x.id === r.spreadId) as BookSpread;
+        const texts = s.elements.flatMap((e) => (e.kind === 'text' ? [e.text] : []));
+        expect(texts, theme).toContain(input.stationsLabel);
+        words.push(...texts);
+      }
+      const listed = words.join(' ');
+      for (const e of entries) {
+        const name = e.title || e.location || '';
+        if (name) expect(listed, `${theme} ${name}`).toContain(name);
+      }
+    }
   });
 
   it('AUTODSN-020: lays the parity journeys exactly as pinned', () => {

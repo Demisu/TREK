@@ -1,9 +1,11 @@
 import type { AutoEntry, AutoPhoto } from '../auto/auto-types';
 import type { BookCoverArchetype } from '../book-archetypes';
 import { DESIGN_TEXT_HEADROOM, textHeightNeeded } from '../book-findings';
+import { formatBookDate } from '../book-text';
 import type { BookElement, BookSpread, BookTextElement } from '../book.schema';
 import { decoratedTemplatesFor } from '../templates/template-catalogue';
-import { templatePhotoSlots, type BookDecoratedTemplate } from '../templates/template-format';
+import { templatePhotoSlots, templateRoles, type BookDecoratedTemplate } from '../templates/template-format';
+import type { BookTemplateWord } from '../templates/template-words';
 import type { BookDesignInput } from './design-book';
 import { cutWords, liveBox, photoEl, textEl, type ComposeCtx } from './design-compose';
 import { composeStations } from './design-framing';
@@ -308,10 +310,71 @@ function chapterPages(l: Laying, chapter: DesignChapter, notes: string[]) {
   }
 }
 
-/** The pages of a list of bare stops: as many stations spreads as the stops need. */
+/** The most stops one page of the list takes, so a page of them still reads as a list. */
+const STOPS_PER_PAGE = 10;
+
+/** Bare stops as a list: under each date the names of the stops of that day, a blank line between days. */
+function stopList(c: ComposeCtx, stops: readonly AutoEntry[], dated: boolean): string {
+  const days: { date: string; names: string[] }[] = [];
+  for (const e of stops) {
+    const date = e.date && dated ? formatBookDate(e.date, c.locale) : '';
+    const name = (e.title || e.location || '').trim();
+    if (!name) continue;
+    const day = days[days.length - 1];
+    if (day && day.date === date) day.names.push(name);
+    else days.push({ date, names: [name] });
+  }
+  return days.map((d) => [d.date, ...d.names].filter(Boolean).join('\n')).join('\n\n');
+}
+
+/** The one day all these stops were on, bound to the first of them, as a date role takes it; null without one. */
+function oneDay(c: ComposeCtx, stops: readonly AutoEntry[]): BookTemplateWord | null {
+  const days = new Set(stops.map((e) => e.date ?? ''));
+  const [day] = days;
+  const first = stops[0];
+  if (days.size !== 1 || !day || !first) return null;
+  return { text: formatBookDate(day, c.locale), binding: { source: 'entry.date', entryId: first.id, value: day } };
+}
+
+/**
+ * One page of bare stops on a words-only template of the book's styles: the
+ * list's label as its title, the stops as its story (given by role, since a
+ * short list that opens on a date would read as a date line), as many as its
+ * story frame holds. Stops of one day set that day in the template's date
+ * and only their names in the list. Undefined when no template takes a list.
+ */
+function stationsPage(l: Laying, stops: readonly AutoEntry[], label: string) {
+  for (let n = Math.min(stops.length, STOPS_PER_PAGE); n > 0; n--) {
+    const some = stops.slice(0, n);
+    const key = `stations:${l.out.length}`;
+    const pick = (list: string) =>
+      pickInnerTemplate({ photos: [], story: list, mappable: false }, { ...l.base, history: l.history, key });
+    const tpl = pick(stopList(l.c, some, true));
+    if (!tpl) return undefined;
+    const day = templateRoles(tpl).includes('date') ? oneDay(l.c, some) : null;
+    const list = stopList(l.c, some, !day);
+    if (bodyCapacity(tpl, l.c.page, l.c.look.theme) < list.length && n > 1) continue;
+    const words = {
+      title: { text: label },
+      body: { text: list },
+      ...(day ? { date: day } : {}),
+    };
+    return { spread: tidied(pourTemplate(l.c, innerSpread(l.c, [], null), tpl, l.entries, words)), tpl, placed: n };
+  }
+  return undefined;
+}
+
+/** The pages of a list of bare stops: as many as the stops need, each on a words-only template where one takes it. */
 function stationsPages(l: Laying, chapter: DesignChapter, input: BookDesignInput) {
   let rest = chapter.entries;
   while (rest.length) {
+    const page = stationsPage(l, rest, input.stationsLabel);
+    if (page) {
+      l.history.push(page.tpl.id);
+      l.out.push({ spread: page.spread, beat: 'stations', chapter: null, findings: [], template: page.tpl.id });
+      rest = rest.slice(page.placed);
+      continue;
+    }
     const set = composeStations(l.c, rest, input.stationsLabel);
     if (!set.placed) break;
     l.out.push({ spread: innerSpread(l.c, set.elements, null), beat: 'stations', chapter: null, findings: [] });

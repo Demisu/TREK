@@ -13,7 +13,7 @@ import {
 import type { JourneyStats } from '../journey-stats.schema';
 import { applyDecoratedTemplate } from '../templates/template-apply';
 import type { BookDecoratedTemplate } from '../templates/template-format';
-import { bookTemplateWords } from '../templates/template-words';
+import { bookTemplateWords, type BookTemplateWords } from '../templates/template-words';
 import { themedElement } from '../theme/book-theme-apply';
 import { bookTravelLooks, BOOK_TRAVEL_COUNTRY_ACCENT, type BookTravelLooks } from '../travel/book-travel-looks';
 import { frameOf, liveBox, photoEl, scaled, textEl, type ComposeCtx } from './design-compose';
@@ -79,14 +79,18 @@ function coverSeed(c: ComposeCtx, words: CoverWords, material: CoverMaterial, sl
   return { id: c.newId('sp'), role: 'cover', background: null, elements: els, parked: [], entryId: null };
 }
 
-/** A page laid on a decorated template in the book's theme, its empty roles taking the journey's words. */
+/**
+ * A page laid on a decorated template in the book's theme, its empty roles
+ * taking the journey's words, or the words `given` for a role by name.
+ */
 export function pourTemplate(
   c: ComposeCtx,
   seed: BookSpread,
   tpl: BookDecoratedTemplate,
   entries: readonly AutoEntry[],
+  given: BookTemplateWords = {},
 ) {
-  const words = bookTemplateWords(seed, { bookTitle: '', locale: c.locale, entries });
+  const words = { ...bookTemplateWords(seed, { bookTitle: '', locale: c.locale, entries }), ...given };
   return applyDecoratedTemplate(seed, tpl, c.page, {
     theme: c.look.theme,
     travel: c.travel,
