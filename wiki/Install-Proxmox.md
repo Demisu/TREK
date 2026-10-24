@@ -23,6 +23,8 @@ The script will prompt you to choose between **Default** and **Advanced** settin
 
 ### Default container specs
 
+These are the defaults at the time of writing. The script decides them, so check the script page for the current values.
+
 | Resource | Value |
 |---|---|
 | OS | Debian 13 |
@@ -46,6 +48,8 @@ On first boot, TREK automatically creates an admin account. The credentials are 
 ```bash
 journalctl -u trek -n 50
 ```
+
+If you put `ADMIN_EMAIL` and `ADMIN_PASSWORD` into `/opt/trek/server/.env` before the first start, TREK uses them instead, but only on that first start and only when both are set. Once a user exists they have no effect.
 
 The `ENCRYPTION_KEY` is auto-generated during setup and saved to `/opt/trek/server/.env`. Record that file in your backups.
 
@@ -92,6 +96,8 @@ HOST=10.0.0.72   # bind only on this LAN interface
 
 If the container reaches the internet only through a proxy, set `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY` in the same file, and `NODE_USE_ENV_PROXY=1` next to them: unlike the Docker image, a Proxmox install does not set that switch for you, and without it Node ignores the proxy for everything except TREK's guarded integration requests. See [Environment-Variables](Environment-Variables#outbound-https-proxy).
 
+The same file takes every other variable from [Environment-Variables](Environment-Variables), for example the Web Push, OIDC or place search settings. The in-app Help pages are read from the `wiki` folder that comes with the installed version, so they match what you run. Installed plugins are stored under the `data` folder by default (`TREK_PLUGINS_DIR` moves them), so keep that folder in your backups.
+
 See [Environment-Variables](Environment-Variables) for the full variable reference.
 
 ## Updating
@@ -104,7 +110,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/community-scripts/Proxmo
 
 > **Tip:** Always check the [community-scripts TREK page](https://community-scripts.org/scripts/trek) to confirm the latest command before running.
 
-The script stops the service, backs up your data and uploads, applies the new release, restores the backup, and restarts. No manual steps required.
+The script stops the service, backs up your data and uploads, applies the new release, restores the backup, and restarts. No manual steps required. When the new version starts, TREK also copies the database to `data/pre-migrate-<schema>-<time>.db` before migrating it, so you can go back if needed (see [Updating](Updating#database-migrations)).
 
 ## Next Steps
 

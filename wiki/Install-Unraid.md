@@ -2,8 +2,6 @@
 
 Install TREK on Unraid via Community Applications or a direct template import.
 
-<!-- TODO: screenshot: Unraid container template settings -->
-
 ## Prerequisite
 
 Docker must be enabled in Unraid (**Settings → Docker → Enable Docker: Yes**).
@@ -47,7 +45,7 @@ The Unraid template exposes the following fields in the container UI:
 
 Additional variables (`PORT`, `NODE_ENV`, `LOG_LEVEL`, `TREK_WIKI_DIR`, `DEFAULT_LANGUAGE`, `FORCE_HTTPS`, `HSTS_INCLUDE_SUBDOMAINS`, `TRUST_PROXY`, `COOKIE_SECURE`, `ALLOW_INTERNAL_NETWORK`, `SESSION_DURATION`, `SESSION_DURATION_REMEMBER`, the OIDC variables apart from `OIDC_USERNAME_CLAIM`, `MCP_RATE_LIMIT`, `MCP_MAX_SESSION_PER_USER`, `DEMO_MODE`, `UNSPLASH_ACCESS_KEY`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`) are available under **Advanced View** in the template editor.
 
-Any other variable from [Environment-Variables](Environment-Variables), such as `OIDC_USERNAME_CLAIM`, `FILE_UPLOAD_LIMIT_MB`, `PLACES_API_KEY` or `HTTP_PROXY`, is added as a new variable in the template editor, with its name as the key.
+Any other variable from [Environment-Variables](Environment-Variables), such as `OIDC_USERNAME_CLAIM`, `ALLOW_LINK_LOCAL_IPS`, `FILE_UPLOAD_LIMIT_MB`, `PLACES_API_KEY`, the `SMTP_*` settings, the `AMAP_*` keys or `HTTP_PROXY`, is added as a new variable in the template editor, with its name as the key.
 
 ## Setting the Encryption Key
 
@@ -68,6 +66,10 @@ http://<unraid-ip>:<port>
 ```
 
 On first boot, TREK automatically creates an admin account. The credentials are printed to the container log — check **Docker → trek → Log** in the Unraid UI. If you set both `ADMIN_EMAIL` and `ADMIN_PASSWORD`, those values are used; otherwise the email is `admin@trek.local` and a random password is generated.
+
+## Updating
+
+Click the TREK container in the **Docker** tab and select **Update**. Before the new version migrates the database, TREK copies it to `pre-migrate-<schema>-<time>.db` in the `data` folder (`/mnt/user/appdata/trek/data` by default), so you can go back to the previous image if needed. See [Updating](Updating#database-migrations).
 
 ## Next Steps
 
