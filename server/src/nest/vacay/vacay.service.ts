@@ -1150,14 +1150,33 @@ export class VacayService {
       // Removing a stray entry on a blocked day stays possible; keeping one
       // there (converted in place) does not.
       if (weekendBlocked) return { error: 'weekend_blocked' };
-      await this.entries.updateFractionKind(existing.id, frac, knd);
+      await this.uow.transactional(async () => {
+        await this.entries.updateFractionKind(existing.id, frac, knd);
+        await this.ensureYearOf(planId, userId, date);
+      });
       await this.notifyPlanUsers(planId, socketId);
       return { action: 'updated', fraction: frac, kind: knd };
     }
     if (weekendBlocked) return { error: 'weekend_blocked' };
-    await this.entries.insertEntry(planId, userId, date, '', frac, knd);
+    await this.uow.transactional(async () => {
+      await this.entries.insertEntry(planId, userId, date, '', frac, knd);
+      await this.ensureYearOf(planId, userId, date);
+    });
     await this.notifyPlanUsers(planId, socketId);
     return { action: 'added', fraction: frac, kind: knd };
+  }
+
+  /**
+   * A day written for a year the plan has not opened yet adds that year, with
+   * each member's allowance, the way opening it by hand does. Without it a day
+   * set months ahead (by the assistant, MCP, a plugin or an old client) was
+   * stored but never shown, since the calendar only offers the plan's years.
+   * The year is the writer's leave period that holds the date (#737).
+   */
+  private async ensureYearOf(planId: number, userId: number, date: string): Promise<void> {
+    const [y, m, d] = date.split('-').map(Number);
+    const year = await this.currentPeriodYear(userId, new Date(y, m - 1, d));
+    if (!(await this.years.exists(planId, year))) await this.addYear(planId, year, undefined);
   }
 
   /**
@@ -1179,6 +1198,8 @@ export class VacayService {
         await this.companyHolidays.insertHoliday(planId, date, note || '', frac); // VC120
       }
       await this.makeRoomForCompanyHoliday(planId, date, frac);
+      const owner = await this.plans.findOwnerId(planId);
+      if (owner) await this.ensureYearOf(planId, owner.owner_id, date);
       return { action: existing ? 'updated' : 'added', fraction: frac };
     });
     await this.notifyPlanUsers(planId, socketId);
