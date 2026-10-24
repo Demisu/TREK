@@ -45,5 +45,7 @@ const studioPaint: TranslationStrings = {
   'journey.studio.pattern.scales': 'Sisik',
   'journey.studio.pattern.sunburst': 'Sinar matahari',
   'journey.studio.pattern.confetti': 'Konfeti',
+  'journey.studio.pattern.linen': 'Linen', // same-as-en
+  'journey.studio.pattern.grain': 'Tekstur kertas',
 };
 export default studioPaint;

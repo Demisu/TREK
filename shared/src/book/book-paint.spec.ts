@@ -71,7 +71,7 @@ describe('the paint contract', () => {
     for (const p of [{ type: 'solid', color: '#abcdef', alpha: 0.4 }, linear, radial, stripes]) {
       expect(bookPaintSchema.parse(p)).toEqual(p);
     }
-    expect(BOOK_PATTERNS).toHaveLength(12);
+    expect(BOOK_PATTERNS).toHaveLength(14);
     for (const pattern of BOOK_PATTERNS) expect(bookPaintSchema.safeParse({ ...stripes, pattern }).success).toBe(true);
   });
 

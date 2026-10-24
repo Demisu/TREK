@@ -45,5 +45,7 @@ const studioPaint: TranslationStrings = {
   'journey.studio.pattern.scales': 'Soomused',
   'journey.studio.pattern.sunburst': 'Päikesekiired',
   'journey.studio.pattern.confetti': 'Konfetid',
+  'journey.studio.pattern.linen': 'Linane',
+  'journey.studio.pattern.grain': 'Paberi tekstuur',
 };
 export default studioPaint;

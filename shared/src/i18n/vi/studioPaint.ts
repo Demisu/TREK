@@ -45,5 +45,7 @@ const studioPaint: TranslationStrings = {
   'journey.studio.pattern.scales': 'Vảy',
   'journey.studio.pattern.sunburst': 'Tia nắng',
   'journey.studio.pattern.confetti': 'Hoa giấy',
+  'journey.studio.pattern.linen': 'Vải lanh',
+  'journey.studio.pattern.grain': 'Vân giấy',
 };
 export default studioPaint;

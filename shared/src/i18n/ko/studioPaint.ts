@@ -45,5 +45,7 @@ const studioPaint: TranslationStrings = {
   'journey.studio.pattern.scales': '비늘',
   'journey.studio.pattern.sunburst': '햇살',
   'journey.studio.pattern.confetti': '색종이 조각',
+  'journey.studio.pattern.linen': '리넨',
+  'journey.studio.pattern.grain': '종이 질감',
 };
 export default studioPaint;

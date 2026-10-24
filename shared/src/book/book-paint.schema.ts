@@ -42,6 +42,8 @@ export const BOOK_PATTERNS = [
   'scales',
   'sunburst',
   'confetti',
+  'linen',
+  'grain',
 ] as const;
 export type BookPattern = (typeof BOOK_PATTERNS)[number];
 

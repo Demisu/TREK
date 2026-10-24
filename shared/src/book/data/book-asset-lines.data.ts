@@ -138,4 +138,6 @@ export const BOOK_PATTERN_LINES: Readonly<Record<BookPattern, string>> = {
   scales: 'Overlapping half circles, fish scales or roof tiles.',
   sunburst: 'Rays from a centre, a sunburst.',
   confetti: 'Scattered confetti.',
+  linen: 'Fine woven threads, the texture of a cloth-bound book, best in a colour close to its ground.',
+  grain: 'Fine scattered specks, the grain of paper or kraft card, best in a colour close to its ground.',
 };

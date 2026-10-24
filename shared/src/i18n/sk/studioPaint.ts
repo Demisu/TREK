@@ -45,5 +45,7 @@ const studioPaint: TranslationStrings = {
   'journey.studio.pattern.scales': 'Šupiny',
   'journey.studio.pattern.sunburst': 'Lúče',
   'journey.studio.pattern.confetti': 'Konfety',
+  'journey.studio.pattern.linen': 'Plátno',
+  'journey.studio.pattern.grain': 'Zrno papiera',
 };
 export default studioPaint;

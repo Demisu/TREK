@@ -45,5 +45,7 @@ const studioPaint: TranslationStrings = {
   'journey.studio.pattern.scales': 'حراشف',
   'journey.studio.pattern.sunburst': 'أشعة الشمس',
   'journey.studio.pattern.confetti': 'قصاصات ملونة',
+  'journey.studio.pattern.linen': 'كتان',
+  'journey.studio.pattern.grain': 'حبيبات الورق',
 };
 export default studioPaint;

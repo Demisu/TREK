@@ -44,5 +44,7 @@ const studioPaint: TranslationStrings = {
   'journey.studio.pattern.scales': '鳞片',
   'journey.studio.pattern.sunburst': '放射光',
   'journey.studio.pattern.confetti': '彩纸屑',
+  'journey.studio.pattern.linen': '亚麻',
+  'journey.studio.pattern.grain': '纸张纹理',
 };
 export default studioPaint;

@@ -46,6 +46,11 @@ interface PatternGeometry {
 const r2 = (v: number) => Math.round(v * 100) / 100 || 0;
 const f = (v: number) => String(r2(v));
 
+/** Threads per cell each way in linen: fine enough to read as cloth, few enough for a whole page under the cap. */
+const LINEN_THREADS = 6;
+/** Specks per cell in grain. */
+const GRAIN_SPECKS = 3;
+
 /**
  * How many primitives a repeat needs over a region: `area` primitives per
  * cell squared, `lin` per cell along the width and the height. Read before
@@ -66,6 +71,8 @@ const DENSITY: Record<BookPattern, { area: number; lin: number }> = {
   scales: { area: 2, lin: 0 },
   sunburst: { area: 0, lin: 0 },
   confetti: { area: 1.2, lin: 0 },
+  linen: { area: 0, lin: 2 * LINEN_THREADS },
+  grain: { area: GRAIN_SPECKS, lin: 0 },
 };
 
 /** A primitive count estimate for a repeat over a region at a cell size. */
@@ -269,6 +276,24 @@ const DRAW: Record<Exclude<BookPattern, 'sunburst'>, Draw> = {
       ]);
     }
   },
+  // Threads of uneven weight both ways, on two half-clear layers: where they cross the cloth reads denser.
+  linen: (pen, g, s, alt) => {
+    const rand = mulberry32(Math.round(s * 1000) + 31);
+    const pitch = s / LINEN_THREADS;
+    for (const y of steps(g.y0, g.y1, pitch)) pen.rect(g.x0, y, g.x1 - g.x0, pitch * (0.2 + rand() * 0.35));
+    for (const x of steps(g.x0, g.x1, pitch)) alt.rect(x, g.y0, pitch * (0.2 + rand() * 0.35), g.y1 - g.y0);
+  },
+  // Specks of a few sizes, the larger ones fainter, scattered the same way on every render.
+  grain: (pen, g, s, alt) => {
+    const rand = mulberry32(Math.round(s * 1000) + 43);
+    const n = Math.round((((g.x1 - g.x0) * (g.y1 - g.y0)) / (s * s)) * GRAIN_SPECKS);
+    for (let i = 0; i < n && !pen.full && !alt.full; i++) {
+      const x = g.x0 + rand() * (g.x1 - g.x0);
+      const y = g.y0 + rand() * (g.y1 - g.y0);
+      if (rand() < 0.6) pen.circle(x, y, s * (0.012 + rand() * 0.012));
+      else alt.circle(x, y, s * (0.025 + rand() * 0.02));
+    }
+  },
 };
 
 /** A seeded generator, so a confetti page draws the same scatter on every render and in print. */
@@ -307,6 +332,13 @@ function sunburst(pen: Pen, box: PatternBox, cell: number, angle: number) {
   }
 }
 
+/** The repeats drawn on two layers, and how clear each layer is: textures stay quiet over their ground. */
+const LAYER_OPACITY: Partial<Record<BookPattern, readonly [number, number]>> = {
+  gingham: [0.5, 0.5],
+  linen: [0.32, 0.32],
+  grain: [0.5, 0.28],
+};
+
 /**
  * A repeat over a box. The geometry covers the box however it is turned: the
  * region drawn is the square around the box's circumscribed circle, and the
@@ -338,17 +370,18 @@ export function patternGeometry(
     return { layers: [{ d: pen.d, opacity: 1 }], count: pen.count, cell };
   }
 
-  // The second layer only ever holds gingham's cross bands; the cell fitted above keeps both under the cap together.
+  // The second layer holds gingham's and linen's cross bands and grain's larger specks;
+  // the cell fitted above keeps both under the cap together.
   const alt = new Pen(cap);
   DRAW[paint.pattern](pen, region, cell, alt);
   const count = pen.count + alt.count;
-  const layers =
-    paint.pattern === 'gingham'
-      ? [
-          { d: pen.d, opacity: 0.5 },
-          { d: alt.d, opacity: 0.5 },
-        ]
-      : [{ d: pen.d, opacity: 1 }];
+  const two = LAYER_OPACITY[paint.pattern];
+  const layers = two
+    ? [
+        { d: pen.d, opacity: two[0] },
+        { d: alt.d, opacity: two[1] },
+      ]
+    : [{ d: pen.d, opacity: 1 }];
   return {
     layers: layers.filter((l) => l.d),
     count,

@@ -45,5 +45,7 @@ const studioPaint: TranslationStrings = {
   'journey.studio.pattern.scales': 'เกล็ด',
   'journey.studio.pattern.sunburst': 'รัศมีแสง',
   'journey.studio.pattern.confetti': 'กระดาษสี',
+  'journey.studio.pattern.linen': 'ผ้าลินิน',
+  'journey.studio.pattern.grain': 'เนื้อกระดาษ',
 };
 export default studioPaint;

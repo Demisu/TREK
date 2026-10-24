@@ -45,5 +45,7 @@ const studioPaint: TranslationStrings = {
   'journey.studio.pattern.scales': 'Λέπια',
   'journey.studio.pattern.sunburst': 'Ηλιαχτίδες',
   'journey.studio.pattern.confetti': 'Κομφετί',
+  'journey.studio.pattern.linen': 'Λινό',
+  'journey.studio.pattern.grain': 'Υφή χαρτιού',
 };
 export default studioPaint;
