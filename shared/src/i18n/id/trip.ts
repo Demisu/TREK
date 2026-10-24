@@ -46,6 +46,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'Bergabung…',
   'trip.invite.invalidTitle': 'Undangan tidak tersedia',
   'trip.invite.invalid': 'Tautan undangan ini tidak valid atau sudah kedaluwarsa.',
+  'trip.invite.removedTitle': 'Akses dicabut',
+  'trip.invite.removed': 'Anda telah dikeluarkan dari perjalanan ini. Minta pemiliknya untuk menambahkan Anda lagi.',
   'trip.invite.backToDashboard': 'Kembali ke dasbor',
   'transit.title': 'Transportasi umum',
   'transit.from': 'Dari',

@@ -52,6 +52,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'Приєднання…',
   'trip.invite.invalidTitle': 'Запрошення недоступне',
   'trip.invite.invalid': 'Це посилання-запрошення недійсне або термін його дії минув.',
+  'trip.invite.removedTitle': 'Доступ скасовано',
+  'trip.invite.removed': 'Вас видалили з цієї подорожі. Попросіть її власника знову додати вас.',
   'trip.invite.backToDashboard': 'Назад до панелі',
   'transit.title': 'Громадський транспорт',
   'transit.from': 'Звідки',

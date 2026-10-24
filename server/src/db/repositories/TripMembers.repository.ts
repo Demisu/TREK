@@ -268,6 +268,45 @@ export class TripMembersRepository extends TrekRepository<TripMembers> {
   }
 
   /**
+   * Notes that somebody else took this user off the trip, so the trip's invite
+   * link stops letting them back in (GHSA-wr4c-964p-39jg). A second removal
+   * keeps the first note.
+   */
+  async recordRemoval(tripId: number, userId: number): Promise<void> {
+    await this.kysely<Pick<DB, 'trip_member_removals'>>()
+      .insertInto('trip_member_removals')
+      .values({ trip_id: tripId, user_id: userId })
+      .onConflict((oc) => oc.columns(['trip_id', 'user_id']).doNothing())
+      .execute();
+  }
+
+  /**
+   * Lifts the note once a member manager adds the user back.
+   *
+   * @txStandalone it runs after the membership insert and only lifts a refusal;
+   * when it fails, the user is a member anyway and the invite link keeps
+   * refusing them, which is the safe side.
+   */
+  async clearRemoval(tripId: number, userId: number): Promise<void> {
+    await this.kysely<Pick<DB, 'trip_member_removals'>>()
+      .deleteFrom('trip_member_removals')
+      .where('trip_id', '=', tripId)
+      .where('user_id', '=', userId)
+      .execute();
+  }
+
+  /** Whether somebody else took this user off the trip and nobody added them back since. */
+  async wasRemoved(tripId: number, userId: number): Promise<boolean> {
+    const row = await this.kysely<Pick<DB, 'trip_member_removals'>>()
+      .selectFrom('trip_member_removals')
+      .select('id')
+      .where('trip_id', '=', tripId)
+      .where('user_id', '=', userId)
+      .executeTakeFirst();
+    return !!row;
+  }
+
+  /**
    * Takes someone who left the trip off its journal link, so coming back later
    * does not quietly reopen the journal. Their access already ended with the
    * membership (the link's reach requires it); this tidies the row. Here rather

@@ -51,7 +51,7 @@ function writesFor(s: TripMembersService) {
     addMember: vi.fn((tripId: string, identifier: string, ownerId: number, w: TripWriter) =>
       s.addMember(tripId, identifier, ownerId, w.userId),
     ),
-    removeMember: vi.fn((tripId: number, userId: number, _w: TripWriter) => s.removeMember(tripId, userId)),
+    removeMember: vi.fn((tripId: number, userId: number, _w: TripWriter) => s.removeMember(tripId, userId, _w.userId)),
     createGuest: vi.fn((tripId: string, name: string, w: TripWriter) => s.createGuest(tripId, name, w.userId)),
     renameGuest: vi.fn((tripId: string, guestId: number, name: string, _w: TripWriter) =>
       s.renameGuest(tripId, guestId, name),

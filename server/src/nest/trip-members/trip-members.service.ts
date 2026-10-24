@@ -192,6 +192,8 @@ export class TripMembersService {
     // `Number('1e1')` coerce to a real integer where SQLite's own text
     // affinity never converts a hex or exponent literal).
     await this.tripMembersRepo.addMember(Number(tripId), target.id, invitedByUserId);
+    // Added back by name: the invite link may let them in again (GHSA-wr4c-964p-39jg).
+    await this.tripMembersRepo.clearRemoval(Number(tripId), target.id);
 
     const tripTitle = await this.tripsRepo.getTitle(tripId);
 
@@ -209,12 +211,16 @@ export class TripMembersService {
    * .removeMember`'s own `toRowId` parse (added alongside this narrowing,
    * the route's one remaining raw-string caller).
    */
-  async removeMember(tripId: number, targetUserId: number): Promise<void> {
+  async removeMember(tripId: number, targetUserId: number, removedBy: number): Promise<void> {
     // A linked journal stops being open to someone who left; coming back later
     // must not quietly reopen it.
     await this.uow.transactional(async () => {
+      const wasMember = await this.tripMembersRepo.exists(tripId, targetUserId);
       await this.tripMembersRepo.remove(tripId, targetUserId);
       await this.tripMembersRepo.leaveJournalLink(tripId, targetUserId);
+      // Taken off by somebody else, they must not walk back in through the
+      // trip's invite link (GHSA-wr4c-964p-39jg). Leaving yourself leaves no note.
+      if (wasMember && removedBy !== targetUserId) await this.tripMembersRepo.recordRemoval(tripId, targetUserId);
     });
   }
 

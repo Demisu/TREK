@@ -133,6 +133,7 @@ Unlike the read-only share link, this one is **not anonymous**:
 - Whoever opens it must have a TREK account and be **signed in**. If they are not, they are sent to the login page and returned to the invite afterwards — there is **no registration** from this link.
 - Opening it while signed in shows a confirmation card naming the trip. Clicking **Join trip** adds you as a **member** (the same access a manually-added member gets) and opens the trip. The owner and existing members see the same card and are simply taken to the trip when they accept.
 - To invite people who do **not** yet have an account, use an admin invite link with an optional trip binding instead — see [Invite-Links](Invite-Links).
+- Someone another member **removed** from the trip cannot rejoin through the invite link, old or regenerated; they see that they were removed. Adding them again by name in the Share dialog lets them back in. Someone who **left** the trip on their own can still rejoin through the link.
 
 ### Creating and revoking
 

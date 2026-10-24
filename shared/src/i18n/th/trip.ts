@@ -44,6 +44,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'กำลังเข้าร่วม...',
   'trip.invite.invalidTitle': 'ไม่สามารถเชิญได้',
   'trip.invite.invalid': 'ลิงก์คำเชิญนี้ไม่ถูกต้องหรือหมดอายุแล้ว',
+  'trip.invite.removedTitle': 'ถูกนำสิทธิ์การเข้าถึงออกแล้ว',
+  'trip.invite.removed': 'คุณถูกนำออกจากทริปนี้ โปรดขอให้เจ้าของทริปเพิ่มคุณอีกครั้ง',
   'trip.invite.backToDashboard': 'กลับไปที่แดชบอร์ด',
   'transit.title': 'การขนส่งสาธารณะ',
   'transit.from': 'จาก',

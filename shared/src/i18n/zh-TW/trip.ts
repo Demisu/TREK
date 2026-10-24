@@ -45,6 +45,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': '加入中…',
   'trip.invite.invalidTitle': '邀請無法使用',
   'trip.invite.invalid': '此邀請連結無效或已過期。',
+  'trip.invite.removedTitle': '存取權已移除',
+  'trip.invite.removed': '你已被移出此旅程。請聯絡擁有者重新將你加入。',
   'trip.invite.backToDashboard': '返回儀表板',
   'transit.title': '大眾運輸',
   'transit.from': '起點',

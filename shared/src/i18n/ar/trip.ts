@@ -56,6 +56,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'جارٍ الانضمام…',
   'trip.invite.invalidTitle': 'الدعوة غير متاحة',
   'trip.invite.invalid': 'رابط الدعوة هذا غير صالح أو انتهت صلاحيته.',
+  'trip.invite.removedTitle': 'تمت إزالة وصولك',
+  'trip.invite.removed': 'لقد تمت إزالتك من هذه الرحلة. اطلب من مالكها إضافتك مرة أخرى.',
   'trip.invite.backToDashboard': 'العودة إلى لوحة التحكم',
   'transit.title': 'النقل العام',
   'transit.from': 'من',

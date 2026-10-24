@@ -48,6 +48,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'Går med…',
   'trip.invite.invalidTitle': 'Inbjudan inte tillgänglig',
   'trip.invite.invalid': 'Den här inbjudningslänken är ogiltig eller har gått ut.',
+  'trip.invite.removedTitle': 'Åtkomst borttagen',
+  'trip.invite.removed': 'Du har tagits bort från den här resan. Be ägaren att lägga till dig igen.',
   'trip.invite.backToDashboard': 'Tillbaka till översikten',
   'transit.title': 'Kollektivtrafik',
   'transit.from': 'Från',

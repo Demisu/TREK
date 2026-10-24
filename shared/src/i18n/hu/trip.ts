@@ -48,6 +48,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'Csatlakozás…',
   'trip.invite.invalidTitle': 'A meghívó nem érhető el',
   'trip.invite.invalid': 'Ez a meghívó link érvénytelen vagy lejárt.',
+  'trip.invite.removedTitle': 'Hozzáférés megvonva',
+  'trip.invite.removed': 'Eltávolítottak ebből az utazásból. Kérd meg a tulajdonosát, hogy adjon hozzá újra.',
   'trip.invite.backToDashboard': 'Vissza az irányítópultra',
   'transit.title': 'Tömegközlekedés',
   'transit.from': 'Innen',

@@ -48,6 +48,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'Katılınıyor…',
   'trip.invite.invalidTitle': 'Davet kullanılamıyor',
   'trip.invite.invalid': 'Bu davet bağlantısı geçersiz veya süresi dolmuş.',
+  'trip.invite.removedTitle': 'Erişim kaldırıldı',
+  'trip.invite.removed': 'Bu geziden çıkarıldınız. Sahibinden sizi yeniden eklemesini isteyin.',
   'trip.invite.backToDashboard': 'Panoya dön',
   'transit.title': 'Toplu taşıma',
   'transit.from': 'Nereden',

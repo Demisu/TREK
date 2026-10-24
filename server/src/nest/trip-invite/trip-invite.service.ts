@@ -2,6 +2,7 @@ import { TripInviteTokens } from '../../db/entities/TripInviteTokens.entity';
 import type { TripInviteTokensRepository } from '../../db/repositories/TripInviteTokens.repository';
 import type { TripAccess } from '../../db/repositories/Trips.repository';
 import type { User } from '../../types';
+import { forbidden } from '../common/domain-error';
 import { UnitOfWork } from '../database/unit-of-work';
 import { PermissionsService } from '../permissions/permissions.service';
 import { TripAccessService } from '../trip-membership/trip-access.service';
@@ -118,6 +119,19 @@ export class TripInviteService {
     // alive until the end of the day. Mirrors the admin-invite validation.
     if (row.expires_at && new Date(row.expires_at) < new Date()) return null;
     return { trip_id: row.trip_id, title: row.title };
+  }
+
+  /**
+   * `resolve` for the user who opened the link. Somebody another member took
+   * off the trip is refused with a 403, so the link cannot undo a removal
+   * (GHSA-wr4c-964p-39jg); a member manager adding them back lifts it.
+   */
+  async resolveFor(token: string, userId: number): Promise<{ trip_id: number; title: string } | null> {
+    const resolved = await this.resolve(token);
+    if (resolved && (await this.membership.wasRemovedFrom(resolved.trip_id, userId))) {
+      throw forbidden('You were removed from this trip. Ask its owner to add you again.', { removed: true });
+    }
+    return resolved;
   }
 
   /** Join the resolved trip as the current (authenticated, non-guest) user.

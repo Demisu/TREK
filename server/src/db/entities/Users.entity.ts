@@ -71,6 +71,7 @@ import { TripFiles } from './TripFiles.entity';
 import { TripInviteTokens } from './TripInviteTokens.entity';
 import { TripJournalLinkMembers } from './TripJournalLinkMembers.entity';
 import { TripJournalLinks } from './TripJournalLinks.entity';
+import { TripMemberRemovals } from './TripMemberRemovals.entity';
 import { TripMembers } from './TripMembers.entity';
 import { TripPhotos } from './TripPhotos.entity';
 import { Trips } from './Trips.entity';
@@ -210,6 +211,7 @@ export class Users {
   trip_invite_tokens_collection = new Collection<TripInviteTokens>(this);
   trip_journal_link_members_collection = new Collection<TripJournalLinkMembers>(this);
   trip_journal_links_collection = new Collection<TripJournalLinks>(this);
+  trip_member_removals_collection = new Collection<TripMemberRemovals>(this);
   trip_members_collection = new Collection<TripMembers>(this);
   trip_members_collection1 = new Collection<TripMembers>(this);
   trip_photos_collection = new Collection<TripPhotos>(this);
@@ -367,6 +369,7 @@ export const UsersSchema = defineEntity({
     trip_invite_tokens_collection: () => p.oneToMany(TripInviteTokens).mappedBy('createdByRef').hidden(),
     trip_journal_link_members_collection: () => p.oneToMany(TripJournalLinkMembers).mappedBy('user').hidden(),
     trip_journal_links_collection: () => p.oneToMany(TripJournalLinks).mappedBy('linkedByRef').hidden(),
+    trip_member_removals_collection: () => p.oneToMany(TripMemberRemovals).mappedBy('user').hidden(),
     trip_members_collection: () => p.oneToMany(TripMembers).mappedBy('user').hidden(),
     trip_members_collection1: () => p.oneToMany(TripMembers).mappedBy('invitedByRef').hidden(),
     trip_photos_collection: () => p.oneToMany(TripPhotos).mappedBy('user').hidden(),

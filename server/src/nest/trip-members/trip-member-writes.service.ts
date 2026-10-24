@@ -46,7 +46,7 @@ export class TripMemberWritesService {
 
   /** Takes somebody off the trip, the writer themselves included when they leave. */
   async removeMember(tripId: number, targetUserId: number, writer: TripWriter): Promise<void> {
-    await this.roster.removeMember(tripId, targetUserId);
+    await this.roster.removeMember(tripId, targetUserId, writer.userId);
     writer.events.emit('member:removed', { userId: targetUserId });
   }
 

@@ -102,9 +102,9 @@ export class TripInviteController {
   }
 
   @Get(':token')
-  async preview(@Param('token') token: string, @Req() req: Request) {
+  async preview(@CurrentUser() user: User, @Param('token') token: string, @Req() req: Request) {
     await this.limit(req, 30);
-    const resolved = await this.invites.resolve(token);
+    const resolved = await this.invites.resolveFor(token, user.id);
     if (!resolved) throw new HttpException({ error: 'Invalid or expired invite link' }, 404);
     return { trip_id: resolved.trip_id, title: resolved.title };
   }
@@ -113,7 +113,7 @@ export class TripInviteController {
   @HttpCode(200)
   async accept(@CurrentUser() user: User, @Param('token') token: string, @Req() req: Request) {
     await this.limit(req, 20);
-    const resolved = await this.invites.resolve(token);
+    const resolved = await this.invites.resolveFor(token, user.id);
     if (!resolved) throw new HttpException({ error: 'Invalid or expired invite link' }, 404);
     const result = await this.invites.join(resolved.trip_id, user.id);
     await this.audit.writeAudit({

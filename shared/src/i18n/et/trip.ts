@@ -48,6 +48,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'Liitumine…',
   'trip.invite.invalidTitle': 'Kutse pole saadaval',
   'trip.invite.invalid': 'See kutselink on vigane või aegunud.',
+  'trip.invite.removedTitle': 'Ligipääs eemaldatud',
+  'trip.invite.removed': 'Sind eemaldati sellelt reisilt. Palu selle omanikul sind uuesti lisada.',
   'trip.invite.backToDashboard': 'Tagasi avalehele',
   'transit.title': 'Ühistransport',
   'transit.from': 'Lähtekoht',

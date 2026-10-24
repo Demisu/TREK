@@ -48,6 +48,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'Γίνεται συμμετοχή…',
   'trip.invite.invalidTitle': 'Η πρόσκληση δεν είναι διαθέσιμη',
   'trip.invite.invalid': 'Αυτός ο σύνδεσμος πρόσκλησης δεν είναι έγκυρος ή έχει λήξει.',
+  'trip.invite.removedTitle': 'Η πρόσβαση αφαιρέθηκε',
+  'trip.invite.removed': 'Αφαιρεθήκατε από αυτό το ταξίδι. Ζητήστε από τον κάτοχό του να σας προσθέσει ξανά.',
   'trip.invite.backToDashboard': 'Επιστροφή στα ταξίδια μου',
   'transit.title': 'Μέσα μαζικής μεταφοράς',
   'transit.from': 'Από',

@@ -46,6 +46,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'Đang tham gia…',
   'trip.invite.invalidTitle': 'Lời mời không khả dụng',
   'trip.invite.invalid': 'Liên kết mời này không hợp lệ hoặc đã hết hạn.',
+  'trip.invite.removedTitle': 'Đã bị gỡ quyền truy cập',
+  'trip.invite.removed': 'Bạn đã bị xóa khỏi chuyến đi này. Hãy nhờ chủ sở hữu thêm bạn lại.',
   'trip.invite.backToDashboard': 'Quay lại bảng điều khiển',
   'transit.title': 'Giao thông công cộng',
   'transit.from': 'Điểm đi',

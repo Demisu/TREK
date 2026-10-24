@@ -492,3 +492,35 @@ describe('TripMembersRepository.clearInvitedBy (Plan 4 Task 1, UC4)', () => {
     expect((await memberRow(trip.id, member.id))?.invited_by).toBeNull();
   });
 });
+
+describe('TripMembersRepository removal notes (GHSA-wr4c-964p-39jg)', () => {
+  it('TMEMREPO-031: a recorded removal is found until it is cleared, and only for that trip and person', async () => {
+    const { user: owner } = createUser(testDb);
+    const { user: removed } = createUser(testDb);
+    const { user: other } = createUser(testDb);
+    const trip = createTrip(testDb, owner.id);
+    const otherTrip = createTrip(testDb, owner.id);
+
+    expect(await tripMembers.wasRemoved(trip.id, removed.id)).toBe(false);
+    await tripMembers.recordRemoval(trip.id, removed.id);
+    expect(await tripMembers.wasRemoved(trip.id, removed.id)).toBe(true);
+    expect(await tripMembers.wasRemoved(otherTrip.id, removed.id)).toBe(false);
+    expect(await tripMembers.wasRemoved(trip.id, other.id)).toBe(false);
+
+    await tripMembers.clearRemoval(trip.id, removed.id);
+    expect(await tripMembers.wasRemoved(trip.id, removed.id)).toBe(false);
+  });
+
+  it('TMEMREPO-032: recording the same removal twice keeps one note, and clearing a missing note is a no-op', async () => {
+    const { user: owner } = createUser(testDb);
+    const { user: removed } = createUser(testDb);
+    const trip = createTrip(testDb, owner.id);
+
+    await tripMembers.clearRemoval(trip.id, removed.id);
+    await tripMembers.recordRemoval(trip.id, removed.id);
+    await tripMembers.recordRemoval(trip.id, removed.id);
+    expect(await tripMembers.wasRemoved(trip.id, removed.id)).toBe(true);
+    await tripMembers.clearRemoval(trip.id, removed.id);
+    expect(await tripMembers.wasRemoved(trip.id, removed.id)).toBe(false);
+  });
+});

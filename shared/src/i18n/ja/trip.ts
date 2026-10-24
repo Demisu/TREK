@@ -46,6 +46,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': '参加中…',
   'trip.invite.invalidTitle': '招待は利用できません',
   'trip.invite.invalid': 'この招待リンクは無効か、有効期限が切れています。',
+  'trip.invite.removedTitle': 'アクセスが削除されました',
+  'trip.invite.removed': 'この旅行から削除されました。再度追加してもらうよう、オーナーに依頼してください。',
   'trip.invite.backToDashboard': 'ダッシュボードに戻る',
   'transit.title': '公共交通機関',
   'transit.from': '出発地',

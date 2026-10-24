@@ -52,6 +52,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'Dołączanie…',
   'trip.invite.invalidTitle': 'Zaproszenie niedostępne',
   'trip.invite.invalid': 'Ten link zaproszenia jest nieprawidłowy lub wygasł.',
+  'trip.invite.removedTitle': 'Dostęp odebrany',
+  'trip.invite.removed': 'Usunięto Cię z tej podróży. Poproś jej właściciela, aby dodał Cię ponownie.',
   'trip.invite.backToDashboard': 'Powrót do panelu',
   'transit.title': 'Transport publiczny',
   'transit.from': 'Skąd',

@@ -40,6 +40,8 @@ let checkPermission: MockInstance;
 // The join itself is stubbed out of the container (TRIP-JOIN-* cover what it
 // writes); these cases assert the invite route's own decision to call it.
 const joinTripAsMember = vi.fn();
+// Whether another member took the user off the trip (GHSA-wr4c-964p-39jg).
+const wasRemovedFrom = vi.fn();
 
 // The audit domain is DI-native now: writeAudit runs for real against the temp
 // db's audit_log table; only the file logger is silenced.
@@ -62,7 +64,7 @@ describe('Trip invite-link e2e (real auth guard + temp SQLite)', () => {
       imports: [await TestUnitOfWorkModule.forRoot(db), await createTestMikroOrmModule(db), TripInviteModule],
     })
       .overrideProvider(TripMembershipService)
-      .useValue({ joinTripAsMember })
+      .useValue({ joinTripAsMember, wasRemovedFrom })
       .compile();
     const nest = moduleRef.createNestApplication();
     nest.use(cookieParser());
@@ -95,6 +97,8 @@ describe('Trip invite-link e2e (real auth guard + temp SQLite)', () => {
     // budget.e2e.test.ts's identical comment.
     checkPermission.mockReturnValue(true);
     joinTripAsMember.mockReset();
+    wasRemovedFrom.mockReset();
+    wasRemovedFrom.mockResolvedValue(false);
   });
 
   afterAll(async () => {
@@ -213,6 +217,29 @@ describe('Trip invite-link e2e (real auth guard + temp SQLite)', () => {
   it('accept 404 for an invalid/expired token (no join attempted)', async () => {
     const res = await request(server).post('/api/trip-invites/bad/accept').set('Cookie', sessionCookie(2));
     expect(res.status).toBe(404);
+    expect(joinTripAsMember).not.toHaveBeenCalled();
+  });
+
+  it('preview 403 for a user another member removed from the trip, saying so', async () => {
+    await seedTrip(9, 'Rome 2026');
+    await seedToken(9, 'tok');
+    wasRemovedFrom.mockResolvedValue(true);
+    const res = await request(server).get('/api/trip-invites/tok').set('Cookie', sessionCookie(2));
+    expect(res.status).toBe(403);
+    expect(res.body).toEqual({
+      error: 'You were removed from this trip. Ask its owner to add you again.',
+      removed: true,
+    });
+    expect(wasRemovedFrom).toHaveBeenCalledWith(9, 2);
+  });
+
+  it('accept 403 for a removed user and joins nobody (GHSA-wr4c-964p-39jg)', async () => {
+    await seedTrip(9, 'Rome 2026');
+    await seedToken(9, 'tok');
+    wasRemovedFrom.mockResolvedValue(true);
+    const res = await request(server).post('/api/trip-invites/tok/accept').set('Cookie', sessionCookie(2));
+    expect(res.status).toBe(403);
+    expect(res.body.removed).toBe(true);
     expect(joinTripAsMember).not.toHaveBeenCalled();
   });
 

@@ -48,6 +48,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'Bezig met deelnemen…',
   'trip.invite.invalidTitle': 'Uitnodiging niet beschikbaar',
   'trip.invite.invalid': 'Deze uitnodigingslink is ongeldig of verlopen.',
+  'trip.invite.removedTitle': 'Toegang ingetrokken',
+  'trip.invite.removed': 'Je bent uit deze reis verwijderd. Vraag de eigenaar om je opnieuw toe te voegen.',
   'trip.invite.backToDashboard': 'Terug naar dashboard',
   'transit.title': 'Openbaar vervoer',
   'transit.from': 'Van',

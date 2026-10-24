@@ -72,6 +72,17 @@ export class TripMembershipService {
     const existing = await this.tripMembers.exists(tripId, userId);
     if (existing) return { joined: false, tripId };
     await this.tripMembers.addMember(tripId, userId, invitedBy);
+    // Added by a person (a trip-bound invite, a plugin acting for a member
+    // manager): the removal note from GHSA-wr4c-964p-39jg no longer applies.
+    if (invitedBy !== null) await this.tripMembers.clearRemoval(tripId, userId);
     return { joined: true, tripId };
+  }
+
+  /**
+   * Whether somebody else took this user off the trip and nobody added them
+   * back since. The invite link refuses such a user (GHSA-wr4c-964p-39jg).
+   */
+  async wasRemovedFrom(tripId: number, userId: number): Promise<boolean> {
+    return this.tripMembers.wasRemoved(tripId, userId);
   }
 }

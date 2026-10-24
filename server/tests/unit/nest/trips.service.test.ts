@@ -1695,7 +1695,7 @@ describe('folded quirk branches', () => {
     await expect(membersSvc.addMember(trip.id, owner.email, owner.id, owner.id)).rejects.toThrow('Trip owner is already a member');
     await expect(membersSvc.addMember(trip.id, '', owner.id, owner.id)).rejects.toThrow('Email or username required');
 
-    await membersSvc.removeMember(trip.id, invitee.id);
+    await membersSvc.removeMember(trip.id, invitee.id, trip.user_id);
     expect(await storedFields(TripMembers, { trip: trip.id, user: invitee.id }, ['id'])).toBeUndefined();
   });
 

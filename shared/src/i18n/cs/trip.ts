@@ -50,6 +50,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': 'Připojování…',
   'trip.invite.invalidTitle': 'Pozvánka není dostupná',
   'trip.invite.invalid': 'Tento odkaz pro pozvání je neplatný nebo jeho platnost vypršela.',
+  'trip.invite.removedTitle': 'Přístup odebrán',
+  'trip.invite.removed': 'Z této cesty jste byli odebráni. Požádejte jejího vlastníka, aby vás znovu přidal.',
   'trip.invite.backToDashboard': 'Zpět na přehled',
   'transit.title': 'Veřejná doprava',
   'transit.from': 'Odkud',

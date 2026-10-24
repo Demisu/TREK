@@ -70,7 +70,7 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
       ],
       member_ids: [alice.id, bob.id, carol.id],
     });
-    await membersSvc.removeMember(trip.id, bob.id);
+    await membersSvc.removeMember(trip.id, bob.id, trip.user_id);
 
     // What the expense form sends back: the ids it was seeded with.
     const saved = await budget.updateBudgetItem(item.id, trip.id, {
@@ -101,7 +101,7 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
         { user_id: carol.id, amount: 30 },
       ],
     });
-    await membersSvc.removeMember(trip.id, bob.id);
+    await membersSvc.removeMember(trip.id, bob.id, trip.user_id);
 
     const saved = await budget.updateBudgetItem(item.id, trip.id, {
       payers: [{ user_id: bob.id, amount: 90 }],
@@ -150,7 +150,7 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
       payers: [{ user_id: alice.id, amount: 30 }],
       member_ids: [alice.id, bob.id, carol.id],
     });
-    await membersSvc.removeMember(trip.id, bob.id);
+    await membersSvc.removeMember(trip.id, bob.id, trip.user_id);
 
     const saved = await budget.updateBudgetItem(item.id, trip.id, {
       payers: [{ user_id: alice.id, amount: 30 }],
@@ -170,7 +170,7 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
       payers: [{ user_id: alice.id, amount: 50 }],
       member_ids: [alice.id, bob.id],
     });
-    await membersSvc.removeMember(trip.id, bob.id);
+    await membersSvc.removeMember(trip.id, bob.id, trip.user_id);
 
     const saved = await budget.updateBudgetItem(item.id, trip.id, {
       payers: [{ user_id: bob.id, amount: 50 }],
@@ -190,7 +190,7 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
     });
     await budget.toggleMemberPaid(item.id, trip.id, carol.id, true);
     await budget.toggleMemberPaid(item.id, trip.id, bob.id, true);
-    await membersSvc.removeMember(trip.id, bob.id);
+    await membersSvc.removeMember(trip.id, bob.id, trip.user_id);
 
     await budget.updateBudgetItem(item.id, trip.id, {
       name: 'Hotel Central',
@@ -213,7 +213,7 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
       ],
       member_ids: [alice.id, bob.id],
     });
-    await membersSvc.removeMember(trip.id, bob.id);
+    await membersSvc.removeMember(trip.id, bob.id, trip.user_id);
 
     const payers = await budget.setItemPayers(item.id, trip.id, [
       { user_id: alice.id, amount: 20 },
@@ -228,7 +228,7 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
 
   it('BUDGET-SVC-DB-094: a new expense still takes only people on the trip', async () => {
     const { alice, bob, trip } = await tripWithFormerMember();
-    await membersSvc.removeMember(trip.id, bob.id);
+    await membersSvc.removeMember(trip.id, bob.id, trip.user_id);
 
     const item = (await budget.createBudgetItem(trip.id, {
       name: 'Lunch',

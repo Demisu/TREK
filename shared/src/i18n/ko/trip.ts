@@ -46,6 +46,8 @@ const trip: TranslationStrings = {
   'trip.invite.joining': '참여 중…',
   'trip.invite.invalidTitle': '초대를 사용할 수 없음',
   'trip.invite.invalid': '이 초대 링크는 유효하지 않거나 만료되었습니다.',
+  'trip.invite.removedTitle': '접근 권한이 제거됨',
+  'trip.invite.removed': '이 여행에서 제외되었습니다. 소유자에게 다시 추가해 달라고 요청하세요.',
   'trip.invite.backToDashboard': '대시보드로 돌아가기',
   'transit.title': '대중교통',
   'transit.from': '출발',

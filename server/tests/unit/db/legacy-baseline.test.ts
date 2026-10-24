@@ -96,6 +96,7 @@ const UNNUMBERED = [
   'Migration20200101046260_a_book_keeps_its_last_revisions',
   'Migration20200101046270_a_photo_knows_its_colours_and_calm_areas',
   'Migration20200101046280_an_assistant_conversation_can_be_about_no_one_trip',
+  'Migration20200101046290_a_removed_member_cannot_rejoin_by_invite_link',
 ];
 // The last step the positional runner ever had; planLegacyBaseline refuses a
 // schema_version past it.

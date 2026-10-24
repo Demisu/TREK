@@ -224,7 +224,7 @@ export class TripsRpc {
     // Ownership transfer is a separate, deliberate action.
     const ownerId = await this.em.getRepository(Trips).getOwnerId(tripId); // RP6 — TripsRepository.getOwnerId
     if (ownerId !== null && ownerId === targetUserId) throw new ForbiddenResource('cannot remove the trip owner');
-    await this.roster.removeMember(tripId, targetUserId);
+    await this.roster.removeMember(tripId, targetUserId, actor);
     this.realtime.broadcast(tripId, 'member:removed', { userId: targetUserId });
     return { removed: true };
   }
