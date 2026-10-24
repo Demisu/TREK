@@ -30,7 +30,7 @@ export type JourneyEntryUpdateInput = Partial<{
 }>;
 
 /** The columns an update writes, as they are stored. */
-interface JourneyEntryColumns {
+type JourneyEntryColumns = {
   type: string;
   title: string | null;
   story: string | null;
@@ -50,7 +50,7 @@ interface JourneyEntryColumns {
   is_draft: number;
   country_code: string | null;
   updated_at: number;
-}
+};
 
 /**
  * JG78: the columns an update of `entry` with `data` writes, each resolved to

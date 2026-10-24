@@ -25,7 +25,7 @@ export type JourneySettingsInput = Partial<{
 }>;
 
 /** The columns an update writes, as they are stored. */
-interface JourneySettingsColumns {
+type JourneySettingsColumns = {
   title: string;
   subtitle: string | null;
   cover_gradient: string | null;
@@ -38,7 +38,7 @@ interface JourneySettingsColumns {
   show_mood: number;
   show_weather: number;
   auto_prepare_recordings: number;
-}
+};
 
 const ALLOWED_STATUSES: readonly string[] = ['draft', 'active', 'completed', 'archived'];
 // null hands the state back to the trip dates (#762).
