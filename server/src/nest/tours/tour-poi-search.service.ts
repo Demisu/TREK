@@ -66,10 +66,6 @@ function metresApart(a: Pick<TourPoi, 'lat' | 'lng'>, b: { lat: number; lng: num
   return Math.hypot(dLat, dLng);
 }
 
-function withinSamePlace(a: Pick<TourPoi, 'lat' | 'lng'>, b: { lat: number; lng: number }): boolean {
-  return metresApart(a, b) <= SAME_PLACE_M;
-}
-
 /** A name as compared: without case, accents or punctuation. */
 function nameKey(name: string): string {
   return name
@@ -202,21 +198,82 @@ function tourCategoryOf(mapsCategory: string, asked: readonly TourPoiCategory[])
 }
 
 /**
- * The places found, each once and within the corridor, with where they lie.
- * OpenStreetMap often maps one place twice, as a point and as its outline, and
- * the index may hold it beside OpenStreetMap: one name in one spot is one
- * place. An unnamed place (a tap, a bench) is never merged with another.
+ * Within this many metres, a summit of the index and another of a like name
+ * are one mountain. The index holds a mountain as many pins, placed by whoever
+ * listed it, at its foot as much as on top, so they lie a mountain's breadth
+ * apart. Two OpenStreetMap summits are two peaks, as the Watzmann and the
+ * Kleiner Watzmann are.
  */
+const SAME_MOUNTAIN_M = 3000;
+
+/**
+ * Scripts written without spaces between words: there one name inside another
+ * is a word of it, as 高尾山 is of 八王子高尾山, where in Latin "Dom" is not
+ * "Domplatz".
+ */
+const UNSPACED_SCRIPT = /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Thai}]{2,}$/u;
+
+/** {@link similarNames}, or one word written without spaces inside the other name. */
+function likeNames(a: string, b: string): boolean {
+  if (similarNames(a, b)) return true;
+  const inside = (word: string, name: string) => UNSPACED_SCRIPT.test(word) && name.replaceAll(' ', '').includes(word);
+  return a.split(' ').some((word) => inside(word, b)) || b.split(' ').some((word) => inside(word, a));
+}
+
+/**
+ * Two rows that are one place: the same name in one spot, as OpenStreetMap
+ * maps a place twice, as a point and as its outline, or the index holds it
+ * beside OpenStreetMap; a like name in one spot; or, for a summit of the
+ * index, a like name anywhere on the mountain. An unnamed place (a tap, a
+ * bench) is never one with another.
+ */
+function samePlace(a: TourPoi, b: TourPoi): boolean {
+  const name = nameKey(a.name);
+  const other = nameKey(b.name);
+  if (!name || !other || a.category !== b.category) return false;
+  const apart = metresApart(a, b);
+  const pinned = a.source !== 'openstreetmap' || b.source !== 'openstreetmap';
+  if (a.category === 'peak' && pinned && apart <= SAME_MOUNTAIN_M) return likeNames(name, other);
+  return apart <= SAME_PLACE_M && (name === other || likeNames(name, other));
+}
+
+/**
+ * The row a place mapped several times keeps: an OpenStreetMap object over an
+ * index pin, then the plainest name ("高尾山" rather than "Top Of Mt.Takao"),
+ * then the first found.
+ */
+function keptOf(rows: readonly TourPoi[]): TourPoi {
+  const plainness = (row: TourPoi) => [row.source === 'openstreetmap' ? 0 : 1, nameKey(row.name).length];
+  return rows.reduce((best, row) => {
+    const [a, b] = [plainness(row), plainness(best)];
+    return a[0] < b[0] || (a[0] === b[0] && a[1] < b[1]) ? row : best;
+  });
+}
+
+/**
+ * The rows that are one place, each once: a row joins every group it is one
+ * place with, so a bridge like "高尾山 (Mt. Takao)" joins "Mt.Takao" and
+ * "高尾山" although those two share no word.
+ */
+function oncePerPlace(rows: readonly TourPoi[]): TourPoi[] {
+  const groups: TourPoi[][] = [];
+  for (const row of rows) {
+    const joined = groups.filter((group) => group.some((other) => samePlace(row, other)));
+    const merged = [...joined.flat(), row];
+    groups.splice(0, groups.length, ...groups.filter((group) => !joined.includes(group)), merged);
+  }
+  const kept = new Set(groups.map(keptOf));
+  // In the order found, so the first of equals stays first.
+  return rows.filter((row) => kept.has(row));
+}
+
+/** The places found, each once and within the corridor, with where they lie. */
 function placesWithin(found: MapsPoi[], body: TourPoiSearchRequest, line: Array<[number, number]>): TourPoi[] {
   const kept = new Map<string, TourPoi>();
-  const byName = new Map<string, TourPoi[]>();
   for (const poi of found) {
     const category = tourCategoryOf(poi.category, body.categories);
     const near = nearnessToLine({ lat: poi.lat, lng: poi.lng }, line);
     if (!category || !near || near.distanceM > body.corridor_m || kept.has(poi.osm_id)) continue;
-    const name = poi.name.trim().toLocaleLowerCase();
-    const namesakes = name ? (byName.get(name) ?? []) : [];
-    if (namesakes.some((other) => withinSamePlace(other, poi))) continue;
     const place: TourPoi = {
       id: poi.osm_id,
       name: poi.name,
@@ -234,9 +291,8 @@ function placesWithin(found: MapsPoi[], body: TourPoiSearchRequest, line: Array<
       ...bikeChargingOf(poi),
     };
     kept.set(poi.osm_id, place);
-    if (name) byName.set(name, [...namesakes, place]);
   }
-  return [...kept.values()];
+  return oncePerPlace([...kept.values()]);
 }
 
 /**

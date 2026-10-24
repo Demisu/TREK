@@ -139,6 +139,28 @@ describe('TourPoiSearchService', () => {
     expect(result.pois.map((found) => found.id)).toEqual(['node:9', 'node:10']);
   });
 
+  it('TOUR-POI-019: the pins of one mountain under several names are one summit, two mapped summits stay two', async () => {
+    const pin = (id: string, name: string, lat: number) =>
+      poi(id, lat, 11.1003, 'peak', { name, source: 'trek-places', poi_type: 'mountain' });
+    poisAlong.mockResolvedValue(
+      answer([
+        // Pins at the foot of the mountain and on top, named in two scripts and bridged by one that has both.
+        pin('gers:1', 'Mt.Takao', 47.401),
+        pin('gers:2', '東京都 高尾山', 47.4011),
+        pin('gers:3', '高尾山 (Mt. Takao)', 47.403),
+        pin('gers:4', '八王子高尾山', 47.405),
+        pin('gers:5', '高尾山', 47.419),
+        pin('gers:6', 'Top Of Mt.Takao', 47.4191),
+        // Another mountain on the way, and two summits of OpenStreetMap a kilometre apart.
+        pin('gers:7', 'Mt.Kagenobu', 47.41),
+        poi('node:1', 47.406, 11.1003, 'peak', { name: 'Watzmann' }),
+        poi('node:2', 47.415, 11.1003, 'peak', { name: 'Kleiner Watzmann' }),
+      ]),
+    );
+    const result = await service.search({ tour_type: 'hike', categories: ['peak'], corridor_m: 500, line: LINE });
+    expect(result.pois.map((found) => found.name)).toEqual(['Watzmann', 'Mt.Kagenobu', 'Kleiner Watzmann', '高尾山']);
+  });
+
   it('TOUR-POI-002: asks the map search along the line for what each category means, and names a hit by the category asked', async () => {
     poisAlong.mockResolvedValue(answer([poi('node:cafe', 47.41, 11.1, 'cafe')]));
     const result = await service.search({
