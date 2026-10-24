@@ -858,4 +858,22 @@ describe('runAgentLoop', () => {
     await runAgentLoop(unable.deps, unable.input, unable.writer, new AbortController().signal);
     expect(unable.requests[0]?.webSearch).toBe(false);
   });
+
+  it('ASTAGT-041: a step that searched the web and called a read answers only the read, never the search', async () => {
+    const t = setup(
+      [
+        [
+          { type: 'web-search', query: 'Mount Takao trails' },
+          { type: 'tool-call', call: { id: 'call_1', name: 'list_places', args: { tripId: 1 } } },
+          { type: 'finish', reason: 'tool-calls' },
+        ],
+        [{ type: 'text-delta', delta: 'Trail 1 up, trail 6 down.' }],
+      ],
+      { webSearch: true },
+      true,
+    );
+    await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+    const answers = t.requests[1].messages.filter((m) => m.role === 'tool');
+    expect(answers.map((m) => (m as { toolCallId: string }).toolCallId)).toEqual(['call_1']);
+  });
 });

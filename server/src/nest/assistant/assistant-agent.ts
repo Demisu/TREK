@@ -476,7 +476,9 @@ async function carryOn(
   const { text, calls, images } = answer;
   turn.history.push({ role: 'assistant', text, toolCalls: calls, providerState: step.providerState });
   for (const part of step.parts) {
-    if (part.type !== 'tool-call') continue;
+    // A web search is the provider's own record, kept in the provider state; an answer to it would
+    // name a call the provider never made, and it refuses the next step over that.
+    if (part.type !== 'tool-call' || part.toolName === ASSISTANT_WEB_SEARCH_STEP) continue;
     const seen = images.get(part.toolCallId);
     turn.history.push({
       role: 'tool',
