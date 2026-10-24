@@ -112,6 +112,9 @@ env:
   # TZ: "Europe/Berlin"          # timezone for logs, reminders, cron jobs
   # LOG_LEVEL: "info"            # "info" = concise, "debug" = verbose
   # TREK_WIKI_DIR: "/app/wiki"   # where /help reads its docs from; leave unset (the image ships them)
+  # DEFAULT_LANGUAGE: "en"      # fallback language on the login page
+  # MCP_MAX_SESSION_PER_USER: "20"  # max concurrent MCP sessions per user
+  # GOOGLE_LIST_DATA_BASE: ""    # base URL of a list-data service for pasted list URLs
   # ALLOWED_ORIGINS: "https://trek.example.com"
   # APP_URL: "https://trek.example.com"
   # FORCE_HTTPS: "false"         # enable HTTPS redirect + HSTS; set TRUST_PROXY for correct client IPs
@@ -146,7 +149,7 @@ env:
   # VAPID_SUBJECT: "mailto:admin@example.com"  # Web Push contact; defaults to APP_URL when it is https
 ```
 
-> **Note:** The chart only passes on the keys its ConfigMap declares. `DEFAULT_LANGUAGE`, `MCP_MAX_SESSION_PER_USER` (although `values.yaml` lists it in a comment), `FILE_UPLOAD_LIMIT_MB` and `RESTORE_FROM_BACKUP` are not among them, so a value under `env:` is dropped and the default stays. Patch such a variable onto the Deployment if you need it. See [Environment-Variables](Environment-Variables#default_language--supported-codes) for the language codes.
+> **Note:** The chart only passes on the keys its ConfigMap declares. `FILE_UPLOAD_LIMIT_MB` and `RESTORE_FROM_BACKUP` are not among them, so a value under `env:` is dropped and the default stays. Put such a variable in `extraEnv` (see below) instead. See [Environment-Variables](Environment-Variables#default_language--supported-codes) for the language codes.
 
 ### Sensitive Variables (`secretEnv`)
 
@@ -163,9 +166,10 @@ secretEnv:
   AMAP_API_KEY: ""          # optional; Amap Web 服务 key for place search in mainland China
   AMAP_API_SECRET: ""       # optional; the signing secret of that key, only when signing is on
   VAPID_PRIVATE_KEY: ""     # optional; Web Push private half, only together with env.VAPID_PUBLIC_KEY
+  SMTP_PASS: ""             # optional; password of your SMTP account
 ```
 
-Alternatively, use `generateEncryptionKey: true` to let the chart generate and manage the encryption key, or point `existingSecret` / `existingSecretKey` at an existing Kubernetes Secret.
+Alternatively, use `generateEncryptionKey: true` to let the chart generate and manage the encryption key, or point `existingSecret` / `existingSecretKey` at an existing Kubernetes Secret. A Secret you bring yourself can carry any of the keys above by the same names, `SMTP_PASS` included.
 
 Every value the chart writes into its Secret is quoted, so a password such as `12345` or a value like `true` reaches the container as the text you typed.
 
@@ -174,6 +178,8 @@ Every value the chart writes into its Secret is quoted, so a password such as `1
 > **Note:** Without `UNSPLASH_ACCESS_KEY` the server queries Unsplash's unauthenticated endpoint, which many datacenter and VPS IP ranges — including a lot of Kubernetes clusters — are blocked or rate-limited on. Trip-cover and place-image search then fail with **"Unsplash search unavailable"**. A free Access Key switches the server to Unsplash's authenticated API (`api.unsplash.com`), which is not subject to that block. The key can also be set in **Admin → Settings → API Keys**; this value takes priority over that one. See [Environment-Variables](Environment-Variables#image-search-unsplash).
 
 ### Persistent Storage
+
+The data PVC holds the database, the plugins you install and the automatic `pre-migrate-<schema>-<time>.db` copy TREK writes before an upgrade migrates the database, so the previous image can run on that copy again. See [Updating](Updating).
 
 ```yaml
 persistence:
@@ -251,6 +257,10 @@ ingress:
 > **Note:** When using ingress with TLS termination, set `env.FORCE_HTTPS: "true"` and `env.TRUST_PROXY: "1"` to enable HTTPS redirects, HSTS, and secure cookies.
 
 ## Upgrade
+
+The Deployment uses the `Recreate` update strategy (`updateStrategy: Recreate`): the old pod stops before the new one starts. TREK is a single-writer SQLite application, and during a rolling update the new pod would migrate the database while the old one still writes to it. A ReadWriteMany volume does not make that safe, so leave the strategy as it is and keep one replica.
+
+The in-app Help pages come from the image (`/app/wiki`), so they match the version you upgrade to.
 
 ```bash
 helm repo update
