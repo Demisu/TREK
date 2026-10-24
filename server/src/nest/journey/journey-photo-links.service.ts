@@ -64,12 +64,14 @@ export class JourneyPhotoLinksService {
     const ids = [...new Set(req.photoIds)];
     if (ids.some((id) => !onSource.has(id))) throw badRequest('Every photo must be one of this entry');
     const kept = req.keep_in_source === true;
-    await this.uow.transactional(async () => {
-      for (const id of ids) {
+    // One after another: each link takes the next place among the target's photos.
+    await this.uow.transactional(() =>
+      ids.reduce<Promise<void>>(async (previous, id) => {
+        await previous;
         if (!(await this.journeys.linkPhotoToEntry(req.toEntryId, id, userId))) throw notFound('Entry not found');
         if (!kept) await this.journeys.unlinkPhotoFromEntry(fromEntryId, id, userId);
-      }
-    });
+      }, Promise.resolve()),
+    );
     await this.announce([fromEntryId, req.toEntryId], sid);
     return { moved: ids, fromEntryId, toEntryId: req.toEntryId, kept };
   }
@@ -118,8 +120,10 @@ export class JourneyPhotoLinksService {
   private async announce(entryIds: number[], sid?: string): Promise<void> {
     const journeyId = await this.journeys.journeyIdOfEntry(entryIds[0]);
     if (journeyId === null) return;
-    for (const entryId of new Set(entryIds)) {
-      await this.journeys.broadcastJourneyEvent(journeyId, 'journey:entry:updated', { entryId }, sid);
-    }
+    await Promise.all(
+      [...new Set(entryIds)].map((entryId) =>
+        this.journeys.broadcastJourneyEvent(journeyId, 'journey:entry:updated', { entryId }, sid),
+      ),
+    );
   }
 }

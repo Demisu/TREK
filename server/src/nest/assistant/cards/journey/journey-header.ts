@@ -30,16 +30,14 @@ export interface JournalHeaderLoaded {
 }
 
 /** The tools these cards are for. */
-const JOURNAL_HEADER_TOOLS = [
-  'create_journey',
-  'update_journey',
-  'delete_journey',
-  'add_journey_trip',
-  'remove_journey_trip',
-  'restore_journey_suggestions',
-  'update_journey_preferences',
-] as const;
-type HeaderTool = (typeof JOURNAL_HEADER_TOOLS)[number];
+type HeaderTool =
+  | 'create_journey'
+  | 'update_journey'
+  | 'delete_journey'
+  | 'add_journey_trip'
+  | 'remove_journey_trip'
+  | 'restore_journey_suggestions'
+  | 'update_journey_preferences';
 
 /** The journal a call names, or none in a journey's own conversation, where the session pins it. */
 export function journeyArgs(args: ToolArgs): ToolArgs {

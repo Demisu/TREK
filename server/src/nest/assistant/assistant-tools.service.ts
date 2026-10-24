@@ -422,15 +422,13 @@ export class AssistantToolSession {
    */
   private async outsideJourney(args: ToolArgs): Promise<string | null> {
     if (this.pinArg !== JOURNEY_PINNED_ARG) return null;
-    for (const key of JOURNEY_PART_ARGS) {
-      if (args[key] === undefined) continue;
-      const run = await this.callTool(JOURNEY_PART_READ, { entryId: args[key] });
+    const named = JOURNEY_PART_ARGS.filter((key) => args[key] !== undefined);
+    const runs = await Promise.all(named.map((key) => this.callTool(JOURNEY_PART_READ, { entryId: args[key] })));
+    const outside = runs.some((run) => {
       const journey = (run.value as { journey?: { id?: unknown } } | null)?.journey;
-      if (!run.ok || Number(journey?.id) !== this.pinnedId) {
-        return 'This conversation is about one journey; that entry is not one of its entries.';
-      }
-    }
-    return null;
+      return !run.ok || Number(journey?.id) !== this.pinnedId;
+    });
+    return outside ? 'This conversation is about one journey; that entry is not one of its entries.' : null;
   }
 }
 
