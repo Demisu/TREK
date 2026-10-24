@@ -52,7 +52,7 @@ export const THEME_ARCHETYPE: Readonly<Record<BookThemeId, BookCoverArchetype>> 
 /** The archetypes whose spreads sit well in a book of another, nearest first. */
 export const ARCHETYPE_KIN: Readonly<Record<BookCoverArchetype, readonly BookCoverArchetype[]>> = {
   'spine-band': ['minimal-serif', 'postcard'],
-  'poster-pop': ['cutout', 'stamp-collage'],
+  'poster-pop': ['cutout', 'riso', 'stamp-collage'],
   cutout: ['poster-pop', 'riso'],
   postcard: ['vintage-poster', 'spine-band'],
   'grid-badge': ['minimal-serif', 'stamp-collage'],
@@ -260,11 +260,19 @@ function admits(
   ctx: TemplatePickCtx,
   before: TemplateEnergy | undefined,
 ) {
-  if (tpl.kind !== 'inner' || slots(tpl) > chunk.photos.length) return false;
+  return fitsAtAll(tpl, chunk, ctx) && !keepsApart(tpl, ctx, before);
+}
+
+/** Whether a template can hold the page: no frame left empty, the story and the map where it has them. */
+function fitsAtAll(tpl: BookDecoratedTemplate, chunk: TemplateChunk, ctx: TemplatePickCtx) {
+  if (tpl.kind !== 'inner' || slots(tpl) > chunk.photos.length || ctx.avoid?.includes(tpl.id)) return false;
   if (chunk.story && !hasRole(tpl, 'body')) return false;
-  if (hasRole(tpl, 'map') && !chunk.mappable) return false;
-  if (ctx.history[ctx.history.length - 1] === tpl.id || ctx.avoid?.includes(tpl.id)) return false;
-  return !(isLoud(templateEnergy(tpl)) && isBusy(before));
+  return !hasRole(tpl, 'map') || chunk.mappable;
+}
+
+/** The rhythm a book keeps where it can: never the page before again, never loud after loud or lively. */
+function keepsApart(tpl: BookDecoratedTemplate, ctx: TemplatePickCtx, before: TemplateEnergy | undefined) {
+  return ctx.history[ctx.history.length - 1] === tpl.id || (isLoud(templateEnergy(tpl)) && isBusy(before));
 }
 
 /** The orientation of a template's first frame on this format: wide, tall or square. */
@@ -287,7 +295,7 @@ function storyScore(tpl: BookDecoratedTemplate, chunk: TemplateChunk, ctx: Templ
 
 /** What a photo left without a frame costs a template. */
 const UNUSED_PHOTO = 60;
-/** What a template of an archetype neither the book's nor its kin costs: taken only where those leave a photo out. */
+/** What a template of an archetype neither the book's nor its kin costs, where only such can take the page. */
 const FOREIGN = 25;
 
 /** How well a template suits the page, the higher the better. */
@@ -297,7 +305,7 @@ function scoreOf(
   ctx: TemplatePickCtx,
   before: TemplateEnergy | undefined,
 ) {
-  // A photo the page has no frame for waits in the tray: worse than a template of a kin archetype.
+  // A photo the page has no frame for waits in the tray.
   let score = 100 - UNUSED_PHOTO * (chunk.photos.length - slots(tpl));
   if (tpl.archetype === ctx.archetype) score += 20;
   else if (ARCHETYPE_KIN[ctx.archetype].includes(tpl.archetype)) score += 8;
@@ -332,17 +340,36 @@ function energyOfId(pool: readonly BookDecoratedTemplate[], id: string | undefin
 }
 
 /**
- * The template a page is laid on: the archetype's own and its kin's first,
- * another archetype's only where theirs would leave a photo without a frame;
- * undefined when none at all can take the page.
+ * The template a page is laid on. A frame for every photo comes first, then
+ * the book's own styles (its archetype and its kin), then the rhythm:
+ *
+ * 1. the own styles, every photo framed, the rhythm kept;
+ * 2. the own styles, every photo framed, the rhythm given up for this page;
+ * 3. another archetype, every photo framed, the rhythm kept;
+ * 4. the own styles with a photo left to wait in the tray;
+ * 5. whatever can take the page at all.
+ *
+ * Undefined when nothing can.
  */
 export function pickInnerTemplate(chunk: TemplateChunk, ctx: TemplatePickCtx): BookDecoratedTemplate | undefined {
   const all = decoratedTemplatesFor('inner');
+  const own = innerPool(ctx.archetype);
   const before = energyOfId(all, ctx.history[ctx.history.length - 1]);
-  const scored = all
-    .filter((t) => admits(t, chunk, ctx, before))
-    .map((tpl) => ({ tpl, score: scoreOf(tpl, chunk, ctx, before) }));
-  return bestOf(scored, ctx.seed, ctx.key);
+  const full = (t: BookDecoratedTemplate) => slots(t) === chunk.photos.length;
+  const kept = (t: BookDecoratedTemplate) => admits(t, chunk, ctx, before);
+  const held = (t: BookDecoratedTemplate) => fitsAtAll(t, chunk, ctx);
+  const tiers: [readonly BookDecoratedTemplate[], (t: BookDecoratedTemplate) => boolean][] = [
+    [own, (t) => full(t) && kept(t)],
+    [own, (t) => full(t) && held(t)],
+    [all, (t) => full(t) && kept(t)],
+    [own, kept],
+    [all, held],
+  ];
+  for (const [pool, takes] of tiers) {
+    const scored = pool.filter(takes).map((tpl) => ({ tpl, score: scoreOf(tpl, chunk, ctx, before) }));
+    if (scored.length) return bestOf(scored, ctx.seed, ctx.key);
+  }
+  return undefined;
 }
 
 /** What a cover may be laid with: how many photos there are, and whether the cover photo stands tall. */

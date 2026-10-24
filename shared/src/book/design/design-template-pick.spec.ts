@@ -209,4 +209,24 @@ describe('the template picker', () => {
     expect(innerPool('riso').every((t) => ['riso', 'poster-pop', 'cutout'].includes(t.archetype))).toBe(true);
     expect([...chunkSizesOf(innerPool('riso')).story]).toContain(0);
   });
+
+  it("AUTOTPL-013: a page the book's own styles can frame every photo of stays in them, whatever the rhythm", () => {
+    for (const archetype of BOOK_COVER_ARCHETYPES) {
+      const kin = [archetype, ...ARCHETYPE_KIN[archetype]];
+      for (let n = 0; n <= 12; n++) {
+        for (const story of ['', STORY]) {
+          const frames = (t: BookDecoratedTemplate) =>
+            templatePhotoSlots(t) === n && (!story || roles(t).includes('body')) && !roles(t).includes('map');
+          if (!innerPool(archetype).some(frames)) continue;
+          const pick = pickInnerTemplate(chunk(n, story), ctxOf({ archetype, theme: null }));
+          expect(pick && templatePhotoSlots(pick), `${archetype} ${n}`).toBe(n);
+          expect(kin, `${archetype} ${n} ${story ? 'story' : ''}`).toContain(pick?.archetype);
+          // The page before on its own is given up rather than a frame or the style.
+          const again = pickInnerTemplate(chunk(n, story), ctxOf({ archetype, theme: null, history: [pick!.id] }));
+          expect(again && templatePhotoSlots(again), `${archetype} ${n} again`).toBe(n);
+          expect(kin).toContain(again?.archetype);
+        }
+      }
+    }
+  });
 });

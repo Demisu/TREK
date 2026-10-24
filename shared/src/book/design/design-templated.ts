@@ -243,27 +243,36 @@ function storyRoom(c: ComposeCtx, pool: readonly BookDecoratedTemplate[]): Map<n
   return room;
 }
 
-/** A page of a template from outside the book's own pool costs this much more than one of its own. */
-const FOREIGN_PAGE = 8;
 /** A first page whose story frame cannot hold the story costs this much more: a page of words follows. */
 const SHORT_STORY_PAGE = 12;
+/** A page only another archetype has a template for costs this much more, so as few as can be are. */
+const FOREIGN_PAGE = 8;
 
 /**
  * The photo counts a chapter's pages may take: those of the book's own pool
- * of templates, and those only another archetype has at a price, so a photo
- * finds a frame there rather than none.
+ * of templates, the pool the picker lays them from. `wide` adds those only
+ * another archetype has, at a price, for a chapter the own pool would leave
+ * a photo of without a frame.
  */
-function chunkSizesFor(c: ComposeCtx, archetype: BookCoverArchetype, words: string): ChunkSizes {
+function chunkSizesFor(c: ComposeCtx, archetype: BookCoverArchetype, words: string, wide = false): ChunkSizes {
   const pool = innerPool(archetype);
   const own = chunkSizesOf(pool);
-  const all = chunkSizesOf(decoratedTemplatesFor('inner'));
-  const room = storyRoom(c, words ? decoratedTemplatesFor('inner') : []);
+  const sizes = wide ? chunkSizesOf(decoratedTemplatesFor('inner')) : own;
+  const room = storyRoom(c, words ? (wide ? decoratedTemplatesFor('inner') : pool) : []);
   const pageCost = (s: number, first: boolean) => {
     const foreign = !(first && words ? own.story : own.any).has(s);
     const short = first && words && (room.get(s) ?? 0) < words.length;
     return (foreign ? FOREIGN_PAGE : 0) + (short ? SHORT_STORY_PAGE : 0);
   };
-  return { any: all.any, story: all.story, pageCost };
+  return { any: sizes.any, story: sizes.story, pageCost };
+}
+
+/** A chapter's photos cut into pages of the own pool, or of any where the own pool leaves one without a frame. */
+function cutChapter(c: ComposeCtx, archetype: BookCoverArchetype, words: string, photos: number) {
+  const own = chunkPhotos(photos, !!words, chunkSizesFor(c, archetype, words));
+  if (!own.parked) return own;
+  const wide = chunkPhotos(photos, !!words, chunkSizesFor(c, archetype, words, true));
+  return wide.parked < own.parked ? wide : own;
 }
 
 /** A chapter's pages: its photos cut into parts, the first taking its first entry's words, then the rest of them. */
@@ -272,8 +281,7 @@ function chapterPages(l: Laying, chapter: DesignChapter, notes: string[]) {
   if (!entry) return;
   const name = chapter.label ?? entry.title ?? null;
   const words = storyOf(l.c, entry);
-  const sizes = chunkSizesFor(l.c, l.base.archetype, words);
-  const cut = chunkPhotos(chapter.photos.length, !!words, sizes);
+  const cut = cutChapter(l.c, l.base.archetype, words, chapter.photos.length);
   let at = 0;
   let rest = '';
   cut.sizes.forEach((size, i) => {
