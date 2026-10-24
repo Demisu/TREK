@@ -8,7 +8,7 @@ Flights, trains, rental cars, ferries and every other ride of a trip, with their
 
 There are several ways to add a transport:
 
-- On the **Transports** tab, click **Transport** at the top right. The editor opens as **Add transport**.
+- On the **Transports** tab, click **Transport** at the top right. The editor opens as **Add transport**. On a tab without transports, the page offers **Transport**, **Import from file** and, with the AirTrail addon on, **AirTrail** as buttons.
 - In the day plan, click the **+** in a day's head band (*Add to day*) and pick **Add transport** for that day, or **Public transit** to search a connection on it.
 - Click the travel-time connector between two stops in the day plan and pick **Public transit**. The search opens with that leg's start and end filled in and the departure time taken from the stop you are leaving.
 - Import the confirmation with **Import booking confirmations**, or bring flights in from AirTrail. See [Import from booking confirmation](Reservations-and-Bookings#import-from-booking-confirmation) and [Import from AirTrail](Reservations-and-Bookings#import-from-airtrail).
@@ -118,6 +118,10 @@ Self-hosters can point the `TRANSIT_API_URL` environment variable at their own M
 
 > **Admin:** which service answers the search is set under **Admin → Settings → API Keys → Transit Provider**. **Transitous (free)** is the default: community GTFS feeds, keyless, with the best coverage in Europe. **Google** runs the stop search and the route plan through the Google Maps API key in the same card, for regions Transitous has no data for. Google bills per search, and the key has to be allowed to call the **Routes API** and the **Places API (New)** (text search); the legacy Directions API is not used. A key saved only in a member's own settings serves that member alone, so save it as an admin to apply it to the whole instance. While no Google key is available, the search stays on Transitous even with Google selected, which is why an empty result names the service that answered (*No connections found via Google*).
 
+## Offline
+
+A transport you save while offline waits in a queue and is sent when TREK is back online. A transport that carries new files needs a connection, because files cannot be uploaded offline: remove the new files to save it, or save once you are back online.
+
 ## Opening a transport
 
 Click a transport anywhere, on its card, in the day plan, on the map or in the road trip rail, and its detail opens.
@@ -158,7 +162,13 @@ Drag a transport row to move it within its day or onto another day. The rows of 
 
 ![An expanded day card with places, a transport row and a note, and the pills in its head band](assets/PlanDayCard.png)
 
+A booking that is pinned to a stop on another day shows at that stop only, not on two days. The dashboard's upcoming reservations leave out planned public transit.
+
 See [Day-Plans-and-Notes](Day-Plans-and-Notes#multi-day-reservations) for how the days are put together.
+
+## AI assistant
+
+The in-app AI assistant can read and add transports. A transport it proposes appears as a booking card in the chat that you confirm before it is saved.
 
 ## See also
 

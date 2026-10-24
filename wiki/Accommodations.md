@@ -10,6 +10,7 @@ There are three ways to create a stay:
 
 - **From a day:** choose **Add accommodation** in a day's **+** menu, or click **Add accommodation** in the [day details panel](#in-the-day-detail-panel). Both open the stay editor, described below.
 - **From the Bookings tab:** click **Manual Booking** and pick **Accommodation** in the type pill of the dialog's head band. The date and time fields make way for the stay's own fields, see [Accommodation fields in the booking editor](#accommodation-fields-in-the-booking-editor). Saving creates the booking and the stay at the same time.
+- **From the AI assistant:** the in-app assistant proposes a stay as a stay card in the chat. Nothing is saved until you confirm it, and the stay then appears in the day plan like any other.
 - **From the road trip search:** **Add as an overnight stay** books the night and adds the stop in one go. See [Road-Trip](Road-Trip#booked-nights-on-the-drive).
 
 ### The stay editor
@@ -50,6 +51,8 @@ On every day from the check-in day to the check-out day, the **Accommodation** s
 - **The fields** under it show only the time that matters on that day: **Check-in** (a single time, or the window from the earliest to the latest time) on the check-in day, **Check-out** on the check-out day, and neither on the nights in between. **Confirmation** shows on every day. The code is blurred when **Blur Booking Codes** is on in your [settings](Display-Settings); hovering or clicking it reveals it.
 - **Reservation**: the linked booking with its title, its status (**Confirmed** or **Pending**) and code. Click it to open the booking's detail.
 - For members who can edit days: the pencil (**Edit accommodation**) opens the stay editor, and the **X** (**Remove**) deletes the stay straight away, together with its booking and the expenses linked to that booking.
+
+A stay booked in another place (the booking form, the assistant or the road trip search) shows up in the day plan and the day details at once, without a reload.
 
 **Add accommodation** at the foot of the section adds another stay, for example a second hotel on a transfer day.
 
@@ -104,4 +107,9 @@ A stay that only runs across a deleted day, with its check-in before and its che
 
 ---
 
-**See also:** [Reservations-and-Bookings](Reservations-and-Bookings) · [Day-Plans-and-Notes](Day-Plans-and-Notes) · [Transport-Flights-Trains-Cars](Transport-Flights-Trains-Cars) · [Road-Trip](Road-Trip)
+**See also**
+
+- [Reservations-and-Bookings](Reservations-and-Bookings)
+- [Day-Plans-and-Notes](Day-Plans-and-Notes)
+- [Transport-Flights-Trains-Cars](Transport-Flights-Trains-Cars)
+- [Road-Trip](Road-Trip)

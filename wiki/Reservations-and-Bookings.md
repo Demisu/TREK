@@ -29,6 +29,8 @@ TREK knows seventeen types. Six of them belong to the Bookings tab and eleven to
 
 A new booking made with **Manual Booking** starts as type **Other**. Change it with the type pill in the head of the editor.
 
+Older data can still contain the type *Activity*. It is no longer offered in the editor, but such bookings keep showing on the Bookings tab as they always did.
+
 ## Views
 
 The three buttons in the bar switch how the bookings are laid out. Each tab remembers its own choice in your browser.
@@ -82,7 +84,7 @@ A number on the Filter button counts what is switched on, and a chip such as *3 
 
 **Export as spreadsheet (CSV)**, the spreadsheet icon after **View options**, downloads the bookings as a CSV file. It holds exactly what the tab shows: the search and the filters apply, and the rows follow **Sort by** from the view options (the grouping is left out, one row per booking). The columns are **Type**, **Title**, **Status**, **Start**, **End**, **From**, **To**, **Location**, **Confirmation** and **Notes**; **From** and **To** are filled for bookings with a route. The file is semicolon-separated with a UTF-8 byte-order mark, so Excel opens it cleanly, and is named after the trip and the tab, such as `berlin-2026-bookings.csv`. A cell that would start with `=`, `+`, `-` or `@` gets a leading apostrophe, so a spreadsheet never runs it as a formula.
 
-The button is there for every member who can see the tab, as soon as it has at least one booking. The Transports tab exports its own list the same way.
+While a search or filter is active, the button's tooltip reads *Export the {shown} of {total} shown rows (CSV)*. The button is there for every member who can see the tab, as soon as it has at least one booking. The Transports tab exports its own list the same way.
 
 ## Pending and Confirmed
 
@@ -141,7 +143,7 @@ The bar at the foot holds:
 2. Type the title into the head band. It is the one required field; **Add** stays disabled until it has one.
 3. Pick the type with the pill in the head band: Accommodation, Restaurant, Event, Tour, Parking or Other. The pill next to it reads **Pending**; click it to make the booking **Confirmed**.
 4. Optionally pick **Link to day assignment**: a searchable list of every stop in the plan, grouped by day. It pins the booking to that stop, and an empty date is filled with that day.
-5. Set **Date**, **Start time**, **End date** and **End time**. The calendars only offer days inside the trip, and an end before the start is marked in red and blocks saving.
+5. Set **Date**, **Start time**, **End date** and **End time**. The calendars only offer days inside the trip. An end date that lies before the start is marked in red and blocks saving. If you set only an end time and it is earlier than the start time, an amber hint appears under the field (*The end time is before the start time. If it ends the next day, set an end date.*); it does not block saving.
 6. Optionally pick a **Place / Activity** from the trip. It fills the title and the address only where you left them empty. **Location / Address** takes any address.
 7. Enter the **Booking Code** and pick the **Travelers** from the trip roster, named guests included.
 8. Add **Notes**, a **Link** to the booking, and **Files**: **Attach file** uploads from your device (PDF, Word documents, text files, images), and on a saved booking **Link existing file** ties in a file the trip already has. Files picked before the first save are uploaded right after it.
@@ -158,7 +160,7 @@ Click the pencil on a card or list row, or **Edit** in the booking detail. The e
 
 If you have changed something and then press Escape or click beside the editor, TREK asks *Discard your changes?* before it closes. **Keep editing** takes you back to the form, **Discard** closes it without saving. The cross and **Cancel** close the editor straight away.
 
-To delete a booking, click the bin on its card or row, or **Delete** in the detail. TREK asks once (*Delete booking?*) before it removes the booking.
+To delete a booking, click the bin on its card or row, or **Delete** in the detail. TREK asks once (*Delete booking?*) before it removes the booking. When the booking has linked costs, the question says so (*"{name}" will be permanently deleted, along with its linked costs.*) and the costs are removed with it.
 
 ## Import from booking confirmation
 
@@ -225,9 +227,17 @@ Creating, editing, importing and deleting bookings, switching their status and r
 
 Some entry points in the day plan follow the plan's own right, `day_edit`: **Add booking** on a stop, the transport editor opened from the plan, and **Change route** on a public transit journey. See [Admin-Permissions](Admin-Permissions).
 
+## Offline
+
+Bookings, transports and stays you save while you are offline wait in a queue and are sent when TREK is back online. Files are the exception: they need a connection to upload. If you try to save a booking with new files while offline, the editor says *Files need a connection to upload. Remove the new ones to save the booking offline, or save once you are back online.* See [Offline-Mode-and-PWA](Offline-Mode-and-PWA).
+
 ## Real-time sync
 
 Every change to a booking reaches all trip members who have the trip open, without a reload.
+
+## AI assistant
+
+The in-app AI assistant can create bookings and stays from the chat. It shows them as booking and stay cards that you confirm before anything is saved. Attach a confirmation to the chat and the assistant proposes **Add booking from file**; the file can be kept in the trip's Files together with the booking. The assistant is an addon, see [Addons-Overview](Addons-Overview).
 
 ## See also
 
