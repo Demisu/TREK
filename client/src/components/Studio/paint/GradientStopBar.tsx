@@ -86,8 +86,10 @@ export function GradientStopBar({
   const onStopKey = (index: number) => (e: KeyboardEvent<HTMLButtonElement>) => {
     const stop = paint.stops[index];
     if (!stop) return;
-    if ((e.key === 'Delete' || e.key === 'Backspace') && canRemove) {
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      // The stop's key even when the last two cannot go: it never reaches the page to delete the shape.
       e.preventDefault();
+      if (!canRemove) return;
       onSelect(Math.max(0, index - 1));
       onChange(removeStop(paint, index), true);
       return;

@@ -1,9 +1,11 @@
 import type { BookDocument, BookElement } from '@trek/shared';
 import { bookPageSetupSchema, bookShapeElementSchema, bookTextElementSchema } from '@trek/shared';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { fireEvent, render } from '../../../tests/helpers/render';
 import { useStudioStore } from '../../store/studioStore';
+import { AngleDial } from './paint/AngleDial';
+import { GradientStopBar } from './paint/GradientStopBar';
 import { StudioCanvas } from './StudioCanvas';
 
 /**
@@ -265,6 +267,55 @@ describe('the keyboard', () => {
     const again = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
     document.dispatchEvent(again);
     expect(again.defaultPrevented).toBe(false);
+  });
+
+  it('leaves a key to the control that takes it: a gradient stop, the angle dial', () => {
+    load([shape('a', 10, 10)]);
+    store().select(['a']);
+    draw();
+    const fade = (n: number) => ({
+      type: 'linear' as const,
+      angle: 90,
+      stops: Array.from({ length: n }, (_, i) => ({ at: i / (n - 1), color: '#112233' })),
+    });
+    const onChange = vi.fn();
+    const labels = { bar: 'bar', stop: (pos: number) => `stop ${pos}` };
+    const three = render(
+      <GradientStopBar paint={fade(3)} selected={1} onSelect={() => {}} onChange={onChange} labels={labels} />
+    );
+    fireEvent.keyDown(must(three.container.querySelectorAll('.st-stop')[1]), { key: 'Delete' });
+    expect(onChange.mock.calls[0]?.[0].stops).toHaveLength(2);
+    three.unmount();
+    // The last two stops cannot go, and the key still does not reach the shape.
+    const two = render(
+      <GradientStopBar paint={fade(2)} selected={0} onSelect={() => {}} onChange={onChange} labels={labels} />
+    );
+    fireEvent.keyDown(must(two.container.querySelector('.st-stop')), { key: 'Backspace' });
+    two.unmount();
+    expect(elements().map((e) => e.id)).toEqual(['a']);
+
+    const dial = render(<AngleDial value={90} onChange={() => {}} label="Angle" />);
+    fireEvent.keyDown(must(dial.container.querySelector('.st-dial')), { key: 'ArrowRight', shiftKey: true });
+    expect(el('a').frame).toMatchObject({ x: 10, y: 10 });
+  });
+
+  it("leaves the keys pressed in the assistant's window to it", () => {
+    load([shape('a', 10, 10)]);
+    store().select(['a']);
+    store().copy(0, ['a']);
+    draw();
+    // As the Studio's assistant window does it: every key pressed in it stops there (StudioAssistantPanel.tsx).
+    const chat = render(
+      <aside className="st-assistant" onKeyDown={(e) => e.stopPropagation()}>
+        <button type="button">Apply</button>
+      </aside>
+    );
+    const button = must(chat.container.querySelector('button'));
+    fireEvent.keyDown(button, { key: 'Delete' });
+    fireEvent.keyDown(button, { key: 'ArrowDown' });
+    fireEvent.keyDown(button, { key: 'v', ctrlKey: true });
+    expect(elements().map((e) => e.id)).toEqual(['a']);
+    expect(el('a').frame).toMatchObject({ x: 10, y: 10 });
   });
 
   it('leaves the keys to a field being typed in', () => {

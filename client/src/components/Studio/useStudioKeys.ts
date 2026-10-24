@@ -9,8 +9,12 @@ import { useStudioStore } from '../../store/studioStore';
  * Every shortcut here is one a design tool has taught people already, and none
  * of them takes a key away from the browser while somebody is typing: in a
  * field, a text area or a text being edited on the page, the keys are the
- * field's. Undo and redo are the Studio page's own (useJourneyStudio.ts), and
- * every action below is one undo step there.
+ * field's. Nor from a control that takes the key itself: a gradient stop,
+ * the angle dial or a row of the layers tree prevents its default, and the
+ * assistant's window stops its keys from reaching the page, so Delete on a
+ * focused stop removes the stop, not the shape. Undo and redo are the Studio
+ * page's own (useJourneyStudio.ts), and every action below is one undo step
+ * there.
  *
  * - Delete or Backspace: remove what is selected and not locked.
  * - Ctrl+C, Ctrl+V: copy and paste elements, onto any page (#2316).
@@ -134,7 +138,7 @@ export function useStudioKeys(opts: { spreadIndex: number; editing: boolean }) {
     };
 
     const onKey = (e: KeyboardEvent) => {
-      if (editing || isTypingTarget(e.target)) return;
+      if (editing || e.defaultPrevented || isTypingTarget(e.target)) return;
       const store = useStudioStore.getState();
       // Read when the key comes, not when the effect ran: a nudge changes the
       // page, and an effect that re-ran on it would close the gesture each step.
@@ -164,13 +168,15 @@ export function useStudioKeys(opts: { spreadIndex: number; editing: boolean }) {
       if (ARROWS[e.key]) stopNudge();
     };
 
-    // Capture, so a step out of a group is decided before the page's Escape clears the selection.
-    window.addEventListener('keydown', onKey, true);
+    // On the document as the key bubbles: after every control and the assistant's window had it (React
+    // listens below the document), and before the page's Escape on the window, so a step out of a group
+    // is decided before the page clears the selection.
+    document.addEventListener('keydown', onKey);
     window.addEventListener('keyup', onKeyUp, true);
     window.addEventListener('blur', stopNudge);
     return () => {
       stopNudge();
-      window.removeEventListener('keydown', onKey, true);
+      document.removeEventListener('keydown', onKey);
       window.removeEventListener('keyup', onKeyUp, true);
       window.removeEventListener('blur', stopNudge);
     };

@@ -152,6 +152,66 @@ describe('the layers panel', () => {
     expect(screen.getAllByText('journey.studio.layers.empty').length).toBeGreaterThan(0);
   });
 
+  it('is one stop in the Tab order, and the arrows walk the rows from there', () => {
+    const { container } = render(<StudioLayersPanel t={t} />);
+    expect(rows(container).map((r) => r.tabIndex)).toEqual([0, -1, -1, -1, -1]);
+    fireEvent.keyDown(must(rows(container)[0]), { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(rows(container)[1]);
+    expect(rows(container).map((r) => r.tabIndex)).toEqual([-1, 0, -1, -1, -1]);
+    fireEvent.keyDown(must(rows(container)[1]), { key: 'End' });
+    expect(document.activeElement).toBe(rows(container)[4]);
+    fireEvent.keyDown(must(rows(container)[4]), { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(rows(container)[4]);
+    fireEvent.keyDown(must(rows(container)[4]), { key: 'Home' });
+    expect(document.activeElement).toBe(rows(container)[0]);
+  });
+
+  it('selects with Enter or Space, Shift adding, and keeps the arrow off the page', () => {
+    store().select(['a']);
+    const { container } = render(<StudioLayersPanel t={t} />);
+    // The selected row is the one Tab reaches.
+    expect(must(rows(container)[4]).tabIndex).toBe(0);
+    fireEvent.keyDown(must(rows(container)[0]), { key: 'Enter' });
+    expect(store().selection).toEqual(['t']);
+    fireEvent.keyDown(must(rows(container)[4]), { key: ' ', shiftKey: true });
+    expect(store().selection).toEqual(['t', 'a']);
+    // Taken by the tree, so the sheet's own keys (useStudioKeys) leave the selection where it is.
+    expect(fireEvent.keyDown(must(rows(container)[4]), { key: 'ArrowUp' })).toBe(false);
+    expect(fireEvent.keyDown(must(rows(container)[3]), { key: 'Delete' })).toBe(true);
+  });
+
+  it('closes a group with Left, opens it with Right, and steps between a member and its group', () => {
+    const { container } = render(<StudioLayersPanel t={t} />);
+    fireEvent.keyDown(must(rows(container)[2]), { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(rows(container)[1]);
+    fireEvent.keyDown(must(rows(container)[1]), { key: 'ArrowLeft' });
+    expect(rows(container).map((r) => r.dataset.layerKey)).toEqual(['t', 'g:g', 'a']);
+    expect(must(rows(container)[1]).getAttribute('aria-expanded')).toBe('false');
+    fireEvent.keyDown(must(rows(container)[1]), { key: 'ArrowRight' });
+    expect(rows(container)).toHaveLength(5);
+    fireEvent.keyDown(must(rows(container)[1]), { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(rows(container)[2]);
+  });
+
+  it('renames with F2, and the keyboard is back on the row after Enter or Escape', () => {
+    const { container } = render(<StudioLayersPanel t={t} />);
+    fireEvent.keyDown(must(rows(container)[0]), { key: 'F2' });
+    const input = container.querySelector('.st-layer-input') as HTMLInputElement;
+    expect(document.activeElement).toBe(input);
+    fireEvent.change(input, { target: { value: 'Title' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(el('t').name).toBe('Title');
+    expect(document.activeElement).toBe(rows(container)[0]);
+
+    fireEvent.keyDown(must(rows(container)[0]), { key: 'F2' });
+    const again = container.querySelector('.st-layer-input') as HTMLInputElement;
+    fireEvent.change(again, { target: { value: 'Something else' } });
+    fireEvent.keyDown(again, { key: 'Escape' });
+    expect(el('t').name).toBe('Title');
+    expect(container.querySelector('.st-layer-input')).toBeNull();
+    expect(document.activeElement).toBe(rows(container)[0]);
+  });
+
   it('offers no drag, lock or visibility to a book held read-only', () => {
     useStudioStore.setState({ readOnly: true });
     const { container } = render(<StudioLayersPanel t={t} />);

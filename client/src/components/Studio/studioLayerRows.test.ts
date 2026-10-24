@@ -2,7 +2,7 @@ import type { BookElement, BookSpread } from '@trek/shared';
 import { bookShapeElementSchema, bookTextElementSchema } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 
-import { dropOn, layerLabel, layerRows, rowIds } from './studioLayerRows';
+import { dropOn, layerKeyAction, layerLabel, layerRows, rowIds } from './studioLayerRows';
 import { shortcutKeys } from './studioShortcut';
 
 /** The value, or a failed test when it is missing. */
@@ -56,6 +56,42 @@ describe('dropOn', () => {
     expect(dropOn(must(rows[2]), false)).toEqual({ anchorId: 'm2', where: 'below', join: true });
     expect(dropOn(must(rows[1]), true)).toEqual({ anchorId: 'm2', where: 'above', join: false });
     expect(dropOn(must(rows[1]), false)).toEqual({ anchorId: 'm1', where: 'below', join: false });
+  });
+});
+
+describe('layerKeyAction', () => {
+  const open = layerRows(spread, new Set());
+  const ltr = { collapsed: new Set<string>(), rtl: false, additive: false };
+
+  it('walks the rows with Up, Down, Home and End, and stops at the ends', () => {
+    expect(layerKeyAction('ArrowDown', 0, open, ltr)).toEqual({ type: 'focus', index: 1 });
+    expect(layerKeyAction('ArrowDown', 4, open, ltr)).toEqual({ type: 'focus', index: 4 });
+    expect(layerKeyAction('ArrowUp', 0, open, ltr)).toEqual({ type: 'focus', index: 0 });
+    expect(layerKeyAction('End', 1, open, ltr)).toEqual({ type: 'focus', index: 4 });
+    expect(layerKeyAction('Home', 3, open, ltr)).toEqual({ type: 'focus', index: 0 });
+  });
+
+  it('opens and closes a group, and steps between it and its members, mirrored right to left', () => {
+    const folded = layerRows(spread, new Set(['g']));
+    const closed = { ...ltr, collapsed: new Set(['g']) };
+    expect(layerKeyAction('ArrowLeft', 1, open, ltr)).toEqual({ type: 'collapse', groupId: 'g' });
+    expect(layerKeyAction('ArrowRight', 1, folded, closed)).toEqual({ type: 'expand', groupId: 'g' });
+    expect(layerKeyAction('ArrowRight', 1, open, ltr)).toEqual({ type: 'focus', index: 2 });
+    expect(layerKeyAction('ArrowLeft', 3, open, ltr)).toEqual({ type: 'focus', index: 1 });
+    expect(layerKeyAction('ArrowLeft', 1, folded, closed)).toBeNull();
+    expect(layerKeyAction('ArrowRight', 0, open, ltr)).toBeNull();
+    expect(layerKeyAction('ArrowLeft', 0, open, ltr)).toBeNull();
+    const rtl = { ...ltr, rtl: true };
+    expect(layerKeyAction('ArrowRight', 1, open, rtl)).toEqual({ type: 'collapse', groupId: 'g' });
+    expect(layerKeyAction('ArrowLeft', 1, open, rtl)).toEqual({ type: 'focus', index: 2 });
+  });
+
+  it('selects with Enter or Space, renames with F2, and leaves every other key to the page', () => {
+    expect(layerKeyAction('Enter', 2, open, ltr)).toEqual({ type: 'choose', additive: false });
+    expect(layerKeyAction(' ', 2, open, { ...ltr, additive: true })).toEqual({ type: 'choose', additive: true });
+    expect(layerKeyAction('F2', 0, open, ltr)).toEqual({ type: 'rename' });
+    expect(layerKeyAction('Delete', 0, open, ltr)).toBeNull();
+    expect(layerKeyAction('Enter', 9, open, ltr)).toBeNull();
   });
 });
 

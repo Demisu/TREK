@@ -27,7 +27,17 @@ import { useStudioStore } from '../../store/studioStore';
 import '../../styles/studio-layers.css';
 import { Tooltip } from '../shared/Tooltip';
 import { PanelHead } from './StudioPanelHead';
-import { dropOn, layerLabel, layerRows, rowIds, type LayerDrop, type LayerRow } from './studioLayerRows';
+import {
+  dropOn,
+  layerKeyAction,
+  layerLabel,
+  layerRows,
+  rowIds,
+  type LayerDrop,
+  type LayerKeyAction,
+  type LayerRow,
+} from './studioLayerRows';
+import { runsRtl } from './studioRoving';
 import { useStudioShortcut } from './studioShortcut';
 
 /**
@@ -41,6 +51,12 @@ import { useStudioShortcut } from './studioShortcut';
  * sit at the end of every row, always shown when they are on so a locked or
  * hidden layer can be told at a glance; a hidden layer is dimmed, not removed,
  * since this panel is the way back to it. Every change is one undo step.
+ *
+ * The tree is one stop in the Tab order, the row last focused or else the
+ * selected one, and its keys are a tree view's (studioLayerRows.ts): the arrows
+ * move along it and open or close a group, Enter or Space selects a row (with
+ * Shift added), F2 renames it. A hidden or locked layer, which cannot be
+ * clicked on the page, is reached this way too.
  */
 
 const KIND_ICONS: Record<string, LucideIcon> = {
@@ -90,6 +106,8 @@ export function StudioLayersPanel({ t }: { t: T }) {
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
   const [renaming, setRenaming] = useState<string | null>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
+  /** The row the keyboard is on, so the tree keeps its place in the Tab order. */
+  const [focusKey, setFocusKey] = useState<string | null>(null);
   const list = useRef<HTMLDivElement>(null);
   /** A drag ends in a click on the row it started from; that click is not a choice. */
   const justDragged = useRef(false);
@@ -114,14 +132,55 @@ export function StudioLayersPanel({ t }: { t: T }) {
       return next;
     });
 
+  const selectRow = (row: LayerRow, additive: boolean) => {
+    if (row.type === 'group') selectGroup(spreadIndex, row.groupId, additive);
+    else if (row.inGroup && !additive) enterGroup(spreadIndex, row.el.id);
+    else pick(spreadIndex, row.el.id, additive);
+  };
+
   const choose = (row: LayerRow, additive: boolean) => {
     if (justDragged.current) {
       justDragged.current = false;
       return;
     }
-    if (row.type === 'group') selectGroup(spreadIndex, row.groupId, additive);
-    else if (row.inGroup && !additive) enterGroup(spreadIndex, row.el.id);
-    else pick(spreadIndex, row.el.id, additive);
+    selectRow(row, additive);
+  };
+
+  /** The one row in the Tab order: the one last focused, else the first selected, else the front one. */
+  const tabKey =
+    rows.find((r) => r.key === focusKey)?.key ??
+    rows.find((r) => rowIds(r).every((id) => selected.has(id)))?.key ??
+    rows[0]?.key;
+
+  const focusRow = (row: LayerRow | undefined) => {
+    if (!row) return;
+    setFocusKey(row.key);
+    const nodes = list.current?.querySelectorAll<HTMLElement>('[data-layer-key]') ?? [];
+    Array.from(nodes)
+      .find((n) => n.dataset.layerKey === row.key)
+      ?.focus();
+  };
+
+  const runKey = (action: LayerKeyAction, row: LayerRow) => {
+    if (action.type === 'focus') focusRow(rows[action.index]);
+    else if (action.type === 'expand' || action.type === 'collapse') toggleCollapsed(action.groupId);
+    else if (action.type === 'rename') {
+      if (!readOnly) setRenaming(row.key);
+    } else selectRow(row, action.additive);
+  };
+
+  const onTreeKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const node = e.target as HTMLElement;
+    // The caret, the toggles and the name field keep their own keys.
+    const index = rows.findIndex((r) => r.key === node.dataset.layerKey);
+    const row = rows[index];
+    if (!row) return;
+    const additive = e.shiftKey || e.metaKey || e.ctrlKey;
+    const action = layerKeyAction(e.key, index, rows, { collapsed, rtl: runsRtl(node), additive });
+    if (!action) return;
+    // Taken here, so the page does not also nudge or act on the selection (useStudioKeys.ts).
+    e.preventDefault();
+    runKey(action, row);
   };
 
   /** What a drag from this row carries: the selection when the row is in it, else what the row stands for. */
@@ -203,6 +262,7 @@ export function StudioLayersPanel({ t }: { t: T }) {
               className={`st-layers ${drag?.active ? 'is-dragging' : ''}`}
               role="tree"
               aria-label={t('journey.studio.layers')}
+              onKeyDown={onTreeKey}
               onPointerMove={onPointerMove}
               onPointerUp={onPointerUp}
               onPointerCancel={() => setDrag(null)}
@@ -219,6 +279,8 @@ export function StudioLayersPanel({ t }: { t: T }) {
                   dragged={!!drag?.active && rowIds(row).every((id) => drag.ids.includes(id))}
                   dropAt={drag?.active && drag.overKey === row.key ? (drag.upper ? 'above' : 'below') : null}
                   readOnly={readOnly}
+                  tabStop={row.key === tabKey}
+                  onFocusRow={() => setFocusKey(row.key)}
                   onPointerDown={(e) => onPointerDown(e, row)}
                   onChoose={(additive) => choose(row, additive)}
                   onToggleCollapsed={() => row.type === 'group' && toggleCollapsed(row.groupId)}
@@ -263,6 +325,9 @@ interface RowProps {
   dragged: boolean;
   dropAt: 'above' | 'below' | null;
   readOnly: boolean;
+  /** The row the Tab key reaches the tree on. */
+  tabStop: boolean;
+  onFocusRow: () => void;
   onPointerDown: (e: React.PointerEvent) => void;
   onChoose: (additive: boolean) => void;
   onToggleCollapsed: () => void;
@@ -312,8 +377,11 @@ function LayerRowView(p: RowProps) {
       className={rowClasses(p, hidden)}
       data-layer-key={row.key}
       role="treeitem"
+      tabIndex={p.tabStop ? 0 : -1}
+      aria-level={row.type === 'element' && row.inGroup ? 2 : 1}
       aria-selected={p.selected}
       aria-expanded={row.type === 'group' ? !p.collapsed : undefined}
+      onFocus={p.onFocusRow}
       onPointerDown={p.onPointerDown}
       onClick={(e) => p.onChoose(e.shiftKey || e.metaKey || e.ctrlKey)}
     >
@@ -363,6 +431,8 @@ function RowName(p: {
   onCommit: (value: string) => void;
   onCancel: () => void;
 }) {
+  // Escape hands the focus back to the row, which blurs the field: that blur keeps nothing.
+  const cancelled = useRef(false);
   if (!p.renaming) {
     return (
       <span
@@ -384,14 +454,28 @@ function RowName(p: {
       maxLength={60}
       aria-label={p.t('journey.studio.layers.rename')}
       onClick={(e) => e.stopPropagation()}
-      onBlur={(e) => p.onCommit(e.target.value)}
+      onFocus={() => {
+        cancelled.current = false;
+      }}
+      onBlur={(e) => {
+        if (!cancelled.current) p.onCommit(e.target.value);
+      }}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+        // Back to the row either way, so the keyboard keeps its place in the tree.
+        const row = e.currentTarget.closest<HTMLElement>('[data-layer-key]');
+        if (e.key === 'Enter') {
+          // Moving the focus blurs the field, which keeps the name.
+          if (row) row.focus();
+          else e.currentTarget.blur();
+          return;
+        }
         if (e.key !== 'Escape') return;
         // Escape here leaves the name as it was, and must not close Studio.
         e.stopPropagation();
         e.preventDefault();
+        cancelled.current = true;
         p.onCancel();
+        row?.focus();
       }}
     />
   );

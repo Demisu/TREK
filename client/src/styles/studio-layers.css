@@ -232,9 +232,17 @@
 }
 /* Shown on hover and while focused, and always when on, so a locked or hidden layer reads at a glance. */
 .trek-dash .st-layer:hover .st-layer-acts .st-act,
+.trek-dash .st-layer:focus-visible .st-layer-acts .st-act,
 .trek-dash .st-layer-acts .st-act:focus-visible,
 .trek-dash .st-layer-acts .st-act.is-kept {
   opacity: 1;
+}
+/* The row the keyboard is on, ringed: the tree is walked with the arrow keys. */
+.trek-dash .st-layer:focus {
+  outline: none;
+}
+.trek-dash .st-layer:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 
 .trek-dash .st-layers-foot {

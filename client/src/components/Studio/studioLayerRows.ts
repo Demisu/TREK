@@ -91,3 +91,61 @@ export function selectionTitle(spread: BookSpread | undefined, selection: string
   }
   return t('journey.studio.multiple');
 }
+
+/** What a key pressed on a row of the layers tree does. */
+export type LayerKeyAction =
+  | { type: 'focus'; index: number }
+  | { type: 'expand'; groupId: string }
+  | { type: 'collapse'; groupId: string }
+  | { type: 'choose'; additive: boolean }
+  | { type: 'rename' };
+
+/** Up and Down along the rows, Home and End to the ends; the tree stops at either end. */
+function alongTree(key: string, index: number, count: number): number | null {
+  if (key === 'Home') return 0;
+  if (key === 'End') return count - 1;
+  if (key === 'ArrowDown') return Math.min(index + 1, count - 1);
+  if (key === 'ArrowUp') return Math.max(index - 1, 0);
+  return null;
+}
+
+/** Into a group: a closed one opens, an open one hands the focus to its first member. */
+function inward(row: LayerRow, index: number, collapsed: ReadonlySet<string>): LayerKeyAction | null {
+  if (row.type !== 'group') return null;
+  return collapsed.has(row.groupId) ? { type: 'expand', groupId: row.groupId } : { type: 'focus', index: index + 1 };
+}
+
+/** Out of a group: an open one closes, a member hands the focus to its group's row. */
+function outward(rows: readonly LayerRow[], index: number, collapsed: ReadonlySet<string>): LayerKeyAction | null {
+  const row = rows[index];
+  if (row?.type === 'group') return collapsed.has(row.groupId) ? null : { type: 'collapse', groupId: row.groupId };
+  if (!row?.inGroup) return null;
+  // A member's group is the nearest group row above it: members are listed right under their group.
+  for (let i = index - 1; i >= 0; i--) if (rows[i]?.type === 'group') return { type: 'focus', index: i };
+  return null;
+}
+
+/**
+ * The tree's keyboard, as a tree view has it: Up and Down move along the
+ * rows, Home and End to the ends; Right opens a closed group and steps into
+ * an open one, Left closes an open group and steps from a member up to its
+ * group, the two mirrored in a language read right to left; Enter or Space
+ * selects the row as a click does, `additive` (Shift, Ctrl or Cmd held)
+ * adding it; F2 renames it. Null for a key the tree leaves to the page.
+ */
+export function layerKeyAction(
+  key: string,
+  index: number,
+  rows: readonly LayerRow[],
+  opts: { collapsed: ReadonlySet<string>; rtl: boolean; additive: boolean }
+): LayerKeyAction | null {
+  const row = rows[index];
+  if (!row) return null;
+  if (key === 'Enter' || key === ' ') return { type: 'choose', additive: opts.additive };
+  if (key === 'F2') return { type: 'rename' };
+  const along = alongTree(key, index, rows.length);
+  if (along !== null) return { type: 'focus', index: along };
+  if (key === (opts.rtl ? 'ArrowLeft' : 'ArrowRight')) return inward(row, index, opts.collapsed);
+  if (key === (opts.rtl ? 'ArrowRight' : 'ArrowLeft')) return outward(rows, index, opts.collapsed);
+  return null;
+}
