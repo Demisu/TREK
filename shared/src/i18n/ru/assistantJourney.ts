@@ -33,5 +33,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'Изменить порядок дневника',
   'assistant.followUp.journalToday': 'Написать запись за сегодня',
   'assistant.followUp.journalSummary': 'Подвести итог этих дней',
+  'assistant.journal.welcome': 'Что запишем в дневник?',
+  'assistant.journal.readOnly':
+    'Этот дневник тебе доступен только для чтения, поэтому я могу отвечать на вопросы, но ничего не изменю.',
 };
 export default assistantJourney;

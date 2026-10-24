@@ -30,5 +30,7 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'Preusporiadať denník',
   'assistant.followUp.journalToday': 'Napísať záznam za dnešok',
   'assistant.followUp.journalSummary': 'Zhrnúť tieto dni',
+  'assistant.journal.welcome': 'Čo zapíšeme do denníka?',
+  'assistant.journal.readOnly': 'Tento denník môžeš iba čítať, takže môžem odpovedať na otázky, ale nič meniť.',
 };
 export default assistantJourney;

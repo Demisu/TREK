@@ -33,5 +33,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'Zmień kolejność dziennika',
   'assistant.followUp.journalToday': 'Napisz wpis na dziś',
   'assistant.followUp.journalSummary': 'Podsumuj te dni',
+  'assistant.journal.welcome': 'Co wpiszemy do dziennika?',
+  'assistant.journal.readOnly':
+    'Możesz tylko czytać ten dziennik, więc mogę odpowiadać na pytania, ale niczego nie zmienię.',
 };
 export default assistantJourney;

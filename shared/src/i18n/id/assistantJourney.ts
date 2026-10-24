@@ -24,5 +24,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'Urutkan ulang jurnal',
   'assistant.followUp.journalToday': 'Tulis entri untuk hari ini',
   'assistant.followUp.journalSummary': 'Rangkum hari-hari ini',
+  'assistant.journal.welcome': 'Apa yang mau ditulis di jurnal?',
+  'assistant.journal.readOnly':
+    'Kamu hanya bisa membaca jurnal ini, jadi aku bisa menjawab pertanyaan tetapi tidak bisa mengubah apa pun.',
 };
 export default assistantJourney;

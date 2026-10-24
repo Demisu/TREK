@@ -1,6 +1,7 @@
 import { ThreadPrimitive } from '@assistant-ui/react';
 
 import { useTranslation } from '../../i18n';
+import { useAssistantStore } from '../../store/assistantStore';
 import EmptyState from '../shared/EmptyState';
 import AssistantHints, { MAX_VISIBLE_HINTS } from './AssistantHints';
 import { useAssistantScope, useAssistantView } from './assistantViewContext';
@@ -28,30 +29,38 @@ export default function AssistantWelcome({
 }) {
   const { t } = useTranslation();
   const { tripId, variant } = useAssistantView();
-  // The Studio's chat is about a book, not a plan; the home chat about all of the user's travels.
-  const scope = useAssistantScope().kind;
-  const book = scope === 'journey';
+  // The Studio's chat is about a book, not a plan; the journey's chat on its own page about the journal,
+  // the home chat about all of the user's travels. A journey's chat the Studio does not host is the journal's.
+  const hosted = useAssistantStore((s) => !!s.studioHosts[tripId]);
+  const about = useAssistantScope().kind;
+  const scope: WelcomeScope = about === 'journey' && !hosted ? 'journal' : about;
   const hints = useAssistantHints(tripId, { withStays: true });
   const crowded = Math.min(hints.hints.length, MAX_VISIBLE_HINTS) > SUGGESTIONS_UNDER_HINTS;
   const offered = crowded ? suggestions.slice(0, SUGGESTIONS_UNDER_HINTS) : suggestions;
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 py-6">
       <EmptyState scene="chat" size={72} compact surface="var(--bg-elevated)" title={welcomeTitle(scope, t)} />
-      {!canEdit && (
-        <p className="m-0 max-w-xs text-center text-caption text-content-muted">
-          {book ? t('journey.studio.assistant.readOnly') : t('assistant.empty.readOnly')}
-        </p>
-      )}
+      {!canEdit && <p className="m-0 max-w-xs text-center text-caption text-content-muted">{readOnlyNote(scope, t)}</p>}
       <AssistantHints view={hints} phone={variant === 'fullscreen'} />
       {withSuggestions && offered.length > 0 && <AssistantSuggestions suggestions={offered} layout="stack" />}
     </div>
   );
 }
 
+/** What an empty chat is about: a trip, a journey's book in the Studio, a journal on its page, or all of them. */
+type WelcomeScope = 'trip' | 'journey' | 'journal' | 'home';
+
 /** The question over the empty chat, by what the chat is about. */
-function welcomeTitle(scope: 'trip' | 'journey' | 'home', t: (key: string) => string): string {
+function welcomeTitle(scope: WelcomeScope, t: (key: string) => string): string {
   if (scope === 'journey') return t('journey.studio.assistant.welcome');
+  if (scope === 'journal') return t('assistant.journal.welcome');
   return scope === 'home' ? t('assistant.home.welcome') : t('assistant.empty.title');
+}
+
+/** What the empty chat tells someone who may only read. */
+function readOnlyNote(scope: WelcomeScope, t: (key: string) => string): string {
+  if (scope === 'journey') return t('journey.studio.assistant.readOnly');
+  return scope === 'journal' ? t('assistant.journal.readOnly') : t('assistant.empty.readOnly');
 }
 
 export function AssistantSuggestions({

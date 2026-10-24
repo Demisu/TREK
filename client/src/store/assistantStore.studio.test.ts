@@ -96,6 +96,20 @@ describe('assistantStore: a chat hosted by the Studio', () => {
     expect(send.mock.calls[1]?.[1]).not.toHaveProperty('renders');
   });
 
+  it("FE-AI-STORE-STUDIO-008: a journey's turn names its page, the Studio's while hosted, else the journal's", async () => {
+    const release = store().hostStudio(KEY, fakeHost([]));
+    const send = vi.spyOn(assistantRepo, 'send').mockImplementation(async () => streamOf([{ type: 'finish' }]));
+
+    await store().send(KEY, 'Lay out the cover');
+    release();
+    await store().send(KEY, 'A new entry for Berlin Hauptbahnhof');
+    await store().send(5, 'A trip question');
+
+    expect(send.mock.calls[0]?.[1]).toMatchObject({ surface: 'studio' });
+    expect(send.mock.calls[1]?.[1]).toMatchObject({ surface: 'journal' });
+    expect(send.mock.calls[2]?.[1]).not.toHaveProperty('surface');
+  });
+
   it('FE-AI-STORE-STUDIO-003: hands the page a turn asks for to the host, with a signal that ends with the turn', async () => {
     const host = fakeHost([]);
     store().hostStudio(KEY, host);

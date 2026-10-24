@@ -7,6 +7,7 @@ import {
   type AssistantErrorCode,
   type AssistantFocus,
   type AssistantFoundPlace,
+  type AssistantJourneySurface,
   type AssistantMapView,
   type AssistantMention,
   type AssistantMessage,
@@ -270,16 +271,21 @@ async function settleHolds(ctx: Ctx, key: AssistantChatKey): Promise<void> {
 /** The Studio hosting the chat under `key`, if one does. */
 const studioHostOf = (ctx: Ctx, key: AssistantChatKey): AssistantStudioHost | undefined => ctx.get().studioHosts[key];
 
-/** A turn of a hosted chat writes the book first and says the Studio draws pages; any other turn opens as it is. */
-async function hostedOpen<T>(ctx: Ctx, key: AssistantChatKey, open: (renders: { renders?: true }) => Promise<T>) {
+type HostedFields = { renders?: true; surface?: AssistantJourneySurface };
+
+/**
+ * A turn of a hosted chat writes the book first and says the Studio draws pages; any other turn opens as it is.
+ * A journey's turn names its page: the Studio's while the Studio hosts the chat, else the journal's.
+ */
+async function hostedOpen<T>(ctx: Ctx, key: AssistantChatKey, open: (fields: HostedFields) => Promise<T>) {
   const host = studioHostOf(ctx, key);
-  if (!host) return open({});
+  if (!host) return open(assistantScopeOf(key).kind === 'journey' ? { surface: 'journal' } : {});
   try {
     await host.flush();
   } catch {
     // The Studio's save indicator shows its own failure; the turn goes on against the book the server holds.
   }
-  return open({ renders: true });
+  return open({ renders: true, surface: 'studio' });
 }
 
 const NO_LIVE: AssistantTripChat['live'] = { activity: null };

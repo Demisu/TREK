@@ -24,5 +24,7 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'จัดลำดับบันทึกใหม่',
   'assistant.followUp.journalToday': 'เขียนรายการสำหรับวันนี้',
   'assistant.followUp.journalSummary': 'สรุปวันเหล่านี้',
+  'assistant.journal.welcome': 'จะเขียนอะไรลงในบันทึกดี?',
+  'assistant.journal.readOnly': 'คุณอ่านบันทึกนี้ได้อย่างเดียว ฉันจึงตอบคำถามได้แต่เปลี่ยนแปลงอะไรไม่ได้',
 };
 export default assistantJourney;

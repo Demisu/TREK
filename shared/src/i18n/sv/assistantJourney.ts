@@ -27,5 +27,7 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'Ordna om dagboken',
   'assistant.followUp.journalToday': 'Skriv ett inlägg för i dag',
   'assistant.followUp.journalSummary': 'Sammanfatta de här dagarna',
+  'assistant.journal.welcome': 'Vad ska stå i dagboken?',
+  'assistant.journal.readOnly': 'Du kan bara läsa den här dagboken, så jag kan svara på frågor men inte ändra något.',
 };
 export default assistantJourney;

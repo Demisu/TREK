@@ -27,5 +27,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'A napló átrendezése',
   'assistant.followUp.journalToday': 'Bejegyzés írása mára',
   'assistant.followUp.journalSummary': 'Ezeknek a napoknak az összefoglalása',
+  'assistant.journal.welcome': 'Mi kerüljön a naplóba?',
+  'assistant.journal.readOnly':
+    'Ezt a naplót csak olvasni tudod, így kérdésekre válaszolhatok, de semmit sem módosíthatok.',
 };
 export default assistantJourney;

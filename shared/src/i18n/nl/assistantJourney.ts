@@ -27,5 +27,7 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'Dagboek herschikken',
   'assistant.followUp.journalToday': 'Schrijf een bericht voor vandaag',
   'assistant.followUp.journalSummary': 'Vat deze dagen samen',
+  'assistant.journal.welcome': 'Wat komt er in het dagboek?',
+  'assistant.journal.readOnly': 'Je kunt dit dagboek alleen lezen, dus ik kan vragen beantwoorden maar niets wijzigen.',
 };
 export default assistantJourney;

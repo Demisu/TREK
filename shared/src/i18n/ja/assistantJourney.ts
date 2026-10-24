@@ -24,5 +24,7 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'ジャーナルを並べ替え',
   'assistant.followUp.journalToday': '今日のエントリーを書く',
   'assistant.followUp.journalSummary': 'この数日をまとめる',
+  'assistant.journal.welcome': 'ジャーナルに何を書きましょうか？',
+  'assistant.journal.readOnly': 'このジャーナルは閲覧のみなので、質問には答えられますが変更はできません。',
 };
 export default assistantJourney;

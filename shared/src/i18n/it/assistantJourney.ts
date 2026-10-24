@@ -27,5 +27,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'Riordina il diario',
   'assistant.followUp.journalToday': 'Scrivi una voce per oggi',
   'assistant.followUp.journalSummary': 'Riassumi questi giorni',
+  'assistant.journal.welcome': 'Cosa scriviamo nel diario?',
+  'assistant.journal.readOnly':
+    'Puoi solo leggere questo diario, quindi posso rispondere alle domande ma non cambiare nulla.',
 };
 export default assistantJourney;

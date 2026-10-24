@@ -3,7 +3,7 @@ import { useMatch, useNavigate } from 'react-router';
 
 import type { AssistantChatTrip } from '../../../components/Assistant/assistantViewContext';
 import type { EntityTarget } from '../../../components/Assistant/cards/cardTypes';
-import { useAssistantHome } from '../../../components/Assistant/useAssistantHome';
+import { chatPagePath, useAssistantHome, useRouteJournalChat } from '../../../components/Assistant/useAssistantHome';
 import { useAssistantStore } from '../../../store/assistantStore';
 import { AssistantScreen, type MapHops } from '../trip/assistant/MAssistantScreen';
 
@@ -15,8 +15,9 @@ import { AssistantScreen, type MapHops } from '../trip/assistant/MAssistantScree
  * screen and the question waiting in its composer. Another page a card points
  * at closes the chat and opens there.
  *
- * Inside a trip the trip's own screen (MAssistantScreen) shows its chat, so
- * this one stays away there. Nothing shows until the assistant has a
+ * On a journal's page it shows that journal's chat instead. Inside a trip
+ * the trip's own screen (MAssistantScreen) shows its chat, so this one stays
+ * away there. Nothing shows until the assistant has a
  * connection this user can use.
  */
 export default function MAssistantHomeScreen() {
@@ -28,9 +29,12 @@ export default function MAssistantHomeScreen() {
   const loadStatus = useAssistantStore((s) => s.loadStatus);
   const close = useAssistantStore((s) => s.close);
 
-  // The trip's screen takes over with the window still open, so its chat comes up there.
-  const switchTo = useCallback((trip: AssistantChatTrip) => void navigate(`/trips/${trip.id}`), [navigate]);
+  // The trip's screen (or the journal's) takes over with the window still open, so its chat comes up there.
+  const switchTo = useCallback((chat: AssistantChatTrip) => void navigate(chatPagePath(chat)), [navigate]);
   const home = useAssistantHome(switchTo);
+  // On a journal's page the chat is that journal's, the journey's conversation it shares with TREK Studio.
+  const journal = useRouteJournalChat();
+  const chat = journal ?? home.chat;
   const hops = useMemo(
     (): MapHops => ({
       open: (target: EntityTarget) => {
@@ -50,11 +54,11 @@ export default function MAssistantHomeScreen() {
   if (inTrip || !available || !open || minimized) return null;
   return (
     <AssistantScreen
-      tripId={home.chat.id}
-      tripTitle={home.chat.title}
+      tripId={chat.id}
+      tripTitle={chat.title}
       hidden={false}
       hops={hops}
-      onOpenTripChat={home.openTripChat}
+      onOpenTripChat={journal ? undefined : home.openTripChat}
     />
   );
 }

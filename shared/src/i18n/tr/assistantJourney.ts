@@ -27,5 +27,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'Günlüğü yeniden sırala',
   'assistant.followUp.journalToday': 'Bugün için bir kayıt yaz',
   'assistant.followUp.journalSummary': 'Bu günleri özetle',
+  'assistant.journal.welcome': 'Günlüğe ne yazalım?',
+  'assistant.journal.readOnly':
+    'Bu günlüğü yalnızca okuyabilirsin, bu yüzden soruları yanıtlayabilirim ama hiçbir şeyi değiştiremem.',
 };
 export default assistantJourney;

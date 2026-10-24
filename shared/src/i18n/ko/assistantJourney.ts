@@ -24,5 +24,7 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': '저널 순서 변경',
   'assistant.followUp.journalToday': '오늘 항목 쓰기',
   'assistant.followUp.journalSummary': '이 며칠 요약하기',
+  'assistant.journal.welcome': '저널에 무엇을 적을까요?',
+  'assistant.journal.readOnly': '이 저널은 읽기만 할 수 있어서 질문에는 답할 수 있지만 아무것도 바꿀 수 없어요.',
 };
 export default assistantJourney;

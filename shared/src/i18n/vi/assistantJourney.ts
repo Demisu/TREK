@@ -24,5 +24,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'Sắp xếp lại nhật ký',
   'assistant.followUp.journalToday': 'Viết mục cho hôm nay',
   'assistant.followUp.journalSummary': 'Tóm tắt những ngày này',
+  'assistant.journal.welcome': 'Mình viết gì vào nhật ký nhé?',
+  'assistant.journal.readOnly':
+    'Bạn chỉ có thể đọc nhật ký này, nên mình có thể trả lời câu hỏi nhưng không thay đổi được gì.',
 };
 export default assistantJourney;

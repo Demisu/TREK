@@ -39,5 +39,7 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'إعادة ترتيب اليوميات',
   'assistant.followUp.journalToday': 'اكتب مدخلًا لليوم',
   'assistant.followUp.journalSummary': 'لخّص هذه الأيام',
+  'assistant.journal.welcome': 'ماذا نكتب في اليوميات؟',
+  'assistant.journal.readOnly': 'يمكنك قراءة هذه اليوميات فقط، لذا أستطيع الإجابة عن الأسئلة دون تغيير أي شيء.',
 };
 export default assistantJourney;

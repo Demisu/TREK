@@ -24,5 +24,7 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': '重新排序日志',
   'assistant.followUp.journalToday': '写一条今天的条目',
   'assistant.followUp.journalSummary': '总结这几天',
+  'assistant.journal.welcome': '日志里要写些什么？',
+  'assistant.journal.readOnly': '你只能查看这本日志，所以我可以回答问题，但不能做任何更改。',
 };
 export default assistantJourney;

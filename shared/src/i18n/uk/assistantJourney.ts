@@ -33,5 +33,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'Змінити порядок щоденника',
   'assistant.followUp.journalToday': 'Написати запис за сьогодні',
   'assistant.followUp.journalSummary': 'Підсумувати ці дні',
+  'assistant.journal.welcome': 'Що запишемо до щоденника?',
+  'assistant.journal.readOnly':
+    'Цей щоденник ти можеш лише читати, тож я можу відповідати на запитання, але нічого не зміню.',
 };
 export default assistantJourney;

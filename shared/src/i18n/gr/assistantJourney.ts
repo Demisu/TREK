@@ -27,5 +27,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'Αναδιάταξη του ημερολογίου',
   'assistant.followUp.journalToday': 'Γράψε μια καταχώριση για σήμερα',
   'assistant.followUp.journalSummary': 'Σύνοψη αυτών των ημερών',
+  'assistant.journal.welcome': 'Τι να γράψουμε στο ημερολόγιο;',
+  'assistant.journal.readOnly':
+    'Μπορείς μόνο να διαβάσεις αυτό το ημερολόγιο, οπότε απαντώ σε ερωτήσεις αλλά δεν αλλάζω τίποτα.',
 };
 export default assistantJourney;

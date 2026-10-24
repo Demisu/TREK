@@ -15,7 +15,7 @@ import { FRAME_CLASS, useAssistantFrame } from './assistantFrame';
 import { plannerSearchOf } from './assistantShowOnMap';
 import type { AssistantChatTrip } from './assistantViewContext';
 import type { EntityTarget } from './cards/cardTypes';
-import { useAssistantHome } from './useAssistantHome';
+import { chatPagePath, useAssistantHome, useRouteJournalChat } from './useAssistantHome';
 import { useAssistantHotkey } from './useAssistantHotkey';
 import { useAssistantThread } from './useAssistantThread';
 
@@ -33,7 +33,9 @@ import { useAssistantThread } from './useAssistantThread';
  *
  * Outside a trip it opens on the home chat, which knows all of the user's
  * trips; its head lists them to go on in one trip's own chat, and a trip's
- * chat opened that way has the way back home in its head.
+ * chat opened that way has the way back home in its head. On a journey's
+ * page it opens on that journal's chat, the journey's conversation it shares
+ * with TREK Studio.
  *
  * Mounted once for the whole app; it shows nothing until the assistant has a
  * connection this user can use.
@@ -198,13 +200,16 @@ export default function AssistantWindow({ trip, onOpen, onFocusDay, onRevealMap 
     if (!open) setPicked(null);
   }
 
-  const current = trip ?? picked ?? home.chat;
+  const journal = useRouteJournalChat();
+  // The page's own chat first: the trip in the planner, else the journal on screen.
+  const routeChat = trip ?? journal;
+  const current = routeChat ?? picked ?? home.chat;
   const atHome = current.id === HOME_CHAT_KEY;
-  // A change in a trip the planner does not show is shown by opening that trip; a tab opens on it.
+  // A change in a trip the planner does not show is shown by opening that trip (a journal, its page); a tab opens on it.
   const openPicked = useCallback(
     (target: EntityTarget) => {
       if (target.kind === 'page') void navigate(target.path);
-      else if (picked) void navigate(`/trips/${picked.id}${target.kind === 'tab' ? plannerSearchOf(target) : ''}`);
+      else if (picked) void navigate(`${chatPagePath(picked)}${target.kind === 'tab' ? plannerSearchOf(target) : ''}`);
     },
     [navigate, picked]
   );
@@ -216,19 +221,21 @@ export default function AssistantWindow({ trip, onOpen, onFocusDay, onRevealMap 
     [navigate]
   );
   const goHome = useCallback(() => setPicked(null), []);
-  // Another page leaves the trip: the chat stays on it, as if it had been picked.
+  // Another page leaves the trip or the journal: the chat stays on it, as if it had been picked.
   const openOnScreen = useCallback(
     (target: EntityTarget) => {
-      if (target.kind === 'page' && trip) setPicked(trip);
+      if (target.kind === 'page' && routeChat) setPicked(routeChat);
       onOpen?.(target);
     },
-    [onOpen, trip]
+    [onOpen, routeChat]
   );
 
+  // The round button's hint dot reads a trip's plan; a journal has none.
+  const launcherTrip = trip?.id ?? null;
   if (!available) return null;
-  if (!open) return trip ? <AssistantLauncher variant="floating" tripId={trip.id} /> : null;
+  if (!open) return routeChat ? <AssistantLauncher variant="floating" tripId={launcherTrip} /> : null;
 
-  const onScreen = !!trip && current.id === trip.id;
+  const onScreen = !!routeChat && current.id === routeChat.id;
   let openTarget = onScreen ? onOpen && openOnScreen : openPicked;
   if (atHome) openTarget = openFromHome;
   let tripSwitch: { onPick?: (trip: WindowTrip) => void; onHome?: () => void } | undefined;
@@ -241,13 +248,13 @@ export default function AssistantWindow({ trip, onOpen, onFocusDay, onRevealMap 
         hidden={minimized}
         onOpen={openTarget}
         // Only the planner on screen has days to select and a map to bring back.
-        onFocusDay={onScreen ? onFocusDay : undefined}
-        onRevealMap={onScreen ? onRevealMap : undefined}
+        onFocusDay={onScreen && trip ? onFocusDay : undefined}
+        onRevealMap={onScreen && trip ? onRevealMap : undefined}
         onOpenTripChat={atHome ? home.openTripChat : undefined}
         tripSwitch={tripSwitch}
       />
       {/* Hidden while an answer may still come in: the round button brings it back, on any page. */}
-      {minimized && <AssistantLauncher variant="floating" tripId={trip?.id ?? null} focusOnMount />}
+      {minimized && <AssistantLauncher variant="floating" tripId={launcherTrip} focusOnMount />}
     </>
   );
 }

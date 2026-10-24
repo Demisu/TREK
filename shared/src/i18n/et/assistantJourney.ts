@@ -27,5 +27,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.tool.reorder_journey_entries': 'Järjesta päevik ümber',
   'assistant.followUp.journalToday': 'Kirjuta tänane sissekanne',
   'assistant.followUp.journalSummary': 'Võta need päevad kokku',
+  'assistant.journal.welcome': 'Mida päevikusse kirjutame?',
+  'assistant.journal.readOnly':
+    'Sa saad seda päevikut ainult lugeda, nii et vastan küsimustele, aga midagi muuta ei saa.',
 };
 export default assistantJourney;
