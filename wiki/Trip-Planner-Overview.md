@@ -16,7 +16,7 @@ On a desktop or a tablet (768 px and wider) the **Plan** tab has three parts:
 └─────────────────┴──────────────────────────┴──────────────────┘
 ```
 
-- **Days** on the left: the trip day by day. Every day is a card with its places, bookings, transports and notes. See [Day Plans and Notes](Day-Plans-and-Notes).
+- **Days** on the left: the trip day by day. Every day is a card with its places, bookings, transports, tours and notes. See [Day Plans and Notes](Day-Plans-and-Notes).
 - **Map** in the centre: the places of the trip, the route of the selected day and the booking routes you switched on. The lock on the map (*Lock the map view*) keeps the view where it is, so picking a day or a place no longer zooms or pans; click it again to let the map follow the selection. See [Map Features](Map-Features).
 - **Places** on the right: every place of the trip, with search, filters, import and a select mode. See [Places and Search](Places-and-Search).
 
@@ -31,21 +31,29 @@ Opening a day also narrows the places column. With a day open, **Planned** in th
 
 With the [Road trip](Road-Trip) addon on, a **Days** / **Road trip** switch sits above the days column. See [Road trip view](#road-trip-view).
 
+## The top bar
+
+Inside a trip the top bar carries the way back as a pill: an arrow and the trip's name, which takes you back to the [dashboard](My-Trips-Dashboard). Beside it sits the **Trip settings** pill, which opens People, Sharing and, with the Journey addon on, Journal: who is on the trip, the read-only link and the invite link, and the journal the trip shows. On the right are the **?** help button (see [Help Center](Help-Center)), the assistant launcher when the AI Assistant addon is on, the notification bell and your user menu.
+
 ## Tabs
 
-The tab bar sits directly below the main navigation bar.
+The tab bar sits in the middle of the top bar.
 
 | Tab | What it holds |
 |---|---|
 | **Plan** | Days, map and places, as described on this page. Always shown. |
+| **Tours** | The trip's tour planner: draw a tour or import a GPX, KML or KMZ track. Second after **Plan**, on a computer or tablet, while the Tours addon is on. See [Tours](Tours). |
 | **Transports** | Flights, trains, buses, cars, taxis, bicycles, ferries, cruises, cable cars and public transit, as cards, a list or a timeline. See [Transport: Flights, Trains, Cars](Transport-Flights-Trains-Cars). |
 | **Bookings** | Stays, restaurants, events, tours, parking and other bookings, in the same three views. See [Reservations and Bookings](Reservations-and-Bookings). |
 | **Lists** | Packing list and to-dos. See [Packing Lists](Packing-Lists) and [Todos and Tasks](Todos-and-Tasks). |
 | **Costs** | Expenses, splits and settling up, as a list or a table. See [Costs](Budget-Tracking). |
 | **Files** | Tickets, receipts and other documents. See [Documents and Files](Documents-and-Files). |
 | **Collab** | Chat, shared notes, polls and What's Next. See [Real-Time Collaboration](Real-Time-Collaboration). |
+| **Journal** | The journal from Journey that is linked to the trip, for whoever the link lets in. Shown only while one is linked. See [Journey Journal](Journey-Journal). |
 
-> **Admin:** The **Lists**, **Costs**, **Files** and **Collab** tabs only appear when the matching addon is enabled. See [Admin-Addons](Admin-Addons).
+On a phone the **Road trip** tab takes the place of the **Days** / **Road trip** switch, and the **Tours** tab is left out; tours are listed on the **Plan** tab there. An installed [plugin](Plugins) can add a tab of its own and, if its manifest says so, hide core tabs while it is active.
+
+> **Admin:** The **Tours**, **Lists**, **Costs**, **Files** and **Collab** tabs only appear when the matching addon is enabled. See [Admin-Addons](Admin-Addons).
 
 The active tab is saved in `sessionStorage` per trip, so switching between trips brings you back to where you were. The installed app (PWA) goes further: after the system closed it, it reopens on the trip and the tab it was on, and on a phone on the plan day as well.
 
@@ -111,4 +119,5 @@ When you open a trip, a short loading screen shows the trip title while the plan
 - [Accommodations](Accommodations)
 - [Reservations and Bookings](Reservations-and-Bookings)
 - [Road Trip](Road-Trip)
+- [Tours](Tours)
 - [Admin-Addons](Admin-Addons)

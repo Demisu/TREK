@@ -13,6 +13,7 @@ TREK is a self-hosted, real-time collaborative travel planner licensed under AGP
 - **Day Notes**: notes between a day's stops, each with a title, Markdown text, an icon and a colour
 - **Route Optimization**: auto-optimize place order, draw the day for driving, walking or cycling, leave single stops out of the route, and hand the day to Google Maps or CoMaps (see [Route Optimization](Route-Optimization))
 - **Weather Forecasts**: 16-day forecasts via Open-Meteo (no API key required), historical climate averages as fallback
+- **Trip Settings**: the **Trip settings** pill in the planner's top bar holds People, Sharing and a Journal section where you link a journal from Journey (see [Trip Members and Sharing](Trip-Members-and-Sharing))
 
 ### Travel Management
 - **Reservations & Bookings**: hotels, restaurants, tickets and every other booking with its confirmation code, travelers, costs and files, shown as cards, as a list or on a timeline; flights, trains and cars have their own Transports tab
@@ -30,22 +31,24 @@ TREK is a self-hosted, real-time collaborative travel planner licensed under AGP
 - **Two-Factor Authentication**: TOTP-based 2FA with QR code setup
 - **Passkeys** _(admin-enabled)_: passwordless WebAuthn sign-in with Touch ID, Windows Hello, Android screen lock, or a hardware key; owning one also satisfies the require-2FA policy (see [Passkeys](Passkeys))
 - **Public Share Links**: share a read-only view of any trip, in full, as **Travel & stays only** or **Without photos** (see [Public Share Links](Public-Share-Links))
-- **Notifications**: in-app, email, webhook and ntfy, and Web Push to a phone or computer even while TREK is closed (see [Notifications](Notifications))
+- **Notifications**: an inbox with a tile per kind and a list cut into days, plus email, webhook and ntfy, and Web Push to a phone or computer even while TREK is closed (see [Notifications](Notifications))
 
 ### Addons _(admin-toggleable)_
 - **Lists**: packing lists and to-dos with templates, member assignments, optional bag tracking
 - **Costs**: expense tracker with category breakdown, splits, multi-currency
 - **Documents**: file manager for trips, places, and reservations
 - **Collab**: group chat, shared notes, polls, day-by-day attendance
+- **Tours**: hikes, city walks, bike, ski, paddle and horse tours with a route, drawn in TREK or imported from GPX, KML or KMZ, as single-day tours or with stages over several days; a **Tours** tab in the planner on the desktop (see [Tours](Tours))
 - **Road trip**: plan a trip as one continuous drive, with search along the route, driving limits, daily travel times and avoidance of toll roads, motorways and ferries (see [Road Trip](Road-Trip))
 - **Vacay**: personal vacation day planner with calendar view, public holidays, company holidays (also as half days), and carry-over tracking
 - **Atlas**: interactive world map with visited countries and regions, bucket list (countries or regions), travel stats, continent breakdown
 - **Collections**: a personal place library that saves places across trips into named lists, copies them into any trip, and shares them with per-member roles (see [Collections](Collections))
-- **Journey**: magazine-style travel journal with entries, drafts, photos (via Immich/Synology Photos) shown on the journey's map when geotagged, and moods
+- **Journey**: magazine-style travel journal with entries, drafts, photos (via Immich/Synology Photos) shown on the journey's map when geotagged, and moods; a journey can be linked to a trip and laid out as a printable photo book in TREK Studio (see [Journey Journal](Journey-Journal))
 - **Naver List Import**: import places from shared Naver Maps lists
 - **MCP**: expose TREK to AI assistants via the Model Context Protocol (OAuth 2.1)
 - **AirTrail**: sync flights from your self-hosted AirTrail instance into trips
 - **Dawarich**: read the stays and routes your self-hosted Dawarich instance recorded, offered as suggestions you confirm; nothing is written back (see [Dawarich](Dawarich))
+- **AI Assistant**: a chat inside the trip that reads the plan and proposes changes you confirm, using your own AI connection (off by default)
 - **AI Parsing**: LLM fallback that extracts bookings from confirmation files KDE Itinerary cannot read, and, with a model that reads images, from photos and scanned PDFs and receipts (see [AI-Booking-Import](AI-Booking-Import))
 
 > Dashboard widgets (currency converter and timezone clock) are per-user preferences, not an admin-toggleable addon; see [Dashboard-Widgets](Dashboard-Widgets).
@@ -58,7 +61,7 @@ TREK is a self-hosted, real-time collaborative travel planner licensed under AGP
 
 ### AI / MCP Integration
 - **MCP Server**: built-in Model Context Protocol server with OAuth 2.1 authentication
-- **300+ Tools**: create trips, plan itineraries, manage budgets, upload files, search places near a point, send messages, and more
+- **400+ Tools**: create trips, plan itineraries, manage budgets, upload files, search places near a point, send messages, and more
 - **30 Resources**: read-only `trek://` URIs for trips, days, places, budget, packing, journeys, and more
 - **35 OAuth Scopes**: granular permissions across 17 permission groups
 - **Pre-built Prompts**: `trip-summary`, `packing-list`, and `budget-overview` context loaders
