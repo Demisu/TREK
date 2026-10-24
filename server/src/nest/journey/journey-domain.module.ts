@@ -19,6 +19,7 @@ import { JourneyEntryStaysService } from './journey-entry-stays.service';
 import { JourneyMapService } from './journey-map.service';
 import { JourneyRecordedDaysService } from './journey-recorded-days.service';
 import { JourneyRecordingPrepService } from './journey-recording-prep.service';
+import { JourneySettingsService } from './journey-settings.service';
 import { JourneyShareService } from './journey-share.service';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
@@ -108,6 +109,7 @@ import { Module } from '@nestjs/common';
     JourneyEntryStaysService,
     JourneyRecordingPrepService,
     JourneyMapService,
+    JourneySettingsService,
   ],
   exports: [
     JourneyDomainService,
@@ -116,6 +118,7 @@ import { Module } from '@nestjs/common';
     JourneyEntryStaysService,
     JourneyRecordingPrepService,
     JourneyMapService,
+    JourneySettingsService,
   ],
 })
 export class JourneyDomainModule {}

@@ -1,3 +1,4 @@
+import { idSchema } from '../common/primitives.schema';
 import { journeyRecordingDateSchema } from './journey-recordings.schema';
 
 import { z } from 'zod';
@@ -48,6 +49,58 @@ export const journeyUpdateRequestSchema = z.looseObject({
     ),
 });
 export type JourneyUpdateRequest = z.infer<typeof journeyUpdateRequestSchema>;
+
+/** A journey's stored states, and the state shown in place of the one its trips' dates give (#762). */
+export const JOURNEY_STATUSES = ['draft', 'active', 'completed', 'archived'] as const;
+export const journeyStatusSchema = z.enum(JOURNEY_STATUSES);
+export const JOURNEY_STATUS_OVERRIDES = ['draft', 'live', 'completed'] as const;
+export const journeyStatusOverrideSchema = z.enum(JOURNEY_STATUS_OVERRIDES);
+
+/**
+ * The new journey the MCP tool `create_journey` takes. Strict, unlike the
+ * REST body above, whose bespoke 'Title is required' is pinned: a tool's
+ * arguments are checked here and nowhere else.
+ */
+export const journeyCreateToolSchema = z.strictObject({
+  title: z.string().min(1).max(200),
+  subtitle: z.string().max(300).optional(),
+  trip_ids: z.array(idSchema).optional(),
+});
+export type JourneyCreateTool = z.infer<typeof journeyCreateToolSchema>;
+
+/**
+ * The settings the MCP tool `update_journey` changes, every one the REST
+ * PATCH takes but the cover image (an upload). The subtitle and the cover
+ * gradient take null to clear them, so a change can always be written back.
+ */
+export const journeyUpdateToolSchema = z.strictObject({
+  title: z.string().min(1).max(200).optional(),
+  subtitle: z.string().max(300).nullable().optional(),
+  status: journeyStatusSchema.optional(),
+  status_override: journeyStatusOverrideSchema
+    .nullable()
+    .optional()
+    .describe('Shown state set by hand, or null to follow the trip dates'),
+  show_verdict: z.boolean().optional().describe('Whether entries in this journey offer a pros/cons list'),
+  show_mood: z.boolean().optional().describe('Whether entries in this journey offer a mood'),
+  show_weather: z.boolean().optional().describe('Whether entries in this journey offer a weather note'),
+  photo_location: z
+    .boolean()
+    .optional()
+    .describe('Whether an entry without a place takes the position of the first geotagged photo added to it'),
+  auto_prepare_recordings: journeyUpdateRequestSchema.shape.auto_prepare_recordings,
+  show_trip_tracks: z
+    .boolean()
+    .optional()
+    .describe("Whether the journey's map draws the GPX tracks of its trips' places"),
+  cover_gradient: z
+    .string()
+    .max(200)
+    .nullable()
+    .optional()
+    .describe('A CSS gradient the cover shows while it has no image; null clears it'),
+});
+export type JourneyUpdateTool = z.infer<typeof journeyUpdateToolSchema>;
 
 export const journeyAddTripRequestSchema = z.looseObject({
   // Handler answers 'trip_id required'.

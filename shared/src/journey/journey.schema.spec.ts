@@ -12,6 +12,8 @@ import {
   journeyEntryProsConsSchema,
   journeyEntryTypeSchema,
   journeyEntryVisibilitySchema,
+  journeyCreateToolSchema,
+  journeyUpdateToolSchema,
 } from './journey.schema';
 
 import { describe, it, expect } from 'vitest';
@@ -138,5 +140,24 @@ describe('the entry enums and the range of a read', () => {
     });
     expect(journeyEntriesRangeSchema.safeParse({ from: '2026-02-30' }).success).toBe(false);
     expect(journeyEntriesRangeSchema.safeParse({ to: 'yesterday' }).success).toBe(false);
+  });
+});
+
+describe('the journey tool arguments', () => {
+  it('JSCHEMA-TOOL-001: a new journey needs a title and refuses what the tool does not take', () => {
+    expect(journeyCreateToolSchema.parse({ title: 'Japan', trip_ids: [5] })).toEqual({ title: 'Japan', trip_ids: [5] });
+    expect(journeyCreateToolSchema.safeParse({ title: '' }).success).toBe(false);
+    expect(journeyCreateToolSchema.safeParse({ title: 'x'.repeat(201) }).success).toBe(false);
+    expect(journeyCreateToolSchema.safeParse({ title: 'Japan', cover: 'x' }).success).toBe(false);
+  });
+
+  it('JSCHEMA-TOOL-002: an update takes the trip tracks and the cover gradient, and null for the subtitle', () => {
+    const update = { show_trip_tracks: true, cover_gradient: null, subtitle: null, status_override: null };
+    expect(journeyUpdateToolSchema.parse(update)).toEqual(update);
+    expect(journeyUpdateToolSchema.safeParse({ status: 'upcoming' }).success).toBe(false);
+    expect(journeyUpdateToolSchema.safeParse({ status_override: 'active' }).success).toBe(false);
+    expect(journeyUpdateToolSchema.safeParse({ title: null }).success).toBe(false);
+    expect(journeyUpdateToolSchema.safeParse({ show_mood: 'yes' }).success).toBe(false);
+    expect(journeyUpdateToolSchema.safeParse({ cover_gradient: 'x'.repeat(201) }).success).toBe(false);
   });
 });

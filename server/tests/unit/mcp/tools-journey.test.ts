@@ -454,6 +454,54 @@ describe('journey write tools', () => {
     });
   });
 
+  it('update_journey answers what the changed settings held before, flags as booleans, and only those', async () => {
+    const { user } = createUser(testDb);
+    await withHarness(user.id, async (h) => {
+      const journey = await seedJourney(h, 'Before');
+      const updated = parseToolResult(
+        await h.client.callTool({
+          name: 'update_journey',
+          arguments: { journeyId: journey.id, title: 'After', show_mood: false, status_override: 'live' },
+        }),
+      ) as { journey: { title: string; show_mood: number }; previous: Record<string, unknown> };
+      expect(updated.journey).toMatchObject({ title: 'After', show_mood: 0 });
+      expect(updated.previous).toEqual({ title: 'Before', show_mood: true, status_override: null });
+      // Nothing to change answers the journey as it is, with nothing replaced.
+      const same = parseToolResult(
+        await h.client.callTool({ name: 'update_journey', arguments: { journeyId: journey.id } }),
+      ) as { previous: Record<string, unknown> };
+      expect(same.previous).toEqual({});
+    });
+  });
+
+  it('update_journey takes the trip tracks and the cover gradient the REST route takes, and clears a subtitle', async () => {
+    const { user } = createUser(testDb);
+    await withHarness(user.id, async (h) => {
+      const journey = await seedJourney(h);
+      const updated = parseToolResult(
+        await h.client.callTool({
+          name: 'update_journey',
+          arguments: {
+            journeyId: journey.id,
+            show_trip_tracks: true,
+            cover_gradient: 'linear-gradient(to right, #ff0000, #0000ff)',
+            subtitle: null,
+          },
+        }),
+      ) as { journey: { show_trip_tracks: number; cover_gradient: string; subtitle: string | null } };
+      expect(updated.journey).toMatchObject({
+        show_trip_tracks: 1,
+        cover_gradient: 'linear-gradient(to right, #ff0000, #0000ff)',
+        subtitle: null,
+      });
+      const refused = await h.client.callTool({
+        name: 'update_journey',
+        arguments: { journeyId: journey.id, show_trip_tracks: 'yes' },
+      });
+      expect(refused.isError).toBe(true);
+    });
+  });
+
   it('delete_journey removes it and refuses a foreign journey', async () => {
     const { user } = createUser(testDb);
     const { journeyId } = await foreignJourney();

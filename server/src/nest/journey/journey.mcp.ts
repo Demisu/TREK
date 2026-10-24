@@ -16,17 +16,21 @@ import { addonGate } from '../addons/addon-gate';
 import { AddonsService } from '../addons/addons.service';
 import { JourneyDomainService } from './journey-domain.service';
 import { JourneyPhotoCaptureService } from './journey-photo-capture.service';
+import { JourneySettingsService } from './journey-settings.service';
 import { JourneyShareService } from './journey-share.service';
 import {
   idSchema,
+  journeyCreateToolSchema,
   journeyEntriesRangeSchema,
   journeyEntryProsConsSchema,
   journeyEntryTypeSchema,
   journeyEntryVisibilitySchema,
   journeyShareLinkRequestSchema,
-  journeyUpdateRequestSchema,
+  journeyUpdateToolSchema,
+  type JourneyCreateTool,
   type JourneyEntryType,
   type JourneyEntryVisibility,
+  type JourneyUpdateTool,
 } from '@trek/shared';
 
 import { z } from 'zod';
@@ -118,6 +122,7 @@ export class JourneyMcp {
     private readonly share: JourneyShareService,
     readonly addons: AddonsService,
     private readonly photoCapture: JourneyPhotoCaptureService,
+    private readonly settings: JourneySettingsService,
   ) {}
 
   // ── Read ────────────────────────────────────────────────────────────────
@@ -257,19 +262,12 @@ export class JourneyMcp {
   @Tool({
     name: 'create_journey',
     description: 'Create a new journey, optionally linking existing trips.',
-    inputSchema: {
-      title: z.string().min(1).max(200),
-      subtitle: z.string().max(300).optional(),
-      trip_ids: z.array(idSchema).optional(),
-    },
+    inputSchema: journeyCreateToolSchema.shape,
     annotations: TOOL_ANNOTATIONS_NON_IDEMPOTENT,
     when: journeyAddonOn,
     access: { group: 'journey', mode: 'write' },
   })
-  async createJourney(
-    { title, subtitle, trip_ids }: { title: string; subtitle?: string; trip_ids?: number[] },
-    ctx: McpContext,
-  ) {
+  async createJourney({ title, subtitle, trip_ids }: JourneyCreateTool, ctx: McpContext) {
     const journey = await this.journey.createJourney(ctx.userId, { title, subtitle, trip_ids });
     // Return the fully-hydrated journey (entries/contributors/trips/stats/my_role),
     // matching get_journey, rather than the bare row.
@@ -279,51 +277,17 @@ export class JourneyMcp {
   @Tool({
     name: 'update_journey',
     description:
-      "Update an existing journey's title, subtitle, cover, or status. Owner only. status_override sets the state shown for the journey (draft, live, completed) instead of deriving it from the linked trips' dates; null goes back to the dates. auto_prepare_recordings switches the background preparation of its recorded days from Dawarich on or off (see get_journey_recording_prep).",
-    inputSchema: {
-      journeyId: idSchema,
-      title: z.string().min(1).max(200).optional(),
-      subtitle: z.string().max(300).optional(),
-      status: z.enum(['draft', 'active', 'completed', 'archived']).optional(),
-      status_override: z
-        .enum(['draft', 'live', 'completed'])
-        .nullable()
-        .optional()
-        .describe('Shown state set by hand, or null to follow the trip dates'),
-      show_verdict: z.boolean().optional().describe('Whether entries in this journey offer a pros/cons list'),
-      show_mood: z.boolean().optional().describe('Whether entries in this journey offer a mood'),
-      show_weather: z.boolean().optional().describe('Whether entries in this journey offer a weather note'),
-      photo_location: z
-        .boolean()
-        .optional()
-        .describe('Whether an entry without a place takes the position of the first geotagged photo added to it'),
-      auto_prepare_recordings: journeyUpdateRequestSchema.shape.auto_prepare_recordings,
-    },
+      "Update an existing journey's title, subtitle, cover, or status. Owner only. status_override sets the state shown for the journey (draft, live, completed) instead of deriving it from the linked trips' dates; null goes back to the dates. auto_prepare_recordings switches the background preparation of its recorded days from Dawarich on or off (see get_journey_recording_prep). Answers with the journey and, under previous, what the changed settings held before.",
+    inputSchema: { journeyId: idSchema, ...journeyUpdateToolSchema.shape },
     annotations: TOOL_ANNOTATIONS_WRITE,
     when: journeyAddonOn,
     access: { group: 'journey', mode: 'write' },
   })
-  async updateJourney(
-    {
-      journeyId,
-      ...data
-    }: {
-      journeyId: number;
-      title?: string;
-      subtitle?: string;
-      status?: string;
-      status_override?: string | null;
-      show_verdict?: boolean;
-      show_mood?: boolean;
-      show_weather?: boolean;
-      photo_location?: boolean;
-      auto_prepare_recordings?: boolean;
-    },
-    ctx: McpContext,
-  ) {
-    const journey = await this.journey.updateJourney(journeyId, ctx.userId, data);
-    if (!journey) return notFound('Journey not found or access denied.');
-    return ok({ journey });
+  async updateJourney({ journeyId, ...data }: JourneyUpdateTool & { journeyId: number }, ctx: McpContext) {
+    // The same owner check and reading of the settings as PATCH /api/journeys/:id, with what they held before.
+    const updated = await this.settings.updateWithPrevious(journeyId, ctx.userId, data);
+    if (!updated) return notFound('Journey not found or access denied.');
+    return ok(updated);
   }
 
   @Tool({

@@ -29,6 +29,7 @@ import { Places } from '../../db/entities/Places.entity';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
 import { presenceSet } from '../../db/repositories/_shared/presence-set';
 import { parseRouteGeometry } from './journey-geometry';
+import { journeySettingsPatch, type JourneySettingsInput } from './journey-settings.helpers';
 
 /**
  * What makes a journal skeleton unique: the place *and* the day assignment it
@@ -287,61 +288,15 @@ export class JourneyDomainService {
   async updateJourney(
     journeyId: number,
     userId: number,
-    data: Partial<{
-      title: string;
-      subtitle: string;
-      cover_gradient: string;
-      cover_image: string;
-      status: string;
-      status_override: string | null;
-      show_trip_tracks: boolean | number;
-      photo_location: boolean | number;
-      show_verdict: boolean | number;
-      show_mood: boolean | number;
-      show_weather: boolean | number;
-      auto_prepare_recordings: boolean | number;
-    }>,
+    data: JourneySettingsInput,
     sid?: string,
   ): Promise<Journey | null> {
     // Journey-level settings (title, cover, status) are owner-only — editors
     // may only edit entries and photos, not reshape the journey itself.
     if (!(await this.isOwner(journeyId, userId))) return null;
 
-    const ALLOWED_STATUSES = ['draft', 'active', 'completed', 'archived'];
-    // null hands the state back to the trip dates (#762).
-    const ALLOWED_OVERRIDES: (string | null)[] = [null, 'draft', 'live', 'completed'];
-    // JG24: each field is resolved to its bound value here (the status allow-list, every flag to 0/1);
-    // a field absent from `data` never reaches the SET clause, as the legacy dynamic SET list behaved.
-    const patch = presenceSet<{
-      title: string;
-      subtitle: string | null;
-      cover_gradient: string | null;
-      cover_image: string | null;
-      status: string;
-      status_override: string | null;
-      show_trip_tracks: number;
-      photo_location: number;
-      show_verdict: number;
-      show_mood: number;
-      show_weather: number;
-      auto_prepare_recordings: number;
-    }>({
-      title: [data.title !== undefined, data.title as string],
-      subtitle: [data.subtitle !== undefined, data.subtitle as string],
-      cover_gradient: [data.cover_gradient !== undefined, data.cover_gradient as string],
-      cover_image: [data.cover_image !== undefined, data.cover_image as string],
-      status: [data.status !== undefined && ALLOWED_STATUSES.includes(data.status as string), data.status as string],
-      status_override: [
-        data.status_override !== undefined && ALLOWED_OVERRIDES.includes(data.status_override as string | null),
-        data.status_override as string | null,
-      ],
-      show_trip_tracks: [data.show_trip_tracks !== undefined, data.show_trip_tracks ? 1 : 0],
-      photo_location: [data.photo_location !== undefined, data.photo_location ? 1 : 0],
-      show_verdict: [data.show_verdict !== undefined, data.show_verdict ? 1 : 0],
-      show_mood: [data.show_mood !== undefined, data.show_mood ? 1 : 0],
-      show_weather: [data.show_weather !== undefined, data.show_weather ? 1 : 0],
-      auto_prepare_recordings: [data.auto_prepare_recordings !== undefined, data.auto_prepare_recordings ? 1 : 0],
-    });
+    // JG24: one reading of the settings for every surface (journey-settings.helpers.ts).
+    const patch = journeySettingsPatch(data);
 
     if (Object.keys(patch).length === 0) return ((await this.journeysRepo.findById(journeyId)) as Journey) ?? null;
 
