@@ -477,8 +477,11 @@ describe('Trip assistant: attached files', () => {
   });
 
   /** A chat turn in which the model proposes keeping the file, and the id the change is held under. */
+  // Every proposal gets a call id of its own: a second keep in one thread is a new call, not the first one again.
+  let keeps = 0;
   async function proposeKeep(t: { userId: number; base: string }, threadId: number, args: Record<string, unknown>) {
-    provider.script = [callTools({ id: `call_keep_${threadId}`, name: 'keep_attached_file', args })];
+    keeps += 1;
+    provider.script = [callTools({ id: `call_keep_${threadId}_${keeps}`, name: 'keep_attached_file', args })];
     const turn = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId, text: 'Keep it with the booking' });
     return { turn, toolCallId: ofType(turn.chunks, 'tool-approval-request')[0]?.toolCallId };
   }
@@ -531,8 +534,10 @@ describe('Trip assistant: attached files', () => {
   it('ATTE2E-009: a demo account and a member without the right to upload keep nothing', async () => {
     const t = await travelerWithTrip();
     const { threadId, attachmentId } = await threadWithFile(t);
-    const tryKeep = async () => {
+    // The right goes after the proposal, so it is the apply that refuses, not the offer.
+    const tryKeep = async (arm: () => void) => {
       const { toolCallId } = await proposeKeep(t, threadId, { attachmentId });
+      arm();
       provider.script = [say('Could not keep it.')];
       const decided = await post(`${t.base}/threads/${threadId}/decisions`, t.userId, {
         ...CTX,
@@ -540,16 +545,17 @@ describe('Trip assistant: attached files', () => {
       });
       return ofType(decided.chunks, 'tool-output-error')[0]?.errorText;
     };
-    const demo = vi.spyOn(nestApp.get(DemoService), 'isDemoUserId').mockResolvedValue(true);
+    const demo = vi.spyOn(nestApp.get(DemoService), 'isDemoUserId');
     try {
-      expect(await tryKeep()).toBe('You are not allowed to keep files on this trip.');
+      expect(await tryKeep(() => demo.mockResolvedValue(true))).toBe('You are not allowed to keep files on this trip.');
     } finally {
       demo.mockRestore();
     }
     const permissions = vi.spyOn(nestApp.get(PermissionsService), 'checkPermission');
-    permissions.mockImplementation((action: string) => Promise.resolve(action !== 'file_upload'));
     try {
-      expect(await tryKeep()).toBe('You are not allowed to keep files on this trip.');
+      const noUpload = () =>
+        permissions.mockImplementation((action: string) => Promise.resolve(action !== 'file_upload'));
+      expect(await tryKeep(noUpload)).toBe('You are not allowed to keep files on this trip.');
     } finally {
       permissions.mockRestore();
     }
