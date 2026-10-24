@@ -712,4 +712,33 @@ describe('AddonManager', () => {
     expect(roadtrip.querySelector('svg.lucide-car-front')).toBeInTheDocument();
     expect(tours.querySelector('svg.lucide-puzzle')).not.toBeInTheDocument();
   });
+
+  it('FE-ADMIN-ADDON-045: finds an addon by name or description and shows the ones on or off', async () => {
+    const user = userEvent.setup();
+    server.use(
+      addonsRoute([
+        buildAddon({ id: 'x-lists', name: 'Todo List', description: 'Track tasks', type: 'trip', enabled: true }),
+        buildAddon({ id: 'x-costs', name: 'Budget', description: 'Split costs', type: 'trip', enabled: false }),
+        buildAddon({ id: 'x-holiday', name: 'Vacay', description: 'Holiday planner', type: 'global', enabled: true }),
+      ])
+    );
+    render(<AddonManager />);
+    await screen.findByText('Todo List');
+
+    await user.type(screen.getByRole('searchbox', { name: 'Search addons' }), 'costs');
+    expect(screen.getByText('Budget')).toBeInTheDocument();
+    expect(screen.queryByText('Todo List')).toBeNull();
+    expect(screen.queryByText('Vacay')).toBeNull();
+
+    await user.clear(screen.getByRole('searchbox', { name: 'Search addons' }));
+    await user.click(screen.getByRole('button', { name: 'On' }));
+    expect(screen.getByText('Todo List')).toBeInTheDocument();
+    expect(screen.getByText('Vacay')).toBeInTheDocument();
+    expect(screen.queryByText('Budget')).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Off' }));
+    await user.type(screen.getByRole('searchbox', { name: 'Search addons' }), 'nothing like this');
+    expect(screen.getByText('No addon matches the search or the filter.')).toBeInTheDocument();
+  });
 });
+

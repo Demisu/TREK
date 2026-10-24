@@ -671,6 +671,12 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Extension mise à jour',
   'admin.addons.toast.error': "Échec de la mise à jour de l'extension",
   'admin.addons.group.count': '{enabled} sur {total} activés',
+  'admin.addons.search': 'Rechercher des modules',
+  'admin.addons.filter': 'Afficher',
+  'admin.addons.filter.all': 'Tous',
+  'admin.addons.filter.on': 'Activés',
+  'admin.addons.filter.off': 'Désactivés',
+  'admin.addons.noMatch': 'Aucun module ne correspond à la recherche ou au filtre.',
   'admin.addons.subOptions': '{count} options', // same-as-en
   'admin.addons.subOptions.one': '{count} option', // same-as-en
   'admin.addons.subOptionsOn': '{count} activées',
