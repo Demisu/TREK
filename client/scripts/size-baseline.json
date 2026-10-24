@@ -6,7 +6,7 @@
   "src/components/Budget/CostsPanel.test.tsx": 2736,
   "src/components/Budget/CostsPanel.tsx": 1798,
   "src/components/Map/MapView.tsx": 1399,
-  "src/components/Map/MapViewGL.test.tsx": 2920,
+  "src/components/Map/MapViewGL.test.tsx": 2919,
   "src/components/Map/MapViewGL.tsx": 2290,
   "src/components/Map/RouteCalculator.ts": 1076,
   "src/components/PDF/TripPDF.tsx": 1082,
