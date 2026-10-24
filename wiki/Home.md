@@ -84,6 +84,13 @@ TREK is a self-hosted, real-time collaborative travel planner licensed under AGP
 |---|---|
 | [Quick Start](Quick-Start) | Install in minutes with a single Docker command |
 | [My Trips Dashboard](My-Trips-Dashboard) | Start planning your first trip |
+| [Trip Settings](Trip-Settings) | People, sharing links and the linked journal of a trip |
+| [Notifications Inbox](Notifications-Inbox) | The bell and the inbox page |
+| [TREK on a Phone](Mobile-App) | The phone layout, its bottom bar and what stays on the desktop |
+| [AI Assistant](AI-Assistant) | A chat in the trip that suggests changes you confirm |
+| [AI Connections](AI-Connections) | Connect the AI provider the assistant and AI Parsing run on |
+| [TREK Studio](TREK-Studio) | Lay a journey out as a printable photo book |
+| [wanderer](Wanderer) | Import trails from your own wanderer instance as tours |
 | [Help Center](Help-Center) | The `?` in the navbar: guides for the screen you are on |
 | [Admin Panel](Admin-Panel-Overview) | Configure your instance |
 | [MCP / AI Integration](MCP-Overview) | Connect Claude, Cursor, or any MCP client |
