@@ -1,5 +1,5 @@
 /**
- * FE-AI-WIN-001 to FE-AI-WIN-014
+ * FE-AI-WIN-001 to FE-AI-WIN-016
  *
  * The desktop window around the chat: when it shows at all, the button it
  * opens from, the home chat outside a trip with its way into one trip's chat
@@ -236,6 +236,34 @@ describe('AssistantWindow', () => {
     fireEvent.keyDown(await screen.findByRole('menu'), { key: 'Escape' });
     await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
     expect(useAssistantStore.getState().window.open).toBe(true);
+  });
+
+  it("FE-AI-WIN-015: the header's menu says whether it is open, and Escape hands the focus back to its button", async () => {
+    seed({ open: true, minimized: false });
+    render(<AssistantWindow trip={TRIP} />);
+    const more = screen.getByRole('button', { name: 'More options' });
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(more);
+    expect(more).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.keyDown(await screen.findByRole('menu'), { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
+    expect(more).toHaveFocus();
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+    // From the button the next Escape is the window's again.
+    fireEvent.keyDown(more, { key: 'Escape' });
+    expect(useAssistantStore.getState().window.open).toBe(false);
+  });
+
+  it("FE-AI-WIN-016: the home chat's trip list takes the focus onto the first trip once the trips are there", async () => {
+    seed({ open: true, minimized: false });
+    render(<AssistantWindow trip={null} />);
+    const button = screen.getByRole('button', { name: 'Chat about one trip' });
+    fireEvent.click(button);
+    // The list's own row, not the chat's "go on in Lisbon" beside it.
+    const lisbon = await screen.findByRole('button', { name: /^Lisbon/ });
+    await waitFor(() => expect(lisbon).toHaveFocus());
+    fireEvent.keyDown(lisbon, { key: 'Escape' });
+    expect(button).toHaveFocus();
   });
 
   it('FE-AI-WIN-010: tells the map where it sits, is compact at 400 px wide, and picks days on screen', () => {

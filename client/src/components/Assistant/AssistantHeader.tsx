@@ -11,7 +11,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
-import { type HTMLAttributes, type MouseEvent, useState } from 'react';
+import { type HTMLAttributes, type MouseEvent, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { useTranslation } from '../../i18n';
@@ -79,6 +79,7 @@ export default function AssistantHeader({
   const [memoryOpen, setMemoryOpen] = useState(false);
   const navigate = useNavigate();
   const menu = useContextMenu();
+  const moreRef = useRef<HTMLButtonElement>(null);
   const [confirming, setConfirming] = useState(false);
   const threads = thread.threads ?? [];
   const history = usePopoverList(threads.findIndex((th) => th.id === thread.threadId) + 1);
@@ -93,6 +94,14 @@ export default function AssistantHeader({
   const pick = (run: () => void) => {
     history.close();
     run();
+  };
+
+  // Closed by Escape or a pick while it holds the focus, the menu hands it back to its button, so the keys
+  // go on reaching the window; a click or a scroll elsewhere leaves the focus where it went.
+  const closeMenu = () => {
+    const fromMenu = document.activeElement?.closest('[role="menu"]') != null;
+    menu.close();
+    if (fromMenu) moreRef.current?.focus();
   };
 
   const openMenu = (e: MouseEvent) =>
@@ -187,10 +196,12 @@ export default function AssistantHeader({
         </Tooltip>
         <Tooltip label={t('assistant.window.menu')}>
           <button
+            ref={moreRef}
             type="button"
             onClick={openMenu}
             aria-label={t('assistant.window.menu')}
             aria-haspopup="menu"
+            aria-expanded={menu.menu !== null}
             className={ICON_BUTTON}
           >
             <Ellipsis size={14} aria-hidden="true" />
@@ -218,6 +229,7 @@ export default function AssistantHeader({
               icon={null}
               label={th.title}
               active={th.id === thread.threadId}
+              current={th.id === thread.threadId}
               onClick={() => pick(() => thread.openThread(th.id))}
               trailing={
                 <span className="flex-shrink-0 text-caption text-content-faint">
@@ -234,7 +246,7 @@ export default function AssistantHeader({
         )}
       </PopoverListPanel>
 
-      <ContextMenu menu={menu.menu} onClose={menu.close} />
+      <ContextMenu menu={menu.menu} onClose={closeMenu} />
       {memoryOpen && <AssistantMemoryDialog tripId={tripId} onClose={() => setMemoryOpen(false)} />}
       <ConfirmDialog
         isOpen={confirming}

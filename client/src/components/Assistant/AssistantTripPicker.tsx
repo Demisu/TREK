@@ -1,4 +1,5 @@
 import { ChevronRight, Luggage } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 import { useTranslation } from '../../i18n';
 import EmptyState from '../shared/EmptyState';
@@ -8,11 +9,17 @@ import { type PickerTrip, useAssistantTripPicker } from './useAssistantTripPicke
 /**
  * The user's trips to go on with in one trip's own chat, from the home chat's
  * head: that chat, its history and its changes belong to the trip. The
- * running and the next trip lead.
+ * running and the next trip lead. The list opens before the trips are there,
+ * so the focus goes onto the first one once they come.
  */
 export default function AssistantTripPicker({ onPick }: { onPick: (trip: PickerTrip) => void }) {
   const { t } = useTranslation();
   const trips = useAssistantTripPicker();
+  const first = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    first.current?.focus({ preventScroll: true });
+  }, [trips]);
 
   if (trips === null) {
     return (
@@ -32,9 +39,10 @@ export default function AssistantTripPicker({ onPick }: { onPick: (trip: PickerT
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-2">
       <ul className="trek-stagger m-0 flex list-none flex-col gap-1 p-0">
-        {trips.map((trip) => (
+        {trips.map((trip, i) => (
           <li key={trip.id}>
             <button
+              ref={i === 0 ? first : undefined}
               type="button"
               onClick={() => onPick(trip)}
               className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-start transition-colors hover:bg-surface-hover"

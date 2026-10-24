@@ -7,6 +7,8 @@ interface PopoverItemProps {
   label: string
   onClick: () => void
   active?: boolean
+  /** The entry is the one open now (a chat in a history list), said so to a screen reader too. */
+  current?: boolean
   danger?: boolean
   /** A secondary line, such as Add bag, in the faint text colour. */
   muted?: boolean
@@ -14,11 +16,12 @@ interface PopoverItemProps {
   trailing?: ReactNode
 }
 
-export function PopoverItem({ icon, label, onClick, active = false, danger = false, muted = false, trailing }: PopoverItemProps) {
+export function PopoverItem({ icon, label, onClick, active = false, current = false, danger = false, muted = false, trailing }: PopoverItemProps) {
   const tone = danger ? '#ef4444' : muted ? 'var(--text-faint)' : 'var(--text-primary)'
   return (
     <button type="button"
       onClick={onClick}
+      aria-current={current || undefined}
       style={{
         display: 'flex', alignItems: 'center', gap: 9, width: '100%',
         padding: '8px 10px', borderRadius: 9, border: 'none', cursor: 'pointer',

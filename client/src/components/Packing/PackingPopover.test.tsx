@@ -1,4 +1,4 @@
-// FE-PACKPOP-001 to FE-PACKPOP-008
+// FE-PACKPOP-001 to FE-PACKPOP-009
 import { describe, it, expect, vi } from 'vitest'
 import { useRef } from 'react'
 import { render, screen, fireEvent } from '../../../tests/helpers/render'
@@ -54,6 +54,15 @@ describe('PopoverItem', () => {
     expect(danger.style.background).toBe('rgba(239, 68, 68, 0.1)')
     fireEvent.mouseLeave(danger)
     expect(danger.style.background).toBe('none')
+  })
+
+  it('FE-PACKPOP-009: the entry open now is said to be the current one, not only tinted', () => {
+    render(<>
+      <PopoverItem icon={null} label="Temples" active current onClick={() => {}} />
+      <PopoverItem icon={null} label="Food" onClick={() => {}} />
+    </>)
+    expect(screen.getByRole('button', { name: 'Temples' })).toHaveAttribute('aria-current', 'true')
+    expect(screen.getByRole('button', { name: 'Food' })).not.toHaveAttribute('aria-current')
   })
 
   it('FE-PACKPOP-004: the composer button fades while there is nothing to add', () => {
