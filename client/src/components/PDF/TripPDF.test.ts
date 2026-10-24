@@ -401,9 +401,9 @@ describe('downloadTripPDF', () => {
   it('FE-COMP-TRIPPDF-016c: renders markdown in a place description, sanitized', async () => {
     const description = ['**Colosseum** tickets', '', '| Gate | Time |', '| --- | --- |', '| A | 9:00 |', '', '<script>alert(1)</script>'].join('\n')
     const place = { ...placeWithDetails, description }
-    const md = { ...richArgs, places: [place], assignments: { '10': [{ ...assignmentForDay, place }] } }
-    await downloadTripPDF(md as any)
-    const html = getIframe()!.srcdoc
+    const md = { ...richArgs, places: [place], assignments: { '10': [{ ...assignmentForDay, place }] } as typeof richArgs.assignments }
+    await downloadTripPDF(md)
+    const html = getIframe()?.srcdoc ?? ''
     expect(html).toContain('<strong>Colosseum</strong>')
     expect(html).toContain('<td>9:00</td>')
     expect(html).not.toContain('**Colosseum**')
