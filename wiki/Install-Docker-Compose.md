@@ -46,6 +46,14 @@ volumes:
 
 Docker creates the volumes automatically on first `docker compose up`. Use `docker volume ls` and `docker volume inspect` to manage them.
 
+### Optional storage seed
+
+A commented line mounts `./storage-config.json` read-only at `/app/data/storage-config.json`. Uncomment it to provision file storage once on the first start. See [Admin-Storage](Admin-Storage).
+
+## Healthcheck and Logs
+
+The compose file includes a healthcheck that polls `/api/health` every 30 seconds and follows a changed `PORT`, so `docker ps` shows `healthy` once TREK is up. It also limits the container log to three files of 10 MB each, because Docker keeps every line forever by default.
+
 ## Environment Variables
 
 The compose file has no `env_file:` key, so a `.env` placed alongside `docker-compose.yml` is used only for `${VAR}` interpolation — a value reaches the container only if a line in the `environment:` block references it. Four entries are wired that way:
@@ -64,25 +72,30 @@ Every other variable — `APP_URL`, the OIDC block, `FORCE_HTTPS`, `TRUST_PROXY`
 
 A few variables are not in the compose file at all, among them `FILE_UPLOAD_LIMIT_MB` (the upload limit for files, 50 MB by default) and `RESTORE_FROM_BACKUP` (a backup ZIP to restore on the very first start, see [Backups](Backups#restoring-on-a-new-install-before-setup)). Add a line for them to the `environment:` block yourself.
 
+Some optional variables ship as commented lines, ready to uncomment: `LLM_TIMEOUT_MS` and `LLM_MAX_OUTPUT_TOKENS` for AI parsing, the `VAPID_*` keys for Web Push, `TREK_PLACES_*` and `PLACES_API_KEY` for place search, `AMAP_*`, `UNSPLASH_ACCESS_KEY`, `GOOGLE_LIST_DATA_BASE` and `TREK_WIKI_DIR`. Rootless Podman users will also find `HSTS_INCLUDE_SUBDOMAINS`, `COOKIE_SECURE` and `ALLOW_LINK_LOCAL_IPS` there.
+
 `APP_URL` is usually not needed. TREK resolves its public base URL as `APP_URL` → first `ALLOWED_ORIGINS` entry → `http://localhost:<PORT>`, so the `ALLOWED_ORIGINS` value above already gives OIDC redirect URIs, passkey origin checks and the links in email notifications the correct origin. Uncomment `APP_URL` only when the public base URL has to differ from the first allowed origin.
 
 For a full description of every variable, see [Environment-Variables](Environment-Variables).
 
 ## Image Tags
 
-Three tag strategies are available:
+Five tags are available:
 
 | Tag | Example                  | Behavior |
 |---|--------------------------|---|
 | `latest` | `mauriceboe/trek:latest` | Always the newest release across all major versions |
-| Major version | `mauriceboe/trek:4`      | Latest release pinned to that major version |
-| Full version | `mauriceboe/trek:4.0.0`  | Exact release; never changes |
+| Major version | `mauriceboe/trek:5`      | Latest release pinned to that major version |
+| Minor version | `mauriceboe/trek:5.0`    | Latest patch of that minor version; never moves to the next minor. Published from 5.0.0 on |
+| Full version | `mauriceboe/trek:5.0.0`  | Exact release; never changes |
+| `latest-pre` | `mauriceboe/trek:latest-pre` | Test build of the next version; not for production |
 
 The compose file above uses `latest`. To pin, change the `image:` line:
 
 ```yaml
-image: mauriceboe/trek:4        # track major version 4
-image: mauriceboe/trek:4.0.0   # pin to exact release
+image: mauriceboe/trek:5        # track major version 5
+image: mauriceboe/trek:5.0      # stay on 5.0.x patches
+image: mauriceboe/trek:5.0.0    # pin to exact release
 ```
 
 ## Start TREK
