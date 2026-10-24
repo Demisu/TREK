@@ -41,7 +41,7 @@ Open the trip's **Files** tab. When a store is available, a **Document sync** bu
 
 1. Open **Document sync**. Under **Connect a provider**, pick the store.
 2. Fill in the form. The fields per store are listed below; optional ones are marked as such.
-3. Press **Test connection**. On success the footer reads *Reached it, signed in as* followed by the account name. On failure it names the reason; see [Troubleshooting](#troubleshooting).
+3. Press **Test connection**. On success the footer reads *Reached it, signed in as* followed by the account name. On failure it names the reason; see [Troubleshooting](#troubleshooting). A long answer wraps to two lines next to the buttons, and pointing at it shows the store's own reason in full. On the phone the sheet prints the answer below the buttons.
 4. Press **Connect**.
 5. TREK asks *Where should this trip live in* followed by the store's name. Either create a new tag, folder or space under **Make a new one** (the name is prefilled from the trip's title plus its id, for example `japan-2026-42`) and press **Create**, or pick an existing one under **Or use one you already have**.
 
@@ -140,6 +140,7 @@ Every connection form ends with **Accept a self-signed certificate**, off by def
 - **Sub-folders** inside the bound folder are included.
 - **Renames** in File Station come through even though DSM has no file ids: TREK recognises the renamed or moved file by its size and modification time.
 - **Two-factor accounts:** the code is used once. DSM then hands TREK a trusted-device token, which TREK keeps encrypted with the trip's Synology connection, so it survives a restart of TREK and no new code is needed afterwards. TREK appears as **TREK** among the account's trusted devices in DSM.
+- **Login:** TREK sends the account and password to DSM as plain values. Older builds sent them in quotes, and DSM then refused every account with *credentials refused*; update if you saw that.
 - **Failed logins:** DSM blocks an address after a few failed logins. TREK does not retry a refused password for a minute, and waits fifteen minutes when DSM has already blocked it.
 - **Recycle bin:** File Station's API only deletes permanently, so a document TREK removes is moved into a `.trek-trash` folder inside the bound folder instead, where anyone can take it back out in File Station. A file of the same name already in there is renamed with a timestamp rather than overwritten. TREK never lists the `.trek-trash` folder.
 - **Instant updates:** none. File Station has no change feed, so the binding runs on the timer.
@@ -150,7 +151,7 @@ Once bound, the dialog lists the trip's stores under **This trip** and shows the
 
 - **The store's name** with a state dot, and **Paused** while **Sync automatically** is off.
 - **Where and when:** the bound tag, folder or space, and the last run.
-- **A notice line** when the binding needs attention, for example *Failed · The provider could not be reached.*
+- **A notice line** when the binding needs attention, for example *Failed*, with the reason *The provider could not be reached.*
 - **The flow bar:** TREK on one side, the store on the other, each with the number of documents it holds, and two lanes between them, **Out to the store** and **In from the store**. The trip owner switches a direction off by clicking its lane; the last lane cannot be switched off. Other members see the same bar without the switch.
 - **Sync now**, for every member, and **Disconnect** for the trip owner.
 
@@ -213,7 +214,7 @@ With **Ask me**, the document waits under **Needs a look** as a *Conflict*. **Re
 
 An unmounted share, a revoked share or an expired token all answer the same way: a listing far shorter than the last one. Read literally, that would flag a whole trip as deleted.
 
-So once a binding knows **five or more** documents in the store, a run that finds **more than 40 percent** of them gone at once is thrown away without acting on any of it, not even the parts that look fine. The binding shows *Partly synced · Most documents vanished at once, so nothing was changed. Check that the folder is still mounted.* and waits until the documents are back, or until the trip is bound again. Fewer missing documents are flagged one by one as *Missing at the provider*. Deleting documents in TREK never trips the guard.
+So once a binding knows **five or more** documents in the store, a run that finds **more than 40 percent** of them gone at once is thrown away without acting on any of it, not even the parts that look fine. The binding shows *Partly synced*, with the reason *Most documents vanished at once, so nothing was changed. Check that the folder is still mounted.* and waits until the documents are back, or until the trip is bound again. Fewer missing documents are flagged one by one as *Missing at the provider*. Deleting documents in TREK never trips the guard.
 
 ## Needs a look
 
@@ -221,11 +222,15 @@ The dialog lists what a person has to decide about under **Needs a look**, with 
 
 | Shown as | What it says | What to do |
 |---|---|---|
-| **Conflict** | *Changed in both places. Pick which one to keep.* | Press **Resolve** and pick a side. |
+| **Conflict** | *Changed in both places. Pick which one to keep.* | Press **Resolve** and pick a side. Where the button covers several conflicts it carries their number, for example *Resolve 2*. |
 | **Missing at the provider** | *Gone from the store. The TREK copy is still here.* | Put the document back in the store, for example from its recycle bin, if it went by mistake. The flag clears on the first run that finds it again. |
 | **Type not allowed** | *This file type is not allowed here.* | TREK refused an incoming file, or the store refused an outgoing one. See [File types and sizes](#file-types-and-sizes). |
 | **Too large** | *Bigger than the limit.* | The file is over TREK's limit or over the store's. |
 | **Error** | *The transfer did not go through.* | TREK tries again after 30 seconds, 2 minutes, 10 minutes and an hour. After six failed attempts in a row the document waits; **Sync now** gives it another go. |
+
+## Offline
+
+Syncing is a job of the TREK server, so it does not depend on your device. What does depend on it is the Files tab: an upload needs a connection, so a file you add while offline reaches the store only after you upload it again once TREK is back online. See [Documents-and-Files](Documents-and-Files#offline).
 
 ## File types and sizes
 
