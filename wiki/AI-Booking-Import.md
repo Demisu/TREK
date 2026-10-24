@@ -2,9 +2,9 @@
 
 The **AI Parsing** addon gives TREK's booking import a second reader. When [KDE Itinerary](Reservations-and-Bookings#import-from-booking-confirmation) cannot make sense of a confirmation (a plain-text email, an unusual PDF layout, a vendor whose format it does not know) TREK hands the document to an AI model and turns the answer into a booking you check before it is saved. With a model that reads images, it also reads photos of tickets.
 
-The addon is **off by default**. It works with a model running on your own hardware, so booking data never has to leave your server.
+The addon is **off by default**. It reads with the same AI connection the [AI assistant](#the-ai-assistant-and-this-addon) uses, and it also works with a model running on your own hardware, so booking data never has to leave your server.
 
-> **Admin:** turn on **AI Parsing** in [Admin-Addons](Admin-Addons), in the *Integration* group. Import then works even without the `kitinerary-extractor` binary: with no extractor, the model reads every uploaded file instead of only the ones Itinerary cannot. Installing the extractor is still the better setup, since structured tickets stay fast and predictable and the model stays a fallback. Set up a provider and a model before anyone uses it, though. The import button appears as soon as the addon is on, and with neither an extractor nor a model the import fails.
+> **Admin:** turn on **AI Parsing** in [Admin-Addons](Admin-Addons). AI Parsing, AI Assistant and MCP share one tile named **AI** in the *Integration* group, with a switch for each of the three. Once AI Parsing or the AI Assistant is on, the tile shows a **Set up AI** button that opens the dialog described in [Admin: setting up AI](#admin-setting-up-ai). Import works even without the `kitinerary-extractor` binary: with no extractor, the model reads every uploaded file instead of only the ones Itinerary cannot. Installing the extractor is still the better setup, since structured tickets stay fast and predictable and the model stays a fallback. Set up a connection and a model before anyone uses it, though. The import button appears as soon as the addon is on, and with neither an extractor nor a model the import fails.
 
 ## How it fits with normal import
 
@@ -18,9 +18,37 @@ Structured tickets keep being read the fast, predictable way, and the model only
 
 AI results are marked for review internally, but the mark never reaches the card: saving in the editor stores each booking as checked.
 
+## Which connection reads your files
+
+AI parsing looks for a connection in this order and uses the first one it finds:
+
+1. **The addon's own connection.** An admin can give AI parsing a connection of its own in the **Set up AI** dialog (**Own connection**). It is used for everyone and wins over everything below. Installs that set a model on the addon before the shared connection existed keep it.
+2. **The shared AI connection.** The one the AI assistant runs on: a connection an admin set up once for everyone, or the one each person connected for themselves, depending on the admin's **Who pays** choice. This is the default, and the reason most installs never need a separate setup for parsing.
+3. **A personal parsing model.** Only for people who saved one under **Settings → Integrations → AI parsing** before parsing could read with the shared connection. See [Your own connection](#your-own-connection).
+
+If none of them exists, the import fails with an error shown in the widget.
+
+Two details of the shared connection:
+
+- A **ChatGPT** sign-in is not used for parsing. It only reaches ChatGPT's chat models, not the endpoint that parsing calls. Connect an API key (or another provider) for parsing instead.
+- **Model reads images** is a setting of AI parsing itself and stays there, whichever connection reads. See [Photos](#photos).
+
 ## Choosing a provider
 
-The addon supports three providers:
+The shared connection of the AI assistant supports these providers:
+
+| Provider | Runs where | Notes |
+|----------|-----------|-------|
+| **OpenAI** | OpenAI's API | Needs an API key. |
+| **Anthropic** | Anthropic's API | Needs an API key. **Reads PDFs natively, scans included.** |
+| **Gemini** | Google's OpenAI-compatible endpoint | Needs an API key. |
+| **OpenRouter** | OpenRouter's API | **Connect OpenRouter** signs you in, so there is no key to copy. |
+| **Sign in with ChatGPT** | ChatGPT | Uses a ChatGPT plan, no key. Chat only, not used for parsing. |
+| **Own server** | Your own hardware | Any OpenAI-compatible server, for example Ollama, at a **Server address** you enter. The API key is optional. |
+
+To connect, pick **Sign in with ChatGPT**, **Paste an API key** or **Own server**. When you paste a key, TREK shows *Detected: {provider}*; if it cannot tell, it asks *Which provider is this key from?*. **Connect OpenRouter** is offered as its own button.
+
+The addon's **Own connection** offers three providers of its own:
 
 | Provider | Runs where | Notes |
 |----------|-----------|-------|
@@ -36,40 +64,51 @@ The addon supports three providers:
 >
 > **Photos:** a photo (JPG, PNG, WEBP) goes to the model as an image, with every provider, as long as the model reads images. See [Photos](#photos).
 
-## Admin: instance-wide configuration
+## Admin: setting up AI
 
-Once the addon is on, a configuration panel appears right under it in [Admin-Addons](Admin-Addons):
+**Set up AI** on the AI tile opens one dialog for the connection that the assistant and AI parsing share. A tab shows only while its addon is on: **Connection**, **AI Assistant** and **AI Parsing**. Every change saves at once.
 
-> *Set instance-wide config (applies to all users). Leave blank to let each user configure their own provider.*
+### Connection
 
-- **Provider**: Local · OpenAI-compatible, OpenAI, or Anthropic.
+- **Who pays** decides whose connection is used: **I pay for everyone** (everyone uses the connection below and cannot add their own), **I pay, own allowed** (everyone uses the connection below unless they connect their own) or **Everyone uses their own account** (everyone connects their own provider and nothing is charged to you).
+- **Connection for everyone** appears while you pay. Connect a provider from the list under [Choosing a provider](#choosing-a-provider), pick the **Model** (only models that can use tools are listed), and use **Change** or **Remove connection** later. API keys are stored encrypted.
+- The **AI Assistant** tab holds the assistant's own limits: **Messages per person per day** (it only counts while you pay), **Keep chats** and **Web search**.
+
+### AI Parsing
+
+The **AI Parsing** tab starts with **Reads bookings with**, which shows the connection that reads right now, tagged **Shared** or **Own connection**:
+
+- On the shared connection, **Use a different one** lets you give parsing a connection of its own. If there is no shared connection yet, the tab says so and offers a **Connection** button that takes you back to the first tab. With **Everyone uses their own account**, it says that each person reads with the connection set up in their settings.
+- With an **Own connection**, **Use the shared connection** goes back. The own connection is *used instead of the shared connection*.
+
+The form for an **Own connection** has these fields:
+
+- **Provider**: **Local (Ollama)**, **OpenAI** or **Anthropic**.
 - **Base URL**: empty means the provider's own address: `http://localhost:11434/v1` for a local Ollama server, `https://api.openai.com/v1` for OpenAI and `https://api.anthropic.com` for Anthropic. Any OpenAI-compatible endpoint goes here. For Anthropic it can name a gateway that speaks the Anthropic Messages API; give it without `/v1`, since TREK adds `/v1/messages`, and the gateway has to accept PDF document blocks and forced tool calls. Picking another provider empties the field, so an address meant for one never receives another provider's key.
-- **API key**: optional for a local server (the field says *(often not required)*), required for the cloud providers. It is stored **encrypted** and shown masked (`••••••••`) once saved; leaving it unchanged keeps the stored key.
+- **API key**: optional for a local server (the field says *Often not needed*), required for the cloud providers. It is stored **encrypted** and shown masked (`••••••••`) once saved; leaving it unchanged keeps the stored key.
 - **Model**: the model id, for example `qwen3.5:4b`, `gpt-4o` or `claude-opus-4-8`.
-- **Model reads images**: **Automatic**, **Yes** or **No**. With the Local provider, **Automatic** asks the Ollama server what the model can do (`/api/show`) and follows its answer. With OpenAI or Anthropic, **Automatic** means no. **Yes** and **No** apply as set, whatever the server or the model id says. Photos are only accepted when this comes out as yes.
 
-A provider and model set here apply to **all users** and override their personal settings. Leave the panel blank to let every user bring their own model (see below).
+**Model reads images** sits below, with **Automatic**, **Yes** and **No**. With a local server, **Automatic** asks the Ollama server what the model can do (`/api/show`) and follows its answer. With a cloud model, **Automatic** means no, so choose **Yes** if your model reads images. **Yes** and **No** apply as set, whatever the server or the model id says. Photos are only accepted when this comes out as yes. The switch is shared by the booking import and by [Scan receipt](Budget-Tracking#scanning-a-receipt) in Costs.
 
 ### Pulling a local model
 
-With the **Local** provider selected, the panel manages your Ollama server directly:
+With **Local (Ollama)** selected in an own connection, the form manages your Ollama server directly:
 
-- **Installed on the server** lists the models Ollama already has, with a **Refresh** button. Click a model to select it.
-- **Pull a recommended model** downloads a model with a live progress bar. The recommended one is **Qwen3.5 4B** (`qwen3.5:4b`, 3.4 GB, 256K context): small and quick on a CPU-only host, with "thinking" switched off automatically, under the Apache-2.0 licence. It reads images, so with **Model reads images** on Automatic it accepts photos. A PDF with a text layer reaches it as extracted text, a scanned one as its first two pages drawn as images. When the download finishes, the model is selected.
+- **Installed on the server** lists the models Ollama already has, with a **Refresh** button. Click a model to select it. Until one is installed, the list says *No models installed yet. Pull one below.*
+- **Pull a recommended model** downloads a model with a live progress bar. The recommended one is **Qwen3.5 4B** (`qwen3.5:4b`, 3.4 GB, 256K context): small and quick on a CPU-only host, with "thinking" switched off automatically, under the Apache-2.0 licence. It reads images, so with **Model reads images** on Automatic it accepts photos. A PDF with a text layer reaches it as extracted text, a scanned one as its first two pages drawn as images. When the download finishes, the model is selected. **Pull** becomes **Use** once a model is on the server, and **Selected** for the one in use.
 
-Any other model already on the server can be selected too, or typed in by hand.
+Any other model already on the server can be selected too, or typed in by hand. If the server cannot be reached, the form says *Could not reach the local server*.
 
-## Per-user configuration
+## Your own connection
 
-When an admin leaves the instance configuration blank, each user can set up their own model under **Settings → Integrations → AI parsing**. The section only appears while the addon is on:
+What a person sees in **Settings → Integrations** depends on the addons that are on and on the admin's **Who pays** choice:
 
-> *Choose the AI model used to extract bookings from uploaded files. This applies only when your administrator has not configured a model for the whole instance.*
+- With the AI Assistant or AI Parsing on, an **AI connection** section lets you connect your own provider when the admin allows it, shows who answers and which model, and lets you sign out or disconnect. Its title reads *AI assistant* while the assistant is on, and *AI parsing* when only AI Parsing is. When the admin pays, the section shows *Provided by your admin*.
+- A separate **AI parsing** section appears only for people who already saved a personal model there before parsing could read with the shared connection. It offers **OpenAI** or **Anthropic**, a **Model** id and an **API key**, which is stored encrypted; leave the key blank to keep the current one. There is no personal Base URL. The address the server calls is instance configuration, so a local Ollama server can only be set up by an admin. The server refuses a personal base URL or a personal `local` provider from anyone, admins included.
 
-There you pick a **Provider** (only **OpenAI** or **Anthropic**), a **Model** id and an **API key**, which is stored encrypted; leave the key blank to keep the current one. There is no personal Base URL. The address the server calls is instance configuration, so a local Ollama model can only be set up by an admin on the addon. The server refuses a personal base URL or a personal `local` provider from anyone, admins included.
+A personal parsing model has its own **Model reads images** switch, on or off. It decides whether photos are offered and sent to your model, both for the booking import and for [Scan receipt](Budget-Tracking#scanning-a-receipt) in Costs. PDFs are not affected: only Anthropic gets the raw PDF, every other provider the extracted text.
 
-The **Model reads images** switch decides whether photos are offered and sent to your model, both for the booking import and for [Scan receipt](Budget-Tracking#scanning-a-receipt) in Costs. PDFs are not affected: only Anthropic gets the raw PDF, every other provider the extracted text.
-
-> **Precedence:** a model set by the admin for the whole instance always wins. Personal settings only count when there is none.
+> **Precedence:** the addon's own connection always wins when an admin has set one. Otherwise the shared connection is used, and a personal parsing model only counts when there is neither.
 
 ## Importing a booking with AI
 
@@ -99,6 +138,14 @@ The model is asked for the complete booking, **every leg of a multi-segment flig
 - **Linked cost**: when the [Costs addon](Budget-Tracking) is on and the booking has a price, a linked expense is created in the currency the price was quoted in. Without the addon, the price stays on the booking.
 - **Source document**: the uploaded file is attached to the booking.
 
+## The AI assistant and this addon
+
+The in-app [AI assistant](Addons-Overview) can read a booking confirmation too. Attach the file to the chat (**Attach a booking**) and the assistant proposes an **Add booking from file** card that you confirm before it is saved. The file can be kept in the trip's Files, alone or together with the booking (**Keep the file with this booking**).
+
+Use the import button on the Bookings or Transports tab when you have several files or want the normal editor review for each. Use the assistant when you are already talking to it about the trip. Both read with the same AI connection. The assistant also needs the AI Assistant addon; the import widget needs only AI Parsing.
+
+Receipt scans in Costs use the shared connection as well, with the vision setting kept in AI Parsing. See [Budget-Tracking](Budget-Tracking#scanning-a-receipt).
+
 ## Photos
 
 When the model reads images (see **Model reads images** above), the import takes photos as well: a phone picture of a paper train ticket, a boarding pass, a hotel confirmation. The upload dialog then says *Photos (JPG, PNG, WEBP) are read by the AI model.*, and a photo goes through the same background job, review and linked cost as any other file.
@@ -118,7 +165,7 @@ Photographing a receipt for the Costs tab is covered in [Budget-Tracking](Budget
 - **Local models can be slow.** On a CPU-only host one booking can take from tens of seconds to a couple of minutes. TREK gives a model 15 minutes per document by default; `LLM_TIMEOUT_MS` raises or lowers that. Uploads are parsed **one at a time** per user, so several files wait in line rather than run in parallel.
 - **A long booking list can outgrow the answer.** A model may write at most 4096 tokens per document (8192 on Anthropic). When a document holds more than that, the import says the answer was cut off; `LLM_MAX_OUTPUT_TOKENS` raises the cap, as far as your model's context allows.
 - **Parse jobs are kept for about 10 minutes** after they finish. Start the review within that time.
-- **Privacy**: with the Local provider nothing leaves your network. With OpenAI or Anthropic, the document's text (for Anthropic the PDF itself, and for either a photo) is sent to that provider.
+- **Privacy**: with the Local provider or an own server nothing leaves your network. With OpenAI or Anthropic, the document's text (for Anthropic the PDF itself, and for either a photo) is sent to that provider.
 - **API keys are never sent back in plain text.** They are encrypted at rest and only ever shown masked.
 
 ## See also
