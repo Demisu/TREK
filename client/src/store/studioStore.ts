@@ -3,7 +3,7 @@ import type { BookDocument, BookElement, BookFrame, BookLayout, BookSpread } fro
 import {
   MAX_BOOK_LAYOUTS, MAX_SPREAD_ELEMENTS, applySavedBookLayout as applySavedLayout,
   bookLayoutFromSpread as layoutFromSpread, canEditSpread as isMovableSpread, fitBookTexts, innerSpreadBounds as innerBounds,
-  withThemeLinks,
+  layoutAroundLocks, withThemeLinks,
 } from '@trek/shared'
 import { pastedElements, type StudioClipboard } from '../components/Studio/studioClipboard'
 import { regroupCopies, tidyGroups, withCopies, bookElementId } from '@trek/shared'
@@ -284,7 +284,12 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   applyLayout: (spreadIndex, id) => {
     const layout = get().doc?.layouts?.find(l => l.id === id)
     if (!layout) return
-    get().commit(d => replaceSpread(d, spreadIndex, sp => applySavedLayout(sp, layout, d.page)))
+    // What is locked stays where it is, as the assistant's layout leaves it; a page it would overfill stays.
+    get().commit(d => {
+      const sp = d.spreads[spreadIndex]
+      const laid = sp ? layoutAroundLocks(sp, free => applySavedLayout(free, layout, d.page)) : null
+      return laid ? replaceSpread(d, spreadIndex, () => laid) : d
+    })
     set({ selection: [] })
   },
 

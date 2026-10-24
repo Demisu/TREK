@@ -1,4 +1,4 @@
-import { bookElementId, spreadPaint, withSpreadPaint, type BookPageSetup } from '@trek/shared';
+import { bookElementId, spreadPaint, withSpreadPaintByHand, type BookPageSetup } from '@trek/shared';
 import { Check, CopyCheck, ImageOff } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useStudioStore } from '../../store/studioStore';
@@ -37,9 +37,10 @@ export function StudioBackgroundSection({
 }) {
   const spread = useStudioStore((s) => s.doc?.spreads[spreadIndex]);
   const commit = useStudioStore((s) => s.commit);
+  // A colour picked here is the person's, so the page stops following the theme's paper (as the assistant's does).
   const channel = usePaintChannel((paint) => (doc) => ({
     ...doc,
-    spreads: doc.spreads.map((sp, i) => (i === spreadIndex ? withSpreadPaint(sp, paint) : sp)),
+    spreads: doc.spreads.map((sp, i) => (i === spreadIndex ? withSpreadPaintByHand(sp, paint) : sp)),
   }));
 
   // "Applied" stands in the button for a moment, so a press that changed pages out of sight is seen to have worked.

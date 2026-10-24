@@ -150,6 +150,22 @@ describe('studio store: clipboard and layouts', () => {
     expect(useStudioStore.getState().doc!.layouts).toEqual([])
   })
 
+  it('FE-STUDIO-STORE-LAYOUT-003: what is locked stays where it is, at its place in the paint order', () => {
+    const panel = { ...shape('panel'), locked: true } as BookElement
+    const pinned = { ...photo('pin', 7, 300), locked: true } as BookElement
+    load({
+      spreads: [spread('a', [photo('p1', 1), text('t1', 'Title', 24)]), spread('b', [panel, photo('q1', 9), pinned])],
+    })
+    expect(useStudioStore.getState().saveLayout(0, 'Layout 1')).toBe(true)
+    const layout = useStudioStore.getState().doc?.layouts?.[0]
+    if (!layout) throw new Error('no layout kept')
+    useStudioStore.getState().applyLayout(1, layout.id)
+    const applied = useStudioStore.getState().doc?.spreads[1].elements ?? []
+    expect(applied[0]).toEqual(panel)
+    expect(applied.find(e => e.id === 'pin')).toEqual(pinned)
+    expect(applied.filter(e => e.kind === 'photo' && !e.locked).map(e => e.kind === 'photo' && e.photoId)).toEqual([9])
+  })
+
   it('FE-STUDIO-STORE-LAYOUT-002: an empty page is not a layout, and a full book says no', () => {
     const full = Array.from({ length: MAX_BOOK_LAYOUTS }, (_, i) => layoutFromSpread(spread('x', []), page, `L${i}`))
     load({ spreads: [spread('a', []), spread('b', [photo('p', 1)])], layouts: full })

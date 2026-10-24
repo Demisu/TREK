@@ -2,7 +2,7 @@ import {
   MAX_SPREAD_ELEMENTS,
   bookPhotoElementSchema,
   spreadPaint,
-  withSpreadPaint,
+  withSpreadPaintByHand,
   type BookDocument,
   type BookElement,
   type BookPageSetup,
@@ -77,20 +77,27 @@ export function withoutBackgroundPhoto(spread: BookSpread, page: BookPageSetup):
 const isCover = (spread: BookSpread) => spread.role === 'cover' || spread.role === 'back';
 
 /**
- * Every page given the background of page `from`: its paint and colour,
- * nothing else. "Every page" is every page of its kind: an inside page
- * gives its background to the inside of the book, a cover to the covers,
- * since a cover is designed on its own and an inside page's paper is rarely
- * what the cover wants.
+ * Every page given the background of page `from`: its paint and colour, and
+ * whether it follows the theme, nothing else. "Every page" is every page of
+ * its kind: an inside page gives its background to the inside of the book, a
+ * cover to the covers, since a cover is designed on its own and an inside
+ * page's paper is rarely what the cover wants. A page that follows the
+ * theme's paper gives that link along; one painted by hand takes the others'
+ * away, so the next theme applied leaves them all as they were made.
  */
 export function backgroundToAll(doc: BookDocument, from: number): BookDocument {
   const source = doc.spreads[from];
   if (!source) return doc;
   const paint = spreadPaint(source);
   const kind = isCover(source);
+  const link = source.backgroundToken;
+  const given = (sp: BookSpread): BookSpread => {
+    const painted = withSpreadPaintByHand(sp, paint);
+    return link ? { ...painted, backgroundToken: link } : painted;
+  };
   return {
     ...doc,
-    spreads: doc.spreads.map((sp, i) => (i === from || isCover(sp) !== kind ? sp : withSpreadPaint(sp, paint))),
+    spreads: doc.spreads.map((sp, i) => (i === from || isCover(sp) !== kind ? sp : given(sp))),
   };
 }
 

@@ -15,6 +15,7 @@ import {
   arrangeWithinGroup,
   bookElementId,
   bookElementStyle,
+  bookElementStyled,
   commonGroup,
   distributableCount,
   distributeElements,
@@ -343,7 +344,7 @@ function panelActions(
     },
 
     pasteStyle: (spreadIndex) => {
-      const { styleClip, selection } = get();
+      const { styleClip, selection, doc } = get();
       const spread = spreadOf(get, spreadIndex);
       if (!styleClip || !spread) return;
       const targets = movable(spread, selection);
@@ -355,8 +356,8 @@ function panelActions(
           const look = pastableStyle(styleClip, e.kind);
           if (!look) return e;
           changed = true;
-          const props = Object.fromEntries(Object.entries(look).filter(([k]) => k !== 'kind'));
-          return { ...e, ...props } as BookElement;
+          // The engine's own restyle: a pasted colour unlinks the theme, a pasted fill replaces a paint.
+          return bookElementStyled(e, look, doc?.theme);
         });
         return changed ? { ...sp, elements } : sp;
       });

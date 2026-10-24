@@ -452,6 +452,30 @@ describe('filling a page with a picture', () => {
     const { container } = draw()
     expect(fillChip(container, 'journey.studio.fillPage')).toBeUndefined()
   })
+
+  /* Behind everything, the picture is the page and nobody's lockup: it leaves
+     its group, and a group it leaves with one member is no group any more. */
+  it('takes the picture out of its group, and a group of two goes with it', () => {
+    load([text({ group: 'g' }), photo({ photoId: 12, group: 'g' })], ['p1'])
+    const { container } = draw()
+    const chip = fillChip(container, 'journey.studio.fillPage')
+    if (!chip) throw new Error('no fill chip')
+
+    fireEvent.click(chip)
+
+    expect(elements().map(e => [e.id, e.group])).toEqual([['p1', undefined], ['t1', undefined]])
+  })
+
+  it('keeps the rest of a larger group together', () => {
+    load([shape({ group: 'g' }), text({ group: 'g' }), photo({ photoId: 12, group: 'g' })], ['p1'])
+    const { container } = draw()
+    const chip = fillChip(container, 'journey.studio.fillSpread')
+    if (!chip) throw new Error('no fill chip')
+
+    fireEvent.click(chip)
+
+    expect(elements().map(e => [e.id, e.group])).toEqual([['p1', undefined], ['s1', 'g'], ['t1', 'g']])
+  })
 })
 
 // ── Shape ──────────────────────────────────────────────────────────────────

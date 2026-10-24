@@ -145,4 +145,35 @@ describe('the Templates panel', () => {
     fireEvent.click(screen.getByText('journey.studio.tpl.grid4'));
     expect(spreadOf(1)?.elements.filter((e) => e.kind === 'photo')).toHaveLength(4);
   });
+
+  it('leaves what is locked where it is, as the assistant does, and lays out the rest', () => {
+    const locked = normalizeBookDocument({
+      ...book(),
+      spreads: [
+        book().spreads[0],
+        {
+          id: 'sp-in',
+          role: 'inner',
+          background: null,
+          entryId: 4,
+          parked: [],
+          elements: [
+            { id: 'panel', kind: 'shape', frame: { x: 0, y: 150, w: 420, h: 60 }, locked: true },
+            { id: 'free', kind: 'photo', frame: { x: 230, y: 20, w: 60, h: 60 }, photoId: 8 },
+            { id: 'kept', kind: 'photo', frame: { x: 10, y: 20, w: 60, h: 60 }, photoId: 9, locked: true },
+          ],
+        },
+      ],
+    });
+    useStudioStore.getState().load(locked);
+    useStudioStore.getState().setActiveSpread(1);
+    panel();
+    fireEvent.click(screen.getByText('journey.studio.tpl.grid4'));
+    const after = spreadOf(1)?.elements ?? [];
+    expect(after[0]).toEqual(locked.spreads[1]?.elements[0]);
+    expect(after.find((e) => e.id === 'kept')).toEqual(locked.spreads[1]?.elements[2]);
+    const poured = after.filter((e) => e.kind === 'photo' && !e.locked);
+    expect(poured).toHaveLength(4);
+    expect(poured.map((e) => (e.kind === 'photo' ? e.photoId : null))).toContain(8);
+  });
 });

@@ -143,6 +143,22 @@ describe('the same background on every page', () => {
     const paper = backgroundToAll(book([spread('a'), spread('b', { background: '#000000' })]), 0);
     expect(paper.spreads[1].background).toBeNull();
   });
+
+  it("gives every page the source page's link to the theme, or takes theirs away when it was painted by hand", () => {
+    const linked = book([
+      spread('a', { background: '#f4efe6', backgroundToken: 'paper' }),
+      spread('b', { background: '#000000', backgroundToken: 'accent' }),
+      spread('c', { background: '#000000' }),
+    ]);
+    const following = backgroundToAll(linked, 0);
+    expect(following.spreads[1]).toMatchObject({ background: '#f4efe6', backgroundToken: 'paper' });
+    expect(following.spreads[2]).toMatchObject({ background: '#f4efe6', backgroundToken: 'paper' });
+
+    const byHand = backgroundToAll(book([spread('a', { background: '#dbeafe' }), ...linked.spreads.slice(1)]), 0);
+    expect(byHand.spreads[1]).toMatchObject({ background: '#dbeafe' });
+    expect(byHand.spreads[1].backgroundToken).toBeUndefined();
+    expect(byHand.spreads[2].backgroundToken).toBeUndefined();
+  });
 });
 
 describe('the background section', () => {
@@ -173,6 +189,17 @@ describe('the background section', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('takes the page off the theme colour it followed once a colour is picked by hand', () => {
+    // A white paper is no colour of its own: the page follows the theme's paper with no background.
+    useStudioStore.getState().load(book([spread('a', { backgroundToken: 'paper' })]));
+    const { container } = draw();
+    fireEvent.click(
+      need([...container.querySelectorAll('.st-paint-tab')].find((b) => b.textContent === 'journey.studio.paint.solid'))
+    );
+    expect(spreads()[0].background).toBe('#111111');
+    expect(spreads()[0].backgroundToken).toBeUndefined();
   });
 
   it('offers the entry and the gallery photos, lays one under the page, and takes it away again', () => {

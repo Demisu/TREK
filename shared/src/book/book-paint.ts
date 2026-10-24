@@ -140,6 +140,17 @@ export function withSpreadPaint<T extends BookSpread>(spread: T, paint: BookPain
   return { ...rest, backgroundPaint: paint, background: paintFallbackHex(paint) } as T;
 }
 
+/**
+ * A page painted by hand: this paint, and the page's link to a theme colour
+ * (`backgroundToken`) taken away, so the next theme applied leaves the colour
+ * somebody chose. The `background` operation and the Studio's background
+ * picker both paint a page through it.
+ */
+export function withSpreadPaintByHand(spread: BookSpread, paint: BookPaint | null): BookSpread {
+  const { backgroundToken: _unlinked, ...rest } = spread;
+  return withSpreadPaint(rest, paint);
+}
+
 /** Every colour a paint is made of, in the order it names them. */
 export function paintColours(paint: BookPaint | null | undefined): string[] {
   if (!paint) return [];

@@ -2,6 +2,7 @@ import { withRealWeight } from './book-fonts';
 import { bookGridElements, defaultBookGridBox, findBookGrid, type BookGridDef } from './book-grids';
 import { tidyGroups } from './book-groups';
 import { bookElementId } from './book-ids';
+import { layoutAroundLocks } from './book-layout-locks';
 import { BOOK_TEXT_STYLES, applyBookTemplate, classifyBookTexts, findBookTemplate } from './book-layouts';
 import {
   bookBoundWords,
@@ -24,7 +25,7 @@ import {
 import { applyElementOp, autoRelayout } from './book-ops-elements';
 import { applyGroupOp, isGroupOp } from './book-ops-groups';
 import { BOOK_OP_LIMITS, bookPageOpSchema, type BookPageOp } from './book-ops.schema';
-import { withSpreadPaint } from './book-paint';
+import { withSpreadPaintByHand } from './book-paint';
 import { applySavedBookLayout, bookLayoutRole } from './book-saved-layouts';
 import { fitSpreadTexts } from './book-text-fit';
 import {
@@ -128,14 +129,12 @@ function applyOne(spread: BookSpread, op: BookPageOp, env: Env): BookSpread {
       return opFrame(spread, op, env);
     case 'remove':
       return opRemove(spread, op, env);
-    case 'background': {
-      // A colour set by hand stops following the theme's paper.
-      const { backgroundToken: _unlinked, ...rest } = spread;
-      return withSpreadPaint(
-        rest,
+    case 'background':
+      // A colour set by hand stops following the theme's paper, as in the Studio.
+      return withSpreadPaintByHand(
+        spread,
         op.paint !== undefined ? op.paint : op.color ? { type: 'solid', color: op.color } : null,
       );
-    }
     default:
       return isGroupOp(op) ? applyGroupOp(spread, op, env) : applyElementOp(spread, op, env);
   }
@@ -175,19 +174,12 @@ const spreadWidth = (spread: BookSpread, page: BookPageSetup) => page.pageWidth 
 
 function opLayout(spread: BookSpread, op: Op<'layout'>, env: Env): BookSpread {
   // A locked element is left where it is, and keeps its place in the paint
-  // order; the layout arranges everything else.
-  const locked = spread.elements.flatMap((el, i) => (el.locked ? [{ el, i }] : []));
-  const free: BookSpread = { ...spread, elements: spread.elements.filter((e) => !e.locked) };
-  const next = layoutFree(free, op, env);
-  const elements = next.elements.slice();
-  for (const { el, i } of locked) elements.splice(Math.min(i, elements.length), 0, el);
-  if (elements.length > MAX_SPREAD_ELEMENTS) {
+  // order; the layout arranges everything else, as in the Studio.
+  const laid = layoutAroundLocks(spread, (free) => layoutFree(free, op, env));
+  if (!laid) {
     throw failOp('too_many_elements', `the layout and the locked elements exceed ${MAX_SPREAD_ELEMENTS}`, env.opIndex);
   }
-  // A locked group keeps its name, also through a layout that writes the page's groups anew.
-  const have = new Set((next.groups ?? []).map((g) => g.id));
-  const lost = (spread.groups ?? []).filter((g) => !have.has(g.id) && locked.some(({ el }) => el.group === g.id));
-  return { ...next, elements, ...(lost.length ? { groups: [...(next.groups ?? []), ...lost] } : {}) };
+  return laid;
 }
 
 function layoutFree(spread: BookSpread, op: Op<'layout'>, env: Env): BookSpread {

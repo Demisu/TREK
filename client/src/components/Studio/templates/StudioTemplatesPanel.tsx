@@ -2,6 +2,7 @@ import type { BookDecoratedTemplate, BookPageSetup, BookSpread, BookTemplate, Jo
 import {
   applyBookTemplate as applyTemplate,
   BOOK_COVER_TEMPLATES as COVER_TEMPLATES,
+  layoutAroundLocks,
   BOOK_TEMPLATES as TEMPLATES,
 } from '@trek/shared';
 import { memo, useDeferredValue, useMemo, useState } from 'react';
@@ -208,8 +209,11 @@ export function StudioTemplatesPanel({
         ? layTemplate(sp, tpl, page, { ...ctx, words: studioTemplateWords(title, sp, source, locale) })
         : null
     );
+  // A built-in layout arranges what is not locked, as the assistant's does; a decorated one keeps locks itself.
   const pickBuiltIn = (tpl: BookTemplate) =>
-    lay((sp) => (pageKind(sp) === (tpl.role ?? 'inner') ? applyTemplate(sp, tpl, page) : null));
+    lay((sp) =>
+      pageKind(sp) === (tpl.role ?? 'inner') ? layoutAroundLocks(sp, (free) => applyTemplate(free, tpl, page)) : null
+    );
 
   return (
     <>

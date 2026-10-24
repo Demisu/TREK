@@ -5,11 +5,12 @@ import type { BookElement } from './book.schema';
  * Copy and paste style: the look of one element taken onto others.
  *
  * The look is exactly what the `style` operation may set for the element's
- * kind (book-element-ops.schema.ts), less the few props that are words rather
- * than looks (a list's column labels, the figures a stats block shows). So a
- * pasted style is one `style` operation per element, the same thing the
- * assistant sends, and onto an element of another kind it carries what both
- * kinds have: a text's colour onto an icon, the opacity onto anything.
+ * kind (book-element-ops.schema.ts), less the few props that are words or a
+ * course rather than looks (a list's column labels, the figures a stats block
+ * shows, a line's points). So a pasted style is one `style` operation per
+ * element, applied by the same restyle (`bookElementStyled`), the same thing
+ * the assistant sends, and onto an element of another kind it carries what
+ * both kinds have: a text's colour onto an icon, the opacity onto anything.
  */
 
 export interface BookCopiedStyle {
@@ -17,8 +18,11 @@ export interface BookCopiedStyle {
   props: Record<string, unknown>;
 }
 
-/** Props of `style` that say what an element shows, not how it looks. */
-const CONTENT_KEYS: ReadonlySet<string> = new Set(['metrics', 'proLabel', 'conLabel']);
+/**
+ * Props of `style` that say what an element shows or where it runs, not how it
+ * looks: a line's points are its course, so pasting a look never redraws one.
+ */
+const CONTENT_KEYS: ReadonlySet<string> = new Set(['metrics', 'proLabel', 'conLabel', 'points']);
 
 const STYLE_KEYS = new Map<string, string[]>(
   bookElementPropsSchema.options.map((o) => [

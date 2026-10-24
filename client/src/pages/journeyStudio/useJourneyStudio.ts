@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router'
 import type { AutoEntry, AutoInput, AutoPhoto, BookElement, BookPageNumbers, JourneyStats } from '@trek/shared'
 import {
   autoEntriesWithStops, bookElementId as elementId, bookPageSetupSchema, bookPath, buildBook, distributeGallery,
-  emptyBook, relayoutSpread,
+  emptyBook, layoutAroundLocks, relayoutSpread,
 } from '@trek/shared'
 import { journeyApi } from '../../api/client'
 import { useJourneyStore, type GalleryPhoto, type JourneyEntry, type JourneyPhoto } from '../../store/journeyStore'
@@ -484,7 +484,8 @@ export function useJourneyStudio() {
     commit(d => {
       const sp = d.spreads[activeSpread]
       if (!sp) return d
-      const next = relayoutSpread(sp, { ...input, page: d.page })
+      // Laid out around what is locked, as the assistant's auto layout leaves it.
+      const next = layoutAroundLocks(sp, free => relayoutSpread(free, { ...input, page: d.page }))
       if (!next) return d
       return { ...d, spreads: d.spreads.map((x, i) => (i === activeSpread ? next : x)) }
     })

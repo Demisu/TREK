@@ -145,6 +145,30 @@ describe('the auto layout input', () => {
     expect(input.path).toEqual([TRACK])
   })
 
+  it('lays the page out again around what is locked on it', async () => {
+    const { result } = await mountStudio()
+    // A journey without a book opens on a blank one; the auto layout makes the entry's page.
+    act(() => { result.current.relayoutBook() })
+    const kept = shared.bookShapeElementSchema.parse({
+      id: 'kept', kind: 'shape', frame: { x: 5, y: 5, w: 20, h: 20 }, shape: 'rect', locked: true,
+    })
+    const at = useStudioStore.getState().doc?.spreads.findIndex(s => s.role === 'inner' && s.entryId != null) ?? -1
+    expect(at).toBeGreaterThanOrEqual(0)
+    act(() => {
+      useStudioStore.getState().commit(d => ({
+        ...d,
+        spreads: d.spreads.map((s, i) => (i === at ? { ...s, elements: [kept, ...s.elements] } : s)),
+      }))
+      useStudioStore.getState().setActiveSpread(at)
+    })
+
+    act(() => { result.current.relayoutCurrentSpread() })
+
+    const page = useStudioStore.getState().doc?.spreads[at]
+    expect(page?.elements[0]).toEqual(kept)
+    expect(page?.elements.filter(e => e.locked)).toHaveLength(1)
+  })
+
   it('leaves the path empty when the journey has no track', async () => {
     vi.mocked(journeyApi.listTracks).mockResolvedValue({ tracks: [] } as never)
     const { result } = await mountStudio()

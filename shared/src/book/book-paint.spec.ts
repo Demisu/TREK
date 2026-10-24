@@ -12,6 +12,7 @@ import {
   spreadPaint,
   withShapePaint,
   withSpreadPaint,
+  withSpreadPaintByHand,
 } from './book-paint';
 import { BOOK_PATTERNS, bookPaintInSchema, bookPaintSchema, type BookPaint } from './book-paint.schema';
 import { applySavedBookLayout, bookLayoutFromSpread, bookLayoutPreview } from './book-saved-layouts';
@@ -28,7 +29,7 @@ import { describeSpread } from './describe-spread';
 
 import { describe, expect, it } from 'vitest';
 
-// BKPAINT-001 to BKPAINT-016
+// BKPAINT-001 to BKPAINT-017
 
 /**
  * Paint: the document's gradients, alpha and patterns, how they stay readable
@@ -186,6 +187,18 @@ describe('a page and its paint', () => {
     const plainLayout = bookLayoutSchema.parse(bookLayoutFromSpread(spread({ background: '#111111' }), page, 'Ink'));
     const replaced = applySavedBookLayout(spread({ backgroundPaint: linear }), plainLayout, page);
     expect(['backgroundPaint' in replaced, replaced.background]).toEqual([false, '#111111']);
+  });
+
+  it('BKPAINT-017: a paint set by hand takes the page off its theme colour, Studio and assistant alike', () => {
+    const linked = spread({ background: '#f4efe6', backgroundToken: 'paper' });
+    expect(withSpreadPaint(linked, stripes).backgroundToken).toBe('paper');
+    const painted = withSpreadPaintByHand(linked, stripes);
+    expect(painted).toMatchObject({ backgroundPaint: stripes, background: '#ffeedd' });
+    expect('backgroundToken' in painted).toBe(false);
+    const result = applyBookOps(doc([linked]), { spreadId: 'sp1', ops: [{ op: 'background', color: '#202020' }] });
+    if (!result.ok) throw new Error(result.error.message);
+    expect(result.doc.spreads[0]).toMatchObject({ background: '#202020' });
+    expect(result.doc.spreads[0]?.backgroundToken).toBeUndefined();
   });
 });
 

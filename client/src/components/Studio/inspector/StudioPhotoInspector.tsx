@@ -1,4 +1,5 @@
 import type { BookElement, BookPageSetup, BookPhotoElement, BookSpread } from '@trek/shared';
+import { tidyGroups, withoutGroup } from '@trek/shared';
 import type { ReactNode } from 'react';
 
 import { useStudioStore } from '../../../store/studioStore';
@@ -44,8 +45,9 @@ function filled(sp: BookSpread, el: BookPhotoElement, page: BookPageSetup, scope
     w: (scope === 'spread' ? 2 : 1) * page.pageWidth + 2 * bleed,
     h: page.pageHeight + 2 * bleed,
   };
-  const photo = { ...el, frame, rotation: 0, fit: 'cover' } as BookElement;
-  return { ...sp, elements: [photo, ...sp.elements.filter((e) => e.id !== el.id)] };
+  // A picture that is the page is nobody's lockup: it leaves its group, as the assistant's fill takes it out.
+  const photo = { ...withoutGroup(el), frame, rotation: 0, fit: 'cover' } as BookElement;
+  return tidyGroups({ ...sp, elements: [photo, ...sp.elements.filter((e) => e.id !== el.id)] });
 }
 
 export function StudioPhotoInspector({

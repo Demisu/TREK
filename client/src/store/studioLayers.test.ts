@@ -1,5 +1,11 @@
-import type { BookDocument, BookElement, BookSpread } from '@trek/shared';
-import { bookPageSetupSchema, bookShapeElementSchema, bookTextElementSchema } from '@trek/shared';
+import type { BookDocument, BookElement, BookLineElement, BookSpread, BookTextElement } from '@trek/shared';
+import {
+  bookLineElementSchema,
+  bookLinePoints,
+  bookPageSetupSchema,
+  bookShapeElementSchema,
+  bookTextElementSchema,
+} from '@trek/shared';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { useStudioStore } from './studioStore';
@@ -292,6 +298,72 @@ describe('copies and the style clipboard', () => {
     expect(el('t3')).not.toMatchObject({ size: 30 });
     store().undo();
     expect(el('t2')).not.toMatchObject({ size: 30 });
+  });
+
+  it('a pasted colour or face takes the element off the theme, as the style operation does', () => {
+    load([
+      text('mine', { color: '#c2410c', font: 'playfair' }),
+      text('linked', { color: '#1a1a1a', token: 'ink', font: 'inter', fontRole: 'body' }),
+    ]);
+    store().select(['mine']);
+    store().copyStyle(0);
+    store().select(['linked']);
+    store().pasteStyle(0);
+    const linked = el('linked') as BookTextElement;
+    expect(linked).toMatchObject({ color: '#c2410c', font: 'playfair' });
+    expect(linked.token).toBeUndefined();
+    expect(linked.fontRole).toBeUndefined();
+  });
+
+  it('a pasted plain fill replaces the paint of the shape it lands on', () => {
+    const fade = {
+      type: 'linear' as const,
+      angle: 45,
+      stops: [
+        { at: 0, color: '#ff0000' },
+        { at: 1, color: '#0000ff' },
+      ],
+    };
+    load([shape('red', 0, 0, { fill: '#dc2626' }), shape('painted', 40, 0, { paint: fade, fill: '#800080' })]);
+    store().select(['red']);
+    store().copyStyle(0);
+    store().select(['painted']);
+    store().pasteStyle(0);
+    expect(el('painted')).toMatchObject({ fill: '#dc2626' });
+    expect('paint' in el('painted')).toBe(false);
+  });
+
+  it("a line takes another line's look and keeps its own course", () => {
+    const route = bookLineElementSchema.parse({
+      id: 'route',
+      kind: 'line',
+      frame: { x: 10, y: 10, w: 100, h: 60 },
+      points: [
+        { x: 0, y: 1 },
+        { x: 0.5, y: 0 },
+        { x: 1, y: 1 },
+      ],
+      stroke: '#c2410c',
+      dash: 'dashed',
+    }) as BookElement;
+    const rule = bookLineElementSchema.parse({
+      id: 'rule',
+      kind: 'line',
+      frame: { x: 20, y: 120, w: 100, h: 2 },
+    }) as BookElement;
+    load([route, rule]);
+    const before = bookLinePoints(rule as BookLineElement);
+    store().select(['route']);
+    store().copyStyle(0);
+    store().select(['rule']);
+    store().pasteStyle(0);
+    const pasted = el('rule') as BookLineElement;
+    expect(pasted).toMatchObject({ stroke: '#c2410c', dash: 'dashed' });
+    expect(pasted.points).toHaveLength(2);
+    bookLinePoints(pasted).forEach(([x, y], i) => {
+      expect(x).toBeCloseTo(must(before[i])[0], 1);
+      expect(y).toBeCloseTo(must(before[i])[1], 1);
+    });
   });
 
   it('pastes nothing without a copied style, or onto a kind that shares nothing with it', () => {

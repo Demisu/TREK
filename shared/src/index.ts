@@ -133,6 +133,8 @@ export * from './book/book-line.schema';
 export * from './book/book-line';
 export * from './book/book-line-ops.schema';
 export { bookNewLine, bookLineStyled } from './book/book-ops-line';
+export { bookElementStyled } from './book/book-ops-elements';
+export { layoutAroundLocks } from './book/book-layout-locks';
 export { bookSpreadPhotoIds } from './book/book-photo-refs';
 export * from './book/book-normalize';
 export * from './book/book-schema-rev';

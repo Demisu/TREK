@@ -180,6 +180,13 @@ function withProps(el: BookElement, props: Record<string, unknown>, theme?: Book
 }
 
 /**
+ * An element restyled exactly as the `style` operation restyles it, for the
+ * Studio's paste style: one restyle, so a pasted look and the assistant's
+ * keep a page's theme links, a shape's paint and a line's course alike.
+ */
+export const bookElementStyled = withProps;
+
+/**
  * A shape's paint, kept in step with its fill: a paint given is written
  * through withShapePaint, and a plain fill or fade given without one replaces
  * the paint the shape had, since the newer instruction is the one meant.

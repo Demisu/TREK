@@ -1,6 +1,7 @@
 import { bookElementStyle, bookStyleKeys, pastableStyle } from './book-style-copy';
 import {
   bookIconElementSchema,
+  bookLineElementSchema,
   bookListElementSchema,
   bookShapeElementSchema,
   bookTextElementSchema,
@@ -33,6 +34,24 @@ describe('copy style', () => {
     expect(bookStyleKeys('list')).not.toContain('proLabel');
     expect(bookElementStyle(list).props).not.toHaveProperty('proLabel');
     expect(bookStyleKeys('stats')).not.toContain('metrics');
+  });
+
+  it("BKSTY-005: takes a line's look and never its points, which are where it runs", () => {
+    const route = bookLineElementSchema.parse({
+      id: 'r',
+      kind: 'line',
+      frame,
+      points: [
+        { x: 0, y: 1 },
+        { x: 0.5, y: 0 },
+        { x: 1, y: 1 },
+      ],
+      stroke: '#c2410c',
+      dash: 'dashed',
+    }) as BookElement;
+    expect(bookStyleKeys('line')).not.toContain('points');
+    expect(bookElementStyle(route).props).toMatchObject({ stroke: '#c2410c', dash: 'dashed' });
+    expect(bookElementStyle(route).props).not.toHaveProperty('points');
   });
 
   it('BKSTY-003: pastes all of it onto the same kind, and what both have onto another', () => {
