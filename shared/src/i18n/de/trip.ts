@@ -49,7 +49,8 @@ const trip: TranslationStrings = {
   'trip.invite.invalidTitle': 'Einladung nicht verfügbar',
   'trip.invite.invalid': 'Dieser Einladungslink ist ungültig oder abgelaufen.',
   'trip.invite.removedTitle': 'Zugang entfernt',
-  'trip.invite.removed': 'Du wurdest aus dieser Reise entfernt. Bitte den Eigentümer der Reise, dich wieder hinzuzufügen.',
+  'trip.invite.removed':
+    'Du wurdest aus dieser Reise entfernt. Bitte den Eigentümer der Reise, dich wieder hinzuzufügen.',
   'trip.invite.backToDashboard': 'Zurück zum Dashboard',
   'transit.title': 'Öffentliche Verkehrsmittel',
   'transit.from': 'Von',
