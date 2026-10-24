@@ -145,7 +145,9 @@ export function applySavedBookLayout(spread: BookSpread, layout: BookLayout, pag
   const used = new Set(wordsFor.values());
   const parked = [...photos.slice(pi), ...texts.filter((t) => !used.has(t))].slice(0, MAX_SPREAD_ELEMENTS);
 
-  const { backgroundPaint: _old, ...rest } = spread;
+  // The layout's background replaces the page's, so the page's link to a theme
+  // colour goes with it: kept, the next theme would paint over the layout's colour.
+  const { backgroundPaint: _old, backgroundToken: _unlinked, ...rest } = spread;
   const backgroundPaint = layout.backgroundPaint ? { backgroundPaint: layout.backgroundPaint } : {};
   return { ...rest, background: layout.background, ...backgroundPaint, elements: out, parked };
 }

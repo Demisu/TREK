@@ -264,6 +264,23 @@ describe('a mark set as text on a page laid out again', () => {
   });
 });
 
+describe('the page background a saved layout brings', () => {
+  it("BOOKLAY-030: replaces the page's colour and its link to a theme colour, so a theme cannot paint over it", () => {
+    const from = bookSpreadSchema.parse({ id: 'a', role: 'inner', background: '#123456', elements: [] });
+    const layout = bookLayoutFromSpread(from, page, 'Navy');
+    const linked = bookSpreadSchema.parse({
+      id: 'b',
+      role: 'inner',
+      background: '#ffffff',
+      backgroundToken: 'paper',
+      elements: [],
+    });
+    const next = applySavedBookLayout(linked, layout, page);
+    expect(next.background).toBe('#123456');
+    expect(next).not.toHaveProperty('backgroundToken');
+  });
+});
+
 describe('letters filled with a photo in a saved layout', () => {
   const frame = { x: 10, y: 10, w: 80, h: 40 };
   const filledWith = (photoId: number) => ({ type: 'photo' as const, photoId, focalX: 0.5, focalY: 0.5, zoom: 1 });
