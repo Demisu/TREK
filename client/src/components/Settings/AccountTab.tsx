@@ -12,8 +12,7 @@ import {
   SETTINGS_BUTTON, SETTINGS_BUTTON_DANGER, SETTINGS_BUTTON_PRIMARY, SettingRow, SettingRows, SettingsHint, StatusPill,
 } from './settingsKit'
 import { stripTrailingSlashes, useAccountSettings } from './useAccountSettings'
-import DemoLock from '../Demo/DemoLock'
-import { useDemoAccountLock } from '../Demo/useDemoLock'
+import AccountDemoLock from './AccountDemoLock'
 
 /** The small turning ring a button shows while its request is on the way. */
 const SPINNER = 'h-3.5 w-3.5 flex-none animate-spin rounded-full border-2 border-current border-t-transparent'
@@ -24,7 +23,6 @@ const EYEBROW = 'm-0 font-geist font-bold uppercase tracking-[.08em] text-conten
 export default function AccountTab(): React.ReactElement {
   const { t } = useTranslation()
   const blockedLabelId = useId()
-  const demoLocked = useDemoAccountLock()
   const {
     user,
     demoMode,
@@ -75,7 +73,7 @@ export default function AccountTab(): React.ReactElement {
   return (
     <>
       {/* The shared demo account: everything here is shown, nothing can be changed. */}
-      <DemoLock locked={demoLocked} reason={t('demo.lock.account')}>
+      <AccountDemoLock>
       <Section title={t('settings.account')} icon={User}>
         {/* Who is signed in: the picture with its two actions, the role and the SSO link. */}
         <div className="flex items-center gap-4 rounded-[14px] border border-edge-faint bg-surface-card px-4 py-3.5">
@@ -364,7 +362,7 @@ export default function AccountTab(): React.ReactElement {
 
       {/* Passkeys */}
       <PasskeysSection demoMode={demoMode} />
-      </DemoLock>
+      </AccountDemoLock>
 
       {/* Delete Account Blocked */}
       <DialogShell

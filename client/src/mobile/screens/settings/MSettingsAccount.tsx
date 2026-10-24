@@ -22,8 +22,7 @@ import MConfirmSheet from './MConfirmSheet'
 import PasswordChecklist from '../../../components/shared/PasswordChecklist'
 import { fmtDate, usePasskeys } from '../../../components/Settings/usePasskeys'
 import { stripTrailingSlashes, useAccountSettings } from '../../../components/Settings/useAccountSettings'
-import DemoLock from '../../../components/Demo/DemoLock'
-import { useDemoAccountLock } from '../../../components/Demo/useDemoLock'
+import AccountDemoLock from '../../../components/Settings/AccountDemoLock'
 
 /**
  * "Account" section — AccountTab parity: profile + avatar, password change,
@@ -31,7 +30,6 @@ import { useDemoAccountLock } from '../../../components/Demo/useDemoLock'
  */
 export default function MSettingsAccount() {
   const { t } = useTranslation()
-  const demoLocked = useDemoAccountLock()
   const {
     user,
     demoMode,
@@ -82,7 +80,7 @@ export default function MSettingsAccount() {
   return (
     <>
       {/* The shared demo account: everything here is shown, nothing can be changed. */}
-      <DemoLock locked={demoLocked} reason={t('demo.lock.account')}>
+      <AccountDemoLock>
       {/* ── Profile ─────────────────────────────────────────────── */}
       <MSetCard title={t('settings.account')} icon={User}>
         <div className="mb-4 flex items-center gap-4">
@@ -293,7 +291,7 @@ export default function MSettingsAccount() {
       </MSetCard>
 
       <MPasskeysCard demoMode={demoMode} />
-      </DemoLock>
+      </AccountDemoLock>
 
       <MConfirmSheet
         open={showDeleteConfirm === 'blocked'}

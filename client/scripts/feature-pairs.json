@@ -665,21 +665,20 @@
       "feature": "Settings / Demo account locks",
       "hooks": ["src/components/Demo/useDemoLock.ts"],
       "desktop": [
-        "src/components/Settings/AccountTab.tsx",
+        "src/components/Settings/AccountDemoLock.tsx",
         "src/components/Settings/DisplaySettingsTab.tsx",
         "src/components/Settings/IntegrationsTab.tsx",
         "src/components/Settings/ai/AiConnectionSection.tsx"
       ],
       "mobile": [
         "src/mobile/screens/settings/MAiConnectionSection.tsx",
-        "src/mobile/screens/settings/MSettingsAccount.tsx",
         "src/mobile/screens/settings/MSettingsGeneral.tsx",
         "src/mobile/screens/settings/MSettingsMcp.tsx"
       ]
     },
     {
       "feature": "Settings / Account",
-      "hooks": ["src/components/Settings/useAccountSettings.ts"],
+      "hooks": ["src/components/Settings/AccountDemoLock.tsx", "src/components/Settings/useAccountSettings.ts"],
       "desktop": ["src/components/Settings/AccountTab.tsx"],
       "mobile": ["src/mobile/screens/settings/MSettingsAccount.tsx"]
     },
