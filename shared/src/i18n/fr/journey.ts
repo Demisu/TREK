@@ -294,9 +294,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': 'JOUR {day}',
@@ -396,8 +394,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -409,10 +405,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'Glisse ta photo\nici',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -438,17 +431,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': 'Décoration',
   'journey.studio.shapeGroup.banners': 'Bannières',
   'journey.studio.summary': 'Résumé',
-  'journey.studio.tripSummary': 'Résumé du voyage',
-  'journey.studio.statsRow': 'Une ligne',
-  'journey.studio.statsFull': 'Tout',
   'journey.studio.routeMap': 'Carte de l’itinéraire',
   'journey.studio.mapStyle.minimal': 'Minimal',
   'journey.studio.mapStyle.outline': 'Contour',
   'journey.studio.mapStyle.paper': 'Papier',
   'journey.studio.mapStyle.dark': 'Sombre',
   'journey.studio.countries': 'Pays',
-  'journey.studio.countryList': 'Liste des pays',
-  'journey.studio.countryGrid': 'Grille des pays',
   'journey.studio.noCountries': 'Aucun pays déterminé pour ce voyage pour l’instant.',
   'journey.studio.noRoute': 'Aucune étape avec coordonnées.',
   'journey.studio.marks': 'Repères',
@@ -561,8 +549,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'Format libre',
   'journey.studio.document': 'Document',
   'journey.studio.pageNumbers': 'Numéros de page',
-  'journey.studio.pageNumbersOn': 'Oui',
-  'journey.studio.pageNumbersOff': 'Non',
   'journey.studio.folio.outer': 'Extérieur',
   'journey.studio.folio.inner': 'Intérieur',
   'journey.studio.folio.centre': 'Centré',
@@ -602,14 +588,12 @@ const journey: TranslationStrings = {
   'journey.studio.pinPhoto': 'Photos',
   'journey.studio.pinPhotoNone': 'Pas encore de photo sur ces étapes, elles sont donc dessinées en points.',
   'journey.studio.roads': 'Routes',
-  'journey.studio.roadsFetch': 'Suivre les routes',
   'journey.studio.roadsFollow': 'Par la route',
   'journey.studio.roadsDirect': 'Direct',
   'journey.studio.recommended': 'recommandé',
   'journey.studio.bleed': 'Fond perdu',
   'journey.studio.safeArea': 'Sécurité',
   'journey.studio.roadsAgain': 'Relancer',
-  'journey.studio.roadsClear': 'Effacer',
   'journey.studio.roadsBusy': 'Recherche',
   'journey.studio.roadsHint':
     'Demande à un service d’itinéraires le chemin parcouru sur chaque trajet. Les longs trajets restent tels quels.',
@@ -635,8 +619,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'Dans un cadre',
   'journey.studio.mapClipCountry': 'Détouré',
   'journey.studio.mapClipNeedsCountry': 'Il faut un pays pour détourer',
-  'journey.studio.mapCutVector': 'Détourage',
-  'journey.studio.mapCutTiles': 'Carte détourée',
   'journey.studio.mapZoomAuto': 'Ajuster',
   'journey.studio.saving': 'Enregistrement',
   'journey.studio.saved': 'Enregistré',

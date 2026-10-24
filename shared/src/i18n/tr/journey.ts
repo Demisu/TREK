@@ -292,9 +292,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': '{day}. GÜN',
@@ -395,8 +393,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -408,10 +404,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'Fotoğrafını\nburaya sürükle',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -438,17 +431,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': 'Süsleme',
   'journey.studio.shapeGroup.banners': 'Flamalar',
   'journey.studio.summary': 'Özet',
-  'journey.studio.tripSummary': 'Yolculuk özeti',
-  'journey.studio.statsRow': 'Tek satır',
-  'journey.studio.statsFull': 'Her şey',
   'journey.studio.routeMap': 'Rota haritası',
   'journey.studio.mapStyle.minimal': 'Sade',
   'journey.studio.mapStyle.outline': 'Dış hat',
   'journey.studio.mapStyle.paper': 'Kâğıt',
   'journey.studio.mapStyle.dark': 'Koyu',
   'journey.studio.countries': 'Ülkeler',
-  'journey.studio.countryList': 'Ülke listesi',
-  'journey.studio.countryGrid': 'Ülke ızgarası',
   'journey.studio.noCountries': 'Bu yolculuk için henüz ülke belirlenmedi.',
   'journey.studio.noRoute': 'Henüz koordinatlı durak yok.',
   'journey.studio.marks': 'İşaretler',
@@ -560,8 +548,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'Özel boyut',
   'journey.studio.document': 'Belge',
   'journey.studio.pageNumbers': 'Sayfa numaraları',
-  'journey.studio.pageNumbersOn': 'Açık',
-  'journey.studio.pageNumbersOff': 'Kapalı',
   'journey.studio.folio.outer': 'Dış',
   'journey.studio.folio.inner': 'İç',
   'journey.studio.folio.centre': 'Ortalı',
@@ -587,14 +573,12 @@ const journey: TranslationStrings = {
   'journey.studio.mapSourceRelief': 'Kabartma',
   'journey.studio.routeLook': 'Çizgi',
   'journey.studio.roads': 'Yollar',
-  'journey.studio.roadsFetch': 'Yolları takip et',
   'journey.studio.roadsFollow': 'Yoldan',
   'journey.studio.roadsDirect': 'Kuş uçuşu',
   'journey.studio.recommended': 'önerilen',
   'journey.studio.bleed': 'Taşma',
   'journey.studio.safeArea': 'Güvenli',
   'journey.studio.roadsAgain': 'Yeniden getir',
-  'journey.studio.roadsClear': 'Temizle',
   'journey.studio.roadsBusy': 'Soruluyor',
   'journey.studio.roadsHint':
     'Her etabın hangi yoldan gidildiğini bir rota servisine sorar. Uzun etaplar olduğu gibi kalır.',
@@ -634,8 +618,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'Çerçeveli',
   'journey.studio.mapClipCountry': 'Şekle kesilmiş',
   'journey.studio.mapClipNeedsCountry': 'Kesmek için bir ülke gerekir',
-  'journey.studio.mapCutVector': 'Kesim',
-  'journey.studio.mapCutTiles': 'Kesilmiş harita',
   'journey.studio.mapZoomAuto': 'Sığdır',
   'journey.studio.saving': 'Kaydediliyor',
   'journey.studio.saved': 'Kaydedildi',

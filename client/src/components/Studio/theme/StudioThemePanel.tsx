@@ -14,11 +14,11 @@ import { Check, ImageIcon, RotateCcw } from 'lucide-react';
 import { useMemo } from 'react';
 import '../../../styles/studio-theme.css';
 import { useToast } from '../../shared/Toast';
-import { fontStack } from '../bookFonts';
 import { Choice, Line, Picks, Section, Switch } from '../StudioControls';
 import { StudioFontPicker } from '../StudioFontPicker';
-import { PanelHead } from '../StudioPanelHead';
+import { PanelHead, Shelf } from '../StudioPanelHead';
 import type { StudioT } from '../StudioSidebar';
+import { ThemeSheet } from './ThemeSheet';
 import { useStudioTheme } from './useStudioTheme';
 
 /**
@@ -46,7 +46,6 @@ function ThemeCard({
   t: StudioT;
 }) {
   const display = useMemo(() => bookThemeOf(preset.id).fonts.display, [preset.id]);
-  const { palette } = preset;
   return (
     <button
       type="button"
@@ -55,23 +54,7 @@ function ThemeCard({
       onClick={onPick}
       title={t(preset.descrKey)}
     >
-      <span className="st-theme-sheet" style={{ background: palette.paper }}>
-        <span
-          className="st-theme-word"
-          style={{
-            fontFamily: fontStack(display.font),
-            color: palette.ink,
-            fontStyle: display.italic ? 'italic' : undefined,
-          }}
-        >
-          Aa
-        </span>
-        <span className="st-theme-dots" aria-hidden>
-          {[palette.accent, palette.accent2, palette.accent3].map((c, i) => (
-            <span key={i} style={{ background: c }} />
-          ))}
-        </span>
-      </span>
+      <ThemeSheet palette={preset.palette} display={display} />
       <span className="st-theme-name">
         <span>{t(preset.labelKey)}</span>
         {inUse && (
@@ -165,26 +148,27 @@ export function StudioThemePanel({ t }: { t: StudioT }) {
       <div className="st-panel-scroll st-theme">
         <p className="st-hint">{t('studio.theme.intro')}</p>
 
-        <div className="st-section-label">{t('studio.theme.themes')}</div>
-        <div className="st-theme-grid">
-          {BOOK_THEME_PRESETS.map((preset) => (
-            <ThemeCard
-              key={preset.id}
-              preset={preset}
-              on={draft.id === preset.id}
-              inUse={theme.current?.id === preset.id}
-              onPick={() => theme.pick(preset.id)}
-              t={t}
-            />
-          ))}
-        </div>
+        <Shelf label={t('studio.theme.themes')}>
+          <div className="st-theme-grid">
+            {BOOK_THEME_PRESETS.map((preset) => (
+              <ThemeCard
+                key={preset.id}
+                preset={preset}
+                on={draft.id === preset.id}
+                inUse={theme.current?.id === preset.id}
+                onPick={() => theme.pick(preset.id)}
+                t={t}
+              />
+            ))}
+          </div>
 
-        {theme.edited && (
-          <button type="button" className="st-theme-reset" onClick={theme.reset}>
-            <RotateCcw size={13} />
-            {t('studio.theme.reset')}
-          </button>
-        )}
+          {theme.edited && (
+            <button type="button" className="st-theme-reset" onClick={theme.reset}>
+              <RotateCcw size={13} />
+              {t('studio.theme.reset')}
+            </button>
+          )}
+        </Shelf>
 
         <Section label={t('studio.theme.palette')}>
           <div className="st-theme-palette">

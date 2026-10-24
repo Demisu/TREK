@@ -294,9 +294,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': '{day}. NAP',
@@ -395,8 +393,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -408,10 +404,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'Húzd ide\na fotódat',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -437,17 +430,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': 'Dísz',
   'journey.studio.shapeGroup.banners': 'Szalagok',
   'journey.studio.summary': 'Összegzés',
-  'journey.studio.tripSummary': 'Utazás összegzése',
-  'journey.studio.statsRow': 'Egy sor',
-  'journey.studio.statsFull': 'Minden',
   'journey.studio.routeMap': 'Útvonaltérkép',
   'journey.studio.mapStyle.minimal': 'Minimál',
   'journey.studio.mapStyle.outline': 'Körvonal',
   'journey.studio.mapStyle.paper': 'Papír',
   'journey.studio.mapStyle.dark': 'Sötét',
   'journey.studio.countries': 'Országok',
-  'journey.studio.countryList': 'Országlista',
-  'journey.studio.countryGrid': 'Országrács',
   'journey.studio.noCountries': 'Ehhez az utazáshoz még nem határoztunk meg országokat.',
   'journey.studio.noRoute': 'Még nincs koordinátás megálló.',
   'journey.studio.marks': 'Jelek',
@@ -559,8 +547,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'Egyéni méret',
   'journey.studio.document': 'Dokumentum',
   'journey.studio.pageNumbers': 'Oldalszámok',
-  'journey.studio.pageNumbersOn': 'Be',
-  'journey.studio.pageNumbersOff': 'Ki',
   'journey.studio.folio.outer': 'Külső',
   'journey.studio.folio.inner': 'Belső',
   'journey.studio.folio.centre': 'Középre',
@@ -586,14 +572,12 @@ const journey: TranslationStrings = {
   'journey.studio.mapSourceRelief': 'Domborzat',
   'journey.studio.routeLook': 'A vonal',
   'journey.studio.roads': 'Utak',
-  'journey.studio.roadsFetch': 'Kövesse az utakat',
   'journey.studio.roadsFollow': 'Utakon',
   'journey.studio.roadsDirect': 'Légvonalban',
   'journey.studio.recommended': 'ajánlott',
   'journey.studio.bleed': 'Kifutó',
   'journey.studio.safeArea': 'Védőzóna',
   'journey.studio.roadsAgain': 'Kérje le újra',
-  'journey.studio.roadsClear': 'Törlés',
   'journey.studio.roadsBusy': 'Lekérés',
   'journey.studio.roadsHint':
     'Megkérdezi egy útvonaltervező szolgáltatástól, merre vezet az egyes szakaszok útja. A hosszú szakaszok változatlanok maradnak.',
@@ -633,8 +617,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'Keretben',
   'journey.studio.mapClipCountry': 'Alakra vágva',
   'journey.studio.mapClipNeedsCountry': 'A vágáshoz ország kell',
-  'journey.studio.mapCutVector': 'Kivágás',
-  'journey.studio.mapCutTiles': 'Kivágott térkép',
   'journey.studio.mapZoomAuto': 'Igazítás',
   'journey.studio.saving': 'Mentés',
   'journey.studio.saved': 'Mentve',

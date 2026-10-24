@@ -1,6 +1,8 @@
 import { type BookElement, type BookPageSetup, bookElementId, bookNewLine } from '@trek/shared';
+import type { ReactNode } from 'react';
 
 import { LinePaths } from './LineView';
+import { Shelf } from './StudioPanelHead';
 import { DIVIDER_PRESETS, LINE_PRESETS, type LinePreset as Preset, presetPoints } from './linePresets';
 import { lineGeometry } from './lineRender';
 
@@ -39,11 +41,14 @@ export function StudioLineShelf({
   single,
   onAdd,
   t,
+  lead,
 }: {
   page: BookPageSetup;
   single: boolean;
   onAdd: (el: BookElement) => void;
   t: (k: string) => string;
+  /** A tile before the drawn lines: the Elements panel puts its plain rule there. */
+  lead?: ReactNode;
 }) {
   const add = (preset: Preset) => {
     const origin = single ? 0 : page.pageWidth;
@@ -52,8 +57,9 @@ export function StudioLineShelf({
     const points = presetPoints(preset, x, page.pageHeight / 2, w);
     onAdd(bookNewLine({ ...preset.look, points }, { id: bookElementId('l'), frame: null, inner: !single, page }));
   };
-  const tiles = (list: readonly Preset[]) => (
+  const tiles = (list: readonly Preset[], first?: ReactNode) => (
     <div className="st-shape-grid">
+      {first}
       {list.map((p) => {
         const label = t(`journey.studio.linePreset.${p.id}`);
         return (
@@ -73,14 +79,8 @@ export function StudioLineShelf({
   );
   return (
     <>
-      <div className="st-section">
-        <div className="st-section-label">{t('journey.studio.drawnLines')}</div>
-        {tiles(LINE_PRESETS)}
-      </div>
-      <div className="st-section">
-        <div className="st-section-label">{t('journey.studio.dividers')}</div>
-        {tiles(DIVIDER_PRESETS)}
-      </div>
+      <Shelf label={t('journey.studio.drawnLines')}>{tiles(LINE_PRESETS, lead)}</Shelf>
+      <Shelf label={t('journey.studio.dividers')}>{tiles(DIVIDER_PRESETS)}</Shelf>
     </>
   );
 }

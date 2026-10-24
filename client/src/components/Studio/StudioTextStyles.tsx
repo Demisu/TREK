@@ -7,6 +7,7 @@ import { useElementSize } from '../../hooks/useElementSize';
 import { useStudioStore } from '../../store/studioStore';
 import '../../styles/studio-text.css';
 import { ElementView } from './SpreadView';
+import { Shelf } from './StudioPanelHead';
 import { firstFillPhoto } from './textEffects';
 import {
   SHELF_GROUPS,
@@ -109,8 +110,7 @@ export function StudioTextStyles({
   return (
     <>
       {SHELF_GROUPS.map((group) => (
-        <div className="st-section" key={group.id}>
-          <div className="st-section-label">{t(`journey.studio.lockupGroup.${group.id}`)}</div>
+        <Shelf key={group.id} label={t(`journey.studio.lockupGroup.${group.id}`)}>
           <div className="st-lockups">
             {shelfLockups(group.lockups).map((lockup) => (
               <LockupTile
@@ -123,7 +123,7 @@ export function StudioTextStyles({
               />
             ))}
           </div>
-        </div>
+        </Shelf>
       ))}
       <p className="st-hint st-fx-hint">{t('journey.studio.textStylesHint')}</p>
     </>

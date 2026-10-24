@@ -123,9 +123,18 @@ function section(container: HTMLElement, label: string): HTMLElement {
   return found
 }
 
-/** Some sections start folded, so a control inside one has to be uncovered. */
+/** Whether a section is open, read off its head. */
+function isOpen(container: HTMLElement, label: string): boolean {
+  return section(container, label).querySelector('.st-section-head')?.getAttribute('aria-expanded') === 'true'
+}
+
+/**
+ * Some sections start folded, so a control inside one has to be uncovered. A
+ * folded section opens by itself on an element that already uses it, and is
+ * left open then.
+ */
 function open(container: HTMLElement, label: string) {
-  fireEvent.click(section(container, label).querySelector('.st-section-head')!)
+  if (!isOpen(container, label)) fireEvent.click(section(container, label).querySelector('.st-section-head')!)
 }
 
 /** The control side of one labelled line inside one section. */
@@ -223,6 +232,17 @@ describe('the route map', () => {
 
     fireEvent.click(chip)
     expect(saved().clip).toBe('rect')
+  })
+
+  it('folds the zoom of a map that fits its route, and opens it on one held at a zoom', () => {
+    const tiles = { source: 'tiles', tileUrl: 'https://tile.example/{z}/{x}/{y}.png' }
+    const fitted = show(mapEl(tiles))
+    expect(isOpen(fitted.container, 'journey.studio.mapZoom')).toBe(false)
+    fitted.unmount()
+
+    const held = show(mapEl({ ...tiles, zoom: 11 }))
+    expect(isOpen(held.container, 'journey.studio.mapZoom')).toBe(true)
+    expect(screen.getByRole('radio', { name: '11' })).toHaveAttribute('aria-checked', 'true')
   })
 
   it('writes a zoom from the folded group, and hands it back automatically', () => {
@@ -530,6 +550,18 @@ describe('the tail all five share', () => {
 
     expect(saved().font).toBe('bebas')
     expect(saved().weight).toBe(400)
+  })
+
+  it('folds the type of an element set as placed, and opens it on one set otherwise', () => {
+    const plain = show(statsEl())
+    expect(isOpen(plain.container, 'journey.studio.typography')).toBe(false)
+    plain.unmount()
+
+    for (const over of [{ font: 'serif' }, { weight: 500 }, { textScale: 1.5 }]) {
+      const view = show(statsEl(over))
+      expect(isOpen(view.container, 'journey.studio.typography')).toBe(true)
+      view.unmount()
+    }
   })
 
   it('keeps a weight the new family does have', () => {

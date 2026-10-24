@@ -12,15 +12,17 @@ import { bookTextIsDrawn } from '@trek/shared';
 
 import '../../styles/studio-text.css';
 import { photoSrc } from './bookRender';
+import { FocalPad } from './inspector/FocalPad';
+import { textEffectsInUse, textPlacementInUse } from './inspector/inspectorModel';
 import { Choice, Line, NumField, Section, Switch } from './StudioControls';
-import { FocalPad } from './StudioInspector';
 import { Swatches } from './StudioSwatches';
 import { defaultBand, defaultOutline, defaultShadow, firstFillPhoto, isHollow } from './textEffects';
 
 /**
  * The text inspector's effects: how the letters are cased and where the lines
  * sit, whether the text shrinks to its frame, and the outline, hard shadow,
- * marker band, curve and fill (book-text-effects.schema.ts in shared).
+ * marker band, curve and fill (book-text-effects.schema.ts in shared). Both
+ * groups start folded and open on a text that already uses them.
  *
  * Every effect is a switch that arrives already looking right: an outline in
  * the colour that stands out from the letters at a twentieth of their height,
@@ -49,7 +51,7 @@ const FILL_PHOTOS = 12;
 
 function CaseAndPlace({ el, set, t }: Pick<Props, 'el' | 'set' | 't'>) {
   return (
-    <Section label={t('journey.studio.fx.placement')}>
+    <Section label={t('journey.studio.fx.placement')} defaultOpen={textPlacementInUse(el)}>
       <Line label={t('journey.studio.fx.case')}>
         <Choice
           value={el.transform ?? 'none'}
@@ -352,11 +354,10 @@ function FillControls({ el, set, live, photos, spread, t }: Props) {
 
 export function StudioTextEffects(props: Props) {
   const { el, set, t } = props;
-  const any = !!(el.outline || el.shadow || el.highlight || el.curve || el.fillPaint);
   return (
     <>
       <CaseAndPlace el={el} set={set} t={t} />
-      <Section label={t('journey.studio.fx.effects')} defaultOpen={any}>
+      <Section label={t('journey.studio.fx.effects')} defaultOpen={textEffectsInUse(el)}>
         <OutlineControls el={el} set={set} t={t} />
         <ShadowControls el={el} set={set} t={t} />
         <BandControls el={el} set={set} t={t} />

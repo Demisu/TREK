@@ -8,7 +8,7 @@ import {
   bookTravelCountries, bookTravelMap, bookTravelSize, bookTravelStats,
 } from '@trek/shared'
 import { useStudioStore } from '../../store/studioStore'
-import { PanelHead } from './StudioPanelHead'
+import { PanelHead, Shelf } from './StudioPanelHead'
 import { studioTravelContext } from './studioTravelContext'
 import { Section } from './StudioControls'
 import { TravelPreview } from './TravelPreview'
@@ -85,10 +85,10 @@ function Card({ label, onClick, children, recommended = false, title }: {
   /**
    * Marked as the one to reach for, with a ring rather than with words.
    *
-   * The label sits in a grid cell about eighty pixels wide, where "Satellite ·
-   * recommended" is two lines of ellipsis. A ring says the same thing in no
-   * space at all, and the tooltip carries the word for anyone who wonders why
-   * this card looks different.
+   * The label sits in a grid cell about eighty pixels wide, where "Satellite,
+   * recommended" would take both of its lines. A ring says the same thing in
+   * no space at all, and the tooltip carries the word for anyone who wonders
+   * why this card looks different.
    */
   recommended?: boolean
   title?: string
@@ -98,7 +98,7 @@ function Card({ label, onClick, children, recommended = false, title }: {
     <button type="button"
       className={`st-travel-card ${recommended ? 'is-recommended' : ''}`}
       onClick={onClick}
-      title={title ? `${label} — ${title}` : label}
+      title={title ? `${label}: ${title}` : label}
     >
       {children}
       <span className="st-travel-card-label">{label}</span>
@@ -343,8 +343,7 @@ export function StudioTravelPanel({
     <>
       <PanelHead label={t('journey.studio.travel')} />
       <div className="st-panel-scroll">
-        <div className="st-section">
-          <div className="st-section-label">{t('journey.studio.singleFigures')}</div>
+        <Shelf label={t('journey.studio.singleFigures')}>
           <div className="st-travel-grid">
             {BOOK_METRICS.map(metric => {
               const el = singleEl(metric)
@@ -355,7 +354,7 @@ export function StudioTravelPanel({
               )
             })}
           </div>
-        </div>
+        </Shelf>
 
         {/*
           The switch is here, beside the maps and the figures it changes, and
@@ -380,7 +379,7 @@ export function StudioTravelPanel({
             defaultOpen={false}
             badge={`${stops.length - excludedCount}/${stops.length}`}
           >
-            <ul className="st-stops">
+            <ul className="st-route-stops">
               {stops.map((stop, i) => {
                 const entryId = stop.entryId
                 const on = !stop.excluded
@@ -397,14 +396,14 @@ export function StudioTravelPanel({
                  */
                 const mark = on ? <Check size={13} strokeWidth={2.4} /> : <RouteOff size={13} strokeWidth={2.2} />
                 return (
-                  <li key={entryId ?? `place-${i}`} className={`st-stop ${on ? '' : 'is-off'}`}>
+                  <li key={entryId ?? `place-${i}`} className={`st-route-stop ${on ? '' : 'is-off'}`}>
                     {/*
                       One line: the day, then the name, then the switch. The
                       name and the day were stacked, which doubled the height
                       of a list whose whole job is being read down.
                     */}
                     {stop.date && <span className="st-badge">{stopDay(stop.date)}</span>}
-                    <span className="st-stop-label">{stop.label || t('journey.studio.untitled')}</span>
+                    <span className="st-route-stop-label">{stop.label || t('journey.studio.untitled')}</span>
                     {/*
                       The country only where there is more than one to tell
                       apart. On a journey inside one country it is the same
@@ -434,8 +433,7 @@ export function StudioTravelPanel({
           </Section>
         )}
 
-        <div className="st-section">
-          <div className="st-section-label">{t('journey.studio.routeMap')}</div>
+        <Shelf label={t('journey.studio.routeMap')}>
           {stats.points.length ? (
             <>
               <div className="st-travel-grid">
@@ -497,8 +495,8 @@ export function StudioTravelPanel({
                 trip nobody wrote about would place an empty frame.
               */}
               {tripsWithRoute.length > 1 && (
-                <div style={{ marginTop: 12 }}>
-                  <div className="st-section-label">{t('journey.studio.mapPerTrip')}</div>
+                <div className="st-shelf-sub">
+                  <h4 className="st-section-label">{t('journey.studio.mapPerTrip')}</h4>
                   <div className="st-travel-grid">
                     {tripsWithRoute.map(trip => {
                       const el = mapEl('minimal', { tripId: trip.id })
@@ -519,10 +517,9 @@ export function StudioTravelPanel({
           ) : (
             <p className="st-hint">{t('journey.studio.noRoute')}</p>
           )}
-        </div>
+        </Shelf>
 
-        <div className="st-section">
-          <div className="st-section-label">{t('journey.studio.countries')}</div>
+        <Shelf label={t('journey.studio.countries')}>
           {stats.countries.length ? (
             <>
               {/*
@@ -565,10 +562,9 @@ export function StudioTravelPanel({
           ) : (
             <p className="st-hint">{t('journey.studio.noCountries')}</p>
           )}
-        </div>
+        </Shelf>
 
-        <div className="st-section">
-          <div className="st-section-label">{t('journey.studio.marks')}</div>
+        <Shelf label={t('journey.studio.marks')}>
           <div className="st-travel-grid">
             {marks.map(({ el, label }) => (
               <Card key={el.id} label={label} onClick={() => place(el)}>
@@ -576,7 +572,7 @@ export function StudioTravelPanel({
               </Card>
             ))}
           </div>
-        </div>
+        </Shelf>
       </div>
     </>
   )

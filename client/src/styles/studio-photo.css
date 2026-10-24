@@ -6,29 +6,40 @@
  */
 
 /* ----------------- a slider with its value ----------------- */
+/* The name and the value on one line, the track under them across the whole
+   width: a name has the line to itself ("Насыщенность", "Átlátszatlanság")
+   instead of a column it would have to fit, and the tracks of a group line up. */
 .trek-dash .st-slider {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) 40px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'label value'
+    'track track';
   align-items: center;
-  gap: 8px;
-  min-height: 28px;
+  gap: 2px 8px;
 }
 .trek-dash .st-slider + .st-slider {
-  margin-top: 4px;
+  margin-top: 8px;
 }
 .trek-dash .st-slider-label {
-  font-size: 11px;
+  grid-area: label;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  font-size: calc(11px * var(--fs-scale-caption, 1));
   color: var(--ink-3);
   line-height: 1.25;
 }
 .trek-dash .st-slider input[type='range'] {
+  grid-area: track;
   width: 100%;
   min-width: 0;
   accent-color: var(--accent);
   cursor: pointer;
 }
 .trek-dash .st-slider-value {
-  font-size: 11px;
+  grid-area: value;
+  font-size: calc(11px * var(--fs-scale-caption, 1));
   color: var(--ink-2);
   text-align: end;
   font-variant-numeric: tabular-nums;

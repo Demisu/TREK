@@ -285,9 +285,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': '{day}日目',
@@ -384,8 +382,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -397,10 +393,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': '写真をここに\nドラッグ',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -427,17 +420,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': '装飾',
   'journey.studio.shapeGroup.banners': 'バナー',
   'journey.studio.summary': 'サマリー',
-  'journey.studio.tripSummary': '旅のサマリー',
-  'journey.studio.statsRow': '1行',
-  'journey.studio.statsFull': 'すべて',
   'journey.studio.routeMap': 'ルートマップ',
   'journey.studio.mapStyle.minimal': 'ミニマル',
   'journey.studio.mapStyle.outline': 'アウトライン',
   'journey.studio.mapStyle.paper': '紙',
   'journey.studio.mapStyle.dark': 'ダーク',
   'journey.studio.countries': '国',
-  'journey.studio.countryList': '国リスト',
-  'journey.studio.countryGrid': '国グリッド',
   'journey.studio.noCountries': 'この旅の国はまだ判定されていません。',
   'journey.studio.noRoute': '座標のある地点がまだありません。',
   'journey.studio.marks': 'マーク',
@@ -550,8 +538,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'カスタムサイズ',
   'journey.studio.document': 'ドキュメント',
   'journey.studio.pageNumbers': 'ノンブル',
-  'journey.studio.pageNumbersOn': 'オン',
-  'journey.studio.pageNumbersOff': 'オフ',
   'journey.studio.folio.outer': '外側',
   'journey.studio.folio.inner': '内側',
   'journey.studio.folio.centre': '中央',
@@ -591,14 +577,12 @@ const journey: TranslationStrings = {
   'journey.studio.pinPhoto': '写真',
   'journey.studio.pinPhotoNone': 'これらの立ち寄り先にはまだ写真がないため、点で表示します。',
   'journey.studio.roads': '道路',
-  'journey.studio.roadsFetch': '道路に沿わせる',
   'journey.studio.roadsFollow': '道なり',
   'journey.studio.roadsDirect': '直行',
   'journey.studio.recommended': '推奨',
   'journey.studio.bleed': '塗り足し',
   'journey.studio.safeArea': '安全領域',
   'journey.studio.roadsAgain': '取得し直す',
-  'journey.studio.roadsClear': '破棄',
   'journey.studio.roadsBusy': '取得中',
   'journey.studio.roadsHint': 'ルート検索サービスに各区間の走行経路を問い合わせます。長い区間はそのままです。',
   'journey.studio.roadsHave': '道路はこの本に保存されるので、オフラインでも同じ線で印刷されます。',
@@ -623,8 +607,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': '枠あり',
   'journey.studio.mapClipCountry': '形に切り抜く',
   'journey.studio.mapClipNeedsCountry': '切り抜くには国が必要です',
-  'journey.studio.mapCutVector': '切り抜き',
-  'journey.studio.mapCutTiles': '切り抜き地図',
   'journey.studio.mapZoomAuto': '自動',
   'journey.studio.saving': '保存中',
   'journey.studio.saved': '保存しました',

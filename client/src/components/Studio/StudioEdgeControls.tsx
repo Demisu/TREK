@@ -7,9 +7,10 @@ import {
   bookShapeTakesEdge,
 } from '@trek/shared';
 
-import { NumField, Section } from './StudioControls';
+import { edgeInUse } from './inspector/inspectorModel';
 import { DEFAULT_EDGE_SIZE } from './shapeOutline';
 import { edgedPath } from './shapes-edges';
+import { NumField, Section } from './StudioControls';
 
 /**
  * The edge of a shape or of a photo's cut: a row of tiles, each the edge drawn
@@ -50,12 +51,8 @@ export function EdgeSection({
   // A heart or a star keeps its drawn line, so there is nothing to offer unless an edge is already set on one.
   if (!takes && current === 'straight') return null;
   return (
-    <Section label={t('journey.studio.edgeStyle')} defaultOpen={current !== 'straight'}>
-      {!takes && (
-        <p className="st-hint" style={{ paddingBottom: 8 }}>
-          {t('journey.studio.edgeUnavailable')}
-        </p>
-      )}
+    <Section label={t('journey.studio.edgeStyle')} defaultOpen={edgeInUse(edge)}>
+      {!takes && <p className="st-hint st-hint-before">{t('journey.studio.edgeUnavailable')}</p>}
       <div className="st-mini-shapes">
         {BOOK_EDGES.map((e) => (
           <button
@@ -72,7 +69,7 @@ export function EdgeSection({
         ))}
       </div>
       {takes && current !== 'straight' && (
-        <div style={{ marginTop: 10 }}>
+        <div className="st-section-gap">
           <NumField
             label={t('journey.studio.edgeSize')}
             value={edgeSize ?? DEFAULT_EDGE_SIZE}

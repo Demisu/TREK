@@ -283,9 +283,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': '{day}일차',
@@ -382,8 +380,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -395,10 +391,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': '사진을 여기로\n끌어다 놓기',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -424,17 +417,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': '장식',
   'journey.studio.shapeGroup.banners': '배너',
   'journey.studio.summary': '요약',
-  'journey.studio.tripSummary': '여행 요약',
-  'journey.studio.statsRow': '한 줄',
-  'journey.studio.statsFull': '전체',
   'journey.studio.routeMap': '경로 지도',
   'journey.studio.mapStyle.minimal': '미니멀',
   'journey.studio.mapStyle.outline': '윤곽선',
   'journey.studio.mapStyle.paper': '종이',
   'journey.studio.mapStyle.dark': '다크',
   'journey.studio.countries': '국가',
-  'journey.studio.countryList': '국가 목록',
-  'journey.studio.countryGrid': '국가 그리드',
   'journey.studio.noCountries': '이 여정의 국가가 아직 확인되지 않았습니다.',
   'journey.studio.noRoute': '좌표가 있는 지점이 아직 없습니다.',
   'journey.studio.marks': '표시',
@@ -547,8 +535,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': '사용자 지정 크기',
   'journey.studio.document': '문서',
   'journey.studio.pageNumbers': '쪽 번호',
-  'journey.studio.pageNumbersOn': '켜기',
-  'journey.studio.pageNumbersOff': '끄기',
   'journey.studio.folio.outer': '바깥쪽',
   'journey.studio.folio.inner': '안쪽',
   'journey.studio.folio.centre': '가운데',
@@ -588,14 +574,12 @@ const journey: TranslationStrings = {
   'journey.studio.pinPhoto': '사진',
   'journey.studio.pinPhotoNone': '이 경유지에는 아직 사진이 없어서 점으로 표시합니다.',
   'journey.studio.roads': '도로',
-  'journey.studio.roadsFetch': '도로를 따라가기',
   'journey.studio.roadsFollow': '길 따라',
   'journey.studio.roadsDirect': '바로 잇기',
   'journey.studio.recommended': '권장',
   'journey.studio.bleed': '도련',
   'journey.studio.safeArea': '안전 영역',
   'journey.studio.roadsAgain': '다시 가져오기',
-  'journey.studio.roadsClear': '지우기',
   'journey.studio.roadsBusy': '요청 중',
   'journey.studio.roadsHint': '경로 안내 서비스에 각 구간을 실제로 달린 길을 요청합니다. 긴 구간은 그대로 둡니다.',
   'journey.studio.roadsHave': '도로는 이 책에 저장되므로 오프라인에서도 같은 선으로 인쇄됩니다.',
@@ -620,8 +604,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': '사각형',
   'journey.studio.mapClipCountry': '모양대로 자르기',
   'journey.studio.mapClipNeedsCountry': '자르려면 국가가 필요합니다',
-  'journey.studio.mapCutVector': '잘라낸 지도',
-  'journey.studio.mapCutTiles': '잘라낸 지도',
   'journey.studio.mapZoomAuto': '자동',
   'journey.studio.saving': '저장 중',
   'journey.studio.saved': '저장됨',

@@ -11,7 +11,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerSlot': '顏色 {index}',
   'journey.studio.stickerResetColours': '還原顏色',
   'journey.studio.stickerMissing': '這個版本的 TREK 素材庫中沒有這張貼紙。',
-  'journey.studio.stickerPlacement': '擺放',
   'journey.studio.stickerFlip': '水平翻轉',
   'journey.studio.stickerTurnLeft': '向左旋轉',
   'journey.studio.stickerTurnRight': '向右旋轉',

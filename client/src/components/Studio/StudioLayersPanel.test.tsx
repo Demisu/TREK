@@ -175,7 +175,8 @@ describe('the align section', () => {
     store().select(['a']);
     render(<StudioArrangeSection spreadIndex={0} t={t} />);
     // Folded for one element: lining up is not what one element usually needs next.
-    fireEvent.click(screen.getByText('journey.studio.layers.align'));
+    expect(screen.queryByLabelText('journey.studio.layers.alignRight')).toBeNull();
+    fireEvent.click(screen.getByText('journey.studio.arrange'));
     expect(screen.getByRole('radio', { name: 'journey.studio.layers.toSelection' })).toBeDisabled();
     fireEvent.click(screen.getByLabelText('journey.studio.layers.alignRight'));
     expect(el('a').frame.x).toBe(190);

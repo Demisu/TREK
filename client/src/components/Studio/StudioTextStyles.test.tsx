@@ -75,9 +75,11 @@ describe('the Text styles shelf', () => {
 
   it('opens the Elements panel on the type tab, the plain styles above the lockups', () => {
     render(<StudioElementsPanel page={page} t={t} source={source} />);
+    expect(screen.getByRole('tab', { name: 'journey.studio.text' }).getAttribute('aria-selected')).toBe('true');
     expect(screen.getByRole('button', { name: 'journey.studio.styleTitle' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'journey.studio.quoteMark' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'journey.studio.lockup.postmark' })).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'journey.studio.shapes' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'journey.studio.shapes' }));
     expect(screen.queryByRole('button', { name: 'journey.studio.lockup.postmark' })).toBeNull();
   });
 });

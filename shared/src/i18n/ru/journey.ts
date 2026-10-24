@@ -307,9 +307,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': 'ДЕНЬ {day}',
@@ -413,8 +411,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -426,10 +422,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'Перетащите фото\nсюда',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -455,17 +448,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': 'Украшения',
   'journey.studio.shapeGroup.banners': 'Ленты',
   'journey.studio.summary': 'Сводка',
-  'journey.studio.tripSummary': 'Сводка поездки',
-  'journey.studio.statsRow': 'Одна строка',
-  'journey.studio.statsFull': 'Всё',
   'journey.studio.routeMap': 'Карта маршрута',
   'journey.studio.mapStyle.minimal': 'Минимальная',
   'journey.studio.mapStyle.outline': 'Контур',
   'journey.studio.mapStyle.paper': 'Бумага',
   'journey.studio.mapStyle.dark': 'Тёмная',
   'journey.studio.countries': 'Страны',
-  'journey.studio.countryList': 'Список стран',
-  'journey.studio.countryGrid': 'Сетка стран',
   'journey.studio.noCountries': 'Для этого путешествия страны пока не определены.',
   'journey.studio.noRoute': 'Пока нет точек с координатами.',
   'journey.studio.marks': 'Метки',
@@ -577,8 +565,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'Свой формат',
   'journey.studio.document': 'Документ',
   'journey.studio.pageNumbers': 'Номера страниц',
-  'journey.studio.pageNumbersOn': 'Вкл.',
-  'journey.studio.pageNumbersOff': 'Выкл.',
   'journey.studio.folio.outer': 'Снаружи',
   'journey.studio.folio.inner': 'Внутри',
   'journey.studio.folio.centre': 'По центру',
@@ -618,14 +604,12 @@ const journey: TranslationStrings = {
   'journey.studio.pinPhoto': 'Фото',
   'journey.studio.pinPhotoNone': 'На этих остановках пока нет фотографий, поэтому они показаны точками.',
   'journey.studio.roads': 'Дороги',
-  'journey.studio.roadsFetch': 'Проложить по дорогам',
   'journey.studio.roadsFollow': 'По дорогам',
   'journey.studio.roadsDirect': 'Напрямую',
   'journey.studio.recommended': 'рекомендуется',
   'journey.studio.bleed': 'Вылет',
   'journey.studio.safeArea': 'Безоп. зона',
   'journey.studio.roadsAgain': 'Проложить заново',
-  'journey.studio.roadsClear': 'Сбросить',
   'journey.studio.roadsBusy': 'Запрос',
   'journey.studio.roadsHint':
     'Спросить у сервиса маршрутов, по каким дорогам пройден каждый участок. Длинные участки остаются как есть.',
@@ -651,8 +635,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'В рамке',
   'journey.studio.mapClipCountry': 'По контуру',
   'journey.studio.mapClipNeedsCountry': 'Для обрезки нужна страна',
-  'journey.studio.mapCutVector': 'Контур',
-  'journey.studio.mapCutTiles': 'Карта по контуру',
   'journey.studio.mapZoomAuto': 'По содержимому',
   'journey.studio.saving': 'Сохранение',
   'journey.studio.saved': 'Сохранено',

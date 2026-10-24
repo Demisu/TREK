@@ -53,25 +53,6 @@
 
 /* ----------------- inspector: align and arrange ----------------- */
 
-.trek-dash .st-row-sep {
-  width: 1px;
-  height: 18px;
-  align-self: center;
-  margin: 0 3px;
-  background: var(--line-2);
-}
-.trek-dash .st-arrange-to {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-}
-.trek-dash .st-arrange-to .st-line-label {
-  width: auto;
-}
-.trek-dash .st-arrange-acts {
-  margin-top: 10px;
-}
 .trek-dash .st-section-body > .st-arrange-hint {
   padding: 8px 0 0;
 }

@@ -16,6 +16,7 @@ import {
 import { FlipHorizontal2, Printer, RotateCcw, TriangleAlert } from 'lucide-react';
 
 import '../../../styles/studio-photo.css';
+import { photoEdgesInUse } from '../inspector/inspectorModel';
 import { Line, NumField, Section, Switch } from '../StudioControls';
 import { Swatches } from '../StudioSwatches';
 import { StudioSlider } from './StudioSlider';
@@ -264,7 +265,7 @@ export function PhotoLookSections(props: RowProps) {
   const raster = t('journey.studio.photo.rasterHint');
   return (
     <>
-      <Section label={t('journey.studio.photo.edges')} defaultOpen={!!(look.border || look.shadow || look.cutout)}>
+      <Section label={t('journey.studio.photo.edges')} defaultOpen={photoEdgesInUse(el)}>
         <EdgeRow
           label={t('journey.studio.photo.border')}
           value={look.border}

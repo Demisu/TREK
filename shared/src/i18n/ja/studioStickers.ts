@@ -12,7 +12,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerSlot': '色 {index}',
   'journey.studio.stickerResetColours': '元の色に戻す',
   'journey.studio.stickerMissing': 'このステッカーは、このバージョンの TREK のライブラリにありません。',
-  'journey.studio.stickerPlacement': '配置',
   'journey.studio.stickerFlip': '左右反転',
   'journey.studio.stickerTurnLeft': '左に回転',
   'journey.studio.stickerTurnRight': '右に回転',

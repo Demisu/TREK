@@ -288,9 +288,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': 'NGÀY {day}',
@@ -387,8 +385,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -400,10 +396,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'Kéo ảnh của bạn\nvào đây',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -429,17 +422,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': 'Trang trí',
   'journey.studio.shapeGroup.banners': 'Băng rôn',
   'journey.studio.summary': 'Tóm tắt',
-  'journey.studio.tripSummary': 'Tóm tắt chuyến đi',
-  'journey.studio.statsRow': 'Một hàng',
-  'journey.studio.statsFull': 'Tất cả',
   'journey.studio.routeMap': 'Bản đồ lộ trình',
   'journey.studio.mapStyle.minimal': 'Tối giản',
   'journey.studio.mapStyle.outline': 'Đường viền',
   'journey.studio.mapStyle.paper': 'Giấy',
   'journey.studio.mapStyle.dark': 'Tối',
   'journey.studio.countries': 'Quốc gia',
-  'journey.studio.countryList': 'Danh sách quốc gia',
-  'journey.studio.countryGrid': 'Lưới quốc gia',
   'journey.studio.noCountries': 'Chưa xác định được quốc gia nào cho hành trình này.',
   'journey.studio.noRoute': 'Chưa có điểm dừng nào có tọa độ.',
   'journey.studio.marks': 'Dấu',
@@ -551,8 +539,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'Kích thước riêng',
   'journey.studio.document': 'Tài liệu',
   'journey.studio.pageNumbers': 'Số trang',
-  'journey.studio.pageNumbersOn': 'Bật',
-  'journey.studio.pageNumbersOff': 'Tắt',
   'journey.studio.folio.outer': 'Ngoài',
   'journey.studio.folio.inner': 'Trong',
   'journey.studio.folio.centre': 'Giữa',
@@ -592,14 +578,12 @@ const journey: TranslationStrings = {
   'journey.studio.pinPhoto': 'Ảnh',
   'journey.studio.pinPhotoNone': 'Các điểm dừng này chưa có ảnh nào nên được vẽ thành chấm tròn.',
   'journey.studio.roads': 'Đường bộ',
-  'journey.studio.roadsFetch': 'Bám theo đường bộ',
   'journey.studio.roadsFollow': 'Theo đường',
   'journey.studio.roadsDirect': 'Đường chim bay',
   'journey.studio.recommended': 'khuyên dùng',
   'journey.studio.bleed': 'Tràn lề',
   'journey.studio.safeArea': 'An toàn',
   'journey.studio.roadsAgain': 'Tải lại',
-  'journey.studio.roadsClear': 'Xóa',
   'journey.studio.roadsBusy': 'Đang hỏi',
   'journey.studio.roadsHint': 'Hỏi dịch vụ chỉ đường xem mỗi chặng đã đi theo lối nào. Chặng dài giữ nguyên.',
   'journey.studio.roadsHave': 'Đường bộ đã lưu trong cuốn sách này nên in ngoại tuyến vẫn ra đúng nét đó.',
@@ -624,8 +608,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'Trong khung',
   'journey.studio.mapClipCountry': 'Cắt theo hình',
   'journey.studio.mapClipNeedsCountry': 'Cần một quốc gia để cắt theo',
-  'journey.studio.mapCutVector': 'Cắt hình',
-  'journey.studio.mapCutTiles': 'Bản đồ cắt hình',
   'journey.studio.mapZoomAuto': 'Vừa khung',
   'journey.studio.saving': 'Đang lưu',
   'journey.studio.saved': 'Đã lưu',

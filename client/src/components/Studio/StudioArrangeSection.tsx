@@ -9,7 +9,12 @@ import {
   AlignStartHorizontal,
   AlignStartVertical,
   AlignVerticalDistributeCenter,
+  ArrowDown,
+  ArrowUp,
+  ChevronsDown,
+  ChevronsUp,
   Group,
+  Layers,
   Paintbrush,
   Pipette,
   Ungroup,
@@ -18,17 +23,32 @@ import {
 import { useState } from 'react';
 
 import { useStudioStore } from '../../store/studioStore';
+import '../../styles/studio-panels.css';
 import { Tooltip } from '../shared/Tooltip';
-import { Choice, Section } from './StudioControls';
+import { Choice, Line, Section } from './StudioControls';
 import { useStudioShortcut } from './studioShortcut';
 
 /**
- * Align, distribute, group and the style clipboard, for whatever is selected.
+ * Arrange: where the selection sits among the other things on the page.
  *
- * The align bar lines a multi-selection up within its own box by default, and
+ * Lining it up and spacing it out, what it lines up against, what lies in
+ * front of what, grouping, and the style clipboard, in one group at the foot
+ * of the inspector. These were two groups, Align and Arrange, one under the
+ * other and both about the selection's place among its neighbours, so the
+ * stacking buttons were a fold away from the alignment they are used with.
+ *
+ * Every line puts its row under its label, across the whole width of the
+ * panel: the six edges and the two spacings are eight buttons, more than fit
+ * beside a label. Each row is two sets, the edges and the spacings, the stack
+ * and the grouping, and a set that no longer fits moves to the next line
+ * whole, so a narrow panel shows two even rows rather than a ragged one.
+ *
+ * The align row lines a multi-selection up within its own box by default, and
  * a single element (or one whole group) against its page, since there is
  * nothing else for it to line up with. Groups move as one box throughout
- * (shared/src/book/book-arrange.ts). Every press is one undo step.
+ * (shared/src/book/book-arrange.ts). The Layers button opens the rail's
+ * Layers panel, the whole stack of the page beside the selection. Every press
+ * is one undo step.
  */
 
 const ALIGN: { edge: BookAlignEdge; icon: LucideIcon; labelKey: string }[] = [
@@ -38,6 +58,13 @@ const ALIGN: { edge: BookAlignEdge; icon: LucideIcon; labelKey: string }[] = [
   { edge: 'top', icon: AlignStartHorizontal, labelKey: 'journey.studio.layers.alignTop' },
   { edge: 'middle', icon: AlignCenterHorizontal, labelKey: 'journey.studio.layers.alignMiddle' },
   { edge: 'bottom', icon: AlignEndHorizontal, labelKey: 'journey.studio.layers.alignBottom' },
+];
+
+const STACK: { to: 'front' | 'up' | 'down' | 'back'; icon: LucideIcon; labelKey: string }[] = [
+  { to: 'front', icon: ChevronsUp, labelKey: 'journey.studio.toFront' },
+  { to: 'up', icon: ArrowUp, labelKey: 'journey.studio.forward' },
+  { to: 'down', icon: ArrowDown, labelKey: 'journey.studio.backward' },
+  { to: 'back', icon: ChevronsDown, labelKey: 'journey.studio.toBack' },
 ];
 
 /** How many things move as one in a selection: a group counts once. */
@@ -70,12 +97,22 @@ function IconButton({
   );
 }
 
-export function StudioArrangeSection({ spreadIndex, t }: { spreadIndex: number; t: (k: string) => string }) {
+export function StudioArrangeSection({
+  spreadIndex,
+  t,
+  onShowLayers,
+}: {
+  spreadIndex: number;
+  t: (k: string) => string;
+  /** Opens the Layers panel in the rail; without it the button is left out. */
+  onShowLayers?: () => void;
+}) {
   const spread = useStudioStore((s) => s.doc?.spreads[spreadIndex]);
   const selection = useStudioStore((s) => s.selection);
   const hasStyle = useStudioStore((s) => s.styleClip !== null);
   const align = useStudioStore((s) => s.align);
   const distribute = useStudioStore((s) => s.distribute);
+  const raise = useStudioStore((s) => s.raise);
   const group = useStudioStore((s) => s.group);
   const ungroup = useStudioStore((s) => s.ungroup);
   const copyStyle = useStudioStore((s) => s.copyStyle);
@@ -95,76 +132,102 @@ export function StudioArrangeSection({ spreadIndex, t }: { spreadIndex: number; 
 
   return (
     // Open for a multi-selection, where lining up is what comes next; folded for one element.
-    <Section key={units > 1 ? 'many' : 'one'} label={t('journey.studio.layers.align')} defaultOpen={units > 1}>
-      <div className="st-row">
-        {ALIGN.map((a) => (
-          <IconButton
-            key={a.edge}
-            label={t(a.labelKey)}
-            icon={a.icon}
-            disabled={!movable.length}
-            onClick={() => align(spreadIndex, a.edge, to)}
+    <Section key={units > 1 ? 'many' : 'one'} label={t('journey.studio.arrange')} defaultOpen={units > 1}>
+      <div className="st-arrange">
+        <Line label={t('journey.studio.layers.align')} wide>
+          <div className="st-row st-arrange-row">
+            <span className="st-arrange-set">
+              {ALIGN.map((a) => (
+                <IconButton
+                  key={a.edge}
+                  label={t(a.labelKey)}
+                  icon={a.icon}
+                  disabled={!movable.length}
+                  onClick={() => align(spreadIndex, a.edge, to)}
+                />
+              ))}
+            </span>
+            <span className="st-arrange-set">
+              <IconButton
+                label={t('journey.studio.layers.distributeH')}
+                icon={AlignHorizontalDistributeCenter}
+                disabled={units < 3}
+                onClick={() => distribute(spreadIndex, 'horizontal')}
+              />
+              <IconButton
+                label={t('journey.studio.layers.distributeV')}
+                icon={AlignVerticalDistributeCenter}
+                disabled={units < 3}
+                onClick={() => distribute(spreadIndex, 'vertical')}
+              />
+            </span>
+          </div>
+        </Line>
+        <Line label={t('journey.studio.layers.alignTo')} wide>
+          <Choice<BookAlignTo>
+            value={to}
+            ariaLabel={t('journey.studio.layers.alignTo')}
+            options={[
+              { value: 'selection' as const, label: t('journey.studio.layers.toSelection'), disabled: units < 2 },
+              { value: 'page' as const, label: t('journey.studio.layers.toPage') },
+              { value: 'safe' as const, label: t('journey.studio.layers.toSafe') },
+            ]}
+            onPick={setChosenTo}
           />
-        ))}
-        <span className="st-row-sep" aria-hidden />
-        <IconButton
-          label={t('journey.studio.layers.distributeH')}
-          icon={AlignHorizontalDistributeCenter}
-          disabled={units < 3}
-          onClick={() => distribute(spreadIndex, 'horizontal')}
-        />
-        <IconButton
-          label={t('journey.studio.layers.distributeV')}
-          icon={AlignVerticalDistributeCenter}
-          disabled={units < 3}
-          onClick={() => distribute(spreadIndex, 'vertical')}
-        />
-      </div>
-      <div className="st-arrange-to">
-        <span className="st-line-label">{t('journey.studio.layers.alignTo')}</span>
-        <Choice<BookAlignTo>
-          value={to}
-          ariaLabel={t('journey.studio.layers.alignTo')}
-          options={[
-            { value: 'selection' as const, label: t('journey.studio.layers.toSelection'), disabled: units < 2 },
-            { value: 'page' as const, label: t('journey.studio.layers.toPage') },
-            { value: 'safe' as const, label: t('journey.studio.layers.toSafe') },
-          ]}
-          onPick={setChosenTo}
-        />
-      </div>
-      <div className="st-row st-arrange-acts">
-        {(canGroup || !grouped) && (
-          <IconButton
-            label={t('journey.studio.layers.groupAction')}
-            icon={Group}
-            disabled={!canGroup}
-            shortcut={keys('G')}
-            onClick={() => group(spreadIndex)}
-          />
-        )}
-        {grouped && (
-          <IconButton
-            label={t('journey.studio.layers.ungroup')}
-            icon={Ungroup}
-            shortcut={keys('⇧', 'G')}
-            onClick={() => ungroup(spreadIndex)}
-          />
-        )}
-        <span className="st-row-sep" aria-hidden />
-        <IconButton
-          label={t('journey.studio.layers.copyStyle')}
-          icon={Pipette}
-          shortcut={keys('alt', 'C')}
-          onClick={() => copyStyle(spreadIndex)}
-        />
-        <IconButton
-          label={t('journey.studio.layers.pasteStyle')}
-          icon={Paintbrush}
-          disabled={!hasStyle || !movable.length}
-          shortcut={keys('alt', 'V')}
-          onClick={() => pasteStyle(spreadIndex)}
-        />
+        </Line>
+        <Line label={t('journey.studio.order')} wide>
+          <div className="st-row st-arrange-row">
+            <span className="st-arrange-set">
+              {STACK.map((s) => (
+                <IconButton
+                  key={s.to}
+                  label={t(s.labelKey)}
+                  icon={s.icon}
+                  onClick={() => raise(spreadIndex, selection, s.to)}
+                />
+              ))}
+            </span>
+            <span className="st-arrange-set">
+              {(canGroup || !grouped) && (
+                <IconButton
+                  label={t('journey.studio.layers.groupAction')}
+                  icon={Group}
+                  disabled={!canGroup}
+                  shortcut={keys('G')}
+                  onClick={() => group(spreadIndex)}
+                />
+              )}
+              {grouped && (
+                <IconButton
+                  label={t('journey.studio.layers.ungroup')}
+                  icon={Ungroup}
+                  shortcut={keys('⇧', 'G')}
+                  onClick={() => ungroup(spreadIndex)}
+                />
+              )}
+              {onShowLayers && (
+                <IconButton label={t('journey.studio.showLayers')} icon={Layers} onClick={onShowLayers} />
+              )}
+            </span>
+          </div>
+        </Line>
+        <Line label={t('journey.studio.style')} wide>
+          <div className="st-row">
+            <IconButton
+              label={t('journey.studio.layers.copyStyle')}
+              icon={Pipette}
+              shortcut={keys('alt', 'C')}
+              onClick={() => copyStyle(spreadIndex)}
+            />
+            <IconButton
+              label={t('journey.studio.layers.pasteStyle')}
+              icon={Paintbrush}
+              disabled={!hasStyle || !movable.length}
+              shortcut={keys('alt', 'V')}
+              onClick={() => pasteStyle(spreadIndex)}
+            />
+          </div>
+        </Line>
       </div>
       {asGroup && <p className="st-hint st-arrange-hint">{t('journey.studio.layers.groupHint')}</p>}
     </Section>

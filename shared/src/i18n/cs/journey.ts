@@ -299,9 +299,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': 'DEN {day}',
@@ -402,8 +400,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -415,10 +411,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'Přetáhni sem\nsvou fotku',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -444,17 +437,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': 'Dekorace',
   'journey.studio.shapeGroup.banners': 'Bannery',
   'journey.studio.summary': 'Přehled',
-  'journey.studio.tripSummary': 'Přehled cesty',
-  'journey.studio.statsRow': 'Jeden řádek',
-  'journey.studio.statsFull': 'Vše',
   'journey.studio.routeMap': 'Mapa trasy',
   'journey.studio.mapStyle.minimal': 'Minimální',
   'journey.studio.mapStyle.outline': 'Obrys',
   'journey.studio.mapStyle.paper': 'Papír',
   'journey.studio.mapStyle.dark': 'Tmavá',
   'journey.studio.countries': 'Země',
-  'journey.studio.countryList': 'Seznam zemí',
-  'journey.studio.countryGrid': 'Mřížka zemí',
   'journey.studio.noCountries': 'Pro tuto cestu zatím nebyly určeny žádné země.',
   'journey.studio.noRoute': 'Zatím žádné zastávky se souřadnicemi.',
   'journey.studio.marks': 'Značky',
@@ -566,8 +554,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'Vlastní formát',
   'journey.studio.document': 'Dokument',
   'journey.studio.pageNumbers': 'Čísla stran',
-  'journey.studio.pageNumbersOn': 'Zapnuto',
-  'journey.studio.pageNumbersOff': 'Vypnuto',
   'journey.studio.folio.outer': 'Vnější',
   'journey.studio.folio.inner': 'Vnitřní',
   'journey.studio.folio.centre': 'Na střed',
@@ -593,14 +579,12 @@ const journey: TranslationStrings = {
   'journey.studio.mapSourceRelief': 'Reliéf',
   'journey.studio.routeLook': 'Čára',
   'journey.studio.roads': 'Silnice',
-  'journey.studio.roadsFetch': 'Vést po silnicích',
   'journey.studio.roadsFollow': 'Po silnicích',
   'journey.studio.roadsDirect': 'Vzdušnou čarou',
   'journey.studio.recommended': 'doporučeno',
   'journey.studio.bleed': 'Spadávka',
   'journey.studio.safeArea': 'Bezpečná',
   'journey.studio.roadsAgain': 'Načíst znovu',
-  'journey.studio.roadsClear': 'Vymazat',
   'journey.studio.roadsBusy': 'Dotazování',
   'journey.studio.roadsHint': 'Zeptá se plánovače tras, kudy každý úsek vedl. Dlouhé úseky zůstanou beze změny.',
   'journey.studio.roadsHave': 'Silnice jsou uložené v této knize, takže se stejná čára vytiskne i offline.',
@@ -639,8 +623,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'V rámu',
   'journey.studio.mapClipCountry': 'Vyříznuto',
   'journey.studio.mapClipNeedsCountry': 'K vyříznutí je potřeba země',
-  'journey.studio.mapCutVector': 'Výřez',
-  'journey.studio.mapCutTiles': 'Vyříznutá mapa',
   'journey.studio.mapZoomAuto': 'Podle obsahu',
   'journey.studio.saving': 'Ukládání',
   'journey.studio.saved': 'Uloženo',

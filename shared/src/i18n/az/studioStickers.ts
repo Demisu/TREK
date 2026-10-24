@@ -12,7 +12,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerSlot': 'Rəng {index}',
   'journey.studio.stickerResetColours': 'Orijinal rənglər',
   'journey.studio.stickerMissing': 'Bu stiker TREK-in bu versiyasının kitabxanasında yoxdur.',
-  'journey.studio.stickerPlacement': 'Yerləşmə',
   'journey.studio.stickerFlip': 'Güzgü kimi çevir',
   'journey.studio.stickerTurnLeft': 'Sola döndər',
   'journey.studio.stickerTurnRight': 'Sağa döndər',

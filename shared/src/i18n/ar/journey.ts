@@ -317,9 +317,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': 'اليوم {day}',
@@ -425,8 +423,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -438,10 +434,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'اسحب صورتك\nوأفلتها هنا',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -467,17 +460,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': 'زخرفة',
   'journey.studio.shapeGroup.banners': 'لافتات',
   'journey.studio.summary': 'الملخص',
-  'journey.studio.tripSummary': 'ملخص الرحلة',
-  'journey.studio.statsRow': 'صف واحد',
-  'journey.studio.statsFull': 'كل شيء',
   'journey.studio.routeMap': 'خريطة المسار',
   'journey.studio.mapStyle.minimal': 'بسيط',
   'journey.studio.mapStyle.outline': 'مخطط',
   'journey.studio.mapStyle.paper': 'ورقي',
   'journey.studio.mapStyle.dark': 'داكن',
   'journey.studio.countries': 'الدول',
-  'journey.studio.countryList': 'قائمة الدول',
-  'journey.studio.countryGrid': 'شبكة الدول',
   'journey.studio.noCountries': 'لم تُحدَّد دول لهذه الرحلة بعد.',
   'journey.studio.noRoute': 'لا توجد محطات بإحداثيات بعد.',
   'journey.studio.marks': 'العلامات',
@@ -588,8 +576,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'مقاس مخصص',
   'journey.studio.document': 'المستند',
   'journey.studio.pageNumbers': 'أرقام الصفحات',
-  'journey.studio.pageNumbersOn': 'تشغيل',
-  'journey.studio.pageNumbersOff': 'إيقاف',
   'journey.studio.folio.outer': 'خارجي',
   'journey.studio.folio.inner': 'داخلي',
   'journey.studio.folio.centre': 'وسط',
@@ -629,14 +615,12 @@ const journey: TranslationStrings = {
   'journey.studio.pinPhoto': 'صور',
   'journey.studio.pinPhotoNone': 'لا توجد صور بعد على هذه المحطات، لذا تُرسم كنقاط.',
   'journey.studio.roads': 'الطرق',
-  'journey.studio.roadsFetch': 'اتبع الطرق',
   'journey.studio.roadsFollow': 'عبر الطرق',
   'journey.studio.roadsDirect': 'خط مباشر',
   'journey.studio.recommended': 'موصى به',
   'journey.studio.bleed': 'الفيض',
   'journey.studio.safeArea': 'الآمنة',
   'journey.studio.roadsAgain': 'جلب من جديد',
-  'journey.studio.roadsClear': 'مسح',
   'journey.studio.roadsBusy': 'جارٍ الجلب',
   'journey.studio.roadsHint': 'اطلب من خدمة توجيه الطريق الذي قُطعت به كل مرحلة. المراحل الطويلة تبقى كما هي.',
   'journey.studio.roadsHave': 'تُحفظ الطرق في هذا الكتاب، فيُطبع الخط نفسه دون اتصال.',
@@ -661,8 +645,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'داخل إطار',
   'journey.studio.mapClipCountry': 'مقصوص',
   'journey.studio.mapClipNeedsCountry': 'يحتاج بلدا ليقص وفقه',
-  'journey.studio.mapCutVector': 'مقصوص',
-  'journey.studio.mapCutTiles': 'خريطة مقصوصة',
   'journey.studio.mapZoomAuto': 'ملائم',
   'journey.studio.saving': 'يجري الحفظ',
   'journey.studio.saved': 'تم الحفظ',

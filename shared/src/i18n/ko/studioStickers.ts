@@ -11,7 +11,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerSlot': '색상 {index}',
   'journey.studio.stickerResetColours': '원래 색상',
   'journey.studio.stickerMissing': '이 스티커는 이 버전의 TREK 라이브러리에 없습니다.',
-  'journey.studio.stickerPlacement': '배치',
   'journey.studio.stickerFlip': '좌우 반전',
   'journey.studio.stickerTurnLeft': '왼쪽으로 회전',
   'journey.studio.stickerTurnRight': '오른쪽으로 회전',

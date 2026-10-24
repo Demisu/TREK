@@ -281,9 +281,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': '第{day}天',
@@ -379,8 +377,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -392,10 +388,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': '将照片拖放\n到这里',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -421,17 +414,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': '装饰',
   'journey.studio.shapeGroup.banners': '横幅',
   'journey.studio.summary': '概览',
-  'journey.studio.tripSummary': '旅程概览',
-  'journey.studio.statsRow': '一行',
-  'journey.studio.statsFull': '全部',
   'journey.studio.routeMap': '路线地图',
   'journey.studio.mapStyle.minimal': '极简',
   'journey.studio.mapStyle.outline': '轮廓',
   'journey.studio.mapStyle.paper': '纸质',
   'journey.studio.mapStyle.dark': '深色',
   'journey.studio.countries': '国家',
-  'journey.studio.countryList': '国家列表',
-  'journey.studio.countryGrid': '国家网格',
   'journey.studio.noCountries': '尚未确定这次旅程的国家。',
   'journey.studio.noRoute': '尚无带坐标的停留点。',
   'journey.studio.marks': '标记',
@@ -542,8 +530,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': '自定义尺寸',
   'journey.studio.document': '文档',
   'journey.studio.pageNumbers': '页码',
-  'journey.studio.pageNumbersOn': '开',
-  'journey.studio.pageNumbersOff': '关',
   'journey.studio.folio.outer': '外侧',
   'journey.studio.folio.inner': '内侧',
   'journey.studio.folio.centre': '居中',
@@ -582,14 +568,12 @@ const journey: TranslationStrings = {
   'journey.studio.pinPhoto': '照片',
   'journey.studio.pinPhotoNone': '这些停留点还没有照片，因此以圆点显示。',
   'journey.studio.roads': '道路',
-  'journey.studio.roadsFetch': '沿道路绘制',
   'journey.studio.roadsFollow': '沿道路',
   'journey.studio.roadsDirect': '直连',
   'journey.studio.recommended': '推荐',
   'journey.studio.bleed': '出血',
   'journey.studio.safeArea': '安全区',
   'journey.studio.roadsAgain': '重新获取',
-  'journey.studio.roadsClear': '清除',
   'journey.studio.roadsBusy': '获取中',
   'journey.studio.roadsHint': '向路线服务查询每段行程实际行驶的路线。长途路段保持原样。',
   'journey.studio.roadsHave': '道路数据已保存在这本书里，离线也能打印出同样的线条。',
@@ -613,8 +597,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': '带边框',
   'journey.studio.mapClipCountry': '按形状裁切',
   'journey.studio.mapClipNeedsCountry': '需要一个国家来裁切',
-  'journey.studio.mapCutVector': '裁切',
-  'journey.studio.mapCutTiles': '裁切地图',
   'journey.studio.mapZoomAuto': '自适应',
   'journey.studio.saving': '正在保存',
   'journey.studio.saved': '已保存',

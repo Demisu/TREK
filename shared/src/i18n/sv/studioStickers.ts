@@ -12,7 +12,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerSlot': 'Färg {index}',
   'journey.studio.stickerResetColours': 'Ursprungliga färger',
   'journey.studio.stickerMissing': 'Det här klistermärket finns inte i biblioteket i den här versionen av TREK.',
-  'journey.studio.stickerPlacement': 'Placering',
   'journey.studio.stickerFlip': 'Spegelvänd',
   'journey.studio.stickerTurnLeft': 'Vrid åt vänster',
   'journey.studio.stickerTurnRight': 'Vrid åt höger',

@@ -287,9 +287,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': 'HARI {day}',
@@ -387,8 +385,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -400,10 +396,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'Seret fotomu\nke sini',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -429,17 +422,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': 'Dekorasi',
   'journey.studio.shapeGroup.banners': 'Spanduk',
   'journey.studio.summary': 'Ringkasan',
-  'journey.studio.tripSummary': 'Ringkasan perjalanan',
-  'journey.studio.statsRow': 'Satu baris',
-  'journey.studio.statsFull': 'Semua',
   'journey.studio.routeMap': 'Peta rute',
   'journey.studio.mapStyle.minimal': 'Minimal',
   'journey.studio.mapStyle.outline': 'Garis luar',
   'journey.studio.mapStyle.paper': 'Kertas',
   'journey.studio.mapStyle.dark': 'Gelap',
   'journey.studio.countries': 'Negara',
-  'journey.studio.countryList': 'Daftar negara',
-  'journey.studio.countryGrid': 'Kisi negara',
   'journey.studio.noCountries': 'Belum ada negara yang ditentukan untuk perjalanan ini.',
   'journey.studio.noRoute': 'Belum ada perhentian berkoordinat.',
   'journey.studio.marks': 'Tanda',
@@ -551,8 +539,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'Ukuran sendiri',
   'journey.studio.document': 'Dokumen',
   'journey.studio.pageNumbers': 'Nomor halaman',
-  'journey.studio.pageNumbersOn': 'Aktif',
-  'journey.studio.pageNumbersOff': 'Mati',
   'journey.studio.folio.outer': 'Luar',
   'journey.studio.folio.inner': 'Dalam',
   'journey.studio.folio.centre': 'Tengah',
@@ -592,14 +578,12 @@ const journey: TranslationStrings = {
   'journey.studio.pinPhoto': 'Foto',
   'journey.studio.pinPhotoNone': 'Belum ada foto di perhentian ini, jadi digambar sebagai titik.',
   'journey.studio.roads': 'Jalan',
-  'journey.studio.roadsFetch': 'Ikuti jalan',
   'journey.studio.roadsFollow': 'Lewat jalan',
   'journey.studio.roadsDirect': 'Tanpa jalan',
   'journey.studio.recommended': 'disarankan',
   'journey.studio.bleed': 'Bleed',
   'journey.studio.safeArea': 'Aman',
   'journey.studio.roadsAgain': 'Ambil lagi',
-  'journey.studio.roadsClear': 'Hapus',
   'journey.studio.roadsBusy': 'Meminta',
   'journey.studio.roadsHint':
     'Minta layanan rute untuk jalur yang dilalui tiap segmen. Segmen panjang dibiarkan apa adanya.',
@@ -625,8 +609,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'Dalam kotak',
   'journey.studio.mapClipCountry': 'Dipotong bentuk',
   'journey.studio.mapClipNeedsCountry': 'Perlu negara untuk memotong',
-  'journey.studio.mapCutVector': 'Potongan',
-  'journey.studio.mapCutTiles': 'Peta potongan',
   'journey.studio.mapZoomAuto': 'Sesuaikan',
   'journey.studio.saving': 'Menyimpan',
   'journey.studio.saved': 'Tersimpan',

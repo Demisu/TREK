@@ -77,21 +77,23 @@
   box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--ink) 12%, transparent);
 }
 
+/* A theme's name wraps under itself: "Scrapbook-Schrift" is a name, not something to cut. */
 .trek-dash .st-theme-name {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 4px;
   min-width: 0;
   padding: 0 3px 2px;
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--fs-scale-caption, 1));
   font-weight: 600;
+  line-height: 1.3;
   color: var(--ink-2);
 }
 .trek-dash .st-theme-name > span:first-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 .trek-dash .st-theme-inuse {
   display: inline-flex;
@@ -154,10 +156,11 @@
 }
 .trek-dash .st-theme-colour-name {
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 10.5px;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  text-align: center;
+  line-height: 1.2;
+  font-size: calc(10.5px * var(--fs-scale-caption, 1));
   color: var(--ink-3);
 }
 
@@ -168,10 +171,13 @@
   justify-content: center;
   gap: 6px;
   width: 100%;
-  height: 32px;
+  min-height: 32px;
+  padding: 6px 10px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: calc(12px * var(--fs-scale-caption, 1));
   font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
   transition:
     background 0.16s,
     color 0.16s,

@@ -11,7 +11,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerSlot': 'สีที่ {index}',
   'journey.studio.stickerResetColours': 'สีดั้งเดิม',
   'journey.studio.stickerMissing': 'สติกเกอร์นี้ไม่มีอยู่ในคลังของ TREK เวอร์ชันนี้',
-  'journey.studio.stickerPlacement': 'การจัดวาง',
   'journey.studio.stickerFlip': 'กลับด้านซ้ายขวา',
   'journey.studio.stickerTurnLeft': 'หมุนไปทางซ้าย',
   'journey.studio.stickerTurnRight': 'หมุนไปทางขวา',

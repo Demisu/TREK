@@ -294,9 +294,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': 'DAG {day}',
@@ -395,8 +393,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -408,10 +404,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'Dra din bild\nhit',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -437,17 +430,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': 'Dekoration',
   'journey.studio.shapeGroup.banners': 'Banderoller',
   'journey.studio.summary': 'Sammanfattning',
-  'journey.studio.tripSummary': 'Resesammanfattning',
-  'journey.studio.statsRow': 'En rad',
-  'journey.studio.statsFull': 'Allt',
   'journey.studio.routeMap': 'Ruttkarta',
   'journey.studio.mapStyle.minimal': 'Minimal',
   'journey.studio.mapStyle.outline': 'Kontur',
   'journey.studio.mapStyle.paper': 'Papper',
   'journey.studio.mapStyle.dark': 'Mörk',
   'journey.studio.countries': 'Länder',
-  'journey.studio.countryList': 'Landlista',
-  'journey.studio.countryGrid': 'Landrutnät',
   'journey.studio.noCountries': 'Inga länder har tagits fram för den här resan än.',
   'journey.studio.noRoute': 'Inga stopp med koordinater än.',
   'journey.studio.marks': 'Märken',
@@ -559,8 +547,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'Eget format',
   'journey.studio.document': 'Dokument',
   'journey.studio.pageNumbers': 'Sidnummer',
-  'journey.studio.pageNumbersOn': 'På',
-  'journey.studio.pageNumbersOff': 'Av',
   'journey.studio.folio.outer': 'Yttre',
   'journey.studio.folio.inner': 'Inre',
   'journey.studio.folio.centre': 'Centrerat',
@@ -600,14 +586,12 @@ const journey: TranslationStrings = {
   'journey.studio.pinPhoto': 'Foton',
   'journey.studio.pinPhotoNone': 'Inga foton på de här stoppen än, så de ritas som punkter.',
   'journey.studio.roads': 'Vägar',
-  'journey.studio.roadsFetch': 'Följ vägarna',
   'journey.studio.roadsFollow': 'Via vägar',
   'journey.studio.roadsDirect': 'Fågelvägen',
   'journey.studio.recommended': 'rekommenderas',
   'journey.studio.bleed': 'Utfall',
   'journey.studio.safeArea': 'Skyddszon',
   'journey.studio.roadsAgain': 'Hämta igen',
-  'journey.studio.roadsClear': 'Rensa',
   'journey.studio.roadsBusy': 'Hämtar',
   'journey.studio.roadsHint': 'Fråga en ruttjänst om vilken väg varje etapp kördes. Långa etapper lämnas som de är.',
   'journey.studio.roadsHave': 'Vägarna sparas i den här boken, så den trycker samma linje offline.',
@@ -632,8 +616,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'I ram',
   'journey.studio.mapClipCountry': 'Urklippt',
   'journey.studio.mapClipNeedsCountry': 'Det behövs ett land att klippa mot',
-  'journey.studio.mapCutVector': 'Urklipp',
-  'journey.studio.mapCutTiles': 'Urklippt karta',
   'journey.studio.mapZoomAuto': 'Anpassa',
   'journey.studio.saving': 'Sparar',
   'journey.studio.saved': 'Sparat',

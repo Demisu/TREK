@@ -11,7 +11,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerSlot': 'Värv {index}',
   'journey.studio.stickerResetColours': 'Algsed värvid',
   'journey.studio.stickerMissing': 'Seda kleebist ei ole selle TREK-i versiooni kogus.',
-  'journey.studio.stickerPlacement': 'Paigutus',
   'journey.studio.stickerFlip': 'Peegelda',
   'journey.studio.stickerTurnLeft': 'Pööra vasakule',
   'journey.studio.stickerTurnRight': 'Pööra paremale',

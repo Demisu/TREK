@@ -12,7 +12,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerSlot': 'Χρώμα {index}',
   'journey.studio.stickerResetColours': 'Αρχικά χρώματα',
   'journey.studio.stickerMissing': 'Αυτό το αυτοκόλλητο δεν υπάρχει στη βιβλιοθήκη αυτής της έκδοσης του TREK.',
-  'journey.studio.stickerPlacement': 'Τοποθέτηση',
   'journey.studio.stickerFlip': 'Κατοπτρισμός',
   'journey.studio.stickerTurnLeft': 'Στροφή αριστερά',
   'journey.studio.stickerTurnRight': 'Στροφή δεξιά',

@@ -63,6 +63,7 @@ import storage from './storage';
 import studioFonts from './studioFonts';
 import studioLayers from './studioLayers';
 import studioPaint from './studioPaint';
+import studioPanels from './studioPanels';
 import studioPhoto from './studioPhoto';
 import studioShapes from './studioShapes';
 import studioStickers from './studioStickers';
@@ -166,5 +167,6 @@ const locale = {
   ...assistantPacking,
   ...studioLayers,
   ...studioTemplates,
+  ...studioPanels,
 };
 export default locale;

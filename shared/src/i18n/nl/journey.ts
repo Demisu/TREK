@@ -295,9 +295,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': 'DAG {day}',
@@ -398,8 +396,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -411,10 +407,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'Sleep je foto\nhierheen',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -440,17 +433,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': 'Decoratie',
   'journey.studio.shapeGroup.banners': 'Banieren',
   'journey.studio.summary': 'Overzicht',
-  'journey.studio.tripSummary': 'Reisoverzicht',
-  'journey.studio.statsRow': 'Eén rij',
-  'journey.studio.statsFull': 'Alles',
   'journey.studio.routeMap': 'Routekaart',
   'journey.studio.mapStyle.minimal': 'Minimaal',
   'journey.studio.mapStyle.outline': 'Omtrek',
   'journey.studio.mapStyle.paper': 'Papier',
   'journey.studio.mapStyle.dark': 'Donker',
   'journey.studio.countries': 'Landen',
-  'journey.studio.countryList': 'Landenlijst',
-  'journey.studio.countryGrid': 'Landenraster',
   'journey.studio.noCountries': 'Nog geen landen bepaald voor deze reis.',
   'journey.studio.noRoute': 'Nog geen stops met coördinaten.',
   'journey.studio.marks': 'Markeringen',
@@ -562,8 +550,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'Eigen formaat',
   'journey.studio.document': 'Document',
   'journey.studio.pageNumbers': 'Paginanummers',
-  'journey.studio.pageNumbersOn': 'Aan',
-  'journey.studio.pageNumbersOff': 'Uit',
   'journey.studio.folio.outer': 'Buiten',
   'journey.studio.folio.inner': 'Binnen',
   'journey.studio.folio.centre': 'Gecentreerd',
@@ -603,14 +589,12 @@ const journey: TranslationStrings = {
   'journey.studio.pinPhoto': 'Foto’s',
   'journey.studio.pinPhotoNone': 'Deze stops hebben nog geen foto’s, dus worden ze als stippen getekend.',
   'journey.studio.roads': 'Wegen',
-  'journey.studio.roadsFetch': 'De wegen volgen',
   'journey.studio.roadsFollow': 'Via wegen',
   'journey.studio.roadsDirect': 'Hemelsbreed',
   'journey.studio.recommended': 'aanbevolen',
   'journey.studio.bleed': 'Afloop',
   'journey.studio.safeArea': 'Veilig',
   'journey.studio.roadsAgain': 'Opnieuw ophalen',
-  'journey.studio.roadsClear': 'Wissen',
   'journey.studio.roadsBusy': 'Ophalen',
   'journey.studio.roadsHint':
     'Vraagt een routedienst welke weg er per traject is gereden. Lange trajecten blijven zoals ze zijn.',
@@ -636,8 +620,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'In een kader',
   'journey.studio.mapClipCountry': 'Uitgesneden',
   'journey.studio.mapClipNeedsCountry': 'Er is een land nodig om uit te snijden',
-  'journey.studio.mapCutVector': 'Uitsnede',
-  'journey.studio.mapCutTiles': 'Uitgesneden kaart',
   'journey.studio.mapZoomAuto': 'Passend',
   'journey.studio.saving': 'Opslaan',
   'journey.studio.saved': 'Opgeslagen',

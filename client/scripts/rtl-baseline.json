@@ -56,7 +56,6 @@
   "components/Studio/StudioCanvas.tsx": 12,
   "components/Studio/StudioElementsPanel.tsx": 1,
   "components/Studio/StudioExport.tsx": 1,
-  "components/Studio/StudioInspector.tsx": 1,
   "components/Studio/StudioSavedLayouts.tsx": 1,
   "components/Studio/TravelElements.tsx": 4,
   "components/Studio/TravelPreview.tsx": 1,

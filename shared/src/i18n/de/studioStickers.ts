@@ -12,7 +12,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerSlot': 'Farbe {index}',
   'journey.studio.stickerResetColours': 'Originalfarben',
   'journey.studio.stickerMissing': 'Dieser Sticker ist in der Bibliothek dieser TREK-Version nicht enthalten.',
-  'journey.studio.stickerPlacement': 'Platzierung',
   'journey.studio.stickerFlip': 'Spiegeln',
   'journey.studio.stickerTurnLeft': 'Nach links drehen',
   'journey.studio.stickerTurnRight': 'Nach rechts drehen',

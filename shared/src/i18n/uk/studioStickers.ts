@@ -12,7 +12,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerSlot': 'Колір {index}',
   'journey.studio.stickerResetColours': 'Початкові кольори',
   'journey.studio.stickerMissing': 'Цієї наліпки немає в бібліотеці цієї версії TREK.',
-  'journey.studio.stickerPlacement': 'Розташування',
   'journey.studio.stickerFlip': 'Віддзеркалити',
   'journey.studio.stickerTurnLeft': 'Повернути ліворуч',
   'journey.studio.stickerTurnRight': 'Повернути праворуч',

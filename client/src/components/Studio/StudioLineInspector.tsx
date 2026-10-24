@@ -7,17 +7,21 @@ import {
   bookLineStyled,
 } from '@trek/shared';
 import { ArrowLeftRight } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import { useStudioStore } from '../../store/studioStore';
+import { ornamentInUse } from './inspector/inspectorModel';
+import { lineGeometry } from './lineRender';
 import { LinePaths } from './LineView';
 import { Choice, Line, NumField, Section } from './StudioControls';
+import { STROKE_STYLE_OPTIONS } from './studioOptions';
 import { Swatches } from './StudioSwatches';
-import { lineGeometry } from './lineRender';
 
 /**
- * The inspector of a drawn line: its colour and weight, dashes, the course it
- * takes, a wave or a zigzag, the hand-drawn wobble, what sits on each end and
- * in the middle.
+ * The inspector of a drawn line: the course it takes first (straight or
+ * smooth, a wave or a zigzag, the hand-drawn wobble), then where it sits, then
+ * its look (colour, weight, dashes) and what sits on each end, and folded
+ * under those the ornament in its middle, open on a line that has one.
  *
  * Every change goes through `bookLineStyled`, the book engine's own restyle,
  * so a wider stroke or a new head refits the frame exactly as the assistant's
@@ -66,10 +70,13 @@ const OrnamentGlyph = ({ ornament }: { ornament: BookLineOrnament }) => (
 export function LineInspector({
   el,
   spreadIndex,
+  position,
   t,
 }: {
   el: BookLineElement;
   spreadIndex: number;
+  /** The position and size group, which every kind places after what it is. */
+  position: ReactNode;
   t: (k: string) => string;
 }) {
   const commit = useStudioStore((s) => s.commit);
@@ -119,19 +126,29 @@ export function LineInspector({
   return (
     <>
       <Section label={t('journey.studio.kind.line')}>
-        <Line label={t('journey.studio.stroke')} wide>
-          <Swatches value={el.stroke} onPick={(c) => set({ stroke: c })} />
-        </Line>
-        <div className="st-grid2" style={{ marginTop: 10 }}>
-          <NumField
-            label={t('journey.studio.strokeWidth')}
-            value={el.strokeWidth}
-            min={0.05}
-            max={20}
-            step={0.05}
-            unit="mm"
-            onChange={(v) => set({ strokeWidth: v })}
+        <Line label={t('journey.studio.lineCourseTitle')} wide>
+          <Choice
+            value={el.curve}
+            ariaLabel={t('journey.studio.lineCourseTitle')}
+            options={(['straight', 'smooth'] as const).map((value) => ({
+              value,
+              label: t(`journey.studio.lineCourse.${value}`),
+            }))}
+            onPick={(curve) => set({ curve })}
           />
+        </Line>
+        <Line label={t('journey.studio.lineBodyTitle')} wide>
+          <Choice
+            value={el.squiggle}
+            ariaLabel={t('journey.studio.lineBodyTitle')}
+            options={(['none', 'wave', 'zigzag'] as const).map((value) => ({
+              value,
+              label: t(`journey.studio.lineBody.${value}`),
+            }))}
+            onPick={(squiggle) => set({ squiggle })}
+          />
+        </Line>
+        <div className="st-section-gap">
           <NumField
             label={t('journey.studio.wobble')}
             value={Math.round(el.wobble * 100)}
@@ -142,42 +159,34 @@ export function LineInspector({
             onChange={(v) => set({ wobble: Math.min(1, Math.max(0, v / 100)) })}
           />
         </div>
-        <div style={{ marginTop: 10 }}>
-          <Line label={t('journey.studio.strokeStyle')} wide>
+        <p className="st-hint st-hint-after">{t('journey.studio.linePointsHint')}</p>
+      </Section>
+
+      {position}
+
+      <Section label={t('journey.studio.look')}>
+        <Swatches value={el.stroke} onPick={(c) => set({ stroke: c })} />
+        <div className="st-section-gap">
+          <NumField
+            label={t('journey.studio.strokeWidth')}
+            value={el.strokeWidth}
+            min={0.05}
+            max={20}
+            step={0.05}
+            unit="mm"
+            onChange={(v) => set({ strokeWidth: v })}
+          />
+        </div>
+        <div className="st-section-gap">
+          <Line label={t('journey.studio.strokeStyle')}>
             <Choice
               value={el.dash}
-              options={[
-                { value: 'solid' as const, label: t('journey.studio.strokeSolid') },
-                { value: 'dashed' as const, label: t('journey.studio.strokeDashed') },
-                { value: 'dotted' as const, label: t('journey.studio.strokeDotted') },
-              ]}
+              ariaLabel={t('journey.studio.strokeStyle')}
+              options={STROKE_STYLE_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))}
               onPick={(dash) => set({ dash })}
             />
           </Line>
-          <Line label={t('journey.studio.lineCourseTitle')} wide>
-            <Choice
-              value={el.curve}
-              options={(['straight', 'smooth'] as const).map((value) => ({
-                value,
-                label: t(`journey.studio.lineCourse.${value}`),
-              }))}
-              onPick={(curve) => set({ curve })}
-            />
-          </Line>
-          <Line label={t('journey.studio.lineBodyTitle')} wide>
-            <Choice
-              value={el.squiggle}
-              options={(['none', 'wave', 'zigzag'] as const).map((value) => ({
-                value,
-                label: t(`journey.studio.lineBody.${value}`),
-              }))}
-              onPick={(squiggle) => set({ squiggle })}
-            />
-          </Line>
         </div>
-        <p className="st-hint" style={{ paddingTop: 8 }}>
-          {t('journey.studio.linePointsHint')}
-        </p>
       </Section>
 
       <Section label={t('journey.studio.lineEnds')}>
@@ -187,7 +196,7 @@ export function LineInspector({
         <Line label={t('journey.studio.lineEnd')} wide>
           <Choice value={el.endCap} options={caps(false)} onPick={(endCap) => set({ endCap })} />
         </Line>
-        <div className="st-row" style={{ marginTop: 6 }}>
+        <div className="st-row st-section-gap">
           <button type="button" className="st-chip" onClick={swapEnds}>
             <ArrowLeftRight size={13} />
             {t('journey.studio.swapEnds')}
@@ -195,7 +204,7 @@ export function LineInspector({
         </div>
       </Section>
 
-      <Section label={t('journey.studio.ornamentTitle')} defaultOpen={el.ornament !== 'none'}>
+      <Section label={t('journey.studio.ornamentTitle')} defaultOpen={ornamentInUse(el)}>
         <Choice
           value={el.ornament}
           options={BOOK_LINE_ORNAMENTS.map((o) => ({

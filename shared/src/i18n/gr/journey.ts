@@ -297,9 +297,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': 'ΗΜΕΡΑ {day}',
@@ -400,8 +398,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -413,10 +409,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'Σύρε τη φωτογραφία\nσου εδώ',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -443,17 +436,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': 'Διακόσμηση',
   'journey.studio.shapeGroup.banners': 'Πανό',
   'journey.studio.summary': 'Σύνοψη',
-  'journey.studio.tripSummary': 'Σύνοψη ταξιδιού',
-  'journey.studio.statsRow': 'Μία σειρά',
-  'journey.studio.statsFull': 'Όλα',
   'journey.studio.routeMap': 'Χάρτης διαδρομής',
   'journey.studio.mapStyle.minimal': 'Ελάχιστο',
   'journey.studio.mapStyle.outline': 'Περίγραμμα',
   'journey.studio.mapStyle.paper': 'Χαρτί',
   'journey.studio.mapStyle.dark': 'Σκούρο',
   'journey.studio.countries': 'Χώρες',
-  'journey.studio.countryList': 'Λίστα χωρών',
-  'journey.studio.countryGrid': 'Πλέγμα χωρών',
   'journey.studio.noCountries': 'Δεν έχουν προσδιοριστεί ακόμη χώρες για αυτό το ταξίδι.',
   'journey.studio.noRoute': 'Δεν υπάρχουν ακόμη στάσεις με συντεταγμένες.',
   'journey.studio.marks': 'Σημάνσεις',
@@ -565,8 +553,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'Δικό σας μέγεθος',
   'journey.studio.document': 'Έγγραφο',
   'journey.studio.pageNumbers': 'Αριθμοί σελίδων',
-  'journey.studio.pageNumbersOn': 'Ναι',
-  'journey.studio.pageNumbersOff': 'Όχι',
   'journey.studio.folio.outer': 'Εξωτερικά',
   'journey.studio.folio.inner': 'Εσωτερικά',
   'journey.studio.folio.centre': 'Κεντρικά',
@@ -607,14 +593,12 @@ const journey: TranslationStrings = {
   'journey.studio.pinPhotoNone':
     'Δεν υπάρχουν ακόμη φωτογραφίες σε αυτές τις στάσεις, οπότε σχεδιάζονται ως κουκκίδες.',
   'journey.studio.roads': 'Δρόμοι',
-  'journey.studio.roadsFetch': 'Ακολούθηση δρόμων',
   'journey.studio.roadsFollow': 'Οδικά',
   'journey.studio.roadsDirect': 'Απευθείας',
   'journey.studio.recommended': 'συνιστάται',
   'journey.studio.bleed': 'Διαφυγή',
   'journey.studio.safeArea': 'Ασφαλής',
   'journey.studio.roadsAgain': 'Νέα λήψη',
-  'journey.studio.roadsClear': 'Καθαρισμός',
   'journey.studio.roadsBusy': 'Λήψη',
   'journey.studio.roadsHint':
     'Ζητήστε από μια υπηρεσία δρομολόγησης τον δρόμο που ακολούθησε κάθε σκέλος. Τα μεγάλα σκέλη μένουν ως έχουν.',
@@ -641,8 +625,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'Σε πλαίσιο',
   'journey.studio.mapClipCountry': 'Κομμένο σχήμα',
   'journey.studio.mapClipNeedsCountry': 'Χρειάζεται χώρα για την κοπή',
-  'journey.studio.mapCutVector': 'Κοπή',
-  'journey.studio.mapCutTiles': 'Κομμένος χάρτης',
   'journey.studio.mapZoomAuto': 'Προσαρμογή',
   'journey.studio.saving': 'Αποθήκευση',
   'journey.studio.saved': 'Αποθηκεύτηκε',

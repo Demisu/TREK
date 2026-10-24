@@ -451,7 +451,7 @@ const releaseRecordedDay = (page: Page) => releaseJournalDawarich(page.request, 
 // ── Studio ────────────────────────────────────────────────────────────────────
 
 const rail = (page: Page) => page.locator('.st-rail')
-const railButton = (page: Page, name: string) => rail(page).getByRole('button', { name, exact: true })
+const railButton = (page: Page, name: string) => rail(page).getByRole('tab', { name, exact: true })
 const sidePanel = (page: Page) => page.locator('.st-panel.st-side')
 const inspector = (page: Page) => page.locator('.st-inspector')
 const studioMenu = (page: Page) => page.locator('.st-menu').last()
@@ -1431,7 +1431,7 @@ const SCRIPTS: Record<string, GuideScript> = {
       },
       {
         prepare: async p => {
-          await sidePanel(p).locator('.st-tabs button').filter({ hasText: 'Entries' }).click()
+          await sidePanel(p).getByRole('tab', { name: /Entries/ }).click()
           await expect(sidePanel(p).locator('.st-entry').first()).toBeVisible()
           await settle(p)
         },

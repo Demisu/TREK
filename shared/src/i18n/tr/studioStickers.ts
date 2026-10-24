@@ -12,7 +12,6 @@ const studioStickers: TranslationStrings = {
   'journey.studio.stickerSlot': 'Renk {index}',
   'journey.studio.stickerResetColours': 'Orijinal renkler',
   'journey.studio.stickerMissing': 'Bu çıkartma TREK’in bu sürümünün kitaplığında yok.',
-  'journey.studio.stickerPlacement': 'Yerleşim',
   'journey.studio.stickerFlip': 'Aynala',
   'journey.studio.stickerTurnLeft': 'Sola döndür',
   'journey.studio.stickerTurnRight': 'Sağa döndür',

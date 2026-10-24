@@ -319,9 +319,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Kvadrat 30 × 30 sm',
   'journey.studio.pages': 'Səhifələr',
   'journey.studio.cover': 'Üzlük',
-  'journey.studio.inspector': 'Xüsusiyyətlər',
   'journey.studio.inspectorEmpty': 'Redaktə etmək üçün səhifədə bir element seçin.',
-  'journey.studio.emptySpread': 'Bu açılım hələ boşdur',
   'journey.studio.autoLayout': 'Avtomatik tərtibat',
   'journey.studio.export': 'İxrac et',
   'journey.studio.day': 'GÜN {day}',
@@ -432,8 +430,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleBody': 'Bu gün haqqında bir şey yazın.',
   'journey.studio.sampleCaption': 'Fotoaltı yazı',
 
-  'journey.studio.templatesCoverHint':
-    'Tərtibatlar daxili açılımlara tətbiq edilir. Ön və arxa üzlüklər ayrıca dizayn olunur.',
   'journey.studio.tpl.heroStory': 'Baş foto və hekayə',
   'journey.studio.tpl.fullBleed': 'Bir foto, tam açılım',
   'journey.studio.tpl.twoUp': 'İki tam səhifə',
@@ -446,10 +442,7 @@ const journey: TranslationStrings = {
   'journey.studio.searchContent': 'Foto və qeydləri axtarın',
   'journey.studio.noMatches': 'Uyğun nəticə yoxdur.',
 
-  'journey.studio.decorations': 'Dekorasiya',
   'journey.studio.quoteMark': 'Dırnaq işarəsi',
-  'journey.studio.circleOutline': 'Konturlu dairə',
-  'journey.studio.roundFrame': 'Yumru çərçivə',
   'journey.studio.shapeKind.rounded': 'Yumru künclü düzbucaqlı',
   'journey.studio.shapeKind.triangle': 'Üçbucaq',
   'journey.studio.shapeKind.outline': 'Yalnız kontur',
@@ -479,9 +472,6 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.banners': 'Bannerlər',
 
   'journey.studio.summary': 'Xülasə',
-  'journey.studio.tripSummary': 'Səyahət xülasəsi',
-  'journey.studio.statsRow': 'Bir sıra',
-  'journey.studio.statsFull': 'Hər şey',
   'journey.studio.routeMap': 'Marşrut xəritəsi',
   'journey.studio.mapStyle.minimal': 'Minimal',
   'journey.studio.mapStyle.outline': 'Kontur',
@@ -489,8 +479,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapStyle.dark': 'Tünd',
 
   'journey.studio.countries': 'Ölkələr',
-  'journey.studio.countryList': 'Ölkə siyahısı',
-  'journey.studio.countryGrid': 'Ölkə toru',
   'journey.studio.noCountries': 'Bu səyahət üçün hələ ölkə müəyyən edilməyib.',
   'journey.studio.noRoute': 'Hələ koordinatları olan dayanacaq yoxdur.',
 
@@ -613,8 +601,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'Fərdi ölçü',
   'journey.studio.document': 'Sənəd',
   'journey.studio.pageNumbers': 'Səhifə nömrələri',
-  'journey.studio.pageNumbersOn': 'Aktiv',
-  'journey.studio.pageNumbersOff': 'Deaktiv',
   'journey.studio.folio.outer': 'Xarici',
   'journey.studio.folio.inner': 'Daxili',
   'journey.studio.folio.centre': 'Mərkəzdə',
@@ -643,11 +629,9 @@ const journey: TranslationStrings = {
   'journey.studio.mapSourceRelief': 'Relyef',
   'journey.studio.routeLook': 'Marşrut xətti',
   'journey.studio.roads': 'Yollar',
-  'journey.studio.roadsFetch': 'Yolları izlə',
   'journey.studio.roadsFollow': 'Yollar üzrə',
   'journey.studio.roadsDirect': 'Birbaşa',
   'journey.studio.roadsAgain': 'Yenidən əldə et',
-  'journey.studio.roadsClear': 'Təmizlə',
   'journey.studio.roadsBusy': 'Sorğu göndərilir',
   'journey.studio.roadsHint':
     'Hər marşrut hissəsinin avtomobillə keçilən yolunu marşrut xidmətindən əldə edin. Uzun hissələr olduğu kimi qalacaq.',
@@ -694,8 +678,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'Çərçivə daxilində',
   'journey.studio.mapClipCountry': 'Formaya görə kəs',
   'journey.studio.mapClipNeedsCountry': 'Formaya görə kəsmək üçün ölkə tələb olunur',
-  'journey.studio.mapCutVector': 'Kəsilmiş forma',
-  'journey.studio.mapCutTiles': 'Kəsilmiş xəritə',
   'journey.studio.mapZoomAuto': 'Sığdır',
 
   'journey.studio.saving': 'Yadda saxlanılır',

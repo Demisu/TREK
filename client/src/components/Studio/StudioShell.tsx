@@ -9,6 +9,7 @@ import { useJourneyStudio } from '../../pages/journeyStudio/useJourneyStudio'
 import { PAGE_PRESET_ORDER, PAGE_PRESETS } from './pagePresets'
 import { foliosOf } from './bookSheets'
 import { StudioSidebar } from './StudioSidebar'
+import type { RailSection } from './sidebar/railSections'
 import { ProviderPicker } from '../Journey/JourneyDetailPageProviderPicker'
 import { useAuthStore } from '../../store/authStore'
 import { StudioCanvas } from './StudioCanvas'
@@ -46,6 +47,8 @@ export default function StudioShell() {
   const navigate = useNavigate()
   const [bookView, setBookView] = useState(true)
   const [exporting, setExporting] = useState(false)
+  // The rail's open section lives here, so the inspector can open the Theme or the Layers panel beside it.
+  const [railSection, setRailSection] = useState<RailSection>('pages')
   const assistant = useStudioAssistant({ journeyId: s.journeyId, flush: s.flushBook })
   // The book's faces into the offline cache as it opens (bookFontWarm.ts).
   useWarmBookFaces()
@@ -126,6 +129,8 @@ export default function StudioShell() {
             onToggleStop={s.setStopExcluded}
             providers={s.photoProviders}
             onBrowseProvider={s.browseProvider}
+            section={railSection}
+            onSection={setRailSection}
           />
           <Workbench s={s} bookView={bookView} />
           <StudioPaletteScope spreadIndex={s.activeSpread} t={s.t}>
@@ -138,6 +143,7 @@ export default function StudioShell() {
               setPageNumbers={s.setPageNumbers}
               t={s.t}
               locale={s.locale}
+              onOpenPanel={setRailSection}
             />
           </StudioPaletteScope>
         </div>

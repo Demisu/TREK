@@ -123,6 +123,29 @@ function pickSwatch(c: HTMLElement, lineLabel: string, hex: string) {
   fireEvent.click(line(c, lineLabel).querySelector(`[aria-label="${hex}"]`)!)
 }
 
+/**
+ * A group by its heading. A group's first control answers the group's own
+ * question and carries no label of its own (the text's colour under Colour, a
+ * shape's paint under Fill), so it is found by the group it sits in.
+ */
+function section(c: HTMLElement, label: string): HTMLElement {
+  const found = [...c.querySelectorAll<HTMLElement>('.st-section')]
+    .find(s => s.querySelector('.st-section-label')?.textContent === label)
+  if (!found) throw new Error(`no section headed ${label}`)
+  return found
+}
+
+/** The value, or a failed test saying it was missing. */
+function must<T>(value: T | null | undefined): T {
+  if (value == null) throw new Error('expected a value')
+  return value
+}
+
+/** A swatch in the first swatch row of a group. */
+function pickSwatchIn(c: HTMLElement, sectionLabel: string, hex: string) {
+  fireEvent.click(must(section(c, sectionLabel).querySelector(`[aria-label="${hex}"]`)))
+}
+
 /** One of several: a chip that reads as chosen. */
 function pick(c: HTMLElement, label: string) {
   const chip = [...c.querySelectorAll('[role="radio"]')].find(b => b.textContent === label)
@@ -225,11 +248,15 @@ describe('a text element', () => {
     expect(el()).toMatchObject({ weight: 600 })
   })
 
+  /* The four alignments are named in the reader's language, not by their raw values. */
   it('sets the alignment', () => {
     load([text()])
     const { container } = draw()
-    fireEvent.click(container.querySelector('[aria-label="right"]')!)
+    expect(container.querySelector('[aria-label="right"]')).toBeNull()
+    fireEvent.click(must(container.querySelector('[aria-label="journey.studio.align.right"]')))
     expect(el()).toMatchObject({ align: 'right' })
+    fireEvent.click(must(container.querySelector('[aria-label="journey.studio.align.justify"]')))
+    expect(el()).toMatchObject({ align: 'justify' })
   })
 
   /* Italic was drawn by the renderer and had no control at all before. */
@@ -258,7 +285,7 @@ describe('a text element', () => {
   it('sets the colour', () => {
     load([text()])
     const { container } = draw()
-    pickSwatch(container, 'journey.studio.text', '#9f1239')
+    pickSwatchIn(container, 'journey.studio.colour', '#9f1239')
     expect(el()).toMatchObject({ color: '#9f1239' })
   })
 
@@ -357,10 +384,12 @@ describe('a photo frame', () => {
  * the page it was meant to carry.
  */
 describe('filling a page with a picture', () => {
-  /** The chips live in Arrange, which starts folded like the frame's numbers. */
+  /** The chips sit under the crop, open from the start: the commonest layout is one press away. */
   function fillChip(c: HTMLElement, label: string): HTMLElement | undefined {
-    open(c, 'journey.studio.arrange')
-    return [...c.querySelectorAll('.st-chip')].find(b => b.textContent === label) as HTMLElement | undefined
+    const crop = [...c.querySelectorAll<HTMLElement>('.st-section')]
+      .find(s => s.querySelector('.st-section-label')?.textContent === 'journey.studio.crop')
+    return [...(crop?.querySelectorAll('.st-chip') ?? [])]
+      .find(b => b.textContent === label) as HTMLElement | undefined
   }
 
   it('reaches the bleed on every side and goes behind everything else', () => {
@@ -443,10 +472,13 @@ describe('a shape', () => {
     load([shape({ fill: '#111827', stroke: null, strokeWidth: 0 })])
     const { container } = draw()
 
-    pickSwatch(container, 'journey.studio.fill', '#0f766e')
+    pickSwatchIn(container, 'journey.studio.fill', '#0f766e')
     expect(el()).toMatchObject({ fill: '#0f766e', stroke: null })
 
-    pickSwatch(container, 'journey.studio.stroke', '#1e3a8a')
+    // The outline is folded on a shape that has none, and opens when asked.
+    expect(head(container, 'journey.studio.stroke').getAttribute('aria-expanded')).toBe('false')
+    open(container, 'journey.studio.stroke')
+    pickSwatchIn(container, 'journey.studio.stroke', '#1e3a8a')
     // A colour with no width would draw nothing, so the line gets one.
     expect(el()).toMatchObject({ fill: '#0f766e', stroke: '#1e3a8a', strokeWidth: 0.5 })
   })
@@ -524,6 +556,13 @@ describe('an icon', () => {
     fireEvent.click(container.querySelector('[aria-label="Compass"]')!)
 
     expect(el()).toMatchObject({ name: 'Compass', color: '#9f1239', frame: FRAME })
+  })
+
+  it('sets its colour under Look', () => {
+    load([icon()])
+    const { container } = draw()
+    pickSwatchIn(container, 'journey.studio.look', '#0f766e')
+    expect(el()).toMatchObject({ color: '#0f766e' })
   })
 
   it('sets how heavy the drawing is', () => {

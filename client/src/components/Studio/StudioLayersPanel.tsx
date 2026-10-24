@@ -367,7 +367,8 @@ function RowName(p: {
     return (
       <span
         className={`st-layer-name ${p.named ? '' : 'is-auto'}`}
-        title={p.t('journey.studio.layers.rename')}
+        // One line is a must in a tree of rows, so a long name is cut there and read whole here.
+        title={p.label}
         onDoubleClick={own(p.onRename)}
       >
         {p.label}

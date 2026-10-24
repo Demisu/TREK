@@ -117,11 +117,6 @@ export const DYNAMIC_ALLOWED = [
     template: 'settings.${mode}',
     because: "mode is a ThemeMode from resolveMode(), 'light' | 'dark' | 'auto', and settings.light/dark/auto exist",
   },
-  ...['components/Studio/StudioElementsPanel.tsx', 'components/Studio/StudioInspector.tsx'].map((file) => ({
-    file,
-    template: 'journey.studio.${key}',
-    because: 'key comes from an `as const` tuple of frame and stroke styles written beside the call, typed literals',
-  })),
   {
     file: 'mobile/screens/trip/sheets/MBookingFields.tsx',
     template: 'reservations.${s}',

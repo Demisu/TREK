@@ -294,9 +294,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
   'journey.studio.pages': 'Pages', // en-fallback
   'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspector': 'Properties', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.emptySpread': 'This spread is still empty', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
   'journey.studio.export': 'Export', // en-fallback
   'journey.studio.day': 'DIA {day}',
@@ -397,8 +395,6 @@ const journey: TranslationStrings = {
   'journey.studio.sampleSubheading': 'A subheading', // en-fallback
   'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
   'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.templatesCoverHint':
-    'Layouts apply to the inside spreads. The cover and the back are designed on their own.', // en-fallback
   'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
   'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
   'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
@@ -410,10 +406,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'Arrossega la teva foto\naquí',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.decorations': 'Decoration', // en-fallback
   'journey.studio.quoteMark': 'Quotation mark', // en-fallback
-  'journey.studio.circleOutline': 'Outlined circle', // en-fallback
-  'journey.studio.roundFrame': 'Rounded frame', // en-fallback
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
@@ -439,17 +432,12 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.decor': 'Decoració',
   'journey.studio.shapeGroup.banners': 'Banderoles',
   'journey.studio.summary': 'Resum',
-  'journey.studio.tripSummary': 'Resum del viatge',
-  'journey.studio.statsRow': 'Una fila',
-  'journey.studio.statsFull': 'Tot',
   'journey.studio.routeMap': 'Mapa del recorregut',
   'journey.studio.mapStyle.minimal': 'Mínim',
   'journey.studio.mapStyle.outline': 'Contorn',
   'journey.studio.mapStyle.paper': 'Paper',
   'journey.studio.mapStyle.dark': 'Fosc',
   'journey.studio.countries': 'Països',
-  'journey.studio.countryList': 'Llista de països',
-  'journey.studio.countryGrid': 'Graella de països',
   'journey.studio.noCountries': 'Encara no s’ha determinat cap país per a aquest viatge.',
   'journey.studio.noRoute': 'Encara no hi ha parades amb coordenades.',
   'journey.studio.marks': 'Marques',
@@ -562,8 +550,6 @@ const journey: TranslationStrings = {
   'journey.studio.formatCustom': 'Mida pròpia',
   'journey.studio.document': 'Document',
   'journey.studio.pageNumbers': 'Números de pàgina',
-  'journey.studio.pageNumbersOn': 'Sí',
-  'journey.studio.pageNumbersOff': 'No',
   'journey.studio.folio.outer': 'Exterior',
   'journey.studio.folio.inner': 'Interior',
   'journey.studio.folio.centre': 'Centrat',
@@ -603,14 +589,12 @@ const journey: TranslationStrings = {
   'journey.studio.pinPhoto': 'Fotos',
   'journey.studio.pinPhotoNone': 'Encara no hi ha fotos en aquestes parades, així que es dibuixen com a punts.',
   'journey.studio.roads': 'Carreteres',
-  'journey.studio.roadsFetch': 'Segueix les carreteres',
   'journey.studio.roadsFollow': 'Per carretera',
   'journey.studio.roadsDirect': 'Directa',
   'journey.studio.recommended': 'recomanat',
   'journey.studio.bleed': 'Sagnat',
   'journey.studio.safeArea': 'Seguretat',
   'journey.studio.roadsAgain': 'Torna-ho a demanar',
-  'journey.studio.roadsClear': 'Esborra',
   'journey.studio.roadsBusy': 'Demanant',
   'journey.studio.roadsHint':
     'Demana a un servei de rutes el camí que es va fer a cada tram. Els trams llargs es queden com estan.',
@@ -637,8 +621,6 @@ const journey: TranslationStrings = {
   'journey.studio.mapClipRect': 'Amb marc',
   'journey.studio.mapClipCountry': 'Retallat',
   'journey.studio.mapClipNeedsCountry': 'Cal un país per retallar',
-  'journey.studio.mapCutVector': 'Retall',
-  'journey.studio.mapCutTiles': 'Mapa retallat',
   'journey.studio.mapZoomAuto': 'Ajustar',
   'journey.studio.saving': 'Desant',
   'journey.studio.saved': 'Desat',

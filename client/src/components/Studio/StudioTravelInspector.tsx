@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import type {
   BookBadgeElement, BookCountriesElement, BookElement, BookListElement, BookMapElement,
   BookMetric, BookStatsElement, JourneyStats,
@@ -14,14 +14,19 @@ import { Choice, Line, Picks, Section, Switch } from './StudioControls'
 import { fetchRoads } from './roadRoute'
 import { useStudioStore } from '../../store/studioStore'
 import { StudioThemeLink } from './theme/StudioThemeLink'
+import { mapZoomInUse, travelTypeInUse } from './inspector/inspectorModel'
 
 /**
  * Properties of the travel elements.
  *
- * Its own file because these four are a different kind of thing from a photo or
+ * Its own file because these five are a different kind of thing from a photo or
  * a paragraph: what you adjust is *what the element says*, not how a box looks.
- * Keeping them here leaves StudioInspector.tsx about the elements that have
- * been there since the beginning.
+ * Keeping them here leaves the inspector about the elements that have been
+ * there since the beginning.
+ *
+ * In the order every kind follows: what the element says first (a map's scope,
+ * source and framing, a summary's figures, a mark's words), then where it sits,
+ * then how it looks (a map's line and layers, the type, the colours).
  */
 
 export interface TravelInspectorProps {
@@ -33,6 +38,8 @@ export interface TravelInspectorProps {
   set: (patch: Partial<BookElement>) => void
   t: (k: string) => string
   locale: string
+  /** The position and size group, which every kind places after what it is. */
+  position: ReactNode
 }
 
 interface Props<T> {
@@ -41,7 +48,7 @@ interface Props<T> {
   t: (k: string) => string
 }
 
-export function TravelInspector({ el, stats, path, set, t }: TravelInspectorProps) {
+export function TravelInspector({ el, stats, path, set, t, position }: TravelInspectorProps) {
   const theme = useStudioStore(s => s.doc?.theme)
   if (
     el.kind !== 'map' && el.kind !== 'stats' && el.kind !== 'countries'
@@ -70,11 +77,15 @@ export function TravelInspector({ el, stats, path, set, t }: TravelInspectorProp
         </div>
       )}
 
-      {el.kind === 'map' && <MapProps el={el} set={set} t={t} stats={stats} journeyPath={path} />}
+      {el.kind === 'map' && <MapContent el={el} set={set} t={t} stats={stats} journeyPath={path} />}
       {el.kind === 'stats' && <StatsProps el={el} set={set} t={t} />}
       {el.kind === 'countries' && <CountriesProps el={el} set={set} t={t} />}
       {el.kind === 'badge' && <BadgeProps el={el} set={set} t={t} />}
       {el.kind === 'list' && <ListProps el={el} set={set} t={t} />}
+
+      {position}
+
+      {el.kind === 'map' && <MapLook el={el} set={set} t={t} />}
 
       {/*
        * Type, for all five alike.
@@ -83,11 +94,12 @@ export function TravelInspector({ el, stats, path, set, t }: TravelInspectorProp
        * country's name over its outline — and until now the only thing you
        * could change about that was the size. A book set in a serif with its
        * stats block in the default sans is a book with one element in the
-       * wrong typeface and no way to fix it.
+       * wrong typeface and no way to fix it. Folded, and open on an element
+       * already set in another face, weight or size.
        */}
-      <Section label={t('journey.studio.typography')} defaultOpen={false}>
+      <Section label={t('journey.studio.typography')} defaultOpen={travelTypeInUse(el)}>
         <StudioFontPicker font={el.font} weight={el.weight} onPick={patch => set(patch as Partial<BookElement>)} t={t} />
-        <div style={{ marginTop: 10 }}>
+        <div className="st-section-gap">
           <WeightLine
             font={el.font}
             weight={el.weight}
@@ -147,7 +159,7 @@ export function TravelInspector({ el, stats, path, set, t }: TravelInspectorProp
             onUnlink={() => set({ token: undefined } as Partial<BookElement>)} />
         </Line>
         {el.kind === 'badge' && (
-          <div style={{ marginTop: 10 }}>
+          <div className="st-section-gap">
             <Switch
               label={t('journey.studio.autoColour')}
               on={el.autoColor}
@@ -208,31 +220,9 @@ type MapPropsInput = Props<BookMapElement> & {
   journeyPath: [number, number][][]
 }
 
-function MapProps({ el, set, t, stats, journeyPath }: MapPropsInput) {
+/** What a map shows: which trip, where the picture comes from and its style, the framing and the zoom. */
+function MapContent({ el, set, t, stats, journeyPath }: MapPropsInput) {
   const cartoKey = useCartoApiKey()
-  const [roadState, setRoadState] = useState<'idle' | 'busy'>('idle')
-  const [roadDone, setRoadDone] = useState(0)
-  const hasRoads = (el.roads ?? []).some(r => r && r.length > 1)
-
-  /*
-   * One leg at a time, paced, and written into the document when it is done
-   * rather than leg by leg: a hundred commits would be a hundred undo steps and
-   * a hundred autosaves for one action.
-   */
-  const loadRoads = async () => {
-    setRoadState('busy')
-    setRoadDone(0)
-    try {
-      const roads = await fetchRoads(
-        el.points.map(p => ({ lat: p.lat, lng: p.lng })),
-        { onProgress: done => setRoadDone(done) },
-      )
-      set({ roads } as Partial<BookElement>)
-    } finally {
-      setRoadState('idle')
-    }
-  }
-
   const sources = useMapSources(el.frame, el.points, { source: el.source, tileUrl: el.tileUrl })
   /** Only trips that put stops on the route: a map of the others is a blank. */
   const tripsWithRoute = (stats?.trips ?? []).filter(t => t.points > 0)
@@ -328,7 +318,7 @@ function MapProps({ el, set, t, stats, journeyPath }: MapPropsInput) {
         {el.source !== 'vector' && (
           <>
             <p className="st-hint" style={{ paddingTop: 8 }}>
-              {t(SOURCE_HINT[sourceIdOf(el, sources)] ?? 'journey.studio.mapSourceHint')}
+              {t(SOURCE_HINT[sourceIdOf(el, sources)]?.hintKey ?? 'journey.studio.mapSourceHint')}
             </p>
             {/*
               What this map will actually print at, at the size it is now.
@@ -338,7 +328,7 @@ function MapProps({ el, set, t, stats, journeyPath }: MapPropsInput) {
             {dpi != null && (
               <p className={`st-hint ${dpi < 150 ? 'st-stale' : ''}`} style={{ paddingTop: 6 }}>
                 {t('journey.studio.mapPrintDpi')} {dpi} dpi
-                {dpi < 150 && ` — ${t('journey.studio.mapPrintDpiLow')}`}
+                {dpi < 150 && `, ${t('journey.studio.mapPrintDpiLow')}`}
               </p>
             )}
           </>
@@ -408,7 +398,7 @@ function MapProps({ el, set, t, stats, journeyPath }: MapPropsInput) {
       </Section>
 
       {el.source === 'tiles' && (
-        <Section label={t('journey.studio.mapZoom')} defaultOpen={false}>
+        <Section label={t('journey.studio.mapZoom')} defaultOpen={mapZoomInUse(el)}>
           <Choice
             value={el.zoom ?? -1}
             options={[
@@ -419,7 +409,40 @@ function MapProps({ el, set, t, stats, journeyPath }: MapPropsInput) {
           />
         </Section>
       )}
+    </>
+  )
+}
 
+/**
+ * How a map looks: the line of the route, whether it follows the roads, and
+ * which layers are drawn. After the position, like the look of every kind.
+ */
+function MapLook({ el, set, t }: Props<BookMapElement>) {
+  const [roadState, setRoadState] = useState<'idle' | 'busy'>('idle')
+  const [roadDone, setRoadDone] = useState(0)
+  const hasRoads = (el.roads ?? []).some(r => r && r.length > 1)
+
+  /*
+   * One leg at a time, paced, and written into the document when it is done
+   * rather than leg by leg: a hundred commits would be a hundred undo steps and
+   * a hundred autosaves for one action.
+   */
+  const loadRoads = async () => {
+    setRoadState('busy')
+    setRoadDone(0)
+    try {
+      const roads = await fetchRoads(
+        el.points.map(p => ({ lat: p.lat, lng: p.lng })),
+        { onProgress: done => setRoadDone(done) },
+      )
+      set({ roads } as Partial<BookElement>)
+    } finally {
+      setRoadState('idle')
+    }
+  }
+
+  return (
+    <>
       {/*
         How the line itself is drawn, and whether it follows real roads.
 
@@ -675,9 +698,9 @@ function CountriesProps({ el, set, t }: Props<BookCountriesElement>) {
 }
 
 /** What each imagery source is for, said once where it is chosen. */
-const SOURCE_HINT: Record<string, string> = {
-  relief: 'journey.studio.mapSourceReliefHint',
-  satellite: 'journey.studio.mapSourceSatelliteHint',
+const SOURCE_HINT: Record<string, { hintKey: string }> = {
+  relief: { hintKey: 'journey.studio.mapSourceReliefHint' },
+  satellite: { hintKey: 'journey.studio.mapSourceSatelliteHint' },
 }
 
 /** The variants that draw something as well as saying something. */

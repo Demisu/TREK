@@ -41,10 +41,29 @@ function mount(el: BookTextElement, photos = [{ photoId: 4 }, { photoId: 5 }]) {
 const toggle = (label: string) => screen.getByRole('button', { name: label });
 /** A number field, named by its label, followed by its value and unit. */
 const num = (label: string) => screen.getByRole('spinbutton', { name: (name) => name.startsWith(label) });
+/** The case and placement group, folded on a text that uses none of it. */
+const openPlacement = () => fireEvent.click(screen.getByRole('button', { name: 'journey.studio.fx.placement' }));
 
 describe('case and placement', () => {
+  it('folds away on a plain text and opens on one in small caps, set in the middle or fitted', () => {
+    const plain = mount(text());
+    expect(screen.getByRole('button', { name: 'journey.studio.fx.placement' }).getAttribute('aria-expanded')).toBe(
+      'false'
+    );
+    expect(screen.queryByRole('radio', { name: 'journey.studio.fx.caseSmall' })).toBeNull();
+    plain.unmount();
+    for (const over of [{ transform: 'smallcaps' }, { vAlign: 'middle' }, { fit: 'shrink' }]) {
+      const used = mount(text(over));
+      expect(screen.getByRole('button', { name: 'journey.studio.fx.placement' }).getAttribute('aria-expanded')).toBe(
+        'true'
+      );
+      used.unmount();
+    }
+  });
+
   it('sets the case and where the lines sit', () => {
     const { set } = mount(text());
+    openPlacement();
     fireEvent.click(screen.getByRole('radio', { name: 'journey.studio.fx.caseSmall' }));
     expect(set).toHaveBeenCalledWith({ transform: 'smallcaps' });
     fireEvent.click(screen.getByRole('radio', { name: 'journey.studio.fx.middle' }));
@@ -53,6 +72,7 @@ describe('case and placement', () => {
 
   it('shrinks to fit, and gives the chosen size back when fitting is turned off', () => {
     const on = mount(text());
+    openPlacement();
     fireEvent.click(toggle('journey.studio.fx.fit'));
     expect(on.set).toHaveBeenCalledWith({ fit: 'shrink' });
     on.unmount();
