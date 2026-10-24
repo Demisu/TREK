@@ -175,7 +175,7 @@ export class AssistantFileAnswers {
   private async acknowledgement(turn: FileTurn, card: TripCard, found: number, reason: BookingReadReason | null) {
     const words = await AssistantWords.of(turn.locale);
     const facts = await withRequestContext(this.orm, () => this.factsOf(turn, card, found));
-    const questions = attachChipKeys(facts).map((key) => words.text(key));
+    const questions = attachChipKeys(facts).map((key) => words.t(key));
     return {
       line: attachLine(words, turn.name, found, reason),
       chips: questions.length > 0 ? { questions } : null,

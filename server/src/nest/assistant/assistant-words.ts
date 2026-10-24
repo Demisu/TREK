@@ -47,18 +47,21 @@ export class AssistantWords {
     return new AssistantWords(code, own, english ?? own);
   }
 
-  /** The string under `key` with its params filled in; the key itself where no table has it. */
-  text(key: string, params: Readonly<Record<string, string | number>> = {}): string {
-    const value = this.own[key] ?? this.english[key];
-    return filled(typeof value === 'string' ? value : key, params);
-  }
-
-  /** The form of a count-bearing string the language picks for `count`, with `count` among its params. */
-  count(key: string, count: number, params: Readonly<Record<string, string | number>> = {}): string {
-    const all = { ...params, count };
+  /**
+   * The string under `key` with its params filled in, as the client's t()
+   * reads it: a numeric `count` picks the form of a plural group the
+   * language takes for it. The key itself where no table has it. Named t()
+   * so lint:i18n-keys sees the keys the server writes with.
+   */
+  t(key: string, params: Readonly<Record<string, string | number>> = {}): string {
+    const { count } = params;
+    if (typeof count !== 'number') {
+      const value = this.own[key] ?? this.english[key];
+      return filled(typeof value === 'string' ? value : key, params);
+    }
     const own = resolvePluralKey(this.own, key, count, getIntlLanguage(this.code));
-    if (own) return filled(String(this.own[own]), all);
+    if (own) return filled(String(this.own[own]), params);
     const english = resolvePluralKey(this.english, key, count, 'en');
-    return english ? filled(String(this.english[english]), all) : key;
+    return english ? filled(String(this.english[english]), params) : key;
   }
 }

@@ -65,13 +65,13 @@ describe('attachLine', () => {
 describe('AssistantWords', () => {
   it('ASTACH-005: picks the form the language takes for the count, and English where a table has no key', async () => {
     const ru = await AssistantWords.of('ru-RU');
-    expect(ru.count('assistant.attach.found', 21, { name: 'a.pdf' })).toContain('21 бронирование');
-    expect(ru.count('assistant.attach.found', 5, { name: 'a.pdf' })).toContain('5 бронирований');
-    expect(ru.text('assistant.attach.chip.keep')).toBe('Сохрани его в Файлы');
-    expect(ru.text('assistant.no.such.key')).toBe('assistant.no.such.key');
+    expect(ru.t('assistant.attach.found', { name: 'a.pdf', count: 21 })).toContain('21 бронирование');
+    expect(ru.t('assistant.attach.found', { name: 'a.pdf', count: 5 })).toContain('5 бронирований');
+    expect(ru.t('assistant.attach.chip.keep')).toBe('Сохрани его в Файлы');
+    expect(ru.t('assistant.no.such.key')).toBe('assistant.no.such.key');
     const unknown = await AssistantWords.of('xx');
-    expect(unknown.text('assistant.attach.none', { name: 'b.pdf' })).toBe('I could not find a booking in b.pdf.');
-    expect(unknown.count('assistant.no.such.key', 2)).toBe('assistant.no.such.key');
+    expect(unknown.t('assistant.attach.none', { name: 'b.pdf' })).toBe('I could not find a booking in b.pdf.');
+    expect(unknown.t('assistant.no.such.key', { count: 2 })).toBe('assistant.no.such.key');
   });
 
   it('ASTACH-006: a locale reads as itself, its language or English', () => {

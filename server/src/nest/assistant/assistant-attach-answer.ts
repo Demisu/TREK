@@ -27,21 +27,21 @@ export interface AttachFacts {
   canBook: boolean;
 }
 
-/** Each chip's words, as literal keys so the i18n check sees them. */
+/** Each chip's words, under *Key properties so the i18n check (lint:i18n-keys) sees every key. */
 const CHIPS = {
-  keep: 'assistant.attach.chip.keep',
-  book: 'assistant.attach.chip.book',
-  attach: 'assistant.attach.chip.attach',
-  read: 'assistant.attach.chip.read',
-  keepWithBooking: 'assistant.attach.chip.keepWithBooking',
+  keepKey: 'assistant.attach.chip.keep',
+  bookKey: 'assistant.attach.chip.book',
+  attachKey: 'assistant.attach.chip.attach',
+  readKey: 'assistant.attach.chip.read',
+  keepWithBookingKey: 'assistant.attach.chip.keepWithBooking',
 } as const;
 
 /** Why a file held no booking, in the user's words. */
-const WHY: Readonly<Record<BookingReadReason, string>> = {
-  ai_not_configured: 'assistant.attach.why.aiNotConfigured',
-  ai_failed: 'assistant.attach.why.aiFailed',
-  no_text: 'assistant.attach.why.noText',
-  nothing_found: 'assistant.attach.why.nothingFound',
+const WHY: Readonly<Record<BookingReadReason, { textKey: string }>> = {
+  ai_not_configured: { textKey: 'assistant.attach.why.aiNotConfigured' },
+  ai_failed: { textKey: 'assistant.attach.why.aiFailed' },
+  no_text: { textKey: 'assistant.attach.why.noText' },
+  nothing_found: { textKey: 'assistant.attach.why.nothingFound' },
 };
 
 /**
@@ -53,12 +53,12 @@ const WHY: Readonly<Record<BookingReadReason, string>> = {
 export function attachChipKeys(facts: AttachFacts): string[] {
   const wanted =
     facts.found > 0
-      ? [facts.canKeep && facts.canLink && CHIPS.keepWithBooking, facts.readable && CHIPS.read]
+      ? [facts.canKeep && facts.canLink && CHIPS.keepWithBookingKey, facts.readable && CHIPS.readKey]
       : [
-          facts.canKeep && CHIPS.keep,
-          facts.readable && facts.canBook && CHIPS.book,
-          facts.canKeep && facts.canLink && facts.hasTargets && CHIPS.attach,
-          facts.readable && CHIPS.read,
+          facts.canKeep && CHIPS.keepKey,
+          facts.readable && facts.canBook && CHIPS.bookKey,
+          facts.canKeep && facts.canLink && facts.hasTargets && CHIPS.attachKey,
+          facts.readable && CHIPS.readKey,
         ];
   return wanted.filter((key): key is (typeof CHIPS)[keyof typeof CHIPS] => !!key).slice(0, MAX_FOLLOW_UPS);
 }
@@ -70,11 +70,11 @@ export function attachLine(
   found: number,
   reason: BookingReadReason | null,
 ): string {
-  if (found > 0) return words.count('assistant.attach.found', found, { name });
+  if (found > 0) return words.t('assistant.attach.found', { name, count: found });
   return [
-    words.text('assistant.attach.none', { name }),
-    ...(reason ? [words.text(WHY[reason])] : []),
-    words.text('assistant.attach.ask'),
+    words.t('assistant.attach.none', { name }),
+    ...(reason ? [words.t(WHY[reason].textKey)] : []),
+    words.t('assistant.attach.ask'),
   ].join(' ');
 }
 
