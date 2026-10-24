@@ -40,6 +40,8 @@ If an install from before 5.0 already holds two accounts whose addresses differ 
 
 Below the fields sits **Reset passkeys**, which removes every passkey that user has registered: the recovery path when someone loses their authenticator. It asks for confirmation in a dialog, reports how many passkeys it removed, and takes effect immediately rather than on **Save**. The user can still sign in with their password. See [Passkeys](Passkeys).
 
+For every other account the dialog also has **Reset 2FA**, for example after a lost phone. After you confirm (**Turn off two-factor authentication for {name}?**) it switches 2FA off for that user and signs them out everywhere; they can set it up again after logging in with their password. It is not offered for your own account, and it is recorded in the [Audit-Log](Audit-Log). See [Two-Factor-Authentication](Two-Factor-Authentication).
+
 ### Delete a user
 
 Click the trash icon and confirm in the **Delete user** dialog (**Delete user "name"? All trips will be permanently deleted.**). Deletion is permanent. The user's account is removed from the database along with their data, including the trips they own (cascade behavior is enforced at the database level).
@@ -81,13 +83,17 @@ Existing invites are listed below the creation button. Each row shows:
 - **adds to** the bound trip, if the invite is trip-bound
 - **by** the admin who generated the link
 - A **Copy link** button (only on active invites)
-- A delete (revoke) button
+- A delete (revoke) button, which asks you to confirm in the **Delete invite link** dialog ("Anyone who has not used it yet can no longer register with it.")
 
 Revoking an invite immediately invalidates it; anyone following the link after revocation will receive an error.
 
 ## Permissions
 
 The **Users** tab also hosts the Permissions panel at the bottom, which controls what roles can perform which actions. See [Admin-Permissions](Admin-Permissions) for details.
+
+## On a phone
+
+The phone admin has the same functions in its **Users** section (user list, edit and create dialogs, invite links) with the permissions panel below it.
 
 ## Related pages
 

@@ -61,12 +61,15 @@ Actions are grouped into five sections. Each row shows the action's name, a hint
 | `packing_edit` | **Manage packing lists** | Manage packing items and bags | Trip members | Trip owner, Trip members |
 | `collab_edit` | **Collaboration (notes, polls, chat)** | Create notes, polls, and send messages | Trip members | Trip owner, Trip members |
 | `share_manage` | **Manage share links** | Read, create or delete public share links and calendar feed links | Trip owner | Trip owner, Trip members |
+| `journal_link` | **Link a journal** | Link a journal from Journey to the trip and open it to its members | Trip owner | Trip owner, Trip members |
 
 ## Changing permissions
 
 Each action row has a dropdown. Select the minimum role level required. A **customized** badge appears next to any action that differs from its default.
 
-Click **Save** (top right of the card) to persist your changes; it stays disabled until something has changed. **Reset to defaults** (circular arrow icon) puts every action back to its shipped default in the form without saving: click **Save** afterwards if you want to keep the reset.
+Click **Save** (in the head of the card) to persist your changes; it stays disabled until something has changed. **Reset to defaults**, next to it, puts every action back to its shipped default in the form without saving: click **Save** afterwards if you want to keep the reset.
+
+The phone admin shows the same panel below the user list in its **Users** section.
 
 ## Related pages
 

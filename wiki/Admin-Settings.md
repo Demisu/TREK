@@ -2,7 +2,7 @@
 
 The **Settings** tab (in the **Configuration** group of the admin side navigation, `/admin?tab=settings`) holds the instance-wide switches for signing in, uploads and place data. On a wide screen the cards sit in two columns: access and identity on the left (**Authentication Methods**, **Passkey login**, **Require two-factor authentication (2FA)**, **Single Sign-On (OIDC)**), files and place data on the right (**Allowed File Types**, **API Keys**). The **Danger Zone** runs across the full width at the bottom. On a narrow screen the same cards stack in that order.
 
-Switches save as soon as you flip them. Text fields save with the card's own **Save** button.
+Switches save as soon as you flip them. Text fields save with the card's own **Save** button. The phone admin has the same cards in its **Settings** section.
 
 ## Authentication Methods
 
@@ -143,11 +143,11 @@ Rotating the JWT secret does not touch the encryption key that protects stored A
 
 ## See also
 
-- [Admin-Panel-Overview](Admin-Panel-Overview) - all admin tabs
-- [OIDC-SSO](OIDC-SSO) - single sign-on setup
-- [Passkeys](Passkeys) - passkeys from the user's side
-- [Two-Factor-Authentication](Two-Factor-Authentication) - 2FA and the enforced setup
-- [TREK-Places-API](TREK-Places-API) - TREK's own place index
-- [Places-and-Search](Places-and-Search) - how place search uses these providers
-- [Environment-Variables](Environment-Variables) - variables that override these fields
-- [Encryption-Key-Rotation](Encryption-Key-Rotation) - rotating the encryption key
+- [Admin-Panel-Overview](Admin-Panel-Overview): all admin tabs
+- [OIDC-SSO](OIDC-SSO): single sign-on setup
+- [Passkeys](Passkeys): passkeys from the user's side
+- [Two-Factor-Authentication](Two-Factor-Authentication): 2FA and the enforced setup
+- [TREK-Places-API](TREK-Places-API): TREK's own place index
+- [Places-and-Search](Places-and-Search): how place search uses these providers
+- [Environment-Variables](Environment-Variables): variables that override these fields
+- [Encryption-Key-Rotation](Encryption-Key-Rotation): rotating the encryption key

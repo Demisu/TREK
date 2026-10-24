@@ -4,7 +4,7 @@ The **User Defaults** tab (in the **Users** group of the admin side navigation, 
 
 ![Admin panel on the User Defaults tab, setting instance-wide defaults for colour mode, temperature unit, distance unit, time format, currency and blurred booking codes](assets/AdminUserDefaults.png)
 
-On a wide screen the tab has two cards side by side: **Default User Settings** on the left, **Map** on the right. On a narrow screen the map card follows below.
+On a wide screen the tab has two cards side by side: **Default User Settings** on the left, **Map** on the right. On a narrow screen the map card follows below. The phone admin has the same tab as a section of its own.
 
 ## Saving and resetting
 
@@ -77,9 +77,9 @@ See [Map-Settings](Map-Settings) for the styles and what the two Mapbox switches
 
 ## See also
 
-- [Admin-Panel-Overview](Admin-Panel-Overview) - all admin tabs
-- [Display-Settings](Display-Settings) - the same settings from the user's side
-- [Appearance-Settings](Appearance-Settings) - colour mode and the rest of the look
-- [Map-Settings](Map-Settings) - map engines, tile sources, styles and keys
-- [Road-Trip](Road-Trip#routing-engines) - routing engines in detail
-- [Currencies](Currencies) - display and trip currencies
+- [Admin-Panel-Overview](Admin-Panel-Overview): all admin tabs
+- [Display-Settings](Display-Settings): the same settings from the user's side
+- [Appearance-Settings](Appearance-Settings): colour mode and the rest of the look
+- [Map-Settings](Map-Settings): map engines, tile sources, styles and keys
+- [Road-Trip](Road-Trip#routing-engines): routing engines in detail
+- [Currencies](Currencies): display and trip currencies
