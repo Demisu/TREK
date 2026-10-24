@@ -1,5 +1,6 @@
 import { readEnv } from '../app-config';
 import { DemoRepository, type NewDemoPlaceRow } from '../db/repositories/DemoRepository';
+import { logInfo } from '../nest/audit/audit-log.logger';
 import { DEMO_ACCOUNT_SETTINGS, DEMO_PASS } from '../nest/common/demo';
 import { applyDemoAddonPolicy } from './demo-addon-policy';
 // Static like in demo-reset.job.ts: the module top is inert, everything that
@@ -59,7 +60,10 @@ async function seedDemoData(): Promise<{ adminId: number; demoId: number }> {
   // (the hourly reset included), so neither an admin's toggle nor an old
   // baseline outlasts the hour.
   await applyDemoAddonPolicy(demo);
-  for (const [key, value] of Object.entries(DEMO_ACCOUNT_SETTINGS)) await demo.setUserSetting(demoId, key, value);
+  await demo.setUserSettings(
+    demoId,
+    Object.entries(DEMO_ACCOUNT_SETTINGS).map(([key, value]) => ({ key, value })),
+  );
 
   // Check if admin already has example trips
   const adminTripCount = await demo.countTripsByUser(adminId);
@@ -75,7 +79,7 @@ async function seedDemoData(): Promise<{ adminId: number; demoId: number }> {
   // and the mark below would save them into the next baseline.
   const demoTripCount = await demo.countTripsByUser(demoId);
   if (demoTripCount > 0) {
-    console.log('[Demo] The demo account owns its own trips, skipping the example trips');
+    logInfo('[Demo] The demo account owns its own trips, skipping the example trips');
     return { adminId, demoId };
   }
 

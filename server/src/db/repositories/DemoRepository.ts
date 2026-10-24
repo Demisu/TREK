@@ -420,29 +420,41 @@ export class DemoRepository {
 
   /**
    * Writes the demo's addon states in one transaction, so a reset that fails
-   * halfway does not leave half the shelf switched. A named row the database
-   * does not hold is an update that matches nothing, never an insert: the
-   * seeders own which rows exist.
+   * halfway does not leave half the shelf switched. One UPDATE per shelf and
+   * state (generic inherited `nativeUpdate` over `id IN (...)`, the statement
+   * `setEnabled` issues for one row) and one upsert for all the switches
+   * (`AppSettingsRepository#setValue`'s), however long the lists are. A named
+   * row the database does not hold, like an empty list, is an update that
+   * matches nothing, never an insert: the seeders own which rows exist.
    */
   async applyAddonStates(states: DemoAddonStates): Promise<void> {
     this.validateRequestContext();
+    const switches = Object.entries(states.appSettings).map(([key, value]) => ({ key, value }));
     await this.em.transactional(async () => {
       const addons = this.em.getRepository(Addons);
-      for (const id of states.addons.on) await addons.setEnabled(id, true);
-      for (const id of states.addons.off) await addons.setEnabled(id, false);
+      await addons.nativeUpdate({ id: { $in: [...states.addons.on] } }, { enabled: true });
+      await addons.nativeUpdate({ id: { $in: [...states.addons.off] } }, { enabled: false });
       const photos = this.em.getRepository(PhotoProviders);
-      for (const id of states.photoProviders.on) await photos.setEnabled(id, 1);
-      for (const id of states.photoProviders.off) await photos.setEnabled(id, 0);
+      await photos.nativeUpdate({ id: { $in: [...states.photoProviders.on] } }, { enabled: 1 });
+      await photos.nativeUpdate({ id: { $in: [...states.photoProviders.off] } }, { enabled: 0 });
       const documents = this.em.getRepository(DocumentProviders);
-      for (const id of states.documentProviders.on) await documents.setEnabled(id, 1);
-      for (const id of states.documentProviders.off) await documents.setEnabled(id, 0);
-      const settings = this.em.getRepository(AppSettings);
-      for (const [key, value] of Object.entries(states.appSettings)) await settings.setValue(key, value);
+      await documents.nativeUpdate({ id: { $in: [...states.documentProviders.on] } }, { enabled: 1 });
+      await documents.nativeUpdate({ id: { $in: [...states.documentProviders.off] } }, { enabled: 0 });
+      await this.em
+        .getRepository(AppSettings)
+        .upsertMany(switches, { onConflictFields: ['key'], onConflictAction: 'merge' });
     });
   }
 
-  /** A user's own settings row, written as given (the demo account's fixed language). Composes `SettingsRepository#upsertForUser`. */
-  async setUserSetting(userId: number, key: string, value: string): Promise<void> {
-    await this.em.getRepository(Settings).upsertForUser(userId, key, value);
+  /**
+   * A user's own settings rows, written as given in one statement (the demo
+   * account's fixed language). The upsert `SettingsRepository#upsertForUser`
+   * issues for one key, for every row at once.
+   */
+  async setUserSettings(userId: number, rows: readonly { key: string; value: string }[]): Promise<void> {
+    await this.em.getRepository(Settings).upsertMany(
+      rows.map(({ key, value }) => ({ user: userId, key, value })),
+      { onConflictFields: ['user', 'key'], onConflictAction: 'merge' },
+    );
   }
 }

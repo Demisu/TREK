@@ -8,6 +8,7 @@ import {
 } from '../db/repositories/DemoRepository';
 import type { CarriedUserSessionRow } from '../db/repositories/UserSessions.repository';
 import { dbNow } from '../db/types';
+import { logError } from '../nest/audit/audit-log.logger';
 import { DatabaseConnectionLostError, type DatabaseBackupStrategy } from '../nest/database/database-backup.interface';
 import { applyDemoAddonPolicy } from './demo-addon-policy';
 import { RequestContext, type EntityManager } from '@mikro-orm/core';
@@ -163,7 +164,7 @@ async function resetDemoUser(database: DatabaseBackupStrategy): Promise<void> {
     try {
       await applyDemoAddonPolicy(demoFresh);
     } catch (e: unknown) {
-      console.error('[Demo Reset] Failed to apply the demo addon set:', e instanceof Error ? e.message : e);
+      logError(`[Demo Reset] Failed to apply the demo addon set: ${e instanceof Error ? e.message : String(e)}`);
     }
   });
 
