@@ -88,8 +88,8 @@ function photoLook(row: Row | undefined): JourneyPhotoLook | null {
 
 function entryRef(entry: Row | undefined, entryId: number | null): JourneyPhotosEntry | null {
   if (entryId === null) return null;
-  const date =
-    typeof entry?.entry_date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(entry.entry_date) ? entry.entry_date : null;
+  const raw = entry?.entry_date;
+  const date = typeof raw === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : null;
   const title =
     clipped(entry?.title, JOURNEY_PHOTOS_LIMITS.title) ?? clipped(entry?.location_name, JOURNEY_PHOTOS_LIMITS.title);
   return { entryId, title, date };
@@ -156,7 +156,8 @@ export function journalPhotosCard(
 
 /** What an entry is called on a row: its title, else its place, else its day. */
 function entryName(ctx: PreviewContext, entry: Row | undefined): string {
-  const day = typeof entry?.entry_date === 'string' ? formatDate(ctx, entry.entry_date) : '';
+  const raw = entry?.entry_date;
+  const day = typeof raw === 'string' ? formatDate(ctx, raw) : '';
   return text(entry?.title) || text(entry?.location_name) || day;
 }
 

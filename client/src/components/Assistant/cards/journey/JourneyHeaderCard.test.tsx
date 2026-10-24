@@ -6,7 +6,7 @@
  * the change links or unlinks marked; what a new journal brings and what a
  * deletion or an unlink takes; the receipt that opens the journal.
  */
-import type { AssistantApplied, AssistantChangePreview, JourneyHeaderCard } from '@trek/shared';
+import type { AssistantApplied, AssistantChangePreview, JourneyHeaderCard, JourneyHeaderTrip } from '@trek/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { fireEvent, render, screen } from '../../../../../tests/helpers/render';
@@ -22,13 +22,21 @@ afterEach(() => {
   useAssistantStore.setState(ASSISTANT, true);
 });
 
+const TOKYO: JourneyHeaderTrip = {
+  id: 5,
+  title: 'Tokyo days',
+  startDate: '2026-11-02',
+  endDate: '2026-11-08',
+  change: 'kept',
+};
+
 const JAPAN: JourneyHeaderCard = {
   kind: 'journeyHeader',
   journeyId: 12,
   title: 'Japan 2026',
   subtitle: null,
   change: 'changed',
-  trips: [{ id: 5, title: 'Tokyo days', startDate: '2026-11-02', endDate: '2026-11-08', change: 'kept' }],
+  trips: [TOKYO],
   entries: 3,
   photos: 40,
   suggestions: null,
@@ -86,7 +94,7 @@ describe('a change of a journal itself', () => {
       journeyId: null,
       change: 'new',
       subtitle: 'Autumn',
-      trips: [{ ...JAPAN.trips[0], change: 'link' }],
+      trips: [{ ...TOKYO, change: 'link' }],
       entries: null,
       photos: null,
       suggestions: 9,
@@ -105,7 +113,7 @@ describe('a change of a journal itself', () => {
     first.unmount();
     const unlink: JourneyHeaderCard = {
       ...JAPAN,
-      trips: [{ ...JAPAN.trips[0], change: 'unlink' }],
+      trips: [{ ...TOKYO, change: 'unlink' }],
       entries: 1,
       suggestions: 4,
     };

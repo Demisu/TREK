@@ -802,10 +802,10 @@ let assetSeq = 0;
 /** A photo in the journey's gallery, and on the entry when one is named; answers its journey photo id. */
 async function seedGalleryPhoto(journeyId: number, entryId?: number): Promise<number> {
   assetSeq += 1;
-  const trek = await createRow(orm, TrekPhotos, { provider: 'immich', asset_id: `asset-${assetSeq}` });
-  const gallery = await createRow(orm, JourneyPhotos, {
+  const trekId = await insertRow(orm, TrekPhotos, { provider: 'immich', asset_id: `asset-${assetSeq}` });
+  const galleryId = await insertRow(orm, JourneyPhotos, {
     journey: journeyId,
-    photo: trek.id,
+    photo: trekId,
     caption: null,
     shared: 0,
     sort_order: 0,
@@ -814,12 +814,12 @@ async function seedGalleryPhoto(journeyId: number, entryId?: number): Promise<nu
   if (entryId !== undefined) {
     await insertRow(orm, JourneyEntryPhotos, {
       entry: entryId,
-      journeyPhoto: gallery.id,
+      journeyPhoto: galleryId,
       sort_order: 0,
       created_at: Date.now(),
     });
   }
-  return gallery.id;
+  return galleryId;
 }
 
 describe('journey photo tools', () => {

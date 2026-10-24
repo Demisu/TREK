@@ -26,7 +26,7 @@ export interface JournalCardEntry {
 }
 
 /** A trip the journey holds. */
-export interface JournalCardTrip {
+interface JournalCardTrip {
   id: number;
   title: string;
   startDate: string | null;

@@ -30,7 +30,7 @@ export type JourneyEntryUpdateInput = Partial<{
 }>;
 
 /** The columns an update writes, as they are stored. */
-export interface JourneyEntryColumns {
+interface JourneyEntryColumns {
   type: string;
   title: string | null;
   story: string | null;

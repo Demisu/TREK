@@ -30,7 +30,7 @@ export interface JournalHeaderLoaded {
 }
 
 /** The tools these cards are for. */
-export const JOURNAL_HEADER_TOOLS = [
+const JOURNAL_HEADER_TOOLS = [
   'create_journey',
   'update_journey',
   'delete_journey',

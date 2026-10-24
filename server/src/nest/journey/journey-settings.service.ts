@@ -13,7 +13,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 
 /** A settings update as the MCP tool answers it: the journey as stored now, and what the update replaced. */
-export interface JourneySettingsUpdate {
+interface JourneySettingsUpdate {
   journey: Journey;
   previous: JourneySettingsPrevious;
 }
@@ -47,7 +47,7 @@ export class JourneySettingsService {
     const previous = await this.uow.transactional(async () => {
       const before = await this.journeysRepo.findById(journeyId);
       if (written) await this.journeysRepo.updateFields(journeyId, { ...patch, updated_at: Date.now() });
-      return previousSettings(before as Readonly<Record<string, unknown>> | undefined, patch);
+      return previousSettings(before as unknown as Readonly<Record<string, unknown>> | undefined, patch);
     });
     if (written) await this.journeys.broadcastJourneyEvent(journeyId, 'journey:updated', {}, sid);
     const journey = (await this.journeysRepo.findById(journeyId)) as Journey | undefined;

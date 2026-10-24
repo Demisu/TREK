@@ -25,7 +25,7 @@ export type JourneySettingsInput = Partial<{
 }>;
 
 /** The columns an update writes, as they are stored. */
-export interface JourneySettingsColumns {
+interface JourneySettingsColumns {
   title: string;
   subtitle: string | null;
   cover_gradient: string | null;
@@ -45,7 +45,7 @@ const ALLOWED_STATUSES: readonly string[] = ['draft', 'active', 'completed', 'ar
 const ALLOWED_OVERRIDES: readonly (string | null)[] = [null, 'draft', 'live', 'completed'];
 
 /** The flag columns, stored 0/1 and spoken as booleans. */
-export const JOURNEY_SETTING_FLAGS = [
+const JOURNEY_SETTING_FLAGS = [
   'show_trip_tracks',
   'photo_location',
   'show_verdict',

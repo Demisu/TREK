@@ -73,7 +73,7 @@ export const JOURNAL_DENIED_TOOLS: Readonly<Record<string, string>> = {
  * taken into a journal names it `journalId`. The session pins and hides them
  * like `journeyId`; renaming the argument would break every MCP client.
  */
-export const JOURNEY_PIN_ALIASES: readonly string[] = ['journalId'];
+const JOURNEY_PIN_ALIASES: readonly string[] = ['journalId'];
 
 /** Every argument a journey's session pins to its journey. */
 export const JOURNEY_PIN_ARGS: readonly string[] = [JOURNEY_PINNED_ARG, ...JOURNEY_PIN_ALIASES];

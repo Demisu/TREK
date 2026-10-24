@@ -131,7 +131,7 @@ function stayEntry(args: ToolArgs, stay: Row): Row {
 
 /** The row of a stay taken in: what the entry is about, its day, time, place and text. */
 export function describeStay(ctx: PreviewContext, args: ToolArgs, loaded: StayLoaded | null): Described {
-  const entry = loaded?.stay
+  const entry: Row = loaded?.stay
     ? stayEntry(args, loaded.stay)
     : { title: args.name, story: args.notes, entry_date: args.date };
   const day = typeof entry.entry_date === 'string' ? formatDate(ctx, entry.entry_date) : '';
