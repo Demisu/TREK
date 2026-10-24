@@ -53,11 +53,11 @@ const atlas: TranslationStrings = {
   'atlas.tripsIn.one': 'viaggio nel',
   'atlas.since': 'dal',
   'atlas.europe': 'Europa',
-  'atlas.asia': 'Asia',
+  'atlas.asia': 'Asia', // same-as-en
   'atlas.northAmerica': 'Nord America',
   'atlas.southAmerica': 'Sud America',
-  'atlas.africa': 'Africa',
-  'atlas.oceania': 'Oceania',
+  'atlas.africa': 'Africa', // same-as-en
+  'atlas.oceania': 'Oceania', // same-as-en
   'atlas.other': 'Altro',
   'atlas.firstVisit': 'Primo viaggio',
   'atlas.lastVisitLabel': 'Ultimo viaggio',

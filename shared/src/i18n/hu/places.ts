@@ -103,7 +103,7 @@ const places: TranslationStrings = {
   'places.timeCollision': 'Időbeli átfedés:',
   'places.formWebsite': 'Weboldal',
   'places.formPhone': 'Telefon',
-  'places.formEmail': 'E-mail',
+  'places.formEmail': 'E-mail', // same-as-en
   'places.hoursAdd': 'Nyitvatartás hozzáadása',
   'places.hoursClosed': 'Zárva',
   'places.hoursOpens': 'nyit',

@@ -312,7 +312,7 @@ const roadtrip: TranslationStrings = {
     '{title} rezervasyonu bu yolculuğun hiçbir gününde değil, bu yüzden sürüş onu hesaba katmıyor.',
   'roadtrip.bookings.loose': 'Bu gün için ayrıca rezerve edildi',
   'roadtrip.ride.departureFlight': 'Kalkış {time}',
-  'roadtrip.ride.checkIn': 'Check-in',
+  'roadtrip.ride.checkIn': 'Giriş',
   'roadtrip.ride.boarding': 'Biniş',
   'roadtrip.ride.missed': 'Kaçırıldı',
   'roadtrip.ride.lateBy': '{time} geç',

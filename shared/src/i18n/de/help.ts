@@ -34,7 +34,7 @@ const help: TranslationStrings = {
   'help.center.step': 'Schritt {n}',
   'help.center.stepsLabel': 'Schritte',
   'help.center.stepOf': 'Schritt {n} von {total}',
-  'help.center.screenshot': 'Screenshot',
+  'help.center.screenshot': 'Screenshot', // same-as-en
   'help.center.result': 'Das Ergebnis',
   'help.center.tips': 'Gut zu wissen',
   'help.center.related': 'Verwandte Themen',
@@ -51,7 +51,7 @@ const help: TranslationStrings = {
   'help.center.imageAlt': 'Schritt {n} von „{title}“',
 
   // ── Ansicht: Dashboard ────────────────────────────────────────────────────
-  'help.ctx.dashboard.title': 'Dashboard',
+  'help.ctx.dashboard.title': 'Dashboard', // same-as-en
   'help.ctx.dashboard.summary':
     'Dein Dashboard zeigt alle deine Reisen. Die Karte oben im Stil einer Bordkarte zeigt die Reise, die gerade läuft oder als Nächstes ansteht. Die Zeile darunter zählt, was du bisher bereist hast, und die Karten listen alle Reisen, die du planst, archiviert oder schon hinter dir hast.',
   'help.ctx.dashboard.bullet.1':
@@ -727,7 +727,7 @@ const help: TranslationStrings = {
     'Labels und behaltene Touren gehören immer zu einer bestimmten Liste, deshalb gibt es beides unter „Alle gespeicherten“ nicht.',
 
   // ── Screen: journey ───────────────────────────────────────────────────────────────────
-  'help.ctx.journey.title': 'Journey',
+  'help.ctx.journey.title': 'Journey', // same-as-en
   'help.ctx.journey.summary':
     'Journey ist dein Reisetagebuch, bei dem die Fotos im Mittelpunkt stehen. Jede Journey ist mit einer oder mehreren Reisen verknüpft, und du füllst sie Tag für Tag mit Einträgen aus Geschichte, Fotos, Stimmung und Wetter. Hier siehst du alle deine Journeys; öffne eine, um zu schreiben.',
   'help.ctx.journey.bullet.1':
@@ -958,7 +958,7 @@ const help: TranslationStrings = {
     'Ein von Hand gesetzter Status bleibt, bis du ihn änderst, auch wenn sich die Reisedaten ändern.',
 
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
-  'help.ctx.journey-studio.title': 'Studio',
+  'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
     'TREK Studio gestaltet eine Journey als Fotobuch, das du drucken kannst. Es öffnet sich über dem Tagebuch: Links sind die Seitenliste und die Inhalte, in der Mitte die Doppelseite, an der du gerade arbeitest, und rechts ihre Eigenschaften. „Automatisch anordnen“ erstellt aus deinen Einträgen einen ersten Entwurf. Danach kannst du alles verschieben, zuschneiden und neu gestalten und jeden Schritt rückgängig machen.',
   'help.ctx.journey-studio.bullet.1':
@@ -1163,7 +1163,7 @@ const help: TranslationStrings = {
     'MCP-Konfiguration: der „MCP-Endpunkt“ und unter „OAuth 2.1-Clients“ deine registrierten Clients, die „Client-Konfiguration“ zum Kopieren und die „Aktiven OAuth-Sessions“ mit „Widerrufen“.',
   'help.ctx.settings-integrations.bullet.4':
     'API-Tokens: der alte Zugang zu MCP, als „Veraltet“ markiert; nutze stattdessen „OAuth 2.1-Clients“.',
-  'help.ctx.settings-offline.title': 'Offline',
+  'help.ctx.settings-offline.title': 'Offline', // same-as-en
   'help.ctx.settings-offline.summary':
     'Was TREK auf diesem Gerät speichert, damit sich eine Reise auch ohne Verbindung öffnen lässt, und was passiert, wenn eine Offline-Änderung mit einer Änderung von woanders kollidiert.',
   'help.ctx.settings-offline.bullet.1':
@@ -1470,7 +1470,7 @@ const help: TranslationStrings = {
     'API-Schlüssel: Ganz oben steht die TREK Places API, die keinen Schlüssel braucht. Darunter folgen der Google Maps API-Schlüssel (mit „Test“ und „Wofür der Schlüssel genutzt wird“), der Unsplash- und der Amap-Schlüssel und unten in der Karte ein gemeinsamer „Speichern“-Button.',
   'help.ctx.admin-settings.bullet.4':
     '„Verkehrsanbieter“ und „Anbieter für die Ortssuche“ legen fest, wer ÖPNV- und Ortssuchen beantwortet; „Ortssuche protokollieren“ hält fest, welches Ergebnis gewählt wurde; „Erlaubte Dateitypen“ schränkt Uploads ein.',
-  'help.ctx.admin-addons.title': 'Addons',
+  'help.ctx.admin-addons.title': 'Add-ons',
   'help.ctx.admin-addons.summary':
     'Die Funktionsmodule von TREK, jedes mit eigenem Schalter: Packliste, Budget, Dokumente, Vacay, Atlas, Collab, Journey, Sammlungen, Roadtrip, MCP, AirTrail, Dawarich und die KI-Verarbeitung. Aus heißt: Navigationseintrag, Routen und API sind für alle entfernt.',
   'help.ctx.admin-addons.bullet.1':
@@ -1478,7 +1478,7 @@ const help: TranslationStrings = {
   'help.ctx.admin-addons.bullet.2':
     'Auch Foto- und Dokumentanbieter erscheinen hier als Kacheln, damit du den Benutzern zum Beispiel Immich oder Synology anbieten kannst.',
   'help.ctx.admin-addons.bullet.3': '„Gepäck-Tracking“ hat unter den Kacheln einen eigenen Schalter.',
-  'help.ctx.admin-plugins.title': 'Plugins',
+  'help.ctx.admin-plugins.title': 'Plugins', // same-as-en
   'help.ctx.admin-plugins.summary':
     'Plugins von Drittanbietern, die in einem eigenen Prozess neben TREK laufen, jedes mit den Berechtigungen, die es bei der Installation angefordert hat. Installiere aus dem Katalog, lade ein Paket hoch oder verknüpfe einen Ordner, während du ein Plugin entwickelst.',
   'help.ctx.admin-plugins.bullet.1':
@@ -1519,7 +1519,7 @@ const help: TranslationStrings = {
     '„Update-Verlauf“ zeigt die Versionen als Zeitleiste mit ihren Versionshinweisen; die neueste ist mit „Aktuell“ markiert, Vorabversionen mit „Vorabversion“, und „GitHub“ öffnet die Release-Seite.',
   'help.ctx.admin-github.bullet.2':
     '„Update verfügbar“ erscheint unter der Kopfzeile der Seite, sobald es eine neuere Version gibt. „Update-Anleitung“ zeigt die Befehle für Docker oder die Anleitung für andere Installationen.',
-  'help.ctx.admin-backup.title': 'Backup',
+  'help.ctx.admin-backup.title': 'Backup', // same-as-en
   'help.ctx.admin-backup.summary':
     'Vollständige Backups der Datenbank und der Uploads, manuell oder nach Zeitplan erstellt, auf dem Server gespeichert und als eine Datei herunterladbar. Mit „Wiederherstellen“ spielst du ein Backup zurück.',
   'help.ctx.admin-backup.bullet.1':
@@ -1528,7 +1528,7 @@ const help: TranslationStrings = {
     '„Backup hochladen“ stellt aus einer Datei wieder her, die auf einer anderen Instanz oder an einem früheren Tag erstellt wurde; vorher kommt dieselbe Rückfrage wie bei „Wiederherstellen“.',
   'help.ctx.admin-backup.bullet.3':
     'Auto-Backup: an oder aus, „Intervall“, „Ausführung um“ (Stunde) und Tag sowie „Alte Backups löschen nach“ (von „1 Tag“ bis „Immer behalten“). Übernommen wird alles mit „Speichern“.',
-  'help.ctx.admin-audit.title': 'Audit',
+  'help.ctx.admin-audit.title': 'Audit', // same-as-en
   'help.ctx.admin-audit.summary':
     'Das Protokoll sicherheitsrelevanter und administrativer Ereignisse: Anmeldungen und Fehlversuche, MFA-Änderungen, Änderungen an Benutzern und Einstellungen, Backups und Wiederherstellungen. Nur lesbar, die neuesten Einträge zuerst.',
   'help.ctx.admin-audit.bullet.1': 'Eine Zeile pro Ereignis mit Zeit, Benutzer, Aktion, Ressource, IP und Details.',
@@ -3053,7 +3053,7 @@ const help: TranslationStrings = {
     'Der Klick hebt auch die Neigung auf. Zieh mit der rechten Maustaste nach oben oder unten, um die Ansicht zu neigen. „Reset north“ richtet sie wieder flach aus und setzt die Drehung zurück. Auf Mapbox GL mit eingeschaltetem „3D-Gebäude & Terrain“ wird dabei auch die 3D-Ansicht flach, bis du sie wieder neigst.',
 
   // ── Screen: trip-collab ───────────────────────────────────────────────────────────────
-  'help.ctx.trip-collab.title': 'Collab',
+  'help.ctx.trip-collab.title': 'Collab', // same-as-en
   'help.ctx.trip-collab.summary':
     'Der Tab, in dem die Gruppe gemeinsam plant, mit fünf Karten: links der Chat, daneben „Notizen“ und „Links“, darunter „Umfragen“ und „Nächstes“. Alles, was hier geschrieben wird, erscheint sofort bei allen anderen Mitgliedern, ohne Neuladen.',
   'help.ctx.trip-collab.bullet.1':

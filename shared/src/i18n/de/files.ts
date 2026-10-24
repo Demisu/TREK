@@ -38,7 +38,7 @@ const files: TranslationStrings = {
   'files.toast.deleteError': 'Fehler beim Löschen der Datei',
   'files.sourcePlan': 'Tagesplan',
   'files.sourceBooking': 'Buchung',
-  'files.sourceTransport': 'Transport',
+  'files.sourceTransport': 'Transport', // same-as-en
   'files.attach': 'Anhängen',
   'files.pasteHint': 'Du kannst auch Bilder aus der Zwischenablage einfügen (Strg+V)',
   'files.trash': 'Papierkorb',
@@ -51,7 +51,7 @@ const files: TranslationStrings = {
   'files.assignTitle': 'Datei zuweisen',
   'files.assignPlace': 'Ort',
   'files.assignBooking': 'Buchung',
-  'files.assignTransport': 'Transport',
+  'files.assignTransport': 'Transport', // same-as-en
   'files.unassigned': 'Nicht zugewiesen',
   'files.unlink': 'Verknüpfung entfernen',
   'files.toast.trashed': 'In den Papierkorb verschoben',

@@ -121,7 +121,7 @@ const dawarich: TranslationStrings = {
   'dawarich.accept.recorded': 'Aufgezeichnet {from} bis {to}',
   'dawarich.accept.duration': '{count} Min.',
   'dawarich.accept.duration.one': '{count} Min.',
-  'dawarich.accept.name': 'Name',
+  'dawarich.accept.name': 'Name', // same-as-en
   'dawarich.accept.date': 'Datum',
   'dawarich.accept.from': 'Angekommen',
   'dawarich.accept.to': 'Aufgebrochen',

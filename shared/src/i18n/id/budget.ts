@@ -13,7 +13,7 @@ const budget: TranslationStrings = {
   'budget.categoryName': 'Nama Kategori',
   'budget.addCategory': 'Tambah kategori',
   'budget.table.name': 'Nama',
-  'budget.table.total': 'Total',
+  'budget.table.total': 'Total', // same-as-en
   'budget.table.persons': 'Orang',
   'budget.table.days': 'Hari',
   'budget.table.perPerson': 'Per Orang',
@@ -24,7 +24,7 @@ const budget: TranslationStrings = {
   'budget.newEntry': 'Entri Baru',
   'budget.defaultEntry': 'Entri Baru',
   'budget.defaultCategory': 'Kategori Baru',
-  'budget.total': 'Total',
+  'budget.total': 'Total', // same-as-en
   'budget.totalBudget': 'Total Anggaran',
   'budget.byCategory': 'Per Kategori',
   'budget.editTooltip': 'Klik untuk edit',
@@ -74,7 +74,7 @@ const budget: TranslationStrings = {
   'costs.table.byCategory': 'Kategori',
   'costs.table.byDate': 'Hari',
   'costs.table.byPayer': 'Pembayar',
-  'costs.table.byStatus': 'Status',
+  'costs.table.byStatus': 'Status', // same-as-en
   'costs.table.noPayer': 'Belum ada pembayar',
   'costs.table.paid': 'Dibayar',
   'costs.table.open': 'Terbuka',

@@ -9,8 +9,8 @@ const system_notice: TranslationStrings = {
   'system_notice.welcome_v1.highlight_plan': 'Tagesweise Reisepläne für jede Reise',
   'system_notice.welcome_v1.highlight_share': 'Gemeinsam mit Reisepartnern planen',
   'system_notice.welcome_v1.highlight_offline': 'Funktioniert offline auf dem Handy',
-  'system_notice.dev_test_modal.title': '[Dev] Test notice',
-  'system_notice.dev_test_modal.body': 'This is a dev-only test notice.',
+  'system_notice.dev_test_modal.title': '[Dev] Testhinweis',
+  'system_notice.dev_test_modal.body': 'Dies ist ein Testhinweis nur für Entwickler.',
   // Dankeschön + Projektunterstützung (1x pro Installation und pro Update)
   'system_notice.thank_you_support.title': 'Danke, dass du TREK nutzt',
   'system_notice.thank_you_support.body':
@@ -62,7 +62,7 @@ const system_notice: TranslationStrings = {
     'Eine eigene Orts-API, Roadtrips komplett geplant, dein Standortverlauf wieder in deiner Hand, und deine Dokumente im Abgleich.',
   'system_notice.release_notes.features_label': 'Die Highlights',
   'system_notice.release_notes.features_aside': 'Längst nicht alles',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
+  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
   'system_notice.release_notes.feature_places_body':
     'Der erste Open-Source-Reiseplaner mit eigener Orts-API. 73,6 Millionen Orte, kein Key, kein Kontingent.',
   'system_notice.release_notes.feature_roadtrip_title': 'Roadtrip-Addon',

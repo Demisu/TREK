@@ -5,8 +5,8 @@ const map: TranslationStrings = {
   'map.showConnections': 'Afficher les itinéraires',
   'map.hideConnections': 'Masquer les itinéraires',
   'poi.searchThisArea': 'Rechercher dans cette zone',
-  'poi.cat.restaurants': 'Restaurants',
-  'poi.cat.cafes': 'Cafés',
+  'poi.cat.restaurants': 'Restaurants', // same-as-en
+  'poi.cat.cafes': 'Cafés', // same-as-en
   'poi.cat.bars': 'Bars & vie nocturne',
   'poi.cat.hotels': 'Hébergement',
   'poi.cat.sights': 'Sites touristiques',
@@ -17,7 +17,7 @@ const map: TranslationStrings = {
   'map.showAllConnections': 'Afficher tous les itinéraires',
   'map.hideAllConnections': 'Masquer tous les itinéraires',
   'map.baseLayer.default': 'Carte',
-  'map.baseLayer.satellite': 'Satellite',
+  'map.baseLayer.satellite': 'Satellite', // same-as-en
   'map.baseLayer.hiking': 'Randonnée',
   'map.baseLayer.hikingDown':
     'OpenHikingMap ne répond pas pour le moment. Passe à une autre carte ; ton itinéraire reste inchangé.',

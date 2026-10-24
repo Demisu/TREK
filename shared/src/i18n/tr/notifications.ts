@@ -6,7 +6,7 @@ const notifications: TranslationStrings = {
   'notifications.deleteAll': 'Tümünü sil',
   'notifications.showAll': 'Tüm bildirimleri göster',
   'notifications.empty': 'Bildirim yok',
-  'notifications.emptyDescription': "You're all caught up!",
+  'notifications.emptyDescription': 'Her şeyi gördün!',
   'notifications.all': 'Tümü',
   'notifications.unreadOnly': 'Okunmamış',
   'notifications.markRead': 'Okundu işaretle',

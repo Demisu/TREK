@@ -5,8 +5,8 @@ const map: TranslationStrings = {
   'map.showConnections': 'Buchungsrouten anzeigen',
   'map.hideConnections': 'Buchungsrouten ausblenden',
   'poi.searchThisArea': 'Diesen Bereich durchsuchen',
-  'poi.cat.restaurants': 'Restaurants',
-  'poi.cat.cafes': 'Cafés',
+  'poi.cat.restaurants': 'Restaurants', // same-as-en
+  'poi.cat.cafes': 'Cafés', // same-as-en
   'poi.cat.bars': 'Bars & Nachtleben',
   'poi.cat.hotels': 'Unterkünfte',
   'poi.cat.sights': 'Sehenswürdigkeiten',

@@ -21,7 +21,7 @@ const admin: TranslationStrings = {
   'admin.subtitle': 'Gestione utenti e impostazioni di sistema',
   'admin.tabs.users': 'Utenti',
   'admin.tabs.categories': 'Categorie',
-  'admin.tabs.backup': 'Backup',
+  'admin.tabs.backup': 'Backup', // same-as-en
   'admin.stats.users': 'Utenti',
   'admin.stats.users.one': 'Utente',
   'admin.stats.trips': 'Viaggi',
@@ -30,9 +30,9 @@ const admin: TranslationStrings = {
   'admin.stats.places.one': 'Luogo',
   'admin.stats.photos': 'Foto',
   'admin.stats.files': 'File',
-  'admin.stats.files.one': 'File',
+  'admin.stats.files.one': 'File', // same-as-en
   'admin.table.user': 'Utente',
-  'admin.table.email': 'Email',
+  'admin.table.email': 'Email', // same-as-en
   'admin.table.role': 'Ruolo',
   'admin.table.created': 'Creato',
   'admin.table.lastActive': 'Ultima Attività',
@@ -76,18 +76,18 @@ const admin: TranslationStrings = {
   'admin.tabs.settings': 'Impostazioni',
   'admin.allowRegistration': 'Consenti Registrazione',
   'admin.allowRegistrationHint': 'I nuovi utenti possono registrarsi autonomamente',
-  'admin.authMethods': 'Authentication Methods',
-  'admin.passwordLogin': 'Password Login',
-  'admin.passwordLoginHint': 'Allow users to sign in with email and password',
-  'admin.passwordRegistration': 'Password Registration',
-  'admin.passwordRegistrationHint': 'Allow new users to register with email and password',
-  'admin.oidcLogin': 'SSO Login',
-  'admin.oidcLoginHint': 'Allow users to sign in with SSO',
+  'admin.authMethods': 'Metodi di autenticazione',
+  'admin.passwordLogin': 'Accesso con password',
+  'admin.passwordLoginHint': 'Consenti agli utenti di accedere con email e password',
+  'admin.passwordRegistration': 'Registrazione con password',
+  'admin.passwordRegistrationHint': 'Consenti ai nuovi utenti di registrarsi con email e password',
+  'admin.oidcLogin': 'Accesso SSO',
+  'admin.oidcLoginHint': 'Consenti agli utenti di accedere con SSO',
   'admin.oidcRegistration': 'SSO Auto-Provisioning',
-  'admin.oidcRegistrationHint': 'Automatically create accounts for new SSO users',
+  'admin.oidcRegistrationHint': 'Crea automaticamente gli account per i nuovi utenti SSO',
   'admin.envOverrideHint':
-    'Password login settings are controlled by the OIDC_ONLY environment variable and cannot be changed here.',
-  'admin.lockoutWarning': 'At least one login method must remain enabled',
+    "Le impostazioni di accesso con password sono controllate dalla variabile d'ambiente OIDC_ONLY e non possono essere modificate qui.",
+  'admin.lockoutWarning': 'Deve restare attivo almeno un metodo di accesso',
   'admin.requireMfa': 'Richiedi autenticazione a due fattori (2FA)',
   'admin.requireMfaHint':
     "Gli utenti senza 2FA devono completare la configurazione in Impostazioni prima di usare l'app.",
@@ -135,7 +135,7 @@ const admin: TranslationStrings = {
     "L'indice di TREK e OpenStreetMap rispondono a ogni ricerca. Qui si sceglie chi altro viene interrogato quando non trovano nulla: Automatico preferisce Google se esiste una chiave, poi Amap.",
   'admin.placesProvider.auto': 'Automatico',
   'admin.placesProvider.google': 'Google Places',
-  'admin.placesProvider.amap': 'Amap (高德地图)',
+  'admin.placesProvider.amap': 'Amap (高德地图)', // same-as-en
   'admin.placesProvider.openstreetmap': 'OpenStreetMap',
   'admin.placesProvider.missingKey':
     "Il provider selezionato non ha una chiave API configurata, quindi alla ricerca di luoghi rispondono solo l'indice TREK e OpenStreetMap.",
@@ -144,7 +144,7 @@ const admin: TranslationStrings = {
   'admin.keyValid': 'Connessa',
   'admin.keyInvalid': 'Non valida',
   'admin.keySaved': 'Chiavi API salvate',
-  'admin.oidcTitle': 'Single Sign-On (OIDC)',
+  'admin.oidcTitle': 'Single Sign-On (OIDC)', // same-as-en
   'admin.oidcSubtitle': "Consenti l'accesso tramite provider esterni come Google, Apple, Authentik o Keycloak.",
   'admin.oidcDisplayName': 'Nome Visualizzato',
   'admin.oidcIssuer': 'URL Emittente',
@@ -203,7 +203,7 @@ const admin: TranslationStrings = {
     'Annotare quale risultato di ricerca è stato scelto, così da poter valutare in seguito un altro indice di luoghi su ricerche reali. Nulla esce da questa istanza e un amministratore può esportare o cancellare il registro in qualsiasi momento.',
   'admin.bagTracking.title': 'Tracciamento valigia',
   'admin.bagTracking.subtitle': "Abilita il peso e l'assegnazione della valigia per gli elementi della lista valigia",
-  'admin.collab.chat.title': 'Chat',
+  'admin.collab.chat.title': 'Chat', // same-as-en
   'admin.collab.chat.subtitle': 'Messaggistica in tempo reale per la collaborazione',
   'admin.collab.notes.title': 'Note',
   'admin.collab.notes.subtitle': 'Note e documenti condivisi',
@@ -288,7 +288,7 @@ const admin: TranslationStrings = {
   'admin.plugins.uninstallBody':
     'Il plugin verrà arrestato, il suo codice rimosso e tutti i suoi dati eliminati. Questa operazione non può essere annullata.',
   'admin.plugins.status.starting': 'Avvio in corso…',
-  'admin.plugins.type.widget': 'Widget',
+  'admin.plugins.type.widget': 'Widget', // same-as-en
   'admin.plugins.type.page': 'Pagina',
   'admin.plugins.type.integration': 'Integrazione',
   'admin.plugins.type.trip-page': 'Pagina viaggio',
@@ -325,7 +325,7 @@ const admin: TranslationStrings = {
   'admin.plugins.fieldRequired': 'Obbligatorio',
   'admin.plugins.sourceRepo': 'Repository sorgente',
   'admin.plugins.reportIssue': 'Segnala un problema',
-  'admin.plugins.homepage': 'Homepage',
+  'admin.plugins.homepage': 'Sito web',
   'admin.plugins.requiresTrek': 'Richiede TREK {version}+',
   'admin.plugins.reviewedOn': 'Verificato il {date}',
   'admin.plugins.perm.db:own': 'Salvare i propri dati in un database isolato',
@@ -635,7 +635,7 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.mcp.description': "Model Context Protocol per l'integrazione di assistenti AI",
   'admin.addons.subtitleBefore': 'Abilita o disabilita le funzionalità per personalizzare la tua ',
   'admin.addons.subtitleAfter': ' esperienza.',
-  'admin.addons.catalog.naver_list_import.name': 'Naver List Import',
+  'admin.addons.catalog.naver_list_import.name': 'Importazione elenchi Naver',
   'admin.addons.catalog.naver_list_import.description': 'Importa luoghi da un elenco condiviso di Naver Maps',
   'admin.addons.catalog.airtrail.name': 'AirTrail',
   'admin.addons.catalog.airtrail.description': 'Sincronizza i voli dalla tua istanza AirTrail',
@@ -650,7 +650,7 @@ const admin: TranslationStrings = {
     'Una chat in ogni viaggio che risponde alle domande e propone modifiche che confermi tu',
   'admin.addons.llm.vision.auto': 'Automatico',
   'admin.addons.llm.vision.on': 'Sì',
-  'admin.addons.llm.vision.off': 'No',
+  'admin.addons.llm.vision.off': 'No', // same-as-en
   'admin.addons.llm.vision.hintLocal': 'Automatico chiede al server Ollama se questo modello legge le immagini.',
   'admin.addons.llm.vision.hintCloud':
     'Automatico significa no per un modello cloud. Scegli Sì se questo modello legge le immagini.',
@@ -694,7 +694,7 @@ const admin: TranslationStrings = {
   'admin.weather.requestsDesc': 'Gratis, nessuna chiave API richiesta',
   'admin.weather.locationHint':
     "Il meteo si basa sul primo luogo con coordinate di ogni giorno. Se a un giorno non è assegnato alcun luogo, viene utilizzato come riferimento un qualsiasi luogo dell'elenco.",
-  'admin.tabs.audit': 'Audit',
+  'admin.tabs.audit': 'Audit', // same-as-en
   'admin.audit.subtitle': 'Eventi sensibili di sicurezza e amministrazione (backup, utenti, 2FA, impostazioni).',
   'admin.audit.empty': 'Nessuna voce di audit.',
   'admin.audit.refresh': 'Aggiorna',
@@ -724,7 +724,7 @@ const admin: TranslationStrings = {
   'admin.mcpTokens.deleteError': 'Impossibile eliminare il token',
   'admin.mcpTokens.loadError': 'Impossibile caricare i token',
   'admin.oauthSessions.sectionTitle': 'Sessioni OAuth',
-  'admin.oauthSessions.clientName': 'Client',
+  'admin.oauthSessions.clientName': 'Client', // same-as-en
   'admin.oauthSessions.owner': 'Proprietario',
   'admin.oauthSessions.scopes': 'Ambiti',
   'admin.oauthSessions.created': 'Creato',
@@ -739,7 +739,7 @@ const admin: TranslationStrings = {
   'admin.github.title': 'Cronologia rilasci',
   'admin.github.subtitle': 'Ultimi aggiornamenti da {repo}',
   'admin.github.latest': 'Ultimo',
-  'admin.github.prerelease': 'Pre-release',
+  'admin.github.prerelease': 'Pre-release', // same-as-en
   'admin.github.showDetails': 'Mostra dettagli',
   'admin.github.hideDetails': 'Nascondi dettagli',
   'admin.github.loadMore': 'Carica altro',
@@ -771,7 +771,7 @@ const admin: TranslationStrings = {
   'admin.update.wikiLink': "Apri la guida all'aggiornamento",
   'admin.update.reloadHint': 'Ricarica la pagina tra qualche secondo.',
   'admin.tabs.permissions': 'Permessi',
-  'admin.notifications.emailPanel.title': 'Email (SMTP)',
+  'admin.notifications.emailPanel.title': 'Email (SMTP)', // same-as-en
   'admin.notifications.webhookPanel.title': 'Webhook',
   'admin.notifications.webPushPanel.title': 'Web Push',
   'admin.notifications.webPushPanel.hint':
@@ -801,7 +801,7 @@ const admin: TranslationStrings = {
     'Usato anche come server predefinito per le notifiche ntfy degli utenti. Lasciare vuoto per usare ntfy.sh. Gli utenti possono sovrascriverlo nelle proprie impostazioni.',
   'admin.notifications.adminNtfyPanel.serverPlaceholder': 'https://ntfy.sh',
   'admin.notifications.adminNtfyPanel.topicLabel': 'Argomento admin',
-  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts',
+  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts', // same-as-en
   'admin.notifications.adminNtfyPanel.tokenLabel': 'Token di accesso (opzionale)',
   'admin.notifications.adminNtfyPanel.tokenCleared': 'Token di accesso admin rimosso',
   'admin.notifications.adminNtfyPanel.saved': 'Impostazioni Ntfy admin salvate',
@@ -865,10 +865,10 @@ const admin: TranslationStrings = {
   'admin.defaultSettings.cartoKey': 'Chiave CARTO condivisa',
   'admin.defaultSettings.cartoKeyHint':
     "Usata per ogni utente che non ha inserito una propria chiave, così tutta l'istanza ottiene le tessere CARTO senza filigrana. Archiviata in forma crittografata.",
-  'admin.group.users': 'Users',
-  'admin.group.config': 'Configuration',
-  'admin.group.integration': 'Integrations',
-  'admin.group.maintenance': 'Maintenance',
+  'admin.group.users': 'Utenti',
+  'admin.group.config': 'Configurazione',
+  'admin.group.integration': 'Integrazioni',
+  'admin.group.maintenance': 'Manutenzione',
   'admin.invite.tripLabel': 'Aggiungi a un viaggio (opzionale)',
   'admin.invite.tripNone': 'Nessun viaggio',
   'admin.invite.tripHint':

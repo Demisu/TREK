@@ -31,15 +31,15 @@ const dayplan: TranslationStrings = {
   'notes.format.bold': 'Fett',
   'notes.format.italic': 'Kursiv',
   'notes.format.strike': 'Durchgestrichen',
-  'notes.format.code': 'Code',
-  'notes.format.link': 'Link',
+  'notes.format.code': 'Code', // same-as-en
+  'notes.format.link': 'Link', // same-as-en
   'notes.format.list': 'Aufzählung',
   'notes.format.orderedList': 'Nummerierte Liste',
   'notes.format.quote': 'Zitat',
   'notes.color.label': 'Farbe',
   'notes.color.none': 'Keine Farbe',
   'notes.color.red': 'Rot',
-  'notes.color.orange': 'Orange',
+  'notes.color.orange': 'Orange', // same-as-en
   'notes.color.amber': 'Bernstein',
   'notes.color.green': 'Grün',
   'notes.color.cyan': 'Türkis',
@@ -49,7 +49,7 @@ const dayplan: TranslationStrings = {
   'dayplan.days': 'Tage',
   'dayplan.dayN': 'Tag {n}',
   'dayplan.calculating': 'Berechne...',
-  'dayplan.route': 'Route',
+  'dayplan.route': 'Route', // same-as-en
   'dayplan.optimize': 'Optimieren',
   'dayplan.transportMode.change': 'Verkehrsmittel ändern',
   'dayplan.transportMode.useDefault': 'Tages-Standard verwenden',

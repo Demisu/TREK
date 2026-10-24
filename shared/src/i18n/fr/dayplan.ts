@@ -9,7 +9,7 @@ const dayplan: TranslationStrings = {
   'dayplan.noteAdd': 'Ajouter une note',
   'dayplan.noteEdit': 'Modifier la note',
   'dayplan.noteDelete': 'Supprimer la note',
-  'dayplan.noteTitle': 'Note',
+  'dayplan.noteTitle': 'Note', // same-as-en
   'dayplan.noteSubtitle': 'Note du jour',
   'dayplan.noteIcon': 'Icône',
   'notes.appearance': 'Apparence',
@@ -20,7 +20,7 @@ const dayplan: TranslationStrings = {
   'notes.format.bold': 'Gras',
   'notes.format.italic': 'Italique',
   'notes.format.strike': 'Barré',
-  'notes.format.code': 'Code',
+  'notes.format.code': 'Code', // same-as-en
   'notes.format.link': 'Lien',
   'notes.format.list': 'Liste à puces',
   'notes.format.orderedList': 'Liste numérotée',
@@ -28,10 +28,10 @@ const dayplan: TranslationStrings = {
   'notes.color.label': 'Couleur',
   'notes.color.none': 'Aucune couleur',
   'notes.color.red': 'Rouge',
-  'notes.color.orange': 'Orange',
+  'notes.color.orange': 'Orange', // same-as-en
   'notes.color.amber': 'Ambre',
   'notes.color.green': 'Vert',
-  'notes.color.cyan': 'Cyan',
+  'notes.color.cyan': 'Cyan', // same-as-en
   'notes.color.blue': 'Bleu',
   'notes.color.purple': 'Violet',
   'dayplan.totalCost': 'Coût total',
@@ -52,7 +52,7 @@ const dayplan: TranslationStrings = {
   'dayplan.pendingRes': 'En attente',
   'dayplan.export': 'Exporter',
   'dayplan.exportIntro': 'Emportez votre plan : en document, dans votre agenda ou sur votre GPS.',
-  'dayplan.exportDocument': 'Document',
+  'dayplan.exportDocument': 'Document', // same-as-en
   'dayplan.exportCalendar': 'Agenda',
   'dayplan.exportMaps': 'Cartes et GPS',
   'dayplan.pdf': 'PDF',
@@ -80,8 +80,8 @@ const dayplan: TranslationStrings = {
   'dayplan.mobile.allAssigned': 'Tous les lieux attribués',
   'dayplan.mobile.noMatch': 'Aucun résultat',
   'dayplan.mobile.createNew': 'Créer un nouveau lieu',
-  'dayplan.expandAll': 'Déplier tous les jours', // en-fallback
-  'dayplan.collapseAll': 'Replier tous les jours', // en-fallback
+  'dayplan.expandAll': 'Déplier tous les jours',
+  'dayplan.collapseAll': 'Replier tous les jours',
   'dayplan.reorderDays': 'Réorganiser les jours',
   'dayplan.reorderTitle': 'Réorganiser les jours',
   'dayplan.reorderHint': "Les lieux, notes et réservations d'un jour le suivent.",

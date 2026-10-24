@@ -77,7 +77,7 @@ const dashboard: TranslationStrings = {
   'dashboard.createTrip': 'Créer un nouveau voyage',
   'dashboard.tripTitle': 'Titre',
   'dashboard.tripTitlePlaceholder': 'ex. Été au Japon',
-  'dashboard.tripDescription': 'Description',
+  'dashboard.tripDescription': 'Description', // same-as-en
   'dashboard.tripDescriptionPlaceholder': 'De quoi parle ce voyage ?',
   'dashboard.startDate': 'Date de début',
   'dashboard.endDate': 'Date de fin',
@@ -174,8 +174,8 @@ const dashboard: TranslationStrings = {
   'dashboard.hero.noDates': 'Aucune date définie',
   'dashboard.hero.travelers': '{count} voyageurs',
   'dashboard.hero.travelers.one': '{count} voyageur',
-  'dashboard.hero.destinations': '{count} destinations',
-  'dashboard.hero.destinations.one': '{count} destination',
+  'dashboard.hero.destinations': '{count} destinations', // same-as-en
+  'dashboard.hero.destinations.one': '{count} destination', // same-as-en
   'dashboard.hero.dayUnit': 'jours',
   'dashboard.hero.dayUnit.one': 'jour',
   'dashboard.hero.daysLeft': 'Jours restants',

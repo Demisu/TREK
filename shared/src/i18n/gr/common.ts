@@ -58,18 +58,18 @@ const common: TranslationStrings = {
   'common.collapse': 'Σύμπτυξη',
   'common.copy': 'Αντιγραφή',
   'common.copied': 'Αντιγράφηκε',
-  'common.datepicker.prevMonth': 'Previous month', // en-fallback
-  'common.datepicker.nextMonth': 'Next month', // en-fallback
-  'common.datepicker.prevYear': 'Previous year', // en-fallback
-  'common.datepicker.nextYear': 'Next year', // en-fallback
-  'common.datepicker.prevYears': 'Previous years', // en-fallback
-  'common.datepicker.nextYears': 'Next years', // en-fallback
-  'common.datepicker.selectMonth': 'Select month', // en-fallback
-  'common.datepicker.selectYear': 'Select year', // en-fallback
-  'common.datepicker.enterManually': 'Enter date manually', // en-fallback
-  'common.datepicker.typeDate': 'Type a date', // en-fallback
-  'common.datepicker.dialog': 'Date picker', // en-fallback
-  'common.datepicker.clearDate': 'Clear date', // en-fallback
+  'common.datepicker.prevMonth': 'Προηγούμενος μήνας',
+  'common.datepicker.nextMonth': 'Επόμενος μήνας',
+  'common.datepicker.prevYear': 'Προηγούμενο έτος',
+  'common.datepicker.nextYear': 'Επόμενο έτος',
+  'common.datepicker.prevYears': 'Προηγούμενα έτη',
+  'common.datepicker.nextYears': 'Επόμενα έτη',
+  'common.datepicker.selectMonth': 'Επιλογή μήνα',
+  'common.datepicker.selectYear': 'Επιλογή έτους',
+  'common.datepicker.enterManually': 'Χειροκίνητη εισαγωγή ημερομηνίας',
+  'common.datepicker.typeDate': 'Πληκτρολογήστε μια ημερομηνία',
+  'common.datepicker.dialog': 'Επιλογέας ημερομηνίας',
+  'common.datepicker.clearDate': 'Εκκαθάριση ημερομηνίας',
   'common.errorTitle': 'Κάτι πήγε στραβά',
   'common.errorBody': 'Αυτό το τμήμα της εφαρμογής σταμάτησε να λειτουργεί. Τα δεδομένα σας είναι ασφαλή.',
   'common.errorPanelTitle': 'Δεν ήταν δυνατή η εμφάνιση αυτής της ενότητας',

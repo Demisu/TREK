@@ -85,7 +85,7 @@ const trip: TranslationStrings = {
   'transit.addToDay': 'Adicionar ao dia',
   'transit.itinerary': 'Itinerário',
   'transit.attribution': 'Dados de rota via',
-  'transport.modeManual': 'Manual',
+  'transport.modeManual': 'Manual', // same-as-en
   'transport.modeAutomated': 'Automático',
   'transit.sectionTitle': 'Transporte público automático',
   'transit.changeRoute': 'Alterar trajeto',

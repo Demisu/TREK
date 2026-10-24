@@ -47,7 +47,7 @@ const atlas: TranslationStrings = {
   'atlas.tripsIn': 'perjalanan pada',
   'atlas.since': 'sejak',
   'atlas.europe': 'Eropa',
-  'atlas.asia': 'Asia',
+  'atlas.asia': 'Asia', // same-as-en
   'atlas.northAmerica': 'Amerika Utara',
   'atlas.southAmerica': 'Amerika Selatan',
   'atlas.africa': 'Afrika',

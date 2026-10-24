@@ -6,7 +6,7 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'URL del endpoint',
   'storage.help.endpoint':
     'URL base del servicio compatible con S3, p. ej. https://s3.example.com o http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'ID de clave de acceso',
   'storage.field.secretAccessKey': 'Clave de acceso secreta',
   'storage.field.region': 'Región',
@@ -29,7 +29,7 @@ const storage: TranslationStrings = {
   'storage.discardAndReload': 'Descartar mis cambios y recargar',
   'storage.configError.banner':
     'No se pudieron cargar los ajustes de almacenamiento guardados — guardar los reemplazará: {error}',
-  'storage.backends.title': 'Backends',
+  'storage.backends.title': 'Backends', // same-as-en
   'storage.backends.add': 'Añadir backend',
   'storage.backends.usedBy': 'Usado por: {categories}',
   'storage.backends.unused': 'No asignado a ninguna categoría',
@@ -37,7 +37,7 @@ const storage: TranslationStrings = {
   'storage.source.built-in': 'Integrado',
   'storage.source.env': 'Entorno',
   'storage.source.settings': 'Configuración',
-  'storage.type.local': 'Local',
+  'storage.type.local': 'Local', // same-as-en
   'storage.type.s3': 'S3',
   'storage.type.mirror': 'Espejo',
   'storage.actions.test': 'Probar',

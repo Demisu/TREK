@@ -12,7 +12,7 @@ const reservations: TranslationStrings = {
   'reservations.summary': '{confirmed} confirmada(s), {pending} pendente(s)',
   'reservations.showFiles': 'Mostrar arquivos',
   'reservations.editTitle': 'Editar reserva',
-  'reservations.status': 'Status',
+  'reservations.status': 'Status', // same-as-en
   'reservations.datetime': 'Data e hora',
   'reservations.startTime': 'Horário de início',
   'reservations.endTime': 'Horário de término',
@@ -40,9 +40,9 @@ const reservations: TranslationStrings = {
   'reservations.meta.trainNumber': 'Nº do trem',
   'reservations.meta.platform': 'Plataforma',
   'reservations.meta.seat': 'Assento',
-  'reservations.meta.checkIn': 'Check-in',
+  'reservations.meta.checkIn': 'Check-in', // same-as-en
   'reservations.meta.checkInUntil': 'Check-in até',
-  'reservations.meta.checkOut': 'Check-out',
+  'reservations.meta.checkOut': 'Check-out', // same-as-en
   'reservations.meta.linkAccommodation': 'Hospedagem',
   'reservations.meta.pickAccommodation': 'Vincular à hospedagem',
   'reservations.meta.noAccommodation': 'Nenhuma',
@@ -192,7 +192,7 @@ const reservations: TranslationStrings = {
   'reservations.linkExpense': 'Vincular despesa existente',
   'reservations.unlinkExpense': 'Desvincular, manter a despesa',
   'reservations.noUnlinkedExpenses': 'Nenhuma despesa sem vínculo',
-  'reservations.urlLabel': 'Link',
+  'reservations.urlLabel': 'Link', // same-as-en
   'reservations.urlPlaceholder': 'https://...',
   'reservations.travelers.label': 'Viajantes',
   'reservations.travelers.assign': 'Atribuir viajantes',
@@ -220,7 +220,7 @@ const reservations: TranslationStrings = {
   'reservations.export.notes': 'Notas',
   'reservations.resetView': 'Redefinir visualização',
   'reservations.group.label': 'Agrupar por',
-  'reservations.group.status': 'Status',
+  'reservations.group.status': 'Status', // same-as-en
   'reservations.group.day': 'Dia',
   'reservations.group.type': 'Tipo',
   'reservations.group.none': 'Sem agrupamento',
@@ -232,14 +232,14 @@ const reservations: TranslationStrings = {
   'reservations.sort.date': 'Data',
   'reservations.sort.title': 'Título',
   'reservations.sort.type': 'Tipo',
-  'reservations.sort.status': 'Status',
+  'reservations.sort.status': 'Status', // same-as-en
   'reservations.sort.earlyFirst': 'Mais cedo primeiro',
   'reservations.sort.lateFirst': 'Mais tarde primeiro',
   'reservations.sort.aToZ': 'A a Z',
   'reservations.sort.zToA': 'Z a A',
   'reservations.timeline.dayCount': '{count} dias',
   'reservations.timeline.dayCount.one': '{count} dia',
-  'reservations.timeline.zoom': 'Zoom',
+  'reservations.timeline.zoom': 'Zoom', // same-as-en
   'reservations.timeline.trip': 'Viagem',
   'reservations.timeline.day': 'Dia',
   'reservations.timeline.prevDay': 'Dia anterior',

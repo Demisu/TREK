@@ -197,7 +197,7 @@ const dashboard: TranslationStrings = {
   'dashboard.confirm.copy.wont4': 'Token berbagi',
   'dashboard.confirm.copy.confirm': 'Salin perjalanan',
   'dashboard.aria.toggleView': 'Ganti tampilan',
-  'dashboard.aria.filter': 'Filter',
+  'dashboard.aria.filter': 'Filter', // same-as-en
   'dashboard.aria.duplicate': 'Duplikat',
   'dashboard.aria.refreshRates': 'Segarkan kurs',
   'dashboard.aria.swapCurrencies': 'Tukar mata uang',

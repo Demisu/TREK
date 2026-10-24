@@ -115,7 +115,7 @@ const collab: TranslationStrings = {
   'collab.polls.options': 'الخيارات',
   'collab.polls.delete': 'حذف',
   'collab.polls.closedSection': 'مغلق',
-  'collab.notes.websitePlaceholder': 'https://...', // en-fallback
+  'collab.notes.websitePlaceholder': 'https://...',
   'collab.chat.imageLimit': 'يمكنك إرفاق ما يصل إلى {count} صورة لكل رسالة',
   'collab.chat.imageLimit.zero': 'يمكنك إرفاق ما يصل إلى {count} صورة لكل رسالة',
   'collab.chat.imageLimit.one': 'يمكنك إرفاق صورة واحدة فقط لكل رسالة',

@@ -12,7 +12,7 @@ const notifications: TranslationStrings = {
   'notifications.markRead': 'Als gelesen markieren',
   'notifications.markUnread': 'Als ungelesen markieren',
   'notifications.delete': 'Löschen',
-  'notifications.system': 'System',
+  'notifications.system': 'System', // same-as-en
   'notifications.synologySessionCleared.title': 'Synology Photos getrennt',
   'notifications.synologySessionCleared.text':
     'Dein Server oder Konto hat sich geändert — gehe zu Einstellungen, um deine Verbindung erneut zu testen.',

@@ -3,7 +3,7 @@ import type { TranslationStrings } from '../types';
 const budget: TranslationStrings = {
   'costs.confirm.deleteTitle': 'Ausgabe löschen?',
   'costs.confirm.deleteBody': '"{name}" wird unwiderruflich gelöscht.',
-  'budget.title': 'Budget',
+  'budget.title': 'Budget', // same-as-en
   'budget.exportCsv': 'CSV exportieren',
   'budget.emptyTitle': 'Noch kein Budget erstellt',
   'budget.emptyText': 'Erstelle Kategorien und Einträge, um dein Reisebudget zu planen',
@@ -12,7 +12,7 @@ const budget: TranslationStrings = {
   'budget.category': 'Kategorie',
   'budget.categoryName': 'Kategoriename',
   'budget.addCategory': 'Kategorie hinzufügen',
-  'budget.table.name': 'Name',
+  'budget.table.name': 'Name', // same-as-en
   'budget.table.total': 'Gesamt',
   'budget.table.persons': 'Personen',
   'budget.table.days': 'Tage',
@@ -81,7 +81,7 @@ const budget: TranslationStrings = {
   'costs.table.byCategory': 'Kategorie',
   'costs.table.byDate': 'Tag',
   'costs.table.byPayer': 'Zahler',
-  'costs.table.byStatus': 'Status',
+  'costs.table.byStatus': 'Status', // same-as-en
   'costs.table.noPayer': 'Noch kein Zahler',
   'costs.table.paid': 'Bezahlt',
   'costs.table.open': 'Offen',
@@ -124,7 +124,7 @@ const budget: TranslationStrings = {
   'costs.totalAmount': 'Gesamtbetrag',
   'costs.currency': 'Währung',
   'costs.day': 'Tag',
-  'costs.rateLabel': '1 {from} in {to}',
+  'costs.rateLabel': '1 {from} in {to}', // same-as-en
   'costs.category': 'Kategorie',
   'costs.whoPaid': 'Wer hat bezahlt?',
   'costs.multiplePayers': 'Mehrere haben bezahlt',
@@ -137,11 +137,11 @@ const budget: TranslationStrings = {
   'costs.cat.accommodation': 'Unterkunft',
   'costs.cat.food': 'Essen & Trinken',
   'costs.cat.groceries': 'Lebensmittel',
-  'costs.cat.transport': 'Transport',
+  'costs.cat.transport': 'Transport', // same-as-en
   'costs.cat.flights': 'Flüge',
   'costs.cat.activities': 'Aktivitäten',
-  'costs.cat.sightseeing': 'Sightseeing',
-  'costs.cat.shopping': 'Shopping',
+  'costs.cat.sightseeing': 'Sightseeing', // same-as-en
+  'costs.cat.shopping': 'Shopping', // same-as-en
   'costs.cat.fees': 'Gebühren & Tickets',
   'costs.cat.health': 'Gesundheit',
   'costs.cat.tips': 'Trinkgeld',

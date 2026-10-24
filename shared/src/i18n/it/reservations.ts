@@ -41,9 +41,9 @@ const reservations: TranslationStrings = {
   'reservations.meta.trainNumber': 'N. treno',
   'reservations.meta.platform': 'Binario',
   'reservations.meta.seat': 'Posto',
-  'reservations.meta.checkIn': 'Check-in',
+  'reservations.meta.checkIn': 'Check-in', // same-as-en
   'reservations.meta.checkInUntil': 'Check-in fino a',
-  'reservations.meta.checkOut': 'Check-out',
+  'reservations.meta.checkOut': 'Check-out', // same-as-en
   'reservations.meta.linkAccommodation': 'Alloggio',
   'reservations.meta.pickAccommodation': 'Collega a un alloggio',
   'reservations.meta.noAccommodation': 'Nessuno',
@@ -61,14 +61,14 @@ const reservations: TranslationStrings = {
   'reservations.type.car': 'Auto',
   'reservations.type.cruise': 'Crociera',
   'reservations.type.event': 'Evento',
-  'reservations.type.tour': 'Tour',
+  'reservations.type.tour': 'Tour', // same-as-en
   'reservations.type.parking': 'Parcheggio',
   'reservations.type.other': 'Altro',
   'reservations.type.bus': 'Autobus',
   'reservations.type.ferry': 'Traghetto',
   'reservations.type.cable_car': 'Funivia',
   'reservations.type.bicycle': 'Bicicletta',
-  'reservations.type.taxi': 'Taxi',
+  'reservations.type.taxi': 'Taxi', // same-as-en
   'reservations.type.transit': 'Trasporto pubblico',
   'reservations.typeShort.transit': 'Mezzi pubblici',
   'reservations.type.transport_other': 'Altro',
@@ -193,7 +193,7 @@ const reservations: TranslationStrings = {
   'reservations.linkExpense': 'Collega spesa esistente',
   'reservations.unlinkExpense': 'Scollega, mantieni la spesa',
   'reservations.noUnlinkedExpenses': 'Nessuna spesa non collegata',
-  'reservations.urlLabel': 'Link',
+  'reservations.urlLabel': 'Link', // same-as-en
   'reservations.urlPlaceholder': 'https://...',
   'reservations.travelers.label': 'Viaggiatori',
   'reservations.travelers.assign': 'Assegna viaggiatori',
@@ -240,7 +240,7 @@ const reservations: TranslationStrings = {
   'reservations.sort.zToA': 'Dalla Z alla A',
   'reservations.timeline.dayCount': '{count} giorni',
   'reservations.timeline.dayCount.one': '{count} giorno',
-  'reservations.timeline.zoom': 'Zoom',
+  'reservations.timeline.zoom': 'Zoom', // same-as-en
   'reservations.timeline.trip': 'Viaggio',
   'reservations.timeline.day': 'Giorno',
   'reservations.timeline.prevDay': 'Giorno precedente',

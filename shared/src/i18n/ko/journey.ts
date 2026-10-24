@@ -3,7 +3,7 @@ import type { TranslationStrings } from '../types';
 const journey: TranslationStrings = {
   'journey.search.placeholder': 'Journey 검색…',
   'journey.search.noResults': '"{query}"와(과) 일치하는 Journey가 없습니다',
-  'journey.title': 'Journey',
+  'journey.title': '여정',
   'journey.subtitle': '여행을 실시간으로 기록하세요',
   'journey.new': '새 Journey',
   'journey.lightbox.zoomIn': '확대',
@@ -92,7 +92,7 @@ const journey: TranslationStrings = {
   'journey.detail.noEntriesHint': '여행을 추가하여 스켈레톤 항목으로 시작하세요',
   'journey.detail.noPhotos': '아직 사진이 없습니다',
   'journey.detail.noPhotosHint': '항목에 사진을 업로드하거나 Immich/Synology 라이브러리를 탐색하세요',
-  'journey.detail.journeyTab': 'Journey',
+  'journey.detail.journeyTab': '여정',
   'journey.detail.journeyStats': 'Journey 통계',
   'journey.detail.syncedTrips': '동기화된 여행',
   'journey.detail.noTripsLinked': '아직 연결된 여행이 없습니다',
@@ -264,28 +264,28 @@ const journey: TranslationStrings = {
   'journey.editor.uploadPartialFailed':
     '{total}개 중 {failed}개의 사진을 업로드하지 못했습니다 — 다시 저장하여 재시도하세요',
   'journey.photosUploadFailed': '일부 사진을 업로드하지 못했습니다',
-  'journey.editor.externalPhotos': 'External photos', // en-fallback
-  'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
-  'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback
-  'journey.editor.externalPhotosNoLocation': 'All photos from this day', // en-fallback
-  'journey.editor.externalPhotosQueued': 'queued', // en-fallback
-  'journey.editor.externalPhotosUnavailable': 'No connected photo providers are available.', // en-fallback
-  'journey.editor.externalPhotosPartialFailed': '{failed} photo groups failed — save again to retry', // en-fallback
-  'journey.picker.day': 'This day', // en-fallback
-  'journey.studio.title': 'TREK Studio', // en-fallback
-  'journey.studio.open': 'Studio', // en-fallback
-  'journey.studio.openAria': 'Open the photo book studio', // en-fallback
-  'journey.studio.backToJourney': 'Back to the journey', // en-fallback
-  'journey.studio.format': 'Page format', // en-fallback
-  'journey.studio.formatA4Landscape': 'A4 landscape', // en-fallback
-  'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
-  'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
-  'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
+  'journey.editor.externalPhotos': '외부 사진',
+  'journey.editor.externalPhotosFor': '{date} 사진',
+  'journey.editor.externalPhotosNearby': '가까운 사진 우선',
+  'journey.editor.externalPhotosNoLocation': '이날의 모든 사진',
+  'journey.editor.externalPhotosQueued': '대기 중',
+  'journey.editor.externalPhotosUnavailable': '연결된 사진 제공자가 없습니다.',
+  'journey.editor.externalPhotosPartialFailed': '사진 그룹 {failed}개 실패: 다시 저장하여 재시도하세요',
+  'journey.picker.day': '이날',
+  'journey.studio.title': 'TREK 스튜디오',
+  'journey.studio.open': '스튜디오',
+  'journey.studio.openAria': '포토북 스튜디오 열기',
+  'journey.studio.backToJourney': '여정으로 돌아가기',
+  'journey.studio.format': '페이지 형식',
+  'journey.studio.formatA4Landscape': 'A4 가로',
+  'journey.studio.formatA4Portrait': 'A4 세로',
+  'journey.studio.formatSquare21': '정사각형 21 × 21 cm',
+  'journey.studio.formatSquare30': '정사각형 30 × 30 cm',
   'journey.studio.pages': '페이지',
-  'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.autoLayout': 'Auto layout', // en-fallback
-  'journey.studio.export': 'Export', // en-fallback
+  'journey.studio.cover': '표지',
+  'journey.studio.inspectorEmpty': '페이지에서 편집할 항목을 선택하세요.',
+  'journey.studio.autoLayout': '자동 레이아웃',
+  'journey.studio.export': '내보내기',
   'journey.studio.day': '{day}일차',
   'journey.studio.stations': '경유지',
   'journey.studio.peersHere': '접속 중',
@@ -303,98 +303,98 @@ const journey: TranslationStrings = {
   'journey.studio.exportSave': 'PDF로 저장',
   'journey.studio.exportPreparing': '준비 중',
   'journey.studio.exportSheetCount': '{count}장',
-  'journey.studio.undo': 'Undo', // en-fallback
-  'journey.studio.redo': 'Redo', // en-fallback
-  'journey.studio.zoomIn': 'Zoom in', // en-fallback
-  'journey.studio.zoomOut': 'Zoom out', // en-fallback
-  'journey.studio.zoomFit': 'Fit to view', // en-fallback
+  'journey.studio.undo': '실행 취소',
+  'journey.studio.redo': '다시 실행',
+  'journey.studio.zoomIn': '확대',
+  'journey.studio.zoomOut': '축소',
+  'journey.studio.zoomFit': '화면에 맞추기',
   'journey.studio.downloadSpread': '이 펼침면 내려받기',
   'journey.studio.downloadSpreadHint':
     '이 펼침면의 디자인을 사진 없이 파일로 저장합니다. 공유하거나 다시 쓸 수 있습니다',
   'journey.studio.importSpread': '가져오기',
   'journey.studio.importSpreadHint': '내려받은 디자인 파일에서 펼침면을 추가합니다',
   'journey.studio.importSpreadFailed': '이 파일은 TREK 스튜디오 펼침면이 아닙니다',
-  'journey.studio.desktopOnly': 'Studio needs a bigger screen', // en-fallback
+  'journey.studio.desktopOnly': '스튜디오는 더 큰 화면이 필요합니다',
   'journey.studio.desktopOnlyHint':
-    '책을 만들려면 작업할 공간이 필요해서 스튜디오는 데스크톱에서만 쓸 수 있고, PDF 만들기도 마찬가지입니다. 여정의 나머지 기능은 여기에서도 평소처럼 작동합니다.', // en-fallback
-  'journey.studio.formatA5Landscape': 'A5 landscape', // en-fallback
-  'journey.studio.bookView': 'Book view', // en-fallback
-  'journey.studio.multiple': 'Several', // en-fallback
-  'journey.studio.kind.photo': 'Photo', // en-fallback
-  'journey.studio.kind.text': 'Text', // en-fallback
-  'journey.studio.kind.shape': 'Shape', // en-fallback
-  'journey.studio.position': 'Position', // en-fallback
-  'journey.studio.width': 'W', // en-fallback
-  'journey.studio.height': 'H', // en-fallback
+    '책을 만들려면 작업할 공간이 필요해서 스튜디오는 데스크톱에서만 쓸 수 있고, PDF 만들기도 마찬가지입니다. 여정의 나머지 기능은 여기에서도 평소처럼 작동합니다.',
+  'journey.studio.formatA5Landscape': 'A5 가로',
+  'journey.studio.bookView': '책 보기',
+  'journey.studio.multiple': '여러 개',
+  'journey.studio.kind.photo': '사진',
+  'journey.studio.kind.text': '텍스트',
+  'journey.studio.kind.shape': '도형',
+  'journey.studio.position': '위치',
+  'journey.studio.width': '너비',
+  'journey.studio.height': '높이',
   'journey.studio.text': '텍스트',
-  'journey.studio.typography': 'Type', // en-fallback
-  'journey.studio.leading': 'Line', // en-fallback
-  'journey.studio.colour': 'Colour', // en-fallback
+  'journey.studio.typography': '글꼴',
+  'journey.studio.leading': '행간',
+  'journey.studio.colour': '색상',
   'journey.studio.autoColour': '자동',
   'journey.studio.countryNames': '이름',
-  'journey.studio.crop': 'Crop', // en-fallback
-  'journey.studio.look': 'Look', // en-fallback
-  'journey.studio.radius': 'Corner', // en-fallback
-  'journey.studio.shape': 'Shape', // en-fallback
-  'journey.studio.arrange': 'Arrange', // en-fallback
-  'journey.studio.toFront': 'Bring to front', // en-fallback
-  'journey.studio.forward': 'Bring forward', // en-fallback
-  'journey.studio.backward': 'Send backward', // en-fallback
-  'journey.studio.toBack': 'Send to back', // en-fallback
-  'journey.studio.lock': 'Lock', // en-fallback
-  'journey.studio.unlock': 'Unlock', // en-fallback
-  'journey.studio.delete': 'Delete', // en-fallback
-  'journey.studio.pageHint': 'Page', // en-fallback
-  'journey.studio.boundHint': 'Follows the journal entry. Editing it here breaks that link.', // en-fallback
-  'journey.studio.fit.cover': 'Fill', // en-fallback
-  'journey.studio.fit.contain': 'Fit', // en-fallback
-  'journey.studio.filter.none': 'Original', // en-fallback
-  'journey.studio.filter.bw': 'Black & white', // en-fallback
-  'journey.studio.filter.warm': 'Warm', // en-fallback
-  'journey.studio.shapeKind.rect': 'Rectangle', // en-fallback
-  'journey.studio.shapeKind.ellipse': 'Ellipse', // en-fallback
-  'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
-  'journey.studio.backCover': 'Back cover', // en-fallback
-  'journey.studio.sections': 'Sections', // en-fallback
+  'journey.studio.crop': '자르기',
+  'journey.studio.look': '스타일',
+  'journey.studio.radius': '모서리',
+  'journey.studio.shape': '도형',
+  'journey.studio.arrange': '정렬',
+  'journey.studio.toFront': '맨 앞으로 가져오기',
+  'journey.studio.forward': '앞으로 가져오기',
+  'journey.studio.backward': '뒤로 보내기',
+  'journey.studio.toBack': '맨 뒤로 보내기',
+  'journey.studio.lock': '잠금',
+  'journey.studio.unlock': '잠금 해제',
+  'journey.studio.delete': '삭제',
+  'journey.studio.pageHint': '페이지',
+  'journey.studio.boundHint': '일지 항목과 연동됩니다. 여기에서 수정하면 연동이 끊어집니다.',
+  'journey.studio.fit.cover': '채우기',
+  'journey.studio.fit.contain': '맞추기',
+  'journey.studio.filter.none': '원본',
+  'journey.studio.filter.bw': '흑백',
+  'journey.studio.filter.warm': '따뜻한 톤',
+  'journey.studio.shapeKind.rect': '직사각형',
+  'journey.studio.shapeKind.ellipse': '타원',
+  'journey.studio.focalHint': '점을 드래그해 프레임에 남길 부분을 정하세요.',
+  'journey.studio.backCover': '뒤표지',
+  'journey.studio.sections': '섹션',
   'journey.studio.content': '콘텐츠',
   'journey.studio.elements': '요소',
   'journey.studio.templates': '레이아웃',
   'journey.studio.photos': '사진',
   'journey.studio.entries': '기록',
-  'journey.studio.addToPage': 'Add to this page', // en-fallback
-  'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
-  'journey.studio.untitled': 'Untitled', // en-fallback
-  'journey.studio.addTitle': 'Title', // en-fallback
-  'journey.studio.addStory': 'Story', // en-fallback
-  'journey.studio.addPlace': 'Place', // en-fallback
+  'journey.studio.addToPage': '이 페이지에 추가',
+  'journey.studio.noPhotos': '이 여정에는 아직 사진이 없습니다.',
+  'journey.studio.untitled': '제목 없음',
+  'journey.studio.addTitle': '제목',
+  'journey.studio.addStory': '이야기',
+  'journey.studio.addPlace': '장소',
   'journey.studio.shapes': '도형',
   'journey.studio.frames': '프레임',
-  'journey.studio.emptyFrame': 'Empty frame', // en-fallback
-  'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
-  'journey.studio.shapeKind.line': 'Line', // en-fallback
-  'journey.studio.styleTitle': 'Heading', // en-fallback
-  'journey.studio.styleSubtitle': 'Subheading', // en-fallback
-  'journey.studio.styleBody': 'Body text', // en-fallback
-  'journey.studio.styleCaption': 'Caption', // en-fallback
-  'journey.studio.sampleHeading': 'A heading', // en-fallback
-  'journey.studio.sampleSubheading': 'A subheading', // en-fallback
-  'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
-  'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
-  'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
-  'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
-  'journey.studio.tpl.grid4': 'Four up', // en-fallback
-  'journey.studio.tpl.grid6': 'Six up', // en-fallback
-  'journey.studio.tpl.strip': 'Strip and text', // en-fallback
-  'journey.studio.tpl.quietText': 'Text only', // en-fallback
-  'journey.studio.tpl.portraitPair': 'A pair', // en-fallback
+  'journey.studio.emptyFrame': '빈 프레임',
+  'journey.studio.frameHint': '빈 프레임은 사진이 들어갈 자리를 표시합니다. 콘텐츠에서 사진을 끌어다 놓으세요.',
+  'journey.studio.shapeKind.line': '선',
+  'journey.studio.styleTitle': '제목',
+  'journey.studio.styleSubtitle': '부제목',
+  'journey.studio.styleBody': '본문',
+  'journey.studio.styleCaption': '캡션',
+  'journey.studio.sampleHeading': '제목',
+  'journey.studio.sampleSubheading': '부제목',
+  'journey.studio.sampleBody': '이날에 대해 적어 보세요.',
+  'journey.studio.sampleCaption': '캡션',
+  'journey.studio.tpl.heroStory': '대표 사진과 이야기',
+  'journey.studio.tpl.fullBleed': '사진 한 장, 전체 펼침면',
+  'journey.studio.tpl.twoUp': '전체 페이지 두 장',
+  'journey.studio.tpl.grid4': '4장 배열',
+  'journey.studio.tpl.grid6': '6장 배열',
+  'journey.studio.tpl.strip': '띠 사진과 텍스트',
+  'journey.studio.tpl.quietText': '텍스트만',
+  'journey.studio.tpl.portraitPair': '한 쌍',
   'journey.studio.dropPhotoHere': '사진을 여기로\n끌어다 놓기',
-  'journey.studio.searchContent': 'Search photos and entries', // en-fallback
-  'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
+  'journey.studio.searchContent': '사진과 항목 검색',
+  'journey.studio.noMatches': '일치하는 항목이 없습니다.',
   'journey.studio.quoteMark': '따옴표',
-  'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
-  'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
-  'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
+  'journey.studio.shapeKind.rounded': '둥근 직사각형',
+  'journey.studio.shapeKind.triangle': '삼각형',
+  'journey.studio.shapeKind.outline': '윤곽선만',
   'journey.studio.travel': '여행',
   'journey.studio.travelEmpty': '이 여정의 수치가 아직 준비되지 않았습니다.',
   'journey.studio.grids': '그리드',
@@ -529,7 +529,7 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': '페이지 삭제',
   'journey.studio.movePageUp': '앞으로 이동',
   'journey.studio.movePageDown': '뒤로 이동',
-  'journey.studio.beta': 'Beta',
+  'journey.studio.beta': '베타',
   'journey.studio.addProsCons': '장단점',
   'journey.studio.showMarks': '기호',
   'journey.studio.formatCustom': '사용자 지정 크기',

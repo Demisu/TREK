@@ -46,7 +46,7 @@ const vacay: TranslationStrings = {
   'vacay.legend': 'Legenda',
   'vacay.publicHoliday': 'Feestdag',
   'vacay.companyHoliday': 'Bedrijfsvakantie',
-  'vacay.weekend': 'Weekend',
+  'vacay.weekend': 'Weekend', // same-as-en
   'vacay.modeVacation': 'Vakantie',
   'vacay.modeCompany': 'Bedrijfsvakantie',
   'vacay.modeHalf': 'Halve dag',
@@ -71,9 +71,9 @@ const vacay: TranslationStrings = {
   'vacay.sat': 'Za',
   'vacay.sun': 'Zo',
   'vacay.publicHolidays': 'Feestdagen',
-  'vacay.publicHolidaysHint': 'Mark public holidays in the calendar',
-  'vacay.schoolHolidays': 'School Holidays',
-  'vacay.schoolHolidaysHint': 'Mark school holidays as a visual calendar layer',
+  'vacay.publicHolidaysHint': 'Feestdagen in de kalender markeren',
+  'vacay.schoolHolidays': 'Schoolvakanties',
+  'vacay.schoolHolidaysHint': 'Schoolvakanties als visuele kalenderlaag markeren',
   'vacay.selectCountry': 'Selecteer land',
   'vacay.selectRegion': 'Selecteer regio (verplicht)',
   'vacay.companyHolidays': 'Bedrijfsvakanties',
@@ -146,7 +146,7 @@ const vacay: TranslationStrings = {
   'vacay.addCalendar': 'Kalender toevoegen',
   'vacay.calendarColor': 'Kleur',
   'vacay.calendarLabel': 'Label',
-  'vacay.noCalendars': 'No holiday calendars added yet',
-  'vacay.noSchoolCalendars': 'No school holiday calendars added yet',
+  'vacay.noCalendars': 'Nog geen feestdagenkalenders toegevoegd',
+  'vacay.noSchoolCalendars': 'Nog geen schoolvakantiekalenders toegevoegd',
 };
 export default vacay;

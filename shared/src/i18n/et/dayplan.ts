@@ -32,7 +32,7 @@ const dayplan: TranslationStrings = {
   'notes.format.italic': 'Kaldkiri',
   'notes.format.strike': 'Läbikriipsutus',
   'notes.format.code': 'Kood',
-  'notes.format.link': 'Link',
+  'notes.format.link': 'Link', // same-as-en
   'notes.format.list': 'Täpploend',
   'notes.format.orderedList': 'Nummerdatud loend',
   'notes.format.quote': 'Tsitaat',

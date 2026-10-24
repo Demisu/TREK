@@ -21,7 +21,7 @@ const reservations: TranslationStrings = {
   'reservations.timeAlt': 'Kellaaeg (alternatiivne, nt 19:30)',
   'reservations.notes': 'Märkmed',
   'reservations.notesPlaceholder': 'Lisamärkmed...',
-  'reservations.urlLabel': 'Link',
+  'reservations.urlLabel': 'Link', // same-as-en
   'reservations.urlPlaceholder': 'https://...',
   'reservations.meta.airline': 'Lennufirma',
   'reservations.meta.flightNumber': 'Lennu nr',

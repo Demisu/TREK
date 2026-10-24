@@ -666,7 +666,7 @@ const help: TranslationStrings = {
   'help.guide.all-saved.tip.1': 'التسميات والجولات المحفوظة خاصة بكل قائمة، لذا لا يتاح أي منهما في «كل المحفوظات».',
 
   // ── Screen: journey ───────────────────────────────────────────────────────────────────
-  'help.ctx.journey.title': 'Journey',
+  'help.ctx.journey.title': 'يوميات',
   'help.ctx.journey.summary':
     'Journey هو دفتر يوميات سفرك، والصور فيه أولًا. كل يوميات مرتبطة برحلة واحدة أو أكثر، وتملؤها يومًا بعد يوم بمدخلات فيها قصة وصور ومزاج وطقس. تعرض هذه الشاشة يومياتك، فافتح إحداها لتكتب.',
   'help.ctx.journey.bullet.1':
@@ -871,7 +871,7 @@ const help: TranslationStrings = {
   'help.guide.journey-status.tip.2': 'الحالة التي تضبطها يدويًا تبقى إلى أن تغيّرها، حتى لو تغيّرت تواريخ الرحلة.',
 
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
-  'help.ctx.journey-studio.title': 'Studio',
+  'help.ctx.journey-studio.title': 'الاستوديو',
   'help.ctx.journey-studio.summary':
     'يحوّل TREK Studio اليوميات إلى كتاب صور قابل للطباعة. يُفتح فوق اليوميات: قائمة الصفحات والمحتوى على اليسار، والصفحتان المتقابلتان اللتان تعمل عليهما في الوسط، وخصائصهما على اليمين. ينشئ Auto layout مسودة أولى من مدخلاتك، وبعدها يمكنك تحريك كل شيء واقتصاصه وإعادة تنسيقه، والتراجع عن أي خطوة.',
   'help.ctx.journey-studio.bullet.1':

@@ -16,7 +16,7 @@ const system_notice: TranslationStrings = {
   'system_notice.thank_you_support.highlight_opensource': '在 GitHub 上 100% 开源',
   'system_notice.thank_you_support.highlight_free': '永久免费——绝无付费档位',
   'system_notice.thank_you_support.highlight_community': '与社区一起共建',
-  'system_notice.thank_you_support.cta_bmc': 'Buy Me a Coffee',
+  'system_notice.thank_you_support.cta_bmc': '请我喝杯咖啡',
   'system_notice.thank_you_support.cta_kofi': '在 Ko-fi 上支持',
   'system_notice.pager.prev': '上一条通知',
   'system_notice.pager.next': '下一条通知',
@@ -82,7 +82,7 @@ const system_notice: TranslationStrings = {
   'system_notice.release_notes.support_lead': 'TREK 现在免费，以后也永远免费，但服务器、域名和无数个深夜可不是免费的。',
   'system_notice.release_notes.support_text':
     '如果它已经在你的旅行中占有一席之地，请我喝杯咖啡，帮我把下一个版本继续做出来吧。',
-  'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
+  'system_notice.release_notes.cta_bmc': '请我喝杯咖啡',
   'system_notice.release_notes.cta_kofi': '在 Ko-fi 上支持',
   'system_notice.release_notes.feature_docsync_title': '文档同步',
   'system_notice.release_notes.feature_docsync_body':

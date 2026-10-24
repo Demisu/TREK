@@ -954,7 +954,7 @@ const help: TranslationStrings = {
     'Un estado que pones a mano se mantiene hasta que lo cambies, aunque cambien las fechas del viaje.',
 
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
-  'help.ctx.journey-studio.title': 'Studio',
+  'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
     'TREK Studio maqueta una travesía como un libro de fotos que puedes imprimir. Se abre encima del diario: la lista de páginas y el contenido a la izquierda, la doble página en la que trabajas en el centro y sus propiedades a la derecha. La maquetación automática crea un primer borrador a partir de tus entradas. Después puedes mover, recortar y cambiar el estilo de todo, y deshacer cada paso.',
   'help.ctx.journey-studio.bullet.1':
@@ -1470,7 +1470,7 @@ const help: TranslationStrings = {
   'help.ctx.admin-addons.bullet.2':
     'Los proveedores de fotos y de documentos también aparecen aquí como casillas, para que Immich o Synology se puedan ofrecer a los usuarios.',
   'help.ctx.admin-addons.bullet.3': '«Seguimiento de equipaje» tiene su propio interruptor debajo de las casillas.',
-  'help.ctx.admin-plugins.title': 'Plugins',
+  'help.ctx.admin-plugins.title': 'Plugins', // same-as-en
   'help.ctx.admin-plugins.summary':
     'Plugins de terceros que se ejecutan en su propio proceso junto a TREK, cada uno con los permisos que pidió al instalarse. Puedes instalarlos desde el catálogo, subir un paquete o vincular una carpeta mientras desarrollas un plugin.',
   'help.ctx.admin-plugins.bullet.1':
@@ -6725,7 +6725,7 @@ const help: TranslationStrings = {
     'Haz clic en ⋯, arriba a la derecha de la cabecera, para abrir «Ajustes de la travesía».',
   'help.guide.share-public.tip.3':
     'Los borradores nunca aparecen en el enlace, y las rutas grabadas solo se muestran en los días con alguna entrada publicada.',
-  'help.ctx.settings-plugins.title': 'Plugins',
+  'help.ctx.settings-plugins.title': 'Plugins', // same-as-en
   'help.ctx.settings-about.bullet.2':
     '«Reportar un error» y «Solicitar función» abren el proyecto en GitHub; «Wiki» abre la documentación.',
   'help.guide.map-provider.tip.3':

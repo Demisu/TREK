@@ -154,7 +154,7 @@ const places: TranslationStrings = {
   'places.details.fact.delivery': 'Teslimat',
   'places.details.fact.wheelchair': 'Basamaksız giriş',
   'places.details.fact.vegetarian': 'Vejetaryen',
-  'places.details.fact.vegan': 'Vegan',
+  'places.details.fact.vegan': 'Vegan', // same-as-en
   'places.details.fact.internetAccess': 'Wi-Fi',
   'places.categoryCreateError': 'Kategori oluşturulamadı',
   'places.nameRequired': 'Lütfen bir ad girin',

@@ -56,12 +56,12 @@ const places: TranslationStrings = {
   'places.planned': 'Geplant',
   'places.dayScoped': 'Nur der geöffnete Tag wird angezeigt',
   'places.dayScopedClear': 'Ganze Reise anzeigen',
-  'places.filterTracks': 'Tracks',
+  'places.filterTracks': 'Tracks', // same-as-en
   'places.filterByRating': 'Nach Bewertung filtern',
   'places.sortBy': 'Sortieren nach',
   'places.sortNewest': 'Zuletzt hinzugefügt',
   'places.sortOldest': 'Älteste zuerst',
-  'places.sortName': 'Name (A–Z)',
+  'places.sortName': 'Name (A bis Z)',
   'places.sortRating': 'Beste Bewertung',
   'places.sortUpdated': 'Zuletzt geändert',
   'places.filterByLocation': 'Nach Land oder Region filtern',
@@ -81,7 +81,7 @@ const places: TranslationStrings = {
   'places.allPlanned': 'Alle Orte sind eingeplant',
   'places.noneFound': 'Keine Orte gefunden',
   'places.editPlace': 'Ort bearbeiten',
-  'places.formName': 'Name',
+  'places.formName': 'Name', // same-as-en
   'places.formNamePlaceholder': 'z.B. Eiffelturm',
   'places.formDescription': 'Beschreibung',
   'places.formDescriptionPlaceholder': 'Kurze Beschreibung...',
@@ -101,7 +101,7 @@ const places: TranslationStrings = {
   'places.endTime': 'Ende',
   'places.endTimeBeforeStart': 'Endzeit liegt vor der Startzeit',
   'places.timeCollision': 'Zeitliche Überschneidung mit:',
-  'places.formWebsite': 'Website',
+  'places.formWebsite': 'Website', // same-as-en
   'places.formPhone': 'Telefon',
   'places.formEmail': 'E-Mail',
   'places.hoursAdd': 'Öffnungszeiten hinzufügen',
@@ -152,7 +152,7 @@ const places: TranslationStrings = {
   'places.details.fact.delivery': 'Lieferung',
   'places.details.fact.wheelchair': 'Barrierefrei',
   'places.details.fact.vegetarian': 'Vegetarisch',
-  'places.details.fact.vegan': 'Vegan',
+  'places.details.fact.vegan': 'Vegan', // same-as-en
   'places.details.fact.internetAccess': 'WLAN',
   'places.categoryCreateError': 'Fehler beim Erstellen der Kategorie',
   'places.nameRequired': 'Bitte einen Namen eingeben',

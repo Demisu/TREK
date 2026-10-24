@@ -80,8 +80,8 @@ const dayplan: TranslationStrings = {
   'dayplan.mobile.allAssigned': 'Все места распределены',
   'dayplan.mobile.noMatch': 'Нет совпадений',
   'dayplan.mobile.createNew': 'Создать новое место',
-  'dayplan.expandAll': 'Развернуть все дни', // en-fallback
-  'dayplan.collapseAll': 'Свернуть все дни', // en-fallback
+  'dayplan.expandAll': 'Развернуть все дни',
+  'dayplan.collapseAll': 'Свернуть все дни',
   'dayplan.reorderDays': 'Изменить порядок дней',
   'dayplan.reorderTitle': 'Изменить порядок дней',
   'dayplan.reorderHint': 'Места, заметки и бронирования дня перемещаются вместе с ним.',

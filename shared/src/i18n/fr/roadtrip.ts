@@ -129,7 +129,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.avoid.section': 'Éviter si possible',
   'roadtrip.avoid.toll': 'Routes à péage',
   'roadtrip.avoid.motorway': 'Autoroutes',
-  'roadtrip.avoid.ferry': 'Ferries',
+  'roadtrip.avoid.ferry': 'Ferries', // same-as-en
   'roadtrip.avoid.hint':
     'Ce sont des pondérations, pas des interdictions. Quand un trajet n’a aucun moyen de contourner, il l’emprunte quand même et la journée le signale.',
   'roadtrip.avoid.unavailable':
@@ -157,7 +157,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.refuel.incomplete': 'La recherche a été tronquée, cette portion n’a donc pas été entièrement vérifiée.',
   'roadtrip.refuel.failed': 'La recherche de lieux n’a pas répondu.',
   'roadtrip.stop.none': 'Une destination',
-  'roadtrip.stay.mode.pause': 'Pause',
+  'roadtrip.stay.mode.pause': 'Pause', // same-as-en
   'roadtrip.stay.mode.night': 'Nuitée',
   'roadtrip.stay.nightAdded': 'Ajouté comme nuitée',
   'roadtrip.stay.nightAction': 'Ajouter comme nuitée',
@@ -229,7 +229,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.poi.manualNoResults': 'Aucun lieu trouvé.',
   'roadtrip.poi.manualNoCoords':
     'Sans position, il ira dans les lieux du voyage plutôt que sur un trajet. Choisissez un résultat dans la recherche ci-dessus, ou saisissez les coordonnées.',
-  'roadtrip.summary.distance': 'Distance',
+  'roadtrip.summary.distance': 'Distance', // same-as-en
   'roadtrip.summary.driving': 'Temps de conduite',
   'roadtrip.alt.ask': 'Autres itinéraires',
   'roadtrip.alt.title': 'Itinéraires pour cette étape',
@@ -289,7 +289,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.summary.stops': 'Étapes',
   'roadtrip.stay.add': 'Définir une durée',
   'roadtrip.stay.none': 'Aucune durée',
-  'roadtrip.stay.custom': 'Minutes',
+  'roadtrip.stay.custom': 'Minutes', // same-as-en
   'roadtrip.stay.arrive': 'Arrivée',
   'roadtrip.stay.leave': 'Départ',
   'roadtrip.stay.until': 'jusqu’à {time}',

@@ -83,7 +83,7 @@ const budget: TranslationStrings = {
   'costs.table.byCategory': 'Kategoria',
   'costs.table.byDate': 'Dzień',
   'costs.table.byPayer': 'Płacący',
-  'costs.table.byStatus': 'Status',
+  'costs.table.byStatus': 'Status', // same-as-en
   'costs.table.noPayer': 'Jeszcze bez płacącego',
   'costs.table.paid': 'Zapłacone',
   'costs.table.open': 'Otwarte',
@@ -143,7 +143,7 @@ const budget: TranslationStrings = {
   'costs.cat.accommodation': 'Nocleg',
   'costs.cat.food': 'Jedzenie i napoje',
   'costs.cat.groceries': 'Zakupy spożywcze',
-  'costs.cat.transport': 'Transport',
+  'costs.cat.transport': 'Transport', // same-as-en
   'costs.cat.flights': 'Loty',
   'costs.cat.activities': 'Atrakcje',
   'costs.cat.sightseeing': 'Zwiedzanie',
@@ -152,7 +152,7 @@ const budget: TranslationStrings = {
   'costs.cat.health': 'Zdrowie',
   'costs.cat.tips': 'Napiwki',
   'costs.cat.fuel': 'Paliwo',
-  'costs.cat.parking': 'Parking',
+  'costs.cat.parking': 'Parking', // same-as-en
   'costs.cat.other': 'Inne',
   'costs.daysCount': '{count} dnia',
   'costs.daysCount.one': '{count} dzień',

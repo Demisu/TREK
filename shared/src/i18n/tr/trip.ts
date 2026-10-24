@@ -1,7 +1,7 @@
 import type { TranslationStrings } from '../types';
 
 const trip: TranslationStrings = {
-  'trip.tabs.plan': 'Plan',
+  'trip.tabs.plan': 'Plan', // same-as-en
   'trip.tabs.transports': 'Ulaşım',
   'trip.tabs.reservations': 'Rezervasyonlar',
   'trip.tabs.reservationsShort': 'Rezerv.',
@@ -16,7 +16,7 @@ const trip: TranslationStrings = {
   'trip.loadingSteps.pack': 'Bavullar toplanıyor...',
   'trip.loadingSteps.road': 'Yola çıkılıyor...',
   'trip.loadingSteps.arrive': 'Az kaldı...',
-  'trip.mobilePlan': 'Plan',
+  'trip.mobilePlan': 'Plan', // same-as-en
   'trip.mobilePlaces': 'Yerler',
   'trip.panelWidth': 'Panel genişliği',
   'trip.toast.placeUpdated': 'Yer güncellendi',

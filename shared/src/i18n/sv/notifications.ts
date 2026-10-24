@@ -12,7 +12,7 @@ const notifications: TranslationStrings = {
   'notifications.markRead': 'Markera som läst',
   'notifications.markUnread': 'Markera som oläst',
   'notifications.delete': 'Radera',
-  'notifications.system': 'System',
+  'notifications.system': 'System', // same-as-en
   'notifications.synologySessionCleared.title': 'Synology Photos har kopplats bort',
   'notifications.synologySessionCleared.text':
     'Din server eller ditt konto har ändrats – gå till Inställningar för att testa din anslutning igen.',

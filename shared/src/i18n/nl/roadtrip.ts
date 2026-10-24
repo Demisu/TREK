@@ -170,7 +170,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.poi.midLeg': 'Halverwege, {from} naar {to}',
   'roadtrip.track.title': 'Dag {number} volgt een track',
   'roadtrip.track.hint': 'Deze dag een geïmporteerde track laten volgen',
-  'roadtrip.track.badge': 'Track',
+  'roadtrip.track.badge': 'Track', // same-as-en
   'roadtrip.track.untitled': 'Naamloze track',
   'roadtrip.track.empty': 'Geen tracks in deze reis',
   'roadtrip.track.emptyHint': 'Importeer een GPX- of KML-bestand en de tracks verschijnen hier.',
@@ -254,9 +254,9 @@ const roadtrip: TranslationStrings = {
   'roadtrip.day': 'Dag {number}',
   'roadtrip.quietDay.empty': 'Nog geen stops, laat er hier een vallen',
   'roadtrip.quietDay.one': 'Voorlopig alleen {name}, laat hier een stop vallen',
-  'roadtrip.leg.driveText': '{distance} in {time}',
-  'roadtrip.day.stopCount': '{count} stops',
-  'roadtrip.day.stopCount.one': '{count} stop',
+  'roadtrip.leg.driveText': '{distance} in {time}', // same-as-en
+  'roadtrip.day.stopCount': '{count} stops', // same-as-en
+  'roadtrip.day.stopCount.one': '{count} stop', // same-as-en
   'roadtrip.day.fold': 'Inklappen',
   'roadtrip.day.folded': 'Ingeklapt',
   'roadtrip.stop.stayShort': 'Duur',
@@ -284,7 +284,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.warn.overnight': 'Volgende dag',
   'roadtrip.spill.title': 'Van dag {number}',
   'roadtrip.spill.departs': 'vertrek {time}',
-  'roadtrip.summary.stops': 'Stops',
+  'roadtrip.summary.stops': 'Stops', // same-as-en
   'roadtrip.stay.add': 'Verblijf instellen',
   'roadtrip.stay.none': 'Geen verblijf',
   'roadtrip.stay.custom': 'Minuten',

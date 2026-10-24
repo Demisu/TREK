@@ -66,7 +66,7 @@ const docsync: TranslationStrings = {
   'docsync.state.conflict': 'Conflicte',
   'docsync.state.rejected_type': 'Tipus no permès',
   'docsync.state.too_large': 'Massa gran',
-  'docsync.state.error': 'Error',
+  'docsync.state.error': 'Error', // same-as-en
   'docsync.state.remote_missing': 'No hi és, al proveïdor',
   'docsync.state.local_deleted': 'Eliminat a TREK',
   'docsync.state.scope_drift': 'Ha sortit de la carpeta',
@@ -125,7 +125,7 @@ const docsync: TranslationStrings = {
   'docsync.flow.trek': 'TREK',
   'docsync.flow.toProvider': 'Cap al gestor',
   'docsync.flow.toTrek': 'Des del gestor',
-  'docsync.flow.documents': 'documents',
+  'docsync.flow.documents': 'documents', // same-as-en
   'docsync.flow.summary.both': 'Els documents van en tots dos sentits.',
   'docsync.flow.summary.pull': 'Els documents només entren.',
   'docsync.flow.summary.push': 'Els documents només surten.',

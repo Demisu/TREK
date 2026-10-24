@@ -11,7 +11,7 @@ const settings: TranslationStrings = {
   'settings.plugins.oauth.notConnected': 'Nicht verbunden',
   'settings.plugins.oauth.connect': 'Verbinden',
   'settings.plugins.oauth.disconnect': 'Trennen',
-  'settings.tabs.plugins': 'Plugins',
+  'settings.tabs.plugins': 'Plugins', // same-as-en
   'settings.plugins.title': 'Plugin-Einstellungen',
   'settings.plugins.subtitle':
     'Deine persönlichen Einstellungen für die von dir genutzten Plugins (API-Schlüssel, Präferenzen).',
@@ -19,7 +19,7 @@ const settings: TranslationStrings = {
   'settings.plugins.saved': 'Einstellungen gespeichert',
   'settings.plugins.requiredMissing': '"{field}" ist erforderlich',
   'settings.tabs.account': 'Konto',
-  'settings.tabs.offline': 'Offline',
+  'settings.tabs.offline': 'Offline', // same-as-en
   'settings.tabs.about': 'Über',
   'settings.map': 'Karte',
   'settings.mapTemplate': 'Karten-Vorlage',
@@ -38,7 +38,7 @@ const settings: TranslationStrings = {
   'settings.mapMapboxSubtitle': 'Vektor-Kacheln, 3D-Gebäude & Terrain',
   'settings.mapMapLibreSubtitle': 'OpenFreeMap Vektor-Kacheln, kein Token',
   'settings.mapExperimental': 'Experimentell',
-  'settings.mapMapboxToken': 'Mapbox Access Token',
+  'settings.mapMapboxToken': 'Mapbox-Zugriffstoken',
   'settings.mapMapboxTokenHint': 'Öffentliches Token (pk.*) von',
   'settings.mapMapboxTokenLink': 'mapbox.com → Access Tokens',
   'settings.mapCartoKey': 'CARTO-API-Key',
@@ -87,8 +87,8 @@ const settings: TranslationStrings = {
   'settings.bookingLabels': 'Orts-Labels auf Buchungsrouten',
   'settings.bookingLabelsHint': 'Zeigt Bahnhofs-/Flughafennamen auf der Karte. Wenn aus, wird nur das Icon angezeigt.',
   'settings.blurBookingCodes': 'Buchungscodes verbergen',
-  'settings.aiAlwaysRetry': 'Always retry booking imports with AI',
-  'settings.aiAlwaysRetryHint': 'When a file cannot be read by the standard parser, automatically retry it with AI.',
+  'settings.aiAlwaysRetry': 'Buchungsimporte immer mit KI wiederholen',
+  'settings.aiAlwaysRetryHint': 'Wenn der Standard-Parser eine Datei nicht lesen kann, wird sie automatisch mit KI erneut versucht.',
   'settings.optimizeFromAccommodation': 'Route ab der Unterkunft optimieren',
   'settings.optimizeFromAccommodationHint':
     'Beim Optimieren eines Tages startet die Route an der Unterkunft, in der du aufwachst, und endet an der, in die du am Abend eincheckst.',
@@ -207,20 +207,20 @@ const settings: TranslationStrings = {
   'settings.about.featureRequestHint': 'Schlage ein neues Feature vor',
   'settings.about.wikiHint': 'Dokumentation & Anleitungen',
   'settings.about.descriptionManaged':
-    'TREK helps you organize your trips from the first idea to the last memory. Day planning, budget, packing lists, photos and much more — all in one place.',
-  'settings.about.sourceTitle': 'Source code',
-  'settings.about.sourceHint': 'TREK is open source, licensed AGPL-3.0',
+    'TREK hilft dir, deine Reisen von der ersten Idee bis zur letzten Erinnerung zu organisieren. Tagesplanung, Budget, Packlisten, Fotos und vieles mehr, alles an einem Ort.',
+  'settings.about.sourceTitle': 'Quellcode',
+  'settings.about.sourceHint': 'TREK ist Open Source und steht unter der AGPL-3.0',
   'settings.about.supporters.badge': 'Monatliche Unterstützer',
   'settings.about.supporters.title': 'Reisebegleitung für TREK',
   'settings.about.supporters.subtitle':
     'Während du deine nächste Route planst, planen diese Leute mit, wie TREK weitergeht. Ihr monatlicher Beitrag fließt direkt in Entwicklung und echten Zeitaufwand — damit TREK Open Source bleibt.',
   'settings.about.supporters.since': 'Unterstützer seit {date}',
   'settings.about.supporters.tierEmpty': 'Sei die/der Erste',
-  'settings.about.supporter.tier.noReturnTicket': 'No Return Ticket',
-  'settings.about.supporter.tier.lostLuggageVip': 'Lost Luggage VIP',
-  'settings.about.supporter.tier.businessClassDreamer': 'Business Class Dreamer',
-  'settings.about.supporter.tier.budgetTraveller': 'Budget Traveller',
-  'settings.about.supporter.tier.hostelBunkmate': 'Hostel Bunkmate',
+  'settings.about.supporter.tier.noReturnTicket': 'Kein Rückflugticket',
+  'settings.about.supporter.tier.lostLuggageVip': 'Verlorenes Gepäck VIP',
+  'settings.about.supporter.tier.businessClassDreamer': 'Business-Class-Träumer',
+  'settings.about.supporter.tier.budgetTraveller': 'Budget-Reisender',
+  'settings.about.supporter.tier.hostelBunkmate': 'Hostel-Bettnachbar',
   'settings.about.description':
     'TREK ist ein selbst gehosteter Reiseplaner, der dir hilft, deine Trips von der ersten Idee bis zur letzten Erinnerung zu organisieren. Tagesplanung, Budget, Packlisten, Fotos und vieles mehr — alles an einem Ort, auf deinem eigenen Server.',
   'settings.about.madeWith': 'Entwickelt mit',
@@ -228,7 +228,7 @@ const settings: TranslationStrings = {
   'settings.username': 'Benutzername',
   'settings.email': 'E-Mail',
   'settings.role': 'Rolle',
-  'settings.roleAdmin': 'Administrator',
+  'settings.roleAdmin': 'Administrator', // same-as-en
   'settings.oidcLinked': 'Verknüpft mit',
   'settings.changePassword': 'Passwort ändern',
   'settings.mustChangePassword':
@@ -313,7 +313,7 @@ const settings: TranslationStrings = {
   'settings.webhookUrl.testSuccess': 'Test-Webhook erfolgreich gesendet',
   'settings.webhookUrl.testFailed': 'Test-Webhook fehlgeschlagen',
   'settings.ntfyUrl.topicLabel': 'Ntfy-Thema',
-  'settings.ntfyUrl.topicPlaceholder': 'my-trek-alerts',
+  'settings.ntfyUrl.topicPlaceholder': 'my-trek-alerts', // same-as-en
   'settings.ntfyUrl.serverLabel': 'Ntfy-Server-URL (optional)',
   'settings.ntfyUrl.serverPlaceholder': 'https://ntfy.sh',
   'settings.ntfyUrl.hint':
@@ -338,9 +338,9 @@ const settings: TranslationStrings = {
   'settings.notificationPreferences.pluginConfigured':
     'Eingerichtet. Zugangsdaten auf der Einstellungsseite des Plugins verwalten.',
   'settings.notificationPreferences.webhook': 'Webhook',
-  'settings.notificationPreferences.email': 'Email',
+  'settings.notificationPreferences.email': 'E-Mail',
   'settings.notificationPreferences.ntfy': 'Ntfy',
-  'settings.notificationPreferences.push': 'Push',
+  'settings.notificationPreferences.push': 'Push', // same-as-en
   'settings.webPush.title': 'Push-Benachrichtigungen auf diesem Gerät',
   'settings.webPush.hint':
     'Zeigt TREK-Benachrichtigungen auf diesem Gerät an, auch wenn TREK geschlossen ist. Welche Ereignisse ankommen, richtet sich nach der Spalte Push.',
@@ -362,7 +362,7 @@ const settings: TranslationStrings = {
   'settings.placeLanguageApp': 'Wie die App',
   'settings.placeLanguageHint':
     'Die Sprache, in der Ortssuche, Vorschläge und Adressen antworten. Hat ein Ort keinen Namen in dieser Sprache, wird sein lokaler Name angezeigt.',
-  'settings.passkey.title': 'Passkeys',
+  'settings.passkey.title': 'Passkeys', // same-as-en
   'settings.passkey.description':
     'Melde dich schneller und phishing-resistent mit einem Passkey an: per Fingerabdruck, Gesicht, PIN oder Hardware-Schlüssel. Dein Passwort bleibt als Backup erhalten.',
   'settings.passkey.notConfigured':
@@ -379,7 +379,7 @@ const settings: TranslationStrings = {
   'settings.passkey.deleted': 'Passkey entfernt',
   'settings.passkey.deleteConfirm': 'Diesen Passkey entfernen? Bestätige mit deinem Passwort.',
   'settings.passkey.rename': 'Umbenennen',
-  'settings.passkey.defaultName': 'Passkey',
+  'settings.passkey.defaultName': 'Passkey', // same-as-en
   'settings.passkey.synced': 'Synchronisiert',
   'settings.passkey.deviceBound': 'Dieses Gerät',
   'settings.passkey.lastUsed': 'Zuletzt verwendet',
@@ -429,11 +429,11 @@ const settings: TranslationStrings = {
   'settings.aiParsing.toast.saved': 'KI-Einstellungen gespeichert',
   'settings.aiParsing.toast.saveError': 'KI-Einstellungen konnten nicht gespeichert werden',
   'settings.tabs.appearance': 'Erscheinungsbild',
-  'settings.appearance.theme': 'Theme',
+  'settings.appearance.theme': 'Design',
   'settings.appearance.scheme': 'Farbschema',
   'settings.appearance.scheme.default': 'Standard',
   'settings.appearance.scheme.highContrast': 'Hoher Kontrast',
-  'settings.appearance.scheme.indigo': 'Indigo',
+  'settings.appearance.scheme.indigo': 'Indigo', // same-as-en
   'settings.appearance.scheme.teal': 'Türkis',
   'settings.appearance.scheme.rose': 'Rosé',
   'settings.appearance.scheme.amber': 'Bernstein',
@@ -460,7 +460,7 @@ const settings: TranslationStrings = {
   'settings.appearance.tier.caption': 'Beschriftungen',
   'settings.appearance.dashboardWidgets': 'Dashboard-Widgets',
   'settings.appearance.dashboardWidgetsHint': 'Dashboard-Widgets unabhängig für Desktop und Mobil ein-/ausblenden.',
-  'settings.appearance.desktop': 'Desktop',
+  'settings.appearance.desktop': 'Desktop', // same-as-en
   'settings.appearance.mobile': 'Mobil',
   'settings.appearance.widget.sidebar': 'Rechte Seitenleiste',
   'settings.appearance.widget.currency': 'Währung',
@@ -480,7 +480,7 @@ const settings: TranslationStrings = {
   'settings.appearance.perSize': 'Jede Größe einzeln anpassen',
   'settings.appearance.size.large': 'Groß',
   'settings.appearance.size.medium': 'Mittel',
-  'settings.appearance.size.normal': 'Normal',
+  'settings.appearance.size.normal': 'Normal', // same-as-en
   'settings.appearance.size.small': 'Klein',
   'settings.appearance.preview.large': 'Große Überschrift',
   'settings.appearance.preview.medium': 'Mittlerer Untertitel',
@@ -503,7 +503,7 @@ const settings: TranslationStrings = {
   'settings.appearance.dashOrder': 'Dashboard-Reihenfolge',
   'settings.appearance.dashOrder.hint':
     'Ordne, wie Trip-Liste und Widgets auf deinem Handy-Dashboard gestapelt sind. Der hervorgehobene Trip bleibt immer oben.',
-  'settings.appearance.dashOrder.trips': 'Trips',
+  'settings.appearance.dashOrder.trips': 'Reisen',
   'settings.appearance.dashOrder.hidden': 'Ausgeblendet',
   'settings.general.languageRegion': 'Sprache & Region',
   'settings.general.travelMap': 'Reise & Karte',
@@ -515,7 +515,7 @@ const settings: TranslationStrings = {
   'settings.dayDateFirstHint':
     'Jeden Tag mit seinem Kalenderdatum beginnen und daneben „Tag 1“ oder den eigenen Titel des Tages anzeigen.',
   'settings.startPage': 'Startseite',
-  'settings.startPageDashboard': 'Dashboard',
+  'settings.startPageDashboard': 'Dashboard', // same-as-en
   'settings.startPageActiveTrip': 'Aktive Reise',
   'settings.startPageHint':
     'TREK öffnet direkt die Reise, die gerade läuft, sonst die nächste anstehende. Also genau die Reise, die auch das Dashboard hervorhebt.',
@@ -586,7 +586,7 @@ const settings: TranslationStrings = {
   'settings.offline.conflicts.strategy.ask': 'Jedes Mal nachfragen',
   'settings.offline.conflicts.strategy.mine': 'Immer meine Version behalten',
   'settings.offline.conflicts.strategy.server': 'Immer die Server-Version behalten',
-  'settings.offline.banner.offline': 'Offline',
+  'settings.offline.banner.offline': 'Offline', // same-as-en
   'settings.offline.banner.forced': 'Offline-Modus',
   'settings.offline.banner.queued': 'Offline · {count} in Warteschlange',
   'settings.offline.banner.queued.one': 'Offline · {count} in Warteschlange',
@@ -600,7 +600,7 @@ const settings: TranslationStrings = {
   'settings.pluginActivity.description': 'Jede Aktion, die ein Plugin in deinem Namen ausgeführt hat – neueste zuerst.',
   'settings.pluginActivity.empty': 'Noch keine Plugin-Aktivität.',
   'settings.pluginActivity.refresh': 'Aktualisieren',
-  'settings.pluginActivity.columns.plugin': 'Plugin',
+  'settings.pluginActivity.columns.plugin': 'Plugin', // same-as-en
   'settings.pluginActivity.columns.action': 'Aktion',
   'settings.pluginActivity.columns.resource': 'Ressource',
   'settings.pluginActivity.columns.when': 'Zeitpunkt',
@@ -652,7 +652,7 @@ const settings: TranslationStrings = {
     'Du hast {count} Schlüssel, mehr geht pro Konto nicht. Lösche ihn, wenn du ihn nicht mehr brauchst, um einen neuen zu erstellen.',
   'settings.apiKeys.copyFailed': 'Kopieren hat nicht geklappt. Markiere den Text und kopiere ihn von Hand.',
   'settings.apiKeys.modal.createTitle': 'API-Schlüssel erstellen',
-  'settings.apiKeys.modal.name': 'Name',
+  'settings.apiKeys.modal.name': 'Name', // same-as-en
   'settings.apiKeys.modal.namePlaceholder': 'z. B. Heim-Dashboard',
   'settings.apiKeys.modal.nameHint': 'Nur für dich, damit du den Schlüssel später wiedererkennst.',
   'settings.apiKeys.modal.creating': 'Wird erstellt...',

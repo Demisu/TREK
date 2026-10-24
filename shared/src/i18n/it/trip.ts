@@ -60,7 +60,7 @@ const trip: TranslationStrings = {
   'transit.arrive': 'Arrivo',
   'transit.mode.rail': 'Treno',
   'transit.mode.subway': 'Metropolitana',
-  'transit.mode.tram': 'Tram',
+  'transit.mode.tram': 'Tram', // same-as-en
   'transit.mode.bus': 'Autobus',
   'transit.mode.ferry': 'Traghetto',
   'transit.mode.cable': 'Funivia',

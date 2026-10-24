@@ -279,37 +279,37 @@ const journey: TranslationStrings = {
   'journey.picker.noAlbums': 'Альбомы не найдены',
   'journey.picker.selectDate': 'Выберите дату',
   'journey.picker.search': 'Поиск',
-  'journey.detail.journeyTab': 'Journey', // en-fallback
-  'journey.contributors.remove': 'Remove contributor', // en-fallback
-  'journey.contributors.removeConfirm': 'Remove {username} from this journey?', // en-fallback
-  'journey.contributors.removed': 'Contributor removed', // en-fallback
-  'journey.contributors.removeFailed': 'Failed to remove contributor', // en-fallback
+  'journey.detail.journeyTab': 'Путешествие',
+  'journey.contributors.remove': 'Удалить участника',
+  'journey.contributors.removeConfirm': 'Удалить {username} из этого путешествия?',
+  'journey.contributors.removed': 'Участник удалён',
+  'journey.contributors.removeFailed': 'Не удалось удалить участника',
   'journey.contributors.viaTrips': 'Через поездки',
   'journey.contributors.viaTripsHint':
     'Они могут открыть этот дневник, потому что его привязала поездка. Измените это в настройках поездки.',
   'journey.contributors.viaTrip': 'через {trip}',
-  'journey.editor.externalPhotos': 'External photos', // en-fallback
-  'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
-  'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback
-  'journey.editor.externalPhotosNoLocation': 'All photos from this day', // en-fallback
-  'journey.editor.externalPhotosQueued': 'queued', // en-fallback
-  'journey.editor.externalPhotosUnavailable': 'No connected photo providers are available.', // en-fallback
-  'journey.editor.externalPhotosPartialFailed': '{failed} photo groups failed — save again to retry', // en-fallback
-  'journey.picker.day': 'This day', // en-fallback
-  'journey.studio.title': 'TREK Studio', // en-fallback
-  'journey.studio.open': 'Studio', // en-fallback
-  'journey.studio.openAria': 'Open the photo book studio', // en-fallback
-  'journey.studio.backToJourney': 'Back to the journey', // en-fallback
-  'journey.studio.format': 'Page format', // en-fallback
-  'journey.studio.formatA4Landscape': 'A4 landscape', // en-fallback
-  'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
-  'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
-  'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
+  'journey.editor.externalPhotos': 'Внешние фото',
+  'journey.editor.externalPhotosFor': 'Фото за {date}',
+  'journey.editor.externalPhotosNearby': 'Сначала фото поблизости',
+  'journey.editor.externalPhotosNoLocation': 'Все фото за этот день',
+  'journey.editor.externalPhotosQueued': 'в очереди',
+  'journey.editor.externalPhotosUnavailable': 'Нет доступных подключённых фотосервисов.',
+  'journey.editor.externalPhotosPartialFailed': 'Не удалось загрузить групп фото: {failed}. Сохраните ещё раз, чтобы повторить',
+  'journey.picker.day': 'Этот день',
+  'journey.studio.title': 'TREK Studio',
+  'journey.studio.open': 'Студия',
+  'journey.studio.openAria': 'Открыть студию фотокниги',
+  'journey.studio.backToJourney': 'Назад к путешествию',
+  'journey.studio.format': 'Формат страницы',
+  'journey.studio.formatA4Landscape': 'A4 альбомная',
+  'journey.studio.formatA4Portrait': 'A4 книжная',
+  'journey.studio.formatSquare21': 'Квадрат 21 × 21 см',
+  'journey.studio.formatSquare30': 'Квадрат 30 × 30 см',
   'journey.studio.pages': 'Страницы',
-  'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.autoLayout': 'Auto layout', // en-fallback
-  'journey.studio.export': 'Export', // en-fallback
+  'journey.studio.cover': 'Обложка',
+  'journey.studio.inspectorEmpty': 'Выберите что-нибудь на странице, чтобы изменить это.',
+  'journey.studio.autoLayout': 'Автомакет',
+  'journey.studio.export': 'Экспорт',
   'journey.studio.day': 'ДЕНЬ {day}',
   'journey.studio.stations': 'Остановки',
   'journey.studio.peersHere': 'здесь',
@@ -334,98 +334,98 @@ const journey: TranslationStrings = {
   'journey.studio.exportSheetCount.one': '{count} лист',
   'journey.studio.exportSheetCount.few': '{count} листа',
   'journey.studio.exportSheetCount.many': '{count} листов',
-  'journey.studio.undo': 'Undo', // en-fallback
-  'journey.studio.redo': 'Redo', // en-fallback
-  'journey.studio.zoomIn': 'Zoom in', // en-fallback
-  'journey.studio.zoomOut': 'Zoom out', // en-fallback
-  'journey.studio.zoomFit': 'Fit to view', // en-fallback
+  'journey.studio.undo': 'Отменить',
+  'journey.studio.redo': 'Повторить',
+  'journey.studio.zoomIn': 'Увеличить',
+  'journey.studio.zoomOut': 'Уменьшить',
+  'journey.studio.zoomFit': 'Вписать в окно',
   'journey.studio.downloadSpread': 'Скачать этот разворот',
   'journey.studio.downloadSpreadHint':
     'Сохраняет оформление разворота в файл, без фотографий, чтобы поделиться им или использовать снова',
   'journey.studio.importSpread': 'Импорт',
   'journey.studio.importSpreadHint': 'Добавляет разворот из скачанного файла оформления',
   'journey.studio.importSpreadFailed': 'Этот файл не является разворотом TREK Studio',
-  'journey.studio.desktopOnly': 'Studio needs a bigger screen', // en-fallback
+  'journey.studio.desktopOnly': 'Студии нужен экран побольше',
   'journey.studio.desktopOnlyHint':
-    'Вёрстка книги требует места, поэтому Студия работает только на компьютере, и создание PDF тоже. Всё остальное в путешествии здесь работает как обычно.', // en-fallback
-  'journey.studio.formatA5Landscape': 'A5 landscape', // en-fallback
-  'journey.studio.bookView': 'Book view', // en-fallback
-  'journey.studio.multiple': 'Several', // en-fallback
-  'journey.studio.kind.photo': 'Photo', // en-fallback
-  'journey.studio.kind.text': 'Text', // en-fallback
-  'journey.studio.kind.shape': 'Shape', // en-fallback
-  'journey.studio.position': 'Position', // en-fallback
-  'journey.studio.width': 'W', // en-fallback
-  'journey.studio.height': 'H', // en-fallback
+    'Вёрстка книги требует места, поэтому Студия работает только на компьютере, и создание PDF тоже. Всё остальное в путешествии здесь работает как обычно.',
+  'journey.studio.formatA5Landscape': 'A5 альбомная',
+  'journey.studio.bookView': 'Вид книги',
+  'journey.studio.multiple': 'Несколько',
+  'journey.studio.kind.photo': 'Фото',
+  'journey.studio.kind.text': 'Текст',
+  'journey.studio.kind.shape': 'Фигура',
+  'journey.studio.position': 'Положение',
+  'journey.studio.width': 'Ш',
+  'journey.studio.height': 'В',
   'journey.studio.text': 'Текст',
-  'journey.studio.typography': 'Type', // en-fallback
-  'journey.studio.leading': 'Line', // en-fallback
-  'journey.studio.colour': 'Colour', // en-fallback
+  'journey.studio.typography': 'Шрифт',
+  'journey.studio.leading': 'Интерлиньяж',
+  'journey.studio.colour': 'Цвет',
   'journey.studio.autoColour': 'Автоматически',
   'journey.studio.countryNames': 'Названия',
-  'journey.studio.crop': 'Crop', // en-fallback
-  'journey.studio.look': 'Look', // en-fallback
-  'journey.studio.radius': 'Corner', // en-fallback
-  'journey.studio.shape': 'Shape', // en-fallback
-  'journey.studio.arrange': 'Arrange', // en-fallback
-  'journey.studio.toFront': 'Bring to front', // en-fallback
-  'journey.studio.forward': 'Bring forward', // en-fallback
-  'journey.studio.backward': 'Send backward', // en-fallback
-  'journey.studio.toBack': 'Send to back', // en-fallback
-  'journey.studio.lock': 'Lock', // en-fallback
-  'journey.studio.unlock': 'Unlock', // en-fallback
-  'journey.studio.delete': 'Delete', // en-fallback
-  'journey.studio.pageHint': 'Page', // en-fallback
-  'journey.studio.boundHint': 'Follows the journal entry. Editing it here breaks that link.', // en-fallback
-  'journey.studio.fit.cover': 'Fill', // en-fallback
-  'journey.studio.fit.contain': 'Fit', // en-fallback
-  'journey.studio.filter.none': 'Original', // en-fallback
-  'journey.studio.filter.bw': 'Black & white', // en-fallback
-  'journey.studio.filter.warm': 'Warm', // en-fallback
-  'journey.studio.shapeKind.rect': 'Rectangle', // en-fallback
-  'journey.studio.shapeKind.ellipse': 'Ellipse', // en-fallback
-  'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
-  'journey.studio.backCover': 'Back cover', // en-fallback
-  'journey.studio.sections': 'Sections', // en-fallback
+  'journey.studio.crop': 'Кадрирование',
+  'journey.studio.look': 'Вид',
+  'journey.studio.radius': 'Угол',
+  'journey.studio.shape': 'Фигура',
+  'journey.studio.arrange': 'Порядок',
+  'journey.studio.toFront': 'На передний план',
+  'journey.studio.forward': 'Переместить вперёд',
+  'journey.studio.backward': 'Переместить назад',
+  'journey.studio.toBack': 'На задний план',
+  'journey.studio.lock': 'Заблокировать',
+  'journey.studio.unlock': 'Разблокировать',
+  'journey.studio.delete': 'Удалить',
+  'journey.studio.pageHint': 'Страница',
+  'journey.studio.boundHint': 'Следует записи дневника. Если изменить это здесь, связь пропадёт.',
+  'journey.studio.fit.cover': 'Заполнить',
+  'journey.studio.fit.contain': 'Вписать',
+  'journey.studio.filter.none': 'Оригинал',
+  'journey.studio.filter.bw': 'Чёрно-белый',
+  'journey.studio.filter.warm': 'Тёплый',
+  'journey.studio.shapeKind.rect': 'Прямоугольник',
+  'journey.studio.shapeKind.ellipse': 'Эллипс',
+  'journey.studio.focalHint': 'Перетащите точку, чтобы выбрать, что останется в кадре.',
+  'journey.studio.backCover': 'Задняя обложка',
+  'journey.studio.sections': 'Разделы',
   'journey.studio.content': 'Содержимое',
   'journey.studio.elements': 'Элементы',
   'journey.studio.templates': 'Макеты',
   'journey.studio.photos': 'Фото',
   'journey.studio.entries': 'Записи',
-  'journey.studio.addToPage': 'Add to this page', // en-fallback
-  'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
-  'journey.studio.untitled': 'Untitled', // en-fallback
-  'journey.studio.addTitle': 'Title', // en-fallback
-  'journey.studio.addStory': 'Story', // en-fallback
-  'journey.studio.addPlace': 'Place', // en-fallback
+  'journey.studio.addToPage': 'Добавить на эту страницу',
+  'journey.studio.noPhotos': 'В этом путешествии пока нет фото.',
+  'journey.studio.untitled': 'Без названия',
+  'journey.studio.addTitle': 'Заголовок',
+  'journey.studio.addStory': 'Рассказ',
+  'journey.studio.addPlace': 'Место',
   'journey.studio.shapes': 'Фигуры',
   'journey.studio.frames': 'Рамки',
-  'journey.studio.emptyFrame': 'Empty frame', // en-fallback
-  'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
-  'journey.studio.shapeKind.line': 'Line', // en-fallback
-  'journey.studio.styleTitle': 'Heading', // en-fallback
-  'journey.studio.styleSubtitle': 'Subheading', // en-fallback
-  'journey.studio.styleBody': 'Body text', // en-fallback
-  'journey.studio.styleCaption': 'Caption', // en-fallback
-  'journey.studio.sampleHeading': 'A heading', // en-fallback
-  'journey.studio.sampleSubheading': 'A subheading', // en-fallback
-  'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
-  'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
-  'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
-  'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
-  'journey.studio.tpl.grid4': 'Four up', // en-fallback
-  'journey.studio.tpl.grid6': 'Six up', // en-fallback
-  'journey.studio.tpl.strip': 'Strip and text', // en-fallback
-  'journey.studio.tpl.quietText': 'Text only', // en-fallback
-  'journey.studio.tpl.portraitPair': 'A pair', // en-fallback
+  'journey.studio.emptyFrame': 'Пустая рамка',
+  'journey.studio.frameHint': 'Пустая рамка отмечает место для картинки. Перетащите на неё снимок из раздела «Содержимое».',
+  'journey.studio.shapeKind.line': 'Линия',
+  'journey.studio.styleTitle': 'Заголовок',
+  'journey.studio.styleSubtitle': 'Подзаголовок',
+  'journey.studio.styleBody': 'Основной текст',
+  'journey.studio.styleCaption': 'Подпись',
+  'journey.studio.sampleHeading': 'Заголовок',
+  'journey.studio.sampleSubheading': 'Подзаголовок',
+  'journey.studio.sampleBody': 'Напишите что-нибудь об этом дне.',
+  'journey.studio.sampleCaption': 'Подпись',
+  'journey.studio.tpl.heroStory': 'Главное фото и рассказ',
+  'journey.studio.tpl.fullBleed': 'Одно фото на весь разворот',
+  'journey.studio.tpl.twoUp': 'Две полные страницы',
+  'journey.studio.tpl.grid4': 'Четыре фото',
+  'journey.studio.tpl.grid6': 'Шесть фото',
+  'journey.studio.tpl.strip': 'Лента и текст',
+  'journey.studio.tpl.quietText': 'Только текст',
+  'journey.studio.tpl.portraitPair': 'Пара',
   'journey.studio.dropPhotoHere': 'Перетащите фото\nсюда',
-  'journey.studio.searchContent': 'Search photos and entries', // en-fallback
-  'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
+  'journey.studio.searchContent': 'Поиск фото и записей',
+  'journey.studio.noMatches': 'Ничего не найдено.',
   'journey.studio.quoteMark': 'Кавычки',
-  'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
-  'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
-  'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
+  'journey.studio.shapeKind.rounded': 'Скруглённый прямоугольник',
+  'journey.studio.shapeKind.triangle': 'Треугольник',
+  'journey.studio.shapeKind.outline': 'Только контур',
   'journey.studio.travel': 'Путешествие',
   'journey.studio.travelEmpty': 'Данные этого путешествия ещё не готовы.',
   'journey.studio.grids': 'Сетки',
@@ -559,7 +559,7 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Удалить разворот',
   'journey.studio.movePageUp': 'Переместить раньше',
   'journey.studio.movePageDown': 'Переместить позже',
-  'journey.studio.beta': 'Beta',
+  'journey.studio.beta': 'Бета',
   'journey.studio.addProsCons': 'Плюсы и минусы',
   'journey.studio.showMarks': 'Знаки',
   'journey.studio.formatCustom': 'Свой формат',

@@ -21,7 +21,7 @@ const memories: TranslationStrings = {
   'memories.providerUrl': 'URL del server',
   'memories.providerApiKey': 'Chiave API',
   'memories.providerUsername': 'Nome utente',
-  'memories.providerPassword': 'Password',
+  'memories.providerPassword': 'Password', // same-as-en
   'memories.providerOTP': 'Codice MFA (se abilitato)',
   'memories.skipSSLVerification': 'Ignora la verifica del certificato SSL',
   'memories.immichAutoUpload': 'Rispecchia le foto del journey su Immich al caricamento',

@@ -20,11 +20,11 @@ const reservations: TranslationStrings = {
   'reservations.date': 'Data',
   'reservations.time': 'Hora',
   'reservations.timeAlt': 'Hora (alternativa, p. ex. 19:30)',
-  'reservations.notes': 'Notes',
+  'reservations.notes': 'Notes', // same-as-en
   'reservations.notesPlaceholder': 'Notes addicionals...',
   'reservations.type.flight': 'Vol',
   'reservations.type.hotel': 'Allotjament',
-  'reservations.type.restaurant': 'Restaurant',
+  'reservations.type.restaurant': 'Restaurant', // same-as-en
   'reservations.type.train': 'Tren',
   'reservations.type.car': 'Cotxe',
   'reservations.type.cruise': 'Creuer',
@@ -36,7 +36,7 @@ const reservations: TranslationStrings = {
   'reservations.type.ferry': 'Ferri',
   'reservations.type.cable_car': 'Telefèric',
   'reservations.type.bicycle': 'Bicicleta',
-  'reservations.type.taxi': 'Taxi',
+  'reservations.type.taxi': 'Taxi', // same-as-en
   'reservations.type.transit': 'Transport públic',
   'reservations.typeShort.transit': 'Transp. públic',
   'reservations.type.transport_other': 'Altres',
@@ -220,7 +220,7 @@ const reservations: TranslationStrings = {
   'reservations.export.to': 'Fins a',
   'reservations.export.location': 'Ubicació',
   'reservations.export.confirmation': 'Confirmació',
-  'reservations.export.notes': 'Notes',
+  'reservations.export.notes': 'Notes', // same-as-en
   'reservations.resetView': 'Restablir la vista',
   'reservations.group.label': 'Agrupar per',
   'reservations.group.status': 'Estat',
@@ -242,7 +242,7 @@ const reservations: TranslationStrings = {
   'reservations.sort.zToA': 'De la Z a la A',
   'reservations.timeline.dayCount': '{count} dies',
   'reservations.timeline.dayCount.one': '{count} dia',
-  'reservations.timeline.zoom': 'Zoom',
+  'reservations.timeline.zoom': 'Zoom', // same-as-en
   'reservations.timeline.trip': 'Viatge',
   'reservations.timeline.day': 'Dia',
   'reservations.timeline.prevDay': 'Dia anterior',
@@ -254,7 +254,7 @@ const reservations: TranslationStrings = {
   'reservations.timeline.byType': 'Un carril per tipus',
   'reservations.timeline.context': "Mostrar l'altra pestanya",
   'reservations.timeline.contextBookings': 'Reserves',
-  'reservations.timeline.contextTransports': 'Transports',
+  'reservations.timeline.contextTransports': 'Transports', // same-as-en
   'reservations.timeline.noneDated': "Encara no n'hi ha cap amb data.",
   'reservations.undated': 'Sense data',
   'reservations.nights': 'Nits',

@@ -21,7 +21,7 @@ const dayplan: TranslationStrings = {
   'notes.format.italic': 'Itálico',
   'notes.format.strike': 'Tachado',
   'notes.format.code': 'Código',
-  'notes.format.link': 'Link',
+  'notes.format.link': 'Link', // same-as-en
   'notes.format.list': 'Lista com marcadores',
   'notes.format.orderedList': 'Lista numerada',
   'notes.format.quote': 'Citação',
@@ -80,8 +80,8 @@ const dayplan: TranslationStrings = {
   'dayplan.mobile.allAssigned': 'Todos os lugares atribuídos',
   'dayplan.mobile.noMatch': 'Sem correspondência',
   'dayplan.mobile.createNew': 'Criar novo lugar',
-  'dayplan.expandAll': 'Expandir todos os dias', // en-fallback
-  'dayplan.collapseAll': 'Recolher todos os dias', // en-fallback
+  'dayplan.expandAll': 'Expandir todos os dias',
+  'dayplan.collapseAll': 'Recolher todos os dias',
   'dayplan.reorderDays': 'Reordenar dias',
   'dayplan.reorderTitle': 'Reordenar dias',
   'dayplan.reorderHint': 'Os lugares, notas e reservas de um dia se movem junto com ele.',

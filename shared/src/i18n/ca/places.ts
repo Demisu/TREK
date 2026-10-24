@@ -71,7 +71,7 @@ const places: TranslationStrings = {
   'places.notRated': 'Encara sense valoració',
   'places.search': 'Cerca llocs...',
   'places.allCategories': 'Totes les categories',
-  'places.categoriesSelected': 'categories',
+  'places.categoriesSelected': 'categories', // same-as-en
   'places.categoriesSelected.one': 'categoria',
   'places.clearFilter': 'Esborra el filtre',
   'places.count': '{count} llocs',
@@ -112,7 +112,7 @@ const places: TranslationStrings = {
   'places.searchNothing': "No s'ha trobat res per a «{query}»",
   'places.searchNothingHint': 'Afegeix-lo tu: adreça, telèfon, correu i horari tenen un camp a sota.',
   'places.addByHand': 'Afegeix a mà',
-  'places.formNotes': 'Notes',
+  'places.formNotes': 'Notes', // same-as-en
   'places.formNotesPlaceholder': 'Notes personals...',
   'places.assignmentNotes': 'Notes per a aquest dia',
   'places.assignmentNotesPlaceholder': 'Notes per a aquest lloc només aquest dia...',

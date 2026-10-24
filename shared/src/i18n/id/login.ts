@@ -72,9 +72,9 @@ const login: TranslationStrings = {
   'login.resetPasswordFailed': 'Reset gagal. Tautan mungkin sudah kedaluwarsa.',
   'login.passkey.signIn': 'Masuk dengan passkey',
   'login.passkey.failed': 'Masuk dengan passkey gagal. Silakan coba lagi.',
-  'login.insecureCookie.title': "Login won't stick over HTTP",
+  'login.insecureCookie.title': 'Login tidak akan bertahan lewat HTTP',
   'login.insecureCookie.body':
-    'You’re connecting over plain HTTP, so your browser drops TREK’s secure session cookie — the next request fails with "Access token required". Fix: use HTTPS, or for a home-lab set COOKIE_SECURE=false.',
-  'login.insecureCookie.link': 'Open the Troubleshooting guide',
+    'Kamu terhubung lewat HTTP biasa, sehingga browser membuang cookie sesi aman milik TREK, dan permintaan berikutnya gagal dengan "Access token required". Solusi: gunakan HTTPS, atau untuk home-lab setel COOKIE_SECURE=false.',
+  'login.insecureCookie.link': 'Buka panduan pemecahan masalah',
 };
 export default login;

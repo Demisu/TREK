@@ -4,7 +4,7 @@ const admin: TranslationStrings = {
   'admin.notifications.title': 'Thông báo',
   'admin.notifications.hint': 'Chọn một kênh thông báo. Chỉ có một người có thể hoạt động tại một thời điểm.',
   'admin.notifications.none': 'Tắt',
-  'admin.notifications.email': 'Email (SMTP)',
+  'admin.notifications.email': 'Email (SMTP)', // same-as-en
   'admin.notifications.webhook': 'Webhook',
   'admin.notifications.ntfy': 'Ntfy',
   'admin.ntfy.hint':
@@ -17,7 +17,7 @@ const admin: TranslationStrings = {
   'admin.notifications.testNtfy': 'Gửi bài kiểm tra',
   'admin.notifications.testNtfySuccess': 'Kiểm tra ntfy đã được gửi thành công',
   'admin.notifications.testNtfyFailed': 'Kiểm tra ntfy không thành công',
-  'admin.notifications.emailPanel.title': 'Email (SMTP)',
+  'admin.notifications.emailPanel.title': 'Email (SMTP)', // same-as-en
   'admin.notifications.webhookPanel.title': 'Webhook',
   'admin.notifications.webPushPanel.title': 'Web Push',
   'admin.notifications.webPushPanel.hint':
@@ -81,7 +81,7 @@ const admin: TranslationStrings = {
   'admin.stats.photos': 'Ảnh',
   'admin.stats.files': 'Tập tin',
   'admin.table.user': 'người dùng',
-  'admin.table.email': 'Email',
+  'admin.table.email': 'Email', // same-as-en
   'admin.table.role': 'Vai trò',
   'admin.table.created': 'Tạo',
   'admin.table.lastActive': 'Hoạt động lần cuối',
@@ -165,12 +165,12 @@ const admin: TranslationStrings = {
   'admin.trekApi.sourcesNote': 'Mọi trường trong phản hồi đều cho biết nó đến từ nguồn nào.',
   'admin.trekApi.included': 'Có',
   'admin.trekApi.notIncluded': 'Không có',
-  'admin.mapsKey': 'Google Maps API Key',
+  'admin.mapsKey': 'Google Maps API Key', // same-as-en
   'admin.mapsKeyHint': 'Cần thiết cho tìm kiếm địa điểm. Truy cập tại console.cloud.google.com',
   'admin.mapsKeyHintLong':
     'Không có khóa API của Google thì TREK API được khuyến nghị sẽ được dùng. Có khóa thì có thể tải thêm ảnh, đánh giá và giờ mở cửa. Tạo khóa tại console.cloud.google.com.',
   'admin.recommended': 'Khuyến khích',
-  'admin.weatherKey': 'OpenWeatherMap API Key',
+  'admin.weatherKey': 'OpenWeatherMap API Key', // same-as-en
   'admin.weatherKeyHint': 'Đối với dữ liệu thời tiết. Miễn phí tại openweathermap.org',
   'admin.unsplashKey': 'Khóa API Unsplash',
   'admin.unsplashKeyHint': 'Đối với tìm kiếm hình ảnh. Miễn phí tại unsplash.com/developers',
@@ -183,7 +183,7 @@ const admin: TranslationStrings = {
     'Chỉ mục riêng của TREK và OpenStreetMap trả lời mọi tìm kiếm. Ở đây chọn ai được hỏi thêm khi chúng không tìm thấy gì: Tự động ưu tiên Google nếu có khóa, rồi đến Amap.',
   'admin.placesProvider.auto': 'Tự động',
   'admin.placesProvider.google': 'Google Places',
-  'admin.placesProvider.amap': 'Amap (高德地图)',
+  'admin.placesProvider.amap': 'Amap (高德地图)', // same-as-en
   'admin.placesProvider.openstreetmap': 'OpenStreetMap',
   'admin.placesProvider.missingKey':
     'Nhà cung cấp đã chọn chưa có khóa API, nên tìm kiếm địa điểm chỉ do chỉ mục TREK và OpenStreetMap trả lời.',
@@ -305,7 +305,7 @@ const admin: TranslationStrings = {
   'admin.packingTemplates.deleteItemError': 'Không thể xóa mục',
   'admin.packingTemplates.saveError': 'Không lưu được',
   'admin.tabs.addons': 'Tiện ích bổ sung',
-  'admin.tabs.plugins': 'Plugins',
+  'admin.tabs.plugins': 'Plugin',
   'admin.tabs.storage': 'Lưu trữ',
   'admin.plugins.rescan': 'Quét lại',
   'admin.plugins.rescanned': 'Đã quét lại thư mục plugin',
@@ -350,7 +350,7 @@ const admin: TranslationStrings = {
   'admin.plugins.uninstallBody':
     'Thao tác này sẽ dừng plugin, xóa mã nguồn và toàn bộ dữ liệu của nó. Không thể hoàn tác.',
   'admin.plugins.status.starting': 'Đang khởi động…',
-  'admin.plugins.type.widget': 'Widget',
+  'admin.plugins.type.widget': 'Widget', // same-as-en
   'admin.plugins.type.page': 'Trang',
   'admin.plugins.type.integration': 'Tích hợp',
   'admin.plugins.type.trip-page': 'Trang chuyến đi',
@@ -360,8 +360,8 @@ const admin: TranslationStrings = {
   'admin.plugins.updateTo': 'Cập nhật → v{version}',
   'admin.plugins.enabledToggle': 'Bật plugin',
   'plugins.notFound': 'Không tìm thấy plugin',
-  'plugins.frameLoadFailed': 'This plugin could not be loaded.',
-  'admin.plugins.title': 'Plugins',
+  'plugins.frameLoadFailed': 'Không thể tải plugin này.',
+  'admin.plugins.title': 'Plugin',
   'admin.plugins.subtitle': 'Cài đặt và quản lý các plugin bên thứ ba trên hệ thống của bạn.',
   'admin.plugins.disabledTitle': 'Plugin đang bị tắt',
   'admin.plugins.disabledBody':
@@ -694,7 +694,7 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.mcp.description': 'Giao thức ngữ cảnh mẫu để tích hợp trợ lý AI',
   'admin.addons.subtitleBefore': 'Bật hoặc tắt các tính năng để tùy chỉnh',
   'admin.addons.subtitleAfter': 'kinh nghiệm.',
-  'admin.addons.catalog.naver_list_import.name': 'Naver List Import',
+  'admin.addons.catalog.naver_list_import.name': 'Nhập danh sách Naver',
   'admin.addons.catalog.naver_list_import.description': 'Nhập địa điểm từ danh sách Naver Maps được chia sẻ',
   'admin.addons.catalog.airtrail.name': 'AirTrail',
   'admin.addons.catalog.airtrail.description': 'Đồng bộ chuyến bay từ máy chủ AirTrail của bạn',
@@ -768,7 +768,7 @@ const admin: TranslationStrings = {
   'admin.mcpTokens.deleteError': 'Không xóa được mã thông báo',
   'admin.mcpTokens.loadError': 'Không thể tải mã thông báo',
   'admin.oauthSessions.sectionTitle': 'OAuth Phiên',
-  'admin.oauthSessions.clientName': 'Client',
+  'admin.oauthSessions.clientName': 'Ứng dụng khách',
   'admin.oauthSessions.owner': 'Người sở hữu',
   'admin.oauthSessions.scopes': 'Phạm vi',
   'admin.oauthSessions.created': 'Tạo',

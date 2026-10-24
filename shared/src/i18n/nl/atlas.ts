@@ -70,7 +70,7 @@ const atlas: TranslationStrings = {
   'atlas.planned': 'Gepland',
   'atlas.showPlanned': 'Geplande landen tonen',
   'atlas.plannedFor': 'Gepland voor',
-  'atlas.antarctica': 'Antarctica',
+  'atlas.antarctica': 'Antarctica', // same-as-en
   'atlas.regionPlacesLabel': 'plaatsen',
   'atlas.regionPlacesLabel.one': 'plaats',
 };

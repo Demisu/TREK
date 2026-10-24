@@ -2,7 +2,7 @@ import type { TranslationStrings } from '../types';
 
 const trip: TranslationStrings = {
   'trip.tabs.plan': 'Planificació',
-  'trip.tabs.transports': 'Transports',
+  'trip.tabs.transports': 'Transports', // same-as-en
   'trip.tabs.reservations': 'Reserves',
   'trip.tabs.reservationsShort': 'Reserves',
   'trip.tabs.packing': 'Llista de maletes',

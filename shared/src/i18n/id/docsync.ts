@@ -134,7 +134,7 @@ const docsync: TranslationStrings = {
 
   // ── Satu pasangan ──────────────────────────────────────────────────────────
   'docsync.binding.settings': 'Pengaturan',
-  'docsync.binding.folder': 'Folder',
+  'docsync.binding.folder': 'Folder', // same-as-en
   'docsync.binding.lastRun': 'Terakhir dijalankan',
   'docsync.binding.autoOff': 'Dijeda',
   'docsync.binding.neverRun': 'belum pernah dijalankan',

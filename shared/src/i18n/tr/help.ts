@@ -931,7 +931,7 @@ const help: TranslationStrings = {
     'Elle ayarladığınız durum, siz değiştirene kadar kalır, seyahat tarihleri değişse bile.',
 
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
-  'help.ctx.journey-studio.title': 'Studio',
+  'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
     'TREK Studio, bir Journey’i basılabilir bir fotoğraf kitabı olarak düzenler. Günlüğün üzerinde açılır: sayfa listesi ve içerik solda, üzerinde çalıştığınız çift sayfa ortada, özellikleri sağdadır. Auto layout kayıtlarınızdan ilk taslağı oluşturur. Sonrasında her şeyi taşıyabilir, kırpabilir ve yeniden biçimlendirebilirsiniz; her adım geri alınabilir.',
   'help.ctx.journey-studio.bullet.1':
@@ -1439,7 +1439,7 @@ const help: TranslationStrings = {
   'help.ctx.admin-addons.bullet.2':
     'Fotoğraf sağlayıcıları ve belge sağlayıcıları da burada kutucuk olarak görünür; böylece kullanıcılara Immich ya da Synology sunulabilir.',
   'help.ctx.admin-addons.bullet.3': '“Çanta Takibi”nin kutucukların altında kendi anahtarı vardır.',
-  'help.ctx.admin-plugins.title': 'Plugins',
+  'help.ctx.admin-plugins.title': "Plugin'ler",
   'help.ctx.admin-plugins.summary':
     "TREK'in yanında kendi süreçlerinde çalışan üçüncü taraf eklentiler. Her biri kurulumda istediği izinlere sahiptir. Katalogdan kurabilir, paket yükleyebilir ya da bir eklenti geliştirirken klasör bağlayabilirsiniz.",
   'help.ctx.admin-plugins.bullet.1':

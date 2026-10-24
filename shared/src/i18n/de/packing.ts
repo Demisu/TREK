@@ -8,7 +8,7 @@ const packing: TranslationStrings = {
   'packing.assignMembers': 'Mitglieder zuweisen',
   'packing.categoryOptions': 'Listenoptionen',
   'packing.editItem': 'Objekt bearbeiten',
-  'packing.itemName': 'Name',
+  'packing.itemName': 'Name', // same-as-en
   'packing.itemQuantity': 'Menge',
   'packing.packedCount': '{packed} von {total} gepackt',
   'packing.packedMore': 'Eins mehr packen',

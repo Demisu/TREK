@@ -5,7 +5,7 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.addNoteShort': 'Nota',
   'mobileTrip.addPlaceShort': 'Lloc',
   'mobileTrip.addToDayQuestion': 'Afegeix a un dia?',
-  'mobileTrip.addTransportShort': 'Transport',
+  'mobileTrip.addTransportShort': 'Transport', // same-as-en
   'mobileTrip.allDays': 'Tots els dies',
   'mobileTrip.today': 'Avui',
   'mobileTrip.jumpToToday': 'Ves a avui',
@@ -33,7 +33,7 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.more': 'Més',
   'mobileTrip.newCategory': 'Categoria nova',
   'mobileTrip.newReservation': 'Reserva nova',
-  'mobileTrip.notes': 'Notes',
+  'mobileTrip.notes': 'Notes', // same-as-en
   'mobileTrip.onMap': 'Al mapa',
   'mobileTrip.profileDriving': 'En cotxe',
   'mobileTrip.profileWalking': 'A peu',

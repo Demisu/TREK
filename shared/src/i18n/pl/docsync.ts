@@ -136,7 +136,7 @@ const docsync: TranslationStrings = {
 
   // ── Jedno powiązanie ───────────────────────────────────────────────────────
   'docsync.binding.settings': 'Ustawienia',
-  'docsync.binding.folder': 'Folder',
+  'docsync.binding.folder': 'Folder', // same-as-en
   'docsync.binding.lastRun': 'Ostatnie uruchomienie',
   'docsync.binding.autoOff': 'Wstrzymane',
   'docsync.binding.neverRun': 'jeszcze nie uruchomiono',

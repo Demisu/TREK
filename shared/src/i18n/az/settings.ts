@@ -155,7 +155,7 @@ const settings: TranslationStrings = {
   'settings.notificationPreferences.pluginConfigured':
     'Konfiqurasiya edilib. Giriş məlumatlarını plaginin tənzimləmələr səhifəsindən idarə edin.',
   'settings.notificationPreferences.ntfy': 'Ntfy',
-  'settings.notificationPreferences.push': 'Push',
+  'settings.notificationPreferences.push': 'Push', // same-as-en
   'settings.webPush.title': 'Bu cihazda push bildirişləri',
   'settings.webPush.hint':
     'TREK bağlı olanda belə TREK bildirişlərini bu cihazda göstərir. Hansı hadisələrin gəldiyini Push sütunu müəyyən edir.',
@@ -180,7 +180,7 @@ const settings: TranslationStrings = {
   'settings.webhookUrl.testFailed': 'Test webhook-u uğursuz oldu',
 
   'settings.ntfyUrl.topicLabel': 'Ntfy mövzusu',
-  'settings.ntfyUrl.topicPlaceholder': 'my-trek-alerts',
+  'settings.ntfyUrl.topicPlaceholder': 'my-trek-alerts', // same-as-en
   'settings.ntfyUrl.serverLabel': 'Ntfy server URL-i (istəyə bağlı)',
   'settings.ntfyUrl.serverPlaceholder': 'https://ntfy.sh',
   'settings.ntfyUrl.hint':
@@ -323,7 +323,7 @@ const settings: TranslationStrings = {
   'settings.username': 'İstifadəçi adı',
   'settings.email': 'E-poçt',
   'settings.role': 'Rol',
-  'settings.roleAdmin': 'Administrator',
+  'settings.roleAdmin': 'Administrator', // same-as-en
   'settings.oidcLinked': 'Əlaqələndirilib:',
   'settings.changePassword': 'Parolu dəyiş',
   'settings.currentPassword': 'Cari parol',
@@ -461,7 +461,7 @@ const settings: TranslationStrings = {
   'settings.aiParsing.providerAnthropic': 'Anthropic',
   'settings.aiParsing.localAdminOnly':
     'Lokal Ollama son nöqtəsi administrator tənzimləmələrində bütün instansiya üçün bir dəfə quraşdırılır. Burada öz OpenAI və ya Anthropic açarınızdan istifadə edə bilərsiniz.',
-  'settings.aiParsing.model': 'Model',
+  'settings.aiParsing.model': 'Model', // same-as-en
   'settings.aiParsing.baseUrl': 'Əsas URL',
   'settings.aiParsing.baseUrlHint': 'Modelin işlədiyi yer — lokal Ollama serveri və ya OpenAI ilə uyğun son nöqtə.',
   'settings.aiParsing.apiKey': 'API açarı',
@@ -526,7 +526,7 @@ const settings: TranslationStrings = {
   'settings.appearance.perSize': 'Hər ölçünü ayrıca tənzimlə',
   'settings.appearance.size.large': 'Böyük',
   'settings.appearance.size.medium': 'Orta',
-  'settings.appearance.size.normal': 'Normal',
+  'settings.appearance.size.normal': 'Normal', // same-as-en
   'settings.appearance.size.small': 'Kiçik',
 
   'settings.appearance.preview.large': 'Böyük başlıq',

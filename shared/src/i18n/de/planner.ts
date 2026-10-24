@@ -46,7 +46,7 @@ const planner: TranslationStrings = {
   'planner.new': 'Neu',
   'planner.addToDay': '+ Tag',
   'planner.calculating': 'Berechne…',
-  'planner.route': 'Route',
+  'planner.route': 'Route', // same-as-en
   'planner.optimize': 'Optimieren',
   'planner.openGoogleMaps': 'In Google Maps öffnen',
   'planner.openCoMaps': 'In CoMaps öffnen',

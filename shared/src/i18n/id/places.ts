@@ -137,13 +137,13 @@ const places: TranslationStrings = {
   'places.details.fact.rating': 'Peringkat',
   'places.details.fact.cuisine': 'Masakan',
   'places.details.fact.openingHours': 'Jam buka',
-  'places.details.fact.menu': 'Menu',
+  'places.details.fact.menu': 'Menu', // same-as-en
   'places.details.fact.outdoorSeating': 'Area luar',
   'places.details.fact.takeaway': 'Bawa pulang',
   'places.details.fact.delivery': 'Antar',
   'places.details.fact.wheelchair': 'Akses tanpa tangga',
-  'places.details.fact.vegetarian': 'Vegetarian',
-  'places.details.fact.vegan': 'Vegan',
+  'places.details.fact.vegetarian': 'Vegetarian', // same-as-en
+  'places.details.fact.vegan': 'Vegan', // same-as-en
   'places.details.fact.internetAccess': 'Wi-Fi',
   'places.categoryCreateError': 'Gagal membuat kategori',
   'places.nameRequired': 'Harap masukkan nama',

@@ -58,18 +58,18 @@ const common: TranslationStrings = {
   'common.hoursAgo.one': '{count} órája',
   'common.daysAgo': '{count} napja',
   'common.daysAgo.one': '{count} napja',
-  'common.datepicker.prevMonth': 'Previous month', // en-fallback
-  'common.datepicker.nextMonth': 'Next month', // en-fallback
-  'common.datepicker.prevYear': 'Previous year', // en-fallback
-  'common.datepicker.nextYear': 'Next year', // en-fallback
-  'common.datepicker.prevYears': 'Previous years', // en-fallback
-  'common.datepicker.nextYears': 'Next years', // en-fallback
-  'common.datepicker.selectMonth': 'Select month', // en-fallback
-  'common.datepicker.selectYear': 'Select year', // en-fallback
-  'common.datepicker.enterManually': 'Enter date manually', // en-fallback
-  'common.datepicker.typeDate': 'Type a date', // en-fallback
-  'common.datepicker.dialog': 'Date picker', // en-fallback
-  'common.datepicker.clearDate': 'Clear date', // en-fallback
+  'common.datepicker.prevMonth': 'Előző hónap',
+  'common.datepicker.nextMonth': 'Következő hónap',
+  'common.datepicker.prevYear': 'Előző év',
+  'common.datepicker.nextYear': 'Következő év',
+  'common.datepicker.prevYears': 'Korábbi évek',
+  'common.datepicker.nextYears': 'Későbbi évek',
+  'common.datepicker.selectMonth': 'Hónap kiválasztása',
+  'common.datepicker.selectYear': 'Év kiválasztása',
+  'common.datepicker.enterManually': 'Dátum megadása kézzel',
+  'common.datepicker.typeDate': 'Írj be egy dátumot',
+  'common.datepicker.dialog': 'Dátumválasztó',
+  'common.datepicker.clearDate': 'Dátum törlése',
   'common.errorTitle': 'Valami hiba történt',
   'common.errorBody': 'Az alkalmazás ezen része leállt. Az adatai biztonságban vannak.',
   'common.errorPanelTitle': 'Ezt a szakaszt nem sikerült megjeleníteni',

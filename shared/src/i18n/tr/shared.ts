@@ -8,7 +8,7 @@ const shared: TranslationStrings = {
     'Bu, paylaşım bağlantısının süresinin dolduğu anlamına gelmez. İnternet bağlantınızı kontrol edip biraz sonra tekrar deneyin.',
   'shared.retry': 'Yeniden dene',
   'shared.readOnly': 'Salt okunur paylaşılan görünüm',
-  'shared.tabPlan': 'Plan',
+  'shared.tabPlan': 'Plan', // same-as-en
   'shared.tabBookings': 'Rezervasyonlar',
   'shared.tabPacking': 'Ambalaj',
   'shared.tabBudget': 'Maliyetler',

@@ -59,7 +59,7 @@ const atlas: TranslationStrings = {
   'atlas.northAmerica': 'América do Norte',
   'atlas.southAmerica': 'América do Sul',
   'atlas.africa': 'África',
-  'atlas.oceania': 'Oceania',
+  'atlas.oceania': 'Oceania', // same-as-en
   'atlas.other': 'Outro',
   'atlas.firstVisit': 'Primeira viagem',
   'atlas.lastVisitLabel': 'Última viagem',

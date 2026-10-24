@@ -5,7 +5,7 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.addNoteShort': 'Anteckning',
   'mobileTrip.addPlaceShort': 'Plats',
   'mobileTrip.addToDayQuestion': 'Lägg till på en dag?',
-  'mobileTrip.addTransportShort': 'Transport',
+  'mobileTrip.addTransportShort': 'Transport', // same-as-en
   'mobileTrip.allDays': 'Alla dagar',
   'mobileTrip.today': 'Idag',
   'mobileTrip.jumpToToday': 'Gå till idag',
@@ -63,7 +63,7 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.toursCount.one': '{count} tur',
   'mobileTrip.rtSearchOffline': 'Kräver anslutning: sökningen läser rutten som ligger framför dig.',
   'mobileTrip.rtBehind': '{time} efter planen',
-  'mobileTrip.rtStart': 'Start',
+  'mobileTrip.rtStart': 'Start', // same-as-en
   'mobileTrip.rtStayScope': 'Vistelsen hör till platsen och räknas därför varje dag som det här stoppet är inplanerat.',
   'mobileTrip.rtStayLess': '{count} minuter mindre',
   'mobileTrip.rtStayLess.one': '{count} minut mindre',

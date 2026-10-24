@@ -84,14 +84,14 @@ const places: TranslationStrings = {
   'places.editPlace': 'Modifier le lieu',
   'places.formName': 'Nom',
   'places.formNamePlaceholder': 'ex. Tour Eiffel',
-  'places.formDescription': 'Description',
+  'places.formDescription': 'Description', // same-as-en
   'places.formDescriptionPlaceholder': 'Brève description…',
   'places.formAddress': 'Adresse',
   'places.formAddressPlaceholder': 'Rue, ville, pays',
   'places.formLat': 'Latitude (ex. 48.8566)',
   'places.formLng': 'Longitude (ex. 2.3522)',
-  'places.formLatLabel': 'Latitude',
-  'places.formLngLabel': 'Longitude',
+  'places.formLatLabel': 'Latitude', // same-as-en
+  'places.formLngLabel': 'Longitude', // same-as-en
   'places.formCategory': 'Catégorie',
   'places.noCategory': 'Sans catégorie',
   'places.newCategory': 'Nouvelle catégorie',
@@ -104,7 +104,7 @@ const places: TranslationStrings = {
   'places.timeCollision': 'Chevauchement horaire avec :',
   'places.formWebsite': 'Site web',
   'places.formPhone': 'Téléphone',
-  'places.formEmail': 'E-mail',
+  'places.formEmail': 'E-mail', // same-as-en
   'places.hoursAdd': 'Ajouter les horaires',
   'places.hoursClosed': 'Fermé',
   'places.hoursOpens': 'ouvre',
@@ -115,7 +115,7 @@ const places: TranslationStrings = {
   'places.searchNothing': 'Aucun résultat pour « {query} »',
   'places.searchNothingHint': 'Ajoutez-le vous-même : adresse, téléphone, e-mail et horaires ont un champ plus bas.',
   'places.addByHand': 'Ajouter à la main',
-  'places.formNotes': 'Notes',
+  'places.formNotes': 'Notes', // same-as-en
   'places.formNotesPlaceholder': 'Notes personnelles…',
   'places.assignmentNotes': 'Notes pour ce jour',
   'places.assignmentNotesPlaceholder': 'Notes pour ce lieu uniquement ce jour-là...',
@@ -137,7 +137,7 @@ const places: TranslationStrings = {
   'places.details.disabled': "L'enrichissement est désactivé par l'administrateur.",
   'places.details.noPhotos': 'Aucune image trouvée pour ce lieu.',
   'places.details.pickImage': 'Choisir une image',
-  'places.details.description': 'Description',
+  'places.details.description': 'Description', // same-as-en
   'places.details.adopt': 'Utiliser ce texte',
   'places.details.adoptBlocked': "Videz d'abord le champ description",
   'places.details.facts': 'Bon à savoir',
@@ -145,7 +145,7 @@ const places: TranslationStrings = {
   'places.details.aboutBrand': 'À propos de la chaîne',
   'places.details.aboutBrandNote': 'Décrit la chaîne, pas cet établissement.',
   'places.details.fact.rating': 'Note',
-  'places.details.fact.cuisine': 'Cuisine',
+  'places.details.fact.cuisine': 'Cuisine', // same-as-en
   'places.details.fact.openingHours': 'Horaires',
   'places.details.fact.menu': 'Carte',
   'places.details.fact.outdoorSeating': 'Terrasse',

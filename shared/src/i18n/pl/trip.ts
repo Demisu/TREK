@@ -1,7 +1,7 @@
 import type { TranslationStrings } from '../types';
 
 const trip: TranslationStrings = {
-  'trip.tabs.plan': 'Plan',
+  'trip.tabs.plan': 'Plan', // same-as-en
   'trip.tabs.transports': 'Transport',
   'trip.tabs.reservations': 'Rezerwacje',
   'trip.tabs.reservationsShort': 'Rezerwacje',
@@ -12,7 +12,7 @@ const trip: TranslationStrings = {
   'trip.tabs.budget': 'Koszty',
   'trip.tabs.files': 'Pliki',
   'trip.loading': 'Ładowanie podróży...',
-  'trip.mobilePlan': 'Plan',
+  'trip.mobilePlan': 'Plan', // same-as-en
   'trip.mobilePlaces': 'Miejsca',
   'trip.panelWidth': 'Szerokość panelu',
   'trip.toast.placeUpdated': 'Miejsce zostało zaktualizowane',

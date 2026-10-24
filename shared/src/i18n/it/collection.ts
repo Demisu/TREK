@@ -10,7 +10,7 @@ const collection: TranslationStrings = {
   'collections.role.label': 'Ruolo',
   'collections.role.viewer': 'Visualizzatore',
   'collections.role.editor': 'Editore',
-  'collections.role.admin': 'Admin',
+  'collections.role.admin': 'Admin', // same-as-en
   'collections.picker.allLists': 'Tutte le liste',
   'collections.select': 'Scegli',
   'collections.selectAll': 'Seleziona tutto',
@@ -103,7 +103,7 @@ const collection: TranslationStrings = {
   'collections.view.list': 'Lista',
   'collections.view.map': 'Mappa',
 
-  'collections.status.idea': 'Idea',
+  'collections.status.idea': 'Idea', // same-as-en
   'collections.status.want': 'Da visitare',
   'collections.status.visited': 'Visitato',
   'collections.status.filterAll': 'Tutti',

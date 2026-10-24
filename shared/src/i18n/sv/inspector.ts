@@ -14,7 +14,7 @@ const inspector: TranslationStrings = {
   'inspector.confirmedRes': 'Bekräftad bokning',
   'inspector.pendingRes': 'Väntande bokning',
   'inspector.google': 'Google Maps',
-  'inspector.navigation': 'Navigation',
+  'inspector.navigation': 'Navigering',
   'inspector.otherMapApp': 'Annan kartapp',
   'inspector.openWith': 'Öppna med',
   'inspector.openStreetMap': 'OpenStreetMap',

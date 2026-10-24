@@ -14,6 +14,6 @@ const nav: TranslationStrings = {
   'nav.bottomAdmin': 'Yönetici Ayarları',
   'nav.bottomLogout': 'Çıkış',
   'nav.bottomAdminBadge': 'Yönetici',
-  'nav.help': 'Help',
+  'nav.help': 'Yardım',
 };
 export default nav;

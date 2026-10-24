@@ -52,7 +52,7 @@ const common: TranslationStrings = {
   'common.unsavedMessage': 'Những gì bạn nhập ở đây chưa được lưu.',
   'common.keepEditing': 'Tiếp tục chỉnh sửa',
   'common.name': 'Tên',
-  'common.email': 'Email',
+  'common.email': 'Email', // same-as-en
   'common.password': 'Mật khẩu',
   'common.saving': 'Đang lưu...',
   'common.justNow': 'vừa xong',

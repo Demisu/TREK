@@ -30,7 +30,7 @@ const backup: TranslationStrings = {
   'backup.auto.subtitle': 'Pencadangan otomatis sesuai jadwal',
   'backup.auto.enable': 'Aktifkan cadangan otomatis',
   'backup.auto.enableHint': 'Cadangan akan dibuat secara otomatis sesuai jadwal yang dipilih',
-  'backup.auto.interval': 'Interval',
+  'backup.auto.interval': 'Interval', // same-as-en
   'backup.auto.hour': 'Jalankan pada jam',
   'backup.auto.hourHint': 'Waktu lokal server (format {format})',
   'backup.auto.dayOfWeek': 'Hari dalam seminggu',

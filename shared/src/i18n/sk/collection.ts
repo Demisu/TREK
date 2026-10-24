@@ -11,7 +11,7 @@ const collection: TranslationStrings = {
   'collections.saveToListHint': 'Duplikáty sa automaticky preskočia',
   'collections.role.label': 'Rola',
   'collections.role.viewer': 'Divák',
-  'collections.role.editor': 'Editor',
+  'collections.role.editor': 'Editor', // same-as-en
   'collections.role.admin': 'Správca',
   'collections.picker.allLists': 'Všetky zoznamy',
   'collections.select': 'Vybrať',

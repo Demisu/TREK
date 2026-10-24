@@ -39,7 +39,7 @@ const vacay: TranslationStrings = {
   'vacay.removePerson': 'Person entfernen',
   'vacay.removePersonConfirm': '{name} wirklich entfernen?',
   'vacay.removePersonHint': 'Alle Urlaubseinträge dieser Person werden unwiderruflich gelöscht.',
-  'vacay.personName': 'Name',
+  'vacay.personName': 'Name', // same-as-en
   'vacay.personNamePlaceholder': 'Name eingeben',
   'vacay.color': 'Farbe',
   'vacay.add': 'Hinzufügen',

@@ -26,7 +26,7 @@ const packing: TranslationStrings = {
   'packing.exportPrint': 'Afdrukken of opslaan als pdf',
   'packing.exportMarkdown': 'Markdown-checklist (.md)',
   'packing.exportCsv': 'CSV voor import (.csv)',
-  'packing.printItems': 'Items',
+  'packing.printItems': 'Items', // same-as-en
   'packing.printPacked': 'Ingepakt',
   'packing.importHintMarkdown':
     'Een Markdown-lijst werkt ook: een kop geeft de categorie aan, "- [ ]" en "- [x]" worden items en "3x" voor een naam stelt het aantal in.',

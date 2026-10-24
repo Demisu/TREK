@@ -33,10 +33,10 @@ const reservations: TranslationStrings = {
   'reservations.type.parking': 'Aparcamiento',
   'reservations.type.other': 'Otro',
   'reservations.type.bus': 'Autobús',
-  'reservations.type.ferry': 'Ferry',
+  'reservations.type.ferry': 'Ferry', // same-as-en
   'reservations.type.cable_car': 'Teleférico',
   'reservations.type.bicycle': 'Bicicleta',
-  'reservations.type.taxi': 'Taxi',
+  'reservations.type.taxi': 'Taxi', // same-as-en
   'reservations.type.transit': 'Transporte público',
   'reservations.typeShort.transit': 'T. público',
   'reservations.type.transport_other': 'Otro',
@@ -242,7 +242,7 @@ const reservations: TranslationStrings = {
   'reservations.sort.zToA': 'De la Z a la A',
   'reservations.timeline.dayCount': '{count} días',
   'reservations.timeline.dayCount.one': '{count} día',
-  'reservations.timeline.zoom': 'Zoom',
+  'reservations.timeline.zoom': 'Zoom', // same-as-en
   'reservations.timeline.trip': 'Viaje',
   'reservations.timeline.day': 'Día',
   'reservations.timeline.prevDay': 'Día anterior',

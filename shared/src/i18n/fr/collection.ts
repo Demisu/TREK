@@ -10,7 +10,7 @@ const collection: TranslationStrings = {
   'collections.role.label': 'Rôle',
   'collections.role.viewer': 'Lecteur',
   'collections.role.editor': 'Éditeur',
-  'collections.role.admin': 'Admin',
+  'collections.role.admin': 'Admin', // same-as-en
   'collections.picker.allLists': 'Toutes les listes',
   'collections.select': 'Choisir',
   'collections.selectAll': 'Tout sélectionner',
@@ -34,7 +34,7 @@ const collection: TranslationStrings = {
   'collections.coverImage': 'Image de couverture',
   'collections.addCover': 'Ajouter une couverture',
   'collections.changeCover': 'Changer la couverture',
-  'collections.description': 'Description',
+  'collections.description': 'Description', // same-as-en
   'collections.descriptionPlaceholder': 'Ajouter une description…',
   'collections.links': 'Liens',
   'collections.linkLabel': 'Libellé',
@@ -76,7 +76,7 @@ const collection: TranslationStrings = {
   'collections.hero.mine': 'Ma collection',
   'collections.hero.shared': 'Partagée avec vous',
   'collections.hero.all': 'Votre bibliothèque',
-  'collections.title': 'Collections',
+  'collections.title': 'Collections', // same-as-en
   'collections.subtitle': 'Vos lieux enregistrés, organisés en listes',
 
   'collections.newList': 'Nouvelle liste',
@@ -247,7 +247,7 @@ const collection: TranslationStrings = {
   'collections.invite.accepted': 'Invitation acceptée',
   'collections.invite.declined': 'Invitation refusée',
 
-  'collections.widget.title': 'Collections',
+  'collections.widget.title': 'Collections', // same-as-en
   'collections.widget.empty': 'Aucun lieu enregistré pour le moment',
   'collections.widget.savedCount': '{count} enregistrés',
   'collections.widget.savedCount.one': '{count} enregistré',

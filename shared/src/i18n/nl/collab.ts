@@ -9,10 +9,10 @@ const collab: TranslationStrings = {
   'collab.polls.countdownHoursMinutes': 'Nog {h}u {m}m',
   'collab.polls.countdownMinutes': 'Nog {m}m',
   'collab.polls.clearDeadline': 'Deadline wissen',
-  'collab.tabs.chat': 'Chat',
+  'collab.tabs.chat': 'Chat', // same-as-en
   'collab.tabs.notes': 'Notities',
-  'collab.tabs.polls': 'Polls',
-  'collab.tabs.links': 'Links',
+  'collab.tabs.polls': 'Peilingen',
+  'collab.tabs.links': 'Links', // same-as-en
   'collab.links.add': 'Link toevoegen',
   'collab.chat.imageRejected': 'Alleen JPEG-, PNG-, GIF- en WebP-afbeeldingen tot 10 MB zijn toegestaan',
   'collab.links.cancel': 'Annuleren',
@@ -74,12 +74,12 @@ const collab: TranslationStrings = {
   'collab.notes.daysAgo.one': '{n}d geleden',
   'collab.notes.categorySettings': 'Categorieën beheren',
   'collab.notes.create': 'Aanmaken',
-  'collab.notes.website': 'Website',
+  'collab.notes.website': 'Website', // same-as-en
   'collab.notes.websitePlaceholder': 'https://...',
   'collab.notes.attachFiles': 'Bestanden bijvoegen',
   'collab.notes.noCategoriesYet': 'Nog geen categorieën',
   'collab.notes.emptyDesc': 'Maak een notitie om te beginnen',
-  'collab.polls.title': 'Polls',
+  'collab.polls.title': 'Peilingen',
   'collab.polls.new': 'Nieuwe poll',
   'collab.polls.empty': 'Nog geen polls',
   'collab.polls.emptyHint': 'Stel de groep een vraag en stem samen',
@@ -95,7 +95,7 @@ const collab: TranslationStrings = {
   'collab.polls.votes.one': '{n} stem',
   'collab.polls.multipleChoice': 'Meerkeuze',
   'collab.polls.multiChoice': 'Meerkeuze',
-  'collab.polls.deadline': 'Deadline',
+  'collab.polls.deadline': 'Deadline', // same-as-en
   'collab.polls.option': 'Optie',
   'collab.polls.options': 'Opties',
   'collab.polls.delete': 'Verwijderen',

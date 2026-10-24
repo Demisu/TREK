@@ -131,7 +131,7 @@ const dawarich: TranslationStrings = {
   'dawarich.accept.noDay': 'Encara no és en cap dia',
   'dawarich.accept.journal': 'Diari',
   'dawarich.accept.pickJournal': 'Tria un diari',
-  'dawarich.accept.notes': 'Notes',
+  'dawarich.accept.notes': 'Notes', // same-as-en
   'dawarich.accept.story': 'La teva història',
   'dawarich.accept.storyPlaceholder': 'Què va passar aquí?',
   'dawarich.accept.photosHint': 'Afegeix fotos a l’entrada un cop creada.',

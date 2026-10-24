@@ -59,7 +59,7 @@ const trip: TranslationStrings = {
   'transit.mode.rail': 'Kereta',
   'transit.mode.subway': 'MRT',
   'transit.mode.tram': 'Trem',
-  'transit.mode.bus': 'Bus',
+  'transit.mode.bus': 'Bus', // same-as-en
   'transit.mode.ferry': 'Feri',
   'transit.mode.cable': 'Kereta gantung',
   'transit.pref.best': 'Rute terbaik',
@@ -80,7 +80,7 @@ const trip: TranslationStrings = {
   'transit.addToDay': 'Tambahkan ke hari',
   'transit.itinerary': 'Itinerari',
   'transit.attribution': 'Data rute melalui',
-  'transport.modeManual': 'Manual',
+  'transport.modeManual': 'Manual', // same-as-en
   'transport.modeAutomated': 'Otomatis',
   'transit.sectionTitle': 'Transportasi umum otomatis',
   'transit.changeRoute': 'Ubah rute',

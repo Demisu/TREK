@@ -1,7 +1,7 @@
 import type { TranslationStrings } from '../types';
 
 const trip: TranslationStrings = {
-  'trip.tabs.plan': 'Plan',
+  'trip.tabs.plan': 'Planning',
   'trip.tabs.transports': 'Transport',
   'trip.tabs.reservations': 'Boekingen',
   'trip.tabs.reservationsShort': 'Boekingen',
@@ -16,7 +16,7 @@ const trip: TranslationStrings = {
   'trip.loadingSteps.pack': 'Koffers inpakken...',
   'trip.loadingSteps.road': 'Op pad...',
   'trip.loadingSteps.arrive': 'Bijna aangekomen...',
-  'trip.mobilePlan': 'Plan',
+  'trip.mobilePlan': 'Planning',
   'trip.mobilePlaces': 'Plaatsen',
   'trip.panelWidth': 'Paneelbreedte',
   'trip.toast.placeUpdated': 'Plaats bijgewerkt',
@@ -60,8 +60,8 @@ const trip: TranslationStrings = {
   'transit.arrive': 'Aankomst',
   'transit.mode.rail': 'Trein',
   'transit.mode.subway': 'Metro',
-  'transit.mode.tram': 'Tram',
-  'transit.mode.bus': 'Bus',
+  'transit.mode.tram': 'Tram', // same-as-en
+  'transit.mode.bus': 'Bus', // same-as-en
   'transit.mode.ferry': 'Veerboot',
   'transit.mode.cable': 'Kabelbaan',
   'transit.pref.best': 'Beste route',
@@ -72,7 +72,7 @@ const trip: TranslationStrings = {
   'transit.searchError': 'Routezoeken mislukt. Probeer het opnieuw.',
   'transit.noResultsVia': 'Geen verbindingen gevonden via {provider}. Probeer een andere tijd of andere filters.',
   'transit.noResults': 'Geen verbindingen gevonden. Probeer een andere tijd of andere filters.',
-  'transit.direct': 'Direct',
+  'transit.direct': 'Direct', // same-as-en
   'transit.transfers': '{count} overstappen',
   'transit.transfers.one': '{count} overstap',
   'transit.min': '{count} min',

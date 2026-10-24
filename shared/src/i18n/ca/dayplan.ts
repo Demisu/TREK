@@ -52,7 +52,7 @@ const dayplan: TranslationStrings = {
   'dayplan.pendingRes': 'Pendent',
   'dayplan.export': 'Exporta',
   'dayplan.exportIntro': "Emporta't el pla: com a document, al calendari o al GPS.",
-  'dayplan.exportDocument': 'Document',
+  'dayplan.exportDocument': 'Document', // same-as-en
   'dayplan.exportCalendar': 'Calendari',
   'dayplan.exportMaps': 'Mapes i GPS',
   'dayplan.pdf': 'PDF',
@@ -106,8 +106,8 @@ const dayplan: TranslationStrings = {
   'dayplan.impactPlaces': 'Llocs planificats: {count}',
   'dayplan.impactPlaces.one': 'Llocs planificats: {count}',
   'dayplan.impactPlacesHint': 'Es queden a la llista de llocs.',
-  'dayplan.impactNotes': 'Notes: {count}',
-  'dayplan.impactNotes.one': 'Notes: {count}',
+  'dayplan.impactNotes': 'Notes: {count}', // same-as-en
+  'dayplan.impactNotes.one': 'Notes: {count}', // same-as-en
   'dayplan.impactTexts': 'Títols i descripcions del dia: {count}',
   'dayplan.impactTexts.one': 'Títols i descripcions del dia: {count}',
   'dayplan.impactDeletedHint': "També s'eliminen.",

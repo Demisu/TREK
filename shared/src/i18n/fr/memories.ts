@@ -1,7 +1,7 @@
 import type { TranslationStrings } from '../types';
 
 const memories: TranslationStrings = {
-  'memories.title': 'Photos',
+  'memories.title': 'Photos', // same-as-en
   'memories.notConnected': '{provider_name} non connecté',
   'memories.notConnectedHint':
     'Connectez votre instance {provider_name} dans les paramètres pour voir vos photos de voyage ici.',
@@ -10,7 +10,7 @@ const memories: TranslationStrings = {
   'memories.noDates': 'Ajoutez des dates à votre voyage pour charger les photos.',
   'memories.noPhotos': 'Aucune photo trouvée',
   'memories.noPhotosHint': 'Aucune photo trouvée dans {provider_name} pour la période de ce voyage.',
-  'memories.photosFound': 'photos',
+  'memories.photosFound': 'photos', // same-as-en
   'memories.fromOthers': "d'autres",
   'memories.sharePhotos': 'Partager les photos',
   'memories.sharing': 'Partagé',
@@ -51,7 +51,7 @@ const memories: TranslationStrings = {
   'memories.noAlbums': 'Aucun album trouvé',
   'memories.syncAlbum': 'Synchroniser',
   'memories.unlinkAlbum': 'Délier',
-  'memories.photos': 'photos',
+  'memories.photos': 'photos', // same-as-en
   'memories.selectPhotos': 'Sélectionner des photos depuis {provider_name}',
   'memories.selectPhotosMultiple': 'Sélectionner des photos',
   'memories.selectHint': 'Appuyez sur les photos pour les sélectionner.',

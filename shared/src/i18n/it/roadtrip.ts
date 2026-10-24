@@ -103,7 +103,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.limit.specHint': 'Se compilati, questi campi determinano l’autonomia sopra.',
   'roadtrip.limit.vehicleHint': 'Indica il tipo di veicolo per inserire i suoi dati invece dell’autonomia.',
   'roadtrip.limit.minutes': 'min',
-  'roadtrip.limit.off': 'off',
+  'roadtrip.limit.off': 'disattivato',
   'roadtrip.limit.blockNote': 'Un blocco = {distance}',
   'roadtrip.limit.echoOver': '{over} giorni su {count} superano il limite.',
   'roadtrip.limit.echoOver.one': '{over} giorni su {count} superano il limite.',
@@ -255,7 +255,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.day': 'Giorno {number}',
   'roadtrip.quietDay.empty': 'Ancora nessuna sosta, trascinane una qui',
   'roadtrip.quietDay.one': 'Finora solo {name}, trascina qui una sosta',
-  'roadtrip.leg.driveText': '{distance} in {time}',
+  'roadtrip.leg.driveText': '{distance} in {time}', // same-as-en
   'roadtrip.day.stopCount': '{count} soste',
   'roadtrip.day.stopCount.one': '{count} sosta',
   'roadtrip.day.fold': 'Chiudi',
@@ -314,7 +314,7 @@ const roadtrip: TranslationStrings = {
     'La prenotazione {title} non cade in nessun giorno di questo viaggio, quindi il percorso non la considera.',
   'roadtrip.bookings.loose': 'Prenotato anche questo giorno',
   'roadtrip.ride.departureFlight': 'Partenza {time}',
-  'roadtrip.ride.checkIn': 'Check-in',
+  'roadtrip.ride.checkIn': 'Check-in', // same-as-en
   'roadtrip.ride.boarding': 'Imbarco',
   'roadtrip.ride.missed': 'Perso',
   'roadtrip.ride.lateBy': '{time} di ritardo',
@@ -333,10 +333,10 @@ const roadtrip: TranslationStrings = {
   'roadtrip.day.rideMissed.ferry': 'Traghetto perso',
   'roadtrip.day.rideMissed.cruise': 'Crociera persa',
   'roadtrip.day.rideMissed.bus': 'Autobus perso',
-  'roadtrip.bookend.checkOut': 'Check-out',
+  'roadtrip.bookend.checkOut': 'Check-out', // same-as-en
   'roadtrip.bookend.from': 'Inizio giornata',
   'roadtrip.bookend.back': 'Pernottamento',
-  'roadtrip.bookend.checkIn': 'Check-in',
+  'roadtrip.bookend.checkIn': 'Check-in', // same-as-en
   'roadtrip.bookend.afterCheckOut': 'Partenza dopo il check-out',
   'roadtrip.bookend.noVia':
     'Nessun punto di passaggio sul tragitto verso o dal tuo alloggio. Aggiungi invece una sosta in quel punto.',

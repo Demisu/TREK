@@ -32,7 +32,7 @@ const backup: TranslationStrings = {
   'backup.auto.subtitle': 'Còpia de seguretat automàtica segons una programació',
   'backup.auto.enable': 'Activa la còpia automàtica',
   'backup.auto.enableHint': 'Es crearan còpies automàticament segons la freqüència triada',
-  'backup.auto.interval': 'Interval',
+  'backup.auto.interval': 'Interval', // same-as-en
   'backup.auto.hour': 'Executa a les',
   'backup.auto.hourHint': 'Hora local del servidor (format {format})',
   'backup.auto.dayOfWeek': 'Dia de la setmana',

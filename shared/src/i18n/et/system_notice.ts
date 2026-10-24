@@ -57,7 +57,7 @@ const system_notice: TranslationStrings = {
     'Oma kohaandmete API, algusest lõpuni planeeritud autoreisid, sinu asukohaajalugu taas sinu kätes ja sünkroonitud dokumendid.',
   'system_notice.release_notes.features_label': 'Peamised uuendused',
   'system_notice.release_notes.features_aside': 'See pole kaugeltki kõik',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
+  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
   'system_notice.release_notes.feature_places_body':
     'Esimene avatud lähtekoodiga reisiplaneerija oma kohaandmete API-ga. 73,6 miljonit kohta, ilma võtme ja kvoodita.',
   'system_notice.release_notes.feature_roadtrip_title': 'Autoreisi lisamoodul',

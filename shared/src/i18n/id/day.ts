@@ -16,9 +16,9 @@ const day: TranslationStrings = {
   'day.hotelDayRange': 'Terapkan ke hari',
   'day.noPlacesForHotel': 'Tambahkan tempat ke perjalananmu terlebih dahulu',
   'day.allDays': 'Semua',
-  'day.checkIn': 'Check-in',
+  'day.checkIn': 'Check-in', // same-as-en
   'day.checkInUntil': 'Sampai',
-  'day.checkOut': 'Check-out',
+  'day.checkOut': 'Check-out', // same-as-en
   'day.openStayBooking': 'Buka pemesanan',
   'day.confirmation': 'Konfirmasi',
   'day.editAccommodation': 'Edit akomodasi',

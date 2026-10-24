@@ -77,18 +77,18 @@ const admin: TranslationStrings = {
   'admin.tabs.settings': 'Ajustes',
   'admin.allowRegistration': 'Permitir el registro',
   'admin.allowRegistrationHint': 'Los nuevos usuarios pueden registrarse por sí mismos',
-  'admin.authMethods': 'Authentication Methods',
-  'admin.passwordLogin': 'Password Login',
-  'admin.passwordLoginHint': 'Allow users to sign in with email and password',
-  'admin.passwordRegistration': 'Password Registration',
-  'admin.passwordRegistrationHint': 'Allow new users to register with email and password',
-  'admin.oidcLogin': 'SSO Login',
-  'admin.oidcLoginHint': 'Allow users to sign in with SSO',
+  'admin.authMethods': 'Métodos de autenticación',
+  'admin.passwordLogin': 'Inicio de sesión con contraseña',
+  'admin.passwordLoginHint': 'Permite a los usuarios iniciar sesión con correo y contraseña',
+  'admin.passwordRegistration': 'Registro con contraseña',
+  'admin.passwordRegistrationHint': 'Permite a los nuevos usuarios registrarse con correo y contraseña',
+  'admin.oidcLogin': 'Inicio de sesión SSO',
+  'admin.oidcLoginHint': 'Permite a los usuarios iniciar sesión con SSO',
   'admin.oidcRegistration': 'SSO Auto-Provisioning',
-  'admin.oidcRegistrationHint': 'Automatically create accounts for new SSO users',
+  'admin.oidcRegistrationHint': 'Crea cuentas automáticamente para los nuevos usuarios de SSO',
   'admin.envOverrideHint':
-    'Password login settings are controlled by the OIDC_ONLY environment variable and cannot be changed here.',
-  'admin.lockoutWarning': 'At least one login method must remain enabled',
+    'Los ajustes del inicio de sesión con contraseña se controlan con la variable de entorno OIDC_ONLY y no se pueden cambiar aquí.',
+  'admin.lockoutWarning': 'Debe quedar activado al menos un método de inicio de sesión',
   'admin.requireMfa': 'Exigir autenticación en dos factores (2FA)',
   'admin.requireMfaHint':
     'Los usuarios sin 2FA deben completar la configuración en Ajustes antes de usar la aplicación.',
@@ -136,7 +136,7 @@ const admin: TranslationStrings = {
     'El índice propio de TREK y OpenStreetMap responden a cada búsqueda. Aquí se elige a quién más se consulta cuando no encuentran nada: Automático prefiere Google si hay clave, luego Amap.',
   'admin.placesProvider.auto': 'Automático',
   'admin.placesProvider.google': 'Google Places',
-  'admin.placesProvider.amap': 'Amap (高德地图)',
+  'admin.placesProvider.amap': 'Amap (高德地图)', // same-as-en
   'admin.placesProvider.openstreetmap': 'OpenStreetMap',
   'admin.placesProvider.missingKey':
     'El proveedor seleccionado no tiene clave de API configurada, así que la búsqueda de lugares la responden solo el índice de TREK y OpenStreetMap.',
@@ -203,7 +203,7 @@ const admin: TranslationStrings = {
     'Guardar qué resultado de búsqueda se eligió, para poder evaluar más adelante otro índice de lugares con búsquedas reales. Nada sale de esta instancia y un administrador puede exportar o borrar el registro cuando quiera.',
   'admin.bagTracking.title': 'Seguimiento de equipaje',
   'admin.bagTracking.subtitle': 'Activar peso y asignación de equipaje para artículos de la lista',
-  'admin.collab.chat.title': 'Chat',
+  'admin.collab.chat.title': 'Chat', // same-as-en
   'admin.collab.chat.subtitle': 'Mensajería en tiempo real para la colaboración',
   'admin.collab.notes.title': 'Notas',
   'admin.collab.notes.subtitle': 'Notas y documentos compartidos',
@@ -242,7 +242,7 @@ const admin: TranslationStrings = {
   'admin.packingTemplates.deleteItemError': 'No se pudo eliminar el elemento',
   'admin.packingTemplates.saveError': 'Error al guardar',
   'admin.tabs.addons': 'Complementos',
-  'admin.tabs.plugins': 'Plugins',
+  'admin.tabs.plugins': 'Plugins', // same-as-en
   'admin.tabs.storage': 'Almacenamiento',
   'admin.plugins.rescan': 'Volver a escanear',
   'admin.plugins.rescanned': 'Carpeta de plugins reescaneada',
@@ -288,7 +288,7 @@ const admin: TranslationStrings = {
   'admin.plugins.uninstallBody':
     'Esto detiene el plugin, elimina su código y borra todos sus datos. No se puede deshacer.',
   'admin.plugins.status.starting': 'Iniciando…',
-  'admin.plugins.type.widget': 'Widget',
+  'admin.plugins.type.widget': 'Widget', // same-as-en
   'admin.plugins.type.page': 'Página',
   'admin.plugins.type.integration': 'Integración',
   'admin.plugins.type.trip-page': 'Página de viaje',
@@ -299,7 +299,7 @@ const admin: TranslationStrings = {
   'admin.plugins.enabledToggle': 'Activar plugin',
   'plugins.notFound': 'Plugin no encontrado',
   'plugins.frameLoadFailed': 'No se ha podido cargar este plugin.',
-  'admin.plugins.title': 'Plugins',
+  'admin.plugins.title': 'Plugins', // same-as-en
   'admin.plugins.subtitle': 'Instala y gestiona plugins de terceros en tu instancia.',
   'admin.plugins.disabledTitle': 'Los plugins están desactivados',
   'admin.plugins.disabledBody':
@@ -311,8 +311,8 @@ const admin: TranslationStrings = {
   'admin.plugins.status.active': 'Activo',
   'admin.plugins.status.inactive': 'Inactivo',
   'admin.plugins.status.disabled': 'Desactivado',
-  'admin.plugins.status.error': 'Error',
-  'admin.plugins.status.incompatible': 'Incompatible',
+  'admin.plugins.status.error': 'Error', // same-as-en
+  'admin.plugins.status.incompatible': 'Incompatible', // same-as-en
   'admin.plugins.details': 'Detalles',
   'admin.plugins.detailError': 'No se pudieron cargar los detalles del plugin.',
   'admin.plugins.permissionsTitle': 'Permisos',
@@ -602,7 +602,7 @@ const admin: TranslationStrings = {
     '«{name}» no declara qué versiones de TREK admite; este servidor ejecuta {host}. TREK lo deja pasar solo porque TREK_PLUGINS_IGNORE_TREK_RANGE está definido. Nada indica que su autor lo haya probado en este TREK, así que no hay garantía de que funcione — y en casos raros un plugin incompatible puede corromper los datos de TREK. Continúa solo si aceptas ese riesgo.',
   'admin.plugins.dep.trekBypassed': 'Fuera de su rango de TREK ({range}) — comprobaciones de versión desactivadas',
   'admin.plugins.dep.trekBypassedUnknown': 'No declara ningún rango de TREK — comprobaciones de versión desactivadas',
-  'admin.plugins.incompatible': 'Incompatible',
+  'admin.plugins.incompatible': 'Incompatible', // same-as-en
   'admin.plugins.accessTitle': 'A qué puede acceder',
   'admin.plugins.connectsTitle': 'Se conecta a',
   'admin.plugins.detailsTitle': 'Detalles',
@@ -616,7 +616,7 @@ const admin: TranslationStrings = {
   'admin.addons.subtitle': 'Activa o desactiva funciones para personalizar tu experiencia en TREK.',
   'admin.addons.subtitleBefore': 'Activa o desactiva funciones para personalizar tu experiencia en ',
   'admin.addons.subtitleAfter': '.',
-  'admin.addons.catalog.naver_list_import.name': 'Naver List Import',
+  'admin.addons.catalog.naver_list_import.name': 'Importación de listas de Naver',
   'admin.addons.catalog.naver_list_import.description': 'Importa lugares desde una lista compartida de Naver Maps',
   'admin.addons.catalog.airtrail.name': 'AirTrail',
   'admin.addons.catalog.airtrail.description': 'Sincroniza vuelos desde tu instancia de AirTrail',
@@ -631,14 +631,14 @@ const admin: TranslationStrings = {
     'Un chat en cada viaje que responde preguntas y propone cambios que tú confirmas',
   'admin.addons.llm.vision.auto': 'Automático',
   'admin.addons.llm.vision.on': 'Sí',
-  'admin.addons.llm.vision.off': 'No',
+  'admin.addons.llm.vision.off': 'No', // same-as-en
   'admin.addons.llm.vision.hintLocal': 'Automático pregunta al servidor Ollama si este modelo lee imágenes.',
   'admin.addons.llm.vision.hintCloud':
     'Automático significa no para un modelo en la nube. Elige Sí si este modelo lee imágenes.',
   'admin.addons.enabled': 'Activo',
   'admin.addons.disabled': 'Desactivado',
   'admin.addons.type.trip': 'Viaje',
-  'admin.addons.type.global': 'Global',
+  'admin.addons.type.global': 'Global', // same-as-en
   'admin.addons.type.integration': 'Integración',
   'admin.addons.tripHint': 'Disponible como pestaña dentro de cada viaje',
   'admin.addons.globalHint': 'Disponible como sección independiente en la navegación principal',
@@ -776,7 +776,7 @@ const admin: TranslationStrings = {
   'admin.oidcOnlyModeHint':
     'Si está activado, solo se permite el inicio de sesión con SSO. El inicio de sesión y registro con contraseña se bloquean.',
   'admin.tabs.permissions': 'Permisos',
-  'admin.notifications.emailPanel.title': 'Email (SMTP)',
+  'admin.notifications.emailPanel.title': 'Correo electrónico (SMTP)',
   'admin.notifications.webhookPanel.title': 'Webhook',
   'admin.notifications.webPushPanel.title': 'Web Push',
   'admin.notifications.webPushPanel.hint':
@@ -806,7 +806,7 @@ const admin: TranslationStrings = {
     'También se usa como servidor predeterminado para las notificaciones ntfy de los usuarios. Déjalo en blanco para usar ntfy.sh. Los usuarios pueden cambiarlo en sus propios ajustes.',
   'admin.notifications.adminNtfyPanel.serverPlaceholder': 'https://ntfy.sh',
   'admin.notifications.adminNtfyPanel.topicLabel': 'Tema de admin',
-  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts',
+  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts', // same-as-en
   'admin.notifications.adminNtfyPanel.tokenLabel': 'Token de acceso (opcional)',
   'admin.notifications.adminNtfyPanel.tokenCleared': 'Token de acceso de admin eliminado',
   'admin.notifications.adminNtfyPanel.saved': 'Configuración de Ntfy de admin guardada',
@@ -872,10 +872,10 @@ const admin: TranslationStrings = {
   'admin.defaultSettings.cartoKey': 'Clave de CARTO compartida',
   'admin.defaultSettings.cartoKeyHint':
     'Se usa para cada usuario que no haya introducido su propia clave, de modo que toda la instancia obtenga teselas de CARTO sin marca de agua. Se almacena cifrada.',
-  'admin.group.users': 'Users',
-  'admin.group.config': 'Configuration',
-  'admin.group.integration': 'Integrations',
-  'admin.group.maintenance': 'Maintenance',
+  'admin.group.users': 'Usuarios',
+  'admin.group.config': 'Configuración',
+  'admin.group.integration': 'Integraciones',
+  'admin.group.maintenance': 'Mantenimiento',
   'admin.invite.tripLabel': 'Añadir a un viaje (opcional)',
   'admin.invite.tripNone': 'Sin viaje',
   'admin.invite.tripHint':

@@ -56,18 +56,18 @@ const common: TranslationStrings = {
   'common.collapse': '折りたたむ',
   'common.copy': 'コピー',
   'common.copied': 'コピーしました',
-  'common.datepicker.prevMonth': 'Previous month', // en-fallback
-  'common.datepicker.nextMonth': 'Next month', // en-fallback
-  'common.datepicker.prevYear': 'Previous year', // en-fallback
-  'common.datepicker.nextYear': 'Next year', // en-fallback
-  'common.datepicker.prevYears': 'Previous years', // en-fallback
-  'common.datepicker.nextYears': 'Next years', // en-fallback
-  'common.datepicker.selectMonth': 'Select month', // en-fallback
-  'common.datepicker.selectYear': 'Select year', // en-fallback
-  'common.datepicker.enterManually': 'Enter date manually', // en-fallback
-  'common.datepicker.typeDate': 'Type a date', // en-fallback
-  'common.datepicker.dialog': 'Date picker', // en-fallback
-  'common.datepicker.clearDate': 'Clear date', // en-fallback
+  'common.datepicker.prevMonth': '前の月',
+  'common.datepicker.nextMonth': '次の月',
+  'common.datepicker.prevYear': '前の年',
+  'common.datepicker.nextYear': '次の年',
+  'common.datepicker.prevYears': '前の年代',
+  'common.datepicker.nextYears': '次の年代',
+  'common.datepicker.selectMonth': '月を選択',
+  'common.datepicker.selectYear': '年を選択',
+  'common.datepicker.enterManually': '日付を手入力',
+  'common.datepicker.typeDate': '日付を入力',
+  'common.datepicker.dialog': '日付ピッカー',
+  'common.datepicker.clearDate': '日付をクリア',
   'common.errorTitle': '問題が発生しました',
   'common.errorBody': 'アプリのこの部分が動作しなくなりました。データは安全です。',
   'common.errorPanelTitle': 'このセクションを表示できませんでした',

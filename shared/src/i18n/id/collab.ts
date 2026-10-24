@@ -9,7 +9,7 @@ const collab: TranslationStrings = {
   'collab.polls.countdownHoursMinutes': '{h}j {m}m lagi',
   'collab.polls.countdownMinutes': '{m}m lagi',
   'collab.polls.clearDeadline': 'Hapus tenggat',
-  'collab.tabs.chat': 'Chat',
+  'collab.tabs.chat': 'Chat', // same-as-en
   'collab.tabs.notes': 'Catatan',
   'collab.tabs.polls': 'Polling',
   'collab.tabs.links': 'Tautan',
@@ -62,7 +62,7 @@ const collab: TranslationStrings = {
   'collab.notes.color': 'Warna',
   'collab.notes.save': 'Simpan',
   'collab.notes.cancel': 'Batal',
-  'collab.notes.edit': 'Edit',
+  'collab.notes.edit': 'Edit', // same-as-en
   'collab.notes.delete': 'Hapus',
   'collab.notes.confirmDeleteTitle': 'Hapus catatan?',
   'collab.notes.confirmDeleteBody': 'Catatan ini akan dihapus secara permanen.',
@@ -71,7 +71,7 @@ const collab: TranslationStrings = {
   'collab.notes.daysAgo': '{n}h lalu',
   'collab.notes.categorySettings': 'Kelola Kategori',
   'collab.notes.create': 'Buat',
-  'collab.notes.website': 'Website',
+  'collab.notes.website': 'Situs web',
   'collab.notes.websitePlaceholder': 'https://...',
   'collab.notes.attachFiles': 'Lampirkan file',
   'collab.notes.noCategoriesYet': 'Belum ada kategori',

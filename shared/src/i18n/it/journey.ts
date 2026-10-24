@@ -266,37 +266,37 @@ const journey: TranslationStrings = {
   'journey.picker.noAlbums': 'Nessun album trovato',
   'journey.picker.selectDate': 'Seleziona data',
   'journey.picker.search': 'Cerca',
-  'journey.detail.journeyTab': 'Journey', // en-fallback
-  'journey.contributors.remove': 'Remove contributor', // en-fallback
-  'journey.contributors.removeConfirm': 'Remove {username} from this journey?', // en-fallback
-  'journey.contributors.removed': 'Contributor removed', // en-fallback
-  'journey.contributors.removeFailed': 'Failed to remove contributor', // en-fallback
+  'journey.detail.journeyTab': 'Diario',
+  'journey.contributors.remove': 'Rimuovi contributore',
+  'journey.contributors.removeConfirm': 'Rimuovere {username} da questo diario?',
+  'journey.contributors.removed': 'Contributore rimosso',
+  'journey.contributors.removeFailed': 'Impossibile rimuovere il contributore',
   'journey.contributors.viaTrips': 'Tramite viaggi',
   'journey.contributors.viaTripsHint':
     'Possono aprire questo diario perché un viaggio lo collega. Modificalo nelle impostazioni del viaggio.',
   'journey.contributors.viaTrip': 'tramite {trip}',
-  'journey.editor.externalPhotos': 'External photos', // en-fallback
-  'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
-  'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback
-  'journey.editor.externalPhotosNoLocation': 'All photos from this day', // en-fallback
-  'journey.editor.externalPhotosQueued': 'queued', // en-fallback
-  'journey.editor.externalPhotosUnavailable': 'No connected photo providers are available.', // en-fallback
-  'journey.editor.externalPhotosPartialFailed': '{failed} photo groups failed — save again to retry', // en-fallback
-  'journey.picker.day': 'This day', // en-fallback
-  'journey.studio.title': 'TREK Studio', // en-fallback
-  'journey.studio.open': 'Studio', // en-fallback
-  'journey.studio.openAria': 'Open the photo book studio', // en-fallback
-  'journey.studio.backToJourney': 'Back to the journey', // en-fallback
-  'journey.studio.format': 'Page format', // en-fallback
-  'journey.studio.formatA4Landscape': 'A4 landscape', // en-fallback
-  'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
-  'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
-  'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
+  'journey.editor.externalPhotos': 'Foto esterne',
+  'journey.editor.externalPhotosFor': 'Foto del {date}',
+  'journey.editor.externalPhotosNearby': 'Prima le foto vicine',
+  'journey.editor.externalPhotosNoLocation': 'Tutte le foto di questo giorno',
+  'journey.editor.externalPhotosQueued': 'in coda',
+  'journey.editor.externalPhotosUnavailable': 'Nessun provider di foto collegato è disponibile.',
+  'journey.editor.externalPhotosPartialFailed': '{failed} gruppi di foto non riusciti: salva di nuovo per riprovare',
+  'journey.picker.day': 'Questo giorno',
+  'journey.studio.title': 'TREK Studio',
+  'journey.studio.open': 'Studio',
+  'journey.studio.openAria': 'Apri lo studio del libro fotografico',
+  'journey.studio.backToJourney': 'Torna al diario',
+  'journey.studio.format': 'Formato pagina',
+  'journey.studio.formatA4Landscape': 'A4 orizzontale',
+  'journey.studio.formatA4Portrait': 'A4 verticale',
+  'journey.studio.formatSquare21': 'Quadrato 21 × 21 cm',
+  'journey.studio.formatSquare30': 'Quadrato 30 × 30 cm',
   'journey.studio.pages': 'Pagine',
-  'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.autoLayout': 'Auto layout', // en-fallback
-  'journey.studio.export': 'Export', // en-fallback
+  'journey.studio.cover': 'Copertina',
+  'journey.studio.inspectorEmpty': 'Seleziona un elemento della pagina per modificarlo.',
+  'journey.studio.autoLayout': 'Layout automatico',
+  'journey.studio.export': 'Esporta',
   'journey.studio.day': 'GIORNO {day}',
   'journey.studio.stations': 'Tappe',
   'journey.studio.peersHere': 'qui',
@@ -318,98 +318,98 @@ const journey: TranslationStrings = {
   'journey.studio.exportPreparing': 'Preparazione',
   'journey.studio.exportSheetCount': '{count} fogli',
   'journey.studio.exportSheetCount.one': '{count} foglio',
-  'journey.studio.undo': 'Undo', // en-fallback
-  'journey.studio.redo': 'Redo', // en-fallback
-  'journey.studio.zoomIn': 'Zoom in', // en-fallback
-  'journey.studio.zoomOut': 'Zoom out', // en-fallback
-  'journey.studio.zoomFit': 'Fit to view', // en-fallback
+  'journey.studio.undo': 'Annulla',
+  'journey.studio.redo': 'Ripeti',
+  'journey.studio.zoomIn': 'Ingrandisci',
+  'journey.studio.zoomOut': 'Riduci',
+  'journey.studio.zoomFit': 'Adatta alla vista',
   'journey.studio.downloadSpread': 'Scarica questa doppia pagina',
   'journey.studio.downloadSpreadHint':
     'Salva il progetto di questa doppia pagina come file, senza le foto, per condividerlo o riutilizzarlo',
   'journey.studio.importSpread': 'Importa',
   'journey.studio.importSpreadHint': 'Aggiunge una doppia pagina da un file di progetto scaricato',
   'journey.studio.importSpreadFailed': 'Quel file non è una doppia pagina di TREK Studio',
-  'journey.studio.desktopOnly': 'Studio needs a bigger screen', // en-fallback
+  'journey.studio.desktopOnly': 'Studio richiede uno schermo più grande',
   'journey.studio.desktopOnlyHint':
-    'Impaginare un libro chiede spazio, perciò Studio è solo da computer, e così anche il PDF. Tutto il resto del tuo viaggio funziona qui come sempre.', // en-fallback
-  'journey.studio.formatA5Landscape': 'A5 landscape', // en-fallback
-  'journey.studio.bookView': 'Book view', // en-fallback
-  'journey.studio.multiple': 'Several', // en-fallback
-  'journey.studio.kind.photo': 'Photo', // en-fallback
-  'journey.studio.kind.text': 'Text', // en-fallback
-  'journey.studio.kind.shape': 'Shape', // en-fallback
-  'journey.studio.position': 'Position', // en-fallback
-  'journey.studio.width': 'W', // en-fallback
-  'journey.studio.height': 'H', // en-fallback
+    'Impaginare un libro chiede spazio, perciò Studio è solo da computer, e così anche il PDF. Tutto il resto del tuo diario funziona qui come sempre.',
+  'journey.studio.formatA5Landscape': 'A5 orizzontale',
+  'journey.studio.bookView': 'Vista libro',
+  'journey.studio.multiple': 'Vari',
+  'journey.studio.kind.photo': 'Foto',
+  'journey.studio.kind.text': 'Testo',
+  'journey.studio.kind.shape': 'Forma',
+  'journey.studio.position': 'Posizione',
+  'journey.studio.width': 'L',
+  'journey.studio.height': 'A',
   'journey.studio.text': 'Testo',
-  'journey.studio.typography': 'Type', // en-fallback
-  'journey.studio.leading': 'Line', // en-fallback
-  'journey.studio.colour': 'Colour', // en-fallback
+  'journey.studio.typography': 'Carattere',
+  'journey.studio.leading': 'Interlinea',
+  'journey.studio.colour': 'Colore',
   'journey.studio.autoColour': 'Automatico',
   'journey.studio.countryNames': 'Nomi',
-  'journey.studio.crop': 'Crop', // en-fallback
-  'journey.studio.look': 'Look', // en-fallback
-  'journey.studio.radius': 'Corner', // en-fallback
-  'journey.studio.shape': 'Shape', // en-fallback
-  'journey.studio.arrange': 'Arrange', // en-fallback
-  'journey.studio.toFront': 'Bring to front', // en-fallback
-  'journey.studio.forward': 'Bring forward', // en-fallback
-  'journey.studio.backward': 'Send backward', // en-fallback
-  'journey.studio.toBack': 'Send to back', // en-fallback
-  'journey.studio.lock': 'Lock', // en-fallback
-  'journey.studio.unlock': 'Unlock', // en-fallback
-  'journey.studio.delete': 'Delete', // en-fallback
-  'journey.studio.pageHint': 'Page', // en-fallback
-  'journey.studio.boundHint': 'Follows the journal entry. Editing it here breaks that link.', // en-fallback
-  'journey.studio.fit.cover': 'Fill', // en-fallback
-  'journey.studio.fit.contain': 'Fit', // en-fallback
-  'journey.studio.filter.none': 'Original', // en-fallback
-  'journey.studio.filter.bw': 'Black & white', // en-fallback
-  'journey.studio.filter.warm': 'Warm', // en-fallback
-  'journey.studio.shapeKind.rect': 'Rectangle', // en-fallback
-  'journey.studio.shapeKind.ellipse': 'Ellipse', // en-fallback
-  'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
-  'journey.studio.backCover': 'Back cover', // en-fallback
-  'journey.studio.sections': 'Sections', // en-fallback
+  'journey.studio.crop': 'Ritaglia',
+  'journey.studio.look': 'Aspetto',
+  'journey.studio.radius': 'Angolo',
+  'journey.studio.shape': 'Forma',
+  'journey.studio.arrange': 'Disponi',
+  'journey.studio.toFront': 'Porta in primo piano',
+  'journey.studio.forward': 'Porta avanti',
+  'journey.studio.backward': 'Porta indietro',
+  'journey.studio.toBack': 'Porta in secondo piano',
+  'journey.studio.lock': 'Blocca',
+  'journey.studio.unlock': 'Sblocca',
+  'journey.studio.delete': 'Elimina',
+  'journey.studio.pageHint': 'Pagina',
+  'journey.studio.boundHint': 'Segue la voce del diario. Modificandolo qui, il collegamento si interrompe.',
+  'journey.studio.fit.cover': 'Riempi',
+  'journey.studio.fit.contain': 'Adatta',
+  'journey.studio.filter.none': 'Originale',
+  'journey.studio.filter.bw': 'Bianco e nero',
+  'journey.studio.filter.warm': 'Caldo',
+  'journey.studio.shapeKind.rect': 'Rettangolo',
+  'journey.studio.shapeKind.ellipse': 'Ellisse',
+  'journey.studio.focalHint': "Trascina il punto per scegliere cosa resta nell'inquadratura.",
+  'journey.studio.backCover': 'Quarta di copertina',
+  'journey.studio.sections': 'Sezioni',
   'journey.studio.content': 'Contenuti',
   'journey.studio.elements': 'Elementi',
   'journey.studio.templates': 'Layout',
   'journey.studio.photos': 'Foto',
   'journey.studio.entries': 'Voci',
-  'journey.studio.addToPage': 'Add to this page', // en-fallback
-  'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
-  'journey.studio.untitled': 'Untitled', // en-fallback
-  'journey.studio.addTitle': 'Title', // en-fallback
-  'journey.studio.addStory': 'Story', // en-fallback
-  'journey.studio.addPlace': 'Place', // en-fallback
+  'journey.studio.addToPage': 'Aggiungi a questa pagina',
+  'journey.studio.noPhotos': 'Questo diario non ha ancora foto.',
+  'journey.studio.untitled': 'Senza titolo',
+  'journey.studio.addTitle': 'Titolo',
+  'journey.studio.addStory': 'Racconto',
+  'journey.studio.addPlace': 'Luogo',
   'journey.studio.shapes': 'Forme',
   'journey.studio.frames': 'Cornici',
-  'journey.studio.emptyFrame': 'Empty frame', // en-fallback
-  'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
-  'journey.studio.shapeKind.line': 'Line', // en-fallback
-  'journey.studio.styleTitle': 'Heading', // en-fallback
-  'journey.studio.styleSubtitle': 'Subheading', // en-fallback
-  'journey.studio.styleBody': 'Body text', // en-fallback
-  'journey.studio.styleCaption': 'Caption', // en-fallback
-  'journey.studio.sampleHeading': 'A heading', // en-fallback
-  'journey.studio.sampleSubheading': 'A subheading', // en-fallback
-  'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
-  'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
-  'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
-  'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
-  'journey.studio.tpl.grid4': 'Four up', // en-fallback
-  'journey.studio.tpl.grid6': 'Six up', // en-fallback
-  'journey.studio.tpl.strip': 'Strip and text', // en-fallback
-  'journey.studio.tpl.quietText': 'Text only', // en-fallback
-  'journey.studio.tpl.portraitPair': 'A pair', // en-fallback
+  'journey.studio.emptyFrame': 'Cornice vuota',
+  'journey.studio.frameHint': "Una cornice vuota indica dove va un'immagine. Trascinane una qui da Contenuti.",
+  'journey.studio.shapeKind.line': 'Linea',
+  'journey.studio.styleTitle': 'Titolo',
+  'journey.studio.styleSubtitle': 'Sottotitolo',
+  'journey.studio.styleBody': 'Testo del corpo',
+  'journey.studio.styleCaption': 'Didascalia',
+  'journey.studio.sampleHeading': 'Un titolo',
+  'journey.studio.sampleSubheading': 'Un sottotitolo',
+  'journey.studio.sampleBody': 'Scrivi qualcosa su questo giorno.',
+  'journey.studio.sampleCaption': 'Didascalia',
+  'journey.studio.tpl.heroStory': 'Immagine e racconto',
+  'journey.studio.tpl.fullBleed': 'Una foto a doppia pagina',
+  'journey.studio.tpl.twoUp': 'Due pagine intere',
+  'journey.studio.tpl.grid4': 'Quattro foto',
+  'journey.studio.tpl.grid6': 'Sei foto',
+  'journey.studio.tpl.strip': 'Striscia e testo',
+  'journey.studio.tpl.quietText': 'Solo testo',
+  'journey.studio.tpl.portraitPair': 'Una coppia',
   'journey.studio.dropPhotoHere': 'Trascina qui\nla tua foto',
-  'journey.studio.searchContent': 'Search photos and entries', // en-fallback
-  'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
+  'journey.studio.searchContent': 'Cerca foto e voci',
+  'journey.studio.noMatches': 'Nessun risultato.',
   'journey.studio.quoteMark': 'Virgolette',
-  'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
-  'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
-  'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
+  'journey.studio.shapeKind.rounded': 'Rettangolo arrotondato',
+  'journey.studio.shapeKind.triangle': 'Triangolo',
+  'journey.studio.shapeKind.outline': 'Solo contorno',
   'journey.studio.travel': 'Viaggio',
   'journey.studio.travelEmpty': 'I dati di questo viaggio non sono ancora pronti.',
   'journey.studio.grids': 'Griglie',
@@ -543,7 +543,7 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Elimina pagina',
   'journey.studio.movePageUp': 'Sposta prima',
   'journey.studio.movePageDown': 'Sposta dopo',
-  'journey.studio.beta': 'Beta',
+  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'Pro e contro',
   'journey.studio.showMarks': 'Segni',
   'journey.studio.formatCustom': 'Formato libero',
@@ -572,7 +572,7 @@ const journey: TranslationStrings = {
   'journey.studio.mapSource': 'Origine mappa',
   'journey.studio.mapSourceVector': 'Contorni',
   'journey.studio.mapSourceRelief': 'Rilievo',
-  'journey.studio.mapSourceSatellite': 'Satellite',
+  'journey.studio.mapSourceSatellite': 'Satellite', // same-as-en
   'journey.studio.mapSourceSatelliteHint':
     'Sentinel-2 senza nuvole, libero da stampare con la sua attribuzione. Nitido fino alla via.',
   'journey.studio.routeLook': 'La linea',
@@ -608,7 +608,7 @@ const journey: TranslationStrings = {
   'journey.studio.mapSourceTiles': 'Tessere',
   'journey.studio.mapSourceStatic': 'Mapbox',
   'journey.studio.mapSourceHint': 'Scaricata al rendering e stampata con la sua attribuzione',
-  'journey.studio.mapZoom': 'Zoom',
+  'journey.studio.mapZoom': 'Zoom', // same-as-en
   'journey.studio.mapFraming': 'Inquadratura',
   'journey.studio.mapFitStops': 'Tappe',
   'journey.studio.mapFitCountry': 'Paese intero',

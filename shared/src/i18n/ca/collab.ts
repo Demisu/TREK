@@ -2,7 +2,7 @@ import type { TranslationStrings } from '../types';
 
 const collab: TranslationStrings = {
   'collab.tabs.chat': 'Missatges',
-  'collab.tabs.notes': 'Notes',
+  'collab.tabs.notes': 'Notes', // same-as-en
   'collab.tabs.polls': 'Enquestes',
   'collab.tabs.links': 'Enllaços',
   'collab.links.add': 'Afegeix un enllaç',
@@ -40,7 +40,7 @@ const collab: TranslationStrings = {
   'collab.chat.minutesAgo.one': 'fa {n} min',
   'collab.chat.hoursAgo': 'fa {n} h',
   'collab.chat.hoursAgo.one': 'fa {n} h',
-  'collab.notes.title': 'Notes',
+  'collab.notes.title': 'Notes', // same-as-en
   'collab.notes.new': 'Nota nova',
   'collab.notes.empty': 'Encara no hi ha notes',
   'collab.notes.emptyHint': 'Comença a capturar idees i plans',
@@ -53,7 +53,7 @@ const collab: TranslationStrings = {
   'collab.notes.newCategory': 'Categoria nova...',
   'collab.notes.category': 'Categoria',
   'collab.notes.noCategory': 'Sense categoria',
-  'collab.notes.color': 'Color',
+  'collab.notes.color': 'Color', // same-as-en
   'collab.notes.save': 'Desa',
   'collab.notes.cancel': 'Cancel·la',
   'collab.notes.edit': 'Edita',

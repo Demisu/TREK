@@ -75,9 +75,9 @@ const login: TranslationStrings = {
   'login.resetPasswordFailed': 'A visszaállítás nem sikerült. A link lehet, hogy lejárt.',
   'login.passkey.signIn': 'Bejelentkezés passkey-jel',
   'login.passkey.failed': 'A passkey-bejelentkezés sikertelen. Kérjük, próbáld újra.',
-  'login.insecureCookie.title': "Login won't stick over HTTP",
+  'login.insecureCookie.title': 'A bejelentkezés HTTP-n nem marad meg',
   'login.insecureCookie.body':
-    'You’re connecting over plain HTTP, so your browser drops TREK’s secure session cookie — the next request fails with "Access token required". Fix: use HTTPS, or for a home-lab set COOKIE_SECURE=false.',
-  'login.insecureCookie.link': 'Open the Troubleshooting guide',
+    'Egyszerű HTTP-n csatlakozol, ezért a böngésző eldobja a TREK biztonságos munkamenet-sütijét, és a következő kérés ezzel a hibával elbukik: "Access token required". Megoldás: használj HTTPS-t, vagy otthoni labor esetén állítsd be: COOKIE_SECURE=false.',
+  'login.insecureCookie.link': 'Hibaelhárítási útmutató megnyitása',
 };
 export default login;

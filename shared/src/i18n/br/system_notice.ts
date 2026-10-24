@@ -9,8 +9,8 @@ const system_notice: TranslationStrings = {
   'system_notice.welcome_v1.highlight_plan': 'Roteiros dia a dia para qualquer viagem',
   'system_notice.welcome_v1.highlight_share': 'Colabore com seus companheiros de viagem',
   'system_notice.welcome_v1.highlight_offline': 'Funciona offline no celular',
-  'system_notice.dev_test_modal.title': '[Dev] Test notice',
-  'system_notice.dev_test_modal.body': 'This is a dev-only test notice.',
+  'system_notice.dev_test_modal.title': '[Dev] Aviso de teste',
+  'system_notice.dev_test_modal.body': 'Este é um aviso de teste só para desenvolvimento.',
   'system_notice.thank_you_support.title': 'Obrigado por usar o TREK',
   'system_notice.thank_you_support.body':
     'Um obrigado rápido por instalar o TREK — isso significa muito para mim, de verdade.\n\nSou um desenvolvedor solo e construo o TREK no meu tempo livre. Tudo começou como uma ferramentinha só para as minhas próprias viagens, e confesso que fico maravilhado com o apoio e o interesse da comunidade desde então. O TREK é feito com muito carinho da minha parte — mas também graças aos muitos colaboradores externos incríveis que ajudaram a moldá-lo.\n\n**O TREK é open source e totalmente gratuito — e vai continuar assim para sempre. Sem planos pagos, sem assinaturas, sem pegadinhas. Eu prometo.**\n\nSe o TREK é útil para você e você quiser apoiar o seu desenvolvimento, um cafezinho ajuda muito a me manter construindo — sem nenhuma pressão, mas cada xícara mantém as noites longas em pé.\n\nObrigado por estar aqui.\n\n— Maurice',
@@ -61,7 +61,7 @@ const system_notice: TranslationStrings = {
     'A sua própria API de locais, road trips planeadas do início ao fim, o seu histórico de localização nas suas mãos, e os seus documentos sincronizados.',
   'system_notice.release_notes.features_label': 'Os destaques',
   'system_notice.release_notes.features_aside': 'E não é só isso',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
+  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
   'system_notice.release_notes.feature_places_body':
     'O primeiro planeador de viagens open source com API de locais própria. 73,6 milhões de locais, sem chave, sem quota.',
   'system_notice.release_notes.feature_roadtrip_title': 'Addon Viagem de carro',

@@ -959,7 +959,7 @@ const help: TranslationStrings = {
     'A kézzel beállított állapot addig marad, amíg meg nem változtatod, akkor is, ha az utazás dátumai módosulnak.',
 
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
-  'help.ctx.journey-studio.title': 'Studio',
+  'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
     'A TREK Studio nyomtatható fotókönyvvé tördeli az útinaplót. A napló fölött nyílik meg: balra az oldallista és a tartalom, középen az éppen szerkesztett oldalpár, jobbra a tulajdonságai. Az automatikus elrendezés a bejegyzéseidből elkészíti az első vázlatot. Ezután mindent áthelyezhetsz, körbevághatsz és átformázhatsz, és minden lépés visszavonható.',
   'help.ctx.journey-studio.bullet.1':
@@ -1163,7 +1163,7 @@ const help: TranslationStrings = {
     '„MCP konfiguráció”: az „MCP végpont”, az „OAuth 2.1 kliensek” alatt a regisztrált klienseid, a kimásolható „Kliens konfiguráció” és az „Aktív OAuth munkamenetek” „Visszavonás” gombbal.',
   'help.ctx.settings-integrations.bullet.4':
     'API tokenek: az MCP-hez való csatlakozás régi módja, „Elavult” jelöléssel; helyette használd az „OAuth 2.1 kliensek” lehetőséget.',
-  'help.ctx.settings-offline.title': 'Offline',
+  'help.ctx.settings-offline.title': 'Offline', // same-as-en
   'help.ctx.settings-offline.summary':
     'Mit tárol a TREK ezen az eszközön, hogy egy utazás kapcsolat nélkül is megnyíljon, és mi történik, ha egy offline végzett módosítás ütközik egy máshol végzett módosítással.',
   'help.ctx.settings-offline.bullet.1':
@@ -1529,7 +1529,7 @@ const help: TranslationStrings = {
     'A „Mentés feltöltése” egy másik példányon vagy korábban készült fájlból állít vissza, ugyanazzal a megerősítő kérdéssel, mint a „Visszaállítás”.',
   'help.ctx.admin-backup.bullet.3':
     'Automatikus mentés: be- vagy kikapcsolás, „Időköz”, „Futtatás időpontja” és a nap, valamint „Régi mentések törlése ennyi idő után” („1 nap” és „Örökre megőrzés” között), a „Mentés” gombbal érvényesítve.',
-  'help.ctx.admin-audit.title': 'Audit',
+  'help.ctx.admin-audit.title': 'Audit', // same-as-en
   'help.ctx.admin-audit.summary':
     'A biztonsági és adminisztrációs események naplója: bejelentkezések és sikertelen próbálkozások, MFA-módosítások, felhasználói és beállításváltozások, biztonsági mentések és visszaállítások. Csak olvasható, a legújabb van elöl.',
   'help.ctx.admin-audit.bullet.1':

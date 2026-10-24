@@ -8,11 +8,11 @@ const shared: TranslationStrings = {
     'Eso no significa que el enlace haya caducado. Comprueba tu conexión y vuelve a intentarlo en un momento.',
   'shared.retry': 'Reintentar',
   'shared.readOnly': 'Vista de solo lectura',
-  'shared.tabPlan': 'Plan',
+  'shared.tabPlan': 'Plan', // same-as-en
   'shared.tabBookings': 'Reservas',
   'shared.tabPacking': 'Equipaje',
   'shared.tabBudget': 'Costes',
-  'shared.tabChat': 'Chat',
+  'shared.tabChat': 'Chat', // same-as-en
   'shared.days': 'días',
   'shared.places': 'lugares',
   'shared.places.one': 'lugar',

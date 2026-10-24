@@ -284,7 +284,7 @@ const journey: TranslationStrings = {
   'journey.picker.noAlbums': 'Albumeid ei leitud',
   'journey.picker.selectDate': 'Vali kuupäev',
   'journey.picker.search': 'Otsi',
-  'journey.studio.title': 'TREK Studio',
+  'journey.studio.title': 'TREK Studio', // same-as-en
   'journey.studio.open': 'Stuudio',
   'journey.studio.openAria': 'Ava fotoraamatu stuudio',
   'journey.studio.backToJourney': 'Tagasi reisiloo juurde',
@@ -420,7 +420,7 @@ const journey: TranslationStrings = {
   'journey.studio.polaroidFrame': 'Polaroid',
   'journey.studio.whiteFrame': 'Valge ääris',
   'journey.studio.shadowFrame': 'Heitvari',
-  'journey.studio.filmFrame': 'Film',
+  'journey.studio.filmFrame': 'Film', // same-as-en
   'journey.studio.tapeFrame': 'Teibitud',
   'journey.studio.shapeGroup.basic': 'Põhikujud',
   'journey.studio.shapeGroup.polygons': 'Hulknurgad',

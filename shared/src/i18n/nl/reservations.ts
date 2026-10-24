@@ -13,7 +13,7 @@ const reservations: TranslationStrings = {
   'reservations.summary': '{confirmed} bevestigd, {pending} in behandeling',
   'reservations.showFiles': 'Bestanden tonen',
   'reservations.editTitle': 'Reservering bewerken',
-  'reservations.status': 'Status',
+  'reservations.status': 'Status', // same-as-en
   'reservations.datetime': 'Datum en tijd',
   'reservations.startTime': 'Starttijd',
   'reservations.endTime': 'Eindtijd',
@@ -26,7 +26,7 @@ const reservations: TranslationStrings = {
   'reservations.meta.flightNumber': 'Vluchtnr.',
   'reservations.meta.from': 'Van',
   'reservations.meta.to': 'Naar',
-  'reservations.layover.route': 'Route',
+  'reservations.layover.route': 'Route', // same-as-en
   'reservations.layover.stop': 'Tussenstop',
   'reservations.layover.addStop': 'Tussenstop toevoegen',
   'reservations.cruise.embark': 'Inscheping',
@@ -56,19 +56,19 @@ const reservations: TranslationStrings = {
   'reservations.meta.selectDay': 'Selecteer dag',
   'reservations.type.flight': 'Vlucht',
   'reservations.type.hotel': 'Accommodatie',
-  'reservations.type.restaurant': 'Restaurant',
+  'reservations.type.restaurant': 'Restaurant', // same-as-en
   'reservations.type.train': 'Trein',
   'reservations.type.car': 'Auto',
-  'reservations.type.cruise': 'Cruise',
+  'reservations.type.cruise': 'Cruise', // same-as-en
   'reservations.type.event': 'Evenement',
   'reservations.type.tour': 'Rondleiding',
   'reservations.type.parking': 'Parkeren',
   'reservations.type.other': 'Overig',
-  'reservations.type.bus': 'Bus',
+  'reservations.type.bus': 'Bus', // same-as-en
   'reservations.type.ferry': 'Veerboot',
   'reservations.type.cable_car': 'Kabelbaan',
   'reservations.type.bicycle': 'Fiets',
-  'reservations.type.taxi': 'Taxi',
+  'reservations.type.taxi': 'Taxi', // same-as-en
   'reservations.type.transit': 'Openbaar vervoer',
   'reservations.typeShort.transit': 'OV',
   'reservations.type.transport_other': 'Overig',
@@ -87,7 +87,7 @@ const reservations: TranslationStrings = {
   'reservations.locationAddress': 'Locatie / Adres',
   'reservations.locationPlaceholder': 'Adres, luchthaven, hotel...',
   'reservations.confirmationCode': 'Boekingscode',
-  'reservations.routeLabel': 'Route',
+  'reservations.routeLabel': 'Route', // same-as-en
   'reservations.segmentCodes': 'Codes per traject',
   'reservations.confirmationPlaceholder': 'bijv. ABC12345',
   'reservations.day': 'Dag',
@@ -129,7 +129,7 @@ const reservations: TranslationStrings = {
   'reservations.span.dropOff': 'Inleveren',
   'reservations.span.return': 'Inleveren',
   'reservations.span.active': 'Actief',
-  'reservations.span.start': 'Start',
+  'reservations.span.start': 'Start', // same-as-en
   'reservations.span.end': 'Einde',
   'reservations.span.ongoing': 'Lopend',
   'reservations.validation.endBeforeStart': 'Einddatum/-tijd moet na de startdatum/-tijd liggen',
@@ -194,7 +194,7 @@ const reservations: TranslationStrings = {
   'reservations.linkExpense': 'Bestaande kostenpost koppelen',
   'reservations.unlinkExpense': 'Ontkoppelen, kostenpost behouden',
   'reservations.noUnlinkedExpenses': 'Geen ongekoppelde kostenposten',
-  'reservations.urlLabel': 'Link',
+  'reservations.urlLabel': 'Link', // same-as-en
   'reservations.urlPlaceholder': 'https://...',
   'reservations.travelers.label': 'Reizigers',
   'reservations.travelers.assign': 'Reizigers toewijzen',
@@ -211,7 +211,7 @@ const reservations: TranslationStrings = {
   'reservations.noMatches': 'Niets voldoet aan deze filters',
   'reservations.viewOptions': 'Weergaveopties',
   'reservations.exportCsv': 'Exporteren als spreadsheet (CSV)',
-  'reservations.export.type': 'Type',
+  'reservations.export.type': 'Type', // same-as-en
   'reservations.export.title': 'Titel',
   'reservations.export.start': 'Begin',
   'reservations.export.end': 'Einde',
@@ -222,9 +222,9 @@ const reservations: TranslationStrings = {
   'reservations.export.notes': 'Notities',
   'reservations.resetView': 'Weergave resetten',
   'reservations.group.label': 'Groeperen op',
-  'reservations.group.status': 'Status',
+  'reservations.group.status': 'Status', // same-as-en
   'reservations.group.day': 'Dag',
-  'reservations.group.type': 'Type',
+  'reservations.group.type': 'Type', // same-as-en
   'reservations.group.none': 'Niet groeperen',
   'reservations.transitApart': 'Openbaar vervoer als eigen sectie',
   'reservations.group.before': 'Vóór de reis',
@@ -233,15 +233,15 @@ const reservations: TranslationStrings = {
   'reservations.sort.label': 'Sorteren op',
   'reservations.sort.date': 'Datum',
   'reservations.sort.title': 'Titel',
-  'reservations.sort.type': 'Type',
-  'reservations.sort.status': 'Status',
+  'reservations.sort.type': 'Type', // same-as-en
+  'reservations.sort.status': 'Status', // same-as-en
   'reservations.sort.earlyFirst': 'Vroegste eerst',
   'reservations.sort.lateFirst': 'Laatste eerst',
   'reservations.sort.aToZ': 'A tot Z',
   'reservations.sort.zToA': 'Z tot A',
   'reservations.timeline.dayCount': '{count} dagen',
   'reservations.timeline.dayCount.one': '{count} dag',
-  'reservations.timeline.zoom': 'Zoom',
+  'reservations.timeline.zoom': 'Zoom', // same-as-en
   'reservations.timeline.trip': 'Reis',
   'reservations.timeline.day': 'Dag',
   'reservations.timeline.prevDay': 'Vorige dag',

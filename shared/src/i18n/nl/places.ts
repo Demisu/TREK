@@ -19,8 +19,8 @@ const places: TranslationStrings = {
   'places.gpxImported': '{count} plaatsen geïmporteerd uit GPX',
   'places.gpxImported.one': '{count} plaats geïmporteerd uit GPX',
   'places.gpxImportTypes': 'Wat wil je importeren?',
-  'places.gpxImportWaypoints': 'Waypoints',
-  'places.gpxImportRoutes': 'Routes',
+  'places.gpxImportWaypoints': 'Waypoints', // same-as-en
+  'places.gpxImportRoutes': 'Routes', // same-as-en
   'places.gpxImportTracks': 'Tracks (met routegeometrie)',
   'places.gpxImportNoneSelected': 'Selecteer minstens één type om te importeren.',
   'places.kmlImportTypes': 'Wat wil je importeren?',
@@ -56,7 +56,7 @@ const places: TranslationStrings = {
   'places.planned': 'Gepland',
   'places.dayScoped': 'Alleen de geopende dag wordt getoond',
   'places.dayScopedClear': 'Hele reis tonen',
-  'places.filterTracks': 'Tracks',
+  'places.filterTracks': 'Tracks', // same-as-en
   'places.filterByRating': 'Filteren op beoordeling',
   'places.sortBy': 'Sorteren op',
   'places.sortNewest': 'Laatst toegevoegd',
@@ -67,7 +67,7 @@ const places: TranslationStrings = {
   'places.filterByLocation': 'Filteren op land of regio',
   'places.allLocations': 'Alle landen',
   'places.filterShow': 'Tonen',
-  'places.filters': 'Filters',
+  'places.filters': 'Filters', // same-as-en
   'places.clearSearch': 'Zoekopdracht wissen',
   'places.yourRating': 'Jouw beoordeling',
   'places.notRated': 'Nog niet beoordeeld',
@@ -101,9 +101,9 @@ const places: TranslationStrings = {
   'places.endTime': 'Einde',
   'places.endTimeBeforeStart': 'Eindtijd is vóór de starttijd',
   'places.timeCollision': 'Tijdoverlap met:',
-  'places.formWebsite': 'Website',
+  'places.formWebsite': 'Website', // same-as-en
   'places.formPhone': 'Telefoon',
-  'places.formEmail': 'E-mail',
+  'places.formEmail': 'E-mail', // same-as-en
   'places.hoursAdd': 'Openingstijden toevoegen',
   'places.hoursClosed': 'Gesloten',
   'places.hoursOpens': 'opent',

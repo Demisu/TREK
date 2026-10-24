@@ -5,7 +5,7 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.addNoteShort': 'Notiz',
   'mobileTrip.addPlaceShort': 'Ort',
   'mobileTrip.addToDayQuestion': 'Zu einem Tag hinzufügen?',
-  'mobileTrip.addTransportShort': 'Transport',
+  'mobileTrip.addTransportShort': 'Transport', // same-as-en
   'mobileTrip.allDays': 'Alle Tage',
   'mobileTrip.today': 'Heute',
   'mobileTrip.jumpToToday': 'Zu heute springen',
@@ -27,7 +27,7 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.icsSubscribeSub': 'Aktualisiert sich automatisch in deiner Kalender-App',
   'mobileTrip.importListSub': 'Link zu einer geteilten Liste einfügen',
   'mobileTrip.importPlaces': 'Orte importieren',
-  'mobileTrip.inCountdown': 'in {time}',
+  'mobileTrip.inCountdown': 'in {time}', // same-as-en
   'mobileTrip.listView': 'Listenansicht',
   'mobileTrip.mapView': 'Kartenansicht',
   'mobileTrip.more': 'Mehr',
@@ -63,7 +63,7 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.toursCount.one': '{count} Tour',
   'mobileTrip.rtSearchOffline': 'Braucht eine Verbindung: Die Suche liest die Strecke, die vor dir liegt.',
   'mobileTrip.rtBehind': '{time} hinter dem Plan',
-  'mobileTrip.rtStart': 'Start',
+  'mobileTrip.rtStart': 'Start', // same-as-en
   'mobileTrip.rtStayScope':
     'Der Aufenthalt gehört zum Ort und zählt deshalb an jedem Tag, an dem dieser Stopp geplant ist.',
   'mobileTrip.rtStayLess': '{count} Minuten weniger',

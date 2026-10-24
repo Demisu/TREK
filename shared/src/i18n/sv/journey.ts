@@ -3,7 +3,7 @@ import type { TranslationStrings } from '../types';
 const journey: TranslationStrings = {
   'journey.search.placeholder': 'Sök journeys…',
   'journey.search.noResults': 'Inga journeys matchar "{query}"',
-  'journey.title': 'Journey',
+  'journey.title': 'Journey', // same-as-en
   'journey.subtitle': 'Följ dina resor i realtid',
   'journey.new': 'Ny Journey',
   'journey.lightbox.zoomIn': 'Zooma in',
@@ -61,11 +61,11 @@ const journey: TranslationStrings = {
   'journey.frontpage.activeJourney': 'Aktiv Journey',
   'journey.frontpage.latestJourney': 'Senaste Journey',
   'journey.frontpage.allJourneys': 'Alla Journeys',
-  'journey.frontpage.journeys': 'journeys',
-  'journey.frontpage.journeys.one': 'journey',
+  'journey.frontpage.journeys': 'journeys', // same-as-en
+  'journey.frontpage.journeys.one': 'journey', // same-as-en
   'journey.frontpage.createNew': 'Skapa en ny Journey',
   'journey.frontpage.createNewSub': 'Välj resor, skriv berättelser, dela med dig av dina äventyr',
-  'journey.frontpage.live': 'Live',
+  'journey.frontpage.live': 'Live', // same-as-en
   'journey.frontpage.synced': 'Synkad',
   'journey.frontpage.continueWriting': 'Fortsätt skriva',
   'journey.frontpage.updated': 'Uppdaterad {time}',
@@ -95,7 +95,7 @@ const journey: TranslationStrings = {
   'journey.detail.noEntriesHint': 'Lägg till en resa för att komma igång med utkast',
   'journey.detail.noPhotos': 'Inga foton ännu',
   'journey.detail.noPhotosHint': 'Ladda upp foton till inlägg eller bläddra i ditt Immich/Synology-bibliotek',
-  'journey.detail.journeyTab': 'Journey',
+  'journey.detail.journeyTab': 'Journey', // same-as-en
   'journey.detail.journeyStats': 'Journey statistik',
   'journey.detail.syncedTrips': 'Synkroniserade resor',
   'journey.detail.noTripsLinked': 'Inga resor har kopplats ännu',
@@ -149,7 +149,7 @@ const journey: TranslationStrings = {
   'journey.editor.locationInsecureContext': 'Plats kräver en säker anslutning (HTTPS).',
   'journey.mood.amazing': 'Fantastiskt',
   'journey.mood.good': 'Bra',
-  'journey.mood.neutral': 'Neutral',
+  'journey.mood.neutral': 'Neutral', // same-as-en
   'journey.mood.rough': 'Grov',
   'journey.weather.sunny': 'Soligt',
   'journey.weather.partly': 'Delvis molnigt',
@@ -219,7 +219,7 @@ const journey: TranslationStrings = {
   'journey.settings.autoPrepare': 'Förbered inspelade dagar automatiskt',
   'journey.settings.autoPrepareHint':
     'Medan en länkad resa pågår väntar vistelserna från din Dawarich vid sin dag på att granskas. Redigerare med egen anslutning får sina. Inget skrivs i dagboken av sig självt.',
-  'journey.settings.status': 'Status',
+  'journey.settings.status': 'Status', // same-as-en
   'journey.settings.statusAuto': 'Automatiskt',
   'journey.settings.statusAutoHint':
     'Följer datumen för de länkade resorna. Utan resa förblir resedagboken ett utkast.',
@@ -275,33 +275,33 @@ const journey: TranslationStrings = {
   'journey.picker.noAlbums': 'Inga album hittades',
   'journey.picker.selectDate': 'Välj datum',
   'journey.picker.search': 'Sök',
-  'journey.editor.externalPhotos': 'External photos', // en-fallback
-  'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
-  'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback
-  'journey.editor.externalPhotosNoLocation': 'All photos from this day', // en-fallback
-  'journey.editor.externalPhotosQueued': 'queued', // en-fallback
-  'journey.editor.externalPhotosUnavailable': 'No connected photo providers are available.', // en-fallback
-  'journey.editor.externalPhotosPartialFailed': '{failed} photo groups failed — save again to retry', // en-fallback
-  'journey.picker.day': 'This day', // en-fallback
-  'journey.studio.title': 'TREK Studio', // en-fallback
-  'journey.studio.open': 'Studio', // en-fallback
-  'journey.studio.openAria': 'Open the photo book studio', // en-fallback
-  'journey.studio.backToJourney': 'Back to the journey', // en-fallback
-  'journey.studio.format': 'Page format', // en-fallback
-  'journey.studio.formatA4Landscape': 'A4 landscape', // en-fallback
-  'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
-  'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
-  'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
+  'journey.editor.externalPhotos': 'Externa foton',
+  'journey.editor.externalPhotosFor': 'Foton för {date}',
+  'journey.editor.externalPhotosNearby': 'Foton i närheten först',
+  'journey.editor.externalPhotosNoLocation': 'Alla foton från den här dagen',
+  'journey.editor.externalPhotosQueued': 'i kö',
+  'journey.editor.externalPhotosUnavailable': 'Inga anslutna fotoleverantörer är tillgängliga.',
+  'journey.editor.externalPhotosPartialFailed': '{failed} fotogrupper misslyckades, spara igen för att försöka på nytt',
+  'journey.picker.day': 'Den här dagen',
+  'journey.studio.title': 'TREK Studio',
+  'journey.studio.open': 'Studio',
+  'journey.studio.openAria': 'Öppna fotobokstudion',
+  'journey.studio.backToJourney': 'Tillbaka till resan',
+  'journey.studio.format': 'Sidformat',
+  'journey.studio.formatA4Landscape': 'A4 liggande',
+  'journey.studio.formatA4Portrait': 'A4 stående',
+  'journey.studio.formatSquare21': 'Kvadrat 21 × 21 cm',
+  'journey.studio.formatSquare30': 'Kvadrat 30 × 30 cm',
   'journey.studio.pages': 'Sidor',
-  'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.autoLayout': 'Auto layout', // en-fallback
-  'journey.studio.export': 'Export', // en-fallback
+  'journey.studio.cover': 'Omslag',
+  'journey.studio.inspectorEmpty': 'Markera något på sidan för att redigera det.',
+  'journey.studio.autoLayout': 'Automatisk layout',
+  'journey.studio.export': 'Exportera',
   'journey.studio.day': 'DAG {day}',
   'journey.studio.stations': 'Etapper',
   'journey.studio.peersHere': 'här',
   'journey.studio.folioAuto': 'Automatiskt',
-  'journey.studio.exportLayout': 'Layout',
+  'journey.studio.exportLayout': 'Layout', // same-as-en
   'journey.studio.exportPages': 'Enkelsidor',
   'journey.studio.exportPagesHint': 'Ett blad per sida, i läsordning. Det är vad ett tryckeri vill ha.',
   'journey.studio.exportSpreads': 'Uppslag',
@@ -316,98 +316,98 @@ const journey: TranslationStrings = {
   'journey.studio.exportPreparing': 'Förbereder',
   'journey.studio.exportSheetCount': '{count} blad',
   'journey.studio.exportSheetCount.one': '{count} blad',
-  'journey.studio.undo': 'Undo', // en-fallback
-  'journey.studio.redo': 'Redo', // en-fallback
-  'journey.studio.zoomIn': 'Zoom in', // en-fallback
-  'journey.studio.zoomOut': 'Zoom out', // en-fallback
-  'journey.studio.zoomFit': 'Fit to view', // en-fallback
+  'journey.studio.undo': 'Ångra',
+  'journey.studio.redo': 'Gör om',
+  'journey.studio.zoomIn': 'Zooma in',
+  'journey.studio.zoomOut': 'Zooma ut',
+  'journey.studio.zoomFit': 'Anpassa till vyn',
   'journey.studio.downloadSpread': 'Ladda ner det här uppslaget',
   'journey.studio.downloadSpreadHint':
     'Sparar uppslagets design som en fil, utan fotografierna, att dela eller återanvända',
   'journey.studio.importSpread': 'Importera',
   'journey.studio.importSpreadHint': 'Lägger till ett uppslag från en nedladdad designfil',
   'journey.studio.importSpreadFailed': 'Filen är inte ett uppslag från TREK Studio',
-  'journey.studio.desktopOnly': 'Studio needs a bigger screen', // en-fallback
+  'journey.studio.desktopOnly': 'Studio kräver en större skärm',
   'journey.studio.desktopOnlyHint':
-    'Att formge en bok kräver plats, så Studio finns bara på datorn, och det gör pdf:en också. Allt annat i resan fungerar som vanligt här.', // en-fallback
-  'journey.studio.formatA5Landscape': 'A5 landscape', // en-fallback
-  'journey.studio.bookView': 'Book view', // en-fallback
-  'journey.studio.multiple': 'Several', // en-fallback
-  'journey.studio.kind.photo': 'Photo', // en-fallback
-  'journey.studio.kind.text': 'Text', // en-fallback
-  'journey.studio.kind.shape': 'Shape', // en-fallback
-  'journey.studio.position': 'Position', // en-fallback
-  'journey.studio.width': 'W', // en-fallback
-  'journey.studio.height': 'H', // en-fallback
+    'Att formge en bok kräver plats, så Studio finns bara på datorn, och det gör PDF:en också. Allt annat i din resa fungerar som vanligt här.',
+  'journey.studio.formatA5Landscape': 'A5 liggande',
+  'journey.studio.bookView': 'Bokvy',
+  'journey.studio.multiple': 'Flera',
+  'journey.studio.kind.photo': 'Foto',
+  'journey.studio.kind.text': 'Text', // same-as-en
+  'journey.studio.kind.shape': 'Form',
+  'journey.studio.position': 'Position', // same-as-en
+  'journey.studio.width': 'B',
+  'journey.studio.height': 'H',
   'journey.studio.text': 'Text', // same-as-en
-  'journey.studio.typography': 'Type', // en-fallback
-  'journey.studio.leading': 'Line', // en-fallback
-  'journey.studio.colour': 'Colour', // en-fallback
+  'journey.studio.typography': 'Typsnitt',
+  'journey.studio.leading': 'Rad',
+  'journey.studio.colour': 'Färg',
   'journey.studio.autoColour': 'Automatiskt',
   'journey.studio.countryNames': 'Namn',
-  'journey.studio.crop': 'Crop', // en-fallback
-  'journey.studio.look': 'Look', // en-fallback
-  'journey.studio.radius': 'Corner', // en-fallback
-  'journey.studio.shape': 'Shape', // en-fallback
-  'journey.studio.arrange': 'Arrange', // en-fallback
-  'journey.studio.toFront': 'Bring to front', // en-fallback
-  'journey.studio.forward': 'Bring forward', // en-fallback
-  'journey.studio.backward': 'Send backward', // en-fallback
-  'journey.studio.toBack': 'Send to back', // en-fallback
-  'journey.studio.lock': 'Lock', // en-fallback
-  'journey.studio.unlock': 'Unlock', // en-fallback
-  'journey.studio.delete': 'Delete', // en-fallback
-  'journey.studio.pageHint': 'Page', // en-fallback
-  'journey.studio.boundHint': 'Follows the journal entry. Editing it here breaks that link.', // en-fallback
-  'journey.studio.fit.cover': 'Fill', // en-fallback
-  'journey.studio.fit.contain': 'Fit', // en-fallback
-  'journey.studio.filter.none': 'Original', // en-fallback
-  'journey.studio.filter.bw': 'Black & white', // en-fallback
-  'journey.studio.filter.warm': 'Warm', // en-fallback
-  'journey.studio.shapeKind.rect': 'Rectangle', // en-fallback
-  'journey.studio.shapeKind.ellipse': 'Ellipse', // en-fallback
-  'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
-  'journey.studio.backCover': 'Back cover', // en-fallback
-  'journey.studio.sections': 'Sections', // en-fallback
+  'journey.studio.crop': 'Beskär',
+  'journey.studio.look': 'Utseende',
+  'journey.studio.radius': 'Hörn',
+  'journey.studio.shape': 'Form',
+  'journey.studio.arrange': 'Ordna',
+  'journey.studio.toFront': 'Placera överst',
+  'journey.studio.forward': 'Flytta framåt',
+  'journey.studio.backward': 'Flytta bakåt',
+  'journey.studio.toBack': 'Placera underst',
+  'journey.studio.lock': 'Lås',
+  'journey.studio.unlock': 'Lås upp',
+  'journey.studio.delete': 'Ta bort',
+  'journey.studio.pageHint': 'Sida',
+  'journey.studio.boundHint': 'Följer dagboksinlägget. Om du redigerar det här bryts länken.',
+  'journey.studio.fit.cover': 'Fyll',
+  'journey.studio.fit.contain': 'Anpassa',
+  'journey.studio.filter.none': 'Original',
+  'journey.studio.filter.bw': 'Svartvitt',
+  'journey.studio.filter.warm': 'Varm',
+  'journey.studio.shapeKind.rect': 'Rektangel',
+  'journey.studio.shapeKind.ellipse': 'Ellips',
+  'journey.studio.focalHint': 'Dra punkten för att välja vad som ska stanna kvar i bild.',
+  'journey.studio.backCover': 'Baksida',
+  'journey.studio.sections': 'Avsnitt',
   'journey.studio.content': 'Innehåll',
   'journey.studio.elements': 'Element',
   'journey.studio.templates': 'Layouter',
   'journey.studio.photos': 'Foton',
   'journey.studio.entries': 'Inlägg',
-  'journey.studio.addToPage': 'Add to this page', // en-fallback
-  'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
-  'journey.studio.untitled': 'Untitled', // en-fallback
-  'journey.studio.addTitle': 'Title', // en-fallback
-  'journey.studio.addStory': 'Story', // en-fallback
-  'journey.studio.addPlace': 'Place', // en-fallback
+  'journey.studio.addToPage': 'Lägg till på den här sidan',
+  'journey.studio.noPhotos': 'Den här resan har inga foton än.',
+  'journey.studio.untitled': 'Namnlös',
+  'journey.studio.addTitle': 'Rubrik',
+  'journey.studio.addStory': 'Berättelse',
+  'journey.studio.addPlace': 'Plats',
   'journey.studio.shapes': 'Former',
   'journey.studio.frames': 'Ramar',
-  'journey.studio.emptyFrame': 'Empty frame', // en-fallback
-  'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
-  'journey.studio.shapeKind.line': 'Line', // en-fallback
-  'journey.studio.styleTitle': 'Heading', // en-fallback
-  'journey.studio.styleSubtitle': 'Subheading', // en-fallback
-  'journey.studio.styleBody': 'Body text', // en-fallback
-  'journey.studio.styleCaption': 'Caption', // en-fallback
-  'journey.studio.sampleHeading': 'A heading', // en-fallback
-  'journey.studio.sampleSubheading': 'A subheading', // en-fallback
-  'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
-  'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
-  'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
-  'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
-  'journey.studio.tpl.grid4': 'Four up', // en-fallback
-  'journey.studio.tpl.grid6': 'Six up', // en-fallback
-  'journey.studio.tpl.strip': 'Strip and text', // en-fallback
-  'journey.studio.tpl.quietText': 'Text only', // en-fallback
-  'journey.studio.tpl.portraitPair': 'A pair', // en-fallback
+  'journey.studio.emptyFrame': 'Tom ram',
+  'journey.studio.frameHint': 'En tom ram visar var en bild ska sitta. Släpp en bild på den från Innehåll.',
+  'journey.studio.shapeKind.line': 'Linje',
+  'journey.studio.styleTitle': 'Rubrik',
+  'journey.studio.styleSubtitle': 'Underrubrik',
+  'journey.studio.styleBody': 'Brödtext',
+  'journey.studio.styleCaption': 'Bildtext',
+  'journey.studio.sampleHeading': 'En rubrik',
+  'journey.studio.sampleSubheading': 'En underrubrik',
+  'journey.studio.sampleBody': 'Skriv något om den här dagen.',
+  'journey.studio.sampleCaption': 'Bildtext',
+  'journey.studio.tpl.heroStory': 'Storbild och berättelse',
+  'journey.studio.tpl.fullBleed': 'En bild över hela uppslaget',
+  'journey.studio.tpl.twoUp': 'Två hela sidor',
+  'journey.studio.tpl.grid4': 'Fyra bilder',
+  'journey.studio.tpl.grid6': 'Sex bilder',
+  'journey.studio.tpl.strip': 'Bildremsa och text',
+  'journey.studio.tpl.quietText': 'Bara text',
+  'journey.studio.tpl.portraitPair': 'Ett par',
   'journey.studio.dropPhotoHere': 'Dra din bild\nhit',
-  'journey.studio.searchContent': 'Search photos and entries', // en-fallback
-  'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
+  'journey.studio.searchContent': 'Sök bland foton och inlägg',
+  'journey.studio.noMatches': 'Inget matchar.',
   'journey.studio.quoteMark': 'Citattecken',
-  'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
-  'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
-  'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
+  'journey.studio.shapeKind.rounded': 'Rektangel med rundade hörn',
+  'journey.studio.shapeKind.triangle': 'Triangel',
+  'journey.studio.shapeKind.outline': 'Bara kontur',
   'journey.studio.travel': 'Resa',
   'journey.studio.travelEmpty': 'Siffrorna för den här resan är inte klara än.',
   'journey.studio.grids': 'Rutnät',
@@ -419,7 +419,7 @@ const journey: TranslationStrings = {
   'journey.studio.polaroidFrame': 'Polaroid',
   'journey.studio.whiteFrame': 'Vit kant',
   'journey.studio.shadowFrame': 'Skugga',
-  'journey.studio.filmFrame': 'Film',
+  'journey.studio.filmFrame': 'Film', // same-as-en
   'journey.studio.tapeFrame': 'Tejpad',
   'journey.studio.shapeGroup.basic': 'Grundformer',
   'journey.studio.shapeGroup.polygons': 'Polygoner',
@@ -431,7 +431,7 @@ const journey: TranslationStrings = {
   'journey.studio.shapeGroup.banners': 'Banderoller',
   'journey.studio.summary': 'Sammanfattning',
   'journey.studio.routeMap': 'Ruttkarta',
-  'journey.studio.mapStyle.minimal': 'Minimal',
+  'journey.studio.mapStyle.minimal': 'Minimal', // same-as-en
   'journey.studio.mapStyle.outline': 'Kontur',
   'journey.studio.mapStyle.paper': 'Papper',
   'journey.studio.mapStyle.dark': 'Mörk',
@@ -443,7 +443,7 @@ const journey: TranslationStrings = {
   'journey.studio.dayMark': 'Dagräknare',
   'journey.studio.coordsMark': 'Koordinater',
   'journey.studio.coordsDms': 'Grader',
-  'journey.studio.coordsDecimal': 'Decimal',
+  'journey.studio.coordsDecimal': 'Decimal', // same-as-en
   'journey.studio.flagMark': 'Flagga',
   'journey.studio.distanceMark': 'Avstånd',
   'journey.studio.metric.distance': 'Avstånd',
@@ -470,7 +470,7 @@ const journey: TranslationStrings = {
   'journey.studio.saveLayoutHint': 'Behåller arrangemanget utan foton, för alla redaktörer av den här boken',
   'journey.studio.saveLayoutFull': 'Den här boken rymmer upp till 24 layouter. Ta bort en för att spara en till.',
   'journey.studio.deleteLayout': 'Ta bort layout',
-  'journey.studio.layoutName': 'Layout',
+  'journey.studio.layoutName': 'Layout', // same-as-en
   'journey.studio.builtInLayouts': 'Inbyggda',
   'journey.studio.style': 'Stil',
   'journey.studio.shows': 'Visning',
@@ -478,7 +478,7 @@ const journey: TranslationStrings = {
   'journey.studio.weight': 'Vikt',
   'journey.studio.italic': 'Kursiv',
   'journey.studio.tracking': 'Teckenavstånd',
-  'journey.studio.rotation': 'Rotation',
+  'journey.studio.rotation': 'Rotation', // same-as-en
   'journey.studio.opacity': 'Opacitet',
   'journey.studio.fill': 'Fyllning',
   'journey.studio.stroke': 'Kontur',
@@ -513,7 +513,7 @@ const journey: TranslationStrings = {
   'journey.studio.showLabels': 'Etiketter',
   'journey.studio.units': 'Enheter',
   'journey.studio.metrics': 'Siffror',
-  'journey.studio.layout': 'Layout',
+  'journey.studio.layout': 'Layout', // same-as-en
   'journey.studio.layoutGrid': 'Rutnät',
   'journey.studio.layoutRow': 'Rad',
   'journey.studio.layoutColumn': 'Kolumn',
@@ -522,7 +522,7 @@ const journey: TranslationStrings = {
   'journey.studio.showFlag': 'Flaggor',
   'journey.studio.showName': 'Namn',
   'journey.studio.textScale': 'Textstorlek',
-  'journey.studio.accent': 'Accent',
+  'journey.studio.accent': 'Accent', // same-as-en
   'journey.studio.refresh': 'Uppdatera från resan',
   'journey.studio.staleHint': 'Resan har ändrats sedan de här siffrorna togs.',
   'journey.studio.align': 'Justering',
@@ -541,7 +541,7 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Ta bort uppslag',
   'journey.studio.movePageUp': 'Flytta tidigare',
   'journey.studio.movePageDown': 'Flytta senare',
-  'journey.studio.beta': 'Beta',
+  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'För- och nackdelar',
   'journey.studio.showMarks': 'Tecken',
   'journey.studio.formatCustom': 'Eget format',
@@ -569,7 +569,7 @@ const journey: TranslationStrings = {
   'journey.studio.tpl.staggerFour': 'Fyra förskjutna',
   'journey.studio.mapSource': 'Kartkälla',
   'journey.studio.mapSourceVector': 'Konturer',
-  'journey.studio.mapSourceRelief': 'Relief',
+  'journey.studio.mapSourceRelief': 'Relief', // same-as-en
   'journey.studio.mapSourceSatellite': 'Satellit',
   'journey.studio.mapSourceSatelliteHint':
     'Molnfri Sentinel-2, får tryckas fritt med källhänvisning. Skarp ända ner till en gata i staden.',
@@ -605,7 +605,7 @@ const journey: TranslationStrings = {
   'journey.studio.mapSourceTiles': 'Kartrutor',
   'journey.studio.mapSourceStatic': 'Mapbox',
   'journey.studio.mapSourceHint': 'Hämtas vid rendering och trycks med sin källhänvisning',
-  'journey.studio.mapZoom': 'Zoom',
+  'journey.studio.mapZoom': 'Zoom', // same-as-en
   'journey.studio.mapFraming': 'Utsnitt',
   'journey.studio.mapFitStops': 'Stopp',
   'journey.studio.mapFitCountry': 'Hela landet',

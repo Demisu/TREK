@@ -17,10 +17,10 @@ const reservations: TranslationStrings = {
   'reservations.datetime': 'Date et heure',
   'reservations.startTime': 'Heure de début',
   'reservations.endTime': 'Heure de fin',
-  'reservations.date': 'Date',
+  'reservations.date': 'Date', // same-as-en
   'reservations.time': 'Heure',
   'reservations.timeAlt': 'Heure (alternative, ex. 19h30)',
-  'reservations.notes': 'Notes',
+  'reservations.notes': 'Notes', // same-as-en
   'reservations.notesPlaceholder': 'Notes supplémentaires…',
   'reservations.meta.airline': 'Compagnie aérienne',
   'reservations.meta.flightNumber': 'N° de vol',
@@ -57,19 +57,19 @@ const reservations: TranslationStrings = {
   'reservations.meta.selectDay': 'Sélectionner un jour',
   'reservations.type.flight': 'Vol',
   'reservations.type.hotel': 'Hébergement',
-  'reservations.type.restaurant': 'Restaurant',
-  'reservations.type.train': 'Train',
+  'reservations.type.restaurant': 'Restaurant', // same-as-en
+  'reservations.type.train': 'Train', // same-as-en
   'reservations.type.car': 'Voiture',
   'reservations.type.cruise': 'Croisière',
   'reservations.type.event': 'Événement',
   'reservations.type.tour': 'Visite',
-  'reservations.type.parking': 'Parking',
+  'reservations.type.parking': 'Parking', // same-as-en
   'reservations.type.other': 'Autre',
-  'reservations.type.bus': 'Bus',
-  'reservations.type.ferry': 'Ferry',
+  'reservations.type.bus': 'Bus', // same-as-en
+  'reservations.type.ferry': 'Ferry', // same-as-en
   'reservations.type.cable_car': 'Téléphérique',
   'reservations.type.bicycle': 'Vélo',
-  'reservations.type.taxi': 'Taxi',
+  'reservations.type.taxi': 'Taxi', // same-as-en
   'reservations.type.transit': 'Transports en commun',
   'reservations.typeShort.transit': 'Transp. en commun',
   'reservations.type.transport_other': 'Autre',
@@ -215,29 +215,29 @@ const reservations: TranslationStrings = {
   'reservations.noMatches': 'Aucun résultat pour ces filtres',
   'reservations.viewOptions': "Options d'affichage",
   'reservations.exportCsv': 'Exporter en tableur (CSV)',
-  'reservations.export.type': 'Type',
+  'reservations.export.type': 'Type', // same-as-en
   'reservations.export.title': 'Titre',
   'reservations.export.start': 'Début',
   'reservations.export.end': 'Fin',
   'reservations.export.from': 'De',
   'reservations.export.to': 'À',
   'reservations.export.location': 'Lieu',
-  'reservations.export.confirmation': 'Confirmation',
-  'reservations.export.notes': 'Notes',
+  'reservations.export.confirmation': 'Confirmation', // same-as-en
+  'reservations.export.notes': 'Notes', // same-as-en
   'reservations.resetView': "Réinitialiser l'affichage",
   'reservations.group.label': 'Grouper par',
   'reservations.group.status': 'Statut',
   'reservations.group.day': 'Jour',
-  'reservations.group.type': 'Type',
+  'reservations.group.type': 'Type', // same-as-en
   'reservations.group.none': 'Sans regroupement',
   'reservations.transitApart': 'Transports en commun dans une section à part',
   'reservations.group.before': 'Avant le voyage',
   'reservations.group.after': 'Après le voyage',
   'reservations.group.undated': 'Sans date',
   'reservations.sort.label': 'Trier par',
-  'reservations.sort.date': 'Date',
+  'reservations.sort.date': 'Date', // same-as-en
   'reservations.sort.title': 'Titre',
-  'reservations.sort.type': 'Type',
+  'reservations.sort.type': 'Type', // same-as-en
   'reservations.sort.status': 'Statut',
   'reservations.sort.earlyFirst': "Plus tôt d'abord",
   'reservations.sort.lateFirst': "Plus tard d'abord",
@@ -245,7 +245,7 @@ const reservations: TranslationStrings = {
   'reservations.sort.zToA': 'De Z à A',
   'reservations.timeline.dayCount': '{count} jours',
   'reservations.timeline.dayCount.one': '{count} jour',
-  'reservations.timeline.zoom': 'Zoom',
+  'reservations.timeline.zoom': 'Zoom', // same-as-en
   'reservations.timeline.trip': 'Voyage',
   'reservations.timeline.day': 'Jour',
   'reservations.timeline.prevDay': 'Jour précédent',
@@ -257,7 +257,7 @@ const reservations: TranslationStrings = {
   'reservations.timeline.byType': 'Une ligne par type',
   'reservations.timeline.context': "Afficher l'autre onglet",
   'reservations.timeline.contextBookings': 'Réservations',
-  'reservations.timeline.contextTransports': 'Transports',
+  'reservations.timeline.contextTransports': 'Transports', // same-as-en
   'reservations.timeline.noneDated': "Aucune n'a encore de date.",
   'reservations.undated': 'Sans date',
   'reservations.nights': 'Nuits',

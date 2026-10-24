@@ -10,7 +10,7 @@ const collection: TranslationStrings = {
   'collections.role.label': 'Roll',
   'collections.role.viewer': 'Läsare',
   'collections.role.editor': 'Redigerare',
-  'collections.role.admin': 'Admin',
+  'collections.role.admin': 'Admin', // same-as-en
   'collections.picker.allLists': 'Alla listor',
   'collections.select': 'Välj',
   'collections.selectAll': 'Välj alla',

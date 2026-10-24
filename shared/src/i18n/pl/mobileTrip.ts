@@ -5,7 +5,7 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.addNoteShort': 'Notatka',
   'mobileTrip.addPlaceShort': 'Miejsce',
   'mobileTrip.addToDayQuestion': 'Dodać do dnia?',
-  'mobileTrip.addTransportShort': 'Transport',
+  'mobileTrip.addTransportShort': 'Transport', // same-as-en
   'mobileTrip.allDays': 'Wszystkie dni',
   'mobileTrip.today': 'Dziś',
   'mobileTrip.jumpToToday': 'Przejdź do dziś',

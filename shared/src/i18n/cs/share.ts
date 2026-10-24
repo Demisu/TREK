@@ -11,7 +11,7 @@ const share: TranslationStrings = {
   'share.permBookings': 'Rezervace',
   'share.permPacking': 'Balení',
   'share.permBudget': 'Náklady',
-  'share.permCollab': 'Chat',
+  'share.permCollab': 'Chat', // same-as-en
   'share.options': 'Možnosti',
   'share.optTravelOnly': 'Jen doprava a ubytování',
   'share.optTravelOnlyHint': 'Zobrazí jen dopravu a ubytování, bez aktivit, poznámek ke dnům a prázdných dnů',

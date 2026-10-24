@@ -38,7 +38,7 @@ const files: TranslationStrings = {
   'files.toast.deleteError': 'Bestand verwijderen mislukt',
   'files.sourcePlan': 'Dagplan',
   'files.sourceBooking': 'Boeking',
-  'files.sourceTransport': 'Transport',
+  'files.sourceTransport': 'Transport', // same-as-en
   'files.attach': 'Bijvoegen',
   'files.pasteHint': 'Je kunt ook afbeeldingen plakken vanuit het klembord (Ctrl+V)',
   'files.trash': 'Prullenbak',
@@ -51,7 +51,7 @@ const files: TranslationStrings = {
   'files.assignTitle': 'Bestand toewijzen',
   'files.assignPlace': 'Plaats',
   'files.assignBooking': 'Boeking',
-  'files.assignTransport': 'Transport',
+  'files.assignTransport': 'Transport', // same-as-en
   'files.unassigned': 'Niet toegewezen',
   'files.unlink': 'Koppeling verwijderen',
   'files.toast.trashed': 'Naar prullenbak verplaatst',

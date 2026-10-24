@@ -8,11 +8,11 @@ const shared: TranslationStrings = {
     'Dat betekent niet dat de link is verlopen. Controleer je verbinding en probeer het zo nog eens.',
   'shared.retry': 'Opnieuw proberen',
   'shared.readOnly': 'Alleen-lezen weergave',
-  'shared.tabPlan': 'Plan',
+  'shared.tabPlan': 'Planning',
   'shared.tabBookings': 'Boekingen',
   'shared.tabPacking': 'Inpaklijst',
   'shared.tabBudget': 'Onkosten',
-  'shared.tabChat': 'Chat',
+  'shared.tabChat': 'Chat', // same-as-en
   'shared.days': 'dagen',
   'shared.places': 'plaatsen',
   'shared.places.one': 'plaats',

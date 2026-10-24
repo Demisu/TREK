@@ -59,7 +59,7 @@ const system_notice: TranslationStrings = {
   'system_notice.release_notes.headline': 'Quatre coses que TREK ara fa tot sol.',
   'system_notice.release_notes.features_label': 'Els protagonistes',
   'system_notice.release_notes.features_aside': 'I això no és tot',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
+  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
   'system_notice.release_notes.feature_places_body':
     'El primer planificador de viatges de codi obert amb API de llocs pròpia. 73,6 milions de llocs, sense clau, sense quota.',
   'system_notice.release_notes.feature_roadtrip_title': 'Complement Roadtrip',

@@ -6,7 +6,7 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'URL điểm cuối',
   'storage.help.endpoint':
     'URL cơ sở của dịch vụ tương thích S3, ví dụ: https://s3.example.com hoặc http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'ID khóa truy cập',
   'storage.field.secretAccessKey': 'Khóa truy cập bí mật',
   'storage.field.region': 'Khu vực',

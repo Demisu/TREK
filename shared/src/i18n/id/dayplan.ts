@@ -38,7 +38,7 @@ const dayplan: TranslationStrings = {
   'notes.color.none': 'Tanpa warna',
   'notes.color.red': 'Merah',
   'notes.color.orange': 'Oranye',
-  'notes.color.amber': 'Amber',
+  'notes.color.amber': 'Ambar',
   'notes.color.green': 'Hijau',
   'notes.color.cyan': 'Sian',
   'notes.color.blue': 'Biru',
@@ -80,8 +80,8 @@ const dayplan: TranslationStrings = {
   'dayplan.mobile.allAssigned': 'Semua tempat sudah ditugaskan',
   'dayplan.mobile.noMatch': 'Tidak ditemukan',
   'dayplan.mobile.createNew': 'Buat tempat baru',
-  'dayplan.expandAll': 'Buka semua hari', // en-fallback
-  'dayplan.collapseAll': 'Tutup semua hari', // en-fallback
+  'dayplan.expandAll': 'Buka semua hari',
+  'dayplan.collapseAll': 'Tutup semua hari',
   'dayplan.reorderDays': 'Atur ulang hari',
   'dayplan.reorderTitle': 'Atur ulang hari',
   'dayplan.reorderHint': 'Tempat, catatan, dan pesanan pada suatu hari ikut berpindah.',

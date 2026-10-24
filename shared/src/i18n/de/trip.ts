@@ -61,8 +61,8 @@ const trip: TranslationStrings = {
   'transit.arrive': 'Ankunft',
   'transit.mode.rail': 'Zug',
   'transit.mode.subway': 'U-Bahn',
-  'transit.mode.tram': 'Tram',
-  'transit.mode.bus': 'Bus',
+  'transit.mode.tram': 'Tram', // same-as-en
+  'transit.mode.bus': 'Bus', // same-as-en
   'transit.mode.ferry': 'Fähre',
   'transit.mode.cable': 'Seilbahn',
   'transit.pref.best': 'Beste Route',

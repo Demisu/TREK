@@ -146,7 +146,7 @@ const tours: TranslationStrings = {
   'tours.planner.breaksShort': 'Pauser',
   'tours.planner.plannedShort': 'Planerad',
   'tours.planner.start': 'Startpunkt',
-  'tours.planner.via': 'Via',
+  'tours.planner.via': 'Via', // same-as-en
   'tours.planner.end': 'Slutpunkt',
   'tours.planner.moveUp': 'Flytta ruttpunkt uppåt',
   'tours.planner.moveDown': 'Flytta ruttpunkt nedåt',

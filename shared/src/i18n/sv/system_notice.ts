@@ -61,7 +61,7 @@ const system_notice: TranslationStrings = {
     'Ett eget plats-API, bilresor planerade från början till slut, din platshistorik i dina händer, och dina dokument i synk.',
   'system_notice.release_notes.features_label': 'Höjdpunkterna',
   'system_notice.release_notes.features_aside': 'Långt ifrån allt',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
+  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
   'system_notice.release_notes.feature_places_body':
     'Den första reseplaneraren med öppen källkod och eget plats-API. 73,6 miljoner platser, ingen nyckel, ingen kvot.',
   'system_notice.release_notes.feature_roadtrip_title': 'Tillägget Bilresa',

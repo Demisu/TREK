@@ -7,7 +7,7 @@ const shared: TranslationStrings = {
   'shared.loadFailedHint': 'Nie oznacza to, że link wygasł. Sprawdź połączenie i spróbuj ponownie za chwilę.',
   'shared.retry': 'Spróbuj ponownie',
   'shared.readOnly': 'Widok udostępniony tylko do odczytu',
-  'shared.tabPlan': 'Plan',
+  'shared.tabPlan': 'Plan', // same-as-en
   'shared.tabBookings': 'Rezerwacje',
   'shared.tabPacking': 'Lista pakowania',
   'shared.tabBudget': 'Koszty',

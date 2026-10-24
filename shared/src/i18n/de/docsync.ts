@@ -7,7 +7,7 @@ const docsync: TranslationStrings = {
     'Ein Administrator dieser Instanz schaltet sie unter Administration, Addons, Dokumente frei.',
   'docsync.addProvider': 'Anbieter verbinden',
   'docsync.test': 'Verbindung testen',
-  'docsync.connect.optional': 'Optional',
+  'docsync.connect.optional': 'Optional', // same-as-en
   'docsync.connected': 'Verbunden',
   'docsync.chooseFolder': 'Ordner wählen',
   'docsync.noFolders': 'Auf dieser Instanz wurde noch nichts gefunden.',

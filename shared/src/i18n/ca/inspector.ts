@@ -20,7 +20,7 @@ const inspector: TranslationStrings = {
   'inspector.website': 'Obre el lloc web',
   'inspector.addRes': 'Reserva',
   'inspector.editRes': 'Edita la reserva',
-  'inspector.participants': 'Participants',
+  'inspector.participants': 'Participants', // same-as-en
   'inspector.trackStats': 'Dades de la ruta',
   'inspector.trackColor': 'Color de la ruta',
   'inspector.trackColorAuto': 'Color automàtic',

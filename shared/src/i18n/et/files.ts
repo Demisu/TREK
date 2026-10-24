@@ -38,7 +38,7 @@ const files: TranslationStrings = {
   'files.toast.deleteError': 'Faili kustutamine ebaõnnestus',
   'files.sourcePlan': 'Päevaplaan',
   'files.sourceBooking': 'Broneering',
-  'files.sourceTransport': 'Transport',
+  'files.sourceTransport': 'Transport', // same-as-en
   'files.attach': 'Lisa',
   'files.pasteHint': 'Pilte saab kleepida ka lõikelaualt (Ctrl+V)',
   'files.trash': 'Prügikast',
@@ -51,7 +51,7 @@ const files: TranslationStrings = {
   'files.assignTitle': 'Määra fail',
   'files.assignPlace': 'Koht',
   'files.assignBooking': 'Broneering',
-  'files.assignTransport': 'Transport',
+  'files.assignTransport': 'Transport', // same-as-en
   'files.unassigned': 'Määramata',
   'files.unlink': 'Eemalda seos',
   'files.toast.trashed': 'Prügikasti tõstetud',

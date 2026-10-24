@@ -4,7 +4,7 @@ const planner: TranslationStrings = {
   'planner.places': 'Llocs',
   'planner.bookings': 'Reserves',
   'planner.packingList': "Llista d'equipatge",
-  'planner.documents': 'Documents',
+  'planner.documents': 'Documents', // same-as-en
   'planner.dayPlan': 'Pla per dies',
   'planner.reservations': 'Reserves',
   'planner.minTwoPlaces': 'Calen almenys 2 llocs amb coordenades',

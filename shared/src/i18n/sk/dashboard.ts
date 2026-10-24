@@ -231,7 +231,7 @@ const dashboard: TranslationStrings = {
   'dashboard.upcoming.title': 'Nadchádzajúce rezervácie',
   'dashboard.upcoming.empty': 'Zatiaľ nič rezervované.',
   'dashboard.aria.toggleView': 'Prepnúť zobrazenie',
-  'dashboard.aria.filter': 'Filter',
+  'dashboard.aria.filter': 'Filter', // same-as-en
   'dashboard.aria.duplicate': 'Duplikovať',
   'dashboard.aria.refreshRates': 'Obnoviť kurzy',
   'dashboard.aria.swapCurrencies': 'Prehodiť meny',

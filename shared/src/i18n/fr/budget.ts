@@ -3,7 +3,7 @@ import type { TranslationStrings } from '../types';
 const budget: TranslationStrings = {
   'costs.confirm.deleteTitle': 'Supprimer la dépense ?',
   'costs.confirm.deleteBody': '« {name} » sera définitivement supprimé.',
-  'budget.title': 'Budget',
+  'budget.title': 'Budget', // same-as-en
   'budget.exportCsv': 'Exporter CSV',
   'budget.emptyTitle': 'Aucun budget créé',
   'budget.emptyText': 'Créez des catégories et des entrées pour planifier votre budget de voyage',
@@ -13,18 +13,18 @@ const budget: TranslationStrings = {
   'budget.categoryName': 'Nom de la catégorie',
   'budget.addCategory': 'Ajouter une catégorie',
   'budget.table.name': 'Nom',
-  'budget.table.total': 'Total',
+  'budget.table.total': 'Total', // same-as-en
   'budget.table.persons': 'Personnes',
   'budget.table.days': 'Jours',
   'budget.table.perPerson': 'Par personne',
   'budget.table.perDay': 'Par jour',
   'budget.table.perPersonDay': 'P. p / Jour',
-  'budget.table.note': 'Note',
-  'budget.table.date': 'Date',
+  'budget.table.note': 'Note', // same-as-en
+  'budget.table.date': 'Date', // same-as-en
   'budget.newEntry': 'Nouvelle entrée',
   'budget.defaultEntry': 'Nouvelle entrée',
   'budget.defaultCategory': 'Nouvelle catégorie',
-  'budget.total': 'Total',
+  'budget.total': 'Total', // same-as-en
   'budget.totalBudget': 'Budget total',
   'budget.byCategory': 'Par catégorie',
   'budget.editTooltip': 'Cliquez pour modifier',
@@ -112,7 +112,7 @@ const budget: TranslationStrings = {
   'costs.undo': 'Annuler',
   'costs.whatFor': "C'était pour quoi ?",
   'costs.namePlaceholder': 'ex. dîner, souvenirs, essence…',
-  'costs.note': 'Note',
+  'costs.note': 'Note', // same-as-en
   'costs.notePlaceholder': 'Ce que ça couvrait, qui doit quoi…',
   'costs.paymentNotePlaceholder': 'Payé en espèces, par virement…',
   'costs.addNote': 'Ajouter une note',
@@ -134,16 +134,16 @@ const budget: TranslationStrings = {
   'costs.cat.accommodation': 'Hébergement',
   'costs.cat.food': 'Nourriture et boissons',
   'costs.cat.groceries': 'Courses',
-  'costs.cat.transport': 'Transport',
+  'costs.cat.transport': 'Transport', // same-as-en
   'costs.cat.flights': 'Vols',
   'costs.cat.activities': 'Activités',
   'costs.cat.sightseeing': 'Visites',
-  'costs.cat.shopping': 'Shopping',
+  'costs.cat.shopping': 'Shopping', // same-as-en
   'costs.cat.fees': 'Frais et billets',
   'costs.cat.health': 'Santé',
   'costs.cat.tips': 'Pourboires',
   'costs.cat.fuel': 'Carburant',
-  'costs.cat.parking': 'Parking',
+  'costs.cat.parking': 'Parking', // same-as-en
   'costs.cat.other': 'Autre',
   'costs.daysCount': '{count} jours',
   'costs.daysCount.one': '{count} jour',

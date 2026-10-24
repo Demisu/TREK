@@ -9,10 +9,10 @@ const collab: TranslationStrings = {
   'collab.polls.countdownHoursMinutes': 'Faltam {h}h {m}min',
   'collab.polls.countdownMinutes': 'Faltam {m}min',
   'collab.polls.clearDeadline': 'Remover prazo',
-  'collab.tabs.chat': 'Chat',
+  'collab.tabs.chat': 'Chat', // same-as-en
   'collab.tabs.notes': 'Notas',
   'collab.tabs.polls': 'Enquetes',
-  'collab.tabs.links': 'Links',
+  'collab.tabs.links': 'Links', // same-as-en
   'collab.links.add': 'Adicionar link',
   'collab.chat.imageRejected': 'Apenas imagens JPEG, PNG, GIF e WebP de até 10 MB são permitidas',
   'collab.links.cancel': 'Cancelar',

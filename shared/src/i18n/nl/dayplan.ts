@@ -20,8 +20,8 @@ const dayplan: TranslationStrings = {
   'notes.format.bold': 'Vet',
   'notes.format.italic': 'Cursief',
   'notes.format.strike': 'Doorhalen',
-  'notes.format.code': 'Code',
-  'notes.format.link': 'Link',
+  'notes.format.code': 'Code', // same-as-en
+  'notes.format.link': 'Link', // same-as-en
   'notes.format.list': 'Opsomming',
   'notes.format.orderedList': 'Genummerde lijst',
   'notes.format.quote': 'Citaat',
@@ -29,7 +29,7 @@ const dayplan: TranslationStrings = {
   'notes.color.none': 'Geen kleur',
   'notes.color.red': 'Rood',
   'notes.color.orange': 'Oranje',
-  'notes.color.amber': 'Amber',
+  'notes.color.amber': 'Amber', // same-as-en
   'notes.color.green': 'Groen',
   'notes.color.cyan': 'Cyaan',
   'notes.color.blue': 'Blauw',
@@ -38,7 +38,7 @@ const dayplan: TranslationStrings = {
   'dayplan.days': 'Dagen',
   'dayplan.dayN': 'Dag {n}',
   'dayplan.calculating': 'Berekenen...',
-  'dayplan.route': 'Route',
+  'dayplan.route': 'Route', // same-as-en
   'dayplan.optimize': 'Optimaliseren',
   'dayplan.transportMode.change': 'Vervoerswijze wijzigen',
   'dayplan.transportMode.useDefault': 'Dagstandaard gebruiken',
@@ -52,7 +52,7 @@ const dayplan: TranslationStrings = {
   'dayplan.pendingRes': 'In behandeling',
   'dayplan.export': 'Exporteren',
   'dayplan.exportIntro': 'Neem je plan mee: als document, in je agenda of op je gps.',
-  'dayplan.exportDocument': 'Document',
+  'dayplan.exportDocument': 'Document', // same-as-en
   'dayplan.exportCalendar': 'Agenda',
   'dayplan.exportMaps': 'Kaarten en gps',
   'dayplan.pdf': 'PDF',
@@ -80,8 +80,8 @@ const dayplan: TranslationStrings = {
   'dayplan.mobile.allAssigned': 'Alle plaatsen toegewezen',
   'dayplan.mobile.noMatch': 'Geen resultaat',
   'dayplan.mobile.createNew': 'Nieuwe plaats aanmaken',
-  'dayplan.expandAll': 'Alle dagen uitklappen', // en-fallback
-  'dayplan.collapseAll': 'Alle dagen inklappen', // en-fallback
+  'dayplan.expandAll': 'Alle dagen uitklappen',
+  'dayplan.collapseAll': 'Alle dagen inklappen',
   'dayplan.reorderDays': 'Dagen herordenen',
   'dayplan.reorderTitle': 'Dagen herordenen',
   'dayplan.reorderHint': 'De plaatsen, notities en boekingen van een dag gaan mee.',

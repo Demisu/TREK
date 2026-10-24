@@ -112,7 +112,7 @@ const places: TranslationStrings = {
   'places.timeCollision': 'Časový prekryv s:',
   'places.formWebsite': 'Webová stránka',
   'places.formPhone': 'Telefón',
-  'places.formEmail': 'E-mail',
+  'places.formEmail': 'E-mail', // same-as-en
   'places.hoursAdd': 'Pridať otváracie hodiny',
   'places.hoursClosed': 'Zatvorené',
   'places.hoursOpens': 'otvára',
@@ -155,7 +155,7 @@ const places: TranslationStrings = {
   'places.details.fact.rating': 'Hodnotenie',
   'places.details.fact.cuisine': 'Kuchyňa',
   'places.details.fact.openingHours': 'Otváracie hodiny',
-  'places.details.fact.menu': 'Menu',
+  'places.details.fact.menu': 'Jedálny lístok',
   'places.details.fact.outdoorSeating': 'Vonkajšie posedenie',
   'places.details.fact.takeaway': 'So sebou',
   'places.details.fact.delivery': 'Rozvoz',

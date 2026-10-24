@@ -17,12 +17,12 @@ const admin: TranslationStrings = {
   'admin.webhook.hint': 'Benachrichtigungen an einen externen Webhook senden (Discord, Slack usw.).',
   'admin.smtp.testSuccess': 'Test-E-Mail erfolgreich gesendet',
   'admin.smtp.testFailed': 'Test-E-Mail fehlgeschlagen',
-  'admin.title': 'Administration',
+  'admin.title': 'Administration', // same-as-en
   'admin.subtitle': 'Benutzerverwaltung und Systemeinstellungen',
   'admin.tabs.users': 'Benutzer',
   'admin.tabs.categories': 'Kategorien',
-  'admin.tabs.backup': 'Backup',
-  'admin.tabs.audit': 'Audit',
+  'admin.tabs.backup': 'Backup', // same-as-en
+  'admin.tabs.audit': 'Audit', // same-as-en
   'admin.stats.users': 'Benutzer',
   'admin.stats.users.one': 'Benutzer',
   'admin.stats.trips': 'Reisen',
@@ -77,18 +77,18 @@ const admin: TranslationStrings = {
   'admin.tabs.settings': 'Einstellungen',
   'admin.allowRegistration': 'Registrierung erlauben',
   'admin.allowRegistrationHint': 'Neue Benutzer können sich selbst registrieren',
-  'admin.authMethods': 'Authentication Methods',
-  'admin.passwordLogin': 'Password Login',
-  'admin.passwordLoginHint': 'Allow users to sign in with email and password',
-  'admin.passwordRegistration': 'Password Registration',
-  'admin.passwordRegistrationHint': 'Allow new users to register with email and password',
-  'admin.oidcLogin': 'SSO Login',
-  'admin.oidcLoginHint': 'Allow users to sign in with SSO',
+  'admin.authMethods': 'Anmeldemethoden',
+  'admin.passwordLogin': 'Passwort-Anmeldung',
+  'admin.passwordLoginHint': 'Erlaube Nutzern die Anmeldung mit E-Mail und Passwort',
+  'admin.passwordRegistration': 'Passwort-Registrierung',
+  'admin.passwordRegistrationHint': 'Erlaube neuen Nutzern die Registrierung mit E-Mail und Passwort',
+  'admin.oidcLogin': 'SSO-Anmeldung',
+  'admin.oidcLoginHint': 'Erlaube Nutzern die Anmeldung per SSO',
   'admin.oidcRegistration': 'SSO Auto-Provisioning',
-  'admin.oidcRegistrationHint': 'Automatically create accounts for new SSO users',
+  'admin.oidcRegistrationHint': 'Konten für neue SSO-Nutzer automatisch anlegen',
   'admin.envOverrideHint':
-    'Password login settings are controlled by the OIDC_ONLY environment variable and cannot be changed here.',
-  'admin.lockoutWarning': 'At least one login method must remain enabled',
+    'Die Einstellungen zur Passwort-Anmeldung werden über die Umgebungsvariable OIDC_ONLY gesteuert und lassen sich hier nicht ändern.',
+  'admin.lockoutWarning': 'Mindestens eine Anmeldemethode muss aktiviert bleiben',
   'admin.requireMfa': 'Zwei-Faktor-Authentifizierung (2FA) für alle verlangen',
   'admin.requireMfaHint':
     'Benutzer ohne 2FA müssen die Einrichtung unter Einstellungen abschließen, bevor sie die App nutzen können.',
@@ -136,19 +136,19 @@ const admin: TranslationStrings = {
     'Der TREK-Index und OpenStreetMap beantworten jede Suche. Hier wird gewählt, wer zusätzlich gefragt wird, wenn die beiden nichts finden: Automatisch bevorzugt Google, wenn ein Schlüssel da ist, danach Amap.',
   'admin.placesProvider.auto': 'Automatisch',
   'admin.placesProvider.google': 'Google Places',
-  'admin.placesProvider.amap': 'Amap (高德地图)',
+  'admin.placesProvider.amap': 'Amap (高德地图)', // same-as-en
   'admin.placesProvider.openstreetmap': 'OpenStreetMap',
   'admin.placesProvider.missingKey':
     'Für den gewählten Anbieter ist kein API-Schlüssel hinterlegt, die Ortssuche beantworten daher nur der TREK-Index und OpenStreetMap.',
   'admin.placesProvider.saved': 'Anbieter für die Ortssuche gespeichert',
-  'admin.validateKey': 'Test',
+  'admin.validateKey': 'Testen',
   'admin.keyValid': 'Verbunden',
   'admin.keyInvalid': 'Ungültig',
   'admin.keySaved': 'API-Schlüssel gespeichert',
-  'admin.oidcTitle': 'Single Sign-On (OIDC)',
+  'admin.oidcTitle': 'Single Sign-On (OIDC)', // same-as-en
   'admin.oidcSubtitle': 'Anmeldung über externe Anbieter wie Google, Apple, Authentik oder Keycloak.',
   'admin.oidcDisplayName': 'Anzeigename',
-  'admin.oidcIssuer': 'Issuer URL',
+  'admin.oidcIssuer': 'Issuer-URL',
   'admin.oidcIssuerHint': 'Die OpenID Connect Issuer URL des Anbieters. z.B. https://accounts.google.com',
   'admin.oidcSaved': 'OIDC-Konfiguration gespeichert',
   'admin.oidcOnlyMode': 'Passwort-Authentifizierung deaktivieren',
@@ -204,7 +204,7 @@ const admin: TranslationStrings = {
     'Festhalten, welches Suchergebnis ausgewählt wurde, damit sich ein anderer Ortsindex später an echten Suchen messen lässt. Nichts verlässt diese Instanz, und ein Administrator kann das Protokoll jederzeit exportieren oder löschen.',
   'admin.bagTracking.title': 'Gepäck-Tracking',
   'admin.bagTracking.subtitle': 'Gewicht und Gepäckstück-Zuordnung für Packlisteneinträge aktivieren',
-  'admin.collab.chat.title': 'Chat',
+  'admin.collab.chat.title': 'Chat', // same-as-en
   'admin.collab.chat.subtitle': 'Echtzeit-Nachrichten für die Reiseplanung',
   'admin.collab.notes.title': 'Notizen',
   'admin.collab.notes.subtitle': 'Gemeinsame Notizen und Dokumente',
@@ -242,8 +242,8 @@ const admin: TranslationStrings = {
   'admin.packingTemplates.deleteCategoryError': 'Kategorie konnte nicht gelöscht werden',
   'admin.packingTemplates.deleteItemError': 'Eintrag konnte nicht gelöscht werden',
   'admin.packingTemplates.saveError': 'Fehler beim Speichern',
-  'admin.tabs.addons': 'Addons',
-  'admin.tabs.plugins': 'Plugins',
+  'admin.tabs.addons': 'Add-ons',
+  'admin.tabs.plugins': 'Plugins', // same-as-en
   'admin.tabs.storage': 'Speicher',
   'admin.plugins.rescan': 'Neu scannen',
   'admin.plugins.rescanned': 'Plugin-Ordner neu gescannt',
@@ -290,18 +290,18 @@ const admin: TranslationStrings = {
   'admin.plugins.uninstallBody':
     'Das stoppt das Plugin, entfernt seinen Code und löscht alle seine Daten. Das kann nicht rückgängig gemacht werden.',
   'admin.plugins.status.starting': 'Startet…',
-  'admin.plugins.type.widget': 'Widget',
+  'admin.plugins.type.widget': 'Widget', // same-as-en
   'admin.plugins.type.page': 'Seite',
-  'admin.plugins.type.integration': 'Integration',
+  'admin.plugins.type.integration': 'Integration', // same-as-en
   'admin.plugins.type.trip-page': 'Reise-Seite',
   'admin.plugins.reviewed': 'Geprüft',
   'admin.plugins.unreviewed': 'Ungeprüft',
   'admin.plugins.updated': 'Plugin aktualisiert',
-  'admin.plugins.updateTo': 'Update → v{version}',
+  'admin.plugins.updateTo': 'Update → v{version}', // same-as-en
   'admin.plugins.enabledToggle': 'Plugin aktivieren',
   'plugins.notFound': 'Plugin nicht gefunden',
   'plugins.frameLoadFailed': 'Dieses Plugin konnte nicht geladen werden.',
-  'admin.plugins.title': 'Plugins',
+  'admin.plugins.title': 'Plugins', // same-as-en
   'admin.plugins.subtitle': 'Plugins von Drittanbietern auf deiner Instanz installieren und verwalten.',
   'admin.plugins.disabledTitle': 'Plugins sind deaktiviert',
   'admin.plugins.disabledBody':
@@ -315,7 +315,7 @@ const admin: TranslationStrings = {
   'admin.plugins.status.disabled': 'Deaktiviert',
   'admin.plugins.status.error': 'Fehler',
   'admin.plugins.status.incompatible': 'Inkompatibel',
-  'admin.plugins.details': 'Details',
+  'admin.plugins.details': 'Details', // same-as-en
   'admin.plugins.detailError': 'Plugin-Details konnten nicht geladen werden.',
   'admin.plugins.permissionsTitle': 'Berechtigungen',
   'admin.plugins.noPermissions': 'Dieses Plugin benötigt keine besonderen Berechtigungen.',
@@ -327,7 +327,7 @@ const admin: TranslationStrings = {
   'admin.plugins.fieldRequired': 'Erforderlich',
   'admin.plugins.sourceRepo': 'Quell-Repository',
   'admin.plugins.reportIssue': 'Problem melden',
-  'admin.plugins.homepage': 'Homepage',
+  'admin.plugins.homepage': 'Homepage', // same-as-en
   'admin.plugins.requiresTrek': 'Benötigt TREK {version}+',
   'admin.plugins.reviewedOn': 'Geprüft am {date}',
   'admin.plugins.perm.db:own': 'Eigene Daten in einer isolierten Datenbank speichern',
@@ -502,13 +502,13 @@ const admin: TranslationStrings = {
   'admin.plugins.tabDiscover': 'Entdecken',
   'admin.plugins.searchPlaceholder': 'Plugins durchsuchen…',
   'admin.plugins.filterType': 'Typ',
-  'admin.plugins.filterStatus': 'Status',
+  'admin.plugins.filterStatus': 'Status', // same-as-en
   'admin.plugins.sortBy': 'Sortieren',
   'admin.plugins.allTypes': 'Alle Typen',
   'admin.plugins.allStatuses': 'Alle',
   'admin.plugins.stateOff': 'Aus',
   'admin.plugins.filterUpdate': 'Update verfügbar',
-  'admin.plugins.sortName': 'Name',
+  'admin.plugins.sortName': 'Name', // same-as-en
   'admin.plugins.sortRecent': 'Zuletzt aktualisiert',
   'admin.plugins.sortUpdates': 'Updates zuerst',
   'admin.plugins.sortDownloads': 'Meiste Downloads',
@@ -603,14 +603,14 @@ const admin: TranslationStrings = {
   'admin.plugins.incompatible': 'Nicht kompatibel',
   'admin.plugins.accessTitle': 'Worauf es zugreift',
   'admin.plugins.connectsTitle': 'Verbindet sich mit',
-  'admin.plugins.detailsTitle': 'Details',
+  'admin.plugins.detailsTitle': 'Details', // same-as-en
   'admin.plugins.noAccess': 'Braucht keinen besonderen Zugriff.',
-  'admin.plugins.metaVersion': 'Version',
+  'admin.plugins.metaVersion': 'Version', // same-as-en
   'admin.plugins.metaSize': 'Größe',
   'admin.plugins.metaRequires': 'Benötigt',
   'admin.plugins.metaReviewed': 'Geprüft am',
-  'admin.plugins.downloads': 'Downloads',
-  'admin.addons.title': 'Addons',
+  'admin.plugins.downloads': 'Downloads', // same-as-en
+  'admin.addons.title': 'Add-ons',
   'admin.addons.subtitle': 'Aktiviere oder deaktiviere Funktionen, um TREK nach deinen Wünschen anzupassen.',
   'admin.addons.catalog.packing.name': 'Listen',
   'admin.addons.catalog.packing.description': 'Packlisten und To-Do-Aufgaben für deine Reisen',
@@ -622,7 +622,7 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.vacay.description': 'Persönlicher Urlaubsplaner mit Kalenderansicht',
   'admin.addons.catalog.atlas.name': 'Atlas',
   'admin.addons.catalog.atlas.description': 'Weltkarte mit besuchten Ländern und Reisestatistiken',
-  'admin.addons.catalog.collab.name': 'Collab',
+  'admin.addons.catalog.collab.name': 'Collab', // same-as-en
   'admin.addons.catalog.collab.description': 'Notizen, Umfragen, Chat und Vorschläge für die gemeinsame Planung',
   'admin.addons.catalog.roadtrip.name': 'Roadtrip',
   'admin.addons.catalog.roadtrip.description':
@@ -635,7 +635,7 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.mcp.description': 'Model Context Protocol für die KI-Assistenten-Integration',
   'admin.addons.subtitleBefore': 'Aktiviere oder deaktiviere Funktionen, um ',
   'admin.addons.subtitleAfter': ' nach deinen Wünschen anzupassen.',
-  'admin.addons.catalog.naver_list_import.name': 'Naver List Import',
+  'admin.addons.catalog.naver_list_import.name': 'Naver-Listenimport',
   'admin.addons.catalog.naver_list_import.description': 'Orte aus einer geteilten Naver-Maps-Liste importieren',
   'admin.addons.catalog.airtrail.name': 'AirTrail',
   'admin.addons.catalog.airtrail.description': 'Flüge aus deiner AirTrail-Instanz synchronisieren',
@@ -657,8 +657,8 @@ const admin: TranslationStrings = {
   'admin.addons.enabled': 'Aktiviert',
   'admin.addons.disabled': 'Deaktiviert',
   'admin.addons.type.trip': 'Reise',
-  'admin.addons.type.global': 'Global',
-  'admin.addons.type.integration': 'Integration',
+  'admin.addons.type.global': 'Global', // same-as-en
+  'admin.addons.type.integration': 'Integration', // same-as-en
   'admin.addons.tripHint': 'Verfügbar als Tab innerhalb jedes Trips',
   'admin.addons.globalHint': 'Verfügbar als eigenständiger Bereich in der Navigation',
   'admin.addons.integrationHint': 'Backend-Dienste und API-Integrationen ohne eigene Seite',
@@ -711,7 +711,7 @@ const admin: TranslationStrings = {
   'admin.mcpTokens.deleteError': 'Token konnte nicht gelöscht werden',
   'admin.mcpTokens.loadError': 'Tokens konnten nicht geladen werden',
   'admin.oauthSessions.sectionTitle': 'OAuth-Sitzungen',
-  'admin.oauthSessions.clientName': 'Client',
+  'admin.oauthSessions.clientName': 'Client', // same-as-en
   'admin.oauthSessions.owner': 'Besitzer',
   'admin.oauthSessions.scopes': 'Berechtigungen',
   'admin.oauthSessions.created': 'Erstellt',
@@ -734,7 +734,7 @@ const admin: TranslationStrings = {
   'admin.audit.col.action': 'Aktion',
   'admin.audit.col.resource': 'Ressource',
   'admin.audit.col.ip': 'IP',
-  'admin.audit.col.details': 'Details',
+  'admin.audit.col.details': 'Details', // same-as-en
   'admin.github.title': 'Update-Verlauf',
   'admin.github.subtitle': 'Neueste Updates von {repo}',
   'admin.github.latest': 'Aktuell',
@@ -770,7 +770,7 @@ const admin: TranslationStrings = {
   'admin.update.wikiLink': 'Update-Anleitung öffnen',
   'admin.update.reloadHint': 'Bitte lade die Seite in wenigen Sekunden neu.',
   'admin.tabs.permissions': 'Berechtigungen',
-  'admin.notifications.emailPanel.title': 'Email (SMTP)',
+  'admin.notifications.emailPanel.title': 'E-Mail (SMTP)',
   'admin.notifications.webhookPanel.title': 'Webhook',
   'admin.notifications.webPushPanel.title': 'Web Push',
   'admin.notifications.webPushPanel.hint':
@@ -800,7 +800,7 @@ const admin: TranslationStrings = {
     'Wird auch als Standardserver für Benutzer-ntfy-Benachrichtigungen verwendet. Leer lassen für ntfy.sh. Benutzer können dies in ihren eigenen Einstellungen überschreiben.',
   'admin.notifications.adminNtfyPanel.serverPlaceholder': 'https://ntfy.sh',
   'admin.notifications.adminNtfyPanel.topicLabel': 'Admin-Thema',
-  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts',
+  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts', // same-as-en
   'admin.notifications.adminNtfyPanel.tokenLabel': 'Zugriffstoken (optional)',
   'admin.notifications.adminNtfyPanel.tokenCleared': 'Admin-Zugriffstoken gelöscht',
   'admin.notifications.adminNtfyPanel.saved': 'Admin-Ntfy-Einstellungen gespeichert',
@@ -823,7 +823,7 @@ const admin: TranslationStrings = {
   'admin.notifications.tripReminders.enabled': 'Reiseerinnerungen aktiviert',
   'admin.notifications.tripReminders.disabled': 'Reiseerinnerungen deaktiviert',
   'admin.tabs.notifications': 'Benachrichtigungen',
-  'admin.addons.catalog.journey.name': 'Journey',
+  'admin.addons.catalog.journey.name': 'Journey', // same-as-en
   'admin.addons.catalog.journey.description': 'Reise-Tracking & Tagebuch mit Check-ins, Fotos und Tagesberichten',
   'admin.addons.catalog.collections.name': 'Sammlungen',
   'admin.addons.catalog.collections.description':

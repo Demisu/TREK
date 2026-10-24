@@ -15,7 +15,7 @@ const reservations: TranslationStrings = {
   'reservations.showFiles': 'Faylları göstər',
 
   'reservations.editTitle': 'Rezervasiyanı redaktə et',
-  'reservations.status': 'Status',
+  'reservations.status': 'Status', // same-as-en
   'reservations.datetime': 'Tarix və vaxt',
   'reservations.startTime': 'Başlanğıc vaxtı',
   'reservations.endTime': 'Bitmə vaxtı',
@@ -24,7 +24,7 @@ const reservations: TranslationStrings = {
   'reservations.timeAlt': 'Vaxt (alternativ, məsələn, 19:30)',
   'reservations.notes': 'Qeydlər',
   'reservations.notesPlaceholder': 'Əlavə qeydlər...',
-  'reservations.urlLabel': 'Link',
+  'reservations.urlLabel': 'Keçid',
   'reservations.urlPlaceholder': 'https://...',
 
   'reservations.meta.airline': 'Aviaşirkət',
@@ -254,7 +254,7 @@ const reservations: TranslationStrings = {
   'reservations.export.notes': 'Qeydlər',
   'reservations.resetView': 'Görünüşü sıfırla',
   'reservations.group.label': 'Qruplaşdır',
-  'reservations.group.status': 'Status',
+  'reservations.group.status': 'Status', // same-as-en
   'reservations.group.day': 'Gün',
   'reservations.group.type': 'Növ',
   'reservations.group.none': 'Qruplaşdırmadan',
@@ -266,7 +266,7 @@ const reservations: TranslationStrings = {
   'reservations.sort.date': 'Tarix',
   'reservations.sort.title': 'Başlıq',
   'reservations.sort.type': 'Növ',
-  'reservations.sort.status': 'Status',
+  'reservations.sort.status': 'Status', // same-as-en
   'reservations.sort.earlyFirst': 'Əvvəlcə ən erkən',
   'reservations.sort.lateFirst': 'Əvvəlcə ən gec',
   'reservations.sort.aToZ': 'A-dan Z-yə',

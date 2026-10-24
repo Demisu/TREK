@@ -185,7 +185,7 @@ const dashboard: TranslationStrings = {
   'dashboard.hero.travelers': '{count} resenärer',
   'dashboard.hero.travelers.one': '{count} resenär',
   'dashboard.hero.destinations': '{count} destinationer',
-  'dashboard.hero.destinations.one': '{count} destination',
+  'dashboard.hero.destinations.one': '{count} resmål',
   'dashboard.hero.dayUnit': 'dagar',
   'dashboard.hero.dayUnit.one': 'dag',
   'dashboard.hero.daysLeft': 'Dagar kvar',

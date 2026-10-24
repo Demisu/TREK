@@ -47,7 +47,7 @@ const system_notice: TranslationStrings = {
   'system_notice.thank_you_support.highlight_opensource': "GitHub'da %100 açık kaynak",
   'system_notice.thank_you_support.highlight_free': 'Sonsuza dek ücretsiz — hiçbir ücretli plan yok',
   'system_notice.thank_you_support.highlight_community': 'Toplulukla birlikte geliştirildi',
-  'system_notice.thank_you_support.cta_bmc': 'Buy Me a Coffee',
+  'system_notice.thank_you_support.cta_bmc': 'Bana bir kahve ısmarla',
   'system_notice.thank_you_support.cta_kofi': "Ko-fi'de Destek Ol",
   'system_notice.pager.prev': 'Önceki bildirim',
   'system_notice.pager.next': 'Sonraki bildirim',
@@ -57,7 +57,7 @@ const system_notice: TranslationStrings = {
   'system_notice.release_notes.eyebrow': 'Güncelleme yüklendi',
   'system_notice.release_notes.features_label': 'Öne çıkanlar',
   'system_notice.release_notes.features_aside': 'Hepsi bu kadar değil',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
+  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
   'system_notice.release_notes.feature_places_body':
     'Kendi yer API’sine sahip ilk açık kaynak seyahat planlayıcısı. 73,6 milyon yer, anahtar yok, kota yok.',
   'system_notice.release_notes.feature_roadtrip_title': 'Yol gezisi eklentisi',
@@ -84,7 +84,7 @@ const system_notice: TranslationStrings = {
     'TREK ücretsiz ve hep öyle kalacak, ama sunucular, alan adları ve bir sürü geç gece ücretsiz değil.',
   'system_notice.release_notes.support_text':
     'TREK seyahatlerinde kendine bir yer edindiyse, bana bir kahve ısmarla ve bir sonraki sürümün gelmesine yardım et.',
-  'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
+  'system_notice.release_notes.cta_bmc': 'Bana bir kahve ısmarla',
   'system_notice.release_notes.cta_kofi': "Ko-fi'de Destek Ol",
   'system_notice.release_notes.headline': 'TREK’in artık kendi başına yaptığı dört şey.',
   'system_notice.release_notes.intro':

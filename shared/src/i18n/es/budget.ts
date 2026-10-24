@@ -13,7 +13,7 @@ const budget: TranslationStrings = {
   'budget.categoryName': 'Nombre de la categoría',
   'budget.addCategory': 'Añadir categoría',
   'budget.table.name': 'Nombre',
-  'budget.table.total': 'Total',
+  'budget.table.total': 'Total', // same-as-en
   'budget.table.persons': 'Personas',
   'budget.table.days': 'Días',
   'budget.table.perPerson': 'Por persona',
@@ -24,7 +24,7 @@ const budget: TranslationStrings = {
   'budget.newEntry': 'Nueva entrada',
   'budget.defaultEntry': 'Nueva entrada',
   'budget.defaultCategory': 'Nueva categoría',
-  'budget.total': 'Total',
+  'budget.total': 'Total', // same-as-en
   'budget.totalBudget': 'Presupuesto total',
   'budget.byCategory': 'Por categoría',
   'budget.editTooltip': 'Haz clic para editar',

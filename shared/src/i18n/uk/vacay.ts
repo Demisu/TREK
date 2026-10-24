@@ -70,9 +70,9 @@ const vacay: TranslationStrings = {
   'vacay.sat': 'Сб',
   'vacay.sun': 'Нд',
   'vacay.publicHolidays': 'Державні свята',
-  'vacay.publicHolidaysHint': 'Mark public holidays in the calendar',
-  'vacay.schoolHolidays': 'School Holidays',
-  'vacay.schoolHolidaysHint': 'Mark school holidays as a visual calendar layer',
+  'vacay.publicHolidaysHint': 'Позначати державні свята в календарі',
+  'vacay.schoolHolidays': 'Шкільні канікули',
+  'vacay.schoolHolidaysHint': 'Позначати шкільні канікули як візуальний шар календаря',
   'vacay.selectCountry': 'Виберіть країну',
   'vacay.selectRegion': 'Виберіть регіон (обов’язково)',
   'vacay.companyHolidays': 'Корпоративні вихідні',
@@ -148,7 +148,7 @@ const vacay: TranslationStrings = {
   'vacay.addCalendar': 'Добавить календарь',
   'vacay.calendarColor': 'Колір',
   'vacay.calendarLabel': 'Назва',
-  'vacay.noCalendars': 'No holiday calendars added yet',
-  'vacay.noSchoolCalendars': 'No school holiday calendars added yet',
+  'vacay.noCalendars': 'Календарів свят ще не додано',
+  'vacay.noSchoolCalendars': 'Календарів шкільних канікул ще не додано',
 };
 export default vacay;

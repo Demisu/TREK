@@ -33,7 +33,7 @@ const docsync: TranslationStrings = {
   'docsync.providerAppPassword': 'Password per applicazioni',
   'docsync.providerAppToken': 'Token applicativo',
   'docsync.providerUsername': 'Nome utente',
-  'docsync.providerPassword': 'Password',
+  'docsync.providerPassword': 'Password', // same-as-en
   'docsync.providerOrganization': 'ID organizzazione',
   'docsync.providerBasePath': 'Cartella di base',
   'docsync.providerOTP': 'Codice a due fattori',

@@ -6,10 +6,10 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'Slutpunkts-URL',
   'storage.help.endpoint':
     'Bas-URL för den S3-kompatibla tjänsten, t.ex. https://s3.example.com eller http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'Åtkomstnyckel-ID',
   'storage.field.secretAccessKey': 'Hemlig åtkomstnyckel',
-  'storage.field.region': 'Region',
+  'storage.field.region': 'Region', // same-as-en
   'storage.help.region': 'Behåll standardvärdet om inte din leverantör kräver en specifik region.',
   'storage.field.keyPrefix': 'Nyckelprefix',
   'storage.help.keyPrefix': 'Valfritt prefix som läggs till varje objektnyckel, t.ex. trek/prod.',

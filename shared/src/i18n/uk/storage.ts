@@ -6,7 +6,7 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'URL кінцевої точки',
   'storage.help.endpoint':
     'Базовий URL сумісного з S3 сервісу, напр. https://s3.example.com або http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Бакет',
   'storage.field.accessKeyId': 'Ідентифікатор ключа доступу',
   'storage.field.secretAccessKey': 'Секретний ключ доступу',
   'storage.field.region': 'Регіон',

@@ -218,7 +218,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.poi.alongRoute': 'após {distance}',
   'roadtrip.poi.clearResults': 'Limpar resultados',
   'roadtrip.poi.addManual': 'Adicionar manualmente',
-  'roadtrip.poi.addManualShort': 'Manual',
+  'roadtrip.poi.addManualShort': 'Manual', // same-as-en
   'roadtrip.poi.manualHint':
     'A busca de locais não encontra todos os pontos de recarga nem todos os postos. Procure um pelo nome e diga em que ponto do trajeto ele entra.',
   'roadtrip.poi.addBetween': 'Adicionar entre',
@@ -311,7 +311,7 @@ const roadtrip: TranslationStrings = {
     'A reserva {title} não está em nenhum dia desta viagem, por isso o percurso não a considera.',
   'roadtrip.bookings.loose': 'Também reservado neste dia',
   'roadtrip.ride.departureFlight': 'Partida {time}',
-  'roadtrip.ride.checkIn': 'Check-in',
+  'roadtrip.ride.checkIn': 'Check-in', // same-as-en
   'roadtrip.ride.boarding': 'Embarque',
   'roadtrip.ride.missed': 'Perdido',
   'roadtrip.ride.lateBy': '{time} de atraso',
@@ -330,10 +330,10 @@ const roadtrip: TranslationStrings = {
   'roadtrip.day.rideMissed.ferry': 'Balsa perdida',
   'roadtrip.day.rideMissed.cruise': 'Cruzeiro perdido',
   'roadtrip.day.rideMissed.bus': 'Ônibus perdido',
-  'roadtrip.bookend.checkOut': 'Check-out',
+  'roadtrip.bookend.checkOut': 'Check-out', // same-as-en
   'roadtrip.bookend.from': 'Início do dia',
   'roadtrip.bookend.back': 'Pernoite',
-  'roadtrip.bookend.checkIn': 'Check-in',
+  'roadtrip.bookend.checkIn': 'Check-in', // same-as-en
   'roadtrip.bookend.afterCheckOut': 'Saída depois do check-out',
   'roadtrip.bookend.noVia':
     'Não dá para colocar um ponto de passagem no trajeto de ida ou volta da sua hospedagem. Adicione uma parada ali.',

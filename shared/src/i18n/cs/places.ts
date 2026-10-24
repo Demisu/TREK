@@ -154,7 +154,7 @@ const places: TranslationStrings = {
   'places.details.fact.rating': 'Hodnocení',
   'places.details.fact.cuisine': 'Kuchyně',
   'places.details.fact.openingHours': 'Otevírací doba',
-  'places.details.fact.menu': 'Menu',
+  'places.details.fact.menu': 'Menu', // same-as-en
   'places.details.fact.outdoorSeating': 'Venkovní posezení',
   'places.details.fact.takeaway': 'S sebou',
   'places.details.fact.delivery': 'Rozvoz',

@@ -13,7 +13,7 @@ const reservations: TranslationStrings = {
   'reservations.summary': '{confirmed} bestätigt, {pending} ausstehend',
   'reservations.showFiles': 'Dateien anzeigen',
   'reservations.editTitle': 'Reservierung bearbeiten',
-  'reservations.status': 'Status',
+  'reservations.status': 'Status', // same-as-en
   'reservations.datetime': 'Datum & Uhrzeit',
   'reservations.startTime': 'Startzeit',
   'reservations.endTime': 'Endzeit',
@@ -22,13 +22,13 @@ const reservations: TranslationStrings = {
   'reservations.timeAlt': 'Uhrzeit (alternativ, z.B. 19:30)',
   'reservations.notes': 'Notizen',
   'reservations.notesPlaceholder': 'Zusätzliche Notizen...',
-  'reservations.urlLabel': 'Link',
+  'reservations.urlLabel': 'Link', // same-as-en
   'reservations.urlPlaceholder': 'https://...',
   'reservations.meta.airline': 'Fluggesellschaft',
   'reservations.meta.flightNumber': 'Flugnr.',
   'reservations.meta.from': 'Von',
   'reservations.meta.to': 'Nach',
-  'reservations.layover.route': 'Route',
+  'reservations.layover.route': 'Route', // same-as-en
   'reservations.layover.stop': 'Zwischenstopp',
   'reservations.layover.addStop': 'Zwischenstopp hinzufügen',
   'reservations.cruise.embark': 'Einschiffung',
@@ -43,9 +43,9 @@ const reservations: TranslationStrings = {
   'reservations.meta.trainNumber': 'Zugnr.',
   'reservations.meta.platform': 'Gleis',
   'reservations.meta.seat': 'Sitzplatz',
-  'reservations.meta.checkIn': 'Check-in',
+  'reservations.meta.checkIn': 'Check-in', // same-as-en
   'reservations.meta.checkInUntil': 'Check-in bis',
-  'reservations.meta.checkOut': 'Check-out',
+  'reservations.meta.checkOut': 'Check-out', // same-as-en
   'reservations.meta.linkAccommodation': 'Unterkunft',
   'reservations.meta.pickAccommodation': 'Mit Unterkunft verknüpfen',
   'reservations.meta.noAccommodation': 'Keine',
@@ -58,19 +58,19 @@ const reservations: TranslationStrings = {
   'reservations.meta.selectDay': 'Tag wählen',
   'reservations.type.flight': 'Flug',
   'reservations.type.hotel': 'Unterkunft',
-  'reservations.type.restaurant': 'Restaurant',
+  'reservations.type.restaurant': 'Restaurant', // same-as-en
   'reservations.type.train': 'Zug',
   'reservations.type.car': 'Auto',
   'reservations.type.cruise': 'Kreuzfahrt',
   'reservations.type.event': 'Veranstaltung',
-  'reservations.type.tour': 'Tour',
+  'reservations.type.tour': 'Tour', // same-as-en
   'reservations.type.parking': 'Parkplatz',
   'reservations.type.other': 'Sonstiges',
-  'reservations.type.bus': 'Bus',
+  'reservations.type.bus': 'Bus', // same-as-en
   'reservations.type.ferry': 'Fähre',
   'reservations.type.cable_car': 'Seilbahn',
   'reservations.type.bicycle': 'Fahrrad',
-  'reservations.type.taxi': 'Taxi',
+  'reservations.type.taxi': 'Taxi', // same-as-en
   'reservations.type.transit': 'ÖPNV',
   'reservations.typeShort.transit': 'ÖPNV',
   'reservations.type.transport_other': 'Sonstiges',
@@ -132,7 +132,7 @@ const reservations: TranslationStrings = {
   'reservations.span.dropOff': 'Abgabe',
   'reservations.span.return': 'Rückgabe',
   'reservations.span.active': 'Aktiv',
-  'reservations.span.start': 'Start',
+  'reservations.span.start': 'Start', // same-as-en
   'reservations.span.end': 'Ende',
   'reservations.span.ongoing': 'Laufend',
   'reservations.validation.endBeforeStart': 'Enddatum/-zeit muss nach dem Startdatum/-zeit liegen',
@@ -224,7 +224,7 @@ const reservations: TranslationStrings = {
   'reservations.export.notes': 'Notizen',
   'reservations.resetView': 'Ansicht zurücksetzen',
   'reservations.group.label': 'Gruppieren nach',
-  'reservations.group.status': 'Status',
+  'reservations.group.status': 'Status', // same-as-en
   'reservations.group.day': 'Tag',
   'reservations.group.type': 'Typ',
   'reservations.group.none': 'Nicht gruppieren',
@@ -236,14 +236,14 @@ const reservations: TranslationStrings = {
   'reservations.sort.date': 'Datum',
   'reservations.sort.title': 'Titel',
   'reservations.sort.type': 'Typ',
-  'reservations.sort.status': 'Status',
+  'reservations.sort.status': 'Status', // same-as-en
   'reservations.sort.earlyFirst': 'Früheste zuerst',
   'reservations.sort.lateFirst': 'Späteste zuerst',
   'reservations.sort.aToZ': 'A bis Z',
   'reservations.sort.zToA': 'Z bis A',
   'reservations.timeline.dayCount': '{count} Tage',
   'reservations.timeline.dayCount.one': '{count} Tag',
-  'reservations.timeline.zoom': 'Zoom',
+  'reservations.timeline.zoom': 'Zoom', // same-as-en
   'reservations.timeline.trip': 'Reise',
   'reservations.timeline.day': 'Tag',
   'reservations.timeline.prevDay': 'Vorheriger Tag',

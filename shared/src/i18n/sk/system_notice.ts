@@ -48,7 +48,7 @@ const system_notice: TranslationStrings = {
   'system_notice.thank_you_support.highlight_opensource': '100 % open source na GitHube',
   'system_notice.thank_you_support.highlight_free': 'Navždy zadarmo — nikdy žiadne platené úrovne',
   'system_notice.thank_you_support.highlight_community': 'Tvorené spoločne s komunitou',
-  'system_notice.thank_you_support.cta_bmc': 'Buy Me a Coffee',
+  'system_notice.thank_you_support.cta_bmc': 'Kúp mi kávu',
   'system_notice.thank_you_support.cta_kofi': 'Podporiť na Ko-fi',
   // The release modal. One stable set of keys: each big release swaps the copy in place.
   'system_notice.release_notes.eyebrow': 'Aktualizácia nainštalovaná',
@@ -57,7 +57,7 @@ const system_notice: TranslationStrings = {
     'Vlastné API miest, cesty autom naplánované od začiatku do konca, história polohy späť vo vašich rukách a vaše dokumenty v synchronizácii.',
   'system_notice.release_notes.features_label': 'Hlavné novinky',
   'system_notice.release_notes.features_aside': 'Zďaleka nie všetko',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
+  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
   'system_notice.release_notes.feature_places_body':
     'Prvý open source plánovač ciest s vlastným API miest. 73,6 milióna miest, bez kľúča, bez limitu.',
   'system_notice.release_notes.feature_roadtrip_title': 'Doplnok Cesta autom',
@@ -83,7 +83,7 @@ const system_notice: TranslationStrings = {
     'TREK je a vždy bude zadarmo, ale servery, domény a množstvo neskorých nocí nie sú.',
   'system_notice.release_notes.support_text':
     'Ak si získal miesto na vašich cestách, kúpte mi kávu a pomôžte, aby prišlo aj ďalšie vydanie.',
-  'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
+  'system_notice.release_notes.cta_bmc': 'Kúp mi kávu',
   'system_notice.release_notes.cta_kofi': 'Podporiť na Ko-fi',
   'system_notice.pager.prev': 'Predchádzajúce oznámenie',
   'system_notice.pager.next': 'Ďalšie oznámenie',

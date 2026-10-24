@@ -68,19 +68,19 @@ const dayplan: TranslationStrings = {
   'dayplan.gpxEmpty': 'لا يوجد شيء للتصدير بعد',
   'dayplan.gpxFailed': 'فشل تصدير GPX',
   'dayplan.pdfError': 'فشل تصدير PDF',
-  'dayplan.expandAll': 'توسيع كل الأيام', // en-fallback
-  'dayplan.collapseAll': 'طي كل الأيام', // en-fallback
+  'dayplan.expandAll': 'توسيع كل الأيام',
+  'dayplan.collapseAll': 'طي كل الأيام',
   'dayplan.export': 'تصدير',
   'dayplan.exportIntro': 'خذ خطتك معك: كمستند أو في تقويمك أو على جهاز GPS.',
   'dayplan.exportDocument': 'مستند',
   'dayplan.exportCalendar': 'التقويم',
   'dayplan.exportMaps': 'الخرائط وGPS',
-  'dayplan.pdf': 'PDF', // en-fallback
-  'dayplan.mobile.addPlace': 'Add Place', // en-fallback
-  'dayplan.mobile.searchPlaces': 'Search places...', // en-fallback
-  'dayplan.mobile.allAssigned': 'All places assigned', // en-fallback
-  'dayplan.mobile.noMatch': 'No match', // en-fallback
-  'dayplan.mobile.createNew': 'Create new place', // en-fallback
+  'dayplan.pdf': 'PDF',
+  'dayplan.mobile.addPlace': 'إضافة مكان',
+  'dayplan.mobile.searchPlaces': 'ابحث عن أماكن...',
+  'dayplan.mobile.allAssigned': 'تم تعيين كل الأماكن',
+  'dayplan.mobile.noMatch': 'لا توجد نتائج',
+  'dayplan.mobile.createNew': 'إنشاء مكان جديد',
   'dayplan.reorderDays': 'إعادة ترتيب الأيام',
   'dayplan.reorderTitle': 'إعادة ترتيب الأيام',
   'dayplan.reorderHint': 'تنتقل أماكن اليوم وملاحظاته وحجوزاته معه.',

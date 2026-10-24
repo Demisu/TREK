@@ -69,7 +69,7 @@ const reservations: TranslationStrings = {
   'reservations.type.ferry': 'Komp',
   'reservations.type.cable_car': 'Kötélpálya',
   'reservations.type.bicycle': 'Kerékpár',
-  'reservations.type.taxi': 'Taxi',
+  'reservations.type.taxi': 'Taxi', // same-as-en
   'reservations.type.transit': 'Tömegközlekedés',
   'reservations.typeShort.transit': 'Tömegközl.',
   'reservations.type.transport_other': 'Egyéb',

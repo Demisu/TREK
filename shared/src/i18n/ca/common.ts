@@ -16,7 +16,7 @@ const common: TranslationStrings = {
   'common.select': 'Seleccionar',
   'common.selectAll': 'Seleccionar-ho tot',
   'common.deselectAll': 'Rebutjar la sel·lecció',
-  'common.error': 'Error',
+  'common.error': 'Error', // same-as-en
   'common.success': 'Èxit',
   'common.unknownError': 'Error desconegut',
   'common.tooManyAttempts': 'Massa intents. Torna a provar-ho més tard.',
@@ -29,7 +29,7 @@ const common: TranslationStrings = {
   'common.confirm': 'Confirmar',
   'common.ok': 'Acceptar',
   'common.yes': 'Sí',
-  'common.no': 'No',
+  'common.no': 'No', // same-as-en
   'common.or': 'o',
   'common.none': 'Cap',
   'common.date': 'Data',

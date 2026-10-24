@@ -84,8 +84,8 @@ const settings: TranslationStrings = {
   'settings.preferredNavAppHint':
     'Если приложение выбрано, кнопка навигации сразу открывает его вместо списка всех картографических приложений.',
   'settings.blurBookingCodes': 'Скрыть коды бронирования',
-  'settings.aiAlwaysRetry': 'Always retry booking imports with AI',
-  'settings.aiAlwaysRetryHint': 'When a file cannot be read by the standard parser, automatically retry it with AI.',
+  'settings.aiAlwaysRetry': 'Всегда повторять импорт бронирований с помощью ИИ',
+  'settings.aiAlwaysRetryHint': 'Если стандартный анализатор не смог прочитать файл, автоматически повторять попытку с помощью ИИ.',
   'settings.optimizeFromAccommodation': 'Оптимизировать маршрут от места проживания',
   'settings.optimizeFromAccommodationHint':
     'При оптимизации дня маршрут начинается от отеля, в котором вы просыпаетесь, и заканчивается у того, в который вы заселяетесь вечером.',
@@ -204,20 +204,20 @@ const settings: TranslationStrings = {
   'settings.about.featureRequestHint': 'Предложите новую функцию',
   'settings.about.wikiHint': 'Документация и руководства',
   'settings.about.descriptionManaged':
-    'TREK helps you organize your trips from the first idea to the last memory. Day planning, budget, packing lists, photos and much more — all in one place.',
-  'settings.about.sourceTitle': 'Source code',
-  'settings.about.sourceHint': 'TREK is open source, licensed AGPL-3.0',
+    'TREK помогает организовать поездки от первой идеи до последнего воспоминания. Планирование дней, бюджет, списки вещей, фото и многое другое: всё в одном месте.',
+  'settings.about.sourceTitle': 'Исходный код',
+  'settings.about.sourceHint': 'TREK с открытым исходным кодом, лицензия AGPL-3.0',
   'settings.about.supporters.badge': 'Ежемесячные спонсоры',
   'settings.about.supporters.title': 'Спутники TREK',
   'settings.about.supporters.subtitle':
     'Пока ты планируешь следующий маршрут, эти люди планируют вместе со мной будущее TREK. Их ежемесячный взнос идёт напрямую в разработку и реально потраченные часы — чтобы TREK оставался Open Source.',
   'settings.about.supporters.since': 'спонсор с {date}',
   'settings.about.supporters.tierEmpty': 'Стань первым',
-  'settings.about.supporter.tier.noReturnTicket': 'No Return Ticket',
-  'settings.about.supporter.tier.lostLuggageVip': 'Lost Luggage VIP',
-  'settings.about.supporter.tier.businessClassDreamer': 'Business Class Dreamer',
-  'settings.about.supporter.tier.budgetTraveller': 'Budget Traveller',
-  'settings.about.supporter.tier.hostelBunkmate': 'Hostel Bunkmate',
+  'settings.about.supporter.tier.noReturnTicket': 'Без обратного билета',
+  'settings.about.supporter.tier.lostLuggageVip': 'VIP потерянного багажа',
+  'settings.about.supporter.tier.businessClassDreamer': 'Мечтатель о бизнес-классе',
+  'settings.about.supporter.tier.budgetTraveller': 'Бюджетный путешественник',
+  'settings.about.supporter.tier.hostelBunkmate': 'Сосед по койке в хостеле',
   'settings.about.description':
     'TREK — это самостоятельно размещаемый планировщик путешествий, который помогает организовать поездки от первой идеи до последнего воспоминания. Планирование по дням, бюджет, списки вещей, фото и многое другое — всё в одном месте, на вашем собственном сервере.',
   'settings.about.madeWith': 'Сделано с',
@@ -359,7 +359,7 @@ const settings: TranslationStrings = {
   'settings.placeLanguageApp': 'Как в приложении',
   'settings.placeLanguageHint':
     'Язык, на котором отвечают поиск мест, подсказки и адреса. Если у места нет названия на этом языке, показывается местное название.',
-  'settings.passkey.title': 'Passkeys',
+  'settings.passkey.title': 'Ключи доступа',
   'settings.passkey.description':
     'Входите быстрее и с защитой от фишинга с помощью passkey: отпечатка пальца, лица, PIN-кода или аппаратного ключа. Ваш пароль остаётся как резервный способ.',
   'settings.passkey.notConfigured':
@@ -376,7 +376,7 @@ const settings: TranslationStrings = {
   'settings.passkey.deleted': 'Passkey удалён',
   'settings.passkey.deleteConfirm': 'Удалить этот passkey? Подтвердите паролем.',
   'settings.passkey.rename': 'Переименовать',
-  'settings.passkey.defaultName': 'Passkey',
+  'settings.passkey.defaultName': 'Ключ доступа',
   'settings.passkey.synced': 'Синхронизирован',
   'settings.passkey.deviceBound': 'Это устройство',
   'settings.passkey.lastUsed': 'Последнее использование',

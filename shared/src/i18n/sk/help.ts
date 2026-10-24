@@ -929,7 +929,7 @@ const help: TranslationStrings = {
   'help.guide.journey-status.tip.2': 'Ručne nastavený stav zostane, kým ho nezmeníte, aj keď sa dátumy cesty zmenia.',
 
   // ── Screen: journey-studio ─────────────────────────────────────────────────
-  'help.ctx.journey-studio.title': 'Studio',
+  'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
     'TREK Studio rozloží cestovný denník ako fotoknihu, ktorú môžete vytlačiť. Otvorí sa nad denníkom: vľavo zoznam strán a obsah, uprostred dvojstrana, na ktorej pracujete, a vpravo jej vlastnosti. Automatické rozloženie vytvorí z vašich záznamov prvý návrh. Potom môžete všetko presúvať, orezávať a upravovať vzhľad a každý krok sa dá vrátiť späť.',
   'help.ctx.journey-studio.bullet.1':
@@ -1130,7 +1130,7 @@ const help: TranslationStrings = {
     'Konfigurácia MCP: MCP endpoint a pod Klienti OAuth 2.1 vaši registrovaní klienti, Konfigurácia klienta na skopírovanie a Aktívne relácie OAuth s tlačidlom Odvolať.',
   'help.ctx.settings-integrations.bullet.4':
     'API tokeny: starší spôsob pripojenia k MCP, označený ako Zastarané. Použite radšej Klienti OAuth 2.1.',
-  'help.ctx.settings-offline.title': 'Offline',
+  'help.ctx.settings-offline.title': 'Offline', // same-as-en
   'help.ctx.settings-offline.summary':
     'Čo TREK ukladá v tomto zariadení, aby sa cesta otvorila aj bez pripojenia, a čo sa stane, keď je zmena urobená offline v konflikte so zmenou urobenou inde.',
   'help.ctx.settings-offline.bullet.1':
@@ -1484,7 +1484,7 @@ const help: TranslationStrings = {
     'Nahrať zálohu obnoví dáta zo súboru vytvoreného v inej inštancii alebo v skorší deň, po rovnakej otázke ako Obnoviť.',
   'help.ctx.admin-backup.bullet.3':
     '„Automatické zálohovanie“: zapnuté alebo vypnuté, „Interval“, „Spustiť o hodine“ a deň a „Odstrániť staré zálohy po“ (od 1 dňa po „Uchovávať navždy“), uložené tlačidlom „Uložiť“.',
-  'help.ctx.admin-audit.title': 'Audit',
+  'help.ctx.admin-audit.title': 'Audit', // same-as-en
   'help.ctx.admin-audit.summary':
     'Záznam udalostí dôležitých pre bezpečnosť a správu: prihlásenia a neúspešné pokusy, zmeny MFA, zmeny používateľov a nastavení, zálohy a obnovenia. Len na čítanie, najnovšie navrchu.',
   'help.ctx.admin-audit.bullet.1':

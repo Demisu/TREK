@@ -14,7 +14,7 @@ const inspector: TranslationStrings = {
   'inspector.confirmedRes': 'Réservation confirmée',
   'inspector.pendingRes': 'Réservation en attente',
   'inspector.google': 'Google Maps',
-  'inspector.navigation': 'Navigation',
+  'inspector.navigation': 'Navigation', // same-as-en
   'inspector.otherMapApp': 'Autre application de cartes',
   'inspector.openWith': 'Ouvrir avec',
   'inspector.openStreetMap': 'OpenStreetMap',
@@ -23,7 +23,7 @@ const inspector: TranslationStrings = {
   'inspector.savedToCollection': 'Enregistré',
   'inspector.addRes': 'Réservation',
   'inspector.editRes': 'Modifier la réservation',
-  'inspector.participants': 'Participants',
+  'inspector.participants': 'Participants', // same-as-en
   'inspector.trackStats': 'Données du parcours',
   'inspector.trackColor': 'Couleur du parcours',
   'inspector.trackColorAuto': 'Couleur automatique',

@@ -5,7 +5,7 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.addNoteShort': 'Notitie',
   'mobileTrip.addPlaceShort': 'Plaats',
   'mobileTrip.addToDayQuestion': 'Toevoegen aan een dag?',
-  'mobileTrip.addTransportShort': 'Transport',
+  'mobileTrip.addTransportShort': 'Transport', // same-as-en
   'mobileTrip.allDays': 'Alle dagen',
   'mobileTrip.today': 'Vandaag',
   'mobileTrip.jumpToToday': 'Naar vandaag',
@@ -47,8 +47,8 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.statPeople.one': '{count} persoon',
   'mobileTrip.stay': 'Verblijf',
   'mobileTrip.tapAgainToDelete': 'Tik nogmaals om te verwijderen',
-  'mobileTrip.todoOpenCount': '{count} open',
-  'mobileTrip.todoOpenCount.one': '{count} open',
+  'mobileTrip.todoOpenCount': '{count} open', // same-as-en
+  'mobileTrip.todoOpenCount.one': '{count} open', // same-as-en
   'mobileTrip.travel': 'Reis',
   'mobileTrip.upNext': 'Volgende',
   'mobileTrip.viewDetails': 'Details bekijken',
@@ -63,7 +63,7 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.toursCount.one': '{count} tocht',
   'mobileTrip.rtSearchOffline': 'Vereist een verbinding: de zoekopdracht leest de route die voor je ligt.',
   'mobileTrip.rtBehind': '{time} achter op schema',
-  'mobileTrip.rtStart': 'Start',
+  'mobileTrip.rtStart': 'Start', // same-as-en
   'mobileTrip.rtStayScope': 'Het verblijf hoort bij de plaats en telt dus op elke dag waarop deze stop gepland staat.',
   'mobileTrip.rtStayLess': '{count} minuten minder',
   'mobileTrip.rtStayLess.one': '{count} minuut minder',

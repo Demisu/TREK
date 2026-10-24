@@ -63,7 +63,7 @@ const docsync: TranslationStrings = {
 
   'docsync.state.pending': 'Wacht',
   'docsync.state.synced': 'Gesynchroniseerd',
-  'docsync.state.conflict': 'Conflict',
+  'docsync.state.conflict': 'Conflict', // same-as-en
   'docsync.state.rejected_type': 'Bestandstype niet toegestaan',
   'docsync.state.too_large': 'Te groot',
   'docsync.state.error': 'Fout',

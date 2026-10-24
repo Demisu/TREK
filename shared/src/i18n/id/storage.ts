@@ -6,7 +6,7 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'URL endpoint',
   'storage.help.endpoint':
     'URL dasar layanan yang kompatibel dengan S3, mis. https://s3.example.com atau http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'ID kunci akses',
   'storage.field.secretAccessKey': 'Kunci akses rahasia',
   'storage.field.region': 'Wilayah',
@@ -57,7 +57,7 @@ const storage: TranslationStrings = {
   'storage.form.cancel': 'Batal',
   'storage.form.duplicateName': 'Backend bernama {name} sudah ada',
   'storage.categories.title': 'Kategori',
-  'storage.categories.default': 'default',
+  'storage.categories.default': 'bawaan',
   'storage.categories.reassignWarning':
     'Objek yang ada tidak dipindahkan: objek baru masuk ke backend yang baru ditetapkan, yang lama tetap di tempatnya.',
   'storage.category.files': 'Dokumen perjalanan',

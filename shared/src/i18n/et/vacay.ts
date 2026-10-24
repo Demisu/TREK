@@ -43,7 +43,7 @@ const vacay: TranslationStrings = {
   'vacay.personNamePlaceholder': 'Sisesta nimi',
   'vacay.color': 'Värv',
   'vacay.add': 'Lisa',
-  'vacay.legend': 'Legend',
+  'vacay.legend': 'Legend', // same-as-en
   'vacay.publicHoliday': 'Riigipüha',
   'vacay.companyHoliday': 'Ettevõtte puhkepäev',
   'vacay.weekend': 'Nädalavahetus',

@@ -40,7 +40,7 @@ const common: TranslationStrings = {
   'common.unsavedMessage': 'Yang kamu masukkan di sini belum disimpan.',
   'common.keepEditing': 'Lanjut mengedit',
   'common.name': 'Nama',
-  'common.email': 'Email',
+  'common.email': 'Email', // same-as-en
   'common.password': 'Kata sandi',
   'common.saving': 'Menyimpan...',
   'common.justNow': 'baru saja',
@@ -56,18 +56,18 @@ const common: TranslationStrings = {
   'common.collapse': 'Ciutkan',
   'common.copy': 'Salin',
   'common.copied': 'Disalin',
-  'common.datepicker.prevMonth': 'Previous month', // en-fallback
-  'common.datepicker.nextMonth': 'Next month', // en-fallback
-  'common.datepicker.prevYear': 'Previous year', // en-fallback
-  'common.datepicker.nextYear': 'Next year', // en-fallback
-  'common.datepicker.prevYears': 'Previous years', // en-fallback
-  'common.datepicker.nextYears': 'Next years', // en-fallback
-  'common.datepicker.selectMonth': 'Select month', // en-fallback
-  'common.datepicker.selectYear': 'Select year', // en-fallback
-  'common.datepicker.enterManually': 'Enter date manually', // en-fallback
-  'common.datepicker.typeDate': 'Type a date', // en-fallback
-  'common.datepicker.dialog': 'Date picker', // en-fallback
-  'common.datepicker.clearDate': 'Clear date', // en-fallback
+  'common.datepicker.prevMonth': 'Bulan sebelumnya',
+  'common.datepicker.nextMonth': 'Bulan berikutnya',
+  'common.datepicker.prevYear': 'Tahun sebelumnya',
+  'common.datepicker.nextYear': 'Tahun berikutnya',
+  'common.datepicker.prevYears': 'Tahun-tahun sebelumnya',
+  'common.datepicker.nextYears': 'Tahun-tahun berikutnya',
+  'common.datepicker.selectMonth': 'Pilih bulan',
+  'common.datepicker.selectYear': 'Pilih tahun',
+  'common.datepicker.enterManually': 'Masukkan tanggal secara manual',
+  'common.datepicker.typeDate': 'Ketik tanggal',
+  'common.datepicker.dialog': 'Pemilih tanggal',
+  'common.datepicker.clearDate': 'Hapus tanggal',
   'common.errorTitle': 'Terjadi kesalahan',
   'common.errorBody': 'Bagian aplikasi ini berhenti bekerja. Data Anda aman.',
   'common.errorPanelTitle': 'Bagian ini tidak dapat ditampilkan',

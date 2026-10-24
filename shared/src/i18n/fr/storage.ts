@@ -6,7 +6,7 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'URL du point de terminaison',
   'storage.help.endpoint':
     'URL de base du service compatible S3, par ex. https://s3.example.com ou http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': "ID de clé d'accès",
   'storage.field.secretAccessKey': "Clé d'accès secrète",
   'storage.field.region': 'Région',
@@ -29,7 +29,7 @@ const storage: TranslationStrings = {
   'storage.discardAndReload': 'Abandonner mes modifications et recharger',
   'storage.configError.banner':
     "Échec du chargement des paramètres de stockage enregistrés — l'enregistrement les remplacera : {error}",
-  'storage.backends.title': 'Backends',
+  'storage.backends.title': 'Backends', // same-as-en
   'storage.backends.add': 'Ajouter un backend',
   'storage.backends.usedBy': 'Utilisé par : {categories}',
   'storage.backends.unused': 'Non assigné à aucune catégorie',
@@ -37,7 +37,7 @@ const storage: TranslationStrings = {
   'storage.source.built-in': 'Intégré',
   'storage.source.env': 'Environnement',
   'storage.source.settings': 'Paramètres',
-  'storage.type.local': 'Local',
+  'storage.type.local': 'Local', // same-as-en
   'storage.type.s3': 'S3',
   'storage.type.mirror': 'Miroir',
   'storage.actions.test': 'Tester',
@@ -53,7 +53,7 @@ const storage: TranslationStrings = {
   'storage.form.addTitle': 'Ajouter un backend',
   'storage.form.editTitle': 'Modifier le backend',
   'storage.form.name': 'Nom',
-  'storage.form.type': 'Type',
+  'storage.form.type': 'Type', // same-as-en
   'storage.form.apply': 'Appliquer',
   'storage.form.cancel': 'Annuler',
   'storage.form.duplicateName': 'Un backend nommé {name} existe déjà',

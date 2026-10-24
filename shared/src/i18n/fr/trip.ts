@@ -1,8 +1,8 @@
 import type { TranslationStrings } from '../types';
 
 const trip: TranslationStrings = {
-  'trip.tabs.plan': 'Plan',
-  'trip.tabs.transports': 'Transports',
+  'trip.tabs.plan': 'Plan', // same-as-en
+  'trip.tabs.transports': 'Transports', // same-as-en
   'trip.tabs.reservations': 'Réservations',
   'trip.tabs.reservationsShort': 'Résa',
   'trip.tabs.packing': 'Liste de bagages',
@@ -16,7 +16,7 @@ const trip: TranslationStrings = {
   'trip.loadingSteps.pack': 'On fait les valises...',
   'trip.loadingSteps.road': 'On prend la route...',
   'trip.loadingSteps.arrive': 'On y est presque...',
-  'trip.mobilePlan': 'Plan',
+  'trip.mobilePlan': 'Plan', // same-as-en
   'trip.mobilePlaces': 'Lieux',
   'trip.panelWidth': 'Largeur du panneau',
   'trip.toast.placeUpdated': 'Lieu mis à jour',
@@ -58,11 +58,11 @@ const trip: TranslationStrings = {
   'transit.swap': 'Inverser',
   'transit.depart': 'Départ',
   'transit.arrive': 'Arrivée',
-  'transit.mode.rail': 'Train',
+  'transit.mode.rail': 'Train', // same-as-en
   'transit.mode.subway': 'Métro',
   'transit.mode.tram': 'Tramway',
-  'transit.mode.bus': 'Bus',
-  'transit.mode.ferry': 'Ferry',
+  'transit.mode.bus': 'Bus', // same-as-en
+  'transit.mode.ferry': 'Ferry', // same-as-en
   'transit.mode.cable': 'Téléphérique',
   'transit.pref.best': 'Meilleur itinéraire',
   'transit.pref.transfers': 'Moins de correspondances',
@@ -72,7 +72,7 @@ const trip: TranslationStrings = {
   'transit.searchError': "Échec de la recherche d'itinéraire. Veuillez réessayer.",
   'transit.noResultsVia': "Aucune liaison trouvée via {provider}. Essayez une autre heure ou d'autres filtres.",
   'transit.noResults': "Aucune connexion trouvée. Essayez un autre horaire ou d'autres filtres.",
-  'transit.direct': 'Direct',
+  'transit.direct': 'Direct', // same-as-en
   'transit.transfers': '{count} correspondances',
   'transit.transfers.one': '{count} correspondance',
   'transit.min': '{count} min',

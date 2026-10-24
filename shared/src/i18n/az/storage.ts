@@ -8,10 +8,10 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'Son nöqtə URL-si',
   'storage.help.endpoint':
     'S3 uyğun xidmətin əsas URL-si, məsələn, https://s3.example.com və ya http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'Giriş açarı ID-si',
   'storage.field.secretAccessKey': 'Gizli giriş açarı',
-  'storage.field.region': 'Region',
+  'storage.field.region': 'Region', // same-as-en
   'storage.help.region': 'Provayderiniz xüsusi region tələb etmirsə, standart dəyəri saxlayın.',
   'storage.field.keyPrefix': 'Açar prefiksi',
   'storage.help.keyPrefix': 'Hər obyekt açarına əlavə edilən istəyə bağlı prefiks, məsələn, trek/prod.',

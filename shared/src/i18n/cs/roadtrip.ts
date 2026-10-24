@@ -323,7 +323,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': 'Rezervace {title} nepatří k žádnému dni této cesty, proto s ní jízda nepočítá.',
   'roadtrip.bookings.loose': 'Také rezervováno na tento den',
   'roadtrip.ride.departureFlight': 'Odlet {time}',
-  'roadtrip.ride.checkIn': 'Check-in',
+  'roadtrip.ride.checkIn': 'Check-in', // same-as-en
   'roadtrip.ride.boarding': 'Nástup',
   'roadtrip.ride.missed': 'Zmeškáno',
   'roadtrip.ride.lateBy': 'zpoždění {time}',
@@ -339,10 +339,10 @@ const roadtrip: TranslationStrings = {
   'roadtrip.day.rideMissed.ferry': 'Zmeškaný trajekt',
   'roadtrip.day.rideMissed.cruise': 'Zmeškaná plavba',
   'roadtrip.day.rideMissed.bus': 'Zmeškaný autobus',
-  'roadtrip.bookend.checkOut': 'Check-out',
+  'roadtrip.bookend.checkOut': 'Check-out', // same-as-en
   'roadtrip.bookend.from': 'Začátek dne',
   'roadtrip.bookend.back': 'Nocleh',
-  'roadtrip.bookend.checkIn': 'Check-in',
+  'roadtrip.bookend.checkIn': 'Check-in', // same-as-en
   'roadtrip.bookend.afterCheckOut': 'Odjezd až po check-outu',
   'roadtrip.bookend.noVia':
     'Na trasu do ubytování ani z něj nelze přidat průjezdní bod. Přidejte tam místo toho zastávku.',

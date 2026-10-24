@@ -9,15 +9,15 @@ const system_notice: TranslationStrings = {
   'system_notice.welcome_v1.highlight_plan': 'Napi útvonalak minden utazáshoz',
   'system_notice.welcome_v1.highlight_share': 'Együttműködés utazótársakkal',
   'system_notice.welcome_v1.highlight_offline': 'Mobilon offline is működik',
-  'system_notice.dev_test_modal.title': '[Dev] Test notice',
-  'system_notice.dev_test_modal.body': 'This is a dev-only test notice.',
+  'system_notice.dev_test_modal.title': '[Dev] Teszt értesítés',
+  'system_notice.dev_test_modal.body': 'Ez egy csak fejlesztői teszt értesítés.',
   'system_notice.thank_you_support.title': 'Köszönöm, hogy a TREK-et használod',
   'system_notice.thank_you_support.body':
     'Gyors köszönet, hogy telepítetted a TREK-et — őszintén sokat jelent.\n\nEgyedül fejlesztek, és a szabadidőmben építem a TREK-et. Egy kis eszközként indult, csak a saját utazásaimhoz, és azóta őszintén lenyűgöz a közösség támogatása és érdeklődése. A TREK sok szívvel készül a részemről — de annak a sok csodálatos külső közreműködőnek is köszönhetően, akik segítettek formálni.\n\n**A TREK nyílt forráskódú és teljesen ingyenes — és ez örökre így is marad. Nincsenek fizetős csomagok, nincsenek előfizetések, nincs semmi átverés. Ígérem.**\n\nHa a TREK hasznos számodra, és szeretnéd támogatni a fejlesztését, egy kis kávé őszintén segít, hogy tovább építhessem — semmi nyomás, de minden csésze átsegít a késő éjszakákon.\n\nKöszönöm, hogy itt vagy.\n\n— Maurice',
   'system_notice.thank_you_support.highlight_opensource': '100% nyílt forráskódú a GitHubon',
   'system_notice.thank_you_support.highlight_free': 'Örökre ingyenes — soha semmi fizetős csomag',
   'system_notice.thank_you_support.highlight_community': 'A közösséggel együtt épült',
-  'system_notice.thank_you_support.cta_bmc': 'Buy Me a Coffee',
+  'system_notice.thank_you_support.cta_bmc': 'Vegyél nekem egy kávét',
   'system_notice.thank_you_support.cta_kofi': 'Támogass a Ko-fi-n',
   'system_notice.pager.prev': 'Előző értesítés',
   'system_notice.pager.next': 'Következő értesítés',
@@ -60,7 +60,7 @@ const system_notice: TranslationStrings = {
     'Saját hely-API, teljesen megtervezett autós túrák, a helyelőzményeid a te kezedben, és a dokumentumaid szinkronban.',
   'system_notice.release_notes.features_label': 'A fő újdonságok',
   'system_notice.release_notes.features_aside': 'És ez még nem minden',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
+  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
   'system_notice.release_notes.feature_places_body':
     'Az első nyílt forráskódú útitervező saját hely-API-val. 73,6 millió hely, kulcs és kvóta nélkül.',
   'system_notice.release_notes.feature_roadtrip_title': 'Autós út bővítmény',
@@ -86,7 +86,7 @@ const system_notice: TranslationStrings = {
     'A TREK ingyenes, és mindig az is marad, de a szerverek, a domainek és a sok késő éjszaka nem azok.',
   'system_notice.release_notes.support_text':
     'Ha kiérdemelt egy helyet az utazásaid között, hívj meg egy kávéra, és segíts, hogy jöhessen a következő kiadás.',
-  'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
+  'system_notice.release_notes.cta_bmc': 'Vegyél nekem egy kávét',
   'system_notice.release_notes.cta_kofi': 'Támogass a Ko-fi-n',
   'system_notice.release_notes.feature_docsync_title': 'Dokumentumszinkron',
   'system_notice.release_notes.feature_docsync_body':

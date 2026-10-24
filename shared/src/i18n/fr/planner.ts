@@ -4,7 +4,7 @@ const planner: TranslationStrings = {
   'planner.places': 'Lieux',
   'planner.bookings': 'Réservations',
   'planner.packingList': 'Liste de bagages',
-  'planner.documents': 'Documents',
+  'planner.documents': 'Documents', // same-as-en
   'planner.dayPlan': 'Plan du jour',
   'planner.reservations': 'Réservations',
   'planner.minTwoPlaces': 'Au moins 2 lieux avec coordonnées nécessaires',
@@ -33,7 +33,7 @@ const planner: TranslationStrings = {
   'planner.addPlaceShort': '+ Ajouter un lieu ou une activité',
   'planner.resPending': 'Réservation en attente',
   'planner.resConfirmed': 'Réservation confirmée',
-  'planner.notePlaceholder': 'Note…',
+  'planner.notePlaceholder': 'Note…', // same-as-en
   'planner.noteTimePlaceholder': 'Heure (facultatif)',
   'planner.noteExamplePlaceholder': 'ex. S3 à 14h30 depuis la gare centrale, ferry depuis le quai 7, pause déjeuner…',
   'planner.totalCost': 'Coût total',

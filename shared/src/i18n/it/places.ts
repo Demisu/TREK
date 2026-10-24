@@ -103,7 +103,7 @@ const places: TranslationStrings = {
   'places.timeCollision': 'Sovrapposizione di orario con:',
   'places.formWebsite': 'Sito web',
   'places.formPhone': 'Telefono',
-  'places.formEmail': 'E-mail',
+  'places.formEmail': 'E-mail', // same-as-en
   'places.hoursAdd': 'Aggiungi orari di apertura',
   'places.hoursClosed': 'Chiuso',
   'places.hoursOpens': 'apre',
@@ -146,7 +146,7 @@ const places: TranslationStrings = {
   'places.details.fact.rating': 'Valutazione',
   'places.details.fact.cuisine': 'Cucina',
   'places.details.fact.openingHours': 'Orari',
-  'places.details.fact.menu': 'Menu',
+  'places.details.fact.menu': 'Menu', // same-as-en
   'places.details.fact.outdoorSeating': "All'aperto",
   'places.details.fact.takeaway': 'Da asporto',
   'places.details.fact.delivery': 'Consegna',

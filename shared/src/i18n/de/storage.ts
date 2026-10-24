@@ -6,10 +6,10 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'Endpunkt-URL',
   'storage.help.endpoint':
     'Basis-URL des S3-kompatiblen Dienstes, z. B. https://s3.example.com oder http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'Zugriffsschlüssel-ID',
   'storage.field.secretAccessKey': 'Geheimer Zugriffsschlüssel',
-  'storage.field.region': 'Region',
+  'storage.field.region': 'Region', // same-as-en
   'storage.help.region': 'Belasse die Standardeinstellung, sofern dein Anbieter keine bestimmte Region verlangt.',
   'storage.field.keyPrefix': 'Schlüsselpräfix',
   'storage.help.keyPrefix': 'Optionales Präfix, das jedem Objektschlüssel vorangestellt wird, z. B. trek/prod.',
@@ -29,7 +29,7 @@ const storage: TranslationStrings = {
   'storage.discardAndReload': 'Meine Änderungen verwerfen und neu laden',
   'storage.configError.banner':
     'Die gespeicherten Speichereinstellungen konnten nicht geladen werden — durch Speichern werden sie ersetzt: {error}',
-  'storage.backends.title': 'Backends',
+  'storage.backends.title': 'Backends', // same-as-en
   'storage.backends.add': 'Backend hinzufügen',
   'storage.backends.usedBy': 'Verwendet von: {categories}',
   'storage.backends.unused': 'Keiner Kategorie zugewiesen',
@@ -52,7 +52,7 @@ const storage: TranslationStrings = {
   'storage.remove.stillAssigned': 'Noch zugewiesen zu: {categories}',
   'storage.form.addTitle': 'Backend hinzufügen',
   'storage.form.editTitle': 'Backend bearbeiten',
-  'storage.form.name': 'Name',
+  'storage.form.name': 'Name', // same-as-en
   'storage.form.type': 'Typ',
   'storage.form.apply': 'Übernehmen',
   'storage.form.cancel': 'Abbrechen',
@@ -68,7 +68,7 @@ const storage: TranslationStrings = {
   'storage.category.places': 'Ortsbilder',
   'storage.category.photos-google': 'Google-Fotocache',
   'storage.category.photos-trek': 'TREK-Fotocache',
-  'storage.category.backups': 'Backups',
+  'storage.category.backups': 'Backups', // same-as-en
 
   // What each category stores — rendered under the label in the category map.
   'storage.categoryDesc.files':

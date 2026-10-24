@@ -3,7 +3,7 @@ import type { TranslationStrings } from '../types';
 const day: TranslationStrings = {
   'day.precipProb': 'Regenkans',
   'day.precipitation': 'Neerslag',
-  'day.wind': 'Wind',
+  'day.wind': 'Wind', // same-as-en
   'day.sunrise': 'Zonsopgang',
   'day.sunset': 'Zonsondergang',
   'day.hourlyForecast': 'Uurlijkse voorspelling',

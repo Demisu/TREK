@@ -88,7 +88,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.limit.rangeLabelCharge': 'Autonomia per càrrega',
   'roadtrip.limit.sectionTrip': 'Aquest viatge',
   'roadtrip.limit.sectionDriving': 'Conducció',
-  'roadtrip.limit.sectionVehicle': 'Vehicle',
+  'roadtrip.limit.sectionVehicle': 'Vehicle', // same-as-en
   'roadtrip.limit.tankLabel': 'Dipòsit',
   'roadtrip.limit.batteryLabel': 'Bateria',
   'roadtrip.limit.useLabel': 'Consum',
@@ -222,7 +222,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.poi.alongRoute': 'després de {distance}',
   'roadtrip.poi.clearResults': 'Esborra resultats',
   'roadtrip.poi.addManual': 'Afegeix manualment',
-  'roadtrip.poi.addManualShort': 'Manual',
+  'roadtrip.poi.addManualShort': 'Manual', // same-as-en
   'roadtrip.poi.manualHint':
     'La cerca de llocs no troba tots els punts de recàrrega ni totes les benzineres. Busca’n un pel nom i digues en quin punt del trajecte va.',
   'roadtrip.poi.addBetween': 'Afegeix entre',
@@ -316,7 +316,7 @@ const roadtrip: TranslationStrings = {
     'La reserva {title} no és a cap dia d’aquest viatge, així que el trajecte no la té en compte.',
   'roadtrip.bookings.loose': 'També reservat aquest dia',
   'roadtrip.ride.departureFlight': 'Sortida {time}',
-  'roadtrip.ride.checkIn': 'Check-in',
+  'roadtrip.ride.checkIn': 'Check-in', // same-as-en
   'roadtrip.ride.boarding': 'Embarcament',
   'roadtrip.ride.missed': 'Perdut',
   'roadtrip.ride.lateBy': '{time} de retard',

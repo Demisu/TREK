@@ -1,7 +1,7 @@
 import type { TranslationStrings } from '../types';
 
 const packing: TranslationStrings = {
-  'packing.actions': 'Actions',
+  'packing.actions': 'Actions', // same-as-en
   'packing.editDone': 'Terminé',
   'packing.personalEmptyHint': 'Votre liste personnelle est vide — copiez des éléments partagés ou ajoutez les vôtres.',
   'packing.assignMembers': 'Attribuer des membres',

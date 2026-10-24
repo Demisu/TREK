@@ -13,7 +13,7 @@ const reservations: TranslationStrings = {
   'reservations.summary': '{confirmed} dikonfirmasi, {pending} tertunda',
   'reservations.showFiles': 'Tampilkan File',
   'reservations.editTitle': 'Edit Reservasi',
-  'reservations.status': 'Status',
+  'reservations.status': 'Status', // same-as-en
   'reservations.datetime': 'Tanggal & Waktu',
   'reservations.startTime': 'Waktu mulai',
   'reservations.endTime': 'Waktu selesai',
@@ -41,9 +41,9 @@ const reservations: TranslationStrings = {
   'reservations.meta.trainNumber': 'No. Kereta',
   'reservations.meta.platform': 'Peron',
   'reservations.meta.seat': 'Kursi',
-  'reservations.meta.checkIn': 'Check-in',
+  'reservations.meta.checkIn': 'Check-in', // same-as-en
   'reservations.meta.checkInUntil': 'Check-in sampai',
-  'reservations.meta.checkOut': 'Check-out',
+  'reservations.meta.checkOut': 'Check-out', // same-as-en
   'reservations.meta.linkAccommodation': 'Akomodasi',
   'reservations.meta.pickAccommodation': 'Hubungkan ke akomodasi',
   'reservations.meta.noAccommodation': 'Tidak ada',
@@ -64,7 +64,7 @@ const reservations: TranslationStrings = {
   'reservations.type.tour': 'Tur',
   'reservations.type.parking': 'Parkir',
   'reservations.type.other': 'Lainnya',
-  'reservations.type.bus': 'Bus',
+  'reservations.type.bus': 'Bus', // same-as-en
   'reservations.type.ferry': 'Feri',
   'reservations.type.cable_car': 'Kereta gantung',
   'reservations.type.bicycle': 'Sepeda',
@@ -196,7 +196,7 @@ const reservations: TranslationStrings = {
   'reservations.view.cards': 'Kartu',
   'reservations.view.list': 'Daftar',
   'reservations.view.timeline': 'Linimasa',
-  'reservations.filter': 'Filter',
+  'reservations.filter': 'Filter', // same-as-en
   'reservations.searchPlaceholder': 'Cari',
   'reservations.results': '{shown} dari {total}',
   'reservations.resetFilters': 'Atur ulang filter',
@@ -214,7 +214,7 @@ const reservations: TranslationStrings = {
   'reservations.export.notes': 'Catatan',
   'reservations.resetView': 'Atur ulang tampilan',
   'reservations.group.label': 'Kelompokkan menurut',
-  'reservations.group.status': 'Status',
+  'reservations.group.status': 'Status', // same-as-en
   'reservations.group.day': 'Hari',
   'reservations.group.type': 'Jenis',
   'reservations.group.none': 'Tanpa pengelompokan',
@@ -226,7 +226,7 @@ const reservations: TranslationStrings = {
   'reservations.sort.date': 'Tanggal',
   'reservations.sort.title': 'Judul',
   'reservations.sort.type': 'Jenis',
-  'reservations.sort.status': 'Status',
+  'reservations.sort.status': 'Status', // same-as-en
   'reservations.sort.earlyFirst': 'Paling awal dulu',
   'reservations.sort.lateFirst': 'Paling akhir dulu',
   'reservations.sort.aToZ': 'A ke Z',

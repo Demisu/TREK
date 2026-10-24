@@ -9,7 +9,7 @@ const collab: TranslationStrings = {
   'collab.polls.countdownHoursMinutes': 'Zostáva {h} h {m} min',
   'collab.polls.countdownMinutes': 'Zostáva {m} min',
   'collab.polls.clearDeadline': 'Zrušiť termín',
-  'collab.tabs.chat': 'Chat',
+  'collab.tabs.chat': 'Chat', // same-as-en
   'collab.tabs.notes': 'Poznámky',
   'collab.tabs.polls': 'Ankety',
   'collab.tabs.links': 'Odkazy',

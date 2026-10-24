@@ -148,7 +148,7 @@ const tours: TranslationStrings = {
   'tours.planner.walkingShort': 'Chůze',
   'tours.planner.breaksShort': 'Pauzy',
   'tours.planner.plannedShort': 'Plánováno',
-  'tours.planner.start': 'Start',
+  'tours.planner.start': 'Start', // same-as-en
   'tours.planner.via': 'Přes',
   'tours.planner.end': 'Cíl',
   'tours.planner.moveUp': 'Posunout bod nahoru',

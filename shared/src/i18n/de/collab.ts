@@ -9,10 +9,10 @@ const collab: TranslationStrings = {
   'collab.polls.countdownHoursMinutes': 'noch {h} Std {m} Min',
   'collab.polls.countdownMinutes': 'noch {m} Min',
   'collab.polls.clearDeadline': 'Frist entfernen',
-  'collab.tabs.chat': 'Chat',
+  'collab.tabs.chat': 'Chat', // same-as-en
   'collab.tabs.notes': 'Notizen',
   'collab.tabs.polls': 'Umfragen',
-  'collab.tabs.links': 'Links',
+  'collab.tabs.links': 'Links', // same-as-en
   'collab.links.add': 'Link hinzufügen',
   'collab.chat.imageRejected': 'Nur JPEG, PNG, GIF und WebP bis 10 MB sind erlaubt',
   'collab.links.cancel': 'Abbrechen',
@@ -74,7 +74,7 @@ const collab: TranslationStrings = {
   'collab.notes.daysAgo.one': 'vor {n} T.',
   'collab.notes.categorySettings': 'Kategorien verwalten',
   'collab.notes.create': 'Erstellen',
-  'collab.notes.website': 'Website',
+  'collab.notes.website': 'Website', // same-as-en
   'collab.notes.websitePlaceholder': 'https://...',
   'collab.notes.attachFiles': 'Dateien anhängen',
   'collab.notes.noCategoriesYet': 'Noch keine Kategorien',
@@ -87,7 +87,7 @@ const collab: TranslationStrings = {
   'collab.polls.questionPlaceholder': 'Was sollen wir machen?',
   'collab.polls.markdownHint': 'Markdown wird unterstützt',
   'collab.polls.addOption': '+ Option hinzufügen',
-  'collab.polls.optionPlaceholder': 'Option {n}',
+  'collab.polls.optionPlaceholder': 'Option {n}', // same-as-en
   'collab.polls.create': 'Umfrage erstellen',
   'collab.polls.close': 'Schließen',
   'collab.polls.closed': 'Geschlossen',
@@ -96,7 +96,7 @@ const collab: TranslationStrings = {
   'collab.polls.multipleChoice': 'Mehrfachauswahl',
   'collab.polls.multiChoice': 'Mehrfachauswahl',
   'collab.polls.deadline': 'Frist',
-  'collab.polls.option': 'Option',
+  'collab.polls.option': 'Option', // same-as-en
   'collab.polls.options': 'Optionen',
   'collab.polls.delete': 'Löschen',
   'collab.polls.closedSection': 'Geschlossen',

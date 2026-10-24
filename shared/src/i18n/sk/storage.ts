@@ -8,7 +8,7 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'URL koncového bodu',
   'storage.help.endpoint':
     'Základná URL služby kompatibilnej s S3, napr. https://s3.example.com alebo http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'ID prístupového kľúča',
   'storage.field.secretAccessKey': 'Tajný prístupový kľúč',
   'storage.field.region': 'Región',
@@ -44,7 +44,7 @@ const storage: TranslationStrings = {
   'storage.type.local': 'Miestne',
   'storage.type.s3': 'S3',
   'storage.type.mirror': 'Zrkadlo',
-  'storage.actions.test': 'Test',
+  'storage.actions.test': 'Test', // same-as-en
   'storage.actions.edit': 'Upraviť',
   'storage.actions.remove': 'Odobrať',
 

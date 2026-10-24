@@ -152,7 +152,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.refuel.incomplete': 'Die Suche wurde abgeschnitten, die Strecke ist also nicht vollständig geprüft.',
   'roadtrip.refuel.failed': 'Die Ortssuche hat nicht geantwortet.',
   'roadtrip.stop.none': 'Ein Ziel',
-  'roadtrip.stay.mode.pause': 'Pause',
+  'roadtrip.stay.mode.pause': 'Pause', // same-as-en
   'roadtrip.stay.mode.night': 'Übernachten',
   'roadtrip.stay.nightAdded': 'Als Übernachtung hinzugefügt',
   'roadtrip.stay.nightAction': 'Als Übernachtung hinzufügen',
@@ -251,7 +251,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.day': 'Tag {number}',
   'roadtrip.quietDay.empty': 'Noch keine Stopps, hier ablegen',
   'roadtrip.quietDay.one': 'Bisher nur {name}, hier einen Stopp ablegen',
-  'roadtrip.leg.driveText': '{distance} in {time}',
+  'roadtrip.leg.driveText': '{distance} in {time}', // same-as-en
   'roadtrip.day.stopCount': '{count} Stopps',
   'roadtrip.day.stopCount.one': '{count} Stopp',
   'roadtrip.day.fold': 'Zuklappen',
@@ -309,7 +309,7 @@ const roadtrip: TranslationStrings = {
     'Die Buchung {title} liegt auf keinem Tag dieser Reise, deshalb plant die Fahrt nicht mit ihr.',
   'roadtrip.bookings.loose': 'Außerdem an diesem Tag gebucht',
   'roadtrip.ride.departureFlight': 'Abflug {time}',
-  'roadtrip.ride.checkIn': 'Check-in',
+  'roadtrip.ride.checkIn': 'Check-in', // same-as-en
   'roadtrip.ride.boarding': 'Einstieg',
   'roadtrip.ride.missed': 'Verpasst',
   'roadtrip.ride.lateBy': '{time} zu spät',
@@ -328,10 +328,10 @@ const roadtrip: TranslationStrings = {
   'roadtrip.day.rideMissed.ferry': 'Fähre verpasst',
   'roadtrip.day.rideMissed.cruise': 'Kreuzfahrt verpasst',
   'roadtrip.day.rideMissed.bus': 'Bus verpasst',
-  'roadtrip.bookend.checkOut': 'Check-out',
+  'roadtrip.bookend.checkOut': 'Check-out', // same-as-en
   'roadtrip.bookend.from': 'Tagesstart',
   'roadtrip.bookend.back': 'Übernachtung',
-  'roadtrip.bookend.checkIn': 'Check-in',
+  'roadtrip.bookend.checkIn': 'Check-in', // same-as-en
   'roadtrip.bookend.afterCheckOut': 'Abfahrt nach dem Check-out',
   'roadtrip.bookend.noVia':
     'Auf der Fahrt zur oder von der Unterkunft geht kein Zwischenpunkt. Füge dort stattdessen einen Stopp hinzu.',

@@ -42,7 +42,7 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.resBadge': 'Prenotazione',
   'mobileTrip.showOnMap': 'Mostra sulla mappa',
   'mobileTrip.statDocuments': '{count} file',
-  'mobileTrip.statDocuments.one': '{count} file',
+  'mobileTrip.statDocuments.one': '{count} file', // same-as-en
   'mobileTrip.statPeople': '{count} persone',
   'mobileTrip.statPeople.one': '{count} persona',
   'mobileTrip.stay': 'Soggiorno',

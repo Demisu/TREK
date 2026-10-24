@@ -6,7 +6,7 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': "URL de l'endpoint",
   'storage.help.endpoint':
     'URL base del servei compatible amb S3, p. ex. https://s3.example.com o http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': "ID de clau d'accés",
   'storage.field.secretAccessKey': "Clau d'accés secreta",
   'storage.field.region': 'Regió',
@@ -28,7 +28,7 @@ const storage: TranslationStrings = {
   'storage.discardAndReload': 'Descarta els meus canvis i torna a carregar',
   'storage.configError.banner':
     "No s'han pogut carregar els paràmetres d'emmagatzematge desats — desar-los els substituirà: {error}",
-  'storage.backends.title': 'Backends',
+  'storage.backends.title': 'Backends', // same-as-en
   'storage.backends.add': 'Afegir backend',
   'storage.backends.usedBy': 'Utilitzat per: {categories}',
   'storage.backends.unused': 'No assignat a cap categoria',
@@ -36,7 +36,7 @@ const storage: TranslationStrings = {
   'storage.source.built-in': 'Integrat',
   'storage.source.env': 'Entorn',
   'storage.source.settings': 'Configuració',
-  'storage.type.local': 'Local',
+  'storage.type.local': 'Local', // same-as-en
   'storage.type.s3': 'S3',
   'storage.type.mirror': 'Mirall',
   'storage.actions.test': 'Provar',
@@ -56,7 +56,7 @@ const storage: TranslationStrings = {
   'storage.form.apply': 'Aplicar',
   'storage.form.cancel': 'Cancel·lar',
   'storage.form.duplicateName': 'Ja existeix un backend anomenat {name}',
-  'storage.categories.title': 'Categories',
+  'storage.categories.title': 'Categories', // same-as-en
   'storage.categories.default': 'predeterminada',
   'storage.categories.reassignWarning':
     "Els objectes existents no es mouen: els objectes nous van al backend acabat d'assignar, els antics es queden on són.",

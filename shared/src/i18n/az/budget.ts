@@ -90,7 +90,7 @@ const budget: TranslationStrings = {
   'costs.table.byCategory': 'Kateqoriya',
   'costs.table.byDate': 'Gün',
   'costs.table.byPayer': 'Ödəyən',
-  'costs.table.byStatus': 'Status',
+  'costs.table.byStatus': 'Status', // same-as-en
   'costs.table.noPayer': 'Hələ ödəyən yoxdur',
   'costs.table.paid': 'Ödənilib',
   'costs.table.open': 'Açıq',

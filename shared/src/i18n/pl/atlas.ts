@@ -50,7 +50,7 @@ const atlas: TranslationStrings = {
   'atlas.cities.few': 'Miasta',
   'atlas.cities.many': 'Miast',
   'atlas.regions': 'Regionu',
-  'atlas.regions.one': 'Region',
+  'atlas.regions.one': 'Region', // same-as-en
   'atlas.regions.few': 'Regiony',
   'atlas.regions.many': 'Regionów',
   'atlas.noData': 'Brak danych o podróżach',
@@ -73,7 +73,7 @@ const atlas: TranslationStrings = {
   'atlas.northAmerica': 'Ameryka Pn.',
   'atlas.southAmerica': 'Ameryka Pd.',
   'atlas.africa': 'Afryka',
-  'atlas.oceania': 'Oceania',
+  'atlas.oceania': 'Oceania', // same-as-en
   'atlas.other': 'Inne',
   'atlas.firstVisit': 'Pierwsza podróż',
   'atlas.lastVisitLabel': 'Ostatnia podróż',

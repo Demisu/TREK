@@ -6,7 +6,7 @@ const map: TranslationStrings = {
   'map.hideConnections': 'Ocultar rutas de reservas',
   'poi.searchThisArea': 'Buscar en esta zona',
   'poi.cat.restaurants': 'Restaurantes',
-  'poi.cat.cafes': 'Cafés',
+  'poi.cat.cafes': 'Cafés', // same-as-en
   'poi.cat.bars': 'Bares y ocio nocturno',
   'poi.cat.hotels': 'Alojamiento',
   'poi.cat.sights': 'Lugares de interés',

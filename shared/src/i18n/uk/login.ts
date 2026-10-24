@@ -74,9 +74,9 @@ const login: TranslationStrings = {
   'login.demoHint': 'Спробуйте демо — реєстрація не потрібна',
   'login.passkey.signIn': 'Увійти за допомогою passkey',
   'login.passkey.failed': 'Не вдалося увійти за допомогою passkey. Спробуйте ще раз.',
-  'login.insecureCookie.title': "Login won't stick over HTTP",
+  'login.insecureCookie.title': 'Вхід не збережеться через HTTP',
   'login.insecureCookie.body':
-    'You’re connecting over plain HTTP, so your browser drops TREK’s secure session cookie — the next request fails with "Access token required". Fix: use HTTPS, or for a home-lab set COOKIE_SECURE=false.',
-  'login.insecureCookie.link': 'Open the Troubleshooting guide',
+    'Ти підключаєшся через звичайний HTTP, тому браузер відкидає захищений сеансовий cookie TREK, і наступний запит завершується помилкою «Access token required». Рішення: використай HTTPS або, для домашньої лабораторії, встанови COOKIE_SECURE=false.',
+  'login.insecureCookie.link': 'Відкрити посібник з усунення несправностей',
 };
 export default login;

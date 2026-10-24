@@ -46,7 +46,7 @@ const atlas: TranslationStrings = {
   'atlas.cities': 'Şəhər',
   'atlas.cities.one': 'Şəhər',
   'atlas.regions': 'Region',
-  'atlas.regions.one': 'Region',
+  'atlas.regions.one': 'Region', // same-as-en
   'atlas.noData': 'Hələ səyahət məlumatı yoxdur',
   'atlas.noDataHint': 'Dünya xəritənizi görmək üçün səyahət yaradın və məkanlar əlavə edin',
 

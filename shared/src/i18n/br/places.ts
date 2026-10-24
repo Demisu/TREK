@@ -89,8 +89,8 @@ const places: TranslationStrings = {
   'places.formAddressPlaceholder': 'Rua, cidade, país',
   'places.formLat': 'Latitude (ex.: -23.5505)',
   'places.formLng': 'Longitude (ex.: -46.6333)',
-  'places.formLatLabel': 'Latitude',
-  'places.formLngLabel': 'Longitude',
+  'places.formLatLabel': 'Latitude', // same-as-en
+  'places.formLngLabel': 'Longitude', // same-as-en
   'places.formCategory': 'Categoria',
   'places.noCategory': 'Sem categoria',
   'places.newCategory': 'Nova categoria',
@@ -103,7 +103,7 @@ const places: TranslationStrings = {
   'places.timeCollision': 'Sobreposição de horário com:',
   'places.formWebsite': 'Site',
   'places.formPhone': 'Telefone',
-  'places.formEmail': 'E-mail',
+  'places.formEmail': 'E-mail', // same-as-en
   'places.hoursAdd': 'Adicionar horário de funcionamento',
   'places.hoursClosed': 'Fechado',
   'places.hoursOpens': 'abre',

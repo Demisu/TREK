@@ -150,7 +150,7 @@ const budget: TranslationStrings = {
   'costs.cat.accommodation': 'Majutus',
   'costs.cat.food': 'Söök ja jook',
   'costs.cat.groceries': 'Toidukaubad',
-  'costs.cat.transport': 'Transport',
+  'costs.cat.transport': 'Transport', // same-as-en
   'costs.cat.flights': 'Lennud',
   'costs.cat.activities': 'Tegevused',
   'costs.cat.sightseeing': 'Vaatamisväärsused',

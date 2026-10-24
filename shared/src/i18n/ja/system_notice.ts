@@ -84,7 +84,7 @@ const system_notice: TranslationStrings = {
     'TREKは無料で、これからもずっと無料です。でも、サーバーやドメイン、数えきれない夜なべはタダではありません。',
   'system_notice.release_notes.support_text':
     'TREKがあなたの旅に欠かせないものになっていたら、コーヒーを一杯おごってください。次のリリースを届ける力になります。',
-  'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
+  'system_notice.release_notes.cta_bmc': 'コーヒーをおごる',
   'system_notice.release_notes.cta_kofi': 'Ko-fiで応援する',
   'system_notice.release_notes.feature_docsync_title': '書類の同期',
   'system_notice.release_notes.feature_docsync_body':

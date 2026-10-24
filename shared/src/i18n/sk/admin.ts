@@ -31,7 +31,7 @@ const admin: TranslationStrings = {
   'admin.notifications.adminWebhookPanel.testSuccess': 'Testovací webhook úspešne odoslaný',
   'admin.notifications.adminWebhookPanel.testFailed': 'Testovací webhook zlyhal',
   'admin.notifications.adminWebhookPanel.alwaysOnHint': 'Admin webhook sa spustí vždy, keď je nastavená URL',
-  'admin.notifications.adminNtfyPanel.title': 'Admin Ntfy',
+  'admin.notifications.adminNtfyPanel.title': 'Admin Ntfy', // same-as-en
   'admin.notifications.adminNtfyPanel.hint':
     'Táto téma ntfy sa používa výhradne pre admin oznámenia (napr. upozornenia na verzie). Je nezávislá od tém jednotlivých používateľov a pri nastavení sa spustí vždy.',
   'admin.notifications.adminNtfyPanel.serverLabel': 'URL servera Ntfy',
@@ -39,7 +39,7 @@ const admin: TranslationStrings = {
     'Slúži aj ako predvolený server pre ntfy oznámenia používateľov. Ponechajte prázdne pre použitie ntfy.sh. Používatelia si to môžu zmeniť vo vlastnom nastavení.',
   'admin.notifications.adminNtfyPanel.serverPlaceholder': 'https://ntfy.sh',
   'admin.notifications.adminNtfyPanel.topicLabel': 'Admin téma',
-  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts',
+  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts', // same-as-en
   'admin.notifications.adminNtfyPanel.tokenLabel': 'Prístupový token (voliteľné)',
   'admin.notifications.adminNtfyPanel.tokenCleared': 'Admin prístupový token vymazaný',
   'admin.notifications.adminNtfyPanel.saved': 'Nastavenia admin ntfy uložené',
@@ -73,7 +73,7 @@ const admin: TranslationStrings = {
   'admin.tabs.categories': 'Kategórie',
   'admin.tabs.backup': 'Zálohovanie',
   'admin.tabs.notifications': 'Oznámenia',
-  'admin.tabs.audit': 'Audit',
+  'admin.tabs.audit': 'Audit', // same-as-en
   'admin.stats.users': 'Používateľov',
   'admin.stats.users.one': 'Používateľ',
   'admin.stats.users.few': 'Používatelia',
@@ -189,7 +189,7 @@ const admin: TranslationStrings = {
     'Vlastný index TREKu a OpenStreetMap odpovedajú na každé vyhľadávanie. Tu sa volí, koho sa spýtať navyše, keď nič nenájdu: Automaticky uprednostní Google, ak existuje kľúč, potom Amap.',
   'admin.placesProvider.auto': 'Automaticky',
   'admin.placesProvider.google': 'Google Places',
-  'admin.placesProvider.amap': 'Amap (高德地图)',
+  'admin.placesProvider.amap': 'Amap (高德地图)', // same-as-en
   'admin.placesProvider.openstreetmap': 'OpenStreetMap',
   'admin.placesProvider.missingKey':
     'Zvolený poskytovateľ nemá nastavený API kľúč, takže na vyhľadávanie miest odpovedá len index TREK a OpenStreetMap.',
@@ -255,7 +255,7 @@ const admin: TranslationStrings = {
     'Zaznamenávať, ktorý výsledok vyhľadávania bol vybraný, aby bolo možné neskôr porovnať iný index miest so skutočnými vyhľadávaniami. Nič neopúšťa túto inštanciu a správca môže záznam kedykoľvek exportovať alebo odstrániť.',
   'admin.bagTracking.title': 'Sledovanie batožiny',
   'admin.bagTracking.subtitle': 'Povoliť hmotnosť a priradenie k batožine pre položky balenia',
-  'admin.collab.chat.title': 'Chat',
+  'admin.collab.chat.title': 'Chat', // same-as-en
   'admin.collab.chat.subtitle': 'Zasielanie správ v reálnom čase pri spolupráci na ceste',
   'admin.collab.notes.title': 'Poznámky',
   'admin.collab.notes.subtitle': 'Zdieľané poznámky a dokumenty',
@@ -359,7 +359,7 @@ const admin: TranslationStrings = {
   'admin.plugins.uninstallBody':
     'Tým sa plugin zastaví, odstráni sa jeho kód a odstránia sa všetky jeho dáta. Túto akciu nie je možné vrátiť späť.',
   'admin.plugins.status.starting': 'Spúšťa sa…',
-  'admin.plugins.type.widget': 'Widget',
+  'admin.plugins.type.widget': 'Widget', // same-as-en
   'admin.plugins.type.page': 'Stránka',
   'admin.plugins.type.integration': 'Integrácia',
   'admin.plugins.type.trip-page': 'Stránka cesty',
@@ -704,7 +704,7 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.mcp.description': 'Model Context Protocol pre integráciu AI asistenta',
   'admin.addons.subtitleBefore': 'Zapnite alebo vypnite funkcie a prispôsobte si zážitok z ',
   'admin.addons.subtitleAfter': '.',
-  'admin.addons.catalog.naver_list_import.name': 'Naver List Import',
+  'admin.addons.catalog.naver_list_import.name': 'Import zoznamu z Naveru',
   'admin.addons.catalog.naver_list_import.description': 'Importujte miesta zo zdieľaného zoznamu Naver Maps',
   'admin.addons.catalog.airtrail.name': 'AirTrail',
   'admin.addons.catalog.airtrail.description': 'Synchronizujte lety zo svojej inštancie AirTrail',

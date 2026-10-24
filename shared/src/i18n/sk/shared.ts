@@ -11,7 +11,7 @@ const shared: TranslationStrings = {
   'shared.tabBookings': 'Rezervácie',
   'shared.tabPacking': 'Balenie',
   'shared.tabBudget': 'Náklady',
-  'shared.tabChat': 'Chat',
+  'shared.tabChat': 'Chat', // same-as-en
   'shared.days': 'dní',
   'shared.places': 'miest',
   'shared.places.one': 'miesto',

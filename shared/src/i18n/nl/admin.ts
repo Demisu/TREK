@@ -22,7 +22,7 @@ const admin: TranslationStrings = {
   'admin.tabs.users': 'Gebruikers',
   'admin.tabs.categories': 'Categorieën',
   'admin.tabs.backup': 'Back-up',
-  'admin.tabs.audit': 'Audit',
+  'admin.tabs.audit': 'Audit', // same-as-en
   'admin.stats.users': 'Gebruikers',
   'admin.stats.users.one': 'Gebruiker',
   'admin.stats.trips': 'Reizen',
@@ -136,7 +136,7 @@ const admin: TranslationStrings = {
     'De eigen index van TREK en OpenStreetMap beantwoorden elke zoekopdracht. Hier kies je wie er nog meer wordt gevraagd als zij niets vinden: Automatisch geeft de voorkeur aan Google als er een sleutel is, daarna Amap.',
   'admin.placesProvider.auto': 'Automatisch',
   'admin.placesProvider.google': 'Google Places',
-  'admin.placesProvider.amap': 'Amap (高德地图)',
+  'admin.placesProvider.amap': 'Amap (高德地图)', // same-as-en
   'admin.placesProvider.openstreetmap': 'OpenStreetMap',
   'admin.placesProvider.missingKey':
     'Voor de gekozen aanbieder is geen API-sleutel ingesteld, dus plaatszoeken wordt alleen door de TREK-index en OpenStreetMap beantwoord.',
@@ -145,7 +145,7 @@ const admin: TranslationStrings = {
   'admin.keyValid': 'Verbonden',
   'admin.keyInvalid': 'Ongeldig',
   'admin.keySaved': 'API-sleutels opgeslagen',
-  'admin.oidcTitle': 'Single Sign-On (OIDC)',
+  'admin.oidcTitle': 'Single Sign-On (OIDC)', // same-as-en
   'admin.oidcSubtitle': 'Sta inloggen toe via externe providers zoals Google, Apple, Authentik of Keycloak.',
   'admin.oidcDisplayName': 'Weergavenaam',
   'admin.oidcIssuer': 'Issuer-URL',
@@ -204,11 +204,11 @@ const admin: TranslationStrings = {
     'Vastleggen welk zoekresultaat is gekozen, zodat een andere plaatsindex later aan echte zoekopdrachten kan worden getoetst. Er verlaat niets deze instantie en een beheerder kan het logboek altijd exporteren of verwijderen.',
   'admin.bagTracking.title': 'Bagagetracking',
   'admin.bagTracking.subtitle': 'Gewicht en bagagetoewijzing inschakelen voor paklijstitems',
-  'admin.collab.chat.title': 'Chat',
+  'admin.collab.chat.title': 'Chat', // same-as-en
   'admin.collab.chat.subtitle': 'Realtime berichten voor reissamenwerking',
   'admin.collab.notes.title': 'Notities',
   'admin.collab.notes.subtitle': 'Gedeelde notities en documenten',
-  'admin.collab.polls.title': 'Polls',
+  'admin.collab.polls.title': 'Peilingen',
   'admin.collab.polls.subtitle': 'Groepspolls en stemmen',
   'admin.collab.whatsnext.title': 'Wat nu',
   'admin.collab.whatsnext.subtitle': 'Activiteitssuggesties en volgende stappen',
@@ -226,8 +226,8 @@ const admin: TranslationStrings = {
   'admin.packingTemplates.create': 'Nieuw sjabloon',
   'admin.packingTemplates.namePlaceholder': 'Sjabloonnaam (bijv. Strandvakantie)',
   'admin.packingTemplates.empty': 'Nog geen sjablonen aangemaakt',
-  'admin.packingTemplates.items': 'items',
-  'admin.packingTemplates.items.one': 'item',
+  'admin.packingTemplates.items': 'items', // same-as-en
+  'admin.packingTemplates.items.one': 'item', // same-as-en
   'admin.packingTemplates.categories': 'categorieën',
   'admin.packingTemplates.categories.one': 'categorie',
   'admin.packingTemplates.itemName': 'Itemnaam',
@@ -243,7 +243,7 @@ const admin: TranslationStrings = {
   'admin.packingTemplates.deleteItemError': 'Item verwijderen mislukt',
   'admin.packingTemplates.saveError': 'Fout bij opslaan',
   'admin.tabs.addons': 'Add-ons',
-  'admin.tabs.plugins': 'Plugins',
+  'admin.tabs.plugins': 'Plugins', // same-as-en
   'admin.tabs.storage': 'Opslag',
   'admin.plugins.rescan': 'Opnieuw scannen',
   'admin.plugins.rescanned': 'Pluginmap opnieuw gescand',
@@ -289,18 +289,18 @@ const admin: TranslationStrings = {
   'admin.plugins.uninstallBody':
     'Dit stopt de plugin, verwijdert de code en wist alle bijbehorende gegevens. Dit kan niet ongedaan worden gemaakt.',
   'admin.plugins.status.starting': 'Wordt gestart…',
-  'admin.plugins.type.widget': 'Widget',
+  'admin.plugins.type.widget': 'Widget', // same-as-en
   'admin.plugins.type.page': 'Pagina',
   'admin.plugins.type.integration': 'Integratie',
   'admin.plugins.type.trip-page': 'Reispagina',
   'admin.plugins.reviewed': 'Beoordeeld',
   'admin.plugins.unreviewed': 'Niet beoordeeld',
   'admin.plugins.updated': 'Plugin bijgewerkt',
-  'admin.plugins.updateTo': 'Update → v{version}',
+  'admin.plugins.updateTo': 'Update → v{version}', // same-as-en
   'admin.plugins.enabledToggle': 'Plugin inschakelen',
   'plugins.notFound': 'Plugin niet gevonden',
   'plugins.frameLoadFailed': 'Deze plug-in kon niet worden geladen.',
-  'admin.plugins.title': 'Plugins',
+  'admin.plugins.title': 'Plugins', // same-as-en
   'admin.plugins.subtitle': 'Installeer en beheer plugins van derden op je instantie.',
   'admin.plugins.disabledTitle': 'Plugins zijn uitgeschakeld',
   'admin.plugins.disabledBody':
@@ -314,7 +314,7 @@ const admin: TranslationStrings = {
   'admin.plugins.status.disabled': 'Uitgeschakeld',
   'admin.plugins.status.error': 'Fout',
   'admin.plugins.status.incompatible': 'Incompatibel',
-  'admin.plugins.details': 'Details',
+  'admin.plugins.details': 'Details', // same-as-en
   'admin.plugins.detailError': 'Kan plugindetails niet laden.',
   'admin.plugins.permissionsTitle': 'Machtigingen',
   'admin.plugins.noPermissions': 'Deze plugin vraagt geen speciale machtigingen aan.',
@@ -326,7 +326,7 @@ const admin: TranslationStrings = {
   'admin.plugins.fieldRequired': 'Verplicht',
   'admin.plugins.sourceRepo': 'Broncoderepository',
   'admin.plugins.reportIssue': 'Probleem melden',
-  'admin.plugins.homepage': 'Homepage',
+  'admin.plugins.homepage': 'Startpagina',
   'admin.plugins.requiresTrek': 'Vereist TREK {version}+',
   'admin.plugins.reviewedOn': 'Beoordeeld op {date}',
   'admin.plugins.perm.db:own': 'Eigen gegevens opslaan in een geïsoleerde database',
@@ -500,8 +500,8 @@ const admin: TranslationStrings = {
   'admin.plugins.runtimeOn': 'Runtime aan',
   'admin.plugins.tabDiscover': 'Ontdekken',
   'admin.plugins.searchPlaceholder': 'Plugins zoeken…',
-  'admin.plugins.filterType': 'Type',
-  'admin.plugins.filterStatus': 'Status',
+  'admin.plugins.filterType': 'Type', // same-as-en
+  'admin.plugins.filterStatus': 'Status', // same-as-en
   'admin.plugins.sortBy': 'Sorteren',
   'admin.plugins.allTypes': 'Alle typen',
   'admin.plugins.allStatuses': 'Alle',
@@ -602,13 +602,13 @@ const admin: TranslationStrings = {
   'admin.plugins.incompatible': 'Niet compatibel',
   'admin.plugins.accessTitle': 'Waartoe hij toegang heeft',
   'admin.plugins.connectsTitle': 'Maakt verbinding met',
-  'admin.plugins.detailsTitle': 'Details',
+  'admin.plugins.detailsTitle': 'Details', // same-as-en
   'admin.plugins.noAccess': 'Heeft geen speciale toegang nodig.',
   'admin.plugins.metaVersion': 'Versie',
   'admin.plugins.metaSize': 'Grootte',
   'admin.plugins.metaRequires': 'Vereist',
   'admin.plugins.metaReviewed': 'Beoordeeld op',
-  'admin.plugins.downloads': 'Downloads',
+  'admin.plugins.downloads': 'Downloads', // same-as-en
   'admin.addons.title': 'Add-ons',
   'admin.addons.subtitle': 'Schakel functies in of uit om je TREK-ervaring aan te passen.',
   'admin.addons.catalog.memories.name': "Foto's (Immich)",
@@ -634,7 +634,7 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.tours.description': 'Wandelingen, fietstochten en andere tochten langs een route',
   'admin.addons.subtitleBefore': 'Schakel functies in of uit om je ',
   'admin.addons.subtitleAfter': '-ervaring aan te passen.',
-  'admin.addons.catalog.naver_list_import.name': 'Naver List Import',
+  'admin.addons.catalog.naver_list_import.name': 'Naver-lijstimport',
   'admin.addons.catalog.naver_list_import.description': 'Importeer plaatsen uit een gedeelde Naver Maps-lijst',
   'admin.addons.catalog.airtrail.name': 'AirTrail',
   'admin.addons.catalog.airtrail.description': 'Synchroniseer vluchten vanuit je AirTrail-instantie',
@@ -710,7 +710,7 @@ const admin: TranslationStrings = {
   'admin.mcpTokens.deleteError': 'Token kon niet worden verwijderd',
   'admin.mcpTokens.loadError': 'Tokens konden niet worden geladen',
   'admin.oauthSessions.sectionTitle': 'OAuth-sessies',
-  'admin.oauthSessions.clientName': 'Client',
+  'admin.oauthSessions.clientName': 'Client', // same-as-en
   'admin.oauthSessions.owner': 'Eigenaar',
   'admin.oauthSessions.scopes': 'Rechten',
   'admin.oauthSessions.created': 'Aangemaakt',
@@ -734,11 +734,11 @@ const admin: TranslationStrings = {
   'admin.audit.col.action': 'Actie',
   'admin.audit.col.resource': 'Bron',
   'admin.audit.col.ip': 'IP',
-  'admin.audit.col.details': 'Details',
+  'admin.audit.col.details': 'Details', // same-as-en
   'admin.github.title': 'Release-geschiedenis',
   'admin.github.subtitle': 'Laatste updates van {repo}',
   'admin.github.latest': 'Nieuwste',
-  'admin.github.prerelease': 'Pre-release',
+  'admin.github.prerelease': 'Pre-release', // same-as-en
   'admin.github.showDetails': 'Details tonen',
   'admin.github.hideDetails': 'Details verbergen',
   'admin.github.loadMore': 'Meer laden',
@@ -769,9 +769,9 @@ const admin: TranslationStrings = {
   'admin.update.wikiLink': 'Open de updatehandleiding',
   'admin.update.reloadHint': 'Herlaad de pagina over een paar seconden.',
   'admin.tabs.permissions': 'Rechten',
-  'admin.notifications.emailPanel.title': 'Email (SMTP)',
+  'admin.notifications.emailPanel.title': 'E-mail (SMTP)',
   'admin.notifications.webhookPanel.title': 'Webhook',
-  'admin.notifications.webPushPanel.title': 'Web Push',
+  'admin.notifications.webPushPanel.title': 'Webpush',
   'admin.notifications.webPushPanel.hint':
     'Laat gebruikers via de browser meldingen ontvangen op hun telefoons en computers, ook als TREK gesloten is. Vereist HTTPS; op iPhone en iPad moet TREK aan het beginscherm worden toegevoegd.',
   'admin.notifications.inappPanel.title': 'In-App',
@@ -799,7 +799,7 @@ const admin: TranslationStrings = {
     'Wordt ook gebruikt als standaardserver voor ntfy-meldingen van gebruikers. Laat leeg om ntfy.sh te gebruiken. Gebruikers kunnen dit aanpassen in hun eigen instellingen.',
   'admin.notifications.adminNtfyPanel.serverPlaceholder': 'https://ntfy.sh',
   'admin.notifications.adminNtfyPanel.topicLabel': 'Admin-onderwerp',
-  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts',
+  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts', // same-as-en
   'admin.notifications.adminNtfyPanel.tokenLabel': 'Toegangstoken (optioneel)',
   'admin.notifications.adminNtfyPanel.tokenCleared': 'Admin-toegangstoken gewist',
   'admin.notifications.adminNtfyPanel.saved': 'Admin-Ntfy-instellingen opgeslagen',
@@ -863,10 +863,10 @@ const admin: TranslationStrings = {
   'admin.defaultSettings.cartoKey': 'Gedeelde CARTO-sleutel',
   'admin.defaultSettings.cartoKeyHint':
     'Wordt gebruikt voor elke gebruiker die nog geen eigen sleutel heeft ingevoerd, zo krijgt de hele instantie CARTO-tegels zonder watermerk. Versleuteld opgeslagen.',
-  'admin.group.users': 'Users',
-  'admin.group.config': 'Configuration',
-  'admin.group.integration': 'Integrations',
-  'admin.group.maintenance': 'Maintenance',
+  'admin.group.users': 'Gebruikers',
+  'admin.group.config': 'Configuratie',
+  'admin.group.integration': 'Integraties',
+  'admin.group.maintenance': 'Onderhoud',
   'admin.invite.tripLabel': 'Toevoegen aan reis (optioneel)',
   'admin.invite.tripNone': 'Geen reis',
   'admin.invite.tripHint':

@@ -20,7 +20,7 @@ const day: TranslationStrings = {
   'day.checkInUntil': "Jusqu'à",
   'day.checkOut': 'Départ',
   'day.openStayBooking': 'Ouvrir la réservation',
-  'day.confirmation': 'Confirmation',
+  'day.confirmation': 'Confirmation', // same-as-en
   'day.editAccommodation': "Modifier l'hébergement",
   'day.reservations': 'Réservations',
 };

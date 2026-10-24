@@ -13,7 +13,7 @@ const budget: TranslationStrings = {
   'budget.categoryName': 'Nome da categoria',
   'budget.addCategory': 'Adicionar categoria',
   'budget.table.name': 'Nome',
-  'budget.table.total': 'Total',
+  'budget.table.total': 'Total', // same-as-en
   'budget.table.persons': 'Pessoas',
   'budget.table.days': 'Dias',
   'budget.table.perPerson': 'Por pessoa',
@@ -24,7 +24,7 @@ const budget: TranslationStrings = {
   'budget.newEntry': 'Novo lançamento',
   'budget.defaultEntry': 'Novo lançamento',
   'budget.defaultCategory': 'Nova categoria',
-  'budget.total': 'Total',
+  'budget.total': 'Total', // same-as-en
   'budget.totalBudget': 'Orçamento total',
   'budget.byCategory': 'Por categoria',
   'budget.editTooltip': 'Clique para editar',
@@ -77,7 +77,7 @@ const budget: TranslationStrings = {
   'costs.table.byCategory': 'Categoria',
   'costs.table.byDate': 'Dia',
   'costs.table.byPayer': 'Pagador',
-  'costs.table.byStatus': 'Status',
+  'costs.table.byStatus': 'Status', // same-as-en
   'costs.table.noPayer': 'Sem pagador ainda',
   'costs.table.paid': 'Pago',
   'costs.table.open': 'Em aberto',

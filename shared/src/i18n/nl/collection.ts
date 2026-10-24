@@ -36,8 +36,8 @@ const collection: TranslationStrings = {
   'collections.changeCover': 'Omslag wijzigen',
   'collections.description': 'Beschrijving',
   'collections.descriptionPlaceholder': 'Voeg een beschrijving toe…',
-  'collections.links': 'Links',
-  'collections.linkLabel': 'Label',
+  'collections.links': 'Links', // same-as-en
+  'collections.linkLabel': 'Label', // same-as-en
   'collections.addLink': 'Link toevoegen',
   'collections.addDetails': 'Details toevoegen',
   'collections.addPlace': 'Plaats toevoegen',
@@ -183,8 +183,8 @@ const collection: TranslationStrings = {
   'collections.file.doneIntoDuplicates.one': '{count} toegevoegd aan {name}, {duplicates} stonden er al in',
   'collections.file.doneIntoNothing': 'Alle plekken uit het bestand staan al in {name}',
   'collections.file.change': 'Wijzigen',
-  'collections.file.labelCount': '{count} labels',
-  'collections.file.labelCount.one': '{count} label',
+  'collections.file.labelCount': '{count} labels', // same-as-en
+  'collections.file.labelCount.one': '{count} label', // same-as-en
   'collections.file.hint':
     'De plekken komen binnen als een nieuwe eigen lijst. Beoordelingen, leden en geüploade foto’s blijven achter.',
   'collections.file.done': '{count} plekken geïmporteerd',
@@ -250,7 +250,7 @@ const collection: TranslationStrings = {
   'collections.widget.empty': 'Nog geen opgeslagen plekken',
   'collections.widget.savedCount': '{count} opgeslagen',
   'collections.widget.savedCount.one': '{count} opgeslagen',
-  'collections.labels.title': 'Labels',
+  'collections.labels.title': 'Labels', // same-as-en
   'collections.labels.manage': 'Labels beheren',
   'collections.labels.add': 'Label toevoegen',
   'collections.labels.name': 'Labelnaam',

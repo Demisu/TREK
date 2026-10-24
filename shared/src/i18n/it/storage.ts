@@ -6,7 +6,7 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'URL endpoint',
   'storage.help.endpoint':
     'URL di base del servizio compatibile con S3, es. https://s3.example.com o http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'ID chiave di accesso',
   'storage.field.secretAccessKey': 'Chiave di accesso segreta',
   'storage.field.region': 'Regione',
@@ -39,7 +39,7 @@ const storage: TranslationStrings = {
   'storage.source.settings': 'Impostazioni',
   'storage.type.local': 'Locale',
   'storage.type.s3': 'S3',
-  'storage.type.mirror': 'Mirror',
+  'storage.type.mirror': 'Mirror', // same-as-en
   'storage.actions.test': 'Testa',
   'storage.actions.edit': 'Modifica',
   'storage.actions.remove': 'Rimuovi',

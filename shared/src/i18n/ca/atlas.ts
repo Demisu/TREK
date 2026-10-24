@@ -16,7 +16,7 @@ const atlas: TranslationStrings = {
   'atlas.visitedCountries': 'Països visitats',
   'atlas.cities': 'Ciutats',
   'atlas.cities.one': 'Ciutat',
-  'atlas.regions': 'Regions',
+  'atlas.regions': 'Regions', // same-as-en
   'atlas.regions.one': 'Regió',
   'atlas.noData': 'Encara no hi ha dades de viatge',
   'atlas.noDataHint': 'Crea un viatge i afegeix llocs per veure el teu mapa del món',
@@ -35,7 +35,7 @@ const atlas: TranslationStrings = {
   'atlas.northAmerica': 'Amèrica del Nord',
   'atlas.southAmerica': 'Amèrica del Sud',
   'atlas.africa': 'Àfrica',
-  'atlas.oceania': 'Oceania',
+  'atlas.oceania': 'Oceania', // same-as-en
   'atlas.other': 'Altres',
   'atlas.firstVisit': 'Primer viatge',
   'atlas.lastVisitLabel': 'Darrer viatge',

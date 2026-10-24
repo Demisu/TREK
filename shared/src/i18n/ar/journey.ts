@@ -71,93 +71,93 @@ const journey: TranslationStrings = {
   'journey.picker.noAlbums': 'لم يتم العثور على ألبومات',
   'journey.picker.selectDate': 'اختر تاريخ',
   'journey.picker.search': 'بحث',
-  'journey.title': 'Journey', // en-fallback
-  'journey.subtitle': 'Track your travels as they happen', // en-fallback
-  'journey.new': 'New Journey', // en-fallback
+  'journey.title': 'يوميات',
+  'journey.subtitle': 'وثّق رحلاتك أولًا بأول',
+  'journey.new': 'يوميات جديدة',
   'journey.lightbox.zoomIn': 'تكبير',
   'journey.lightbox.zoomOut': 'تصغير',
   'journey.lightbox.zoomReset': 'العودة إلى الصورة كاملة',
   'journey.lightbox.previous': 'الصورة السابقة',
   'journey.lightbox.next': 'الصورة التالية',
-  'journey.create': 'Create', // en-fallback
-  'journey.titlePlaceholder': 'Where are you going?', // en-fallback
-  'journey.empty': 'No journeys yet', // en-fallback
-  'journey.emptyHint': 'Start documenting your next trip', // en-fallback
-  'journey.deleted': 'Journey deleted', // en-fallback
-  'journey.createError': 'Could not create journey', // en-fallback
-  'journey.deleteError': 'Could not delete journey', // en-fallback
-  'journey.deleteConfirmTitle': 'Delete', // en-fallback
-  'journey.deleteConfirmMessage': 'Delete "{title}"? This cannot be undone.', // en-fallback
-  'journey.deleteConfirmGeneric': 'Are you sure you want to delete this?', // en-fallback
-  'journey.notFound': 'Journey not found', // en-fallback
-  'journey.photos': 'Photos', // en-fallback
-  'journey.timelineEmpty': 'No stops yet', // en-fallback
-  'journey.timelineEmptyHint': 'Add a check-in or write a journal entry to get started', // en-fallback
-  'journey.status.draft': 'Draft', // en-fallback
-  'journey.status.active': 'Active', // en-fallback
-  'journey.status.completed': 'Completed', // en-fallback
-  'journey.status.upcoming': 'Upcoming', // en-fallback
-  'journey.checkin.add': 'Check in', // en-fallback
-  'journey.checkin.namePlaceholder': 'Location name', // en-fallback
-  'journey.checkin.notesPlaceholder': 'Notes (optional)', // en-fallback
-  'journey.checkin.save': 'Save', // en-fallback
-  'journey.checkin.error': 'Could not save check-in', // en-fallback
-  'journey.entry.add': 'Journal', // en-fallback
-  'journey.entry.edit': 'Edit entry', // en-fallback
-  'journey.entry.titlePlaceholder': 'Title (optional)', // en-fallback
-  'journey.entry.bodyPlaceholder': 'What happened today?', // en-fallback
-  'journey.entry.save': 'Save', // en-fallback
-  'journey.entry.error': 'Could not save entry', // en-fallback
-  'journey.photo.add': 'Photo', // en-fallback
-  'journey.photo.uploadError': 'Upload failed', // en-fallback
-  'journey.share.share': 'Share', // en-fallback
-  'journey.share.public': 'Public', // en-fallback
-  'journey.share.linkCopied': 'Public link copied', // en-fallback
-  'journey.share.disabled': 'Public sharing disabled', // en-fallback
-  'journey.editor.titlePlaceholder': 'Give this moment a name...', // en-fallback
-  'journey.editor.bodyPlaceholder': 'Tell the story of this day...', // en-fallback
-  'journey.editor.placePlaceholder': 'Location (optional)', // en-fallback
-  'journey.editor.tagsPlaceholder': 'Tags: hidden gem, best meal, must revisit...', // en-fallback
-  'journey.visibility.private': 'Private', // en-fallback
-  'journey.visibility.shared': 'Shared', // en-fallback
-  'journey.visibility.public': 'Public', // en-fallback
-  'journey.emptyState.title': 'Your story starts here', // en-fallback
-  'journey.emptyState.subtitle': 'Check in at a place or write your first journal entry', // en-fallback
-  'journey.frontpage.subtitle': "Turn your trips into stories you'll never forget", // en-fallback
-  'journey.frontpage.createJourney': 'Create Journey', // en-fallback
-  'journey.frontpage.activeJourney': 'Active Journey', // en-fallback
+  'journey.create': 'إنشاء',
+  'journey.titlePlaceholder': 'إلى أين أنت ذاهب؟',
+  'journey.empty': 'لا توجد يوميات بعد',
+  'journey.emptyHint': 'ابدأ بتوثيق رحلتك القادمة',
+  'journey.deleted': 'تم حذف اليوميات',
+  'journey.createError': 'تعذّر إنشاء اليوميات',
+  'journey.deleteError': 'تعذّر حذف اليوميات',
+  'journey.deleteConfirmTitle': 'حذف',
+  'journey.deleteConfirmMessage': 'هل تريد حذف "{title}"؟ لا يمكن التراجع عن ذلك.',
+  'journey.deleteConfirmGeneric': 'هل أنت متأكد أنك تريد حذف هذا؟',
+  'journey.notFound': 'لم يتم العثور على اليوميات',
+  'journey.photos': 'الصور',
+  'journey.timelineEmpty': 'لا توجد محطات بعد',
+  'journey.timelineEmptyHint': 'أضف تسجيل وصول أو اكتب تدوينة للبدء',
+  'journey.status.draft': 'مسودة',
+  'journey.status.active': 'نشطة',
+  'journey.status.completed': 'مكتملة',
+  'journey.status.upcoming': 'قادمة',
+  'journey.checkin.add': 'تسجيل وصول',
+  'journey.checkin.namePlaceholder': 'اسم الموقع',
+  'journey.checkin.notesPlaceholder': 'ملاحظات (اختياري)',
+  'journey.checkin.save': 'حفظ',
+  'journey.checkin.error': 'تعذّر حفظ تسجيل الوصول',
+  'journey.entry.add': 'تدوينة',
+  'journey.entry.edit': 'تعديل التدوينة',
+  'journey.entry.titlePlaceholder': 'العنوان (اختياري)',
+  'journey.entry.bodyPlaceholder': 'ماذا حدث اليوم؟',
+  'journey.entry.save': 'حفظ',
+  'journey.entry.error': 'تعذّر حفظ التدوينة',
+  'journey.photo.add': 'صورة',
+  'journey.photo.uploadError': 'فشل الرفع',
+  'journey.share.share': 'مشاركة',
+  'journey.share.public': 'عام',
+  'journey.share.linkCopied': 'تم نسخ الرابط العام',
+  'journey.share.disabled': 'تم تعطيل المشاركة العامة',
+  'journey.editor.titlePlaceholder': 'أعطِ هذه اللحظة اسمًا...',
+  'journey.editor.bodyPlaceholder': 'احكِ قصة هذا اليوم...',
+  'journey.editor.placePlaceholder': 'الموقع (اختياري)',
+  'journey.editor.tagsPlaceholder': 'وسوم: جوهرة خفية، أفضل وجبة، يستحق العودة...',
+  'journey.visibility.private': 'خاص',
+  'journey.visibility.shared': 'مشترك',
+  'journey.visibility.public': 'عام',
+  'journey.emptyState.title': 'قصتك تبدأ هنا',
+  'journey.emptyState.subtitle': 'سجّل وصولك إلى مكان أو اكتب أول تدوينة',
+  'journey.frontpage.subtitle': 'حوّل رحلاتك إلى قصص لا تُنسى',
+  'journey.frontpage.createJourney': 'إنشاء يوميات',
+  'journey.frontpage.activeJourney': 'اليوميات النشطة',
   'journey.frontpage.latestJourney': 'أحدث رحلة',
-  'journey.frontpage.allJourneys': 'All Journeys', // en-fallback
+  'journey.frontpage.allJourneys': 'كل اليوميات',
   'journey.frontpage.journeys': 'رحلة',
   'journey.frontpage.journeys.zero': 'رحلات',
   'journey.frontpage.journeys.one': 'رحلة',
   'journey.frontpage.journeys.two': 'رحلتان',
   'journey.frontpage.journeys.few': 'رحلات',
   'journey.frontpage.journeys.many': 'رحلة',
-  'journey.frontpage.createNew': 'Create a new Journey', // en-fallback
-  'journey.frontpage.createNewSub': 'Pick trips, write stories, share your adventures', // en-fallback
-  'journey.frontpage.live': 'Live', // en-fallback
-  'journey.frontpage.synced': 'Synced', // en-fallback
-  'journey.frontpage.continueWriting': 'Continue writing', // en-fallback
-  'journey.frontpage.updated': 'Updated {time}', // en-fallback
-  'journey.frontpage.suggestionLabel': 'Trip just ended', // en-fallback
-  'journey.frontpage.suggestionText': 'Turn <strong>{title}</strong> into a Journey', // en-fallback
-  'journey.frontpage.dismiss': 'Dismiss', // en-fallback
+  'journey.frontpage.createNew': 'إنشاء يوميات جديدة',
+  'journey.frontpage.createNewSub': 'اختر الرحلات، اكتب القصص، وشارك مغامراتك',
+  'journey.frontpage.live': 'مباشر',
+  'journey.frontpage.synced': 'متزامنة',
+  'journey.frontpage.continueWriting': 'أكمل الكتابة',
+  'journey.frontpage.updated': 'تم التحديث {time}',
+  'journey.frontpage.suggestionLabel': 'انتهت الرحلة للتو',
+  'journey.frontpage.suggestionText': 'حوّل <strong>{title}</strong> إلى يوميات',
+  'journey.frontpage.dismiss': 'تجاهل',
   'journey.frontpage.dismissError': 'تعذر تجاهل هذا الاقتراح',
-  'journey.frontpage.journeyName': 'Journey Name', // en-fallback
-  'journey.frontpage.namePlaceholder': 'e.g. Southeast Asia 2026', // en-fallback
-  'journey.frontpage.selectTrips': 'Select Trips', // en-fallback
-  'journey.frontpage.tripsSelected': 'trips selected', // en-fallback
-  'journey.frontpage.trips': 'trips', // en-fallback
-  'journey.frontpage.placesImported': 'places will be imported', // en-fallback
+  'journey.frontpage.journeyName': 'اسم اليوميات',
+  'journey.frontpage.namePlaceholder': 'مثال: جنوب شرق آسيا 2026',
+  'journey.frontpage.selectTrips': 'اختر الرحلات',
+  'journey.frontpage.tripsSelected': 'رحلات محددة',
+  'journey.frontpage.trips': 'رحلات',
+  'journey.frontpage.placesImported': 'أماكن سيتم استيرادها',
   'journey.frontpage.places': 'مكان',
   'journey.frontpage.places.zero': 'أماكن',
   'journey.frontpage.places.one': 'مكان',
   'journey.frontpage.places.two': 'مكانان',
   'journey.frontpage.places.few': 'أماكن',
   'journey.frontpage.places.many': 'مكانًا',
-  'journey.detail.syncedWithTrips': 'Synced with Trips', // en-fallback
-  'journey.detail.addEntry': 'Add Entry', // en-fallback
+  'journey.detail.syncedWithTrips': 'متزامنة مع الرحلات',
+  'journey.detail.addEntry': 'إضافة تدوينة',
   'journey.detail.jumpToTop': 'العودة إلى الأعلى',
   'journey.detail.jumpToLast': 'الانتقال إلى آخر مدخل',
   'journey.detail.dayJump': 'الانتقال إلى يوم',
@@ -167,103 +167,103 @@ const journey: TranslationStrings = {
   'journey.detail.dayJumpCount.two': 'يومان',
   'journey.detail.dayJumpCount.few': '{count} أيام',
   'journey.detail.dayJumpCount.many': '{count} يومًا',
-  'journey.detail.newEntry': 'New Entry', // en-fallback
-  'journey.detail.editEntry': 'Edit Entry', // en-fallback
-  'journey.detail.noEntries': 'No entries yet', // en-fallback
-  'journey.detail.noEntriesHint': 'Add a trip to get started with skeleton entries', // en-fallback
-  'journey.detail.noPhotos': 'No photos yet', // en-fallback
-  'journey.detail.noPhotosHint': 'Upload photos to entries or browse your Immich/Synology library', // en-fallback
-  'journey.detail.journeyTab': 'Journey', // en-fallback
-  'journey.detail.journeyStats': 'Journey Stats', // en-fallback
-  'journey.detail.syncedTrips': 'Synced Trips', // en-fallback
-  'journey.detail.noTripsLinked': 'No trips linked yet', // en-fallback
-  'journey.detail.contributors': 'Contributors', // en-fallback
-  'journey.detail.readMore': 'Read more', // en-fallback
-  'journey.detail.prosCons': 'Pros & Cons', // en-fallback
-  'journey.stats.days': 'Days', // en-fallback
-  'journey.stats.cities': 'Cities', // en-fallback
-  'journey.stats.entries': 'Entries', // en-fallback
-  'journey.stats.photos': 'Photos', // en-fallback
-  'journey.stats.places': 'Places', // en-fallback
-  'journey.verdict.lovedIt': 'Loved it', // en-fallback
-  'journey.verdict.couldBeBetter': 'Could be better', // en-fallback
+  'journey.detail.newEntry': 'تدوينة جديدة',
+  'journey.detail.editEntry': 'تعديل التدوينة',
+  'journey.detail.noEntries': 'لا توجد تدوينات بعد',
+  'journey.detail.noEntriesHint': 'أضف رحلة للبدء بتدوينات أولية',
+  'journey.detail.noPhotos': 'لا توجد صور بعد',
+  'journey.detail.noPhotosHint': 'ارفع صورًا إلى التدوينات أو تصفّح مكتبة Immich/Synology',
+  'journey.detail.journeyTab': 'اليوميات',
+  'journey.detail.journeyStats': 'إحصائيات اليوميات',
+  'journey.detail.syncedTrips': 'الرحلات المتزامنة',
+  'journey.detail.noTripsLinked': 'لا توجد رحلات مرتبطة بعد',
+  'journey.detail.contributors': 'المساهمون',
+  'journey.detail.readMore': 'اقرأ المزيد',
+  'journey.detail.prosCons': 'الإيجابيات والسلبيات',
+  'journey.stats.days': 'الأيام',
+  'journey.stats.cities': 'المدن',
+  'journey.stats.entries': 'التدوينات',
+  'journey.stats.photos': 'الصور',
+  'journey.stats.places': 'الأماكن',
+  'journey.verdict.lovedIt': 'أعجبني كثيرًا',
+  'journey.verdict.couldBeBetter': 'كان يمكن أن يكون أفضل',
   'journey.synced.places': 'مكان',
   'journey.synced.places.zero': 'أماكن',
   'journey.synced.places.one': 'مكان',
   'journey.synced.places.two': 'مكانان',
   'journey.synced.places.few': 'أماكن',
   'journey.synced.places.many': 'مكانًا',
-  'journey.synced.synced': 'synced', // en-fallback
-  'journey.editor.allPhotosAdded': 'All photos already added', // en-fallback
-  'journey.editor.writeStory': 'Write your story...', // en-fallback
-  'journey.editor.prosCons': 'Pros & Cons', // en-fallback
-  'journey.editor.pros': 'Pros', // en-fallback
-  'journey.editor.cons': 'Cons', // en-fallback
-  'journey.editor.proPlaceholder': 'Something great...', // en-fallback
-  'journey.editor.conPlaceholder': 'Not so great...', // en-fallback
-  'journey.editor.date': 'Date', // en-fallback
-  'journey.editor.location': 'Location', // en-fallback
-  'journey.editor.searchLocation': 'Search location...', // en-fallback
-  'journey.editor.mood': 'Mood', // en-fallback
-  'journey.editor.weather': 'Weather', // en-fallback
-  'journey.editor.photoFirst': '1st', // en-fallback
-  'journey.mood.amazing': 'Amazing', // en-fallback
-  'journey.mood.good': 'Good', // en-fallback
-  'journey.mood.neutral': 'Neutral', // en-fallback
-  'journey.mood.rough': 'Rough', // en-fallback
-  'journey.weather.sunny': 'Sunny', // en-fallback
-  'journey.weather.partly': 'Partly cloudy', // en-fallback
-  'journey.weather.cloudy': 'Cloudy', // en-fallback
-  'journey.weather.rainy': 'Rainy', // en-fallback
-  'journey.weather.stormy': 'Stormy', // en-fallback
-  'journey.weather.cold': 'Snowy', // en-fallback
-  'journey.trips.linkTrip': 'Link Trip', // en-fallback
-  'journey.trips.searchTrip': 'Search Trip', // en-fallback
-  'journey.trips.searchPlaceholder': 'Trip name or destination...', // en-fallback
-  'journey.trips.noTripsAvailable': 'No trips available', // en-fallback
-  'journey.trips.link': 'Link', // en-fallback
-  'journey.trips.tripLinked': 'Trip linked', // en-fallback
-  'journey.trips.linkFailed': 'Failed to link trip', // en-fallback
-  'journey.trips.addTrip': 'Add Trip', // en-fallback
-  'journey.trips.unlinkTrip': 'Unlink Trip', // en-fallback
+  'journey.synced.synced': 'متزامن',
+  'journey.editor.allPhotosAdded': 'تمت إضافة كل الصور بالفعل',
+  'journey.editor.writeStory': 'اكتب قصتك...',
+  'journey.editor.prosCons': 'الإيجابيات والسلبيات',
+  'journey.editor.pros': 'الإيجابيات',
+  'journey.editor.cons': 'السلبيات',
+  'journey.editor.proPlaceholder': 'شيء رائع...',
+  'journey.editor.conPlaceholder': 'ليس رائعًا تمامًا...',
+  'journey.editor.date': 'التاريخ',
+  'journey.editor.location': 'الموقع',
+  'journey.editor.searchLocation': 'ابحث عن موقع...',
+  'journey.editor.mood': 'المزاج',
+  'journey.editor.weather': 'الطقس',
+  'journey.editor.photoFirst': 'الأولى',
+  'journey.mood.amazing': 'رائع',
+  'journey.mood.good': 'جيد',
+  'journey.mood.neutral': 'عادي',
+  'journey.mood.rough': 'صعب',
+  'journey.weather.sunny': 'مشمس',
+  'journey.weather.partly': 'غائم جزئيًا',
+  'journey.weather.cloudy': 'غائم',
+  'journey.weather.rainy': 'ماطر',
+  'journey.weather.stormy': 'عاصف',
+  'journey.weather.cold': 'مثلج',
+  'journey.trips.linkTrip': 'ربط رحلة',
+  'journey.trips.searchTrip': 'البحث عن رحلة',
+  'journey.trips.searchPlaceholder': 'اسم الرحلة أو الوجهة...',
+  'journey.trips.noTripsAvailable': 'لا توجد رحلات متاحة',
+  'journey.trips.link': 'ربط',
+  'journey.trips.tripLinked': 'تم ربط الرحلة',
+  'journey.trips.linkFailed': 'فشل ربط الرحلة',
+  'journey.trips.addTrip': 'إضافة رحلة',
+  'journey.trips.unlinkTrip': 'فك ارتباط الرحلة',
   'journey.trips.unlinkMessage':
-    'Unlink "{title}"? All synced entries and photos from this trip will be permanently deleted. This cannot be undone.', // en-fallback
-  'journey.trips.unlink': 'Unlink', // en-fallback
-  'journey.trips.tripUnlinked': 'Trip unlinked', // en-fallback
-  'journey.trips.unlinkFailed': 'Failed to unlink trip', // en-fallback
-  'journey.trips.noTripsLinkedSettings': 'No trips linked', // en-fallback
-  'journey.contributors.invite': 'Invite Contributor', // en-fallback
-  'journey.contributors.searchUser': 'Search User', // en-fallback
-  'journey.contributors.searchPlaceholder': 'Username or email...', // en-fallback
-  'journey.contributors.noUsers': 'No users found', // en-fallback
-  'journey.contributors.role': 'Role', // en-fallback
-  'journey.contributors.added': 'Contributor added', // en-fallback
-  'journey.contributors.addFailed': 'Failed to add contributor', // en-fallback
-  'journey.contributors.remove': 'Remove contributor', // en-fallback
-  'journey.contributors.removeConfirm': 'Remove {username} from this journey?', // en-fallback
-  'journey.contributors.removed': 'Contributor removed', // en-fallback
-  'journey.contributors.removeFailed': 'Failed to remove contributor', // en-fallback
+    'هل تريد فك ارتباط "{title}"؟ سيتم حذف كل التدوينات والصور المتزامنة من هذه الرحلة نهائيًا. لا يمكن التراجع عن ذلك.',
+  'journey.trips.unlink': 'فك الارتباط',
+  'journey.trips.tripUnlinked': 'تم فك ارتباط الرحلة',
+  'journey.trips.unlinkFailed': 'فشل فك ارتباط الرحلة',
+  'journey.trips.noTripsLinkedSettings': 'لا توجد رحلات مرتبطة',
+  'journey.contributors.invite': 'دعوة مساهم',
+  'journey.contributors.searchUser': 'البحث عن مستخدم',
+  'journey.contributors.searchPlaceholder': 'اسم المستخدم أو البريد الإلكتروني...',
+  'journey.contributors.noUsers': 'لم يتم العثور على مستخدمين',
+  'journey.contributors.role': 'الدور',
+  'journey.contributors.added': 'تمت إضافة المساهم',
+  'journey.contributors.addFailed': 'فشلت إضافة المساهم',
+  'journey.contributors.remove': 'إزالة المساهم',
+  'journey.contributors.removeConfirm': 'هل تريد إزالة {username} من هذه اليوميات؟',
+  'journey.contributors.removed': 'تمت إزالة المساهم',
+  'journey.contributors.removeFailed': 'فشلت إزالة المساهم',
   'journey.contributors.viaTrips': 'عبر الرحلات',
   'journey.contributors.viaTripsHint': 'يمكنهم فتح هذه اليوميات لأن رحلة ترتبط بها. غيّر ذلك من إعدادات الرحلة.',
   'journey.contributors.viaTrip': 'عبر {trip}',
-  'journey.share.publicShare': 'Public Share', // en-fallback
-  'journey.share.createLink': 'Create share link', // en-fallback
-  'journey.share.linkCreated': 'Share link created', // en-fallback
-  'journey.share.createFailed': 'Failed to create link', // en-fallback
-  'journey.share.timeline': 'Timeline', // en-fallback
-  'journey.share.gallery': 'Gallery', // en-fallback
-  'journey.share.map': 'Map', // en-fallback
-  'journey.share.removeLink': 'Remove share link', // en-fallback
-  'journey.share.linkDeleted': 'Share link deleted', // en-fallback
-  'journey.share.deleteFailed': 'Failed to delete', // en-fallback
-  'journey.share.updateFailed': 'Failed to update', // en-fallback
-  'journey.settings.title': 'Journey Settings', // en-fallback
-  'journey.settings.coverImage': 'Cover Image', // en-fallback
-  'journey.settings.changeCover': 'Change cover', // en-fallback
-  'journey.settings.addCover': 'Add cover image', // en-fallback
-  'journey.settings.name': 'Name', // en-fallback
-  'journey.settings.subtitle': 'Subtitle', // en-fallback
-  'journey.settings.subtitlePlaceholder': 'e.g. Thailand, Vietnam & Cambodia', // en-fallback
+  'journey.share.publicShare': 'مشاركة عامة',
+  'journey.share.createLink': 'إنشاء رابط مشاركة',
+  'journey.share.linkCreated': 'تم إنشاء رابط المشاركة',
+  'journey.share.createFailed': 'فشل إنشاء الرابط',
+  'journey.share.timeline': 'الخط الزمني',
+  'journey.share.gallery': 'المعرض',
+  'journey.share.map': 'الخريطة',
+  'journey.share.removeLink': 'إزالة رابط المشاركة',
+  'journey.share.linkDeleted': 'تم حذف رابط المشاركة',
+  'journey.share.deleteFailed': 'فشل الحذف',
+  'journey.share.updateFailed': 'فشل التحديث',
+  'journey.settings.title': 'إعدادات اليوميات',
+  'journey.settings.coverImage': 'صورة الغلاف',
+  'journey.settings.changeCover': 'تغيير الغلاف',
+  'journey.settings.addCover': 'إضافة صورة غلاف',
+  'journey.settings.name': 'الاسم',
+  'journey.settings.subtitle': 'العنوان الفرعي',
+  'journey.settings.subtitlePlaceholder': 'مثال: تايلاند وفيتنام وكمبوديا',
   'journey.settings.tracks': 'مسارات GPX',
   'journey.settings.recordings': 'الأيام المسجلة',
   'journey.settings.showTripTracks': 'إظهار جميع مسارات GPX للرحلات',
@@ -279,47 +279,47 @@ const journey: TranslationStrings = {
   'journey.settings.photoLocation': 'تحديد موقع الإدخالات من صورها',
   'journey.settings.photoLocationHint':
     'يأخذ الإدخال الذي بلا مكان موقع أول صورة له تحمل GPS. لا تُنقل الأماكن التي حددتها بنفسك أبدًا.',
-  'journey.settings.delete': 'Delete', // en-fallback
-  'journey.settings.deleteJourney': 'Delete Journey', // en-fallback
-  'journey.settings.deleteMessage': 'Delete "{title}"? All entries and photos will be lost.', // en-fallback
-  'journey.settings.saved': 'Settings saved', // en-fallback
-  'journey.settings.saveFailed': 'Failed to save', // en-fallback
-  'journey.settings.coverUpdated': 'Cover updated', // en-fallback
-  'journey.settings.coverFailed': 'Upload failed', // en-fallback
-  'journey.public.notFound': 'Not Found', // en-fallback
-  'journey.public.notFoundMessage': "This journey doesn't exist or the link has expired.", // en-fallback
-  'journey.public.readOnly': 'Read-only · Public Journey', // en-fallback
-  'journey.public.tagline': 'Travel Resource & Exploration Kit', // en-fallback
-  'journey.public.sharedVia': 'Shared via', // en-fallback
-  'journey.public.madeWith': 'Made with', // en-fallback
-  'journey.pdf.journeyBook': 'Journey Book', // en-fallback
-  'journey.pdf.madeWith': 'Made with TREK', // en-fallback
-  'journey.pdf.day': 'Day', // en-fallback
-  'journey.pdf.theEnd': 'The End', // en-fallback
-  'journey.pdf.saveAsPdf': 'Save as PDF', // en-fallback
-  'journey.pdf.pages': 'pages', // en-fallback
-  'journey.editor.externalPhotos': 'External photos', // en-fallback
-  'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
-  'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback
-  'journey.editor.externalPhotosNoLocation': 'All photos from this day', // en-fallback
-  'journey.editor.externalPhotosQueued': 'queued', // en-fallback
-  'journey.editor.externalPhotosUnavailable': 'No connected photo providers are available.', // en-fallback
-  'journey.editor.externalPhotosPartialFailed': '{failed} photo groups failed — save again to retry', // en-fallback
-  'journey.picker.day': 'This day', // en-fallback
-  'journey.studio.title': 'TREK Studio', // en-fallback
-  'journey.studio.open': 'Studio', // en-fallback
-  'journey.studio.openAria': 'Open the photo book studio', // en-fallback
-  'journey.studio.backToJourney': 'Back to the journey', // en-fallback
-  'journey.studio.format': 'Page format', // en-fallback
-  'journey.studio.formatA4Landscape': 'A4 landscape', // en-fallback
-  'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
-  'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
-  'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
+  'journey.settings.delete': 'حذف',
+  'journey.settings.deleteJourney': 'حذف اليوميات',
+  'journey.settings.deleteMessage': 'هل تريد حذف "{title}"؟ ستفقد كل التدوينات والصور.',
+  'journey.settings.saved': 'تم حفظ الإعدادات',
+  'journey.settings.saveFailed': 'فشل الحفظ',
+  'journey.settings.coverUpdated': 'تم تحديث الغلاف',
+  'journey.settings.coverFailed': 'فشل الرفع',
+  'journey.public.notFound': 'غير موجود',
+  'journey.public.notFoundMessage': 'هذه اليوميات غير موجودة أو انتهت صلاحية الرابط.',
+  'journey.public.readOnly': 'للقراءة فقط، يوميات عامة',
+  'journey.public.tagline': 'عدّة السفر والاستكشاف',
+  'journey.public.sharedVia': 'تمت المشاركة عبر',
+  'journey.public.madeWith': 'صُنع باستخدام',
+  'journey.pdf.journeyBook': 'كتاب اليوميات',
+  'journey.pdf.madeWith': 'صُنع باستخدام TREK',
+  'journey.pdf.day': 'اليوم',
+  'journey.pdf.theEnd': 'النهاية',
+  'journey.pdf.saveAsPdf': 'حفظ بصيغة PDF',
+  'journey.pdf.pages': 'صفحات',
+  'journey.editor.externalPhotos': 'صور خارجية',
+  'journey.editor.externalPhotosFor': 'صور يوم {date}',
+  'journey.editor.externalPhotosNearby': 'الصور القريبة أولًا',
+  'journey.editor.externalPhotosNoLocation': 'كل صور هذا اليوم',
+  'journey.editor.externalPhotosQueued': 'في قائمة الانتظار',
+  'journey.editor.externalPhotosUnavailable': 'لا يوجد مزوّدو صور متصلون.',
+  'journey.editor.externalPhotosPartialFailed': 'فشلت {failed} مجموعات صور، احفظ مرة أخرى لإعادة المحاولة',
+  'journey.picker.day': 'هذا اليوم',
+  'journey.studio.title': 'TREK Studio',
+  'journey.studio.open': 'الاستوديو',
+  'journey.studio.openAria': 'فتح استوديو ألبوم الصور',
+  'journey.studio.backToJourney': 'العودة إلى اليوميات',
+  'journey.studio.format': 'حجم الصفحة',
+  'journey.studio.formatA4Landscape': 'A4 أفقي',
+  'journey.studio.formatA4Portrait': 'A4 عمودي',
+  'journey.studio.formatSquare21': 'مربع 21 × 21 سم',
+  'journey.studio.formatSquare30': 'مربع 30 × 30 سم',
   'journey.studio.pages': 'الصفحات',
-  'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.autoLayout': 'Auto layout', // en-fallback
-  'journey.studio.export': 'Export', // en-fallback
+  'journey.studio.cover': 'الغلاف',
+  'journey.studio.inspectorEmpty': 'حدّد عنصرًا في الصفحة لتعديله.',
+  'journey.studio.autoLayout': 'تخطيط تلقائي',
+  'journey.studio.export': 'تصدير',
   'journey.studio.day': 'اليوم {day}',
   'journey.studio.stations': 'المحطات',
   'journey.studio.peersHere': 'هنا',
@@ -347,97 +347,97 @@ const journey: TranslationStrings = {
   'journey.studio.exportSheetCount.two': 'ورقتان',
   'journey.studio.exportSheetCount.few': '{count} أوراق',
   'journey.studio.exportSheetCount.many': '{count} ورقة',
-  'journey.studio.undo': 'Undo', // en-fallback
-  'journey.studio.redo': 'Redo', // en-fallback
-  'journey.studio.zoomIn': 'Zoom in', // en-fallback
-  'journey.studio.zoomOut': 'Zoom out', // en-fallback
-  'journey.studio.zoomFit': 'Fit to view', // en-fallback
+  'journey.studio.undo': 'تراجع',
+  'journey.studio.redo': 'إعادة',
+  'journey.studio.zoomIn': 'تكبير',
+  'journey.studio.zoomOut': 'تصغير',
+  'journey.studio.zoomFit': 'ملاءمة العرض',
   'journey.studio.downloadSpread': 'تنزيل هذه الصفحة المزدوجة',
   'journey.studio.downloadSpreadHint': 'يحفظ تصميم هذه الصفحة كملف، بدون الصور، لمشاركته أو إعادة استخدامه',
   'journey.studio.importSpread': 'استيراد',
   'journey.studio.importSpreadHint': 'إضافة صفحة مزدوجة من ملف تصميم منزّل',
   'journey.studio.importSpreadFailed': 'هذا الملف ليس صفحة من TREK Studio',
-  'journey.studio.desktopOnly': 'Studio needs a bigger screen', // en-fallback
+  'journey.studio.desktopOnly': 'يحتاج الاستوديو إلى شاشة أكبر',
   'journey.studio.desktopOnlyHint':
-    'تصميم كتاب يحتاج مساحة للعمل، لذلك يعمل الاستوديو على سطح المكتب فقط، وكذلك إنشاء ملف PDF. كل شيء آخر في رحلتك يعمل هنا كالمعتاد.', // en-fallback
-  'journey.studio.formatA5Landscape': 'A5 landscape', // en-fallback
-  'journey.studio.bookView': 'Book view', // en-fallback
-  'journey.studio.multiple': 'Several', // en-fallback
-  'journey.studio.kind.photo': 'Photo', // en-fallback
-  'journey.studio.kind.text': 'Text', // en-fallback
-  'journey.studio.kind.shape': 'Shape', // en-fallback
-  'journey.studio.position': 'Position', // en-fallback
-  'journey.studio.width': 'W', // en-fallback
-  'journey.studio.height': 'H', // en-fallback
+    'تصميم كتاب يحتاج مساحة للعمل، لذلك يعمل الاستوديو على سطح المكتب فقط، وكذلك إنشاء ملف PDF. كل شيء آخر في يومياتك يعمل هنا كالمعتاد.',
+  'journey.studio.formatA5Landscape': 'A5 أفقي',
+  'journey.studio.bookView': 'عرض الكتاب',
+  'journey.studio.multiple': 'عدة عناصر',
+  'journey.studio.kind.photo': 'صورة',
+  'journey.studio.kind.text': 'نص',
+  'journey.studio.kind.shape': 'شكل',
+  'journey.studio.position': 'الموضع',
+  'journey.studio.width': 'العرض',
+  'journey.studio.height': 'الارتفاع',
   'journey.studio.text': 'النص',
-  'journey.studio.typography': 'Type', // en-fallback
-  'journey.studio.leading': 'Line', // en-fallback
-  'journey.studio.colour': 'Colour', // en-fallback
+  'journey.studio.typography': 'الخط',
+  'journey.studio.leading': 'التباعد',
+  'journey.studio.colour': 'اللون',
   'journey.studio.autoColour': 'تلقائي',
   'journey.studio.countryNames': 'الأسماء',
-  'journey.studio.crop': 'Crop', // en-fallback
-  'journey.studio.look': 'Look', // en-fallback
-  'journey.studio.radius': 'Corner', // en-fallback
-  'journey.studio.shape': 'Shape', // en-fallback
-  'journey.studio.arrange': 'Arrange', // en-fallback
-  'journey.studio.toFront': 'Bring to front', // en-fallback
-  'journey.studio.forward': 'Bring forward', // en-fallback
-  'journey.studio.backward': 'Send backward', // en-fallback
-  'journey.studio.toBack': 'Send to back', // en-fallback
-  'journey.studio.lock': 'Lock', // en-fallback
-  'journey.studio.unlock': 'Unlock', // en-fallback
-  'journey.studio.delete': 'Delete', // en-fallback
-  'journey.studio.pageHint': 'Page', // en-fallback
-  'journey.studio.boundHint': 'Follows the journal entry. Editing it here breaks that link.', // en-fallback
-  'journey.studio.fit.cover': 'Fill', // en-fallback
-  'journey.studio.fit.contain': 'Fit', // en-fallback
-  'journey.studio.filter.none': 'Original', // en-fallback
-  'journey.studio.filter.bw': 'Black & white', // en-fallback
-  'journey.studio.filter.warm': 'Warm', // en-fallback
-  'journey.studio.shapeKind.rect': 'Rectangle', // en-fallback
-  'journey.studio.shapeKind.ellipse': 'Ellipse', // en-fallback
-  'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
-  'journey.studio.backCover': 'Back cover', // en-fallback
-  'journey.studio.sections': 'Sections', // en-fallback
+  'journey.studio.crop': 'اقتصاص',
+  'journey.studio.look': 'المظهر',
+  'journey.studio.radius': 'الزوايا',
+  'journey.studio.shape': 'الشكل',
+  'journey.studio.arrange': 'ترتيب',
+  'journey.studio.toFront': 'إحضار إلى الأمام',
+  'journey.studio.forward': 'تقديم خطوة',
+  'journey.studio.backward': 'إرجاع خطوة',
+  'journey.studio.toBack': 'إرسال إلى الخلف',
+  'journey.studio.lock': 'قفل',
+  'journey.studio.unlock': 'إلغاء القفل',
+  'journey.studio.delete': 'حذف',
+  'journey.studio.pageHint': 'الصفحة',
+  'journey.studio.boundHint': 'يتبع التدوينة. تعديله هنا يقطع هذا الارتباط.',
+  'journey.studio.fit.cover': 'ملء',
+  'journey.studio.fit.contain': 'احتواء',
+  'journey.studio.filter.none': 'الأصلية',
+  'journey.studio.filter.bw': 'أبيض وأسود',
+  'journey.studio.filter.warm': 'دافئة',
+  'journey.studio.shapeKind.rect': 'مستطيل',
+  'journey.studio.shapeKind.ellipse': 'بيضاوي',
+  'journey.studio.focalHint': 'اسحب النقطة لاختيار ما يبقى داخل الإطار.',
+  'journey.studio.backCover': 'الغلاف الخلفي',
+  'journey.studio.sections': 'الأقسام',
   'journey.studio.content': 'المحتوى',
   'journey.studio.elements': 'العناصر',
   'journey.studio.templates': 'التخطيطات',
   'journey.studio.photos': 'الصور',
   'journey.studio.entries': 'المدخلات',
-  'journey.studio.addToPage': 'Add to this page', // en-fallback
-  'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
-  'journey.studio.untitled': 'Untitled', // en-fallback
-  'journey.studio.addTitle': 'Title', // en-fallback
-  'journey.studio.addStory': 'Story', // en-fallback
-  'journey.studio.addPlace': 'Place', // en-fallback
+  'journey.studio.addToPage': 'إضافة إلى هذه الصفحة',
+  'journey.studio.noPhotos': 'لا توجد صور في هذه اليوميات بعد.',
+  'journey.studio.untitled': 'بدون عنوان',
+  'journey.studio.addTitle': 'عنوان',
+  'journey.studio.addStory': 'قصة',
+  'journey.studio.addPlace': 'مكان',
   'journey.studio.shapes': 'الأشكال',
   'journey.studio.frames': 'إطارات',
-  'journey.studio.emptyFrame': 'Empty frame', // en-fallback
-  'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
-  'journey.studio.shapeKind.line': 'Line', // en-fallback
-  'journey.studio.styleTitle': 'Heading', // en-fallback
-  'journey.studio.styleSubtitle': 'Subheading', // en-fallback
-  'journey.studio.styleBody': 'Body text', // en-fallback
-  'journey.studio.styleCaption': 'Caption', // en-fallback
-  'journey.studio.sampleHeading': 'A heading', // en-fallback
-  'journey.studio.sampleSubheading': 'A subheading', // en-fallback
-  'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
-  'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
-  'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
-  'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
-  'journey.studio.tpl.grid4': 'Four up', // en-fallback
-  'journey.studio.tpl.grid6': 'Six up', // en-fallback
-  'journey.studio.tpl.strip': 'Strip and text', // en-fallback
-  'journey.studio.tpl.quietText': 'Text only', // en-fallback
-  'journey.studio.tpl.portraitPair': 'A pair', // en-fallback
+  'journey.studio.emptyFrame': 'إطار فارغ',
+  'journey.studio.frameHint': 'الإطار الفارغ يحدد مكان الصورة. أفلت صورة عليه من المحتوى.',
+  'journey.studio.shapeKind.line': 'خط',
+  'journey.studio.styleTitle': 'عنوان رئيسي',
+  'journey.studio.styleSubtitle': 'عنوان فرعي',
+  'journey.studio.styleBody': 'نص أساسي',
+  'journey.studio.styleCaption': 'تعليق',
+  'journey.studio.sampleHeading': 'عنوان رئيسي',
+  'journey.studio.sampleSubheading': 'عنوان فرعي',
+  'journey.studio.sampleBody': 'اكتب شيئًا عن هذا اليوم.',
+  'journey.studio.sampleCaption': 'تعليق',
+  'journey.studio.tpl.heroStory': 'صورة كبيرة وقصة',
+  'journey.studio.tpl.fullBleed': 'صورة واحدة بعرض الصفحتين',
+  'journey.studio.tpl.twoUp': 'صفحتان كاملتان',
+  'journey.studio.tpl.grid4': 'أربع صور',
+  'journey.studio.tpl.grid6': 'ست صور',
+  'journey.studio.tpl.strip': 'شريط ونص',
+  'journey.studio.tpl.quietText': 'نص فقط',
+  'journey.studio.tpl.portraitPair': 'زوج من الصور',
   'journey.studio.dropPhotoHere': 'اسحب صورتك\nوأفلتها هنا',
-  'journey.studio.searchContent': 'Search photos and entries', // en-fallback
-  'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
+  'journey.studio.searchContent': 'ابحث في الصور والتدوينات',
+  'journey.studio.noMatches': 'لا توجد نتائج مطابقة.',
   'journey.studio.quoteMark': 'علامة اقتباس',
-  'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
-  'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
-  'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
+  'journey.studio.shapeKind.rounded': 'مستطيل بزوايا مستديرة',
+  'journey.studio.shapeKind.triangle': 'مثلث',
+  'journey.studio.shapeKind.outline': 'حدود فقط',
   'journey.studio.travel': 'الرحلة',
   'journey.studio.travelEmpty': 'أرقام هذه الرحلة ليست جاهزة بعد.',
   'journey.studio.grids': 'الشبكات',
@@ -570,8 +570,8 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'حذف الصفحة',
   'journey.studio.movePageUp': 'نقل للأمام',
   'journey.studio.movePageDown': 'نقل للخلف',
-  'journey.studio.beta': 'Beta',
-  'journey.studio.addProsCons': 'Pros & Cons',
+  'journey.studio.beta': 'تجريبي',
+  'journey.studio.addProsCons': 'الإيجابيات والسلبيات',
   'journey.studio.showMarks': 'علامات',
   'journey.studio.formatCustom': 'مقاس مخصص',
   'journey.studio.document': 'المستند',

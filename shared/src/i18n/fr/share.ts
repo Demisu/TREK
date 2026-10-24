@@ -11,8 +11,8 @@ const share: TranslationStrings = {
   'share.permBookings': 'Réservations',
   'share.permPacking': 'Bagages',
   'share.permBudget': 'Coûts',
-  'share.permCollab': 'Chat',
-  'share.options': 'Options',
+  'share.permCollab': 'Chat', // same-as-en
+  'share.options': 'Options', // same-as-en
   'share.optTravelOnly': 'Trajets et hébergements uniquement',
   'share.optTravelOnlyHint':
     'Affiche uniquement les transports et hébergements, sans activités, notes de jour ni jours vides',

@@ -9,9 +9,9 @@ const collection: TranslationStrings = {
   'collections.addedNToList.few': 'Uloženo {count} do {name}',
   'collections.noOwnLists': 'Zatím nemáte žádné seznamy',
   'collections.saveToListHint': 'Duplikáty se automaticky přeskočí',
-  'collections.role.label': 'Role',
+  'collections.role.label': 'Role', // same-as-en
   'collections.role.viewer': 'Divák',
-  'collections.role.editor': 'Editor',
+  'collections.role.editor': 'Editor', // same-as-en
   'collections.role.admin': 'Správce',
   'collections.picker.allLists': 'Všechny seznamy',
   'collections.select': 'Vybrat',

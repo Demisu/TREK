@@ -31,7 +31,7 @@ const atlas: TranslationStrings = {
   'atlas.bucketWhen': 'Kdy plánujete návštěvu?',
   'atlas.bucketDuplicate': 'Už je na vašem seznamu přání',
   'atlas.statsTab': 'Statistiky',
-  'atlas.bucketTab': 'Bucket List',
+  'atlas.bucketTab': 'Wishlist',
   'atlas.addBucket': 'Přidat na Bucket List',
   'atlas.bucketNotesPlaceholder': 'Poznámky (volitelné)',
   'atlas.bucketEmpty': 'Váš seznam přání je prázdný',
@@ -44,7 +44,7 @@ const atlas: TranslationStrings = {
   'atlas.cities.one': 'Město',
   'atlas.cities.few': 'Města',
   'atlas.regions': 'Regionů',
-  'atlas.regions.one': 'Region',
+  'atlas.regions.one': 'Region', // same-as-en
   'atlas.regions.few': 'Regiony',
   'atlas.noData': 'Zatím žádná cestovatelská data',
   'atlas.noDataHint': 'Vytvořte cestu a přidejte místa, abyste viděli svou mapu světa',

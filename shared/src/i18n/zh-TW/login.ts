@@ -69,9 +69,9 @@ const login: TranslationStrings = {
   'login.demoHint': '試用演示——無需註冊',
   'login.passkey.signIn': '使用 Passkey 登入',
   'login.passkey.failed': 'Passkey 登入失敗，請重試。',
-  'login.insecureCookie.title': "Login won't stick over HTTP",
+  'login.insecureCookie.title': '透過 HTTP 無法保持登入',
   'login.insecureCookie.body':
-    'You’re connecting over plain HTTP, so your browser drops TREK’s secure session cookie — the next request fails with "Access token required". Fix: use HTTPS, or for a home-lab set COOKIE_SECURE=false.',
-  'login.insecureCookie.link': 'Open the Troubleshooting guide',
+    '你目前使用純 HTTP 連線，瀏覽器會丟棄 TREK 的安全工作階段 Cookie，下一個請求會失敗並顯示「Access token required」。解決方式：改用 HTTPS，或在家用環境中設定 COOKIE_SECURE=false。',
+  'login.insecureCookie.link': '開啟疑難排解指南',
 };
 export default login;

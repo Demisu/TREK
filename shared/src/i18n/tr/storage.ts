@@ -5,7 +5,7 @@ const storage: TranslationStrings = {
   'storage.help.root': 'Bu arka ucun nesnelerini sakladığı sunucudaki mutlak yol.',
   'storage.field.endpoint': "Uç nokta URL'si",
   'storage.help.endpoint': "S3 uyumlu hizmetin taban URL'si, örn. https://s3.example.com veya http://127.0.0.1:9000.",
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'Erişim anahtarı kimliği',
   'storage.field.secretAccessKey': 'Gizli erişim anahtarı',
   'storage.field.region': 'Bölge',

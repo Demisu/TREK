@@ -971,7 +971,7 @@ const help: TranslationStrings = {
     'Əl ilə təyin etdiyiniz status siz dəyişənə qədər qalır, səyahət tarixləri dəyişsə belə.',
 
   // ── Screen: journey-studio ─────────────────────────────────────────────────
-  'help.ctx.journey-studio.title': 'Studio',
+  'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
     'TREK Studio səyahət gündəliyini çap edilə bilən foto kitab kimi tərtib edir. Studio gündəliyin üzərində açılır: səhifələr siyahısı və məzmun solda, üzərində işlədiyiniz ikiqat səhifə ortada, onun xüsusiyyətləri isə sağdadır. «Avtomatik tərtibat» qeydlərinizdən ilk qaralamanı hazırlayır. Bundan sonra hər şeyin yerini dəyişə, kəsə və üslubunu yeniləyə bilərsiniz, hər addımı da geri almaq olar.',
   'help.ctx.journey-studio.bullet.1':
@@ -1531,7 +1531,7 @@ const help: TranslationStrings = {
     '«Ehtiyat nüsxəni yüklə» «Bərpa et» ilə eyni sualdan sonra başqa instansiyada və ya əvvəlki gündə yaradılmış fayldan bərpa edir.',
   'help.ctx.admin-backup.bullet.3':
     '«Avtomatik ehtiyat nüsxələmə»: aktiv və ya deaktiv, «İnterval», «İcra saatı» və gün, həmçinin «Köhnə ehtiyat nüsxələri bu müddətdən sonra sil» (1 gündən «Həmişə saxla»ya qədər); hamısı «Yadda saxla» ilə tətbiq olunur.',
-  'help.ctx.admin-audit.title': 'Audit',
+  'help.ctx.admin-audit.title': 'Audit', // same-as-en
   'help.ctx.admin-audit.summary':
     'Təhlükəsizlik və idarəetmə baxımından vacib hadisələrin jurnalı: girişlər və uğursuz cəhdlər, MFA dəyişiklikləri, istifadəçi və tənzimləmə dəyişiklikləri, ehtiyat nüsxələr və bərpalar. Yalnız oxumaq üçündür, ən yenilər yuxarıdadır.',
   'help.ctx.admin-audit.bullet.1':
@@ -3856,7 +3856,7 @@ const help: TranslationStrings = {
   'help.guide.files-sync.tip.3':
     '«İndi sinxronlaşdır» yanındakı ikon, «Bağlantını kəs», bir dəfə təsdiq istəyir. Sonra bağlantını bitirir və bütün sənədləri hər iki tərəfdə saxlayır. Etiketi, qovluğu və ya sahəni ikinci dəfə qoşsanız, TREK onu yeni kimi qəbul edir və içindəki hər şeyi yenidən idxal edir. Ona görə bağlantını kəsdikdən sonra köhnəsini yox, boş birini qoşun.',
   // ── Screen: trip-collab ───────────────────────────────────────────────────────────────
-  'help.ctx.trip-collab.title': 'Collab',
+  'help.ctx.trip-collab.title': 'Collab', // same-as-en
   'help.ctx.trip-collab.summary':
     'Qrupun birlikdə planlaşdırdığı bölmə beş kartdan ibarətdir: solda çat, yanında «Qeydlər» və «Linklər», onların altında «Sorğular» və «Növbədə nə var». Burada yazılan hər şey səhifəni yeniləmədən dərhal digər üzvlərin ekranında görünür.',
   'help.ctx.trip-collab.bullet.1':

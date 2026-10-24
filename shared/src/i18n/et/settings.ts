@@ -21,7 +21,7 @@ const settings: TranslationStrings = {
   'settings.pluginActivity.description': 'Kõik pluginate sinu nimel tehtud toimingud, uuemad eespool.',
   'settings.pluginActivity.empty': 'Pluginate tegevusi veel pole.',
   'settings.pluginActivity.refresh': 'Värskenda',
-  'settings.pluginActivity.columns.plugin': 'Plugin',
+  'settings.pluginActivity.columns.plugin': 'Plugin', // same-as-en
   'settings.pluginActivity.columns.action': 'Toiming',
   'settings.pluginActivity.columns.resource': 'Ressurss',
   'settings.pluginActivity.columns.when': 'Millal',
@@ -48,7 +48,7 @@ const settings: TranslationStrings = {
   'settings.mapExperimental': 'Eksperimentaalne',
   'settings.mapMapboxToken': 'Mapboxi pääsuvõti',
   'settings.mapMapboxTokenHint': 'Avalik pääsuvõti (pk.*) lehelt',
-  'settings.mapMapboxTokenLink': 'mapbox.com → Access tokens',
+  'settings.mapMapboxTokenLink': 'mapbox.com → Juurdepääsutõendid',
   'settings.mapCartoKey': 'CARTO API-võti',
   'settings.mapCartoKeyHint':
     'Ilma võtmeta näitavad CARTO aluskaardid vesimärki. Tasuta, kontot pole vaja, saadaval lehel',

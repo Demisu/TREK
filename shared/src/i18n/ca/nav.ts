@@ -13,7 +13,7 @@ const nav: TranslationStrings = {
   'nav.bottomSettings': 'Configuració',
   'nav.bottomAdmin': 'Administració',
   'nav.bottomLogout': 'Tanca la sessió',
-  'nav.bottomAdminBadge': 'Admin',
+  'nav.bottomAdminBadge': 'Admin', // same-as-en
 
   'nav.help': 'Ajuda',
 };

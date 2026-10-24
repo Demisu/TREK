@@ -51,7 +51,7 @@ const notif: TranslationStrings = {
   'notif.action.decline': 'Refuser',
   'notif.plugin.title': '{title}',
   'notif.plugin.text': '{body}',
-  'notif.generic.title': 'Notification',
+  'notif.generic.title': 'Notification', // same-as-en
   'notif.generic.text': 'Vous avez une nouvelle notification',
   'notif.dev.unknown_event.title': '[DEV] Événement inconnu',
   'notif.dev.unknown_event.text': 'Le type d\'événement "{event}" n\'est pas enregistré dans EVENT_NOTIFICATION_CONFIG',

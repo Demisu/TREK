@@ -6,7 +6,7 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'URL do endpoint',
   'storage.help.endpoint':
     'URL base do serviço compatível com S3, ex.: https://s3.example.com ou http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'ID da chave de acesso',
   'storage.field.secretAccessKey': 'Chave de acesso secreta',
   'storage.field.region': 'Região',
@@ -28,7 +28,7 @@ const storage: TranslationStrings = {
   'storage.discardAndReload': 'Descartar minhas alterações e recarregar',
   'storage.configError.banner':
     'Falha ao carregar as configurações de armazenamento salvas — salvar irá substituí-las: {error}',
-  'storage.backends.title': 'Backends',
+  'storage.backends.title': 'Backends', // same-as-en
   'storage.backends.add': 'Adicionar backend',
   'storage.backends.usedBy': 'Usado por: {categories}',
   'storage.backends.unused': 'Não atribuído a nenhuma categoria',
@@ -36,7 +36,7 @@ const storage: TranslationStrings = {
   'storage.source.built-in': 'Integrado',
   'storage.source.env': 'Ambiente',
   'storage.source.settings': 'Configurações',
-  'storage.type.local': 'Local',
+  'storage.type.local': 'Local', // same-as-en
   'storage.type.s3': 'S3',
   'storage.type.mirror': 'Espelho',
   'storage.actions.test': 'Testar',
@@ -66,7 +66,7 @@ const storage: TranslationStrings = {
   'storage.category.places': 'Imagens de locais',
   'storage.category.photos-google': 'Cache de fotos do Google',
   'storage.category.photos-trek': 'Cache de fotos do TREK',
-  'storage.category.backups': 'Backups',
+  'storage.category.backups': 'Backups', // same-as-en
 
   // What each category stores — rendered under the label in the category map.
   'storage.categoryDesc.files':

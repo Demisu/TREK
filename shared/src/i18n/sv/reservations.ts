@@ -13,7 +13,7 @@ const reservations: TranslationStrings = {
   'reservations.summary': '{confirmed} bekräftat, {pending} väntar på beslut',
   'reservations.showFiles': 'Visa filer',
   'reservations.editTitle': 'Redigera reservation',
-  'reservations.status': 'Status',
+  'reservations.status': 'Status', // same-as-en
   'reservations.datetime': 'Datum & Tid',
   'reservations.startTime': 'Starttid',
   'reservations.endTime': 'Sluttid',
@@ -68,7 +68,7 @@ const reservations: TranslationStrings = {
   'reservations.type.ferry': 'Färja',
   'reservations.type.cable_car': 'Linbana',
   'reservations.type.bicycle': 'Cyckel',
-  'reservations.type.taxi': 'Taxi',
+  'reservations.type.taxi': 'Taxi', // same-as-en
   'reservations.type.transit': 'Kollektivtrafik',
   'reservations.typeShort.transit': 'Kollektivt',
   'reservations.type.transport_other': 'Annat',
@@ -129,7 +129,7 @@ const reservations: TranslationStrings = {
   'reservations.span.dropOff': 'Inlämning',
   'reservations.span.return': 'Återlämning',
   'reservations.span.active': 'Aktiv',
-  'reservations.span.start': 'Start',
+  'reservations.span.start': 'Start', // same-as-en
   'reservations.span.end': 'Slut',
   'reservations.span.ongoing': 'Pågår',
   'reservations.validation.endBeforeStart': 'Slutdatum och -tid måste ligga efter startdatum och -tid',
@@ -212,7 +212,7 @@ const reservations: TranslationStrings = {
   'reservations.exportCsv': 'Exportera som kalkylblad (CSV)',
   'reservations.export.type': 'Typ',
   'reservations.export.title': 'Titel',
-  'reservations.export.start': 'Start',
+  'reservations.export.start': 'Start', // same-as-en
   'reservations.export.end': 'Slut',
   'reservations.export.from': 'Från',
   'reservations.export.to': 'Till',
@@ -221,7 +221,7 @@ const reservations: TranslationStrings = {
   'reservations.export.notes': 'Anteckningar',
   'reservations.resetView': 'Återställ vy',
   'reservations.group.label': 'Gruppera efter',
-  'reservations.group.status': 'Status',
+  'reservations.group.status': 'Status', // same-as-en
   'reservations.group.day': 'Dag',
   'reservations.group.type': 'Typ',
   'reservations.group.none': 'Ingen gruppering',
@@ -233,7 +233,7 @@ const reservations: TranslationStrings = {
   'reservations.sort.date': 'Datum',
   'reservations.sort.title': 'Titel',
   'reservations.sort.type': 'Typ',
-  'reservations.sort.status': 'Status',
+  'reservations.sort.status': 'Status', // same-as-en
   'reservations.sort.earlyFirst': 'Tidigast först',
   'reservations.sort.lateFirst': 'Senast först',
   'reservations.sort.aToZ': 'A till Ö',
@@ -256,7 +256,7 @@ const reservations: TranslationStrings = {
   'reservations.timeline.noneDated': 'Inget av det här har något datum än.',
   'reservations.undated': 'Inget datum',
   'reservations.nights': 'Nätter',
-  'reservations.start': 'Start',
+  'reservations.start': 'Start', // same-as-en
   'reservations.end': 'Slut',
   'reservations.rename': 'Döp om',
   'reservations.copyCode': 'Kopiera bokningskod',

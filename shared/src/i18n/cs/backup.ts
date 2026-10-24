@@ -30,7 +30,7 @@ const backup: TranslationStrings = {
   'backup.auto.subtitle': 'Automatické zálohování podle plánu',
   'backup.auto.enable': 'Povolit automatické zálohování',
   'backup.auto.enableHint': 'Zálohy budou vytvářeny automaticky podle zvoleného plánu',
-  'backup.auto.interval': 'Interval',
+  'backup.auto.interval': 'Interval', // same-as-en
   'backup.auto.hour': 'Spustit v hodinu',
   'backup.auto.hourHint': 'Místní čas serveru (formát {format})',
   'backup.auto.dayOfWeek': 'Den v týdnu',

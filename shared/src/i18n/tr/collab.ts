@@ -27,7 +27,7 @@ const collab: TranslationStrings = {
   'collab.links.open': 'Bağlantıyı aç',
   'collab.links.confirmDeleteTitle': 'Bağlantı silinsin mi?',
   'collab.links.confirmDeleteBody': 'Bu bağlantı kalıcı olarak silinecek.',
-  'collab.whatsNext.title': "What's Next",
+  'collab.whatsNext.title': 'Sırada ne var',
   'collab.whatsNext.today': 'Bugün',
   'collab.whatsNext.tomorrow': 'Yarın',
   'collab.whatsNext.empty': 'Yaklaşan etkinlik yok',

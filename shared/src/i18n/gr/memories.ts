@@ -19,7 +19,7 @@ const memories: TranslationStrings = {
   'memories.shareCount': 'Κοινή χρήση {count} φωτογραφιών',
   'memories.shareCount.one': 'Κοινή χρήση {count} φωτογραφίας',
   'memories.providerUrl': 'URL Διακομιστή',
-  'memories.providerApiKey': 'API Key',
+  'memories.providerApiKey': 'Κλειδί API',
   'memories.providerUsername': 'Όνομα χρήστη',
   'memories.providerPassword': 'Κωδικός',
   'memories.providerOTP': 'Κωδικός MFA (αν είναι ενεργοποιημένος)',

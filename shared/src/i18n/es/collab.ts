@@ -61,7 +61,7 @@ const collab: TranslationStrings = {
   'collab.notes.newCategory': 'Nueva categoría...',
   'collab.notes.category': 'Categoría',
   'collab.notes.noCategory': 'Sin categoría',
-  'collab.notes.color': 'Color',
+  'collab.notes.color': 'Color', // same-as-en
   'collab.notes.save': 'Guardar',
   'collab.notes.cancel': 'Cancelar',
   'collab.notes.edit': 'Editar',

@@ -7,7 +7,7 @@ const members: TranslationStrings = {
   'members.allHaveAccess': 'Alla användare har redan åtkomst.',
   'members.access': 'Åtkomst',
   'members.persons': 'personer',
-  'members.persons.one': 'person',
+  'members.persons.one': 'person', // same-as-en
   'members.you': 'du',
   'members.owner': 'Ägare',
   'members.leaveTrip': 'Lämna resan',

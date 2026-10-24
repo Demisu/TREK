@@ -5,7 +5,7 @@ const map: TranslationStrings = {
   'map.showConnections': 'Mostra les rutes de reserves',
   'map.hideConnections': 'Amaga les rutes de reserves',
   'poi.searchThisArea': 'Cerca en aquesta zona',
-  'poi.cat.restaurants': 'Restaurants',
+  'poi.cat.restaurants': 'Restaurants', // same-as-en
   'poi.cat.cafes': 'Cafeteries',
   'poi.cat.bars': 'Bars i oci nocturn',
   'poi.cat.hotels': 'Allotjament',

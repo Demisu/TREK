@@ -6,7 +6,7 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'عنوان URL لنقطة النهاية',
   'storage.help.endpoint':
     'عنوان URL الأساسي للخدمة المتوافقة مع S3، مثل https://s3.example.com أو http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'الحاوية (Bucket)',
   'storage.field.accessKeyId': 'معرّف مفتاح الوصول',
   'storage.field.secretAccessKey': 'مفتاح الوصول السري',
   'storage.field.region': 'المنطقة',

@@ -122,7 +122,7 @@ const dawarich: TranslationStrings = {
   'dawarich.accept.duration': '{count} min',
   'dawarich.accept.duration.one': '{count} min',
   'dawarich.accept.name': 'Nom',
-  'dawarich.accept.date': 'Date',
+  'dawarich.accept.date': 'Date', // same-as-en
   'dawarich.accept.from': 'Arrivée',
   'dawarich.accept.to': 'Départ',
   'dawarich.accept.trip': 'Voyage',
@@ -130,9 +130,9 @@ const dawarich: TranslationStrings = {
   'dawarich.accept.pickTrip': 'Choisir un voyage',
   'dawarich.accept.day': 'Jour',
   'dawarich.accept.noDay': 'Pas encore rattaché à un jour',
-  'dawarich.accept.journal': 'Journal',
+  'dawarich.accept.journal': 'Journal', // same-as-en
   'dawarich.accept.pickJournal': 'Choisir un journal',
-  'dawarich.accept.notes': 'Notes',
+  'dawarich.accept.notes': 'Notes', // same-as-en
   'dawarich.accept.story': 'Votre histoire',
   'dawarich.accept.storyPlaceholder': 'Que s’est-il passé ici ?',
   'dawarich.accept.photosHint': 'Ajoutez des photos à l’entrée une fois qu’elle est créée.',

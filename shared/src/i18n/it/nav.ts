@@ -13,7 +13,7 @@ const nav: TranslationStrings = {
   'nav.bottomSettings': 'Impostazioni',
   'nav.bottomAdmin': 'Amministrazione',
   'nav.bottomLogout': 'Disconnetti',
-  'nav.bottomAdminBadge': 'Admin',
-  'nav.help': 'Help',
+  'nav.bottomAdminBadge': 'Admin', // same-as-en
+  'nav.help': 'Aiuto',
 };
 export default nav;

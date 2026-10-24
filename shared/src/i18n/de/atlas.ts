@@ -42,7 +42,7 @@ const atlas: TranslationStrings = {
   'atlas.cities': 'Städte',
   'atlas.cities.one': 'Stadt',
   'atlas.regions': 'Regionen',
-  'atlas.regions.one': 'Region',
+  'atlas.regions.one': 'Region', // same-as-en
   'atlas.noData': 'Noch keine Reisedaten',
   'atlas.noDataHint': 'Erstelle einen Trip und füge Orte hinzu',
   'atlas.nextTrip': 'Nächster Trip',

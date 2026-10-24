@@ -3,7 +3,7 @@ import type { TranslationStrings } from '../types';
 const budget: TranslationStrings = {
   'costs.confirm.deleteTitle': 'Uitgave verwijderen?',
   'costs.confirm.deleteBody': '"{name}" wordt permanent verwijderd.',
-  'budget.title': 'Budget',
+  'budget.title': 'Budget', // same-as-en
   'budget.exportCsv': 'CSV exporteren',
   'budget.emptyTitle': 'Nog geen budget aangemaakt',
   'budget.emptyText': 'Maak categorieën en invoeren aan om je reisbudget te plannen',
@@ -78,10 +78,10 @@ const budget: TranslationStrings = {
   'costs.table.byCategory': 'Categorie',
   'costs.table.byDate': 'Dag',
   'costs.table.byPayer': 'Betaler',
-  'costs.table.byStatus': 'Status',
+  'costs.table.byStatus': 'Status', // same-as-en
   'costs.table.noPayer': 'Nog geen betaler',
   'costs.table.paid': 'Betaald',
-  'costs.table.open': 'Open',
+  'costs.table.open': 'Open', // same-as-en
   'costs.editExpense': 'Uitgave bewerken',
   'costs.noMatch': 'Geen uitgaven komen overeen met je zoekopdracht.',
   'costs.emptyText': 'Nog geen uitgaven. Voeg je eerste toe.',
@@ -121,7 +121,7 @@ const budget: TranslationStrings = {
   'costs.totalAmount': 'Totaalbedrag',
   'costs.currency': 'Valuta',
   'costs.day': 'Dag',
-  'costs.rateLabel': '1 {from} in {to}',
+  'costs.rateLabel': '1 {from} in {to}', // same-as-en
   'costs.category': 'Categorie',
   'costs.whoPaid': 'Wie heeft betaald?',
   'costs.multiplePayers': 'Meerdere personen hebben betaald',

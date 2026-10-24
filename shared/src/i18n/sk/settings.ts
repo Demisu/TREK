@@ -27,7 +27,7 @@ const settings: TranslationStrings = {
   'settings.pluginActivity.columns.when': 'Kedy',
   'settings.pluginActivity.columns.status': 'Výsledok',
   'settings.tabs.account': 'Účet',
-  'settings.tabs.offline': 'Offline',
+  'settings.tabs.offline': 'Offline', // same-as-en
   'settings.tabs.about': 'O aplikácii',
   'settings.map': 'Mapa',
   'settings.mapTemplate': 'Šablóna mapy',
@@ -64,7 +64,7 @@ const settings: TranslationStrings = {
   'settings.mapHighQuality': 'Režim vysokej kvality',
   'settings.mapHighQualityHint': 'Antialiasing + zobrazenie glóbusu pre ostrejšie hrany a realistický pohľad na svet.',
   'settings.mapHighQualityWarning': 'Môže ovplyvniť výkon na slabších zariadeniach.',
-  'settings.mapTipLabel': 'Tip:',
+  'settings.mapTipLabel': 'Tip:', // same-as-en
   'settings.mapTip':
     'kliknite pravým tlačidlom a ťahajte pre rotáciu/náklon mapy. Stredné tlačidlo pridá miesto (pravé tlačidlo je vyhradené pre rotáciu).',
   'settings.saveMap': 'Uložiť nastavenia mapy',
@@ -135,7 +135,7 @@ const settings: TranslationStrings = {
   'settings.notificationPreferences.pluginConfigured':
     'Nastavené. Prihlasovacie údaje spravujte na stránke nastavení doplnku.',
   'settings.notificationPreferences.ntfy': 'Ntfy',
-  'settings.notificationPreferences.push': 'Push',
+  'settings.notificationPreferences.push': 'Push', // same-as-en
   'settings.webPush.title': 'Push oznámenia v tomto zariadení',
   'settings.webPush.hint':
     'Zobrazuje oznámenia TREK v tomto zariadení, aj keď je TREK zatvorený. Ktoré udalosti prídu, určuje stĺpec Push.',
@@ -158,7 +158,7 @@ const settings: TranslationStrings = {
   'settings.webhookUrl.testSuccess': 'Testovací webhook bol úspešne odoslaný',
   'settings.webhookUrl.testFailed': 'Testovací webhook zlyhal',
   'settings.ntfyUrl.topicLabel': 'Téma Ntfy',
-  'settings.ntfyUrl.topicPlaceholder': 'my-trek-alerts',
+  'settings.ntfyUrl.topicPlaceholder': 'moje-trek-upozornenia',
   'settings.ntfyUrl.serverLabel': 'URL servera Ntfy (voliteľné)',
   'settings.ntfyUrl.serverPlaceholder': 'https://ntfy.sh',
   'settings.ntfyUrl.hint':
@@ -278,11 +278,11 @@ const settings: TranslationStrings = {
     'Kým plánujete svoju ďalšiu trasu, títo ľudia pomáhajú plánovať budúcnosť TREK. Ich mesačný príspevok ide priamo do vývoja a reálne strávených hodín — aby TREK zostal Open Source.',
   'settings.about.supporters.since': 'podporovateľ od {date}',
   'settings.about.supporters.tierEmpty': 'Buďte prvý',
-  'settings.about.supporter.tier.noReturnTicket': 'No Return Ticket',
-  'settings.about.supporter.tier.lostLuggageVip': 'Lost Luggage VIP',
-  'settings.about.supporter.tier.businessClassDreamer': 'Business Class Dreamer',
-  'settings.about.supporter.tier.budgetTraveller': 'Budget Traveller',
-  'settings.about.supporter.tier.hostelBunkmate': 'Hostel Bunkmate',
+  'settings.about.supporter.tier.noReturnTicket': 'Bez spiatočného lístka',
+  'settings.about.supporter.tier.lostLuggageVip': 'VIP stratená batožina',
+  'settings.about.supporter.tier.businessClassDreamer': 'Snílek z business triedy',
+  'settings.about.supporter.tier.budgetTraveller': 'Lacný cestovateľ',
+  'settings.about.supporter.tier.hostelBunkmate': 'Spolubbývajúci z hostela',
   'settings.about.description':
     'TREK je samohostovaný plánovač ciest, ktorý vám pomáha organizovať vaše cesty od prvého nápadu po poslednú spomienku. Denné plánovanie, rozpočet, zoznamy balenia, fotky a oveľa viac — všetko na jednom mieste, na vašom vlastnom serveri.',
   'settings.about.madeWith': 'Vytvorené s',
@@ -420,7 +420,7 @@ const settings: TranslationStrings = {
   'settings.aiParsing.providerAnthropic': 'Anthropic',
   'settings.aiParsing.localAdminOnly':
     'Lokálny koncový bod (Ollama) sa nastavuje raz pre celú inštanciu v nastaveniach správcu. Vlastný kľúč OpenAI alebo Anthropic tu môžete používať aj naďalej.',
-  'settings.aiParsing.model': 'Model',
+  'settings.aiParsing.model': 'Model', // same-as-en
   'settings.aiParsing.baseUrl': 'Základná URL',
   'settings.aiParsing.baseUrlHint': 'Kde model beží — lokálny server Ollama alebo koncový bod kompatibilný s OpenAI.',
   'settings.aiParsing.apiKey': 'API kľúč',
@@ -587,7 +587,7 @@ const settings: TranslationStrings = {
   'settings.offline.conflicts.strategy.ask': 'Vždy sa ma opýtať',
   'settings.offline.conflicts.strategy.mine': 'Vždy zachovať moju verziu',
   'settings.offline.conflicts.strategy.server': 'Vždy zachovať verziu zo servera',
-  'settings.offline.banner.offline': 'Offline',
+  'settings.offline.banner.offline': 'Offline', // same-as-en
   'settings.offline.banner.forced': 'Offline režim',
   'settings.offline.banner.queued': 'Offline · {count} vo fronte',
   'settings.offline.banner.queued.one': 'Offline · {count} vo fronte',
@@ -638,7 +638,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.createFailed': 'Kľúč sa nepodarilo vytvoriť',
   'settings.apiKeys.copy': 'Kopírovať',
   'settings.apiKeys.docsHint': 'Pošlite kľúč ako "Authorization: Bearer ..." alebo "X-API-Key: ..." na /api/v1.',
-  'settings.apiKeys.endpoint': 'Endpoint',
+  'settings.apiKeys.endpoint': 'Endpoint', // same-as-en
   'settings.apiKeys.neverUsed': 'nikdy nepoužitý',
   'settings.apiKeys.loadFailed': 'Vaše kľúče sa nepodarilo načítať. Obnovte stránku a skúste to znovu.',
   'settings.apiKeys.limitReached':

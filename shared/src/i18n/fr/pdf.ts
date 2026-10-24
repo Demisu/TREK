@@ -9,7 +9,7 @@ const pdf: TranslationStrings = {
   'pdf.pageBreakPerDay': 'Saut de page par jour',
   'pdf.transportNotes': 'Notes de transport',
   'pdf.mapTitle': "Aperçu de l'itinéraire",
-  'pdf.distanceLabel': 'Distance',
+  'pdf.distanceLabel': 'Distance', // same-as-en
   'pdf.mapCredit': 'Contours des pays : geoBoundaries (CC BY 4.0)',
 };
 export default pdf;

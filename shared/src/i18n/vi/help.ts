@@ -917,7 +917,7 @@ const help: TranslationStrings = {
     'Trạng thái do bạn tự đặt sẽ được giữ cho đến khi bạn đổi, kể cả khi ngày của chuyến đi thay đổi.',
 
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
-  'help.ctx.journey-studio.title': 'Studio',
+  'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
     'TREK Studio dàn trang một hành trình thành cuốn sách ảnh để in. Studio mở phía trên nhật ký: danh sách trang và nội dung ở bên trái, trang đôi bạn đang làm ở giữa, thuộc tính của nó ở bên phải. Auto layout dựng bản nháp đầu tiên từ các bài viết của bạn. Sau đó, bạn có thể di chuyển, cắt và đổi kiểu mọi thứ, và hoàn tác được từng bước.',
   'help.ctx.journey-studio.bullet.1':
@@ -1421,7 +1421,7 @@ const help: TranslationStrings = {
   'help.ctx.admin-addons.bullet.2':
     'Nhà cung cấp ảnh và nhà cung cấp tài liệu cũng hiện ở đây dưới dạng ô, để người dùng có thể dùng Immich hoặc Synology.',
   'help.ctx.admin-addons.bullet.3': '“Theo dõi túi” có công tắc riêng bên dưới các ô.',
-  'help.ctx.admin-plugins.title': 'Plugins',
+  'help.ctx.admin-plugins.title': 'Plugin',
   'help.ctx.admin-plugins.summary':
     'Các plugin bên thứ ba chạy trong tiến trình riêng bên cạnh TREK, mỗi plugin với những quyền nó yêu cầu khi cài. Bạn có thể cài từ danh mục, tải lên một gói, hoặc liên kết một thư mục khi đang phát triển plugin.',
   'help.ctx.admin-plugins.bullet.1':

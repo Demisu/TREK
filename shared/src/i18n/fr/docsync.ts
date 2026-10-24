@@ -126,7 +126,7 @@ const docsync: TranslationStrings = {
   'docsync.flow.trek': 'TREK',
   'docsync.flow.toProvider': 'Vers le fournisseur',
   'docsync.flow.toTrek': 'Depuis le fournisseur',
-  'docsync.flow.documents': 'documents',
+  'docsync.flow.documents': 'documents', // same-as-en
   'docsync.flow.summary.both': 'Les documents circulent dans les deux sens.',
   'docsync.flow.summary.pull': 'Les documents ne font qu’entrer.',
   'docsync.flow.summary.push': 'Les documents ne font que sortir.',

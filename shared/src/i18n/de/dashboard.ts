@@ -217,7 +217,7 @@ const dashboard: TranslationStrings = {
   'dashboard.confirm.copy.wont4': 'Freigabe-Tokens',
   'dashboard.confirm.copy.confirm': 'Reise kopieren',
   'dashboard.aria.toggleView': 'Ansicht wechseln',
-  'dashboard.aria.filter': 'Filter',
+  'dashboard.aria.filter': 'Filter', // same-as-en
   'dashboard.aria.duplicate': 'Duplizieren',
   'dashboard.aria.refreshRates': 'Kurse aktualisieren',
   'dashboard.aria.swapCurrencies': 'Währungen tauschen',

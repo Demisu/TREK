@@ -62,7 +62,7 @@ const system_notice: TranslationStrings = {
     'API địa điểm riêng, chuyến đi đường bộ được lên kế hoạch từ đầu đến cuối, lịch sử vị trí trong tay bạn, và tài liệu được đồng bộ.',
   'system_notice.release_notes.features_label': 'Những điểm nhấn',
   'system_notice.release_notes.features_aside': 'Chưa phải tất cả',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
+  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
   'system_notice.release_notes.feature_places_body':
     'Trình lập kế hoạch du lịch mã nguồn mở đầu tiên có API địa điểm riêng. 73,6 triệu địa điểm, không cần khóa, không giới hạn.',
   'system_notice.release_notes.feature_roadtrip_title': 'Tiện ích Chuyến đi đường bộ',
@@ -89,7 +89,7 @@ const system_notice: TranslationStrings = {
     'TREK miễn phí và sẽ luôn như vậy, nhưng máy chủ, tên miền và rất nhiều đêm thức khuya thì không.',
   'system_notice.release_notes.support_text':
     'Nếu TREK đã có một chỗ trong những chuyến đi của bạn, hãy mời tôi một ly cà phê để bản phát hành tiếp theo tiếp tục ra đời.',
-  'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
+  'system_notice.release_notes.cta_bmc': 'Mời tôi một ly cà phê',
   'system_notice.release_notes.cta_kofi': 'Hỗ trợ trên Ko-fi',
   'system_notice.release_notes.feature_docsync_title': 'Đồng bộ tài liệu',
   'system_notice.release_notes.feature_docsync_body':

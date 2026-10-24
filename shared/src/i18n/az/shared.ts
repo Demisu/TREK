@@ -8,7 +8,7 @@ const shared: TranslationStrings = {
     'Bu, linkin vaxtının bitdiyi anlamına gəlmir. İnternet bağlantınızı yoxlayın və bir azdan yenidən cəhd edin.',
   'shared.retry': 'Yenidən cəhd et',
   'shared.readOnly': 'Yalnız oxuma üçün paylaşılan görünüş',
-  'shared.tabPlan': 'Plan',
+  'shared.tabPlan': 'Plan', // same-as-en
   'shared.tabBookings': 'Rezervasiyalar',
   'shared.tabPacking': 'Baqaj',
   'shared.tabBudget': 'Xərclər',

@@ -6,7 +6,7 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'Végpont URL',
   'storage.help.endpoint':
     'Az S3-kompatibilis szolgáltatás alap URL-je, pl. https://s3.example.com vagy http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'Hozzáférési kulcs azonosító',
   'storage.field.secretAccessKey': 'Titkos hozzáférési kulcs',
   'storage.field.region': 'Régió',

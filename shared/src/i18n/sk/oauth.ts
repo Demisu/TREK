@@ -12,7 +12,7 @@ const oauth: TranslationStrings = {
   'oauth.scope.group.collab': 'Spolupráca',
   'oauth.scope.group.notifications': 'Oznámenia',
   'oauth.scope.group.vacay': 'Dovolenka',
-  'oauth.scope.group.geo': 'Geo',
+  'oauth.scope.group.geo': 'Geodáta',
   'oauth.scope.group.weather': 'Počasie',
   'oauth.scope.group.journey': 'Cestovný denník',
   'oauth.scope.trips:read.label': 'Zobraziť cesty a itineráre',

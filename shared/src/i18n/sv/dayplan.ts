@@ -40,10 +40,10 @@ const dayplan: TranslationStrings = {
   'notes.color.label': 'Färg',
   'notes.color.none': 'Ingen färg',
   'notes.color.red': 'Röd',
-  'notes.color.orange': 'Orange',
+  'notes.color.orange': 'Orange', // same-as-en
   'notes.color.amber': 'Bärnsten',
   'notes.color.green': 'Grön',
-  'notes.color.cyan': 'Cyan',
+  'notes.color.cyan': 'Cyan', // same-as-en
   'notes.color.blue': 'Blå',
   'notes.color.purple': 'Lila',
   'dayplan.totalCost': 'Totala kostnaden',

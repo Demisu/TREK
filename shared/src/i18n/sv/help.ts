@@ -19,7 +19,7 @@ const help: TranslationStrings = {
   'help.center.subScreens.one': '{count} undervy',
   'help.center.subScreensLabel': 'Undervyer',
   'help.center.guidesCount': '{count} guider',
-  'help.center.guidesCount.one': '{count} guide',
+  'help.center.guidesCount.one': '{count} guide', // same-as-en
   'help.center.goToScreen': 'Gå till {screen}',
   'help.center.overview': 'Översikt',
   'help.center.howTo': 'Hur gör jag för att…',
@@ -47,7 +47,7 @@ const help: TranslationStrings = {
   'help.center.feedbackLink': 'Berätta för oss på GitHub',
   'help.center.discord': 'Fråga på Discord',
   'help.center.quick': 'Snabb',
-  'help.center.guide': 'Guide',
+  'help.center.guide': 'Guide', // same-as-en
   'help.center.tour': 'Genomgång',
   'help.center.imageAlt': 'Steg {n} i ”{title}”',
 
@@ -703,7 +703,7 @@ const help: TranslationStrings = {
   'help.guide.all-saved.tip.1': 'Etiketter och sparade turer hör till en lista, så ingen av dem finns på Alla sparade.',
 
   // ── Screen: journey ───────────────────────────────────────────────────────────────────
-  'help.ctx.journey.title': 'Journey',
+  'help.ctx.journey.title': 'Journey', // same-as-en
   'help.ctx.journey.summary':
     'Journey är din resedagbok där fotona kommer först. Varje Journey är kopplad till en eller flera resor, och du fyller den dag för dag med inlägg med berättelse, foton, humör och väder. Här ser du alla dina Journeys, och du öppnar en för att skriva.',
   'help.ctx.journey.bullet.1':
@@ -920,7 +920,7 @@ const help: TranslationStrings = {
     'En status som du har satt för hand ligger kvar tills du ändrar den, även om resans datum ändras.',
 
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
-  'help.ctx.journey-studio.title': 'Studio',
+  'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
     'TREK Studio lägger ut en Journey som en fotobok som du kan skriva ut. Studio öppnas ovanpå dagboken: sidlistan och innehållet finns till vänster, uppslaget du arbetar med i mitten och dess egenskaper till höger. Auto layout bygger ett första utkast av dina inlägg. Därefter kan du flytta, beskära och ändra allt, och du kan ångra varje steg.',
   'help.ctx.journey-studio.bullet.1':
@@ -1115,7 +1115,7 @@ const help: TranslationStrings = {
     'MCP-konfiguration: MCP-ändpunkt och, under OAuth 2.1 Klienter, dina registrerade klienter, Klientkonfiguration att kopiera och Aktiva OAuth-sessioner med Återkalla.',
   'help.ctx.settings-integrations.bullet.4':
     'API Token: det gamla sättet att ansluta till MCP, märkt Utfasad. Använd OAuth 2.1 Klienter i stället.',
-  'help.ctx.settings-offline.title': 'Offline',
+  'help.ctx.settings-offline.title': 'Offline', // same-as-en
   'help.ctx.settings-offline.summary':
     'Vad TREK lagrar på den här enheten så att en resa går att öppna utan uppkoppling, och vad som händer när en ändring som du gjorde offline krockar med en ändring som gjordes någon annanstans.',
   'help.ctx.settings-offline.bullet.1':
@@ -1420,7 +1420,7 @@ const help: TranslationStrings = {
   'help.ctx.admin-addons.bullet.2':
     'Fotoleverantörer och dokumentleverantörer visas också som rutor här, så att Immich eller Synology kan erbjudas användarna.',
   'help.ctx.admin-addons.bullet.3': 'Spårning av väskor har ett eget reglage under rutorna.',
-  'help.ctx.admin-plugins.title': 'Plugins',
+  'help.ctx.admin-plugins.title': 'Plugin',
   'help.ctx.admin-plugins.summary':
     'Tredjepartsplugins som körs i en egen process bredvid TREK, var och en med de behörigheter som den bad om vid installationen. Installera från katalogen, ladda upp ett paket eller länka en mapp medan du utvecklar ett plugin.',
   'help.ctx.admin-plugins.bullet.1':

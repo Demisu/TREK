@@ -963,7 +963,7 @@ const help: TranslationStrings = {
     '「MCP 配置」：包含「MCP 端點」，以及「OAuth 2.1 客戶端」下你已註冊的客戶端、可複製的「客戶端配置」，還有附「撤銷」的「活躍的 OAuth 工作階段」。',
   'help.ctx.settings-integrations.bullet.4':
     '「API 令牌」：連接 MCP 的舊方式，標示為「已棄用」，請改用「OAuth 2.1 客戶端」。',
-  'help.ctx.settings-offline.title': 'Offline',
+  'help.ctx.settings-offline.title': '離線',
   'help.ctx.settings-offline.summary':
     'TREK 會在這台裝置上儲存哪些內容，讓旅行在沒有網路時也能開啟；以及離線時所做的變更與其他地方的變更衝突時，會發生什麼事。',
   'help.ctx.settings-offline.bullet.1':
@@ -2572,7 +2572,7 @@ const help: TranslationStrings = {
     '點選時也會取消傾斜。用滑鼠右鍵上下拖曳可以傾斜視角，「Reset north」則會讓地圖回正並重設旋轉。在 Mapbox GL 且開啟「3D 建築和地形」時，這也會把 3D 視圖壓平，直到你再次傾斜為止。',
 
   // ── Screen: trip-collab ───────────────────────────────────────────────────────────────
-  'help.ctx.trip-collab.title': 'Collab',
+  'help.ctx.trip-collab.title': '協作',
   'help.ctx.trip-collab.summary':
     '團體一起規劃的分頁，由五張卡片組成：左邊是聊天，旁邊是「筆記」和「連結」，下方是「投票」和「接下來」。在這裡寫下的所有內容，都會立即出現在其他每位成員的畫面上，不需要重新載入。',
   'help.ctx.trip-collab.bullet.1':

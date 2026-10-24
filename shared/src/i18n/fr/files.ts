@@ -26,8 +26,8 @@ const files: TranslationStrings = {
   'files.uploading': 'Importation…',
   'files.filterAll': 'Tous',
   'files.filterPdf': 'PDF',
-  'files.filterImages': 'Images',
-  'files.filterDocs': 'Documents',
+  'files.filterImages': 'Images', // same-as-en
+  'files.filterDocs': 'Documents', // same-as-en
   'files.filterCollab': 'Notes Collab',
   'files.sourceCollab': 'Depuis les notes Collab',
   'files.empty': 'Aucun fichier',
@@ -38,7 +38,7 @@ const files: TranslationStrings = {
   'files.toast.deleteError': 'Impossible de supprimer le fichier',
   'files.sourcePlan': 'Plan du jour',
   'files.sourceBooking': 'Réservation',
-  'files.sourceTransport': 'Transport',
+  'files.sourceTransport': 'Transport', // same-as-en
   'files.attach': 'Joindre',
   'files.pasteHint': 'Vous pouvez aussi coller des images depuis le presse-papiers (Ctrl+V)',
   'files.trash': 'Corbeille',
@@ -51,7 +51,7 @@ const files: TranslationStrings = {
   'files.assignTitle': 'Assigner le fichier',
   'files.assignPlace': 'Lieu',
   'files.assignBooking': 'Réservation',
-  'files.assignTransport': 'Transport',
+  'files.assignTransport': 'Transport', // same-as-en
   'files.unassigned': 'Non attribué',
   'files.unlink': 'Supprimer le lien',
   'files.toast.trashed': 'Déplacé dans la corbeille',
@@ -63,7 +63,7 @@ const files: TranslationStrings = {
   'files.confirm.permanentDelete': 'Supprimer définitivement ce fichier ? Cette action est irréversible.',
   'files.confirm.emptyTrash':
     'Supprimer définitivement tous les fichiers de la corbeille ? Cette action est irréversible.',
-  'files.noteLabel': 'Note',
+  'files.noteLabel': 'Note', // same-as-en
   'files.notePlaceholder': 'Ajouter une note…',
   'files.uploadNeedsConnection': 'L’envoi nécessite une connexion. Réessaie quand TREK sera de nouveau en ligne.',
   'files.linkNeedsConnection': 'Retirer ce lien nécessite une connexion. Réessaie quand TREK sera de nouveau en ligne.',

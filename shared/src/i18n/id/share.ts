@@ -11,7 +11,7 @@ const share: TranslationStrings = {
   'share.permBookings': 'Pemesanan',
   'share.permPacking': 'Bawaan',
   'share.permBudget': 'Biaya',
-  'share.permCollab': 'Chat',
+  'share.permCollab': 'Chat', // same-as-en
   'share.options': 'Opsi',
   'share.optTravelOnly': 'Hanya perjalanan & penginapan',
   'share.optTravelOnlyHint':

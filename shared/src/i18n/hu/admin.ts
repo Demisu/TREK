@@ -76,18 +76,18 @@ const admin: TranslationStrings = {
   'admin.tabs.settings': 'Beállítások',
   'admin.allowRegistration': 'Regisztráció engedélyezése',
   'admin.allowRegistrationHint': 'Új felhasználók regisztrálhatják magukat',
-  'admin.authMethods': 'Authentication Methods',
-  'admin.passwordLogin': 'Password Login',
-  'admin.passwordLoginHint': 'Allow users to sign in with email and password',
-  'admin.passwordRegistration': 'Password Registration',
-  'admin.passwordRegistrationHint': 'Allow new users to register with email and password',
-  'admin.oidcLogin': 'SSO Login',
-  'admin.oidcLoginHint': 'Allow users to sign in with SSO',
+  'admin.authMethods': 'Hitelesítési módok',
+  'admin.passwordLogin': 'Bejelentkezés jelszóval',
+  'admin.passwordLoginHint': 'A felhasználók e-maillel és jelszóval jelentkezhetnek be',
+  'admin.passwordRegistration': 'Regisztráció jelszóval',
+  'admin.passwordRegistrationHint': 'Az új felhasználók e-maillel és jelszóval regisztrálhatnak',
+  'admin.oidcLogin': 'SSO-bejelentkezés',
+  'admin.oidcLoginHint': 'A felhasználók SSO-val jelentkezhetnek be',
   'admin.oidcRegistration': 'SSO Auto-Provisioning',
-  'admin.oidcRegistrationHint': 'Automatically create accounts for new SSO users',
+  'admin.oidcRegistrationHint': 'Fiók automatikus létrehozása az új SSO-felhasználóknak',
   'admin.envOverrideHint':
-    'Password login settings are controlled by the OIDC_ONLY environment variable and cannot be changed here.',
-  'admin.lockoutWarning': 'At least one login method must remain enabled',
+    'A jelszavas bejelentkezés beállításait az OIDC_ONLY környezeti változó vezérli, itt nem módosíthatók.',
+  'admin.lockoutWarning': 'Legalább egy bejelentkezési módnak engedélyezve kell maradnia',
   'admin.requireMfa': 'Kétlépcsős hitelesítés (2FA) kötelezővé tétele',
   'admin.requireMfaHint':
     'A 2FA nélküli felhasználóknak a Beállításokban kell befejezniük a beállítást az alkalmazás használata előtt.',
@@ -135,7 +135,7 @@ const admin: TranslationStrings = {
     'A TREK saját indexe és az OpenStreetMap minden keresésre válaszol. Itt választod ki, kit kérdezünk még, ha ők nem találnak semmit: az Automatikus a Google-t részesíti előnyben, ha van kulcs, utána az Amapot.',
   'admin.placesProvider.auto': 'Automatikus',
   'admin.placesProvider.google': 'Google Places',
-  'admin.placesProvider.amap': 'Amap (高德地图)',
+  'admin.placesProvider.amap': 'Amap (高德地图)', // same-as-en
   'admin.placesProvider.openstreetmap': 'OpenStreetMap',
   'admin.placesProvider.missingKey':
     'A kiválasztott szolgáltatóhoz nincs API-kulcs beállítva, ezért a helykeresésre csak a TREK indexe és az OpenStreetMap válaszol.',
@@ -147,7 +147,7 @@ const admin: TranslationStrings = {
   'admin.oidcTitle': 'Egyszeri bejelentkezés (OIDC)',
   'admin.oidcSubtitle': 'Bejelentkezés külső szolgáltatókon keresztül, pl. Google, Apple, Authentik vagy Keycloak.',
   'admin.oidcDisplayName': 'Megjelenítendő név',
-  'admin.oidcIssuer': 'Issuer URL',
+  'admin.oidcIssuer': 'Kibocsátó URL',
   'admin.oidcIssuerHint': 'A szolgáltató OpenID Connect Issuer URL-je. pl. https://accounts.google.com',
   'admin.oidcSaved': 'OIDC konfiguráció mentve',
   'admin.oidcOnlyMode': 'Jelszavas hitelesítés letiltása',
@@ -204,7 +204,7 @@ const admin: TranslationStrings = {
     'Rögzíti, melyik találatot választották ki, hogy egy másik helyindexet később valódi kereséseken lehessen mérni. Semmi nem hagyja el ezt a példányt, és egy rendszergazda bármikor exportálhatja vagy törölheti a naplót.',
   'admin.bagTracking.title': 'Poggyászkövetés',
   'admin.bagTracking.subtitle': 'Súly- és táskahozzárendelés engedélyezése csomagolási tételeknél',
-  'admin.collab.chat.title': 'Chat',
+  'admin.collab.chat.title': 'Chat', // same-as-en
   'admin.collab.chat.subtitle': 'Valós idejű üzenetküldés az együttműködéshez',
   'admin.collab.notes.title': 'Jegyzetek',
   'admin.collab.notes.subtitle': 'Megosztott jegyzetek és dokumentumok',
@@ -289,7 +289,7 @@ const admin: TranslationStrings = {
   'admin.plugins.uninstallBody':
     'Ez leállítja a plugint, eltávolítja a kódját, és törli az összes adatát. Ez nem vonható vissza.',
   'admin.plugins.status.starting': 'Indítás…',
-  'admin.plugins.type.widget': 'Widget',
+  'admin.plugins.type.widget': 'Widget', // same-as-en
   'admin.plugins.type.page': 'Oldal',
   'admin.plugins.type.integration': 'Integráció',
   'admin.plugins.type.trip-page': 'Útvonal-oldal',
@@ -299,7 +299,7 @@ const admin: TranslationStrings = {
   'admin.plugins.updateTo': 'Frissítés → v{version}',
   'admin.plugins.enabledToggle': 'Plugin engedélyezése',
   'plugins.notFound': 'A plugin nem található',
-  'plugins.frameLoadFailed': 'This plugin could not be loaded.',
+  'plugins.frameLoadFailed': 'Ezt a bővítményt nem sikerült betölteni.',
   'admin.plugins.title': 'Pluginok',
   'admin.plugins.subtitle': 'Harmadik féltől származó pluginok telepítése és kezelése a példányodon.',
   'admin.plugins.disabledTitle': 'A pluginok le vannak tiltva',
@@ -640,7 +640,7 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.mcp.description': 'Model Context Protocol AI asszisztens integrációhoz',
   'admin.addons.subtitleBefore': 'Funkciók engedélyezése vagy letiltása a ',
   'admin.addons.subtitleAfter': ' testreszabásához.',
-  'admin.addons.catalog.naver_list_import.name': 'Naver List Import',
+  'admin.addons.catalog.naver_list_import.name': 'Naver-lista importálása',
   'admin.addons.catalog.naver_list_import.description': 'Helyek importálása megosztott Naver Maps-listából',
   'admin.addons.catalog.airtrail.name': 'AirTrail',
   'admin.addons.catalog.airtrail.description': 'Járatok szinkronizálása az AirTrail-példányodból',
@@ -700,7 +700,7 @@ const admin: TranslationStrings = {
   'admin.weather.requestsDesc': 'Ingyenes, nincs szükség API kulcsra',
   'admin.weather.locationHint':
     'Az időjárás az adott nap első koordinátákkal rendelkező helye alapján készül. Ha nincs hely hozzárendelve a naphoz, a helylista bármelyik helye szolgál referenciául.',
-  'admin.tabs.audit': 'Audit',
+  'admin.tabs.audit': 'Audit', // same-as-en
   'admin.audit.subtitle': 'Biztonsági és adminisztrációs események (mentések, felhasználók, 2FA, beállítások).',
   'admin.audit.empty': 'Még nincsenek audit bejegyzések.',
   'admin.audit.refresh': 'Frissítés',
@@ -777,7 +777,7 @@ const admin: TranslationStrings = {
   'admin.update.wikiLink': 'Frissítési útmutató megnyitása',
   'admin.update.reloadHint': 'Kérjük, töltsd újra az oldalt néhány másodperc múlva.',
   'admin.tabs.permissions': 'Jogosultságok',
-  'admin.notifications.emailPanel.title': 'Email (SMTP)',
+  'admin.notifications.emailPanel.title': 'E-mail (SMTP)',
   'admin.notifications.webhookPanel.title': 'Webhook',
   'admin.notifications.webPushPanel.title': 'Web Push',
   'admin.notifications.webPushPanel.hint':
@@ -798,7 +798,7 @@ const admin: TranslationStrings = {
   'admin.notifications.testNtfy': 'Teszt Ntfy küldése',
   'admin.notifications.testNtfySuccess': 'Teszt Ntfy sikeresen elküldve',
   'admin.notifications.testNtfyFailed': 'Teszt Ntfy sikertelen',
-  'admin.notifications.adminNtfyPanel.title': 'Admin Ntfy',
+  'admin.notifications.adminNtfyPanel.title': 'Admin Ntfy', // same-as-en
   'admin.notifications.adminNtfyPanel.hint':
     'Ez az Ntfy téma kizárólag admin értesítésekhez használatos (pl. verziófrissítési figyelmeztetések). Független a felhasználói témáktól, és mindig küld, ha konfigurálva van.',
   'admin.notifications.adminNtfyPanel.serverLabel': 'Ntfy szerver URL',
@@ -806,7 +806,7 @@ const admin: TranslationStrings = {
     'Alapértelmezett szerverként is szolgál a felhasználói ntfy értesítésekhez. Üresen hagyva ntfy.sh-t használ. A felhasználók felülírhatják saját beállításaikban.',
   'admin.notifications.adminNtfyPanel.serverPlaceholder': 'https://ntfy.sh',
   'admin.notifications.adminNtfyPanel.topicLabel': 'Admin téma',
-  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts',
+  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts', // same-as-en
   'admin.notifications.adminNtfyPanel.tokenLabel': 'Hozzáférési token (opcionális)',
   'admin.notifications.adminNtfyPanel.tokenCleared': 'Admin hozzáférési token törölve',
   'admin.notifications.adminNtfyPanel.saved': 'Admin Ntfy beállítások mentve',
@@ -843,7 +843,7 @@ const admin: TranslationStrings = {
     'Jeleníts meg egy „Bejelentkezés passkey-jel" lehetőséget, és engedd, hogy a felhasználók passkey-ket regisztráljanak a beállításaikban.',
   'admin.passkey.notConfigured':
     'Ehhez a telepítéshez még nem oldódik fel WebAuthn-domain. Állítsd be az APP_URL-t vagy a lenti Relying Party ID-t — addig a passkey-k rejtve maradnak.',
-  'admin.passkey.rpId': 'Relying Party ID (domain)',
+  'admin.passkey.rpId': 'Relying Party azonosító (domain)',
   'admin.passkey.rpIdHint':
     'A csupasz domain, amelyhez a passkey-k kötődnek, pl. trek.example.org. Hagyd üresen, hogy az APP_URL-ből legyen levezetve. Későbbi módosítása érvényteleníti a meglévő passkey-ket.',
   'admin.passkey.origins': 'Engedélyezett origók',
@@ -871,10 +871,10 @@ const admin: TranslationStrings = {
   'admin.defaultSettings.cartoKey': 'Megosztott CARTO-kulcs',
   'admin.defaultSettings.cartoKeyHint':
     'Minden olyan felhasználóhoz használatos, aki nem adta meg a saját kulcsát, így az egész példány vízjel nélküli CARTO-csempéket kap. Titkosítva tárolódik.',
-  'admin.group.users': 'Users',
-  'admin.group.config': 'Configuration',
-  'admin.group.integration': 'Integrations',
-  'admin.group.maintenance': 'Maintenance',
+  'admin.group.users': 'Felhasználók',
+  'admin.group.config': 'Konfiguráció',
+  'admin.group.integration': 'Integrációk',
+  'admin.group.maintenance': 'Karbantartás',
   'admin.invite.tripLabel': 'Hozzáadás utazáshoz (opcionális)',
   'admin.invite.tripNone': 'Nincs utazás',
   'admin.invite.tripHint':

@@ -7,8 +7,8 @@ const collection: TranslationStrings = {
   'collections.saveToListHint': 'Duplikat dilewati otomatis',
   'collections.role.label': 'Peran',
   'collections.role.viewer': 'Peninjau',
-  'collections.role.editor': 'Editor',
-  'collections.role.admin': 'Admin',
+  'collections.role.editor': 'Editor', // same-as-en
+  'collections.role.admin': 'Admin', // same-as-en
   'collections.picker.allLists': 'Semua daftar',
   'collections.select': 'Pilih',
   'collections.selectAll': 'Pilih semua',
@@ -30,7 +30,7 @@ const collection: TranslationStrings = {
   'collections.description': 'Deskripsi',
   'collections.descriptionPlaceholder': 'Tambahkan deskripsi…',
   'collections.links': 'Tautan',
-  'collections.linkLabel': 'Label',
+  'collections.linkLabel': 'Label', // same-as-en
   'collections.addLink': 'Tambah tautan',
   'collections.addDetails': 'Tambah detail',
   'collections.addPlace': 'Tambah tempat',

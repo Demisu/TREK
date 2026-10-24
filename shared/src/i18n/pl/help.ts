@@ -936,7 +936,7 @@ const help: TranslationStrings = {
     'Status ustawiony ręcznie obowiązuje, dopóki go nie zmienisz, nawet gdy zmienią się daty podróży.',
 
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
-  'help.ctx.journey-studio.title': 'Studio',
+  'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
     'TREK Studio zamienia dziennik w fotoksiążkę do wydruku. Otwiera się nad dziennikiem: po lewej jest lista stron i treść, na środku rozkładówka, nad którą pracujesz, a po prawej jej właściwości. Automatyczny układ tworzy pierwszą wersję z Twoich wpisów. Potem możesz wszystko przesuwać, kadrować i zmieniać styl, a każdy krok da się cofnąć.',
   'help.ctx.journey-studio.bullet.1':
@@ -1135,7 +1135,7 @@ const help: TranslationStrings = {
     '„Konfiguracja MCP”: „Endpoint MCP”, a w sekcji „Klienci OAuth 2.1” Twoi zarejestrowani klienci, „Konfiguracja klienta” do skopiowania i „Aktywne sesje OAuth” z przyciskiem „Unieważnij”.',
   'help.ctx.settings-integrations.bullet.4':
     'Tokeny API: dawny sposób łączenia z MCP, oznaczony jako Przestarzałe. Zamiast tego użyj Klienci OAuth 2.1.',
-  'help.ctx.settings-offline.title': 'Offline',
+  'help.ctx.settings-offline.title': 'Offline', // same-as-en
   'help.ctx.settings-offline.summary':
     'Co TREK przechowuje na tym urządzeniu, żeby podróż otwierała się także bez połączenia, i co się dzieje, gdy zmiana wprowadzona offline koliduje ze zmianą wprowadzoną gdzie indziej.',
   'help.ctx.settings-offline.bullet.1':

@@ -6,10 +6,10 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'Adres URL punktu końcowego',
   'storage.help.endpoint':
     'Podstawowy adres URL usługi zgodnej z S3, np. https://s3.example.com lub http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'Identyfikator klucza dostępu',
   'storage.field.secretAccessKey': 'Tajny klucz dostępu',
-  'storage.field.region': 'Region',
+  'storage.field.region': 'Region', // same-as-en
   'storage.help.region': 'Pozostaw wartość domyślną, chyba że twój dostawca wymaga konkretnego regionu.',
   'storage.field.keyPrefix': 'Prefiks klucza',
   'storage.help.keyPrefix': 'Opcjonalny prefiks dodawany do każdego klucza obiektu, np. trek/prod.',
@@ -38,7 +38,7 @@ const storage: TranslationStrings = {
   'storage.source.settings': 'Ustawienia',
   'storage.type.local': 'Lokalny',
   'storage.type.s3': 'S3',
-  'storage.type.mirror': 'Mirror',
+  'storage.type.mirror': 'Kopia lustrzana',
   'storage.actions.test': 'Testuj',
   'storage.actions.edit': 'Edytuj',
   'storage.actions.remove': 'Usuń',

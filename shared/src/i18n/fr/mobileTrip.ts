@@ -2,10 +2,10 @@ import type { TranslationStrings } from '../types';
 
 const mobileTrip: TranslationStrings = {
   'mobileTrip.addBookingShort': 'Réservation',
-  'mobileTrip.addNoteShort': 'Note',
+  'mobileTrip.addNoteShort': 'Note', // same-as-en
   'mobileTrip.addPlaceShort': 'Lieu',
   'mobileTrip.addToDayQuestion': 'Ajouter à un jour ?',
-  'mobileTrip.addTransportShort': 'Transport',
+  'mobileTrip.addTransportShort': 'Transport', // same-as-en
   'mobileTrip.allDays': 'Tous les jours',
   'mobileTrip.today': "Aujourd'hui",
   'mobileTrip.jumpToToday': "Aller à aujourd'hui",
@@ -33,7 +33,7 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.more': 'Plus',
   'mobileTrip.newCategory': 'Nouvelle catégorie',
   'mobileTrip.newReservation': 'Nouvelle réservation',
-  'mobileTrip.notes': 'Notes',
+  'mobileTrip.notes': 'Notes', // same-as-en
   'mobileTrip.onMap': 'Sur la carte',
   'mobileTrip.profileDriving': 'Voiture',
   'mobileTrip.profileWalking': 'Marche',

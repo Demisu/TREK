@@ -8,7 +8,7 @@ const memories: TranslationStrings = {
     "Bu seyahate fotoğraf eklemek için Ayarlar'dan şu fotoğraf sağlayıcılarından birini bağlayın: {provider_names}",
   'memories.noDates': 'Fotoğrafları yüklemek için seyahatinize tarih ekleyin.',
   'memories.noPhotos': 'Fotoğraf bulunamadı',
-  'memories.noPhotosHint': "No photos found in {provider_name} for this trip's date range.",
+  'memories.noPhotosHint': '{provider_name} içinde bu gezinin tarih aralığı için fotoğraf bulunamadı.',
   'memories.photosFound': 'fotoğraf',
   'memories.fromOthers': 'başkalarından',
   'memories.sharePhotos': 'Fotoğrafları paylaş',

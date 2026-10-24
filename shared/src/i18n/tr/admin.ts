@@ -188,7 +188,7 @@ const admin: TranslationStrings = {
     "TREK'in kendi dizini ve OpenStreetMap her aramayı yanıtlar. Burada, onlar bir şey bulamadığında başka kime sorulacağı seçilir: Otomatik, anahtar varsa Google'ı, sonra Amap'i tercih eder.",
   'admin.placesProvider.auto': 'Otomatik',
   'admin.placesProvider.google': 'Google Places',
-  'admin.placesProvider.amap': 'Amap (高德地图)',
+  'admin.placesProvider.amap': 'Amap (高德地图)', // same-as-en
   'admin.placesProvider.openstreetmap': 'OpenStreetMap',
   'admin.placesProvider.missingKey':
     'Seçilen sağlayıcı için API anahtarı tanımlı değil; yer aramasını yalnızca TREK dizini ve OpenStreetMap yanıtlar.',
@@ -263,7 +263,7 @@ const admin: TranslationStrings = {
   'admin.collab.notes.subtitle': 'Paylaşılan notlar ve belgeler',
   'admin.collab.polls.title': 'Anketler',
   'admin.collab.polls.subtitle': 'Grup anketleri ve oylama',
-  'admin.collab.whatsnext.title': "What's Next",
+  'admin.collab.whatsnext.title': 'Sırada ne var',
   'admin.collab.whatsnext.subtitle': 'Etkinlik önerileri ve sonraki adımlar',
   'admin.tabs.config': 'Kişiselleştirme',
   'admin.tabs.defaults': 'Kullanıcı Varsayılanları',
@@ -296,7 +296,7 @@ const admin: TranslationStrings = {
   'admin.packingTemplates.deleteItemError': 'Öğe silinemedi',
   'admin.packingTemplates.saveError': 'Kaydedilemedi',
   'admin.tabs.addons': 'Eklentiler',
-  'admin.tabs.plugins': 'Plugins',
+  'admin.tabs.plugins': "Plugin'ler",
   'admin.tabs.storage': 'Depolama',
   'admin.plugins.rescan': 'Yeniden tara',
   'admin.plugins.rescanned': 'Eklenti klasörü yeniden tarandı',
@@ -342,7 +342,7 @@ const admin: TranslationStrings = {
   'admin.plugins.uninstallBody':
     'Bu, eklentiyi durdurur, kodunu kaldırır ve tüm verilerini siler. Bu işlem geri alınamaz.',
   'admin.plugins.status.starting': 'Başlatılıyor…',
-  'admin.plugins.type.widget': 'Widget',
+  'admin.plugins.type.widget': 'Widget', // same-as-en
   'admin.plugins.type.page': 'Sayfa',
   'admin.plugins.type.integration': 'Entegrasyon',
   'admin.plugins.type.trip-page': 'Gezi sayfası',
@@ -352,8 +352,8 @@ const admin: TranslationStrings = {
   'admin.plugins.updateTo': 'Güncelle → v{version}',
   'admin.plugins.enabledToggle': 'Eklentiyi etkinleştir',
   'plugins.notFound': 'Eklenti bulunamadı',
-  'plugins.frameLoadFailed': 'This plugin could not be loaded.',
-  'admin.plugins.title': 'Plugins',
+  'plugins.frameLoadFailed': 'Bu plugin yüklenemedi.',
+  'admin.plugins.title': "Plugin'ler",
   'admin.plugins.subtitle': 'Örneğinizde üçüncü taraf eklentileri yükleyin ve yönetin.',
   'admin.plugins.disabledTitle': 'Eklentiler devre dışı',
   'admin.plugins.disabledBody':
@@ -689,7 +689,7 @@ const admin: TranslationStrings = {
   'admin.addons.subtitleBefore':
     'Kişiselleştirmenizi özelleştirmek için özellikleri etkinleştirin veya devre dışı bırakın.',
   'admin.addons.subtitleAfter': 'deneyim.',
-  'admin.addons.catalog.naver_list_import.name': 'Naver List Import',
+  'admin.addons.catalog.naver_list_import.name': 'Naver liste içe aktarma',
   'admin.addons.catalog.naver_list_import.description':
     'Paylaşılan bir Naver Haritalar listesinden yerleri içe aktarın',
   'admin.addons.catalog.airtrail.name': 'AirTrail',
@@ -867,10 +867,10 @@ const admin: TranslationStrings = {
   'admin.defaultSettings.cartoKey': 'Paylaşılan CARTO anahtarı',
   'admin.defaultSettings.cartoKeyHint':
     'Kendi anahtarını girmemiş her kullanıcı için kullanılır, böylece tüm örnek filigransız CARTO döşemeleri alır. Şifrelenmiş olarak saklanır.',
-  'admin.group.users': 'Users',
-  'admin.group.config': 'Configuration',
-  'admin.group.integration': 'Integrations',
-  'admin.group.maintenance': 'Maintenance',
+  'admin.group.users': 'Kullanıcılar',
+  'admin.group.config': 'Yapılandırma',
+  'admin.group.integration': 'Entegrasyonlar',
+  'admin.group.maintenance': 'Bakım',
   'admin.invite.tripLabel': 'Seyahate ekle (isteğe bağlı)',
   'admin.invite.tripNone': 'Seyahat yok',
   'admin.invite.tripHint': 'Yeni kullanıcı bağlantı üzerinden kaydolduğunda otomatik olarak bu seyahate eklenir.',

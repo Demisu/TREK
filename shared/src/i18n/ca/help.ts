@@ -951,7 +951,7 @@ const help: TranslationStrings = {
     'Un estat que poses a mà es manté fins que el canvies, encara que canviïn les dates del viatge.',
 
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
-  'help.ctx.journey-studio.title': 'Studio',
+  'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
     'TREK Studio maqueta una travessia com un àlbum de fotos que pots imprimir. S’obre damunt del diari: a l’esquerra hi ha la llista de pàgines i el contingut, al mig la doble pàgina en què treballes i a la dreta les seves propietats. «Auto layout» crea un primer esborrany a partir de les teves entrades. Després, ho pots moure, retallar i canviar d’estil tot, i pots desfer cada pas.',
   'help.ctx.journey-studio.bullet.1':
@@ -3833,7 +3833,7 @@ const help: TranslationStrings = {
     "Els pagadors, el repartiment, la nota i els rebuts s'editen a la mateixa despesa: «Més opcions», al final de cada fila, té «Edita» i «Elimina» per treure la fila.",
 
   // ── Screen: trip-transports ───────────────────────────────────────────────────────────
-  'help.ctx.trip-transports.title': 'Transports',
+  'help.ctx.trip-transports.title': 'Transports', // same-as-en
   'help.ctx.trip-transports.summary':
     'Totes les maneres com et desplaces entre les parades: vols, trens, autobusos, cotxes, taxis, bicicletes, creuers, ferris, telefèrics i les connexions de transport públic que TREK et busca. La pestanya els mostra en una llista. També els pots crear i consultar al pla, i es dibuixen al mapa.',
   'help.ctx.trip-transports.bullet.1':

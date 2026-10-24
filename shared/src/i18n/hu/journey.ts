@@ -266,37 +266,37 @@ const journey: TranslationStrings = {
   'journey.picker.noAlbums': 'Nem található album',
   'journey.picker.selectDate': 'Dátum választása',
   'journey.picker.search': 'Keresés',
-  'journey.detail.journeyTab': 'Journey', // en-fallback
-  'journey.contributors.remove': 'Remove contributor', // en-fallback
-  'journey.contributors.removeConfirm': 'Remove {username} from this journey?', // en-fallback
-  'journey.contributors.removed': 'Contributor removed', // en-fallback
-  'journey.contributors.removeFailed': 'Failed to remove contributor', // en-fallback
+  'journey.detail.journeyTab': 'Útinapló',
+  'journey.contributors.remove': 'Közreműködő eltávolítása',
+  'journey.contributors.removeConfirm': 'Eltávolítod {username} felhasználót ebből az útinaplóból?',
+  'journey.contributors.removed': 'Közreműködő eltávolítva',
+  'journey.contributors.removeFailed': 'A közreműködő eltávolítása nem sikerült',
   'journey.contributors.viaTrips': 'Utazásokon át',
   'journey.contributors.viaTripsHint':
     'Azért nyithatják meg ezt a naplót, mert egy utazás kapcsolja. Ezt az utazás beállításaiban módosíthatod.',
   'journey.contributors.viaTrip': '{trip} útján',
-  'journey.editor.externalPhotos': 'External photos', // en-fallback
-  'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
-  'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback
-  'journey.editor.externalPhotosNoLocation': 'All photos from this day', // en-fallback
-  'journey.editor.externalPhotosQueued': 'queued', // en-fallback
-  'journey.editor.externalPhotosUnavailable': 'No connected photo providers are available.', // en-fallback
-  'journey.editor.externalPhotosPartialFailed': '{failed} photo groups failed — save again to retry', // en-fallback
-  'journey.picker.day': 'This day', // en-fallback
-  'journey.studio.title': 'TREK Studio', // en-fallback
-  'journey.studio.open': 'Studio', // en-fallback
-  'journey.studio.openAria': 'Open the photo book studio', // en-fallback
-  'journey.studio.backToJourney': 'Back to the journey', // en-fallback
-  'journey.studio.format': 'Page format', // en-fallback
-  'journey.studio.formatA4Landscape': 'A4 landscape', // en-fallback
-  'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
-  'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
-  'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
+  'journey.editor.externalPhotos': 'Külső fotók',
+  'journey.editor.externalPhotosFor': 'Fotók ehhez a naphoz: {date}',
+  'journey.editor.externalPhotosNearby': 'Közeli fotók elöl',
+  'journey.editor.externalPhotosNoLocation': 'Az összes fotó erről a napról',
+  'journey.editor.externalPhotosQueued': 'sorban áll',
+  'journey.editor.externalPhotosUnavailable': 'Nincs elérhető csatlakoztatott fotószolgáltató.',
+  'journey.editor.externalPhotosPartialFailed': '{failed} fotócsoport sikertelen: mentsd újra az újrapróbáláshoz',
+  'journey.picker.day': 'Ez a nap',
+  'journey.studio.title': 'TREK Studio', // same-as-en
+  'journey.studio.open': 'Studio', // same-as-en
+  'journey.studio.openAria': 'Fotókönyv-studio megnyitása',
+  'journey.studio.backToJourney': 'Vissza az útinaplóhoz',
+  'journey.studio.format': 'Oldalformátum',
+  'journey.studio.formatA4Landscape': 'A4 fekvő',
+  'journey.studio.formatA4Portrait': 'A4 álló',
+  'journey.studio.formatSquare21': 'Négyzet 21 × 21 cm',
+  'journey.studio.formatSquare30': 'Négyzet 30 × 30 cm',
   'journey.studio.pages': 'Oldalak',
-  'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.autoLayout': 'Auto layout', // en-fallback
-  'journey.studio.export': 'Export', // en-fallback
+  'journey.studio.cover': 'Borító',
+  'journey.studio.inspectorEmpty': 'Válassz ki valamit az oldalon a szerkesztéséhez.',
+  'journey.studio.autoLayout': 'Automatikus elrendezés',
+  'journey.studio.export': 'Exportálás',
   'journey.studio.day': '{day}. NAP',
   'journey.studio.stations': 'Állomások',
   'journey.studio.peersHere': 'itt',
@@ -316,98 +316,98 @@ const journey: TranslationStrings = {
   'journey.studio.exportPreparing': 'Előkészítés',
   'journey.studio.exportSheetCount': '{count} ív',
   'journey.studio.exportSheetCount.one': '{count} ív',
-  'journey.studio.undo': 'Undo', // en-fallback
-  'journey.studio.redo': 'Redo', // en-fallback
-  'journey.studio.zoomIn': 'Zoom in', // en-fallback
-  'journey.studio.zoomOut': 'Zoom out', // en-fallback
-  'journey.studio.zoomFit': 'Fit to view', // en-fallback
+  'journey.studio.undo': 'Visszavonás',
+  'journey.studio.redo': 'Újra',
+  'journey.studio.zoomIn': 'Nagyítás',
+  'journey.studio.zoomOut': 'Kicsinyítés',
+  'journey.studio.zoomFit': 'Illesztés a nézethez',
   'journey.studio.downloadSpread': 'Oldalpár letöltése',
   'journey.studio.downloadSpreadHint':
     'Fájlba menti az oldalpár elrendezését, a fényképek nélkül, megosztáshoz vagy újrafelhasználáshoz',
   'journey.studio.importSpread': 'Importálás',
   'journey.studio.importSpreadHint': 'Oldalpár hozzáadása letöltött elrendezésfájlból',
   'journey.studio.importSpreadFailed': 'Ez a fájl nem TREK Studio oldalpár',
-  'journey.studio.desktopOnly': 'Studio needs a bigger screen', // en-fallback
+  'journey.studio.desktopOnly': 'A Studióhoz nagyobb képernyő kell',
   'journey.studio.desktopOnlyHint':
-    'Egy könyv tördeléséhez hely kell, ezért a Studio csak asztali gépen érhető el, és a PDF is. Az utazás minden más része itt a megszokott módon működik.', // en-fallback
-  'journey.studio.formatA5Landscape': 'A5 landscape', // en-fallback
-  'journey.studio.bookView': 'Book view', // en-fallback
-  'journey.studio.multiple': 'Several', // en-fallback
-  'journey.studio.kind.photo': 'Photo', // en-fallback
-  'journey.studio.kind.text': 'Text', // en-fallback
-  'journey.studio.kind.shape': 'Shape', // en-fallback
-  'journey.studio.position': 'Position', // en-fallback
-  'journey.studio.width': 'W', // en-fallback
-  'journey.studio.height': 'H', // en-fallback
+    'Egy könyv tördeléséhez hely kell, ezért a Studio csak asztali gépen érhető el, és a PDF is. Az utazás minden más része itt a megszokott módon működik.',
+  'journey.studio.formatA5Landscape': 'A5 fekvő',
+  'journey.studio.bookView': 'Könyvnézet',
+  'journey.studio.multiple': 'Több',
+  'journey.studio.kind.photo': 'Fotó',
+  'journey.studio.kind.text': 'Szöveg',
+  'journey.studio.kind.shape': 'Alakzat',
+  'journey.studio.position': 'Pozíció',
+  'journey.studio.width': 'Szél.',
+  'journey.studio.height': 'Mag.',
   'journey.studio.text': 'Szöveg',
-  'journey.studio.typography': 'Type', // en-fallback
-  'journey.studio.leading': 'Line', // en-fallback
-  'journey.studio.colour': 'Colour', // en-fallback
+  'journey.studio.typography': 'Betű',
+  'journey.studio.leading': 'Sorköz',
+  'journey.studio.colour': 'Szín',
   'journey.studio.autoColour': 'Automatikus',
   'journey.studio.countryNames': 'Nevek',
-  'journey.studio.crop': 'Crop', // en-fallback
-  'journey.studio.look': 'Look', // en-fallback
-  'journey.studio.radius': 'Corner', // en-fallback
-  'journey.studio.shape': 'Shape', // en-fallback
-  'journey.studio.arrange': 'Arrange', // en-fallback
-  'journey.studio.toFront': 'Bring to front', // en-fallback
-  'journey.studio.forward': 'Bring forward', // en-fallback
-  'journey.studio.backward': 'Send backward', // en-fallback
-  'journey.studio.toBack': 'Send to back', // en-fallback
-  'journey.studio.lock': 'Lock', // en-fallback
-  'journey.studio.unlock': 'Unlock', // en-fallback
-  'journey.studio.delete': 'Delete', // en-fallback
-  'journey.studio.pageHint': 'Page', // en-fallback
-  'journey.studio.boundHint': 'Follows the journal entry. Editing it here breaks that link.', // en-fallback
-  'journey.studio.fit.cover': 'Fill', // en-fallback
-  'journey.studio.fit.contain': 'Fit', // en-fallback
-  'journey.studio.filter.none': 'Original', // en-fallback
-  'journey.studio.filter.bw': 'Black & white', // en-fallback
-  'journey.studio.filter.warm': 'Warm', // en-fallback
-  'journey.studio.shapeKind.rect': 'Rectangle', // en-fallback
-  'journey.studio.shapeKind.ellipse': 'Ellipse', // en-fallback
-  'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
-  'journey.studio.backCover': 'Back cover', // en-fallback
-  'journey.studio.sections': 'Sections', // en-fallback
+  'journey.studio.crop': 'Vágás',
+  'journey.studio.look': 'Megjelenés',
+  'journey.studio.radius': 'Sarok',
+  'journey.studio.shape': 'Alakzat',
+  'journey.studio.arrange': 'Rendezés',
+  'journey.studio.toFront': 'Előtérbe hozás',
+  'journey.studio.forward': 'Egy szinttel előre',
+  'journey.studio.backward': 'Egy szinttel hátra',
+  'journey.studio.toBack': 'Háttérbe küldés',
+  'journey.studio.lock': 'Zárolás',
+  'journey.studio.unlock': 'Feloldás',
+  'journey.studio.delete': 'Törlés',
+  'journey.studio.pageHint': 'Oldal',
+  'journey.studio.boundHint': 'Az útinapló-bejegyzést követi. Itt szerkesztve megszakad ez a kapcsolat.',
+  'journey.studio.fit.cover': 'Kitöltés',
+  'journey.studio.fit.contain': 'Illesztés',
+  'journey.studio.filter.none': 'Eredeti',
+  'journey.studio.filter.bw': 'Fekete-fehér',
+  'journey.studio.filter.warm': 'Meleg',
+  'journey.studio.shapeKind.rect': 'Téglalap',
+  'journey.studio.shapeKind.ellipse': 'Ellipszis',
+  'journey.studio.focalHint': 'Húzd a pontot, hogy kiválaszd, mi maradjon a képen.',
+  'journey.studio.backCover': 'Hátsó borító',
+  'journey.studio.sections': 'Szakaszok',
   'journey.studio.content': 'Tartalom',
   'journey.studio.elements': 'Elemek',
   'journey.studio.templates': 'Elrendezések',
   'journey.studio.photos': 'Fotók',
   'journey.studio.entries': 'Bejegyzések',
-  'journey.studio.addToPage': 'Add to this page', // en-fallback
-  'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
-  'journey.studio.untitled': 'Untitled', // en-fallback
-  'journey.studio.addTitle': 'Title', // en-fallback
-  'journey.studio.addStory': 'Story', // en-fallback
-  'journey.studio.addPlace': 'Place', // en-fallback
+  'journey.studio.addToPage': 'Hozzáadás ehhez az oldalhoz',
+  'journey.studio.noPhotos': 'Ebben az útinaplóban még nincsenek fotók.',
+  'journey.studio.untitled': 'Névtelen',
+  'journey.studio.addTitle': 'Cím',
+  'journey.studio.addStory': 'Történet',
+  'journey.studio.addPlace': 'Hely',
   'journey.studio.shapes': 'Alakzatok',
   'journey.studio.frames': 'Keretek',
-  'journey.studio.emptyFrame': 'Empty frame', // en-fallback
-  'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
-  'journey.studio.shapeKind.line': 'Line', // en-fallback
-  'journey.studio.styleTitle': 'Heading', // en-fallback
-  'journey.studio.styleSubtitle': 'Subheading', // en-fallback
-  'journey.studio.styleBody': 'Body text', // en-fallback
-  'journey.studio.styleCaption': 'Caption', // en-fallback
-  'journey.studio.sampleHeading': 'A heading', // en-fallback
-  'journey.studio.sampleSubheading': 'A subheading', // en-fallback
-  'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
-  'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
-  'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
-  'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
-  'journey.studio.tpl.grid4': 'Four up', // en-fallback
-  'journey.studio.tpl.grid6': 'Six up', // en-fallback
-  'journey.studio.tpl.strip': 'Strip and text', // en-fallback
-  'journey.studio.tpl.quietText': 'Text only', // en-fallback
-  'journey.studio.tpl.portraitPair': 'A pair', // en-fallback
+  'journey.studio.emptyFrame': 'Üres keret',
+  'journey.studio.frameHint': 'Az üres keret jelzi, hová kerül egy kép. Húzz rá egyet a Tartalomból.',
+  'journey.studio.shapeKind.line': 'Vonal',
+  'journey.studio.styleTitle': 'Címsor',
+  'journey.studio.styleSubtitle': 'Alcím',
+  'journey.studio.styleBody': 'Törzsszöveg',
+  'journey.studio.styleCaption': 'Képaláírás',
+  'journey.studio.sampleHeading': 'Egy címsor',
+  'journey.studio.sampleSubheading': 'Egy alcím',
+  'journey.studio.sampleBody': 'Írj valamit erről a napról.',
+  'journey.studio.sampleCaption': 'Képaláírás',
+  'journey.studio.tpl.heroStory': 'Nagy kép és történet',
+  'journey.studio.tpl.fullBleed': 'Egy kép, teljes kihajtó',
+  'journey.studio.tpl.twoUp': 'Két teljes oldal',
+  'journey.studio.tpl.grid4': 'Négy kép',
+  'journey.studio.tpl.grid6': 'Hat kép',
+  'journey.studio.tpl.strip': 'Képsáv és szöveg',
+  'journey.studio.tpl.quietText': 'Csak szöveg',
+  'journey.studio.tpl.portraitPair': 'Egy pár',
   'journey.studio.dropPhotoHere': 'Húzd ide\na fotódat',
-  'journey.studio.searchContent': 'Search photos and entries', // en-fallback
-  'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
+  'journey.studio.searchContent': 'Fotók és bejegyzések keresése',
+  'journey.studio.noMatches': 'Nincs találat.',
   'journey.studio.quoteMark': 'Idézőjel',
-  'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
-  'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
-  'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
+  'journey.studio.shapeKind.rounded': 'Lekerekített téglalap',
+  'journey.studio.shapeKind.triangle': 'Háromszög',
+  'journey.studio.shapeKind.outline': 'Csak körvonal',
   'journey.studio.travel': 'Utazás',
   'journey.studio.travelEmpty': 'Ennek az utazásnak a számai még nincsenek készen.',
   'journey.studio.grids': 'Rácsok',
@@ -419,7 +419,7 @@ const journey: TranslationStrings = {
   'journey.studio.polaroidFrame': 'Polaroid',
   'journey.studio.whiteFrame': 'Fehér szegély',
   'journey.studio.shadowFrame': 'Vetett árnyék',
-  'journey.studio.filmFrame': 'Film',
+  'journey.studio.filmFrame': 'Film', // same-as-en
   'journey.studio.tapeFrame': 'Ragasztószalag',
   'journey.studio.shapeGroup.basic': 'Alapformák',
   'journey.studio.shapeGroup.polygons': 'Sokszögek',
@@ -541,7 +541,7 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Oldal törlése',
   'journey.studio.movePageUp': 'Előrébb',
   'journey.studio.movePageDown': 'Hátrébb',
-  'journey.studio.beta': 'Beta',
+  'journey.studio.beta': 'Béta',
   'journey.studio.addProsCons': 'Előnyök és hátrányok',
   'journey.studio.showMarks': 'Jelek',
   'journey.studio.formatCustom': 'Egyéni méret',

@@ -338,17 +338,17 @@ const admin: TranslationStrings = {
   'admin.plugins.uninstallBody':
     'سيؤدي هذا إلى إيقاف الإضافة وإزالة تعليماتها البرمجية وحذف جميع بياناتها. لا يمكن التراجع عن هذا الإجراء.',
   'admin.plugins.status.starting': 'جارٍ البدء…',
-  'admin.plugins.type.widget': 'Widget',
+  'admin.plugins.type.widget': 'أداة مصغّرة',
   'admin.plugins.type.page': 'صفحة',
   'admin.plugins.type.integration': 'تكامل',
   'admin.plugins.type.trip-page': 'صفحة الرحلة',
   'admin.plugins.reviewed': 'تمت مراجعتها',
   'admin.plugins.unreviewed': 'لم تتم مراجعتها',
   'admin.plugins.updated': 'تم تحديث الإضافة',
-  'admin.plugins.updateTo': 'Update → v{version}',
+  'admin.plugins.updateTo': 'تحديث ← v{version}',
   'admin.plugins.enabledToggle': 'تفعيل الإضافة',
   'plugins.notFound': 'الإضافة غير موجودة',
-  'plugins.frameLoadFailed': 'This plugin could not be loaded.',
+  'plugins.frameLoadFailed': 'تعذّر تحميل هذه الإضافة.',
   'admin.plugins.title': 'الإضافات الخارجية',
   'admin.plugins.subtitle': 'ثبّت وأدر إضافات الجهات الخارجية على خادمك.',
   'admin.plugins.disabledTitle': 'الإضافات الخارجية معطّلة',
@@ -680,7 +680,7 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.mcp.description': 'بروتوكول سياق النموذج لتكامل مساعد الذكاء الاصطناعي',
   'admin.addons.subtitleBefore': 'فعّل أو عطّل الميزات لتخصيص تجربة ',
   'admin.addons.subtitleAfter': '.',
-  'admin.addons.catalog.naver_list_import.name': 'Naver List Import',
+  'admin.addons.catalog.naver_list_import.name': 'استيراد قوائم Naver',
   'admin.addons.catalog.naver_list_import.description': 'استيراد الأماكن من قائمة Naver Maps مشتركة',
   'admin.addons.catalog.airtrail.name': 'AirTrail',
   'admin.addons.catalog.airtrail.description': 'مزامنة الرحلات من خادم AirTrail الخاص بك',
@@ -819,33 +819,33 @@ const admin: TranslationStrings = {
   'admin.update.wikiLink': 'فتح دليل التحديث',
   'admin.update.reloadHint': 'يرجى إعادة تحميل الصفحة بعد بضع ثوانٍ.',
   'admin.tabs.permissions': 'الصلاحيات',
-  'admin.notifications.webhook': 'Webhook', // en-fallback
-  'admin.notifications.ntfy': 'Ntfy', // en-fallback
-  'admin.notifications.emailPanel.title': 'Email (SMTP)', // en-fallback
-  'admin.notifications.webhookPanel.title': 'Webhook', // en-fallback
+  'admin.notifications.webhook': 'Webhook',
+  'admin.notifications.ntfy': 'Ntfy',
+  'admin.notifications.emailPanel.title': 'البريد الإلكتروني (SMTP)',
+  'admin.notifications.webhookPanel.title': 'Webhook',
   'admin.notifications.webPushPanel.title': 'إشعارات الويب الفورية',
   'admin.notifications.webPushPanel.hint':
     'تتيح للمستخدمين تلقي الإشعارات على هواتفهم وحواسيبهم عبر المتصفح، حتى عندما يكون TREK مغلقًا. يتطلب HTTPS؛ وعلى iPhone وiPad يجب إضافة TREK إلى الشاشة الرئيسية.',
-  'admin.notifications.inappPanel.title': 'In-App', // en-fallback
-  'admin.notifications.adminNtfyPanel.serverPlaceholder': 'https://ntfy.sh', // en-fallback
-  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts', // en-fallback
-  'admin.authMethods': 'Authentication Methods', // en-fallback
-  'admin.passwordLogin': 'Password Login', // en-fallback
-  'admin.passwordLoginHint': 'Allow users to sign in with email and password', // en-fallback
-  'admin.passwordRegistration': 'Password Registration', // en-fallback
-  'admin.passwordRegistrationHint': 'Allow new users to register with email and password', // en-fallback
-  'admin.oidcLogin': 'SSO Login', // en-fallback
-  'admin.oidcLoginHint': 'Allow users to sign in with SSO', // en-fallback
-  'admin.oidcRegistration': 'SSO Auto-Provisioning', // en-fallback
-  'admin.oidcRegistrationHint': 'Automatically create accounts for new SSO users', // en-fallback
+  'admin.notifications.inappPanel.title': 'داخل التطبيق',
+  'admin.notifications.adminNtfyPanel.serverPlaceholder': 'https://ntfy.sh',
+  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts',
+  'admin.authMethods': 'طرق المصادقة',
+  'admin.passwordLogin': 'تسجيل الدخول بكلمة المرور',
+  'admin.passwordLoginHint': 'السماح للمستخدمين بتسجيل الدخول بالبريد الإلكتروني وكلمة المرور',
+  'admin.passwordRegistration': 'التسجيل بكلمة المرور',
+  'admin.passwordRegistrationHint': 'السماح للمستخدمين الجدد بالتسجيل بالبريد الإلكتروني وكلمة المرور',
+  'admin.oidcLogin': 'تسجيل الدخول عبر SSO',
+  'admin.oidcLoginHint': 'السماح للمستخدمين بتسجيل الدخول عبر SSO',
+  'admin.oidcRegistration': 'إنشاء الحسابات تلقائيًا عبر SSO',
+  'admin.oidcRegistrationHint': 'إنشاء حسابات تلقائيًا للمستخدمين الجدد عبر SSO',
   'admin.envOverrideHint':
-    'Password login settings are controlled by the OIDC_ONLY environment variable and cannot be changed here.', // en-fallback
-  'admin.lockoutWarning': 'At least one login method must remain enabled', // en-fallback
-  'admin.addons.catalog.mcp.name': 'MCP', // en-fallback
-  'admin.tabs.github': 'GitHub', // en-fallback
-  'admin.addons.catalog.journey.name': 'Journey', // en-fallback
+    'يتم التحكم في إعدادات تسجيل الدخول بكلمة المرور عبر متغير البيئة OIDC_ONLY ولا يمكن تغييرها من هنا.',
+  'admin.lockoutWarning': 'يجب أن تبقى طريقة تسجيل دخول واحدة على الأقل مفعّلة',
+  'admin.addons.catalog.mcp.name': 'MCP',
+  'admin.tabs.github': 'GitHub',
+  'admin.addons.catalog.journey.name': 'يوميات',
   'admin.addons.catalog.journey.description':
-    'Trip tracking & travel journal with check-ins, photos, and daily stories', // en-fallback
+    'تتبّع الرحلات ويوميات سفر مع تسجيلات الوصول والصور وقصص كل يوم',
   'admin.addons.catalog.collections.name': 'المجموعات',
   'admin.addons.catalog.collections.description': 'اجمع الأماكن من أي رحلة في قوائم مسماة وأعد استخدامها',
   'admin.passkey.title': 'تسجيل الدخول بمفتاح المرور',
@@ -886,10 +886,10 @@ const admin: TranslationStrings = {
   'admin.defaultSettings.cartoKey': 'مفتاح CARTO المشترك',
   'admin.defaultSettings.cartoKeyHint':
     'يُستخدم لكل مستخدم لم يُدخل مفتاحه الخاص، حتى يحصل الخادم بأكمله على بلاطات CARTO بدون علامة مائية. يُخزَّن مشفّرًا.',
-  'admin.group.users': 'Users',
-  'admin.group.config': 'Configuration',
-  'admin.group.integration': 'Integrations',
-  'admin.group.maintenance': 'Maintenance',
+  'admin.group.users': 'المستخدمون',
+  'admin.group.config': 'الإعدادات',
+  'admin.group.integration': 'التكاملات',
+  'admin.group.maintenance': 'الصيانة',
   'admin.invite.tripLabel': 'إضافة إلى رحلة (اختياري)',
   'admin.invite.tripNone': 'بدون رحلة',
   'admin.invite.tripHint': 'تتم إضافة المستخدم الجديد تلقائيًا إلى هذه الرحلة عند تسجيله عبر الرابط.',

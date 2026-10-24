@@ -244,7 +244,7 @@ const journey: TranslationStrings = {
   'journey.public.sharedVia': '共有元',
   'journey.public.madeWith': '作成：',
   'journey.pdf.journeyBook': '日記ブック',
-  'journey.pdf.madeWith': 'Made with TREK',
+  'journey.pdf.madeWith': 'TREKで作成',
   'journey.pdf.day': '日目',
   'journey.pdf.theEnd': 'おわり',
   'journey.pdf.saveAsPdf': 'PDFとして保存',
@@ -266,28 +266,28 @@ const journey: TranslationStrings = {
   'journey.editor.uploadPartialFailed':
     '{total}枚中{failed}枚の写真がアップロードに失敗しました — もう一度保存して再試行してください',
   'journey.photosUploadFailed': '一部の写真をアップロードできませんでした',
-  'journey.editor.externalPhotos': 'External photos', // en-fallback
-  'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
-  'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback
-  'journey.editor.externalPhotosNoLocation': 'All photos from this day', // en-fallback
-  'journey.editor.externalPhotosQueued': 'queued', // en-fallback
-  'journey.editor.externalPhotosUnavailable': 'No connected photo providers are available.', // en-fallback
-  'journey.editor.externalPhotosPartialFailed': '{failed} photo groups failed — save again to retry', // en-fallback
-  'journey.picker.day': 'This day', // en-fallback
-  'journey.studio.title': 'TREK Studio', // en-fallback
-  'journey.studio.open': 'Studio', // en-fallback
-  'journey.studio.openAria': 'Open the photo book studio', // en-fallback
-  'journey.studio.backToJourney': 'Back to the journey', // en-fallback
-  'journey.studio.format': 'Page format', // en-fallback
-  'journey.studio.formatA4Landscape': 'A4 landscape', // en-fallback
-  'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
-  'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
-  'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
+  'journey.editor.externalPhotos': '外部の写真',
+  'journey.editor.externalPhotosFor': '{date} の写真',
+  'journey.editor.externalPhotosNearby': '近くの写真を先に表示',
+  'journey.editor.externalPhotosNoLocation': 'この日の写真をすべて表示',
+  'journey.editor.externalPhotosQueued': '待機中',
+  'journey.editor.externalPhotosUnavailable': '接続済みの写真プロバイダーがありません。',
+  'journey.editor.externalPhotosPartialFailed': '{failed} 件の写真グループで失敗しました。もう一度保存すると再試行します',
+  'journey.picker.day': 'この日',
+  'journey.studio.title': 'TREK Studio',
+  'journey.studio.open': 'Studio',
+  'journey.studio.openAria': 'フォトブックの Studio を開く',
+  'journey.studio.backToJourney': '旅の記録に戻る',
+  'journey.studio.format': 'ページサイズ',
+  'journey.studio.formatA4Landscape': 'A4 横',
+  'journey.studio.formatA4Portrait': 'A4 縦',
+  'journey.studio.formatSquare21': '正方形 21 × 21 cm',
+  'journey.studio.formatSquare30': '正方形 30 × 30 cm',
   'journey.studio.pages': 'ページ',
-  'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.autoLayout': 'Auto layout', // en-fallback
-  'journey.studio.export': 'Export', // en-fallback
+  'journey.studio.cover': '表紙',
+  'journey.studio.inspectorEmpty': 'ページ上の要素を選択すると編集できます。',
+  'journey.studio.autoLayout': '自動レイアウト',
+  'journey.studio.export': 'エクスポート',
   'journey.studio.day': '{day}日目',
   'journey.studio.stations': '立ち寄り先',
   'journey.studio.peersHere': '閲覧中',
@@ -305,98 +305,98 @@ const journey: TranslationStrings = {
   'journey.studio.exportSave': 'PDFとして保存',
   'journey.studio.exportPreparing': '準備中',
   'journey.studio.exportSheetCount': '{count}枚',
-  'journey.studio.undo': 'Undo', // en-fallback
-  'journey.studio.redo': 'Redo', // en-fallback
-  'journey.studio.zoomIn': 'Zoom in', // en-fallback
-  'journey.studio.zoomOut': 'Zoom out', // en-fallback
-  'journey.studio.zoomFit': 'Fit to view', // en-fallback
+  'journey.studio.undo': '元に戻す',
+  'journey.studio.redo': 'やり直す',
+  'journey.studio.zoomIn': '拡大',
+  'journey.studio.zoomOut': '縮小',
+  'journey.studio.zoomFit': '画面に合わせる',
   'journey.studio.downloadSpread': 'この見開きをダウンロード',
   'journey.studio.downloadSpreadHint':
     'この見開きのデザインを、写真を除いてファイルに保存します。共有や再利用に使えます',
   'journey.studio.importSpread': '読み込む',
   'journey.studio.importSpreadHint': 'ダウンロードしたデザインファイルから見開きを追加します',
   'journey.studio.importSpreadFailed': 'このファイルは TREK Studio の見開きではありません',
-  'journey.studio.desktopOnly': 'Studio needs a bigger screen', // en-fallback
+  'journey.studio.desktopOnly': 'Studio にはより大きな画面が必要です',
   'journey.studio.desktopOnlyHint':
-    '本づくりには広さが要るので、Studio はデスクトップ専用です。PDF の作成も同じです。旅の記録のほかの機能は、ここでもこれまでどおり使えます。', // en-fallback
-  'journey.studio.formatA5Landscape': 'A5 landscape', // en-fallback
-  'journey.studio.bookView': 'Book view', // en-fallback
-  'journey.studio.multiple': 'Several', // en-fallback
-  'journey.studio.kind.photo': 'Photo', // en-fallback
-  'journey.studio.kind.text': 'Text', // en-fallback
-  'journey.studio.kind.shape': 'Shape', // en-fallback
-  'journey.studio.position': 'Position', // en-fallback
-  'journey.studio.width': 'W', // en-fallback
-  'journey.studio.height': 'H', // en-fallback
+    '本づくりには広さが要るので、Studio はデスクトップ専用です。PDF の作成も同じです。旅の記録のほかの機能は、ここでもこれまでどおり使えます。',
+  'journey.studio.formatA5Landscape': 'A5 横',
+  'journey.studio.bookView': 'ブック表示',
+  'journey.studio.multiple': '複数',
+  'journey.studio.kind.photo': '写真',
+  'journey.studio.kind.text': 'テキスト',
+  'journey.studio.kind.shape': '図形',
+  'journey.studio.position': '位置',
+  'journey.studio.width': '幅',
+  'journey.studio.height': '高さ',
   'journey.studio.text': 'テキスト',
-  'journey.studio.typography': 'Type', // en-fallback
-  'journey.studio.leading': 'Line', // en-fallback
-  'journey.studio.colour': 'Colour', // en-fallback
+  'journey.studio.typography': '文字',
+  'journey.studio.leading': '行間',
+  'journey.studio.colour': '色',
   'journey.studio.autoColour': '自動',
   'journey.studio.countryNames': '名前',
-  'journey.studio.crop': 'Crop', // en-fallback
-  'journey.studio.look': 'Look', // en-fallback
-  'journey.studio.radius': 'Corner', // en-fallback
-  'journey.studio.shape': 'Shape', // en-fallback
-  'journey.studio.arrange': 'Arrange', // en-fallback
-  'journey.studio.toFront': 'Bring to front', // en-fallback
-  'journey.studio.forward': 'Bring forward', // en-fallback
-  'journey.studio.backward': 'Send backward', // en-fallback
-  'journey.studio.toBack': 'Send to back', // en-fallback
-  'journey.studio.lock': 'Lock', // en-fallback
-  'journey.studio.unlock': 'Unlock', // en-fallback
-  'journey.studio.delete': 'Delete', // en-fallback
-  'journey.studio.pageHint': 'Page', // en-fallback
-  'journey.studio.boundHint': 'Follows the journal entry. Editing it here breaks that link.', // en-fallback
-  'journey.studio.fit.cover': 'Fill', // en-fallback
-  'journey.studio.fit.contain': 'Fit', // en-fallback
-  'journey.studio.filter.none': 'Original', // en-fallback
-  'journey.studio.filter.bw': 'Black & white', // en-fallback
-  'journey.studio.filter.warm': 'Warm', // en-fallback
-  'journey.studio.shapeKind.rect': 'Rectangle', // en-fallback
-  'journey.studio.shapeKind.ellipse': 'Ellipse', // en-fallback
-  'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
-  'journey.studio.backCover': 'Back cover', // en-fallback
-  'journey.studio.sections': 'Sections', // en-fallback
+  'journey.studio.crop': 'トリミング',
+  'journey.studio.look': '見た目',
+  'journey.studio.radius': '角丸',
+  'journey.studio.shape': '図形',
+  'journey.studio.arrange': '配置',
+  'journey.studio.toFront': '最前面へ',
+  'journey.studio.forward': '前面へ',
+  'journey.studio.backward': '背面へ',
+  'journey.studio.toBack': '最背面へ',
+  'journey.studio.lock': 'ロック',
+  'journey.studio.unlock': 'ロック解除',
+  'journey.studio.delete': '削除',
+  'journey.studio.pageHint': 'ページ',
+  'journey.studio.boundHint': '日記の内容に連動しています。ここで編集すると連動が解除されます。',
+  'journey.studio.fit.cover': '全体に表示',
+  'journey.studio.fit.contain': '収める',
+  'journey.studio.filter.none': 'オリジナル',
+  'journey.studio.filter.bw': '白黒',
+  'journey.studio.filter.warm': '暖色',
+  'journey.studio.shapeKind.rect': '長方形',
+  'journey.studio.shapeKind.ellipse': '楕円',
+  'journey.studio.focalHint': '点をドラッグして、枠内に残す部分を選びます。',
+  'journey.studio.backCover': '裏表紙',
+  'journey.studio.sections': 'セクション',
   'journey.studio.content': 'コンテンツ',
   'journey.studio.elements': '要素',
   'journey.studio.templates': 'レイアウト',
   'journey.studio.photos': '写真',
   'journey.studio.entries': 'エントリー',
-  'journey.studio.addToPage': 'Add to this page', // en-fallback
-  'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
-  'journey.studio.untitled': 'Untitled', // en-fallback
-  'journey.studio.addTitle': 'Title', // en-fallback
-  'journey.studio.addStory': 'Story', // en-fallback
-  'journey.studio.addPlace': 'Place', // en-fallback
+  'journey.studio.addToPage': 'このページに追加',
+  'journey.studio.noPhotos': 'この旅の記録にはまだ写真がありません。',
+  'journey.studio.untitled': '無題',
+  'journey.studio.addTitle': 'タイトル',
+  'journey.studio.addStory': 'ストーリー',
+  'journey.studio.addPlace': '場所',
   'journey.studio.shapes': '図形',
   'journey.studio.frames': 'フレーム',
-  'journey.studio.emptyFrame': 'Empty frame', // en-fallback
-  'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
-  'journey.studio.shapeKind.line': 'Line', // en-fallback
-  'journey.studio.styleTitle': 'Heading', // en-fallback
-  'journey.studio.styleSubtitle': 'Subheading', // en-fallback
-  'journey.studio.styleBody': 'Body text', // en-fallback
-  'journey.studio.styleCaption': 'Caption', // en-fallback
-  'journey.studio.sampleHeading': 'A heading', // en-fallback
-  'journey.studio.sampleSubheading': 'A subheading', // en-fallback
-  'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
-  'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
-  'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
-  'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
-  'journey.studio.tpl.grid4': 'Four up', // en-fallback
-  'journey.studio.tpl.grid6': 'Six up', // en-fallback
-  'journey.studio.tpl.strip': 'Strip and text', // en-fallback
-  'journey.studio.tpl.quietText': 'Text only', // en-fallback
-  'journey.studio.tpl.portraitPair': 'A pair', // en-fallback
+  'journey.studio.emptyFrame': '空のフレーム',
+  'journey.studio.frameHint': '空のフレームは写真を入れる場所を示します。コンテンツから写真をドロップしてください。',
+  'journey.studio.shapeKind.line': '線',
+  'journey.studio.styleTitle': '見出し',
+  'journey.studio.styleSubtitle': '小見出し',
+  'journey.studio.styleBody': '本文',
+  'journey.studio.styleCaption': 'キャプション',
+  'journey.studio.sampleHeading': '見出し',
+  'journey.studio.sampleSubheading': '小見出し',
+  'journey.studio.sampleBody': 'この日のことを書きましょう。',
+  'journey.studio.sampleCaption': 'キャプション',
+  'journey.studio.tpl.heroStory': 'メイン写真とストーリー',
+  'journey.studio.tpl.fullBleed': '1枚を見開きいっぱいに',
+  'journey.studio.tpl.twoUp': '全面2枚',
+  'journey.studio.tpl.grid4': '4枚並べ',
+  'journey.studio.tpl.grid6': '6枚並べ',
+  'journey.studio.tpl.strip': '帯状写真とテキスト',
+  'journey.studio.tpl.quietText': 'テキストのみ',
+  'journey.studio.tpl.portraitPair': '縦写真のペア',
   'journey.studio.dropPhotoHere': '写真をここに\nドラッグ',
-  'journey.studio.searchContent': 'Search photos and entries', // en-fallback
-  'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
+  'journey.studio.searchContent': '写真とエントリーを検索',
+  'journey.studio.noMatches': '一致するものがありません。',
   'journey.studio.quoteMark': '引用符',
-  'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
-  'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
-  'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
+  'journey.studio.shapeKind.rounded': '角丸長方形',
+  'journey.studio.shapeKind.triangle': '三角形',
+  'journey.studio.shapeKind.outline': '枠線のみ',
   'journey.studio.travel': '旅',
   'journey.studio.travelEmpty': 'この旅の数値はまだ準備できていません。',
   'journey.studio.grids': 'グリッド',
@@ -532,7 +532,7 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'ページを削除',
   'journey.studio.movePageUp': '前へ移動',
   'journey.studio.movePageDown': '後ろへ移動',
-  'journey.studio.beta': 'Beta',
+  'journey.studio.beta': 'ベータ',
   'journey.studio.addProsCons': '良かった点・気になった点',
   'journey.studio.showMarks': '記号',
   'journey.studio.formatCustom': 'カスタムサイズ',

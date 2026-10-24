@@ -3,7 +3,7 @@ import type { TranslationStrings } from '../types';
 const budget: TranslationStrings = {
   'costs.confirm.deleteTitle': 'Eliminare la spesa?',
   'costs.confirm.deleteBody': '"{name}" verrà eliminato permanentemente.',
-  'budget.title': 'Budget',
+  'budget.title': 'Budget', // same-as-en
   'budget.exportCsv': 'Esporta CSV',
   'budget.emptyTitle': 'Ancora nessun budget creato',
   'budget.emptyText': 'Crea categorie e voci per pianificare il budget del tuo viaggio',
@@ -120,7 +120,7 @@ const budget: TranslationStrings = {
   'costs.totalAmount': 'Importo totale',
   'costs.currency': 'Valuta',
   'costs.day': 'Giorno',
-  'costs.rateLabel': '1 {from} in {to}',
+  'costs.rateLabel': '1 {from} in {to}', // same-as-en
   'costs.category': 'Categoria',
   'costs.whoPaid': 'Chi ha pagato?',
   'costs.multiplePayers': 'Hanno pagato più persone',
@@ -137,7 +137,7 @@ const budget: TranslationStrings = {
   'costs.cat.flights': 'Voli',
   'costs.cat.activities': 'Attività',
   'costs.cat.sightseeing': 'Visite turistiche',
-  'costs.cat.shopping': 'Shopping',
+  'costs.cat.shopping': 'Shopping', // same-as-en
   'costs.cat.fees': 'Tariffe e biglietti',
   'costs.cat.health': 'Salute',
   'costs.cat.tips': 'Mance',

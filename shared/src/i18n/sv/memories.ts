@@ -18,7 +18,7 @@ const memories: TranslationStrings = {
   'memories.reviewHint': 'Klicka på fotona för att undanta dem från delningen.',
   'memories.shareCount': 'Dela {count} foton',
   'memories.shareCount.one': 'Dela {count} foto',
-  'memories.providerUrl': 'Server URL',
+  'memories.providerUrl': 'Server-URL',
   'memories.providerApiKey': 'API nyckel',
   'memories.providerUsername': 'Användarnamn',
   'memories.providerPassword': 'Lösenord',

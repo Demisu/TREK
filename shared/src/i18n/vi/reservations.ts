@@ -68,7 +68,7 @@ const reservations: TranslationStrings = {
   'reservations.type.ferry': 'Phà',
   'reservations.type.cable_car': 'Cáp treo',
   'reservations.type.bicycle': 'Xe đạp',
-  'reservations.type.taxi': 'Taxi',
+  'reservations.type.taxi': 'Taxi', // same-as-en
   'reservations.type.transit': 'Giao thông công cộng',
   'reservations.typeShort.transit': 'Xe công cộng',
   'reservations.type.transport_other': 'Khác',

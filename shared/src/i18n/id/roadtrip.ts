@@ -205,7 +205,7 @@ const roadtrip: TranslationStrings = {
   'roadtrip.poi.alongRoute': 'setelah {distance}',
   'roadtrip.poi.clearResults': 'Hapus hasil',
   'roadtrip.poi.addManual': 'Tambah manual',
-  'roadtrip.poi.addManualShort': 'Manual',
+  'roadtrip.poi.addManualShort': 'Manual', // same-as-en
   'roadtrip.poi.manualHint':
     'Pencarian tempat tidak menemukan setiap pengisian daya atau pompa bahan bakar. Cari satu menurut nama dan tentukan di bagian perjalanan mana ia ditempatkan.',
   'roadtrip.poi.addBetween': 'Tambahkan di antara',
@@ -296,8 +296,8 @@ const roadtrip: TranslationStrings = {
     'Pemesanan {title} tidak berada di hari mana pun dalam perjalanan ini, jadi perjalanan tidak memperhitungkannya.',
   'roadtrip.bookings.loose': 'Juga dipesan hari ini',
   'roadtrip.ride.departureFlight': 'Berangkat {time}',
-  'roadtrip.ride.checkIn': 'Check-in',
-  'roadtrip.ride.boarding': 'Boarding',
+  'roadtrip.ride.checkIn': 'Check-in', // same-as-en
+  'roadtrip.ride.boarding': 'Naik',
   'roadtrip.ride.missed': 'Terlewat',
   'roadtrip.ride.lateBy': 'terlambat {time}',
   'roadtrip.ride.reachedAt': 'baru tiba {time}',
@@ -315,10 +315,10 @@ const roadtrip: TranslationStrings = {
   'roadtrip.day.rideMissed.ferry': 'Feri terlewat',
   'roadtrip.day.rideMissed.cruise': 'Kapal pesiar terlewat',
   'roadtrip.day.rideMissed.bus': 'Bus terlewat',
-  'roadtrip.bookend.checkOut': 'Check-out',
+  'roadtrip.bookend.checkOut': 'Check-out', // same-as-en
   'roadtrip.bookend.from': 'Awal hari',
   'roadtrip.bookend.back': 'Menginap',
-  'roadtrip.bookend.checkIn': 'Check-in',
+  'roadtrip.bookend.checkIn': 'Check-in', // same-as-en
   'roadtrip.bookend.afterCheckOut': 'Berangkat setelah check-out',
   'roadtrip.bookend.noVia':
     'Titik lintas tidak bisa ditaruh di perjalanan ke atau dari penginapan Anda. Tambahkan perhentian di sana.',

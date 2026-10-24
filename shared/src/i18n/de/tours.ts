@@ -150,7 +150,7 @@ const tours: TranslationStrings = {
   'tours.planner.plannedShort': 'Gesamt',
   'tours.planner.plannedTotalInfo': 'Berechnete geplante Gesamtdauer.',
   'tours.planner.plannedTotalInfoLabel': 'Informationen zur geplanten Gesamtdauer',
-  'tours.planner.start': 'Start',
+  'tours.planner.start': 'Start', // same-as-en
   'tours.planner.via': 'Stopp',
   'tours.planner.end': 'Ziel',
   'tours.planner.moveUp': 'Wegpunkt nach oben verschieben',

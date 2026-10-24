@@ -63,9 +63,9 @@ const settings: TranslationStrings = {
     'nhấp chuột phải và kéo để xoay/cao độ bản đồ. Nhấp chuột giữa để thêm địa điểm (nhấp chuột phải được dành riêng cho việc xoay).',
   'settings.saveMap': 'Lưu bản đồ',
   'settings.apiKeys': 'API Key',
-  'settings.mapsKey': 'Google Maps API Key',
+  'settings.mapsKey': 'Google Maps API Key', // same-as-en
   'settings.mapsKeyHint': 'Để tìm kiếm địa điểm. Yêu cầu Địa điểm API (Mới). Truy cập tại console.cloud.google.com',
-  'settings.weatherKey': 'OpenWeatherMap API Key',
+  'settings.weatherKey': 'OpenWeatherMap API Key', // same-as-en
   'settings.weatherKeyHint': 'Đối với dữ liệu thời tiết. Miễn phí tại openweathermap.org/api',
   'settings.keyPlaceholder': 'Nhập khóa...',
   'settings.configured': 'Đã định cấu hình',
@@ -115,7 +115,7 @@ const settings: TranslationStrings = {
   'settings.notifyVersionAvailable': 'Đã có phiên bản mới',
   'settings.notifyReplicaFailure': 'Lỗi bản sao lưu trữ',
   'settings.notifyPaddleRegionRequested': 'Có yêu cầu vùng chèo thuyền',
-  'settings.notificationPreferences.email': 'Email',
+  'settings.notificationPreferences.email': 'Email', // same-as-en
   'settings.notificationPreferences.webhook': 'Webhook',
   'settings.notificationPreferences.inapp': 'Trong ứng dụng',
   'settings.notificationPreferences.notConfigured': 'Chưa được thiết lập — hãy cấu hình trong cài đặt của plugin',
@@ -264,9 +264,9 @@ const settings: TranslationStrings = {
   'settings.about.featureRequestHint': 'Đề xuất tính năng mới',
   'settings.about.wikiHint': 'Tài liệu & hướng dẫn',
   'settings.about.descriptionManaged':
-    'TREK helps you organize your trips from the first idea to the last memory. Day planning, budget, packing lists, photos and much more — all in one place.',
-  'settings.about.sourceTitle': 'Source code',
-  'settings.about.sourceHint': 'TREK is open source, licensed AGPL-3.0',
+    'TREK giúp bạn tổ chức các chuyến đi từ ý tưởng đầu tiên đến kỷ niệm cuối cùng. Lên kế hoạch theo ngày, ngân sách, danh sách đồ cần mang, ảnh và nhiều hơn nữa, tất cả ở một nơi.',
+  'settings.about.sourceTitle': 'Mã nguồn',
+  'settings.about.sourceHint': 'TREK là mã nguồn mở, theo giấy phép AGPL-3.0',
   'settings.about.supporters.badge': 'Người ủng hộ hàng tháng',
   'settings.about.supporters.title': 'Bạn đồng hành cho TREK',
   'settings.about.supporters.subtitle':
@@ -283,7 +283,7 @@ const settings: TranslationStrings = {
   'settings.about.madeWith': 'Được làm bằng',
   'settings.about.madeBy': 'của Maurice và cộng đồng nguồn mở đang phát triển.',
   'settings.username': 'Tên người dùng',
-  'settings.email': 'Email',
+  'settings.email': 'Email', // same-as-en
   'settings.role': 'Vai trò',
   'settings.roleAdmin': 'Quản trị viên',
   'settings.oidcLinked': 'Liên kết với',

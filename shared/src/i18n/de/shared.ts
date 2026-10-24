@@ -8,11 +8,11 @@ const shared: TranslationStrings = {
     'Das heißt nicht, dass der Link abgelaufen ist. Prüfe deine Verbindung und versuche es gleich noch einmal.',
   'shared.retry': 'Erneut versuchen',
   'shared.readOnly': 'Nur-Lesen Ansicht',
-  'shared.tabPlan': 'Plan',
+  'shared.tabPlan': 'Plan', // same-as-en
   'shared.tabBookings': 'Buchungen',
   'shared.tabPacking': 'Packliste',
   'shared.tabBudget': 'Kosten',
-  'shared.tabChat': 'Chat',
+  'shared.tabChat': 'Chat', // same-as-en
   'shared.days': 'Tage',
   'shared.places': 'Orte',
   'shared.places.one': 'Ort',

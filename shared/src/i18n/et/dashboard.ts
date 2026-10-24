@@ -213,7 +213,7 @@ const dashboard: TranslationStrings = {
   'dashboard.upcoming.title': 'Eelseisvad broneeringud',
   'dashboard.upcoming.empty': 'Midagi pole veel broneeritud.',
   'dashboard.aria.toggleView': 'Vaheta vaadet',
-  'dashboard.aria.filter': 'Filter',
+  'dashboard.aria.filter': 'Filter', // same-as-en
   'dashboard.aria.duplicate': 'Tee koopia',
   'dashboard.aria.refreshRates': 'Värskenda kursse',
   'dashboard.aria.swapCurrencies': 'Vaheta valuutad',

@@ -38,7 +38,7 @@ const files: TranslationStrings = {
   'files.toast.deleteError': 'Kunde inte ta bort filen',
   'files.sourcePlan': 'Dagsplan',
   'files.sourceBooking': 'Bokning',
-  'files.sourceTransport': 'Transport',
+  'files.sourceTransport': 'Transport', // same-as-en
   'files.attach': 'Bifoga',
   'files.pasteHint': 'Du kan också klistra in foton från urklipp (Ctrl+V)',
   'files.trash': 'Papperskorgen',
@@ -51,7 +51,7 @@ const files: TranslationStrings = {
   'files.assignTitle': 'Tilldela fil',
   'files.assignPlace': 'Plats',
   'files.assignBooking': 'Bokning',
-  'files.assignTransport': 'Transport',
+  'files.assignTransport': 'Transport', // same-as-en
   'files.unassigned': 'Ej tilldelad',
   'files.unlink': 'Ta bort länk',
   'files.toast.trashed': 'Flyttad till papperskorgen',

@@ -248,7 +248,7 @@ const journey: TranslationStrings = {
   'journey.settings.autoPrepare': 'Qeydə alınmış günləri avtomatik hazırla',
   'journey.settings.autoPrepareHint':
     'Bağlı səyahət davam etdikcə Dawarich-dəki dayanacaqların öz günlərində yoxlamanı gözləyir. Öz bağlantısı olan redaktorlar özlərininkini alır. Jurnala heç nə öz-özünə yazılmır.',
-  'journey.settings.status': 'Status',
+  'journey.settings.status': 'Status', // same-as-en
   'journey.settings.statusAuto': 'Avtomatik',
   'journey.settings.statusAutoHint': 'Bağlı səfərlərin tarixlərinə uyğunlaşır. Səfər olmadan jurnal qaralama qalır.',
   'journey.settings.statusManualHint': 'Əllə təyin olunub. Avtomatikə qaytarana qədər səfər tarixləri onu dəyişmir.',
@@ -308,8 +308,8 @@ const journey: TranslationStrings = {
   'journey.picker.selectDate': 'Tarix seç',
   'journey.picker.search': 'Axtar',
 
-  'journey.studio.title': 'TREK Studio',
-  'journey.studio.open': 'Studio',
+  'journey.studio.title': 'TREK Studio', // same-as-en
+  'journey.studio.open': 'Studio', // same-as-en
   'journey.studio.openAria': 'Foto kitab studiyasını aç',
   'journey.studio.backToJourney': 'Səyahət gündəliyinə qayıt',
   'journey.studio.format': 'Səhifə formatı',
@@ -459,7 +459,7 @@ const journey: TranslationStrings = {
   'journey.studio.polaroidFrame': 'Polaroid',
   'journey.studio.whiteFrame': 'Ağ haşiyə',
   'journey.studio.shadowFrame': 'Kölgəli',
-  'journey.studio.filmFrame': 'Film',
+  'journey.studio.filmFrame': 'Film', // same-as-en
   'journey.studio.tapeFrame': 'Lentli',
 
   'journey.studio.shapeGroup.basic': 'Əsas',
@@ -473,7 +473,7 @@ const journey: TranslationStrings = {
 
   'journey.studio.summary': 'Xülasə',
   'journey.studio.routeMap': 'Marşrut xəritəsi',
-  'journey.studio.mapStyle.minimal': 'Minimal',
+  'journey.studio.mapStyle.minimal': 'Minimal', // same-as-en
   'journey.studio.mapStyle.outline': 'Kontur',
   'journey.studio.mapStyle.paper': 'Kağız',
   'journey.studio.mapStyle.dark': 'Tünd',
@@ -594,7 +594,7 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Açılımı sil',
   'journey.studio.movePageUp': 'Əvvələ daşı',
   'journey.studio.movePageDown': 'Sonraya daşı',
-  'journey.studio.beta': 'Beta',
+  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'Müsbət və mənfi cəhətlər',
   'journey.studio.showMarks': 'Nişanlar',
 
@@ -672,7 +672,7 @@ const journey: TranslationStrings = {
   'journey.studio.mapFitStops': 'Dayanacaqlar',
   'journey.studio.mapFitCountry': 'Bütün ölkə',
   'journey.studio.mapPadTight': 'Dar',
-  'journey.studio.mapPadNormal': 'Normal',
+  'journey.studio.mapPadNormal': 'Normal', // same-as-en
   'journey.studio.mapPadWide': 'Geniş',
   'journey.studio.mapPadFar': 'Çox geniş',
   'journey.studio.mapClipRect': 'Çərçivə daxilində',

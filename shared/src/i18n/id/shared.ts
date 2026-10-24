@@ -12,7 +12,7 @@ const shared: TranslationStrings = {
   'shared.tabBookings': 'Pemesanan',
   'shared.tabPacking': 'Bawaan',
   'shared.tabBudget': 'Biaya',
-  'shared.tabChat': 'Chat',
+  'shared.tabChat': 'Chat', // same-as-en
   'shared.days': 'hari',
   'shared.places': 'tempat',
   'shared.unplanned': 'Belum direncanakan',

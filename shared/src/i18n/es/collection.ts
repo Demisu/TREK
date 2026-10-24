@@ -9,7 +9,7 @@ const collection: TranslationStrings = {
   'collections.saveToListHint': 'Los duplicados se omiten automáticamente',
   'collections.role.label': 'Rol',
   'collections.role.viewer': 'Lector',
-  'collections.role.editor': 'Editor',
+  'collections.role.editor': 'Editor', // same-as-en
   'collections.role.admin': 'Administrador',
   'collections.picker.allLists': 'Todas las listas',
   'collections.select': 'Elegir',
@@ -103,7 +103,7 @@ const collection: TranslationStrings = {
   'collections.view.list': 'Lista',
   'collections.view.map': 'Mapa',
 
-  'collections.status.idea': 'Idea',
+  'collections.status.idea': 'Idea', // same-as-en
   'collections.status.want': 'Quiero ir',
   'collections.status.visited': 'Visitado',
   'collections.status.filterAll': 'Todos',

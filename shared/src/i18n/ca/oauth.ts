@@ -12,7 +12,7 @@ const oauth: TranslationStrings = {
   'oauth.scope.group.collab': 'Col·laboració',
   'oauth.scope.group.notifications': 'Notificacions',
   'oauth.scope.group.vacay': 'Vacances',
-  'oauth.scope.group.geo': 'Geo',
+  'oauth.scope.group.geo': 'Geo', // same-as-en
   'oauth.scope.group.weather': 'Clima',
   'oauth.scope.group.journey': 'Travesia',
   'oauth.scope.trips:read.label': 'Mostra els viatges i itineraris',

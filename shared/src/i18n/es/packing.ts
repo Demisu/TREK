@@ -95,7 +95,7 @@ const packing: TranslationStrings = {
   'packing.viewPersonal': 'Mi lista',
   'packing.share': 'Compartir',
   'packing.tierCommonHint': 'En el grupo, visible para todos',
-  'packing.tierPersonal': 'Personal',
+  'packing.tierPersonal': 'Personal', // same-as-en
   'packing.tierPersonalHint': 'Privado — solo tú lo ves',
   'packing.tierShared': 'Compartir con…',
   'packing.noOneToShare': 'Nadie más en este viaje todavía',

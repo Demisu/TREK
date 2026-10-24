@@ -32,15 +32,15 @@ const admin: TranslationStrings = {
   'admin.notifications.adminWebhookPanel.testFailed': 'Test webhook misslyckades',
   'admin.notifications.adminWebhookPanel.alwaysOnHint':
     'Webhook för administratör aktiveras alltid när en URL konfigureras',
-  'admin.notifications.adminNtfyPanel.title': 'Admin Ntfy',
+  'admin.notifications.adminNtfyPanel.title': 'Admin Ntfy', // same-as-en
   'admin.notifications.adminNtfyPanel.hint':
     'Detta ntfy-ämne används uteslutande för administratörsmeddelanden (t.ex. versionsvarningar). Det är separat från ämnena för enskilda användare och aktiveras alltid när det är konfigurerat.',
-  'admin.notifications.adminNtfyPanel.serverLabel': 'Ntfy Server URL',
+  'admin.notifications.adminNtfyPanel.serverLabel': 'Ntfy-server-URL',
   'admin.notifications.adminNtfyPanel.serverHint':
     'Används även som standardserver för ntfy-meddelanden till användare. Lämna fältet tomt för att använda ntfy.sh som standard. Användare kan ändra detta i sina egna inställningar.',
   'admin.notifications.adminNtfyPanel.serverPlaceholder': 'https://ntfy.sh',
   'admin.notifications.adminNtfyPanel.topicLabel': 'Admin Ämne',
-  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts',
+  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts', // same-as-en
   'admin.notifications.adminNtfyPanel.tokenLabel': 'Åtkomsttoken (valfritt)',
   'admin.notifications.adminNtfyPanel.tokenCleared': 'Administratörens åtkomsttoken har raderats',
   'admin.notifications.adminNtfyPanel.saved': 'Admin ntfy inställningar sparade',
@@ -68,7 +68,7 @@ const admin: TranslationStrings = {
   'admin.webhook.hint': 'Låt användarna ställa in sina egna webhook-URL:er för aviseringar (Discord, Slack m.fl.).',
   'admin.smtp.testSuccess': 'Test e-postmeddelandet har skickats',
   'admin.smtp.testFailed': 'Test e-postmeddelandet misslyckades',
-  'admin.title': 'Administration',
+  'admin.title': 'Administration', // same-as-en
   'admin.subtitle': 'Användarhantering och systeminställningar',
   'admin.tabs.users': 'Användare',
   'admin.tabs.categories': 'Kategorier',
@@ -188,12 +188,12 @@ const admin: TranslationStrings = {
     'TREK:s egen indexering och OpenStreetMap svarar på varje sökning. Här väljs vem som frågas därutöver när de inte hittar något: Automatiskt föredrar Google om en nyckel finns, sedan Amap.',
   'admin.placesProvider.auto': 'Automatisk',
   'admin.placesProvider.google': 'Google Places',
-  'admin.placesProvider.amap': 'Amap (高德地图)',
+  'admin.placesProvider.amap': 'Amap (高德地图)', // same-as-en
   'admin.placesProvider.openstreetmap': 'OpenStreetMap',
   'admin.placesProvider.missingKey':
     'Den valda leverantören saknar API-nyckel, så platssökningen besvaras enbart av TREK:s index och OpenStreetMap.',
   'admin.placesProvider.saved': 'Leverantör för platssökning sparad',
-  'admin.validateKey': 'Test',
+  'admin.validateKey': 'Testa',
   'admin.keyValid': 'Ansluten',
   'admin.keyInvalid': 'Felaktig',
   'admin.keySaved': 'API nycklar sparade',
@@ -312,7 +312,7 @@ const admin: TranslationStrings = {
   'admin.packingTemplates.deleteItemError': 'Det gick inte att ta bort objektet',
   'admin.packingTemplates.saveError': 'Det gick inte att spara',
   'admin.tabs.addons': 'Tillägg',
-  'admin.tabs.plugins': 'Plugins',
+  'admin.tabs.plugins': 'Plugin',
   'admin.tabs.storage': 'Lagring',
   'admin.plugins.rescan': 'Skanna om',
   'admin.plugins.rescanned': 'Plugin-mappen har skannats om',
@@ -358,9 +358,9 @@ const admin: TranslationStrings = {
   'admin.plugins.uninstallBody':
     'Detta stoppar pluginet, tar bort dess kod och raderar alla dess data. Detta kan inte ångras.',
   'admin.plugins.status.starting': 'Startar…',
-  'admin.plugins.type.widget': 'Widget',
+  'admin.plugins.type.widget': 'Widget', // same-as-en
   'admin.plugins.type.page': 'Sida',
-  'admin.plugins.type.integration': 'Integration',
+  'admin.plugins.type.integration': 'Integration', // same-as-en
   'admin.plugins.type.trip-page': 'Ressida',
   'admin.plugins.reviewed': 'Granskad',
   'admin.plugins.unreviewed': 'Ej granskad',
@@ -368,8 +368,8 @@ const admin: TranslationStrings = {
   'admin.plugins.updateTo': 'Uppdatera → v{version}',
   'admin.plugins.enabledToggle': 'Aktivera plugin',
   'plugins.notFound': 'Pluginet hittades inte',
-  'plugins.frameLoadFailed': 'This plugin could not be loaded.',
-  'admin.plugins.title': 'Plugins',
+  'plugins.frameLoadFailed': 'Pluginet kunde inte laddas.',
+  'admin.plugins.title': 'Plugin',
   'admin.plugins.subtitle': 'Installera och hantera tredjepartsplugins på din instans.',
   'admin.plugins.disabledTitle': 'Plugins är inaktiverade',
   'admin.plugins.disabledBody':
@@ -570,7 +570,7 @@ const admin: TranslationStrings = {
   'admin.plugins.tabDiscover': 'Upptäck',
   'admin.plugins.searchPlaceholder': 'Sök plugins…',
   'admin.plugins.filterType': 'Typ',
-  'admin.plugins.filterStatus': 'Status',
+  'admin.plugins.filterStatus': 'Status', // same-as-en
   'admin.plugins.sortBy': 'Sortera',
   'admin.plugins.allTypes': 'Alla typer',
   'admin.plugins.allStatuses': 'Alla',
@@ -673,7 +673,7 @@ const admin: TranslationStrings = {
   'admin.plugins.connectsTitle': 'Ansluter till',
   'admin.plugins.detailsTitle': 'Detaljer',
   'admin.plugins.noAccess': 'Behöver ingen särskild åtkomst.',
-  'admin.plugins.metaVersion': 'Version',
+  'admin.plugins.metaVersion': 'Version', // same-as-en
   'admin.plugins.metaSize': 'Storlek',
   'admin.plugins.metaRequires': 'Kräver',
   'admin.plugins.metaReviewed': 'Granskad',
@@ -703,7 +703,7 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.mcp.description': 'Modellkontextprotokoll för integration av AI-assistenter',
   'admin.addons.subtitleBefore': 'Aktivera eller inaktivera funktioner för att anpassa din ',
   'admin.addons.subtitleAfter': ' erfarenhet.',
-  'admin.addons.catalog.naver_list_import.name': 'Naver List Import',
+  'admin.addons.catalog.naver_list_import.name': 'Importera Naver-listor',
   'admin.addons.catalog.naver_list_import.description': 'Importera platser från en delad Naver Maps-lista',
   'admin.addons.catalog.airtrail.name': 'AirTrail',
   'admin.addons.catalog.airtrail.description': 'Synkronisera flyg från din AirTrail-instans',
@@ -724,8 +724,8 @@ const admin: TranslationStrings = {
   'admin.addons.enabled': 'Aktiverad',
   'admin.addons.disabled': 'Inaktiverad',
   'admin.addons.type.trip': 'Resa',
-  'admin.addons.type.global': 'Global',
-  'admin.addons.type.integration': 'Integration',
+  'admin.addons.type.global': 'Global', // same-as-en
+  'admin.addons.type.integration': 'Integration', // same-as-en
   'admin.addons.tripHint': 'Finns som en flik i varje resa',
   'admin.addons.globalHint': 'Finns som en fristående sektion i huvudnavigeringen',
   'admin.addons.integrationHint': 'Backend-tjänster och API-integrationer utan egen sida',
@@ -837,7 +837,7 @@ const admin: TranslationStrings = {
   'admin.update.wikiLink': 'Öppna uppdateringsguiden',
   'admin.update.reloadHint': 'Vänligen uppdatera sidan om några sekunder.',
   'admin.tabs.permissions': 'Behörigheter',
-  'admin.addons.catalog.journey.name': 'Journey',
+  'admin.addons.catalog.journey.name': 'Journey', // same-as-en
   'admin.addons.catalog.journey.description': 'Resespårning och resedagbok med incheckningar, foton och dagliga inlägg',
   'admin.addons.catalog.collections.name': 'Samlingar',
   'admin.addons.catalog.collections.description': 'Samla platser från alla resor i namngivna listor och återanvänd dem',
@@ -848,10 +848,10 @@ const admin: TranslationStrings = {
     'Visa alternativet ”Logga in med en inloggningsnyckel och låt användarna registrera inloggningsnycklar i sina inställningar.',
   'admin.passkey.notConfigured':
     'Det finns ännu ingen WebAuthn-domän för denna distribution. Ange APP_URL eller Relying Party ID nedan – inloggningsnycklar förblir dolda tills dess.',
-  'admin.passkey.rpId': 'Relying Party ID (domain)',
+  'admin.passkey.rpId': 'Relying Party-ID (domän)',
   'admin.passkey.rpIdHint':
     'De rena domän inloggningsnycklarna är kopplade till t.ex. trek.example.org. Lämna fältet tomt om du vill att nyckeln ska härledas från APP_URL. Om du ändrar detta senare blir befintliga nycklar ogiltiga.',
-  'admin.passkey.origins': 'Allowed origins',
+  'admin.passkey.origins': 'Tillåtna ursprung',
   'admin.passkey.originsHint':
     'Fullständiga ursprungsadresser separerade med kommatecken, t.ex. https://trek.example.org. Lämna fältet tomt för att använda APP_URL.',
   'admin.passkey.reset': 'Återställ inloggningsnycklar',
@@ -860,10 +860,10 @@ const admin: TranslationStrings = {
   'admin.passkey.resetConfirm': 'Ta bort alla åtkomstnycklar för {name}?',
   'admin.passkey.resetDone': 'Tog bort {count} inloggningsnycklar',
   'admin.passkey.resetDone.one': 'Tog bort {count} inloggningsnyckel',
-  'admin.group.users': 'Users',
-  'admin.group.config': 'Configuration',
-  'admin.group.integration': 'Integrations',
-  'admin.group.maintenance': 'Maintenance',
+  'admin.group.users': 'Användare',
+  'admin.group.config': 'Konfiguration',
+  'admin.group.integration': 'Integrationer',
+  'admin.group.maintenance': 'Underhåll',
   'admin.invite.tripLabel': 'Lägg till i resa (valfritt)',
   'admin.invite.tripNone': 'Ingen resa',
   'admin.invite.tripHint':

@@ -7,14 +7,14 @@ const oauth: TranslationStrings = {
   'oauth.scope.group.atlas': 'Atlas',
   'oauth.scope.group.packing': 'Packning',
   'oauth.scope.group.todos': 'Att göra',
-  'oauth.scope.group.budget': 'Budget',
+  'oauth.scope.group.budget': 'Budget', // same-as-en
   'oauth.scope.group.reservations': 'Bokningar',
   'oauth.scope.group.collab': 'Samarbete',
   'oauth.scope.group.notifications': 'Meddelanden',
   'oauth.scope.group.vacay': 'Semester',
-  'oauth.scope.group.geo': 'Geo',
+  'oauth.scope.group.geo': 'Geo', // same-as-en
   'oauth.scope.group.weather': 'Väder',
-  'oauth.scope.group.journey': 'Journey',
+  'oauth.scope.group.journey': 'Journey', // same-as-en
   'oauth.scope.trips:read.label': 'Visa resor och resplaner',
   'oauth.scope.trips:read.description': 'Läs om resor, dagar, daganteckningar och medlemmar',
   'oauth.scope.trips:write.label': 'Redigera resor och resplaner',

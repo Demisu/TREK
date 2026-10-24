@@ -9,8 +9,8 @@ const system_notice: TranslationStrings = {
   'system_notice.welcome_v1.highlight_plan': 'Itinéraires jour par jour',
   'system_notice.welcome_v1.highlight_share': 'Collaborez avec vos partenaires',
   'system_notice.welcome_v1.highlight_offline': 'Fonctionne hors ligne sur mobile',
-  'system_notice.dev_test_modal.title': '[Dev] Test notice',
-  'system_notice.dev_test_modal.body': 'This is a dev-only test notice.',
+  'system_notice.dev_test_modal.title': '[Dev] Avis de test',
+  'system_notice.dev_test_modal.body': 'Ceci est un avis de test réservé au développement.',
   'system_notice.thank_you_support.title': "Merci d'utiliser TREK",
   'system_notice.thank_you_support.body':
     "Un petit mot pour te remercier d'avoir installé TREK — ça compte vraiment beaucoup pour moi.\n\nJe suis développeur en solo et je construis TREK sur mon temps libre. Au départ, c'était juste un petit outil pour mes propres voyages, et je suis honnêtement bluffé par le soutien et l'intérêt de la communauté depuis. TREK est fait avec beaucoup de cœur de mon côté — mais aussi grâce aux nombreux et formidables contributeurs externes qui ont aidé à lui donner forme.\n\n**TREK est open source et entièrement gratuit — et le restera pour toujours. Pas de formules payantes, pas d'abonnements, aucun piège. Promis.**\n\nSi TREK t'est utile et que tu souhaites soutenir son développement, un petit café m'aide sincèrement à continuer — sans aucune pression, mais chaque tasse fait avancer les nuits blanches.\n\nMerci d'être là.\n\n— Maurice",

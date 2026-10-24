@@ -29,7 +29,7 @@ const common: TranslationStrings = {
   'common.confirm': 'Conferma',
   'common.ok': 'OK',
   'common.yes': 'Sì',
-  'common.no': 'No',
+  'common.no': 'No', // same-as-en
   'common.or': 'o',
   'common.none': 'Nessuno',
   'common.date': 'Data',
@@ -40,8 +40,8 @@ const common: TranslationStrings = {
   'common.unsavedMessage': 'Quello che hai inserito qui non è ancora stato salvato.',
   'common.keepEditing': 'Continua a modificare',
   'common.name': 'Nome',
-  'common.email': 'Email',
-  'common.password': 'Password',
+  'common.email': 'Email', // same-as-en
+  'common.password': 'Password', // same-as-en
   'common.saving': 'Salvataggio...',
   'common.saved': 'Salvato',
   'common.expand': 'Espandi',

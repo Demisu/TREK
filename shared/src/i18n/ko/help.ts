@@ -634,7 +634,7 @@ const help: TranslationStrings = {
   'help.guide.all-saved.tip.1': '레이블과 저장한 투어는 목록마다 따로라서 ‘모든 저장 항목’에서는 둘 다 쓸 수 없어요.',
 
   // ── Screen: journey ───────────────────────────────────────────────────────────────────
-  'help.ctx.journey.title': 'Journey',
+  'help.ctx.journey.title': '여정',
   'help.ctx.journey.summary':
     'Journey는 사진 중심의 여행 일기예요. Journey마다 여행 하나 이상과 연결되고, 이야기, 사진, 기분, 날씨가 담긴 항목으로 하루하루 채워요. 이 화면에 내 Journey가 나오고, 하나를 열어 쓰면 돼요.',
   'help.ctx.journey.bullet.1':

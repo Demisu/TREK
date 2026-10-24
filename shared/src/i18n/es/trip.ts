@@ -1,7 +1,7 @@
 import type { TranslationStrings } from '../types';
 
 const trip: TranslationStrings = {
-  'trip.tabs.plan': 'Plan',
+  'trip.tabs.plan': 'Plan', // same-as-en
   'trip.tabs.transports': 'Transportes',
   'trip.tabs.reservations': 'Reservas',
   'trip.tabs.reservationsShort': 'Reservas',
@@ -16,7 +16,7 @@ const trip: TranslationStrings = {
   'trip.loadingSteps.pack': 'Haciendo las maletas...',
   'trip.loadingSteps.road': 'En marcha...',
   'trip.loadingSteps.arrive': 'Ya casi llegamos...',
-  'trip.mobilePlan': 'Plan',
+  'trip.mobilePlan': 'Plan', // same-as-en
   'trip.mobilePlaces': 'Lugares',
   'trip.panelWidth': 'Ancho del panel',
   'trip.toast.placeUpdated': 'Lugar actualizado',
@@ -62,7 +62,7 @@ const trip: TranslationStrings = {
   'transit.mode.subway': 'Metro',
   'transit.mode.tram': 'Tranvía',
   'transit.mode.bus': 'Autobús',
-  'transit.mode.ferry': 'Ferry',
+  'transit.mode.ferry': 'Ferry', // same-as-en
   'transit.mode.cable': 'Teleférico',
   'transit.pref.best': 'Mejor ruta',
   'transit.pref.transfers': 'Menos transbordos',
@@ -85,7 +85,7 @@ const trip: TranslationStrings = {
   'transit.addToDay': 'Añadir al día',
   'transit.itinerary': 'Itinerario',
   'transit.attribution': 'Datos de rutas vía',
-  'transport.modeManual': 'Manual',
+  'transport.modeManual': 'Manual', // same-as-en
   'transport.modeAutomated': 'Automático',
   'transit.sectionTitle': 'Transporte público automático',
   'transit.changeRoute': 'Cambiar ruta',

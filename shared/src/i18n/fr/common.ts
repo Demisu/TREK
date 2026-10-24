@@ -32,7 +32,7 @@ const common: TranslationStrings = {
   'common.no': 'Non',
   'common.or': 'ou',
   'common.none': 'Aucun',
-  'common.date': 'Date',
+  'common.date': 'Date', // same-as-en
   'common.rename': 'Renommer',
   'common.discardChanges': 'Ignorer les modifications',
   'common.discard': 'Ignorer',
@@ -58,18 +58,18 @@ const common: TranslationStrings = {
   'common.hoursAgo.one': 'il y a {count}h',
   'common.daysAgo': 'il y a {count}j',
   'common.daysAgo.one': 'il y a {count}j',
-  'common.datepicker.prevMonth': 'Previous month', // en-fallback
-  'common.datepicker.nextMonth': 'Next month', // en-fallback
-  'common.datepicker.prevYear': 'Previous year', // en-fallback
-  'common.datepicker.nextYear': 'Next year', // en-fallback
-  'common.datepicker.prevYears': 'Previous years', // en-fallback
-  'common.datepicker.nextYears': 'Next years', // en-fallback
-  'common.datepicker.selectMonth': 'Select month', // en-fallback
-  'common.datepicker.selectYear': 'Select year', // en-fallback
-  'common.datepicker.enterManually': 'Enter date manually', // en-fallback
-  'common.datepicker.typeDate': 'Type a date', // en-fallback
-  'common.datepicker.dialog': 'Date picker', // en-fallback
-  'common.datepicker.clearDate': 'Clear date', // en-fallback
+  'common.datepicker.prevMonth': 'Mois précédent',
+  'common.datepicker.nextMonth': 'Mois suivant',
+  'common.datepicker.prevYear': 'Année précédente',
+  'common.datepicker.nextYear': 'Année suivante',
+  'common.datepicker.prevYears': 'Années précédentes',
+  'common.datepicker.nextYears': 'Années suivantes',
+  'common.datepicker.selectMonth': 'Choisir le mois',
+  'common.datepicker.selectYear': "Choisir l'année",
+  'common.datepicker.enterManually': 'Saisir la date manuellement',
+  'common.datepicker.typeDate': 'Saisissez une date',
+  'common.datepicker.dialog': 'Sélecteur de date',
+  'common.datepicker.clearDate': 'Effacer la date',
   'common.errorTitle': "Une erreur s'est produite",
   'common.errorBody': "Cette partie de l'application ne fonctionne plus. Vos données sont en sécurité.",
   'common.errorPanelTitle': "Cette section n'a pas pu être affichée",

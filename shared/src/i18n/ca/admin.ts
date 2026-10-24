@@ -20,7 +20,7 @@ const admin: TranslationStrings = {
   'admin.title': 'Administració',
   'admin.subtitle': "Gestió d'usuaris i ajustos del sistema",
   'admin.tabs.users': 'Usuaris',
-  'admin.tabs.categories': 'Categories',
+  'admin.tabs.categories': 'Categories', // same-as-en
   'admin.tabs.backup': 'Còpia de seguretat',
   'admin.tabs.audit': 'Auditoria',
   'admin.stats.users': 'Usuaris',
@@ -193,7 +193,7 @@ const admin: TranslationStrings = {
   'admin.bagTracking.subtitle': "Activar pes i assignació d'equipatge per a articles de la llista",
   'admin.collab.chat.title': 'Xat',
   'admin.collab.chat.subtitle': 'Missatgeria en temps real per a la col·laboració',
-  'admin.collab.notes.title': 'Notes',
+  'admin.collab.notes.title': 'Notes', // same-as-en
   'admin.collab.notes.subtitle': 'Notes i documents compartits',
   'admin.collab.polls.title': 'Enquestes',
   'admin.collab.polls.subtitle': 'Enquestes i votacions grupals',
@@ -215,7 +215,7 @@ const admin: TranslationStrings = {
   'admin.packingTemplates.empty': "Encara no s'ha creat cap plantilla",
   'admin.packingTemplates.items': 'articles',
   'admin.packingTemplates.items.one': 'article',
-  'admin.packingTemplates.categories': 'categories',
+  'admin.packingTemplates.categories': 'categories', // same-as-en
   'admin.packingTemplates.categories.one': 'categoria',
   'admin.packingTemplates.itemName': "Nom de l'article",
   'admin.packingTemplates.itemCategory': 'Categoria',
@@ -234,7 +234,7 @@ const admin: TranslationStrings = {
   'admin.addons.subtitle': 'Activa o desactiva funcions per personalitzar la teva experiència a TREK.',
   'admin.addons.subtitleBefore': 'Activa o desactiva funcions per personalitzar la teva experiència a ',
   'admin.addons.subtitleAfter': '.',
-  'admin.addons.catalog.naver_list_import.name': 'Naver List Import',
+  'admin.addons.catalog.naver_list_import.name': 'Importació de llistes de Naver',
   'admin.addons.catalog.naver_list_import.description': 'Importa llocs des d’una llista compartida de Naver Maps',
   'admin.addons.catalog.airtrail.name': 'AirTrail',
   'admin.addons.catalog.airtrail.description': 'Sincronitza vols des de la teva instància d’AirTrail',
@@ -249,14 +249,14 @@ const admin: TranslationStrings = {
     'Un xat a cada viatge que respon preguntes i proposa canvis que tu confirmes',
   'admin.addons.llm.vision.auto': 'Automàtic',
   'admin.addons.llm.vision.on': 'Sí',
-  'admin.addons.llm.vision.off': 'No',
+  'admin.addons.llm.vision.off': 'No', // same-as-en
   'admin.addons.llm.vision.hintLocal': 'Automàtic pregunta al servidor Ollama si aquest model llegeix imatges.',
   'admin.addons.llm.vision.hintCloud':
     'Automàtic vol dir no per a un model al núvol. Tria Sí si aquest model llegeix imatges.',
   'admin.addons.enabled': 'Actiu',
   'admin.addons.disabled': 'Desactivat',
   'admin.addons.type.trip': 'Viatge',
-  'admin.addons.type.global': 'Global',
+  'admin.addons.type.global': 'Global', // same-as-en
   'admin.addons.type.integration': 'Integració',
   'admin.addons.tripHint': 'Disponible com a pestanya dins de cada viatge',
   'admin.addons.globalHint': 'Disponible com a secció independent en la navegació principal',
@@ -310,7 +310,7 @@ const admin: TranslationStrings = {
   'admin.mcpTokens.deleteError': "No s'ha pogut eliminar el token",
   'admin.mcpTokens.loadError': "No s'han pogut carregar els tokens",
   'admin.oauthSessions.sectionTitle': 'Sessions OAuth',
-  'admin.oauthSessions.clientName': 'Client',
+  'admin.oauthSessions.clientName': 'Client', // same-as-en
   'admin.oauthSessions.owner': 'Propietari',
   'admin.oauthSessions.scopes': 'Permisos',
   'admin.oauthSessions.created': 'Creat',
@@ -376,7 +376,7 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.packing.description': "Llistes d'equipatge i tasques pendents per als teus viatges",
   'admin.addons.catalog.budget.name': 'Pressupost',
   'admin.addons.catalog.budget.description': 'Controla les despeses del viatge i reparteix-les entre els viatgers',
-  'admin.addons.catalog.documents.name': 'Documents',
+  'admin.addons.catalog.documents.name': 'Documents', // same-as-en
   'admin.addons.catalog.documents.description': 'Guarda i gestiona la documentació del viatge',
   'admin.addons.catalog.vacay.name': 'Vacances',
   'admin.addons.catalog.vacay.description': 'Planificador personal de vacances amb vista de calendari',
@@ -429,7 +429,7 @@ const admin: TranslationStrings = {
     "També s'utilitza com a servidor per defecte per a les notificacions ntfy dels usuaris. Deixa-ho en blanc per utilitzar ntfy.sh. Els usuaris poden canviar-lo en els seus propis ajustos.",
   'admin.notifications.adminNtfyPanel.serverPlaceholder': 'https://ntfy.sh',
   'admin.notifications.adminNtfyPanel.topicLabel': "Tema d'administrador",
-  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts',
+  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts', // same-as-en
   'admin.notifications.adminNtfyPanel.tokenLabel': "Token d'accés (opcional)",
   'admin.notifications.adminNtfyPanel.tokenCleared': "Token d'accés d'administrador eliminat",
   'admin.notifications.adminNtfyPanel.saved': "Configuració de Ntfy d'administrador desada",
@@ -503,7 +503,7 @@ const admin: TranslationStrings = {
     "L'índex propi de TREK i OpenStreetMap responen cada cerca. Aquí es tria a qui més es consulta quan no troben res: Automàtic prefereix Google si hi ha clau, després Amap.",
   'admin.placesProvider.auto': 'Automàtic',
   'admin.placesProvider.google': 'Google Places',
-  'admin.placesProvider.amap': 'Amap (高德地图)',
+  'admin.placesProvider.amap': 'Amap (高德地图)', // same-as-en
   'admin.placesProvider.openstreetmap': 'OpenStreetMap',
   'admin.placesProvider.missingKey':
     "El proveïdor seleccionat no té cap clau d'API configurada, així que la cerca de llocs la responen només l'índex de TREK i OpenStreetMap.",
@@ -564,7 +564,7 @@ const admin: TranslationStrings = {
   'admin.plugins.updateTo': 'Actualitzar → v{version}',
   'admin.plugins.enabledToggle': 'Activar el connector',
   'plugins.notFound': "No s'ha trobat el connector",
-  'plugins.frameLoadFailed': 'This plugin could not be loaded.',
+  'plugins.frameLoadFailed': "No s'ha pogut carregar aquest connector.",
   'admin.plugins.title': 'Connectors',
   'admin.plugins.subtitle': 'Instal·la i gestiona connectors de tercers a la teva instància.',
   'admin.plugins.disabledTitle': 'Els connectors estan desactivats',
@@ -577,8 +577,8 @@ const admin: TranslationStrings = {
   'admin.plugins.status.active': 'Actiu',
   'admin.plugins.status.inactive': 'Inactiu',
   'admin.plugins.status.disabled': 'Desactivat',
-  'admin.plugins.status.error': 'Error',
-  'admin.plugins.status.incompatible': 'Incompatible',
+  'admin.plugins.status.error': 'Error', // same-as-en
+  'admin.plugins.status.incompatible': 'Incompatible', // same-as-en
   'admin.plugins.details': 'Detalls',
   'admin.plugins.detailError': "No s'han pogut carregar els detalls del connector.",
   'admin.plugins.permissionsTitle': 'Permisos',
@@ -780,7 +780,7 @@ const admin: TranslationStrings = {
   'admin.plugins.updatesAvailable': '{count} actualitzacions disponibles per als teus connectors.',
   'admin.plugins.updatesAvailable.one': '{count} actualització disponible per als teus connectors.',
   'admin.plugins.newerNeedsTrek': 'v{version} disponible — necessita TREK {range}',
-  'admin.plugins.versionsTitle': 'Versions',
+  'admin.plugins.versionsTitle': 'Versions', // same-as-en
   'admin.plugins.versionPickerTitle': 'Canvia la versió — {name}',
   'admin.plugins.versionSwitch': 'Canvia a {version}',
   'admin.plugins.versionNeedsTrek': 'necessita TREK {range}',
@@ -866,7 +866,7 @@ const admin: TranslationStrings = {
     '«{name}» no declara quines versions de TREK admet; aquest servidor executa {host}. TREK el deixa passar només perquè TREK_PLUGINS_IGNORE_TREK_RANGE està definit. Res no indica que l’autor l’hagi provat en aquest TREK, així que no hi ha cap garantia que funcioni — i en casos rars un connector incompatible pot corrompre les dades de TREK. Continua només si acceptes aquest risc.',
   'admin.plugins.dep.trekBypassed': 'Fora del seu rang de TREK ({range}) — comprovacions de versió desactivades',
   'admin.plugins.dep.trekBypassedUnknown': 'No declara cap rang de TREK — comprovacions de versió desactivades',
-  'admin.plugins.incompatible': 'Incompatible',
+  'admin.plugins.incompatible': 'Incompatible', // same-as-en
   'admin.plugins.accessTitle': 'A què pot accedir',
   'admin.plugins.connectsTitle': 'Es connecta a',
   'admin.plugins.detailsTitle': 'Detalls',

@@ -71,6 +71,8 @@ export const BRAND_NAMES = [
   'OpenRouter',
   'Organic Maps',
   'Polaroid',
+  // The photo book editor's name, like Atlas and Vacay for their add-ons.
+  'Studio',
   'Synology',
   'Synology Photos',
   'Vacay',

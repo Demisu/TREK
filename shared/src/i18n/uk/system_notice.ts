@@ -9,15 +9,15 @@ const system_notice: TranslationStrings = {
   'system_notice.welcome_v1.highlight_plan': 'Детальні плани по днях для будь-яких поїздок',
   'system_notice.welcome_v1.highlight_share': 'Спільне планування',
   'system_notice.welcome_v1.highlight_offline': 'Працює офлайн на мобільному',
-  'system_notice.dev_test_modal.title': '[Dev] Test notice',
-  'system_notice.dev_test_modal.body': 'This is a dev-only test notice.',
+  'system_notice.dev_test_modal.title': '[Dev] Тестове повідомлення',
+  'system_notice.dev_test_modal.body': 'Це тестове повідомлення лише для розробки.',
   'system_notice.thank_you_support.title': 'Дякую, що користуєтесь TREK',
   'system_notice.thank_you_support.body':
     'Невелика подяка за те, що встановили TREK — для мене це справді багато значить.\n\nЯ розробник-одинак і створюю TREK у вільний час. Усе почалося як маленький інструмент для моїх власних поїздок, і відтоді я щиро вражений підтримкою та інтересом спільноти. TREK зроблено з великою любов’ю з мого боку — але також завдяки багатьом чудовим зовнішнім контриб’юторам, які допомогли його сформувати.\n\n**TREK має відкритий код і повністю безкоштовний — і таким залишиться назавжди. Жодних платних тарифів, жодних підписок, жодних підводних каменів. Обіцяю.**\n\nЯкщо TREK корисний для вас і ви хочете підтримати його розробку, невелика кава справді допомагає мені продовжувати — жодного тиску, але кожна чашка підтримує ці пізні ночі.\n\nДякую, що ви тут.\n\n— Maurice',
   'system_notice.thank_you_support.highlight_opensource': '100% відкритий код на GitHub',
   'system_notice.thank_you_support.highlight_free': 'Безкоштовно назавжди — жодних платних тарифів',
   'system_notice.thank_you_support.highlight_community': 'Створено разом зі спільнотою',
-  'system_notice.thank_you_support.cta_bmc': 'Buy Me a Coffee',
+  'system_notice.thank_you_support.cta_bmc': 'Пригостити кавою',
   'system_notice.thank_you_support.cta_kofi': 'Підтримати на Ko-fi',
   'system_notice.pager.prev': 'Попереднє повідомлення',
   'system_notice.pager.next': 'Наступне повідомлення',
@@ -87,7 +87,7 @@ const system_notice: TranslationStrings = {
     'TREK безкоштовний і таким залишиться, а от сервери, домени й безліч пізніх ночей ні.',
   'system_notice.release_notes.support_text':
     'Якщо TREK заслужив місце у ваших подорожах, пригостіть мене кавою і допоможіть наблизити наступний реліз.',
-  'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
+  'system_notice.release_notes.cta_bmc': 'Пригостити кавою',
   'system_notice.release_notes.cta_kofi': 'Підтримати на Ko-fi',
   'system_notice.release_notes.feature_docsync_title': 'Синхронізація документів',
   'system_notice.release_notes.feature_docsync_body':

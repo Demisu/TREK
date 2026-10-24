@@ -44,7 +44,7 @@ const files: TranslationStrings = {
   'files.toast.deleteError': 'Nie udało się usunąć pliku',
   'files.sourcePlan': 'Plan dni',
   'files.sourceBooking': 'Rezerwacje',
-  'files.sourceTransport': 'Transport',
+  'files.sourceTransport': 'Transport', // same-as-en
   'files.attach': 'Załącz',
   'files.pasteHint': 'Możesz również wkleić obrazki ze schowka (Ctrl+V)',
   'files.trash': 'Kosz',
@@ -57,7 +57,7 @@ const files: TranslationStrings = {
   'files.assignTitle': 'Przypisz plik',
   'files.assignPlace': 'Miejsce',
   'files.assignBooking': 'Rezerwacja',
-  'files.assignTransport': 'Transport',
+  'files.assignTransport': 'Transport', // same-as-en
   'files.unassigned': 'Nieprzypisane',
   'files.unlink': 'Usuń link',
   'files.toast.trashed': 'Przeniesiono do kosza',

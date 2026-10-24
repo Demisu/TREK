@@ -12,7 +12,7 @@ const mobileJourney: TranslationStrings = {
   'mobileJourney.daysCount': '{count} dias',
   'mobileJourney.daysCount.one': '{count} dia',
   'mobileJourney.time': 'Hora',
-  'mobileJourney.tags': 'Tags',
+  'mobileJourney.tags': 'Tags', // same-as-en
   'mobileJourney.addTag': 'Adicionar tag',
   'mobileJourney.uploadFromDevice': 'Enviar do dispositivo',
   'mobileJourney.browseProvider': 'Navegar em {name}',

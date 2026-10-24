@@ -712,7 +712,7 @@ const help: TranslationStrings = {
     'Label dan tur yang disimpan hanya berlaku di satu daftar, jadi keduanya tidak tersedia di “Semua tersimpan”.',
 
   // ── Screen: journey ───────────────────────────────────────────────────────────────────
-  'help.ctx.journey.title': 'Journey',
+  'help.ctx.journey.title': 'Jurnal perjalanan',
   'help.ctx.journey.summary':
     'Journey adalah jurnal perjalananmu yang berfokus pada foto. Setiap journey ditautkan ke satu perjalanan atau lebih, dan kamu mengisinya hari demi hari dengan entri berisi cerita, foto, suasana hati, dan cuaca. Layar ini mencantumkan journey-mu; buka salah satunya untuk mulai menulis.',
   'help.ctx.journey.bullet.1':
@@ -937,7 +937,7 @@ const help: TranslationStrings = {
     'Status yang diatur manual tetap berlaku sampai kamu mengubahnya, meskipun tanggal perjalanan berubah.',
 
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
-  'help.ctx.journey-studio.title': 'Studio',
+  'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
     'TREK Studio menyusun journey menjadi buku foto yang bisa dicetak. Studio terbuka di atas jurnal: daftar halaman dan konten di kiri, halaman ganda yang sedang dikerjakan di tengah, dan propertinya di kanan. Auto layout membuat draf pertama dari entri-entrimu. Setelah itu, kamu bisa memindahkan, memotong, dan mengubah gaya semuanya, dan setiap langkah bisa diurungkan.',
   'help.ctx.journey-studio.bullet.1':
@@ -1139,7 +1139,7 @@ const help: TranslationStrings = {
     '“Konfigurasi MCP”: Endpoint MCP, dan di bawah “Klien OAuth 2.1”, klien yang sudah kamu daftarkan, “Konfigurasi Client” yang bisa disalin, serta “Sesi OAuth Aktif” dengan tombol “Cabut”.',
   'help.ctx.settings-integrations.bullet.4':
     '“Token API”: cara lama untuk terhubung ke MCP, ditandai “Usang”; pakai “Klien OAuth 2.1” sebagai gantinya.',
-  'help.ctx.settings-offline.title': 'Offline',
+  'help.ctx.settings-offline.title': 'Offline', // same-as-en
   'help.ctx.settings-offline.summary':
     'Apa saja yang disimpan TREK di perangkat ini supaya perjalanan tetap bisa dibuka tanpa koneksi, dan apa yang terjadi saat perubahan yang dibuat offline bentrok dengan perubahan dari tempat lain.',
   'help.ctx.settings-offline.bullet.1':
@@ -1387,7 +1387,7 @@ const help: TranslationStrings = {
     'Tindakan ini tidak bisa dibatalkan. Ekspor dulu apa yang ingin kamu simpan sebelum mengonfirmasi.',
 
   // ── Screen: admin (all tabs) ──────────────────────────────────────────────────────────
-  'help.ctx.admin.title': 'Admin',
+  'help.ctx.admin.title': 'Admin', // same-as-en
   'help.ctx.admin.summary':
     'Pengaturan untuk seluruh instans TREK, berlaku bagi semua pengguna: siapa yang boleh masuk dan caranya, fitur apa yang aktif, di mana file disimpan, bagaimana server menghubungi orang, dan bagaimana datanya dicadangkan. Hanya admin yang bisa melihat halaman ini. Sidebar mengelompokkan tab di bawah “Pengguna”, Konfigurasi, “Integrasi”, dan Pemeliharaan, dan setiap tab adalah layar tersendiri.',
   'help.ctx.admin.bullet.1':
@@ -1495,7 +1495,7 @@ const help: TranslationStrings = {
     '“Unggah Cadangan” memulihkan dari file yang dibuat di instans lain atau di hari sebelumnya, setelah pertanyaan yang sama seperti “Pulihkan”.',
   'help.ctx.admin-backup.bullet.3':
     '“Cadangan Otomatis”: aktif atau mati, Interval, “Jalankan pada jam” dan harinya, serta “Hapus cadangan lama setelah” (dari 1 hari sampai “Simpan selamanya”), diterapkan dengan “Simpan”.',
-  'help.ctx.admin-audit.title': 'Audit',
+  'help.ctx.admin-audit.title': 'Audit', // same-as-en
   'help.ctx.admin-audit.summary':
     'Log peristiwa penting terkait keamanan dan administrasi: login dan kegagalannya, perubahan MFA, perubahan pengguna dan pengaturan, pencadangan, dan pemulihan. Hanya bisa dibaca, mulai dari yang terbaru.',
   'help.ctx.admin-audit.bullet.1':

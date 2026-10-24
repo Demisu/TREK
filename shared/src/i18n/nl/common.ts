@@ -58,18 +58,18 @@ const common: TranslationStrings = {
   'common.hoursAgo.one': '{count}u geleden',
   'common.daysAgo': '{count}d geleden',
   'common.daysAgo.one': '{count}d geleden',
-  'common.datepicker.prevMonth': 'Previous month', // en-fallback
-  'common.datepicker.nextMonth': 'Next month', // en-fallback
-  'common.datepicker.prevYear': 'Previous year', // en-fallback
-  'common.datepicker.nextYear': 'Next year', // en-fallback
-  'common.datepicker.prevYears': 'Previous years', // en-fallback
-  'common.datepicker.nextYears': 'Next years', // en-fallback
-  'common.datepicker.selectMonth': 'Select month', // en-fallback
-  'common.datepicker.selectYear': 'Select year', // en-fallback
-  'common.datepicker.enterManually': 'Enter date manually', // en-fallback
-  'common.datepicker.typeDate': 'Type a date', // en-fallback
-  'common.datepicker.dialog': 'Date picker', // en-fallback
-  'common.datepicker.clearDate': 'Clear date', // en-fallback
+  'common.datepicker.prevMonth': 'Vorige maand',
+  'common.datepicker.nextMonth': 'Volgende maand',
+  'common.datepicker.prevYear': 'Vorig jaar',
+  'common.datepicker.nextYear': 'Volgend jaar',
+  'common.datepicker.prevYears': 'Vorige jaren',
+  'common.datepicker.nextYears': 'Volgende jaren',
+  'common.datepicker.selectMonth': 'Maand kiezen',
+  'common.datepicker.selectYear': 'Jaar kiezen',
+  'common.datepicker.enterManually': 'Datum handmatig invoeren',
+  'common.datepicker.typeDate': 'Typ een datum',
+  'common.datepicker.dialog': 'Datumkiezer',
+  'common.datepicker.clearDate': 'Datum wissen',
   'common.errorTitle': 'Er is iets misgegaan',
   'common.errorBody': 'Dit deel van de app werkt niet meer. Je gegevens zijn veilig.',
   'common.errorPanelTitle': 'Dit onderdeel kon niet worden getoond',

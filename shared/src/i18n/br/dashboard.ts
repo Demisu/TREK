@@ -19,7 +19,7 @@ const dashboard: TranslationStrings = {
   'dashboard.listView': 'Lista',
   'dashboard.currency': 'Moeda',
   'dashboard.timezone': 'Fusos horários',
-  'dashboard.localTime': 'Local',
+  'dashboard.localTime': 'Local', // same-as-en
   'dashboard.timezoneCustomTitle': 'Fuso personalizado',
   'dashboard.timezoneCustomLabelPlaceholder': 'Rótulo (opcional)',
   'dashboard.timezoneCustomTzPlaceholder': 'ex.: America/Sao_Paulo',

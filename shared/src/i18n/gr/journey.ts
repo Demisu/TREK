@@ -278,28 +278,28 @@ const journey: TranslationStrings = {
   'journey.picker.noAlbums': 'Δεν βρέθηκαν άλμπουμ',
   'journey.picker.selectDate': 'Επιλογή ημερομηνίας',
   'journey.picker.search': 'Αναζήτηση',
-  'journey.editor.externalPhotos': 'External photos', // en-fallback
-  'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
-  'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback
-  'journey.editor.externalPhotosNoLocation': 'All photos from this day', // en-fallback
-  'journey.editor.externalPhotosQueued': 'queued', // en-fallback
-  'journey.editor.externalPhotosUnavailable': 'No connected photo providers are available.', // en-fallback
-  'journey.editor.externalPhotosPartialFailed': '{failed} photo groups failed — save again to retry', // en-fallback
-  'journey.picker.day': 'This day', // en-fallback
-  'journey.studio.title': 'TREK Studio', // en-fallback
-  'journey.studio.open': 'Studio', // en-fallback
-  'journey.studio.openAria': 'Open the photo book studio', // en-fallback
-  'journey.studio.backToJourney': 'Back to the journey', // en-fallback
-  'journey.studio.format': 'Page format', // en-fallback
-  'journey.studio.formatA4Landscape': 'A4 landscape', // en-fallback
-  'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
-  'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
-  'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
+  'journey.editor.externalPhotos': 'Εξωτερικές φωτογραφίες',
+  'journey.editor.externalPhotosFor': 'Φωτογραφίες για {date}',
+  'journey.editor.externalPhotosNearby': 'Πρώτα οι κοντινές φωτογραφίες',
+  'journey.editor.externalPhotosNoLocation': 'Όλες οι φωτογραφίες αυτής της ημέρας',
+  'journey.editor.externalPhotosQueued': 'στην ουρά',
+  'journey.editor.externalPhotosUnavailable': 'Δεν υπάρχουν διαθέσιμοι συνδεδεμένοι πάροχοι φωτογραφιών.',
+  'journey.editor.externalPhotosPartialFailed': '{failed} ομάδες φωτογραφιών απέτυχαν: αποθηκεύστε ξανά για να δοκιμάσετε πάλι',
+  'journey.picker.day': 'Αυτή η ημέρα',
+  'journey.studio.title': 'TREK Studio',
+  'journey.studio.open': 'Studio',
+  'journey.studio.openAria': 'Άνοιγμα του studio φωτογραφικού βιβλίου',
+  'journey.studio.backToJourney': 'Επιστροφή στο ταξίδι',
+  'journey.studio.format': 'Μορφή σελίδας',
+  'journey.studio.formatA4Landscape': 'A4 οριζόντιο',
+  'journey.studio.formatA4Portrait': 'A4 κάθετο',
+  'journey.studio.formatSquare21': 'Τετράγωνο 21 × 21 εκ.',
+  'journey.studio.formatSquare30': 'Τετράγωνο 30 × 30 εκ.',
   'journey.studio.pages': 'Σελίδες',
-  'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.autoLayout': 'Auto layout', // en-fallback
-  'journey.studio.export': 'Export', // en-fallback
+  'journey.studio.cover': 'Εξώφυλλο',
+  'journey.studio.inspectorEmpty': 'Επιλέξτε κάτι στη σελίδα για να το επεξεργαστείτε.',
+  'journey.studio.autoLayout': 'Αυτόματη διάταξη',
+  'journey.studio.export': 'Εξαγωγή',
   'journey.studio.day': 'ΗΜΕΡΑ {day}',
   'journey.studio.stations': 'Στάσεις',
   'journey.studio.peersHere': 'εδώ',
@@ -321,98 +321,98 @@ const journey: TranslationStrings = {
   'journey.studio.exportPreparing': 'Προετοιμασία',
   'journey.studio.exportSheetCount': '{count} φύλλα',
   'journey.studio.exportSheetCount.one': '{count} φύλλο',
-  'journey.studio.undo': 'Undo', // en-fallback
-  'journey.studio.redo': 'Redo', // en-fallback
-  'journey.studio.zoomIn': 'Zoom in', // en-fallback
-  'journey.studio.zoomOut': 'Zoom out', // en-fallback
-  'journey.studio.zoomFit': 'Fit to view', // en-fallback
+  'journey.studio.undo': 'Αναίρεση',
+  'journey.studio.redo': 'Επανάληψη',
+  'journey.studio.zoomIn': 'Μεγέθυνση',
+  'journey.studio.zoomOut': 'Σμίκρυνση',
+  'journey.studio.zoomFit': 'Προσαρμογή στην προβολή',
   'journey.studio.downloadSpread': 'Λήψη αυτού του δισέλιδου',
   'journey.studio.downloadSpreadHint':
     'Αποθηκεύει τη σχεδίαση του δισέλιδου ως αρχείο, χωρίς τις φωτογραφίες, για κοινή χρήση ή επαναχρησιμοποίηση',
   'journey.studio.importSpread': 'Εισαγωγή',
   'journey.studio.importSpreadHint': 'Προσθέτει ένα δισέλιδο από αρχείο σχεδίασης που έχετε κατεβάσει',
   'journey.studio.importSpreadFailed': 'Αυτό το αρχείο δεν είναι δισέλιδο του TREK Studio',
-  'journey.studio.desktopOnly': 'Studio needs a bigger screen', // en-fallback
+  'journey.studio.desktopOnly': 'Το Studio χρειάζεται μεγαλύτερη οθόνη',
   'journey.studio.desktopOnlyHint':
-    "Η σχεδίαση βιβλίου θέλει χώρο, γι' αυτό το Studio υπάρχει μόνο στον υπολογιστή, όπως και η δημιουργία του PDF. Όλα τα άλλα του ταξιδιού σου δουλεύουν εδώ κανονικά.", // en-fallback
-  'journey.studio.formatA5Landscape': 'A5 landscape', // en-fallback
-  'journey.studio.bookView': 'Book view', // en-fallback
-  'journey.studio.multiple': 'Several', // en-fallback
-  'journey.studio.kind.photo': 'Photo', // en-fallback
-  'journey.studio.kind.text': 'Text', // en-fallback
-  'journey.studio.kind.shape': 'Shape', // en-fallback
-  'journey.studio.position': 'Position', // en-fallback
-  'journey.studio.width': 'W', // en-fallback
-  'journey.studio.height': 'H', // en-fallback
+    "Η σχεδίαση βιβλίου θέλει χώρο, γι' αυτό το Studio υπάρχει μόνο στον υπολογιστή, όπως και η δημιουργία του PDF. Όλα τα άλλα του ταξιδιού σου δουλεύουν εδώ κανονικά.",
+  'journey.studio.formatA5Landscape': 'A5 οριζόντιο',
+  'journey.studio.bookView': 'Προβολή βιβλίου',
+  'journey.studio.multiple': 'Πολλά',
+  'journey.studio.kind.photo': 'Φωτογραφία',
+  'journey.studio.kind.text': 'Κείμενο',
+  'journey.studio.kind.shape': 'Σχήμα',
+  'journey.studio.position': 'Θέση',
+  'journey.studio.width': 'Π',
+  'journey.studio.height': 'Υ',
   'journey.studio.text': 'Κείμενο',
-  'journey.studio.typography': 'Type', // en-fallback
-  'journey.studio.leading': 'Line', // en-fallback
-  'journey.studio.colour': 'Colour', // en-fallback
+  'journey.studio.typography': 'Γραμματοσειρά',
+  'journey.studio.leading': 'Διάστιχο',
+  'journey.studio.colour': 'Χρώμα',
   'journey.studio.autoColour': 'Αυτόματο',
   'journey.studio.countryNames': 'Ονόματα',
-  'journey.studio.crop': 'Crop', // en-fallback
-  'journey.studio.look': 'Look', // en-fallback
-  'journey.studio.radius': 'Corner', // en-fallback
-  'journey.studio.shape': 'Shape', // en-fallback
-  'journey.studio.arrange': 'Arrange', // en-fallback
-  'journey.studio.toFront': 'Bring to front', // en-fallback
-  'journey.studio.forward': 'Bring forward', // en-fallback
-  'journey.studio.backward': 'Send backward', // en-fallback
-  'journey.studio.toBack': 'Send to back', // en-fallback
-  'journey.studio.lock': 'Lock', // en-fallback
-  'journey.studio.unlock': 'Unlock', // en-fallback
-  'journey.studio.delete': 'Delete', // en-fallback
-  'journey.studio.pageHint': 'Page', // en-fallback
-  'journey.studio.boundHint': 'Follows the journal entry. Editing it here breaks that link.', // en-fallback
-  'journey.studio.fit.cover': 'Fill', // en-fallback
-  'journey.studio.fit.contain': 'Fit', // en-fallback
-  'journey.studio.filter.none': 'Original', // en-fallback
-  'journey.studio.filter.bw': 'Black & white', // en-fallback
-  'journey.studio.filter.warm': 'Warm', // en-fallback
-  'journey.studio.shapeKind.rect': 'Rectangle', // en-fallback
-  'journey.studio.shapeKind.ellipse': 'Ellipse', // en-fallback
-  'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
-  'journey.studio.backCover': 'Back cover', // en-fallback
-  'journey.studio.sections': 'Sections', // en-fallback
+  'journey.studio.crop': 'Περικοπή',
+  'journey.studio.look': 'Εμφάνιση',
+  'journey.studio.radius': 'Γωνία',
+  'journey.studio.shape': 'Σχήμα',
+  'journey.studio.arrange': 'Τακτοποίηση',
+  'journey.studio.toFront': 'Μεταφορά μπροστά',
+  'journey.studio.forward': 'Μία θέση μπροστά',
+  'journey.studio.backward': 'Μία θέση πίσω',
+  'journey.studio.toBack': 'Μεταφορά πίσω',
+  'journey.studio.lock': 'Κλείδωμα',
+  'journey.studio.unlock': 'Ξεκλείδωμα',
+  'journey.studio.delete': 'Διαγραφή',
+  'journey.studio.pageHint': 'Σελίδα',
+  'journey.studio.boundHint': 'Ακολουθεί την καταχώριση του ημερολογίου. Αν το επεξεργαστείτε εδώ, η σύνδεση διακόπτεται.',
+  'journey.studio.fit.cover': 'Γέμισμα',
+  'journey.studio.fit.contain': 'Προσαρμογή',
+  'journey.studio.filter.none': 'Πρωτότυπο',
+  'journey.studio.filter.bw': 'Ασπρόμαυρο',
+  'journey.studio.filter.warm': 'Ζεστό',
+  'journey.studio.shapeKind.rect': 'Ορθογώνιο',
+  'journey.studio.shapeKind.ellipse': 'Έλλειψη',
+  'journey.studio.focalHint': 'Σύρετε το σημείο για να επιλέξετε τι μένει στο κάδρο.',
+  'journey.studio.backCover': 'Οπισθόφυλλο',
+  'journey.studio.sections': 'Ενότητες',
   'journey.studio.content': 'Περιεχόμενο',
   'journey.studio.elements': 'Στοιχεία',
   'journey.studio.templates': 'Διατάξεις',
   'journey.studio.photos': 'Φωτογραφίες',
   'journey.studio.entries': 'Καταχωρίσεις',
-  'journey.studio.addToPage': 'Add to this page', // en-fallback
-  'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
-  'journey.studio.untitled': 'Untitled', // en-fallback
-  'journey.studio.addTitle': 'Title', // en-fallback
-  'journey.studio.addStory': 'Story', // en-fallback
-  'journey.studio.addPlace': 'Place', // en-fallback
+  'journey.studio.addToPage': 'Προσθήκη σε αυτή τη σελίδα',
+  'journey.studio.noPhotos': 'Αυτό το ταξίδι δεν έχει φωτογραφίες ακόμη.',
+  'journey.studio.untitled': 'Χωρίς τίτλο',
+  'journey.studio.addTitle': 'Τίτλος',
+  'journey.studio.addStory': 'Ιστορία',
+  'journey.studio.addPlace': 'Μέρος',
   'journey.studio.shapes': 'Σχήματα',
   'journey.studio.frames': 'Πλαίσια',
-  'journey.studio.emptyFrame': 'Empty frame', // en-fallback
-  'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
-  'journey.studio.shapeKind.line': 'Line', // en-fallback
-  'journey.studio.styleTitle': 'Heading', // en-fallback
-  'journey.studio.styleSubtitle': 'Subheading', // en-fallback
-  'journey.studio.styleBody': 'Body text', // en-fallback
-  'journey.studio.styleCaption': 'Caption', // en-fallback
-  'journey.studio.sampleHeading': 'A heading', // en-fallback
-  'journey.studio.sampleSubheading': 'A subheading', // en-fallback
-  'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
-  'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
-  'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
-  'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
-  'journey.studio.tpl.grid4': 'Four up', // en-fallback
-  'journey.studio.tpl.grid6': 'Six up', // en-fallback
-  'journey.studio.tpl.strip': 'Strip and text', // en-fallback
-  'journey.studio.tpl.quietText': 'Text only', // en-fallback
-  'journey.studio.tpl.portraitPair': 'A pair', // en-fallback
+  'journey.studio.emptyFrame': 'Κενό πλαίσιο',
+  'journey.studio.frameHint': 'Ένα κενό πλαίσιο δείχνει πού μπαίνει μια εικόνα. Σύρετε μία πάνω του από το Περιεχόμενο.',
+  'journey.studio.shapeKind.line': 'Γραμμή',
+  'journey.studio.styleTitle': 'Επικεφαλίδα',
+  'journey.studio.styleSubtitle': 'Υπότιτλος',
+  'journey.studio.styleBody': 'Κείμενο',
+  'journey.studio.styleCaption': 'Λεζάντα',
+  'journey.studio.sampleHeading': 'Μια επικεφαλίδα',
+  'journey.studio.sampleSubheading': 'Ένας υπότιτλος',
+  'journey.studio.sampleBody': 'Γράψτε κάτι για αυτή την ημέρα.',
+  'journey.studio.sampleCaption': 'Λεζάντα',
+  'journey.studio.tpl.heroStory': 'Κεντρική εικόνα και ιστορία',
+  'journey.studio.tpl.fullBleed': 'Μία εικόνα σε όλο το άνοιγμα',
+  'journey.studio.tpl.twoUp': 'Δύο ολόκληρες σελίδες',
+  'journey.studio.tpl.grid4': 'Τέσσερις εικόνες',
+  'journey.studio.tpl.grid6': 'Έξι εικόνες',
+  'journey.studio.tpl.strip': 'Λωρίδα και κείμενο',
+  'journey.studio.tpl.quietText': 'Μόνο κείμενο',
+  'journey.studio.tpl.portraitPair': 'Ζευγάρι',
   'journey.studio.dropPhotoHere': 'Σύρε τη φωτογραφία\nσου εδώ',
-  'journey.studio.searchContent': 'Search photos and entries', // en-fallback
-  'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
+  'journey.studio.searchContent': 'Αναζήτηση φωτογραφιών και καταχωρίσεων',
+  'journey.studio.noMatches': 'Δεν βρέθηκε τίποτα.',
   'journey.studio.quoteMark': 'Εισαγωγικά',
-  'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
-  'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
-  'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
+  'journey.studio.shapeKind.rounded': 'Στρογγυλεμένο ορθογώνιο',
+  'journey.studio.shapeKind.triangle': 'Τρίγωνο',
+  'journey.studio.shapeKind.outline': 'Μόνο περίγραμμα',
   'journey.studio.travel': 'Ταξίδι',
   'journey.studio.travelEmpty': 'Τα στοιχεία αυτού του ταξιδιού δεν είναι ακόμη έτοιμα.',
   'journey.studio.grids': 'Πλέγματα',
@@ -547,7 +547,7 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Διαγραφή σελίδας',
   'journey.studio.movePageUp': 'Μετακίνηση νωρίτερα',
   'journey.studio.movePageDown': 'Μετακίνηση αργότερα',
-  'journey.studio.beta': 'Beta',
+  'journey.studio.beta': 'Δοκιμαστική',
   'journey.studio.addProsCons': 'Υπέρ & Κατά',
   'journey.studio.showMarks': 'Σήματα',
   'journey.studio.formatCustom': 'Δικό σας μέγεθος',

@@ -41,7 +41,7 @@ const admin: TranslationStrings = {
     'İstifadəçi ntfy bildirişləri üçün standart server kimi də istifadə edilir. Standart olaraq ntfy.sh istifadə etmək üçün boş saxlayın. İstifadəçilər bunu öz tənzimləmələrində dəyişə bilərlər.',
   'admin.notifications.adminNtfyPanel.serverPlaceholder': 'https://ntfy.sh',
   'admin.notifications.adminNtfyPanel.topicLabel': 'Administrator mövzusu',
-  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts',
+  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts', // same-as-en
   'admin.notifications.adminNtfyPanel.tokenLabel': 'Giriş tokeni (istəyə bağlı)',
   'admin.notifications.adminNtfyPanel.tokenCleared': 'Administrator giriş tokeni təmizləndi',
   'admin.notifications.adminNtfyPanel.saved': 'Administrator ntfy tənzimləmələri yadda saxlanıldı',
@@ -77,7 +77,7 @@ const admin: TranslationStrings = {
   'admin.tabs.categories': 'Kateqoriyalar',
   'admin.tabs.backup': 'Ehtiyat nüsxə',
   'admin.tabs.notifications': 'Bildirişlər',
-  'admin.tabs.audit': 'Audit',
+  'admin.tabs.audit': 'Audit', // same-as-en
   'admin.stats.users': 'İstifadəçi',
   'admin.stats.users.one': 'İstifadəçi',
   'admin.stats.trips': 'Səyahət',
@@ -191,7 +191,7 @@ const admin: TranslationStrings = {
     'TREK-in öz indeksi və OpenStreetMap hər axtarışa cavab verir. Onlar heç nə tapmadıqda başqa kimə sorğu göndəriləcəyini bu seçim müəyyən edir: Avtomatik rejim açar mövcud olduqda əvvəlcə Google-a, sonra Amap-a üstünlük verir.',
   'admin.placesProvider.auto': 'Avtomatik',
   'admin.placesProvider.google': 'Google Places',
-  'admin.placesProvider.amap': 'Amap (高德地图)',
+  'admin.placesProvider.amap': 'Amap (高德地图)', // same-as-en
   'admin.placesProvider.openstreetmap': 'OpenStreetMap',
   'admin.placesProvider.missingKey':
     'Seçilmiş provayder üçün API açarı konfiqurasiya edilməyib, buna görə məkan axtarışına yalnız TREK indeksi və OpenStreetMap cavab verir.',
@@ -705,7 +705,7 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.vacay.description': 'Təqvim görünüşlü şəxsi məzuniyyət planlayıcısı',
   'admin.addons.catalog.atlas.name': 'Atlas',
   'admin.addons.catalog.atlas.description': 'Ziyarət edilmiş ölkələr və səyahət statistikası ilə dünya xəritəsi',
-  'admin.addons.catalog.collab.name': 'Collab',
+  'admin.addons.catalog.collab.name': 'Collab', // same-as-en
   'admin.addons.catalog.collab.description': 'Birgə planlaşdırma üçün qeydlər, sorğular, çat və təkliflər',
   'admin.addons.catalog.roadtrip.name': 'Avtomobil səyahəti',
   'admin.addons.catalog.roadtrip.description':

@@ -20,7 +20,7 @@ const files: TranslationStrings = {
   'files.filterAll': 'Tot',
   'files.filterPdf': 'PDF',
   'files.filterImages': 'Imatges',
-  'files.filterDocs': 'Documents',
+  'files.filterDocs': 'Documents', // same-as-en
   'files.filterCollab': 'Notes de col·laboració',
   'files.sourceCollab': 'Des de notes de col·laboració',
   'files.empty': 'Encara no hi ha fitxers',
@@ -31,7 +31,7 @@ const files: TranslationStrings = {
   'files.toast.deleteError': "No s'ha pogut eliminar el fitxer",
   'files.sourcePlan': 'Pla diari',
   'files.sourceBooking': 'Reserva',
-  'files.sourceTransport': 'Transport',
+  'files.sourceTransport': 'Transport', // same-as-en
   'files.attach': 'Adjunta',
   'files.pasteHint': 'També pots enganxar imatges des del porta-retalls (Ctrl+V)',
   'files.trash': 'Paperera',
@@ -44,7 +44,7 @@ const files: TranslationStrings = {
   'files.assignTitle': 'Assigna el fitxer',
   'files.assignPlace': 'Lloc',
   'files.assignBooking': 'Reserva',
-  'files.assignTransport': 'Transport',
+  'files.assignTransport': 'Transport', // same-as-en
   'files.unassigned': 'Sense assignar',
   'files.unlink': "Elimina l'enllaç",
   'files.noteLabel': 'Nota',

@@ -13,7 +13,7 @@ const reservations: TranslationStrings = {
   'reservations.summary': '{confirmed} potwierdzonych, {pending} oczekujących',
   'reservations.showFiles': 'Pokaż pliki',
   'reservations.editTitle': 'Edytuj rezerwację',
-  'reservations.status': 'Status',
+  'reservations.status': 'Status', // same-as-en
   'reservations.datetime': 'Data i czas',
   'reservations.startTime': 'Godzina rozpoczęcia',
   'reservations.endTime': 'Godzina zakończenia',
@@ -62,7 +62,7 @@ const reservations: TranslationStrings = {
   'reservations.type.cruise': 'Rejs',
   'reservations.type.event': 'Wydarzenie',
   'reservations.type.tour': 'Wycieczka',
-  'reservations.type.parking': 'Parking',
+  'reservations.type.parking': 'Parking', // same-as-en
   'reservations.type.other': 'Inne',
   'reservations.type.bus': 'Autobus',
   'reservations.type.ferry': 'Prom',
@@ -130,7 +130,7 @@ const reservations: TranslationStrings = {
   'reservations.span.dropOff': 'Oddanie',
   'reservations.span.return': 'Zwrot',
   'reservations.span.active': 'Aktywny',
-  'reservations.span.start': 'Start',
+  'reservations.span.start': 'Start', // same-as-en
   'reservations.span.end': 'Koniec',
   'reservations.span.ongoing': 'W trakcie',
   'reservations.validation.endBeforeStart': 'Data/godzina zakończenia musi być późniejsza niż data/godzina rozpoczęcia',
@@ -206,7 +206,7 @@ const reservations: TranslationStrings = {
   'reservations.linkExpense': 'Powiąż istniejący wydatek',
   'reservations.unlinkExpense': 'Odłącz, zachowaj wydatek',
   'reservations.noUnlinkedExpenses': 'Brak niepowiązanych wydatków',
-  'reservations.urlLabel': 'Link',
+  'reservations.urlLabel': 'Link', // same-as-en
   'reservations.urlPlaceholder': 'https://...',
   'reservations.travelers.label': 'Podróżni',
   'reservations.travelers.assign': 'Przypisz podróżnych',
@@ -234,7 +234,7 @@ const reservations: TranslationStrings = {
   'reservations.export.notes': 'Notatki',
   'reservations.resetView': 'Resetuj widok',
   'reservations.group.label': 'Grupuj według',
-  'reservations.group.status': 'Status',
+  'reservations.group.status': 'Status', // same-as-en
   'reservations.group.day': 'Dzień',
   'reservations.group.type': 'Rodzaj',
   'reservations.group.none': 'Bez grupowania',
@@ -246,7 +246,7 @@ const reservations: TranslationStrings = {
   'reservations.sort.date': 'Data',
   'reservations.sort.title': 'Tytuł',
   'reservations.sort.type': 'Rodzaj',
-  'reservations.sort.status': 'Status',
+  'reservations.sort.status': 'Status', // same-as-en
   'reservations.sort.earlyFirst': 'Od najwcześniejszych',
   'reservations.sort.lateFirst': 'Od najpóźniejszych',
   'reservations.sort.aToZ': 'Od A do Z',

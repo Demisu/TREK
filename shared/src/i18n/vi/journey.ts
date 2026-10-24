@@ -269,28 +269,28 @@ const journey: TranslationStrings = {
   'journey.picker.noAlbums': 'Không tìm thấy album nào',
   'journey.picker.selectDate': 'Chọn ngày',
   'journey.picker.search': 'Tìm kiếm',
-  'journey.editor.externalPhotos': 'External photos', // en-fallback
-  'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
-  'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback
-  'journey.editor.externalPhotosNoLocation': 'All photos from this day', // en-fallback
-  'journey.editor.externalPhotosQueued': 'queued', // en-fallback
-  'journey.editor.externalPhotosUnavailable': 'No connected photo providers are available.', // en-fallback
-  'journey.editor.externalPhotosPartialFailed': '{failed} photo groups failed — save again to retry', // en-fallback
-  'journey.picker.day': 'This day', // en-fallback
-  'journey.studio.title': 'TREK Studio', // en-fallback
-  'journey.studio.open': 'Studio', // en-fallback
-  'journey.studio.openAria': 'Open the photo book studio', // en-fallback
-  'journey.studio.backToJourney': 'Back to the journey', // en-fallback
-  'journey.studio.format': 'Page format', // en-fallback
-  'journey.studio.formatA4Landscape': 'A4 landscape', // en-fallback
-  'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
-  'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
-  'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
+  'journey.editor.externalPhotos': 'Ảnh bên ngoài',
+  'journey.editor.externalPhotosFor': 'Ảnh cho {date}',
+  'journey.editor.externalPhotosNearby': 'Ảnh gần đó trước',
+  'journey.editor.externalPhotosNoLocation': 'Tất cả ảnh trong ngày này',
+  'journey.editor.externalPhotosQueued': 'đang chờ',
+  'journey.editor.externalPhotosUnavailable': 'Không có nhà cung cấp ảnh nào được kết nối.',
+  'journey.editor.externalPhotosPartialFailed': '{failed} nhóm ảnh bị lỗi, hãy lưu lại để thử lại',
+  'journey.picker.day': 'Ngày này',
+  'journey.studio.title': 'TREK Studio', // same-as-en
+  'journey.studio.open': 'Studio', // same-as-en
+  'journey.studio.openAria': 'Mở studio thiết kế photobook',
+  'journey.studio.backToJourney': 'Quay lại hành trình',
+  'journey.studio.format': 'Khổ trang',
+  'journey.studio.formatA4Landscape': 'A4 ngang',
+  'journey.studio.formatA4Portrait': 'A4 dọc',
+  'journey.studio.formatSquare21': 'Vuông 21 × 21 cm',
+  'journey.studio.formatSquare30': 'Vuông 30 × 30 cm',
   'journey.studio.pages': 'Trang',
-  'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.autoLayout': 'Auto layout', // en-fallback
-  'journey.studio.export': 'Export', // en-fallback
+  'journey.studio.cover': 'Bìa',
+  'journey.studio.inspectorEmpty': 'Chọn một thứ trên trang để chỉnh sửa.',
+  'journey.studio.autoLayout': 'Bố cục tự động',
+  'journey.studio.export': 'Xuất',
   'journey.studio.day': 'NGÀY {day}',
   'journey.studio.stations': 'Chặng dừng',
   'journey.studio.peersHere': 'ở đây',
@@ -308,98 +308,98 @@ const journey: TranslationStrings = {
   'journey.studio.exportSave': 'Lưu thành PDF',
   'journey.studio.exportPreparing': 'Đang chuẩn bị',
   'journey.studio.exportSheetCount': '{count} tờ',
-  'journey.studio.undo': 'Undo', // en-fallback
-  'journey.studio.redo': 'Redo', // en-fallback
-  'journey.studio.zoomIn': 'Zoom in', // en-fallback
-  'journey.studio.zoomOut': 'Zoom out', // en-fallback
-  'journey.studio.zoomFit': 'Fit to view', // en-fallback
+  'journey.studio.undo': 'Hoàn tác',
+  'journey.studio.redo': 'Làm lại',
+  'journey.studio.zoomIn': 'Phóng to',
+  'journey.studio.zoomOut': 'Thu nhỏ',
+  'journey.studio.zoomFit': 'Vừa khung nhìn',
   'journey.studio.downloadSpread': 'Tải trang đôi này về',
   'journey.studio.downloadSpreadHint':
     'Lưu thiết kế của trang đôi này thành tệp, không kèm ảnh, để chia sẻ hoặc dùng lại',
   'journey.studio.importSpread': 'Nhập',
   'journey.studio.importSpreadHint': 'Thêm một trang đôi từ tệp thiết kế đã tải về',
   'journey.studio.importSpreadFailed': 'Tệp đó không phải trang đôi của TREK Studio',
-  'journey.studio.desktopOnly': 'Studio needs a bigger screen', // en-fallback
+  'journey.studio.desktopOnly': 'Studio cần màn hình lớn hơn',
   'journey.studio.desktopOnlyHint':
-    'Dàn một cuốn sách cần chỗ để làm việc, nên Studio chỉ có trên máy tính, và việc tạo PDF cũng vậy. Mọi thứ khác của hành trình vẫn dùng bình thường ở đây.', // en-fallback
-  'journey.studio.formatA5Landscape': 'A5 landscape', // en-fallback
-  'journey.studio.bookView': 'Book view', // en-fallback
-  'journey.studio.multiple': 'Several', // en-fallback
-  'journey.studio.kind.photo': 'Photo', // en-fallback
-  'journey.studio.kind.text': 'Text', // en-fallback
-  'journey.studio.kind.shape': 'Shape', // en-fallback
-  'journey.studio.position': 'Position', // en-fallback
-  'journey.studio.width': 'W', // en-fallback
-  'journey.studio.height': 'H', // en-fallback
+    'Dàn một cuốn sách cần chỗ để làm việc, nên Studio chỉ có trên máy tính, và việc tạo PDF cũng vậy. Mọi thứ khác của hành trình vẫn dùng bình thường ở đây.',
+  'journey.studio.formatA5Landscape': 'A5 ngang',
+  'journey.studio.bookView': 'Chế độ xem sách',
+  'journey.studio.multiple': 'Nhiều mục',
+  'journey.studio.kind.photo': 'Ảnh',
+  'journey.studio.kind.text': 'Văn bản',
+  'journey.studio.kind.shape': 'Hình khối',
+  'journey.studio.position': 'Vị trí',
+  'journey.studio.width': 'R',
+  'journey.studio.height': 'C',
   'journey.studio.text': 'Văn bản',
-  'journey.studio.typography': 'Type', // en-fallback
-  'journey.studio.leading': 'Line', // en-fallback
-  'journey.studio.colour': 'Colour', // en-fallback
+  'journey.studio.typography': 'Kiểu chữ',
+  'journey.studio.leading': 'Dòng',
+  'journey.studio.colour': 'Màu',
   'journey.studio.autoColour': 'Tự động',
   'journey.studio.countryNames': 'Tên',
-  'journey.studio.crop': 'Crop', // en-fallback
-  'journey.studio.look': 'Look', // en-fallback
-  'journey.studio.radius': 'Corner', // en-fallback
-  'journey.studio.shape': 'Shape', // en-fallback
-  'journey.studio.arrange': 'Arrange', // en-fallback
-  'journey.studio.toFront': 'Bring to front', // en-fallback
-  'journey.studio.forward': 'Bring forward', // en-fallback
-  'journey.studio.backward': 'Send backward', // en-fallback
-  'journey.studio.toBack': 'Send to back', // en-fallback
-  'journey.studio.lock': 'Lock', // en-fallback
-  'journey.studio.unlock': 'Unlock', // en-fallback
-  'journey.studio.delete': 'Delete', // en-fallback
-  'journey.studio.pageHint': 'Page', // en-fallback
-  'journey.studio.boundHint': 'Follows the journal entry. Editing it here breaks that link.', // en-fallback
-  'journey.studio.fit.cover': 'Fill', // en-fallback
-  'journey.studio.fit.contain': 'Fit', // en-fallback
-  'journey.studio.filter.none': 'Original', // en-fallback
-  'journey.studio.filter.bw': 'Black & white', // en-fallback
-  'journey.studio.filter.warm': 'Warm', // en-fallback
-  'journey.studio.shapeKind.rect': 'Rectangle', // en-fallback
-  'journey.studio.shapeKind.ellipse': 'Ellipse', // en-fallback
-  'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
-  'journey.studio.backCover': 'Back cover', // en-fallback
-  'journey.studio.sections': 'Sections', // en-fallback
+  'journey.studio.crop': 'Cắt',
+  'journey.studio.look': 'Giao diện',
+  'journey.studio.radius': 'Góc',
+  'journey.studio.shape': 'Hình khối',
+  'journey.studio.arrange': 'Sắp xếp',
+  'journey.studio.toFront': 'Đưa lên trên cùng',
+  'journey.studio.forward': 'Đưa lên một lớp',
+  'journey.studio.backward': 'Lùi xuống một lớp',
+  'journey.studio.toBack': 'Đưa xuống dưới cùng',
+  'journey.studio.lock': 'Khóa',
+  'journey.studio.unlock': 'Mở khóa',
+  'journey.studio.delete': 'Xóa',
+  'journey.studio.pageHint': 'Trang',
+  'journey.studio.boundHint': 'Theo mục nhật ký. Chỉnh sửa tại đây sẽ ngắt liên kết đó.',
+  'journey.studio.fit.cover': 'Lấp đầy',
+  'journey.studio.fit.contain': 'Vừa khít',
+  'journey.studio.filter.none': 'Gốc',
+  'journey.studio.filter.bw': 'Đen trắng',
+  'journey.studio.filter.warm': 'Ấm',
+  'journey.studio.shapeKind.rect': 'Hình chữ nhật',
+  'journey.studio.shapeKind.ellipse': 'Hình elip',
+  'journey.studio.focalHint': 'Kéo điểm để chọn phần nằm lại trong khung.',
+  'journey.studio.backCover': 'Bìa sau',
+  'journey.studio.sections': 'Các phần',
   'journey.studio.content': 'Nội dung',
   'journey.studio.elements': 'Thành phần',
   'journey.studio.templates': 'Bố cục',
   'journey.studio.photos': 'Ảnh',
   'journey.studio.entries': 'Mục',
-  'journey.studio.addToPage': 'Add to this page', // en-fallback
-  'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
-  'journey.studio.untitled': 'Untitled', // en-fallback
-  'journey.studio.addTitle': 'Title', // en-fallback
-  'journey.studio.addStory': 'Story', // en-fallback
-  'journey.studio.addPlace': 'Place', // en-fallback
+  'journey.studio.addToPage': 'Thêm vào trang này',
+  'journey.studio.noPhotos': 'Hành trình này chưa có ảnh nào.',
+  'journey.studio.untitled': 'Chưa có tiêu đề',
+  'journey.studio.addTitle': 'Tiêu đề',
+  'journey.studio.addStory': 'Câu chuyện',
+  'journey.studio.addPlace': 'Địa điểm',
   'journey.studio.shapes': 'Hình khối',
   'journey.studio.frames': 'Khung',
-  'journey.studio.emptyFrame': 'Empty frame', // en-fallback
-  'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
-  'journey.studio.shapeKind.line': 'Line', // en-fallback
-  'journey.studio.styleTitle': 'Heading', // en-fallback
-  'journey.studio.styleSubtitle': 'Subheading', // en-fallback
-  'journey.studio.styleBody': 'Body text', // en-fallback
-  'journey.studio.styleCaption': 'Caption', // en-fallback
-  'journey.studio.sampleHeading': 'A heading', // en-fallback
-  'journey.studio.sampleSubheading': 'A subheading', // en-fallback
-  'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
-  'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
-  'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
-  'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
-  'journey.studio.tpl.grid4': 'Four up', // en-fallback
-  'journey.studio.tpl.grid6': 'Six up', // en-fallback
-  'journey.studio.tpl.strip': 'Strip and text', // en-fallback
-  'journey.studio.tpl.quietText': 'Text only', // en-fallback
-  'journey.studio.tpl.portraitPair': 'A pair', // en-fallback
+  'journey.studio.emptyFrame': 'Khung trống',
+  'journey.studio.frameHint': 'Khung trống đánh dấu nơi đặt ảnh. Thả một ảnh vào đó từ Nội dung.',
+  'journey.studio.shapeKind.line': 'Đường kẻ',
+  'journey.studio.styleTitle': 'Tiêu đề',
+  'journey.studio.styleSubtitle': 'Tiêu đề phụ',
+  'journey.studio.styleBody': 'Nội dung văn bản',
+  'journey.studio.styleCaption': 'Chú thích',
+  'journey.studio.sampleHeading': 'Một tiêu đề',
+  'journey.studio.sampleSubheading': 'Một tiêu đề phụ',
+  'journey.studio.sampleBody': 'Viết đôi dòng về ngày này.',
+  'journey.studio.sampleCaption': 'Chú thích',
+  'journey.studio.tpl.heroStory': 'Ảnh chính và câu chuyện',
+  'journey.studio.tpl.fullBleed': 'Một ảnh, tràn hai trang',
+  'journey.studio.tpl.twoUp': 'Hai trang đầy đủ',
+  'journey.studio.tpl.grid4': 'Bốn ảnh',
+  'journey.studio.tpl.grid6': 'Sáu ảnh',
+  'journey.studio.tpl.strip': 'Dải ảnh và văn bản',
+  'journey.studio.tpl.quietText': 'Chỉ văn bản',
+  'journey.studio.tpl.portraitPair': 'Một cặp',
   'journey.studio.dropPhotoHere': 'Kéo ảnh của bạn\nvào đây',
-  'journey.studio.searchContent': 'Search photos and entries', // en-fallback
-  'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
+  'journey.studio.searchContent': 'Tìm ảnh và mục nhật ký',
+  'journey.studio.noMatches': 'Không có kết quả phù hợp.',
   'journey.studio.quoteMark': 'Dấu ngoặc kép',
-  'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
-  'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
-  'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
+  'journey.studio.shapeKind.rounded': 'Hình chữ nhật bo góc',
+  'journey.studio.shapeKind.triangle': 'Hình tam giác',
+  'journey.studio.shapeKind.outline': 'Chỉ viền',
   'journey.studio.travel': 'Hành trình',
   'journey.studio.travelEmpty': 'Số liệu của hành trình này chưa sẵn sàng.',
   'journey.studio.grids': 'Lưới',
@@ -450,7 +450,7 @@ const journey: TranslationStrings = {
   'journey.studio.kind.countries': 'Quốc gia',
   'journey.studio.kind.badge': 'Dấu',
   'journey.studio.kind.list': 'Danh sách',
-  'journey.studio.kind.icon': 'Icon',
+  'journey.studio.kind.icon': 'Biểu tượng',
   'journey.studio.duplicate': 'Nhân bản',
   'journey.studio.copyToPage': 'Sao chép để dán vào trang bất kỳ (Ctrl+C)',
   'journey.studio.paste': 'Dán (Ctrl+V)',
@@ -486,7 +486,7 @@ const journey: TranslationStrings = {
   'journey.studio.markStyle.chip': 'Nền màu',
   'journey.studio.markStyle.outline': 'Viền',
   'journey.studio.markStyle.stacked': 'Xếp chồng',
-  'journey.studio.icon': 'Icon',
+  'journey.studio.icon': 'Biểu tượng',
   'journey.studio.iconAndLabel': 'Icon & chữ',
   'journey.studio.iconOnly': 'Chỉ icon',
   'journey.studio.labelOnly': 'Chỉ chữ',
@@ -533,7 +533,7 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Xóa trang',
   'journey.studio.movePageUp': 'Chuyển lên trước',
   'journey.studio.movePageDown': 'Chuyển xuống sau',
-  'journey.studio.beta': 'Beta',
+  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'Ưu và nhược điểm',
   'journey.studio.showMarks': 'Dấu',
   'journey.studio.formatCustom': 'Kích thước riêng',

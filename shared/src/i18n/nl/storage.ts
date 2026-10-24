@@ -6,7 +6,7 @@ const storage: TranslationStrings = {
   'storage.field.endpoint': 'Endpoint-URL',
   'storage.help.endpoint':
     'Basis-URL van de S3-compatibele service, bijv. https://s3.example.com of http://127.0.0.1:9000.',
-  'storage.field.bucket': 'Bucket',
+  'storage.field.bucket': 'Bucket', // same-as-en
   'storage.field.accessKeyId': 'Toegangssleutel-ID',
   'storage.field.secretAccessKey': 'Geheime toegangssleutel',
   'storage.field.region': 'Regio',
@@ -29,7 +29,7 @@ const storage: TranslationStrings = {
   'storage.discardAndReload': 'Mijn wijzigingen verwerpen en opnieuw laden',
   'storage.configError.banner':
     'Het laden van de opgeslagen opslaginstellingen is mislukt — opslaan zal ze vervangen: {error}',
-  'storage.backends.title': 'Backends',
+  'storage.backends.title': 'Backends', // same-as-en
   'storage.backends.add': 'Backend toevoegen',
   'storage.backends.usedBy': 'Gebruikt door: {categories}',
   'storage.backends.unused': 'Niet toegewezen aan een categorie',
@@ -39,7 +39,7 @@ const storage: TranslationStrings = {
   'storage.source.settings': 'Instellingen',
   'storage.type.local': 'Lokaal',
   'storage.type.s3': 'S3',
-  'storage.type.mirror': 'Mirror',
+  'storage.type.mirror': 'Spiegel',
   'storage.actions.test': 'Testen',
   'storage.actions.edit': 'Bewerken',
   'storage.actions.remove': 'Verwijderen',
@@ -53,7 +53,7 @@ const storage: TranslationStrings = {
   'storage.form.addTitle': 'Backend toevoegen',
   'storage.form.editTitle': 'Backend bewerken',
   'storage.form.name': 'Naam',
-  'storage.form.type': 'Type',
+  'storage.form.type': 'Type', // same-as-en
   'storage.form.apply': 'Toepassen',
   'storage.form.cancel': 'Annuleren',
   'storage.form.duplicateName': 'Er bestaat al een backend met de naam {name}',
@@ -116,7 +116,7 @@ const storage: TranslationStrings = {
   'storage.sync.prompt': 'Bestaande objecten zijn nog niet gerepliceerd — nu synchroniseren?',
   'storage.sync.dismiss': 'Negeren',
   'storage.usage.line': '{count} objecten · {size}',
-  'storage.usage.line.one': '{count} object · {size}',
+  'storage.usage.line.one': '{count} object, {size}',
   'storage.usage.computed': 'Gebruik berekend {age}',
   'storage.usage.never': 'Gebruik nog niet berekend',
   'storage.usage.refresh': 'Vernieuwen',

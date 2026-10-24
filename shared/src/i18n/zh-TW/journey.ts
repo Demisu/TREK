@@ -254,36 +254,36 @@ const journey: TranslationStrings = {
   'journey.picker.noAlbums': '未找到相簿',
   'journey.picker.selectDate': '選擇日期',
   'journey.picker.search': '搜尋',
-  'journey.detail.journeyTab': 'Journey', // en-fallback
-  'journey.contributors.remove': 'Remove contributor', // en-fallback
-  'journey.contributors.removeConfirm': 'Remove {username} from this journey?', // en-fallback
-  'journey.contributors.removed': 'Contributor removed', // en-fallback
-  'journey.contributors.removeFailed': 'Failed to remove contributor', // en-fallback
+  'journey.detail.journeyTab': '旅程',
+  'journey.contributors.remove': '移除參與者',
+  'journey.contributors.removeConfirm': '要將 {username} 從此旅程中移除嗎？',
+  'journey.contributors.removed': '已移除參與者',
+  'journey.contributors.removeFailed': '無法移除參與者',
   'journey.contributors.viaTrips': '透過旅行',
   'journey.contributors.viaTripsHint': '因為某個旅行連結了此日誌，他們可以開啟它。請在該旅行的設定中變更。',
   'journey.contributors.viaTrip': '透過 {trip}',
-  'journey.editor.externalPhotos': 'External photos', // en-fallback
-  'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
-  'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback
-  'journey.editor.externalPhotosNoLocation': 'All photos from this day', // en-fallback
-  'journey.editor.externalPhotosQueued': 'queued', // en-fallback
-  'journey.editor.externalPhotosUnavailable': 'No connected photo providers are available.', // en-fallback
-  'journey.editor.externalPhotosPartialFailed': '{failed} photo groups failed — save again to retry', // en-fallback
-  'journey.picker.day': 'This day', // en-fallback
-  'journey.studio.title': 'TREK Studio', // en-fallback
-  'journey.studio.open': 'Studio', // en-fallback
-  'journey.studio.openAria': 'Open the photo book studio', // en-fallback
-  'journey.studio.backToJourney': 'Back to the journey', // en-fallback
-  'journey.studio.format': 'Page format', // en-fallback
-  'journey.studio.formatA4Landscape': 'A4 landscape', // en-fallback
-  'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
-  'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
-  'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
+  'journey.editor.externalPhotos': '外部照片',
+  'journey.editor.externalPhotosFor': '{date} 的照片',
+  'journey.editor.externalPhotosNearby': '附近照片優先',
+  'journey.editor.externalPhotosNoLocation': '當天的所有照片',
+  'journey.editor.externalPhotosQueued': '已排入佇列',
+  'journey.editor.externalPhotosUnavailable': '沒有可用的已連線相片服務。',
+  'journey.editor.externalPhotosPartialFailed': '{failed} 組照片失敗，請再次儲存以重試',
+  'journey.picker.day': '這一天',
+  'journey.studio.title': 'TREK Studio',
+  'journey.studio.open': 'Studio',
+  'journey.studio.openAria': '開啟相簿書 Studio',
+  'journey.studio.backToJourney': '返回旅程',
+  'journey.studio.format': '頁面格式',
+  'journey.studio.formatA4Landscape': 'A4 橫向',
+  'journey.studio.formatA4Portrait': 'A4 直向',
+  'journey.studio.formatSquare21': '正方形 21 × 21 公分',
+  'journey.studio.formatSquare30': '正方形 30 × 30 公分',
   'journey.studio.pages': '頁面',
-  'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.autoLayout': 'Auto layout', // en-fallback
-  'journey.studio.export': 'Export', // en-fallback
+  'journey.studio.cover': '封面',
+  'journey.studio.inspectorEmpty': '請在頁面上選取要編輯的項目。',
+  'journey.studio.autoLayout': '自動排版',
+  'journey.studio.export': '匯出',
   'journey.studio.day': '第{day}天',
   'journey.studio.stations': '途經地',
   'journey.studio.peersHere': '在線',
@@ -301,97 +301,97 @@ const journey: TranslationStrings = {
   'journey.studio.exportSave': '另存為 PDF',
   'journey.studio.exportPreparing': '正在準備',
   'journey.studio.exportSheetCount': '{count} 張',
-  'journey.studio.undo': 'Undo', // en-fallback
-  'journey.studio.redo': 'Redo', // en-fallback
-  'journey.studio.zoomIn': 'Zoom in', // en-fallback
-  'journey.studio.zoomOut': 'Zoom out', // en-fallback
-  'journey.studio.zoomFit': 'Fit to view', // en-fallback
+  'journey.studio.undo': '復原',
+  'journey.studio.redo': '重做',
+  'journey.studio.zoomIn': '放大',
+  'journey.studio.zoomOut': '縮小',
+  'journey.studio.zoomFit': '符合視窗',
   'journey.studio.downloadSpread': '下載這個跨頁',
   'journey.studio.downloadSpreadHint': '將這個跨頁的設計存成檔案（不含照片），方便分享或再次使用',
   'journey.studio.importSpread': '匯入',
   'journey.studio.importSpreadHint': '從下載的設計檔案加入一個跨頁',
   'journey.studio.importSpreadFailed': '這個檔案不是 TREK Studio 的跨頁',
-  'journey.studio.desktopOnly': 'Studio needs a bigger screen', // en-fallback
+  'journey.studio.desktopOnly': 'Studio 需要較大的螢幕',
   'journey.studio.desktopOnlyHint':
-    '排一本書需要足夠的空間，所以 Studio 只在電腦上使用，製作 PDF 也是。旅程的其他功能在這裡照常可用。', // en-fallback
-  'journey.studio.formatA5Landscape': 'A5 landscape', // en-fallback
-  'journey.studio.bookView': 'Book view', // en-fallback
-  'journey.studio.multiple': 'Several', // en-fallback
-  'journey.studio.kind.photo': 'Photo', // en-fallback
-  'journey.studio.kind.text': 'Text', // en-fallback
-  'journey.studio.kind.shape': 'Shape', // en-fallback
-  'journey.studio.position': 'Position', // en-fallback
-  'journey.studio.width': 'W', // en-fallback
-  'journey.studio.height': 'H', // en-fallback
+    '排一本書需要足夠的空間，所以 Studio 只在電腦上使用，製作 PDF 也是。旅程的其他功能在這裡照常可用。',
+  'journey.studio.formatA5Landscape': 'A5 橫向',
+  'journey.studio.bookView': '書本檢視',
+  'journey.studio.multiple': '多個',
+  'journey.studio.kind.photo': '照片',
+  'journey.studio.kind.text': '文字',
+  'journey.studio.kind.shape': '圖形',
+  'journey.studio.position': '位置',
+  'journey.studio.width': '寬',
+  'journey.studio.height': '高',
   'journey.studio.text': '文字',
-  'journey.studio.typography': 'Type', // en-fallback
-  'journey.studio.leading': 'Line', // en-fallback
-  'journey.studio.colour': 'Colour', // en-fallback
+  'journey.studio.typography': '字型',
+  'journey.studio.leading': '行距',
+  'journey.studio.colour': '顏色',
   'journey.studio.autoColour': '自動',
   'journey.studio.countryNames': '名稱',
-  'journey.studio.crop': 'Crop', // en-fallback
-  'journey.studio.look': 'Look', // en-fallback
-  'journey.studio.radius': 'Corner', // en-fallback
-  'journey.studio.shape': 'Shape', // en-fallback
-  'journey.studio.arrange': 'Arrange', // en-fallback
-  'journey.studio.toFront': 'Bring to front', // en-fallback
-  'journey.studio.forward': 'Bring forward', // en-fallback
-  'journey.studio.backward': 'Send backward', // en-fallback
-  'journey.studio.toBack': 'Send to back', // en-fallback
-  'journey.studio.lock': 'Lock', // en-fallback
-  'journey.studio.unlock': 'Unlock', // en-fallback
-  'journey.studio.delete': 'Delete', // en-fallback
-  'journey.studio.pageHint': 'Page', // en-fallback
-  'journey.studio.boundHint': 'Follows the journal entry. Editing it here breaks that link.', // en-fallback
-  'journey.studio.fit.cover': 'Fill', // en-fallback
-  'journey.studio.fit.contain': 'Fit', // en-fallback
-  'journey.studio.filter.none': 'Original', // en-fallback
-  'journey.studio.filter.bw': 'Black & white', // en-fallback
-  'journey.studio.filter.warm': 'Warm', // en-fallback
-  'journey.studio.shapeKind.rect': 'Rectangle', // en-fallback
-  'journey.studio.shapeKind.ellipse': 'Ellipse', // en-fallback
-  'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
-  'journey.studio.backCover': 'Back cover', // en-fallback
-  'journey.studio.sections': 'Sections', // en-fallback
+  'journey.studio.crop': '裁切',
+  'journey.studio.look': '外觀',
+  'journey.studio.radius': '圓角',
+  'journey.studio.shape': '形狀',
+  'journey.studio.arrange': '排列',
+  'journey.studio.toFront': '移到最上層',
+  'journey.studio.forward': '上移一層',
+  'journey.studio.backward': '下移一層',
+  'journey.studio.toBack': '移到最下層',
+  'journey.studio.lock': '鎖定',
+  'journey.studio.unlock': '解除鎖定',
+  'journey.studio.delete': '刪除',
+  'journey.studio.pageHint': '頁面',
+  'journey.studio.boundHint': '內容會跟隨日誌條目。在此編輯會中斷連結。',
+  'journey.studio.fit.cover': '填滿',
+  'journey.studio.fit.contain': '符合',
+  'journey.studio.filter.none': '原始',
+  'journey.studio.filter.bw': '黑白',
+  'journey.studio.filter.warm': '暖色',
+  'journey.studio.shapeKind.rect': '矩形',
+  'journey.studio.shapeKind.ellipse': '橢圓',
+  'journey.studio.focalHint': '拖曳圓點來選擇要保留在畫面內的部分。',
+  'journey.studio.backCover': '封底',
+  'journey.studio.sections': '章節',
   'journey.studio.content': '內容',
   'journey.studio.elements': '元素',
   'journey.studio.templates': '版面',
   'journey.studio.photos': '照片',
   'journey.studio.entries': '紀錄',
-  'journey.studio.addToPage': 'Add to this page', // en-fallback
-  'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
-  'journey.studio.untitled': 'Untitled', // en-fallback
-  'journey.studio.addTitle': 'Title', // en-fallback
-  'journey.studio.addStory': 'Story', // en-fallback
-  'journey.studio.addPlace': 'Place', // en-fallback
+  'journey.studio.addToPage': '加入此頁',
+  'journey.studio.noPhotos': '此旅程還沒有照片。',
+  'journey.studio.untitled': '未命名',
+  'journey.studio.addTitle': '標題',
+  'journey.studio.addStory': '故事',
+  'journey.studio.addPlace': '地點',
   'journey.studio.shapes': '形狀',
   'journey.studio.frames': '相框',
-  'journey.studio.emptyFrame': 'Empty frame', // en-fallback
-  'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
-  'journey.studio.shapeKind.line': 'Line', // en-fallback
-  'journey.studio.styleTitle': 'Heading', // en-fallback
-  'journey.studio.styleSubtitle': 'Subheading', // en-fallback
-  'journey.studio.styleBody': 'Body text', // en-fallback
-  'journey.studio.styleCaption': 'Caption', // en-fallback
-  'journey.studio.sampleHeading': 'A heading', // en-fallback
-  'journey.studio.sampleSubheading': 'A subheading', // en-fallback
-  'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
-  'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
-  'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
-  'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
-  'journey.studio.tpl.grid4': 'Four up', // en-fallback
-  'journey.studio.tpl.grid6': 'Six up', // en-fallback
-  'journey.studio.tpl.strip': 'Strip and text', // en-fallback
-  'journey.studio.tpl.quietText': 'Text only', // en-fallback
-  'journey.studio.tpl.portraitPair': 'A pair', // en-fallback
+  'journey.studio.emptyFrame': '空白相框',
+  'journey.studio.frameHint': '空白相框標示圖片的位置。從「內容」把圖片拖到上面即可。',
+  'journey.studio.shapeKind.line': '線條',
+  'journey.studio.styleTitle': '標題',
+  'journey.studio.styleSubtitle': '副標題',
+  'journey.studio.styleBody': '內文',
+  'journey.studio.styleCaption': '圖說',
+  'journey.studio.sampleHeading': '標題範例',
+  'journey.studio.sampleSubheading': '副標題範例',
+  'journey.studio.sampleBody': '寫下這一天的故事。',
+  'journey.studio.sampleCaption': '圖說',
+  'journey.studio.tpl.heroStory': '主視覺與故事',
+  'journey.studio.tpl.fullBleed': '單張圖片，跨頁滿版',
+  'journey.studio.tpl.twoUp': '兩張滿版',
+  'journey.studio.tpl.grid4': '四格',
+  'journey.studio.tpl.grid6': '六格',
+  'journey.studio.tpl.strip': '長條與文字',
+  'journey.studio.tpl.quietText': '純文字',
+  'journey.studio.tpl.portraitPair': '一對',
   'journey.studio.dropPhotoHere': '將照片拖放\n到這裡',
-  'journey.studio.searchContent': 'Search photos and entries', // en-fallback
-  'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
+  'journey.studio.searchContent': '搜尋照片和條目',
+  'journey.studio.noMatches': '沒有符合的項目。',
   'journey.studio.quoteMark': '引號',
-  'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
-  'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
-  'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
+  'journey.studio.shapeKind.rounded': '圓角矩形',
+  'journey.studio.shapeKind.triangle': '三角形',
+  'journey.studio.shapeKind.outline': '僅外框',
   'journey.studio.travel': '旅程',
   'journey.studio.travelEmpty': '這趟旅程的數據尚未就緒。',
   'journey.studio.grids': '格線',
@@ -524,7 +524,7 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': '刪除頁面',
   'journey.studio.movePageUp': '前移',
   'journey.studio.movePageDown': '後移',
-  'journey.studio.beta': 'Beta',
+  'journey.studio.beta': '測試版',
   'journey.studio.addProsCons': '優缺點',
   'journey.studio.showMarks': '符號',
   'journey.studio.formatCustom': '自訂尺寸',

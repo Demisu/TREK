@@ -1,7 +1,7 @@
 import type { TranslationStrings } from '../types';
 
 const notifications: TranslationStrings = {
-  'notifications.title': 'Notifications',
+  'notifications.title': 'Notifications', // same-as-en
   'notifications.markAllRead': 'Tout marquer comme lu',
   'notifications.deleteAll': 'Tout supprimer',
   'notifications.showAll': 'Voir toutes les notifications',
@@ -29,8 +29,8 @@ const notifications: TranslationStrings = {
   'notifications.test.adminText': '{actor} a envoyé une notification de test à tous les admins.',
   'notifications.test.tripTitle': '{actor} a publié dans votre voyage',
   'notifications.test.tripText': 'Notification de test pour le voyage "{trip}".',
-  'notifications.countLabel': 'notifications',
-  'notifications.countLabel.one': 'notification',
+  'notifications.countLabel': 'notifications', // same-as-en
+  'notifications.countLabel.one': 'notification', // same-as-en
   'notifications.versionAvailable.title': 'Mise à jour disponible',
   'notifications.versionAvailable.text': 'TREK {version} est maintenant disponible.',
   'notifications.versionAvailable.button': 'Voir les détails',

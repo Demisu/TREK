@@ -38,7 +38,7 @@ const dayplan: TranslationStrings = {
   'notes.format.italic': 'Maili',
   'notes.format.strike': 'Üstündən xətt çəkilmiş',
   'notes.format.code': 'Kod',
-  'notes.format.link': 'Link',
+  'notes.format.link': 'Keçid',
   'notes.format.list': 'Markerli siyahı',
   'notes.format.orderedList': 'Nömrələnmiş siyahı',
   'notes.format.quote': 'Sitat',

@@ -194,7 +194,7 @@ const dashboard: TranslationStrings = {
   'dashboard.atlas.distanceFlown': 'Distanza in volo',
   'dashboard.atlas.kmUnit': 'km',
   'dashboard.atlas.aroundEquator': "≈ {count}× intorno all'equatore",
-  'dashboard.card.idea': 'Idea',
+  'dashboard.card.idea': 'Idea', // same-as-en
   'dashboard.fx.from': 'Da',
   'dashboard.fx.to': 'A',
   'dashboard.fx.unavailable': 'Tasso non disponibile',

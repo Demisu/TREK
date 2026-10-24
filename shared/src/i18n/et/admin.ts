@@ -41,7 +41,7 @@ const admin: TranslationStrings = {
     'Kasutatakse ka kasutajate ntfy teavituste vaikeserverina. Vaikimisi ntfy.sh kasutamiseks jäta tühjaks. Kasutajad saavad seda oma seadetes muuta.',
   'admin.notifications.adminNtfyPanel.serverPlaceholder': 'https://ntfy.sh',
   'admin.notifications.adminNtfyPanel.topicLabel': 'Administraatori teema',
-  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts',
+  'admin.notifications.adminNtfyPanel.topicPlaceholder': 'trek-admin-alerts', // same-as-en
   'admin.notifications.adminNtfyPanel.tokenLabel': 'Pääsutõend (valikuline)',
   'admin.notifications.adminNtfyPanel.tokenCleared': 'Administraatori pääsutõend eemaldatud',
   'admin.notifications.adminNtfyPanel.saved': 'Administraatori ntfy seaded salvestatud',
@@ -75,7 +75,7 @@ const admin: TranslationStrings = {
   'admin.tabs.categories': 'Kategooriad',
   'admin.tabs.backup': 'Varundamine',
   'admin.tabs.notifications': 'Teavitused',
-  'admin.tabs.audit': 'Audit',
+  'admin.tabs.audit': 'Audit', // same-as-en
   'admin.stats.users': 'Kasutajad',
   'admin.stats.users.one': 'Kasutaja',
   'admin.stats.trips': 'Reisid',
@@ -188,7 +188,7 @@ const admin: TranslationStrings = {
     "TREKi enda indeks ja OpenStreetMap vastavad igale otsingule. Siin valid, kellelt veel küsida, kui need midagi ei leia: automaatne valik eelistab võtme olemasolul Google'it ja seejärel Amapi.",
   'admin.placesProvider.auto': 'Automaatne',
   'admin.placesProvider.google': 'Google Places',
-  'admin.placesProvider.amap': 'Amap (高德地图)',
+  'admin.placesProvider.amap': 'Amap (高德地图)', // same-as-en
   'admin.placesProvider.openstreetmap': 'OpenStreetMap',
   'admin.placesProvider.missingKey':
     'Valitud teenusepakkuja API-võti pole seadistatud, seega vastavad kohaotsingutele ainult TREKi indeks ja OpenStreetMap.',

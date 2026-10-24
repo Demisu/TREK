@@ -12,7 +12,7 @@ const oauth: TranslationStrings = {
   'oauth.scope.group.collab': '協作',
   'oauth.scope.group.notifications': '通知',
   'oauth.scope.group.vacay': '假期',
-  'oauth.scope.group.geo': 'Geo',
+  'oauth.scope.group.geo': '地理',
   'oauth.scope.group.weather': '天氣',
   'oauth.scope.group.journey': '旅程',
   'oauth.scope.trips:read.label': '檢視行程與旅遊計畫',
@@ -73,25 +73,25 @@ const oauth: TranslationStrings = {
   'oauth.scope.journey:write.description': '建立、更新及刪除旅程及其條目',
   'oauth.scope.journey:share.label': '管理旅程連結',
   'oauth.scope.journey:share.description': '建立、更新及撤銷旅程的公開分享連結',
-  'oauth.authorize.authorizing': 'Authorizing…', // en-fallback
-  'oauth.authorize.loading': 'Loading…', // en-fallback
-  'oauth.authorize.errorTitle': 'Authorization Error', // en-fallback
-  'oauth.authorize.loginTitle': 'Sign in to continue', // en-fallback
-  'oauth.authorize.loginDescription': '{client} wants access to your TREK account. Please sign in first.', // en-fallback
-  'oauth.authorize.loginButton': 'Sign in to TREK', // en-fallback
-  'oauth.authorize.requestLabel': 'Authorization Request', // en-fallback
-  'oauth.authorize.requestDescription': 'This application is requesting access to your TREK account.', // en-fallback
+  'oauth.authorize.authorizing': '授權中…',
+  'oauth.authorize.loading': '載入中…',
+  'oauth.authorize.errorTitle': '授權錯誤',
+  'oauth.authorize.loginTitle': '登入以繼續',
+  'oauth.authorize.loginDescription': '{client} 想要存取你的 TREK 帳號，請先登入。',
+  'oauth.authorize.loginButton': '登入 TREK',
+  'oauth.authorize.requestLabel': '授權請求',
+  'oauth.authorize.requestDescription': '此應用程式正在請求存取你的 TREK 帳號。',
   'oauth.authorize.verifiedHost': '已驗證的網域：{host}',
-  'oauth.authorize.trustNote': 'Only grant access to applications you trust. Your data stays on your server.', // en-fallback
-  'oauth.authorize.selectScope': 'Select at least one scope', // en-fallback
+  'oauth.authorize.trustNote': '僅授權給你信任的應用程式。你的資料會保留在你的伺服器上。',
+  'oauth.authorize.selectScope': '請至少選擇一個權限範圍',
   'oauth.authorize.approveScopes': '核准（{count} 個授權範圍）',
-  'oauth.authorize.approveAccess': 'Approve Access', // en-fallback
-  'oauth.authorize.deny': 'Deny', // en-fallback
-  'oauth.authorize.choosePermissions': 'Choose which permissions to grant', // en-fallback
-  'oauth.authorize.permissionsRequested': 'Permissions requested', // en-fallback
-  'oauth.authorize.alwaysIncluded': 'Always included', // en-fallback
-  'oauth.authorize.alwaysTool.listTrips': 'List your trips so the AI can discover trip IDs', // en-fallback
-  'oauth.authorize.alwaysTool.getTripSummary': 'Read a trip overview needed to use any other tool', // en-fallback
+  'oauth.authorize.approveAccess': '核准存取',
+  'oauth.authorize.deny': '拒絕',
+  'oauth.authorize.choosePermissions': '選擇要授予的權限',
+  'oauth.authorize.permissionsRequested': '請求的權限',
+  'oauth.authorize.alwaysIncluded': '一律包含',
+  'oauth.authorize.alwaysTool.listTrips': '列出你的旅行，讓 AI 能找到旅行 ID',
+  'oauth.authorize.alwaysTool.getTripSummary': '讀取旅行概覽，使用其他工具時都需要',
   'oauth.scope.group.files': '檔案',
   'oauth.scope.group.settings': '設定',
   'oauth.scope.files:read.label': '檢視行程檔案',

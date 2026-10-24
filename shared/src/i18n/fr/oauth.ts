@@ -3,14 +3,14 @@ import type { TranslationStrings } from '../types';
 const oauth: TranslationStrings = {
   'oauth.scope.group.trips': 'Voyages',
   'oauth.scope.group.places': 'Lieux',
-  'oauth.scope.group.collections': 'Collections',
+  'oauth.scope.group.collections': 'Collections', // same-as-en
   'oauth.scope.group.atlas': 'Atlas',
   'oauth.scope.group.packing': 'Bagages',
   'oauth.scope.group.todos': 'Tâches',
-  'oauth.scope.group.budget': 'Budget',
+  'oauth.scope.group.budget': 'Budget', // same-as-en
   'oauth.scope.group.reservations': 'Réservations',
-  'oauth.scope.group.collab': 'Collaboration',
-  'oauth.scope.group.notifications': 'Notifications',
+  'oauth.scope.group.collab': 'Collaboration', // same-as-en
+  'oauth.scope.group.notifications': 'Notifications', // same-as-en
   'oauth.scope.group.vacay': 'Congés',
   'oauth.scope.group.geo': 'Géo',
   'oauth.scope.group.weather': 'Météo',
@@ -78,26 +78,26 @@ const oauth: TranslationStrings = {
   'oauth.scope.journey:share.label': 'Gérer les liens de journaux de voyage',
   'oauth.scope.journey:share.description':
     'Créer, modifier et révoquer des liens de partage publics pour les journaux de voyage',
-  'oauth.authorize.authorizing': 'Authorizing…', // en-fallback
-  'oauth.authorize.loading': 'Loading…', // en-fallback
-  'oauth.authorize.errorTitle': 'Authorization Error', // en-fallback
-  'oauth.authorize.loginTitle': 'Sign in to continue', // en-fallback
-  'oauth.authorize.loginDescription': '{client} wants access to your TREK account. Please sign in first.', // en-fallback
-  'oauth.authorize.loginButton': 'Sign in to TREK', // en-fallback
-  'oauth.authorize.requestLabel': 'Authorization Request', // en-fallback
-  'oauth.authorize.requestDescription': 'This application is requesting access to your TREK account.', // en-fallback
+  'oauth.authorize.authorizing': 'Autorisation en cours…',
+  'oauth.authorize.loading': 'Chargement…',
+  'oauth.authorize.errorTitle': "Erreur d'autorisation",
+  'oauth.authorize.loginTitle': 'Connectez-vous pour continuer',
+  'oauth.authorize.loginDescription': "{client} souhaite accéder à votre compte TREK. Veuillez d'abord vous connecter.",
+  'oauth.authorize.loginButton': 'Se connecter à TREK',
+  'oauth.authorize.requestLabel': "Demande d'autorisation",
+  'oauth.authorize.requestDescription': "Cette application demande l'accès à votre compte TREK.",
   'oauth.authorize.verifiedHost': 'Domaine vérifié : {host}',
-  'oauth.authorize.trustNote': 'Only grant access to applications you trust. Your data stays on your server.', // en-fallback
-  'oauth.authorize.selectScope': 'Select at least one scope', // en-fallback
+  'oauth.authorize.trustNote': "N'accordez l'accès qu'aux applications de confiance. Vos données restent sur votre serveur.",
+  'oauth.authorize.selectScope': 'Sélectionnez au moins une autorisation',
   'oauth.authorize.approveScopes': 'Approuver ({count} portées)',
   'oauth.authorize.approveScopes.one': 'Approuver ({count} portée)',
-  'oauth.authorize.approveAccess': 'Approve Access', // en-fallback
-  'oauth.authorize.deny': 'Deny', // en-fallback
-  'oauth.authorize.choosePermissions': 'Choose which permissions to grant', // en-fallback
-  'oauth.authorize.permissionsRequested': 'Permissions requested', // en-fallback
-  'oauth.authorize.alwaysIncluded': 'Always included', // en-fallback
-  'oauth.authorize.alwaysTool.listTrips': 'List your trips so the AI can discover trip IDs', // en-fallback
-  'oauth.authorize.alwaysTool.getTripSummary': 'Read a trip overview needed to use any other tool', // en-fallback
+  'oauth.authorize.approveAccess': "Autoriser l'accès",
+  'oauth.authorize.deny': 'Refuser',
+  'oauth.authorize.choosePermissions': 'Choisissez les permissions à accorder',
+  'oauth.authorize.permissionsRequested': 'Permissions demandées',
+  'oauth.authorize.alwaysIncluded': 'Toujours incluses',
+  'oauth.authorize.alwaysTool.listTrips': "Lister vos voyages pour que l'IA puisse retrouver leurs identifiants",
+  'oauth.authorize.alwaysTool.getTripSummary': "Lire l'aperçu d'un voyage, nécessaire pour utiliser n'importe quel autre outil",
   'oauth.scope.group.files': 'Fichiers',
   'oauth.scope.group.settings': 'Paramètres',
   'oauth.scope.files:read.label': 'Voir les fichiers du voyage',

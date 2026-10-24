@@ -62,18 +62,18 @@ const common: TranslationStrings = {
   'common.daysAgo.one': '{count} дн. тому',
   'common.daysAgo.few': '{count} дн. тому',
   'common.daysAgo.many': '{count} дн. тому',
-  'common.datepicker.prevMonth': 'Previous month', // en-fallback
-  'common.datepicker.nextMonth': 'Next month', // en-fallback
-  'common.datepicker.prevYear': 'Previous year', // en-fallback
-  'common.datepicker.nextYear': 'Next year', // en-fallback
-  'common.datepicker.prevYears': 'Previous years', // en-fallback
-  'common.datepicker.nextYears': 'Next years', // en-fallback
-  'common.datepicker.selectMonth': 'Select month', // en-fallback
-  'common.datepicker.selectYear': 'Select year', // en-fallback
-  'common.datepicker.enterManually': 'Enter date manually', // en-fallback
-  'common.datepicker.typeDate': 'Type a date', // en-fallback
-  'common.datepicker.dialog': 'Date picker', // en-fallback
-  'common.datepicker.clearDate': 'Clear date', // en-fallback
+  'common.datepicker.prevMonth': 'Попередній місяць',
+  'common.datepicker.nextMonth': 'Наступний місяць',
+  'common.datepicker.prevYear': 'Попередній рік',
+  'common.datepicker.nextYear': 'Наступний рік',
+  'common.datepicker.prevYears': 'Попередні роки',
+  'common.datepicker.nextYears': 'Наступні роки',
+  'common.datepicker.selectMonth': 'Вибрати місяць',
+  'common.datepicker.selectYear': 'Вибрати рік',
+  'common.datepicker.enterManually': 'Ввести дату вручну',
+  'common.datepicker.typeDate': 'Введи дату',
+  'common.datepicker.dialog': 'Вибір дати',
+  'common.datepicker.clearDate': 'Очистити дату',
   'common.errorTitle': 'Щось пішло не так',
   'common.errorBody': 'Ця частина застосунку перестала працювати. Ваші дані в безпеці.',
   'common.errorPanelTitle': 'Не вдалося показати цей розділ',

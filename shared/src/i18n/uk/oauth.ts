@@ -12,7 +12,7 @@ const oauth: TranslationStrings = {
   'oauth.scope.group.collab': 'Співпраця',
   'oauth.scope.group.notifications': 'Сповіщення',
   'oauth.scope.group.vacay': 'Відпустка',
-  'oauth.scope.group.geo': 'Geo',
+  'oauth.scope.group.geo': 'Геодані',
   'oauth.scope.group.weather': 'Погода',
   'oauth.scope.group.journey': 'Подорожі',
   'oauth.scope.trips:read.label': 'Перегляд поїздок і маршрутів',
@@ -75,28 +75,28 @@ const oauth: TranslationStrings = {
   'oauth.scope.journey:write.description': 'Створення, оновлення і видалення подорожей та їх записів',
   'oauth.scope.journey:share.label': 'Керування посиланнями на подорожі',
   'oauth.scope.journey:share.description': 'Створення, оновлення і відкликання публічних посилань на подорожі',
-  'oauth.authorize.authorizing': 'Authorizing…', // en-fallback
-  'oauth.authorize.loading': 'Loading…', // en-fallback
-  'oauth.authorize.errorTitle': 'Authorization Error', // en-fallback
-  'oauth.authorize.loginTitle': 'Sign in to continue', // en-fallback
-  'oauth.authorize.loginDescription': '{client} wants access to your TREK account. Please sign in first.', // en-fallback
-  'oauth.authorize.loginButton': 'Sign in to TREK', // en-fallback
-  'oauth.authorize.requestLabel': 'Authorization Request', // en-fallback
-  'oauth.authorize.requestDescription': 'This application is requesting access to your TREK account.', // en-fallback
+  'oauth.authorize.authorizing': 'Авторизація…',
+  'oauth.authorize.loading': 'Завантаження…',
+  'oauth.authorize.errorTitle': 'Помилка авторизації',
+  'oauth.authorize.loginTitle': 'Увійди, щоб продовжити',
+  'oauth.authorize.loginDescription': '{client} запитує доступ до твого облікового запису TREK. Спочатку увійди.',
+  'oauth.authorize.loginButton': 'Увійти в TREK',
+  'oauth.authorize.requestLabel': 'Запит на авторизацію',
+  'oauth.authorize.requestDescription': 'Цей застосунок запитує доступ до твого облікового запису TREK.',
   'oauth.authorize.verifiedHost': 'Підтверджений домен: {host}',
-  'oauth.authorize.trustNote': 'Only grant access to applications you trust. Your data stays on your server.', // en-fallback
-  'oauth.authorize.selectScope': 'Select at least one scope', // en-fallback
+  'oauth.authorize.trustNote': 'Надавай доступ лише застосункам, яким довіряєш. Твої дані залишаються на твоєму сервері.',
+  'oauth.authorize.selectScope': 'Вибери принаймні одну область доступу',
   'oauth.authorize.approveScopes': 'Дозволити ({count} області доступу)',
   'oauth.authorize.approveScopes.one': 'Дозволити ({count} область доступу)',
   'oauth.authorize.approveScopes.few': 'Дозволити ({count} області доступу)',
   'oauth.authorize.approveScopes.many': 'Дозволити ({count} областей доступу)',
-  'oauth.authorize.approveAccess': 'Approve Access', // en-fallback
-  'oauth.authorize.deny': 'Deny', // en-fallback
-  'oauth.authorize.choosePermissions': 'Choose which permissions to grant', // en-fallback
-  'oauth.authorize.permissionsRequested': 'Permissions requested', // en-fallback
-  'oauth.authorize.alwaysIncluded': 'Always included', // en-fallback
-  'oauth.authorize.alwaysTool.listTrips': 'List your trips so the AI can discover trip IDs', // en-fallback
-  'oauth.authorize.alwaysTool.getTripSummary': 'Read a trip overview needed to use any other tool', // en-fallback
+  'oauth.authorize.approveAccess': 'Надати доступ',
+  'oauth.authorize.deny': 'Відхилити',
+  'oauth.authorize.choosePermissions': 'Вибери, які дозволи надати',
+  'oauth.authorize.permissionsRequested': 'Запитані дозволи',
+  'oauth.authorize.alwaysIncluded': 'Завжди включено',
+  'oauth.authorize.alwaysTool.listTrips': 'Показати твої подорожі, щоб AI міг дізнатися їхні ID',
+  'oauth.authorize.alwaysTool.getTripSummary': 'Прочитати огляд подорожі, потрібний для будь-якого іншого інструмента',
   'oauth.scope.group.files': 'Файли',
   'oauth.scope.group.settings': 'Налаштування',
   'oauth.scope.files:read.label': 'Перегляд файлів подорожі',

@@ -40,9 +40,9 @@ const reservations: TranslationStrings = {
   'reservations.meta.trainNumber': 'Číslo vlaku',
   'reservations.meta.platform': 'Nástupiště',
   'reservations.meta.seat': 'Sedadlo',
-  'reservations.meta.checkIn': 'Check-in',
+  'reservations.meta.checkIn': 'Check-in', // same-as-en
   'reservations.meta.checkInUntil': 'Check-in do',
-  'reservations.meta.checkOut': 'Check-out',
+  'reservations.meta.checkOut': 'Check-out', // same-as-en
   'reservations.meta.linkAccommodation': 'Ubytování',
   'reservations.meta.pickAccommodation': 'Propojit s ubytováním',
   'reservations.meta.noAccommodation': 'Nic',
@@ -67,7 +67,7 @@ const reservations: TranslationStrings = {
   'reservations.type.ferry': 'Trajekt',
   'reservations.type.cable_car': 'Lanovka',
   'reservations.type.bicycle': 'Kolo',
-  'reservations.type.taxi': 'Taxi',
+  'reservations.type.taxi': 'Taxi', // same-as-en
   'reservations.type.transit': 'Veřejná doprava',
   'reservations.typeShort.transit': 'MHD',
   'reservations.type.transport_other': 'Ostatní',

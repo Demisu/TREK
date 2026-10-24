@@ -10,7 +10,7 @@ const collab: TranslationStrings = {
   'collab.polls.countdownMinutes': 'Reste {m} min',
   'collab.polls.clearDeadline': "Effacer l'échéance",
   'collab.tabs.chat': 'Discussion',
-  'collab.tabs.notes': 'Notes',
+  'collab.tabs.notes': 'Notes', // same-as-en
   'collab.tabs.polls': 'Sondages',
   'collab.tabs.links': 'Liens',
   'collab.links.add': 'Ajouter un lien',
@@ -48,7 +48,7 @@ const collab: TranslationStrings = {
   'collab.chat.minutesAgo.one': 'il y a {n} min',
   'collab.chat.hoursAgo': 'il y a {n} h',
   'collab.chat.hoursAgo.one': 'il y a {n} h',
-  'collab.notes.title': 'Notes',
+  'collab.notes.title': 'Notes', // same-as-en
   'collab.notes.new': 'Nouvelle note',
   'collab.notes.empty': 'Aucune note',
   'collab.notes.emptyHint': 'Commencez à capturer vos idées et plans',
@@ -83,21 +83,21 @@ const collab: TranslationStrings = {
   'collab.polls.new': 'Nouveau sondage',
   'collab.polls.empty': 'Aucun sondage',
   'collab.polls.emptyHint': 'Posez des questions au groupe et votez ensemble',
-  'collab.polls.question': 'Question',
+  'collab.polls.question': 'Question', // same-as-en
   'collab.polls.questionPlaceholder': 'Que devrait-on faire ?',
   'collab.polls.markdownHint': 'Markdown pris en charge',
   'collab.polls.addOption': '+ Ajouter une option',
-  'collab.polls.optionPlaceholder': 'Option {n}',
+  'collab.polls.optionPlaceholder': 'Option {n}', // same-as-en
   'collab.polls.create': 'Créer le sondage',
   'collab.polls.close': 'Fermer',
   'collab.polls.closed': 'Fermé',
-  'collab.polls.votes': '{n} votes',
-  'collab.polls.votes.one': '{n} vote',
+  'collab.polls.votes': '{n} votes', // same-as-en
+  'collab.polls.votes.one': '{n} vote', // same-as-en
   'collab.polls.multipleChoice': 'Choix multiples',
   'collab.polls.multiChoice': 'Choix multiples',
   'collab.polls.deadline': 'Date limite',
-  'collab.polls.option': 'Option',
-  'collab.polls.options': 'Options',
+  'collab.polls.option': 'Option', // same-as-en
+  'collab.polls.options': 'Options', // same-as-en
   'collab.polls.delete': 'Supprimer',
   'collab.polls.closedSection': 'Fermés',
   'collab.chat.imageLimit': 'Vous pouvez joindre jusqu’à {count} images par message',

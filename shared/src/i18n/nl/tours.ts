@@ -150,7 +150,7 @@ const tours: TranslationStrings = {
   'tours.planner.breaksShort': 'Pauzes',
   'tours.planner.plannedShort': 'Gepland',
   'tours.planner.start': 'Vertrek',
-  'tours.planner.via': 'Via',
+  'tours.planner.via': 'Via', // same-as-en
   'tours.planner.end': 'Einde',
   'tours.planner.moveUp': 'Routepunt omhoog verplaatsen',
   'tours.planner.moveDown': 'Routepunt omlaag verplaatsen',

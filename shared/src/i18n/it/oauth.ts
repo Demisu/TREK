@@ -7,12 +7,12 @@ const oauth: TranslationStrings = {
   'oauth.scope.group.atlas': 'Atlas',
   'oauth.scope.group.packing': 'Bagagli',
   'oauth.scope.group.todos': 'Attività',
-  'oauth.scope.group.budget': 'Budget',
+  'oauth.scope.group.budget': 'Budget', // same-as-en
   'oauth.scope.group.reservations': 'Prenotazioni',
   'oauth.scope.group.collab': 'Collaborazione',
   'oauth.scope.group.notifications': 'Notifiche',
   'oauth.scope.group.vacay': 'Ferie',
-  'oauth.scope.group.geo': 'Geo',
+  'oauth.scope.group.geo': 'Geo', // same-as-en
   'oauth.scope.group.weather': 'Meteo',
   'oauth.scope.group.journey': 'Diario di viaggio',
   'oauth.scope.trips:read.label': 'Visualizza viaggi e itinerari',
@@ -76,26 +76,26 @@ const oauth: TranslationStrings = {
   'oauth.scope.journey:share.label': 'Gestisci link diari di viaggio',
   'oauth.scope.journey:share.description':
     'Crea, aggiorna e revoca link di condivisione pubblici per i diari di viaggio',
-  'oauth.authorize.authorizing': 'Authorizing…', // en-fallback
-  'oauth.authorize.loading': 'Loading…', // en-fallback
-  'oauth.authorize.errorTitle': 'Authorization Error', // en-fallback
-  'oauth.authorize.loginTitle': 'Sign in to continue', // en-fallback
-  'oauth.authorize.loginDescription': '{client} wants access to your TREK account. Please sign in first.', // en-fallback
-  'oauth.authorize.loginButton': 'Sign in to TREK', // en-fallback
-  'oauth.authorize.requestLabel': 'Authorization Request', // en-fallback
-  'oauth.authorize.requestDescription': 'This application is requesting access to your TREK account.', // en-fallback
+  'oauth.authorize.authorizing': 'Autorizzazione in corso…',
+  'oauth.authorize.loading': 'Caricamento…',
+  'oauth.authorize.errorTitle': 'Errore di autorizzazione',
+  'oauth.authorize.loginTitle': 'Accedi per continuare',
+  'oauth.authorize.loginDescription': '{client} vuole accedere al tuo account TREK. Accedi prima.',
+  'oauth.authorize.loginButton': 'Accedi a TREK',
+  'oauth.authorize.requestLabel': 'Richiesta di autorizzazione',
+  'oauth.authorize.requestDescription': "Questa applicazione richiede l'accesso al tuo account TREK.",
   'oauth.authorize.verifiedHost': 'Dominio verificato: {host}',
-  'oauth.authorize.trustNote': 'Only grant access to applications you trust. Your data stays on your server.', // en-fallback
-  'oauth.authorize.selectScope': 'Select at least one scope', // en-fallback
+  'oauth.authorize.trustNote': "Concedi l'accesso solo ad applicazioni di cui ti fidi. I tuoi dati restano sul tuo server.",
+  'oauth.authorize.selectScope': 'Seleziona almeno un ambito',
   'oauth.authorize.approveScopes': 'Approva ({count} ambiti)',
   'oauth.authorize.approveScopes.one': 'Approva ({count} ambito)',
-  'oauth.authorize.approveAccess': 'Approve Access', // en-fallback
-  'oauth.authorize.deny': 'Deny', // en-fallback
-  'oauth.authorize.choosePermissions': 'Choose which permissions to grant', // en-fallback
-  'oauth.authorize.permissionsRequested': 'Permissions requested', // en-fallback
-  'oauth.authorize.alwaysIncluded': 'Always included', // en-fallback
-  'oauth.authorize.alwaysTool.listTrips': 'List your trips so the AI can discover trip IDs', // en-fallback
-  'oauth.authorize.alwaysTool.getTripSummary': 'Read a trip overview needed to use any other tool', // en-fallback
+  'oauth.authorize.approveAccess': "Approva l'accesso",
+  'oauth.authorize.deny': 'Rifiuta',
+  'oauth.authorize.choosePermissions': 'Scegli quali permessi concedere',
+  'oauth.authorize.permissionsRequested': 'Permessi richiesti',
+  'oauth.authorize.alwaysIncluded': 'Sempre inclusi',
+  'oauth.authorize.alwaysTool.listTrips': "Elenca i tuoi viaggi così l'IA può trovare gli ID dei viaggi",
+  'oauth.authorize.alwaysTool.getTripSummary': 'Leggi la panoramica di un viaggio, necessaria per usare qualsiasi altro strumento',
   'oauth.scope.group.files': 'File',
   'oauth.scope.group.settings': 'Impostazioni',
   'oauth.scope.files:read.label': 'Vedere i file del viaggio',

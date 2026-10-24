@@ -1481,7 +1481,7 @@ const help: TranslationStrings = {
     '„Laadi varukoopia üles“ taastab andmed teises serveris või varasemal päeval tehtud failist pärast sama küsimust nagu „Taasta“.',
   'help.ctx.admin-backup.bullet.3':
     '„Automaatne varundamine“: sisse või välja, „Sagedus“, „Käivitamise kellaaeg“ ja päev ning „Kustuta vanad varukoopiad pärast“ (alates 1 päevast kuni „Säilita igavesti“); muudatused rakenduvad nupuga „Salvesta“.',
-  'help.ctx.admin-audit.title': 'Audit',
+  'help.ctx.admin-audit.title': 'Audit', // same-as-en
   'help.ctx.admin-audit.summary':
     'Turvalisuse ja halduse seisukohast oluliste sündmuste logi: sisselogimised ja ebaõnnestunud katsed, MFA muudatused, kasutajate ja seadete muudatused, varundused ja taastamised. Ainult lugemiseks, uusimad eespool.',
   'help.ctx.admin-audit.bullet.1':

@@ -28,7 +28,7 @@ const docsync: TranslationStrings = {
   // Polia formulára pripojenia. Kľúče zodpovedajú stĺpcu `label` v tabuľke
   // document_provider_fields, ktorá ukladá príponu kľúča, nie text.
   'docsync.providerUrl': 'Adresa',
-  'docsync.providerApiToken': 'API token',
+  'docsync.providerApiToken': 'API token', // same-as-en
   'docsync.providerApiKey': 'API kľúč',
   'docsync.providerAppPassword': 'Heslo aplikácie',
   'docsync.providerAppToken': 'Token aplikácie',

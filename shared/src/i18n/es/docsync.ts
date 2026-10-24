@@ -65,7 +65,7 @@ const docsync: TranslationStrings = {
   'docsync.state.conflict': 'Conflicto',
   'docsync.state.rejected_type': 'Tipo no permitido',
   'docsync.state.too_large': 'Demasiado grande',
-  'docsync.state.error': 'Error',
+  'docsync.state.error': 'Error', // same-as-en
   'docsync.state.remote_missing': 'Falta en el proveedor',
   'docsync.state.local_deleted': 'Eliminado en TREK',
   'docsync.state.scope_drift': 'Fuera de la carpeta',

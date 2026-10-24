@@ -59,7 +59,7 @@ const system_notice: TranslationStrings = {
     'Öz məkan API-si, başlanğıcdan sona qədər planlaşdırılan avtomobil səyahətləri, məkan tarixçənizin yenidən sizin nəzarətinizdə olması və sənədlərinizin sinxronlaşdırılması.',
   'system_notice.release_notes.features_label': 'Əsas yeniliklər',
   'system_notice.release_notes.features_aside': 'Bundan əlavə',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
+  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
   'system_notice.release_notes.feature_places_body':
     'Öz məkan API-sinə malik ilk açıq mənbəli səyahət planlayıcısı. 73,6 milyon məkan, açar və kvota yoxdur.',
   'system_notice.release_notes.feature_roadtrip_title': 'Avtomobil səyahəti əlavəsi',

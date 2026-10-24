@@ -180,7 +180,7 @@ const journey: TranslationStrings = {
   'journey.contributors.searchUser': 'Hledat uživatele',
   'journey.contributors.searchPlaceholder': 'Uživatelské jméno nebo e-mail...',
   'journey.contributors.noUsers': 'Žádní uživatelé nenalezeni',
-  'journey.contributors.role': 'Role',
+  'journey.contributors.role': 'Role', // same-as-en
   'journey.contributors.added': 'Přispěvatel přidán',
   'journey.contributors.addFailed': 'Přidání přispěvatele selhalo',
   'journey.share.publicShare': 'Veřejné sdílení',
@@ -196,9 +196,9 @@ const journey: TranslationStrings = {
   'journey.share.linkDeleted': 'Odkaz ke sdílení smazán',
   'journey.share.deleteFailed': 'Smazání selhalo',
   'journey.share.updateFailed': 'Aktualizace selhala',
-  'journey.invite.role': 'Role',
+  'journey.invite.role': 'Role', // same-as-en
   'journey.invite.viewer': 'Čtenář',
-  'journey.invite.editor': 'Editor',
+  'journey.invite.editor': 'Editor', // same-as-en
   'journey.invite.invite': 'Pozvat',
   'journey.invite.inviting': 'Zveme...',
   'journey.settings.title': 'Nastavení cestovního deníku',
@@ -271,37 +271,37 @@ const journey: TranslationStrings = {
   'journey.picker.noAlbums': 'Žádná alba nenalezena',
   'journey.picker.selectDate': 'Vyberte datum',
   'journey.picker.search': 'Hledat',
-  'journey.detail.journeyTab': 'Journey', // en-fallback
-  'journey.contributors.remove': 'Remove contributor', // en-fallback
-  'journey.contributors.removeConfirm': 'Remove {username} from this journey?', // en-fallback
-  'journey.contributors.removed': 'Contributor removed', // en-fallback
-  'journey.contributors.removeFailed': 'Failed to remove contributor', // en-fallback
+  'journey.detail.journeyTab': 'Cestovní deník',
+  'journey.contributors.remove': 'Odebrat přispěvatele',
+  'journey.contributors.removeConfirm': 'Odebrat uživatele {username} z tohoto deníku?',
+  'journey.contributors.removed': 'Přispěvatel byl odebrán',
+  'journey.contributors.removeFailed': 'Přispěvatele se nepodařilo odebrat',
   'journey.contributors.viaTrips': 'Přes cesty',
   'journey.contributors.viaTripsHint':
     'Mohou tento deník otevřít, protože ho cesta propojuje. Změňte to v nastavení cesty.',
   'journey.contributors.viaTrip': 'přes {trip}',
-  'journey.editor.externalPhotos': 'External photos', // en-fallback
-  'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
-  'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback
-  'journey.editor.externalPhotosNoLocation': 'All photos from this day', // en-fallback
-  'journey.editor.externalPhotosQueued': 'queued', // en-fallback
-  'journey.editor.externalPhotosUnavailable': 'No connected photo providers are available.', // en-fallback
-  'journey.editor.externalPhotosPartialFailed': '{failed} photo groups failed — save again to retry', // en-fallback
-  'journey.picker.day': 'This day', // en-fallback
-  'journey.studio.title': 'TREK Studio', // en-fallback
-  'journey.studio.open': 'Studio', // en-fallback
-  'journey.studio.openAria': 'Open the photo book studio', // en-fallback
-  'journey.studio.backToJourney': 'Back to the journey', // en-fallback
-  'journey.studio.format': 'Page format', // en-fallback
-  'journey.studio.formatA4Landscape': 'A4 landscape', // en-fallback
-  'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
-  'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
-  'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
+  'journey.editor.externalPhotos': 'Externí fotky',
+  'journey.editor.externalPhotosFor': 'Fotky pro {date}',
+  'journey.editor.externalPhotosNearby': 'Nejdřív fotky z okolí',
+  'journey.editor.externalPhotosNoLocation': 'Všechny fotky z tohoto dne',
+  'journey.editor.externalPhotosQueued': 've frontě',
+  'journey.editor.externalPhotosUnavailable': 'Nejsou dostupní žádní připojení poskytovatelé fotek.',
+  'journey.editor.externalPhotosPartialFailed': 'Skupin fotek, které selhaly: {failed}. Uložte znovu a zkuste to ještě jednou',
+  'journey.picker.day': 'Tento den',
+  'journey.studio.title': 'TREK Studio', // same-as-en
+  'journey.studio.open': 'Studio', // same-as-en
+  'journey.studio.openAria': 'Otevřít studio fotoknihy',
+  'journey.studio.backToJourney': 'Zpět do deníku',
+  'journey.studio.format': 'Formát stránky',
+  'journey.studio.formatA4Landscape': 'A4 na šířku',
+  'journey.studio.formatA4Portrait': 'A4 na výšku',
+  'journey.studio.formatSquare21': 'Čtverec 21 × 21 cm',
+  'journey.studio.formatSquare30': 'Čtverec 30 × 30 cm',
   'journey.studio.pages': 'Stránky',
-  'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.autoLayout': 'Auto layout', // en-fallback
-  'journey.studio.export': 'Export', // en-fallback
+  'journey.studio.cover': 'Obálka',
+  'journey.studio.inspectorEmpty': 'Vyberte něco na stránce a můžete to upravit.',
+  'journey.studio.autoLayout': 'Automatické rozvržení',
+  'journey.studio.export': 'Exportovat',
   'journey.studio.day': 'DEN {day}',
   'journey.studio.stations': 'Zastávky',
   'journey.studio.peersHere': 'zde',
@@ -323,98 +323,98 @@ const journey: TranslationStrings = {
   'journey.studio.exportSheetCount': '{count} listů',
   'journey.studio.exportSheetCount.one': '{count} list',
   'journey.studio.exportSheetCount.few': '{count} listy',
-  'journey.studio.undo': 'Undo', // en-fallback
-  'journey.studio.redo': 'Redo', // en-fallback
-  'journey.studio.zoomIn': 'Zoom in', // en-fallback
-  'journey.studio.zoomOut': 'Zoom out', // en-fallback
-  'journey.studio.zoomFit': 'Fit to view', // en-fallback
+  'journey.studio.undo': 'Zpět',
+  'journey.studio.redo': 'Znovu',
+  'journey.studio.zoomIn': 'Přiblížit',
+  'journey.studio.zoomOut': 'Oddálit',
+  'journey.studio.zoomFit': 'Přizpůsobit zobrazení',
   'journey.studio.downloadSpread': 'Stáhnout tuto dvoustranu',
   'journey.studio.downloadSpreadHint':
     'Uloží návrh této dvoustrany jako soubor, bez fotografií, ke sdílení nebo dalšímu použití',
   'journey.studio.importSpread': 'Importovat',
   'journey.studio.importSpreadHint': 'Přidá dvoustranu ze staženého souboru s návrhem',
   'journey.studio.importSpreadFailed': 'Tento soubor není dvoustrana z TREK Studia',
-  'journey.studio.desktopOnly': 'Studio needs a bigger screen', // en-fallback
+  'journey.studio.desktopOnly': 'Studio potřebuje větší obrazovku',
   'journey.studio.desktopOnlyHint':
-    'Sazba knihy potřebuje místo, a tak je Studio jen na počítači, stejně jako tvorba PDF. Všechno ostatní z cesty tu funguje jako obvykle.', // en-fallback
-  'journey.studio.formatA5Landscape': 'A5 landscape', // en-fallback
-  'journey.studio.bookView': 'Book view', // en-fallback
-  'journey.studio.multiple': 'Several', // en-fallback
-  'journey.studio.kind.photo': 'Photo', // en-fallback
-  'journey.studio.kind.text': 'Text', // en-fallback
-  'journey.studio.kind.shape': 'Shape', // en-fallback
-  'journey.studio.position': 'Position', // en-fallback
-  'journey.studio.width': 'W', // en-fallback
-  'journey.studio.height': 'H', // en-fallback
+    'Sazba knihy potřebuje místo, a tak je Studio jen na počítači, stejně jako tvorba PDF. Všechno ostatní z cesty tu funguje jako obvykle.',
+  'journey.studio.formatA5Landscape': 'A5 na šířku',
+  'journey.studio.bookView': 'Zobrazení knihy',
+  'journey.studio.multiple': 'Několik',
+  'journey.studio.kind.photo': 'Fotka',
+  'journey.studio.kind.text': 'Text', // same-as-en
+  'journey.studio.kind.shape': 'Tvar',
+  'journey.studio.position': 'Pozice',
+  'journey.studio.width': 'Š',
+  'journey.studio.height': 'V',
   'journey.studio.text': 'Text', // same-as-en
-  'journey.studio.typography': 'Type', // en-fallback
-  'journey.studio.leading': 'Line', // en-fallback
-  'journey.studio.colour': 'Colour', // en-fallback
+  'journey.studio.typography': 'Písmo',
+  'journey.studio.leading': 'Řádek',
+  'journey.studio.colour': 'Barva',
   'journey.studio.autoColour': 'Automaticky',
   'journey.studio.countryNames': 'Názvy',
-  'journey.studio.crop': 'Crop', // en-fallback
-  'journey.studio.look': 'Look', // en-fallback
-  'journey.studio.radius': 'Corner', // en-fallback
-  'journey.studio.shape': 'Shape', // en-fallback
-  'journey.studio.arrange': 'Arrange', // en-fallback
-  'journey.studio.toFront': 'Bring to front', // en-fallback
-  'journey.studio.forward': 'Bring forward', // en-fallback
-  'journey.studio.backward': 'Send backward', // en-fallback
-  'journey.studio.toBack': 'Send to back', // en-fallback
-  'journey.studio.lock': 'Lock', // en-fallback
-  'journey.studio.unlock': 'Unlock', // en-fallback
-  'journey.studio.delete': 'Delete', // en-fallback
-  'journey.studio.pageHint': 'Page', // en-fallback
-  'journey.studio.boundHint': 'Follows the journal entry. Editing it here breaks that link.', // en-fallback
-  'journey.studio.fit.cover': 'Fill', // en-fallback
-  'journey.studio.fit.contain': 'Fit', // en-fallback
-  'journey.studio.filter.none': 'Original', // en-fallback
-  'journey.studio.filter.bw': 'Black & white', // en-fallback
-  'journey.studio.filter.warm': 'Warm', // en-fallback
-  'journey.studio.shapeKind.rect': 'Rectangle', // en-fallback
-  'journey.studio.shapeKind.ellipse': 'Ellipse', // en-fallback
-  'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
-  'journey.studio.backCover': 'Back cover', // en-fallback
-  'journey.studio.sections': 'Sections', // en-fallback
+  'journey.studio.crop': 'Oříznutí',
+  'journey.studio.look': 'Vzhled',
+  'journey.studio.radius': 'Roh',
+  'journey.studio.shape': 'Tvar',
+  'journey.studio.arrange': 'Uspořádat',
+  'journey.studio.toFront': 'Přenést do popředí',
+  'journey.studio.forward': 'Posunout o vrstvu dopředu',
+  'journey.studio.backward': 'Posunout o vrstvu dozadu',
+  'journey.studio.toBack': 'Přenést do pozadí',
+  'journey.studio.lock': 'Zamknout',
+  'journey.studio.unlock': 'Odemknout',
+  'journey.studio.delete': 'Smazat',
+  'journey.studio.pageHint': 'Stránka',
+  'journey.studio.boundHint': 'Sleduje záznam v deníku. Úprava zde toto propojení přeruší.',
+  'journey.studio.fit.cover': 'Vyplnit',
+  'journey.studio.fit.contain': 'Vměstnat',
+  'journey.studio.filter.none': 'Originál',
+  'journey.studio.filter.bw': 'Černobílá',
+  'journey.studio.filter.warm': 'Teplá',
+  'journey.studio.shapeKind.rect': 'Obdélník',
+  'journey.studio.shapeKind.ellipse': 'Elipsa',
+  'journey.studio.focalHint': 'Přetažením bodu zvolíte, co zůstane v záběru.',
+  'journey.studio.backCover': 'Zadní obálka',
+  'journey.studio.sections': 'Sekce',
   'journey.studio.content': 'Obsah',
   'journey.studio.elements': 'Prvky',
   'journey.studio.templates': 'Rozvržení',
   'journey.studio.photos': 'Fotky',
   'journey.studio.entries': 'Záznamy',
-  'journey.studio.addToPage': 'Add to this page', // en-fallback
-  'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
-  'journey.studio.untitled': 'Untitled', // en-fallback
-  'journey.studio.addTitle': 'Title', // en-fallback
-  'journey.studio.addStory': 'Story', // en-fallback
-  'journey.studio.addPlace': 'Place', // en-fallback
+  'journey.studio.addToPage': 'Přidat na tuto stránku',
+  'journey.studio.noPhotos': 'Tento deník zatím nemá žádné fotky.',
+  'journey.studio.untitled': 'Bez názvu',
+  'journey.studio.addTitle': 'Nadpis',
+  'journey.studio.addStory': 'Příběh',
+  'journey.studio.addPlace': 'Místo',
   'journey.studio.shapes': 'Tvary',
   'journey.studio.frames': 'Rámečky',
-  'journey.studio.emptyFrame': 'Empty frame', // en-fallback
-  'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
-  'journey.studio.shapeKind.line': 'Line', // en-fallback
-  'journey.studio.styleTitle': 'Heading', // en-fallback
-  'journey.studio.styleSubtitle': 'Subheading', // en-fallback
-  'journey.studio.styleBody': 'Body text', // en-fallback
-  'journey.studio.styleCaption': 'Caption', // en-fallback
-  'journey.studio.sampleHeading': 'A heading', // en-fallback
-  'journey.studio.sampleSubheading': 'A subheading', // en-fallback
-  'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
-  'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
-  'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
-  'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
-  'journey.studio.tpl.grid4': 'Four up', // en-fallback
-  'journey.studio.tpl.grid6': 'Six up', // en-fallback
-  'journey.studio.tpl.strip': 'Strip and text', // en-fallback
-  'journey.studio.tpl.quietText': 'Text only', // en-fallback
-  'journey.studio.tpl.portraitPair': 'A pair', // en-fallback
+  'journey.studio.emptyFrame': 'Prázdný rámeček',
+  'journey.studio.frameHint': 'Prázdný rámeček označuje, kam patří obrázek. Přetáhněte na něj obrázek z Obsahu.',
+  'journey.studio.shapeKind.line': 'Čára',
+  'journey.studio.styleTitle': 'Nadpis',
+  'journey.studio.styleSubtitle': 'Podnadpis',
+  'journey.studio.styleBody': 'Základní text',
+  'journey.studio.styleCaption': 'Popisek',
+  'journey.studio.sampleHeading': 'Nadpis',
+  'journey.studio.sampleSubheading': 'Podnadpis',
+  'journey.studio.sampleBody': 'Napište něco o tomto dni.',
+  'journey.studio.sampleCaption': 'Popisek',
+  'journey.studio.tpl.heroStory': 'Velký obrázek a příběh',
+  'journey.studio.tpl.fullBleed': 'Jeden obrázek přes celý rozvrh',
+  'journey.studio.tpl.twoUp': 'Dvě celé stránky',
+  'journey.studio.tpl.grid4': 'Čtyři obrázky',
+  'journey.studio.tpl.grid6': 'Šest obrázků',
+  'journey.studio.tpl.strip': 'Pás a text',
+  'journey.studio.tpl.quietText': 'Pouze text',
+  'journey.studio.tpl.portraitPair': 'Dvojice',
   'journey.studio.dropPhotoHere': 'Přetáhni sem\nsvou fotku',
-  'journey.studio.searchContent': 'Search photos and entries', // en-fallback
-  'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
+  'journey.studio.searchContent': 'Hledat fotky a záznamy',
+  'journey.studio.noMatches': 'Nic nevyhovuje.',
   'journey.studio.quoteMark': 'Uvozovky',
-  'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
-  'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
-  'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
+  'journey.studio.shapeKind.rounded': 'Zaoblený obdélník',
+  'journey.studio.shapeKind.triangle': 'Trojúhelník',
+  'journey.studio.shapeKind.outline': 'Pouze obrys',
   'journey.studio.travel': 'Cesta',
   'journey.studio.travelEmpty': 'Čísla této cesty zatím nejsou připravená.',
   'journey.studio.grids': 'Mřížky',
@@ -426,7 +426,7 @@ const journey: TranslationStrings = {
   'journey.studio.polaroidFrame': 'Polaroid',
   'journey.studio.whiteFrame': 'Bílý okraj',
   'journey.studio.shadowFrame': 'Vržený stín',
-  'journey.studio.filmFrame': 'Film',
+  'journey.studio.filmFrame': 'Film', // same-as-en
   'journey.studio.tapeFrame': 'Přelepený',
   'journey.studio.shapeGroup.basic': 'Základní',
   'journey.studio.shapeGroup.polygons': 'Mnohoúhelníky',
@@ -548,7 +548,7 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Smazat stranu',
   'journey.studio.movePageUp': 'Posunout dopředu',
   'journey.studio.movePageDown': 'Posunout dozadu',
-  'journey.studio.beta': 'Beta',
+  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'Klady a zápory',
   'journey.studio.showMarks': 'Značky',
   'journey.studio.formatCustom': 'Vlastní formát',

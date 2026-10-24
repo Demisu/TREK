@@ -34,7 +34,7 @@ const atlas: TranslationStrings = {
   'atlas.bucketWhen': 'Kedy plánujete návštevu?',
   'atlas.bucketDuplicate': 'Už je na vašom zozname prianí',
   'atlas.statsTab': 'Štatistiky',
-  'atlas.bucketTab': 'Bucket List',
+  'atlas.bucketTab': 'Zoznam želaní',
   'atlas.addBucket': 'Pridať na Bucket List',
   'atlas.bucketNotesPlaceholder': 'Poznámky (voliteľné)',
   'atlas.bucketEmpty': 'Váš zoznam prianí je prázdny',

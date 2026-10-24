@@ -25,7 +25,7 @@ const settings: TranslationStrings = {
   'settings.mapProviderHint': 'Afecta els mapes de Trip Planner i Journey. Atles sempre utilitza Leaflet.',
   'settings.mapLeafletSubtitle': 'Clàssic 2D, qualsevol mosaic raster',
   'settings.mapMapboxSubtitle': 'Mosaics vectorials, edificis 3D i terreny',
-  'settings.mapExperimental': 'Experimental',
+  'settings.mapExperimental': 'Experimental', // same-as-en
   'settings.mapMapboxToken': "Token d'accés de Mapbox",
   'settings.mapMapboxTokenHint': 'Token públic (pk.*) de',
   'settings.mapMapboxTokenLink': "mapbox.com → Tokens d'accés",
@@ -189,20 +189,20 @@ const settings: TranslationStrings = {
   'settings.about.featureRequestHint': 'Suggereix una funció nova',
   'settings.about.wikiHint': 'Documentació i guies',
   'settings.about.descriptionManaged':
-    'TREK helps you organize your trips from the first idea to the last memory. Day planning, budget, packing lists, photos and much more — all in one place.',
-  'settings.about.sourceTitle': 'Source code',
-  'settings.about.sourceHint': 'TREK is open source, licensed AGPL-3.0',
+    "TREK t'ajuda a organitzar els teus viatges des de la primera idea fins al darrer record. Planificació de dies, pressupost, llistes d'equipatge, fotos i molt més, tot en un sol lloc.",
+  'settings.about.sourceTitle': 'Codi font',
+  'settings.about.sourceHint': 'TREK és de codi obert, amb llicència AGPL-3.0',
   'settings.about.supporters.badge': 'Patrocinadors Mensuals',
   'settings.about.supporters.title': 'Companyia de viatge per a TREK',
   'settings.about.supporters.subtitle':
     'Mentre planifiques la teva pròxima ruta, aquestes persones ajuden a planificar el futur de TREK. La seva aportació mensual va directa al desenvolupament i a les hores reals invertides — perquè TREK continuï sent Open Source.',
   'settings.about.supporters.since': 'patrocinador des de {date}',
   'settings.about.supporters.tierEmpty': 'Sigues el primer',
-  'settings.about.supporter.tier.noReturnTicket': 'No Return Ticket',
-  'settings.about.supporter.tier.lostLuggageVip': 'Lost Luggage VIP',
-  'settings.about.supporter.tier.businessClassDreamer': 'Business Class Dreamer',
-  'settings.about.supporter.tier.budgetTraveller': 'Budget Traveller',
-  'settings.about.supporter.tier.hostelBunkmate': 'Hostel Bunkmate',
+  'settings.about.supporter.tier.noReturnTicket': 'Sense bitllet de tornada',
+  'settings.about.supporter.tier.lostLuggageVip': "VIP de l'equipatge perdut",
+  'settings.about.supporter.tier.businessClassDreamer': 'Somiador de classe business',
+  'settings.about.supporter.tier.budgetTraveller': 'Viatger de pressupost ajustat',
+  'settings.about.supporter.tier.hostelBunkmate': "Company de lliteres a l'alberg",
   'settings.about.description':
     "TREK és un planificador de viatges autoallotjat que t'ajuda a organitzar els teus viatges des de la primera idea fins al darrer record. Planificació diària, pressupost, llistes d'equipatge, fotos i molt més — tot en un sol lloc, al teu propi servidor.",
   'settings.about.madeWith': 'Fet amb',
@@ -296,7 +296,7 @@ const settings: TranslationStrings = {
   'settings.webhookUrl.testSuccess': 'Webhook de prova enviat correctament',
   'settings.webhookUrl.testFailed': 'Error en enviar el webhook de prova',
   'settings.ntfyUrl.topicLabel': 'Tema de Ntfy',
-  'settings.ntfyUrl.topicPlaceholder': 'my-trek-alerts',
+  'settings.ntfyUrl.topicPlaceholder': 'my-trek-alerts', // same-as-en
   'settings.ntfyUrl.serverLabel': 'URL del servidor Ntfy (opcional)',
   'settings.ntfyUrl.serverPlaceholder': 'https://ntfy.sh',
   'settings.ntfyUrl.hint':
@@ -312,7 +312,7 @@ const settings: TranslationStrings = {
   'settings.notificationPreferences.webhook': 'Webhook',
   'settings.notificationPreferences.email': 'Correu electrònic',
   'settings.notificationPreferences.ntfy': 'Ntfy',
-  'settings.notificationPreferences.push': 'Push',
+  'settings.notificationPreferences.push': 'Push', // same-as-en
   'settings.webPush.title': 'Notificacions push en aquest dispositiu',
   'settings.webPush.hint':
     'Mostra les notificacions de TREK en aquest dispositiu fins i tot quan TREK està tancat. Els esdeveniments que arriben segueixen la columna Push.',
@@ -325,7 +325,7 @@ const settings: TranslationStrings = {
   'settings.webPush.denied':
     'Les notificacions de TREK estan bloquejades en aquest navegador. Permet-les a la configuració del navegador i torna-ho a provar.',
   'settings.webPush.failed': "No s'ha pogut activar push en aquest dispositiu.",
-  'settings.passkey.title': 'Passkeys',
+  'settings.passkey.title': "Claus d'accés",
   'settings.passkey.description':
     'Inicia la sessió més ràpidament i amb protecció contra el phishing utilitzant una passkey: la teva empremta, la teva cara, el teu PIN o una clau de seguretat física. La teva contrasenya continua disponible com a alternativa.',
   'settings.passkey.notConfigured':
@@ -343,7 +343,7 @@ const settings: TranslationStrings = {
   'settings.passkey.deleted': 'Passkey eliminada',
   'settings.passkey.deleteConfirm': 'Vols eliminar aquesta passkey? Confirma-ho amb la teva contrasenya.',
   'settings.passkey.rename': 'Canvia el nom',
-  'settings.passkey.defaultName': 'Passkey',
+  'settings.passkey.defaultName': "Clau d'accés",
   'settings.passkey.synced': 'Sincronitzada',
   'settings.passkey.deviceBound': 'Aquest dispositiu',
   'settings.passkey.lastUsed': 'Últim ús',
@@ -390,7 +390,7 @@ const settings: TranslationStrings = {
   'settings.aiParsing.providerAnthropic': 'Anthropic',
   'settings.aiParsing.localAdminOnly':
     "Un punt final local (Ollama) es configura una sola vegada per a tota la instància a la configuració d'administració. Aquí encara pots fer servir la teva pròpia clau d'OpenAI o d'Anthropic.",
-  'settings.aiParsing.model': 'Model',
+  'settings.aiParsing.model': 'Model', // same-as-en
   'settings.aiParsing.baseUrl': 'URL base',
   'settings.aiParsing.baseUrlHint':
     "On s'executa el model — un servidor local d'Ollama o un punt final compatible amb OpenAI.",
@@ -455,7 +455,7 @@ const settings: TranslationStrings = {
   'settings.appearance.perSize': 'Ajustar cada mida per separat',
   'settings.appearance.size.large': 'Gran',
   'settings.appearance.size.medium': 'Mitjana',
-  'settings.appearance.size.normal': 'Normal',
+  'settings.appearance.size.normal': 'Normal', // same-as-en
   'settings.appearance.size.small': 'Petita',
   'settings.appearance.preview.large': 'Títol gran',
   'settings.appearance.preview.medium': 'Subtítol mitjà',
@@ -465,7 +465,7 @@ const settings: TranslationStrings = {
   'settings.appearance.example.medium': 'Subcapçaleres',
   'settings.appearance.example.normal': 'Noms de llocs, descripcions',
   'settings.appearance.example.small': 'Adreces, etiquetes',
-  'settings.appearance.experimental': 'Experimental',
+  'settings.appearance.experimental': 'Experimental', // same-as-en
   'settings.appearance.mobileNav': 'Barra de navegació inferior',
   'settings.appearance.mobileNav.hint':
     'Tria quins elements apareixen a la barra i quins queden sota «Més». El tauler sempre queda primer.',
@@ -511,7 +511,7 @@ const settings: TranslationStrings = {
   'settings.offline.prepare.running': 'Descarregant…',
   'settings.offline.prepare.done': "Llest per a l'ús fora de línia",
   'settings.offline.prepare.phase.trips': 'Dades del viatge',
-  'settings.offline.prepare.phase.files': 'Documents',
+  'settings.offline.prepare.phase.files': 'Documents', // same-as-en
   'settings.offline.prepare.phase.tiles': 'Tessel·les de mapes',
   'settings.offline.resync': 'Sincronitzar ara',
   'settings.offline.resyncing': 'Sincronitzant…',
@@ -623,7 +623,7 @@ const settings: TranslationStrings = {
   'settings.apiScopes.accommodations': 'Allotjament',
   'settings.apiScopes.travellers': 'Qui hi va',
   'settings.apiScopes.bucket-list': 'Llista de desitjos',
-  'settings.apiScopes.stats': 'Totals',
+  'settings.apiScopes.stats': 'Totals', // same-as-en
   'settings.apiKeys.title': 'Claus API',
   'settings.apiKeys.description':
     "Claus per a l'API pública, perquè altres programes puguin llegir els teus viatges. Només lectura: una clau no pot canviar ni esborrar res.",
@@ -639,7 +639,7 @@ const settings: TranslationStrings = {
   'settings.apiKeys.createFailed': "No s'ha pogut crear la clau",
   'settings.apiKeys.copy': 'Copia',
   'settings.apiKeys.docsHint': 'Envia la clau com a "Authorization: Bearer ..." o "X-API-Key: ..." a /api/v1.',
-  'settings.apiKeys.endpoint': 'Endpoint',
+  'settings.apiKeys.endpoint': 'Endpoint', // same-as-en
   'settings.apiKeys.neverUsed': 'mai utilitzada',
   'settings.apiKeys.loadFailed':
     "No s'han pogut carregar les teves claus. Torna a carregar la pàgina per tornar-ho a provar.",

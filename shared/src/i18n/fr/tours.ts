@@ -89,7 +89,7 @@ const tours: TranslationStrings = {
   'tours.dayRoute.endpointUnknown':
     "Le point d'arrivée de la sortie n'a pas pu être déterminé. Les liaisons suivantes peuvent être incomplètes.",
   'tours.detail.trackColor': 'Couleur de la trace',
-  'tours.detail.distance': 'Distance',
+  'tours.detail.distance': 'Distance', // same-as-en
   'tours.detail.minAltitude': 'Altitude minimale',
   'tours.detail.maxAltitude': 'Altitude maximale',
   'tours.detail.ascent': 'Dénivelé positif',

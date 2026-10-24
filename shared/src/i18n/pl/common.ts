@@ -62,18 +62,18 @@ const common: TranslationStrings = {
   'common.daysAgo.one': '{count} dzień temu',
   'common.daysAgo.few': '{count} dni temu',
   'common.daysAgo.many': '{count} dni temu',
-  'common.datepicker.prevMonth': 'Previous month', // en-fallback
-  'common.datepicker.nextMonth': 'Next month', // en-fallback
-  'common.datepicker.prevYear': 'Previous year', // en-fallback
-  'common.datepicker.nextYear': 'Next year', // en-fallback
-  'common.datepicker.prevYears': 'Previous years', // en-fallback
-  'common.datepicker.nextYears': 'Next years', // en-fallback
-  'common.datepicker.selectMonth': 'Select month', // en-fallback
-  'common.datepicker.selectYear': 'Select year', // en-fallback
-  'common.datepicker.enterManually': 'Enter date manually', // en-fallback
-  'common.datepicker.typeDate': 'Type a date', // en-fallback
-  'common.datepicker.dialog': 'Date picker', // en-fallback
-  'common.datepicker.clearDate': 'Clear date', // en-fallback
+  'common.datepicker.prevMonth': 'Poprzedni miesiąc',
+  'common.datepicker.nextMonth': 'Następny miesiąc',
+  'common.datepicker.prevYear': 'Poprzedni rok',
+  'common.datepicker.nextYear': 'Następny rok',
+  'common.datepicker.prevYears': 'Poprzednie lata',
+  'common.datepicker.nextYears': 'Następne lata',
+  'common.datepicker.selectMonth': 'Wybierz miesiąc',
+  'common.datepicker.selectYear': 'Wybierz rok',
+  'common.datepicker.enterManually': 'Wpisz datę ręcznie',
+  'common.datepicker.typeDate': 'Wpisz datę',
+  'common.datepicker.dialog': 'Wybór daty',
+  'common.datepicker.clearDate': 'Wyczyść datę',
   'common.errorTitle': 'Coś poszło nie tak',
   'common.errorBody': 'Ta część aplikacji przestała działać. Twoje dane są bezpieczne.',
   'common.errorPanelTitle': 'Nie udało się wyświetlić tej sekcji',

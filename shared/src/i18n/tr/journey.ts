@@ -56,7 +56,7 @@ const journey: TranslationStrings = {
   'journey.visibility.public': 'Herkese açık',
   'journey.emptyState.title': 'Hikâyeniz burada başlıyor',
   'journey.emptyState.subtitle': 'Bir yerde check-in yapın veya ilk günlük kaydınızı yazın',
-  'journey.frontpage.subtitle': "Turn your trips into stories you'll never forget",
+  'journey.frontpage.subtitle': 'Gezilerini asla unutmayacağın hikayelere dönüştür',
   'journey.frontpage.createJourney': 'Journey Oluştur',
   'journey.frontpage.activeJourney': 'Aktif Journey',
   'journey.frontpage.latestJourney': 'Son Journey',
@@ -246,7 +246,7 @@ const journey: TranslationStrings = {
   'journey.photosAdded': '{count} fotoğraf eklendi',
   'journey.photosAdded.one': '{count} fotoğraf eklendi',
   'journey.public.notFound': 'Bulunamadı',
-  'journey.public.notFoundMessage': "This journey doesn't exist or the link has expired.",
+  'journey.public.notFoundMessage': 'Bu yolculuk mevcut değil ya da bağlantının süresi dolmuş.',
   'journey.public.readOnly': 'Salt okunur · Herkese açık Journey',
   'journey.public.tagline': 'Seyahat Kaynak ve Keşif Kiti',
   'journey.public.sharedVia': 'Şununla paylaşıldı:',
@@ -273,28 +273,28 @@ const journey: TranslationStrings = {
   'journey.editor.uploadFailed': 'Fotoğraf yüklenemedi',
   'journey.editor.uploadPartialFailed': '{total} fotoğraftan {failed} tanesi başarısız — tekrar denemek için kaydedin',
   'journey.photosUploadFailed': 'Bazı fotoğraflar yüklenemedi',
-  'journey.editor.externalPhotos': 'External photos', // en-fallback
-  'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
-  'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback
-  'journey.editor.externalPhotosNoLocation': 'All photos from this day', // en-fallback
-  'journey.editor.externalPhotosQueued': 'queued', // en-fallback
-  'journey.editor.externalPhotosUnavailable': 'No connected photo providers are available.', // en-fallback
-  'journey.editor.externalPhotosPartialFailed': '{failed} photo groups failed — save again to retry', // en-fallback
-  'journey.picker.day': 'This day', // en-fallback
-  'journey.studio.title': 'TREK Studio', // en-fallback
-  'journey.studio.open': 'Studio', // en-fallback
-  'journey.studio.openAria': 'Open the photo book studio', // en-fallback
-  'journey.studio.backToJourney': 'Back to the journey', // en-fallback
-  'journey.studio.format': 'Page format', // en-fallback
-  'journey.studio.formatA4Landscape': 'A4 landscape', // en-fallback
-  'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
-  'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
-  'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
+  'journey.editor.externalPhotos': 'Harici fotoğraflar',
+  'journey.editor.externalPhotosFor': '{date} fotoğrafları',
+  'journey.editor.externalPhotosNearby': 'Önce yakındaki fotoğraflar',
+  'journey.editor.externalPhotosNoLocation': 'Bu günün tüm fotoğrafları',
+  'journey.editor.externalPhotosQueued': 'sırada',
+  'journey.editor.externalPhotosUnavailable': 'Bağlı fotoğraf sağlayıcısı yok.',
+  'journey.editor.externalPhotosPartialFailed': '{failed} fotoğraf grubu başarısız oldu, yeniden denemek için tekrar kaydet',
+  'journey.picker.day': 'Bu gün',
+  'journey.studio.title': 'TREK Studio',
+  'journey.studio.open': 'Studio',
+  'journey.studio.openAria': 'Fotoğraf kitabı stüdyosunu aç',
+  'journey.studio.backToJourney': 'Yolculuğa dön',
+  'journey.studio.format': 'Sayfa biçimi',
+  'journey.studio.formatA4Landscape': 'A4 yatay',
+  'journey.studio.formatA4Portrait': 'A4 dikey',
+  'journey.studio.formatSquare21': 'Kare 21 × 21 cm',
+  'journey.studio.formatSquare30': 'Kare 30 × 30 cm',
   'journey.studio.pages': 'Sayfalar',
-  'journey.studio.cover': 'Cover', // en-fallback
-  'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
-  'journey.studio.autoLayout': 'Auto layout', // en-fallback
-  'journey.studio.export': 'Export', // en-fallback
+  'journey.studio.cover': 'Kapak',
+  'journey.studio.inspectorEmpty': 'Düzenlemek için sayfada bir öğe seç.',
+  'journey.studio.autoLayout': 'Otomatik yerleşim',
+  'journey.studio.export': 'Dışa aktar',
   'journey.studio.day': '{day}. GÜN',
   'journey.studio.stations': 'Duraklar',
   'journey.studio.peersHere': 'burada',
@@ -316,98 +316,98 @@ const journey: TranslationStrings = {
   'journey.studio.exportPreparing': 'Hazırlanıyor',
   'journey.studio.exportSheetCount': '{count} yaprak',
   'journey.studio.exportSheetCount.one': '{count} yaprak',
-  'journey.studio.undo': 'Undo', // en-fallback
-  'journey.studio.redo': 'Redo', // en-fallback
-  'journey.studio.zoomIn': 'Zoom in', // en-fallback
-  'journey.studio.zoomOut': 'Zoom out', // en-fallback
-  'journey.studio.zoomFit': 'Fit to view', // en-fallback
+  'journey.studio.undo': 'Geri al',
+  'journey.studio.redo': 'Yinele',
+  'journey.studio.zoomIn': 'Yakınlaştır',
+  'journey.studio.zoomOut': 'Uzaklaştır',
+  'journey.studio.zoomFit': 'Görünüme sığdır',
   'journey.studio.downloadSpread': 'Bu çift sayfayı indir',
   'journey.studio.downloadSpreadHint':
     'Bu çift sayfanın tasarımını fotoğraflar olmadan dosyaya kaydeder; paylaşmak ya da yeniden kullanmak için',
   'journey.studio.importSpread': 'İçe aktar',
   'journey.studio.importSpreadHint': 'İndirilmiş bir tasarım dosyasından çift sayfa ekler',
   'journey.studio.importSpreadFailed': 'Bu dosya bir TREK Studio çift sayfası değil',
-  'journey.studio.desktopOnly': 'Studio needs a bigger screen', // en-fallback
+  'journey.studio.desktopOnly': 'Studio için daha büyük bir ekran gerekir',
   'journey.studio.desktopOnlyHint':
-    'Kitap tasarlamak yer ister, bu yüzden Studio yalnızca masaüstünde var; PDF oluşturmak da öyle. Yolculuğunun geri kalanı burada her zamanki gibi çalışıyor.', // en-fallback
-  'journey.studio.formatA5Landscape': 'A5 landscape', // en-fallback
-  'journey.studio.bookView': 'Book view', // en-fallback
-  'journey.studio.multiple': 'Several', // en-fallback
-  'journey.studio.kind.photo': 'Photo', // en-fallback
-  'journey.studio.kind.text': 'Text', // en-fallback
-  'journey.studio.kind.shape': 'Shape', // en-fallback
-  'journey.studio.position': 'Position', // en-fallback
-  'journey.studio.width': 'W', // en-fallback
-  'journey.studio.height': 'H', // en-fallback
+    'Kitap tasarlamak yer ister, bu yüzden Studio yalnızca masaüstünde var; PDF oluşturmak da öyle. Yolculuğunun geri kalanı burada her zamanki gibi çalışıyor.',
+  'journey.studio.formatA5Landscape': 'A5 yatay',
+  'journey.studio.bookView': 'Kitap görünümü',
+  'journey.studio.multiple': 'Birden fazla',
+  'journey.studio.kind.photo': 'Fotoğraf',
+  'journey.studio.kind.text': 'Metin',
+  'journey.studio.kind.shape': 'Şekil',
+  'journey.studio.position': 'Konum',
+  'journey.studio.width': 'G',
+  'journey.studio.height': 'Y',
   'journey.studio.text': 'Metin',
-  'journey.studio.typography': 'Type', // en-fallback
-  'journey.studio.leading': 'Line', // en-fallback
-  'journey.studio.colour': 'Colour', // en-fallback
+  'journey.studio.typography': 'Yazı',
+  'journey.studio.leading': 'Satır',
+  'journey.studio.colour': 'Renk',
   'journey.studio.autoColour': 'Otomatik',
   'journey.studio.countryNames': 'Adlar',
-  'journey.studio.crop': 'Crop', // en-fallback
-  'journey.studio.look': 'Look', // en-fallback
-  'journey.studio.radius': 'Corner', // en-fallback
-  'journey.studio.shape': 'Shape', // en-fallback
-  'journey.studio.arrange': 'Arrange', // en-fallback
-  'journey.studio.toFront': 'Bring to front', // en-fallback
-  'journey.studio.forward': 'Bring forward', // en-fallback
-  'journey.studio.backward': 'Send backward', // en-fallback
-  'journey.studio.toBack': 'Send to back', // en-fallback
-  'journey.studio.lock': 'Lock', // en-fallback
-  'journey.studio.unlock': 'Unlock', // en-fallback
-  'journey.studio.delete': 'Delete', // en-fallback
-  'journey.studio.pageHint': 'Page', // en-fallback
-  'journey.studio.boundHint': 'Follows the journal entry. Editing it here breaks that link.', // en-fallback
-  'journey.studio.fit.cover': 'Fill', // en-fallback
-  'journey.studio.fit.contain': 'Fit', // en-fallback
-  'journey.studio.filter.none': 'Original', // en-fallback
-  'journey.studio.filter.bw': 'Black & white', // en-fallback
-  'journey.studio.filter.warm': 'Warm', // en-fallback
-  'journey.studio.shapeKind.rect': 'Rectangle', // en-fallback
-  'journey.studio.shapeKind.ellipse': 'Ellipse', // en-fallback
-  'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
-  'journey.studio.backCover': 'Back cover', // en-fallback
-  'journey.studio.sections': 'Sections', // en-fallback
+  'journey.studio.crop': 'Kırp',
+  'journey.studio.look': 'Görünüm',
+  'journey.studio.radius': 'Köşe',
+  'journey.studio.shape': 'Şekil',
+  'journey.studio.arrange': 'Sırala',
+  'journey.studio.toFront': 'En öne getir',
+  'journey.studio.forward': 'Öne getir',
+  'journey.studio.backward': 'Geriye gönder',
+  'journey.studio.toBack': 'En arkaya gönder',
+  'journey.studio.lock': 'Kilitle',
+  'journey.studio.unlock': 'Kilidi aç',
+  'journey.studio.delete': 'Sil',
+  'journey.studio.pageHint': 'Sayfa',
+  'journey.studio.boundHint': 'Günlük girdisini izler. Burada düzenlersen bu bağlantı kopar.',
+  'journey.studio.fit.cover': 'Doldur',
+  'journey.studio.fit.contain': 'Sığdır',
+  'journey.studio.filter.none': 'Orijinal',
+  'journey.studio.filter.bw': 'Siyah beyaz',
+  'journey.studio.filter.warm': 'Sıcak',
+  'journey.studio.shapeKind.rect': 'Dikdörtgen',
+  'journey.studio.shapeKind.ellipse': 'Elips',
+  'journey.studio.focalHint': 'Karede neyin kalacağını seçmek için noktayı sürükle.',
+  'journey.studio.backCover': 'Arka kapak',
+  'journey.studio.sections': 'Bölümler',
   'journey.studio.content': 'İçerik',
   'journey.studio.elements': 'Öğeler',
   'journey.studio.templates': 'Düzenler',
   'journey.studio.photos': 'Fotoğraflar',
   'journey.studio.entries': 'Kayıtlar',
-  'journey.studio.addToPage': 'Add to this page', // en-fallback
-  'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
-  'journey.studio.untitled': 'Untitled', // en-fallback
-  'journey.studio.addTitle': 'Title', // en-fallback
-  'journey.studio.addStory': 'Story', // en-fallback
-  'journey.studio.addPlace': 'Place', // en-fallback
+  'journey.studio.addToPage': 'Bu sayfaya ekle',
+  'journey.studio.noPhotos': 'Bu yolculukta henüz fotoğraf yok.',
+  'journey.studio.untitled': 'Başlıksız',
+  'journey.studio.addTitle': 'Başlık',
+  'journey.studio.addStory': 'Hikaye',
+  'journey.studio.addPlace': 'Yer',
   'journey.studio.shapes': 'Şekiller',
   'journey.studio.frames': 'Çerçeve',
-  'journey.studio.emptyFrame': 'Empty frame', // en-fallback
-  'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
-  'journey.studio.shapeKind.line': 'Line', // en-fallback
-  'journey.studio.styleTitle': 'Heading', // en-fallback
-  'journey.studio.styleSubtitle': 'Subheading', // en-fallback
-  'journey.studio.styleBody': 'Body text', // en-fallback
-  'journey.studio.styleCaption': 'Caption', // en-fallback
-  'journey.studio.sampleHeading': 'A heading', // en-fallback
-  'journey.studio.sampleSubheading': 'A subheading', // en-fallback
-  'journey.studio.sampleBody': 'Write something about this day.', // en-fallback
-  'journey.studio.sampleCaption': 'Caption', // en-fallback
-  'journey.studio.tpl.heroStory': 'Hero and story', // en-fallback
-  'journey.studio.tpl.fullBleed': 'One picture, full spread', // en-fallback
-  'journey.studio.tpl.twoUp': 'Two full pages', // en-fallback
-  'journey.studio.tpl.grid4': 'Four up', // en-fallback
-  'journey.studio.tpl.grid6': 'Six up', // en-fallback
-  'journey.studio.tpl.strip': 'Strip and text', // en-fallback
-  'journey.studio.tpl.quietText': 'Text only', // en-fallback
-  'journey.studio.tpl.portraitPair': 'A pair', // en-fallback
+  'journey.studio.emptyFrame': 'Boş çerçeve',
+  'journey.studio.frameHint': 'Boş çerçeve bir resmin nereye geleceğini gösterir. İçerik bölümünden birini üzerine bırak.',
+  'journey.studio.shapeKind.line': 'Çizgi',
+  'journey.studio.styleTitle': 'Başlık',
+  'journey.studio.styleSubtitle': 'Alt başlık',
+  'journey.studio.styleBody': 'Gövde metni',
+  'journey.studio.styleCaption': 'Resim yazısı',
+  'journey.studio.sampleHeading': 'Bir başlık',
+  'journey.studio.sampleSubheading': 'Bir alt başlık',
+  'journey.studio.sampleBody': 'Bu gün hakkında bir şeyler yaz.',
+  'journey.studio.sampleCaption': 'Resim yazısı',
+  'journey.studio.tpl.heroStory': 'Büyük görsel ve hikaye',
+  'journey.studio.tpl.fullBleed': 'Tek resim, tam sayfa',
+  'journey.studio.tpl.twoUp': 'İki tam sayfa',
+  'journey.studio.tpl.grid4': 'Dörtlü',
+  'journey.studio.tpl.grid6': 'Altılı',
+  'journey.studio.tpl.strip': 'Şerit ve metin',
+  'journey.studio.tpl.quietText': 'Yalnızca metin',
+  'journey.studio.tpl.portraitPair': 'Bir çift',
   'journey.studio.dropPhotoHere': 'Fotoğrafını\nburaya sürükle',
-  'journey.studio.searchContent': 'Search photos and entries', // en-fallback
-  'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
+  'journey.studio.searchContent': 'Fotoğraf ve girdilerde ara',
+  'journey.studio.noMatches': 'Eşleşen bir şey yok.',
   'journey.studio.quoteMark': 'Tırnak işareti',
-  'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
-  'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
-  'journey.studio.shapeKind.outline': 'Outline only', // en-fallback
+  'journey.studio.shapeKind.rounded': 'Yuvarlak köşeli dikdörtgen',
+  'journey.studio.shapeKind.triangle': 'Üçgen',
+  'journey.studio.shapeKind.outline': 'Yalnızca kontur',
   'journey.studio.travel': 'Seyahat',
   'journey.studio.travelEmpty': 'Bu yolculuğun rakamları henüz hazır değil.',
   'journey.studio.grids': 'Izgaralar',
@@ -420,7 +420,7 @@ const journey: TranslationStrings = {
   'journey.studio.polaroidFrame': 'Polaroid',
   'journey.studio.whiteFrame': 'Beyaz kenar',
   'journey.studio.shadowFrame': 'Gölge',
-  'journey.studio.filmFrame': 'Film',
+  'journey.studio.filmFrame': 'Film', // same-as-en
   'journey.studio.tapeFrame': 'Bantlı',
   'journey.studio.shapeGroup.basic': 'Temel',
   'journey.studio.shapeGroup.polygons': 'Çokgenler',
@@ -542,7 +542,7 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Sayfayı sil',
   'journey.studio.movePageUp': 'Öne al',
   'journey.studio.movePageDown': 'Arkaya al',
-  'journey.studio.beta': 'Beta',
+  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'Artılar ve Eksiler',
   'journey.studio.showMarks': 'İşaretler',
   'journey.studio.formatCustom': 'Özel boyut',
@@ -612,7 +612,7 @@ const journey: TranslationStrings = {
   'journey.studio.mapFitStops': 'Duraklar',
   'journey.studio.mapFitCountry': 'Tüm ülke',
   'journey.studio.mapPadTight': 'Dar',
-  'journey.studio.mapPadNormal': 'Normal',
+  'journey.studio.mapPadNormal': 'Normal', // same-as-en
   'journey.studio.mapPadWide': 'Geniş',
   'journey.studio.mapPadFar': 'Çok geniş',
   'journey.studio.mapClipRect': 'Çerçeveli',

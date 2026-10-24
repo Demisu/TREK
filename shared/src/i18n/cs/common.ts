@@ -60,18 +60,18 @@ const common: TranslationStrings = {
   'common.daysAgo': 'před {count} d',
   'common.daysAgo.one': 'před {count} d',
   'common.daysAgo.few': 'před {count} d',
-  'common.datepicker.prevMonth': 'Previous month', // en-fallback
-  'common.datepicker.nextMonth': 'Next month', // en-fallback
-  'common.datepicker.prevYear': 'Previous year', // en-fallback
-  'common.datepicker.nextYear': 'Next year', // en-fallback
-  'common.datepicker.prevYears': 'Previous years', // en-fallback
-  'common.datepicker.nextYears': 'Next years', // en-fallback
-  'common.datepicker.selectMonth': 'Select month', // en-fallback
-  'common.datepicker.selectYear': 'Select year', // en-fallback
-  'common.datepicker.enterManually': 'Enter date manually', // en-fallback
-  'common.datepicker.typeDate': 'Type a date', // en-fallback
-  'common.datepicker.dialog': 'Date picker', // en-fallback
-  'common.datepicker.clearDate': 'Clear date', // en-fallback
+  'common.datepicker.prevMonth': 'Předchozí měsíc',
+  'common.datepicker.nextMonth': 'Další měsíc',
+  'common.datepicker.prevYear': 'Předchozí rok',
+  'common.datepicker.nextYear': 'Další rok',
+  'common.datepicker.prevYears': 'Předchozí roky',
+  'common.datepicker.nextYears': 'Další roky',
+  'common.datepicker.selectMonth': 'Vybrat měsíc',
+  'common.datepicker.selectYear': 'Vybrat rok',
+  'common.datepicker.enterManually': 'Zadat datum ručně',
+  'common.datepicker.typeDate': 'Zadejte datum',
+  'common.datepicker.dialog': 'Výběr data',
+  'common.datepicker.clearDate': 'Smazat datum',
   'common.errorTitle': 'Něco se pokazilo',
   'common.errorBody': 'Tato část aplikace přestala fungovat. Vaše data jsou v bezpečí.',
   'common.errorPanelTitle': 'Tuto sekci se nepodařilo zobrazit',

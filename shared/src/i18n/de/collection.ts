@@ -10,7 +10,7 @@ const collection: TranslationStrings = {
   'collections.role.label': 'Rolle',
   'collections.role.viewer': 'Betrachter',
   'collections.role.editor': 'Bearbeiter',
-  'collections.role.admin': 'Admin',
+  'collections.role.admin': 'Admin', // same-as-en
   'collections.picker.allLists': 'Alle Listen',
   'collections.select': 'Wählen',
   'collections.selectAll': 'Alle auswählen',
@@ -36,7 +36,7 @@ const collection: TranslationStrings = {
   'collections.changeCover': 'Titelbild ändern',
   'collections.description': 'Beschreibung',
   'collections.descriptionPlaceholder': 'Beschreibung hinzufügen…',
-  'collections.links': 'Links',
+  'collections.links': 'Links', // same-as-en
   'collections.linkLabel': 'Bezeichnung',
   'collections.addLink': 'Link hinzufügen',
   'collections.addDetails': 'Details hinzufügen',
@@ -69,7 +69,7 @@ const collection: TranslationStrings = {
   'collections.importDoneSkipped.one': '{count} Ort stand schon auf der Liste und blieb unverändert',
   'collections.importDoneClean': 'Sie stehen jetzt alle in {name}',
   'collections.sort.default': 'Standard',
-  'collections.sort.nameAsc': 'Name (A–Z)',
+  'collections.sort.nameAsc': 'Name (A bis Z)',
   'collections.coordinates': 'Koordinaten',
   'collections.showList': 'Liste zeigen',
   'collections.expandMap': 'Karte vergrößern',
@@ -250,7 +250,7 @@ const collection: TranslationStrings = {
   'collections.widget.empty': 'Noch keine gespeicherten Orte',
   'collections.widget.savedCount': '{count} gespeichert',
   'collections.widget.savedCount.one': '{count} gespeichert',
-  'collections.labels.title': 'Labels',
+  'collections.labels.title': 'Labels', // same-as-en
   'collections.labels.manage': 'Labels verwalten',
   'collections.labels.add': 'Label hinzufügen',
   'collections.labels.name': 'Labelname',

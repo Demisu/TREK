@@ -8,7 +8,7 @@ const shared: TranslationStrings = {
     'Det betyder inte att länken har gått ut. Kontrollera din anslutning och försök igen om en liten stund.',
   'shared.retry': 'Försök igen',
   'shared.readOnly': 'Delad vy i skrivskyddat läge',
-  'shared.tabPlan': 'Plan',
+  'shared.tabPlan': 'Plan', // same-as-en
   'shared.tabBookings': 'Bokningar',
   'shared.tabPacking': 'Packning',
   'shared.tabBudget': 'Kostnader',

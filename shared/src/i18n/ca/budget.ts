@@ -11,7 +11,7 @@ const budget: TranslationStrings = {
   'budget.categoryName': 'Nom de la categoria',
   'budget.addCategory': 'Afegeix una categoria',
   'budget.table.name': 'Nom',
-  'budget.table.total': 'Total',
+  'budget.table.total': 'Total', // same-as-en
   'budget.table.persons': 'Persones',
   'budget.table.days': 'Dies',
   'budget.table.perPerson': 'Per persona',
@@ -22,7 +22,7 @@ const budget: TranslationStrings = {
   'budget.newEntry': 'Entrada nova',
   'budget.defaultEntry': 'Entrada nova',
   'budget.defaultCategory': 'Categoria nova',
-  'budget.total': 'Total',
+  'budget.total': 'Total', // same-as-en
   'budget.totalBudget': 'Pressupost total',
   'budget.byCategory': 'Per categoria',
   'budget.editTooltip': 'Fes clic per editar',
@@ -38,7 +38,7 @@ const budget: TranslationStrings = {
   'budget.settlementInfo':
     "Fes clic a l'avatar d'un membre en una partida del pressupost per marcar-lo en verd — això significa que ha pagat. La liquidació mostra qui deu quant a qui.",
   'budget.netBalances': 'Saldos nets',
-  'budget.categoriesLabel': 'categories',
+  'budget.categoriesLabel': 'categories', // same-as-en
   'costs.you': 'Tu',
   'costs.youShort': 'T',
   'costs.youLower': 'tu',
@@ -141,7 +141,7 @@ const budget: TranslationStrings = {
   'costs.cat.accommodation': 'Allotjament',
   'costs.cat.food': 'Menjar i beguda',
   'costs.cat.groceries': 'Supermercat',
-  'costs.cat.transport': 'Transport',
+  'costs.cat.transport': 'Transport', // same-as-en
   'costs.cat.flights': 'Vols',
   'costs.cat.activities': 'Activitats',
   'costs.cat.sightseeing': 'Turisme',

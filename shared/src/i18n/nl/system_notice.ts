@@ -9,8 +9,8 @@ const system_notice: TranslationStrings = {
   'system_notice.welcome_v1.highlight_plan': "Dag-voor-dag reisschema's",
   'system_notice.welcome_v1.highlight_share': 'Samenwerken met reisgezelschap',
   'system_notice.welcome_v1.highlight_offline': 'Werkt offline op mobiel',
-  'system_notice.dev_test_modal.title': '[Dev] Test notice',
-  'system_notice.dev_test_modal.body': 'This is a dev-only test notice.',
+  'system_notice.dev_test_modal.title': '[Dev] Testmelding',
+  'system_notice.dev_test_modal.body': 'Dit is een testmelding alleen voor ontwikkelaars.',
   'system_notice.thank_you_support.title': 'Bedankt voor het gebruik van TREK',
   'system_notice.thank_you_support.body':
     'Even een kort bedankje dat je TREK hebt geïnstalleerd — het betekent echt veel voor me.\n\nIk ben een solo-ontwikkelaar en bouw TREK in mijn vrije tijd. Het begon als een klein hulpmiddel voor mijn eigen reizen, en ik ben oprecht overweldigd door de steun en de interesse vanuit de community sindsdien. TREK is met heel veel hart gemaakt aan mijn kant — maar ook dankzij de vele geweldige externe bijdragers die hebben geholpen het vorm te geven.\n\n**TREK is open source en volledig gratis — en dat zal het voor altijd blijven. Geen betaalde versies, geen abonnementen, geen addertjes onder het gras. Dat beloof ik.**\n\nAls TREK nuttig voor je is en je de ontwikkeling ervan wilt steunen, helpt een klein kopje koffie me oprecht om te blijven bouwen — absoluut geen druk, maar elk kopje houdt de late avonden gaande.\n\nBedankt dat je er bent.\n\n— Maurice',
@@ -61,7 +61,7 @@ const system_notice: TranslationStrings = {
     'Een eigen plaatsen-API, roadtrips van begin tot eind gepland, je locatiegeschiedenis in eigen hand, en je documenten gesynchroniseerd.',
   'system_notice.release_notes.features_label': 'De hoogtepunten',
   'system_notice.release_notes.features_aside': 'Lang niet alles',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
+  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
   'system_notice.release_notes.feature_places_body':
     'De eerste open source reisplanner met een eigen plaatsen-API. 73,6 miljoen plaatsen, geen sleutel, geen quotum.',
   'system_notice.release_notes.feature_roadtrip_title': 'Roadtrip-addon',

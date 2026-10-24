@@ -146,7 +146,7 @@ const places: TranslationStrings = {
   'places.details.fact.rating': 'Ocena',
   'places.details.fact.cuisine': 'Kuchnia',
   'places.details.fact.openingHours': 'Godziny otwarcia',
-  'places.details.fact.menu': 'Menu',
+  'places.details.fact.menu': 'Menu', // same-as-en
   'places.details.fact.outdoorSeating': 'Ogródek',
   'places.details.fact.takeaway': 'Na wynos',
   'places.details.fact.delivery': 'Dostawa',
