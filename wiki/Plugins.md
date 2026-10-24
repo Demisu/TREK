@@ -162,7 +162,7 @@ plus a toolbar:
 - **Sort** — Name / Recently updated, plus **Updates first** in Installed and **Most
   downloads** in Discover. The view-specific option falls back to Name when you switch
   views.
-- **Upload plugin** — sideload a plugin from a `.zip`/`.tar.gz` (see [Installing](#installing-a-plugin)).
+- **Upload plugin**: sideload a plugin from a `.zip`/`.tar.gz` (see [Installing](#installing-a-plugin)).
 - **Rescan** — rediscovers the on-disk plugins directory **and** force-pulls the
   remote registry, bypassing the 30-minute server cache and GitHub's CDN so a
   just-published plugin (or update) shows up immediately rather than up to ~35

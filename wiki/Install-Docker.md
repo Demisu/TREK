@@ -63,7 +63,7 @@ The in-app Help pages come from the image itself (`/app/wiki`), so they always m
 | `./data` | `/app/data` | `travel.db` (SQLite database), `logs/trek.log`, `.jwt_secret`, `.encryption_key` |
 | `./uploads` | `/app/uploads` | Uploaded files (photos, documents, covers, avatars) |
 
-Both volumes must survive container replacement — they are your persistent state. Never remove them before pulling a new image. Installed plugins also live under `data` by default (`TREK_PLUGINS_DIR` moves them), so they are covered as long as `data` persists.
+Both volumes must survive container replacement, they are your persistent state. Never remove them before pulling a new image. Installed plugins also live under `data` by default (`TREK_PLUGINS_DIR` moves them), so they are covered as long as `data` persists.
 
 You can optionally mount a `storage-config.json` read-only at `/app/data/storage-config.json` to set up file storage once on the first start. See [Admin-Storage](Admin-Storage).
 

@@ -42,7 +42,7 @@ On startup, TREK resolves the encryption key in this order:
 
 ## What happens if the key is lost
 
-All encrypted settings (API keys, SMTP password, OIDC secret, MFA secrets, notification tokens, the AI Assistant's provider key and ChatGPT sign-ins, Wanderer tokens, etc.) become unreadable — TREK cannot decrypt them. They must be re-entered manually after the key is restored or replaced. Unencrypted data (trips, places, users, etc.) is unaffected.
+All encrypted settings (API keys, SMTP password, OIDC secret, MFA secrets, notification tokens, the AI Assistant's provider key and ChatGPT sign-ins, Wanderer tokens, etc.) become unreadable, TREK cannot decrypt them. They must be re-entered manually after the key is restored or replaced. Unencrypted data (trips, places, users, etc.) is unaffected.
 
 The Web Push key pair cannot be re-entered, and TREK never replaces it on its own: unless the `VAPID_*` variables supply a pair, push stays off, with an error in the log, until TREK runs with the original key again, and then every device receives as before. To give it up instead, delete both `web_push_vapid_public_key` and `web_push_vapid_private_key` from `app_settings`. TREK then generates a new pair, and every device has to subscribe again (see [Environment-Variables](Environment-Variables#web-push)).
 
