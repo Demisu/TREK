@@ -128,7 +128,7 @@ describe('AssistantKeepFileService', () => {
   it('ASTKEP-002: an expense link and a description go along; a keep without a link asks no edit right', async () => {
     const t = await make();
     await t.service.keep(AT, { attachmentId: ID, budget_item_id: 12, description: 'Receipt' });
-    expect(t.files.createFile.mock.calls[0][3]).toEqual({
+    expect((t.files.createFile.mock.calls[0] as unknown[])[3]).toEqual({
       reservation_id: null,
       place_id: null,
       budget_item_id: 12,
