@@ -36,7 +36,7 @@ import {
 
 import { describe, expect, it } from 'vitest';
 
-// HIKE-PLAN-001 to HIKE-PLAN-017
+// HIKE-PLAN-001 to HIKE-PLAN-019
 
 /** A plan with its line, as the router answers it: without the router's legs and snaps unless given. */
 const planned = (
@@ -441,5 +441,55 @@ describe('a hike over several days', () => {
       ['k-hut', true],
       [undefined, undefined],
     ]);
+  });
+});
+
+describe('new points against the saved ones', () => {
+  it('HIKE-PLAN-018: each saved point stands for one new point at most, the one standing on it first', () => {
+    const saved = [
+      { lat: 47, lng: 11, role: 'start' as const, sequence: 0, key: 'k-start' },
+      { lat: 47.002, lng: 11, role: 'via' as const, sequence: 1, key: 'k-hut', stage_end: true, linked_place_id: 8 },
+      { lat: 47.004, lng: 11, role: 'end' as const, sequence: 2, key: 'k-end' },
+    ];
+    // A spring 14 m before the hut, put in before it: the hut keeps its key, so its stage keeps its day.
+    const repointed = repointedWaypoints(
+      [START, { lat: 47.00187, lng: 11, name: 'Spring' }, { lat: 47.002, lng: 11, stage_end: true }, SUMMIT],
+      saved,
+    );
+    expect(repointed.map((point) => [point.name, point.key, point.linked_place_id, point.stage_end])).toEqual([
+      ['Car park', 'k-start', undefined, undefined],
+      ['Spring', undefined, undefined, undefined],
+      [undefined, 'k-hut', 8, true],
+      ['Summit', 'k-end', undefined, undefined],
+    ]);
+    // A loop's start and end on one spot each keep their own.
+    const loop = [
+      { lat: 47, lng: 11, role: 'start' as const, sequence: 0, key: 'k-start' },
+      { lat: 47.002, lng: 11, role: 'via' as const, sequence: 1, key: 'k-hut' },
+      { lat: 47, lng: 11, role: 'end' as const, sequence: 2, key: 'k-back' },
+    ];
+    const points = [START, { lat: 47.002, lng: 11 }, START];
+    expect(repointedWaypoints(points, loop).map((point) => point.key)).toEqual(['k-start', 'k-hut', 'k-back']);
+  });
+
+  it('HIKE-PLAN-019: a point on a saved shaping point shapes the line still, unless a stage ends there', () => {
+    const saved = [
+      { lat: 47, lng: 11, role: 'start' as const, sequence: 0, key: 'k-start' },
+      { lat: 47.002, lng: 11, role: 'via' as const, sequence: 1, key: 'k-shape', shaping: true },
+      { lat: 47.004, lng: 11, role: 'end' as const, sequence: 2, key: 'k-end' },
+    ];
+    const kept = repointedWaypoints(
+      [START, { lat: 47.001, lng: 11, name: 'Spring' }, { lat: 47.002, lng: 11 }, SUMMIT],
+      saved,
+    );
+    expect(kept.map((point) => [point.key, point.shaping])).toEqual([
+      ['k-start', undefined],
+      [undefined, undefined],
+      ['k-shape', true],
+      ['k-end', undefined],
+    ]);
+    const staged = repointedWaypoints([START, { lat: 47.002, lng: 11, stage_end: true }, SUMMIT], saved);
+    expect(staged[1]).toMatchObject({ key: 'k-shape', stage_end: true });
+    expect(staged[1]?.shaping).toBeUndefined();
   });
 });

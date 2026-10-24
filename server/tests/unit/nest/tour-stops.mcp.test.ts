@@ -6,6 +6,7 @@
  * HikeRoutingService, as in the hike suite. The gates are the tours': trip
  * access, then place_edit, on the Tours addon.
  */
+import { DayAssignments } from '../../../src/db/entities/DayAssignments.entity';
 import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../src/db/entities/Tours.entity';
 import type { McpContext } from '../../../src/nest-mcp';
@@ -16,10 +17,14 @@ import { HikeRoutingService, type PlannedHike } from '../../../src/nest/tours/hi
 import { TourPoiSearchService } from '../../../src/nest/tours/tour-poi-search.service';
 import { TourStopsMcp } from '../../../src/nest/tours/tour-stops.mcp';
 import { ToursModule } from '../../../src/nest/tours/tours.module';
+import { ToursService } from '../../../src/nest/tours/tours.service';
 import { WeatherService } from '../../../src/nest/weather/weather.service';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
+import { makeDayAssignment } from '../../helpers/factories/itinerary';
+import { makePlace } from '../../helpers/factories/places';
 import { countRows, findRow } from '../../helpers/factories/rows';
-import { makeTrip } from '../../helpers/factories/trips';
+import { addTourWaypoints, makeTour } from '../../helpers/factories/tours';
+import { makeDay, makeTrip } from '../../helpers/factories/trips';
 import { makeUser } from '../../helpers/factories/users';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
@@ -28,7 +33,7 @@ import type { GeometryPoint, HikePlanRequest } from '@trek/shared';
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// TOUR-STOPS-MCP-001 to TOUR-STOPS-MCP-005
+// TOUR-STOPS-MCP-001 to TOUR-STOPS-MCP-007
 
 const db = createSnapshotTestDb();
 const plan = vi.fn<HikeRoutingService['plan']>();
@@ -191,5 +196,74 @@ describe('TourStopsMcp', () => {
     expect(denied).toHaveBeenCalledWith('place_edit', f.trip.id, f.user.id);
     denied.mockRestore();
     expect(await countRows(orm(), TourWaypoints, { place: f.placeId })).toBe(3);
+  });
+});
+
+describe('TourStopsMcp: the saved points a stop goes in among', () => {
+  /** A hike as the planner saves one: its line through its points, each point keyed. */
+  async function savedHike(tripId: number, points: Parameters<typeof addTourWaypoints>[2]): Promise<number> {
+    const place = await makePlace(orm(), tripId, {
+      name: 'Hut to hut',
+      route_geometry: JSON.stringify(points.map(({ lat, lng }) => [lat, lng, 800])),
+    });
+    await makeTour(orm(), place.id, { max_hiking_difficulty: 2 });
+    await addTourWaypoints(orm(), place.id, points);
+    return place.id;
+  }
+
+  async function member() {
+    const { user } = await makeUser(orm());
+    return { own: ctx(user.id), trip: await makeTrip(orm(), user.id) };
+  }
+
+  it('TOUR-STOPS-MCP-006: a shaping point stays one when a stop goes in and when it is taken out again', async () => {
+    const { own, trip } = await member();
+    const placeId = await savedHike(trip.id, [
+      { lat: 47.5, lng: 11.1, station_key: 'stop-start01', name: 'Car park' },
+      { lat: 47.505, lng: 11.1, station_key: 'stop-shape01', shaping: 1 },
+      { lat: 47.51, lng: 11.1, station_key: 'stop-summit1', name: 'Summit' },
+    ]);
+    const shaping = async () =>
+      (await findRow(orm(), TourWaypoints, { place: placeId, station_key: 'stop-shape01' }))?.shaping;
+    const inserted = read(
+      await stops.insertTourStop({ tripId: trip.id, placeId, expected_revision: 1, stop: SPRING }, own),
+    );
+    expect(await countRows(orm(), TourWaypoints, { place: placeId })).toBe(4);
+    expect(await shaping()).toBe(1);
+    await stops.removeTourStop({ tripId: trip.id, placeId, expected_revision: 2, key: inserted.stop.key }, own);
+    expect(await countRows(orm(), TourWaypoints, { place: placeId })).toBe(3);
+    expect(await shaping()).toBe(1);
+  });
+
+  it('TOUR-STOPS-MCP-007: a stop just before the stop a stage starts at leaves that stage its key, its link and its day', async () => {
+    const { own, trip } = await member();
+    const hut = await makePlace(orm(), trip.id, { name: 'Herzogstandhaus', lat: 47.51, lng: 11.1 });
+    const placeId = await savedHike(trip.id, [
+      { lat: 47.5, lng: 11.1, station_key: 'stop-start01', name: 'Car park' },
+      { lat: 47.51, lng: 11.1, station_key: 'stop-hut0001', name: 'Hut', stage_end: 1, linkedPlace: hut.id },
+      { lat: 47.52, lng: 11.1, station_key: 'stop-end0001', name: 'Summit' },
+    ]);
+    const first = await makeDay(orm(), trip.id, { date: '2027-07-01' });
+    const second = await makeDay(orm(), trip.id, { date: '2027-07-02' });
+    await makeDayAssignment(orm(), first.id, placeId, { tour_stage_key: 'stop-start01' });
+    await makeDayAssignment(orm(), second.id, placeId, { tour_stage_key: 'stop-hut0001' });
+
+    // A spring about 14 m before the hut along the way: it goes in after the start.
+    const spring = { lat: 47.50987, lng: 11.1, name: 'Spring', poi_category: 'drinking_water' as const };
+    const answer = read(
+      await stops.insertTourStop({ tripId: trip.id, placeId, expected_revision: 1, stop: spring }, own),
+    );
+    expect(answer.stop.after_key).toBe('stop-start01');
+    expect(answer.stop.key).not.toBe('stop-hut0001');
+    const { waypoints } = await t.get(ToursService).getTour(String(trip.id), String(placeId));
+    expect(waypoints.map((point) => [point.name, point.key === 'stop-hut0001', point.linked_place_id ?? null])).toEqual(
+      [
+        ['Car park', false, null],
+        ['Spring', false, null],
+        ['Hut', true, hut.id],
+        ['Summit', false, null],
+      ],
+    );
+    expect(await countRows(orm(), DayAssignments, { place: placeId })).toBe(2);
   });
 });

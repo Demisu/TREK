@@ -127,37 +127,61 @@ export function hikeCreateCommandOf(
 /** How near a new point of a hike stands to a saved one to be the same point, in metres. */
 const SAME_POINT_M = 25;
 
-/** The saved point nearest to `point`, where one stands within SAME_POINT_M of it. */
-function savedPointAt(point: { lat: number; lng: number }, saved: readonly TourWaypoint[]): TourWaypoint | undefined {
-  let nearest: TourWaypoint | undefined;
-  let nearestGap = Number.POSITIVE_INFINITY;
-  for (const old of saved) {
-    const gap = haversineMetres(point.lat, point.lng, old.lat, old.lng);
-    if (gap <= SAME_POINT_M && gap < nearestGap) {
-      nearest = old;
-      nearestGap = gap;
-    }
+/** A new point and a saved one it may be, and how far apart they stand. */
+interface PointPair {
+  point: number;
+  saved: number;
+  gap: number;
+}
+
+/**
+ * The saved point each new point stands on, one to one: of the pairs within
+ * SAME_POINT_M the nearest are matched first, so a point set where a saved one
+ * stood keeps it and a new point beside it takes nothing of it. Two pairs as
+ * near (a loop's start and end on one spot) go by the order of the points.
+ */
+function savedPointsAt(points: readonly HikeStop[], saved: readonly TourWaypoint[]): Array<TourWaypoint | undefined> {
+  const pairs: PointPair[] = [];
+  points.forEach(({ lat, lng }, point) => {
+    saved.forEach((old, index) => {
+      const gap = haversineMetres(lat, lng, old.lat, old.lng);
+      if (gap <= SAME_POINT_M) pairs.push({ point, saved: index, gap });
+    });
+  });
+  pairs.sort((a, b) => a.gap - b.gap || a.point - b.point || a.saved - b.saved);
+  const matched: Array<TourWaypoint | undefined> = points.map(() => undefined);
+  const taken = new Set<number>();
+  for (const pair of pairs) {
+    if (matched[pair.point] || taken.has(pair.saved)) continue;
+    matched[pair.point] = saved[pair.saved];
+    taken.add(pair.saved);
   }
-  return nearest;
+  return matched;
 }
 
 /**
  * New points as a hike keeps them, in order. A point that stands where a
- * saved one stood (within SAME_POINT_M, the nearest) is that point still: it
- * keeps its link to the trip's place it stands for, and its name where the
- * new one gives none. A saved point no new one stands on goes, with its link.
+ * saved one stood (within SAME_POINT_M, each saved point standing for one new
+ * point at most) is that point still: it keeps its key, its link to the trip's
+ * place it stands for, its name where the new one gives none, and on the way
+ * a shaping point's mark where no stage ends there. A saved point no new one
+ * stands on goes, with its link.
  */
 export function repointedWaypoints(points: readonly HikeStop[], saved: readonly TourWaypoint[]): TourWaypoint[] {
-  return hikeWaypointsOf(points).map((point) => {
-    const same = savedPointAt(point, saved);
-    if (!same) return point;
-    const name = point.name ?? same.name;
+  const same = savedPointsAt(points, saved);
+  return hikeWaypointsOf(points).map((point, index) => {
+    const old = same[index];
+    if (!old) return point;
+    const name = point.name ?? old.name;
+    // A hike's new points carry no shaping mark: a spot that only steered the line steers it still.
+    const shaping = old.shaping === true && point.role === 'via' && point.stage_end !== true;
     // Its key too: a stage is put on its day by the key of the stop it starts at.
     return {
       ...point,
-      ...(same.key ? { key: same.key } : {}),
+      ...(old.key ? { key: old.key } : {}),
       ...(name ? { name } : {}),
-      ...(same.linked_place_id ? { linked_place_id: same.linked_place_id } : {}),
+      ...(old.linked_place_id ? { linked_place_id: old.linked_place_id } : {}),
+      ...(shaping ? { shaping: true } : {}),
     };
   });
 }
