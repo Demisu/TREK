@@ -105,6 +105,10 @@ const { jsvc } = vi.hoisted(() => ({
     broadcastJourneyEvent: vi.fn(),
     journeyIdOfEntry: vi.fn(),
     journeyTracks: vi.fn(),
+    canEdit: vi.fn(),
+    listEntries: vi.fn(),
+    linkPhotoToEntry: vi.fn(),
+    unlinkPhotoFromEntry: vi.fn(),
   },
 }));
 
@@ -675,5 +679,74 @@ describe('Journey e2e (real auth guard + temp SQLite)', () => {
 
     const tool = await app.get(JourneyTracksMcp).getJourneyTracks({ journeyId: 9 }, asMcp);
     expect(tool).toEqual({ content: [{ type: 'text', text: 'Journey not found or access denied.' }], isError: true });
+  });
+
+  describe('POST /api/journeys/entries/:entryId/photos/move', () => {
+    const path = '/api/journeys/entries/3/photos/move';
+
+    beforeEach(() => {
+      for (const fn of [jsvc.journeyIdOfEntry, jsvc.canEdit, jsvc.listEntries, jsvc.linkPhotoToEntry]) fn.mockReset();
+      jsvc.unlinkPhotoFromEntry.mockReset();
+      jsvc.broadcastJourneyEvent.mockReset();
+      jsvc.journeyIdOfEntry.mockResolvedValue(9);
+      jsvc.canEdit.mockResolvedValue(true);
+      jsvc.listEntries.mockResolvedValue([
+        { id: 3, photos: [{ id: 5 }] },
+        { id: 4, photos: [] },
+      ]);
+      jsvc.linkPhotoToEntry.mockResolvedValue({ id: 5 });
+      jsvc.unlinkPhotoFromEntry.mockResolvedValue(true);
+    });
+
+    it('JOURNEY-E2E-010: 401 without a session, and the move runs nothing', async () => {
+      const res = await request(server)
+        .post(path)
+        .send({ toEntryId: 4, photoIds: [5] });
+      expect(res.status).toBe(401);
+      expect(jsvc.linkPhotoToEntry).not.toHaveBeenCalled();
+    });
+
+    it('JOURNEY-E2E-011: 200 with what moved, each photo put on the target and taken off the source, both entries told', async () => {
+      const res = await request(server)
+        .post(path)
+        .set('Cookie', sessionCookie(1))
+        .set('X-Socket-Id', 'sock-1')
+        .send({ toEntryId: 4, photoIds: [5] });
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ moved: [5], fromEntryId: 3, toEntryId: 4, kept: false });
+      expect(jsvc.linkPhotoToEntry).toHaveBeenCalledWith(4, 5, 1);
+      expect(jsvc.unlinkPhotoFromEntry).toHaveBeenCalledWith(3, 5, 1);
+      expect(jsvc.broadcastJourneyEvent.mock.calls).toEqual([
+        [9, 'journey:entry:updated', { entryId: 3 }, 'sock-1'],
+        [9, 'journey:entry:updated', { entryId: 4 }, 'sock-1'],
+      ]);
+    });
+
+    it('JOURNEY-E2E-012: 400 for a body the contract refuses, a photo not on the entry; 404 for an entry out of reach', async () => {
+      const strict = await request(server)
+        .post(path)
+        .set('Cookie', sessionCookie(1))
+        .send({ toEntryId: 4, photoIds: [5], extra: true });
+      expect(strict.status).toBe(400);
+      const empty = await request(server)
+        .post(path)
+        .set('Cookie', sessionCookie(1))
+        .send({ toEntryId: 4, photoIds: [] });
+      expect(empty.status).toBe(400);
+      const foreign = await request(server)
+        .post(path)
+        .set('Cookie', sessionCookie(1))
+        .send({ toEntryId: 4, photoIds: [6] });
+      expect(foreign.status).toBe(400);
+      expect(foreign.body).toEqual({ error: 'Every photo must be one of this entry' });
+      jsvc.canEdit.mockResolvedValue(false);
+      const denied = await request(server)
+        .post(path)
+        .set('Cookie', sessionCookie(1))
+        .send({ toEntryId: 4, photoIds: [5] });
+      expect(denied.status).toBe(404);
+      expect(denied.body).toEqual({ error: 'Entry not found' });
+      expect(jsvc.linkPhotoToEntry).not.toHaveBeenCalled();
+    });
   });
 });

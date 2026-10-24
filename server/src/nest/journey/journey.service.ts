@@ -118,15 +118,7 @@ export class JourneyService {
   setPhotoProvider(photoId: number, provider: string, assetId: string, ownerId: number) {
     return this.journey.setPhotoProvider(photoId, provider, assetId, ownerId);
   }
-  linkPhotoToEntry(entryId: number, journeyPhotoId: number, userId: number) {
-    return this.journey.linkPhotoToEntry(entryId, journeyPhotoId, userId);
-  }
-  unlinkPhotoFromEntry(entryId: number, journeyPhotoId: number, userId: number) {
-    return this.journey.unlinkPhotoFromEntry(entryId, journeyPhotoId, userId);
-  }
-  updatePhoto(photoId: number, userId: number, data: Parameters<typeof this.journey.updatePhoto>[2]) {
-    return this.journey.updatePhoto(photoId, userId, data);
-  }
+  // Linking, unlinking and captioning a photo go through JourneyPhotoLinksService, which tells every tab.
   deletePhoto(photoId: number, userId: number) {
     return this.journey.deletePhoto(photoId, userId);
   }

@@ -159,6 +159,53 @@ export const journeyLinkPhotoRequestSchema = z.looseObject({
 });
 export type JourneyLinkPhotoRequest = z.infer<typeof journeyLinkPhotoRequestSchema>;
 
+/**
+ * POST /api/journeys/entries/:entryId/photos/move: photos of the entry in the
+ * path moved to another entry of the same journey, in one write. Each must be
+ * one of the entry's own; `keep_in_source` links them to the other entry
+ * without taking them off this one. They stay in the gallery either way.
+ */
+export const journeyPhotosMoveRequestSchema = z.strictObject({
+  toEntryId: idSchema,
+  photoIds: z.array(idSchema).min(1).max(100),
+  keep_in_source: z.boolean().optional(),
+});
+export type JourneyPhotosMoveRequest = z.infer<typeof journeyPhotosMoveRequestSchema>;
+
+export const journeyPhotosMoveResponseSchema = z.object({
+  moved: z.array(idSchema),
+  fromEntryId: idSchema,
+  toEntryId: idSchema,
+  kept: z.boolean(),
+});
+export type JourneyPhotosMoveResponse = z.infer<typeof journeyPhotosMoveResponseSchema>;
+
+/** The MCP tool `move_journey_photos`: the same move, the source entry named in the arguments. */
+export const journeyPhotosMoveToolSchema = journeyPhotosMoveRequestSchema.extend({
+  fromEntryId: idSchema,
+  photoIds: journeyPhotosMoveRequestSchema.shape.photoIds.describe(
+    'The journey photo ids (the id of each photo in list_journey_entries) to move, each one of the source entry',
+  ),
+  keep_in_source: journeyPhotosMoveRequestSchema.shape.keep_in_source.describe(
+    'True links the photos to the other entry as well and leaves them on the source entry',
+  ),
+});
+export type JourneyPhotosMoveTool = z.infer<typeof journeyPhotosMoveToolSchema>;
+
+/** The MCP tools `link_journey_photo` and `unlink_journey_photo`: one gallery photo of the entry's journey. */
+export const journeyPhotoLinkToolSchema = z.strictObject({
+  entryId: idSchema,
+  journey_photo_id: idSchema.describe('The journey photo id, from the gallery or an entry in get_journey'),
+});
+export type JourneyPhotoLinkTool = z.infer<typeof journeyPhotoLinkToolSchema>;
+
+/** The MCP tool `set_journey_photo_caption`: one gallery photo's caption, or null to clear it. */
+export const journeyPhotoCaptionToolSchema = z.strictObject({
+  journey_photo_id: idSchema,
+  caption: z.string().max(500).nullable(),
+});
+export type JourneyPhotoCaptionTool = z.infer<typeof journeyPhotoCaptionToolSchema>;
+
 /** Free-form: forwarded to the service as-is. */
 export const journeyPhotoUpdateRequestSchema = z.looseObject({});
 export type JourneyPhotoUpdateRequest = z.infer<typeof journeyPhotoUpdateRequestSchema>;

@@ -3,6 +3,7 @@ import { AddonGuard } from '../../../src/nest/addons/addon.guard';
 import { REQUIRE_ADDON } from '../../../src/nest/addons/require-addon.decorator';
 import type { JourneyBookService } from '../../../src/nest/journey/journey-book.service';
 import type { JourneyPhotoCaptureService } from '../../../src/nest/journey/journey-photo-capture.service';
+import type { JourneyPhotoLinksService } from '../../../src/nest/journey/journey-photo-links.service';
 import { JourneyPublicController } from '../../../src/nest/journey/journey-public.controller';
 import { JourneyController } from '../../../src/nest/journey/journey.controller';
 import type { JourneyService } from '../../../src/nest/journey/journey.service';
@@ -49,8 +50,18 @@ const captureBackfillStub = {
  * the book, and reach for `storageStub`'s own mocks when it is about an object
  * being stored or served.
  */
-function ctl(service: JourneyService, books: Partial<JourneyBookService> = {}): JourneyController {
-  return new JourneyController(service, storageStub, books as JourneyBookService, captureBackfillStub);
+function ctl(
+  service: JourneyService,
+  books: Partial<JourneyBookService> = {},
+  photoLinks: Partial<JourneyPhotoLinksService> = {},
+): JourneyController {
+  return new JourneyController(
+    service,
+    storageStub,
+    books as JourneyBookService,
+    captureBackfillStub,
+    photoLinks as JourneyPhotoLinksService,
+  );
 }
 
 async function thrownAsync(fn: () => Promise<unknown>): Promise<{ status: number; body: unknown }> {
@@ -179,42 +190,38 @@ describe('JourneyController', () => {
     ]);
   });
 
-  it('link-photo: 400 without id (accepts legacy photo_id), 403, success', async () => {
+  it('link-photo: 400 without id (accepts legacy photo_id), 403, success, and the asking tab is skipped', async () => {
     expect(await thrownAsync(() => ctl(svc()).linkPhoto(user, '3', {}))).toEqual({
       status: 400,
       body: { error: 'journey_photo_id required' },
     });
-    const linkPhotoToEntry = vi.fn().mockReturnValue({ id: 5 });
-    const c = ctl(svc({ linkPhotoToEntry } as Partial<JourneyService>));
-    expect(await c.linkPhoto(user, '3', { photo_id: 5 })).toEqual({ id: 5 });
-    expect(linkPhotoToEntry).toHaveBeenCalledWith(3, 5, 1);
+    const link = vi.fn().mockResolvedValue({ id: 5 });
+    const c = ctl(svc(), {}, { link });
+    expect(await c.linkPhoto(user, '3', { photo_id: 5 }, 'sock-1')).toEqual({ id: 5 });
+    expect(link).toHaveBeenCalledWith(3, 5, 1, 'sock-1');
     // accepts the canonical journey_photo_id, 403 when the service refuses
     expect(
       await thrownAsync(() =>
-        ctl(svc({ linkPhotoToEntry: vi.fn().mockReturnValue(null) } as Partial<JourneyService>)).linkPhoto(user, '3', {
-          journey_photo_id: 9,
-        }),
+        ctl(svc(), {}, { link: vi.fn().mockResolvedValue(null) }).linkPhoto(user, '3', { journey_photo_id: 9 }),
       ),
     ).toEqual({ status: 403, body: { error: 'Not allowed' } });
   });
 
+  it('move photos: hands the source entry, the body and the socket to the service, and answers what moved', async () => {
+    const moved = { moved: [5], fromEntryId: 3, toEntryId: 4, kept: false };
+    const move = vi.fn().mockResolvedValue(moved);
+    const c = ctl(svc(), {}, { move });
+    expect(await c.movePhotos(user, '3', { toEntryId: 4, photoIds: [5] }, 'sock-1')).toEqual(moved);
+    expect(move).toHaveBeenCalledWith(3, { toEntryId: 4, photoIds: [5] }, 1, 'sock-1');
+  });
+
   it('unlink photo (204) maps 404; delete photo 404 then removes the object', async () => {
     expect(
-      await thrownAsync(() =>
-        ctl(svc({ unlinkPhotoFromEntry: vi.fn().mockReturnValue(false) } as Partial<JourneyService>)).unlinkPhoto(
-          user,
-          '3',
-          '7',
-        ),
-      ),
+      await thrownAsync(() => ctl(svc(), {}, { unlink: vi.fn().mockResolvedValue(false) }).unlinkPhoto(user, '3', '7')),
     ).toEqual({ status: 404, body: { error: 'Not found or not allowed' } });
-    expect(
-      await ctl(svc({ unlinkPhotoFromEntry: vi.fn().mockReturnValue(true) } as Partial<JourneyService>)).unlinkPhoto(
-        user,
-        '3',
-        '7',
-      ),
-    ).toBeUndefined();
+    const unlink = vi.fn().mockResolvedValue(true);
+    expect(await ctl(svc(), {}, { unlink }).unlinkPhoto(user, '3', '7', 'sock-1')).toBeUndefined();
+    expect(unlink).toHaveBeenCalledWith(3, 7, 1, 'sock-1');
     expect(
       await thrownAsync(() =>
         ctl(svc({ deletePhoto: vi.fn().mockReturnValue(null) } as Partial<JourneyService>)).deletePhoto(user, '7'),
@@ -685,18 +692,12 @@ describe('JourneyController', () => {
   it('PATCH photos: 404 then returns the updated photo', async () => {
     expect(
       await thrownAsync(() =>
-        ctl(svc({ updatePhoto: vi.fn().mockReturnValue(null) } as Partial<JourneyService>)).updatePhoto(user, '7', {
-          caption: 'x',
-        }),
+        ctl(svc(), {}, { updatePhoto: vi.fn().mockResolvedValue(null) }).updatePhoto(user, '7', { caption: 'x' }),
       ),
     ).toEqual({ status: 404, body: { error: 'Photo not found' } });
-    expect(
-      await ctl(svc({ updatePhoto: vi.fn().mockReturnValue({ id: 7 }) } as Partial<JourneyService>)).updatePhoto(
-        user,
-        '7',
-        { caption: 'x' },
-      ),
-    ).toEqual({ id: 7 });
+    const updatePhoto = vi.fn().mockResolvedValue({ id: 7 });
+    expect(await ctl(svc(), {}, { updatePhoto }).updatePhoto(user, '7', { caption: 'x' }, 'sock-1')).toEqual({ id: 7 });
+    expect(updatePhoto).toHaveBeenCalledWith(7, 1, { caption: 'x' }, 'sock-1');
   });
 
   it('DELETE photo removes the storage object when a path exists', async () => {

@@ -9,6 +9,7 @@ import {
   journeyGalleryVideoRequestSchema,
   journeyLinkPhotoRequestSchema,
   journeyPhotoUpdateRequestSchema,
+  journeyPhotosMoveRequestSchema,
   journeyPreferencesRequestSchema,
   journeyProviderPhotosRequestSchema,
   journeyReorderEntriesRequestSchema,
@@ -51,6 +52,8 @@ export class JourneyShareLinkDto extends createZodDto(journeyShareLinkRequestSch
 export class JourneyProviderPhotosDto extends createZodDto(journeyProviderPhotosRequestSchema) {}
 export class JourneyLinkPhotoDto extends createZodDto(journeyLinkPhotoRequestSchema) {}
 export class JourneyPhotoUpdateDto extends createZodDto(journeyPhotoUpdateRequestSchema) {}
+/** Photos of an entry moved to another entry: strict, a new route with nothing older to keep answering. */
+export class JourneyPhotosMoveDto extends createZodDto(journeyPhotosMoveRequestSchema) {}
 export class JourneyEntryPhotoUploadDto extends createZodDto(journeyEntryPhotoUploadRequestSchema) {}
 export class JourneyGalleryVideoDto extends createZodDto(journeyGalleryVideoRequestSchema) {}
 

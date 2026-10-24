@@ -27,6 +27,7 @@ import { journeyThumbName } from '../memories/thumbnail.service';
 import { JourneyService } from './journey.service';
 import { JourneyBookService } from './journey-book.service';
 import { JourneyPhotoCaptureService, type ProviderPhotoBatch, type ProviderPhotoTarget } from './journey-photo-capture.service';
+import { JourneyPhotoLinksService } from './journey-photo-links.service';
 import { AddonGuard } from '../addons/addon.guard';
 import { RequireAddon } from '../addons/require-addon.decorator';
 import { ADDON_IDS } from '../../addons';
@@ -35,7 +36,7 @@ import { CurrentUser } from '../auth-core/current-user.decorator';
 import {
   JourneyAddTripDto, JourneyContributorAddDto, JourneyContributorUpdateDto, JourneyCreateDto,
   JourneyEntryCreateDto, JourneyEntryPhotoUploadDto, JourneyEntryUpdateDto, JourneyGalleryVideoDto,
-  JourneyLinkPhotoDto, JourneyPhotoUpdateDto, JourneyPreferencesDto, JourneyProviderPhotosDto,
+  JourneyLinkPhotoDto, JourneyPhotosMoveDto, JourneyPhotoUpdateDto, JourneyPreferencesDto, JourneyProviderPhotosDto,
   JourneyReorderEntriesDto,
   JourneyReorderEntryPhotosDto, JourneyShareLinkDto, JourneyUpdateDto,
   BookSaveDto,
@@ -47,6 +48,7 @@ import { ResponseContract } from '../common/response-contract';
 import {
   emptyResponseSchema,
   journeyListResponseSchema,
+  journeyPhotosMoveResponseSchema,
   journeySchema,
   journeyShareLinkResponseSchema,
   journeyShareLinkSetResponseSchema,
@@ -168,6 +170,8 @@ export class JourneyController {
     private readonly storage: StorageService,
     private readonly books: JourneyBookService,
     private readonly photoCapture: JourneyPhotoCaptureService,
+    // Which entries the gallery's photos sit on, told to every tab once written.
+    private readonly photoLinks: JourneyPhotoLinksService,
   ) {}
 
   /**
@@ -392,30 +396,38 @@ export class JourneyController {
   }
 
   @Post('entries/:entryId/link-photo')
-  async linkPhoto(@CurrentUser() user: User, @Param('entryId') entryId: string, @Body() body: JourneyLinkPhotoDto) {
+  async linkPhoto(@CurrentUser() user: User, @Param('entryId') entryId: string, @Body() body: JourneyLinkPhotoDto, @Headers('x-socket-id') socketId?: string) {
     const journeyPhotoId = body.journey_photo_id ?? body.photo_id;
     if (!journeyPhotoId) {
       throw new HttpException({ error: 'journey_photo_id required' }, 400);
     }
-    const result = await this.journey.linkPhotoToEntry(Number(entryId), Number(journeyPhotoId), user.id);
+    const result = await this.photoLinks.link(Number(entryId), Number(journeyPhotoId), user.id, socketId);
     if (!result) {
       throw new HttpException({ error: 'Not allowed' }, 403);
     }
     return result;
   }
 
+  // Photos of this entry moved to another entry of the journey, in one write (POST, 200: nothing is created).
+  @Post('entries/:entryId/photos/move')
+  @HttpCode(200)
+  @ResponseContract(journeyPhotosMoveResponseSchema)
+  async movePhotos(@CurrentUser() user: User, @Param('entryId') entryId: string, @Body() body: JourneyPhotosMoveDto, @Headers('x-socket-id') socketId?: string) {
+    return this.photoLinks.move(Number(entryId), body, user.id, socketId);
+  }
+
   @Delete('entries/:entryId/photos/:journeyPhotoId')
   @HttpCode(204)
   @ResponseContract(emptyResponseSchema)
-  async unlinkPhoto(@CurrentUser() user: User, @Param('entryId') entryId: string, @Param('journeyPhotoId') journeyPhotoId: string): Promise<void> {
-    if (!(await this.journey.unlinkPhotoFromEntry(Number(entryId), Number(journeyPhotoId), user.id))) {
+  async unlinkPhoto(@CurrentUser() user: User, @Param('entryId') entryId: string, @Param('journeyPhotoId') journeyPhotoId: string, @Headers('x-socket-id') socketId?: string): Promise<void> {
+    if (!(await this.photoLinks.unlink(Number(entryId), Number(journeyPhotoId), user.id, socketId))) {
       throw new HttpException({ error: 'Not found or not allowed' }, 404);
     }
   }
 
   @Patch('photos/:photoId')
-  async updatePhoto(@CurrentUser() user: User, @Param('photoId') photoId: string, @Body() body: JourneyPhotoUpdateDto) {
-    const result = await this.journey.updatePhoto(Number(photoId), user.id, body);
+  async updatePhoto(@CurrentUser() user: User, @Param('photoId') photoId: string, @Body() body: JourneyPhotoUpdateDto, @Headers('x-socket-id') socketId?: string) {
+    const result = await this.photoLinks.updatePhoto(Number(photoId), user.id, body, socketId);
     if (!result) {
       throw new HttpException({ error: 'Photo not found' }, 404);
     }

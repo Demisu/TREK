@@ -17,6 +17,7 @@ import { SettingsModule } from '../settings/settings.module';
 import { JourneyDomainService } from './journey-domain.service';
 import { JourneyEntryStaysService } from './journey-entry-stays.service';
 import { JourneyMapService } from './journey-map.service';
+import { JourneyPhotoLinksService } from './journey-photo-links.service';
 import { JourneyRecordedDaysService } from './journey-recorded-days.service';
 import { JourneyRecordingPrepService } from './journey-recording-prep.service';
 import { JourneySettingsService } from './journey-settings.service';
@@ -110,6 +111,7 @@ import { Module } from '@nestjs/common';
     JourneyRecordingPrepService,
     JourneyMapService,
     JourneySettingsService,
+    JourneyPhotoLinksService,
   ],
   exports: [
     JourneyDomainService,
@@ -119,6 +121,7 @@ import { Module } from '@nestjs/common';
     JourneyRecordingPrepService,
     JourneyMapService,
     JourneySettingsService,
+    JourneyPhotoLinksService,
   ],
 })
 export class JourneyDomainModule {}

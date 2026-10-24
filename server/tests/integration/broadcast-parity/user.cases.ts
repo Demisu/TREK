@@ -17,7 +17,7 @@ import { PhotoCaptureBackfillService } from '../../../src/nest/memories/photo-ca
 import { NotificationsService } from '../../../src/nest/notifications/notifications.service';
 import { addCollectionMember } from '../../helpers/factories/collections';
 import { inContext } from '../../helpers/factories/context';
-import { addJourneyContributor, linkTripToJourney } from '../../helpers/factories/journeys';
+import { addJourneyContributor, linkTripToJourney, makeJourneyEntry } from '../../helpers/factories/journeys';
 import { createRow, insertRow, updateRows } from '../../helpers/factories/rows';
 import { addVacayPlanMember } from '../../helpers/factories/vacay';
 import { holidayCode } from './harness';
@@ -341,6 +341,87 @@ const journeyCases: ParityCase[] = [
       body: (s) => ({ orderedIds: [kept(s, 'photo')] }),
     },
     expect: [{ event: 'journey:entry:updated', user: 'actor' }],
+  },
+  {
+    tool: 'link_journey_photo',
+    needs: ['journey'],
+    setup: async (s, app) => {
+      const photo = await withRequestContext(ormOf(app), () =>
+        app.get(JourneyDomainService).addProviderPhotoToGallery(s.journey.id, s.owner.id, 'immich', `gallery-${s.n}`),
+      );
+      if (!photo) throw new Error('the gallery took no photo');
+      keep(s, 'galleryPhoto', photo.id);
+    },
+    args: (s) => ({ entryId: s.journeyEntry.id, journey_photo_id: kept(s, 'galleryPhoto') }),
+    rest: {
+      method: 'post',
+      path: (s) => `/api/journeys/entries/${s.journeyEntry.id}/link-photo`,
+      body: (s) => ({ journey_photo_id: kept(s, 'galleryPhoto') }),
+    },
+    expect: [{ event: 'journey:entry:updated', user: 'actor' }],
+  },
+  {
+    tool: 'unlink_journey_photo',
+    needs: ['journey'],
+    setup: async (s, app) => {
+      const photo = await withRequestContext(ormOf(app), () =>
+        app.get(JourneyDomainService).addProviderPhoto(s.journeyEntry.id, s.owner.id, 'immich', `unlink-${s.n}`),
+      );
+      if (!photo) throw new Error('the entry took no photo');
+      keep(s, 'entryPhoto', photo.id);
+    },
+    args: (s) => ({ entryId: s.journeyEntry.id, journey_photo_id: kept(s, 'entryPhoto') }),
+    rest: {
+      method: 'delete',
+      path: (s) => `/api/journeys/entries/${s.journeyEntry.id}/photos/${kept(s, 'entryPhoto')}`,
+    },
+    expect: [{ event: 'journey:entry:updated', user: 'actor' }],
+  },
+  {
+    tool: 'move_journey_photos',
+    needs: ['journey'],
+    setup: async (s, app) => {
+      const target = await makeJourneyEntry(ormOf(app), s.journey.id, s.owner.id, { entry_date: '2027-05-04' });
+      const photo = await withRequestContext(ormOf(app), () =>
+        app.get(JourneyDomainService).addProviderPhoto(s.journeyEntry.id, s.owner.id, 'immich', `move-${s.n}`),
+      );
+      if (!target || !photo) throw new Error('the scene took no second entry or no photo');
+      keep(s, 'targetEntry', target.id);
+      keep(s, 'movedPhoto', photo.id);
+    },
+    args: (s) => ({
+      fromEntryId: s.journeyEntry.id,
+      toEntryId: kept(s, 'targetEntry'),
+      photoIds: [kept(s, 'movedPhoto')],
+    }),
+    rest: {
+      method: 'post',
+      path: (s) => `/api/journeys/entries/${s.journeyEntry.id}/photos/move`,
+      body: (s) => ({ toEntryId: kept(s, 'targetEntry'), photoIds: [kept(s, 'movedPhoto')] }),
+    },
+    // One for each entry the photos left and reached.
+    expect: [
+      { event: 'journey:entry:updated', user: 'actor' },
+      { event: 'journey:entry:updated', user: 'actor' },
+    ],
+  },
+  {
+    tool: 'set_journey_photo_caption',
+    needs: ['journey'],
+    setup: async (s, app) => {
+      const photo = await withRequestContext(ormOf(app), () =>
+        app.get(JourneyDomainService).addProviderPhoto(s.journeyEntry.id, s.owner.id, 'immich', `caption-${s.n}`),
+      );
+      if (!photo) throw new Error('the entry took no photo');
+      keep(s, 'captionPhoto', photo.id);
+    },
+    args: (s) => ({ journeyId: s.journey.id, journey_photo_id: kept(s, 'captionPhoto'), caption: 'Black sand' }),
+    rest: {
+      method: 'patch',
+      path: (s) => `/api/journeys/photos/${kept(s, 'captionPhoto')}`,
+      body: () => ({ caption: 'Black sand' }),
+    },
+    expect: [{ event: 'journey:updated', user: 'actor' }],
   },
   {
     tool: 'add_journey_contributor',

@@ -6,10 +6,13 @@
 import { ADDON_IDS } from '../../../src/addons';
 import { db as testDb } from '../../../src/db/database';
 import { JourneyEntries } from '../../../src/db/entities/JourneyEntries.entity';
+import { JourneyEntryPhotos } from '../../../src/db/entities/JourneyEntryPhotos.entity';
+import { JourneyPhotos } from '../../../src/db/entities/JourneyPhotos.entity';
 import { Journeys } from '../../../src/db/entities/Journeys.entity';
+import { TrekPhotos } from '../../../src/db/entities/TrekPhotos.entity';
 import { createUser, createTrip } from '../../helpers/factories';
 import { addJourneyContributor } from '../../helpers/factories/journeys';
-import { createRow, findRow } from '../../helpers/factories/rows';
+import { createRow, findRow, insertRow } from '../../helpers/factories/rows';
 import { FakeRealtimeService } from '../../helpers/fake-realtime';
 import { createMcpHarness, parseToolResult, parseResourceResult, type McpHarness } from '../../helpers/mcp-harness';
 import { resetTestDb } from '../../helpers/test-db';
@@ -793,6 +796,112 @@ async function seedEntry(h: McpHarness, journeyId: number, args: Record<string, 
     ) as any
   ).entry;
 }
+
+let assetSeq = 0;
+
+/** A photo in the journey's gallery, and on the entry when one is named; answers its journey photo id. */
+async function seedGalleryPhoto(journeyId: number, entryId?: number): Promise<number> {
+  assetSeq += 1;
+  const trek = await createRow(orm, TrekPhotos, { provider: 'immich', asset_id: `asset-${assetSeq}` });
+  const gallery = await createRow(orm, JourneyPhotos, {
+    journey: journeyId,
+    photo: trek.id,
+    caption: null,
+    shared: 0,
+    sort_order: 0,
+    created_at: Date.now(),
+  });
+  if (entryId !== undefined) {
+    await insertRow(orm, JourneyEntryPhotos, {
+      entry: entryId,
+      journeyPhoto: gallery.id,
+      sort_order: 0,
+      created_at: Date.now(),
+    });
+  }
+  return gallery.id;
+}
+
+describe('journey photo tools', () => {
+  it('link_journey_photo and unlink_journey_photo put a gallery photo on an entry and take it off, telling the tabs', async () => {
+    const { user } = createUser(testDb);
+    await withHarness(user.id, async (h) => {
+      const journey = await seedJourney(h);
+      const entry = await seedEntry(h, journey.id, { title: 'Vik' });
+      const photoId = await seedGalleryPhoto(journey.id);
+      broadcastMock.mockClear();
+      const linked = parseToolResult(
+        await h.client.callTool({
+          name: 'link_journey_photo',
+          arguments: { entryId: entry.id, journey_photo_id: photoId },
+        }),
+      ) as { photo: { id: number }; entryId: number };
+      expect(linked).toMatchObject({ photo: { id: photoId }, entryId: entry.id });
+      expect(broadcastMock).toHaveBeenCalledWith(
+        user.id,
+        expect.objectContaining({ type: 'journey:entry:updated' }),
+        undefined,
+      );
+      const unlinked = parseToolResult(
+        await h.client.callTool({
+          name: 'unlink_journey_photo',
+          arguments: { entryId: entry.id, journey_photo_id: photoId },
+        }),
+      );
+      expect(unlinked).toEqual({ success: true, entryId: entry.id, journey_photo_id: photoId });
+      const again = await h.client.callTool({
+        name: 'unlink_journey_photo',
+        arguments: { entryId: entry.id, journey_photo_id: photoId },
+      });
+      expect(again.isError).toBe(true);
+    });
+  });
+
+  it('move_journey_photos moves photos between entries of a journey and refuses one of another journey', async () => {
+    const { user } = createUser(testDb);
+    await withHarness(user.id, async (h) => {
+      const journey = await seedJourney(h);
+      const from = await seedEntry(h, journey.id, { title: 'Vik' });
+      const to = await seedEntry(h, journey.id, { title: 'Reynisfjara', entry_date: '2026-07-02' });
+      const photoId = await seedGalleryPhoto(journey.id, from.id);
+      const moved = parseToolResult(
+        await h.client.callTool({
+          name: 'move_journey_photos',
+          arguments: { fromEntryId: from.id, toEntryId: to.id, photoIds: [photoId] },
+        }),
+      );
+      expect(moved).toEqual({ moved: [photoId], fromEntryId: from.id, toEntryId: to.id, kept: false });
+      const other = await seedJourney(h, 'Other');
+      const elsewhere = await seedEntry(h, other.id);
+      const refused = await h.client.callTool({
+        name: 'move_journey_photos',
+        arguments: { fromEntryId: to.id, toEntryId: elsewhere.id, photoIds: [photoId] },
+      });
+      expect(refused.isError).toBe(true);
+    });
+  });
+
+  it('set_journey_photo_caption answers the caption it replaced and refuses a photo of another journey', async () => {
+    const { user } = createUser(testDb);
+    await withHarness(user.id, async (h) => {
+      const journey = await seedJourney(h);
+      const other = await seedJourney(h, 'Other');
+      const photoId = await seedGalleryPhoto(journey.id);
+      const first = parseToolResult(
+        await h.client.callTool({
+          name: 'set_journey_photo_caption',
+          arguments: { journeyId: journey.id, journey_photo_id: photoId, caption: 'Black sand' },
+        }),
+      ) as { photo: { caption: string }; previous: { caption: string | null } };
+      expect(first).toMatchObject({ photo: { caption: 'Black sand' }, previous: { caption: null } });
+      const refused = await h.client.callTool({
+        name: 'set_journey_photo_caption',
+        arguments: { journeyId: other.id, journey_photo_id: photoId, caption: 'x' },
+      });
+      expect(refused.isError).toBe(true);
+    });
+  });
+});
 
 describe('journey entry fields', () => {
   it('create_journey_entry persists the place, coordinates, weather, tags, verdict, visibility and type', async () => {
