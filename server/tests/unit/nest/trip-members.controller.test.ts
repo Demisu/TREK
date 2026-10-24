@@ -174,7 +174,7 @@ describe('TripMembersController', () => {
       expect(await tc(s).removeMember(user, '9', '1', 'sock')).toEqual({ success: true });
       // The parsed trip id, as the removal itself takes it; member:removed goes out from the use case.
       expect(writes.removeMember).toHaveBeenCalledWith(9, 1, restWriter('sock'));
-      expect(removeMember).toHaveBeenCalledWith(9, 1);
+      expect(removeMember).toHaveBeenCalledWith(9, 1, 1);
       expect(await thrown(() => tc(s).removeMember(user, '9', '2'))).toEqual({
         status: 403,
         body: { error: 'No permission to remove members' },

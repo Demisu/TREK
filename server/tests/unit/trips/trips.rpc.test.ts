@@ -371,7 +371,7 @@ describe('TripsRpc membership', () => {
   it('TRIPS-RPC-017 a non-owner member is removed', async () => {
     const f = build();
     expect((await f.host().dispatch(req('trips.removeMember', { tripId: 1, userId: 7 }), 42)).ok).toBe(true);
-    expect(f.roster.removeMember).toHaveBeenCalledWith(1, 7);
+    expect(f.roster.removeMember).toHaveBeenCalledWith(1, 7, 42);
     expect(f.realtime.broadcast).toHaveBeenCalledWith(1, 'member:removed', { userId: 7 });
   });
 
