@@ -6,6 +6,12 @@ import { withRequestContext } from '../database/request-context';
 import { FOLLOW_UPS_SPEC } from './assistant-follow-ups';
 import { OPEN_TRIP_CHAT_SPEC, OPEN_TRIP_CHAT_TOOL, openTripChat } from './assistant-home';
 import {
+  OPEN_JOURNEY_CHAT_READ,
+  OPEN_JOURNEY_CHAT_SPEC,
+  OPEN_JOURNEY_CHAT_TOOL,
+  openJourneyChat,
+} from './assistant-home-journeys';
+import {
   checkJournalTools,
   heldInJourney,
   isHeldInJourney,
@@ -150,7 +156,8 @@ export function checkToolCatalog(
     if (!tools.has(name)) problems.push(`tool "${name}" with a card of its own is not registered`);
   }
   for (const name of Object.keys(cards)) {
-    if (!tools.has(name) && !ASSISTANT_SERVER_TOOLS.has(name) && name !== OPEN_TRIP_CHAT_TOOL) {
+    const serverStep = name === OPEN_TRIP_CHAT_TOOL || name === OPEN_JOURNEY_CHAT_TOOL;
+    if (!tools.has(name) && !ASSISTANT_SERVER_TOOLS.has(name) && !serverStep) {
       problems.push(`tool "${name}" with cards of a package is neither registered nor the server's own`);
     }
   }
@@ -170,6 +177,7 @@ export function checkToolCatalog(
     PREVIEW_BOOK_PAGE_TOOL,
     ASSISTANT_FOLLOW_UPS_TOOL,
     OPEN_TRIP_CHAT_TOOL,
+    OPEN_JOURNEY_CHAT_TOOL,
   ]) {
     if (tools.has(name)) problems.push(`"${name}" is the server's own step`);
   }
@@ -281,7 +289,8 @@ export class AssistantToolSession {
     if (!this.grouped) return [...listed, FOLLOW_UPS_SPEC];
     const more = Object.keys(ASSISTANT_TOOL_GROUPS).some((group) => !this.loaded.has(group));
     if (this.mode === 'home') {
-      return [...listed, OPEN_TRIP_CHAT_SPEC, ...(more ? [HOME_USE_TOOLS_SPEC] : []), FOLLOW_UPS_SPEC];
+      const journals = this.offersJournalChat ? [OPEN_JOURNEY_CHAT_SPEC] : [];
+      return [...listed, OPEN_TRIP_CHAT_SPEC, ...journals, ...(more ? [HOME_USE_TOOLS_SPEC] : []), FOLLOW_UPS_SPEC];
     }
     return [...listed, REMEMBER_SPEC, ...(more ? [USE_TOOLS_SPEC] : []), FOLLOW_UPS_SPEC];
   }
@@ -293,8 +302,14 @@ export class AssistantToolSession {
     if (name === USE_TOOLS_TOOL) return this.grouped ? 'read' : null;
     // Offering a trip's chat changes nothing; the user decides on the card.
     if (name === OPEN_TRIP_CHAT_TOOL) return this.mode === 'home' ? 'read' : null;
+    if (name === OPEN_JOURNEY_CHAT_TOOL) return this.offersJournalChat ? 'read' : null;
     const tool = this.tools.get(name);
     return tool?.offered ? tool.kind : null;
+  }
+
+  /** The home chat offers a journal's page while the user's journals can be listed (the journal addon is on). */
+  private get offersJournalChat(): boolean {
+    return this.mode === 'home' && this.tools.has(OPEN_JOURNEY_CHAT_READ);
   }
 
   /** What a card for this tool goes by; null for a tool this session does not hold. */
@@ -321,6 +336,9 @@ export class AssistantToolSession {
   async call(name: string, args: ToolArgs): Promise<ToolRun> {
     if (name === USE_TOOLS_TOOL) return this.load(args);
     if (name === OPEN_TRIP_CHAT_TOOL && this.mode === 'home') return this.offerTripChat(args);
+    if (name === OPEN_JOURNEY_CHAT_TOOL && this.offersJournalChat) {
+      return openJourneyChat(args, await this.invoke(OPEN_JOURNEY_CHAT_READ, {}));
+    }
     const final = name === TRANSIT_CREATE_TOOL ? await this.withFoundItinerary(args) : args;
     const run = await this.invoke(name, final);
     this.audit(name);
@@ -493,6 +511,7 @@ export class AssistantToolsService implements OnApplicationBootstrap {
         tool.kind,
         Object.keys((tool.inputSchema.properties as object | undefined) ?? {}),
         catalog.get(tool.name)?.className,
+        tool.name,
       );
     const mode: SessionMode = undoTargets ? 'undo' : 'home';
     return this.session(userId, NO_PIN, mode, { catalog, include, keep });

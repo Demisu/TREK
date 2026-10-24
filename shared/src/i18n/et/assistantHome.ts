@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': 'Möödas',
   'assistant.step.readingTrips': 'Vaatan su reise',
   'assistant.step.openTripChat': 'Otsin reisi üles',
+  'assistant.card.journalChat.label': 'Jätka päevikus',
+  'assistant.card.journalChat.eyebrow': 'Päevik',
+  'assistant.card.journalChat.open': 'Jätka selle päeviku vestluses',
+  'assistant.step.openJournalChat': 'Otsin päeviku üles',
 };
 
 export default assistantHome;

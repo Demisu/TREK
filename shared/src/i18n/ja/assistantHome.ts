@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': '終了',
   'assistant.step.readingTrips': '旅を確認しています',
   'assistant.step.openTripChat': '旅を探しています',
+  'assistant.card.journalChat.label': 'ジャーナルで続ける',
+  'assistant.card.journalChat.eyebrow': 'ジャーナル',
+  'assistant.card.journalChat.open': 'このジャーナルのチャットで続ける',
+  'assistant.step.openJournalChat': 'ジャーナルを探しています',
 };
 
 export default assistantHome;

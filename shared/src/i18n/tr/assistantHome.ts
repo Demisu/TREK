@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': 'Geride',
   'assistant.step.readingTrips': 'Seyahatlerine bakıyorum',
   'assistant.step.openTripChat': 'Seyahati buluyorum',
+  'assistant.card.journalChat.label': 'Bir günlükte devam et',
+  'assistant.card.journalChat.eyebrow': 'Günlük',
+  'assistant.card.journalChat.open': 'Bu günlüğün sohbetinde devam et',
+  'assistant.step.openJournalChat': 'Günlüğü buluyorum',
 };
 
 export default assistantHome;

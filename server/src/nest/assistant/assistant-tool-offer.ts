@@ -235,21 +235,33 @@ const JOURNEY_WRITE_CONTROLLERS: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * The journey writes the home chat keeps although they name trips or a
+ * journey: starting a journal (its trips are checked one by one by the tool,
+ * as for any MCP client), and deleting one, which its own chat leaves out
+ * because the conversation goes with it; the tool refuses everyone but the
+ * owner.
+ */
+const HOME_JOURNEY_WRITES: ReadonlySet<string> = new Set(['create_journey', 'delete_journey']);
+
+/**
  * Whether the home chat (no one trip, no one journey) keeps an attached tool
  * once its schema and annotations are known: every read, a trip's or a
  * journey's too, on the id the model names (the tool itself checks that the
  * user may read it, as for any MCP client); and the writes that take neither
  * a trip nor a journey (the atlas, the vacation planner, collections, the
- * tour library, the settings). A trip's own changes belong in that trip's
- * chat, which the home chat offers instead (open_trip_chat); a journey's stay
- * with the journey page, as they do for the Studio's chat.
+ * tour library, the settings), with a journal's start and its deletion. A
+ * trip's own changes belong in that trip's chat, which the home chat offers
+ * instead (open_trip_chat); a journal's in the chat on its page
+ * (open_journey_chat).
  */
 export function keptAtHome(
   kind: 'read' | 'write',
   schemaArgs: Iterable<string>,
   className: string | undefined,
+  name = '',
 ): boolean {
   if (kind === 'read') return true;
+  if (HOME_JOURNEY_WRITES.has(name)) return true;
   if (className !== undefined && JOURNEY_WRITE_CONTROLLERS.has(className)) return false;
   for (const arg of schemaArgs) if (TRIP_OR_JOURNEY_ARGS.has(arg)) return false;
   return true;

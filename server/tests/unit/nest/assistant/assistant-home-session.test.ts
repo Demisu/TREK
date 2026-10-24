@@ -8,8 +8,10 @@
  * session holds its target.
  */
 import { OPEN_TRIP_CHAT_TOOL } from '../../../../src/nest/assistant/assistant-home';
+import { OPEN_JOURNEY_CHAT_TOOL } from '../../../../src/nest/assistant/assistant-home-journeys';
 import { USE_TOOLS_TOOL } from '../../../../src/nest/assistant/assistant-tool-offer';
 import { AssistantToolsService } from '../../../../src/nest/assistant/assistant-tools.service';
+import { makeJourney } from '../../../helpers/factories/journeys';
 import { setAddonEnabled } from '../../../helpers/factories/settings';
 import { makeTrip } from '../../../helpers/factories/trips';
 import { makeUser } from '../../../helpers/factories/users';
@@ -105,6 +107,40 @@ describe('a home tool session', () => {
     }
   });
 
+  it('ASTHSES-007: the journey group brings the start and the deletion of a journal, held as changes', async () => {
+    const { userId } = await ownerWithTrip();
+    const session = await tools.openHome(userId);
+    try {
+      await session.call(USE_TOOLS_TOOL, { groups: ['journey'] });
+      const names = session.specs().map((spec) => spec.name);
+      expect(names).toEqual(expect.arrayContaining(['create_journey', 'delete_journey', OPEN_JOURNEY_CHAT_TOOL]));
+      expect(session.kindOf('create_journey')).toBe('write');
+      expect(session.kindOf('delete_journey')).toBe('write');
+      expect(session.kindOf('update_journey')).toBeNull();
+      expect(session.kindOf(OPEN_JOURNEY_CHAT_TOOL)).toBe('read');
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("ASTHSES-008: offers a journal's page only for a journal of the user's", async () => {
+    const { userId } = await ownerWithTrip();
+    const journey = await makeJourney(orm, userId, { title: 'Japan 2026' });
+    const { user: stranger } = await makeUser(orm);
+    const own = await tools.openHome(userId);
+    const theirs = await tools.openHome(stranger.id);
+    try {
+      expect(await own.call(OPEN_JOURNEY_CHAT_TOOL, { journeyId: journey.id, question: 'New entry' })).toMatchObject({
+        ok: true,
+        value: { journey: { id: journey.id, title: 'Japan 2026' }, question: 'New entry' },
+      });
+      expect(await theirs.call(OPEN_JOURNEY_CHAT_TOOL, { journeyId: journey.id })).toMatchObject({ ok: false });
+    } finally {
+      await own.close();
+      await theirs.close();
+    }
+  });
+
   it('ASTHSES-003: reads a trip of the user by its id, and only with the user rights', async () => {
     const { userId, tripId } = await ownerWithTrip();
     const { user: stranger } = await makeUser(orm);
@@ -146,6 +182,7 @@ describe('a home tool session', () => {
     try {
       expect(session.specs().map((spec) => spec.name)).toEqual(['delete_collection']);
       expect(session.kindOf(OPEN_TRIP_CHAT_TOOL)).toBeNull();
+      expect(session.kindOf(OPEN_JOURNEY_CHAT_TOOL)).toBeNull();
       expect(session.kindOf(USE_TOOLS_TOOL)).toBeNull();
     } finally {
       await session.close();

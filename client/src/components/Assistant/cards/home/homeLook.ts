@@ -13,9 +13,11 @@ export const HOME_LOOK = {
   steps: {
     list_trips: { stepKey: 'assistant.step.readingTrips' },
     open_trip_chat: { stepKey: 'assistant.step.openTripChat' },
+    open_journey_chat: { stepKey: 'assistant.step.openJournalChat' },
   },
   entities: {},
   cards: {
     tripChat: {},
+    journalChat: {},
   },
-} satisfies PackLook<'tripChat'>;
+} satisfies PackLook<'tripChat' | 'journalChat'>;

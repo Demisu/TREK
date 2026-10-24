@@ -17,8 +17,13 @@ import {
   renderHomeCard,
   tripsOf,
 } from '../../../../src/nest/assistant/assistant-home';
+import {
+  OPEN_JOURNEY_CHAT_SPEC,
+  OPEN_JOURNEY_CHAT_TOOL,
+  openJourneyChat,
+} from '../../../../src/nest/assistant/assistant-home-journeys';
 import { HOME_USE_TOOLS_SPEC, keptAtHome, USE_TOOLS_SPEC } from '../../../../src/nest/assistant/assistant-tool-offer';
-import { tripChatAnswer } from '../../../../src/nest/assistant/cards/home';
+import { journalChatAnswer, tripChatAnswer } from '../../../../src/nest/assistant/cards/home';
 import { answerCardOf } from '../../../../src/nest/assistant/cards/registry';
 
 import { describe, expect, it, vi } from 'vitest';
@@ -130,6 +135,10 @@ describe('a home turn', () => {
     expect(prompt).toContain('use_addon_tools');
     expect(OPEN_TRIP_CHAT_SPEC.name).toBe(OPEN_TRIP_CHAT_TOOL);
     expect(OPEN_TRIP_CHAT_SPEC.parameters.required).toEqual(['tripId']);
+    expect(prompt).toContain('open_journey_chat');
+    expect(prompt).toContain('create_journey');
+    expect(OPEN_JOURNEY_CHAT_SPEC.name).toBe(OPEN_JOURNEY_CHAT_TOOL);
+    expect(OPEN_JOURNEY_CHAT_SPEC.parameters.required).toEqual(['journeyId']);
   });
 
   it('ASTHOME-012: the step that loads groups says what needs nothing loaded in each chat', () => {
@@ -183,6 +192,62 @@ describe("the way into a trip's chat", () => {
   });
 });
 
+describe("the way onto a journal's page", () => {
+  const journal = {
+    id: 12,
+    title: '  Japan   2026 ',
+    subtitle: '',
+    trip_date_min: '2026-11-02',
+    trip_date_max: '2026-11-16 00:00:00',
+    entry_count: 4,
+    photo_count: 120,
+  };
+  const listed = { ok: true, value: { journeys: [journal, { id: 13, title: 'Other' }] } };
+
+  it("ASTHOME-040: answers with one of the user's journals and the question, cleaned up", () => {
+    expect(openJourneyChat({ journeyId: 12, question: ' A new  entry ' }, listed)).toEqual({
+      ok: true,
+      value: {
+        journey: {
+          id: 12,
+          title: 'Japan 2026',
+          subtitle: null,
+          startDate: '2026-11-02',
+          endDate: '2026-11-16',
+          entryCount: 4,
+          photoCount: 120,
+        },
+        question: 'A new entry',
+        shown: "Shown to the user as a card that opens the journal's page with its chat.",
+      },
+    });
+    expect(openJourneyChat({ journeyId: 13 }, listed)).toMatchObject({
+      value: { journey: { id: 13, entryCount: 0, startDate: null }, question: null },
+    });
+  });
+
+  it('ASTHOME-041: refuses a journal the user cannot open, a failed read and a row without a title', () => {
+    expect(openJourneyChat({ journeyId: 77 }, listed)).toMatchObject({ ok: false });
+    expect(openJourneyChat({ journeyId: 12 }, { ok: false, value: 'no' })).toMatchObject({ ok: false });
+    expect(openJourneyChat({}, listed)).toMatchObject({ ok: false });
+    const untitled = { ok: true, value: { journeys: [{ id: 5, title: '  ' }] } };
+    expect(openJourneyChat({ journeyId: 5 }, untitled)).toMatchObject({ ok: false });
+  });
+
+  it('ASTHOME-042: shows a card for the journal, and none for an answer without one', () => {
+    const run = openJourneyChat({ journeyId: 12, question: 'A new entry' }, listed);
+    const input = { toolCallId: 'c1', args: {}, value: run.value, card: emptyTripCard(1), today: TODAY };
+    expect(journalChatAnswer(input)).toMatchObject({
+      kind: 'journalChat',
+      journey: { id: 12, title: 'Japan 2026' },
+      question: 'A new entry',
+    });
+    expect(answerCardOf(OPEN_JOURNEY_CHAT_TOOL, input)).toMatchObject({ kind: 'journalChat' });
+    expect(journalChatAnswer({ ...input, value: 'No journal' })).toBeNull();
+    expect(journalChatAnswer({ ...input, value: { journey: { id: 0 } } })).toBeNull();
+  });
+});
+
 describe('the tools the home chat keeps', () => {
   it('ASTHOME-030: every read, and only the writes that name no trip and no journey', () => {
     expect(keptAtHome('read', ['tripId'], 'TripsMcp')).toBe(true);
@@ -202,5 +267,12 @@ describe('the tools the home chat keeps', () => {
     // A Dawarich stay taken into a journal names the journey as `journalId`; one marked on the bucket list stays.
     expect(keptAtHome('write', ['suggestionId', 'journalId'], 'DawarichMcp')).toBe(false);
     expect(keptAtHome('write', ['suggestionId', 'bucketListItemId'], 'DawarichMcp')).toBe(true);
+  });
+
+  it('ASTHOME-032: starts a journal and deletes one, which no journey chat offers, and no other journey write', () => {
+    expect(keptAtHome('write', ['title', 'trip_ids'], 'JourneyMcp', 'create_journey')).toBe(true);
+    expect(keptAtHome('write', ['journeyId'], 'JourneyMcp', 'delete_journey')).toBe(true);
+    expect(keptAtHome('write', ['journeyId'], 'JourneyMcp', 'update_journey')).toBe(false);
+    expect(keptAtHome('write', ['journeyId', 'tripId'], 'JourneyMcp', 'add_journey_trip')).toBe(false);
   });
 });

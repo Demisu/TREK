@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': '지난 여행',
   'assistant.step.readingTrips': '여행을 살펴보는 중',
   'assistant.step.openTripChat': '여행을 찾는 중',
+  'assistant.card.journalChat.label': '저널에서 계속하기',
+  'assistant.card.journalChat.eyebrow': '저널',
+  'assistant.card.journalChat.open': '이 저널의 채팅에서 계속하기',
+  'assistant.step.openJournalChat': '저널을 찾는 중',
 };
 
 export default assistantHome;

@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': 'Bakom dig',
   'assistant.step.readingTrips': 'Tittar på dina resor',
   'assistant.step.openTripChat': 'Letar upp resan',
+  'assistant.card.journalChat.label': 'Fortsätt i en dagbok',
+  'assistant.card.journalChat.eyebrow': 'Dagbok',
+  'assistant.card.journalChat.open': 'Fortsätt i den här dagbokens chatt',
+  'assistant.step.openJournalChat': 'Letar upp dagboken',
 };
 
 export default assistantHome;

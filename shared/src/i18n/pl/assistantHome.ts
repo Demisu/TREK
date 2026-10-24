@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': 'Za tobą',
   'assistant.step.readingTrips': 'Przeglądam twoje podróże',
   'assistant.step.openTripChat': 'Szukam podróży',
+  'assistant.card.journalChat.label': 'Kontynuuj w dzienniku',
+  'assistant.card.journalChat.eyebrow': 'Dziennik',
+  'assistant.card.journalChat.open': 'Kontynuuj na czacie tego dziennika',
+  'assistant.step.openJournalChat': 'Szukam dziennika',
 };
 
 export default assistantHome;

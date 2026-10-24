@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': 'ผ่านไปแล้ว',
   'assistant.step.readingTrips': 'กำลังดูทริปของคุณ',
   'assistant.step.openTripChat': 'กำลังหาทริป',
+  'assistant.card.journalChat.label': 'ไปต่อในบันทึก',
+  'assistant.card.journalChat.eyebrow': 'บันทึกการเดินทาง',
+  'assistant.card.journalChat.open': 'ไปต่อในแชตของบันทึกนี้',
+  'assistant.step.openJournalChat': 'กำลังหาบันทึก',
 };
 
 export default assistantHome;

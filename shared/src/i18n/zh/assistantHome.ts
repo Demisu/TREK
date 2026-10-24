@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': '已结束',
   'assistant.step.readingTrips': '正在查看你的旅行',
   'assistant.step.openTripChat': '正在查找这次旅行',
+  'assistant.card.journalChat.label': '在日志中继续',
+  'assistant.card.journalChat.eyebrow': '日志',
+  'assistant.card.journalChat.open': '在这本日志的聊天中继续',
+  'assistant.step.openJournalChat': '正在查找日志',
 };
 
 export default assistantHome;

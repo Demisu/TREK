@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': 'Sudah lewat',
   'assistant.step.readingTrips': 'Melihat perjalananmu',
   'assistant.step.openTripChat': 'Mencari perjalanannya',
+  'assistant.card.journalChat.label': 'Lanjutkan di jurnal',
+  'assistant.card.journalChat.eyebrow': 'Jurnal',
+  'assistant.card.journalChat.open': 'Lanjutkan di obrolan jurnal ini',
+  'assistant.step.openJournalChat': 'Mencari jurnalnya',
 };
 
 export default assistantHome;

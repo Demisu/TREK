@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': 'Πίσω σου',
   'assistant.step.readingTrips': 'Κοιτάζω τα ταξίδια σου',
   'assistant.step.openTripChat': 'Βρίσκω το ταξίδι',
+  'assistant.card.journalChat.label': 'Συνέχεια σε ένα ημερολόγιο',
+  'assistant.card.journalChat.eyebrow': 'Ημερολόγιο',
+  'assistant.card.journalChat.open': 'Συνέχεια στη συνομιλία αυτού του ημερολογίου',
+  'assistant.step.openJournalChat': 'Βρίσκω το ημερολόγιο',
 };
 
 export default assistantHome;

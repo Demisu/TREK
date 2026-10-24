@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': 'Elmúlt',
   'assistant.step.readingTrips': 'Megnézem az utazásaidat',
   'assistant.step.openTripChat': 'Megkeresem az utazást',
+  'assistant.card.journalChat.label': 'Folytatás egy naplóban',
+  'assistant.card.journalChat.eyebrow': 'Napló',
+  'assistant.card.journalChat.open': 'Folytatás ennek a naplónak a csevegésében',
+  'assistant.step.openJournalChat': 'Megkeresem a naplót',
 };
 
 export default assistantHome;

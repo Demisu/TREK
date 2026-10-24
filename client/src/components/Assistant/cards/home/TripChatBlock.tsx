@@ -1,13 +1,14 @@
 import type { TripChatCard, TripChatPhase } from '@trek/shared';
-import { ArrowRight, Luggage, MessageSquareText } from 'lucide-react';
+import { Luggage } from 'lucide-react';
 
 import { useTranslation } from '../../../../i18n';
 import { type PillTone, SoftPill, WhiteBadge } from '../../../Planner/planParts';
-import { useAssistantView } from '../../assistantViewContext';
 import type { CardEntry } from '../cardTypes';
 import CardFrame from '../parts/CardFrame';
 import CardHeader from '../parts/CardHeader';
 import { useCardFormat } from '../parts/useCardFormat';
+import { chatDates } from './chatDates';
+import { HandedQuestion, OpenChatButton } from './ChatHandOver';
 
 /**
  * The home chat's way into one trip's own chat: the trip under its head (its
@@ -27,18 +28,9 @@ const PHASE: Readonly<Record<Exclude<TripChatPhase, 'undated'>, { labelKey: stri
 
 function TripChatSection({ card, first }: { card: TripChatCard; first: boolean }) {
   const { t } = useTranslation();
-  const { onOpenTripChat, variant } = useAssistantView();
   const format = useCardFormat();
   const { trip, question } = card;
-  const start = trip.startDate ?? trip.endDate;
-  const end = trip.endDate ?? trip.startDate;
-  let dates = t('assistant.card.tripChat.noDates');
-  if (start && end) {
-    dates =
-      start === end
-        ? format.date(start)
-        : t('assistant.card.tripChat.dates', { start: format.date(start), end: format.date(end) });
-  }
+  const dates = chatDates(t, format.date, trip.startDate, trip.endDate);
   const phase = trip.phase === 'undated' ? null : PHASE[trip.phase];
   return (
     <div className={first ? '' : 'mt-3 border-t border-edge-faint pt-3'}>
@@ -59,25 +51,12 @@ function TripChatSection({ card, first }: { card: TripChatCard; first: boolean }
           <TripFacts phase={phase} placeCount={trip.placeCount} />
         </div>
       )}
-      {question && (
-        <p className="m-0 flex items-start gap-2 rounded-lg bg-surface-secondary px-3 py-2 text-body text-content">
-          <MessageSquareText size={14} aria-hidden="true" className="mt-0.5 flex-none text-content-muted" />
-          <span className="sr-only">{t('assistant.card.tripChat.question')}</span>
-          <bdi className="min-w-0 flex-1 break-words">{question}</bdi>
-        </p>
-      )}
-      {onOpenTripChat && (
-        <button
-          type="button"
-          onClick={() => onOpenTripChat({ id: trip.id, title: trip.title }, question)}
-          className={`mt-2.5 flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-3 text-body font-semibold text-accent-text transition-colors hover:bg-accent-hover ${
-            variant === 'fullscreen' ? 'h-11' : 'h-9'
-          }`}
-        >
-          {t('assistant.card.tripChat.open')}
-          <ArrowRight size={15} aria-hidden="true" className="rtl:-scale-x-100" />
-        </button>
-      )}
+      <HandedQuestion question={question} />
+      <OpenChatButton
+        chat={{ id: trip.id, title: trip.title }}
+        question={question}
+        label={t('assistant.card.tripChat.open')}
+      />
     </div>
   );
 }

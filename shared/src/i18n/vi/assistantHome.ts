@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': 'Đã qua',
   'assistant.step.readingTrips': 'Đang xem các chuyến đi của bạn',
   'assistant.step.openTripChat': 'Đang tìm chuyến đi',
+  'assistant.card.journalChat.label': 'Tiếp tục trong một nhật ký',
+  'assistant.card.journalChat.eyebrow': 'Nhật ký',
+  'assistant.card.journalChat.open': 'Tiếp tục trong cuộc trò chuyện của nhật ký này',
+  'assistant.step.openJournalChat': 'Đang tìm nhật ký',
 };
 
 export default assistantHome;

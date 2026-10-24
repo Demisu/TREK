@@ -1,6 +1,7 @@
 import { OPEN_TRIP_CHAT_TOOL, phaseOf } from '../../assistant-home';
+import { OPEN_JOURNEY_CHAT_TOOL } from '../../assistant-home-journeys';
 import type { AnswerInput, DomainCards } from '../card-types';
-import { tripChatCardSchema, type TrekCard } from '@trek/shared';
+import { journalChatCardSchema, tripChatCardSchema, type TrekCard } from '@trek/shared';
 
 /**
  * The home chat's own card: the way into a trip's chat its step offers,
@@ -31,7 +32,26 @@ export function tripChatAnswer(input: AnswerInput): TrekCard | null {
   return parsed.success ? parsed.data : null;
 }
 
+/**
+ * The way onto a journal's page its step offers, built from what the step
+ * answered (a journal of the user's, read from their own journals) and
+ * checked against the card's schema.
+ */
+export function journalChatAnswer(input: AnswerInput): TrekCard | null {
+  const value = (input.value ?? {}) as { journey?: unknown; question?: unknown };
+  if (!value.journey) return null;
+  const parsed = journalChatCardSchema.safeParse({
+    kind: 'journalChat',
+    journey: value.journey,
+    question: typeof value.question === 'string' && value.question ? value.question : null,
+  });
+  return parsed.success ? parsed.data : null;
+}
+
 export const HOME_CARDS: DomainCards = {
   id: 'home',
-  tools: { [OPEN_TRIP_CHAT_TOOL]: { answer: tripChatAnswer } },
+  tools: {
+    [OPEN_TRIP_CHAT_TOOL]: { answer: tripChatAnswer },
+    [OPEN_JOURNEY_CHAT_TOOL]: { answer: journalChatAnswer },
+  },
 };

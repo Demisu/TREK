@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': 'Позаду',
   'assistant.step.readingTrips': 'Переглядаю ваші подорожі',
   'assistant.step.openTripChat': 'Шукаю подорож',
+  'assistant.card.journalChat.label': 'Продовжити в щоденнику',
+  'assistant.card.journalChat.eyebrow': 'Щоденник',
+  'assistant.card.journalChat.open': 'Продовжити в чаті цього щоденника',
+  'assistant.step.openJournalChat': 'Шукаю щоденник',
 };
 
 export default assistantHome;

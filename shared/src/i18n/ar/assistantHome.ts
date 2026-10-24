@@ -22,6 +22,10 @@ const assistantHome: TranslationStrings = {
   'assistant.card.tripChat.phase.past': 'انتهت',
   'assistant.step.readingTrips': 'أطّلع على رحلاتك',
   'assistant.step.openTripChat': 'أبحث عن الرحلة',
+  'assistant.card.journalChat.label': 'المتابعة في يوميات',
+  'assistant.card.journalChat.eyebrow': 'اليوميات',
+  'assistant.card.journalChat.open': 'المتابعة في دردشة هذه اليوميات',
+  'assistant.step.openJournalChat': 'أبحث عن اليوميات',
 };
 
 export default assistantHome;
