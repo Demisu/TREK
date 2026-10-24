@@ -45,6 +45,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'Einen Adminbereich für Nutzer, Addons und Berechtigungen',
   'demo.welcome.repo': 'Quellcode auf GitHub',
   'demo.welcome.start': 'Los geht’s',
+  'demo.welcome.credits': 'Bildnachweise',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': 'Bildnachweise',
+  'demo.credits.intro':
+    'Die Fotos dieser Demo stammen aus Wikimedia Commons, jedes unter der Lizenz, die bei ihm steht. Diese Lizenz gilt nur für das Foto, nicht für TREK oder den Rest der Demo.',
+  'demo.credits.by': 'Foto: {author}',
+  'demo.credits.publicDomain': 'Gemeinfrei',
+  'demo.credits.back': 'Zurück',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'Demomodus',
   'demo.lock.apiKeys': 'In der Demo lassen sich keine API-Schlüssel erstellen.',

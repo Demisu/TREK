@@ -43,6 +43,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': '사용자, 애드온, 권한을 위한 관리자 패널',
   'demo.welcome.repo': 'GitHub의 소스 코드',
   'demo.welcome.start': '둘러보기 시작',
+  'demo.welcome.credits': '사진 출처',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': '사진 출처',
+  'demo.credits.intro':
+    '이 데모의 사진은 Wikimedia Commons에서 가져왔으며, 각 사진에는 함께 표시된 라이선스가 적용됩니다. 이 라이선스는 사진에만 적용되며 TREK이나 데모의 나머지 부분에는 적용되지 않습니다.',
+  'demo.credits.by': '촬영: {author}',
+  'demo.credits.publicDomain': '퍼블릭 도메인',
+  'demo.credits.back': '뒤로',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': '데모 모드',
   'demo.lock.apiKeys': '데모에서는 API 키를 만들 수 없습니다.',

@@ -45,6 +45,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'Un tauler d’administració per a usuaris, complements i permisos',
   'demo.welcome.repo': 'Codi font a GitHub',
   'demo.welcome.start': 'Comença a explorar',
+  'demo.welcome.credits': 'Crèdits de les fotos',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': 'Crèdits de les fotos',
+  'demo.credits.intro':
+    'Les fotos d’aquesta demo provenen de Wikimedia Commons, cadascuna amb la llicència que s’hi indica. Aquesta llicència només s’aplica a la foto, no a TREK ni a la resta de la demo.',
+  'demo.credits.by': 'per {author}',
+  'demo.credits.publicDomain': 'Domini públic',
+  'demo.credits.back': 'Enrere',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'Mode demo',
   'demo.lock.apiKeys': 'A la demo no es poden crear claus d’API.',

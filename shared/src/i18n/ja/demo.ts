@@ -43,6 +43,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'ユーザー、アドオン、権限を管理する管理画面',
   'demo.welcome.repo': 'GitHub のソースコード',
   'demo.welcome.start': '使ってみる',
+  'demo.welcome.credits': '写真のクレジット',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': '写真のクレジット',
+  'demo.credits.intro':
+    'このデモの写真は Wikimedia Commons のもので、それぞれ横に記載したライセンスで公開されています。そのライセンスは写真にのみ適用され、TREK やデモのほかの部分には適用されません。',
+  'demo.credits.by': '撮影：{author}',
+  'demo.credits.publicDomain': 'パブリックドメイン',
+  'demo.credits.back': '戻る',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'デモモード',
   'demo.lock.apiKeys': 'デモでは API キーを作成できません。',

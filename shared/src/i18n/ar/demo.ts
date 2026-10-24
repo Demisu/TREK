@@ -44,6 +44,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'لوحة إدارة للمستخدمين والإضافات والصلاحيات',
   'demo.welcome.repo': 'الشيفرة المصدرية على GitHub',
   'demo.welcome.start': 'ابدأ الاستكشاف',
+  'demo.welcome.credits': 'حقوق الصور',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': 'حقوق الصور',
+  'demo.credits.intro':
+    'صور هذا العرض التجريبي من ويكيميديا كومنز، ولكل صورة الترخيص المذكور معها. ينطبق هذا الترخيص على الصورة وحدها، لا على TREK ولا على بقية العرض التجريبي.',
+  'demo.credits.by': 'تصوير {author}',
+  'demo.credits.publicDomain': 'ملكية عامة',
+  'demo.credits.back': 'رجوع',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'الوضع التجريبي',
   'demo.lock.apiKeys': 'لا يمكن إنشاء مفاتيح API في العرض التجريبي.',

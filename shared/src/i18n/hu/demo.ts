@@ -46,6 +46,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'Adminfelület felhasználókhoz, kiegészítőkhöz és jogosultságokhoz',
   'demo.welcome.repo': 'Forráskód a GitHubon',
   'demo.welcome.start': 'Felfedezés indítása',
+  'demo.welcome.credits': 'Fotók szerzői',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': 'Fotók szerzői',
+  'demo.credits.intro':
+    'A demó fotói a Wikimedia Commonsról származnak, mindegyik a mellette feltüntetett licenccel. Ez a licenc csak a fotóra vonatkozik, a TREK-re és a demó többi részére nem.',
+  'demo.credits.by': 'Fotó: {author}',
+  'demo.credits.publicDomain': 'Közkincs',
+  'demo.credits.back': 'Vissza',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'Demó mód',
   'demo.lock.apiKeys': 'A demóban nem hozhatók létre API-kulcsok.',

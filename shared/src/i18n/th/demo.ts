@@ -44,6 +44,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'แผงผู้ดูแลระบบสำหรับผู้ใช้ ส่วนเสริม และสิทธิ์',
   'demo.welcome.repo': 'ซอร์สโค้ดบน GitHub',
   'demo.welcome.start': 'เริ่มสำรวจ',
+  'demo.welcome.credits': 'เครดิตภาพถ่าย',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': 'เครดิตภาพถ่าย',
+  'demo.credits.intro':
+    'ภาพถ่ายในเดโมนี้มาจาก Wikimedia Commons โดยแต่ละภาพใช้สัญญาอนุญาตที่ระบุไว้คู่กัน สัญญาอนุญาตนั้นใช้กับภาพถ่ายเท่านั้น ไม่ใช่กับ TREK หรือส่วนอื่นของเดโม',
+  'demo.credits.by': 'ภาพโดย {author}',
+  'demo.credits.publicDomain': 'สาธารณสมบัติ',
+  'demo.credits.back': 'ย้อนกลับ',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'โหมดเดโม',
   'demo.lock.apiKeys': 'สร้างคีย์ API ในเดโมไม่ได้',

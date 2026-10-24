@@ -45,6 +45,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'Administráciu používateľov, doplnkov a oprávnení',
   'demo.welcome.repo': 'Zdrojový kód na GitHube',
   'demo.welcome.start': 'Začať objavovať',
+  'demo.welcome.credits': 'Autori fotografií',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': 'Autori fotografií',
+  'demo.credits.intro':
+    'Fotografie v tomto deme pochádzajú z Wikimedia Commons, každá pod licenciou, ktorá je pri nej uvedená. Táto licencia platí len pre fotografiu, nie pre TREK ani pre zvyšok dema.',
+  'demo.credits.by': 'Autor: {author}',
+  'demo.credits.publicDomain': 'Voľné dielo',
+  'demo.credits.back': 'Späť',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'Režim dema',
   'demo.lock.apiKeys': 'V deme nie je možné vytvárať kľúče API.',

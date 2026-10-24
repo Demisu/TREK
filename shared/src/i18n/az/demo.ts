@@ -46,6 +46,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'İstifadəçilər, əlavələr və icazələr üçün idarəetmə paneli',
   'demo.welcome.repo': 'GitHub-da mənbə kodu',
   'demo.welcome.start': 'Kəşf etməyə başlayın',
+  'demo.welcome.credits': 'Foto müəllifləri',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': 'Foto müəllifləri',
+  'demo.credits.intro':
+    'Bu demodakı fotolar Wikimedia Commons-dan götürülüb və hər biri yanında göstərilən lisenziya ilə yayımlanır. Bu lisenziya yalnız fotoya aiddir, TREK-ə və ya demonun qalan hissəsinə aid deyil.',
+  'demo.credits.by': 'Müəllif: {author}',
+  'demo.credits.publicDomain': 'İctimai mülkiyyət',
+  'demo.credits.back': 'Geri',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'Demo rejimi',
   'demo.lock.apiKeys': 'Demoda API açarları yaratmaq olmur.',

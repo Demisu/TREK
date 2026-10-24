@@ -45,6 +45,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'Halduspaneel kasutajate, lisamoodulite ja õiguste jaoks',
   'demo.welcome.repo': 'Lähtekood GitHubis',
   'demo.welcome.start': 'Alusta avastamist',
+  'demo.welcome.credits': 'Fotode autorid',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': 'Fotode autorid',
+  'demo.credits.intro':
+    'Selle demo fotod pärinevad Wikimedia Commonsist, igaüks selle juures märgitud litsentsiga. See litsents kehtib ainult foto kohta, mitte TREKi ega ülejäänud demo kohta.',
+  'demo.credits.by': 'Autor: {author}',
+  'demo.credits.publicDomain': 'Avalik omand',
+  'demo.credits.back': 'Tagasi',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'Demorežiim',
   'demo.lock.apiKeys': 'Demos ei saa API-võtmeid luua.',

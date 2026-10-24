@@ -48,6 +48,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'Trang quản trị cho người dùng, tiện ích và quyền',
   'demo.welcome.repo': 'Mã nguồn trên GitHub',
   'demo.welcome.start': 'Bắt đầu khám phá',
+  'demo.welcome.credits': 'Nguồn ảnh',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': 'Nguồn ảnh',
+  'demo.credits.intro':
+    'Ảnh trong bản demo này lấy từ Wikimedia Commons, mỗi ảnh theo giấy phép ghi kèm. Giấy phép đó chỉ áp dụng cho ảnh, không áp dụng cho TREK hay phần còn lại của bản demo.',
+  'demo.credits.by': 'Ảnh: {author}',
+  'demo.credits.publicDomain': 'Phạm vi công cộng',
+  'demo.credits.back': 'Quay lại',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'Chế độ demo',
   'demo.lock.apiKeys': 'Không thể tạo khóa API trong bản demo.',

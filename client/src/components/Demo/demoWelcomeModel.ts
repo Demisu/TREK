@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 
 /** One thing a visitor can try in the demo right away: a tile of the welcome dialog. */
-export interface DemoFeature {
+interface DemoFeature {
   id: string;
   icon: LucideIcon;
   titleKey: string;

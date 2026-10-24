@@ -46,6 +46,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'Πίνακα διαχείρισης για χρήστες, πρόσθετα και δικαιώματα',
   'demo.welcome.repo': 'Πηγαίος κώδικας στο GitHub',
   'demo.welcome.start': 'Ξεκίνα την εξερεύνηση',
+  'demo.welcome.credits': 'Πηγές φωτογραφιών',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': 'Πηγές φωτογραφιών',
+  'demo.credits.intro':
+    'Οι φωτογραφίες αυτής της επίδειξης προέρχονται από το Wikimedia Commons, η καθεμία με την άδεια που αναγράφεται δίπλα της. Η άδεια αυτή ισχύει μόνο για τη φωτογραφία, όχι για το TREK ή την υπόλοιπη επίδειξη.',
+  'demo.credits.by': 'Φωτογραφία: {author}',
+  'demo.credits.publicDomain': 'Κοινό κτήμα',
+  'demo.credits.back': 'Πίσω',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'Λειτουργία επίδειξης',
   'demo.lock.apiKeys': 'Στην επίδειξη δεν δημιουργούνται κλειδιά API.',

@@ -41,6 +41,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': '管理使用者、附加元件和權限的管理面板',
   'demo.welcome.repo': 'GitHub 上的原始碼',
   'demo.welcome.start': '開始探索',
+  'demo.welcome.credits': '圖片來源',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': '圖片來源',
+  'demo.credits.intro':
+    '本展示中的照片來自 Wikimedia Commons，每張照片都採用其旁邊註明的授權條款。該授權僅適用於照片本身，不適用於 TREK 或展示的其他部分。',
+  'demo.credits.by': '攝影：{author}',
+  'demo.credits.publicDomain': '公有領域',
+  'demo.credits.back': '返回',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': '展示模式',
   'demo.lock.apiKeys': '展示中無法建立 API 金鑰。',

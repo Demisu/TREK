@@ -45,6 +45,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'En adminpanel för användare, tillägg och behörigheter',
   'demo.welcome.repo': 'Källkod på GitHub',
   'demo.welcome.start': 'Börja utforska',
+  'demo.welcome.credits': 'Bildkällor',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': 'Bildkällor',
+  'demo.credits.intro':
+    'Bilderna i den här demon kommer från Wikimedia Commons, var och en under licensen som anges vid den. Licensen gäller bara bilden, inte TREK eller resten av demon.',
+  'demo.credits.by': 'Foto: {author}',
+  'demo.credits.publicDomain': 'Allmän egendom',
+  'demo.credits.back': 'Tillbaka',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'Demoläge',
   'demo.lock.apiKeys': 'I demon går det inte att skapa API-nycklar.',

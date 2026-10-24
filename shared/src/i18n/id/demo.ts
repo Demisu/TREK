@@ -47,6 +47,14 @@ const demo: TranslationStrings = {
   'demo.full.admin': 'Panel admin untuk pengguna, addon, dan izin',
   'demo.welcome.repo': 'Kode sumber di GitHub',
   'demo.welcome.start': 'Mulai menjelajah',
+  'demo.welcome.credits': 'Kredit foto',
+  // The photo credits, the welcome dialog's second view (components/Demo/DemoCredits).
+  'demo.credits.title': 'Kredit foto',
+  'demo.credits.intro':
+    'Foto dalam demo ini berasal dari Wikimedia Commons, masing-masing dengan lisensi yang tertera di sampingnya. Lisensi itu hanya berlaku untuk fotonya, bukan untuk TREK atau bagian lain demo ini.',
+  'demo.credits.by': 'oleh {author}',
+  'demo.credits.publicDomain': 'Domain publik',
+  'demo.credits.back': 'Kembali',
   // The lock over a section the shared demo account may not change (components/Demo/DemoLock).
   'demo.lock.badge': 'Mode demo',
   'demo.lock.apiKeys': 'Kunci API tidak dapat dibuat di demo.',

@@ -1,4 +1,4 @@
-import { act, fireEvent } from '@testing-library/react';
+import { act, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '../../../tests/helpers/render';
@@ -66,13 +66,14 @@ describe('DemoWelcome', () => {
 
   it('FE-COMP-DEMOWELCOME-005: the countdown runs live in the server zone', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: false });
+    // On a whole second, so every tick of the interval lands on one too.
     vi.setSystemTime(new Date(Date.UTC(2026, 9, 24, 12, 17, 53)));
     render(<DemoWelcome />);
     expect(screen.getByTestId('demo-countdown')).toHaveTextContent('42:07');
 
+    // Advancing the fake timers moves the fake clock with them: the fifth tick reads 12:17:58.
     await act(async () => {
-      vi.setSystemTime(new Date(Date.UTC(2026, 9, 24, 12, 17, 58)));
-      vi.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(5000);
     });
     expect(screen.getByTestId('demo-countdown')).toHaveTextContent('42:02');
   });
@@ -88,5 +89,61 @@ describe('DemoWelcome', () => {
     render(<DemoWelcome />);
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('FE-COMP-DEMOWELCOME-008: the photo credits open in its place and the back button returns', async () => {
+    const user = userEvent.setup();
+    render(<DemoWelcome />);
+    await user.click(screen.getByRole('button', { name: 'Photo credits' }));
+
+    const list = await screen.findByRole('list', { name: 'Photo credits' }, { timeout: 5000 });
+    expect(within(list).getAllByRole('listitem')).toHaveLength(228);
+    expect(screen.getByText(/come from Wikimedia Commons/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Photo credits' })).toBeInTheDocument();
+    expect(screen.queryByText('Everything resets every hour')).not.toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Live demo' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Back' })).toHaveFocus();
+
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(screen.getByText('Everything resets every hour')).toBeInTheDocument();
+    expect(screen.queryByRole('list', { name: 'Photo credits' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Photo credits' })).toHaveFocus();
+  });
+
+  it('FE-COMP-DEMOWELCOME-009: a photo names its title, author and license, each linking to its source', async () => {
+    const user = userEvent.setup();
+    render(<DemoWelcome />);
+    await user.click(screen.getByRole('button', { name: 'Photo credits' }));
+
+    const title = await screen.findByRole('link', { name: 'Lagoa Rasa (Sete Cidades) 2' }, { timeout: 5000 });
+    expect(title).toHaveAttribute('href', 'https://commons.wikimedia.org/wiki/File:Lagoa_Rasa_(Sete_Cidades)_2.jpg');
+    expect(title).toHaveAttribute('target', '_blank');
+    expect(title).toHaveAttribute('rel', 'noopener noreferrer');
+    const row = within(title.closest('li') as HTMLElement);
+    expect(row.getByText('by Walmaul')).toBeInTheDocument();
+    const license = row.getByRole('link', { name: 'CC BY-SA 4.0' });
+    expect(license).toHaveAttribute('href', 'https://creativecommons.org/licenses/by-sa/4.0/');
+    expect(license).toHaveAttribute('target', '_blank');
+    expect(license).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('FE-COMP-DEMOWELCOME-010: a public domain photo names it without a deed, and a cleaned author reads as a name', async () => {
+    const user = userEvent.setup();
+    render(<DemoWelcome />);
+    await user.click(screen.getByRole('button', { name: 'Photo credits' }));
+
+    const abiskoTitle = await screen.findByRole('link', { name: 'AbiskoNationalpark01' }, { timeout: 5000 });
+    const abisko = within(abiskoTitle.closest('li') as HTMLElement);
+    expect(abisko.getByText('Public domain')).toBeInTheDocument();
+    expect(abisko.getAllByRole('link')).toHaveLength(1);
+
+    const zinnen = within(
+      screen.getByRole('link', { name: 'Drei Zinnen Tre Cime di Lavaredo Dolomites' }).closest('li') as HTMLElement
+    );
+    expect(zinnen.getByText('by Wolfgang Moroder')).toBeInTheDocument();
+    expect(zinnen.getByRole('link', { name: 'CC BY-SA 3.0' })).toHaveAttribute(
+      'href',
+      'https://creativecommons.org/licenses/by-sa/3.0/'
+    );
   });
 });
