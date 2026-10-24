@@ -193,7 +193,7 @@ describe('TransportRow', () => {
 
     expect(screen.getByText('LH 714 to Tokyo')).toBeInTheDocument()
     expect(container.textContent).toContain('08:15 – 18:40')
-    expect(screen.getByText('Lufthansa · LH714 · MUC → HND')).toBeInTheDocument()
+    expect(screen.getByText('Lufthansa, LH714, MUC → HND')).toBeInTheDocument()
   })
 
   it('FE-MOB-PLROW-014: a multi-day span shows only the day-relevant time', () => {

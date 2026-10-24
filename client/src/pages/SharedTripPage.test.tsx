@@ -1664,15 +1664,9 @@ describe('SharedTripPage', () => {
         21: [{
           id: 304, day_id: 21, order_index: 0, notes: '**Bring** cash',
           place: {
-            id: 504, name: 'Market', description: '## Opening
-
-| Day | Hours |
-| --- | --- |
-| Sat | 8 to 14 |
-
-<img src=x onerror=alert(1)>',
-            address: 'Market Square 1', lat: null, lng: null, duration_minutes: 0, notes: '- fruit
-- bread',
+            id: 504, name: 'Market',
+            description: ['## Opening', '', '| Day | Hours |', '| --- | --- |', '| Sat | 8 to 14 |', '', '<img src=x onerror=alert(1)>'].join('\n'),
+            address: 'Market Square 1', lat: null, lng: null, duration_minutes: 0, notes: ['- fruit', '- bread'].join('\n'),
             website: null, phone: null, category_id: null, price: null, place_time: null, end_time: null,
             image_url: null, transport_mode: 'walking', category: null, tags: [],
           },

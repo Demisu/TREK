@@ -125,7 +125,8 @@ export default function MTransportSheet({ planner, shell }: MTripSheetsProps) {
 
   // Per-segment booking codes (#1943), only on a real stopover booking: the
   // single-leg fallback would just echo the booking's own code shown below.
-  const routeLegs: (FlightLeg | TrainLeg)[] = res.type === 'flight' ? getFlightLegs(res) : usesStationRoute(res.type) ? getTrainLegs(res) : []
+  const isFlight = res.type === 'flight'
+  const routeLegs: (FlightLeg | TrainLeg)[] = isFlight ? getFlightLegs(res) : usesStationRoute(res.type) ? getTrainLegs(res) : []
   const legCodes = routeLegs.length > 1 ? routeLegs.filter(l => l.confirmation_number) : []
   // Opened from one leg's row, the sheet shows that leg's own number, seat,
   // platform and times rather than the first leg's (#2701).
@@ -148,8 +149,8 @@ export default function MTransportSheet({ planner, shell }: MTripSheetsProps) {
   else if (date) subParts.push(bookingDayLabel(date, locale))
 
   // A flight's legs carry no seat or platform of their own, so those stay the booking's.
-  const seat = leg && res.type !== 'flight' ? legDetail.seat : meta.seat
-  const platform = leg && res.type !== 'flight' ? legDetail.platform : meta.platform
+  const seat = leg && !isFlight ? legDetail.seat : meta.seat
+  const platform = leg && !isFlight ? legDetail.platform : meta.platform
   const transitLegs: TransitLeg[] = Array.isArray(meta.transit?.legs) ? meta.transit.legs : []
 
   const resFiles = filesFor(res, planner.files || [])

@@ -399,13 +399,8 @@ describe('downloadTripPDF', () => {
 
   // #2692: a place's description and notes print as the planner shows them, not as raw markdown.
   it('FE-COMP-TRIPPDF-016c: renders markdown in a place description, sanitized', async () => {
-    const place = { ...placeWithDetails, description: '**Colosseum** tickets
-
-| Gate | Time |
-| --- | --- |
-| A | 9:00 |
-
-<script>alert(1)</script>' }
+    const description = ['**Colosseum** tickets', '', '| Gate | Time |', '| --- | --- |', '| A | 9:00 |', '', '<script>alert(1)</script>'].join('\n')
+    const place = { ...placeWithDetails, description }
     const md = { ...richArgs, places: [place], assignments: { '10': [{ ...assignmentForDay, place }] } }
     await downloadTripPDF(md as any)
     const html = getIframe()!.srcdoc

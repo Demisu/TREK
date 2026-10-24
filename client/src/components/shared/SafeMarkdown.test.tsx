@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { SafeMarkdown, createMarkdownHtml } from './SafeMarkdown';
+import { createMarkdownHtml } from './markdownHtml';
+import { SafeMarkdown } from './SafeMarkdown';
 
 describe('SafeMarkdown (#2692)', () => {
   it('FE-COMP-SAFEMD-001: renders GitHub markdown with kept line breaks and safe links', () => {
