@@ -2,10 +2,11 @@ import type { CSSProperties, ReactNode } from 'react';
 import { useId } from 'react';
 
 import type { BookTextElement } from '@trek/shared';
-import { bookDrawnLines, bookTextCurvePath, bookTextIsDrawn } from '@trek/shared';
+import { bookDrawnLines, bookTextCurvePath, bookTextIsDrawn, bookTextPaintFill } from '@trek/shared';
 
 import { fontStack } from './bookFonts';
 import { photoSrc } from './bookRender';
+import { paintParts } from './paint/paintRender';
 import {
   caseStyle,
   curveAnchor,
@@ -149,11 +150,16 @@ function DrawnText({ el, frameStyle, big }: { el: BookTextElement; frameStyle: C
   const reactId = useId();
   const pathId = svgId('tp-', reactId);
   const clipId = svgId('tc-', reactId);
+  const paintId = svgId('tf-', reactId);
   const { w, h } = el.frame;
   const fontMm = ptToMm(el.size);
   const lines = bookDrawnLines(el);
   const curve = el.curve ? bookTextCurvePath(el.curve, w, h, fontMm) : null;
   const photo = el.fillPaint?.type === 'photo' ? el.fillPaint : null;
+  // A gradient or pattern in the letters, laid out over the frame as a shape's paint is over its box.
+  const fillPaint = bookTextPaintFill(el);
+  const letterPaint = fillPaint ? paintParts(fillPaint, { x: 0, y: 0, w, h }, paintId) : null;
+  const pattern = letterPaint?.pattern ?? null;
   const hollow = isHollow(el);
   const { outline, shadow } = el;
 
@@ -211,8 +217,20 @@ function DrawnText({ el, frameStyle, big }: { el: BookTextElement; frameStyle: C
   if (photo) {
     const cover = photoCover(w, h, photo);
     layers.push(<image key="photo" href={photoSrc(photo.photoId, big)} {...cover} clipPath={`url(#${clipId})`} />);
+  } else if (pattern && letterPaint) {
+    // The pattern's ground and its marks, clipped to the letters.
+    layers.push(
+      <g key="pattern" clipPath={`url(#${clipId})`}>
+        {letterPaint.fill !== 'none' && <rect width={w} height={h} fill={letterPaint.fill} />}
+        <g transform={pattern.transform}>
+          {pattern.layers.map((layer, i) => (
+            <path key={i} d={layer.d} fill={pattern.ink} fillOpacity={layer.opacity < 1 ? layer.opacity : undefined} />
+          ))}
+        </g>
+      </g>
+    );
   } else {
-    layers.push(glyphs({ fill: letterFill(el) ?? el.color }, 'fill'));
+    layers.push(glyphs({ fill: letterPaint ? letterPaint.fill : (letterFill(el) ?? el.color) }, 'fill'));
   }
 
   return (
@@ -227,7 +245,8 @@ function DrawnText({ el, frameStyle, big }: { el: BookTextElement; frameStyle: C
       >
         <defs>
           {curve && <path id={pathId} d={curve.d} fill="none" />}
-          {photo && (
+          {letterPaint?.defs}
+          {(photo || pattern) && (
             <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
               {glyphs(null, 'clip')}
             </clipPath>

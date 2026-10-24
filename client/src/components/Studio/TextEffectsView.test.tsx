@@ -108,6 +108,40 @@ describe('a text drawn as SVG', () => {
     expect(Array.from(clip?.querySelectorAll('tspan') ?? []).map((t) => t.textContent)).toEqual(['LIS', 'BON']);
   });
 
+  it('fills the letters with a gradient through a gradient of their own frame', () => {
+    const el = text({
+      fillPaint: {
+        type: 'linear',
+        angle: 90,
+        stops: [
+          { at: 0, color: '#ff6600' },
+          { at: 1, color: '#ffcc00' },
+        ],
+      },
+    });
+    const { container } = render(<TextEffectsView el={el} frameStyle={frameStyle} big={false} />);
+    const gradient = container.querySelector('linearGradient');
+    expect(gradient?.getAttribute('gradientUnits')).toBe('userSpaceOnUse');
+    expect(Array.from(gradient?.querySelectorAll('stop') ?? []).map((s) => s.getAttribute('stop-color'))).toEqual([
+      '#ff6600',
+      '#ffcc00',
+    ]);
+    const letters = container.querySelector('svg > text');
+    expect(letters?.getAttribute('fill')).toBe(`url(#${gradient?.getAttribute('id')})`);
+  });
+
+  it('fills the letters with a pattern, its ground and its marks clipped to them', () => {
+    const el = text({
+      fillPaint: { type: 'pattern', pattern: 'stripes', fg: '#d62828', bg: '#ffffff', scale: 1, angle: 0 },
+    });
+    const { container } = render(<TextEffectsView el={el} frameStyle={frameStyle} big={false} />);
+    const clip = container.getElementsByTagName('clipPath')[0];
+    const group = container.querySelector('g[clip-path]');
+    expect(group?.getAttribute('clip-path')).toBe(`url(#${clip?.getAttribute('id')})`);
+    expect(group?.querySelector('rect')?.getAttribute('fill')).toBe('#ffffff');
+    expect(group?.querySelectorAll('path[fill="#d62828"]').length).toBeGreaterThan(0);
+  });
+
   it('gives every copy of a page its own ids, so a page drawn twice never clips to the other copy', () => {
     const el = text({ fillPaint: { type: 'photo', photoId: 12 }, curve: { type: 'circle' } });
     const { container } = render(

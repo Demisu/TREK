@@ -68,32 +68,39 @@ type ObjectFactory = typeof z.object | typeof z.strictObject;
 function paintSchemas(obj: ObjectFactory, pattern: z.ZodType<BookPattern, string>) {
   const stop = obj({ at: z.number().min(0).max(1), color: hex, alpha: alpha.optional() });
   const stops = z.array(stop).min(2).max(MAX_PAINT_STOPS);
+  const linear = obj({ type: z.literal('linear'), angle, stops });
+  const radial = obj({
+    type: z.literal('radial'),
+    cx: z.number().min(0).max(1),
+    cy: z.number().min(0).max(1),
+    r: z.number().min(RADIAL_RADIUS.min).max(RADIAL_RADIUS.max),
+    stops,
+  });
+  const patterned = obj({
+    type: z.literal('pattern'),
+    pattern,
+    fg: hex,
+    bg: hex.nullable(),
+    scale: z.number().min(PATTERN_SCALE.min).max(PATTERN_SCALE.max),
+    angle,
+  });
   const paint = z.discriminatedUnion('type', [
     obj({ type: z.literal('solid'), color: hex, alpha: alpha.optional() }),
-    obj({ type: z.literal('linear'), angle, stops }),
-    obj({
-      type: z.literal('radial'),
-      cx: z.number().min(0).max(1),
-      cy: z.number().min(0).max(1),
-      r: z.number().min(RADIAL_RADIUS.min).max(RADIAL_RADIUS.max),
-      stops,
-    }),
-    obj({
-      type: z.literal('pattern'),
-      pattern,
-      fg: hex,
-      bg: hex.nullable(),
-      scale: z.number().min(PATTERN_SCALE.min).max(PATTERN_SCALE.max),
-      angle,
-    }),
+    linear,
+    radial,
+    patterned,
   ]);
-  return { stop, paint };
+  return { stop, paint, linear, radial, patterned };
 }
 
 const docSchemas = paintSchemas(z.object, z.string().pipe(z.enum(BOOK_PATTERNS)));
 
 export const bookPaintStopSchema = docSchemas.stop;
 export const bookPaintSchema = docSchemas.paint;
+/** The paints that are more than one colour, as the letters of a text take them too (book-text-effects.schema.ts). */
+export const bookLinearPaintSchema = docSchemas.linear;
+export const bookRadialPaintSchema = docSchemas.radial;
+export const bookPatternPaintSchema = docSchemas.patterned;
 export type BookPaint = z.infer<typeof bookPaintSchema>;
 export type BookPaintStop = z.infer<typeof bookPaintStopSchema>;
 export type BookGradientPaint = Extract<BookPaint, { type: 'linear' | 'radial' }>;

@@ -189,6 +189,32 @@ describe('the fill of the letters', () => {
     expect(screen.getByText('journey.studio.fx.focalHint')).toBeTruthy();
   });
 
+  it('turns the letters into a gradient or a pattern from their own colour, edited as a shape is', () => {
+    const plain = mount(text({ shadow: { dx: 1, dy: 1, color: '#111111' }, color: '#0f766e' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'journey.studio.paint.gradient' }));
+    const gradient = plain.set.mock.calls.at(-1)?.[0]?.fillPaint;
+    expect(gradient?.type).toBe('linear');
+    expect(gradient?.stops[0]?.color).toBe('#0f766e');
+    fireEvent.click(screen.getByRole('radio', { name: 'journey.studio.paint.pattern' }));
+    expect(plain.set.mock.calls.at(-1)?.[0]?.fillPaint?.type).toBe('pattern');
+    plain.unmount();
+
+    const patterned = {
+      type: 'pattern' as const,
+      pattern: 'dots' as const,
+      fg: '#d62828',
+      bg: '#ffffff',
+      scale: 1,
+      angle: 0,
+    };
+    mount(text({ fillPaint: patterned }));
+    expect(screen.getByRole('radio', { name: 'journey.studio.paint.pattern' }).getAttribute('aria-checked')).toBe(
+      'true'
+    );
+    // Only the pattern's own controls: the kind is picked in the row above, so the paint's tabs stay away.
+    expect(screen.queryByRole('tablist')).toBeNull();
+  });
+
   it('says so, and offers no photo fill, when the journey has no photos', () => {
     mount(text({ shadow: { dx: 1, dy: 1, color: '#111111' } }), []);
     expect(screen.getByText('journey.studio.fx.noPhotos')).toBeTruthy();

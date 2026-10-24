@@ -10,9 +10,18 @@ const n = (v: number) => `${Math.round(v * 10) / 10}`;
 
 const CASES: Record<string, string> = { upper: 'capitals', lower: 'lower case', smallcaps: 'small caps' };
 
+function stopWords(stops: readonly { color: string }[]): string {
+  return `from ${stops[0]?.color ?? ''} to ${stops[stops.length - 1]?.color ?? ''}`;
+}
+
 function fillWords(fill: NonNullable<BookTextEffects['fillPaint']>): string {
   if (fill.type === 'photo') {
     return `letters filled with photo ${fill.photoId} (focal ${fill.focalX.toFixed(2)}/${fill.focalY.toFixed(2)}, zoom ${n(fill.zoom)})`;
+  }
+  if (fill.type === 'linear') return `letters in a linear gradient at ${n(fill.angle)} deg, ${stopWords(fill.stops)}`;
+  if (fill.type === 'radial') return `letters in a radial gradient, ${stopWords(fill.stops)}`;
+  if (fill.type === 'pattern') {
+    return `letters patterned ${fill.pattern} in ${fill.fg} on ${fill.bg ?? 'clear'} at scale ${n(fill.scale)}`;
   }
   return fill.alpha === 0 ? 'hollow letters (outline only)' : `fill ${fill.color} at alpha ${n(fill.alpha)}`;
 }

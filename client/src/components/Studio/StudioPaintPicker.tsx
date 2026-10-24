@@ -64,12 +64,19 @@ export function StudioPaintPicker({
   channel,
   t,
   noneLabel,
+  kinds = KINDS,
 }: {
   value: BookPaint | null;
   channel: PaintChannel;
   t: StudioT;
   /** What "no paint" is called here: no fill on a shape, the paper on a page. */
   noneLabel: string;
+  /**
+   * The kinds offered as tabs; all four by default. With one, the row of tabs
+   * is left out: the letters of a text pick gradient or pattern beside their
+   * other fills and only need that kind's controls here.
+   */
+  kinds?: readonly PaintKind[];
 }) {
   const kind = kindOf(value);
   // The last paint of each kind shown here, so a kind visited again comes back as it was left.
@@ -96,28 +103,30 @@ export function StudioPaintPicker({
 
   return (
     <div className="st-paint">
-      <div className="st-paint-tabs" role="tablist" aria-label={t('journey.studio.paint.kind')}>
-        {KINDS.map((k) => (
-          <button
-            type="button"
-            key={k}
-            role="tab"
-            aria-selected={k === kind}
-            className={`st-paint-tab ${k === kind ? 'is-on' : ''}`}
-            onClick={() => choose(k)}
-          >
-            <span
-              className={`st-paint-tab-chip ${k === 'none' ? 'is-none' : ''} ${k === 'pattern' ? 'is-pattern' : ''}`}
-              // A pattern's chip keeps its strokes (studio-paint.css) over the ground colour.
-              style={k === 'pattern' ? { backgroundColor: tabPreview(k) } : { background: tabPreview(k) }}
-              aria-hidden
+      {kinds.length > 1 && (
+        <div className="st-paint-tabs" role="tablist" aria-label={t('journey.studio.paint.kind')}>
+          {kinds.map((k) => (
+            <button
+              type="button"
+              key={k}
+              role="tab"
+              aria-selected={k === kind}
+              className={`st-paint-tab ${k === kind ? 'is-on' : ''}`}
+              onClick={() => choose(k)}
             >
-              {k === 'none' && <Ban size={11} strokeWidth={2.2} />}
-            </span>
-            <span className="st-paint-tab-label">{k === 'none' ? noneLabel : kindLabel(k, t)}</span>
-          </button>
-        ))}
-      </div>
+              <span
+                className={`st-paint-tab-chip ${k === 'none' ? 'is-none' : ''} ${k === 'pattern' ? 'is-pattern' : ''}`}
+                // A pattern's chip keeps its strokes (studio-paint.css) over the ground colour.
+                style={k === 'pattern' ? { backgroundColor: tabPreview(k) } : { background: tabPreview(k) }}
+                aria-hidden
+              >
+                {k === 'none' && <Ban size={11} strokeWidth={2.2} />}
+              </span>
+              <span className="st-paint-tab-label">{k === 'none' ? noneLabel : kindLabel(k, t)}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {value?.type === 'solid' && (
         <Swatches

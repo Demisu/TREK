@@ -1,3 +1,10 @@
+import {
+  bookLinearPaintSchema,
+  bookPatternPaintSchema,
+  bookRadialPaintSchema,
+  type BookPaint,
+} from './book-paint.schema';
+
 import { z } from 'zod';
 
 /**
@@ -27,10 +34,11 @@ import { z } from 'zod';
  *
  * ── The fill and the paint system ──────────────────────────────────────────
  *
- * `fillPaint` takes a solid colour with its own alpha or a photograph today.
- * Its solid variant has the shape the book's paint type gives a solid fill, so
- * gradients and patterns join this union as further members, without a
- * reader of today's fields changing.
+ * `fillPaint` takes a solid colour with its own alpha, a photograph, or one
+ * of the book's paints of more than one colour: a linear or radial gradient or
+ * a pattern, in exactly the shape a shape or a page takes them, so one picker
+ * and one renderer serve all three. A gradient or pattern fill is drawn as SVG
+ * like a photo fill, the paint clipped to the letters.
  */
 
 const hex = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'expected #rrggbb');
@@ -84,7 +92,10 @@ export const bookTextCurveSchema = z.object({
 });
 export type BookTextCurve = z.infer<typeof bookTextCurveSchema>;
 
-/** What fills the letters in place of `color`: a colour with its own alpha (0 leaves an outline only), or a photograph. */
+/**
+ * What fills the letters in place of `color`: a colour with its own alpha (0
+ * leaves an outline only), a photograph, or a gradient or pattern.
+ */
 export const bookTextFillSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('solid'), color: hex, alpha: alpha.default(1) }),
   z.object({
@@ -95,8 +106,17 @@ export const bookTextFillSchema = z.discriminatedUnion('type', [
     focalY: z.number().min(0).max(1).default(0.5),
     zoom: z.number().min(1).max(4).default(1),
   }),
+  bookLinearPaintSchema,
+  bookRadialPaintSchema,
+  bookPatternPaintSchema,
 ]);
 export type BookTextFill = z.infer<typeof bookTextFillSchema>;
+
+/** The letters' gradient or pattern, as the paint a shape would take, or null for any other fill. */
+export function bookTextPaintFill(el: { fillPaint?: BookTextFill | null }): BookPaint | null {
+  const fill = el.fillPaint;
+  return fill && (fill.type === 'linear' || fill.type === 'radial' || fill.type === 'pattern') ? fill : null;
+}
 
 /** `shrink` sets the text at the largest size up to `fitMax` that holds the frame, solved on edit and stored in `size`. */
 export const BOOK_TEXT_FITS = ['none', 'shrink'] as const;
@@ -133,10 +153,10 @@ export interface BookTextEffects {
 
 /**
  * Whether a text is drawn as SVG rather than as a box of HTML type: on a
- * curve, or filled with a photograph. Such a text is set line by line as
- * written, never wrapped, which is what word art wants and what the checks
- * measure it by.
+ * curve, or filled with a photograph, a gradient or a pattern. Such a text is
+ * set line by line as written, never wrapped, which is what word art wants and
+ * what the checks measure it by.
  */
 export function bookTextIsDrawn(el: BookTextEffects): boolean {
-  return !!el.curve || el.fillPaint?.type === 'photo';
+  return !!el.curve || el.fillPaint?.type === 'photo' || !!bookTextPaintFill(el);
 }

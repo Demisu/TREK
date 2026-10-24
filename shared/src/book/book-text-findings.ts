@@ -30,7 +30,8 @@ const MIN_FILL_PX_PER_MM = 200 / 25.4;
  */
 export function bookTextHasOwnGround(el: BookTextElement): boolean {
   if (el.highlight) return true;
-  if (el.fillPaint && (el.fillPaint.type === 'photo' || el.fillPaint.alpha < 0.5)) return true;
+  // A photo, a gradient or a pattern in the letters is no one colour the page could be judged against.
+  if (el.fillPaint && (el.fillPaint.type !== 'solid' || el.fillPaint.alpha < 0.5)) return true;
   return !!el.outline && el.outline.width >= ptToMm(el.size) * 0.04;
 }
 

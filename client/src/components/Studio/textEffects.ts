@@ -28,7 +28,7 @@ export function withAlpha(hex: string, alpha = 1): string {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${Math.max(0, alpha)})`;
 }
 
-/** The colour the letters are filled with, or null when a photograph fills them. */
+/** The colour the letters are filled with, or null when a photograph, a gradient or a pattern fills them. */
 export function letterFill(el: BookTextElement): string | null {
   const fill = el.fillPaint;
   if (!fill) return el.color;

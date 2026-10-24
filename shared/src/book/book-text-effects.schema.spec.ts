@@ -1,4 +1,6 @@
-import { bookTextIsDrawn } from './book-text-effects.schema';
+import { bookTextEffectWords } from './book-text-describe';
+import { bookTextIsDrawn, bookTextPaintFill } from './book-text-effects.schema';
+import { bookTextHasOwnGround } from './book-text-findings';
 import { bookTextElementSchema } from './book.schema';
 
 import { describe, expect, it } from 'vitest';
@@ -73,5 +75,38 @@ describe('the effect fields of a text', () => {
     expect(bookTextIsDrawn(parse({ fillPaint: { type: 'solid', color: '#111111', alpha: 0 } }))).toBe(false);
     expect(bookTextIsDrawn(parse({ curve: { type: 'circle' } }))).toBe(true);
     expect(bookTextIsDrawn(parse({ fillPaint: { type: 'photo', photoId: 3 } }))).toBe(true);
+  });
+});
+
+describe('letters filled with a gradient or a pattern', () => {
+  const gradient = {
+    type: 'linear',
+    angle: 90,
+    stops: [
+      { at: 0, color: '#ff6600' },
+      { at: 1, color: '#ffcc00' },
+    ],
+  };
+  const gingham = { type: 'pattern', pattern: 'gingham', fg: '#d62828', bg: '#ffffff', scale: 1, angle: 0 };
+
+  it('BKFX-005: reads a gradient and a pattern in the shape a shape takes them, and draws them as SVG', () => {
+    const lin = parse({ fillPaint: gradient });
+    const pat = parse({ fillPaint: gingham });
+    expect(bookTextPaintFill(lin)).toEqual(gradient);
+    expect(bookTextPaintFill(pat)).toEqual(gingham);
+    expect(bookTextIsDrawn(lin)).toBe(true);
+    expect(bookTextIsDrawn(pat)).toBe(true);
+    expect(bookTextPaintFill(parse({ fillPaint: { type: 'photo', photoId: 3 } }))).toBeNull();
+    expect(() => parse({ fillPaint: { ...gingham, pattern: 'plaid' } })).toThrow();
+  });
+
+  it('BKFX-006: names the paint for a model that cannot see the page, and judges no contrast against it', () => {
+    expect(bookTextEffectWords({ ...parse({ fillPaint: gradient }), size: 40 })).toContain(
+      'linear gradient at 90 deg, from #ff6600 to #ffcc00',
+    );
+    expect(bookTextEffectWords({ ...parse({ fillPaint: gingham }), size: 40 })).toContain(
+      'patterned gingham in #d62828 on #ffffff',
+    );
+    expect(bookTextHasOwnGround(parse({ fillPaint: gingham }))).toBe(true);
   });
 });

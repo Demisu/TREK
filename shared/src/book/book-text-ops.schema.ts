@@ -23,7 +23,9 @@ export const TEXT_EFFECT_PROPS = {
   shadow: f.shadow.describe('Hard, never blurred; dx, dy in mm.'),
   highlight: f.highlight.describe('A marker band behind each line; pads in mm.'),
   curve: f.curve.describe('One line on an arc (bend > 0 arches up) or round a circle (start: degrees, 0 top).'),
-  fillPaint: f.fillPaint.describe('Replaces color: solid (alpha 0 is hollow, with an outline) or a gallery photo.'),
+  fillPaint: f.fillPaint.describe(
+    'Replaces color: solid (alpha 0 is hollow, with an outline), a gallery photo, or a linear/radial gradient or pattern shaped as on a shape.',
+  ),
   fit: f.fit.describe('shrink: the largest size up to size that holds the frame.'),
 };
 

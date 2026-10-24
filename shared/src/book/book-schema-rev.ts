@@ -43,8 +43,10 @@ import type { BookDocument } from './book.schema';
  * - 9: text effects and fitting (`transform`, `vAlign`, `outline`, `shadow`, `highlight`,
  *   `curve`, `fillPaint`, `fit`, `fitMax`, book-text-effects.schema.ts), text up to 400 pt and
  *   tracking up to 1.5 em.
+ * - 10: letters filled with a gradient or a pattern (`fillPaint` of type `linear`, `radial`,
+ *   `pattern`, book-text-effects.schema.ts).
  */
-export const BOOK_SCHEMA_REV = 9;
+export const BOOK_SCHEMA_REV = 10;
 
 /** The `code` a refused save carries in its body when the stored book is newer than the writer. */
 export const BOOK_SCHEMA_NEWER_CODE = 'book_schema_newer';

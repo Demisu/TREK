@@ -8,13 +8,16 @@ import {
 } from 'lucide-react';
 
 import type { BookElement, BookSpread, BookTextElement } from '@trek/shared';
-import { bookTextIsDrawn } from '@trek/shared';
+import { bookTextIsDrawn, bookTextPaintFill } from '@trek/shared';
 
 import '../../styles/studio-text.css';
 import { photoSrc } from './bookRender';
 import { FocalPad } from './inspector/FocalPad';
 import { textEffectsInUse, textPlacementInUse } from './inspector/inspectorModel';
+import { paintAs } from './paint/paintEdit';
+import type { PaintChannel } from './paint/usePaintChannel';
 import { Choice, Line, NumField, Section, Switch } from './StudioControls';
+import { StudioPaintPicker } from './StudioPaintPicker';
 import { Swatches } from './StudioSwatches';
 import { defaultBand, defaultOutline, defaultShadow, firstFillPhoto, isHollow } from './textEffects';
 
@@ -275,10 +278,13 @@ function CurveControls({ el, set, t }: Pick<Props, 'el' | 'set' | 't'>) {
   );
 }
 
-type FillKind = 'colour' | 'hollow' | 'photo';
+type FillKind = 'colour' | 'hollow' | 'photo' | 'gradient' | 'pattern';
 
 function fillKindOf(el: BookTextElement): FillKind {
-  if (el.fillPaint?.type === 'photo') return 'photo';
+  const type = el.fillPaint?.type;
+  if (type === 'photo') return 'photo';
+  if (type === 'linear' || type === 'radial') return 'gradient';
+  if (type === 'pattern') return 'pattern';
   return isHollow(el) ? 'hollow' : 'colour';
 }
 
@@ -294,8 +300,17 @@ function FillControls({ el, set, live, photos, spread, t }: Props) {
         outline: el.outline ?? { ...defaultOutline(el), color: el.color },
       } as Patch);
     }
+    if (next === 'gradient' || next === 'pattern') {
+      // From the text's own colour, as a shape's paint turns from its solid fill.
+      return set({ fillPaint: paintAs(next, { type: 'solid', color: el.color }) } as Patch);
+    }
     const photoId = firstFillPhoto(spread, photos);
     if (photoId != null) set({ fillPaint: { type: 'photo', photoId, focalX: 0.5, focalY: 0.5, zoom: 1 } } as Patch);
+  };
+  const letterPaint = bookTextPaintFill(el);
+  const channel: PaintChannel = {
+    live: (paint) => live({ fillPaint: paint } as Patch),
+    commit: (paint) => set({ fillPaint: paint } as Patch),
   };
   return (
     <div className="st-fx-group">
@@ -307,11 +322,22 @@ function FillControls({ el, set, live, photos, spread, t }: Props) {
             { value: 'colour' as const, label: t('journey.studio.colour') },
             { value: 'hollow' as const, label: t('journey.studio.fx.hollow') },
             { value: 'photo' as const, label: t('journey.studio.kind.photo'), disabled: !photos.length },
+            { value: 'gradient' as const, label: t('journey.studio.paint.gradient') },
+            { value: 'pattern' as const, label: t('journey.studio.paint.pattern') },
           ]}
           onPick={pick}
         />
       </Line>
       {!photos.length && <p className="st-hint st-fx-hint">{t('journey.studio.fx.noPhotos')}</p>}
+      {letterPaint && (kind === 'gradient' || kind === 'pattern') && (
+        <StudioPaintPicker
+          value={letterPaint}
+          channel={channel}
+          t={t}
+          noneLabel={t('journey.studio.colour')}
+          kinds={[kind]}
+        />
+      )}
       {photo && (
         <div className="st-fx-body">
           <div className="st-fx-photos" role="radiogroup" aria-label={t('journey.studio.fx.pickPhoto')}>

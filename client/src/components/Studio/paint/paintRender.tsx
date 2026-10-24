@@ -42,7 +42,7 @@ function Stops({ stops }: { stops: readonly BookPaintStop[] }) {
 }
 
 /** What a painted outline needs: the defs to put in the SVG, and how to fill the outline. */
-interface PaintParts {
+export interface PaintParts {
   defs: ReactNode;
   fill: string;
   fillOpacity?: number;
@@ -50,7 +50,12 @@ interface PaintParts {
   pattern: { clipId: string; layers: { d: string; opacity: number }[]; transform?: string; ink: string } | null;
 }
 
-function paintParts(paint: BookPaint, box: PatternBox, id: string): PaintParts {
+/**
+ * What drawing a paint over a box takes: the gradient definition and the fill
+ * to point at it, or a pattern's geometry to draw clipped to the outline over
+ * its ground. A shape's outline and the letters of a text both draw from it.
+ */
+export function paintParts(paint: BookPaint, box: PatternBox, id: string): PaintParts {
   switch (paint.type) {
     case 'solid':
       return {
