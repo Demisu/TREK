@@ -1,6 +1,6 @@
 import { AuiIf, ThreadPrimitive } from '@assistant-ui/react';
 import { ArrowDown, FileUp, MapPin } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { useTranslation } from '../../i18n';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
@@ -15,13 +15,15 @@ import { useAssistantAttach } from './useAssistantAttach';
 import { useFollowSelectedDay } from './useAssistantFocus';
 import { joinDropZones, useAssistantPlaceDrop } from './useAssistantPlaceDrop';
 import { useAssistantSuggestions } from './useAssistantSuggestions';
+import { useRevealAnswerTail } from './useRevealAnswerTail';
 
 /**
  * The chat itself: the messages, and under them the line that says what went
  * wrong, the privacy note and the composer, held at the bottom while the
  * messages scroll. A new question moves up to the top of the view, so its
- * answer reads from its first line instead of chasing the newest one. A
- * booking file or a place of the trip can be dropped anywhere on it.
+ * answer reads from its first line instead of chasing the newest one, and once
+ * the answer is written its end comes into view. A booking file or a place of
+ * the trip can be dropped anywhere on it.
  */
 export default function AssistantThread({ tripTitle }: { tripTitle: string }) {
   const { t } = useTranslation();
@@ -31,6 +33,8 @@ export default function AssistantThread({ tripTitle }: { tripTitle: string }) {
   const byId = useMemo(() => new Map(messages.map((m) => [m.id, m])), [messages]);
   const { suggestions, canEdit } = useAssistantSuggestions(tripId);
   useFollowSelectedDay(tripId);
+  const viewport = useRef<HTMLDivElement>(null);
+  useRevealAnswerTail(viewport, isRunning);
 
   const phone = variant === 'fullscreen';
   const attach = useAssistantAttach(tripId);
@@ -52,7 +56,11 @@ export default function AssistantThread({ tripTitle }: { tripTitle: string }) {
           </span>
         </div>
       )}
-      <ThreadPrimitive.Viewport turnAnchor="top" className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4">
+      <ThreadPrimitive.Viewport
+        ref={viewport}
+        turnAnchor="top"
+        className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4"
+      >
         <AuiIf condition={(s) => s.thread.isEmpty}>
           <AssistantWelcome suggestions={suggestions} canEdit={canEdit} withSuggestions={!phone} />
           {mentionable && (

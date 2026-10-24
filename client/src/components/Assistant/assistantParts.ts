@@ -61,7 +61,7 @@ export interface ChangeItem {
 /** The answer cards of one group, side by side. */
 export type CardsBlock = { kind: 'cards'; key: string; group: string; entries: CardEntry[] };
 
-type MessageBlock =
+export type MessageBlock =
   | { kind: 'text'; key: string; text: string }
   | { kind: 'steps'; key: string; steps: ToolStep[] }
   | { kind: 'change'; key: string; items: ChangeItem[] }
@@ -464,3 +464,14 @@ export const CHANGE_LABELS: Record<AssistantChangeLabelKey, { labelKey: string }
   packing: { labelKey: 'assistant.change.label.packing' },
   breaks: { labelKey: 'assistant.change.label.breaks' },
 };
+
+/**
+ * Where an answer's closing words and changes begin: the block after its last
+ * step, strip or card. That end is what the thread brings into view once the
+ * answer is written.
+ */
+export function tailStart(blocks: MessageBlock[]): number {
+  let i = blocks.length;
+  while (i > 0 && (blocks[i - 1].kind === 'text' || blocks[i - 1].kind === 'change')) i -= 1;
+  return i;
+}

@@ -1,7 +1,7 @@
 import { ActionBarPrimitive, AuiIf, MessagePrimitive } from '@assistant-ui/react';
 import type { AssistantMessage as StoredMessage } from '@trek/shared';
 import { Check, Copy, FileText, LoaderCircle, Share2 } from 'lucide-react';
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 
 import { useTranslation } from '../../i18n';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
@@ -16,7 +16,7 @@ import AssistantShareDialog from './AssistantShareDialog';
 import AssistantSources from './AssistantSources';
 import AssistantToolSteps from './AssistantToolSteps';
 import AssistantWeatherStrip from './AssistantWeatherStrip';
-import { messageBlocks } from './assistantParts';
+import { type MessageBlock, messageBlocks, tailStart } from './assistantParts';
 import { useAssistantView } from './assistantViewContext';
 import AssistantCardBlock from './cards/AssistantCardBlock';
 import { useAssistantShare } from './useAssistantShare';
@@ -108,6 +108,28 @@ function Question({ message }: { message: StoredMessage }) {
   );
 }
 
+/** One block of an answer, in the shape its kind takes. */
+function AnswerBlock({
+  block,
+  message,
+  writing,
+  streaming,
+}: {
+  block: MessageBlock;
+  message: StoredMessage;
+  writing: boolean;
+  streaming: boolean;
+}) {
+  if (block.kind === 'text') return <AssistantMarkdown text={block.text} writing={streaming} />;
+  if (block.kind === 'steps') return <AssistantToolSteps steps={block.steps} />;
+  if (block.kind === 'places') return <AssistantPlaceStrip found={block.found} message={message} />;
+  if (block.kind === 'weather') return <AssistantWeatherStrip days={block.days} />;
+  if (block.kind === 'sources') return <AssistantSources sources={block.sources} />;
+  if (block.kind === 'remembered') return <AssistantRemembered note={block.note} live={writing} />;
+  if (block.kind === 'cards') return <AssistantCardBlock block={block} message={message} />;
+  return <AssistantChangeCard items={block.items} />;
+}
+
 function Answer({ message }: { message: StoredMessage }) {
   const { t } = useTranslation();
   const { tripId, variant } = useAssistantView();
@@ -119,25 +141,16 @@ function Answer({ message }: { message: StoredMessage }) {
   const share = useAssistantShare(tripId, message, writing);
   const last = blocks[blocks.length - 1];
   const hasText = blocks.some((b) => b.kind === 'text');
+  const tail = tailStart(blocks);
 
   return (
     <MessagePrimitive.Root className="trek-assistant-enter flex flex-col gap-2.5 py-2">
-      {blocks.map((block) => {
-        if (block.kind === 'text') {
-          return <AssistantMarkdown key={block.key} text={block.text} writing={writing && block === last} />;
-        }
-        if (block.kind === 'steps') return <AssistantToolSteps key={block.key} steps={block.steps} />;
-        if (block.kind === 'places') {
-          return <AssistantPlaceStrip key={block.key} found={block.found} message={message} />;
-        }
-        if (block.kind === 'weather') return <AssistantWeatherStrip key={block.key} days={block.days} />;
-        if (block.kind === 'sources') return <AssistantSources key={block.key} sources={block.sources} />;
-        if (block.kind === 'remembered') {
-          return <AssistantRemembered key={block.key} note={block.note} live={writing} />;
-        }
-        if (block.kind === 'cards') return <AssistantCardBlock key={block.key} block={block} message={message} />;
-        return <AssistantChangeCard key={block.key} items={block.items} />;
-      })}
+      {blocks.map((block, i) => (
+        <Fragment key={block.key}>
+          {i === tail && i > 0 && <span data-assistant-tail aria-hidden="true" className="-mb-2.5 block h-0" />}
+          <AnswerBlock block={block} message={message} writing={writing} streaming={writing && block === last} />
+        </Fragment>
+      ))}
       {/* Nothing below says the answer goes on: no words being written, no step running. */}
       {writing && last?.kind !== 'text' && last?.kind !== 'steps' && (
         <p role="status" className="m-0 text-caption">
