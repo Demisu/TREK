@@ -163,6 +163,10 @@ For each trip map — Trip Planner, Collections and shared-trip links — TREK t
 
 The small map preview on this settings page is the exception: it stays on a fixed city (Paris) — zoom 16 on the two GL previews, city-level zoom 12 under Leaflet — so you can judge label density, 3D buildings and satellite texture. It is not a setting and no real map opens there.
 
+## Routing engines
+
+The routes TREK draws and the travel times between stops come from a public OSRM router, and the avoidance of toll roads, motorways and ferries from a public Valhalla server. An admin can point TREK at engines of their own with **Own routing engine** and **Own Valhalla instance**, next to the map defaults under **Admin → User Defaults**. They are not part of this tab. See [Admin-User-Defaults](Admin-User-Defaults#own-routing-engine) and [Road-Trip](Road-Trip#routing-engines).
+
 ## See also
 
 - [Map-Features](Map-Features)

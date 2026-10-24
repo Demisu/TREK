@@ -74,4 +74,6 @@ Both buttons are on the phone as well, in the day sheet.
 
 For a trip that is one long drive, the [Road-Trip](Road-Trip) addon adds a **Road trip** view beside **Days**: the whole trip as one chain of legs with arrival times, daily travel times, driving limits, search along the route, via points and avoidance of toll roads, motorways and ferries.
 
-**See also:** [Day-Plans-and-Notes](Day-Plans-and-Notes) · [Map-Features](Map-Features) · [Display-Settings](Display-Settings) · [Road-Trip](Road-Trip)
+Avoiding toll roads, motorways and ferries is done by a Valhalla server and is documented under [Road-Trip](Road-Trip#routing-engines), together with the routing engines.
+
+**See also:** [Day-Plans-and-Notes](Day-Plans-and-Notes), [Map-Features](Map-Features), [Display-Settings](Display-Settings), [Road-Trip](Road-Trip)

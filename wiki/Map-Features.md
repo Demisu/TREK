@@ -4,7 +4,7 @@ The map in the middle of the Plan tab shows your places, the route of the select
 
 ## Map renderer
 
-TREK uses **Leaflet** by default. The renderer is picked in Settings → Map under **Map provider**: **Leaflet** for raster tiles, **MapLibre GL** for OpenFreeMap vector tiles (no token required), or **Mapbox GL** for vector tiles with 3D buildings and terrain, which additionally needs a Mapbox access token. If Mapbox GL is selected but no access token is present, TREK falls back to Leaflet automatically so the map is never blank.
+TREK uses **Leaflet** by default. The renderer is picked in Settings → Map under **Map provider**: **Leaflet** for raster tiles, **MapLibre GL** for OpenFreeMap vector tiles (no token required), or **Mapbox GL** for vector tiles with 3D buildings and terrain, which additionally needs a Mapbox access token. Mapbox GL carries the tag **Experimental** in the settings. If Mapbox GL is selected but no access token is present, TREK falls back to Leaflet automatically so the map is never blank.
 
 The scopes required for Mapbox GL are:
 - STYLES:TILES
@@ -23,6 +23,14 @@ On the desktop, a lock button sits on top of the satellite switcher in the botto
 
 A round button in the bottom-left corner of the map flips the base layer between the normal map tiles and **satellite** imagery (ESRI World Imagery, no API key needed, usable up to zoom 19). The icon always shows the layer it switches to. The button is on all three renderers: Leaflet swaps its tile layer for the imagery, while MapLibre GL and Mapbox GL put the same imagery on as a raster layer of their own beneath everything TREK draws, so the route, the pins and the tracks stay on top of it. Your choice is stored on your account (`map_base_layer`), the same setting whichever renderer you use, so it carries over to every trip and survives a reload.
 
+## Recorded route
+
+With the [Dawarich](Dawarich) addon on and your Dawarich connected, a round Dawarich button sits at the bottom right of the desktop map, and among the map controls on a phone. **Show recorded route** draws the route your Dawarich recorded on the trip's dates, dashed and in one colour per day, underneath the planned route; **Hide recorded route** takes it off again. Its label also tells you why there is no line. See [The recorded route on the map](Dawarich#the-recorded-route-on-the-map).
+
+## Map layers of the Tours tab
+
+The map on the **Tours** tab has its own layer pill. Besides **Map** and **Satellite** it offers **Topo**, **Hiking** and **Cycling** base maps, depending on the type of the open tour, and overlays such as ski pistes, via ferratas and seamarks. They apply to that tab only and never change the map of the Plan tab. See [Tour map: base maps](Tours#tour-map-base-maps) and [Tour map: overlays](Tours#tour-map-overlays).
+
 ## Place markers
 
 Each place is a round marker:
@@ -35,7 +43,7 @@ Each place is a round marker:
 - **Unplanned places, compact:** with **Compact markers for unplanned places** switched on under **Settings > General > Travel & map**, places that no day holds are drawn as small markers without their photo, so the planned stops stand out. It is off by default, and the selected place always shows in full.
 - **Pending stay:** the place of an [accommodation](Accommodations) whose booking is still **Pending** is drawn with a dashed ring and a lighter face until the booking is confirmed.
 
-Click a marker to open the [place inspector](Places-and-Search#the-place-inspector).
+Click a marker to open the [place inspector](Places-and-Search#the-place-inspector). Drag a marker onto a day, or between two rows of a day, in the days column to put the place on that day, the same as dragging its row from the places column. Markers do this on all three renderers.
 
 When zoomed out, nearby markers are grouped into clusters. Clicking a cluster zooms the map to fit its members; at maximum zoom the cluster fans out to show the individual markers. Several stops at the very same spot, such as a hotel and the museum inside it, fold into one marker on MapLibre GL and Mapbox GL.
 
@@ -45,7 +53,7 @@ In the [Road trip](Road-Trip) view, results of the search along the route group 
 
 Rest the pointer on a place marker and a card follows the cursor with the place's photo (or its category tile), its name, the average member rating, the category and the address. It is the same card on every renderer and in [Collections](Collections), and it never gets in the way of a click.
 
-![The hover card beside a place marker: the place's photo, its name and its address](assets/MapHoverCard.png)
+![The hover card beside a place marker: the place's photo, its name, its rating, its category and its address](assets/MapHoverCard.png)
 
 Markers that [plugins](Places-and-Search#categories-from-plugins) put on the map show their own name and up to six rows of the plugin's facts instead.
 
@@ -157,4 +165,4 @@ Right-click anywhere on the **Leaflet** map to open the place form with the clic
 
 The **Mapbox GL** and **MapLibre GL** maps take the same right-click, and additionally **middle-click** and a **long-press** on touch. A right-button drag that rotates or pitches the map is not mistaken for a click, so the gesture and the shortcut coexist.
 
-**See also:** [Places-and-Search](Places-and-Search) · [Day-Plans-and-Notes](Day-Plans-and-Notes) · [Route-Optimization](Route-Optimization) · [Map-Settings](Map-Settings) · [Reservations-and-Bookings](Reservations-and-Bookings) · [Road-Trip](Road-Trip)
+**See also:** [Places-and-Search](Places-and-Search), [Day-Plans-and-Notes](Day-Plans-and-Notes), [Route-Optimization](Route-Optimization), [Map-Settings](Map-Settings), [Reservations-and-Bookings](Reservations-and-Bookings), [Road-Trip](Road-Trip), [Tours](Tours)
