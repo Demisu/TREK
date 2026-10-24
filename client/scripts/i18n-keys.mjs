@@ -92,6 +92,13 @@ export const MAX_IMPLICIT_MATCHES = 30;
  */
 export const DYNAMIC_ALLOWED = [
   {
+    file: 'components/Studio/shapes.ts',
+    template: 'journey.studio.shapeName.${shape}',
+    because:
+      'shapeName takes a BookShapeId; shared/src/book/book-shape-catalogue.spec.ts holds an en name for every ' +
+      'shape of BOOK_SHAPE_GROUPS',
+  },
+  {
     file: 'components/Trips/TripShareDialog.tsx',
     template: '${opt.label}Hint',
     because:

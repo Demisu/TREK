@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 
 import { useStudioStore } from '../../../store/studioStore';
 import { PhotoCropExtras, PhotoLookSections } from '../photo/StudioPhotoLook';
-import { FRAME_SHAPES } from '../shapes';
+import { FRAME_SHAPES, shapeName } from '../shapes';
 import { Choice, Line, NumField, Section } from '../StudioControls';
 import { EdgeSection } from '../StudioEdgeControls';
 import { ShapeGlyph } from '../StudioElementsPanel';
@@ -178,7 +178,8 @@ export function StudioPhotoInspector({
               key={sh}
               className={`st-mini-shape ${el.mask === sh ? 'is-on' : ''}`}
               onClick={() => set({ mask: sh })}
-              aria-label={sh}
+              title={shapeName(sh, t)}
+              aria-label={shapeName(sh, t)}
               aria-pressed={el.mask === sh}
             >
               <ShapeGlyph shape={sh} />

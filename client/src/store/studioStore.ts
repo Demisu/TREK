@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { BookDocument, BookElement, BookFrame, BookLayout, BookSpread } from '@trek/shared'
+import type { BookAlignTo, BookDocument, BookElement, BookFrame, BookLayout, BookSpread } from '@trek/shared'
 import {
   MAX_BOOK_LAYOUTS, MAX_SPREAD_ELEMENTS, applySavedBookLayout as applySavedLayout,
   bookLayoutFromSpread as layoutFromSpread, canEditSpread as isMovableSpread, fitBookTexts, innerSpreadBounds as innerBounds,
@@ -43,6 +43,13 @@ interface StudioState extends StudioLayerActions {
   refusedFull: number
   /** Notes that an addition was refused because the page is full. */
   refuseFull: () => void
+  /**
+   * What the arrange section lines things up with, as last picked: kept for the
+   * session, so a new selection or another kind of element does not reset it.
+   * Null until somebody picks; the section then chooses by how much is selected.
+   */
+  alignTo: BookAlignTo | null
+  setAlignTo: (to: BookAlignTo) => void
   /**
    * The page a chat card points at, outlined in the page rail (journey-studio.md
    * 4.2). Not part of the book or its history; opening a book clears it.
@@ -157,6 +164,8 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   clipboard: null,
   refusedFull: 0,
   refuseFull: () => set(st => ({ refusedFull: st.refusedFull + 1 })),
+  alignTo: null,
+  setAlignTo: to => set({ alignTo: to }),
   hintSpread: null,
   readOnly: false,
 

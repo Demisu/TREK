@@ -1,7 +1,7 @@
 import type { BookElement, BookShapeElement, BookShapeId, BookTheme } from '@trek/shared';
 import type { ReactNode } from 'react';
 
-import { SHAPE_GROUPS } from '../shapes';
+import { SHAPE_GROUPS, shapeName } from '../shapes';
 import { NumField, Section } from '../StudioControls';
 import { EdgeSection } from '../StudioEdgeControls';
 import { ShapeGlyph } from '../StudioElementsPanel';
@@ -41,7 +41,8 @@ export function StudioShapeInspector({
               key={sh}
               className={`st-mini-shape ${el.shape === sh ? 'is-on' : ''}`}
               onClick={() => set({ shape: sh })}
-              aria-label={sh}
+              title={shapeName(sh, t)}
+              aria-label={shapeName(sh, t)}
               aria-pressed={el.shape === sh}
             >
               <ShapeGlyph shape={sh} />

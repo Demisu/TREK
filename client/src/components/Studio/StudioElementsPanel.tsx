@@ -2,7 +2,7 @@ import { useId, useState } from 'react'
 import { Frame, Minus, Quote, Shapes, Spline, Sparkles, Square, Sticker, Type, type LucideIcon } from 'lucide-react'
 import type { BookElement, BookPageSetup, BookShapeId } from '@trek/shared'
 import { useStudioStore } from '../../store/studioStore'
-import { FRAME_SHAPES, HOLED_SHAPES, SHAPE_GROUPS } from './shapes'
+import { FRAME_SHAPES, HOLED_SHAPES, SHAPE_GROUPS, shapeName } from './shapes'
 import {
   BOOK_GRIDS as GRIDS, MAX_SPREAD_ELEMENTS, bookElementId, bookShapeSize, bookGridElements as gridElements,
   defaultBookGridBox as defaultGridBox,
@@ -280,7 +280,8 @@ function ShapesTab({ addShape, t }: { addShape: Adders['addShape']; t: (k: strin
                 key={shape}
                 className="st-shape-btn is-glyph"
                 onClick={() => addShape(shape)}
-                aria-label={shape}
+                title={shapeName(shape, t)}
+                aria-label={shapeName(shape, t)}
               >
                 <ShapeGlyph shape={shape} />
               </button>
@@ -319,7 +320,8 @@ function FramesTab({ adders, t }: { adders: Adders; t: (k: string) => string }) 
               key={shape}
               className="st-shape-btn is-glyph"
               onClick={() => adders.addFrame(shape === 'rect' ? null : shape)}
-              aria-label={shape}
+              title={shapeName(shape, t)}
+              aria-label={shapeName(shape, t)}
             >
               <ShapeGlyph shape={shape} photo />
             </button>

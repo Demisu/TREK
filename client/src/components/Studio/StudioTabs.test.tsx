@@ -6,7 +6,7 @@ import { fireEvent, render, screen } from '../../../tests/helpers/render';
 import { StudioTabPanel, StudioTabs } from './StudioTabs';
 
 /**
- * FE-STUDIO-TABS-001 to FE-STUDIO-TABS-004: the tab rows inside Studio's
+ * FE-STUDIO-TABS-001 to FE-STUDIO-TABS-005: the tab rows inside Studio's
  * panels, as a screen reader and a keyboard meet them, and as a long word
  * meets them.
  */
@@ -67,6 +67,20 @@ describe('StudioTabs', () => {
     expect(onChange).toHaveBeenCalledWith('three');
     expect(screen.getByRole('tabpanel').textContent).toBe('three');
     expect(three?.tabIndex).toBe(0);
+  });
+
+  it('FE-STUDIO-TABS-005: in a grid of two lines, up and down move to the tab above or below', () => {
+    render(<Row />);
+    const [one, two, three] = screen.getAllByRole('tab');
+    one?.focus();
+    fireEvent.keyDown(one as HTMLElement, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(three);
+    fireEvent.keyDown(three as HTMLElement, { key: 'ArrowUp' });
+    expect(document.activeElement).toBe(one);
+    two?.focus();
+    // Nothing below the second tab: the focus stays.
+    fireEvent.keyDown(two as HTMLElement, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(two);
   });
 
   it('FE-STUDIO-TABS-003: keeps a long word in a cell that breaks it, and the count as plain figures', () => {

@@ -330,3 +330,8 @@ export const HOLED_SHAPES = new Set<BookShapeId>(['gear', 'postmark', 'label-tab
  */
 export const SHAPE_GROUPS = BOOK_SHAPE_GROUPS
 export const FRAME_SHAPES = BOOK_FRAME_SHAPES
+
+/** A shape's name in the reader's language, for its tooltip and a screen reader. */
+export function shapeName(shape: BookShapeId, t: (k: string) => string): string {
+  return t(`journey.studio.shapeName.${shape}`)
+}

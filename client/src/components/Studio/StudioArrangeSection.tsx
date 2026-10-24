@@ -20,7 +20,6 @@ import {
   Ungroup,
   type LucideIcon,
 } from 'lucide-react';
-import { useState } from 'react';
 
 import { useStudioStore } from '../../store/studioStore';
 import '../../styles/studio-panels.css';
@@ -118,7 +117,8 @@ export function StudioArrangeSection({
   const copyStyle = useStudioStore((s) => s.copyStyle);
   const pasteStyle = useStudioStore((s) => s.pasteStyle);
   const keys = useStudioShortcut();
-  const [chosenTo, setChosenTo] = useState<BookAlignTo | null>(null);
+  const chosenTo = useStudioStore((s) => s.alignTo);
+  const setChosenTo = useStudioStore((s) => s.setAlignTo);
 
   if (!spread || !selection.length) return null;
   const sel = spread.elements.filter((e) => selection.includes(e.id));

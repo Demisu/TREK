@@ -15,7 +15,8 @@ import { rovingTarget, runsRtl } from './studioRoving';
  * label's own colour, quieter than the word, never a pill inside the tab.
  *
  * The keyboard is the rail's (studioRoving.ts): the arrows move along the row,
- * Enter or Space opens the tab.
+ * Enter or Space opens the tab. In a grid of more than one line, up and down
+ * move to the tab above or below.
  */
 
 interface StudioTab<T extends string> {
@@ -45,8 +46,15 @@ export function StudioTabs<T extends string>({
   columns?: number;
 }) {
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
+  const across = Math.max(1, Math.min(columns, tabs.length));
   const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>, index: number) => {
-    const next = rovingTarget(e.key, index, tabs.length, { vertical: false, rtl: runsRtl(e.currentTarget) });
+    const below = e.key === 'ArrowDown' ? index + across : e.key === 'ArrowUp' ? index - across : null;
+    const next =
+      below !== null && across < tabs.length
+        ? below >= 0 && below < tabs.length
+          ? below
+          : null
+        : rovingTarget(e.key, index, tabs.length, { vertical: false, rtl: runsRtl(e.currentTarget) });
     if (next === null) return;
     e.preventDefault();
     buttons.current[next]?.focus();
@@ -56,7 +64,7 @@ export function StudioTabs<T extends string>({
       className={`st-subtabs ${tabs.some((tab) => tab.icon) ? 'has-icons' : ''}`}
       role="tablist"
       aria-label={label}
-      style={{ gridTemplateColumns: `repeat(${Math.max(1, Math.min(columns, tabs.length))}, minmax(0, 1fr))` }}
+      style={{ gridTemplateColumns: `repeat(${across}, minmax(0, 1fr))` }}
     >
       {tabs.map((tab, i) => {
         const on = tab.id === value;
