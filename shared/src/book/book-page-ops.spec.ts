@@ -108,6 +108,19 @@ describe('add, move and delete', () => {
     expect(doc.spreads[3]?.elements.length).toBeGreaterThan(0);
   });
 
+  it('BOOKPG-029: lays added pages out on a decorated template, and refuses a cover template for a double spread', () => {
+    const doc = ok(
+      addBookPages(book(1), { afterSpreadId: 'sp-in1', count: 2, template: 'hero-script-word' }, { newId }),
+    );
+    expect(doc.spreads[3]?.elements.length).toBeGreaterThan(0);
+    expect(doc.spreads[4]?.elements.length).toBe(doc.spreads[3]?.elements.length);
+    const wrong = addBookPages(book(1), { afterSpreadId: 'sp-in1', template: 'poster-pop-sunburst' }, { newId });
+    expect(refused(wrong)).toBe('layout_role');
+    expect(refused(addBookPages(book(1), { afterSpreadId: 'sp-in1', template: 'no-such' }, { newId }))).toBe(
+      'invalid_op',
+    );
+  });
+
   it('BOOKPG-020: ties an added page only to an entry the journey has, when the journey is known', () => {
     const journey = { title: 'Iceland', entries: [{ id: 7 }] };
     const added = ok(addBookPages(book(1), { afterSpreadId: 'sp-in1', entryId: 7 }, { newId, journey }));
@@ -334,6 +347,13 @@ describe('the cover', () => {
     expect(photos[0]?.photoId).toBe(5);
     const title = textsOf(doc).find((t) => t.text === 'Iceland 2026');
     expect(title).toBeDefined();
+  });
+
+  it('BOOKPG-030: lays the cover out on a decorated cover template, and refuses a double-spread one', () => {
+    const doc = ok(setBookCover(book(1), { template: 'poster-pop-sunburst', title: 'Iceland 2026' }, { newId }));
+    expect(coverOf(doc).elements.length).toBeGreaterThan(1);
+    expect(textsOf(doc).some((t) => t.text === 'Iceland 2026')).toBe(true);
+    expect(refused(setBookCover(book(1), { template: 'hero-script-word' }, { newId }))).toBe('layout_role');
   });
 
   it('BOOKPG-016: keeps a bound title bound when the words are what the journey says, and the subtitle apart', () => {

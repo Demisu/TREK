@@ -356,6 +356,17 @@ describe('design_book', () => {
     expect(JSON.stringify(again.doc)).toBe(JSON.stringify(banded.doc));
   });
 
+  it('BOOKDSN-032: lays the cover out on a decorated cover template, and leaves a double-spread one out with a note', () => {
+    const poster = designBook(null, input('rich'), { style: 'minimal', cover: { template: 'poster-pop-sunburst' } });
+    const cover = poster.doc.spreads[0] as BookSpread;
+    expect(cover.elements.some((e) => e.kind === 'photo')).toBe(true);
+    expect(cover.elements.some((e) => e.kind === 'text' && e.binding?.source === 'journey.title')).toBe(true);
+    const again = designBook(null, input('rich'), { style: 'minimal', cover: { template: 'poster-pop-sunburst' } });
+    expect(JSON.stringify(again.doc)).toBe(JSON.stringify(poster.doc));
+    const spread = designBook(null, input('rich'), { style: 'minimal', cover: { template: 'hero-script-word' } });
+    expect(spread.notes.some((n) => n.includes('hero-script-word'))).toBe(true);
+  });
+
   it('BOOKDSN-014: stays within the spread cap beside many kept pages, the closing pages kept', () => {
     const stored = storedBook();
     const lockedPage = stored.spreads[2] as BookSpread;

@@ -1,5 +1,5 @@
 import { bookElementId } from './book-ids';
-import { applyBookTemplate, classifyBookTexts, findBookTemplate } from './book-layouts';
+import { classifyBookTexts } from './book-layouts';
 import { applyBookOps } from './book-ops';
 import {
   caught,
@@ -62,17 +62,23 @@ export function addBookPages(doc: BookDocument, args: unknown, ctx: BookOpsConte
     }
     const { first, limit } = innerSpreadBounds(doc.spreads);
     const at = Math.min(Math.max(after + 1, first), limit);
-    const tpl = template === undefined ? undefined : findBookTemplate(template);
-    const added = Array.from({ length: count }, () => {
-      const empty = { ...blankSpread('inner', ctx.newId ?? bookElementId), entryId: entryId ?? null };
-      return checkedSpread(tpl ? applyBookTemplate(empty, tpl, doc.page) : empty, null);
-    });
-    const spreads = [...doc.spreads.slice(0, at), ...added, ...doc.spreads.slice(at)];
+    const added = Array.from({ length: count }, () =>
+      checkedSpread({ ...blankSpread('inner', ctx.newId ?? bookElementId), entryId: entryId ?? null }, null),
+    );
+    let next: BookDocument = { ...doc, spreads: [...doc.spreads.slice(0, at), ...added, ...doc.spreads.slice(at)] };
+    // Laid out as edit_book_page lays a page, so a decorated template takes the book's theme and words too.
+    if (template !== undefined) {
+      for (const spread of added) {
+        const r = applyBookOps(next, { spreadId: spread.id, ops: [{ op: 'layout', template }] }, ctx);
+        if (r.ok === false) throw failOp(r.error.code, r.error.message, null, r.error.elementId);
+        next = r.doc;
+      }
+    }
     return {
       ok: true,
-      doc: { ...doc, spreads },
+      doc: next,
       spreadIds: added.map((s) => s.id),
-      created: createdIds(doc.spreads, spreads),
+      created: createdIds(doc.spreads, next.spreads),
       dropped: [],
     };
   });

@@ -7,7 +7,6 @@ import {
   bookAddOpInSchema,
 } from './book-element-ops.schema';
 import { BOOK_GROUP_OP_SCHEMAS } from './book-group-ops.schema';
-import { BOOK_COVER_TEMPLATES, BOOK_TEMPLATES } from './book-layouts';
 import {
   BOOK_BINDING_HINT,
   bookFontIdSchema,
@@ -76,16 +75,6 @@ export const BOOK_OP_LIMITS = {
   findings: 40,
 } as const;
 
-const idsOf = (list: readonly { id: string }[]) => list.map((t) => t.id) as [string, ...string[]];
-
-/** The spread layouts, by id. */
-export const bookTemplateIdSchema = z
-  .enum(idsOf(BOOK_TEMPLATES))
-  .describe('A built-in double page layout by id; list_book_layouts says what each one holds.');
-/** The single-page (cover and back) layouts, by id. */
-export const bookCoverTemplateIdSchema = z
-  .enum(idsOf(BOOK_COVER_TEMPLATES))
-  .describe('A built-in cover or back layout by id; list_book_layouts says what each one holds.');
 /**
  * A layout of either set, built-in or decorated: which one fits is the page's
  * question, answered when the operation runs. A string checked against the
@@ -278,7 +267,8 @@ export const addBookPagesArgs = {
   /** The new pages go after this one, kept inside the covers. */
   afterSpreadId: bookSpreadIdSchema,
   count: z.number().int().min(1).max(BOOK_OP_LIMITS.pagesPerCall).optional(),
-  template: bookTemplateIdSchema.optional(),
+  /** A double-spread layout, built-in or decorated; a single-page one is refused when the page is laid. */
+  template: bookAnyTemplateIdSchema.optional(),
   entryId: idSchema.optional(),
 };
 export const moveBookPageArgs = {
@@ -296,7 +286,8 @@ export const deleteBookPagesArgs = {
   expectedVersion,
 };
 export const setBookCoverArgs = {
-  template: bookCoverTemplateIdSchema.optional(),
+  /** A single-page layout, built-in or decorated; a double-spread one is refused when the cover is laid. */
+  template: bookAnyTemplateIdSchema.optional(),
   photoId: idSchema.optional(),
   title: z.string().max(MAX_BOOK_TITLE).optional(),
   subtitle: z.string().max(MAX_BOOK_TITLE).optional(),

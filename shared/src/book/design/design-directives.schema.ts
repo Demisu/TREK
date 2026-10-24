@@ -1,6 +1,6 @@
 import { idSchema } from '../../common/primitives.schema';
 import { bookFontIdSchema, bookMetricSchema, bookPagePresetSchema } from '../book-op-enums';
-import { bookCoverTemplateIdSchema } from '../book-ops.schema';
+import { bookAnyTemplateIdSchema } from '../book-ops.schema';
 import { MAX_BOOK_TITLE } from '../book.schema';
 import { bookThemeCatalogue } from '../theme/book-theme-describe';
 import { BOOK_THEME_IDS } from '../theme/book-theme.schema';
@@ -84,7 +84,7 @@ export const bookDesignDirectivesSchema = z.strictObject({
     .optional(),
   cover: z
     .strictObject({
-      template: bookCoverTemplateIdSchema.optional(),
+      template: bookAnyTemplateIdSchema.optional(),
       archetype: bookCoverArchetypeSchema.optional(),
       lockup: bookCoverLockupSchema.optional(),
       title: z.string().max(MAX_BOOK_TITLE).optional(),

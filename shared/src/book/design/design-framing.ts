@@ -6,6 +6,8 @@ import { formatBookDate } from '../book-text';
 import { bookTravelCountries, bookTravelMap, bookTravelStats } from '../book-travel';
 import type { BookElement, BookMetric, BookSpread, BookTextElement } from '../book.schema';
 import type { JourneyStats } from '../journey-stats.schema';
+import { applyDecoratedTemplate } from '../templates/template-apply';
+import { findDecoratedTemplate } from '../templates/template-catalogue';
 import {
   bleedPage,
   frameOf,
@@ -90,8 +92,22 @@ export function composeCover(
  */
 function withCoverTemplate(c: ComposeCtx, cover: BookSpread): BookSpread {
   const wanted = c.directives.cover?.template;
-  const tpl = wanted ? BOOK_COVER_TEMPLATES.find((t) => t.id === wanted) : undefined;
-  if (!tpl) return cover;
+  if (!wanted) return cover;
+  const decorated = findDecoratedTemplate(wanted);
+  if (decorated) {
+    if (decorated.kind !== 'single') {
+      c.notes.push(`${wanted} is a double-spread template, so cover.template is left out`);
+      return cover;
+    }
+    // A designed page keeps its own faces and colours, in the book's theme, and takes the cover's photo and words.
+    const opts = { theme: c.look.theme, travel: c.travel, locale: c.locale, newId: c.newId };
+    return { ...applyDecoratedTemplate(cover, decorated, c.page, opts), parked: [] };
+  }
+  const tpl = BOOK_COVER_TEMPLATES.find((t) => t.id === wanted);
+  if (!tpl) {
+    c.notes.push(`${wanted} is a double-spread layout, so cover.template is left out`);
+    return cover;
+  }
   const laid = applyBookTemplate(cover, tpl, c.page);
   const elements = laid.elements.map((e): BookElement => {
     if (e.kind === 'text') return { ...e, id: c.newId('t'), color: c.look.ink };

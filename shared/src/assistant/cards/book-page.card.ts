@@ -1,7 +1,7 @@
 import {
   BOOK_FINDING_CODES,
   BOOK_OP_LIMITS,
-  bookCoverTemplateIdSchema,
+  bookAnyTemplateIdSchema,
   bookPageOpSchema,
   bookSpreadIdSchema,
 } from '../../book/book-ops.schema';
@@ -63,7 +63,7 @@ export type BookCardLayout = z.infer<typeof bookCardLayoutSchema>;
 
 /** `set_book_cover`'s arguments, null where the call leaves a part of the cover as it is. */
 export const bookCardCoverSchema = z.object({
-  template: bookCoverTemplateIdSchema.nullable(),
+  template: bookAnyTemplateIdSchema.nullable(),
   photoId: idSchema.nullable(),
   title: z.string().max(MAX_BOOK_TITLE).nullable(),
   subtitle: z.string().max(MAX_BOOK_TITLE).nullable(),

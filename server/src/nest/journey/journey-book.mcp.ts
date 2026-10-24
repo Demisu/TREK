@@ -160,7 +160,7 @@ export class JourneyBookMcp {
 
   @Tool({
     name: 'add_book_pages',
-    description: `Add 1 to ${BOOK_OP_LIMITS.pagesPerCall} empty double spreads after afterSpreadId, always kept between the first and the last page, laid out on template when one is named and tied to the journey entry entryId when given. ${WRITE_ANSWER}`,
+    description: `Add 1 to ${BOOK_OP_LIMITS.pagesPerCall} empty double spreads after afterSpreadId, always kept between the first and the last page, laid out on template when one is named (a built-in or decorated double-spread layout from list_book_layouts) and tied to the journey entry entryId when given. ${WRITE_ANSWER}`,
     inputSchema: { journeyId: idSchema, ...addBookPagesArgs },
     annotations: TOOL_ANNOTATIONS_NON_IDEMPOTENT,
     when: journeyAddonOn,
@@ -208,7 +208,7 @@ export class JourneyBookMcp {
 
   @Tool({
     name: 'set_book_cover',
-    description: `The cover of a journey's book: its layout (a single page template), its photo (from the journey's gallery, into a free frame, else a full bleed one behind everything), its title and its subtitle. A title or subtitle bound to the journey's own stays bound unless other words are given. With returnPrevious the answer also holds the cover as it was, under previous_spreads, and a digest of the cover as the write left it under page_digests (for restore_book_page expectedPages). ${WRITE_ANSWER}`,
+    description: `The cover of a journey's book: its layout (a built-in or decorated single-page template from list_book_layouts), its photo (from the journey's gallery, into a free frame, else a full bleed one behind everything), its title and its subtitle. A title or subtitle bound to the journey's own stays bound unless other words are given. With returnPrevious the answer also holds the cover as it was, under previous_spreads, and a digest of the cover as the write left it under page_digests (for restore_book_page expectedPages). ${WRITE_ANSWER}`,
     inputSchema: { journeyId: idSchema, ...setBookCoverArgs },
     annotations: TOOL_ANNOTATIONS_WRITE,
     when: journeyAddonOn,
