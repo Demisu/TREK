@@ -26,7 +26,7 @@ Actions are grouped by area below. The **Action key** is the raw value stored in
 | `user.password_reset_success` | Password reset completed |
 | `user.password_reset_fail` | Password reset attempt rejected (`reason` in details) |
 
-A request for an account that can actually be reset writes **two** rows: one with `delivered: "pending"` when the mail is handed off, one with the delivery result. Every other outcome writes a single row carrying a `reason` instead — `no_user`, `oidc_only`, `throttled_per_email` or `password_login_disabled`. Passkey logins are not a separate key: they land as `user.login` with `method: passkey` in the details, and SSO logins the same way with `method: oidc`. An account created by a first SSO login also writes `user.register` with `method: oidc`, carrying the same fields as a password signup.
+A request for an account that can actually be reset writes **two** rows: one with `delivered: "pending"` when the mail is handed off, one with the delivery result. Every other outcome writes a single row carrying a `reason` instead: `no_user`, `oidc_only`, `throttled_per_email` or `password_login_disabled`. Passkey logins are not a separate key: they land as `user.login` with `method: passkey` in the details, and SSO logins the same way with `method: oidc`. An account created by a first SSO login also writes `user.register` with `method: oidc`, carrying the same fields as a password signup.
 
 ### MFA
 
@@ -50,7 +50,7 @@ Logging out writes no row, and neither do the sessions a password change, a rese
 |---|---|
 | `user.passkey_register` | Passkey enrolled |
 | `user.passkey_delete` | Passkey removed (resource = the passkey's numeric ID) |
-| `user.passkey_clone_suspected` | A passkey presented a signature counter that did not advance — a possible cloned authenticator. That assertion is rejected, the credential stays enabled |
+| `user.passkey_clone_suspected` | A passkey presented a signature counter that did not advance; a possible cloned authenticator. That assertion is rejected, the credential stays enabled |
 
 ### SSO
 
@@ -69,7 +69,7 @@ Logging out writes no row, and neither do the sessions a password change, a rese
 | `trip.transfer_ownership` | Trip ownership transferred (includes the trip title and both owner emails) |
 | `trip.invite_link_create` | Trip invite link created or rotated (a trip has one link, so creating it again replaces the previous token) |
 | `trip.invite_link_delete` | Trip invite link revoked |
-| `trip.invite_link_join` | An invite link was accepted (`joined` in details). The row is written even when nobody was added — the trip owner or an existing member opening the link logs `joined: false` |
+| `trip.invite_link_join` | An invite link was accepted (`joined` in details). The row is written even when nobody was added; the trip owner or an existing member opening the link logs `joined: false` |
 
 ### Admin actions
 
@@ -110,6 +110,15 @@ Logging out writes no row, and neither do the sessions a password change, a rese
 | `admin.storage_stats_refresh` | Storage usage stats recomputed |
 | `admin.default_user_settings_update` | Default user settings updated |
 | `admin.demo_baseline_save` | Demo baseline snapshot saved |
+| `admin.tours_wanderer` | The wanderer switch under Tours toggled |
+| `admin.tours_hiking_map` | The Hiking map (OpenHikingMap) switch under Tours toggled |
+| `admin.tours_cycle_map` | The Cycling map (CyclOSM) switch under Tours toggled |
+| `admin.tours_ski_routing` | The Piste router switch under Tours toggled |
+| `admin.paddle_region_add` | A paddle water region added |
+| `admin.paddle_region_remove` | A paddle water region removed |
+| `admin.paddle_region_refresh` | A paddle water region read again |
+| `admin.paddle_region_decline` | A requested paddle water region declined |
+| `admin.paddle_region_settings` | The automatic loading of paddle water regions changed (mode and size limit in details) |
 
 ### Settings
 
@@ -157,13 +166,21 @@ Logging out writes no row, and neither do the sessions a password change, a rese
 | `airtrail.private_ip_configured` | AirTrail URL saved that resolves to a private IP |
 | `dawarich.private_ip_configured` | Dawarich URL saved that resolves to a private IP |
 | `dawarich.disconnected` | A user disconnected their Dawarich instance |
+| `wanderer.connected` | A user connected a wanderer instance (the address is recorded, never the token) |
+| `wanderer.updated` | A user changed their wanderer connection |
+| `wanderer.disconnected` | A user disconnected their wanderer instance |
+| `wanderer.watch_enabled` | A user switched on the background check of their imported wanderer trails |
+| `wanderer.watch_disabled` | A user switched it off again |
+| `ai.connection.saved` | An AI connection was saved, by a user or as the shared connection (`scope` and the provider `kind` in details) |
+| `ai.connection.removed` | An AI connection was removed |
+| `ai.settings.saved` | An admin saved the AI setup (who pays, daily limit, retention, web search) |
 
 ## Log columns
 
 | Column | Description |
 |---|---|
 | Time | Timestamp of the action |
-| User | Username of the acting user, falling back to their email, then `#<user id>`. Unauthenticated events show `—` (the plain-text log file writes `anonymous` for those instead) |
+| User | Username of the acting user, falling back to their email, then `#<user id>`. Unauthenticated events show an empty placeholder (the plain-text log file writes `anonymous` for those instead) |
 | Action | Action key (see tables above) |
 | Resource | Affected resource (filename, trip ID, tool name, etc.) where applicable |
 | IP | Client IP address |
@@ -171,13 +188,13 @@ Logging out writes no row, and neither do the sessions a password change, a rese
 
 ## Pagination
 
-The panel loads 100 entries at a time. Click **Load more** at the bottom to fetch the next page, or **Refresh** to reload from the newest entry. The count is shown above the table as `{loaded} loaded · {total} total`.
+The panel loads 100 entries at a time. Click **Load more** at the bottom to fetch the next page, or **Refresh** (in the head of the card) to reload from the newest entry. A pill in the head of the card shows the count as `{loaded} loaded, {total} total`. The phone admin shows the same log in its **Audit** section.
 
 ## IP addresses
 
 The client IP is the one Express resolves after applying `TRUST_PROXY`, not whatever the `X-Forwarded-For` header happens to say. That distinction matters: the header is written by the caller, and an audit row an attacker can address to someone else's IP is worse than no row at all.
 
-`TRUST_PROXY` is **the number of proxy hops in front of TREK**, and it has to be accurate. With `TRUST_PROXY=1` (the default) TREK trusts exactly one hop, so a request that passed through two proxies is recorded as coming from the *outer* one — the Cloudflare edge in the example below, not nginx and not the real client. If your setup is Cloudflare in front of nginx in front of TREK, set `TRUST_PROXY=2`. Set it to `0` to trust nothing and always record the socket address.
+`TRUST_PROXY` is **the number of proxy hops in front of TREK**, and it has to be accurate. With `TRUST_PROXY=1` (the default) TREK trusts exactly one hop, so a request that passed through two proxies is recorded as coming from the *outer* one; the Cloudflare edge in the example below, not nginx and not the real client. If your setup is Cloudflare in front of nginx in front of TREK, set `TRUST_PROXY=2`. Set it to `0` to trust nothing and always record the socket address.
 
 See [Environment-Variables](Environment-Variables).
 
@@ -195,7 +212,7 @@ Audit entries in the database are never automatically deleted. They accumulate a
 
 ## Plugin capability audit
 
-Separate from the instance audit log above, TREK keeps a dedicated **hash-chained capability audit** for installed plugins. Every host-mediated action a plugin takes — core-data reads, WebSocket broadcasts, notifications, AI calls, cross-plugin calls — is recorded at the point the plugin cannot reach, together with the acting user (bound by the host, never supplied by the plugin), the resource touched, and the outcome.
+Separate from the instance audit log above, TREK keeps a dedicated **hash-chained capability audit** for installed plugins. Every host-mediated action a plugin takes (core-data reads, WebSocket broadcasts, notifications, AI calls, cross-plugin calls) is recorded at the point the plugin cannot reach, together with the acting user (bound by the host, never supplied by the plugin), the resource touched, and the outcome.
 
 Each plugin's entries form a per-plugin hash chain (`hash = sha256(previous_hash + row)`), so the log is tamper-evident: any altered or removed entry breaks the chain. Older rows are pruned per plugin once the row cap is reached (default 20,000 rows/plugin, tunable via `TREK_PLUGIN_AUDIT_MAX_ROWS`; `0` disables pruning). Pruning keeps the retained window verifiable.
 

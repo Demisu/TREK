@@ -44,11 +44,13 @@ In-app notifications are always active and cannot be switched off for the whole 
 
 ### Trip Reminders
 
-Sends a reminder notification before a trip starts, to trips that have reminder days set. **On by default.** The check runs once a day and picks trips that start exactly that many days later. When it is off, the reminder section of a trip is greyed out with a note that reminders are disabled. See [Creating-a-Trip](Creating-a-Trip).
+Sends a reminder notification before a trip starts, to trips that have reminder days set. **On by default.** The check runs once a day at 09:00 server time. It reminds a trip once the reminder day has come and the trip has not started; a day the server was down is caught up on the next run, and a trip moved to a new start date is reminded again. When it is off, the reminder section of a trip is greyed out with a note that reminders are disabled. See [Creating-a-Trip](Creating-a-Trip).
+
+The same run at 09:00 also sends the **to-do due** reminders for unchecked to-dos that fall due within the next three days. They have no switch of their own here; each user decides in their notification settings whether to receive them.
 
 ## Admin alerts
 
-Admin-only notifications, such as a new TREK version or a failed write to a storage replica, go to the admin's own targets. These are separate from the users' webhooks and topics.
+Admin-only notifications, such as a new TREK version, a failed write to a storage replica or a request for paddle water data, go to the admin's own targets. These are separate from the users' webhooks and topics.
 
 ### Admin Webhook
 
@@ -66,7 +68,7 @@ An ntfy topic used only for admin notifications. It always fires when a topic is
 
 ### Notifications
 
-The matrix under the admin targets sets which channels deliver each admin-only event: **New version available** and **Storage replica failure**. Columns appear only for channels that can reach the admin: **In-App** always, **Email** once SMTP is configured, **Webhook** once an admin webhook URL is saved, **Ntfy** once an admin topic is saved. Every cell is a switch, on by default, and saves at once. A dash means that event cannot go out on that channel. Admin alerts are never sent as Web Push.
+The matrix under the admin targets sets which channels deliver each admin-only event: **New version available**, **Storage replica failure** and **Paddle region requested** (sent when a paddle region waits for your decision, see [Admin-Addons](Admin-Addons#paddle-water-data)). Columns appear only for channels that can reach the admin: **In-App** always, **Email** once SMTP is configured, **Webhook** once an admin webhook URL is saved, **Ntfy** once an admin topic is saved. Every cell is a switch, on by default, and saves at once. A dash means that event cannot go out on that channel. Admin alerts are never sent as Web Push.
 
 ## Defaults for users
 
@@ -82,10 +84,14 @@ Each cell is a pill that cycles through three states when clicked, and saves at 
 
 A default applies to every user who has not changed that cell themselves, including users who joined before you set it, so a later change reaches them too. A cell a user switched keeps the user's choice, unless you block it. The events themselves are listed in [Notifications](Notifications#notification-events).
 
+## On a phone
+
+The phone admin has the same settings in its **Notifications** section: the channels, the admin targets and alerts, and the **Defaults for users** matrix.
+
 ## See also
 
-- [Notifications](Notifications) - the per-user side: channels, events, webhook and ntfy setup, Web Push
-- [Admin-Panel-Overview](Admin-Panel-Overview) - all admin tabs
-- [Environment-Variables](Environment-Variables) - SMTP and Web Push variables
-- [Creating-a-Trip](Creating-a-Trip) - setting a trip's reminder
-- [Admin-Storage](Admin-Storage) - storage replicas and their failure alerts
+- [Notifications](Notifications): the per-user side: channels, events, webhook and ntfy setup, Web Push
+- [Admin-Panel-Overview](Admin-Panel-Overview): all admin tabs
+- [Environment-Variables](Environment-Variables): SMTP and Web Push variables
+- [Creating-a-Trip](Creating-a-Trip): setting a trip's reminder
+- [Admin-Storage](Admin-Storage): storage replicas and their failure alerts

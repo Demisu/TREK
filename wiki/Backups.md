@@ -1,6 +1,6 @@
 # Backups
 
-TREK stores all data in a single SQLite database (`travel.db`) plus an `uploads/` directory of attachments, cover photos, and avatars — by default; storage backends and replication are configured in [[Admin: Storage|Admin-Storage]]. The Backup panel lets you create, download, restore, and schedule backups of both.
+TREK stores all data in a single SQLite database (`travel.db`) plus an `uploads/` directory of attachments, cover photos, and avatars, by default; storage backends and replication are configured in [[Admin: Storage|Admin-Storage]]. The Backup panel lets you create, download, restore, and schedule backups of both.
 
 ## Where to find it
 
@@ -15,11 +15,11 @@ A backup is a ZIP archive with these entries:
 | Entry | Contents |
 |---|---|
 | `travel.db` | The full SQLite database, as a consistent snapshot taken while TREK keeps running (writes during the backup cannot tear it) |
-| `uploads/` | All uploaded attachments, covers, and avatars (default location — see [Admin: Storage](Admin-Storage)) |
+| `uploads/` | All uploaded attachments, covers, and avatars (default location, see [Admin: Storage](Admin-Storage)) |
 | `plugins-data/` | Each installed plugin's own database + files (present only if plugins are installed) |
 | `plugins-code/` | The installed plugin code, so a restore is self-contained (dev-linked plugins are skipped) |
 
-**Also included:** the at-rest encryption key, unless you supply it through the `ENCRYPTION_KEY` environment variable — in that case the file is not the source of truth and is left out. Bundling it is what makes a backup restorable onto a different install, and it makes the ZIP as sensitive as the key itself: store and transfer it accordingly. See [Encryption-Key-Rotation](Encryption-Key-Rotation).
+**Also included:** the at-rest encryption key, unless you supply it through the `ENCRYPTION_KEY` environment variable; in that case the file is not the source of truth and is left out. Bundling it is what makes a backup restorable onto a different install, and it makes the ZIP as sensitive as the key itself: store and transfer it accordingly. See [Encryption-Key-Rotation](Encryption-Key-Rotation).
 
 ## Manual backup
 
@@ -36,12 +36,12 @@ You can restore from:
 - **A stored backup**: click **Restore** next to any backup in the list.
 - **An uploaded ZIP**: click **Upload Backup** and select a backup file from your computer (maximum upload size: 500 MB by default, configurable with the `BACKUP_UPLOAD_LIMIT_MB` environment variable; see [Environment-Variables](Environment-Variables)).
 
-A second limit caps the **decompressed** size of a restore archive at 5 GB by default (`BACKUP_MAX_DECOMPRESSED_MB`). It applies to both routes — a stored backup as well as an uploaded ZIP — and a restore that exceeds it is refused with `Backup exceeds the maximum decompressed size.` Raise it if your own backups legitimately grow past the default, otherwise they become unrestorable.
+A second limit caps the **decompressed** size of a restore archive at 5 GB by default (`BACKUP_MAX_DECOMPRESSED_MB`). It applies to both routes (a stored backup as well as an uploaded ZIP) and a restore that exceeds it is refused with `Backup exceeds the maximum decompressed size.` Raise it if your own backups legitimately grow past the default, otherwise they become unrestorable.
 
 Before restoring, TREK runs integrity checks on the uploaded database:
 
-1. **SQLite `PRAGMA integrity_check`** — verifies the database file is not corrupt.
-2. **Required tables present** — confirms the file contains `users`, `trips`, `trip_members`, `places`, and `days`. Files missing any of these are rejected as not being a valid TREK backup.
+1. **SQLite `PRAGMA integrity_check`**: verifies the database file is not corrupt.
+2. **Required tables present**: confirms the file contains `users`, `trips`, `trip_members`, `places`, and `days`. Files missing any of these are rejected as not being a valid TREK backup.
 3. **Not from a newer TREK**: a backup whose database a newer release migrated is refused with `This backup was made by a newer TREK version. Update TREK before restoring it.` Restoring it would leave this version unable to start.
 
 The database being replaced is kept as `pre-restore-<time>.db` next to it (in `data/` on a standard install), so a restore of the wrong archive can be undone by hand. Delete these copies once you no longer need them.
@@ -52,7 +52,7 @@ Either way, TREK asks first in a **Restore Backup?** dialog that names the file,
 
 > **Warning:** Restoring replaces all current data. Back up your current state first if you want to keep it.
 
-> **Plugins & restart:** `travel.db` and `uploads/` are swapped in immediately. Plugin data and code are **staged** beside the live trees and applied right away: the running plugins hold their databases open, so the restore asks the plugin runtime to shut them down and swaps the trees in the moment the handles are closed. If the runtime isn't up (plugins switched off, or a restore that happens during startup), the staged trees are applied at the next boot instead. Restart the server after restoring an instance that uses plugins — the plugins are stopped for the swap and stay down until the process restarts, and the bundled encryption key is only read at startup.
+> **Plugins & restart:** `travel.db` and `uploads/` are swapped in immediately. Plugin data and code are **staged** beside the live trees and applied right away: the running plugins hold their databases open, so the restore asks the plugin runtime to shut them down and swaps the trees in the moment the handles are closed. If the runtime isn't up (plugins switched off, or a restore that happens during startup), the staged trees are applied at the next boot instead. Restart the server after restoring an instance that uses plugins; the plugins are stopped for the swap and stay down until the process restarts, and the bundled encryption key is only read at startup.
 
 ### Restoring on a new install, before setup
 
@@ -84,13 +84,15 @@ Turn on **Enable auto-backup** in the **Auto-Backup** card of the Backup tab, pi
 
 **Schedule** options (depend on interval):
 
-- **Run at hour**: time of day for daily, weekly, and monthly backups (0 to 23, server local time).
+- **Run at hour**: time of day for daily, weekly, and monthly backups (0 to 23, server local time). The hint under the field names the server's timezone and whether the list uses the 12h or the 24h format.
 - **Day of week**: Sunday through Saturday (for weekly backups).
 - **Day of month**: 1 to 28 (for monthly backups). Days 29 to 31 are excluded to avoid months with fewer days.
 
 Auto-backup files are named `auto-backup-<timestamp>.zip` (manual backups use `backup-<timestamp>.zip`).
 
-After each auto-backup run, **auto-backup files** older than `keep_days` are pruned. Manual backups are never pruned — delete those yourself when you no longer need them. Set `keep_days` to `0` to disable pruning entirely.
+After each auto-backup run, **auto-backup files** older than `keep_days` are pruned. Manual backups are never pruned; delete those yourself when you no longer need them. Set `keep_days` to `0` to disable pruning entirely.
+
+The phone admin has the same lists and settings in its **Backup** section.
 
 ## Before updating TREK
 
@@ -112,7 +114,7 @@ The following actions are recorded in the [Audit-Log](Audit-Log):
 
 ## See also
 
-- [Admin: Storage](Admin-Storage) — replicate backups to S3-compatible storage
+- [Admin: Storage](Admin-Storage): replicate backups to S3-compatible storage
 - [Encryption-Key-Rotation](Encryption-Key-Rotation)
 - [Admin-Panel-Overview](Admin-Panel-Overview)
 - [Security-Hardening](Security-Hardening)

@@ -2,7 +2,7 @@
 
 The **MCP Access** tab (in the **Integrations** group of the admin side navigation) shows all active MCP OAuth sessions and API tokens across every user on the instance. As an admin you can revoke sessions and delete tokens.
 
-This panel is only visible when the **MCP addon** is enabled in the [Admin-Addons](Admin-Addons) panel.
+This panel is only visible when the **MCP** addon is enabled. MCP is one of the three switches in the **AI** tile on the **Integration** card of the [Admin-Addons](Admin-Addons#the-ai-tile) tab. The phone admin has the same lists in its **MCP Access** section.
 
 ![MCP Access](assets/MCPAccess.png)
 
