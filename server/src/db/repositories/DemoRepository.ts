@@ -40,17 +40,12 @@ export interface DemoInstanceKeyRow {
   value: string | null;
 }
 
-/** One shelf of the demo addon policy (`demo/demo-addon-policy.ts`): the rows it switches on and off. */
-export interface DemoShelfStates {
-  readonly on: readonly string[];
-  readonly off: readonly string[];
-}
-
 /** The states `applyAddonStates` writes: three shelves and the switches under them in `app_settings`. */
 export interface DemoAddonStates {
-  readonly addons: DemoShelfStates;
-  readonly photoProviders: DemoShelfStates;
-  readonly documentProviders: DemoShelfStates;
+  /** Each shelf names the rows it switches on and the rows it switches off. */
+  readonly addons: { readonly on: readonly string[]; readonly off: readonly string[] };
+  readonly photoProviders: { readonly on: readonly string[]; readonly off: readonly string[] };
+  readonly documentProviders: { readonly on: readonly string[]; readonly off: readonly string[] };
   readonly appSettings: Readonly<Record<string, string>>;
 }
 
