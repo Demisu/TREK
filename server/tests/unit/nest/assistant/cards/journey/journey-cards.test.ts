@@ -307,7 +307,8 @@ describe('the change cards', () => {
 
     const loaded: JournalLoaded = { entry: entry(), journeyId: 3, title: 'B', tripJournal: false };
     const updated = describeToolCall('update_journey_entry', 'c3', { entryId: 12, entry_time: '18:00' }, ctx, loaded);
-    expect(updated).toMatchObject({ verbKey: 'updateJournalEntry', subject: 'Sunset at the Spree', undoable: false });
+    // A changed entry has its way back: the tool answers what the change replaced.
+    expect(updated).toMatchObject({ verbKey: 'updateJournalEntry', subject: 'Sunset at the Spree', undoable: true });
     expect(updated.rows).toEqual([{ op: 'change', labelKey: 'time', before: '14:30', after: '18:00' }]);
     expect(describeToolCall('update_journey_entry', 'c4', {}, ctx).rows).toEqual([]);
 
