@@ -240,11 +240,8 @@ describe('the design tools', () => {
 
   it('JBDMCP-006: design_book takes layouts templates and answers the template of each page', async () => {
     const { journey, editor } = await crew();
-    const request = designBookRequestSchema.parse({
-      journeyId: journey.id,
-      directives: { style: 'postcard', layouts: 'templates', seed: 1 },
-    });
-    const designed = await designs.designBook(request, ctx(editor.id));
+    const request = designBookRequestSchema.parse({ directives: { style: 'postcard', layouts: 'templates', seed: 1 } });
+    const designed = await designs.designBook({ journeyId: journey.id, ...request }, ctx(editor.id));
     const draft = bookDesignAnswerSchema.parse(answered(designed));
     expect(draft.plan.some((row) => row.template !== undefined)).toBe(true);
     expect(draft.style.style).toBe('postcard');
