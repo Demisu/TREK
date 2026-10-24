@@ -137,11 +137,14 @@ function repointingRefusal(saved: readonly TourWaypoint[], points: readonly Hike
   return null;
 }
 
-/** The change with the saved points reshaped as its new points, or refused with why (a hike only). */
-function withReshape(request: TourUpdateRequest, saved: readonly TourWaypoint[], type: string): TourUpdateRequest {
+/**
+ * The change with the saved points reshaped as its new points, or refused with why (a hike only). A
+ * recorded track has no points of its own to turn: the two its read gives are made up from its line's ends.
+ */
+function withReshape(request: TourUpdateRequest, { tour, waypoints }: TourDetailResponse): TourUpdateRequest {
   const { reshape, ...rest } = request;
-  if (!reshape || type !== 'hike') return rest;
-  const reshaped = reshapedHikePoints(saved, reshape);
+  if (!reshape || tour.tour_type !== 'hike') return rest;
+  const reshaped = reshapedHikePoints(tour.has_waypoints === true ? waypoints : [], reshape);
   if ('refused' in reshaped) throw badRequest(reshaped.refused);
   return { ...rest, waypoints: reshaped.points };
 }
@@ -395,7 +398,7 @@ export class HikePlanService {
     const { placeId } = asked;
     const saved = await this.tours.getTour(String(tripId), String(placeId));
     // PR1-01, PR1-02: a reshape is the saved points turned or closed, then planned as new points are.
-    const request = asked.reshape ? withReshape(asked, saved.waypoints, saved.tour.tour_type) : asked;
+    const request = asked.reshape ? withReshape(asked, saved) : asked;
     const { tour } = saved;
     if (tour.tour_type !== 'hike') {
       throw badRequest(

@@ -4,12 +4,15 @@
  * points are. The way is planned by a stub of HikeRoutingService; the write
  * is the real one over a snapshot test db.
  */
+import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
+import { Tours } from '../../../src/db/entities/Tours.entity';
 import type { McpContext } from '../../../src/nest-mcp';
 import { HikePlanMcp } from '../../../src/nest/tours/hike-plan.mcp';
 import { HikeRoutingService, type PlannedHike } from '../../../src/nest/tours/hike-routing.service';
 import { ToursModule } from '../../../src/nest/tours/tours.module';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
 import { makePlace } from '../../helpers/factories/places';
+import { countRows, findRow } from '../../helpers/factories/rows';
 import { addTourWaypoints, makeTour } from '../../helpers/factories/tours';
 import { makeTrip } from '../../helpers/factories/trips';
 import { makeUser } from '../../helpers/factories/users';
@@ -20,7 +23,7 @@ import type { GeometryPoint, HikePlanRequest } from '@trek/shared';
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// HIKE-RESHAPE-001 to HIKE-RESHAPE-004
+// HIKE-RESHAPE-001 to HIKE-RESHAPE-005
 
 const db = createSnapshotTestDb();
 const plan = vi.fn<HikeRoutingService['plan']>();
@@ -141,5 +144,27 @@ describe('update_tour with reshape', () => {
     await expect(
       mcp.updateTour({ tripId: trip.id, placeId: place.id, expected_revision: 1, reshape: 'reverse' }, ctx(user.id)),
     ).rejects.toThrow('Only a hike is changed here');
+  });
+
+  it('HIKE-RESHAPE-005: a recorded track is neither turned round nor closed, and nothing is planned or saved', async () => {
+    const { user } = await makeUser(orm());
+    const trip = await makeTrip(orm(), user.id);
+    // A GPX import from A to B: its line only, and no points of its own (its read makes up the two ends).
+    const place = await makePlace(orm(), trip.id, {
+      name: 'Recorded',
+      route_geometry: JSON.stringify([
+        [47.5, 11.1, 800],
+        [47.51, 11.12, 900],
+        [47.52, 11.1, 850],
+      ]),
+    });
+    await makeTour(orm(), place.id, { origin: 'gpx' });
+    const reshaped = (reshape: 'reverse' | 'close_loop') =>
+      mcp.updateTour({ tripId: trip.id, placeId: place.id, expected_revision: 1, reshape }, ctx(user.id));
+    await expect(reshaped('reverse')).rejects.toThrow('recorded track without points of its own');
+    await expect(reshaped('close_loop')).rejects.toThrow('recorded track without points of its own');
+    expect(plan).not.toHaveBeenCalled();
+    expect(await countRows(orm(), TourWaypoints, { place: place.id })).toBe(0);
+    expect((await findRow(orm(), Tours, { place: place.id }))?.revision).toBe(1);
   });
 });
