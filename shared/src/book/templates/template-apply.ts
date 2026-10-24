@@ -24,7 +24,13 @@ import {
   templatePage,
   type LaidElement,
 } from './template-lay';
-import { assignTemplateTexts, textRolesOf, type BookTemplateWord, type BookTemplateWords } from './template-words';
+import {
+  assignTemplateTexts,
+  isTemplateFigureText,
+  textRolesOf,
+  type BookTemplateWord,
+  type BookTemplateWords,
+} from './template-words';
 
 /**
  * Laying a page out on a decorated template.
@@ -146,7 +152,9 @@ function poolOf(spread: BookSpread): Pool {
   const all = [...spread.elements.filter((e) => !e.locked), ...spread.parked];
   return {
     photos: all.filter((e): e is BookPhotoElement => e.kind === 'photo' && e.photoId != null),
-    texts: all.filter((e): e is TextEl => e.kind === 'text' && !!e.text.trim() && !isBookOrnamentText(e)),
+    texts: all.filter(
+      (e): e is TextEl => e.kind === 'text' && !!e.text.trim() && !isBookOrnamentText(e) && !isTemplateFigureText(e),
+    ),
     map: all.find((e): e is BookMapElement => e.kind === 'map'),
     marks: all.filter((e): e is BookBadgeElement => e.kind === 'badge'),
   };

@@ -59,6 +59,15 @@ const SPARE_ORDER: readonly BookTemplateTextRole[] = ['subtitle', 'date', 'capti
 const DATE_LIKE = /\b(1[89]|20)\d{2}\b|\b\d{1,2}[./]\d{1,2}\b/;
 
 const isText = (e: BookElement | null | undefined): e is TextEl => !!e && e.kind === 'text' && !!e.text.trim();
+
+/**
+ * Figures a template drew as its design (a film's timecode, frame numbers, a
+ * plate's number): no letters and not a date, and bound to nothing. They are
+ * not the page's words, so a template laid next never takes one for a title
+ * or a date line.
+ */
+export const isTemplateFigureText = (e: BookElement): boolean =>
+  e.kind === 'text' && !e.binding && !/\p{L}/u.test(e.text) && !DATE_LIKE.test(e.text);
 const isLong = (t: TextEl) => t.text.trim().length > SHORT;
 
 /** The role a short text reads as on its own: a date line when it says a date, else a subtitle. */
