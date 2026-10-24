@@ -179,7 +179,7 @@ describe('the template picker', () => {
     expect(chunkPhotos(12, false, sizes).sizes).toEqual([6, 6]);
     expect(chunkPhotos(5, true, sizes).sizes).toEqual([2, 3]);
     // A story too long for a small page's frame goes on a page of words of its own.
-    expect(chunkPhotos(2, true, { ...sizes, storyCost: (s) => (s > 0 ? 30 : 0) }).sizes).toEqual([0, 2]);
+    expect(chunkPhotos(2, true, { ...sizes, pageCost: (s, first) => (first && s > 0 ? 30 : 0) }).sizes).toEqual([0, 2]);
     expect(chunkPhotos(3, false, { any: new Set([2]), story: new Set() })).toEqual({ sizes: [2], parked: 1 });
   });
 

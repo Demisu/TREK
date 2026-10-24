@@ -1,5 +1,6 @@
 import { buildBook, distributeGallery } from '../auto/auto-book';
 import type { AutoEntry, AutoInput, AutoPhoto } from '../auto/auto-types';
+import type { BookCoverArchetype } from '../book-archetypes';
 import { briefFindings, type BookBriefArt } from '../book-findings-art';
 import { bookLevelFindings, sortBookFindings } from '../book-findings-design';
 import { withRealWeight } from '../book-fonts';
@@ -11,6 +12,8 @@ import type { BookTravelContext } from '../book-travel';
 import { MAX_BOOK_TITLE, MAX_SPREADS, type BookDocument, type BookPageSetup, type BookSpread } from '../book.schema';
 import { pageFindings } from '../describe-spread';
 import type { PhotoPickCandidate } from '../photo-pick';
+import { isBookFontFamily, mutedOn, readableOn } from '../theme/book-theme';
+import type { BookTheme } from '../theme/book-theme.schema';
 import { designArt, livelyLook, type BookDesignSticker } from './design-art';
 import type { ComposeCtx } from './design-compose';
 import type { CoverMaterial } from './design-cover-kit';
@@ -25,9 +28,12 @@ import { isLivelyBeat } from './design-lively-pacing';
 import { keepsStored, mergeDesign, type BookDesignPlanRow, type DesignedSpread } from './design-merge';
 import { applyPageOverrides } from './design-overrides';
 import type { BookDesignBeat } from './design-pacing';
-import { choosePhotos, type BookDesignLeftOut } from './design-photos';
+import { TEMPLATED_ENTRY_PHOTOS, choosePhotos, shareGalleryByDay, type BookDesignLeftOut } from './design-photos';
 import { repairSpread } from './design-repair';
 import { designGrid, designLook, paperBackground, type BookDesignLook } from './design-style';
+import { archetypeOfTheme } from './design-template-pick';
+import { composeTemplatedInner } from './design-templated';
+import { composeTemplatedCover, composeTravelBack } from './design-templated-framing';
 import { themeDesignedSpread, unlinkDrifted } from './design-theme';
 
 /**
@@ -64,6 +70,12 @@ export interface BookDesignInput extends AutoInput {
    * for the stickers a decorated design places; without it nothing is stuck on.
    */
   stickers?: readonly BookDesignSticker[];
+  /**
+   * The book's own theme, recoloured or not, for a book laid on the designed
+   * templates (`layouts: 'templates'`): it is kept whole in place of the
+   * style's preset. The composed pages ignore it.
+   */
+  theme?: BookTheme;
 }
 
 export interface BookDesignResult {
@@ -117,6 +129,7 @@ function pageFor(doc: BookDocument | null, input: BookDesignInput, directives: B
  */
 function classicOnly(d: BookDesignDirectives): boolean {
   if (d.style !== 'classic' || d.photos || d.palette || d.type || d.brief) return false;
+  if (d.layouts === 'templates') return false;
   if (d.pages || d.cover || d.text || d.travel) return false;
   return d.chapters === 'entry' && d.density === 'balanced';
 }
@@ -158,7 +171,7 @@ function travelOf(input: BookDesignInput, entries: readonly AutoEntry[]): BookTr
 }
 
 /** The beat a page of the Auto layout plays, read from what it holds. */
-function classicBeat(spread: BookSpread): BookDesignBeat {
+export function classicBeat(spread: BookSpread): BookDesignBeat {
   if (spread.role !== 'inner') return spread.role;
   if (spread.entryId != null) return 'opener';
   const has = (kind: BookSpread['elements'][number]['kind']) => spread.elements.some((e) => e.kind === kind);
@@ -230,6 +243,7 @@ export function designBook(
   const directives = withBriefTheme(bookDesignDirectivesSchema.parse(raw));
   const entries = inScope(input.entries, directives.scope);
   if (classicOnly(directives)) return classicDesign(doc, input, directives, entries);
+  if (directives.layouts === 'templates') return templatedDesign(doc, input, directives, entries);
 
   const newId = input.newId ?? bookElementId;
   const page = pageFor(doc, input, directives);
@@ -380,4 +394,165 @@ const TITLE_PAGE_STYLES: ReadonlySet<string> = new Set(['editorial', 'journal', 
 /** An empty single page of a role, on the book's paper. */
 function blank(c: ComposeCtx, role: 'first' | 'last'): BookSpread {
   return { id: c.newId('sp'), role, background: paperBackground(c.look), elements: [], parked: [], entryId: null };
+}
+
+// ── the book laid on the designed templates ────────────────────────────────
+
+/** The look with the book's own theme kept whole: its palette, its faces, its frames. */
+function withOwnTheme(look: BookDesignLook, theme: BookTheme | undefined): BookDesignLook {
+  if (!theme) return look;
+  const paper = theme.palette.paper.toLowerCase();
+  const ink = readableOn(paper, theme.palette.ink);
+  const face = (f: string, fallback: BookDesignLook['heading']) => (isBookFontFamily(f) ? f : fallback);
+  return {
+    ...look,
+    paper,
+    ink,
+    muted: mutedOn(paper, ink),
+    accent: theme.palette.accent,
+    heading: face(theme.fonts.heading.font, look.heading),
+    body: face(theme.fonts.body.font, look.body),
+    frameStyle: theme.frameStyle,
+    tilt: theme.tilt,
+    theme,
+  };
+}
+
+/** The directives with each entry's photos held to what its pages on the templates take. */
+const cappedPhotos = (d: BookDesignDirectives): BookDesignDirectives => ({
+  ...d,
+  photos: { pick: 'best', ...d.photos, perChapterMax: d.photos?.perChapterMax ?? TEMPLATED_ENTRY_PHOTOS },
+});
+
+/** The cover, the first page, the inner pages, the last page and the back of a templated book, in order. */
+function templatedPages(
+  c: ComposeCtx,
+  input: BookDesignInput,
+  parts: { placed: AutoEntry[]; usedPhotos: AutoPhoto[]; inner: DesignedSpread[]; archetype: BookCoverArchetype },
+): DesignedSpread[] {
+  const { directives } = c;
+  const words = {
+    title: input.title,
+    subtitle: input.subtitle,
+    ownTitle: directives.cover?.title,
+    ownSubtitle: directives.cover?.subtitle,
+  };
+  const cover = coverPhoto(input, directives, parts.usedPhotos);
+  const material = coverMaterial(cover, parts.usedPhotos, parts.placed);
+  const front = directives.cover?.template
+    ? { spread: composeCover(c, words, cover, material), template: null }
+    : composeTemplatedCover(c, words, material, parts.archetype);
+  const titlePage = TITLE_PAGE_STYLES.has(c.look.theme.id ?? directives.style);
+  const first = titlePage ? composeTitlePage(c, words, parts.placed) : blank(c, 'first');
+  const page = (spread: BookSpread, beat: BookDesignBeat): DesignedSpread => ({
+    spread,
+    beat,
+    chapter: null,
+    findings: [],
+  });
+  return [
+    { ...page(front.spread, 'cover'), ...(front.template ? { template: front.template } : {}) },
+    page(first, 'first'),
+    ...parts.inner,
+    page(blank(c, 'last'), 'last'),
+    page(composeTravelBack(c, words, parts.placed), 'back'),
+  ];
+}
+
+/**
+ * The book laid on the Studio's designed templates (`layouts: 'templates'`):
+ * the cover on a cover template of the theme's archetype, every chapter on
+ * its spreads, the summary, the countries and the back cover in the newer
+ * travel looks. The rest is the composer's: the scope, the photo picker, the
+ * page budget, the stored pages kept, the repair and the findings.
+ */
+function templatedDesign(
+  doc: BookDocument | null,
+  input: BookDesignInput,
+  directives: BookDesignDirectives,
+  entries: AutoEntry[],
+): BookDesignResult {
+  const newId = input.newId ?? bookElementId;
+  const page = pageFor(doc, input, directives);
+  const shared = shareGalleryByDay(byDate(entries), input.gallery ?? [], input.candidates);
+  const placed = shared.entries;
+  const choice = choosePhotos(placed, input.candidates, cappedPhotos(directives), input.photos);
+  const usedPhotos = [...choice.byEntry.values()].flat();
+  const usedInfos = input.photos.filter((p) => usedPhotos.some((u) => u.photoId === p.photoId));
+  const plain = withOwnTheme(designLook(directives, page, usedInfos), input.theme);
+  const art = designArt(directives, plain.theme, input.stickers);
+  const look = livelyLook(plain, art, directives);
+  const c: ComposeCtx = {
+    look,
+    page,
+    grid: designGrid(page),
+    newId,
+    locale: input.locale,
+    infos: new Map(input.photos.map((p) => [p.photoId, p])),
+    travel: travelOf(input, placed),
+    directives,
+    notes: [],
+    art,
+  };
+  const archetype = directives.cover?.archetype ?? archetypeOfTheme(look.theme);
+  // A rich theme designed without a brief is lively for its templates, so a poster book gets its loud pages at all.
+  const calm = art.energy === 'calm' && !(look.theme.decoration === 'rich' && !art.briefed);
+  const needs: FramingNeeds = { room: roomFor(doc, directives.keep), perStations: stationsPerSpread(c) };
+  const inner = composeTemplatedInner(c, placed, choice, input, needs, { archetype, calm, rest: shared.rest });
+  const designed = templatedPages(c, input, { placed, usedPhotos, inner: inner.spreads, archetype });
+  const repairCtx = { page, photos: input.photos, look, newId };
+  // A templated page has its colours linked to the theme by its template, so it is repaired, not relinked.
+  const finish = (spread: BookSpread, templated = false) => {
+    const fixed = repairSpread(templated ? spread : themeDesignedSpread(spread, look), repairCtx);
+    const weighted = { ...fixed.spread, elements: fixed.spread.elements.map(withRealWeight) };
+    return { spread: templated ? weighted : unlinkDrifted(weighted, look.theme), findings: fixed.findings };
+  };
+  const done = designed.map((d): DesignedSpread => ({ ...d, ...finish(d.spread, !!d.template) }));
+  const leftOut = [...choice.leftOut, ...inner.leftOut];
+  return templatedResult(doc, input, { c, done, finish, placed, leftOut, notes: inner.notes });
+}
+
+interface TemplatedParts {
+  c: ComposeCtx;
+  done: DesignedSpread[];
+  finish: (spread: BookSpread) => { spread: BookSpread; findings: BookFinding[] };
+  placed: AutoEntry[];
+  leftOut: BookDesignLeftOut[];
+  notes: string[];
+}
+
+/** The templated pages over the stored book, the overrides laid on them, and what is left to say. */
+function templatedResult(doc: BookDocument | null, input: BookDesignInput, parts: TemplatedParts): BookDesignResult {
+  const { c, finish, placed, notes } = parts;
+  const { look, directives, page } = c;
+  const designed = withinRoom(parts.done, roomFor(doc, directives.keep), notes);
+  const laid = mergeDesign(doc, designed, directives.keep);
+  const built: BookDocument = {
+    version: 1,
+    title: (directives.cover?.title ?? input.title).slice(0, MAX_BOOK_TITLE),
+    page: { ...page, pageNumbers: { ...page.pageNumbers, font: look.body, startAt: 1 } },
+    spreads: laid.spreads,
+    ...(doc?.layouts ? { layouts: doc.layouts } : {}),
+    theme: look.theme,
+  };
+  const overrides = directives.pages?.overrides ?? [];
+  const env = { c, entries: placed, finish, ops: { photos: input.photos, newId: c.newId } };
+  const merged = overrides.length
+    ? applyPageOverrides(built, laid.plan, overrides, env)
+    : { doc: built, plan: laid.plan, notes: [] };
+  const residual = overrides.length
+    ? redesignedFindings(merged.doc, merged.plan, input.photos)
+    : designed.flatMap((d) => d.findings.filter((f) => f.severity !== 'info'));
+  const judged = briefOf(c);
+  const brief = judged ? briefFindings(merged.doc, judged, briefScope(merged.plan)) : [];
+  const used = [...new Set(merged.plan.flatMap((r) => (r.action === 'drop' ? [] : r.photoIds)))];
+  return {
+    doc: merged.doc,
+    plan: merged.plan,
+    style: { paper: look.paper, ink: look.ink, accent: look.accent, heading: look.heading, body: look.body },
+    photos: { used, left_out: parts.leftOut },
+    findings: sortBookFindings([...residual, ...bookLevelFindings(merged.doc), ...brief]),
+    notes: [...new Set([...notes, ...c.notes, ...merged.notes])],
+    ...(judged ? { brief: judged } : {}),
+  };
 }

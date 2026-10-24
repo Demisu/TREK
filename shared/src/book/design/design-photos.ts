@@ -190,3 +190,63 @@ export function burstOf(photos: readonly AutoPhoto[], candidates: readonly Photo
   });
   return best;
 }
+
+/** The most photos one entry's pages take on the designed templates; the rest are left out as `chapter_max`. */
+export const TEMPLATED_ENTRY_PHOTOS = 12;
+
+/** The day a photo was taken on, from the photo or from the picker's facts of it. */
+function dayOf(photo: AutoPhoto, candidates: readonly PhotoPickCandidate[]): string | null {
+  const at = photo.takenAt ?? candidates.find((c) => c.photoId === photo.photoId)?.takenAt ?? null;
+  return at ? at.slice(0, 10) : null;
+}
+
+/** Days between two ISO dates, for the nearest entry to a photo; far for an undated one. */
+function daysApart(a: string | null, b: string | null): number {
+  if (!a || !b) return 1e6;
+  return Math.abs(Date.parse(a) - Date.parse(b)) / 86_400_000;
+}
+
+/**
+ * The journey's loose photos shared out to its entries, for a book laid on
+ * the designed templates: each first to the entry it is linked to, then to
+ * the entry of the day it was taken, then, in the order they were taken, to
+ * the entry that has the fewest photos (the nearest in time of those), never
+ * past `cap` photos an entry. What no entry has room for comes back as
+ * `rest`, for the book's closing pages of more moments. Unlike
+ * `distributeGallery` no photo is dropped on the way.
+ */
+export function shareGalleryByDay(
+  entries: readonly AutoEntry[],
+  gallery: readonly AutoPhoto[],
+  candidates: readonly PhotoPickCandidate[],
+  cap = TEMPLATED_ENTRY_PHOTOS,
+): { entries: AutoEntry[]; rest: AutoPhoto[] } {
+  const out = entries.map((e) => ({ ...e, photos: [...e.photos] }));
+  const placed = new Set(out.flatMap((e) => e.photos.map((p) => p.photoId)));
+  const loose = gallery.filter((p) => !placed.has(p.photoId));
+  const room = (e: AutoEntry) => e.photos.length < cap;
+  const later: AutoPhoto[] = [];
+  for (const photo of loose) {
+    const linked = candidates.find((c) => c.photoId === photo.photoId)?.entryIds ?? [];
+    const day = dayOf(photo, candidates);
+    const home =
+      out.find((e) => linked.includes(e.id) && room(e)) ?? out.find((e) => day !== null && e.date === day && room(e));
+    if (home) home.photos.push(photo);
+    else later.push(photo);
+  }
+  const dated = [...later].sort((a, b) =>
+    (dayOf(a, candidates) ?? '9999').localeCompare(dayOf(b, candidates) ?? '9999'),
+  );
+  const rest: AutoPhoto[] = [];
+  for (const photo of dated) {
+    const day = dayOf(photo, candidates);
+    const open = out.filter(room);
+    const fewest = Math.min(...open.map((e) => e.photos.length));
+    const home = open
+      .filter((e) => e.photos.length === fewest)
+      .sort((a, b) => daysApart(a.date, day) - daysApart(b.date, day))[0];
+    if (home) home.photos.push(photo);
+    else rest.push(photo);
+  }
+  return { entries: out, rest };
+}

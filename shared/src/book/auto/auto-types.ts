@@ -16,6 +16,8 @@ export interface AutoPhoto {
   width: number | null;
   height: number | null;
   caption?: string | null;
+  /** When it was taken (ISO), where the gallery knows: the templated auto layout shares loose photos out by day. */
+  takenAt?: string | null;
 }
 
 export interface AutoEntry {

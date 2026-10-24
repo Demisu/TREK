@@ -158,6 +158,17 @@ export const bookDesignDirectivesSchema = z.strictObject({
   /** Only honoured for a blank or a new book. */
   preset: bookPagePresetSchema.optional(),
   seed: z.number().int().min(0).max(2147483647).optional(),
+  /**
+   * What the pages are laid on: the engine's own composed pages (the default),
+   * or the Studio's designed templates in the archetype of the book's theme,
+   * with the summary, countries and marks in the newer travel looks.
+   */
+  layouts: z
+    .enum(['composed', 'templates'])
+    .describe(
+      "composed: the engine's own pages (default). templates: every page laid on the Studio's designed templates in the archetype of the book's theme.",
+    )
+    .optional(),
 });
 export type BookDesignDirectives = z.infer<typeof bookDesignDirectivesSchema>;
 export type BookDesignDirectivesInput = z.input<typeof bookDesignDirectivesSchema>;

@@ -160,8 +160,11 @@ export interface PhotoChunking {
 export interface ChunkSizes {
   any: ReadonlySet<number>;
   story: ReadonlySet<number>;
-  /** What setting the words on a first page of this many photos costs beyond a page: its story cut short. */
-  storyCost?: (size: number) => number;
+  /**
+   * What a page of this many photos costs beyond being a page: its story cut
+   * short when it is the first, a template from outside the book's own pool.
+   */
+  pageCost?: (size: number, first: boolean) => number;
 }
 
 /** A spread costs this much, and every photo left without a frame more. */
@@ -193,7 +196,7 @@ export function chunkPhotos(n: number, hasStory: boolean, sizes: ChunkSizes): Ph
     const options = taken.length ? rest : firsts;
     for (const s of options) {
       if (s > left || (taken.length && s === 0)) continue;
-      const extra = !taken.length && hasStory ? (sizes.storyCost?.(s) ?? 0) : 0;
+      const extra = sizes.pageCost?.(s, !taken.length) ?? 0;
       walk([...taken, s], left - s, cost + SPREAD_COST + extra);
     }
   };
@@ -282,6 +285,11 @@ function storyScore(tpl: BookDecoratedTemplate, chunk: TemplateChunk, ctx: Templ
   return -Math.min(40, (20 * (chunk.story.length - room)) / Math.max(room, 1));
 }
 
+/** What a photo left without a frame costs a template. */
+const UNUSED_PHOTO = 60;
+/** What a template of an archetype neither the book's nor its kin costs: taken only where those leave a photo out. */
+const FOREIGN = 25;
+
 /** How well a template suits the page, the higher the better. */
 function scoreOf(
   tpl: BookDecoratedTemplate,
@@ -289,9 +297,11 @@ function scoreOf(
   ctx: TemplatePickCtx,
   before: TemplateEnergy | undefined,
 ) {
-  let score = 100 - 12 * (chunk.photos.length - slots(tpl));
+  // A photo the page has no frame for waits in the tray: worse than a template of a kin archetype.
+  let score = 100 - UNUSED_PHOTO * (chunk.photos.length - slots(tpl));
   if (tpl.archetype === ctx.archetype) score += 20;
   else if (ARCHETYPE_KIN[ctx.archetype].includes(tpl.archetype)) score += 8;
+  else score -= FOREIGN;
   const first = chunk.photos[0];
   const shape = firstFrameShape(tpl, ctx.page);
   if (first && ((shape === 'wide' && isLandscape(first)) || (shape === 'tall' && isPortrait(first)))) score += 6;
@@ -322,21 +332,17 @@ function energyOfId(pool: readonly BookDecoratedTemplate[], id: string | undefin
 }
 
 /**
- * The template a page is laid on, of the archetype's and its kin's; any
- * archetype's when none of those can take it; undefined when none at all can
- * (a page of words with no words template anywhere).
+ * The template a page is laid on: the archetype's own and its kin's first,
+ * another archetype's only where theirs would leave a photo without a frame;
+ * undefined when none at all can take the page.
  */
 export function pickInnerTemplate(chunk: TemplateChunk, ctx: TemplatePickCtx): BookDecoratedTemplate | undefined {
   const all = decoratedTemplatesFor('inner');
   const before = energyOfId(all, ctx.history[ctx.history.length - 1]);
-  for (const pool of [innerPool(ctx.archetype), all]) {
-    const scored = pool
-      .filter((t) => admits(t, chunk, ctx, before))
-      .map((tpl) => ({ tpl, score: scoreOf(tpl, chunk, ctx, before) }));
-    const pick = bestOf(scored, ctx.seed, ctx.key);
-    if (pick) return pick;
-  }
-  return undefined;
+  const scored = all
+    .filter((t) => admits(t, chunk, ctx, before))
+    .map((tpl) => ({ tpl, score: scoreOf(tpl, chunk, ctx, before) }));
+  return bestOf(scored, ctx.seed, ctx.key);
 }
 
 /** What a cover may be laid with: how many photos there are, and whether the cover photo stands tall. */

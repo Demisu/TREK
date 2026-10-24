@@ -23,6 +23,8 @@ export interface BookDesignPlanRow {
   entryId: number | null;
   photoIds: number[];
   findings: { severe: number; warn: number };
+  /** The decorated template the page was laid on, when the design laid it on one. */
+  template?: string;
 }
 
 export interface DesignedSpread {
@@ -30,6 +32,8 @@ export interface DesignedSpread {
   beat: BookDesignBeat;
   chapter: string | null;
   findings: BookFinding[];
+  /** The decorated template the page was laid on (`layouts: 'templates'`). */
+  template?: string;
 }
 
 const photoIdsOf = (spread: BookSpread) =>
@@ -55,6 +59,7 @@ interface Placed {
   beat: BookDesignBeat;
   chapter: string | null;
   findings: BookFinding[];
+  template?: string;
 }
 
 const placedOf = (d: DesignedSpread, action: BookDesignAction, id?: string): Placed => ({
@@ -63,6 +68,7 @@ const placedOf = (d: DesignedSpread, action: BookDesignAction, id?: string): Pla
   beat: d.beat,
   chapter: d.chapter,
   findings: d.findings,
+  ...(d.template ? { template: d.template } : {}),
 });
 
 const keptOf = (spread: BookSpread, beat: BookDesignBeat): Placed => ({
@@ -133,6 +139,7 @@ export function mergeDesign(
     entryId: p.spread.entryId,
     photoIds: photoIdsOf(p.spread),
     findings: { severe: count(p.findings, 'severe'), warn: count(p.findings, 'warn') },
+    ...(p.template ? { template: p.template } : {}),
   }));
   for (const s of dropped) {
     plan.push({
