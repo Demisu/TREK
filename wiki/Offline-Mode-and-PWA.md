@@ -16,6 +16,10 @@ TREK must be served over **HTTPS** — the install prompt does not appear on pla
 2. Tap the browser menu.
 3. Select **Install app** or **Add to Home Screen**.
 
+**Desktop (Chrome / Edge):**
+1. Open TREK in the browser.
+2. Click the install icon at the end of the address bar, or choose **Install** from the browser menu.
+
 Once installed, TREK launches in **standalone** mode (fullscreen, no browser UI) using the TREK icon.
 
 The installed app starts at the app root, so the **Start page** setting decides what you see when you tap the icon: the dashboard, or straight into your active trip on a tab of your choice. See [Display-Settings](Display-Settings).
@@ -46,6 +50,7 @@ TREK uses Workbox service-worker caching plus an IndexedDB database (Dexie) for 
 | Mapbox GL glyphs, sprites and vector tiles | `mapbox-tiles` | StaleWhileRevalidate | 30 days | 3 000 |
 | OpenFreeMap glyphs, sprites and vector tiles | `gl-map-offline` | CacheFirst | 90 days | 6 000 |
 | Cover images and avatars (`/uploads/covers`, `/uploads/avatars`) | `user-uploads` | CacheFirst | 7 days | 300 |
+| Typefaces of TREK Studio books (`.woff2` build assets) | `book-fonts` | CacheFirst | 365 days | 600 |
 | App shell and every page of the app (HTML / JS / CSS) | precache | Precached | Until next deploy | — |
 
 > **Note:** API responses are **never** stored in the service-worker cache. Workbox keys its entries by URL and cannot vary them on the session cookie, so on a shared device one account's cached data could be served to the next. Offline reads come from the per-user IndexedDB cache described below instead.
@@ -77,6 +82,12 @@ On login, when the browser comes back online, and when you lift **Force offline 
 The **Offline** tab gives you control over what is stored on this device and lets you go offline deliberately.
 
 ![Settings → Offline tab with the Force offline mode switch, the Download for offline use and Re-sync now buttons, per-trip offline storage toggles and the offline cache counters](assets/SettingsOffline.png)
+
+### Status pill
+
+A small pill floats at the bottom centre of the window (just above the tab bar on a phone) while there is something to tell. In order of priority it reads **Failed to sync: N** (changes the server refused, see **Failed changes** below), **Conflicts: N** (changes that need your decision), **Offline** or, with **Force offline mode** on, **Offline mode** (with the number of queued changes added once there are any), and **Syncing N…** while queued changes are being sent. It is hidden when you are online and nothing is waiting.
+
+On a phone, **Settings** has its own **Offline** screen with the same controls as the desktop tab.
 
 ### Offline mode
 
