@@ -1,7 +1,6 @@
 import { ThreadPrimitive } from '@assistant-ui/react';
 
 import { useTranslation } from '../../i18n';
-import { useAssistantStore } from '../../store/assistantStore';
 import EmptyState from '../shared/EmptyState';
 import AssistantHints, { MAX_VISIBLE_HINTS } from './AssistantHints';
 import { useAssistantScope, useAssistantView } from './assistantViewContext';
@@ -28,12 +27,11 @@ export default function AssistantWelcome({
   withSuggestions: boolean;
 }) {
   const { t } = useTranslation();
-  const { tripId, variant } = useAssistantView();
-  // The Studio's chat is about a book, not a plan; the journey's chat on its own page about the journal,
-  // the home chat about all of the user's travels. A journey's chat the Studio does not host is the journal's.
-  const hosted = useAssistantStore((s) => !!s.studioHosts[tripId]);
+  const { tripId, variant, journal } = useAssistantView();
+  // The Studio's chat is about a book, not a plan; the journey's chat shown for its journal about the journal,
+  // the home chat about all of the user's travels.
   const about = useAssistantScope().kind;
-  const scope: WelcomeScope = about === 'journey' && !hosted ? 'journal' : about;
+  const scope: WelcomeScope = about === 'journey' && journal ? 'journal' : about;
   const hints = useAssistantHints(tripId, { withStays: true });
   const crowded = Math.min(hints.hints.length, MAX_VISIBLE_HINTS) > SUGGESTIONS_UNDER_HINTS;
   const offered = crowded ? suggestions.slice(0, SUGGESTIONS_UNDER_HINTS) : suggestions;

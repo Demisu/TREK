@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 
 import type { WindowRect } from '../../hooks/useDragResize';
 import { useTranslation } from '../../i18n';
-import { HOME_CHAT_KEY } from '../../store/assistantChatKey';
+import { HOME_CHAT_KEY, assistantScopeOf } from '../../store/assistantChatKey';
 import { useAssistantStore } from '../../store/assistantStore';
 import AssistantFrameEdges from './AssistantFrameEdges';
 import AssistantHeader from './AssistantHeader';
@@ -172,10 +172,29 @@ function ChatWindow({
           onFocusDay={onFocusDay}
           onRevealMap={onRevealMap}
           onOpenTripChat={onOpenTripChat}
+          // The window never shows the Studio: a journey's chat in it is the journal's.
+          journal={assistantScopeOf(trip.id).kind === 'journey'}
         />
       </div>
     </section>
   );
+}
+
+/**
+ * Which chat the window shows: the page's own (the trip in the planner, else
+ * the journal on screen), else the one picked, else the home chat. `onScreen`
+ * when it is the page's own, `inPlanner` when that page is the planner.
+ */
+function windowChat(
+  trip: WindowTrip | null,
+  journal: WindowTrip | null,
+  picked: WindowTrip | null,
+  homeChat: WindowTrip
+) {
+  const routeChat = trip ?? journal;
+  const current = routeChat ?? picked ?? homeChat;
+  const onScreen = !!routeChat && current.id === routeChat.id;
+  return { routeChat, current, onScreen, inPlanner: onScreen && trip !== null };
 }
 
 export default function AssistantWindow({ trip, onOpen, onFocusDay, onRevealMap }: AssistantWindowProps) {
@@ -201,9 +220,7 @@ export default function AssistantWindow({ trip, onOpen, onFocusDay, onRevealMap 
   }
 
   const journal = useRouteJournalChat();
-  // The page's own chat first: the trip in the planner, else the journal on screen.
-  const routeChat = trip ?? journal;
-  const current = routeChat ?? picked ?? home.chat;
+  const { routeChat, current, onScreen, inPlanner } = windowChat(trip, journal, picked, home.chat);
   const atHome = current.id === HOME_CHAT_KEY;
   // A change in a trip the planner does not show is shown by opening that trip (a journal, its page); a tab opens on it.
   const openPicked = useCallback(
@@ -235,7 +252,6 @@ export default function AssistantWindow({ trip, onOpen, onFocusDay, onRevealMap 
   if (!available) return null;
   if (!open) return routeChat ? <AssistantLauncher variant="floating" tripId={launcherTrip} /> : null;
 
-  const onScreen = !!routeChat && current.id === routeChat.id;
   let openTarget = onScreen ? onOpen && openOnScreen : openPicked;
   if (atHome) openTarget = openFromHome;
   let tripSwitch: { onPick?: (trip: WindowTrip) => void; onHome?: () => void } | undefined;
@@ -248,8 +264,8 @@ export default function AssistantWindow({ trip, onOpen, onFocusDay, onRevealMap 
         hidden={minimized}
         onOpen={openTarget}
         // Only the planner on screen has days to select and a map to bring back.
-        onFocusDay={onScreen && trip ? onFocusDay : undefined}
-        onRevealMap={onScreen && trip ? onRevealMap : undefined}
+        onFocusDay={inPlanner ? onFocusDay : undefined}
+        onRevealMap={inPlanner ? onRevealMap : undefined}
         onOpenTripChat={atHome ? home.openTripChat : undefined}
         tripSwitch={tripSwitch}
       />

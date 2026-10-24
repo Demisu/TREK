@@ -39,6 +39,12 @@ export interface AssistantView {
    * chat's card that offers it; left out where no chat can be switched to.
    */
   onOpenTripChat?: (trip: AssistantChatTrip, question: string | null) => void;
+  /**
+   * A journey's chat shown for its journal (on the journey's page, from the
+   * home chat), not for its book in TREK Studio; left out in the Studio and
+   * for a trip. The empty chat then speaks of the journal.
+   */
+  journal?: boolean;
 }
 
 /** A trip as the chat switches to it: its id, which is its chat's key, and its title for the head. */

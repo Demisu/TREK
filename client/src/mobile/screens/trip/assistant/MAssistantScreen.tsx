@@ -317,6 +317,8 @@ export function AssistantScreen({ tripId, tripTitle, hidden, hops, onOpenTripCha
           onFocusDay={hops.focusDay}
           onRevealMap={hops.revealMap}
           onOpenTripChat={onOpenTripChat}
+          // The phone's Studio has its own panel: a journey's chat here is the journal's.
+          journal={assistantScopeOf(tripId).kind === 'journey'}
         />
       </div>
 
