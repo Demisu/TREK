@@ -233,7 +233,6 @@ export async function downloadTripPDF({ trip, days, places, assignments: allStor
   const loc = _locale || undefined
   const tr = _t || (k => k)
   const markdown = createPdfMarkdown()
-  const mdBlock = markdown.row
   // The store read is the fallback, not the source: a caller that forgets the
   // prop still prints the reader's own format instead of silently reverting.
   const is12h = (_timeFormat || useSettingsStore.getState().settings.time_format || '24h') === '12h'
@@ -590,10 +589,10 @@ export async function downloadTripPDF({ trip, days, places, assignments: allStor
                 </div>
                 ${place.address ? `<div class="info-row">${svgPin}<span class="info-text">${escHtml(place.address)}</span></div>` : ''}
                 ${(place.lat != null && place.lng != null) ? `<div class="info-row"><span class="info-spacer"></span><span class="info-text muted">${Number(place.lat).toFixed(5)}, ${Number(place.lng).toFixed(5)}</span></div>` : ''}
-                ${place.description ? mdBlock(place.description) : ''}
+                ${place.description ? markdown.row(place.description) : ''}
                 ${chips ? `<div class="chips">${chips}</div>` : ''}
-                ${place.notes ? mdBlock(place.notes) : ''}
-                ${item.data.notes ? mdBlock(item.data.notes) : ''}
+                ${place.notes ? markdown.row(place.notes) : ''}
+                ${item.data.notes ? markdown.row(item.data.notes) : ''}
               </div>
             </div>`
       }).join('')
