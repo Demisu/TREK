@@ -732,7 +732,7 @@ describe('Trip assistant e2e', () => {
     expect(provider.requests).toHaveLength(0);
     const shown = await get(`${t.base}/threads/${threadId}`, t.userId);
     expect(shown.body.messages[0].parts).toEqual([
-      { type: 'attachment', name: 'ticket.pdf', mime: 'application/pdf', size: 9 },
+      { type: 'attachment', name: 'ticket.pdf', mime: 'application/pdf', size: 9, attachmentId: expect.any(String) },
     ]);
     expect(shown.body.messages[1].status).toBe('awaiting_approval');
 

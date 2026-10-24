@@ -7,6 +7,7 @@ import { AiConnectionsService } from '../ai-connections/ai-connections.service';
 import { AiUsageService } from '../ai-connections/ai-usage.service';
 import { logError, logInfo } from '../audit/audit-log.logger';
 import { CronRegistrarService } from '../scheduling/cron-registrar.service';
+import { AssistantAttachmentsService } from './assistant-attachments.service';
 import { decisionCutoff } from './assistant-tools.constants';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, type OnApplicationBootstrap } from '@nestjs/common';
@@ -20,8 +21,9 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * Nightly sweep of the assistant's conversations: threads nobody wrote in
  * for longer than the admin's retention (none under "forever"), threads of
  * users who no longer belong to their trip or journey, changes that waited a day
- * without a decision (expired, so no card waits forever), and usage days
- * older than the usage retention.
+ * without a decision (expired, so no card waits forever), usage days
+ * older than the usage retention, and the files attached in the chat once
+ * they are a week old or their conversation is gone.
  */
 @Injectable()
 export class AssistantRetentionJob implements OnApplicationBootstrap {
@@ -31,6 +33,7 @@ export class AssistantRetentionJob implements OnApplicationBootstrap {
     private readonly connections: AiConnectionsService,
     private readonly usage: AiUsageService,
     private readonly registrar: CronRegistrarService,
+    private readonly attachments: AssistantAttachmentsService,
   ) {}
 
   onApplicationBootstrap(): void {
@@ -54,6 +57,7 @@ export class AssistantRetentionJob implements OnApplicationBootstrap {
       const expired = await this.toolCalls.expireBefore(decisionCutoff(now));
       if (expired.length > 0) logInfo(`Assistant retention: ${expired.length} proposed change(s) expired`);
       await this.usage.purgeOlderThan(ASSISTANT_USAGE_RETENTION_DAYS);
+      await this.attachments.sweep(now);
     } catch (err: unknown) {
       logError(`Assistant retention: ${err instanceof Error ? err.message : String(err)}`);
     }

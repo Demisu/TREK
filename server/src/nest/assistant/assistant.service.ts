@@ -34,6 +34,7 @@ import { UnitOfWork } from '../database/unit-of-work';
 import { SettingsService } from '../settings/settings.service';
 import { runAgentLoop, type AgentStore, type HeldCall, type StepRecord } from './assistant-agent';
 import type { AttachedFileReader } from './assistant-attached-file';
+import { AssistantAttachmentsService } from './assistant-attachments.service';
 import { AssistantBookingImportService } from './assistant-booking-import.service';
 import { mentionItems } from './assistant-cards.helpers';
 import { todayIn } from './assistant-context';
@@ -131,6 +132,15 @@ interface TurnSpec {
   renders?: boolean;
 }
 
+/** What a turn opens with: its thread (null for a new one), the user's message, and what is written with them. */
+interface TurnOpening {
+  threadId: number | null;
+  titleText: string;
+  model: string;
+  userParts: AssistantMessagePart[];
+  alongside?: (threadId: number) => Promise<void>;
+}
+
 function summaryOf(thread: AssistantThreadRow): AssistantThreadSummary {
   return {
     id: thread.id,
@@ -170,6 +180,7 @@ export class AssistantService {
     private readonly tools: AssistantToolsService,
     private readonly bookings: AssistantBookingImportService,
     private readonly fileAnswers: AssistantFileAnswers,
+    private readonly attachments: AssistantAttachmentsService,
     private readonly tourFiles: AssistantTourFileService,
     private readonly settings: SettingsService,
     private readonly rateLimit: RateLimitService,
@@ -192,8 +203,11 @@ export class AssistantService {
     return { thread: summaryOf(thread), messages: toThreadMessages(rows, await this.callsOf(rows), new Date()) };
   }
 
+  /** Deletes the thread with its rows, then the bytes of the files attached in it. */
   async deleteThread(userId: number, scope: AssistantScope, threadId: number): Promise<void> {
+    const kept = scope.kind === 'trip' ? await this.attachments.objectsOfThread(threadId, userId) : [];
     if (!(await scopedThreads(this.threads, scope).remove(threadId, userId))) throw threadNotFound();
+    await this.attachments.dropObjects(kept);
   }
 
   /** Stops the user's running turn, wherever it runs; nothing to stop is not an error. */
@@ -219,10 +233,15 @@ export class AssistantService {
       // The labels the message keeps come from the trip, never from the request.
       const card = mentions.length > 0 && tripId !== null ? await readTripCard(this.tools, userId, tripId) : null;
       const items = card ? mentionItems(card, mentions, req.locale) : [];
-      const begun = await this.beginTurn(userId, scope, req.threadId, req.text, connection.model, [
-        { type: 'text', text: req.text },
-        ...(items.length > 0 ? [{ type: 'data-trek-mentions' as const, data: { items } }] : []),
-      ]);
+      const begun = await this.beginTurn(userId, scope, {
+        threadId: req.threadId,
+        titleText: req.text,
+        model: connection.model,
+        userParts: [
+          { type: 'text', text: req.text },
+          ...(items.length > 0 ? [{ type: 'data-trek-mentions' as const, data: { items } }] : []),
+        ],
+      });
       const stream = channel.open();
       const w = new UiStreamWriter(stream);
       w.start(messageIdOf(begun.rowId));
@@ -274,9 +293,18 @@ export class AssistantService {
     await this.withinDailyLimit(userId, connection);
     await this.claimed(userId, channel.signal, async (signal) => {
       const name = file.originalname.slice(0, MAX_FILE_NAME_CHARS);
-      const begun = await this.beginTurn(userId, tripScope(tripId), req.threadId ?? null, name, connection.model, [
-        { type: 'attachment', name, mime: file.mimetype || 'application/octet-stream', size: file.size },
-      ]);
+      // The file is kept before anything is written: a storage that refuses it refuses the turn.
+      const kept = await this.attachments.prepare(file, name);
+      const begun = await this.beginTurn(userId, tripScope(tripId), {
+        threadId: req.threadId ?? null,
+        titleText: name,
+        model: connection.model,
+        userParts: [{ type: 'attachment', name, mime: kept.mime, size: file.size, attachmentId: kept.id }],
+        alongside: (threadId) => this.attachments.record(kept, { threadId, userId, tripId }),
+      }).catch(async (err: unknown) => {
+        await this.attachments.discard(kept);
+        throw err;
+      });
       const stream = channel.open();
       const w = new UiStreamWriter(stream);
       w.start(messageIdOf(begun.rowId));
@@ -499,17 +527,12 @@ export class AssistantService {
   /**
    * A turn's opening rows, in one transaction: the thread (found or, with
    * `threadId` null, created and titled from `titleText`), the user's message,
-   * and the row the answer's first step writes into. Changes still waiting in
+   * and the row the answer's first step writes into, with whatever goes
+   * `alongside` them (the row of an attached file). Changes still waiting in
    * the thread are cancelled: the user moved on.
    */
-  private async beginTurn(
-    userId: number,
-    scope: AssistantScope,
-    threadId: number | null,
-    titleText: string,
-    model: string,
-    userParts: AssistantMessagePart[],
-  ) {
+  private async beginTurn(userId: number, scope: AssistantScope, opening: TurnOpening) {
+    const { threadId, titleText, model, userParts, alongside } = opening;
     const now = dbNow();
     const threads = scopedThreads(this.threads, scope);
     return this.uow.transactional(async () => {
@@ -535,6 +558,7 @@ export class AssistantService {
       });
       const rowId = await this.messages.append({ ...base, role: 'assistant', parts: '[]', status: 'aborted', model });
       await this.threads.touch(id, now);
+      await alongside?.(id);
       return { threadId: id, title, created: threadId === null, rowId };
     });
   }

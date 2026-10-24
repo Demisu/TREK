@@ -180,6 +180,15 @@ describe('assistantMessageSchema', () => {
     const negative = { ...attachment, size: -1 };
     expect(assistantMessageSchema.safeParse({ ...message, parts: [negative] }).success).toBe(false);
   });
+
+  it('reads the id a kept attachment goes by, and only a uuid as one', () => {
+    const message = { id: '14', role: 'user', status: 'complete', createdAt: '2026-10-21T08:00:00.000Z' };
+    const attachment = { type: 'attachment', name: 'ticket.pdf', mime: 'application/pdf', size: 2048 };
+    const kept = { ...attachment, attachmentId: '0b7c2f0e-6f6d-4a8e-9b1a-3d2c1e0f9a87' };
+    expect(assistantMessageSchema.parse({ ...message, parts: [kept] }).parts[0]).toEqual(kept);
+    const forged = { ...attachment, attachmentId: '../other-thread' };
+    expect(assistantMessageSchema.safeParse({ ...message, parts: [forged] }).success).toBe(false);
+  });
 });
 
 describe('uiStreamChunkSchema', () => {

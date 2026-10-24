@@ -2,6 +2,7 @@ import type { AssistantThreadsRepository } from '../../../../src/db/repositories
 import type { AssistantToolCallsRepository } from '../../../../src/db/repositories/AssistantToolCalls.repository';
 import type { AiConnectionsService } from '../../../../src/nest/ai-connections/ai-connections.service';
 import type { AiUsageService } from '../../../../src/nest/ai-connections/ai-usage.service';
+import type { AssistantAttachmentsService } from '../../../../src/nest/assistant/assistant-attachments.service';
 import {
   AssistantRetentionJob,
   ASSISTANT_USAGE_RETENTION_DAYS,
@@ -20,14 +21,16 @@ function make(retention: AiRetention, enabled = true) {
   const connections = { readSettings: vi.fn().mockResolvedValue({ policy: 'user', dailyTurns: 50, retention }) };
   const usage = { purgeOlderThan: vi.fn().mockResolvedValue(3) };
   const registrar = { isEnabled: vi.fn(() => enabled), register: vi.fn() };
+  const attachments = { sweep: vi.fn().mockResolvedValue({ expired: 0, orphaned: 0 }) };
   const job = new AssistantRetentionJob(
     threads as unknown as AssistantThreadsRepository,
     toolCalls as unknown as AssistantToolCallsRepository,
     connections as unknown as AiConnectionsService,
     usage as unknown as AiUsageService,
     registrar as unknown as CronRegistrarService,
+    attachments as unknown as AssistantAttachmentsService,
   );
-  return { job, threads, toolCalls, usage, registrar };
+  return { job, threads, toolCalls, usage, registrar, attachments };
 }
 
 const NOW = new Date('2026-10-21T03:45:00.000Z');
@@ -49,6 +52,7 @@ describe('AssistantRetentionJob', () => {
     expect(t.threads.deleteWithoutAccess).toHaveBeenCalled();
     expect(t.toolCalls.expireBefore).toHaveBeenCalledWith('2026-10-20 03:45:00');
     expect(t.usage.purgeOlderThan).toHaveBeenCalledWith(ASSISTANT_USAGE_RETENTION_DAYS);
+    expect(t.attachments.sweep).toHaveBeenCalledWith(NOW);
     expect(logMock.logInfo).toHaveBeenCalledWith('Assistant retention: removed 3 conversation(s)');
     expect(logMock.logInfo).toHaveBeenCalledWith('Assistant retention: 1 proposed change(s) expired');
   });

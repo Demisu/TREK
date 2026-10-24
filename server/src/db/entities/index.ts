@@ -3,6 +3,7 @@ import { AddonsSchema } from './Addons.entity';
 import { AiConnectionsSchema } from './AiConnections.entity';
 import { AppSettingsSchema } from './AppSettings.entity';
 import { AssignmentParticipantsSchema } from './AssignmentParticipants.entity';
+import { AssistantAttachmentsSchema } from './AssistantAttachments.entity';
 import { AssistantMessagesSchema } from './AssistantMessages.entity';
 import { AssistantThreadsSchema } from './AssistantThreads.entity';
 import { AssistantToolCallsSchema } from './AssistantToolCalls.entity';
@@ -166,6 +167,7 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   AiConnectionsSchema,
   AppSettingsSchema,
   AssignmentParticipantsSchema,
+  AssistantAttachmentsSchema,
   AssistantMessagesSchema,
   AssistantThreadsSchema,
   AssistantToolCallsSchema,

@@ -3,6 +3,7 @@
   "AiConnections": "ai-connections",
   "AppSettings": "settings",
   "AssignmentParticipants": "assignments",
+  "AssistantAttachments": "assistant",
   "AssistantMessages": "assistant",
   "AssistantThreads": "assistant",
   "AssistantToolCalls": "assistant",

@@ -1,6 +1,7 @@
 import { Collection, EntityRepositoryType, type Opt, type Ref, defineEntity, p } from '@mikro-orm/core';
 import { TripFilesRepository } from '../repositories/TripFiles.repository';
 import { DbTimestampType } from '../types';
+import { AssistantAttachments } from './AssistantAttachments.entity';
 import { CollabMessages } from './CollabMessages.entity';
 import { CollabNotes } from './CollabNotes.entity';
 import { DocumentSyncItems } from './DocumentSyncItems.entity';
@@ -33,6 +34,7 @@ export class TripFiles {
   message?: Ref<CollabMessages> | null;
   message_id?: number | null;
   uploadedByRef?: Ref<Users> | null;
+  assistant_attachments_collection = new Collection<AssistantAttachments>(this);
   document_sync_items_collection = new Collection<DocumentSyncItems>(this);
   file_links_collection = new Collection<FileLinks>(this);
 }
@@ -62,6 +64,7 @@ export const TripFilesSchema = defineEntity({
     message: () => p.manyToOne(CollabMessages).ref().deleteRule('cascade').nullable().hidden().index('idx_trip_files_message_id'),
     message_id: p.integer().nullable().persist(false).index('idx_trip_files_message_id'),
     uploadedByRef: () => p.manyToOne(Users).ref().joinColumn('uploaded_by').nullable().hidden().index('idx_trip_files_uploaded_by'),
+    assistant_attachments_collection: () => p.oneToMany(AssistantAttachments).mappedBy('file').hidden(),
     document_sync_items_collection: () => p.oneToMany(DocumentSyncItems).mappedBy('file').hidden(),
     file_links_collection: () => p.oneToMany(FileLinks).mappedBy('file').hidden(),
   },

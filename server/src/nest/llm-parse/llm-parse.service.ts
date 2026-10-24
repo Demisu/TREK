@@ -69,6 +69,25 @@ export class LlmParseService {
     return this.llmConfig.readInstanceEndpoint();
   }
 
+  /**
+   * The text of a document as the AI fallback reads it (an e-mail's body, a
+   * PDF's text layer, a page without its markup), for a caller outside this
+   * module: the assistant keeps it with a file attached in the chat. A scanned
+   * PDF answers an empty string. Asks no model.
+   */
+  readText(buffer: Buffer, fileName: string): Promise<string> {
+    return extractText(buffer, fileName);
+  }
+
+  /**
+   * A text cut to what one model request should carry of it, its start and
+   * its end kept: the cloud window, or the compact one for a server whose
+   * context may be small (text-window.ts).
+   */
+  fitText(text: string, compact: boolean): string {
+    return fitTextWindow(text, compact ? COMPACT_TEXT_WINDOW : CLOUD_TEXT_WINDOW).text;
+  }
+
   /** True when the addon is enabled AND a usable config resolves for this user. */
   async isAvailable(userId: number): Promise<boolean> {
     return (await this.llmConfig.resolve(userId)) !== null;

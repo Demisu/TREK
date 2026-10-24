@@ -1,5 +1,6 @@
 import { bookElementIdSchema, bookSpreadIdSchema } from '../book/book-ops.schema';
 import { idParamSchema, idSchema } from '../common/primitives.schema';
+import { assistantAttachmentIdSchema } from './assistant-attachments.schema';
 import { assistantPageRenderSchema, assistantPageViewSchema } from './assistant-vision.schema';
 import {
   assistantCardSchema,
@@ -648,12 +649,14 @@ function messagePartSchema<
 >(change: Change, applied: Applied, card: Card) {
   return z.discriminatedUnion('type', [
     z.object({ type: z.literal('text'), text: z.string() }),
-    // A file the user handed the assistant. Only its description is kept, never its content.
+    // A file the user handed the assistant. Only its description is kept here, never its content; the
+    // server keeps the file under `attachmentId` (left out on messages from before it kept files).
     z.object({
       type: z.literal('attachment'),
       name: z.string(),
       mime: z.string(),
       size: z.number().int().nonnegative(),
+      attachmentId: assistantAttachmentIdSchema.optional(),
     }),
     z.object({
       type: z.literal('tool-call'),

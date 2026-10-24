@@ -232,6 +232,7 @@ export * from './oauth/oauth.schema';
 export * from './admin/admin.schema';
 export * from './ai/ai-connections.schema';
 export * from './assistant/assistant.schema';
+export * from './assistant/assistant-attachments.schema';
 export * from './assistant/cards';
 export * from './assistant/assistant-share.schema';
 export * from './assistant/assistant-scope.schema';

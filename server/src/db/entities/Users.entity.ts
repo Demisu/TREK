@@ -3,6 +3,7 @@ import { UsersRepository } from '../repositories/Users.repository';
 import { DbTimestampType } from '../types';
 import { AiConnections } from './AiConnections.entity';
 import { AssignmentParticipants } from './AssignmentParticipants.entity';
+import { AssistantAttachments } from './AssistantAttachments.entity';
 import { AssistantThreads } from './AssistantThreads.entity';
 import { AssistantUsage } from './AssistantUsage.entity';
 import { AuditLog } from './AuditLog.entity';
@@ -135,6 +136,7 @@ export class Users {
   email_self_asserted: number & Opt = 0;
   ai_connections_collection = new Collection<AiConnections>(this);
   assignment_participants_collection = new Collection<AssignmentParticipants>(this);
+  assistant_attachments_collection = new Collection<AssistantAttachments>(this);
   assistant_threads_collection = new Collection<AssistantThreads>(this);
   assistant_usage_collection = new Collection<AssistantUsage>(this);
   audit_log_collection = new Collection<AuditLog>(this);
@@ -293,6 +295,7 @@ export const UsersSchema = defineEntity({
     email_self_asserted: p.integer().default(0),
     ai_connections_collection: () => p.oneToMany(AiConnections).mappedBy('user').hidden(),
     assignment_participants_collection: () => p.oneToMany(AssignmentParticipants).mappedBy('user').hidden(),
+    assistant_attachments_collection: () => p.oneToMany(AssistantAttachments).mappedBy('user').hidden(),
     assistant_threads_collection: () => p.oneToMany(AssistantThreads).mappedBy('user').hidden(),
     assistant_usage_collection: () => p.oneToMany(AssistantUsage).mappedBy('user').hidden(),
     audit_log_collection: () => p.oneToMany(AuditLog).mappedBy('user').hidden(),

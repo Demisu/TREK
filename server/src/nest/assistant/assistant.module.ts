@@ -1,3 +1,4 @@
+import { AssistantAttachments } from '../../db/entities/AssistantAttachments.entity';
 import { AssistantMessages } from '../../db/entities/AssistantMessages.entity';
 import { AssistantThreads } from '../../db/entities/AssistantThreads.entity';
 import { AssistantToolCalls } from '../../db/entities/AssistantToolCalls.entity';
@@ -10,14 +11,17 @@ import { CollabModule } from '../collab/collab.module';
 import { RateLimitModule } from '../common/rate-limit.module';
 import { JourneyBookModule } from '../journey/journey-book.module';
 import { JourneyDomainModule } from '../journey/journey-domain.module';
+import { LlmParseModule } from '../llm-parse/llm-parse.module';
 import { McpSharedModule } from '../mcp-shared/mcp-shared.module';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { PhotoSignalsModule } from '../photos/photo-signals.module';
 import { SchedulingModule } from '../scheduling/scheduling.module';
 import { SettingsModule } from '../settings/settings.module';
+import { StorageModule } from '../storage/storage.module';
 import { TourFilesModule } from '../tours/tour-files.module';
 import { TripMembershipModule } from '../trip-membership/trip-membership.module';
 import { AssistantAttachmentsController } from './assistant-attachments.controller';
+import { AssistantAttachmentsService } from './assistant-attachments.service';
 import { AssistantBookContext } from './assistant-book-context';
 import { AssistantBookGate } from './assistant-book-gate';
 import { AssistantBookingImportService } from './assistant-booking-import.service';
@@ -84,7 +88,11 @@ import { Module } from '@nestjs/common';
     TripMembershipModule,
     // P7: a route file attached in the chat, read into its tracks.
     TourFilesModule,
-    MikroOrmModule.forFeature([AssistantThreads, AssistantMessages, AssistantToolCalls]),
+    // A file attached in the chat is kept with its conversation: its bytes in storage, its text read as the
+    // AI import reads it.
+    StorageModule,
+    LlmParseModule,
+    MikroOrmModule.forFeature([AssistantThreads, AssistantMessages, AssistantToolCalls, AssistantAttachments]),
   ],
   controllers: [
     AssistantController,
@@ -101,6 +109,7 @@ import { Module } from '@nestjs/common';
     AssistantToolsService,
     AssistantBookingImportService,
     AssistantFileAnswers,
+    AssistantAttachmentsService,
     AssistantTourFileService,
     AssistantFoundPlacesService,
     AssistantProposalsService,
