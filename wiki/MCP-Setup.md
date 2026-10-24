@@ -19,6 +19,8 @@ Claude.ai (web) supports native MCP connections — no JSON config file required
 3. Give the client a name, adjust scopes if needed, and save. Copy the client ID and client secret (`trekcs_` prefix) — the secret is shown only once.
 4. In Claude.ai, open the MCP settings and add a new server using your TREK URL (`https://<your-trek-instance>/mcp`). Claude.ai will open your browser to complete the OAuth consent flow.
 
+**Without a pre-created client.** Claude.ai can also identify itself by a metadata URL instead of a registered client. TREK fetches that small JSON document, checks it and shows the consent screen with the line **Verified domain**, naming the host the document came from. Only after you approve does TREK keep the client, and a client nobody uses is cleaned up again later. You do not have to do anything for this; it works when you add the server in Claude.ai and skip the steps above.
+
 ### Claude Desktop
 
 Claude Desktop supports native MCP connections — no JSON config file required:

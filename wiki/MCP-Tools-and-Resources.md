@@ -4,7 +4,7 @@ TREK exposes **tools** (read and write actions) and **resources** (read-only `tr
 
 Every built-in tool checks its arguments against its published schema before anything runs. An argument the tool does not declare (a misspelt field such as `stopType` for `stop_type`) is refused with `Unrecognized key`, so the AI sees the mistake and can retry rather than reporting a change that never happened. Plugin-contributed tools follow the schema their manifest declares.
 
-For addon-gated tools (Packing, To-Dos, Atlas, Collab, Collections, Vacay, Journey, Dawarich, Document sync, Road trip) and their resources, see [MCP-Addon-Tools](MCP-Addon-Tools).
+For addon-gated tools (Packing, To-Dos, Atlas, Collab, Collections, Vacay, Journey including the link between a trip and a journal, Dawarich, Document sync, Tours, Road trip) and their resources, see [MCP-Addon-Tools](MCP-Addon-Tools).
 
 ## Tools
 

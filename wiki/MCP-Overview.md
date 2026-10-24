@@ -14,11 +14,23 @@ Once connected, an AI assistant can work with your TREK data in a single convers
 - Send collab messages and notes to other trip members
 - Mark countries and regions as visited in Atlas
 - Log vacation days in Vacay
-- Write journey entries across multiple trips
+- Write journey entries across multiple trips, and show a journal inside a trip
+- Plan, edit and check off tours: hikes, bike, paddle, ski and winter tours, rides and city walks
+- Plan road trips: route, hazards, charging stops and places along the way
+- Import flights from AirTrail and visits and routes from Dawarich
+- Import places from links and tracks from GPX files
+- Switch calendar feeds and trip invite links on or off
+- Keep school holiday regions up to date for Vacay
 - Upload documents to a trip, read them and link them to bookings, places or expenses
 - Look up how a TREK feature works in the bundled help
 
 Changes made through MCP are broadcast to all connected clients in real-time — exactly like changes made in the web UI.
+
+Many of these tools belong to an addon and only appear while an administrator has enabled it. See [MCP-Addon-Tools](MCP-Addon-Tools).
+
+### MCP and the built-in AI Assistant
+
+The **AI Assistant** addon is a chat inside TREK itself. It works on the same tools as an external MCP client and the same permission checks apply, but it does not connect through `/mcp`: its AI provider is set up inside TREK, not through OAuth clients. Changes it suggests wait for your confirmation. MCP is the way to let a different AI app, such as Claude.ai or Cursor, use TREK.
 
 ## Authentication options
 
