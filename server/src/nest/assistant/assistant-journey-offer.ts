@@ -33,6 +33,7 @@ export interface JourneyOffer {
 /** The controllers of the journal: the journey and its entries, its map and tracks, its recorded days and imports. */
 const JOURNAL_CONTROLLERS: ReadonlySet<string> = new Set([
   'JourneyMcp',
+  'JourneyPhotoLinksMcp',
   'JourneyMapMcp',
   'JourneyTracksMcp',
   'JourneyRecordingsMcp',

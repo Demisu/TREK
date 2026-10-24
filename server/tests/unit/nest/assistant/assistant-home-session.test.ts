@@ -95,6 +95,8 @@ describe('a home tool session', () => {
         'delete_journey_entry',
         'reorder_journey_entry_photos',
         'accept_dawarich_suggestion_as_journal_entry',
+        'link_journey_photo',
+        'move_journey_photos',
       ];
       for (const name of journeyWrites) {
         expect(names, name).not.toContain(name);

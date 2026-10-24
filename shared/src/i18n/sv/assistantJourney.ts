@@ -58,5 +58,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.pros.one': '{count} fördel',
   'assistant.card.journey.cons': '{count} nackdelar',
   'assistant.card.journey.cons.one': '{count} nackdel',
+  'assistant.change.verb.linkJournalPhoto': 'Lägg ett foto på inlägget',
+  'assistant.change.verb.unlinkJournalPhoto': 'Ta bort ett foto från inlägget',
+  'assistant.change.verb.moveJournalPhotos': 'Flytta foton till ett annat inlägg',
+  'assistant.change.verb.orderJournalPhotos': 'Ordna om inläggets foton',
+  'assistant.change.verb.captionJournalPhoto': 'Ändra ett fotos bildtext',
+  'assistant.change.verb.addJournalPhotos': 'Lägg till foton från biblioteket',
+  'assistant.card.journeyPhotos.cover': 'Inläggets omslag',
+  'assistant.card.journeyPhotos.firstIsCover': 'Det första fotot blir inläggets omslag.',
+  'assistant.card.journeyPhotos.kept': 'De finns kvar på det första inlägget också.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Fotona finns kvar i dagbokens galleri.',
+  'assistant.card.journeyPhotos.fromLibrary': 'Från ditt fotobibliotek; dagboken sparar bara en hänvisning.',
 };
 export default assistantJourney;

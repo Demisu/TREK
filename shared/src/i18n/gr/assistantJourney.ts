@@ -60,5 +60,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.pros.one': '{count} θετικό',
   'assistant.card.journey.cons': '{count} αρνητικά',
   'assistant.card.journey.cons.one': '{count} αρνητικό',
+  'assistant.change.verb.linkJournalPhoto': 'Προσθήκη φωτογραφίας στην καταχώριση',
+  'assistant.change.verb.unlinkJournalPhoto': 'Αφαίρεση φωτογραφίας από την καταχώριση',
+  'assistant.change.verb.moveJournalPhotos': 'Μετακίνηση φωτογραφιών σε άλλη καταχώριση',
+  'assistant.change.verb.orderJournalPhotos': 'Αναδιάταξη φωτογραφιών της καταχώρισης',
+  'assistant.change.verb.captionJournalPhoto': 'Αλλαγή λεζάντας φωτογραφίας',
+  'assistant.change.verb.addJournalPhotos': 'Προσθήκη φωτογραφιών από τη βιβλιοθήκη',
+  'assistant.card.journeyPhotos.cover': 'Εξώφυλλο καταχώρισης',
+  'assistant.card.journeyPhotos.firstIsCover': 'Η πρώτη φωτογραφία γίνεται εξώφυλλο της καταχώρισης.',
+  'assistant.card.journeyPhotos.kept': 'Μένουν και στην πρώτη καταχώριση.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Οι φωτογραφίες μένουν στη συλλογή του ημερολογίου.',
+  'assistant.card.journeyPhotos.fromLibrary': 'Από τη βιβλιοθήκη φωτογραφιών σου· το ημερολόγιο κρατά μόνο αναφορά.',
 };
 export default assistantJourney;

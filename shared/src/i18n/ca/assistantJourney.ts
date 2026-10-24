@@ -58,5 +58,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.pros.one': '{count} punt fort',
   'assistant.card.journey.cons': '{count} punts febles',
   'assistant.card.journey.cons.one': '{count} punt feble',
+  'assistant.change.verb.linkJournalPhoto': "Posar una foto a l'entrada",
+  'assistant.change.verb.unlinkJournalPhoto': "Treure una foto de l'entrada",
+  'assistant.change.verb.moveJournalPhotos': 'Moure fotos a una altra entrada',
+  'assistant.change.verb.orderJournalPhotos': "Reordenar les fotos de l'entrada",
+  'assistant.change.verb.captionJournalPhoto': "Canviar el peu d'una foto",
+  'assistant.change.verb.addJournalPhotos': 'Afegir fotos de la biblioteca',
+  'assistant.card.journeyPhotos.cover': "Portada de l'entrada",
+  'assistant.card.journeyPhotos.firstIsCover': "La primera foto passa a ser la portada de l'entrada.",
+  'assistant.card.journeyPhotos.kept': 'També es queden a la primera entrada.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Les fotos es queden a la galeria del diari.',
+  'assistant.card.journeyPhotos.fromLibrary': 'De la teva biblioteca de fotos; el diari només en desa la referència.',
 };
 export default assistantJourney;

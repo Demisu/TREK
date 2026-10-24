@@ -51,5 +51,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.change.verb.reorderJournalEntries': 'Urutkan ulang entri',
   'assistant.card.journey.pros': '{count} hal positif',
   'assistant.card.journey.cons': '{count} hal negatif',
+  'assistant.change.verb.linkJournalPhoto': 'Taruh foto di entri',
+  'assistant.change.verb.unlinkJournalPhoto': 'Lepas foto dari entri',
+  'assistant.change.verb.moveJournalPhotos': 'Pindahkan foto ke entri lain',
+  'assistant.change.verb.orderJournalPhotos': 'Urutkan ulang foto entri',
+  'assistant.change.verb.captionJournalPhoto': 'Ubah keterangan foto',
+  'assistant.change.verb.addJournalPhotos': 'Tambahkan foto dari pustaka',
+  'assistant.card.journeyPhotos.cover': 'Sampul entri',
+  'assistant.card.journeyPhotos.firstIsCover': 'Foto pertama menjadi sampul entri.',
+  'assistant.card.journeyPhotos.kept': 'Foto juga tetap di entri pertama.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Foto tetap ada di galeri jurnal.',
+  'assistant.card.journeyPhotos.fromLibrary': 'Dari pustaka fotomu; jurnal hanya menyimpan rujukannya.',
 };
 export default assistantJourney;

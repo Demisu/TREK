@@ -75,5 +75,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.cons.one': '{count} минус',
   'assistant.card.journey.cons.few': '{count} минуса',
   'assistant.card.journey.cons.many': '{count} минусов',
+  'assistant.change.verb.linkJournalPhoto': 'Добавить фото к записи',
+  'assistant.change.verb.unlinkJournalPhoto': 'Убрать фото из записи',
+  'assistant.change.verb.moveJournalPhotos': 'Перенести фото в другую запись',
+  'assistant.change.verb.orderJournalPhotos': 'Изменить порядок фото записи',
+  'assistant.change.verb.captionJournalPhoto': 'Изменить подпись к фото',
+  'assistant.change.verb.addJournalPhotos': 'Добавить фото из библиотеки',
+  'assistant.card.journeyPhotos.cover': 'Обложка записи',
+  'assistant.card.journeyPhotos.firstIsCover': 'Первое фото станет обложкой записи.',
+  'assistant.card.journeyPhotos.kept': 'Они останутся и в первой записи.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Фото останутся в галерее дневника.',
+  'assistant.card.journeyPhotos.fromLibrary': 'Из твоей фотобиблиотеки; дневник хранит только ссылку.',
 };
 export default assistantJourney;

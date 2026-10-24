@@ -59,5 +59,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.pros.one': '{count} pluss',
   'assistant.card.journey.cons': '{count} miinust',
   'assistant.card.journey.cons.one': '{count} miinus',
+  'assistant.change.verb.linkJournalPhoto': 'Lisa foto sissekandele',
+  'assistant.change.verb.unlinkJournalPhoto': 'Eemalda foto sissekandelt',
+  'assistant.change.verb.moveJournalPhotos': 'Tõsta fotod teisele sissekandele',
+  'assistant.change.verb.orderJournalPhotos': 'Järjesta sissekande fotod ümber',
+  'assistant.change.verb.captionJournalPhoto': 'Muuda foto pealdist',
+  'assistant.change.verb.addJournalPhotos': 'Lisa fotod kogust',
+  'assistant.card.journeyPhotos.cover': 'Sissekande kaanepilt',
+  'assistant.card.journeyPhotos.firstIsCover': 'Esimesest fotost saab sissekande kaanepilt.',
+  'assistant.card.journeyPhotos.kept': 'Need jäävad ka esimesele sissekandele.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Fotod jäävad päeviku galeriisse.',
+  'assistant.card.journeyPhotos.fromLibrary': 'Sinu fotokogust; päevik hoiab ainult viidet.',
 };
 export default assistantJourney;

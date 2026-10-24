@@ -51,5 +51,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.change.verb.reorderJournalEntries': 'Sắp xếp lại các mục',
   'assistant.card.journey.pros': '{count} điểm cộng',
   'assistant.card.journey.cons': '{count} điểm trừ',
+  'assistant.change.verb.linkJournalPhoto': 'Thêm ảnh vào mục',
+  'assistant.change.verb.unlinkJournalPhoto': 'Bỏ ảnh khỏi mục',
+  'assistant.change.verb.moveJournalPhotos': 'Chuyển ảnh sang mục khác',
+  'assistant.change.verb.orderJournalPhotos': 'Sắp xếp lại ảnh của mục',
+  'assistant.change.verb.captionJournalPhoto': 'Đổi chú thích ảnh',
+  'assistant.change.verb.addJournalPhotos': 'Thêm ảnh từ thư viện',
+  'assistant.card.journeyPhotos.cover': 'Ảnh bìa của mục',
+  'assistant.card.journeyPhotos.firstIsCover': 'Ảnh đầu tiên sẽ thành ảnh bìa của mục.',
+  'assistant.card.journeyPhotos.kept': 'Ảnh vẫn được giữ ở mục đầu tiên.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Ảnh vẫn ở trong thư viện ảnh của nhật ký.',
+  'assistant.card.journeyPhotos.fromLibrary': 'Từ thư viện ảnh của bạn; nhật ký chỉ lưu liên kết tham chiếu.',
 };
 export default assistantJourney;

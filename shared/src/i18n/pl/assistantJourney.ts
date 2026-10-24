@@ -75,5 +75,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.cons.one': '{count} minus',
   'assistant.card.journey.cons.few': '{count} minusy',
   'assistant.card.journey.cons.many': '{count} minusów',
+  'assistant.change.verb.linkJournalPhoto': 'Dodaj zdjęcie do wpisu',
+  'assistant.change.verb.unlinkJournalPhoto': 'Usuń zdjęcie z wpisu',
+  'assistant.change.verb.moveJournalPhotos': 'Przenieś zdjęcia do innego wpisu',
+  'assistant.change.verb.orderJournalPhotos': 'Zmień kolejność zdjęć wpisu',
+  'assistant.change.verb.captionJournalPhoto': 'Zmień podpis zdjęcia',
+  'assistant.change.verb.addJournalPhotos': 'Dodaj zdjęcia z biblioteki',
+  'assistant.card.journeyPhotos.cover': 'Okładka wpisu',
+  'assistant.card.journeyPhotos.firstIsCover': 'Pierwsze zdjęcie staje się okładką wpisu.',
+  'assistant.card.journeyPhotos.kept': 'Zostają też przy pierwszym wpisie.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Zdjęcia zostają w galerii dziennika.',
+  'assistant.card.journeyPhotos.fromLibrary': 'Z twojej biblioteki zdjęć; dziennik zapisuje tylko odnośnik.',
 };
 export default assistantJourney;

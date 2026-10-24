@@ -58,5 +58,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.pros.one': '{count} good point',
   'assistant.card.journey.cons': '{count} weak points',
   'assistant.card.journey.cons.one': '{count} weak point',
+  'assistant.change.verb.linkJournalPhoto': 'Put a photo on the entry',
+  'assistant.change.verb.unlinkJournalPhoto': 'Take a photo off the entry',
+  'assistant.change.verb.moveJournalPhotos': 'Move photos to another entry',
+  'assistant.change.verb.orderJournalPhotos': "Put the entry's photos in a new order",
+  'assistant.change.verb.captionJournalPhoto': "Change a photo's caption",
+  'assistant.change.verb.addJournalPhotos': 'Add photos from the library',
+  'assistant.card.journeyPhotos.cover': 'Entry cover',
+  'assistant.card.journeyPhotos.firstIsCover': "The first photo becomes the entry's cover.",
+  'assistant.card.journeyPhotos.kept': 'They also stay on the first entry.',
+  'assistant.card.journeyPhotos.staysInGallery': "The photos stay in the journal's gallery.",
+  'assistant.card.journeyPhotos.fromLibrary': 'From your photo library; the journal keeps a reference.',
 };
 export default assistantJourney;

@@ -50,5 +50,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.change.verb.reorderJournalEntries': 'จัดลำดับรายการใหม่',
   'assistant.card.journey.pros': 'ข้อดี {count} ข้อ',
   'assistant.card.journey.cons': 'ข้อเสีย {count} ข้อ',
+  'assistant.change.verb.linkJournalPhoto': 'ใส่รูปในรายการ',
+  'assistant.change.verb.unlinkJournalPhoto': 'เอารูปออกจากรายการ',
+  'assistant.change.verb.moveJournalPhotos': 'ย้ายรูปไปยังรายการอื่น',
+  'assistant.change.verb.orderJournalPhotos': 'จัดลำดับรูปของรายการใหม่',
+  'assistant.change.verb.captionJournalPhoto': 'เปลี่ยนคำบรรยายรูป',
+  'assistant.change.verb.addJournalPhotos': 'เพิ่มรูปจากคลังภาพ',
+  'assistant.card.journeyPhotos.cover': 'ภาพปกของรายการ',
+  'assistant.card.journeyPhotos.firstIsCover': 'รูปแรกจะกลายเป็นภาพปกของรายการ',
+  'assistant.card.journeyPhotos.kept': 'รูปยังคงอยู่ในรายการแรกด้วย',
+  'assistant.card.journeyPhotos.staysInGallery': 'รูปยังอยู่ในแกลเลอรีของบันทึก',
+  'assistant.card.journeyPhotos.fromLibrary': 'จากคลังภาพของคุณ บันทึกเก็บไว้เพียงลิงก์อ้างอิง',
 };
 export default assistantJourney;

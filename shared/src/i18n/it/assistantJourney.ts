@@ -59,5 +59,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.pros.one': '{count} punto a favore',
   'assistant.card.journey.cons': '{count} punti a sfavore',
   'assistant.card.journey.cons.one': '{count} punto a sfavore',
+  'assistant.change.verb.linkJournalPhoto': 'Aggiungi una foto alla voce',
+  'assistant.change.verb.unlinkJournalPhoto': 'Togli una foto dalla voce',
+  'assistant.change.verb.moveJournalPhotos': "Sposta le foto in un'altra voce",
+  'assistant.change.verb.orderJournalPhotos': 'Riordina le foto della voce',
+  'assistant.change.verb.captionJournalPhoto': 'Cambia la didascalia di una foto',
+  'assistant.change.verb.addJournalPhotos': 'Aggiungi foto dalla libreria',
+  'assistant.card.journeyPhotos.cover': 'Copertina della voce',
+  'assistant.card.journeyPhotos.firstIsCover': 'La prima foto diventa la copertina della voce.',
+  'assistant.card.journeyPhotos.kept': 'Restano anche nella prima voce.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Le foto restano nella galleria del diario.',
+  'assistant.card.journeyPhotos.fromLibrary': 'Dalla tua libreria di foto; il diario ne tiene solo il riferimento.',
 };
 export default assistantJourney;

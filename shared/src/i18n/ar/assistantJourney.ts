@@ -90,5 +90,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.cons.two': '{count} نقطتان سلبيتان',
   'assistant.card.journey.cons.few': '{count} نقاط سلبية',
   'assistant.card.journey.cons.many': '{count} نقطة سلبية',
+  'assistant.change.verb.linkJournalPhoto': 'إضافة صورة إلى المدخل',
+  'assistant.change.verb.unlinkJournalPhoto': 'إزالة صورة من المدخل',
+  'assistant.change.verb.moveJournalPhotos': 'نقل الصور إلى مدخل آخر',
+  'assistant.change.verb.orderJournalPhotos': 'إعادة ترتيب صور المدخل',
+  'assistant.change.verb.captionJournalPhoto': 'تغيير تعليق صورة',
+  'assistant.change.verb.addJournalPhotos': 'إضافة صور من المكتبة',
+  'assistant.card.journeyPhotos.cover': 'غلاف المدخل',
+  'assistant.card.journeyPhotos.firstIsCover': 'تصبح الصورة الأولى غلاف المدخل.',
+  'assistant.card.journeyPhotos.kept': 'تبقى أيضًا في المدخل الأول.',
+  'assistant.card.journeyPhotos.staysInGallery': 'تبقى الصور في معرض اليوميات.',
+  'assistant.card.journeyPhotos.fromLibrary': 'من مكتبة صورك؛ تحتفظ اليوميات بمرجع إليها فقط.',
 };
 export default assistantJourney;

@@ -60,5 +60,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.pros.one': '{count} előny',
   'assistant.card.journey.cons': '{count} hátrány',
   'assistant.card.journey.cons.one': '{count} hátrány',
+  'assistant.change.verb.linkJournalPhoto': 'Fotó hozzáadása a bejegyzéshez',
+  'assistant.change.verb.unlinkJournalPhoto': 'Fotó levétele a bejegyzésről',
+  'assistant.change.verb.moveJournalPhotos': 'Fotók áthelyezése másik bejegyzéshez',
+  'assistant.change.verb.orderJournalPhotos': 'A bejegyzés fotóinak átrendezése',
+  'assistant.change.verb.captionJournalPhoto': 'Fotó feliratának módosítása',
+  'assistant.change.verb.addJournalPhotos': 'Fotók hozzáadása a könyvtárból',
+  'assistant.card.journeyPhotos.cover': 'A bejegyzés borítóképe',
+  'assistant.card.journeyPhotos.firstIsCover': 'Az első fotó lesz a bejegyzés borítóképe.',
+  'assistant.card.journeyPhotos.kept': 'Az első bejegyzésen is megmaradnak.',
+  'assistant.card.journeyPhotos.staysInGallery': 'A fotók a napló galériájában maradnak.',
+  'assistant.card.journeyPhotos.fromLibrary': 'A fotókönyvtáradból; a napló csak hivatkozást tárol.',
 };
 export default assistantJourney;

@@ -59,5 +59,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.pros.one': '{count} artı',
   'assistant.card.journey.cons': '{count} eksi',
   'assistant.card.journey.cons.one': '{count} eksi',
+  'assistant.change.verb.linkJournalPhoto': 'Kayda fotoğraf ekle',
+  'assistant.change.verb.unlinkJournalPhoto': 'Fotoğrafı kayıttan kaldır',
+  'assistant.change.verb.moveJournalPhotos': 'Fotoğrafları başka kayda taşı',
+  'assistant.change.verb.orderJournalPhotos': 'Kaydın fotoğraflarını yeniden sırala',
+  'assistant.change.verb.captionJournalPhoto': 'Fotoğraf açıklamasını değiştir',
+  'assistant.change.verb.addJournalPhotos': 'Kitaplıktan fotoğraf ekle',
+  'assistant.card.journeyPhotos.cover': 'Kayıt kapağı',
+  'assistant.card.journeyPhotos.firstIsCover': 'İlk fotoğraf kaydın kapağı olur.',
+  'assistant.card.journeyPhotos.kept': 'İlk kayıtta da kalırlar.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Fotoğraflar günlüğün galerisinde kalır.',
+  'assistant.card.journeyPhotos.fromLibrary': 'Fotoğraf kitaplığından; günlük yalnızca bağlantıyı saklar.',
 };
 export default assistantJourney;

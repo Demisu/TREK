@@ -60,5 +60,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.pros.one': '{count} müsbət cəhət',
   'assistant.card.journey.cons': '{count} mənfi cəhət',
   'assistant.card.journey.cons.one': '{count} mənfi cəhət',
+  'assistant.change.verb.linkJournalPhoto': 'Şəkli qeydə əlavə et',
+  'assistant.change.verb.unlinkJournalPhoto': 'Şəkli qeyddən götür',
+  'assistant.change.verb.moveJournalPhotos': 'Şəkilləri başqa qeydə köçür',
+  'assistant.change.verb.orderJournalPhotos': 'Qeydin şəkillərini yenidən sırala',
+  'assistant.change.verb.captionJournalPhoto': 'Şəklin başlığını dəyiş',
+  'assistant.change.verb.addJournalPhotos': 'Kitabxanadan şəkil əlavə et',
+  'assistant.card.journeyPhotos.cover': 'Qeydin üz şəkli',
+  'assistant.card.journeyPhotos.firstIsCover': 'İlk şəkil qeydin üz şəkli olur.',
+  'assistant.card.journeyPhotos.kept': 'Onlar birinci qeyddə də qalır.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Şəkillər gündəliyin qalereyasında qalır.',
+  'assistant.card.journeyPhotos.fromLibrary': 'Şəkil kitabxanandan; gündəlik yalnız istinadı saxlayır.',
 };
 export default assistantJourney;

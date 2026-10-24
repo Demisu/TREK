@@ -75,5 +75,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.cons.one': '{count} мінус',
   'assistant.card.journey.cons.few': '{count} мінуси',
   'assistant.card.journey.cons.many': '{count} мінусів',
+  'assistant.change.verb.linkJournalPhoto': 'Додати фото до запису',
+  'assistant.change.verb.unlinkJournalPhoto': 'Прибрати фото із запису',
+  'assistant.change.verb.moveJournalPhotos': 'Перенести фото до іншого запису',
+  'assistant.change.verb.orderJournalPhotos': 'Змінити порядок фото запису',
+  'assistant.change.verb.captionJournalPhoto': 'Змінити підпис до фото',
+  'assistant.change.verb.addJournalPhotos': 'Додати фото з бібліотеки',
+  'assistant.card.journeyPhotos.cover': 'Обкладинка запису',
+  'assistant.card.journeyPhotos.firstIsCover': 'Перше фото стане обкладинкою запису.',
+  'assistant.card.journeyPhotos.kept': 'Вони залишаться і в першому записі.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Фото залишаться в галереї щоденника.',
+  'assistant.card.journeyPhotos.fromLibrary': 'З твоєї фотобібліотеки; щоденник зберігає лише посилання.',
 };
 export default assistantJourney;

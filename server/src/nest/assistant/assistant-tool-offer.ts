@@ -227,6 +227,7 @@ const TRIP_OR_JOURNEY_ARGS: ReadonlySet<string> = new Set([
  */
 const JOURNEY_WRITE_CONTROLLERS: ReadonlySet<string> = new Set([
   'JourneyMcp',
+  'JourneyPhotoLinksMcp',
   'JourneyMapMcp',
   'JourneyTracksMcp',
   'JourneyRecordingsMcp',
@@ -334,6 +335,7 @@ const CORE_TOOL_GROUPS: ToolGroups = {
       'location history and the recorded days.',
     controllers: [
       'JourneyMcp',
+      'JourneyPhotoLinksMcp',
       'JourneyMapMcp',
       'JourneyTracksMcp',
       'JourneyBookMcp',

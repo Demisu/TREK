@@ -66,5 +66,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.cons': '{count} minusů',
   'assistant.card.journey.cons.one': '{count} minus',
   'assistant.card.journey.cons.few': '{count} minusy',
+  'assistant.change.verb.linkJournalPhoto': 'Přidat fotku k záznamu',
+  'assistant.change.verb.unlinkJournalPhoto': 'Odebrat fotku ze záznamu',
+  'assistant.change.verb.moveJournalPhotos': 'Přesunout fotky do jiného záznamu',
+  'assistant.change.verb.orderJournalPhotos': 'Přeuspořádat fotky záznamu',
+  'assistant.change.verb.captionJournalPhoto': 'Změnit popisek fotky',
+  'assistant.change.verb.addJournalPhotos': 'Přidat fotky z knihovny',
+  'assistant.card.journeyPhotos.cover': 'Titulní fotka záznamu',
+  'assistant.card.journeyPhotos.firstIsCover': 'První fotka se stane titulní fotkou záznamu.',
+  'assistant.card.journeyPhotos.kept': 'Zůstanou i u prvního záznamu.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Fotky zůstanou v galerii deníku.',
+  'assistant.card.journeyPhotos.fromLibrary': 'Z tvé knihovny fotek; deník si uloží jen odkaz.',
 };
 export default assistantJourney;

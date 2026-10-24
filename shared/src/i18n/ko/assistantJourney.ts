@@ -50,5 +50,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.change.verb.reorderJournalEntries': '항목 순서 바꾸기',
   'assistant.card.journey.pros': '좋은 점 {count}개',
   'assistant.card.journey.cons': '아쉬운 점 {count}개',
+  'assistant.change.verb.linkJournalPhoto': '항목에 사진 넣기',
+  'assistant.change.verb.unlinkJournalPhoto': '항목에서 사진 빼기',
+  'assistant.change.verb.moveJournalPhotos': '사진을 다른 항목으로 옮기기',
+  'assistant.change.verb.orderJournalPhotos': '항목 사진 순서 바꾸기',
+  'assistant.change.verb.captionJournalPhoto': '사진 설명 바꾸기',
+  'assistant.change.verb.addJournalPhotos': '라이브러리에서 사진 추가',
+  'assistant.card.journeyPhotos.cover': '항목 표지',
+  'assistant.card.journeyPhotos.firstIsCover': '첫 번째 사진이 항목 표지가 돼요.',
+  'assistant.card.journeyPhotos.kept': '첫 번째 항목에도 남아요.',
+  'assistant.card.journeyPhotos.staysInGallery': '사진은 저널 갤러리에 남아요.',
+  'assistant.card.journeyPhotos.fromLibrary': '사진 라이브러리에서 가져와요. 저널에는 참조만 저장돼요.',
 };
 export default assistantJourney;

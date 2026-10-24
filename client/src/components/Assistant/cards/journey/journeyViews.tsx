@@ -2,6 +2,7 @@ import type { CardView } from '../cardTypes';
 import { JourneyEntryAside, JourneyEntryBody, JourneyEntryFacts } from './JourneyChangeSlots';
 import JourneyEntriesBlock from './JourneyEntriesBlock';
 import { JourneyHeaderBody, JourneyHeaderFacts } from './JourneyHeaderSlots';
+import { JourneyPhotosBody } from './JourneyPhotosSlots';
 
 /**
  * How the kinds of the journeys draw in the chat: the entries a read found
@@ -24,4 +25,7 @@ export const JOURNEY_VIEWS = {
     Facts: JourneyHeaderFacts,
     Body: JourneyHeaderBody,
   },
-} satisfies { [K in 'journeyEntries' | 'journeyHeader']: CardView<K> };
+  journeyPhotos: {
+    Body: JourneyPhotosBody,
+  },
+} satisfies { [K in 'journeyEntries' | 'journeyHeader' | 'journeyPhotos']: CardView<K> };

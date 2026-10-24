@@ -50,5 +50,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.change.verb.reorderJournalEntries': '重新排列條目',
   'assistant.card.journey.pros': '{count} 個優點',
   'assistant.card.journey.cons': '{count} 個不足',
+  'assistant.change.verb.linkJournalPhoto': '將照片放到條目上',
+  'assistant.change.verb.unlinkJournalPhoto': '從條目上移除照片',
+  'assistant.change.verb.moveJournalPhotos': '將照片移到另一個條目',
+  'assistant.change.verb.orderJournalPhotos': '重新排列條目的照片',
+  'assistant.change.verb.captionJournalPhoto': '變更照片說明',
+  'assistant.change.verb.addJournalPhotos': '從圖庫加入照片',
+  'assistant.card.journeyPhotos.cover': '條目封面',
+  'assistant.card.journeyPhotos.firstIsCover': '第一張照片會成為條目封面。',
+  'assistant.card.journeyPhotos.kept': '它們也會保留在第一個條目上。',
+  'assistant.card.journeyPhotos.staysInGallery': '照片會保留在日誌圖庫中。',
+  'assistant.card.journeyPhotos.fromLibrary': '來自你的照片圖庫，日誌只保存參照。',
 };
 export default assistantJourney;

@@ -59,5 +59,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.pros.one': '{count} pluspunt',
   'assistant.card.journey.cons': '{count} minpunten',
   'assistant.card.journey.cons.one': '{count} minpunt',
+  'assistant.change.verb.linkJournalPhoto': 'Foto bij het bericht zetten',
+  'assistant.change.verb.unlinkJournalPhoto': 'Foto van het bericht halen',
+  'assistant.change.verb.moveJournalPhotos': "Foto's naar een ander bericht verplaatsen",
+  'assistant.change.verb.orderJournalPhotos': "Foto's van het bericht opnieuw ordenen",
+  'assistant.change.verb.captionJournalPhoto': 'Bijschrift van een foto wijzigen',
+  'assistant.change.verb.addJournalPhotos': "Foto's uit de bibliotheek toevoegen",
+  'assistant.card.journeyPhotos.cover': 'Omslag van het bericht',
+  'assistant.card.journeyPhotos.firstIsCover': 'De eerste foto wordt de omslag van het bericht.',
+  'assistant.card.journeyPhotos.kept': 'Ze blijven ook bij het eerste bericht.',
+  'assistant.card.journeyPhotos.staysInGallery': "De foto's blijven in de galerij van het dagboek.",
+  'assistant.card.journeyPhotos.fromLibrary': 'Uit je fotobibliotheek; het dagboek bewaart alleen een verwijzing.',
 };
 export default assistantJourney;

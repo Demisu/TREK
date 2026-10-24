@@ -31,6 +31,20 @@ import {
   type JournalOrderLoaded,
   type StayLoaded,
 } from './journey-order';
+import {
+  describeJournalPhotos,
+  journalPhotosApplied,
+  journalPhotosCard,
+  loadJournalPhotos,
+  type JournalPhotosLoaded,
+  type JournalPhotosTool,
+} from './journey-photos';
+import {
+  MOVE_PHOTOS_BACK,
+  RELINK_UNLINKED_PHOTO,
+  RESTORE_PHOTO_CAPTION,
+  UNLINK_LINKED_PHOTO,
+} from './journey-photos-undo';
 import { DELETE_CREATED_ENTRY, RESTORE_CHANGED_ENTRY, RESTORE_ENTRY_ORDER } from './journey-undo';
 import type { AssistantChangeVerbKey, JourneyEntriesCard } from '@trek/shared';
 
@@ -124,6 +138,29 @@ const stayCards: ToolCards<StayLoaded> = {
   },
 };
 
+/** The entry a photo change touched, else the journal (a caption). */
+function photoIds(args: ToolArgs, result: unknown): number[] {
+  const id = argId(args, 'toEntryId') ?? argId(args, 'entryId') ?? argId(recordOf(result), 'toEntryId');
+  return id === null ? [] : [id];
+}
+
+/** A change of a journal's photos: its verb, its words, its lookups, its card while held and once applied. */
+function journalPhotos(
+  tool: JournalPhotosTool,
+  verbKey: AssistantChangeVerbKey,
+  undo?: NonNullable<ToolCards['undo']>,
+): ToolCards<JournalPhotosLoaded> {
+  return {
+    write: { verbKey, entity: tool === 'set_journey_photo_caption' ? 'journey' : 'journey_entry' },
+    load: (args, read) => loadJournalPhotos(args, read),
+    describe: (ctx, args, loaded) => describeJournalPhotos(tool, ctx, args, loaded),
+    change: (_ctx, args, loaded) => journalPhotosCard(tool, args, loaded),
+    applied: ({ result, preview }) => journalPhotosApplied(tool, result, preview),
+    appliedIds: tool === 'set_journey_photo_caption' ? journalIds : photoIds,
+    ...(undo ? { undo } : {}),
+  };
+}
+
 export const JOURNEY_CARDS: DomainCards = {
   id: 'journey',
   tools: {
@@ -156,6 +193,12 @@ export const JOURNEY_CARDS: DomainCards = {
       ...journalWrite('delete_journey_entry'),
     },
     reorder_journey_entries: reorderCards,
+    link_journey_photo: journalPhotos('link_journey_photo', 'linkJournalPhoto', UNLINK_LINKED_PHOTO),
+    unlink_journey_photo: journalPhotos('unlink_journey_photo', 'unlinkJournalPhoto', RELINK_UNLINKED_PHOTO),
+    move_journey_photos: journalPhotos('move_journey_photos', 'moveJournalPhotos', MOVE_PHOTOS_BACK),
+    reorder_journey_entry_photos: journalPhotos('reorder_journey_entry_photos', 'orderJournalPhotos'),
+    set_journey_photo_caption: journalPhotos('set_journey_photo_caption', 'captionJournalPhoto', RESTORE_PHOTO_CAPTION),
+    add_journey_provider_photos: journalPhotos('add_journey_provider_photos', 'addJournalPhotos'),
     accept_dawarich_suggestion_as_journal_entry: stayCards,
     create_journey: journalHeader('create_journey', 'createJournal', DELETE_CREATED_JOURNEY),
     update_journey: journalHeader('update_journey', 'updateJournalSettings', RESTORE_JOURNEY_SETTINGS),

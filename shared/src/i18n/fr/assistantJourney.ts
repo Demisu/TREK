@@ -60,5 +60,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.pros.one': '{count} point fort',
   'assistant.card.journey.cons': '{count} points faibles',
   'assistant.card.journey.cons.one': '{count} point faible',
+  'assistant.change.verb.linkJournalPhoto': "Ajouter une photo à l'entrée",
+  'assistant.change.verb.unlinkJournalPhoto': "Retirer une photo de l'entrée",
+  'assistant.change.verb.moveJournalPhotos': 'Déplacer des photos vers une autre entrée',
+  'assistant.change.verb.orderJournalPhotos': "Réordonner les photos de l'entrée",
+  'assistant.change.verb.captionJournalPhoto': "Modifier la légende d'une photo",
+  'assistant.change.verb.addJournalPhotos': 'Ajouter des photos de la photothèque',
+  'assistant.card.journeyPhotos.cover': "Couverture de l'entrée",
+  'assistant.card.journeyPhotos.firstIsCover': "La première photo devient la couverture de l'entrée.",
+  'assistant.card.journeyPhotos.kept': 'Elles restent aussi sur la première entrée.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Les photos restent dans la galerie du journal.',
+  'assistant.card.journeyPhotos.fromLibrary': "Depuis votre photothèque ; le journal ne garde qu'une référence.",
 };
 export default assistantJourney;

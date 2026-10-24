@@ -1,12 +1,17 @@
 import {
   ArrowDownUp,
+  ArrowRightLeft,
   BookCheck,
   BookOpen,
   BookOpenText,
   BookPlus,
   BookX,
   Eye,
+  ImageMinus,
+  ImagePlus,
+  Images,
   Link,
+  MessageSquareText,
   RotateCcw,
   Settings2,
   Type,
@@ -48,6 +53,16 @@ export const JOURNEY_LOOK = {
       labelKey: 'assistant.change.verb.restoreJournalSuggestions',
     },
     setJournalPreferences: { Icon: Eye, tone: 'info', labelKey: 'assistant.change.verb.setJournalPreferences' },
+    linkJournalPhoto: { Icon: ImagePlus, tone: 'success', labelKey: 'assistant.change.verb.linkJournalPhoto' },
+    unlinkJournalPhoto: { Icon: ImageMinus, tone: 'warning', labelKey: 'assistant.change.verb.unlinkJournalPhoto' },
+    moveJournalPhotos: { Icon: ArrowRightLeft, tone: 'info', labelKey: 'assistant.change.verb.moveJournalPhotos' },
+    orderJournalPhotos: { Icon: ArrowDownUp, tone: 'info', labelKey: 'assistant.change.verb.orderJournalPhotos' },
+    captionJournalPhoto: {
+      Icon: MessageSquareText,
+      tone: 'info',
+      labelKey: 'assistant.change.verb.captionJournalPhoto',
+    },
+    addJournalPhotos: { Icon: Images, tone: 'success', labelKey: 'assistant.change.verb.addJournalPhotos' },
   },
   tools: {
     create_journey: { labelKey: 'assistant.tool.create_journey' },
@@ -66,16 +81,19 @@ export const JOURNEY_LOOK = {
     journey_entry: {
       Icon: BookOpen,
       openLabelKey: 'assistant.card.journey.open',
-      open: (applied, card) =>
-        card?.kind === 'journeyEntries'
+      open: (applied, card) => {
+        if (card?.kind === 'journeyPhotos') return journalTarget(card.journeyId, applied.ids[0] ?? null, false);
+        return card?.kind === 'journeyEntries'
           ? journalTarget(card.journeyId, applied.ids[0] ?? card.entries[0]?.entryId ?? null, card.tripJournal)
-          : null,
+          : null;
+      },
     },
     journey: {
       Icon: BookOpen,
       openLabelKey: 'assistant.card.journeyHeader.open',
       open: (applied, card) => {
-        const journeyId = applied.ids[0] ?? (card?.kind === 'journeyHeader' ? card.journeyId : null);
+        const fromCard = card?.kind === 'journeyHeader' || card?.kind === 'journeyPhotos' ? card.journeyId : null;
+        const journeyId = applied.ids[0] ?? fromCard;
         return journeyId ? journalTarget(journeyId, null, false) : null;
       },
     },
@@ -101,5 +119,8 @@ export const JOURNEY_LOOK = {
     journeyHeader: {
       entity: () => 'journey',
     },
+    journeyPhotos: {
+      entity: (card) => (card.mode === 'caption' ? 'journey' : 'journey_entry'),
+    },
   },
-} satisfies PackLook<'journeyEntries' | 'journeyHeader'>;
+} satisfies PackLook<'journeyEntries' | 'journeyHeader' | 'journeyPhotos'>;

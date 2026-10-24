@@ -160,6 +160,13 @@ describe('a journal tool session, on the journey page', () => {
         expect.arrayContaining([...ENTRY_WRITES, 'update_journey', 'remove_journey_trip', 'add_journey_trip']),
       );
       expect(names).toEqual(expect.arrayContaining(['get_journey', 'get_journey_entry', 'search_place']));
+      const photoTools = [
+        'link_journey_photo',
+        'unlink_journey_photo',
+        'move_journey_photos',
+        'set_journey_photo_caption',
+      ];
+      expect(names).toEqual(expect.arrayContaining(photoTools));
       const left = ['delete_journey', 'list_journeys', 'create_journey', 'add_journey_contributor', 'get_book'];
       for (const name of [...left, ...BOOK_WRITES, 'get_journey_share_link', 'use_addon_tools']) {
         expect(names, name).not.toContain(name);

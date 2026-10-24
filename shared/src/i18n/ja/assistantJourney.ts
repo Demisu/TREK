@@ -50,5 +50,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.change.verb.reorderJournalEntries': 'エントリーを並べ替える',
   'assistant.card.journey.pros': '良い点 {count} 件',
   'assistant.card.journey.cons': '残念な点 {count} 件',
+  'assistant.change.verb.linkJournalPhoto': 'エントリーに写真を追加',
+  'assistant.change.verb.unlinkJournalPhoto': 'エントリーから写真を外す',
+  'assistant.change.verb.moveJournalPhotos': '写真を別のエントリーへ移動',
+  'assistant.change.verb.orderJournalPhotos': 'エントリーの写真を並べ替える',
+  'assistant.change.verb.captionJournalPhoto': '写真のキャプションを変更',
+  'assistant.change.verb.addJournalPhotos': 'ライブラリから写真を追加',
+  'assistant.card.journeyPhotos.cover': 'エントリーのカバー',
+  'assistant.card.journeyPhotos.firstIsCover': '最初の写真がエントリーのカバーになります。',
+  'assistant.card.journeyPhotos.kept': '最初のエントリーにも残ります。',
+  'assistant.card.journeyPhotos.staysInGallery': '写真はジャーナルのギャラリーに残ります。',
+  'assistant.card.journeyPhotos.fromLibrary': '写真ライブラリから。ジャーナルには参照だけが保存されます。',
 };
 export default assistantJourney;

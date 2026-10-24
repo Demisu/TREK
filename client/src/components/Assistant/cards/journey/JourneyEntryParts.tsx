@@ -108,7 +108,10 @@ function ListMarks({ look }: { look: JourneyEntryLook }) {
   return (
     <>
       {(look.tags ?? []).map((tag, index) => (
-        <SoftPill key={`${tag}-${index}`} icon={<Tag size={10} strokeWidth={2.2} aria-hidden="true" className={ICON} />}>
+        <SoftPill
+          key={`${tag}-${index}`}
+          icon={<Tag size={10} strokeWidth={2.2} aria-hidden="true" className={ICON} />}
+        >
           <bdi className="truncate">{tag}</bdi>
         </SoftPill>
       ))}

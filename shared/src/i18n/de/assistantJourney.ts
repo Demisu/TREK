@@ -60,5 +60,16 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journey.pros.one': '{count} Pluspunkt',
   'assistant.card.journey.cons': '{count} Minuspunkte',
   'assistant.card.journey.cons.one': '{count} Minuspunkt',
+  'assistant.change.verb.linkJournalPhoto': 'Foto zum Eintrag legen',
+  'assistant.change.verb.unlinkJournalPhoto': 'Foto vom Eintrag nehmen',
+  'assistant.change.verb.moveJournalPhotos': 'Fotos in einen anderen Eintrag verschieben',
+  'assistant.change.verb.orderJournalPhotos': 'Fotos des Eintrags neu ordnen',
+  'assistant.change.verb.captionJournalPhoto': 'Bildunterschrift ändern',
+  'assistant.change.verb.addJournalPhotos': 'Fotos aus der Bibliothek hinzufügen',
+  'assistant.card.journeyPhotos.cover': 'Titelbild des Eintrags',
+  'assistant.card.journeyPhotos.firstIsCover': 'Das erste Foto wird zum Titelbild des Eintrags.',
+  'assistant.card.journeyPhotos.kept': 'Sie bleiben auch beim ersten Eintrag.',
+  'assistant.card.journeyPhotos.staysInGallery': 'Die Fotos bleiben in der Galerie des Journals.',
+  'assistant.card.journeyPhotos.fromLibrary': 'Aus deiner Fotobibliothek; das Journal merkt sich nur den Verweis.',
 };
 export default assistantJourney;
