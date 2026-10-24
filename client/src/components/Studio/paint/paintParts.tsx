@@ -9,20 +9,12 @@ import { patternGeometry, type PatternBox } from './patterns';
  * the letters of a text share it without the component file exporting a helper.
  */
 
-function Stops({ stops }: { stops: readonly BookPaintStop[] }) {
-  return (
-    <>
-      {sortedStops(stops).map((s, i) => (
-        <stop
-          // Two stops may share an offset (a hard edge), so the index keys them.
-          key={i}
-          offset={r2(s.at)}
-          stopColor={s.color}
-          stopOpacity={stopAlpha(s) < 1 ? stopAlpha(s) : undefined}
-        />
-      ))}
-    </>
-  );
+/** A gradient's stops as SVG elements, in order. */
+function stopElements(stops: readonly BookPaintStop[]): ReactNode {
+  // Two stops may share an offset (a hard edge), so the index keys them.
+  return sortedStops(stops).map((s, i) => (
+    <stop key={i} offset={r2(s.at)} stopColor={s.color} stopOpacity={stopAlpha(s) < 1 ? stopAlpha(s) : undefined} />
+  ));
 }
 
 /** What a painted outline needs: the defs to put in the SVG, and how to fill the outline. */
@@ -53,7 +45,7 @@ export function paintParts(paint: BookPaint, box: PatternBox, id: string): Paint
       return {
         defs: (
           <linearGradient id={id} gradientUnits="userSpaceOnUse" {...line}>
-            <Stops stops={paint.stops} />
+            {stopElements(paint.stops)}
           </linearGradient>
         ),
         fill: `url(#${id})`,
@@ -70,7 +62,7 @@ export function paintParts(paint: BookPaint, box: PatternBox, id: string): Paint
             cy={r2(box.y + paint.cy * box.h)}
             r={r2((paint.r * Math.hypot(box.w, box.h)) / 2)}
           >
-            <Stops stops={paint.stops} />
+            {stopElements(paint.stops)}
           </radialGradient>
         ),
         fill: `url(#${id})`,

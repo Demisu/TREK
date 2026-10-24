@@ -152,6 +152,12 @@ function lettersPaint(el: BookTextElement, id: string): PaintParts | null {
   return paint ? paintParts(paint, { x: 0, y: 0, w: el.frame.w, h: el.frame.h }, id) : null;
 }
 
+/** What the letters are filled with: the paint's fill, else their own colour. */
+function lettersFill(el: BookTextElement, paint: PaintParts | null): string {
+  if (paint) return paint.fill;
+  return letterFill(el) ?? el.color;
+}
+
 /** A pattern's ground and its marks, clipped to the letters. */
 function PatternLetters({ parts, w, h, clipId }: { parts: PaintParts; w: number; h: number; clipId: string }) {
   const pattern = parts.pattern;
@@ -240,7 +246,7 @@ function DrawnText({ el, frameStyle, big }: { el: BookTextElement; frameStyle: C
   } else if (pattern && letterPaint) {
     layers.push(<PatternLetters key="pattern" parts={letterPaint} w={w} h={h} clipId={clipId} />);
   } else {
-    layers.push(glyphs({ fill: letterPaint ? letterPaint.fill : (letterFill(el) ?? el.color) }, 'fill'));
+    layers.push(glyphs({ fill: lettersFill(el, letterPaint) }, 'fill'));
   }
 
   return (
