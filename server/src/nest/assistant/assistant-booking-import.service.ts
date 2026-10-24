@@ -31,7 +31,7 @@ export const BOOKING_READ_REASONS = ['ai_not_configured', 'ai_failed', 'no_text'
 export type BookingReadReason = (typeof BOOKING_READ_REASONS)[number];
 
 /** What reading a file found: at most a step's worth of bookings, and why there were none. */
-export interface BookingRead {
+interface BookingRead {
   items: BookingImportPreviewItem[];
   /** Null when the file held bookings. */
   reason: BookingReadReason | null;

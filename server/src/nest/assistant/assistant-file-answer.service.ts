@@ -24,7 +24,7 @@ import { randomUUID } from 'node:crypto';
 const FILE_UNREADABLE = 'The file could not be read.';
 
 /** The turn a file was attached in: who, on which trip, the thread, the answer's first row and the file kept. */
-export interface FileTurn extends AssistantClientCtx {
+interface FileTurn extends AssistantClientCtx {
   userId: number;
   tripId: number;
   threadId: number;
@@ -43,7 +43,7 @@ export interface FileAnswerRows {
 }
 
 /** Where the answer goes: the stream, the signal that the client went away, and the row. */
-export interface FileAnswerOut {
+interface FileAnswerOut {
   w: UiStreamWriter;
   signal: AbortSignal;
   rows: FileAnswerRows;

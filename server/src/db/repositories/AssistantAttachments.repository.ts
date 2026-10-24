@@ -7,7 +7,7 @@ import { TrekRepository } from './_shared/trek-repository';
 export type AssistantAttachmentTextStatus = 'ok' | 'empty' | 'scanned' | 'unsupported' | 'failed';
 
 /** One `assistant_attachments` row as stored, the text included. */
-export interface AssistantAttachmentRow {
+interface AssistantAttachmentRow {
   id: string;
   thread_id: number;
   user_id: number;
@@ -30,7 +30,7 @@ const _assistantAttachmentRowKeys: AssertRowKeys<AssistantAttachmentRow, Assista
 export type AssistantAttachmentSummary = Omit<AssistantAttachmentRow, 'text'>;
 
 /** A new attachment, as AssistantAttachmentsService writes it. */
-export interface AssistantAttachmentInsert {
+interface AssistantAttachmentInsert {
   id: string;
   threadId: number;
   userId: number;

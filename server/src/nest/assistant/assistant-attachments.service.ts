@@ -49,7 +49,7 @@ const ORPHAN_GRACE_MS = 60 * 60_000;
 const UNREAD_EXTENSIONS: ReadonlySet<string> = new Set([...LLM_PHOTO_EXTENSIONS, '.pkpass']);
 
 /** A file stored for a turn that has not written its rows yet. */
-export interface PreparedAttachment {
+interface PreparedAttachment {
   id: string;
   name: string;
   mime: string;
@@ -67,7 +67,7 @@ const ATTACHMENT_CHANGES: ReadonlySet<string> = new Set([READ_ATTACHED_FILE_TOOL
 const NOT_SHARED = 'The user has not let you read this file yet.';
 
 /** What a turn knows of its thread's files: the list without their texts, and the texts the model may read. */
-export interface TurnAttachments {
+interface TurnAttachments {
   attached: AssistantAttachmentSummary[];
   /** The texts of the files the user let the model read, by attachment id, cut to one model request. */
   texts: Map<string, string>;
@@ -81,7 +81,7 @@ interface TextReader {
 }
 
 /** Where a change on an attachment runs: the user, and the thread and trip of the conversation. */
-export interface AttachmentChangeAt {
+interface AttachmentChangeAt {
   userId: number;
   threadId: number;
   tripId: number;
