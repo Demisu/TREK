@@ -236,4 +236,14 @@ describe('the design tools', () => {
     await expect(books.restoreBookLayout(putBack, ctx(viewer.id))).rejects.toThrow('Not allowed');
     expect(t.realtime.broadcastToUserMock).not.toHaveBeenCalled();
   });
+
+  it('JBDMCP-006: design_book takes layouts templates and answers the template of each page', async () => {
+    const { journey, editor } = await crew();
+    const directives = { style: 'postcard' as const, layouts: 'templates' as const, seed: 1 };
+    const designed = await designs.designBook({ journeyId: journey.id, directives }, ctx(editor.id));
+    const draft = bookDesignAnswerSchema.parse(answered(designed));
+    expect(draft.plan.some((row) => row.template !== undefined)).toBe(true);
+    expect(draft.style.style).toBe('postcard');
+    expect(t.realtime.broadcastToUserMock).not.toHaveBeenCalled();
+  });
 });

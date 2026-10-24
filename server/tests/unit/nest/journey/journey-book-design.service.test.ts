@@ -418,3 +418,26 @@ describe('the art direction', () => {
     expect(free.findings.map((f) => f.code)).not.toContain('energy_mismatch');
   });
 });
+
+describe('the designed templates', () => {
+  it("JBDSN-014: layouts templates lays the draft on the designed templates and names each page's template", async () => {
+    const { journey, owner, created } = await crew();
+    const answer = await designs.design(journey.id, owner.id, { style: 'riso', layouts: 'templates', seed: 3 });
+
+    expect(bookDesignAnswerSchema.parse(answer)).toEqual(answer);
+    const named = answer.plan.filter((row) => row.template);
+    expect(named.length).toBeGreaterThan(1);
+    expect(answer.plan[0]?.beat).toBe('cover');
+    const { document } = await designs.draftView(journey.id, owner.id, answer.design_id);
+    expect(document.theme?.id).toBe('riso');
+    expect(answer.findings.filter((f) => f.severity === 'severe')).toEqual([]);
+    expect(await version(journey.id, owner.id)).toBe(created?.version);
+    expect(told()).toEqual([]);
+  });
+
+  it('JBDSN-015: without layouts the plan names no template, as every design answered before', async () => {
+    const { journey, owner } = await crew();
+    const answer = await designs.design(journey.id, owner.id, { style: 'riso', seed: 3 });
+    expect(answer.plan.every((row) => !('template' in row))).toBe(true);
+  });
+});

@@ -29,6 +29,7 @@ import {
   bookDesignAnswerSchema,
   bookDesignApplyResultSchema,
   bookDesignDraftResponseSchema,
+  bookDocumentSchema,
   bookWriteResultSchema,
 } from '@trek/shared';
 
@@ -196,5 +197,21 @@ describe('the whole-book design over MCP and REST', () => {
     );
     expect(names.filter((name) => DESIGN_TOOLS.includes(name))).toEqual([]);
     expect(names.length).toBeGreaterThan(0);
+  });
+
+  it('JBDSNE2E-004: a design on the designed templates applies as a valid book GET reads back', async () => {
+    const { editor, journey } = await journeyWithBook();
+    const directives = { style: 'field-notes', layouts: 'templates', seed: 2 };
+    const draft = bookDesignAnswerSchema.parse(
+      await callTool(editor.id, 'design_book', { journeyId: journey.id, directives }),
+    );
+    expect(draft.plan.filter((row) => row.template).length).toBeGreaterThan(0);
+    const applied = bookDesignApplyResultSchema.parse(
+      await callTool(editor.id, 'apply_book_design', { journeyId: journey.id, designId: draft.design_id }),
+    );
+    const after = await book(journey.id, editor.id);
+    expect(after.body.book.version).toBe(applied.version);
+    expect(bookDocumentSchema.safeParse(after.body.book.document).success).toBe(true);
+    expect(after.body.book.document.theme.id).toBe('field-notes');
   });
 });

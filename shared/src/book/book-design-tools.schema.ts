@@ -93,6 +93,8 @@ export const bookDesignPlanRowSchema = z.object({
   entryId: z.number().int().positive().nullable(),
   photoIds: z.array(z.number().int().positive()).max(MAX_SPREAD_ELEMENTS),
   findings: z.object({ severe: z.number().int().nonnegative(), warn: z.number().int().nonnegative() }),
+  /** The designed template the page was laid on, for a design with `layouts: 'templates'`. */
+  template: z.string().max(40).optional(),
 });
 export type BookDesignPlanRowOut = z.infer<typeof bookDesignPlanRowSchema>;
 
