@@ -1,5 +1,5 @@
 /**
- * Whether this browser will hand MapLibre a WebGL context.
+ * Whether this browser will hand MapLibre a WebGL2 context.
  *
  * The default basemap has been a vector style since 4.1.0, and maplibre-gl builds
  * its GL context inside the Map constructor: no context, no map, and the throw
@@ -45,12 +45,13 @@ function probe(): boolean {
     canvas.width = 1
     canvas.height = 1
 
-    // Exactly the order maplibre-gl asks in (Map._setupPainter): webgl2 first,
-    // webgl1 second. A stricter probe would black out maps that would in fact
-    // have drawn; a looser one would let the throw through anyway.
-    const gl = (canvas.getContext('webgl2') ?? canvas.getContext('webgl')) as WebGLRenderingContext | null
+    // Exactly what maplibre-gl asks for (Map._setupPainter): WebGL2 and nothing
+    // else, since MapLibre 6 dropped WebGL1. A browser that only offers WebGL1
+    // passes a looser probe and then throws GPUInitializationError out of the Map
+    // constructor, which is the crash this probe exists to prevent.
+    const gl = canvas.getContext('webgl2')
     if (!gl) {
-      console.warn('[basemap] this browser refuses a WebGL context, vector basemaps are unavailable')
+      console.warn('[basemap] this browser refuses a WebGL2 context, vector basemaps are unavailable')
       return false
     }
 

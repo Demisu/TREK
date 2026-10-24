@@ -55,7 +55,6 @@
   "scripts/check-gl-split.mjs",
   "scripts/check-page-pattern.mjs",
   "scripts/generate-icons.mjs",
-  "scripts/patch-maplibre.mjs",
   "src/App.test.tsx",
   "src/App.tsx",
   "src/App.versionHandover.test.tsx",

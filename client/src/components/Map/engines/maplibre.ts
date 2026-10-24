@@ -1,7 +1,6 @@
-import maplibregl from 'maplibre-gl'
+import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import rtlTextPluginUrl from '@mapbox/mapbox-gl-rtl-text/dist/mapbox-gl-rtl-text.js?url'
-import { registerRtlTextPlugin } from '../rtlText'
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 
 /**
  * The only module in the client that pulls maplibre-gl in at runtime. Same rule as
@@ -11,9 +10,22 @@ import { registerRtlTextPlugin } from '../rtlText'
  * Popup, LngLatBounds — which is why the components take the engine as a prop and
  * stay engine-agnostic. Where the two genuinely differ, the caller already guards
  * on the provider (projection, accessToken, aroundCenter).
+ *
+ * MapLibre 6 ships as ES modules only and has no default export any more, so the
+ * namespace is what goes out as this module's default. It is a frozen module
+ * namespace: nothing may assign to it, which is why the accessToken writes stay
+ * behind their mapbox-only guard.
  */
-// Arabic/Hebrew/Persian labels come out unjoined and reversed without this.
-// MapLibre's signature is (url, lazy) and it resolves a promise — see rtlText.ts.
-registerRtlTextPlugin(() => maplibregl.setRTLTextPlugin(rtlTextPluginUrl, true))
+
+// MapLibre 6 finds its worker next to its own module, which inside a bundle is a
+// chunk in /assets/ with no worker beside it. Vite builds the worker into its own
+// file and hands back the URL; set before any Map is constructed, the
+// maplibre-gl-leaflet bridge included, since it only ever reaches the engine
+// together with this module.
+maplibregl.setWorkerUrl(workerUrl)
+
+// No RTL text plugin here, unlike mapbox. MapLibre 6.9 shapes Arabic and orders
+// bidirectional text itself; the old plugin would replace that implementation, and
+// a v6 worker can only load the plugin's UMD build through eval.
 
 export default maplibregl

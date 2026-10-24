@@ -7,16 +7,18 @@
  * this because their labels are drawn server-side, which is why it only surfaced
  * once the default basemap became a vector style.
  *
- * Both engines expose the fix as an optional plugin and neither loads it by
- * default. Registering is global to the engine, so it happens once per engine
- * module rather than at each map's construction site.
+ * Mapbox GL exposes the fix as an optional plugin and does not load it by
+ * default. Registering is global to the engine, so it happens once in the engine
+ * module rather than at each map's construction site. MapLibre needed the same
+ * plugin up to version 5; since 6.9 it shapes and reorders the text itself, and
+ * its engine module registers nothing.
  *
- * The call itself stays with the caller: this is one of the places the two engines
- * genuinely differ. MapLibre 5 takes `(url, lazy)` and returns a promise, Mapbox
- * GL 3 takes `(url, callback, deferred)` and returns nothing — so each engine
- * module passes its own invocation rather than a shared wrapper guessing an arity.
+ * The call itself stays with the caller: Mapbox GL 3 takes
+ * `(url, callback, deferred)` and returns nothing, while MapLibre took
+ * `(url, lazy)` and returned a promise, so the guard below accepts either rather
+ * than guessing an arity.
  *
- * Deliberately no getRTLTextPluginStatus() pre-check: reading it makes MapLibre
+ * Deliberately no getRTLTextPluginStatus() pre-check: reading it made MapLibre
  * build its worker pool, which is an eager side effect for a module that is
  * imported for its default export, and throws outright under jsdom. Registering
  * twice is reported — by a throw or a rejected promise depending on the engine —

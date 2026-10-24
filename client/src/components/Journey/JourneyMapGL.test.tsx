@@ -107,7 +107,8 @@ const glModule = vi.hoisted(() => () => ({
 }))
 
 vi.mock('mapbox-gl', glModule)
-vi.mock('maplibre-gl', glModule)
+// maplibre-gl 6 has no default export: the same fakes, as named exports.
+vi.mock('maplibre-gl', () => glModule().default)
 vi.mock('mapbox-gl/dist/mapbox-gl.css', () => ({}))
 vi.mock('maplibre-gl/dist/maplibre-gl.css', () => ({}))
 
@@ -121,7 +122,7 @@ vi.mock('../Map/mapboxSetup', () => ({
 
 import React from 'react'
 import mapboxgl from 'mapbox-gl'
-import maplibregl from 'maplibre-gl'
+import * as maplibregl from 'maplibre-gl'
 import { render, screen, act } from '../../../tests/helpers/render'
 import { resetAllStores, seedStore } from '../../../tests/helpers/store'
 import { useSettingsStore } from '../../store/settingsStore'

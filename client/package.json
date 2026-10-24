@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/patch-maplibre.mjs && node scripts/generate-icons.mjs",
+    "prebuild": "node scripts/generate-icons.mjs",
     "build": "vite build",
     "build:analyze": "vite build --mode analyze",
     "preview": "vite preview",
@@ -41,9 +41,7 @@
     "shots:promote": "node e2e/screenshots/promote.mjs",
     "e2e:report": "playwright show-report",
     "format": "prettier --write \"src/**/*.tsx\" \"src/**/*.css\"",
-    "format:check": "prettier --check \"src/**/*.tsx\" \"src/**/*.css\"",
-    "postinstall": "node scripts/patch-maplibre.mjs",
-    "predev": "node scripts/patch-maplibre.mjs"
+    "format:check": "prettier --check \"src/**/*.tsx\" \"src/**/*.css\""
   },
   "dependencies": {
     "@assistant-ui/react": "0.15.25",
@@ -94,7 +92,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^0.577.0",
     "mapbox-gl": "^3.31.0",
-    "maplibre-gl": "5.24.0",
+    "maplibre-gl": "6.15.0",
     "modern-screenshot": "4.7.0",
     "plyr": "^3.8.4",
     "react": "^19.3.0",

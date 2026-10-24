@@ -1,29 +1,33 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 /**
- * The two lines this fix actually adds. Everything else is a helper: the guard in
- * rtlText.ts has its own tests, but a guard nobody calls looks exactly like a
- * working fix from the outside. Deleting either registration, swapping an
- * argument or dropping the deferred flag left the whole suite green.
+ * What each engine module does on import. Everything else is a helper: the guard
+ * in rtlText.ts has its own tests, but a guard nobody calls looks exactly like a
+ * working fix from the outside. Deleting the mapbox registration, swapping an
+ * argument or dropping the deferred flag left the whole suite green, and so would
+ * a maplibre engine that forgot its worker URL.
  *
  * The engines are mocked because importing them for real builds a worker pool
  * under jsdom, and the plugin URL is mocked so the 133 KB payload never loads.
  */
-const { mapboxSet, maplibreSet } = vi.hoisted(() => ({
+const { mapboxSet, maplibreSet, maplibreWorker } = vi.hoisted(() => ({
   mapboxSet: vi.fn(),
   maplibreSet: vi.fn(),
+  maplibreWorker: vi.fn(),
 }));
 
 vi.mock('mapbox-gl', () => ({ default: { setRTLTextPlugin: mapboxSet } }));
-vi.mock('maplibre-gl', () => ({ default: { setRTLTextPlugin: maplibreSet } }));
+vi.mock('maplibre-gl', () => ({ setRTLTextPlugin: maplibreSet, setWorkerUrl: maplibreWorker }));
 vi.mock('mapbox-gl/dist/mapbox-gl.css', () => ({}));
 vi.mock('maplibre-gl/dist/maplibre-gl.css', () => ({}));
+vi.mock('maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url', () => ({ default: '/assets/maplibre-worker.js' }));
 vi.mock('@mapbox/mapbox-gl-rtl-text/dist/mapbox-gl-rtl-text.js?url', () => ({ default: '/assets/rtl-plugin.js' }));
 
 beforeEach(() => {
   vi.resetModules();
   mapboxSet.mockReset();
   maplibreSet.mockReset();
+  maplibreWorker.mockReset();
 });
 
 describe('the GL engines register the RTL text plugin (#2235)', () => {
@@ -37,13 +41,12 @@ describe('the GL engines register the RTL text plugin (#2235)', () => {
     expect(mapboxSet).toHaveBeenCalledWith(expect.stringContaining('rtl'), null, true);
   });
 
-  it('FE-MAP-RTL-002: importing the maplibre engine registers it lazily', async () => {
+  it('FE-MAP-RTL-002: importing the maplibre engine registers no plugin', async () => {
     await import('./maplibre');
 
-    expect(maplibreSet).toHaveBeenCalledTimes(1);
-    // MapLibre 5 takes (url, lazy) and returns a promise, which is the reason
-    // the call stays with each engine instead of going through one wrapper.
-    expect(maplibreSet).toHaveBeenCalledWith(expect.stringContaining('rtl'), true);
+    // MapLibre 6.9 shapes right-to-left text itself. The plugin would replace
+    // that, and a v6 worker could only run its UMD build through eval.
+    expect(maplibreSet).not.toHaveBeenCalled();
   });
 
   it('FE-MAP-RTL-003: an engine still loads when its registration throws', async () => {
@@ -54,13 +57,13 @@ describe('the GL engines register the RTL text plugin (#2235)', () => {
     expect(engine.default).toBeDefined();
   });
 
-  it('FE-MAP-RTL-004: a rejected registration promise does not surface as an unhandled rejection', async () => {
-    maplibreSet.mockReturnValue(Promise.reject(new Error('already registered')));
-
+  it('FE-MAP-RTL-004: importing the maplibre engine points it at the bundled worker', async () => {
     const engine = await import('./maplibre');
 
-    expect(engine.default).toBeDefined();
-    // Give the rejection a tick to go unhandled if nothing caught it.
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    // MapLibre 6 looks for its worker next to its own module, which in a bundle
+    // is a chunk with no worker beside it. Without this no map draws a tile.
+    expect(maplibreWorker).toHaveBeenCalledTimes(1);
+    expect(maplibreWorker).toHaveBeenCalledWith('/assets/maplibre-worker.js');
+    expect(engine.default.setWorkerUrl).toBe(maplibreWorker);
   });
 });

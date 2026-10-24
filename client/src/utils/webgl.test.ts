@@ -42,15 +42,15 @@ describe('hasWebGL', () => {
     expect(hasWebGL()).toBe(false)
   })
 
-  it('FE-UTIL-WEBGL-003: falls back to webgl1 when only webgl2 is refused', () => {
-    // Exactly the order maplibre-gl asks in. A stricter probe would black out
-    // maps that would in fact have drawn.
+  it('FE-UTIL-WEBGL-003: says no when only webgl1 is on offer', () => {
+    // MapLibre 6 asks for webgl2 and nothing else. A probe that settled for
+    // webgl1 would wave the map through to a GPUInitializationError.
     const { ctx } = fakeContext()
     const getContext = vi.fn((type: string) => (type === 'webgl2' ? null : ctx))
     HTMLCanvasElement.prototype.getContext = getContext as unknown as typeof realGetContext
 
-    expect(hasWebGL()).toBe(true)
-    expect(getContext.mock.calls.map((c) => c[0])).toEqual(['webgl2', 'webgl'])
+    expect(hasWebGL()).toBe(false)
+    expect(getContext.mock.calls.map((c) => c[0])).toEqual(['webgl2'])
   })
 
   it('FE-UTIL-WEBGL-004: gives the probe context straight back', () => {

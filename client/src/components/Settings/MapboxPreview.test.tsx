@@ -32,7 +32,7 @@ const mapboxModule = vi.hoisted(() => ({ accessToken: '', Map: mapboxCtor }));
 
 vi.mock('mapbox-gl', () => ({ default: mapboxModule }));
 vi.mock('mapbox-gl/dist/mapbox-gl.css', () => ({}));
-vi.mock('maplibre-gl', () => ({ default: { Map: maplibreCtor } }));
+vi.mock('maplibre-gl', () => ({ Map: maplibreCtor }));
 vi.mock('maplibre-gl/dist/maplibre-gl.css', () => ({}));
 
 vi.mock('../Map/mapboxSetup', () => ({
@@ -45,7 +45,7 @@ vi.mock('../Map/mapboxSetup', () => ({
 import { isStandardFamily, supportsCustom3d, addCustom3dBuildings, addTerrainAndSky } from '../Map/mapboxSetup';
 import { MAPBOX_DEFAULT_STYLE, OPENFREEMAP_DEFAULT_STYLE } from '../Map/glProviders';
 import mapboxgl from 'mapbox-gl';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import GlMapPreviewWithEngine from './MapboxPreview';
 
 // The engine is a prop now, not a module import — that is what keeps mapbox-gl and

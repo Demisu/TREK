@@ -8,7 +8,7 @@ import { buildPlace } from '../../../tests/helpers/factories'
 import { server } from '../../../tests/helpers/msw/server'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useAuthStore } from '../../store/authStore'
-import maplibregl from 'maplibre-gl'
+import * as maplibregl from 'maplibre-gl'
 import { DEFAULT_MAP_ZOOM } from '../../constants/mapDefaults'
 import { MAP_LAYER_SWITCHER_INSET } from './MapLayerSwitcher'
 import type { GeoPosition, TrackingMode } from '../../hooks/useGeolocation'
@@ -156,22 +156,21 @@ vi.mock('mapbox-gl', () => ({
 }))
 vi.mock('mapbox-gl/dist/mapbox-gl.css', () => ({}))
 
+// maplibre-gl 6 has no default export, so the fakes are named exports.
 vi.mock('maplibre-gl', () => ({
-  default: {
-    Map: vi.fn(function () {
-      return glMap
-    }),
-    Marker: vi.fn(function (opts?: { element?: HTMLElement }) {
-      return glMarkers.make(opts)
-    }),
-    LngLatBounds: vi.fn(function () {
-      return glBounds.create()
-    }),
-    NavigationControl: vi.fn(),
-    Popup: vi.fn(function () {
-      return glPopup
-    }),
-  },
+  Map: vi.fn(function () {
+    return glMap
+  }),
+  Marker: vi.fn(function (opts?: { element?: HTMLElement }) {
+    return glMarkers.make(opts)
+  }),
+  LngLatBounds: vi.fn(function () {
+    return glBounds.create()
+  }),
+  NavigationControl: vi.fn(),
+  Popup: vi.fn(function () {
+    return glPopup
+  }),
 }))
 vi.mock('maplibre-gl/dist/maplibre-gl.css', () => ({}))
 
@@ -352,7 +351,7 @@ describe('MapViewGL', () => {
 
   it('FE-COMP-MAPVIEWGL-004: renders with the MapLibre provider and no token', async () => {
     const mapboxgl = (await import('mapbox-gl')).default
-    const maplibregl = (await import('maplibre-gl')).default
+    const maplibregl = await import('maplibre-gl')
     useSettingsStore.setState({
       settings: {
         ...useSettingsStore.getState().settings,
@@ -373,7 +372,7 @@ describe('MapViewGL', () => {
 
   it('FE-COMP-MAPVIEWGL-014: MapLibre maps disable the around-center mouse rotate (#1545)', async () => {
     const mapboxgl = (await import('mapbox-gl')).default
-    const maplibregl = (await import('maplibre-gl')).default
+    const maplibregl = await import('maplibre-gl')
     useSettingsStore.setState({
       settings: {
         ...useSettingsStore.getState().settings,

@@ -1,5 +1,5 @@
 import { act } from '@testing-library/react';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '../../../tests/helpers/render';
@@ -164,22 +164,21 @@ vi.mock('mapbox-gl', () => ({
 }));
 vi.mock('mapbox-gl/dist/mapbox-gl.css', () => ({}));
 
+// maplibre-gl 6 has no default export, so the fakes are named exports.
 vi.mock('maplibre-gl', () => ({
-  default: {
-    Map: vi.fn(function () {
-      return glMap;
-    }),
-    Marker: vi.fn(function (opts?: { element?: HTMLElement }) {
-      return glMarkers.make(opts);
-    }),
-    LngLatBounds: vi.fn(function () {
-      return glBounds.create();
-    }),
-    NavigationControl: vi.fn(),
-    Popup: vi.fn(function () {
-      return glPopup;
-    }),
-  },
+  Map: vi.fn(function () {
+    return glMap;
+  }),
+  Marker: vi.fn(function (opts?: { element?: HTMLElement }) {
+    return glMarkers.make(opts);
+  }),
+  LngLatBounds: vi.fn(function () {
+    return glBounds.create();
+  }),
+  NavigationControl: vi.fn(),
+  Popup: vi.fn(function () {
+    return glPopup;
+  }),
 }));
 vi.mock('maplibre-gl/dist/maplibre-gl.css', () => ({}));
 
