@@ -4,7 +4,9 @@ The **Tours** add-on plans routes inside a trip: hikes and runs, city walks, bik
 
 Tours is a trip add-on and on by default; an administrator switches it under **Admin > Add-ons**. While it is on, the Plan tab gets a **Places / Tours** switch in its right column and the trip gets a **Tours** tab for drawing and editing. The Tours tab needs a tablet or a computer; on a phone you see and plan tours, but do not draw them.
 
-This page follows the app: the Plan tab first, then the tour card, the Tours tab and its tools, and at the end what is special about each kind of tour.
+This page follows the app: the Plan tab first, then the tour card, the Tours tab and its tools, and at the end what is special about each kind of tour. The **?** in the navbar opens the [Help Center](Help-Center) on the tour screen you are on, with a picture of each step.
+
+With the AI Assistant addon on, the assistant can look for tours and propose them in the trip. A proposed tour comes as a card with **Plan this** (or **Plan way A**, **Plan way B** when it found several ways), and **Open in Tours** takes you to the planner once it is added. Nothing is saved until you confirm.
 
 
 ## Tours on the Plan tab

@@ -33,7 +33,7 @@ With the [Road trip](Road-Trip) addon on, a **Days** / **Road trip** switch sits
 
 ## The top bar
 
-Inside a trip the top bar carries the way back as a pill: an arrow and the trip's name, which takes you back to the [dashboard](My-Trips-Dashboard). Beside it sits the **Trip settings** pill, which opens People, Sharing and, with the Journey addon on, Journal: who is on the trip, the read-only link and the invite link, and the journal the trip shows. On the right are the **?** help button (see [Help Center](Help-Center)), the assistant launcher when the AI Assistant addon is on, the notification bell and your user menu.
+Inside a trip the top bar carries the way back as a pill: an arrow and the trip's name, which takes you back to the [dashboard](My-Trips-Dashboard). Beside it sits the **Trip settings** pill, which opens People, Sharing and, with the Journey addon on, Journal: who is on the trip, the read-only link and the invite link, and the journal the trip shows. On the right are the **?** help button on windows at least 640 px wide (see [Help Center](Help-Center)), the assistant launcher when the AI Assistant addon is on, the notification bell and your user menu.
 
 ## Tabs
 

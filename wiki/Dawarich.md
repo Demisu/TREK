@@ -249,6 +249,7 @@ Each request to Dawarich gives up after 15 seconds, and TREK reads at most 8 MB 
 
 ## See also
 
+- [Help Center](Help-Center): guides for the screens Dawarich appears on, with a picture of each step
 - [Public API](Public-API): how Dawarich reads your trips
 - [Atlas](Atlas): the bucket list and the visited countries map
 - [Journey Journal](Journey-Journal): where accepted stays become entries

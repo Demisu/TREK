@@ -356,6 +356,10 @@ The tab shows the open day as a chain: where it starts and where it ends, each s
 
 Planning is done on the desktop: the other Driving settings, reordering and deleting stops, following a track and booking a night. The phone reads the plan and handles what a passenger decides on the road.
 
+## The AI assistant
+
+With the AI Assistant addon on, the assistant can shape the drive for you: send it through a point, move or remove a via point, change the driving settings, set where a day ends and import a Google Maps route. Each of these arrives as a proposal you confirm, and what it changes is what this page describes.
+
 ## MCP tools
 
 With the [MCP](MCP-Overview) addon on as well, an assistant can plan and check a road trip without an open browser. The server uses the same scheduling, range and day-ending rules as the planner. The road trip tools exist only while the addon is on (`set_assignment_end_day` and `import_trip_gpx` are general tools and always there), and each write needs the same permission as in the browser.
