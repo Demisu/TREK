@@ -45,8 +45,11 @@ import type { BookDocument } from './book.schema';
  *   tracking up to 1.5 em.
  * - 10: letters filled with a gradient or a pattern (`fillPaint` of type `linear`, `radial`,
  *   `pattern`, book-text-effects.schema.ts).
+ * - 11: the newer travel looks: a summary's `look`, a country's `look`, the stamp, tag,
+ *   pill, ribbon, sticker, patch and sketch marks, and the `numbered` and `ends` stops of
+ *   a map.
  */
-export const BOOK_SCHEMA_REV = 10;
+export const BOOK_SCHEMA_REV = 11;
 
 /** The `code` a refused save carries in its body when the stored book is newer than the writer. */
 export const BOOK_SCHEMA_NEWER_CODE = 'book_schema_newer';

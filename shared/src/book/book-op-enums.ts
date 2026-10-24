@@ -110,7 +110,11 @@ export const bookRouteArcSchema = map.routeArc
   .unwrap()
   .describe('bow draws the long legs as a curve, the way a flight is shown.');
 export const bookRouteDashSchema = map.routeDash.unwrap().describe('arcs dashes the bowed legs; solid dashes nothing.');
-export const bookPinStyleSchema = map.pinStyle.unwrap().describe('A stop as a dot, or as a small round photo of it.');
+export const bookPinStyleSchema = map.pinStyle
+  .unwrap()
+  .describe(
+    'A stop as a dot, a small round photo of it, its number in the order travelled, or only the start and the end marked.',
+  );
 export const bookMapClipSchema = map.clip
   .unwrap()
   .describe('rect is a map in a box; country cuts it to the outline of its countries.');
@@ -122,12 +126,24 @@ export const bookMapSourceSchema = z
 export const bookStatsLayoutSchema = bookStatsElementSchema.shape.layout
   .unwrap()
   .describe('The figures in a grid, one row or one column.');
+export const bookStatsLookSchema = bookStatsElementSchema.shape.look
+  .unwrap()
+  .describe(
+    'How the figures are drawn: classic (icon, figure, caption), poster (one big figure, the rest beside it), ticket (a ticket stub), tiles (a tile per figure), band (one line of figures between hairlines), medal (a round medal per figure), odometer (the drums of a counter), sign (a road sign listing them), note (a handwritten note) or sketch (drawn by hand).',
+  );
 export const bookCountriesLayoutSchema = bookCountriesElementSchema.shape.layout
   .unwrap()
   .describe('The countries as a list, a grid or one column.');
+export const bookCountryLookSchema = bookCountriesElementSchema.shape.look
+  .unwrap()
+  .describe(
+    'How a country is drawn: classic (name over its outline), stamp (a round passport stamp), postcard, visa (an entry stamp), flag (the flag in cloth), pin (a map pin), label (a luggage label) or sketch (the outline drawn by hand).',
+  );
 export const bookBadgeStyleSchema = bookBadgeElementSchema.shape.style
   .unwrap()
-  .describe('plain words, a chip (filled capsule), an outline, or stacked over its line.');
+  .describe(
+    'plain words, a chip (filled capsule), an outline, stacked over its line, a passport stamp, a luggage tag, a pill with its icon in a disc, a ribbon, a die-cut sticker, an embroidered patch or a frame drawn by hand.',
+  );
 export const bookBadgeVariantSchema = z
   .enum(BOOK_BADGES)
   .describe(

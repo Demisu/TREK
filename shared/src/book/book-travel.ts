@@ -257,6 +257,7 @@ export function bookTravelStats(
     frame: input.frame,
     metrics: [...input.metrics],
     layout: 'grid',
+    look: 'classic',
     showIcons: true,
     units: 'metric',
     values: liveMetrics(stats),
@@ -281,6 +282,7 @@ export function bookTravelCountries(
     showFlag: false,
     showName: true,
     align: 'center',
+    look: 'classic',
   };
 }
 

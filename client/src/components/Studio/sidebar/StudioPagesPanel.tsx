@@ -106,6 +106,9 @@ export function StudioPagesPanel({
                     folios={folios}
                     fold={bookView}
                     className="st-thumb-sheet"
+                    coverInside={t(
+                      sp.role === 'last' ? 'journey.studio.backCoverInside' : 'journey.studio.coverInside'
+                    )}
                   />
                   <span className="st-thumb-label">
                     {sp.role === 'cover'

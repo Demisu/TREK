@@ -504,8 +504,12 @@ export const bookMapElementSchema = z.object({
    * That fallback is the designed state rather than a failure: a printed page
    * with a few plain dots between the pictures reads as a route, and one with
    * empty rings reads as a bug.
+   *
+   * `numbered` draws every stop as its number in the order travelled, the way
+   * a guidebook's map refers to its text. `ends` marks where the journey began
+   * and where it ended, and leaves the stops between them as small dots.
    */
-  pinStyle: z.enum(['dot', 'photo']).default('dot'),
+  pinStyle: z.enum(['dot', 'photo', 'numbered', 'ends']).default('dot'),
   /** ISO-3166-1 alpha-2, the countries whose outlines to draw. */
   countries: z.array(z.string().length(2)).max(MAX_BOOK_COUNTRIES).default([]),
   /**
@@ -636,6 +640,47 @@ export const bookMapElementSchema = z.object({
   tripId: z.number().int().positive().nullable().default(null),
 });
 
+/** The looks of a summary, `classic` first: what every summary drew before there were looks. */
+export const BOOK_STATS_LOOKS = [
+  'classic',
+  'poster',
+  'ticket',
+  'tiles',
+  'band',
+  'medal',
+  'odometer',
+  'sign',
+  'note',
+  'sketch',
+] as const;
+export type BookStatsLook = (typeof BOOK_STATS_LOOKS)[number];
+
+/** The looks of a country, `classic` first for the same reason. */
+export const BOOK_COUNTRY_LOOKS = ['classic', 'stamp', 'postcard', 'visa', 'flag', 'pin', 'label', 'sketch'] as const;
+export type BookCountryLook = (typeof BOOK_COUNTRY_LOOKS)[number];
+
+/**
+ * How a mark is set. The first four are what marks have always been; `stamp`
+ * is an inked passport stamp, `tag` a luggage label with its eyelet, `pill`
+ * the icon in a disc at the start of a capsule, `ribbon` a banner with forked
+ * tails, `sticker` a die-cut sticker with its white edge, and `patch` an
+ * embroidered patch with its stitching, and `sketch` a frame drawn by hand.
+ */
+export const BOOK_BADGE_STYLES = [
+  'plain',
+  'chip',
+  'outline',
+  'stacked',
+  'stamp',
+  'tag',
+  'pill',
+  'ribbon',
+  'sticker',
+  'patch',
+  'sketch',
+] as const;
+export type BookBadgeStyle = (typeof BOOK_BADGE_STYLES)[number];
+
 export const BOOK_METRICS = ['distance', 'days', 'steps', 'photos', 'countries', 'places', 'furthest'] as const;
 export type BookMetric = (typeof BOOK_METRICS)[number];
 
@@ -646,6 +691,17 @@ export const bookStatsElementSchema = z.object({
   /** Which figures, in the order they are drawn. */
   metrics: z.array(z.enum(BOOK_METRICS)).max(7).default(['distance', 'days', 'steps', 'photos']),
   layout: z.enum(['grid', 'row', 'column']).default('grid'),
+  /**
+   * How the figures are drawn. `classic` is the icon, figure and caption every
+   * summary placed so far draws, and the default for exactly that reason: a
+   * stored book must not change the day it is opened. The others are newer
+   * compositions: one figure set as a poster with the rest beside it, a ticket
+   * stub, a tile per figure, a band of figures between hairlines, a round
+   * medal per figure with its name running round the rim, the drums of an
+   * odometer, a road sign listing them, a handwritten note, and a pencil
+   * sketch with a hand-drawn frame.
+   */
+  look: z.enum(BOOK_STATS_LOOKS).default('classic'),
   showIcons: z.boolean().default(true),
   units: bookUnitsSchema.default('metric'),
   /**
@@ -681,6 +737,16 @@ export const bookCountriesElementSchema = z.object({
   showFlag: z.boolean().default(false),
   showName: z.boolean().default(true),
   align: z.enum(['left', 'center', 'right']).default('center'),
+  /**
+   * How a country is drawn. `classic` is the name over its silhouette that
+   * every country placed so far draws, kept as the default so a stored book
+   * stays as it was. `stamp` sets it as a round passport stamp, `postcard` as
+   * an airmail card, `visa` as an entry stamp with cut corners, `flag` as the
+   * flag in cloth, `pin` as a map pin carrying the flag, and `label` as an old
+   * luggage label with the name on a ribbon, `sketch` as the outline drawn by
+   * hand and hatched, with the name written under it.
+   */
+  look: z.enum(BOOK_COUNTRY_LOOKS).default('classic'),
 });
 
 export const BOOK_BADGES = [
@@ -724,7 +790,7 @@ export const bookBadgeElementSchema = z.object({
    * characters; the field is simply no longer only that.
    */
   code: z.string().max(24).nullable().default(null),
-  style: z.enum(['plain', 'chip', 'outline', 'stacked']).default('plain'),
+  style: z.enum(BOOK_BADGE_STYLES).default('plain'),
   /**
    * Let the mark pick its own text colour.
    *

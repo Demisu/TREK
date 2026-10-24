@@ -332,3 +332,18 @@
 .trek-dash .st-route-stop > span.st-chip {
   pointer-events: none;
 }
+
+/*
+ * The blank inside of a cover beside the first and the last page in the page
+ * rail (SpreadThumb's coverInside): the bound book opens on those pages with
+ * the cover's inside opposite, which is why they stand alone. Drawn as plain
+ * card under a faint hatch, so it reads as a page nothing is printed on.
+ */
+.trek-dash .st-thumb-inside {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background:
+    repeating-linear-gradient(135deg, color-mix(in oklch, var(--ink) 7%, transparent) 0 1px, transparent 1px 6px),
+    color-mix(in oklch, var(--surface-2) 80%, transparent);
+}

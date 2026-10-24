@@ -19,9 +19,8 @@ import type { StudioAssistant } from './useStudioAssistant';
  * the close button at the far end.
  *
  * The tile is the journey's cover and the title its name, so it is always clear
- * whose book this is. Whether it is saved sits under the title, because it
- * describes it. The tools on the right are grouped by what they do: who else
- * is here, what the book is printed as, editing (undo, redo, paste), auto
+ * whose book this is. The tools on the right are grouped by what they do:
+ * who else is here and whether the book is saved, what the book is printed as, editing (undo, redo, paste), auto
  * layout, the assistant, help, and getting the book out. Every piece of
  * the row is one raised tile of one height, export alone in the accent. How
  * the page is looked at, the book view, lives with the zoom under the page.
@@ -44,21 +43,20 @@ export function StudioHeader({
           <StudioWordmark style={{ height: 17 }} />
         </div>
         <h1 className="st-head-title">{s.journey?.title || s.t('journey.title')}</h1>
-        <div className="st-head-sub">
-          <SaveIndicator
-            state={s.saveState}
-            t={s.t}
-            onAcceptTheirs={(current) => s.loadDoc(s.acceptTheirs(current))}
-            onKeepMine={s.keepMine}
-            onRetry={() => {
-              void s.saveNow();
-            }}
-          />
-        </div>
       </div>
 
       <div className="st-head-tools">
         <PeerBadges peers={s.peers} t={s.t} />
+        {/* Whether the book is safe, as a tile beside who else is here: both say how the book stands. */}
+        <SaveIndicator
+          state={s.saveState}
+          t={s.t}
+          onAcceptTheirs={(current) => s.loadDoc(s.acceptTheirs(current))}
+          onKeepMine={s.keepMine}
+          onRetry={() => {
+            void s.saveNow();
+          }}
+        />
 
         <div className="st-head-group">
           <FormatPicker s={s} />

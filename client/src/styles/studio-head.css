@@ -73,13 +73,6 @@
   line-height: 1.25;
 }
 
-.trek-dash .st-head-sub {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
 .trek-dash .st-head-tools {
   display: flex;
   align-items: center;
@@ -123,6 +116,102 @@
 .trek-dash .st-tool.is-primary.st-head-solo {
   padding-inline: 16px;
   box-shadow: var(--sh-xs);
+}
+
+/* Whether the book is saved, as a tile beside who is here; a conflict keeps its warning tint. */
+.trek-dash .st-head .st-save {
+  height: var(--st-head-h);
+  padding-inline: 12px;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--sh-xs);
+  color: var(--ink-2);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.trek-dash .st-head .st-save.is-conflict {
+  background: color-mix(in oklch, var(--warning) 14%, var(--surface));
+  border: 0;
+}
+.trek-dash .st-head .st-save.is-error {
+  background: color-mix(in oklch, var(--danger) 10%, var(--surface));
+}
+
+/* A book a newer Studio saved: the whole Studio under a veil, one card, one way out. */
+.trek-dash .st-newer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: color-mix(in oklch, var(--surface) 55%, transparent);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  animation: st-newer-in 0.22s ease-out both;
+}
+.trek-dash .st-newer-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(380px, 100%);
+  padding: 28px 28px 24px;
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--sh-lg);
+  text-align: center;
+}
+.trek-dash .st-newer-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.trek-dash .st-newer-text {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+.trek-dash .st-newer-reload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  margin-top: 4px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: filter 0.16s;
+}
+.trek-dash .st-newer-reload:hover {
+  filter: brightness(1.08);
+}
+.trek-dash .st-newer-reload:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 4px var(--accent);
+}
+@keyframes st-newer-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trek-dash .st-newer {
+    animation: none;
+  }
 }
 
 /* Who is here, as a tile like the tools beside it. */

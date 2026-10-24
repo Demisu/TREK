@@ -1,6 +1,6 @@
-// STTRV-001 to STTRV-006 and STTRV-009: the Travel panel places what the book engine's factories build, so a figure,
-// a map, a country or a mark added by hand is the element the assistant's `add` adds. Only the frame is the panel's
-// own: centred across the spread rather than on the right-hand page.
+// STTRV-001 to STTRV-009: the Travel panel places what the book engine's factories build, set in one of the newer
+// looks, so a figure, a map, a country or a mark added by hand is the element the assistant's `add` adds in that look.
+// Only the frame and the look are the panel's own.
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { BookDocument, BookElement, BookFrame, BookTravelContext, JourneyStats } from '@trek/shared';
@@ -8,6 +8,7 @@ import {
   BOOK_SATELLITE_TILES,
   bookBadgeValue,
   bookPageSetupSchema,
+  bookThemeOf,
   bookTravelBadge,
   bookTravelCountries,
   bookTravelMap,
@@ -151,107 +152,156 @@ beforeEach(() => {
   } as unknown as BookDocument);
 });
 
+/** Open one of the panel's tabs by its name. */
+const tab = (key: string) => fireEvent.click(screen.getByRole('tab', { name: key }));
+
 describe('the Travel panel builds through the book engine', () => {
-  it('STTRV-001: places a single figure as the engine builds it, centred across the spread', () => {
+  it('STTRV-001: places a summary in the look of its card, with the figures the engine resolves', () => {
     open();
 
-    fireEvent.click(card('journey.studio.metric.days'));
+    fireEvent.click(card('journey.studio.statsLook.poster'));
 
-    const size = bookTravelSize('stats', page);
-    expect(content(placed())).toEqual(
-      content(bookTravelStats(stats, { id: 'st', frame: ANY_FRAME, metrics: ['days'] }))
-    );
-    expect(placed().frame).toEqual(spreadCentre(size));
+    const engine = bookTravelStats(stats, {
+      id: 'st',
+      frame: ANY_FRAME,
+      metrics: ['distance', 'days', 'countries', 'photos'],
+    });
+    expect(content(placed())).toEqual(content({ ...engine, look: 'poster' as const }));
   });
 
-  it('STTRV-002: places a journey map with the recorded way, in the style of its card', () => {
+  it('STTRV-002: offers each figure on its own as a medal, an odometer and a sketch', () => {
     open();
 
-    fireEvent.click(card('journey.studio.mapStyle.dark'));
+    const days = screen.getAllByRole('button', { name: 'journey.studio.metric.days' });
+    expect(days).toHaveLength(3);
+    const looks = days.map((button) => {
+      fireEvent.click(button);
+      return placed() as { look?: string; metrics?: string[] };
+    });
+    expect(looks.map((el) => el.look)).toEqual(['medal', 'odometer', 'sketch']);
+    expect(looks.every((el) => el.metrics?.join() === 'days')).toBe(true);
+  });
 
+  it('STTRV-003: places the journey map with its stops numbered, its ends marked or on the dark ground', () => {
+    open();
+    tab('journey.studio.travelMaps');
+
+    fireEvent.click(card('journey.studio.pinNumbered'));
     const engine = bookTravelMap(travel, stats, { id: 'mp', frame: ANY_FRAME, scope: 'journey' });
-    expect(content(placed())).toEqual(content({ ...engine, style: 'dark' as const }));
-    expect(placed()).toMatchObject({ kind: 'map', style: 'dark', source: 'vector', tripId: null, path: PATH });
+    expect(content(placed())).toEqual(content({ ...engine, style: 'minimal' as const, pinStyle: 'numbered' as const }));
+    expect(placed()).toMatchObject({ kind: 'map', source: 'vector', tripId: null, path: PATH });
     expect(placed().frame).toEqual(spreadCentre(bookTravelSize('map', page)));
+
+    fireEvent.click(card('journey.studio.pinEnds'));
+    expect(placed()).toMatchObject({ pinStyle: 'ends' });
+    fireEvent.click(card('journey.studio.mapStyle.dark'));
+    expect(placed()).toMatchObject({ style: 'dark', pinStyle: 'numbered' });
   });
 
-  it('STTRV-003: places a map per trip of that trip alone, with its own countries and no journey trail', () => {
+  it('STTRV-004: places a map per trip of that trip alone, numbered, with no journey trail', () => {
     open();
+    tab('journey.studio.travelMaps');
 
     fireEvent.click(card('June'));
 
-    const engine = bookTravelMap(travel, stats, { id: 'mp', frame: ANY_FRAME, scope: { tripId: ICELAND } });
-    expect(content(placed())).toEqual(content(engine));
     expect(placed()).toMatchObject({
       tripId: ICELAND,
       countries: ['IS'],
       path: [],
+      pinStyle: 'numbered',
       points: [{ label: 'Reykjavík', photoId: 3 }, { label: 'Akureyri' }],
     });
   });
 
-  it('STTRV-004: places the satellite map the engine places, with its tiles, its credit and a white line', () => {
+  it('STTRV-005: places the satellite map the engine places, with its tiles, its credit and a white line', () => {
     open();
+    tab('journey.studio.travelMaps');
 
-    fireEvent.click(card('journey.studio.mapSourceSatellite'));
+    fireEvent.click(screen.getAllByRole('button', { name: 'journey.studio.mapSourceSatellite' })[0] as HTMLElement);
 
     const engine = bookTravelMap(travel, stats, { id: 'mp', frame: ANY_FRAME, scope: 'journey', source: 'satellite' });
-    expect(content(placed())).toEqual(content(engine));
+    expect(content(placed())).toEqual(content({ ...engine, style: 'minimal' as const }));
     expect(placed()).toMatchObject({ source: 'tiles', tileUrl: BOOK_SATELLITE_TILES, accent: '#ffffff' });
   });
 
-  it('STTRV-005: places each mark with the words, size and style the engine gives it', () => {
+  it('STTRV-006: places a map of one country with its stops alone, cut to its shape on a dark ground', () => {
+    open();
+    tab('journey.studio.travelMaps');
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'journey.studio.mapClipCountry' })[0] as HTMLElement);
+
+    expect(placed()).toMatchObject({
+      clip: 'country',
+      style: 'dark',
+      pinStyle: 'numbered',
+      countries: ['IS'],
+      path: [],
+      points: [{ label: 'Reykjavík' }, { label: 'Akureyri' }],
+    });
+  });
+
+  it('STTRV-007: offers every country in every look, each placing that country alone', () => {
+    open();
+    tab('journey.studio.countries');
+
+    const looks = ['stamp', 'visa', 'postcard', 'flag', 'pin', 'label', 'sketch'] as const;
+    for (const look of looks) {
+      const [iceland] = screen.getAllByRole('button', { name: `journey.studio.countryLook.${look}` });
+      fireEvent.click(iceland as HTMLElement);
+      const engine = bookTravelCountries(travel, { id: 'co', frame: ANY_FRAME, codes: ['IS'] });
+      expect(placed()).toMatchObject({ kind: 'countries', codes: engine.codes, names: engine.names, look });
+    }
+  });
+
+  it('STTRV-008: places each mark in its style with the words the engine gives it', () => {
+    open();
+    tab('journey.studio.marks');
+
+    const [stamp] = screen.getAllByRole('button', { name: 'journey.studio.dateMark' });
+    fireEvent.click(stamp as HTMLElement);
+    const value = bookBadgeValue(travel, 'date', null);
+    if (!value) throw new Error('the engine has no date mark for this journey');
+    expect(content(placed())).toEqual(
+      content({ ...bookTravelBadge({ id: 'bd', frame: ANY_FRAME, variant: 'date', value }), style: 'stamp' as const })
+    );
+
+    const styles = screen.getAllByRole('button', { name: 'journey.studio.distanceMark' }).map((button) => {
+      fireEvent.click(button);
+      return (placed() as { style?: string }).style;
+    });
+    expect(styles).toEqual(['tag', 'pill', 'ribbon', 'sticker', 'patch', 'sketch']);
+    expect(placed()).toMatchObject({ variant: 'distance', text: '4,000 km' });
+  });
+
+  it('STTRV-009: offers no date mark without a start, and the day where its word puts it', () => {
+    open({ ...stats, start: null }, (k) => (k === 'journey.studio.day' ? '{day}日目' : k));
+    tab('journey.studio.marks');
+
+    expect(screen.queryAllByRole('button', { name: 'journey.studio.dateMark' })).toHaveLength(0);
+    fireEvent.click(screen.getAllByRole('button', { name: 'journey.studio.dayMark' })[0] as HTMLElement);
+    expect(placed()).toMatchObject({ variant: 'day', text: '1日目', style: 'stamp' });
+  });
+
+  it("STTRV-010: dresses what it places in the book's theme, linked so it follows a change of theme", () => {
+    const theme = bookThemeOf('nordic');
+    useStudioStore.getState().load({
+      version: 1,
+      title: 'T',
+      page,
+      theme,
+      spreads: [{ id: 's1', role: 'inner', background: null, elements: [], parked: [], entryId: null }],
+    } as unknown as BookDocument);
     open();
 
-    const marks = [
-      ['journey.studio.dateMark', 'date'],
-      ['journey.studio.dayMark', 'day'],
-      ['journey.studio.coordsMark', 'coords'],
-      ['journey.studio.flagMark', 'flag'],
-      ['journey.studio.distanceMark', 'distance'],
-    ] as const;
-    for (const [name, variant] of marks) {
-      fireEvent.click(card(name));
-      const value = bookBadgeValue(travel, variant, null);
-      if (!value) throw new Error(`the engine has no ${variant} mark for this journey`);
-      expect(content(placed())).toEqual(content(bookTravelBadge({ id: 'bd', frame: ANY_FRAME, variant, value })));
-      expect(placed().frame).toEqual(spreadCentre(bookTravelSize('badge', page, { variant })));
-    }
-    // The last one, read back as words: the distance in an outline.
-    expect(placed()).toMatchObject({ variant: 'distance', text: '4,000 km', style: 'outline' });
-  });
+    fireEvent.click(card('journey.studio.statsLook.tiles'));
+    expect(placed()).toMatchObject({
+      accent: theme.palette.accent,
+      accentToken: 'accent',
+      token: 'ink',
+      fontRole: 'heading',
+    });
 
-  it('STTRV-006: offers no date mark without a start, and places a country and its mark by the name', () => {
-    open({ ...stats, start: null });
-
-    expect(screen.queryByRole('button', { name: 'journey.studio.dateMark' })).toBeNull();
-    fireEvent.click(card('journey.studio.dayMark'));
-    expect(placed()).toMatchObject({ variant: 'day', text: 'journey.studio.day 1', style: 'chip' });
-
-    const [outline, mark] = screen.getAllByRole('button', { name: 'Iceland' });
-    fireEvent.click(outline);
-    expect(content(placed())).toEqual(
-      content(bookTravelCountries(travel, { id: 'co', frame: ANY_FRAME, codes: ['IS'] }))
-    );
-    expect(placed()).toMatchObject({ codes: ['IS'], names: ['Iceland'] });
-
-    fireEvent.click(mark);
-    expect(placed()).toMatchObject({ kind: 'badge', variant: 'country', text: 'Iceland', sub: '', code: 'IS' });
-  });
-
-  it('STTRV-009: places a country mark as the engine makes one, and the day where its word puts it', () => {
-    open(stats, (k) => (k === 'journey.studio.day' ? '{day}日目' : k));
-
-    const [, mark] = screen.getAllByRole('button', { name: 'Iceland' });
-    fireEvent.click(mark);
-    const value = bookBadgeValue(travel, 'country', null);
-    expect(value).toEqual({ text: 'Iceland', sub: '', code: 'IS' });
-    if (!value) throw new Error('the engine has no country mark for this journey');
-    const engine = bookTravelBadge({ id: 'bd', frame: ANY_FRAME, variant: 'country', value });
-    expect(content(placed())).toEqual(content(engine));
-    expect(placed().frame).toEqual(spreadCentre(bookTravelSize('badge', page, { variant: 'country' })));
-
-    fireEvent.click(card('journey.studio.dayMark'));
-    expect(placed()).toMatchObject({ variant: 'day', text: '1日目' });
+    fireEvent.click(card('journey.studio.statsLook.note'));
+    expect(placed()).toMatchObject({ fontRole: 'script' });
   });
 });

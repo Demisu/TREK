@@ -18,6 +18,12 @@ interface SpreadThumbProps {
   className?: string;
   /** Pixels per millimetre the caller draws at; CSS's own unless the caller zooms. */
   pxPerMm?: number;
+  /**
+   * Draw the first and the last page beside the blank inside of their cover,
+   * as the bound book opens on them, so the rail shows why they stand alone.
+   * The words are the half's name, read out and shown on hover.
+   */
+  coverInside?: string;
 }
 
 /**
@@ -37,16 +43,31 @@ export function SpreadThumb({
   fold = false,
   className,
   pxPerMm = PX_PER_MM,
+  coverInside,
 }: SpreadThumbProps) {
   const single = spread.role !== 'inner';
-  const wMm = single ? page.pageWidth : page.pageWidth * 2;
+  // The first page opens on the right of the cover's inside, the last on the left of the back's.
+  const opens = coverInside && (spread.role === 'first' || spread.role === 'last') ? spread.role : null;
+  const wMm = single && !opens ? page.pageWidth : page.pageWidth * 2;
   const scale = width / (wMm * pxPerMm);
+  const pageLeft = opens === 'first' ? page.pageWidth * pxPerMm * scale : 0;
   return (
     <div dir="ltr" className={className} style={{ width, height: page.pageHeight * pxPerMm * scale }}>
+      {opens && (
+        <span
+          className="st-thumb-inside"
+          title={coverInside}
+          aria-label={coverInside}
+          style={{
+            insetInlineStart: opens === 'first' ? 0 : page.pageWidth * pxPerMm * scale,
+            width: page.pageWidth * pxPerMm * scale,
+          }}
+        />
+      )}
       <div
         style={{
           position: 'absolute',
-          insetInlineStart: 0,
+          insetInlineStart: pageLeft,
           top: 0,
           width: `${wMm}mm`,
           height: `${page.pageHeight}mm`,
@@ -56,7 +77,7 @@ export function SpreadThumb({
       >
         <SpreadView spread={spread} page={page} folios={folios} />
       </div>
-      {fold && !single && <SpreadFold page={page} scaled={pxPerMm * scale} />}
+      {fold && (!single || opens) && <SpreadFold page={page} scaled={pxPerMm * scale} />}
     </div>
   );
 }

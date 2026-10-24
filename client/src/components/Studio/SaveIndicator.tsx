@@ -15,15 +15,13 @@ import type { SaveState } from './useBookStore'
  * which is exactly the wrong habit for the one time it says something else.
  */
 export function SaveIndicator({
-  state, t, onAcceptTheirs, onKeepMine, onRetry, onReload = reloadStudio,
+  state, t, onAcceptTheirs, onKeepMine, onRetry,
 }: {
   state: SaveState
   t: (k: string) => string
   onAcceptTheirs: (current: BookRecord) => void
   onKeepMine: (current: BookRecord) => void
   onRetry: () => void
-  /** Load this Studio again, for a book a newer one saved. A full reload by default. */
-  onReload?: () => void
 }) {
   if (state.status === 'conflict') {
     return (
@@ -45,23 +43,8 @@ export function SaveIndicator({
     )
   }
 
-  if (state.status === 'newer') {
-    /*
-     * The one state with a way out the user has to take themselves: a newer
-     * Studio saved this book, this tab cannot write it without losing what
-     * that one added, and only a reload brings the newer Studio here. Loud
-     * like a conflict, because until then nothing done here is kept.
-     */
-    return (
-      <div className="st-save is-conflict" role="alert">
-        <AlertTriangle size={13} />
-        <span>{t('journey.studio.saveNewer')}</span>
-        <button type="button" onClick={onReload}>
-          {t('journey.studio.saveReload')}
-        </button>
-      </div>
-    )
-  }
+  // A book a newer Studio saved is the shell's to say, over everything (NewerBookOverlay).
+  if (state.status === 'newer') return null
 
   if (state.status === 'readonly') {
     /*
@@ -105,6 +88,32 @@ export function SaveIndicator({
   }
 
   return null
+}
+
+/**
+ * A book a newer Studio saved, said over the whole Studio rather than in the
+ * bar: this tab cannot write the book without losing what the newer one
+ * added, and only a reload brings the newer Studio here. Until then nothing
+ * done here would be kept, so nothing can be done: the overlay takes every
+ * click and offers the one way out there is.
+ */
+export function NewerBookOverlay({ t, onReload = reloadStudio }: {
+  t: (k: string) => string
+  onReload?: () => void
+}) {
+  return (
+    <div className="st-newer" role="alertdialog" aria-modal="true" aria-labelledby="st-newer-text">
+      <div className="st-newer-card">
+        <span className="st-newer-icon"><RefreshCw size={22} strokeWidth={2.2} /></span>
+        <p id="st-newer-text" className="st-newer-text">{t('journey.studio.saveNewer')}</p>
+        {/* Focused on arrival, so Enter reloads and nothing behind the overlay takes the keyboard. */}
+        <button type="button" className="st-newer-reload" onClick={onReload} autoFocus>
+          <RefreshCw size={15} />
+          {t('journey.studio.saveReload')}
+        </button>
+      </div>
+    </div>
+  )
 }
 
 /** The default way back to a current Studio: the page again, which loads the newest build. */

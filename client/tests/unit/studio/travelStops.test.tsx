@@ -52,6 +52,8 @@ function open(journeyStats: JourneyStats, over: { canEdit?: boolean; onToggleSto
       canEdit={over.canEdit ?? true} onToggleStop={onToggleStop}
     />,
   )
+  // The stops sit under the maps they are drawn from.
+  fireEvent.click(screen.getByRole('tab', { name: 'journey.studio.travelMaps' }))
   // The section opens folded, since a fortnight of rows is longer than the
   // rest of the panel together. Every case below is about those rows, so
   // unfold unless the case is about the fold itself.

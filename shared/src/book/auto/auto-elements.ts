@@ -146,6 +146,7 @@ export function statsEl(
     frame,
     metrics,
     layout,
+    look: 'classic',
     showIcons: true,
     units: 'metric',
     values: statsValues(stats),
@@ -205,6 +206,7 @@ export function countriesEl(
     showFlag: false,
     showName: true,
     align: 'center',
+    look: 'classic',
     ...opts,
   } as BookElement;
 }
@@ -294,6 +296,7 @@ export function countryWatermark(newId: NewId, frame: BookFrame, code: string | 
     showFlag: false,
     showName: false,
     align: 'center',
+    look: 'classic',
     opacity: 0.1,
   } as BookElement;
 }

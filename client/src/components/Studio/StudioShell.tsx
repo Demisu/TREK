@@ -17,6 +17,7 @@ import { StudioExport } from './StudioExport'
 import { StudioAssistantColumn, StudioPageStage } from './StudioAssistantPanel'
 import { useStudioAssistant } from './useStudioAssistant'
 import { StudioHeader } from './StudioHeader'
+import { NewerBookOverlay } from './SaveIndicator'
 import { StudioNotices } from './StudioNotices'
 import '../../styles/dashboard.css'
 import '../../styles/studio.css'
@@ -87,6 +88,8 @@ export default function StudioShell() {
       >
         <StudioHeader s={s} onExport={() => setExporting(true)} assistant={assistant} />
         <StudioNotices />
+        {/* A newer Studio saved this book: nothing done here would be kept, so the whole Studio waits for a reload. */}
+        {s.saveState.status === 'newer' && <NewerBookOverlay t={s.t} />}
         {/* The journey gallery's picker, inside Studio's own layer (#2271). */}
         {s.providerPick && s.journey && (
           <ProviderPicker

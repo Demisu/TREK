@@ -3,7 +3,9 @@ import type {
   BookBadgeElement, BookCountriesElement, BookElement, BookListElement, BookMapElement,
   BookMetric, BookStatsElement, JourneyStats,
 } from '@trek/shared'
-import { BOOK_METRICS, MAX_PATH_POINTS, MAX_PATH_SEGMENTS, isStale, refreshPatch } from '@trek/shared'
+import {
+  BOOK_BADGE_STYLES, BOOK_COUNTRY_LOOKS, BOOK_METRICS, BOOK_STATS_LOOKS, MAX_PATH_POINTS, MAX_PATH_SEGMENTS, isStale, refreshPatch,
+} from '@trek/shared'
 import { Swatches } from './StudioSwatches'
 import { StudioFontPicker } from './StudioFontPicker'
 import { WeightLine } from './StudioTypeControls'
@@ -547,6 +549,8 @@ function MapLook({ el, set, t }: Props<BookMapElement>) {
                   options={[
                     { value: 'dot' as const, label: t('journey.studio.pinDot') },
                     { value: 'photo' as const, label: t('journey.studio.pinPhoto') },
+                    { value: 'numbered' as const, label: t('journey.studio.pinNumbered') },
+                    { value: 'ends' as const, label: t('journey.studio.pinEnds') },
                   ]}
                   onPick={pinStyle => set({ pinStyle } as Partial<BookElement>)}
                 />
@@ -597,16 +601,26 @@ function StatsProps({ el, set, t }: Props<BookStatsElement>) {
         />
       </Section>
       <Section label={t('journey.studio.layout')}>
-        <Line label={t('journey.studio.layout')}>
+        {/* The look first: the arrangement below belongs to the classic one alone. */}
+        <Line label={t('journey.studio.look')} wide>
           <Choice
-            value={el.layout}
-            options={(['grid', 'row', 'column'] as const).map(layout => ({
-              value: layout,
-              label: t(`journey.studio.layout${layout[0].toUpperCase()}${layout.slice(1)}`),
-            }))}
-            onPick={layout => set({ layout } as Partial<BookElement>)}
+            value={el.look ?? 'classic'}
+            options={BOOK_STATS_LOOKS.map(look => ({ value: look, label: t(`journey.studio.statsLook.${look}`) }))}
+            onPick={look => set({ look } as Partial<BookElement>)}
           />
         </Line>
+        {(el.look ?? 'classic') === 'classic' && (
+          <Line label={t('journey.studio.layout')}>
+            <Choice
+              value={el.layout}
+              options={(['grid', 'row', 'column'] as const).map(layout => ({
+                value: layout,
+                label: t(`journey.studio.layout${layout[0].toUpperCase()}${layout.slice(1)}`),
+              }))}
+              onPick={layout => set({ layout } as Partial<BookElement>)}
+            />
+          </Line>
+        )}
         <Line label={t('journey.studio.units')}>
           <Choice
             value={el.units}
@@ -634,16 +648,25 @@ function StatsProps({ el, set, t }: Props<BookStatsElement>) {
 function CountriesProps({ el, set, t }: Props<BookCountriesElement>) {
   return (
     <Section label={t('journey.studio.countries')}>
-      <Line label={t('journey.studio.layout')}>
+      <Line label={t('journey.studio.look')} wide>
         <Choice
-          value={el.layout}
-          options={(['list', 'grid', 'column'] as const).map(layout => ({
-            value: layout,
-            label: t(`journey.studio.layout${layout[0].toUpperCase()}${layout.slice(1)}`),
-          }))}
-          onPick={layout => set({ layout } as Partial<BookElement>)}
+          value={el.look ?? 'classic'}
+          options={BOOK_COUNTRY_LOOKS.map(look => ({ value: look, label: t(`journey.studio.countryLook.${look}`) }))}
+          onPick={look => set({ look } as Partial<BookElement>)}
         />
       </Line>
+      {(el.look ?? 'classic') === 'classic' && el.codes.length > 1 && (
+        <Line label={t('journey.studio.layout')}>
+          <Choice
+            value={el.layout}
+            options={(['list', 'grid', 'column'] as const).map(layout => ({
+              value: layout,
+              label: t(`journey.studio.layout${layout[0].toUpperCase()}${layout.slice(1)}`),
+            }))}
+            onPick={layout => set({ layout } as Partial<BookElement>)}
+          />
+        </Line>
+      )}
       {/* These three read as raw English out of the code before: `left`,
           `center`, `right`, straight from the value. */}
       <Line label={t('journey.studio.align')}>
@@ -734,7 +757,7 @@ function BadgeProps({ el, set, t }: Props<BookBadgeElement>) {
       <Line label={t('journey.studio.style')} wide>
         <Choice
           value={el.style}
-          options={(['plain', 'chip', 'outline', 'stacked'] as const).map(style => ({
+          options={BOOK_BADGE_STYLES.map(style => ({
             value: style, label: t(`journey.studio.markStyle.${style}`),
           }))}
           onPick={style => set({ style } as Partial<BookElement>)}
