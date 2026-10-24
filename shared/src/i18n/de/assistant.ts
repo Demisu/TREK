@@ -476,5 +476,19 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'In den Trip-Chat senden',
   'assistant.admin.chatgptShared':
     'Du teilst dein eigenes ChatGPT-Abo mit allen auf diesem Server: Ihre Chats zählen gegen dein Kontingent. Prüfe, ob dein Abo und die Bedingungen von OpenAI das erlauben.',
+  'assistant.attach.found': 'Ich habe {count} Buchungen in {name} gefunden. Füge unten die hinzu, die du willst.',
+  'assistant.attach.found.one': 'Ich habe {count} Buchung in {name} gefunden. Füge sie unten hinzu, wenn sie stimmt.',
+  'assistant.attach.none': 'Ich habe in {name} keine Buchung gefunden.',
+  'assistant.attach.why.aiNotConfigured':
+    'Das Lesen mit KI ist für Importe hier nicht eingerichtet, deshalb hat nur TREKs eigener Leser die Datei angesehen.',
+  'assistant.attach.why.aiFailed': 'Der KI-Leser konnte die Datei nicht lesen.',
+  'assistant.attach.why.noText': 'Sie enthält keinen lesbaren Text und ist wahrscheinlich ein Scan.',
+  'assistant.attach.why.nothingFound': 'Nichts darin sieht nach einer Buchung aus.',
+  'assistant.attach.ask': 'Was soll ich mit der Datei machen?',
+  'assistant.attach.chip.keep': 'In Dateien ablegen',
+  'assistant.attach.chip.book': 'Eine Buchung daraus anlegen',
+  'assistant.attach.chip.attach': 'An eine Buchung oder Ausgabe hängen',
+  'assistant.attach.chip.read': 'Was steht in der Datei?',
+  'assistant.attach.chip.keepWithBooking': 'Datei bei dieser Buchung ablegen',
 };
 export default assistant;

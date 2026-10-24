@@ -707,12 +707,22 @@ describe('Trip assistant e2e', () => {
         'tool-input-start',
         'tool-input-available',
         'tool-output-available',
+        'text-start',
+        'text-delta',
+        'text-end',
         'tool-input-start',
         'tool-input-available',
         'tool-approval-request',
         'data-trek-change',
+        'data-trek-follow-ups',
         'finish-step',
         'finish',
+      ]);
+      expect(ofType(turn.chunks, 'text-delta')[0].delta).toBe(
+        'I found 1 booking in ticket.pdf. Add it below if it looks right.',
+      );
+      expect(ofType(turn.chunks, 'data-trek-follow-ups')[0].data.questions).toEqual([
+        'Keep the file with this booking',
       ]);
       expect(ofType(turn.chunks, 'tool-input-start')[0].toolName).toBe('read_booking_file');
       expect(ofType(turn.chunks, 'data-trek-change')[0].data).toMatchObject({

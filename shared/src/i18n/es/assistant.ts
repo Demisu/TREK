@@ -474,5 +474,19 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Enviar al chat del viaje',
   'assistant.admin.chatgptShared':
     'Compartes tu propio plan de ChatGPT con todos en este servidor: sus chats cuentan contra tu plan. Comprueba que tu plan y las condiciones de OpenAI lo permiten.',
+  'assistant.attach.found': 'He encontrado {count} reservas en {name}. Añade abajo las que quieras.',
+  'assistant.attach.found.one': 'He encontrado {count} reserva en {name}. Añádela abajo si es correcta.',
+  'assistant.attach.none': 'No he encontrado ninguna reserva en {name}.',
+  'assistant.attach.why.aiNotConfigured':
+    'La lectura con IA no está configurada para importaciones, así que solo lo revisó el lector propio de TREK.',
+  'assistant.attach.why.aiFailed': 'El lector de IA no pudo leerlo.',
+  'assistant.attach.why.noText': 'No contiene texto legible, probablemente es un escaneo.',
+  'assistant.attach.why.nothingFound': 'Nada en él parece una reserva.',
+  'assistant.attach.ask': '¿Qué hago con el archivo?',
+  'assistant.attach.chip.keep': 'Guárdalo en Archivos',
+  'assistant.attach.chip.book': 'Crea una reserva a partir de él',
+  'assistant.attach.chip.attach': 'Adjúntalo a una reserva o a un gasto',
+  'assistant.attach.chip.read': '¿Qué hay en el archivo?',
+  'assistant.attach.chip.keepWithBooking': 'Guarda el archivo con esta reserva',
 };
 export default assistant;

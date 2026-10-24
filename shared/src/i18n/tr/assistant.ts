@@ -475,5 +475,19 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Gezi sohbetine gönder',
   'assistant.admin.chatgptShared':
     'Kendi ChatGPT aboneliğini bu sunucudaki herkesle paylaşıyorsun: sohbetleri senin planından düşer. Planının ve OpenAI koşullarının buna izin verip vermediğini kontrol et.',
+  'assistant.attach.found': '{name} içinde {count} rezervasyon buldum. İstediklerini aşağıdan ekle.',
+  'assistant.attach.found.one': '{name} içinde {count} rezervasyon buldum. Doğru görünüyorsa aşağıdan ekle.',
+  'assistant.attach.none': '{name} içinde rezervasyon bulamadım.',
+  'assistant.attach.why.aiNotConfigured':
+    'Burada içe aktarma için yapay zekâ ile okuma ayarlı değil, bu yüzden dosyaya yalnızca TREK’in kendi okuyucusu baktı.',
+  'assistant.attach.why.aiFailed': 'Yapay zekâ okuyucusu dosyayı okuyamadı.',
+  'assistant.attach.why.noText': 'Okunabilir metin içermiyor, büyük olasılıkla taranmış bir belge.',
+  'assistant.attach.why.nothingFound': 'İçinde rezervasyona benzeyen bir şey yok.',
+  'assistant.attach.ask': 'Dosyayla ne yapayım?',
+  'assistant.attach.chip.keep': 'Dosyalar’a kaydet',
+  'assistant.attach.chip.book': 'Bundan bir rezervasyon oluştur',
+  'assistant.attach.chip.attach': 'Bir rezervasyona veya harcamaya ekle',
+  'assistant.attach.chip.read': 'Dosyada ne var?',
+  'assistant.attach.chip.keepWithBooking': 'Dosyayı bu rezervasyonla sakla',
 };
 export default assistant;

@@ -447,5 +447,18 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'ส่งไปยังแชตทริป',
   'assistant.admin.chatgptShared':
     'คุณกำลังแชร์แพ็กเกจ ChatGPT ของตัวเองกับทุกคนบนเซิร์ฟเวอร์นี้: แชตของทุกคนจะนับรวมในแพ็กเกจของคุณ ตรวจสอบว่าแพ็กเกจและข้อกำหนดของ OpenAI อนุญาต',
+  'assistant.attach.found': 'ฉันพบการจอง {count} รายการใน {name} เพิ่มรายการที่ต้องการได้ด้านล่าง',
+  'assistant.attach.none': 'ฉันไม่พบการจองใน {name}',
+  'assistant.attach.why.aiNotConfigured':
+    'ที่นี่ยังไม่ได้ตั้งค่าการอ่านด้วย AI สำหรับการนำเข้า จึงมีเพียงตัวอ่านของ TREK ที่ตรวจไฟล์นี้',
+  'assistant.attach.why.aiFailed': 'ตัวอ่าน AI อ่านไฟล์นี้ไม่ได้',
+  'assistant.attach.why.noText': 'ไฟล์นี้ไม่มีข้อความที่อ่านได้ น่าจะเป็นไฟล์สแกน',
+  'assistant.attach.why.nothingFound': 'ไม่มีส่วนใดในไฟล์ที่ดูเหมือนการจอง',
+  'assistant.attach.ask': 'ให้ฉันทำอะไรกับไฟล์นี้ดี',
+  'assistant.attach.chip.keep': 'เก็บไว้ในไฟล์',
+  'assistant.attach.chip.book': 'สร้างการจองจากไฟล์นี้',
+  'assistant.attach.chip.attach': 'แนบกับการจองหรือค่าใช้จ่าย',
+  'assistant.attach.chip.read': 'ในไฟล์มีอะไรบ้าง',
+  'assistant.attach.chip.keepWithBooking': 'เก็บไฟล์ไว้กับการจองนี้',
 };
 export default assistant;

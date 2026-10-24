@@ -446,5 +446,18 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': '여행 채팅으로 보내기',
   'assistant.admin.chatgptShared':
     '내 ChatGPT 요금제를 이 서버의 모든 사람과 공유합니다. 모든 사람의 채팅이 내 요금제 한도에서 차감됩니다. 요금제와 OpenAI 약관에서 허용되는지 확인하세요.',
+  'assistant.attach.found': '{name}에서 예약 {count}건을 찾았습니다. 원하는 예약을 아래에서 추가하세요.',
+  'assistant.attach.none': '{name}에서 예약을 찾지 못했습니다.',
+  'assistant.attach.why.aiNotConfigured':
+    '이곳에는 가져오기용 AI 읽기가 설정되어 있지 않아 TREK 자체 리더만 파일을 확인했습니다.',
+  'assistant.attach.why.aiFailed': 'AI 리더가 파일을 읽지 못했습니다.',
+  'assistant.attach.why.noText': '읽을 수 있는 텍스트가 없습니다. 스캔한 문서일 가능성이 큽니다.',
+  'assistant.attach.why.nothingFound': '예약처럼 보이는 내용이 없습니다.',
+  'assistant.attach.ask': '이 파일을 어떻게 할까요?',
+  'assistant.attach.chip.keep': '파일에 보관해 줘',
+  'assistant.attach.chip.book': '이 파일로 예약을 만들어 줘',
+  'assistant.attach.chip.attach': '예약이나 지출에 첨부해 줘',
+  'assistant.attach.chip.read': '파일에 무엇이 있어?',
+  'assistant.attach.chip.keepWithBooking': '이 예약과 함께 파일을 보관해 줘',
 };
 export default assistant;

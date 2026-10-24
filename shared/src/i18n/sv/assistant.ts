@@ -475,5 +475,19 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Skicka till reschatten',
   'assistant.admin.chatgptShared':
     'Du delar ditt eget ChatGPT-abonnemang med alla på den här servern: deras chattar räknas mot ditt abonnemang. Kontrollera att ditt abonnemang och OpenAIs villkor tillåter det.',
+  'assistant.attach.found': 'Jag hittade {count} bokningar i {name}. Lägg till de du vill ha nedan.',
+  'assistant.attach.found.one': 'Jag hittade {count} bokning i {name}. Lägg till den nedan om den stämmer.',
+  'assistant.attach.none': 'Jag hittade ingen bokning i {name}.',
+  'assistant.attach.why.aiNotConfigured':
+    'AI-läsning är inte inställd för importer här, så bara TREKs egen läsare tittade på filen.',
+  'assistant.attach.why.aiFailed': 'AI-läsaren kunde inte läsa den.',
+  'assistant.attach.why.noText': 'Den innehåller ingen läsbar text, troligen är det en skanning.',
+  'assistant.attach.why.nothingFound': 'Inget i den ser ut som en bokning.',
+  'assistant.attach.ask': 'Vad ska jag göra med filen?',
+  'assistant.attach.chip.keep': 'Spara den i Filer',
+  'assistant.attach.chip.book': 'Skapa en bokning av den',
+  'assistant.attach.chip.attach': 'Bifoga den till en bokning eller en utgift',
+  'assistant.attach.chip.read': 'Vad står det i filen?',
+  'assistant.attach.chip.keepWithBooking': 'Spara filen med den här bokningen',
 };
 export default assistant;

@@ -63,7 +63,9 @@ export function emptyReason(preview: BookingImportPreviewResponse, aiAvailable: 
 @Injectable()
 export class AssistantBookingImportService implements AttachedFileReader {
   readonly readTool = READ_BOOKING_FILE_TOOL;
+  /** Kept for the answers older builds wrote; this one acknowledges every file instead. */
   readonly emptyCode = 'no_bookings_found' as const;
+  readonly acknowledges = true;
 
   constructor(
     private readonly bookingImport: BookingImportService,

@@ -479,5 +479,19 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Αποστολή στη συνομιλία ταξιδιού',
   'assistant.admin.chatgptShared':
     'Μοιράζεσαι τη δική σου συνδρομή ChatGPT με όλους σε αυτόν τον διακομιστή: οι συνομιλίες τους χρεώνονται στο δικό σου πρόγραμμα. Έλεγξε ότι το πρόγραμμά σου και οι όροι της OpenAI το επιτρέπουν.',
+  'assistant.attach.found': 'Βρήκα {count} κρατήσεις στο {name}. Πρόσθεσε παρακάτω όσες θέλεις.',
+  'assistant.attach.found.one': 'Βρήκα {count} κράτηση στο {name}. Πρόσθεσέ την παρακάτω αν είναι σωστή.',
+  'assistant.attach.none': 'Δεν βρήκα καμία κράτηση στο {name}.',
+  'assistant.attach.why.aiNotConfigured':
+    'Η ανάγνωση με ΤΝ δεν έχει ρυθμιστεί για εισαγωγές εδώ, οπότε το εξέτασε μόνο ο αναγνώστης του TREK.',
+  'assistant.attach.why.aiFailed': 'Ο αναγνώστης ΤΝ δεν μπόρεσε να το διαβάσει.',
+  'assistant.attach.why.noText': 'Δεν περιέχει αναγνώσιμο κείμενο, μάλλον είναι σάρωση.',
+  'assistant.attach.why.nothingFound': 'Τίποτα σε αυτό δεν μοιάζει με κράτηση.',
+  'assistant.attach.ask': 'Τι να κάνω με το αρχείο;',
+  'assistant.attach.chip.keep': 'Αποθήκευσέ το στα Αρχεία',
+  'assistant.attach.chip.book': 'Δημιούργησε κράτηση από αυτό',
+  'assistant.attach.chip.attach': 'Επισύναψέ το σε κράτηση ή έξοδο',
+  'assistant.attach.chip.read': 'Τι περιέχει το αρχείο;',
+  'assistant.attach.chip.keepWithBooking': 'Κράτα το αρχείο με αυτή την κράτηση',
 };
 export default assistant;

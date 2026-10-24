@@ -475,5 +475,19 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Səyahət söhbətinə göndər',
   'assistant.admin.chatgptShared':
     'Öz ChatGPT abunəliyini bu serverdəki hər kəslə paylaşırsan: onların söhbətləri sənin planından çıxılır. Planının və OpenAI şərtlərinin buna icazə verdiyini yoxla.',
+  'assistant.attach.found': '{name} faylında {count} bron tapdım. İstədiklərinizi aşağıda əlavə edin.',
+  'assistant.attach.found.one': '{name} faylında {count} bron tapdım. Düzgün görünürsə, aşağıda əlavə edin.',
+  'assistant.attach.none': '{name} faylında bron tapa bilmədim.',
+  'assistant.attach.why.aiNotConfigured':
+    'Burada idxal üçün süni intellektlə oxuma qurulmayıb, ona görə fayla yalnız TREK-in öz oxuyucusu baxdı.',
+  'assistant.attach.why.aiFailed': 'Süni intellekt oxuyucusu onu oxuya bilmədi.',
+  'assistant.attach.why.noText': 'Faylda oxuna bilən mətn yoxdur, çox güman ki, skan edilmiş sənəddir.',
+  'assistant.attach.why.nothingFound': 'Faylda bron kimi görünən heç nə yoxdur.',
+  'assistant.attach.ask': 'Faylla nə edim?',
+  'assistant.attach.chip.keep': 'Fayllarda saxla',
+  'assistant.attach.chip.book': 'Ondan bron yarat',
+  'assistant.attach.chip.attach': 'Brona və ya xərcə əlavə et',
+  'assistant.attach.chip.read': 'Faylda nə var?',
+  'assistant.attach.chip.keepWithBooking': 'Faylı bu bronla saxla',
 };
 export default assistant;

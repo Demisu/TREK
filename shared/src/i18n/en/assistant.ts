@@ -470,5 +470,19 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Send to the trip chat',
   'assistant.admin.chatgptShared':
     'You share your own ChatGPT plan with everyone on this server: their chats count against your plan. Check that your plan and OpenAI’s terms allow this.',
+  'assistant.attach.found': 'I found {count} bookings in {name}. Add the ones you want below.',
+  'assistant.attach.found.one': 'I found {count} booking in {name}. Add it below if it looks right.',
+  'assistant.attach.none': 'I could not find a booking in {name}.',
+  'assistant.attach.why.aiNotConfigured':
+    'AI reading is not set up for imports here, so only TREK’s own reader looked at it.',
+  'assistant.attach.why.aiFailed': 'The AI reader could not read it.',
+  'assistant.attach.why.noText': 'It holds no readable text, so it is most likely a scan.',
+  'assistant.attach.why.nothingFound': 'Nothing in it reads like a booking.',
+  'assistant.attach.ask': 'What should I do with the file?',
+  'assistant.attach.chip.keep': 'Keep it in Files',
+  'assistant.attach.chip.book': 'Create a booking from it',
+  'assistant.attach.chip.attach': 'Attach it to a booking or an expense',
+  'assistant.attach.chip.read': 'What is in the file?',
+  'assistant.attach.chip.keepWithBooking': 'Keep the file with this booking',
 };
 export default assistant;

@@ -442,5 +442,17 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': '傳送到行程聊天',
   'assistant.admin.chatgptShared':
     '你正在與此伺服器上的所有人共用你自己的 ChatGPT 訂閱：他們的聊天會計入你的方案。請確認你的方案和 OpenAI 的條款允許這樣做。',
+  'assistant.attach.found': '我在 {name} 中找到 {count} 筆預訂。請在下方新增你需要的預訂。',
+  'assistant.attach.none': '我在 {name} 中找不到預訂。',
+  'assistant.attach.why.aiNotConfigured': '這裡沒有為匯入設定 AI 讀取，所以只有 TREK 內建的讀取器查看了這個檔案。',
+  'assistant.attach.why.aiFailed': 'AI 讀取器無法讀取這個檔案。',
+  'assistant.attach.why.noText': '檔案裡沒有可讀取的文字，很可能是掃描檔。',
+  'assistant.attach.why.nothingFound': '檔案裡沒有像預訂的內容。',
+  'assistant.attach.ask': '這個檔案要怎麼處理？',
+  'assistant.attach.chip.keep': '儲存到檔案',
+  'assistant.attach.chip.book': '用它建立一筆預訂',
+  'assistant.attach.chip.attach': '附加到某筆預訂或支出',
+  'assistant.attach.chip.read': '檔案裡有什麼？',
+  'assistant.attach.chip.keepWithBooking': '把檔案和這筆預訂放在一起',
 };
 export default assistant;

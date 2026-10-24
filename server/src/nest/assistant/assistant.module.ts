@@ -9,6 +9,7 @@ import { AuditModule } from '../audit/audit.module';
 import { BookingImportModule } from '../booking-import/booking-import.module';
 import { CollabModule } from '../collab/collab.module';
 import { RateLimitModule } from '../common/rate-limit.module';
+import { AllowedFileTypesModule } from '../files/allowed-file-types.module';
 import { JourneyBookModule } from '../journey/journey-book.module';
 import { JourneyDomainModule } from '../journey/journey-domain.module';
 import { LlmParseModule } from '../llm-parse/llm-parse.module';
@@ -92,6 +93,8 @@ import { Module } from '@nestjs/common';
     // AI import reads it.
     StorageModule,
     LlmParseModule,
+    // The chips under the answer offer to keep a file only where Files takes its type.
+    AllowedFileTypesModule,
     MikroOrmModule.forFeature([AssistantThreads, AssistantMessages, AssistantToolCalls, AssistantAttachments]),
   ],
   controllers: [

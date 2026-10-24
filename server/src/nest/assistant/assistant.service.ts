@@ -312,7 +312,18 @@ export class AssistantService {
       const stopKeepalive = armKeepalive(stream);
       try {
         const { locale, timeZone } = req;
-        const turn = { userId, tripId, threadId: begun.threadId, rowId: begun.rowId, locale, timeZone, name };
+        const { threadId, rowId } = begun;
+        const turn = {
+          userId,
+          tripId,
+          threadId,
+          rowId,
+          locale,
+          timeZone,
+          name,
+          mime: kept.mime,
+          textStatus: kept.textStatus,
+        };
         await this.fileAnswers.answer(turn, file, reader, { w, signal, rows: this.answerRows(turn) });
       } catch (err) {
         const reason = err instanceof Error ? err.message : String(err);

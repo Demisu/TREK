@@ -477,5 +477,19 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Naar de reischat sturen',
   'assistant.admin.chatgptShared':
     'Je deelt je eigen ChatGPT-abonnement met iedereen op deze server: hun chats tellen mee voor jouw abonnement. Controleer of je abonnement en de voorwaarden van OpenAI dit toestaan.',
+  'assistant.attach.found': 'Ik heb {count} boekingen gevonden in {name}. Voeg hieronder toe wat je wilt.',
+  'assistant.attach.found.one': 'Ik heb {count} boeking gevonden in {name}. Voeg die hieronder toe als hij klopt.',
+  'assistant.attach.none': 'Ik heb geen boeking gevonden in {name}.',
+  'assistant.attach.why.aiNotConfigured':
+    'Lezen met AI is hier niet ingesteld voor imports, dus alleen de eigen lezer van TREK heeft ernaar gekeken.',
+  'assistant.attach.why.aiFailed': 'De AI-lezer kon het niet lezen.',
+  'assistant.attach.why.noText': 'Er staat geen leesbare tekst in, het is waarschijnlijk een scan.',
+  'assistant.attach.why.nothingFound': 'Niets erin lijkt op een boeking.',
+  'assistant.attach.ask': 'Wat moet ik met het bestand doen?',
+  'assistant.attach.chip.keep': 'Bewaar het in Bestanden',
+  'assistant.attach.chip.book': 'Maak er een boeking van',
+  'assistant.attach.chip.attach': 'Koppel het aan een boeking of een uitgave',
+  'assistant.attach.chip.read': 'Wat staat er in het bestand?',
+  'assistant.attach.chip.keepWithBooking': 'Bewaar het bestand bij deze boeking',
 };
 export default assistant;

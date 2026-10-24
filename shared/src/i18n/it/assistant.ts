@@ -482,5 +482,19 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Invia nella chat del viaggio',
   'assistant.admin.chatgptShared':
     'Condividi il tuo abbonamento ChatGPT con tutti su questo server: le loro chat contano sul tuo piano. Verifica che il tuo piano e i termini di OpenAI lo consentano.',
+  'assistant.attach.found': 'Ho trovato {count} prenotazioni in {name}. Aggiungi qui sotto quelle che vuoi.',
+  'assistant.attach.found.one': 'Ho trovato {count} prenotazione in {name}. Aggiungila qui sotto se è corretta.',
+  'assistant.attach.none': 'Non ho trovato nessuna prenotazione in {name}.',
+  'assistant.attach.why.aiNotConfigured':
+    'La lettura con IA non è configurata per le importazioni, quindi l’ha esaminato solo il lettore di TREK.',
+  'assistant.attach.why.aiFailed': 'Il lettore IA non è riuscito a leggerlo.',
+  'assistant.attach.why.noText': 'Non contiene testo leggibile, probabilmente è una scansione.',
+  'assistant.attach.why.nothingFound': 'Niente al suo interno sembra una prenotazione.',
+  'assistant.attach.ask': 'Cosa devo fare con il file?',
+  'assistant.attach.chip.keep': 'Salvalo in File',
+  'assistant.attach.chip.book': 'Crea una prenotazione da questo file',
+  'assistant.attach.chip.attach': 'Allegalo a una prenotazione o a una spesa',
+  'assistant.attach.chip.read': 'Cosa c’è nel file?',
+  'assistant.attach.chip.keepWithBooking': 'Salva il file con questa prenotazione',
 };
 export default assistant;

@@ -40,6 +40,7 @@ function trackFact(track: TourFileTrack) {
 export class AssistantTourFileService implements AttachedFileReader {
   readonly readTool = READ_TOUR_FILE_TOOL;
   readonly emptyCode = 'no_tracks_found' as const;
+  readonly acknowledges = false;
 
   constructor(
     private readonly files: TourFileReadService,

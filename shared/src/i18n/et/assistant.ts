@@ -475,5 +475,19 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Saada reisivestlusesse',
   'assistant.admin.chatgptShared':
     'Jagad oma ChatGPT tellimust kõigiga selles serveris: nende vestlused arvestatakse sinu paketist. Kontrolli, kas sinu pakett ja OpenAI tingimused seda lubavad.',
+  'assistant.attach.found': 'Leidsin failist {name} {count} broneeringut. Lisa allpool need, mida soovid.',
+  'assistant.attach.found.one': 'Leidsin failist {name} {count} broneeringu. Lisa see allpool, kui see on õige.',
+  'assistant.attach.none': 'Ma ei leidnud failist {name} ühtegi broneeringut.',
+  'assistant.attach.why.aiNotConfigured':
+    'Tehisintellektiga lugemine pole siin importide jaoks seadistatud, nii et faili vaatas ainult TREKi enda lugeja.',
+  'assistant.attach.why.aiFailed': 'Tehisintellekti lugeja ei suutnud seda lugeda.',
+  'assistant.attach.why.noText': 'Selles pole loetavat teksti, tõenäoliselt on see skaneering.',
+  'assistant.attach.why.nothingFound': 'Miski selles ei näe välja nagu broneering.',
+  'assistant.attach.ask': 'Mida ma failiga tegema pean?',
+  'assistant.attach.chip.keep': 'Salvesta see failidesse',
+  'assistant.attach.chip.book': 'Loo sellest broneering',
+  'assistant.attach.chip.attach': 'Lisa see broneeringu või kulu juurde',
+  'assistant.attach.chip.read': 'Mis failis on?',
+  'assistant.attach.chip.keepWithBooking': 'Salvesta fail selle broneeringu juurde',
 };
 export default assistant;

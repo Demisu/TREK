@@ -494,5 +494,20 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Poslat do chatu cesty',
   'assistant.admin.chatgptShared':
     'Sdílíš své vlastní předplatné ChatGPT se všemi na tomto serveru: jejich chaty se počítají do tvého tarifu. Ověř, že to tvůj tarif a podmínky OpenAI dovolují.',
+  'assistant.attach.found': 'V souboru {name} jsem našel {count} rezervací. Ty, které chcete, přidejte níže.',
+  'assistant.attach.found.one': 'V souboru {name} jsem našel {count} rezervaci. Pokud sedí, přidejte ji níže.',
+  'assistant.attach.found.few': 'V souboru {name} jsem našel {count} rezervace. Ty, které chcete, přidejte níže.',
+  'assistant.attach.none': 'V souboru {name} jsem nenašel žádnou rezervaci.',
+  'assistant.attach.why.aiNotConfigured':
+    'Čtení pomocí AI tu pro importy není nastavené, takže soubor prošla jen vlastní čtečka TREK.',
+  'assistant.attach.why.aiFailed': 'Čtečka AI ho nedokázala přečíst.',
+  'assistant.attach.why.noText': 'Neobsahuje žádný čitelný text, nejspíš jde o sken.',
+  'assistant.attach.why.nothingFound': 'Nic v něm nevypadá jako rezervace.',
+  'assistant.attach.ask': 'Co mám se souborem udělat?',
+  'assistant.attach.chip.keep': 'Ulož ho do Souborů',
+  'assistant.attach.chip.book': 'Vytvoř z něj rezervaci',
+  'assistant.attach.chip.attach': 'Připoj ho k rezervaci nebo k výdaji',
+  'assistant.attach.chip.read': 'Co je v souboru?',
+  'assistant.attach.chip.keepWithBooking': 'Ulož soubor k této rezervaci',
 };
 export default assistant;

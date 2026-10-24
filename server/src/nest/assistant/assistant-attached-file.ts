@@ -29,8 +29,14 @@ export interface FileRead {
 export interface AttachedFileReader {
   /** The name the read step goes by in the thread. */
   readonly readTool: string;
-  /** The error a file that holds nothing to propose ends the answer with. */
+  /** The error a file that holds nothing to propose ends the answer with, unless the reader `acknowledges` it. */
   readonly emptyCode: AssistantErrorCode;
+  /**
+   * The answer names the file and what was found in it in a line of its own,
+   * a file without anything says why, and chips offer what to do with it
+   * (assistant-attach-answer.ts); no answer ends on the error then.
+   */
+  readonly acknowledges: boolean;
   /** Refuses a file nobody here can read, before a turn begins. */
   ensureReadable(userId: number, file: Express.Multer.File): Promise<void>;
   /** What the file holds, at most a step's worth. Persists nothing. */

@@ -450,5 +450,18 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Gửi vào trò chuyện chuyến đi',
   'assistant.admin.chatgptShared':
     'Bạn đang chia sẻ gói ChatGPT của riêng mình với mọi người trên máy chủ này: các cuộc trò chuyện của họ được tính vào gói của bạn. Hãy kiểm tra gói của bạn và điều khoản của OpenAI có cho phép không.',
+  'assistant.attach.found': 'Tôi tìm thấy {count} đặt chỗ trong {name}. Hãy thêm những đặt chỗ bạn muốn ở bên dưới.',
+  'assistant.attach.none': 'Tôi không tìm thấy đặt chỗ nào trong {name}.',
+  'assistant.attach.why.aiNotConfigured':
+    'Việc đọc bằng AI cho nhập dữ liệu chưa được thiết lập ở đây, nên chỉ trình đọc riêng của TREK đã xem tệp.',
+  'assistant.attach.why.aiFailed': 'Trình đọc AI không đọc được tệp.',
+  'assistant.attach.why.noText': 'Tệp không có văn bản đọc được, nhiều khả năng là bản quét.',
+  'assistant.attach.why.nothingFound': 'Không có gì trong tệp trông giống một đặt chỗ.',
+  'assistant.attach.ask': 'Tôi nên làm gì với tệp này?',
+  'assistant.attach.chip.keep': 'Lưu vào Tệp',
+  'assistant.attach.chip.book': 'Tạo đặt chỗ từ tệp này',
+  'assistant.attach.chip.attach': 'Đính kèm vào một đặt chỗ hoặc khoản chi',
+  'assistant.attach.chip.read': 'Trong tệp có gì?',
+  'assistant.attach.chip.keepWithBooking': 'Lưu tệp cùng đặt chỗ này',
 };
 export default assistant;

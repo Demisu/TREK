@@ -517,5 +517,21 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Надіслати в чат подорожі',
   'assistant.admin.chatgptShared':
     'Ви ділитеся своєю підпискою ChatGPT з усіма на цьому сервері: їхні чати витрачають ваш ліміт. Перевірте, що ваш тариф і умови OpenAI це дозволяють.',
+  'assistant.attach.found': 'Я знайшов у файлі {name} {count} бронювання. Додайте нижче ті, що потрібні.',
+  'assistant.attach.found.one': 'Я знайшов у файлі {name} {count} бронювання. Додайте його нижче, якщо все правильно.',
+  'assistant.attach.found.few': 'Я знайшов у файлі {name} {count} бронювання. Додайте нижче ті, що потрібні.',
+  'assistant.attach.found.many': 'Я знайшов у файлі {name} {count} бронювань. Додайте нижче ті, що потрібні.',
+  'assistant.attach.none': 'Я не знайшов у файлі {name} жодного бронювання.',
+  'assistant.attach.why.aiNotConfigured':
+    'Читання за допомогою ШІ для імпорту тут не налаштовано, тому файл переглянув лише власний модуль читання TREK.',
+  'assistant.attach.why.aiFailed': 'Модулю читання ШІ не вдалося його прочитати.',
+  'assistant.attach.why.noText': 'У ньому немає тексту, який можна прочитати, найімовірніше це скан.',
+  'assistant.attach.why.nothingFound': 'Ніщо в ньому не схоже на бронювання.',
+  'assistant.attach.ask': 'Що мені зробити з файлом?',
+  'assistant.attach.chip.keep': 'Збережи його у Файлах',
+  'assistant.attach.chip.book': 'Створи з нього бронювання',
+  'assistant.attach.chip.attach': 'Прикріпи його до бронювання або витрати',
+  'assistant.attach.chip.read': 'Що в цьому файлі?',
+  'assistant.attach.chip.keepWithBooking': 'Збережи файл разом із цим бронюванням',
 };
 export default assistant;

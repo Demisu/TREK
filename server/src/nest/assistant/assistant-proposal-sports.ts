@@ -1,6 +1,6 @@
+import { localeTable, supportedLocale } from './assistant-words';
 import { recordOf, type Row } from './cards/card-values';
 import { haversineMetres } from '@trek/shared';
-import { SUPPORTED_LANGUAGE_CODES } from '@trek/shared/i18n';
 
 /**
  * "Plan this" on a paddle or ski plan an answer showed (plan_paddle_route,
@@ -104,29 +104,11 @@ const TYPE_WORD_KEYS: Readonly<Record<SportPlanTool, string>> = {
   plan_ski_route: 'tourTypes.ski',
 };
 
-/** The words of one locale's table, or none when it cannot be read. */
-async function wordsOf(language: string): Promise<Record<string, unknown>> {
-  try {
-    // A supported code only, so the path is one of the package's own locale entries.
-    const loaded: unknown = await import(`@trek/shared/i18n/${language}`);
-    const words = (loaded as { default?: unknown } | null)?.default;
-    return words !== null && typeof words === 'object' ? (words as Record<string, unknown>) : {};
-  } catch {
-    return {};
-  }
-}
-
 /** A plan's tour type in the user's language ("Paddeltour"), English where the language has no table. */
 export async function tourTypeWord(locale: string, toolName: SportPlanTool): Promise<string> {
-  const language = locale.split('-')[0] ?? 'en';
-  const code = SUPPORTED_LANGUAGE_CODES.includes(locale)
-    ? locale
-    : SUPPORTED_LANGUAGE_CODES.includes(language)
-      ? language
-      : 'en';
   const key = TYPE_WORD_KEYS[toolName];
-  const own = (await wordsOf(code))[key];
+  const own = (await localeTable(supportedLocale(locale)))[key];
   if (typeof own === 'string') return own;
-  const english = (await wordsOf('en'))[key];
+  const english = (await localeTable('en'))[key];
   return typeof english === 'string' ? english : 'Tour';
 }

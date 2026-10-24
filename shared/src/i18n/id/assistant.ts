@@ -455,5 +455,18 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Kirim ke obrolan perjalanan',
   'assistant.admin.chatgptShared':
     'Kamu membagikan paket ChatGPT milikmu kepada semua orang di server ini: obrolan mereka dihitung dari paketmu. Pastikan paketmu dan ketentuan OpenAI mengizinkannya.',
+  'assistant.attach.found': 'Saya menemukan {count} pemesanan di {name}. Tambahkan yang Anda inginkan di bawah.',
+  'assistant.attach.none': 'Saya tidak menemukan pemesanan di {name}.',
+  'assistant.attach.why.aiNotConfigured':
+    'Pembacaan dengan AI belum diatur untuk impor di sini, jadi hanya pembaca bawaan TREK yang memeriksanya.',
+  'assistant.attach.why.aiFailed': 'Pembaca AI tidak dapat membacanya.',
+  'assistant.attach.why.noText': 'Berkas ini tidak berisi teks yang dapat dibaca, kemungkinan besar hasil pindaian.',
+  'assistant.attach.why.nothingFound': 'Tidak ada isinya yang tampak seperti pemesanan.',
+  'assistant.attach.ask': 'Apa yang harus saya lakukan dengan berkas ini?',
+  'assistant.attach.chip.keep': 'Simpan di Berkas',
+  'assistant.attach.chip.book': 'Buat pemesanan darinya',
+  'assistant.attach.chip.attach': 'Lampirkan ke pemesanan atau pengeluaran',
+  'assistant.attach.chip.read': 'Apa isi berkas ini?',
+  'assistant.attach.chip.keepWithBooking': 'Simpan berkas dengan pemesanan ini',
 };
 export default assistant;

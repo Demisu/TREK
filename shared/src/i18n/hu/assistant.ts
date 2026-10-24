@@ -479,5 +479,19 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Küldés az utazási csevegésbe',
   'assistant.admin.chatgptShared':
     'A saját ChatGPT-előfizetésedet osztod meg mindenkivel ezen a szerveren: a csevegéseik a te keretedből fogynak. Ellenőrizd, hogy az előfizetésed és az OpenAI feltételei ezt megengedik-e.',
+  'assistant.attach.found': '{count} foglalást találtam ebben: {name}. Add hozzá lent azokat, amelyeket szeretnél.',
+  'assistant.attach.found.one': '{count} foglalást találtam ebben: {name}. Add hozzá lent, ha jónak tűnik.',
+  'assistant.attach.none': 'Nem találtam foglalást ebben: {name}.',
+  'assistant.attach.why.aiNotConfigured':
+    'Az importáláshoz itt nincs beállítva a mesterséges intelligenciával történő olvasás, ezért csak a TREK saját olvasója nézte meg.',
+  'assistant.attach.why.aiFailed': 'A mesterséges intelligencia olvasója nem tudta elolvasni.',
+  'assistant.attach.why.noText': 'Nincs benne olvasható szöveg, valószínűleg szkennelt dokumentum.',
+  'assistant.attach.why.nothingFound': 'Semmi sem hasonlít benne foglalásra.',
+  'assistant.attach.ask': 'Mit kezdjek a fájllal?',
+  'assistant.attach.chip.keep': 'Mentsd a Fájlok közé',
+  'assistant.attach.chip.book': 'Készíts belőle foglalást',
+  'assistant.attach.chip.attach': 'Csatold egy foglaláshoz vagy kiadáshoz',
+  'assistant.attach.chip.read': 'Mi van a fájlban?',
+  'assistant.attach.chip.keepWithBooking': 'Mentsd a fájlt ehhez a foglaláshoz',
 };
 export default assistant;

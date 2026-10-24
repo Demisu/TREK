@@ -449,5 +449,18 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': '旅行チャットに送信',
   'assistant.admin.chatgptShared':
     '自分の ChatGPT プランをこのサーバーの全員と共有します。全員のチャットがあなたのプランの利用枠を使います。プランと OpenAI の規約で許可されているか確認してください。',
+  'assistant.attach.found': '{name} に予約が {count} 件見つかりました。必要なものを下で追加してください。',
+  'assistant.attach.none': '{name} に予約は見つかりませんでした。',
+  'assistant.attach.why.aiNotConfigured':
+    'ここではインポート用の AI 読み取りが設定されていないため、TREK 独自の読み取りだけで確認しました。',
+  'assistant.attach.why.aiFailed': 'AI の読み取りでファイルを読めませんでした。',
+  'assistant.attach.why.noText': '読み取れるテキストがありません。スキャンした画像の可能性が高いです。',
+  'assistant.attach.why.nothingFound': '予約らしき内容は含まれていません。',
+  'assistant.attach.ask': 'このファイルをどうしますか？',
+  'assistant.attach.chip.keep': 'ファイルに保存して',
+  'assistant.attach.chip.book': 'このファイルから予約を作って',
+  'assistant.attach.chip.attach': '予約か支出に添付して',
+  'assistant.attach.chip.read': 'ファイルの中身は？',
+  'assistant.attach.chip.keepWithBooking': 'このファイルをこの予約と一緒に保存して',
 };
 export default assistant;

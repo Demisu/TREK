@@ -121,4 +121,40 @@ describe('the questions an answer offers', () => {
     expect(followUpsFor(offered, true).map((f) => f.text)).toEqual(['Yes, plan it']);
     expect(followUpsFor(of([{ type: 'text', text: 'Here it is.' }]), true).map((f) => f.id)).toEqual(['more', 'next']);
   });
+
+  it('FE-AI-FOLLOW-008: the answer to an attached file offers what the server chose, also under its booking cards', () => {
+    const read = {
+      type: 'tool-call' as const,
+      toolCallId: 'r',
+      toolName: 'read_booking_file',
+      args: { name: 'AirBnB Buchung.pdf' },
+      result: { bookings: [], reason: 'ai_not_configured' },
+    };
+    const chips = {
+      type: 'data-trek-follow-ups' as const,
+      data: { questions: ['Keep it in Files', 'What is in the file?'] },
+    };
+    const empty = of([
+      read,
+      { type: 'text', text: 'I could not find a booking. What should I do with the file?' },
+      chips,
+    ]);
+    expect(followUpsFor(empty, true).map((f) => f.text)).toEqual(['Keep it in Files', 'What is in the file?']);
+    const change = {
+      toolCallId: 'b',
+      verbKey: 'importBooking',
+      subject: 'Casa',
+      rows: [],
+      dayId: null,
+      placeIds: [],
+      undoable: false,
+    };
+    const found = of([
+      read,
+      { type: 'text', text: 'I found 1 booking.' },
+      { type: 'data-trek-change', data: change as AssistantChangePreview },
+      { type: 'data-trek-follow-ups', data: { questions: ['Keep the file with this booking'] } },
+    ]);
+    expect(followUpsFor(found, true).map((f) => f.text)).toEqual(['Keep the file with this booking']);
+  });
 });

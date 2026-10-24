@@ -553,5 +553,23 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'إرسال إلى محادثة الرحلة',
   'assistant.admin.chatgptShared':
     'أنت تشارك اشتراكك الشخصي في ChatGPT مع الجميع على هذا الخادم: تُحتسب محادثاتهم من خطتك. تحقّق من أن خطتك وشروط OpenAI تسمح بذلك.',
+  'assistant.attach.found': 'وجدت {count} حجز في {name}. أضف ما تريده منها أدناه.',
+  'assistant.attach.found.zero': 'لم أجد أي حجز في {name}.',
+  'assistant.attach.found.one': 'وجدت حجزًا واحدًا في {name}. أضفه أدناه إن بدا صحيحًا.',
+  'assistant.attach.found.two': 'وجدت حجزين في {name}. أضف ما تريده منهما أدناه.',
+  'assistant.attach.found.few': 'وجدت {count} حجوزات في {name}. أضف ما تريده منها أدناه.',
+  'assistant.attach.found.many': 'وجدت {count} حجزًا في {name}. أضف ما تريده منها أدناه.',
+  'assistant.attach.none': 'لم أجد أي حجز في {name}.',
+  'assistant.attach.why.aiNotConfigured':
+    'قراءة الملفات بالذكاء الاصطناعي غير مفعّلة للاستيراد هنا، لذلك فحصه قارئ TREK وحده.',
+  'assistant.attach.why.aiFailed': 'لم يتمكن قارئ الذكاء الاصطناعي من قراءته.',
+  'assistant.attach.why.noText': 'لا يحتوي على نص قابل للقراءة، والأرجح أنه ملف ممسوح ضوئيًا.',
+  'assistant.attach.why.nothingFound': 'لا شيء فيه يبدو كحجز.',
+  'assistant.attach.ask': 'ماذا أفعل بالملف؟',
+  'assistant.attach.chip.keep': 'احفظه في الملفات',
+  'assistant.attach.chip.book': 'أنشئ حجزًا منه',
+  'assistant.attach.chip.attach': 'أرفقه بحجز أو بمصروف',
+  'assistant.attach.chip.read': 'ماذا يحتوي الملف؟',
+  'assistant.attach.chip.keepWithBooking': 'احفظ الملف مع هذا الحجز',
 };
 export default assistant;

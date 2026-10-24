@@ -518,5 +518,21 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Wyślij na czat podróży',
   'assistant.admin.chatgptShared':
     'Udostępniasz własny plan ChatGPT wszystkim na tym serwerze: ich czaty liczą się do twojego planu. Sprawdź, czy twój plan i warunki OpenAI na to pozwalają.',
+  'assistant.attach.found': 'Znalazłem w pliku {name} {count} rezerwacji. Dodaj poniżej te, które chcesz.',
+  'assistant.attach.found.one': 'Znalazłem w pliku {name} {count} rezerwację. Dodaj ją poniżej, jeśli się zgadza.',
+  'assistant.attach.found.few': 'Znalazłem w pliku {name} {count} rezerwacje. Dodaj poniżej te, które chcesz.',
+  'assistant.attach.found.many': 'Znalazłem w pliku {name} {count} rezerwacji. Dodaj poniżej te, które chcesz.',
+  'assistant.attach.none': 'Nie znalazłem żadnej rezerwacji w pliku {name}.',
+  'assistant.attach.why.aiNotConfigured':
+    'Odczyt przez AI nie jest tu skonfigurowany dla importów, więc plik sprawdził tylko własny czytnik TREK.',
+  'assistant.attach.why.aiFailed': 'Czytnik AI nie zdołał go odczytać.',
+  'assistant.attach.why.noText': 'Nie zawiera czytelnego tekstu, to najpewniej skan.',
+  'assistant.attach.why.nothingFound': 'Nic w nim nie wygląda na rezerwację.',
+  'assistant.attach.ask': 'Co mam zrobić z plikiem?',
+  'assistant.attach.chip.keep': 'Zapisz go w Plikach',
+  'assistant.attach.chip.book': 'Utwórz z niego rezerwację',
+  'assistant.attach.chip.attach': 'Dołącz go do rezerwacji lub wydatku',
+  'assistant.attach.chip.read': 'Co jest w pliku?',
+  'assistant.attach.chip.keepWithBooking': 'Zapisz plik przy tej rezerwacji',
 };
 export default assistant;

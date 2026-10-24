@@ -478,5 +478,19 @@ const assistant: TranslationStrings = {
   'assistant.tool.send_collab_message': 'Envia al xat del viatge',
   'assistant.admin.chatgptShared':
     'Comparteixes el teu propi pla de ChatGPT amb tothom en aquest servidor: els seus xats compten contra el teu pla. Comprova que el teu pla i les condicions d’OpenAI ho permeten.',
+  'assistant.attach.found': 'He trobat {count} reserves a {name}. Afegeix a sota les que vulguis.',
+  'assistant.attach.found.one': 'He trobat {count} reserva a {name}. Afegeix-la a sota si et sembla bé.',
+  'assistant.attach.none': 'No he trobat cap reserva a {name}.',
+  'assistant.attach.why.aiNotConfigured':
+    'La lectura amb IA no està configurada per a les importacions, així que només l’ha revisat el lector propi de TREK.',
+  'assistant.attach.why.aiFailed': 'El lector d’IA no l’ha pogut llegir.',
+  'assistant.attach.why.noText': 'No conté text llegible, segurament és un document escanejat.',
+  'assistant.attach.why.nothingFound': 'No hi ha res que sembli una reserva.',
+  'assistant.attach.ask': 'Què faig amb el fitxer?',
+  'assistant.attach.chip.keep': 'Desa’l a Fitxers',
+  'assistant.attach.chip.book': 'Crea una reserva a partir d’aquest fitxer',
+  'assistant.attach.chip.attach': 'Adjunta’l a una reserva o a una despesa',
+  'assistant.attach.chip.read': 'Què hi ha al fitxer?',
+  'assistant.attach.chip.keepWithBooking': 'Desa el fitxer amb aquesta reserva',
 };
 export default assistant;
