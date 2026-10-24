@@ -1,4 +1,4 @@
-import type { BookPaint } from '@trek/shared';
+import { BOOK_PATTERNS, type BookPaint } from '@trek/shared';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { StudioPaintPicker } from '../../../src/components/Studio/StudioPaintPicker';
@@ -172,7 +172,7 @@ describe('a pattern', () => {
   it('draws a tile for each repeat, turns stripes to the diagonal, and lets the ground go', () => {
     const channel = spy();
     const { container } = render(<Harness start={start} channel={channel} />);
-    expect(container.querySelectorAll('.st-pattern-tile')).toHaveLength(12);
+    expect(container.querySelectorAll('.st-pattern-tile')).toHaveLength(BOOK_PATTERNS.length);
     expect(need(container.querySelector('.st-pattern-tile[aria-checked="true"]')).getAttribute('aria-label')).toBe(
       'journey.studio.pattern.dots'
     );
@@ -182,7 +182,7 @@ describe('a pattern', () => {
 
     fireEvent.click(need(container.querySelector('[role="switch"]')));
     expect(last(channel.commit)).toMatchObject({ bg: null });
-    expect(container.querySelectorAll('.st-pattern-tile.is-clear')).toHaveLength(12);
+    expect(container.querySelectorAll('.st-pattern-tile.is-clear')).toHaveLength(BOOK_PATTERNS.length);
     fireEvent.click(need(container.querySelector('[role="switch"]')));
     expect(last(channel.commit)).toMatchObject({ bg: '#ffffff' });
   });
