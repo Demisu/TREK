@@ -95,8 +95,13 @@ function isOfferedInJournal(name: string, className: string | undefined): boolea
   return className !== undefined && JOURNAL_CONTROLLERS.has(className) && !isStudioController(className);
 }
 
-/** Whether a journey's session attaches a registered tool: what either of its pages offers. */
+/**
+ * Whether a journey's session attaches a registered tool: what either of its
+ * pages offers. A tool denied in a journey's own conversation is never
+ * attached, though the Studio's controllers would bring it along.
+ */
 export function isHeldInJourney(name: string, className: string | undefined): boolean {
+  if (name in JOURNAL_DENIED_TOOLS) return false;
   return isOfferedInJourney(name, className) || isOfferedInJournal(name, className);
 }
 
