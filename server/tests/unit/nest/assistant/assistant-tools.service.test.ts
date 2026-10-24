@@ -75,7 +75,8 @@ beforeAll(async () => {
   orm = app.get(MikroORM);
   registry = app.get(McpRegistryService);
   tools = app.get(AssistantToolsService);
-  const addons = ['packing', 'budget', 'collections', 'journey', 'roadtrip'];
+  // Dawarich too: a stay taken into a journal has a card of its own (the journal chat's).
+  const addons = ['packing', 'budget', 'collections', 'journey', 'roadtrip', 'dawarich'];
   await Promise.all(addons.map((addon) => setAddonEnabled(orm, addon, true)));
   // The wanderer tools show only while the admin allows wanderer under Tours.
   await setAppSetting(orm, 'tours_wanderer_enabled', 'true');
