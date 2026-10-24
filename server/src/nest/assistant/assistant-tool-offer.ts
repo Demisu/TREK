@@ -209,7 +209,8 @@ export function keptInJourney(
 
 /**
  * The arguments that name a trip or a journey, as the tools spell them: the
- * collections' copy takes `trip_id`, a new journey its `trip_ids`.
+ * collections' copy takes `trip_id`, a new journey its `trip_ids`, a Dawarich
+ * stay taken into a journal its `journalId`.
  */
 const TRIP_OR_JOURNEY_ARGS: ReadonlySet<string> = new Set([
   PINNED_ARG,
@@ -217,6 +218,20 @@ const TRIP_OR_JOURNEY_ARGS: ReadonlySet<string> = new Set([
   'trip_id',
   'trip_ids',
   'journey_id',
+  'journalId',
+]);
+
+/**
+ * The controllers of a journey's own content, whose every write works on one
+ * journey, also when it names only a part of it (an entry by its `entryId`).
+ */
+const JOURNEY_WRITE_CONTROLLERS: ReadonlySet<string> = new Set([
+  'JourneyMcp',
+  'JourneyMapMcp',
+  'JourneyTracksMcp',
+  'JourneyRecordingsMcp',
+  'JourneyDayImportMcp',
+  'TripJournalLinkMcp',
 ]);
 
 /**
@@ -226,10 +241,16 @@ const TRIP_OR_JOURNEY_ARGS: ReadonlySet<string> = new Set([
  * user may read it, as for any MCP client); and the writes that take neither
  * a trip nor a journey (the atlas, the vacation planner, collections, the
  * tour library, the settings). A trip's own changes belong in that trip's
- * chat, which the home chat offers instead (open_trip_chat).
+ * chat, which the home chat offers instead (open_trip_chat); a journey's stay
+ * with the journey page, as they do for the Studio's chat.
  */
-export function keptAtHome(kind: 'read' | 'write', schemaArgs: Iterable<string>): boolean {
+export function keptAtHome(
+  kind: 'read' | 'write',
+  schemaArgs: Iterable<string>,
+  className: string | undefined,
+): boolean {
   if (kind === 'read') return true;
+  if (className !== undefined && JOURNEY_WRITE_CONTROLLERS.has(className)) return false;
   for (const arg of schemaArgs) if (TRIP_OR_JOURNEY_ARGS.has(arg)) return false;
   return true;
 }

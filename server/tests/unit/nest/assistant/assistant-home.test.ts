@@ -185,12 +185,22 @@ describe("the way into a trip's chat", () => {
 
 describe('the tools the home chat keeps', () => {
   it('ASTHOME-030: every read, and only the writes that name no trip and no journey', () => {
-    expect(keptAtHome('read', ['tripId'])).toBe(true);
-    expect(keptAtHome('read', ['journeyId'])).toBe(true);
-    expect(keptAtHome('write', ['country_code'])).toBe(true);
-    expect(keptAtHome('write', [])).toBe(true);
-    for (const arg of ['tripId', 'journeyId', 'trip_id', 'trip_ids', 'journey_id']) {
-      expect(keptAtHome('write', ['name', arg]), arg).toBe(false);
+    expect(keptAtHome('read', ['tripId'], 'TripsMcp')).toBe(true);
+    expect(keptAtHome('read', ['journeyId'], 'JourneyMcp')).toBe(true);
+    expect(keptAtHome('write', ['country_code'], 'AtlasMcp')).toBe(true);
+    expect(keptAtHome('write', [], undefined)).toBe(true);
+    for (const arg of ['tripId', 'journeyId', 'trip_id', 'trip_ids', 'journey_id', 'journalId']) {
+      expect(keptAtHome('write', ['name', arg], undefined), arg).toBe(false);
     }
+  });
+
+  it("ASTHOME-031: a journey's writes stay with the journey, also those that name only an entry", () => {
+    expect(keptAtHome('read', ['entryId'], 'JourneyMcp')).toBe(true);
+    for (const className of ['JourneyMcp', 'JourneyRecordingsMcp', 'JourneyDayImportMcp']) {
+      expect(keptAtHome('write', ['entryId'], className), className).toBe(false);
+    }
+    // A Dawarich stay taken into a journal names the journey as `journalId`; one marked on the bucket list stays.
+    expect(keptAtHome('write', ['suggestionId', 'journalId'], 'DawarichMcp')).toBe(false);
+    expect(keptAtHome('write', ['suggestionId', 'bucketListItemId'], 'DawarichMcp')).toBe(true);
   });
 });

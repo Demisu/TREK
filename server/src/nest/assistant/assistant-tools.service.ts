@@ -430,7 +430,12 @@ export class AssistantToolsService implements OnApplicationBootstrap {
     const include = (name: string) =>
       undoTargets ? undoTargets.has(name) : isOfferedTool(name) && !isStudioController(catalog.get(name)?.className);
     const keep = (tool: ListedTool) =>
-      !!undoTargets || keptAtHome(tool.kind, Object.keys((tool.inputSchema.properties as object | undefined) ?? {}));
+      !!undoTargets ||
+      keptAtHome(
+        tool.kind,
+        Object.keys((tool.inputSchema.properties as object | undefined) ?? {}),
+        catalog.get(tool.name)?.className,
+      );
     const mode: SessionMode = undoTargets ? 'undo' : 'home';
     return this.session(userId, NO_PIN, mode, { catalog, include, keep });
   }

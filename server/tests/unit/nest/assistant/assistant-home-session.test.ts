@@ -1,7 +1,8 @@
 /**
  * The assistant's tool session for the home chat, over the container's real
  * MCP registry: it reads any trip the user may read, on the id the model
- * passes, and holds no write that takes a trip or a journey; the writes that
+ * passes, and holds no write that takes a trip or a journey, nor one of a
+ * journey's own that names only its entry; the writes that
  * belong to no trip (the atlas, collections) come with their groups; the way
  * into a trip's chat answers from the user's own trips only; an undo's
  * session holds its target.
@@ -29,6 +30,8 @@ beforeAll(async () => {
   tools = app.get(AssistantToolsService);
   await setAddonEnabled(orm, 'atlas', true);
   await setAddonEnabled(orm, 'collections', true);
+  await setAddonEnabled(orm, 'journey', true);
+  await setAddonEnabled(orm, 'dawarich', true);
 });
 
 async function ownerWithTrip() {
@@ -73,6 +76,30 @@ describe('a home tool session', () => {
       expect(names).toEqual(expect.arrayContaining(['mark_country_visited', 'create_collection']));
       expect(names).not.toContain('copy_collection_places_to_trip');
       expect(session.kindOf('mark_country_visited')).toBe('write');
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("ASTHSES-006: the journey group brings a journey's reads and none of its writes", async () => {
+    const { userId } = await ownerWithTrip();
+    const session = await tools.openHome(userId);
+    try {
+      await session.call(USE_TOOLS_TOOL, { groups: ['journey'] });
+      const names = session.specs().map((spec) => spec.name);
+      expect(names).toEqual(expect.arrayContaining(['list_journeys', 'list_journey_entries']));
+      const journeyWrites = [
+        'update_journey_entry',
+        'delete_journey_entry',
+        'reorder_journey_entry_photos',
+        'accept_dawarich_suggestion_as_journal_entry',
+      ];
+      for (const name of journeyWrites) {
+        expect(names, name).not.toContain(name);
+        expect(session.kindOf(name), name).toBeNull();
+      }
+      // A Dawarich suggestion waved away belongs to no journey and stays.
+      expect(session.kindOf('dismiss_dawarich_suggestion')).toBe('write');
     } finally {
       await session.close();
     }
