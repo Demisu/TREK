@@ -12,9 +12,25 @@ import { z } from 'zod';
  * it: `/api/trips/:tripId/assistant`, `/api/journeys/:journeyId/assistant` and
  * `/api/assistant`.
  */
+/**
+ * The two pages a journey's conversation is held on: the book in TREK Studio,
+ * and the journal itself (its entries, photos and settings). They share the
+ * journey's threads; what a turn offers and what it is told follow the page.
+ */
+export const ASSISTANT_JOURNEY_SURFACES = ['studio', 'journal'] as const;
+export const assistantJourneySurfaceSchema = z.enum(ASSISTANT_JOURNEY_SURFACES);
+export type AssistantJourneySurface = z.infer<typeof assistantJourneySurfaceSchema>;
+
 export const assistantScopeSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('trip'), tripId: idSchema }).strict(),
-  z.object({ kind: z.literal('journey'), journeyId: idSchema }).strict(),
+  z
+    .object({
+      kind: z.literal('journey'),
+      journeyId: idSchema,
+      /** The page a request comes from; left out, the Studio's. Never part of the key: both pages keep one list. */
+      surface: assistantJourneySurfaceSchema.optional(),
+    })
+    .strict(),
   z.object({ kind: z.literal('home') }).strict(),
 ]);
 export type AssistantScope = z.infer<typeof assistantScopeSchema>;

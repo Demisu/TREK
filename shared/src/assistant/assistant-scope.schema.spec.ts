@@ -1,4 +1,9 @@
-import { assistantScopeKey, assistantScopeSchema, HOME_ASSISTANT_SCOPE } from './assistant-scope.schema';
+import {
+  ASSISTANT_JOURNEY_SURFACES,
+  assistantScopeKey,
+  assistantScopeSchema,
+  HOME_ASSISTANT_SCOPE,
+} from './assistant-scope.schema';
 import { assistantFocusSchema } from './assistant.schema';
 
 import { describe, expect, it } from 'vitest';
@@ -20,6 +25,15 @@ describe('assistantScopeSchema', () => {
   it('ASTSCOPE-003: keys a trip and a journey with the same id apart', () => {
     expect(assistantScopeKey({ kind: 'trip', tripId: 7 })).toBe('trip:7');
     expect(assistantScopeKey({ kind: 'journey', journeyId: 7 })).toBe('journey:7');
+  });
+
+  it('ASTSCOPE-007: a journey names the page it is asked from, which never changes its key', () => {
+    const journal = { kind: 'journey', journeyId: 7, surface: 'journal' } as const;
+    expect(assistantScopeSchema.parse(journal)).toEqual(journal);
+    expect(assistantScopeSchema.safeParse({ ...journal, surface: 'planner' }).success).toBe(false);
+    expect(assistantScopeSchema.safeParse({ kind: 'trip', tripId: 7, surface: 'journal' }).success).toBe(false);
+    expect(assistantScopeKey(journal)).toBe(assistantScopeKey({ kind: 'journey', journeyId: 7, surface: 'studio' }));
+    expect(ASSISTANT_JOURNEY_SURFACES).toEqual(['studio', 'journal']);
   });
 
   it('ASTSCOPE-006: has a home scope that names no trip and no journey', () => {

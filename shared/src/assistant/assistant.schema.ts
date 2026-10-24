@@ -1,6 +1,7 @@
 import { bookElementIdSchema, bookSpreadIdSchema } from '../book/book-ops.schema';
 import { idParamSchema, idSchema } from '../common/primitives.schema';
 import { assistantAttachmentIdSchema } from './assistant-attachments.schema';
+import { assistantJourneySurfaceSchema } from './assistant-scope.schema';
 import { assistantPageRenderSchema, assistantPageViewSchema } from './assistant-vision.schema';
 import {
   assistantCardSchema,
@@ -248,6 +249,8 @@ export const assistantChatRequestSchema = assistantClientCtxSchema
     mentions: z.array(assistantMentionSchema).max(50).optional(),
     /** The client draws a Studio page when the turn asks for one (the Studio's chat, assistant-vision.schema.ts). */
     renders: z.boolean().optional(),
+    /** A journey's chat only: the page the user asks from, the Studio's when left out. A trip's chat ignores it. */
+    surface: assistantJourneySurfaceSchema.optional(),
   })
   .strict();
 export type AssistantChatRequest = z.infer<typeof assistantChatRequestSchema>;
@@ -279,6 +282,8 @@ export const assistantDecisionsRequestSchema = assistantClientCtxSchema
     decisions: z.array(assistantDecisionSchema).min(1).max(50),
     /** As on a chat turn: the client draws a Studio page when the turn asks for one. */
     renders: z.boolean().optional(),
+    /** As on a chat turn: the page of a journey the decision is made on, which picks the tools the turn goes on with. */
+    surface: assistantJourneySurfaceSchema.optional(),
   })
   .strict();
 export type AssistantDecisionsRequest = z.infer<typeof assistantDecisionsRequestSchema>;

@@ -131,6 +131,19 @@ describe('JourneyAssistantController', () => {
     gone.emit('close');
     expect(service.decide.mock.calls[0][4].signal.aborted).toBe(true);
   });
+
+  it('ASTJCTL-005: a turn and a decision from the journal page name it in the scope, the threads stay one list', async () => {
+    const { service, controller } = make();
+    const journal = { ...JOURNEY, surface: 'journal' };
+    const chat = { locale: 'en', timeZone: 'UTC', threadId: null, text: 'Hi', surface: 'journal' as const };
+    await controller.chat(user, '12', chat, new FakeResponse() as unknown as Response);
+    expect(service.chat.mock.calls[0].slice(0, 3)).toEqual([7, journal, chat]);
+    const decisions = { locale: 'en', timeZone: 'UTC', decisions: [], surface: 'studio' as const };
+    await controller.decide(user, '12', '9', decisions, new FakeResponse() as unknown as Response);
+    expect(service.decide.mock.calls[0].slice(0, 3)).toEqual([7, { ...JOURNEY, surface: 'studio' }, 9]);
+    await controller.threads(user, '12');
+    expect(service.listThreads).toHaveBeenCalledWith(7, JOURNEY);
+  });
 });
 
 describe('JourneyAssistantGuard', () => {

@@ -64,6 +64,21 @@ describe('assistantChatRequestSchema', () => {
   it('needs the locale and time zone', () => {
     expect(assistantChatRequestSchema.safeParse({ threadId: null, text: 'hi' }).success).toBe(false);
   });
+
+  it('names the page of a journey it is asked from, the Studio or the journal, and nothing else', () => {
+    const base = { ...ctx, threadId: null, text: 'hi' };
+    expect(assistantChatRequestSchema.parse({ ...base, surface: 'journal' }).surface).toBe('journal');
+    expect(assistantChatRequestSchema.parse({ ...base, surface: 'studio' }).surface).toBe('studio');
+    expect(assistantChatRequestSchema.parse(base).surface).toBeUndefined();
+    expect(assistantChatRequestSchema.safeParse({ ...base, surface: 'planner' }).success).toBe(false);
+    const decision = { toolCallId: 'a', approved: true };
+    expect(assistantDecisionsRequestSchema.parse({ ...ctx, decisions: [decision], surface: 'journal' }).surface).toBe(
+      'journal',
+    );
+    expect(assistantDecisionsRequestSchema.safeParse({ ...ctx, decisions: [decision], surface: 'x' }).success).toBe(
+      false,
+    );
+  });
 });
 
 describe('assistantAttachmentRequestSchema', () => {

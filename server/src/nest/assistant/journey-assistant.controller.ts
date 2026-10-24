@@ -16,21 +16,28 @@ import {
   assistantThreadResponseSchema,
   assistantUndoResponseSchema,
   successResponseSchema,
+  type AssistantJourneySurface,
   type AssistantScope,
 } from '@trek/shared';
 
 import type { Response } from 'express';
 
-/** The scope of a request JourneyAssistantGuard let through: the journey is open to the user. */
-function journeyScope(journeyId: string): AssistantScope {
-  return { kind: 'journey', journeyId: Number(journeyId) };
+/**
+ * The scope of a request JourneyAssistantGuard let through: the journey is
+ * open to the user. A turn and a decision also name the page they come from
+ * (the Studio, or the journal page); the threads are the same on both.
+ */
+function journeyScope(journeyId: string, surface?: AssistantJourneySurface): AssistantScope {
+  const scope = { kind: 'journey' as const, journeyId: Number(journeyId) };
+  return surface ? { ...scope, surface } : scope;
 }
 
 /**
  * `/api/journeys/:journeyId/assistant`: the user's conversations with the
- * assistant in TREK Studio, about one journey and its book. The same
+ * assistant about one journey, in TREK Studio (its book) and on the journal
+ * page (its entries, photos and settings), which share them. The same
  * conversations, turns, change cards, decisions and undo as on a trip, with
- * the book's tools; any member may talk about the journey, and what a
+ * the page's tools; any member may talk about the journey, and what a
  * proposed change may do is decided by the tool that runs it, with the
  * user's own rights (a viewer's turn is offered no write at all). A journey
  * without trips works. No files, found places or sharing to a trip's chat
@@ -78,7 +85,7 @@ export class JourneyAssistantController {
     @Body() body: AssistantChatDto,
     @Res() res: Response,
   ): Promise<void> {
-    await this.assistant.chat(user.id, journeyScope(journeyId), body, channelOf(res));
+    await this.assistant.chat(user.id, journeyScope(journeyId, body.surface), body, channelOf(res));
   }
 
   // response-contract-exempt: streams the turn through @Res() as server-sent events, there is no JSON body to check.
@@ -90,7 +97,8 @@ export class JourneyAssistantController {
     @Body() body: AssistantDecisionsDto,
     @Res() res: Response,
   ): Promise<void> {
-    await this.assistant.decide(user.id, journeyScope(journeyId), idParam(threadId), body, channelOf(res));
+    const scope = journeyScope(journeyId, body.surface);
+    await this.assistant.decide(user.id, scope, idParam(threadId), body, channelOf(res));
   }
 
   @Post('tool-calls/:toolCallId/undo')
