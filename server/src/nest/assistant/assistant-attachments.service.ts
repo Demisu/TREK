@@ -119,7 +119,7 @@ export class AssistantAttachmentsService {
    * writes anything: a storage that refuses the bytes refuses the turn. A file
    * whose text cannot be read is kept all the same, as `failed`.
    */
-  async prepare(file: Express.Multer.File, name: string): Promise<PreparedAttachment> {
+  async stash(file: Express.Multer.File, name: string): Promise<PreparedAttachment> {
     const id = randomUUID();
     const storageKey = `${KEY_PREFIX}${id}${keyExtension(name)}`;
     const mime = file.mimetype || 'application/octet-stream';

@@ -109,7 +109,7 @@ async function make(opts: { text?: string | Error; listed?: Listed[]; failDelete
 describe('AssistantAttachmentsService', () => {
   it('ASTATT-001: keeps the bytes under the attachments folder and reads the text, before any row is written', async () => {
     const t = await make();
-    const kept = await t.service.prepare(file('AirBnB Buchung.pdf'), 'AirBnB Buchung.pdf');
+    const kept = await t.service.stash(file('AirBnB Buchung.pdf'), 'AirBnB Buchung.pdf');
     expect(kept).toMatchObject({
       name: 'AirBnB Buchung.pdf',
       mime: 'application/pdf',
@@ -128,13 +128,13 @@ describe('AssistantAttachmentsService', () => {
 
   it('ASTATT-002: a storage that refuses the bytes refuses the turn', async () => {
     const t = await make({ failPut: true });
-    await expect(t.service.prepare(file('a.pdf'), 'a.pdf')).rejects.toThrow('bucket is gone');
+    await expect(t.service.stash(file('a.pdf'), 'a.pdf')).rejects.toThrow('bucket is gone');
   });
 
   it('ASTATT-003: says how reading the text went, and a failure never fails the file', async () => {
     const statusOf = async (name: string, text?: string | Error) => {
       const t = await make({ text });
-      return (await t.service.prepare(file(name), name)).textStatus;
+      return (await t.service.stash(file(name), name)).textStatus;
     };
     expect(await statusOf('scan.pdf', '   ')).toBe('scanned');
     expect(await statusOf('empty.txt', '')).toBe('empty');
@@ -146,14 +146,14 @@ describe('AssistantAttachmentsService', () => {
 
   it('ASTATT-004: a name with an odd extension gets a plain key, and a long text is kept to its cap', async () => {
     const t = await make({ text: 'x'.repeat(250_000) });
-    const kept = await t.service.prepare(file('ticket.p d f'), 'ticket.p d f');
+    const kept = await t.service.stash(file('ticket.p d f'), 'ticket.p d f');
     expect(kept.storageKey).toBe(`assistant/${kept.id}`);
     expect(kept.text).toHaveLength(200_000);
   });
 
   it('ASTATT-005: records the row in the thread the turn opened, and drops the bytes of a turn that never began', async () => {
     const t = await make();
-    const kept = await t.service.prepare(file('a.pdf'), 'a.pdf');
+    const kept = await t.service.stash(file('a.pdf'), 'a.pdf');
     await t.service.record(kept, { threadId: 4, userId: 7, tripId: 9 });
     expect(t.rows.insertAttachment).toHaveBeenCalledWith(
       expect.objectContaining({ id: kept.id, threadId: 4, userId: 7, tripId: 9, storageKey: kept.storageKey }),

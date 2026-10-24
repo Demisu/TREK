@@ -295,7 +295,7 @@ export class AssistantService {
     await this.claimed(userId, channel.signal, async (signal) => {
       const name = file.originalname.slice(0, MAX_FILE_NAME_CHARS);
       // The file is kept before anything is written: a storage that refuses it refuses the turn.
-      const kept = await this.attachments.prepare(file, name);
+      const kept = await this.attachments.stash(file, name);
       const begun = await this.beginTurn(userId, tripScope(tripId), {
         threadId: req.threadId ?? null,
         titleText: name,
