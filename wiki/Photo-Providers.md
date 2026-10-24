@@ -1,6 +1,6 @@
 # Photo Providers
 
-TREK can browse your personal photo library on Immich or Synology Photos and attach selected photos to trips. TREK never copies the original files — it stores only a reference (provider name + asset ID) and proxies all image streams through its own server, so your provider credentials are never sent to the browser.
+TREK can browse your personal photo library on Immich or Synology Photos and attach selected photos to your journeys and TREK Studio books. TREK never copies the original files — it stores only a reference (provider name + asset ID) and proxies all image streams through its own server, so your provider credentials are never sent to the browser.
 
 > **Admin:** Enable at least one photo provider (Immich or Synology Photos) in **Admin → Addons** — photo provider toggles appear as sub-items under the **Journey** addon. Once a provider is on, its settings card appears in each user's **Settings → Integrations**. If your provider runs on a local or private network, the server must be configured to allow internal network access. See [Admin-Addons](Admin-Addons) and [Internal-Network-Access](Internal-Network-Access).
 
@@ -40,7 +40,7 @@ If your Immich server uses a self-signed certificate (for example behind a rever
 
 - The setting is per user and only applies to your own Immich connection. Disconnecting Immich, or saving a different server URL without turning it on again, turns it off.
 - Only the certificate check is skipped. The connection is still encrypted, but TREK can no longer tell your server from an impostor on the same network, and your API key travels over that connection. Prefer a certificate from a trusted CA where you can.
-- Photos you share on a trip are loaded through your connection, so your setting applies when other trip members view them.
+- Photos you add to a journey are loaded through your connection, so your setting applies when other people view that journey.
 - A server on a local or private address still needs internal network access on the TREK server. See [Internal-Network-Access](Internal-Network-Access).
 
 #### Required API key permissions
@@ -92,13 +92,13 @@ For Synology, a successful test stores a session token so the OTP code is not re
 
 ## Multiple providers
 
-You can configure both Immich and Synology simultaneously. TREK queries photos from all enabled providers when loading trip photos.
+You can configure both Immich and Synology simultaneously. TREK offers the photos of all connected providers side by side in the journey photo pickers.
 
 ---
 
 ## After setup
 
-Once a provider is connected, you can browse and attach photos to your trips. See [Documents-and-Files](Documents-and-Files) for how to manage files after setup.
+Once a provider is connected, you can browse and attach its photos in your journeys and in TREK Studio. Providers are used there only; the trip planner itself has no photo tab. For files such as tickets and PDFs, see [Documents-and-Files](Documents-and-Files).
 
 In the [Journey Journal](Journey-Journal) the same libraries are used in three places:
 
