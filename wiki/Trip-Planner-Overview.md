@@ -121,3 +121,5 @@ When you open a trip, a short loading screen shows the trip title while the plan
 - [Road Trip](Road-Trip)
 - [Tours](Tours)
 - [Admin-Addons](Admin-Addons)
+- [Trip Settings](Trip-Settings)
+- [AI Assistant](AI-Assistant)

@@ -219,3 +219,5 @@ Both toggles matter. A photo's coordinates follow the **Map** switch: with Map o
 - [Addons-Overview](Addons-Overview)
 - [Admin-Addons](Admin-Addons)
 - [Public-Share-Links](Public-Share-Links)
+- [TREK-Studio](TREK-Studio)
+- [Trip-Settings](Trip-Settings)

@@ -168,3 +168,4 @@ See [Journey-Journal](Journey-Journal) for the journal itself.
 - [Invite-Links](Invite-Links)
 - [Creating-a-Trip](Creating-a-Trip)
 - [Trip-Planner-Overview](Trip-Planner-Overview)
+- [Trip-Settings](Trip-Settings)

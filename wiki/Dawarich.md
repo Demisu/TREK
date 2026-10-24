@@ -255,3 +255,4 @@ Each request to Dawarich gives up after 15 seconds, and TREK reads at most 8 MB 
 - [Journey Journal](Journey-Journal): where accepted stays become entries
 - [Internal Network Access](Internal-Network-Access): reaching an instance on your LAN
 - [Addons Overview](Addons-Overview): the full addon table
+- [wanderer](Wanderer): trails from your own wanderer instance, imported as tours

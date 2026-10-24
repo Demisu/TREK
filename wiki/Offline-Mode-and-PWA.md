@@ -125,3 +125,4 @@ Changes waiting to sync remember which version of TREK queued them. After an upd
 - [User-Settings](User-Settings)
 - [Display-Settings](Display-Settings)
 - [Notifications](Notifications)
+- [Mobile-App](Mobile-App)

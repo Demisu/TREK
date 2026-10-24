@@ -174,3 +174,5 @@ Photographing a receipt for the Costs tab is covered in [Budget-Tracking](Budget
 - [Transport-Flights-Trains-Cars](Transport-Flights-Trains-Cars)
 - [Admin-Addons](Admin-Addons)
 - [Budget-Tracking](Budget-Tracking), for linked costs and receipt scans
+- [AI-Connections](AI-Connections), the connection AI Parsing can share with the assistant
+- [AI-Assistant](AI-Assistant)

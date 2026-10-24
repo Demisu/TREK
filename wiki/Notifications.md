@@ -203,3 +203,4 @@ Notification preferences are configured globally in Settings → Notifications. 
 
 - [Environment-Variables](Environment-Variables)
 - [User-Settings](User-Settings)
+- [Notifications-Inbox](Notifications-Inbox)

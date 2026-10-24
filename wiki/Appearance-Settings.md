@@ -97,3 +97,4 @@ None. Every setting on this tab applies only to your own account.
 - [Dashboard-Widgets](Dashboard-Widgets)
 - [My-Trips-Dashboard](My-Trips-Dashboard)
 - [Map-Settings](Map-Settings)
+- [Mobile-App](Mobile-App)

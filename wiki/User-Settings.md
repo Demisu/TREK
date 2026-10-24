@@ -123,3 +123,6 @@ On desktop the Integrations tab is always there, because **API Keys** need no ad
 - [Offline-Mode-and-PWA](Offline-Mode-and-PWA)
 - [Two-Factor-Authentication](Two-Factor-Authentication)
 - [Languages](Languages)
+- [AI-Connections](AI-Connections)
+- [Wanderer](Wanderer)
+- [Mobile-App](Mobile-App)

@@ -134,3 +134,5 @@ The phone admin has the same addon list in its **Addons** section, with the same
 - [MCP-Overview](MCP-Overview)
 - [Addons-Overview](Addons-Overview)
 - [Document-Sync](Document-Sync)
+- [AI-Connections](AI-Connections)
+- [Wanderer](Wanderer)

@@ -88,3 +88,4 @@ Click **Create New Trip** (when editing, the button reads **Update**). The trip 
 - [Trip-Members-and-Sharing](Trip-Members-and-Sharing)
 - [Trip-Planner-Overview](Trip-Planner-Overview)
 - [My-Trips-Dashboard](My-Trips-Dashboard)
+- [Trip-Settings](Trip-Settings)
