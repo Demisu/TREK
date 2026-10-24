@@ -10,7 +10,7 @@
     "trek/store-without-selector": 67,
     "react-hooks/refs": 555,
     "react-hooks/set-state-in-effect": 194,
-    "@typescript-eslint/no-floating-promises": 165,
+    "@typescript-eslint/no-floating-promises": 164,
     "react-hooks/exhaustive-deps": 116,
     "@typescript-eslint/no-unused-vars": 124,
     "react-hooks/immutability": 28,

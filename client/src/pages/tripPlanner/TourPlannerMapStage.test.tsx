@@ -940,7 +940,8 @@ describe('TourPlannerMapStage', () => {
 });
 
 describe('3D without WebGL2', () => {
-  const NO_3D = '3D needs WebGL2, which this browser does not offer. The map stays in 2D.';
+  // The stage translates with the t it is handed, and stageProps hands it one that returns the key.
+  const NO_3D = 'map.webgl2.terrain';
 
   function renderWithToasts(tourPlanner: Planner) {
     return render(

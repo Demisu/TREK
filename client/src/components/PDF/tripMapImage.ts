@@ -50,18 +50,20 @@ export async function renderTripMapImage(
   try {
     const gl = (await importChunk(() => import('../Map/engines/maplibre'))).default
 
-    container = document.createElement('div')
+    // A const of its own: the map is built inside a closure, where the let's narrowing is gone.
+    const box = document.createElement('div')
+    container = box
     // Off-screen rather than hidden: MapLibre needs a laid-out box with real
     // dimensions, and `display:none` gives it a zero-sized canvas.
-    container.style.cssText =
+    box.style.cssText =
       `position:fixed;left:-10000px;top:0;width:${width}px;height:${height}px;pointer-events:none;`
-    document.body.appendChild(container)
+    document.body.appendChild(box)
 
     const bounds = new gl.LngLatBounds()
     for (const [lat, lng] of points) bounds.extend([lng, lat])
 
     const instance = buildGlMap(() => new gl.Map({
-      container,
+      container: box,
       style: normalizeStyleForProvider('maplibre-gl', opts.style),
       bounds,
       fitBoundsOptions: { padding: 42, animate: false },
