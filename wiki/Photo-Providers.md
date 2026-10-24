@@ -1,6 +1,6 @@
 # Photo Providers
 
-TREK can browse your personal photo library on Immich or Synology Photos and attach selected photos to your journeys and TREK Studio books. TREK never copies the original files — it stores only a reference (provider name + asset ID) and proxies all image streams through its own server, so your provider credentials are never sent to the browser.
+TREK can browse your personal photo library on Immich or Synology Photos and attach selected photos to your journeys and TREK Studio books. TREK never copies the original files. It stores only a reference (provider name + asset ID) and proxies all image streams through its own server, so your provider credentials are never sent to the browser.
 
 > **Admin:** Enable at least one photo provider (Immich or Synology Photos) in **Admin → Addons** — photo provider toggles appear as sub-items under the **Journey** addon. Once a provider is on, its settings card appears in each user's **Settings → Integrations**. If your provider runs on a local or private network, the server must be configured to allow internal network access. See [Admin-Addons](Admin-Addons) and [Internal-Network-Access](Internal-Network-Access).
 

@@ -130,7 +130,7 @@ Click **Delete link** (red button below the URL) to revoke access. The token is 
 
 ## Trip Invite Link
 
-Below the public link, in the same **Sharing** area, users with the `share_manage` permission can also create a **trip invite link** — a single rotating link that lets people **join the trip as members**:
+Below the public link, in the same **Sharing** area, users with the `share_manage` permission can also create a **trip invite link**: a single rotating link that lets people **join the trip as members**:
 
 ```
 <your-instance>/join/<token>
