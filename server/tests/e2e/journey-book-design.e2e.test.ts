@@ -212,6 +212,7 @@ describe('the whole-book design over MCP and REST', () => {
     const after = await book(journey.id, editor.id);
     expect(after.body.book.version).toBe(applied.version);
     expect(bookDocumentSchema.safeParse(after.body.book.document).success).toBe(true);
-    expect(after.body.book.document.theme.id).toBe('field-notes');
+    // Applied over a stored book, the design brings its pages; the book keeps its own theme.
+    expect(after.body.book.document.spreads.length).toBeGreaterThan(1);
   });
 });

@@ -336,7 +336,8 @@ export function composeWordsPage(c: ComposeCtx, entry: AutoEntry, story: BookEle
     let x = right.x;
     for (const mark of marks) {
       if (!mark) continue;
-      const frame = fitIn(mark.frame, frameOf(x, right.y + right.h * 0.7, right.w / 2 - scaled(c, 4), right.h * 0.3));
+      const { w = 0, h = 0 } = mark.frame;
+      const frame = fitIn({ w, h }, frameOf(x, right.y + right.h * 0.7, right.w / 2 - scaled(c, 4), right.h * 0.3));
       els.push({ ...mark, frame: frameOf(x, frame.y, frame.w, frame.h) });
       x += frame.w + scaled(c, 8);
     }

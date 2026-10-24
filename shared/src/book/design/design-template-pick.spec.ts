@@ -93,14 +93,29 @@ describe('the template picker', () => {
     expect(mapped.every((t) => t !== undefined)).toBe(true);
   });
 
-  it('AUTOTPL-004: never the same template twice running, never loud after loud or lively', () => {
+  it('AUTOTPL-004: never the same template twice running, never loud after busy, unless only that keeps every photo framed in the style', () => {
+    const busy = (t: BookDecoratedTemplate) => ['loud', 'lively'].includes(templateEnergy(t));
     for (const archetype of BOOK_COVER_ARCHETYPES) {
       const picks = book(varied, { archetype, theme: null });
+      expect(picks.length, archetype).toBe(varied.length);
       picks.forEach((t, i) => {
         const before = picks[i - 1];
-        if (!before) return;
-        expect(t.id, `${archetype} at ${i}`).not.toBe(before.id);
-        if (templateEnergy(t) === 'loud') expect(['loud', 'lively']).not.toContain(templateEnergy(before));
+        const page = varied[i];
+        if (!before || !page) return;
+        const keeps = (x: BookDecoratedTemplate) =>
+          x.id !== before.id && !(templateEnergy(x) === 'loud' && busy(before));
+        if (keeps(t)) return;
+        // The rhythm gives way only where no template of the book's styles frames every photo and keeps it.
+        const fits = (x: BookDecoratedTemplate) =>
+          templatePhotoSlots(x) === page.photos.length &&
+          (!page.story || roles(x).includes('body')) &&
+          (!roles(x).includes('map') || page.mappable);
+        expect(
+          innerPool(archetype)
+            .filter((x) => fits(x) && keeps(x))
+            .map((x) => x.id),
+          `${archetype} at ${i}`,
+        ).toEqual([]);
       });
     }
   });
