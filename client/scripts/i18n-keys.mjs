@@ -92,13 +92,6 @@ export const MAX_IMPLICIT_MATCHES = 30;
  */
 export const DYNAMIC_ALLOWED = [
   {
-    file: 'components/Studio/shapes.ts',
-    template: 'journey.studio.shapeName.${shape}',
-    because:
-      'shapeName takes a BookShapeId; shared/src/book/book-shape-catalogue.spec.ts holds an en name for every ' +
-      'shape of BOOK_SHAPE_GROUPS',
-  },
-  {
     file: 'components/Trips/TripShareDialog.tsx',
     template: '${opt.label}Hint',
     because:
@@ -152,6 +145,13 @@ export const DYNAMIC_ALLOWED = [
     because:
       'id is a sticker id of the library in @trek/shared/stickers; stickerLibrary.test.ts resolves the key of every ' +
       'sticker the library holds against en',
+  },
+  {
+    file: 'components/Studio/shapes.ts',
+    template: 'journey.studio.shapeName.${shape}',
+    because:
+      'shapeName takes a BookShapeId; shared/src/book/book-shape-catalogue.spec.ts holds an en name for every ' +
+      'shape of BOOK_SHAPE_GROUPS',
   },
 ];
 
