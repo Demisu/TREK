@@ -2,6 +2,8 @@ import type { AiConnectionView } from '@trek/shared';
 import { ChevronDown, Loader2, LogOut, MessageCircle, Sparkles, Unplug } from 'lucide-react';
 import React, { useState } from 'react';
 import { useAssistantCostEstimates, useAssistantMapFollow } from '../../../components/Assistant/useAssistantMapFollow';
+import DemoLock from '../../../components/Demo/DemoLock';
+import { useDemoAccountLock } from '../../../components/Demo/useDemoLock';
 import AiConnectPanel from '../../../components/Settings/ai/AiConnectPanel';
 import { aiSectionText, CONNECTION_STATUS } from '../../../components/Settings/ai/aiConnectModel';
 import { useAiConnections } from '../../../components/Settings/ai/useAiConnections';
@@ -117,6 +119,30 @@ function MInstanceConnection({ S }: { S: AiConnections }) {
   );
 }
 
+/**
+ * Under the connection: the hint that only the admin connects one, or, for the
+ * shared demo account, the locked place where its own would go.
+ */
+function MOwnConnectionNote({ view }: { view: AiConnections['view'] }) {
+  const { t } = useTranslation();
+  const demoLocked = useDemoAccountLock();
+  if (view === 'loading') return null;
+  if (!demoLocked) return view === 'adminOnly' ? <MSetHint>{t('assistant.setup.adminOnly')}</MSetHint> : null;
+  return (
+    <DemoLock locked reason={t('demo.lock.ai')} size="row" className="mt-3">
+      <MSetRow
+        first
+        label={t('demo.lock.aiTitle')}
+        trailing={
+          <MSetButton variant="ghost" disabled>
+            {t('assistant.errorAction.connectOwn')}
+          </MSetButton>
+        }
+      />
+    </DemoLock>
+  );
+}
+
 /** Whether the trip map follows the assistant, the phone's row for the shared switch. */
 function MAssistantBehaviour() {
   const { t } = useTranslation();
@@ -180,7 +206,7 @@ export default function MAiConnectionSection({
       {S.view === 'own' && S.own && <MOwnConnection S={S} own={S.own} />}
       {S.view === 'instance' && <MInstanceConnection S={S} />}
       {assistant && (S.view === 'own' || S.view === 'instance') && <MAssistantBehaviour />}
-      {S.view === 'adminOnly' && <MSetHint>{t('assistant.setup.adminOnly')}</MSetHint>}
+      <MOwnConnectionNote view={S.view} />
 
       {S.panel && (
         <div

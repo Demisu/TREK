@@ -299,7 +299,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': '2FA deaktivieren',
   'settings.mfa.toastEnabled': 'Zwei-Faktor-Authentifizierung aktiviert',
   'settings.mfa.toastDisabled': 'Zwei-Faktor-Authentifizierung deaktiviert',
-  'settings.mfa.demoBlocked': 'In der Demo nicht verfügbar',
   'settings.notifyVersionAvailable': 'Neue Version verfügbar',
   'settings.notifyReplicaFailure': 'Speicher-Replik-Fehler',
   'settings.notifyPaddleRegionRequested': 'Paddel-Region angefragt',

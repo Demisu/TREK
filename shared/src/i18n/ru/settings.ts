@@ -286,7 +286,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'Отключить 2FA',
   'settings.mfa.toastEnabled': 'Двухфакторная аутентификация включена',
   'settings.mfa.toastDisabled': 'Двухфакторная аутентификация отключена',
-  'settings.mfa.demoBlocked': 'Недоступно в демо-режиме',
   'settings.toast.mapSaved': 'Настройки карты сохранены',
   'settings.toast.keysSaved': 'API-ключи сохранены',
   'settings.toast.displaySaved': 'Настройки отображения сохранены',

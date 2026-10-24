@@ -209,7 +209,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'Desativar 2FA',
   'settings.mfa.toastEnabled': 'Autenticação em duas etapas ativada',
   'settings.mfa.toastDisabled': 'Autenticação em duas etapas desativada',
-  'settings.mfa.demoBlocked': 'Indisponível no modo demonstração',
   'settings.mcp.title': 'Configuração MCP',
   'settings.mcp.endpoint': 'Endpoint MCP',
   'settings.mcp.clientConfig': 'Configuração do cliente',

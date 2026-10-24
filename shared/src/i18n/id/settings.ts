@@ -347,7 +347,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'Nonaktifkan 2FA',
   'settings.mfa.toastEnabled': 'Autentikasi dua faktor diaktifkan',
   'settings.mfa.toastDisabled': 'Autentikasi dua faktor dinonaktifkan',
-  'settings.mfa.demoBlocked': 'Tidak tersedia dalam mode demo',
   'settings.bookingLabels': 'Label rute pemesanan',
   'settings.bookingLabelsHint': 'Menampilkan nama stasiun / bandara di peta. Jika mati, hanya ikon ditampilkan.',
   'settings.currency': 'Mata uang tampilan',

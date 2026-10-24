@@ -344,7 +344,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'ปิดการใช้งาน 2FA',
   'settings.mfa.toastEnabled': 'เปิดใช้งานการรับรองความถูกต้องด้วยสองปัจจัย',
   'settings.mfa.toastDisabled': 'การรับรองความถูกต้องด้วยสองปัจจัยถูกปิดใช้งาน',
-  'settings.mfa.demoBlocked': 'ไม่สามารถใช้ได้ในโหมดสาธิต',
   'settings.currency': 'แสดงสกุลเงิน',
   'settings.currencyHint':
     'จำนวนเงินในต้นทุนจะแสดงแปลงเป็นสกุลเงินนี้เพื่อแสดงเท่านั้น; จำนวนเงินเดิมไม่มีการเปลี่ยนแปลง',

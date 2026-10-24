@@ -336,7 +336,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': '2FA 비활성화',
   'settings.mfa.toastEnabled': '2단계 인증이 활성화되었습니다',
   'settings.mfa.toastDisabled': '2단계 인증이 비활성화되었습니다',
-  'settings.mfa.demoBlocked': '데모 모드에서는 사용할 수 없습니다',
   'settings.oauth.modal.machineClient': '머신 클라이언트(브라우저 로그인 없음)',
   'settings.oauth.modal.machineClientHint':
     'client_credentials 권한 부여를 사용합니다 — 리디렉션 URI가 필요하지 않습니다. 토큰은 client_id + client_secret을 통해 직접 발급되며 선택한 범위 내에서 사용자로 작동합니다.',

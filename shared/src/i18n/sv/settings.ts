@@ -353,7 +353,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'Inaktivera 2FA',
   'settings.mfa.toastEnabled': 'Tvåfaktorsautentisering är aktiverad',
   'settings.mfa.toastDisabled': 'Tvåfaktorsautentisering är inaktiverad',
-  'settings.mfa.demoBlocked': 'Finns inte i demoläge',
   'settings.currency': 'Visningsvaluta',
   'settings.currencyHint':
     'Belopp under Kostnader visas omräknade till denna valuta endast för visning; de ursprungliga beloppen ändras inte.',

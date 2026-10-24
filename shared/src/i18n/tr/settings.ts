@@ -343,7 +343,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': "2FA'yı devre dışı bırak",
   'settings.mfa.toastEnabled': 'İki faktörlü kimlik doğrulama etkin',
   'settings.mfa.toastDisabled': 'İki faktörlü kimlik doğrulama devre dışı',
-  'settings.mfa.demoBlocked': 'Demo modunda kullanılamaz',
   'settings.oauth.modal.machineClient': 'Makine istemcisi (tarayıcıda oturum açma yok)',
   'settings.oauth.modal.machineClientHint':
     "client_credentials iznini kullanın — yönlendirme URI'lerine gerek yoktur. Belirteç doğrudan client_id + client_secret ile verilir ve seçilen kapsamlar dahilinde sizin adınıza hareket eder.",

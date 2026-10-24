@@ -292,7 +292,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'Wyłącz 2FA',
   'settings.mfa.toastEnabled': 'Uwierzytelnianie dwuskładnikowe zostało włączone',
   'settings.mfa.toastDisabled': 'Uwierzytelnianie dwuskładnikowe zostało wyłączone',
-  'settings.mfa.demoBlocked': 'Niedostępne w trybie demonstracyjnym',
   'settings.bookingLabels': 'Etykiety tras rezerwacji',
   'settings.bookingLabelsHint':
     'Pokazuje nazwy stacji / lotnisk na mapie. Gdy wyłączone, wyświetlana jest tylko ikona.',

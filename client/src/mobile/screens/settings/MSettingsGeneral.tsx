@@ -12,6 +12,8 @@ import { MSetCard, MSetEyebrow, MSetHint, MSetSelectRow, MSetSegments, MSetRow }
 import MToggle from '../../components/MToggle'
 import MSetPickerSheet from './MSetPickerSheet'
 import { preferredNavAppOptions } from '../../../components/Planner/placeNavigation'
+import DemoLock from '../../../components/Demo/DemoLock'
+import { useDemoAccountLock } from '../../../components/Demo/useDemoLock'
 
 /**
  * "General" settings section — the demo's Language & region and Travel & map
@@ -20,6 +22,7 @@ import { preferredNavAppOptions } from '../../../components/Planner/placeNavigat
 export default function MSettingsGeneral() {
   const { t, locale } = useTranslation()
   const { settings, save } = useSettingSaver()
+  const demoLocked = useDemoAccountLock()
   const [currencyOpen, setCurrencyOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
   const [startTabOpen, setStartTabOpen] = useState(false)
@@ -121,8 +124,11 @@ export default function MSettingsGeneral() {
         <MSetEyebrow className="mb-[5px]">{t('settings.currency')}</MSetEyebrow>
         <MSetSelectRow label={currencyLabel} trailing={chevron} onClick={() => setCurrencyOpen(true)} />
 
-        <MSetEyebrow className="mb-[5px] mt-[14px]">{t('settings.language')}</MSetEyebrow>
-        <MSetSelectRow label={language.label} trailing={chevron} onClick={() => setLangOpen(true)} />
+        {/* The shared demo account always runs in English. */}
+        <DemoLock locked={demoLocked} reason={t('demo.lock.language')} size="row">
+          <MSetEyebrow className="mb-[5px] mt-[14px]">{t('settings.language')}</MSetEyebrow>
+          <MSetSelectRow label={language.label} trailing={chevron} onClick={() => setLangOpen(true)} />
+        </DemoLock>
 
         <MSetEyebrow className="mb-[6px] mt-[14px]">{t('settings.temperature')}</MSetEyebrow>
         <MSetSegments

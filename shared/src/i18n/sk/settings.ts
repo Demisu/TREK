@@ -359,7 +359,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'Vypnúť 2FA',
   'settings.mfa.toastEnabled': 'Dvojfaktorové overenie zapnuté',
   'settings.mfa.toastDisabled': 'Dvojfaktorové overenie vypnuté',
-  'settings.mfa.demoBlocked': 'Nie je k dispozícii v demo režime',
   'settings.currency': 'Zobrazovaná mena',
   'settings.currencyHint':
     'Sumy v Nákladoch sa do tejto meny prepočítavajú iba pre zobrazenie; pôvodné sumy zostávajú nezmenené.',

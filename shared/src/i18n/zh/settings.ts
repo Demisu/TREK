@@ -269,7 +269,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': '停用 2FA',
   'settings.mfa.toastEnabled': '双因素认证已启用',
   'settings.mfa.toastDisabled': '双因素认证已停用',
-  'settings.mfa.demoBlocked': '演示模式下不可用',
   'settings.toast.mapSaved': '地图设置已保存',
   'settings.toast.keysSaved': 'API 密钥已保存',
   'settings.toast.displaySaved': '显示设置已保存',

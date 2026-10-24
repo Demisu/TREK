@@ -361,7 +361,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'Keela 2FA',
   'settings.mfa.toastEnabled': 'Kaheastmeline autentimine lubatud',
   'settings.mfa.toastDisabled': 'Kaheastmeline autentimine keelatud',
-  'settings.mfa.demoBlocked': 'Demorežiimis pole saadaval',
   'settings.currency': 'Kuvamisvaluuta',
   'settings.currencyHint': 'Kulude summad teisendatakse sellesse valuutasse ainult kuvamiseks; algsummad ei muutu.',
   'settings.currencyTrip': 'Reisi valuuta',

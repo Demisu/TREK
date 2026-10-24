@@ -18,6 +18,8 @@ import { DEFAULT_START_PAGE, DEFAULT_START_TRIP_TAB } from '../../utils/startDes
 import type { DistanceUnit } from '../../types'
 import { DEFAULT_WEEK_START } from '@trek/shared'
 import { weekStartOptions } from '../../utils/calendarWeek'
+import DemoLock from '../Demo/DemoLock'
+import { useDemoAccountLock } from '../Demo/useDemoLock'
 
 /** A select on the right of a row: wide enough for a currency or a weekday, never wider than the row. */
 const SELECT_BOX = 'w-[260px] max-w-full'
@@ -25,6 +27,7 @@ const SELECT_BOX = 'w-[260px] max-w-full'
 export default function DisplaySettingsTab(): React.ReactElement {
   const { settings, save } = useSettingSaver()
   const { t, locale } = useTranslation()
+  const demoLocked = useDemoAccountLock()
   const [tempUnit, setTempUnit] = useState<string>(settings.temperature_unit || DEFAULT_SETTINGS.temperature_unit)
   const [distanceUnit, setDistanceUnit] = useState<DistanceUnit>(settings.distance_unit || DEFAULT_SETTINGS.distance_unit)
   const [langOpen, setLangOpen] = useState(false)
@@ -123,7 +126,9 @@ export default function DisplaySettingsTab(): React.ReactElement {
             }
           />
 
-          {/* Language: every option at a glance on a wide window, a compact list on a narrow one */}
+          {/* Language: every option at a glance on a wide window, a compact list on a narrow one.
+              The shared demo account always runs in English. */}
+          <DemoLock locked={demoLocked} reason={t('demo.lock.language')} size="row">
           <SettingRow label={t('settings.language')} stacked>
             <div className="hidden sm:block">
               <ChoiceChips
@@ -162,6 +167,7 @@ export default function DisplaySettingsTab(): React.ReactElement {
               )}
             </div>
           </SettingRow>
+          </DemoLock>
 
           {/* Place names (#1799): searches can answer in another language than the app. */}
           <SettingRow

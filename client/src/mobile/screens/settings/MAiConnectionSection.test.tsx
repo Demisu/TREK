@@ -2,8 +2,11 @@
 import userEvent from '@testing-library/user-event';
 import type { AiConnectionView, AiStatusResponse } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { buildUser } from '../../../../tests/helpers/factories';
 import { render, screen, waitFor } from '../../../../tests/helpers/render';
+import { seedStore } from '../../../../tests/helpers/store';
 import { useAssistantStore } from '../../../store/assistantStore';
+import { useAuthStore } from '../../../store/authStore';
 
 const repo = vi.hoisted(() => ({
   status: vi.fn(),
@@ -82,5 +85,21 @@ describe('MAiConnectionSection', () => {
     render(<MAiConnectionSection />);
     expect(await screen.findByText('What would you like to chat with?')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Paste an API key/ })).toBeInTheDocument();
+  });
+
+  it('FE-MOB-AI-DEMO-001: the shared demo account sees the place for its own connection locked', async () => {
+    seedStore(useAuthStore, { user: buildUser({ email: 'demo@trek.app' }), isAuthenticated: true, demoMode: true });
+    repo.status.mockResolvedValue(status({ canConnectOwn: false }));
+    render(<MAiConnectionSection />);
+    expect(await screen.findByRole('note')).toHaveTextContent('Your own AI connection cannot be added in the demo.');
+    expect(screen.queryByText('Your admin sets this up.')).not.toBeInTheDocument();
+  });
+
+  it('FE-MOB-AI-DEMO-002: any other account keeps the admin hint', async () => {
+    seedStore(useAuthStore, { user: buildUser({ email: 'admin@trek.app' }), isAuthenticated: true, demoMode: true });
+    repo.status.mockResolvedValue(status({ canConnectOwn: false }));
+    render(<MAiConnectionSection />);
+    expect(await screen.findByText('Your admin sets this up.')).toBeInTheDocument();
+    expect(screen.queryByRole('note')).not.toBeInTheDocument();
   });
 });

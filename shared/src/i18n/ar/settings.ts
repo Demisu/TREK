@@ -302,7 +302,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'تعطيل 2FA',
   'settings.mfa.toastEnabled': 'تم تفعيل المصادقة الثنائية',
   'settings.mfa.toastDisabled': 'تم تعطيل المصادقة الثنائية',
-  'settings.mfa.demoBlocked': 'غير متاح في الوضع التجريبي',
   'settings.tabs.offline': 'دون اتصال',
   'settings.notificationPreferences.email': 'البريد الإلكتروني',
   'settings.notificationPreferences.webhook': 'Webhook',

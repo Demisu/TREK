@@ -483,3 +483,18 @@ describe('DisplaySettingsTab week start (#2029)', () => {
     expect(await screen.findByText('Save failed')).toBeInTheDocument();
   });
 });
+
+describe('DisplaySettingsTab – the demo account', () => {
+  it('FE-COMP-DISPLAY-DEMO-001: the shared demo account sees English under the demo lock', () => {
+    seedStore(useAuthStore, { user: buildUser({ email: 'demo@trek.app' }), isAuthenticated: true, demoMode: true });
+    seedStore(useSettingsStore, { settings: buildSettings({ language: 'en' }), isLoaded: true });
+    render(<DisplaySettingsTab />);
+    expect(screen.getByRole('note')).toHaveTextContent('The demo always runs in English.');
+  });
+
+  it('FE-COMP-DISPLAY-DEMO-002: any other account of a demo instance picks its language freely', () => {
+    seedStore(useAuthStore, { user: buildUser({ email: 'admin@trek.app' }), isAuthenticated: true, demoMode: true });
+    render(<DisplaySettingsTab />);
+    expect(screen.queryByRole('note')).not.toBeInTheDocument();
+  });
+});

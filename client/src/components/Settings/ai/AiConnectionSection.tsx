@@ -3,6 +3,8 @@ import { Loader2, LogOut, MessageCircle, Sparkles, Unplug } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from '../../../i18n';
 import { useAssistantCostEstimates, useAssistantMapFollow } from '../../Assistant/useAssistantMapFollow';
+import DemoLock from '../../Demo/DemoLock';
+import { useDemoAccountLock } from '../../Demo/useDemoLock';
 import ConfirmDialog from '../../shared/ConfirmDialog';
 import CustomSelect from '../../shared/CustomSelect';
 import { fs } from '../../shared/DialogShell';
@@ -202,6 +204,25 @@ function AssistantBehaviour() {
   );
 }
 
+/** Where the shared demo account would connect a provider of its own: shown, and locked. */
+function LockedOwnConnection() {
+  const { t } = useTranslation();
+  return (
+    <DemoLock locked reason={t('demo.lock.ai')} size="row">
+      <SettingRows>
+        <SettingRow
+          label={t('demo.lock.aiTitle')}
+          control={
+            <button type="button" disabled className={SETTINGS_BUTTON} style={fs(13, 'body')}>
+              {t('assistant.errorAction.connectOwn')}
+            </button>
+          }
+        />
+      </SettingRows>
+    </DemoLock>
+  );
+}
+
 /** The connect panel, opened on purpose or because nothing is connected yet. */
 function ConnectPanel({ S }: { S: AiConnections }) {
   const { t } = useTranslation();
@@ -254,6 +275,7 @@ export default function AiConnectionSection({
 }): React.ReactElement | null {
   const { t } = useTranslation();
   const S = useAiConnections();
+  const demoLocked = useDemoAccountLock();
   const text = aiSectionText(assistant, parsing);
   if (S.view === 'hidden') return null;
   const own = S.own;
@@ -277,7 +299,8 @@ export default function AiConnectionSection({
       {S.view === 'own' && own && <OwnConnection S={S} own={own} />}
       {S.view === 'instance' && <InstanceConnection S={S} />}
       {assistant && (S.view === 'own' || S.view === 'instance') && <AssistantBehaviour />}
-      {S.view === 'adminOnly' && <SettingsHint>{t('assistant.setup.adminOnly')}</SettingsHint>}
+      {S.view === 'adminOnly' && !demoLocked && <SettingsHint>{t('assistant.setup.adminOnly')}</SettingsHint>}
+      {demoLocked && S.view !== 'loading' && <LockedOwnConnection />}
 
       {S.panel && <ConnectPanel S={S} />}
       <SectionFooter S={S} />

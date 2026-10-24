@@ -294,7 +294,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'Disabilita 2FA',
   'settings.mfa.toastEnabled': 'Autenticazione a due fattori abilitata',
   'settings.mfa.toastDisabled': 'Autenticazione a due fattori disabilitata',
-  'settings.mfa.demoBlocked': 'Non disponibile in modalità demo',
   'settings.mustChangePassword': 'Devi cambiare la password prima di continuare. Imposta una nuova password qui sotto.',
   'settings.bookingLabels': 'Etichette percorsi prenotati',
   'settings.bookingLabelsHint':

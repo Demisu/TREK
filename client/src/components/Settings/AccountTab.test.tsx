@@ -395,10 +395,20 @@ describe('AccountTab – MFA', () => {
     expect(screen.getByText(/requires two-factor authentication/i)).toBeInTheDocument();
   });
 
-  it('FE-COMP-ACCOUNT-036: MFA section shows demoBlocked message in demo mode', () => {
-    seedStore(useAuthStore, { demoMode: true });
+  it('FE-COMP-ACCOUNT-036: the shared demo account sees the whole tab under the demo lock', () => {
+    seedStore(useAuthStore, { demoMode: true, user: buildUser({ email: 'demo@trek.app', mfa_enabled: false }) });
+    const { container } = render(<AccountTab />);
+    expect(screen.getByRole('note')).toHaveTextContent('The shared demo account cannot be changed.');
+    expect(container.querySelector('[data-demo-lock] [inert]')).toContainElement(
+      screen.getByRole('button', { hidden: true, name: /Set up authenticator/ }),
+    );
+  });
+
+  it('FE-COMP-ACCOUNT-036b: the admin of a demo instance keeps the tab unlocked, 2FA included', () => {
+    seedStore(useAuthStore, { demoMode: true, user: buildUser({ email: 'admin@trek.app', role: 'admin', mfa_enabled: false }) });
     render(<AccountTab />);
-    expect(screen.getByText('Not available in demo mode')).toBeInTheDocument();
+    expect(screen.queryByRole('note')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Set up authenticator/ })).toBeInTheDocument();
   });
 });
 

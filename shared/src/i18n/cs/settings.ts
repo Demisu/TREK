@@ -289,7 +289,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'Vypnout 2FA',
   'settings.mfa.toastEnabled': 'Dvoufaktorové ověření bylo zapnuto',
   'settings.mfa.toastDisabled': 'Dvoufaktorové ověření bylo vypnuto',
-  'settings.mfa.demoBlocked': 'Není k dispozici v demo režimu',
   'settings.bookingLabels': 'Popisky tras rezervací',
   'settings.bookingLabelsHint': 'Zobrazuje názvy stanic / letišť na mapě. Pokud je vypnuto, zobrazí se pouze ikona.',
   'settings.mustChangePassword': 'Před pokračováním musíte změnit heslo.',

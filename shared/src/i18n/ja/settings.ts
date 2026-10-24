@@ -321,7 +321,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': '2FAを無効化',
   'settings.mfa.toastEnabled': '2FAを有効にしました',
   'settings.mfa.toastDisabled': '2FAを無効にしました',
-  'settings.mfa.demoBlocked': 'デモモードでは利用できません',
   'settings.oauth.modal.machineClient': 'マシンクライアント（ブラウザログインなし）',
   'settings.oauth.modal.machineClientHint':
     'client_credentials グラントを使用します — リダイレクト URI は不要です。トークンは client_id + client_secret を介して直接発行され、選択したスコープ内であなたとして動作します。',

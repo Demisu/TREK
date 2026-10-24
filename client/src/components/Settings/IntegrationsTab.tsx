@@ -18,10 +18,13 @@ import { SETTINGS_BUTTON, SETTINGS_BUTTON_PRIMARY, SETTINGS_ICON_BUTTON, Setting
 import { OAUTH_PRESETS, useMcpIntegration, type OAuthClient } from './useMcpIntegration'
 import { useIntegrationGates } from './useIntegrationGates'
 import WandererConnectionSection from './WandererConnectionSection'
+import DemoLock from '../Demo/DemoLock'
+import { useDemoAccountLock } from '../Demo/useDemoLock'
 
 export default function IntegrationsTab(): React.ReactElement {
   const S = useIntegrations()
   const managed = S.managed
+  const demoLocked = useDemoAccountLock()
   return (
     <>
       {/* Immich, Synology Photos and AirTrail all connect to a server the reader
@@ -42,9 +45,15 @@ export default function IntegrationsTab(): React.ReactElement {
       {S.llmEnabled && S.ownParsing && !managed && <LlmConnectionSection />}
       {/* Above MCP on purpose: an API key needs no addon, and someone looking for
           one should not have to read past a section about AI assistants. */}
-      <ApiKeysSection />
+      <DemoLock locked={demoLocked} reason={S.t('demo.lock.apiKeys')}>
+        <ApiKeysSection />
+      </DemoLock>
       {/* TREK inside Claude rides on the MCP server, so it follows that addon. */}
-      {S.mcpEnabled && <IntegrationsMcpSection S={S} />}
+      {S.mcpEnabled && (
+        <DemoLock locked={demoLocked} reason={S.t('demo.lock.mcp')}>
+          <IntegrationsMcpSection S={S} />
+        </DemoLock>
+      )}
       <McpTokenModals S={S} />
       <OAuthClientModals S={S} />
     </>

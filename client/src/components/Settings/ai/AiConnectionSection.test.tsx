@@ -140,4 +140,13 @@ describe('AiConnectionSection', () => {
     const { container } = render(<AiConnectionSection />);
     await waitFor(() => expect(container).toBeEmptyDOMElement());
   });
+
+  it('FE-COMP-AI-CONNECTION-008: the shared demo account sees its own connection locked, and no admin hint', async () => {
+    seedStore(useAuthStore, { user: buildUser({ email: 'demo@trek.app' }), isAuthenticated: true, demoMode: true });
+    repo.status.mockResolvedValue(status({ canConnectOwn: false }));
+    render(<AiConnectionSection />);
+    expect(await screen.findByRole('note')).toHaveTextContent('Your own AI connection cannot be added in the demo.');
+    expect(screen.queryByText('Your admin sets this up.')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { hidden: true, name: 'Connect your own provider' })).toBeDisabled();
+  });
 });

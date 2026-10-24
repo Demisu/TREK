@@ -356,7 +356,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'Disable 2FA',
   'settings.mfa.toastEnabled': 'Two-factor authentication enabled',
   'settings.mfa.toastDisabled': 'Two-factor authentication disabled',
-  'settings.mfa.demoBlocked': 'Not available in demo mode',
   'settings.currency': 'Display currency',
   'settings.currencyHint':
     'Amounts in Costs are shown converted to this currency for display only; the original amounts are unchanged.',

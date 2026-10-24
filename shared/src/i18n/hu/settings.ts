@@ -295,7 +295,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': '2FA kikapcsolása',
   'settings.mfa.toastEnabled': 'Kétfaktoros hitelesítés engedélyezve',
   'settings.mfa.toastDisabled': 'Kétfaktoros hitelesítés kikapcsolva',
-  'settings.mfa.demoBlocked': 'Demo módban nem érhető el',
   'settings.mustChangePassword':
     'A folytatás előtt meg kell változtatnod a jelszavad. Kérjük, adj meg egy új jelszót alább.',
   'settings.bookingLabels': 'Útvonal-címkék a foglalásokhoz',

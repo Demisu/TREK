@@ -206,7 +206,7 @@
   "mobile/screens/settings/MSetPickerSheet.tsx": 2,
   "mobile/screens/settings/MSettings.tsx": 2,
   "mobile/screens/settings/MSettingsAbout.tsx": 5,
-  "mobile/screens/settings/MSettingsAccount.tsx": 21,
+  "mobile/screens/settings/MSettingsAccount.tsx": 20,
   "mobile/screens/settings/MSettingsAppearance.tsx": 12,
   "mobile/screens/settings/MSettingsMap.tsx": 5,
   "mobile/screens/settings/MSettingsMcp.tsx": 30,

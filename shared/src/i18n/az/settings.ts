@@ -396,7 +396,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': '2FA-nı deaktiv et',
   'settings.mfa.toastEnabled': 'İki mərhələli autentifikasiya aktivləşdirildi',
   'settings.mfa.toastDisabled': 'İki mərhələli autentifikasiya deaktiv edildi',
-  'settings.mfa.demoBlocked': 'Demo rejimində əlçatan deyil',
 
   'settings.currency': 'Göstərilən valyuta',
   'settings.currencyHint':

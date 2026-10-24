@@ -287,7 +287,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': '2FA uitschakelen',
   'settings.mfa.toastEnabled': 'Tweefactorauthenticatie ingeschakeld',
   'settings.mfa.toastDisabled': 'Tweefactorauthenticatie uitgeschakeld',
-  'settings.mfa.demoBlocked': 'Niet beschikbaar in demomodus',
   'settings.toast.mapSaved': 'Kaartinstellingen opgeslagen',
   'settings.toast.keysSaved': 'API-sleutels opgeslagen',
   'settings.toast.displaySaved': 'Weergave-instellingen opgeslagen',

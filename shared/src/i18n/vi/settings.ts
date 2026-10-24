@@ -355,7 +355,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'Tắt 2FA',
   'settings.mfa.toastEnabled': 'Đã bật xác thực hai yếu tố',
   'settings.mfa.toastDisabled': 'Xác thực hai yếu tố bị vô hiệu hóa',
-  'settings.mfa.demoBlocked': 'Không có sẵn ở chế độ demo',
   'settings.currency': 'Tiền tệ hiển thị',
   'settings.currencyHint':
     'Số tiền trong Chi phí chỉ được quy đổi sang loại tiền tệ này để hiển thị; số tiền gốc không thay đổi.',

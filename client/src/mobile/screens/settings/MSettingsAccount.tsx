@@ -22,6 +22,8 @@ import MConfirmSheet from './MConfirmSheet'
 import PasswordChecklist from '../../../components/shared/PasswordChecklist'
 import { fmtDate, usePasskeys } from '../../../components/Settings/usePasskeys'
 import { stripTrailingSlashes, useAccountSettings } from '../../../components/Settings/useAccountSettings'
+import DemoLock from '../../../components/Demo/DemoLock'
+import { useDemoAccountLock } from '../../../components/Demo/useDemoLock'
 
 /**
  * "Account" section — AccountTab parity: profile + avatar, password change,
@@ -29,6 +31,7 @@ import { stripTrailingSlashes, useAccountSettings } from '../../../components/Se
  */
 export default function MSettingsAccount() {
   const { t } = useTranslation()
+  const demoLocked = useDemoAccountLock()
   const {
     user,
     demoMode,
@@ -78,6 +81,8 @@ export default function MSettingsAccount() {
 
   return (
     <>
+      {/* The shared demo account: everything here is shown, nothing can be changed. */}
+      <DemoLock locked={demoLocked} reason={t('demo.lock.account')}>
       {/* ── Profile ─────────────────────────────────────────────── */}
       <MSetCard title={t('settings.account')} icon={User}>
         <div className="mb-4 flex items-center gap-4">
@@ -185,10 +190,7 @@ export default function MSettingsAccount() {
         )}
         <p className="text-[0.75rem] leading-relaxed text-m-muted">{t('settings.mfa.description')}</p>
 
-        {demoMode ? (
-          <p className="mt-2 text-[0.75rem] font-semibold text-[color:var(--m-st-pending)]">{t('settings.mfa.demoBlocked')}</p>
-        ) : (
-          <>
+        <>
             <p className="mt-2 text-[0.78125rem] font-bold text-m-ink">
               {user?.mfa_enabled ? t('settings.mfa.enabled') : t('settings.mfa.disabled')}
             </p>
@@ -287,11 +289,11 @@ export default function MSettingsAccount() {
                 </div>
               </div>
             )}
-          </>
-        )}
+        </>
       </MSetCard>
 
       <MPasskeysCard demoMode={demoMode} />
+      </DemoLock>
 
       <MConfirmSheet
         open={showDeleteConfirm === 'blocked'}

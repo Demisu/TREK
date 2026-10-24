@@ -662,6 +662,22 @@
       "mobile": ["src/mobile/screens/trip/roadtrip/MRtStaySheet.tsx"]
     },
     {
+      "feature": "Settings / Demo account locks",
+      "hooks": ["src/components/Demo/useDemoLock.ts"],
+      "desktop": [
+        "src/components/Settings/AccountTab.tsx",
+        "src/components/Settings/DisplaySettingsTab.tsx",
+        "src/components/Settings/IntegrationsTab.tsx",
+        "src/components/Settings/ai/AiConnectionSection.tsx"
+      ],
+      "mobile": [
+        "src/mobile/screens/settings/MAiConnectionSection.tsx",
+        "src/mobile/screens/settings/MSettingsAccount.tsx",
+        "src/mobile/screens/settings/MSettingsGeneral.tsx",
+        "src/mobile/screens/settings/MSettingsMcp.tsx"
+      ]
+    },
+    {
       "feature": "Settings / Account",
       "hooks": ["src/components/Settings/useAccountSettings.ts"],
       "desktop": ["src/components/Settings/AccountTab.tsx"],

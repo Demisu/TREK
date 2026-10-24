@@ -8,6 +8,8 @@ import MChip from '../../components/MChip'
 import { MSetCard, MSetEyebrow, MSetInput, MSetTextarea, MSetButton, MSetHint, MSetRow } from './MSettingsUi'
 import MConfirmSheet from './MConfirmSheet'
 import MSegmented from '../../components/MSegmented'
+import DemoLock from '../../../components/Demo/DemoLock'
+import { useDemoAccountLock } from '../../../components/Demo/useDemoLock'
 
 function CopyButton({ text, copied, onCopy }: { text: string; copied: boolean; onCopy: (text: string) => void }) {
   return (
@@ -37,6 +39,7 @@ function CodeBlock({ children }: { children: string }) {
  */
 export default function MSettingsMcp() {
   const { t, locale } = useTranslation()
+  const demoLocked = useDemoAccountLock()
   const {
     activeMcpTab: activeTab,
     setActiveMcpTab: setActiveTab,
@@ -119,6 +122,7 @@ export default function MSettingsMcp() {
   )
 
   return (
+    <DemoLock locked={demoLocked} reason={t('demo.lock.mcp')}>
     <MSetCard title={t('settings.mcp.title')} icon={Terminal} className="mt-3">
       <MSetEyebrow className="mb-[5px]">{t('settings.mcp.endpoint')}</MSetEyebrow>
       <div className="flex items-center gap-2">
@@ -518,5 +522,6 @@ export default function MSettingsMcp() {
         onConfirm={() => tokenDeleteId !== null && deleteToken(tokenDeleteId)}
       />
     </MSetCard>
+    </DemoLock>
   )
 }

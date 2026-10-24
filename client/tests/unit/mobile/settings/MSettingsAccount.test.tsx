@@ -385,12 +385,13 @@ describe('MSettingsAccount – MFA', () => {
     await screen.findByText('JBSWY3DPEHPK3PXP');
   }
 
-  it('FE-MOB-SETACC-023: demo mode replaces the controls with the demo notice', () => {
-    seedStore(useAuthStore, { demoMode: true });
+  it('FE-MOB-SETACC-023: the shared demo account sees the controls under the demo lock', () => {
+    seedStore(useAuthStore, { demoMode: true, user: buildUser({ email: 'demo@trek.app', mfa_enabled: false }) });
     renderAccount();
 
-    expect(screen.getByText('Not available in demo mode')).toBeInTheDocument();
+    expect(screen.getByRole('note')).toHaveTextContent('The shared demo account cannot be changed.');
     expect(screen.queryByRole('button', { name: 'Set up authenticator' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { hidden: true, name: 'Set up authenticator' })).toBeInTheDocument();
   });
 
   it('FE-MOB-SETACC-024: the ?mfa=required entry shows the policy banner', () => {

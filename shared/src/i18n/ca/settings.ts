@@ -259,7 +259,6 @@ const settings: TranslationStrings = {
   'settings.mfa.disable': 'Desactiva el 2FA',
   'settings.mfa.toastEnabled': 'Autenticació de dos factors activada',
   'settings.mfa.toastDisabled': 'Autenticació de dos factors desactivada',
-  'settings.mfa.demoBlocked': 'No disponible en mode de demostració',
   'settings.toast.mapSaved': 'Configuració del mapa desada',
   'settings.toast.keysSaved': 'Claus API desades',
   'settings.toast.displaySaved': 'Configuració de visualització desada',
