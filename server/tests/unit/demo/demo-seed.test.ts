@@ -27,7 +27,7 @@ import { takeExampleTripsSeeded } from '../../../src/demo/demo-reset';
 import { seedDemoData } from '../../../src/demo/demo-seed';
 import { withRequestContext } from '../../../src/nest/database/request-context';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
-import { countRows, findRows } from '../../helpers/factories/rows';
+import { countRows, deleteRows, findRows, updateRows } from '../../helpers/factories/rows';
 import { readAppSetting } from '../../helpers/factories/settings';
 import { readUser } from '../../helpers/factories/users';
 import { createTestOrm } from '../../helpers/test-orm';
@@ -165,6 +165,30 @@ describe('demo seeding', () => {
     // A later boot finds the trips in place and returns before seeding: no mark,
     // so a database that already holds data never becomes a baseline on its own.
     await seed();
+    expect(takeExampleTripsSeeded()).toBe(false);
+  });
+
+  it('DEMOSEED-006: leaves a demo alone whose trips belong to the demo account, not the admin', async () => {
+    takeExampleTripsSeeded();
+    const { adminId, demoId } = await seed();
+    expect(takeExampleTripsSeeded()).toBe(true);
+
+    // The demo content is rebuilt as the demo user's own: the admin's example
+    // trips go, one trip owned by the demo account stays.
+    const orm = await createTestOrm(db);
+    const exampleTrips = await findRows(orm, Trips, { user_id: adminId }, { id: 'asc' });
+    const keep = exampleTrips[0];
+    await deleteRows(orm, Trips, { id: { $in: exampleTrips.slice(1).map((t) => t.id) } });
+    await updateRows(orm, Trips, { id: keep.id }, { user: demoId });
+    await orm.close();
+
+    await seed();
+
+    const after = await createTestOrm(db);
+    const trips = await findRows(after, Trips, {}, { id: 'asc' });
+    await after.close();
+    expect(trips.map((t) => ({ id: t.id, user_id: t.user_id }))).toEqual([{ id: keep.id, user_id: demoId }]);
+    // Nothing was seeded, so no baseline is due either.
     expect(takeExampleTripsSeeded()).toBe(false);
   });
 });

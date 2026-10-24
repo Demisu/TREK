@@ -69,6 +69,16 @@ async function seedDemoData(): Promise<{ adminId: number; demoId: number }> {
     return { adminId, demoId };
   }
 
+  // A demo whose content belongs to the demo account itself (built over the
+  // API, then saved as the baseline) is left alone. Without this the old
+  // example trips would come back on every reopen, the hourly reset included,
+  // and the mark below would save them into the next baseline.
+  const demoTripCount = await demo.countTripsByUser(demoId);
+  if (demoTripCount > 0) {
+    console.log('[Demo] The demo account owns its own trips, skipping the example trips');
+    return { adminId, demoId };
+  }
+
   console.log('[Demo] Seeding example trips...');
   await seedExampleTrips(demo, adminId, demoId);
 
