@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-- Node.js 24, the version in `.nvmrc` and the one the Docker image and CI run (`nvm use` or `fnm use` picks it up). 22.22.2 or later still installs, but nothing tests it.
+- Node.js 24, the version in `.nvmrc` and the one the Docker image and CI run (`nvm use` or `fnm use` picks it up). The `engines` field accepts 24.15 or later, 22.22.2 or later on the 22 line, or 26 and above; the 22 line installs, but nothing tests it.
 - npm
 - Git
 - Python 3 and a C++ toolchain (`build-essential` on Debian/Ubuntu, the Xcode Command Line Tools on macOS, the Visual Studio Build Tools on Windows). better-sqlite3 ships prebuilt binaries, but a lockfile-driven `npm install` still runs node-gyp against them and stops without these (npm/cli#9837).
@@ -132,6 +132,9 @@ These commands run across all workspaces at once and are the recommended way to 
 | `npm run lint:fix`   | Apply ESLint's fixes in shared and server                          |
 | `npm run format`     | Format shared, server, and client                                  |
 | `npm run format:check` | Check formatting across all workspaces                           |
+| `npm run lint:knip` | Unused files, exports, types and dependencies may only shrink against a baseline (CI gate) |
+| `npm run test:ci-scripts` | Tests of the scripts under `scripts/ci/` |
+| `npm run test:lib-scripts` | Tests of the scripts under `scripts/lib/` |
 
 ### Shared (`/shared`)
 
@@ -154,6 +157,8 @@ The `@trek/shared` package is the single source of truth for code shared between
 | `npm run format`            | Format source                        |
 | `npm run format:check`   | Check formatting                  |
 | `npm run contracts:open`    | Open shapes in the request contracts may only shrink (CI gate) |
+| `npm run i18n:untranslated` | Report strings that are still identical to English in a locale; the count may only shrink |
+| `npm run i18n:untranslated:update` | Lower the baseline of that report after you translated strings |
 
 ### Server (`/server`)
 
@@ -189,6 +194,18 @@ The `@trek/shared` package is the single source of truth for code shared between
 | `npm run probe:pg`           | Run the dialect helpers and repository statements against Postgres (CI job, needs `TREK_PG_PROBE_URL`) |
 | `npm run lint:format`        | Every file outside the shrinking baseline is Prettier-formatted (CI gate) |
 | `npm run lint:strict`        | Strict type errors per file may not grow past their baseline; a new file has none (CI gate) |
+| `npm run lint:test-mocks`    | `vi.mock` of config, realtime and database modules in `tests/` may not grow past their baseline (CI gate) |
+| `npm run lint:test-new-service` | Hand-built services and repositories in `tests/` may not grow past their baseline (CI gate) |
+| `npm run lint:mcp-zod`       | Inline Zod in the MCP tool files may not grow past its baseline; fields derive from `@trek/shared` (CI gate) |
+| `npm run lint:service-http`  | `{ error, status }` results in services may not grow past their baseline; services throw `DomainError` (CI gate) |
+| `npm run lint:response-contracts` | Route handlers without `@ResponseContract` may not grow past their baseline (CI gate) |
+| `npm run contracts:dto-open` | Open shapes in the server DTOs may only shrink (CI gate) |
+| `npm run gen:entities`       | Regenerate the MikroORM entities from the migrated schema |
+| `npm run check:entities`     | Verify the entities match the migrated schema (CI gate) |
+| `npm run typecheck:scripts`  | Type-check the scripts under `scripts/` (CI gate) |
+| `npm run db:call-graph`      | Lists server methods that touch the database synchronously or leave a promise unawaited; the list may not grow (CI gate) |
+| `npm run start:prod`         | Run the compiled server from `dist/` |
+| `npm run reset-admin`        | Reset or create an admin account when you are locked out |
 | `npm run format`             | Format source                            |
 
 ### Client (`/client`)
@@ -210,6 +227,7 @@ The `@trek/shared` package is the single source of truth for code shared between
 | `npm run lint:pages`       | Enforce the Page pattern (CI gate)                   |
 | `npm run lint:rtl`         | Physical left/right styling may not grow past its baseline, so the layout follows the reading direction (CI gate) |
 | `npm run lint:size`        | No file grows past its line limit or its baseline entry (CI gate) |
+| `npm run lint:strict`      | Strict type errors per file may only shrink; a new file has none (CI gate) |
 | `npm run lint:format`      | Every file outside the shrinking baseline is Prettier-formatted (CI gate) |
 | `npm run lint:layers`      | Imports only go downwards through the layers (CI gate) |
 | `npm run lint:offline`     | Views reach `src/api/` only through the offline core; the baseline only shrinks (CI gate) |
@@ -223,6 +241,7 @@ The `@trek/shared` package is the single source of truth for code shared between
 | `npm run e2e`              | Playwright end-to-end tests; CI runs the public and app projects in Chromium and WebKit, the screenshot and help-media projects are local only |
 | `npm run shots`            | Capture the wiki screenshots with Playwright         |
 | `npm run shots:promote`    | Downscale the captured screenshots and move them into `wiki/assets/` |
+| `npm run e2e:report`       | Open the HTML report of the last Playwright run |
 | `npm run help:media`       | Record the help-center pictures against the real app on its own ports, so `npm run dev` can keep running |
 | `npm run help:media:promote` | Convert the recorded help pictures to WebP and move them into `public/help-media/` |
 | `npm run format`           | Format source                                        |
@@ -249,9 +268,9 @@ Then open a Pull Request from your fork to `liketrek/TREK` targeting the `dev` b
 ## Tips
 
 - Always branch off from an up-to-date `dev` — run `git fetch upstream && git rebase upstream/dev` before starting new work.
-- Run tests before pushing: `npm test` at the repo root runs all workspaces. That alone is not the full CI gate. With `shared` built, these are the checks CI runs beside the tests (`.github/workflows/test.yml` is the source of truth):
-  - in `shared/`: `npm run typecheck && npm run contracts:open`
-  - in `server/`: `npm run build && npm run typecheck && npm run typecheck:tests && npm run typecheck:scripts && npm run check:entities && npm run check:db-types && npm run lint:check && npm run db:call-graph -- --sync --tx && npm run lint:size && npm run lint:boundaries && npm run lint:tx && npm run lint:test-sql && npm run lint:query-api && npm run lint:dialect && npm run check:plugin-facts`
-  - in `client/`: `npm run typecheck && npm run lint:warnings && npm run lint:pages && npm run lint:rtl && npm run lint:size && npm run lint:format && npm run lint:layers && npm run lint:offline && npm run lint:dup && npm run lint:pairs && npm run lint:skips && npm run lint:i18n-keys`
-  - at the root, if you touched translations: `npm run i18n:parity:strict --workspace=shared`
+- Run tests before pushing: `npm test` at the repo root runs all workspaces. That alone is not the full CI gate: CI also runs type checks, the lint ratchets of every package (the `lint:*` and `theme:lint` commands in the tables above), the i18n parity check and a SonarCloud scan that wants 80% coverage on new code and at most 3% duplicated lines. `.github/workflows/test.yml` is the source of truth for the exact list, and each package has a `CLAUDE.md` that explains its rules.
+- If you touched translations, run `npm run i18n:parity:strict --workspace=shared` before you push. Every locale needs a real translation, not an English placeholder.
+- Desktop and phone views of a feature share one hook, so a change to both belongs in that hook and not in two copies of the markup (`lint:pairs` and `lint:dup` check this).
+- Testing the S3 storage driver against a real MinIO needs the licence-gated `docker-compose.minio-test.yml` at the repo root; the comments in that file explain the setup.
+- Working on a plugin or on the SDK: install and run from `plugin-sdk/` (see step 5).
 - Follow the commit message conventions described in the [[Contributing]] guidelines.

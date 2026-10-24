@@ -8,6 +8,8 @@ Thanks for your interest in contributing to TREK! Here are the guidelines for su
 - **Check existing issues** — Look for open issues or discussions before starting work
 - **Target the `dev` branch** — All PRs must be opened against `dev`, not `main`. Exception: PRs that only modify files under `wiki/` may target any branch
 - **One thing per PR** — Keep PRs focused on a single change. Don't bundle unrelated fixes
+- **Tests are required** — Your change must come with tests. The project holds 80% or more coverage, and a PR that drops it is closed
+- **Stay up to date** — Your branch must be [up to date with `dev`](Development-environment#3-keep-your-fork-up-to-date) before you submit
 
 ## Pull Request Guidelines
 
@@ -36,13 +38,18 @@ feat(component): short description of new feature
 
 ### PR Description
 
-Follow the template provided by default (.github/PULL_REQUEST_TEMPLATE.md).
+Follow the template provided by default (.github/PULL_REQUEST_TEMPLATE.md). A PR description contains:
+
+- **Summary:** what changes and why, in one to three bullet points
+- **Test plan:** how you verified it works
+- **Linked issue:** for example `Fixes #123`
 
 ### What Will Get Your PR Closed
 
 - PRs that weren't discussed and approved in `#github-pr` on Discord first
 - PRs that add unnecessary complexity (e.g. a redo button when undo already exists)
 - PRs with breaking changes
+- PRs that reformat or refactor unrelated code
 - PRs that change code style or formatting across unrelated files
 - PRs that add dependencies without justification
 
@@ -59,9 +66,11 @@ See the [[Development Environment|Development-environment]] page for the full se
 | Real-time | WebSocket (ws)                                                                            |
 | Database | SQLite with WAL mode                                                                      |
 | Auth | JWT (HS256), bcrypt, TOTP MFA, passkeys (WebAuthn), OIDC                                 |
-| Maps | Leaflet + react-leaflet (default, OpenFreeMap vector basemap via maplibre-gl-leaflet), MapLibre GL, Mapbox GL, OSRM, Nominatim |
+| Maps | Leaflet + react-leaflet (default, OpenFreeMap vector basemap via maplibre-gl-leaflet), MapLibre GL 5, Mapbox GL 3, OSRM, Nominatim |
 | i18n | 27 languages, EN canonical (locale directories live in shared/src/i18n/)                  |
 
 Documentation changes go to `wiki/`. The same pages ship inside the app: the in-app help reads them (served under `/api/help`) and links into them, and the MCP help tools search them, so a wiki edit reaches users with the next release as well as the GitHub wiki.
 
-Every translation key must exist in all 27 locales — the `Shared: i18n Parity` CI job fails on drift, so run `npm run i18n:parity:strict --workspace=shared` before pushing. Two directory names differ from the language they hold: Brazilian Portuguese is `br`, Greek is `gr`.
+Beyond the tests, CI enforces a set of quality gates: type checks, lint ratchets that may only shrink, and a SonarCloud gate on new code (80% coverage, at most 3% duplicated lines). The [[Development Environment|Development-environment]] page lists the commands, and the `CLAUDE.md` file of each package explains its rules. Desktop and phone views of a feature share one hook, so a feature that touches both keeps its logic in that hook.
+
+Every translation key must exist in all 27 locales — the `Shared: i18n Parity` CI job fails on drift, so run `npm run i18n:parity:strict --workspace=shared` before pushing. Add a real translation to every locale; an English placeholder in a non-English file is not accepted. Two directory names differ from the language they hold: Brazilian Portuguese is `br`, Greek is `gr`.
