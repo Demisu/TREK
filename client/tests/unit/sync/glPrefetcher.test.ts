@@ -201,6 +201,46 @@ describe('prefetchVectorForPlaces', () => {
   });
 });
 
+// OpenFreeMap's liberty style lists its shaded relief (raster, up to z6) before the
+// vector planet. Taking the first source used to prefetch that relief at z0 to z14,
+// hundreds of 404s, and never the vector tiles the map needs offline.
+describe('a style with a raster source ahead of the vector one', () => {
+  const places = [buildPlace({ lat: 52.52, lng: 13.405 })];
+  const RELIEF = 'https://tiles.openfreemap.org/natural_earth/ne2sr/{z}/{x}/{y}.png';
+  const LIBERTY = {
+    sources: {
+      ne2_shaded: { type: 'raster', tiles: [RELIEF], maxzoom: 6 },
+      openmaptiles: { type: 'vector', url: 'https://tiles.openfreemap.org/planet' },
+    },
+  };
+
+  beforeEach(() => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string, init?: { mode?: string }) => {
+        requested.push({ url, mode: init?.mode });
+        if (url === STYLE_URL) return Promise.resolve({ ok: true, json: () => Promise.resolve(LIBERTY), clone: () => ({}) });
+        return Promise.resolve(respond(url));
+      }),
+    );
+  });
+
+  it('FE-SYNC-GLPF-015: the template is the vector source, not the first one listed', async () => {
+    await expect(prefetchStyleAssets(STYLE_URL)).resolves.toBe(TILE_TEMPLATE);
+  });
+
+  it('FE-SYNC-GLPF-016: downloads the vector tiles and the relief only at the zooms it serves', async () => {
+    const result = await prefetchVectorForPlaces(places, STYLE_URL);
+    expect(result.template).toBe(TILE_TEMPLATE);
+    const urls = requested.map(r => r.url);
+    const vectorZooms = new Set(urls.filter(u => u.includes('/planet/')).map(u => Number(u.split('/planet/')[1]!.split('/')[1])));
+    expect(Math.max(...vectorZooms)).toBe(14);
+    const reliefZooms = urls.filter(u => u.includes('/ne2sr/')).map(u => Number(u.split('/ne2sr/')[1]!.split('/')[0]));
+    expect(reliefZooms.length).toBeGreaterThan(0);
+    expect(Math.max(...reliefZooms)).toBe(6);
+  });
+});
+
 describe('clearVectorCache', () => {
   it('FE-SYNC-GLPF-012: drops the offline vector basemap', async () => {
     await clearVectorCache();

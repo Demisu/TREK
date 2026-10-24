@@ -149,7 +149,11 @@ async function syncTrip(tripId: number): Promise<void> {
   // first sync is in. Ahead of the writes and rethrowing anything but a 404, it
   // threw the whole downloaded bundle away for that trip while the run still
   // reported it stored, so Settings said "N trips ready" over an empty database.
-  await roadtripPreferencesRepo.read(tripId).catch(() => { /* optional addon, optional cache */ })
+  // Asked only while the addon is on, like the tours below: with it off, every
+  // trip of a dashboard load spent a request on a 404.
+  if (useAddonStore.getState().isEnabled('roadtrip')) {
+    await roadtripPreferencesRepo.read(tripId).catch(() => { /* optional cache */ })
+  }
 
   // Tours, the same way: optional, and never fatal. Without them every Tour
   // reads as a plain place offline. Asked only while the addon is on, so a
