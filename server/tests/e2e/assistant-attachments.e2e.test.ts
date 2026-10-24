@@ -92,6 +92,12 @@ async function readBody(req: IncomingMessage): Promise<string> {
 }
 
 async function answer(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  // Saving the connection lists the server's models first, the way an Ollama-style server answers.
+  if (req.method === 'GET' && req.url?.startsWith('/api/tags')) {
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ models: [{ name: 'fake-model', size: 1 }] }));
+    return;
+  }
   if (req.method !== 'POST' || req.url !== '/v1/chat/completions') {
     res.writeHead(404).end();
     return;
