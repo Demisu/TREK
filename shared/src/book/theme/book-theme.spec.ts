@@ -27,9 +27,9 @@ import { describe, expect, it } from 'vitest';
 // BKTHEME-001 to BKTHEME-010
 
 describe('the built-in themes', () => {
-  it('BKTHEME-001: are twelve, one per id, in the order of the ids', () => {
+  it('BKTHEME-001: are seventeen, one per id, in the order of the ids', () => {
     expect(BOOK_THEME_PRESETS.map((p) => p.id)).toEqual([...BOOK_THEME_IDS]);
-    expect(BOOK_THEME_IDS).toHaveLength(12);
+    expect(BOOK_THEME_IDS).toHaveLength(17);
     for (const id of BOOK_THEME_IDS) expect(bookThemeOf(id).id).toBe(id);
     expect(bookThemePreset('nope')).toBeUndefined();
     expect(() => bookThemeOf('nope' as never)).toThrow();

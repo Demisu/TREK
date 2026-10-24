@@ -130,7 +130,7 @@ describe('the art director in the Studio', () => {
       const paint = i.paint as { pattern?: string } | undefined;
       return paint?.pattern ? [paint.pattern] : [];
     });
-    expect(patterns).toEqual(['checker']);
+    expect(patterns).toEqual(['checker', 'dots', 'grid']);
     for (const id of patterns) expect(BOOK_PATTERNS as readonly string[]).toContain(id);
   });
 
@@ -154,7 +154,7 @@ describe('the art director in the Studio', () => {
   });
 
   it('ASTRCP-004: keeps to a budget the cache carries every turn, without dashes', () => {
-    expect(BOOK_RECIPES_PROMPT.length).toBeLessThan(9500);
+    expect(BOOK_RECIPES_PROMPT.length).toBeLessThan(14500);
     expect(BOOK_RECIPES_PROMPT.split('\n').length).toBeLessThanOrEqual(24);
     expect(BOOK_RECIPES_PROMPT).not.toMatch(/[\u2013\u2014]/);
     expect(BOOK_RECIPES_PROMPT).not.toContain(' - ');

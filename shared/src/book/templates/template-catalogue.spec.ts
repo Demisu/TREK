@@ -55,12 +55,12 @@ function box(el: BookElement) {
 const camel = (id: string) => id.replace(/-([a-z0-9])/g, (_, c: string) => c.toUpperCase());
 
 describe('the decorated template set', () => {
-  it('TPLCAT-001: holds 21 covers, three in each archetype, and 16 double spreads', () => {
-    expect(covers).toHaveLength(21);
-    expect(spreads).toHaveLength(16);
+  it('TPLCAT-001: holds 48 covers and 60 double spreads, four covers and five spreads in each archetype', () => {
+    expect(covers).toHaveLength(48);
+    expect(spreads).toHaveLength(60);
     for (const archetype of BOOK_COVER_ARCHETYPES) {
-      expect(decoratedTemplatesFor('single', archetype), archetype).toHaveLength(3);
-      expect(decoratedTemplatesFor('inner', archetype).length, archetype).toBeGreaterThanOrEqual(1);
+      expect(decoratedTemplatesFor('single', archetype), archetype).toHaveLength(4);
+      expect(decoratedTemplatesFor('inner', archetype), archetype).toHaveLength(5);
     }
   });
 
@@ -190,7 +190,7 @@ describe('finding the templates', () => {
     expect(findDecoratedTemplate('no-such-template')).toBeUndefined();
     expect(decoratedTemplatesFor('single').every((t) => t.kind === 'single')).toBe(true);
     expect(decoratedTemplatesFor('inner', 'postcard').every((t) => t.archetype === 'postcard')).toBe(true);
-    expect(decoratedTemplatesFor('single', null)).toHaveLength(21);
+    expect(decoratedTemplatesFor('single', null)).toHaveLength(48);
     expect(isBookTemplateId('grid-badge-circle')).toBe(true);
     expect(isBookTemplateId('two-up')).toBe(true);
     expect(isBookTemplateId('cover-full')).toBe(true);
@@ -203,10 +203,10 @@ describe('finding the templates', () => {
     expect(row.roles).toEqual(['title', 'date', 'body']);
     expect(row.tags).toContain('word-art');
     const all = listBookLayouts(null, square);
-    expect(all.decorated.single).toHaveLength(21);
-    expect(all.decorated.inner).toHaveLength(16);
+    expect(all.decorated.single).toHaveLength(48);
+    expect(all.decorated.inner).toHaveLength(60);
     expect(all.notes.decorated).toMatch(/whole designed page/);
     const inner = listBookLayouts(null, square, 'inner');
-    expect([inner.decorated.single, inner.decorated.inner.length]).toEqual([[], 16]);
+    expect([inner.decorated.single, inner.decorated.inner.length]).toEqual([[], 60]);
   });
 });

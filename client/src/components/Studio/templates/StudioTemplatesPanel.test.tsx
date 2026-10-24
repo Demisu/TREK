@@ -90,7 +90,7 @@ describe('the Templates panel', () => {
   it('narrows the set to one archetype from the style chips', () => {
     panel();
     const chips = screen.getByRole('radiogroup', { name: 'studio.templates.style' });
-    expect(chips.querySelectorAll('[role="radio"]')).toHaveLength(8);
+    expect(chips.querySelectorAll('[role="radio"]')).toHaveLength(13);
     fireEvent.click(screen.getByRole('radio', { name: 'studio.templates.archetype.postcard' }));
     expect(
       screen.getByRole('radio', { name: 'studio.templates.archetype.postcard' }).getAttribute('aria-checked')

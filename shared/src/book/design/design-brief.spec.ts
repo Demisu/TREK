@@ -56,7 +56,7 @@ describe('the art direction of design_book', () => {
     for (const theme of BOOK_THEME_IDS) expect(bookDesignBriefSchema.safeParse({ theme }).success, theme).toBe(true);
   });
 
-  it('DSNBRF-003: the cover takes an archetype of the seven and a lockup of the Text styles shelf', () => {
+  it('DSNBRF-003: the cover takes an archetype of the twelve and a lockup of the Text styles shelf', () => {
     for (const archetype of BOOK_COVER_ARCHETYPES) expect(ok({ cover: { archetype } }), archetype).toBe(true);
     for (const lockup of BOOK_LOCKUPS) expect(ok({ cover: { lockup: lockup.id } }), lockup.id).toBe(true);
     expect(ok({ cover: { archetype: 'collage' } })).toBe(false);

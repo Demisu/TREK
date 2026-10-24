@@ -22,7 +22,7 @@ import { ThemeSheet } from './ThemeSheet';
 import { useStudioTheme } from './useStudioTheme';
 
 /**
- * The Theme section of the rail: twelve built-in looks, the palette, the
+ * The Theme section of the rail: seventeen built-in looks, the palette, the
  * typefaces and the motifs of the one being put together, and applying it to
  * the book or to the page that is open.
  *

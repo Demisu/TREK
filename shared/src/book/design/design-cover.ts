@@ -4,6 +4,8 @@ import { solveBookTextFit } from '../book-text-fit';
 import type { BookElement, BookSpread } from '../book.schema';
 import { frameOf, scrimEl, type ComposeCtx } from './design-compose';
 import { gridBadge, stampCollage } from './design-cover-collage';
+import { editorial } from './design-cover-editorial';
+import { fieldNotes } from './design-cover-field-notes';
 import { postcard, posterPop } from './design-cover-graphic';
 import {
   addLockup,
@@ -13,12 +15,15 @@ import {
   type CoverKit,
   type CoverMaterial,
 } from './design-cover-kit';
+import { nightFilm } from './design-cover-night-film';
 import { cutout, minimalSerif, spineBand } from './design-cover-photo';
+import { riso } from './design-cover-riso';
+import { vintagePoster } from './design-cover-vintage-poster';
 import { titleWords, type CoverWords } from './design-cover-words';
 import { paperBackground } from './design-style';
 
 /**
- * The composed covers: `cover.archetype` picks one of seven composers, each
+ * The composed covers: `cover.archetype` picks one of twelve composers, each
  * building its archetype from the book's own material (its photos, its words,
  * its theme's colours, faces and motifs, the lockups) with the seed's
  * variation, deterministic for one seed. A cover without an archetype is the
@@ -33,6 +38,11 @@ const COMPOSERS: Readonly<Record<BookCoverArchetype, (k: CoverKit) => CoverDraft
   'grid-badge': gridBadge,
   'minimal-serif': minimalSerif,
   'stamp-collage': stampCollage,
+  riso,
+  editorial,
+  'vintage-poster': vintagePoster,
+  'night-film': nightFilm,
+  'field-notes': fieldNotes,
 };
 
 /** A draft as the cover page: on its ground, each lockup one group. */

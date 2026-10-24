@@ -74,9 +74,9 @@ describe('decorated templates in list_book_layouts', () => {
     const all = json(await mcp.listLayouts({ journeyId: journey.id }, ctx(viewer.id)));
     const single = all.decorated.single as Row[];
     const inner = all.decorated.inner as Row[];
-    expect(single).toHaveLength(21);
-    expect(inner).toHaveLength(16);
-    expect(new Set(single.map((r) => r.archetype)).size).toBe(7);
+    expect(single).toHaveLength(48);
+    expect(inner).toHaveLength(60);
+    expect(new Set(single.map((r) => r.archetype)).size).toBe(12);
     expect(single.find((r) => r.id === 'grid-badge-circle')).toMatchObject({
       archetype: 'grid-badge',
       photoSlots: 4,
@@ -86,7 +86,7 @@ describe('decorated templates in list_book_layouts', () => {
     expect(all.notes.decorated).toMatch(/whole designed page/);
 
     const narrowed = json(await mcp.listLayouts({ journeyId: journey.id, role: 'single' }, ctx(owner.id)));
-    expect([narrowed.decorated.single.length, narrowed.decorated.inner]).toEqual([21, []]);
+    expect([narrowed.decorated.single.length, narrowed.decorated.inner]).toEqual([48, []]);
   });
 });
 

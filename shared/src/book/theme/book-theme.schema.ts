@@ -53,6 +53,11 @@ export const BOOK_THEME_IDS = [
   'nordic',
   'alpine',
   'india-stamp',
+  'riso',
+  'magazine',
+  'retro-travel',
+  'midnight',
+  'field-notes',
 ] as const;
 export type BookThemeId = (typeof BOOK_THEME_IDS)[number];
 

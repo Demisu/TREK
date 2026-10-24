@@ -15,7 +15,7 @@ import type {
 import { bookThemeFont, isBookFontFamily, mixHex, mutedOn } from '../theme/book-theme';
 import type { BookFontSlot, BookThemeFont } from '../theme/book-theme.schema';
 import { CALM_ART, withinTilt } from './design-art';
-import { bleedPage, frameOf, photoEl, type ComposeCtx } from './design-compose';
+import { bleedPage, frameOf, photoEl, printsAt, type ComposeCtx } from './design-compose';
 import { titleWords, type CoverWords } from './design-cover-words';
 import { designRng, type DesignRng } from './design-random';
 import { turnedBox } from './design-stickers';
@@ -169,6 +169,12 @@ export function standOut(c: ComposeCtx, ground: string, skip: readonly string[] 
   const p = c.look.theme.palette;
   const tried = [c.look.accent, p.accent2, p.accent3].filter((h) => !skip.includes(h));
   return tried.find((h) => deltaE(h, ground) > 18 && contrastRatio(h, ground) >= 1.4) ?? inkOn(c, ground);
+}
+
+/** An accent small words read in on a ground (4.5:1), else the ink that reads there. */
+export function accentOn(c: ComposeCtx, ground: string): string {
+  const p = c.look.theme.palette;
+  return [c.look.accent, p.accent3, p.accent2].find((h) => contrastRatio(h, ground) >= 4.5) ?? inkOn(c, ground);
 }
 
 /**
@@ -397,6 +403,12 @@ export function spacedLine(k: PageKit, words: string, frame: BookFrame, color: s
   });
 }
 
+/** A text on a band of a colour behind its words, set in the ink that reads on the band. */
+export function onBand(k: PageKit, el: BookTextElement, band: string): BookTextElement {
+  const highlight = { color: band, alpha: 1, padX: mmOn(k, 1.6), padY: mmOn(k, 0.6), radius: 0 };
+  return { ...el, color: inkOn(k.c, band), highlight };
+}
+
 // ── shapes and photos ──────────────────────────────────────────────────────
 
 /** A filled shape, unturned unless said, with no outline. */
@@ -454,6 +466,19 @@ export function clearOfTrim(k: PageKit, frame: BookFrame, rotation = 0): BookFra
 /** The cover photo to the bleed of the page, as a cover takes it. */
 export function bleedPhoto(k: CoverKit, photo: AutoPhoto): BookPhotoElement {
   return photoEl(k.c, photo, bleedPage(k.c, 'single'), { bleed: { side: 'single' } });
+}
+
+/**
+ * A photo across the page in a band of it, to the bleed at both sides (a
+ * magazine's picture under its masthead, a letterboxed still): to the bleed
+ * when it prints sharp at that size, else as a print inside the margins over
+ * the same rows, as the cover photo falls back.
+ */
+export function bandPhoto(k: CoverKit, photo: AutoPhoto, band: BookFrame): BookPhotoElement {
+  if (printsAt(k.c, photo, band)) return photoEl(k.c, photo, band, { bleed: { side: 'single' } });
+  const y = Math.max(band.y, k.m);
+  const bottom = Math.min(band.y + band.h, k.H - k.m);
+  return printEl(k, photo, frameOf(k.m, y, k.W - k.m * 2, bottom - y));
 }
 
 interface PrintLook {

@@ -37,6 +37,11 @@ const STYLE_LOOK: Readonly<Record<BookDesignStyle, { labelKey: string }>> = {
   nordic: { labelKey: 'studio.theme.name.nordic' },
   alpine: { labelKey: 'studio.theme.name.alpine' },
   'india-stamp': { labelKey: 'studio.theme.name.indiaStamp' },
+  riso: { labelKey: 'studio.theme.name.riso' },
+  magazine: { labelKey: 'studio.theme.name.magazine' },
+  'retro-travel': { labelKey: 'studio.theme.name.retroTravel' },
+  midnight: { labelKey: 'studio.theme.name.midnight' },
+  'field-notes': { labelKey: 'studio.theme.name.fieldNotes' },
 };
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;

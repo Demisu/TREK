@@ -13,6 +13,11 @@ const studioThemes: TranslationStrings = {
   'studio.theme.name.nordic': 'Nordique',
   'studio.theme.name.alpine': 'Alpin',
   'studio.theme.name.indiaStamp': 'Collage de timbres',
+  'studio.theme.name.riso': 'Impression riso',
+  'studio.theme.name.magazine': 'Magazine', // same-as-en
+  'studio.theme.name.retroTravel': 'Voyage rétro',
+  'studio.theme.name.midnight': 'Minuit',
+  'studio.theme.name.fieldNotes': 'Carnet de terrain',
   'studio.theme.descr.posterPop': 'Papier crème, corail et tournesol, titres d’affiche épais',
   'studio.theme.descr.cutout': 'Papier cobalt, formes corail et sable, texte blanc',
   'studio.theme.descr.postcard': 'Papier menthe, encre marine, rouge tampon et sous-titre manuscrit',
@@ -25,6 +30,11 @@ const studioThemes: TranslationStrings = {
   'studio.theme.descr.nordic': 'Papier gris pâle avec ardoise, ocre et rose',
   'studio.theme.descr.alpine': 'Blanc neige avec vert forêt, rouille et bleu ciel',
   'studio.theme.descr.indiaStamp': 'Papier chaud avec magenta, safran et bleu canard',
+  'studio.theme.descr.riso': 'Papier crème, bleu riso et rose fluo en surimpression',
+  'studio.theme.descr.magazine': 'Papier blanc cassé, encre noire, un rouge et un grand titre',
+  'studio.theme.descr.retroTravel': 'Papier crème vieilli, orange, bleu canard et moutarde',
+  'studio.theme.descr.midnight': 'Papier presque noir, texte blanc chaud et touches néon',
+  'studio.theme.descr.fieldNotes': 'Papier kraft, vert mousse et rouille, écriture et ruban adhésif',
   'studio.theme.panel': 'Thème',
   'studio.theme.intro':
     'Choisissez un style pour tout le livre. Les couleurs et le texte qui suivent le thème changent avec lui, tout le reste reste tel quel.',

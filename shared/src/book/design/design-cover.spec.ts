@@ -1,4 +1,5 @@
 import { BOOK_COVER_ARCHETYPES, type BookCoverArchetype } from '../book-archetypes';
+import { luminance, parseHex } from '../book-colour';
 import { bookSpreadSchema, type BookElement, type BookSpread } from '../book.schema';
 import { pageFindings } from '../describe-spread';
 import { BOOK_STICKERS } from '../stickers/sticker-catalogue';
@@ -11,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 /**
- * The seven composed covers (design-cover.ts) on the fixture journeys: each
+ * The twelve composed covers (design-cover.ts) on the fixture journeys: each
  * a valid page, its words inside the page, nothing left for the repair to
  * flag, its archetype's signature there, the same for one seed and another
  * for another seed, and the cover of a design without an archetype exactly
@@ -73,6 +74,38 @@ const SIGNATURE: Record<BookCoverArchetype, (s: BookSpread, W: number, H: number
     photos(s).some((p) => p.mask === 'arch-tall') &&
     photos(s).some((p) => p.edge === 'perforated') &&
     shapes(s).some((e) => e.shape === 'ellipse' && e.fill === null),
+  riso: (s) =>
+    shapes(s).some((e) => e.paint?.type === 'pattern' && e.paint.pattern === 'dots') &&
+    texts(s).some((t) => t.binding?.source === 'journey.title' && !!t.shadow) &&
+    photos(s).some(
+      (p) =>
+        !!p.duotone &&
+        shapes(s).some(
+          (e) =>
+            e.shape === 'rect' &&
+            Math.abs(e.frame.w - p.frame.w) < 0.5 &&
+            Math.abs(e.frame.h - p.frame.h) < 0.5 &&
+            (e.frame.x !== p.frame.x || e.frame.y !== p.frame.y),
+        ),
+    ),
+  editorial: (s, W, H) =>
+    shapes(s).some((e) => e.shape === 'rect' && e.frame.h <= 1 && e.frame.w >= W * 0.6) &&
+    texts(s).some((t) => t.binding?.source === 'journey.title' && t.frame.y + t.frame.h <= H * 0.32) &&
+    photos(s).some((p) => p.frame.w >= W * 0.6),
+  'vintage-poster': (s, W) =>
+    shapes(s).filter((e) => e.shape === 'mountain').length >= 2 &&
+    shapes(s).some((e) => e.shape === 'sunburst-24') &&
+    shapes(s).some((e) => e.fill === null && !!e.stroke && e.frame.w >= W * 0.8) &&
+    photos(s).every((p) => p.mask === 'arch-tall'),
+  'night-film': (s, W) =>
+    luminance(parseHex(s.background ?? '#ffffff') ?? { r: 255, g: 255, b: 255 }) < 0.05 &&
+    kinds(s, 'line').filter((e) => e.kind === 'line' && e.dash === 'dashed').length >= 2 &&
+    shapes(s).some((e) => e.shape === 'rect' && e.frame.w >= W),
+  'field-notes': (s) =>
+    shapes(s).some((e) => e.paint?.type === 'pattern' && e.paint.pattern === 'grid') &&
+    shapes(s).some((e) => e.shape.startsWith('leaf')) &&
+    photos(s).length > 0 &&
+    photos(s).every((p) => !!p.border),
 };
 
 /** Every word on a cover lies on the page, turned with its frame; every other element at least touches it. */

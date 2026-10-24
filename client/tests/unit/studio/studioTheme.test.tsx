@@ -179,12 +179,12 @@ describe('applying a theme', () => {
 });
 
 describe('the Theme panel', () => {
-  it('FE-STUDIO-THEME-007: shows twelve themes, applies the one picked and says so', () => {
+  it('FE-STUDIO-THEME-007: shows seventeen themes, applies the one picked and says so', () => {
     render(<StudioThemePanel t={t} />);
     const cards = screen
       .getAllByRole('button', { pressed: false })
       .filter((b) => b.classList.contains('st-theme-card'));
-    expect(cards).toHaveLength(11);
+    expect(cards).toHaveLength(16);
     fireEvent.click(screen.getByTitle('studio.theme.descr.riviera'));
     fireEvent.click(screen.getByText('studio.theme.applyBook'));
     expect(doc().theme?.id).toBe('riviera');

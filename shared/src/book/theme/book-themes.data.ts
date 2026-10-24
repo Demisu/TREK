@@ -8,7 +8,7 @@ import type {
 } from './book-theme.schema';
 
 /**
- * The twelve built-in themes, each a look of its own rather than a recolour:
+ * The seventeen built-in themes, each a look of its own rather than a recolour:
  * a paper and an ink that read together, three accents that belong to the
  * same place, a display face for the cover, a heading and a body face that
  * pair, a script for the words laid over a photo, and the motifs that suit.
@@ -252,5 +252,91 @@ export const BOOK_THEME_PRESETS: readonly BookThemePreset[] = [
     decoration: 'rich',
     frameStyle: 'white',
     tilt: 2,
+  },
+  {
+    id: 'riso',
+    labelKey: 'studio.theme.name.riso',
+    descrKey: 'studio.theme.descr.riso',
+    descr: 'Riso print: cream paper, riso blue, fluo pink, yellow and teal inks overprinted, a bold grotesque.',
+    palette: { paper: '#f4efe4', ink: '#23306b', accent: '#ed4981', accent2: '#ffd23f', accent3: '#00a39a' },
+    fonts: {
+      display: { font: 'bricolage', weight: 800 },
+      heading: { font: 'montserrat', weight: 700 },
+      body: { font: 'inter' },
+      script: { font: 'marker', weight: 400 },
+    },
+    motifs: ['doodles', 'paper'],
+    decoration: 'rich',
+    frameStyle: 'none',
+    tilt: 2,
+  },
+  {
+    id: 'magazine',
+    labelKey: 'studio.theme.name.magazine',
+    descrKey: 'studio.theme.descr.magazine',
+    descr: 'Travel magazine: off white paper, black ink, one signal red, a huge Bodoni masthead over Garamond.',
+    palette: { paper: '#f7f4ee', ink: '#111111', accent: '#d7261e', accent2: '#e9e2d6', accent3: '#6b6b6b' },
+    fonts: {
+      display: { font: 'bodoni', weight: 800 },
+      heading: { font: 'montserrat', weight: 600 },
+      body: { font: 'garamond' },
+      script: null,
+    },
+    motifs: ['ornaments'],
+    decoration: 'light',
+    frameStyle: 'none',
+    tilt: 0,
+  },
+  {
+    id: 'retro-travel',
+    labelKey: 'studio.theme.name.retroTravel',
+    descrKey: 'studio.theme.descr.retroTravel',
+    descr:
+      'Retro travel poster: aged cream paper, brown ink, orange, teal and mustard, a slab title over condensed caps.',
+    palette: { paper: '#f3e7cf', ink: '#3b2a1e', accent: '#d56129', accent2: '#2f7f7a', accent3: '#f2b33d' },
+    fonts: {
+      display: { font: 'alfa', weight: 400 },
+      heading: { font: 'oswald', weight: 500 },
+      body: { font: 'serif' },
+      script: { font: 'yellowtail', weight: 400 },
+    },
+    motifs: ['mountains', 'mediterranean', 'landmarks'],
+    decoration: 'rich',
+    frameStyle: 'white',
+    tilt: 0,
+  },
+  {
+    id: 'midnight',
+    labelKey: 'studio.theme.name.midnight',
+    descrKey: 'studio.theme.descr.midnight',
+    descr: 'Midnight film: near black paper, warm white ink, neon orange and cyan, tall condensed capitals.',
+    palette: { paper: '#121417', ink: '#f2efe8', accent: '#ff6b3d', accent2: '#39d0c4', accent3: '#8a8f98' },
+    fonts: {
+      display: { font: 'league', weight: 400 },
+      heading: { font: 'oswald', weight: 500 },
+      body: { font: 'inter' },
+      script: { font: 'satisfy', weight: 400 },
+    },
+    motifs: ['doodles'],
+    decoration: 'light',
+    frameStyle: 'none',
+    tilt: 0,
+  },
+  {
+    id: 'field-notes',
+    labelKey: 'studio.theme.name.fieldNotes',
+    descrKey: 'studio.theme.descr.fieldNotes',
+    descr: 'Field notes: kraft paper, moss green ink, rust and sage, a soft serif title, handwriting, tape and leaves.',
+    palette: { paper: '#e9dcc3', ink: '#2f3a2b', accent: '#b5532c', accent2: '#f8f2e4', accent3: '#6f8a5a' },
+    fonts: {
+      display: { font: 'fraunces', weight: 700 },
+      heading: { font: 'montserrat', weight: 600 },
+      body: { font: 'serif' },
+      script: { font: 'caveat', weight: 400 },
+    },
+    motifs: ['paper', 'mountains', 'nordic'],
+    decoration: 'rich',
+    frameStyle: 'polaroid',
+    tilt: 3,
   },
 ];

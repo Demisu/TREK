@@ -32,6 +32,11 @@ export const BOOK_COVER_ARCHETYPE_LINES: Readonly<Record<BookCoverArchetype, str
   'grid-badge': 'four photos in a grid with a white cross, a round title badge at its centre',
   'minimal-serif': 'a white page, a large photo with a hairline, a very large thin serif title and a sun ornament',
   'stamp-collage': 'photos in arches and stamps over a checker band, a round postmark',
+  riso: 'spot inks overprinted out of register, halftone dots, a duotone photo, a heavy title with an ink shadow',
+  editorial: 'a magazine cover: a huge masthead, a thin rule and an issue line, a photo edge to edge',
+  'vintage-poster': 'a retro travel poster: flat mountains under a sun, a photo in an arch, a stacked title',
+  'night-film': 'a near black page, a letterboxed photo, a film strip with sprocket holes, neon capitals',
+  'field-notes': 'squared notebook paper, prints taped in at an angle, pressed leaves, a script line',
 };
 
 /** The pages a lively or loud book is made of besides the calm ones (design-lively.ts). */
