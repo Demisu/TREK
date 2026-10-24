@@ -2,7 +2,9 @@
 
 Reuse packing lists across trips using pre-built templates.
 
-![Packing Templates](assets/PackingTemplate.png)
+The screenshot shows where admins build templates, the **Packing Templates** card on **Admin > Personalization**. Applying a template is described below.
+
+![The Packing Templates card in the admin panel, with a template, its category and an item, and the New Template button](assets/PackingTemplate.png)
 
 ## Applying a template
 
@@ -12,6 +14,8 @@ Applying a template copies all categories and items from the template into the c
 
 Requires the `packing_edit` permission.
 
+You do not need an admin for a template of your own: a list saved with **Export** as **CSV for import (.csv)** can be imported into the next trip, see [Packing-Lists](Packing-Lists#printing-and-exporting).
+
 On the desktop planner the **Apply template** button appears as soon as at least one template exists; it is not permission-gated in the UI. A member without `packing_edit` still sees it; the server refuses the apply and the app shows a *Failed to apply template* toast. On the phone the packing tab does gate it: **Apply template** sits in the packing list's action menu and only shows for members who have `packing_edit`.
 
 ## Saving the current list as a template
@@ -20,7 +24,7 @@ In the Lists bar, click **Save as template** when the list has items. A small di
 
 The **Save as template** button only appears when there are items in the list, and you are an instance admin with the `packing_edit` permission. Non-admins can apply templates but not create them; the API answers a non-admin with `403 Admin access required`.
 
-> **Admin:** Templates are created and managed in [Admin-Packing-Templates](Admin-Packing-Templates). Each template has a three-level structure: template → categories → items.
+> **Admin:** Templates are created and managed in [Admin-Packing-Templates](Admin-Packing-Templates), on the **Packing Templates** card of the admin panel's **Personalization** tab. Each template has a three-level structure: template → categories → items.
 
 ## See also
 

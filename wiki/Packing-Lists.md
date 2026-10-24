@@ -42,12 +42,14 @@ Items are grouped into categories, each a card with a coloured dot taken from a 
 
 The app calls these groups **lists**: **Add list** in the Lists bar asks for the name in a small dialog (*List name (e.g. Clothing)*), moving an item between them is **Move to List**, and removing one is **Delete List**. The REST API and this page call them categories.
 
+Lists can be put in the order you like. Drag a list by the grip at the start of its head (the tooltip reads *Drag to reorder the category*) and drop it on another list to move it. While **A to Z** sorting is on, the lists keep their order and only the grip of a list stays draggable.
+
 Each list's head has the name, a count of packed and total items (green once all are packed), a toggle to fold it, and a **⋯** menu with:
 
 - **Rename**: rename the list.
 - **Check All**: tick every item in it.
 - **Uncheck All**: untick every item in it.
-- **Delete List**: delete the list and all its items. It does not ask first.
+- **Delete List**: delete the list and all its items. On the desktop it does not ask first. On the phone TREK asks (*Are you sure you want to delete the list "{name}" with {count} items?*).
 
 **Rename** and **Delete List** need the `packing_edit` permission; **Check All** and **Uncheck All** are always there.
 
@@ -185,6 +187,10 @@ Packing lists can be saved and reused across trips:
 - **Apply template**: when templates exist, **Apply template** in the Lists bar opens them with their item counts. Picking one adds its items to the list in the view that is open, with their weight, quantity and bag, without removing anything already there. A bag the trip does not have yet is created.
 
 Templates are managed by admins in [Admin-Packing-Templates](Admin-Packing-Templates). See also [Packing-Templates](Packing-Templates).
+
+## AI assistant
+
+The in-app AI assistant can propose packing lists and items as cards in the chat. Nothing is added until you confirm the card.
 
 ## Linked to a tour
 
