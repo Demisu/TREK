@@ -382,7 +382,7 @@ If `ALLOWED_ORIGINS` is not set, the default is **same-origin only** — cross-o
 
 **Cause:** The browser Clipboard API (`navigator.clipboard`) is only available in a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts), so on plain HTTP at a non-localhost address it is undefined.
 
-TREK works around this where it matters most. The share-link and invite-link buttons in the trip's **Share Trip** and **Members** dialogs, the journey share link, and the calendar-subscribe URLs fall back to a hidden textarea plus the deprecated `document.execCommand('copy')`, which is not secure-context gated, so **those keep working over plain HTTP**, on desktop and mobile alike.
+TREK works around this where it matters most. The share-link and invite-link buttons in the trip's **Trip settings** dialog, the journey share link, and the calendar-subscribe URLs fall back to a hidden textarea plus the deprecated `document.execCommand('copy')`, which is not secure-context gated, so **those keep working over plain HTTP**, on desktop and mobile alike.
 
 The remaining copy buttons call `navigator.clipboard` directly and have no fallback:
 
@@ -567,3 +567,61 @@ Create a WAF skip rule that bypasses bot management only for the MCP and OAuth p
 4. Save and deploy.
 
 This allows MCP and OAuth traffic through while keeping Cloudflare bot protection active for all other paths.
+
+
+---
+
+## Web Push notifications do not arrive
+
+**Cause:** Push depends on several things at once, and the card under **Settings → Notifications** tells you which one is missing.
+
+**Fix:** Check them in this order:
+
+- TREK has to be opened over **HTTPS**. On any `http://` address other than `localhost` the card says that push needs HTTPS.
+- On an iPhone or iPad, push only works in the Home Screen app. Add TREK to the Home Screen, open it from there and turn push on there.
+- Push is per device. Press **Turn on for this device** on every device that should receive it, and use **Send test** to check. Logging out, or changing your password, removes the device, so turn it on again afterwards.
+- The admin has to switch the **Web Push** channel on in **Admin → Notifications**, and the **Push** column of your matrix has to allow the event.
+- If you set `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` yourself, both have to be set and belong together. If only one is set, or the stored key cannot be decrypted because `ENCRYPTION_KEY` changed, push is off and the server log says why.
+- Notifications must not be blocked for TREK in the browser or the system settings.
+
+See [Notifications](Notifications#web-push) for the details.
+
+---
+
+## The app shows an old version after an update
+
+**Cause:** The installed app and open tabs keep running the build they loaded. TREK does not reload a page under your hands.
+
+**Fix:** When a release is deployed while TREK is open, a notice reads **A new version is available** with a **Reload page** button. Click it. If you closed the notice, reload the page, or close the installed app and open it again. Changes you made offline with the newer version wait in the queue until a tab on the current version is open, then they are sent. See [Offline-Mode-and-PWA](Offline-Mode-and-PWA#stats--cache).
+
+---
+
+## TREK refuses to start after an update or a rollback
+
+**Cause:** There are two different refusals. TREK 5.0 and later refuse to start on a database that a newer TREK has already migrated, and they refuse to migrate when they cannot write the safety copy of the database first (a full disk or a read-only data directory).
+
+**Fix:** Read the first lines of the server log, which name the problem and the path. For a full disk, free space and start again. To go back to the previous image, restore the `data/pre-migrate-<schema>-<time>.db` copy over `data/travel.db`, delete `travel.db-wal` and `travel.db-shm`, and start the older image. The exact steps, and the `TREK_DB_PRE_MIGRATE_SNAPSHOT` switch, are in [Updating](Updating#database-migrations).
+
+---
+
+## AI booking import times out or comes back cut off
+
+**Cause:** One AI parsing call is limited in time and in answer length. A local model on a slow host can need minutes, and a document with many bookings needs a long answer.
+
+**Fix:** Raise `LLM_TIMEOUT_MS` (default 900000, which is 15 minutes) for a timeout, and `LLM_MAX_OUTPUT_TOKENS` (default 4096, or 8192 on Anthropic) when the import says the answer was cut off. See [AI-Booking-Import](AI-Booking-Import) and [Environment-Variables](Environment-Variables).
+
+---
+
+## Place search only shows OpenStreetMap results
+
+**Cause:** TREK asks its own place index, the [TREK Places API](TREK-Places-API), first. When that service cannot be reached, the server logs `TREK Places ... failed, falling back` and search carries on with OpenStreetMap alone. The same happens when `TREK_PLACES_ENABLED` is set to `false`.
+
+**Fix:** Check that `TREK_PLACES_ENABLED` is not `false` and that the server can reach `https://places.liketrek.com`, or your own copy named in `TREK_PLACES_URL`. See [Environment-Variables](Environment-Variables#place-search-trek-places-api).
+
+---
+
+## Offline changes do not sync
+
+**Cause:** The server kept refusing a queued change (after eight attempts it counts as failed), or an edit you made offline collided with a newer one on the server.
+
+**Fix:** The status pill at the bottom of the window reads **Failed to sync: N** or **Conflicts: N**. Open **Settings → Offline**. Under **Failed changes**, use **Try again** or **Discard** on each item. Under conflicts, choose **Keep mine** or **Keep theirs**. If the local copy itself looks wrong, **Clear cache** empties it and the next sync downloads it again. Unsynced changes are kept when a trip is cleared from the device. See [Offline-Mode-and-PWA](Offline-Mode-and-PWA).
