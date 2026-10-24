@@ -7,16 +7,32 @@ import {
   loadJournal,
   type JournalLoaded,
 } from './journey-change';
+import {
+  JOURNAL_HEADER_DESCRIBERS,
+  journalHeaderApplied,
+  journalHeaderCard,
+  loadJournalHeader,
+  type JournalHeaderLoaded,
+} from './journey-header';
+import {
+  DELETE_CREATED_JOURNEY,
+  FLIP_JOURNEY_PREFERENCE,
+  RESTORE_JOURNEY_SETTINGS,
+  UNLINK_LINKED_TRIP,
+} from './journey-header-undo';
 import { readCard } from './journey-look';
 import { DELETE_CREATED_ENTRY } from './journey-undo';
-import type { JourneyEntriesCard } from '@trek/shared';
+import type { AssistantChangeVerbKey, JourneyEntriesCard } from '@trek/shared';
 
 /**
  * The travel journal in the assistant chat. A read of a journal's entries
  * shows them as a card beside the answer; a held write of an entry shows the
  * entry it will write, change or delete, and once applied the entry as it
  * was stored, its photo and country included. A created entry can be taken
- * back while nothing was written to it since.
+ * back while nothing was written to it since. A change of a journal itself
+ * (a new one, its settings, its trips, its suggestions, the user's own view
+ * of it, its deletion) shows the journal with its trips (journey-header.ts),
+ * and most of them can be taken back (journey-header-undo.ts).
  */
 
 /** The entry a create or a change answered with, else the one a delete named. */
@@ -43,6 +59,29 @@ function journalWrite(tool: string): ToolCards<JournalLoaded> {
     change: (_ctx, args, loaded) => journalChangeCard(tool, args, loaded),
     applied: ({ result, preview }) => journalAppliedCard(tool, result, preview),
     appliedIds: entryIds,
+  };
+}
+
+/** The journal a change of the journal itself touched: the one its answer names, else the one it was called on. */
+function journalIds(args: ToolArgs, result: unknown): number[] {
+  const id = idIn(result, 'journey') ?? argId(args, 'journeyId');
+  return id === null ? [] : [id];
+}
+
+/** A change of a journal itself: its verb, its words, its lookups, its card while held and once applied. */
+function journalHeader(
+  tool: keyof typeof JOURNAL_HEADER_DESCRIBERS,
+  verbKey: AssistantChangeVerbKey,
+  undo?: NonNullable<ToolCards['undo']>,
+): ToolCards<JournalHeaderLoaded> {
+  return {
+    write: { verbKey, entity: 'journey' },
+    describe: JOURNAL_HEADER_DESCRIBERS[tool],
+    load: (args, read) => loadJournalHeader(tool, args, read),
+    change: (_ctx, args, loaded) => journalHeaderCard(tool, args, loaded),
+    applied: ({ result, preview }) => journalHeaderApplied(tool, result, preview),
+    appliedIds: journalIds,
+    ...(undo ? { undo } : {}),
   };
 }
 
@@ -76,6 +115,17 @@ export const JOURNEY_CARDS: DomainCards = {
       describe: JOURNEY_DESCRIBERS.delete_journey_entry,
       ...journalWrite('delete_journey_entry'),
     },
+    create_journey: journalHeader('create_journey', 'createJournal', DELETE_CREATED_JOURNEY),
+    update_journey: journalHeader('update_journey', 'updateJournalSettings', RESTORE_JOURNEY_SETTINGS),
+    delete_journey: journalHeader('delete_journey', 'deleteJournal'),
+    add_journey_trip: journalHeader('add_journey_trip', 'linkJournalTrip', UNLINK_LINKED_TRIP),
+    remove_journey_trip: journalHeader('remove_journey_trip', 'unlinkJournalTrip'),
+    restore_journey_suggestions: journalHeader('restore_journey_suggestions', 'restoreJournalSuggestions'),
+    update_journey_preferences: journalHeader(
+      'update_journey_preferences',
+      'setJournalPreferences',
+      FLIP_JOURNEY_PREFERENCE,
+    ),
   },
   prompt: [
     'Journal: get_trip_journal finds the journal this trip shows. To show entries, call list_journey_entries with from/to for the days asked: the app draws them as cards, so do not list them again in your answer.',

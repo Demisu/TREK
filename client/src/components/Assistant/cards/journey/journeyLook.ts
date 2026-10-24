@@ -1,4 +1,16 @@
-import { BookOpen, BookOpenText, BookPlus, BookX } from 'lucide-react';
+import {
+  BookCheck,
+  BookOpen,
+  BookOpenText,
+  BookPlus,
+  BookX,
+  Eye,
+  Link,
+  RotateCcw,
+  Settings2,
+  Type,
+  Unlink,
+} from 'lucide-react';
 
 import type { PackLook } from '../cardTypes';
 import { journalTarget } from './journeyCardModel';
@@ -17,6 +29,19 @@ export const JOURNEY_LOOK = {
     addJournalEntry: { Icon: BookPlus, tone: 'success', labelKey: 'assistant.change.verb.addJournalEntry' },
     updateJournalEntry: { Icon: BookOpenText, tone: 'info', labelKey: 'assistant.change.verb.updateJournalEntry' },
     removeJournalEntry: { Icon: BookX, tone: 'danger', labelKey: 'assistant.change.verb.removeJournalEntry' },
+    createJournal: { Icon: BookPlus, tone: 'success', labelKey: 'assistant.change.verb.createJournal' },
+    renameJournal: { Icon: Type, tone: 'info', labelKey: 'assistant.change.verb.renameJournal' },
+    setJournalStatus: { Icon: BookCheck, tone: 'info', labelKey: 'assistant.change.verb.setJournalStatus' },
+    updateJournalSettings: { Icon: Settings2, tone: 'info', labelKey: 'assistant.change.verb.updateJournalSettings' },
+    deleteJournal: { Icon: BookX, tone: 'danger', labelKey: 'assistant.change.verb.deleteJournal' },
+    linkJournalTrip: { Icon: Link, tone: 'success', labelKey: 'assistant.change.verb.linkJournalTrip' },
+    unlinkJournalTrip: { Icon: Unlink, tone: 'warning', labelKey: 'assistant.change.verb.unlinkJournalTrip' },
+    restoreJournalSuggestions: {
+      Icon: RotateCcw,
+      tone: 'info',
+      labelKey: 'assistant.change.verb.restoreJournalSuggestions',
+    },
+    setJournalPreferences: { Icon: Eye, tone: 'info', labelKey: 'assistant.change.verb.setJournalPreferences' },
   },
   tools: {
     create_journey: { labelKey: 'assistant.tool.create_journey' },
@@ -40,6 +65,14 @@ export const JOURNEY_LOOK = {
           ? journalTarget(card.journeyId, applied.ids[0] ?? card.entries[0]?.entryId ?? null, card.tripJournal)
           : null,
     },
+    journey: {
+      Icon: BookOpen,
+      openLabelKey: 'assistant.card.journeyHeader.open',
+      open: (applied, card) => {
+        const journeyId = applied.ids[0] ?? (card?.kind === 'journeyHeader' ? card.journeyId : null);
+        return journeyId ? journalTarget(journeyId, null, false) : null;
+      },
+    },
   },
   cards: {
     journeyEntries: {
@@ -59,5 +92,8 @@ export const JOURNEY_LOOK = {
         return readIds.length > 0 && readIds.every((id) => id !== null && touched.has(id));
       },
     },
+    journeyHeader: {
+      entity: () => 'journey',
+    },
   },
-} satisfies PackLook<'journeyEntries'>;
+} satisfies PackLook<'journeyEntries' | 'journeyHeader'>;
