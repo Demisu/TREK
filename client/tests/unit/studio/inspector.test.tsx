@@ -487,7 +487,7 @@ describe('a shape', () => {
     load([shape({ shape: 'rect', fill: '#c2410c' })])
     const { container } = draw()
 
-    fireEvent.click(container.querySelector('.st-mini-shapes [aria-label="ellipse"]')!)
+    fireEvent.click(container.querySelector('.st-mini-shapes [aria-label="journey.studio.shapeName.ellipse"]')!)
 
     expect(el()).toMatchObject({ shape: 'ellipse', fill: '#c2410c', frame: FRAME })
   })
