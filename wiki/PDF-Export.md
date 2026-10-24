@@ -56,7 +56,7 @@ Under the header:
 
 - **The stay**, when an accommodation covers that day: *Check-in* on the first day, *Check-out* on the last, *Accommodation* on the nights in between, with the time, the place name, the address, the notes, and the booking code on the check-in day only
 - **The day's entries**, in the order of the day plan:
-  - **Places**: a photo (or a coloured category icon without one), a numbered badge, the name, the category, the address, the description, the time, the price and the notes
+  - **Places**: a photo (or a coloured category icon without one), a numbered badge, the name, the category, the address, the description, the time, the price and the notes. The description, the notes of the place, the notes of the day entry and the notes of a transport are written in Markdown, and the PDF shows them as such: bold text, lists and links
   - **Notes**: the icon, the text and the time, if set
   - **Bookings**: the type icon, the title, the time, the notes of a transport (unless **Transport notes** is off), the details that fit the type (airline, flight number and route for a flight; train number, platform and seat for a train; party size for a restaurant; the venue for an event; the operator for a tour), the location and the booking code
 
@@ -80,7 +80,12 @@ Installed plugins can add sections of their own to the Trip Plan PDF through the
 
 The Travel Journal has no fixed PDF template. Open a journey and click **Studio** in the journal header (the book icon in the top bar on phones) to open **TREK Studio**, the photo book designer. See [Journey-Journal](Journey-Journal#trek-studio).
 
-Studio lays the journey out as spreads you can edit, rather than a fixed page template: five page presets (210 mm and 300 mm square, A4 landscape, A4 portrait, A5 landscape) or a custom size between 60 and 500 mm, and seven bundled font families.
+Studio lays the journey out as spreads you can edit, rather than a fixed page template: five page presets (210 mm and 300 mm square, A4 landscape, A4 portrait, A5 landscape) or a custom size between 60 and 500 mm.
+
+- **Layouts**: the **Layouts** panel starts with **Designed pages**, whole covers and spreads set in the book's theme and drawn with the page's own photos and words. **My layouts** and the built in layouts follow below them. A click lays the page out on a design, and what it has no room for stays with the page. The **Style** chips narrow the designs to one look, such as Poster, Postcard, Riso, Editorial, Vintage poster, Night film or Field notes, and **All** shows them all.
+- **Themes**: the **Theme** panel picks a look for the whole book from seventeen, among them Poster pop, Riviera, Minimal serif, Tropical, Nordic, Alpine, Magazine and Midnight. Colours and type that follow the theme change with it, everything else stays as it is.
+- **Typefaces**: **Change typeface** opens a searchable picker grouped as Sans serif, Serif, Elegant display, Condensed and poster, Heavy and retro, Script and handwriting and Monospace, with the weights each one offers. **Used in this book** lists what the book already uses.
+- **Assistant**: with the AI assistant addon on, the assistant can design pages and the book together with you, see [Journey-Journal](Journey-Journal#trek-studio).
 
 Printing works the same way as for the Trip Plan PDF, through the browser's print dialog, so nothing is rendered on the server. A browser writes no TrimBox or BleedBox, so the sheets can carry crop marks for a print shop instead. **Single pages** or **Spreads**, and crop marks on or off, are chosen in Studio's export panel.
 
