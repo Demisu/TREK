@@ -37,6 +37,7 @@ Names are the ones the index has, which are the names used on the spot. The inde
 | The [Road trip](Road-Trip#search-along-the-route) addon's search along the drive | Fuel, charging, rest areas, campsites and the other kinds it looks for | The public Overpass mirrors |
 | Tours: the trail grades, surfaces and kinds of way along a planned tour | The OpenStreetMap tags of the ways the tour runs on, from its ways layer | The public Overpass mirrors |
 | Tours: the signposted horse routes around the map view | The horse route relations in the view with their ways, from its routes layer | The public Overpass mirrors |
+| Tours: the ski piste router (**Ski & winter** tours) | The winter layer: which build it serves, the index of ski areas, and the graph of runs, lifts and trails of one area, which your server keeps and checks once a day | A ski area already kept on your server still plans; a leg that cannot be planned gets a red row, *The piste data cannot be reached right now.*, with **Draw straight** |
 | Booking imports, and stops given only by name in an imported Google Maps route | The coordinate of a venue, found by its name | OpenStreetMap's search service, which also resolves street addresses |
 | Preparing a trip for offline use | Up to 3000 places around the trip, in one request | Nothing is cached, and offline search has nothing to answer from |
 | MCP: `search_place` and `search_pois` | The same as the full search and the category buttons | The same fallbacks |
@@ -76,6 +77,7 @@ Every request goes out from your TREK server, never from a browser, so the servi
 | A venue name | Booking imports and route imports |
 | The OpenStreetMap way ids a planned tour runs on | Tours trail grades, surfaces and kinds of way |
 | The map view as a box, grown to a 0.05 degree grid | Tours horse routes |
+| The id of a ski area | Tours ski piste router. No coordinate goes along: the service learns which area a planner loaded, never where anyone clicked. |
 | An `X-TREK-Instance` header | Every request |
 
 The header carries an opaque token derived from your instance's own address, so the service can rate-limit each instance on its own instead of everyone behind one IP. Set `APP_URL` (or `ALLOWED_ORIGINS`): without either, the token is derived from the port alone, and two unconfigured installs on the same port share one rate-limit bucket.
@@ -97,12 +99,13 @@ services:
 
 `false`, `0`, `off` and `no` in any casing switch the index off, as on every other boolean switch. A value that is not boolean-like at all aborts startup, and unset or blank leaves the index on.
 
-With the index off, TREK stops asking it for suggestions, searches, category buttons, the Road trip search, import geocoding, offline downloads and the ways and horse routes of Tours, and place search works the way it did before 4.3.0:
+With the index off, TREK stops asking it for suggestions, searches, category buttons, the Road trip search, import geocoding, offline downloads, the ways and horse routes of Tours and the piste data of ski tours, and place search works the way it did before 4.3.0:
 
 - **Full search** goes to OpenStreetMap on an install without a key. With a Google key, Google answers every search, and with Amap selected, Amap does; OpenStreetMap is then no longer asked beside them.
 - **Suggestions** come from Google or Amap when one holds the keyed slot, otherwise from OpenStreetMap's public search service. That service's usage policy does not allow autocomplete, so on a keyless install consider pointing `NOMINATIM_URL` at a Nominatim of your own.
 - **Category buttons** and the **Road trip search** are answered by the Overpass mirrors.
 - **Tours** read the grades of the ways under a tour and the horse routes around the map from the Overpass mirrors.
+- **Ski & winter tours** have no piste data to plan on. The winter layer is the only source of it, so there is no Overpass fallback: no ski leg can be planned, even in an area kept earlier. Each leg gets a red row, *The piste data cannot be reached right now.*, and **Draw straight** draws it as a straight line. Nothing is downloaded or refreshed in the background. Hikes, bike tours and the other types are not affected. See [Ski data and its limits](Tours#ski-data-and-its-limits).
 - **Imports** geocode through OpenStreetMap's search service.
 - **Offline search** has nothing to answer from, because no places are downloaded.
 
@@ -129,7 +132,7 @@ Defaults and details for each are on [Environment Variables](Environment-Variabl
 
 ## When the service cannot be reached
 
-Nothing breaks. Every call has a short deadline, 3.5 seconds for a search, 10 seconds per batch of tour ways, 20 seconds for an offline download or a view of routes, and every call site falls back to what TREK did before the index existed. After four calls in a row that got no answer or a server error, TREK stops asking for a minute and takes the fallback straight away, so an instance that cannot reach the service does not pay the deadline on every keystroke. The first call after that minute tries again, and one answer resets the count. Place search and the ways and routes of Tours are counted apart, so a busy answer to a heavy tour never pauses the search. When a tour's ways stop answering part way, Tours keeps the batches that came and asks the Overpass mirrors only for the rest.
+Nothing breaks. Every call has a short deadline, 3.5 seconds for a search, 10 seconds per batch of tour ways, 20 seconds for an offline download or a view of routes, and for the winter layer 5 seconds for its build, 15 for the index of ski areas and 30 for one area, and every call site falls back to what TREK did before the index existed. After four calls in a row that got no answer or a server error, TREK stops asking for a minute and takes the fallback straight away, so an instance that cannot reach the service does not pay the deadline on every keystroke. The first call after that minute tries again, and one answer resets the count. Place search and the layers (the ways and routes of Tours and the winter layer) are counted apart, so a busy answer to a heavy tour never pauses the search. When a tour's ways stop answering part way, Tours keeps the batches that came and asks the Overpass mirrors only for the rest. Ski tours have no such second source.
 
 | What you see | What it usually means |
 |---|---|
