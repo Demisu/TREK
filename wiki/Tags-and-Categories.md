@@ -17,15 +17,15 @@ Categories classify places across all trips. Every user sees the same set of cat
 
 Categories appear in:
 
-- The **place form** when adding or editing a place.
-- The **places sidebar** as filter options.
+- The **place form** when adding or editing a place: the category is the pill in the head band, and the **+** next to it (*New category*) creates one on the spot.
+- The **places column** as filter options: the tag icon opens the categories, and a badge on it counts those in force. In select mode, **Change category** gives every ticked place the same category.
 - **Map markers**: the category icon and color are used to style each place's marker pin.
 - **Map hover cards**: resting the pointer on a marker shows the category with the place's name and address.
 - **Saved places** in [Collections](Collections), which use the same set.
 
 A place picked from the search or from a marker of the map's category buttons comes with a matching category already picked, when the palette has one whose name or icon fits (a hotel goes to a category such as Hotel or Accommodation, a museum to Sights or Museum). Pick another one and it stays yours. See [The place form](Places-and-Search#the-place-form).
 
-> **Admin:** Create and manage categories in [Admin-Categories](Admin-Categories), or create one on the spot with the **+** (*New category*) next to the category pill of the place form. Only admins can create, edit, or delete categories. All users can read them.
+> **Admin:** Create and manage categories in [Admin-Categories](Admin-Categories), or create one on the spot with the **+** (*New category*) next to the category pill in the head band of the place form. Only admins can create, edit, or delete categories. All users can read them.
 
 > **AI / MCP:** `list_categories` lists the palette; `create_category`, `update_category` and `delete_category` are for admins only.
 

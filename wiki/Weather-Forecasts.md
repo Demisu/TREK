@@ -39,4 +39,4 @@ Temperature follows **Temperature Unit** under Settings > General > Language & r
 
 The reading on the day cards is kept in `sessionStorage` for the length of your browser session, so moving between days does not ask for the same weather again. A cached forecast older than an hour is shown at once and refreshed in the background. The day details fetch the detailed forecast each time they open.
 
-**See also:** [Day-Plans-and-Notes](Day-Plans-and-Notes) · [Display-Settings](Display-Settings) · [Road-Trip](Road-Trip#weather-warnings-and-disaster-alerts)
+**See also:** [Day-Plans-and-Notes](Day-Plans-and-Notes), [Display-Settings](Display-Settings), [Road-Trip](Road-Trip#weather-warnings-and-disaster-alerts)
