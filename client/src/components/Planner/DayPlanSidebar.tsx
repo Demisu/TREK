@@ -43,6 +43,7 @@ import './dayPlanRows.css'
 
 import { TypeTile } from './bookings/bookingParts'
 import { typeInfo } from './bookings/bookingsModel'
+import { transportSubtitle } from './transportDetailModel'
 import { dayHeadStays } from './dayHeadStays'
 import { getAccommodationAnchors, getDayBookendHotels, shouldDrawMorningLeg, shouldDrawEveningLeg, type CarrierEdge } from '../../utils/dayOrder'
 import {
@@ -2166,24 +2167,8 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                         let meta: any = {}
                         try { meta = typeof res.metadata === 'string' ? JSON.parse(res.metadata || '{}') : (res.metadata || {}) } catch { meta = {} }
 
-                        // Subtitle aus Metadaten zusammensetzen
-                        let subtitle = ''
-                        if (res.__leg) {
-                          // One leg of a multi-leg flight/train — show this segment's own detail.
-                          const parts = res.type === 'train'
-                            ? [res.__leg.train_number, res.__leg.platform ? `${t('reservations.meta.platform')} ${res.__leg.platform}` : '', res.__leg.seat ? `${t('reservations.meta.seat')} ${res.__leg.seat}` : ''].filter(Boolean)
-                            : [res.__leg.airline, res.__leg.flight_number].filter(Boolean)
-                          if (res.__leg.from || res.__leg.to)
-                            parts.push([res.__leg.from, res.__leg.to].filter(Boolean).join(' → '))
-                          subtitle = parts.join(', ')
-                        } else if (res.type === 'flight') {
-                          const parts = [meta.airline, meta.flight_number].filter(Boolean)
-                          if (meta.departure_airport || meta.arrival_airport)
-                            parts.push([meta.departure_airport, meta.arrival_airport].filter(Boolean).join(' → '))
-                          subtitle = parts.join(', ')
-                        } else if (res.type === 'train') {
-                          subtitle = [meta.train_number, meta.platform ? `${t('reservations.meta.platform')} ${meta.platform}` : '', meta.seat ? `${t('reservations.meta.seat')} ${meta.seat}` : ''].filter(Boolean).join(', ')
-                        }
+                        // A leg of a multi-leg flight or train shows its own detail (#2701).
+                        const subtitle = transportSubtitle(res, t) ?? ''
 
                         // A transit journey (#1065) renders its itinerary inline —
                         // line badges in their colors instead of a plain subtitle,

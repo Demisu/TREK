@@ -265,7 +265,7 @@ export function TransportRow({ res, dayId, chrome, reorder, drag, onOpen }: {
   const time = start
     ? `${fmtTime(start, chrome)}${phase === 'single' && end ? ` – ${fmtTime(end, chrome)}` : ''}`
     : ''
-  const sub = transportSubtitle(res)
+  const sub = transportSubtitle(res, chrome.t)
 
   return (
     <div

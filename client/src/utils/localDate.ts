@@ -27,3 +27,24 @@ export function localMinutes(d: Date = new Date()): number {
 export function isLocalToday(date: string | null | undefined): boolean {
   return !!date && date.slice(0, 10) === localIsoDate()
 }
+
+/**
+ * The browser's IANA time zone, or undefined when it cannot name one. Chrome
+ * on Windows answers undefined for a system zone it cannot map, such as
+ * Alberta's permanent UTC-6 (#2694), so every reader picks its own fallback.
+ */
+export function browserTimeZone(): string | undefined {
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone as string | undefined
+  return typeof tz === 'string' && tz ? tz : undefined
+}
+
+/** Whether `Intl` accepts the zone; formatting with one it rejects throws a RangeError. */
+export function isValidTimeZone(tz: unknown): tz is string {
+  if (typeof tz !== 'string' || !tz) return false
+  try {
+    new Intl.DateTimeFormat(undefined, { timeZone: tz })
+    return true
+  } catch {
+    return false
+  }
+}

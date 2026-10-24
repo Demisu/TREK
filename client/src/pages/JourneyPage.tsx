@@ -9,6 +9,7 @@ import {
 import type { Journey } from '../store/journeyStore'
 import { computeJourneyLifecycle } from '../utils/journeyLifecycle'
 import { useJourney } from './journey/useJourney'
+import { journeyYearLabel } from './journey/journeyModel'
 import HelpAnchor from '../components/Help/HelpAnchor'
 import { DialogButton, DialogFooter, DialogHeader, DialogSection, DialogShell, DialogTile, FooterSpacer, NEUTRAL_TINT, fs } from '../components/shared/DialogShell'
 import { EditorField, INPUT } from '../components/shared/dialogParts'
@@ -438,7 +439,7 @@ function JourneyCard({ journey, onClick }: { journey: Journey & { entry_count?: 
         <span className="absolute top-3.5 start-3.5 z-[2] inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-white text-[11px] font-semibold"
           style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.26)' }}>
           <Calendar size={12} strokeWidth={2.2} />
-          {new Date(j.created_at).getFullYear()}
+          {journeyYearLabel(j)}
         </span>
         {lifecycle !== 'live' && (
           <span className="absolute top-3.5 end-3.5 z-[2] px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide text-white"

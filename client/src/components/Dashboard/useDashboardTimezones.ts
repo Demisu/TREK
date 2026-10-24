@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useSettingsStore } from '../../store/settingsStore';
+import { browserTimeZone, isValidTimeZone } from '../../utils/localDate';
 
 const DEFAULT_ZONES = ['Europe/London', 'Asia/Tokyo'];
 
@@ -38,13 +39,15 @@ export function shortZone(tz: string): string {
  * clocks tick every 30 seconds, `adding` toggles the zone picker.
  */
 export function useDashboardTimezones(locale: string) {
-  const home = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const home = browserTimeZone();
   const [now, setNow] = useState(() => new Date());
   const isLoaded = useSettingsStore((s) => s.isLoaded);
   const updateSetting = useSettingsStore((s) => s.updateSetting);
   const stored = useSettingsStore((s) => s.settings.dashboard_timezones);
   // Unset (never chosen) falls back to home + defaults; an explicit list is honoured.
-  const zones = stored ?? [home, ...DEFAULT_ZONES];
+  // A browser that names no zone (#2694) or a zone this browser does not know
+  // would throw while rendering a clock, so such entries are left out.
+  const zones = (stored ?? [home, ...DEFAULT_ZONES]).filter(isValidTimeZone);
   const setZones = (next: string[]) => {
     updateSetting('dashboard_timezones', next).catch(() => {});
   };

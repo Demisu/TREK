@@ -128,14 +128,17 @@ describe('planTimelineModel — metadata parsing', () => {
 })
 
 describe('planTimelineModel — transportSubtitle', () => {
+  // The labels stay keys, so the assertions read what the subtitle puts where.
+  const tr: TranslationFn = (key) => key
+
   it('FE-MOB-PTLM-006: renders a synthetic leg as from → to', () => {
     const res = { ...buildReservation({ type: 'flight' }), __leg: { index: 0, total: 2, from: 'FRA', to: 'IST' } } as TransportEntry
-    expect(transportSubtitle(res)).toBe('FRA → IST')
+    expect(transportSubtitle(res, tr)).toBe('FRA → IST')
   })
 
   it('FE-MOB-PTLM-007: renders a leg without endpoints as an empty subtitle', () => {
     const res = { ...buildReservation({ type: 'flight' }), __leg: { index: 1, total: 2, from: null, to: null } } as TransportEntry
-    expect(transportSubtitle(res)).toBe('')
+    expect(transportSubtitle(res, tr)).toBe('')
   })
 
   it('FE-MOB-PTLM-008: joins airline, flight number and airports for a flight', () => {
@@ -143,25 +146,42 @@ describe('planTimelineModel — transportSubtitle', () => {
       type: 'flight',
       metadata: JSON.stringify({ airline: 'LH', flight_number: 'LH123', departure_airport: 'FRA', arrival_airport: 'HND' }),
     })
-    expect(transportSubtitle(res)).toBe('LH · LH123 · FRA → HND')
+    expect(transportSubtitle(res, tr)).toBe('LH, LH123, FRA → HND')
   })
 
   it('FE-MOB-PTLM-009: omits the airport pair when neither airport is known', () => {
     const res = buildReservation({ type: 'flight', metadata: JSON.stringify({ airline: 'LH', flight_number: 'LH123' }) })
-    expect(transportSubtitle(res)).toBe('LH · LH123')
+    expect(transportSubtitle(res, tr)).toBe('LH, LH123')
   })
 
   it('FE-MOB-PTLM-010: labels platform and seat for a train', () => {
     const full = buildReservation({
       type: 'train', metadata: JSON.stringify({ train_number: 'ICE 599', platform: '7', seat: '32A' }),
     })
-    expect(transportSubtitle(full)).toBe('ICE 599 · Gl. 7 · Sitz 32A')
-    expect(transportSubtitle(buildReservation({ type: 'train', metadata: '{"train_number":"ICE 599"}' }))).toBe('ICE 599')
+    expect(transportSubtitle(full, tr)).toBe('ICE 599, reservations.meta.platform 7, reservations.meta.seat 32A')
+    expect(transportSubtitle(buildReservation({ type: 'train', metadata: '{"train_number":"ICE 599"}' }), tr)).toBe('ICE 599')
+  })
+
+  // #2701: a leg names its own train, platform and seat, not the first leg's.
+  it('FE-MOB-PTLM-011b: a train leg carries its own number, platform and seat', () => {
+    const res = {
+      ...buildReservation({ type: 'train', metadata: JSON.stringify({ train_number: 'Hida 6', seat: '10-4C' }) }),
+      __leg: { index: 1, total: 2, from: 'Nagoya', to: 'Kyoto', train_number: 'Nozomi 67', platform: '14', seat: '4-5A' },
+    } as TransportEntry
+    expect(transportSubtitle(res, tr)).toBe('Nozomi 67, reservations.meta.platform 14, reservations.meta.seat 4-5A, Nagoya → Kyoto')
+  })
+
+  it('FE-MOB-PTLM-011c: a flight leg carries its own airline and flight number', () => {
+    const res = {
+      ...buildReservation({ type: 'flight' }),
+      __leg: { index: 1, total: 2, from: 'IST', to: 'HND', airline: 'TK', flight_number: 'TK52' },
+    } as TransportEntry
+    expect(transportSubtitle(res, tr)).toBe('TK, TK52, IST → HND')
   })
 
   it('FE-MOB-PTLM-011: falls back to the location for any other type', () => {
-    expect(transportSubtitle(buildReservation({ type: 'bus', location: 'Central Station' }))).toBe('Central Station')
-    expect(transportSubtitle(buildReservation({ type: 'bus', location: null }))).toBe('')
+    expect(transportSubtitle(buildReservation({ type: 'bus', location: 'Central Station' }), tr)).toBe('Central Station')
+    expect(transportSubtitle(buildReservation({ type: 'bus', location: null }), tr)).toBe('')
   })
 })
 

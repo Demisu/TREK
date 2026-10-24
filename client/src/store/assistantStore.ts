@@ -21,6 +21,7 @@ import { aiConnectionsRepo } from '../repo/aiConnectionsRepo';
 import { assistantRepo } from '../repo/assistantRepo';
 import { OnlineOnlyError } from '../repo/onlineOnly';
 import type { Assignment } from '../types';
+import { browserTimeZone } from '../utils/localDate';
 import { randomId } from '../utils/randomId';
 import type { RouteProfileFocus } from '../utils/routeGeometry';
 import { assistantScopeOf, assistantTargetOf, type AssistantChatKey } from './assistantChatKey';
@@ -331,7 +332,7 @@ function errorCodeOf(err: unknown): AssistantErrorCode {
 function clientContext() {
   return {
     locale: useSettingsStore.getState().settings.language || 'en',
-    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+    timeZone: browserTimeZone() ?? 'UTC',
   };
 }
 

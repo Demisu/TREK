@@ -397,6 +397,24 @@ describe('downloadTripPDF', () => {
     expect(iframe!.srcdoc).toContain('€')
   })
 
+  // #2692: a place's description and notes print as the planner shows them, not as raw markdown.
+  it('FE-COMP-TRIPPDF-016c: renders markdown in a place description, sanitized', async () => {
+    const place = { ...placeWithDetails, description: '**Colosseum** tickets
+
+| Gate | Time |
+| --- | --- |
+| A | 9:00 |
+
+<script>alert(1)</script>' }
+    const md = { ...richArgs, places: [place], assignments: { '10': [{ ...assignmentForDay, place }] } }
+    await downloadTripPDF(md as any)
+    const html = getIframe()!.srcdoc
+    expect(html).toContain('<strong>Colosseum</strong>')
+    expect(html).toContain('<td>9:00</td>')
+    expect(html).not.toContain('**Colosseum**')
+    expect(html).not.toContain('<script>alert(1)</script>')
+  })
+
   it('FE-COMP-TRIPPDF-016b: formats price chip and totals in the trip currency, not EUR', async () => {
     const usdArgs = {
       ...richArgs,
@@ -796,7 +814,7 @@ describe('downloadTripPDF remaining branches', () => {
     }]))
     const html = srcdoc()
 
-    expect(html).toContain('ICE 599 · Gl. 7 · Seat 21A · FRA → BER')
+    expect(html).toContain('ICE 599 · reservations.meta.platform 7 · reservations.meta.seat 21A · FRA → BER')
   })
 
   it('FE-W5PDF-006: a multi-leg train renders one line per leg', async () => {
@@ -811,7 +829,7 @@ describe('downloadTripPDF remaining branches', () => {
     }]))
     const html = srcdoc()
 
-    expect(html).toContain('IC 1 · Gl. 3 · BER → MUC')
+    expect(html).toContain('IC 1 · reservations.meta.platform 3 · BER → MUC')
     expect(html).toContain('EC 2 · MUC → ZRH')
   })
 

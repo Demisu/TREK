@@ -1,4 +1,4 @@
-// FE-COMP-TZHOOK-001 to -007: the world clocks both dashboards share.
+// FE-COMP-TZHOOK-001 to -009: the world clocks both dashboards share.
 import { act, renderHook, waitFor } from '@testing-library/react';
 
 import { useSettingsStore } from '../../store/settingsStore';
@@ -96,5 +96,28 @@ describe('useDashboardTimezones', () => {
     renderHook(() => useDashboardTimezones('en'));
     expect(localStorage.getItem('trek_dashboard_tz')).toBeNull();
     expect(updateSetting).not.toHaveBeenCalled();
+  });
+
+  // #2694: Chrome on Windows names no zone for a system zone it cannot map.
+  it('FE-COMP-TZHOOK-008: a browser that names no zone still gets the default clocks', () => {
+    const original = Intl.DateTimeFormat.prototype.resolvedOptions;
+    const spy = vi.spyOn(Intl.DateTimeFormat.prototype, 'resolvedOptions').mockImplementation(function (
+      this: Intl.DateTimeFormat
+    ) {
+      return { ...original.call(this), timeZone: undefined as unknown as string };
+    });
+    try {
+      const { result } = renderHook(() => useDashboardTimezones('en'));
+      expect(result.current.zones).toEqual(['Europe/London', 'Asia/Tokyo']);
+      expect(() => result.current.zones.map((tz) => result.current.timeIn(tz))).not.toThrow();
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('FE-COMP-TZHOOK-009: a stored zone this browser does not know is left out instead of crashing the clocks', () => {
+    seedSettings(['Europe/Berlin', 'Mars/Olympus_Mons', '']);
+    const { result } = renderHook(() => useDashboardTimezones('en'));
+    expect(result.current.zones).toEqual(['Europe/Berlin']);
   });
 });

@@ -224,7 +224,7 @@ export default function MPlanTimeline({ planner, shell }: MPlanTimelineProps) {
                     drag={dragFor(row)}
                     onOpen={() => {
                       if (editing) tl.editTransport(row.res)
-                      else shell.openSheet('transport', { reservationId: row.res.id })
+                      else shell.openSheet('transport', { reservationId: row.res.id, legIndex: row.res.__leg?.index })
                     }}
                   />
                   {dayScheduleFor('reservation', row.res.id)}

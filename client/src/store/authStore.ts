@@ -18,6 +18,7 @@ import { forgetServerLanguage } from './settingsStore'
 import { forgetResumeRoute } from '../utils/resumeRoute'
 import { markSignedOut, clearSignedOut } from '../utils/signedOut'
 import { forgetPushDeviceOnLogout, resyncPushSubscription } from '../push/webPush'
+import { browserTimeZone } from '../utils/localDate'
 
 /** How long a logout waits for the queued changes to go out. */
 const LOGOUT_FLUSH_MS = 5000
@@ -154,7 +155,7 @@ export const useAuthStore = create<AuthState>()(
   hasMapsKey: false,
   hasAmapKey: false,
   placesProvider: 'auto',
-  serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  serverTimezone: browserTimeZone() ?? '',
   appRequireMfa: false,
   tripRemindersEnabled: false,
   placesPhotosEnabled: true,

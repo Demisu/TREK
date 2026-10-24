@@ -6,7 +6,7 @@ import { useTranslation } from '../../../../i18n'
 import { useSettingsStore } from '../../../../store/settingsStore'
 import { RES_ICONS } from '../../../../components/Planner/DayPlanSidebar.constants'
 import { splitReservationDateTime } from '../../../../utils/formatters'
-import { getFlightLegs, getTrainLegs, usesStationRoute } from '../../../../utils/flightLegs'
+import { getFlightLegs, getTrainLegs, usesStationRoute, type FlightLeg, type TrainLeg } from '../../../../utils/flightLegs'
 import { openFile } from '../../../../utils/fileDownload'
 import { runsOnDay } from '../../../../utils/reservationRoutes'
 import { filesFor } from '../../../../utils/reservationFiles'
@@ -19,6 +19,8 @@ import { Eyebrow, INNER_CLS, StatBox, TileHeader, displayTime } from './MTripShe
 
 interface TransportSheetPayload {
   reservationId?: number
+  /** The leg of a multi-leg train or flight the day plan row stood for (#2701). */
+  legIndex?: number
 }
 
 interface TransitLeg {
@@ -118,24 +120,37 @@ export default function MTransportSheet({ planner, shell }: MTripSheetsProps) {
   const to = (res.endpoints || []).find(e => e.role === 'to')
   const { date, time: startTime } = splitReservationDateTime(res.reservation_time)
   const { time: endTime } = splitReservationDateTime(res.reservation_end_time)
-  const depTime = from?.local_time || startTime
-  const arrTime = to?.local_time || endTime
-
-  const subParts: string[] = []
-  if (meta.airline) subParts.push(meta.airline)
-  if (meta.flight_number) subParts.push(meta.flight_number)
-  if (meta.train_number) subParts.push(meta.train_number)
-  if (from?.name && to?.name) subParts.push(`${from.name} → ${to.name}`)
-  else if (date) subParts.push(bookingDayLabel(date, locale))
-
-  const seat = meta.seat
-  const platform = meta.platform
-  const transitLegs: TransitLeg[] = Array.isArray(meta.transit?.legs) ? meta.transit.legs : []
+  const bookingDepTime = from?.local_time || startTime
+  const bookingArrTime = to?.local_time || endTime
 
   // Per-segment booking codes (#1943), only on a real stopover booking: the
   // single-leg fallback would just echo the booking's own code shown below.
-  const routeLegs = res.type === 'flight' ? getFlightLegs(res) : usesStationRoute(res.type) ? getTrainLegs(res) : []
+  const routeLegs: (FlightLeg | TrainLeg)[] = res.type === 'flight' ? getFlightLegs(res) : usesStationRoute(res.type) ? getTrainLegs(res) : []
   const legCodes = routeLegs.length > 1 ? routeLegs.filter(l => l.confirmation_number) : []
+  // Opened from one leg's row, the sheet shows that leg's own number, seat,
+  // platform and times rather than the first leg's (#2701).
+  const leg = routeLegs.length > 1 && payload.legIndex != null ? routeLegs[payload.legIndex] ?? null : null
+  const legDetail = (leg ?? {}) as Partial<FlightLeg & TrainLeg>
+  const depTime = leg ? leg.dep_time || '' : bookingDepTime
+  const arrTime = leg ? leg.arr_time || '' : bookingArrTime
+  const depLabel = (leg ? leg.from : from?.name) || t('reservations.time')
+  const arrLabel = (leg ? leg.to : to?.name) || t('reservations.time')
+
+  const subParts: string[] = []
+  const airline = leg ? legDetail.airline : meta.airline
+  const flightNumber = leg ? legDetail.flight_number : meta.flight_number
+  const trainNumber = leg ? legDetail.train_number : meta.train_number
+  if (airline) subParts.push(airline)
+  if (flightNumber) subParts.push(flightNumber)
+  if (trainNumber) subParts.push(trainNumber)
+  if (leg && (leg.from || leg.to)) subParts.push([leg.from, leg.to].filter(Boolean).join(' → '))
+  else if (from?.name && to?.name) subParts.push(`${from.name} → ${to.name}`)
+  else if (date) subParts.push(bookingDayLabel(date, locale))
+
+  // A flight's legs carry no seat or platform of their own, so those stay the booking's.
+  const seat = leg && res.type !== 'flight' ? legDetail.seat : meta.seat
+  const platform = leg && res.type !== 'flight' ? legDetail.platform : meta.platform
+  const transitLegs: TransitLeg[] = Array.isArray(meta.transit?.legs) ? meta.transit.legs : []
 
   const resFiles = filesFor(res, planner.files || [])
 
@@ -186,10 +201,10 @@ export default function MTransportSheet({ planner, shell }: MTripSheetsProps) {
         {(depTime || arrTime || seat || platform) && (
           <div className="mt-[14px] flex gap-[6px]">
             {depTime && (
-              <StatBox value={displayTime(depTime, locale, timeFormat)} label={from?.name || t('reservations.time')} />
+              <StatBox value={displayTime(depTime, locale, timeFormat)} label={depLabel} />
             )}
             {arrTime && (
-              <StatBox value={displayTime(arrTime, locale, timeFormat)} label={to?.name || t('reservations.time')} />
+              <StatBox value={displayTime(arrTime, locale, timeFormat)} label={arrLabel} />
             )}
             {platform && <StatBox value={platform} label={t('reservations.meta.platform')} />}
             {seat && <StatBox value={seat} label={t('reservations.meta.seat')} />}

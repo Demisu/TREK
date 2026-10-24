@@ -24,6 +24,7 @@ import { fetchExchangeRates } from '../../hooks/useExchangeRates'
 import { getFlightLegs, getTrainLegs, usesStationRoute } from '../../utils/flightLegs'
 import { isServiceStopType } from '../Roadtrip/roadtripModel'
 import { onlyMyPlan } from './pdfScope'
+import { createMarkdownHtml } from '../shared/SafeMarkdown'
 
 /**
  * Every day starts a new page by default. On a trip of short days that prints
@@ -231,6 +232,10 @@ export async function downloadTripPDF({ trip, days, places, assignments: allStor
   let hasTransportNotes = false
   const loc = _locale || undefined
   const tr = _t || (k => k)
+  // A place's description and notes are markdown in the app, so the export renders
+  // them the same way instead of printing the raw syntax (#2692).
+  const markdown = createMarkdownHtml()
+  const mdBlock = (text: string) => `<div class="info-row"><span class="info-spacer"></span><div class="info-text muted md">${markdown.html(text)}</div></div>`
   // The store read is the fallback, not the source: a caller that forgets the
   // prop still prints the reader's own format instead of silently reverting.
   const is12h = (_timeFormat || useSettingsStore.getState().settings.time_format || '24h') === '12h'
@@ -439,8 +444,8 @@ export async function downloadTripPDF({ trip, days, places, assignments: allStor
               const source = (usesStationRoute(r.type) ? getTrainLegs(r) : getFlightLegs(r))[l.index]
               subtitleLines = [[
                 l.airline, l.flight_number, l.train_number,
-                l.platform ? `Gl. ${l.platform}` : '',
-                l.seat ? `Seat ${l.seat}` : '',
+                l.platform ? `${tr('reservations.meta.platform')} ${l.platform}` : '',
+                l.seat ? `${tr('reservations.meta.seat')} ${l.seat}` : '',
                 (l.from || l.to) ? [l.from, l.to].filter(Boolean).join(' → ') : '',
                 source?.confirmation_number,
               ].filter(Boolean).join(' · ')].filter(Boolean)
@@ -471,7 +476,7 @@ export async function downloadTripPDF({ trip, days, places, assignments: allStor
                 // Multi-leg: one line per leg so every train number + segment route shows,
                 // with the segment's own booking code where it has one (#1943).
                 subtitleLines = legs.map(l =>
-                  [l.train_number, l.platform ? `Gl. ${l.platform}` : '',
+                  [l.train_number, l.platform ? `${tr('reservations.meta.platform')} ${l.platform}` : '',
                    (l.from || l.to) ? [l.from, l.to].filter(Boolean).join(' → ') : '',
                    l.confirmation_number]
                     .filter(Boolean).join(' · '))
@@ -479,7 +484,7 @@ export async function downloadTripPDF({ trip, days, places, assignments: allStor
               } else {
                 const stops = (r.endpoints || []).slice().sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0)).map(e => e.code || e.name)
                 const route = stops.length >= 2 ? stops.join(' → ') : ''
-                subtitle = [meta.train_number, meta.platform ? `Gl. ${meta.platform}` : '', meta.seat ? `Seat ${meta.seat}` : '', route].filter(Boolean).join(' · ')
+                subtitle = [meta.train_number, meta.platform ? `${tr('reservations.meta.platform')} ${meta.platform}` : '', meta.seat ? `${tr('reservations.meta.seat')} ${meta.seat}` : '', route].filter(Boolean).join(' · ')
               }
             }
             else if (r.type === 'car') {
@@ -587,10 +592,10 @@ export async function downloadTripPDF({ trip, days, places, assignments: allStor
                 </div>
                 ${place.address ? `<div class="info-row">${svgPin}<span class="info-text">${escHtml(place.address)}</span></div>` : ''}
                 ${(place.lat != null && place.lng != null) ? `<div class="info-row"><span class="info-spacer"></span><span class="info-text muted">${Number(place.lat).toFixed(5)}, ${Number(place.lng).toFixed(5)}</span></div>` : ''}
-                ${place.description ? `<div class="info-row"><span class="info-spacer"></span><span class="info-text muted italic">${escHtml(place.description)}</span></div>` : ''}
+                ${place.description ? mdBlock(place.description) : ''}
                 ${chips ? `<div class="chips">${chips}</div>` : ''}
-                ${place.notes ? `<div class="info-row"><span class="info-spacer"></span><span class="info-text muted italic">${escHtml(place.notes)}</span></div>` : ''}
-                ${item.data.notes ? `<div class="info-row"><span class="info-spacer"></span><span class="info-text muted italic">${escHtml(item.data.notes)}</span></div>` : ''}
+                ${place.notes ? mdBlock(place.notes) : ''}
+                ${item.data.notes ? mdBlock(item.data.notes) : ''}
               </div>
             </div>`
       }).join('')
@@ -836,7 +841,17 @@ export async function downloadTripPDF({ trip, days, places, assignments: allStor
   .info-spacer { width: 13px; flex-shrink: 0; }
   .info-text { font-size: 9px; color: #64748b; line-height: 1.5; }
   .info-text.muted { color: #94a3b8; }
-  .info-text.italic { font-style: italic; }
+  .info-text.md { min-width: 0; overflow-wrap: anywhere; }
+  .md > :first-child { margin-top: 0; }
+  .md > :last-child { margin-bottom: 0; }
+  .md p, .md ul, .md ol, .md table, .md blockquote, .md pre { margin: 0 0 4px; }
+  .md ul, .md ol { padding-left: 14px; }
+  .md h1, .md h2, .md h3, .md h4, .md h5, .md h6 { font-size: 10px; font-weight: 700; color: #475569; margin: 4px 0 2px; }
+  .md table { border-collapse: collapse; }
+  .md th, .md td { border: 1px solid #e2e8f0; padding: 2px 5px; text-align: left; }
+  .md code { font-family: ui-monospace, monospace; font-size: 8.5px; }
+  .md a { color: inherit; text-decoration: underline; }
+  .md blockquote { border-left: 2px solid #e2e8f0; padding-left: 6px; }
 
   .chips { display: flex; flex-wrap: wrap; gap: 4px; padding-left: 21px; margin-top: 4px; }
   .chip { display: inline-flex; align-items: center; gap: 3px; font-size: 8px; font-weight: 600; background: #f1f5f9; color: #374151; border-radius: 99px; padding: 2px 7px; white-space: nowrap; }
@@ -930,6 +945,7 @@ ${tripMapHtml}
 ${daysHtml}
 ${pluginSectionsHtml}
 </body></html>`
+  markdown.dispose()
 
   // Open in modal with srcdoc iframe (no URL loading = no X-Frame-Options issue)
   const overlay = document.createElement('div')

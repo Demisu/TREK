@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { isLocalToday, localIsoDate, localMinutes } from './localDate'
+import { browserTimeZone, isLocalToday, isValidTimeZone, localIsoDate, localMinutes } from './localDate'
 
 /**
  * "Today" must be the user's local calendar date. `toISOString()` is the UTC
@@ -64,5 +64,28 @@ describe('isLocalToday', () => {
     expect(isLocalToday('')).toBe(false)
     expect(isLocalToday(null)).toBe(false)
     expect(isLocalToday(undefined)).toBe(false)
+  })
+})
+
+describe('browserTimeZone and isValidTimeZone (#2694)', () => {
+  it('names the browser zone, and nothing when the browser names none', () => {
+    expect(browserTimeZone()).toBe(Intl.DateTimeFormat().resolvedOptions().timeZone)
+    const original = Intl.DateTimeFormat.prototype.resolvedOptions
+    const spy = vi.spyOn(Intl.DateTimeFormat.prototype, 'resolvedOptions').mockImplementation(function (this: Intl.DateTimeFormat) {
+      return { ...original.call(this), timeZone: undefined as unknown as string }
+    })
+    try {
+      expect(browserTimeZone()).toBeUndefined()
+    } finally {
+      spy.mockRestore()
+    }
+  })
+
+  it('accepts the zones Intl knows and refuses the rest', () => {
+    expect(isValidTimeZone('Europe/Berlin')).toBe(true)
+    expect(isValidTimeZone('UTC')).toBe(true)
+    expect(isValidTimeZone('Mars/Olympus_Mons')).toBe(false)
+    expect(isValidTimeZone('')).toBe(false)
+    expect(isValidTimeZone(undefined)).toBe(false)
   })
 })

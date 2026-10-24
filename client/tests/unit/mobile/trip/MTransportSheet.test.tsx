@@ -7,7 +7,7 @@ import { buildPlanner, buildShell } from '../../../helpers/mobileTrip'
 import { resetAllStores, seedStore } from '../../../helpers/store'
 import { fireEvent, render, screen } from '../../../helpers/render'
 
-// FE-MOB-TRSH-001 to FE-MOB-TRSH-033
+// FE-MOB-TRSH-001 to FE-MOB-TRSH-035
 
 vi.mock('../../../../src/utils/fileDownload', () => ({ openFile: vi.fn() }))
 
@@ -440,6 +440,36 @@ describe('MTransportSheet', () => {
       expect(shell.setTrTab).toHaveBeenCalledWith('plan')
       expect(shell.toggleView).toHaveBeenCalledTimes(1)
       expect(planner.handleSelectDay).toHaveBeenCalledWith(3, false)
+    })
+  })
+
+  // #2701: a leg row opens the sheet on that leg, not on the booking's first one.
+  describe('opened from one leg of a multi-leg train', () => {
+    const TRAIN = {
+      ...FLIGHT, id: 8, type: 'train', title: 'Takayama to Kyoto', confirmation_number: null,
+      metadata: JSON.stringify({
+        train_number: 'Hida 6', seat: '10-4C',
+        legs: [
+          { from: 'Takayama', to: 'Nagoya', train_number: 'Hida 6', seat: '10-4C', platform: '1', dep_time: '09:40', arr_time: '12:10' },
+          { from: 'Nagoya', to: 'Kyoto', train_number: 'Nozomi 67', seat: '4-5A', platform: '14', dep_time: '12:35', arr_time: '13:10' },
+        ],
+      }),
+    } as unknown as Reservation
+
+    it("FE-MOB-TRSH-034: shows the second leg's own train, seat, platform and times", () => {
+      render(<MTransportSheet planner={makePlanner({ reservations: [TRAIN] })} shell={makeShell({ sheet: { id: 'transport', payload: { reservationId: 8, legIndex: 1 } } })} />)
+      expect(screen.getByText(/Nozomi 67/)).toBeInTheDocument()
+      expect(screen.getByText('4-5A')).toBeInTheDocument()
+      expect(screen.getByText('14')).toBeInTheDocument()
+      expect(screen.getByText('12:35')).toBeInTheDocument()
+      expect(screen.getByText('13:10')).toBeInTheDocument()
+      expect(screen.queryByText('10-4C')).not.toBeInTheDocument()
+    })
+
+    it('FE-MOB-TRSH-035: without a leg the sheet still shows the booking as a whole', () => {
+      render(<MTransportSheet planner={makePlanner({ reservations: [TRAIN] })} shell={makeShell({ sheet: { id: 'transport', payload: { reservationId: 8 } } })} />)
+      expect(screen.getByText('10-4C')).toBeInTheDocument()
+      expect(screen.queryByText('4-5A')).not.toBeInTheDocument()
     })
   })
 })

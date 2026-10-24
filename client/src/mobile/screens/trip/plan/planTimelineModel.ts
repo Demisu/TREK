@@ -5,6 +5,7 @@ import {
 import { getDayBookendHotels, isDayInAccommodationRange } from '../../../../utils/dayOrder'
 import type { MergedItem } from '../../../../utils/dayMerge'
 import type { TransitLegDisplay } from '../../../../components/Planner/transitDisplay'
+import { transportSubtitle as dayPlanTransportSubtitle, type TransportLegDetail } from '../../../../components/Planner/transportDetailModel'
 import { projectDayItinerary } from '../../../../components/Map/dayTourProjection'
 import type { Accommodation, Assignment, Day, DayNote, Place, Reservation, RouteSegment, TranslationFn } from '../../../../types'
 
@@ -16,7 +17,7 @@ import type { Accommodation, Assignment, Day, DayNote, Place, Reservation, Route
 
 /** A day-timeline transport row can be a synthetic per-leg expansion of a multi-leg booking. */
 export type TransportEntry = Reservation & {
-  __leg?: { index: number; total: number; from: string | null; to: string | null }
+  __leg?: TransportLegDetail & { total: number }
 }
 
 export interface TransitMeta {
@@ -48,26 +49,8 @@ export function getTransitMeta(res: Reservation): TransitMeta | null {
 }
 
 /** Same subtitle language as the desktop day plan: airline/number, train/platform/seat, leg detail. */
-export function transportSubtitle(res: TransportEntry): string {
-  const meta = parseReservationMeta(res) as Record<string, string | undefined>
-  if (res.__leg) {
-    const parts = [res.__leg.from, res.__leg.to].filter(Boolean).length
-      ? [[res.__leg.from, res.__leg.to].filter(Boolean).join(' → ')]
-      : []
-    return parts.join(' · ')
-  }
-  if (res.type === 'flight') {
-    const parts = [meta.airline, meta.flight_number].filter(Boolean) as string[]
-    if (meta.departure_airport || meta.arrival_airport) {
-      parts.push([meta.departure_airport, meta.arrival_airport].filter(Boolean).join(' → '))
-    }
-    return parts.join(' · ')
-  }
-  if (res.type === 'train') {
-    return [meta.train_number, meta.platform ? `Gl. ${meta.platform}` : '', meta.seat ? `Sitz ${meta.seat}` : '']
-      .filter(Boolean).join(' · ')
-  }
-  return res.location || ''
+export function transportSubtitle(res: TransportEntry, t: TranslationFn): string {
+  return dayPlanTransportSubtitle(res, t) ?? (res.location || '')
 }
 
 const sameCoord = (a: [number, number], b: [number, number]): boolean =>

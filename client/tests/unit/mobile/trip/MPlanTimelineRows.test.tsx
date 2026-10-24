@@ -234,7 +234,7 @@ describe('TransportRow', () => {
     } as unknown as TransportEntry
     render(<TransportRow {...base} res={train} />)
 
-    expect(screen.getByText('ICE 599 · Gl. 7 · Sitz 21A')).toBeInTheDocument()
+    expect(screen.getByText('ICE 599, reservations.meta.platform 7, reservations.meta.seat 21A')).toBeInTheDocument()
   })
 
   it('FE-MOB-PLROW-018: an untimed booking of an unknown type still renders its title', () => {

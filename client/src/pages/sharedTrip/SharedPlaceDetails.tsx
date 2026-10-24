@@ -3,6 +3,7 @@ import { useTranslation } from '../../i18n'
 import { fs } from '../../components/shared/DialogShell'
 import { Tooltip } from '../../components/shared/Tooltip'
 import { WhiteBadge } from '../../components/Planner/planParts'
+import { SafeMarkdown } from '../../components/shared/SafeMarkdown'
 import { getGoogleMapsUrlForPlace } from '../../components/Planner/placeGoogleMaps'
 import { formatDurationMinutes, isHttpUrl, plannedStayMinutes } from './sharedTripModel'
 
@@ -61,7 +62,7 @@ export function SharedPlaceDetails({ place, assignmentNotes }: { place: SharedPl
         </div>
       )}
       {place.description && (
-        <div className="whitespace-pre-wrap text-content-secondary [overflow-wrap:anywhere]" style={fs(12, 'body')}>{place.description}</div>
+        <div className="collab-note-md-full text-content-secondary [overflow-wrap:anywhere]" style={fs(12, 'body')}><SafeMarkdown>{place.description}</SafeMarkdown></div>
       )}
       {dayNote && <NoteLine label={t('places.assignmentNotes')} text={dayNote} strong />}
       {placeNote && <NoteLine label={t('places.formNotes')} text={placeNote} />}
@@ -98,7 +99,7 @@ function NoteLine({ label, text, strong = false }: { label: string; text: string
     <Tooltip label={label} placement="top">
       <div className={`flex items-start gap-1.5 rounded-lg bg-surface-secondary px-2 py-1.5 ${strong ? 'text-content-secondary' : 'text-content-muted'}`} style={fs(11.5, 'body')}>
         <FileText size={11} strokeWidth={2} className="mt-0.5 flex-none text-content-faint" aria-label={label} />
-        <span className="min-w-0 whitespace-pre-wrap [overflow-wrap:anywhere]">{text}</span>
+        <div className="collab-note-md-full min-w-0 [overflow-wrap:anywhere]"><SafeMarkdown>{text}</SafeMarkdown></div>
       </div>
     </Tooltip>
   )
