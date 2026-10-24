@@ -10,11 +10,11 @@ Each addon extends TREK with functionality beyond the core trip-planning feature
 
 ## Addon list
 
-The following addons are registered in the system (defined in `server/src/db/seeders/AddonSeeder.ts`; the TypeScript constant `ADDON_IDS` in `server/src/addons.ts` covers all addons except `naver_list_import`):
+The following addons are registered in the system (defined in `server/src/db/seeders/AddonSeeder.ts`; the TypeScript constant `ADDON_IDS` in `server/src/addons.ts` covers all addons except `naver_list_import`). The admin panel groups `mcp`, `llm_parsing` and `ai_assistant` in one **AI** tile, see [Admin-Addons](Admin-Addons#the-ai-tile):
 
 | Addon ID | Type | Description |
 |---|---|---|
-| `mcp` | integration | Exposes TREK data and actions through the Model Context Protocol for AI assistant integrations. |
+| `mcp` | integration | Exposes TREK data and actions through the Model Context Protocol for AI assistant integrations. Off by default. See [MCP-Overview](MCP-Overview). |
 | `packing` | trip | **Lists**: packing lists and to-do tasks for your trips. See [Packing-Lists](Packing-Lists). |
 | `budget` | trip | **Costs**: track and split trip expenses. See [Budget-Tracking](Budget-Tracking). |
 | `documents` | trip | Document and file attachments for trips: itineraries, visa copies and other files. Can be kept in step with a self-hosted document store (Paperless-ngx, Papra, Nextcloud, OpenCloud, Synology). See [Documents-and-Files](Documents-and-Files) and [Document-Sync](Document-Sync). |
@@ -27,7 +27,8 @@ The following addons are registered in the system (defined in `server/src/db/see
 | `collections` | global | A personal, server-wide library of saved places in named lists, with idea/want/visited status, categories, and fusion sharing with per-member roles. See [Collections](Collections). |
 | `airtrail` | integration | Sync flights from your self-hosted AirTrail instance into trips. |
 | `dawarich` | integration | Read the stays and recorded routes of each user's own Dawarich instance, offered as suggestions to confirm. Read-only, nothing is written back. See [Dawarich](Dawarich). |
-| `llm_parsing` | integration | **AI Parsing**: an LLM fallback that extracts bookings from confirmation files KDE Itinerary can't read. With a model that reads images it also takes photos and scanned PDFs, and Costs gets **Scan receipt**. See [AI-Booking-Import](AI-Booking-Import) and [Budget-Tracking](Budget-Tracking#scanning-a-receipt). |
+| `llm_parsing` | integration | **AI Parsing**: an LLM fallback that extracts bookings from confirmation files KDE Itinerary can't read. With a model that reads images it also takes photos and scanned PDFs, and Costs gets **Scan receipt**. Off by default. See [AI-Booking-Import](AI-Booking-Import) and [Budget-Tracking](Budget-Tracking#scanning-a-receipt). |
+| `ai_assistant` | integration | **AI Assistant**: a chat in the trip that reads the plan and proposes changes you confirm. It runs on the same AI connection as AI Parsing. Off by default. |
 | `naver_list_import` | integration | Import places from shared Naver Maps lists directly into a trip. |
 
 
@@ -38,5 +39,7 @@ The following addons are registered in the system (defined in `server/src/db/see
 ## Per-addon sub-features
 
 Some addons expose sub-features that an admin can independently toggle. The [Real-Time-Collaboration](Real-Time-Collaboration) addon, for example, lets an admin decide which of its five sub-features (chat, notes, links, polls, and what's next) are active across the instance. These are configured from the [Admin-Addons](Admin-Addons) panel alongside the addon's main toggle.
+
+**Lists** has a **Bag Tracking** switch. **Journey** carries one switch per photo provider (Immich, Synology Photos). **Tours** carries switches for wanderer, the Hiking map (OpenHikingMap), the Cycling map (CyclOSM) and the Piste router.
 
 The **Documents** addon carries one switch per document store: Paperless-ngx, Papra, Nextcloud, OpenCloud and Synology Drive. They are off by default and only show while Documents is on, and switching Documents off switches all of them off. The stores themselves are connected per trip, in the trip's file manager. See [Document-Sync](Document-Sync).
