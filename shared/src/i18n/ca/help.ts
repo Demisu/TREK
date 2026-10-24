@@ -957,7 +957,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     "Barra superior: «Torna a la travesia», «Vista de llibre», desfer i refer, «Format de pàgina», «Disseny automàtic» i «Exporta». La marca «Desat» al costat del títol indica quan s'ha desat el llibre.",
   'help.ctx.journey-studio.bullet.2':
-    "Barra lateral a l'esquerra amb cinc seccions: Pages, «Contingut» (les fotos i entrades de la travessia), Elements (text, formes, línies, graelles, marcs i icones), «Viatge» (mapes, països, banderes i marques creats a partir de la travessia) i Layouts.",
+    "Barra lateral a l'esquerra amb set seccions: «Pàgines», «Contingut» (les fotos i entrades de la travessia), «Maquetacions», «Elements» (text, formes, línies, marcs i graelles, icones i adhesius), «Viatge» (mapes, països, banderes i marques creats a partir de la travessia) i, separades a sota, «Tema» i «Capes».",
   'help.ctx.journey-studio.bullet.3':
     'Taula de treball: la doble pàgina actual amb el sagnat i els marges de seguretat, la barra de zoom a sota, «Fit to view» i, a la dreta, «Baixa aquesta doble pàgina».',
   'help.ctx.journey-studio.bullet.4':

@@ -977,7 +977,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Yuxarı panel: «Səyahət gündəliyinə qayıt», «Kitab görünüşü», geri al və təkrarla, «Səhifə formatı», «Avtomatik tərtibat» və «İxrac et». Başlığın yanındakı «Yadda saxlandı» işarəsi kitabın nə vaxt saxlandığını göstərir.',
   'help.ctx.journey-studio.bullet.2':
-    'Solda beş bölməli panel var: Səhifələr, Məzmun (səyahət gündəliyinin fotoları və qeydləri), Elementlər (mətn, fiqurlar, xətlər, torlar, çərçivələr, ikonlar), Səyahət (gündəlikdən yaradılan xəritələr, ölkələr, bayraqlar və nişanlar) və Tərtibatlar.',
+    'Solda yeddi bölməli panel var: Səhifələr, Məzmun (səyahət gündəliyinin fotoları və qeydləri), Tərtibatlar, Elementlər (mətn, fiqurlar, xətlər, çərçivələr və torlar, ikonlar və stikerlər), Səyahət (gündəlikdən yaradılan xəritələr, ölkələr, bayraqlar və nişanlar), onların altında ayrıca isə Mövzu və Laylar.',
   'help.ctx.journey-studio.bullet.3':
     'İş masası: daşma payı və təhlükəsiz kənar boşluqları ilə cari açılım, altında miqyas paneli, «Görünüşə sığdır» və sağda «Bu açılımı endir».',
   'help.ctx.journey-studio.bullet.4':

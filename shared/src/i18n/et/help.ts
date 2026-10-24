@@ -935,7 +935,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Ülemine riba: „Tagasi reisiloo juurde“, „Raamatuvaade“, tagasivõtmine ja uuesti tegemine, „Lehevorming“, „Automaatne paigutus“ ja „Ekspordi“. Pealkirja kõrval olev märge „Salvestatud“ näitab, millal raamat on salvestatud.',
   'help.ctx.journey-studio.bullet.2':
-    'Vasakul on riba viie jaotisega: „Lehed“, „Sisu“ (reisiloo fotod ja sissekanded), „Elemendid“ (tekst, kujundid, jooned, ruudustikud, raamid, ikoonid), „Reisimine“ (reisiloo põhjal tehtud kaardid, riigid, lipud ja märgised) ja „Paigutused“.',
+    'Vasakul on riba seitsme jaotisega: „Lehed“, „Sisu“ (reisiloo fotod ja sissekanded), „Paigutused“, „Elemendid“ (tekst, kujundid, jooned, raamid ja ruudustikud, ikoonid ja kleebised), „Reisimine“ (reisiloo põhjal tehtud kaardid, riigid, lipud ja märgised) ning nende all eraldi „Teema“ ja „Kihid“.',
   'help.ctx.journey-studio.bullet.3':
     'Tööpind: praegune lehepaar koos lõikevaru ja ohutute veeristega, selle all suumiriba, „Mahuta vaatesse“ ning paremal „Laadi see lehepaar alla“.',
   'help.ctx.journey-studio.bullet.4':

@@ -935,7 +935,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Horná lišta: Späť na cestovný denník, Zobrazenie knihy, vrátiť späť a zopakovať, Formát strany, Automatické rozloženie a Exportovať. Značka Uložené vedľa názvu ukazuje, kedy bola kniha uložená.',
   'help.ctx.journey-studio.bullet.2':
-    'Panel vľavo má päť sekcií: Strany, Obsah (fotky a záznamy cestovného denníka), Prvky (text, tvary, čiary, mriežky, rámčeky, ikony), Cesta (mapy, krajiny, vlajky a značky vytvorené z cestovného denníka) a Rozloženia.',
+    'Panel vľavo má sedem sekcií: Strany, Obsah (fotky a záznamy cestovného denníka), Rozloženia, Prvky (text, tvary, čiary, rámčeky a mriežky, ikony a nálepky), Cesta (mapy, krajiny, vlajky a značky vytvorené z cestovného denníka) a pod nimi zvlášť Motív a Vrstvy.',
   'help.ctx.journey-studio.bullet.3':
     'Pracovná plocha: aktuálna dvojstrana so spadávkou a bezpečnými okrajmi, pod ňou lišta priblíženia, Prispôsobiť pohľadu a vpravo Stiahnuť túto dvojstranu.',
   'help.ctx.journey-studio.bullet.4':

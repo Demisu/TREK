@@ -943,7 +943,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Bilah atas: “Back to the journey”, “Book view”, urungkan dan ulangi, “Page format”, “Auto layout”, dan “Export”. Tanda “Tersimpan” di samping judul menunjukkan kapan buku terakhir disimpan.',
   'help.ctx.journey-studio.bullet.2':
-    'Panel samping di kiri dengan lima bagian: “Pages”, “Konten” (foto dan catatan journey), “Elements” (teks, bentuk, garis, kisi, bingkai, ikon), “Perjalanan” (peta, negara, bendera, dan penanda yang dibuat dari journey), dan “Layouts”.',
+    'Panel samping di kiri dengan tujuh bagian: “Halaman”, “Konten” (foto dan catatan journey), “Tata letak”, “Elemen” (teks, bentuk, garis, bingkai dan kisi, ikon dan stiker), “Perjalanan” (peta, negara, bendera, dan penanda yang dibuat dari journey), serta “Tema” dan “Lapisan” yang terpisah di bawahnya.',
   'help.ctx.journey-studio.bullet.3':
     'Area kerja: halaman ganda yang sedang dibuka beserta margin bleed dan margin amannya, bilah zoom di bawahnya, “Fit to view”, dan “Unduh halaman ganda ini” di kanan.',
   'help.ctx.journey-studio.bullet.4':

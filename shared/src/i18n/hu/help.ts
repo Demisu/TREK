@@ -965,7 +965,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Felső sáv: „Vissza az útinaplóhoz”, „Könyvnézet”, visszavonás és újra, „Oldalformátum”, „Automatikus elrendezés” és „Exportálás”. A cím melletti „Mentve” jelzés mutatja, hogy a könyv el van-e mentve.',
   'help.ctx.journey-studio.bullet.2':
-    'Bal oldali sáv öt résszel: „Oldalak”, „Tartalom” (az útinapló fotói és bejegyzései), „Elemek” (szöveg, alakzatok, vonalak, rácsok, keretek, ikonok), „Utazás” (az útinaplóból készült térképek, országok, zászlók és jelölések) és „Elrendezések”.',
+    'Bal oldali sáv hét résszel: „Oldalak”, „Tartalom” (az útinapló fotói és bejegyzései), „Elrendezések”, „Elemek” (szöveg, alakzatok, vonalak, keretek és rácsok, ikonok és matricák), „Utazás” (az útinaplóból készült térképek, országok, zászlók és jelölések), alattuk külön pedig „Téma” és „Rétegek”.',
   'help.ctx.journey-studio.bullet.3':
     'Munkaterület: az aktuális oldalpár a kifutóval és a biztonsági margóval, alatta a nagyítósáv, a „Fit to view”, jobb oldalon pedig az „Oldalpár letöltése”.',
   'help.ctx.journey-studio.bullet.4':

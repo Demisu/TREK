@@ -1148,7 +1148,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Top bar: Back to the journey, Book view, undo and redo, Page format, Auto layout and Export. The Saved mark next to the title shows when the book has been saved.',
   'help.ctx.journey-studio.bullet.2':
-    "Rail on the left with five sections: Pages, Content (the journey's photos and entries), Elements (text, shapes, lines, grids, frames, icons), Travel (maps, countries, flags and marks built from the journey) and Layouts.",
+    "Rail on the left with seven sections: Pages, Content (the journey's photos and entries), Layouts, Elements (text, shapes, lines, frames and grids, icons and stickers), Travel (maps, countries, flags and marks built from the journey) and, set apart below them, Theme and Layers.",
   'help.ctx.journey-studio.bullet.3':
     'Workbench: the current spread with its bleed and safe margins, the zoom bar below it, Fit to view, and Download this spread on the right.',
   'help.ctx.journey-studio.bullet.4':

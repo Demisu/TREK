@@ -942,7 +942,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Górny pasek: Wróć do dziennika, Widok książki, cofanie i ponawianie, Format strony, Układ automatyczny oraz Eksportuj. Znacznik Zapisano obok tytułu pokazuje, kiedy książka została zapisana.',
   'help.ctx.journey-studio.bullet.2':
-    'Pasek po lewej ma pięć sekcji: Pages, Content (zdjęcia i wpisy z dziennika), Elements (tekst, kształty, linie, siatki, ramki, ikony), Podróż (mapy, kraje, flagi i znaczniki utworzone z dziennika) oraz Layouts.',
+    'Pasek po lewej ma siedem sekcji: Strony, Treść (zdjęcia i wpisy z dziennika), Układy, Elementy (tekst, kształty, linie, ramki i siatki, ikony i naklejki), Podróż (mapy, kraje, flagi i znaczniki utworzone z dziennika) oraz, osobno pod nimi, Motyw i Warstwy.',
   'help.ctx.journey-studio.bullet.3':
     'Obszar roboczy: bieżąca rozkładówka ze spadem i marginesami bezpieczeństwa, pod nią pasek powiększenia, „Fit to view”, a po prawej „Pobierz tę rozkładówkę”.',
   'help.ctx.journey-studio.bullet.4':

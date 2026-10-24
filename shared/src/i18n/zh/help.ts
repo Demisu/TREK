@@ -790,7 +790,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     '顶部栏：返回旅程、书籍视图、撤销和重做、页面格式、自动布局和导出。标题旁边的“已保存”标记表示这本书已保存。',
   'help.ctx.journey-studio.bullet.2':
-    '左侧的侧栏分为五个部分：Pages、Content（旅程的照片和记录）、Elements（文字、形状、线条、网格、相框、图标）、“旅程”（根据旅程生成的地图、国家、国旗和标记）以及 Layouts。',
+    '左侧的侧栏分为七个部分：页面、内容（旅程的照片和记录）、版式、元素（文字、形状、线条、相框和网格、图标和贴纸）、“旅程”（根据旅程生成的地图、国家、国旗和标记），以及下方单独列出的主题和图层。',
   'help.ctx.journey-studio.bullet.3':
     '工作区：显示当前跨页，包括出血和安全边距；下方是缩放条和 Fit to view；右侧是“下载此跨页”。',
   'help.ctx.journey-studio.bullet.4':

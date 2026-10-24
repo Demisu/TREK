@@ -953,7 +953,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     "Barra in alto: «Torna al diario», «Vista libro», annulla e ripeti, «Formato pagina», «Impaginazione automatica» ed «Esporta». L'indicazione «Salvato» accanto al titolo mostra quando il libro è stato salvato.",
   'help.ctx.journey-studio.bullet.2':
-    'Barra a sinistra con cinque sezioni: «Pagine», «Contenuto» (foto e voci del diario), «Elementi» (testo, forme, linee, griglie, cornici, icone), «Viaggio» (mappe, paesi, bandiere e segni ricavati dal diario) e «Layout».',
+    'Barra a sinistra con sette sezioni: «Pagine», «Contenuti» (foto e voci del diario), «Layout», «Elementi» (testo, forme, linee, cornici e griglie, icone e adesivi), «Viaggio» (mappe, paesi, bandiere e segni ricavati dal diario) e, separate sotto, «Tema» e «Livelli».',
   'help.ctx.journey-studio.bullet.3':
     'Area di lavoro: la doppia pagina corrente con abbondanza e margini di sicurezza, sotto la barra dello zoom con «Adatta alla vista» e, a destra, «Scarica questa doppia pagina».',
   'help.ctx.journey-studio.bullet.4':

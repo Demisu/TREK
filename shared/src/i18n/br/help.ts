@@ -948,7 +948,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Barra superior: “Back to the journey”, “Book view”, desfazer e refazer, “Page format”, “Auto layout” e “Export”. A marca “Salvo” ao lado do título mostra quando o livro foi salvo.',
   'help.ctx.journey-studio.bullet.2':
-    'Barra lateral à esquerda com cinco seções: Pages, Conteúdo (as fotos e os registros da jornada), Elements (textos, formas, linhas, grades, molduras, ícones), Viagem (mapas, países, bandeiras e marcações criados a partir da jornada) e Layouts.',
+    'Barra lateral à esquerda com sete seções: Páginas, Conteúdo (as fotos e os registros da jornada), Layouts, Elementos (textos, formas, linhas, molduras e grades, ícones e adesivos), Viagem (mapas, países, bandeiras e marcações criados a partir da jornada) e, separados abaixo, Tema e Camadas.',
   'help.ctx.journey-studio.bullet.3':
     'Bancada: a página dupla atual com sangria e margens de segurança, a barra de zoom logo abaixo, “Fit to view” e, à direita, “Baixar esta página dupla”.',
   'help.ctx.journey-studio.bullet.4':

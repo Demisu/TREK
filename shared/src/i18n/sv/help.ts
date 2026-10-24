@@ -926,7 +926,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Övre fältet: Back to the journey, Book view, ångra och gör om, Page format, Auto layout och Export. Märket Sparad bredvid titeln visar när boken har sparats.',
   'help.ctx.journey-studio.bullet.2':
-    'Listen till vänster har fem avsnitt: Pages, Content (Journeyns foton och inlägg), Elements (text, former, linjer, rutnät, ramar, ikoner), Resa (kartor, länder, flaggor och märken som byggs av Journey) och Layouts.',
+    'Listen till vänster har sju avsnitt: Sidor, Innehåll (Journeyns foton och inlägg), Layouter, Element (text, former, linjer, ramar och rutnät, ikoner och klistermärken), Resa (kartor, länder, flaggor och märken som byggs av Journey) och, för sig nedanför, Tema och Lager.',
   'help.ctx.journey-studio.bullet.3':
     'Arbetsytan: det aktuella uppslaget med utfall och skyddsmarginaler, zoomfältet under det, ”Fit to view” och ”Ladda ner det här uppslaget” till höger.',
   'help.ctx.journey-studio.bullet.4':

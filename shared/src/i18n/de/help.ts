@@ -964,7 +964,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Obere Leiste: „Zurück zur Journey“, „Buchansicht“, Rückgängig und Wiederholen, „Seitenformat“, „Automatisch anordnen“ und „Exportieren“. Der Hinweis „Gespeichert“ neben dem Titel zeigt, wann das Buch gespeichert wurde.',
   'help.ctx.journey-studio.bullet.2':
-    'Links eine Leiste mit fünf Bereichen: Seiten, Inhalt (Fotos und Einträge der Journey), Elemente (Text, Formen, Linien, Raster, Rahmen, Symbole), Reise (Karten, Länder, Flaggen und Markierungen aus der Journey) und Layouts.',
+    'Links eine Leiste mit sieben Bereichen: Seiten, Inhalte (Fotos und Einträge der Journey), Layouts, Elemente (Text, Formen, Linien, Rahmen und Raster, Symbole und Sticker), Reise (Karten, Länder, Flaggen und Markierungen aus der Journey) und, darunter abgesetzt, Thema und Ebenen.',
   'help.ctx.journey-studio.bullet.3':
     'Arbeitsfläche: die aktuelle Doppelseite mit Anschnitt und Sicherheitsabstand, darunter die Zoomleiste, „Einpassen“ und rechts „Diese Doppelseite herunterladen“.',
   'help.ctx.journey-studio.bullet.4':

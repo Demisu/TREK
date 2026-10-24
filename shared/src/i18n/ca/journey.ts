@@ -292,7 +292,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatA4Portrait': 'A4 portrait', // en-fallback
   'journey.studio.formatSquare21': 'Square 21 × 21 cm', // en-fallback
   'journey.studio.formatSquare30': 'Square 30 × 30 cm', // en-fallback
-  'journey.studio.pages': 'Pages', // en-fallback
+  'journey.studio.pages': 'Pàgines',
   'journey.studio.cover': 'Cover', // en-fallback
   'journey.studio.inspectorEmpty': 'Select something on the page to edit it.', // en-fallback
   'journey.studio.autoLayout': 'Auto layout', // en-fallback
@@ -341,7 +341,7 @@ const journey: TranslationStrings = {
   'journey.studio.position': 'Position', // en-fallback
   'journey.studio.width': 'W', // en-fallback
   'journey.studio.height': 'H', // en-fallback
-  'journey.studio.text': 'Text', // en-fallback
+  'journey.studio.text': 'Text', // same-as-en
   'journey.studio.typography': 'Type', // en-fallback
   'journey.studio.leading': 'Line', // en-fallback
   'journey.studio.colour': 'Colour', // en-fallback
@@ -371,19 +371,19 @@ const journey: TranslationStrings = {
   'journey.studio.focalHint': 'Drag the point to choose what stays in frame.', // en-fallback
   'journey.studio.backCover': 'Back cover', // en-fallback
   'journey.studio.sections': 'Sections', // en-fallback
-  'journey.studio.content': 'Content', // en-fallback
-  'journey.studio.elements': 'Elements', // en-fallback
-  'journey.studio.templates': 'Layouts', // en-fallback
-  'journey.studio.photos': 'Photos', // en-fallback
-  'journey.studio.entries': 'Entries', // en-fallback
+  'journey.studio.content': 'Contingut',
+  'journey.studio.elements': 'Elements', // same-as-en
+  'journey.studio.templates': 'Maquetacions',
+  'journey.studio.photos': 'Fotos',
+  'journey.studio.entries': 'Entrades',
   'journey.studio.addToPage': 'Add to this page', // en-fallback
   'journey.studio.noPhotos': 'This journey has no photos yet.', // en-fallback
   'journey.studio.untitled': 'Untitled', // en-fallback
   'journey.studio.addTitle': 'Title', // en-fallback
   'journey.studio.addStory': 'Story', // en-fallback
   'journey.studio.addPlace': 'Place', // en-fallback
-  'journey.studio.shapes': 'Shapes', // en-fallback
-  'journey.studio.frames': 'Marcs', // en-fallback
+  'journey.studio.shapes': 'Formes',
+  'journey.studio.frames': 'Marcs',
   'journey.studio.emptyFrame': 'Empty frame', // en-fallback
   'journey.studio.frameHint': 'An empty frame marks where a picture goes. Drop one on it from Content.', // en-fallback
   'journey.studio.shapeKind.line': 'Line', // en-fallback
@@ -406,7 +406,7 @@ const journey: TranslationStrings = {
   'journey.studio.dropPhotoHere': 'Arrossega la teva foto\naquí',
   'journey.studio.searchContent': 'Search photos and entries', // en-fallback
   'journey.studio.noMatches': 'Nothing matches that.', // en-fallback
-  'journey.studio.quoteMark': 'Quotation mark', // en-fallback
+  'journey.studio.quoteMark': 'Cometes',
   'journey.studio.shapeKind.rounded': 'Rounded rectangle', // en-fallback
   'journey.studio.shapeKind.triangle': 'Triangle', // en-fallback
   'journey.studio.shapeKind.outline': 'Outline only', // en-fallback

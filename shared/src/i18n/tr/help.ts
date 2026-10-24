@@ -937,7 +937,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Üst çubuk: Back to the journey, Book view, geri al ve yinele, Page format, Auto layout ve Export. Başlığın yanındaki “Kaydedildi” işareti kitabın ne zaman kaydedildiğini gösterir.',
   'help.ctx.journey-studio.bullet.2':
-    "Solda beş bölümlü bir şerit bulunur: Pages, Content (Journey'in fotoğrafları ve kayıtları), Elements (metin, şekiller, çizgiler, ızgaralar, çerçeveler, simgeler), Seyahat (Journey'den oluşturulan haritalar, ülkeler, bayraklar ve işaretler) ve Layouts.",
+    "Solda yedi bölümlü bir şerit bulunur: Sayfalar, İçerik (Journey'in fotoğrafları ve kayıtları), Düzenler, Öğeler (metin, şekiller, çizgiler, çerçeveler ve ızgaralar, simgeler ve çıkartmalar), Seyahat (Journey'den oluşturulan haritalar, ülkeler, bayraklar ve işaretler) ve bunların altında ayrı olarak Tema ile Katmanlar.",
   'help.ctx.journey-studio.bullet.3':
     'Çalışma alanı: taşma payı ve güvenli kenar boşluklarıyla geçerli çift sayfa, altında yakınlaştırma çubuğu, Fit to view ve sağda “Bu çift sayfayı indir”.',
   'help.ctx.journey-studio.bullet.4':

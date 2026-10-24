@@ -960,7 +960,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Barra superior: volver a la travesía, vista de libro, deshacer y rehacer, formato de página, maquetación automática y exportar. La marca «Guardado» junto al título indica cuándo se ha guardado el libro.',
   'help.ctx.journey-studio.bullet.2':
-    'Barra lateral a la izquierda con cinco secciones: «Pages», «Content» (las fotos y entradas de la travesía), «Elements» (textos, formas, líneas, cuadrículas, marcos e iconos), «Viaje» (mapas, países, banderas y marcas generados a partir de la travesía) y «Layouts».',
+    'Barra lateral a la izquierda con siete secciones: «Páginas», «Contenido» (las fotos y entradas de la travesía), «Diseños», «Elementos» (textos, formas, líneas, marcos y cuadrículas, iconos y pegatinas), «Viaje» (mapas, países, banderas y marcas generados a partir de la travesía) y, separadas debajo, «Tema» y «Capas».',
   'help.ctx.journey-studio.bullet.3':
     'Mesa de trabajo: la doble página actual con su sangrado y sus márgenes de seguridad, la barra de zoom debajo, «Fit to view» y, a la derecha, «Descargar esta doble página».',
   'help.ctx.journey-studio.bullet.4':

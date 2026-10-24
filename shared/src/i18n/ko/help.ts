@@ -843,7 +843,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     '상단 바: Back to the journey, Book view, 실행 취소와 다시 실행, Page format, Auto layout, Export. 제목 옆의 “저장됨” 표시로 책이 저장되었는지 알 수 있어요.',
   'help.ctx.journey-studio.bullet.2':
-    '왼쪽 레일에 다섯 섹션이 있어요: Pages, Content(Journey의 사진과 기록), Elements(텍스트, 도형, 선, 격자, 프레임, 아이콘), Travel(Journey로 만든 지도, 국가, 국기, 표시), Layouts.',
+    '왼쪽 레일에 일곱 섹션이 있어요: 페이지, 콘텐츠(Journey의 사진과 기록), 레이아웃, 요소(텍스트, 도형, 선, 프레임과 그리드, 아이콘과 스티커), 여행(Journey로 만든 지도, 국가, 국기, 표시), 그리고 그 아래 따로 테마와 레이어.',
   'help.ctx.journey-studio.bullet.3':
     '작업 영역: 도련과 안전 여백이 표시된 현재 펼침면, 그 아래 확대 바, Fit to view, 오른쪽의 “이 펼침면 내려받기”.',
   'help.ctx.journey-studio.bullet.4':

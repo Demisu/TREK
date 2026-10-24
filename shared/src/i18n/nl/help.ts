@@ -949,7 +949,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Bovenbalk: ‘Back to the journey’, ‘Book view’, ongedaan maken en opnieuw, ‘Page format’, ‘Auto layout’ en Exporteren. Het vinkje Opgeslagen naast de titel laat zien wanneer het boek is opgeslagen.',
   'help.ctx.journey-studio.bullet.2':
-    "Links een balk met vijf onderdelen: Pages, Content (de foto's en items van het reisverslag), Elements (tekst, vormen, lijnen, rasters, kaders, iconen), Reis (kaarten, landen, vlaggen en markeringen op basis van het reisverslag) en Layouts.",
+    "Links een balk met zeven onderdelen: Pagina's, Inhoud (de foto's en items van het reisverslag), Lay-outs, Elementen (tekst, vormen, lijnen, kaders en rasters, iconen en stickers), Reis (kaarten, landen, vlaggen en markeringen op basis van het reisverslag) en, apart daaronder, Thema en Lagen.",
   'help.ctx.journey-studio.bullet.3':
     "Werkblad: de huidige dubbele pagina met afloop en veilige marges, met eronder de zoombalk, 'Fit to view' en rechts 'Deze dubbele pagina downloaden'.",
   'help.ctx.journey-studio.bullet.4':

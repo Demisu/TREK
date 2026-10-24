@@ -923,7 +923,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Thanh trên cùng: Back to the journey, Book view, Undo và Redo, Page format, Auto layout và Export. Dấu “Đã lưu” cạnh tiêu đề cho biết khi nào sách đã được lưu.',
   'help.ctx.journey-studio.bullet.2':
-    'Thanh bên trái có năm mục: Pages, Content (ảnh và các mục của hành trình), Elements (văn bản, hình khối, đường kẻ, lưới, khung, biểu tượng), “Hành trình” (bản đồ, quốc gia, cờ và dấu được tạo từ hành trình) và Layouts.',
+    'Thanh bên trái có bảy mục: Trang, Nội dung (ảnh và các mục của hành trình), Bố cục, Thành phần (văn bản, hình khối, đường kẻ, khung và lưới, biểu tượng và nhãn dán), “Hành trình” (bản đồ, quốc gia, cờ và dấu được tạo từ hành trình), và tách riêng bên dưới là Chủ đề và Lớp.',
   'help.ctx.journey-studio.bullet.3':
     'Vùng làm việc: trang đôi hiện tại với lề tràn và lề an toàn, thanh thu phóng bên dưới, Fit to view, và “Tải trang đôi này về” ở bên phải.',
   'help.ctx.journey-studio.bullet.4':

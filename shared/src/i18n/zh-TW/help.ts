@@ -792,7 +792,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     '頂端列：Back to the journey、Book view、復原與重做、Page format、Auto layout 和 Export。標題旁的「已儲存」標記會告訴你相簿何時已儲存。',
   'help.ctx.journey-studio.bullet.2':
-    '左側欄有五個區塊：Pages、Content（旅程的照片和紀錄）、Elements（文字、形狀、線條、格線、相框、圖示）、「旅程」（由旅程產生的地圖、國家、國旗和標記）以及 Layouts。',
+    '左側欄有七個區塊：頁面、內容（旅程的照片和紀錄）、版面、元素（文字、形狀、線條、相框和格線、圖示和貼紙）、「旅程」（由旅程產生的地圖、國家、國旗和標記），以及下方另外列出的主題和圖層。',
   'help.ctx.journey-studio.bullet.3':
     'Workbench：目前的跨頁及其出血和安全邊界，下方是縮放列、Fit to view，右側則是「下載這個跨頁」。',
   'help.ctx.journey-studio.bullet.4':

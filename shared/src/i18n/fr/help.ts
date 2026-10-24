@@ -974,7 +974,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Barre du haut : « Back to the journey », « Book view », annuler et rétablir, « Page format », « Auto layout » et « Exporter ». La mention « Enregistré » à côté du titre indique quand le livre a été enregistré.',
   'help.ctx.journey-studio.bullet.2':
-    'Colonne de gauche en cinq sections : « Pages », « Content » (les photos et les entrées du journal), « Elements » (texte, formes, lignes, grilles, cadres, icônes), « Voyage » (cartes, pays, drapeaux et repères tirés du journal) et « Layouts ».',
+    'Colonne de gauche en sept sections : « Pages », « Contenu » (les photos et les entrées du journal), « Mises en page », « Éléments » (texte, formes, lignes, cadres et grilles, icônes et autocollants), « Voyage » (cartes, pays, drapeaux et repères tirés du journal) et, à part en dessous, « Thème » et « Calques ».',
   'help.ctx.journey-studio.bullet.3':
     'Plan de travail : la double page en cours avec son fond perdu et ses marges de sécurité, la barre de zoom en dessous, « Fit to view » et « Télécharger cette double page » à droite.',
   'help.ctx.journey-studio.bullet.4':

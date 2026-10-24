@@ -921,7 +921,7 @@ const help: TranslationStrings = {
   'help.ctx.journey-studio.bullet.1':
     'Horní lišta: „Back to the journey“, „Book view“, zpět a znovu, „Page format“, „Auto layout“ a „Exportovat“. Značka „Uloženo“ vedle názvu ukazuje, kdy byla kniha uložena.',
   'help.ctx.journey-studio.bullet.2':
-    'Lišta vlevo má pět sekcí: „Pages“, „Content“ (fotky a záznamy deníku), „Elements“ (text, tvary, čáry, mřížky, rámečky, ikony), „Cesta“ (mapy, země, vlajky a značky vytvořené z deníku) a „Layouts“.',
+    'Lišta vlevo má sedm sekcí: „Stránky“, „Obsah“ (fotky a záznamy deníku), „Rozvržení“, „Prvky“ (text, tvary, čáry, rámečky a mřížky, ikony a samolepky), „Cesta“ (mapy, země, vlajky a značky vytvořené z deníku) a pod nimi zvlášť „Motiv“ a „Vrstvy“.',
   'help.ctx.journey-studio.bullet.3':
     'Pracovní plocha: aktuální dvoustrana se spadávkou a bezpečnými okraji, pod ní lišta přiblížení, „Fit to view“ a vpravo „Stáhnout tuto dvoustranu“.',
   'help.ctx.journey-studio.bullet.4':
