@@ -6,7 +6,7 @@ Keep tickets, confirmations, vouchers and photos with the trip, and tie each one
 
 ## Where to find it
 
-Open the **Files** tab inside the trip planner, or go straight to `/trips/:id/files`.
+Open the **Files** tab inside the trip planner. The same files also open on a stand-alone page at `/trips/:id/files`, titled **Files & Documents**, with a **Back to Planning** link. It shows the same files with an older layout; the tab is the one described on this page.
 
 > **Admin:** The Files tab belongs to the **Documents** addon. Enable it in [Admin-Addons](Admin-Addons).
 
@@ -14,13 +14,13 @@ The tab opens with the same bar as Transports, Bookings, Lists and Costs: **File
 
 ## Uploading
 
-![Files and documents of a trip, with the upload area on top](assets/Documents.png)
+![The stand-alone Files & Documents page of a trip, with the upload area on top](assets/Documents.png)
 
 Drop files onto the dashed upload area under the bar, click it to open the file picker, or paste an image straight into the tab (Ctrl+V). Several files can go up at once.
 
 When the upload is done and the trip has places or bookings, the **Assign File** dialog opens for the last file you uploaded, so you can tie it to a place or a booking right away (see [Linking files](#linking-files-to-places-reservations-or-assignments)). Close it if the file belongs nowhere in particular.
 
-- **Maximum file size:** 50 MB per file by default. Videos (mp4, m4v, webm, mov) have their own cap of 500 MB.
+- **Maximum file size:** 50 MB per file by default; the upload area shows it as *Max {count} MB*. Videos (mp4, m4v, webm, mov) have their own cap of 500 MB.
 - **Blocked file types:** renderable documents (`.svg`, `.svgz`, `.html`, `.htm`, `.shtml`, `.shtm`, `.xml`, `.xhtml`, `.xht`), scripts (`.js`, `.jsx`, `.ts`, `.tsx`, `.mjs`, `.cjs`, `.php`, `.py`, `.rb`, `.pl`) and executables (`.exe`, `.bat`, `.sh`, `.cmd`, `.msi`, `.dll`, `.com`, `.vbs`, `.ps1`, `.app`). These are always refused, as is any file whose MIME type contains `svg`.
 - **Allowed types by default:** jpg, jpeg, png, gif, webp, heic, pdf, doc, docx, xls, xlsx, txt, csv, pkpass, pkpasses, md, markdown. The upload area lists the types your instance allows. An admin can change the list under **Admin → Settings → Allowed File Types**: comma-separated extensions, or `*` to allow everything except the blocked types above.
 
@@ -30,7 +30,11 @@ When the upload is done and the trip has places or bookings, the **Assign File**
 
 Uploading needs the `file_upload` permission; without it the upload area is not shown.
 
-Files also reach this tab from elsewhere: **Attach file** in a booking or transport editor, **Upload** in the Files section of the place inspector, **Attach** in the place dialog, receipts on an expense (see [Budget-Tracking](Budget-Tracking#receipts-and-invoices)) and attachments on a collab note. They all land here.
+Files for a tour are uploaded in the **Files** section of the tour's card; they are the trip's files as well and show up here. A place can carry files too: in the place dialog, files need a connection to upload (*Files need a connection to upload. Remove the new ones to save the place offline, or save once you are back online.*).
+
+Files also reach this tab from elsewhere: **Attach file** in a booking or transport editor, **Upload** in the Files section of the place inspector, **Attach** in the place dialog, receipts on an expense (see [Budget-Tracking](Budget-Tracking#receipts-and-invoices)) and attachments on a collab note. They all land here. Deleting an expense does not delete its receipt files; they stay in Files.
+
+The in-app AI assistant can keep a file you attach to the chat in Files (**Keep it in Files**), alone or together with a booking (**Keep the file with this booking**) or an expense.
 
 An AI assistant connected through MCP can add files too: the `upload_trip_file` tool uploads a document to a trip (and can attach it to a booking or a place in the same call) under the same type rules and the `file_upload` permission as the upload area, up to 10 MB per file (or the upload limit, if that is lower). See [MCP-Tools-and-Resources](MCP-Tools-and-Resources).
 
@@ -106,6 +110,10 @@ Synced documents are ordinary files in this tab. Preview, starring, links, trash
 See [Document-Sync](Document-Sync) for setup per store, the delete and conflict rules, and troubleshooting.
 
 > **Admin:** Each store is switched on separately under the **Documents** addon in [Admin-Addons](Admin-Addons). They ship switched off.
+
+## Offline
+
+Notes on files, links, stars and the trash wait in a queue while you are offline and are sent when TREK is back online. Uploading a file needs a connection (*Uploading needs a connection. Try again once TREK is back online.*), and so does removing a link from a file (*Removing this link needs a connection. Try again once TREK is back online.*).
 
 ## Permissions
 
