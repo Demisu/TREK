@@ -51,6 +51,7 @@ The following events are configurable in user settings:
 | `photos_shared` | Photos were shared with a trip |
 | `collab_message` | A new message in a collaborative trip |
 | `packing_tagged` | You were assigned to a packing category in a trip |
+| `wanderer_source_hint` | The wanderer watch found that the source of a tour you saved changed, may have changed, or can no longer be checked (shown as *wanderer: hints on your trails*). In-app it carries a **View Tour** button |
 | `plugin_notification` | An installed plugin sent you a notification (only plugins granted the `notify:send` capability can do this) |
 
 All user-facing events support all five channels (in-app, email, webhook, ntfy, push). A dash in the matrix means that channel/event combination is not implemented.
@@ -63,6 +64,7 @@ The following events are shown in the admin panel (Admin → Notifications) and 
 |-------|-------------|---------|
 | `version_available` | A new TREK version is available | in-app, email, webhook, ntfy |
 | `replica_failure` | A write to a storage replica failed (repeats within the hour are suppressed and counted) | in-app, email, webhook, ntfy |
+| `paddle_region_requested` | Someone is planning a paddle tour in a region that is not loaded yet (*Paddle region requested*) | in-app, email, webhook, ntfy |
 
 Admin-only events are never sent as Web Push, so the admin matrix has no Push column.
 
@@ -181,7 +183,7 @@ again once both variables hold your pair. See also [Encryption-Key-Rotation](Enc
 
 ## In-app notification center
 
-![Full-page Notifications inbox with All and Unread filter pills and an empty "No notifications — you're all caught up!" state](assets/NotificationsInbox.png)
+![Full-page Notifications inbox with All and Unread filter pills and a list of notifications](assets/NotificationsInbox.png)
 
 The bell icon in the navigation bar shows your unread notification count. Click it to open the notification panel where you can:
 
@@ -189,6 +191,7 @@ The bell icon in the navigation bar shows your unread notification count. Click 
 - Mark all notifications read at once.
 - Delete individual notifications or clear all at once.
 - Answer **boolean notifications**, which ask a yes-or-no question, with their two buttons directly in the panel.
+- Click **Show all notifications** to open the full page at `/notifications`, with **All** and **Unread** pills, **Mark all read** and **Delete all** (which asks *Delete all notifications?* first). On a phone the inbox is its own screen. With nothing in it, the page reads *No notifications* and *You're all caught up!*.
 
 In-app notifications are pushed in real time via WebSocket so the badge and panel update without a page refresh.
 
