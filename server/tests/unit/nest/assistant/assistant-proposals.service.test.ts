@@ -3,7 +3,7 @@
  * and tool call repositories on a migrated test db: the proposal comes from
  * the call and card stored in the thread, never from the request, and the
  * change that creates it is held as a card in one transaction, refused while
- * a turn runs, while another change waits, for a proposal the thread does not
+ * a turn runs, while another change waits within its day, for a proposal the thread does not
  * hold and for one nothing can be created from. A walk is asked again, since
  * the stored answer is the model's shortened copy.
  *
@@ -13,6 +13,7 @@
 import { AssistantMessages } from '../../../../src/db/entities/AssistantMessages.entity';
 import { AssistantThreads } from '../../../../src/db/entities/AssistantThreads.entity';
 import { AssistantToolCalls } from '../../../../src/db/entities/AssistantToolCalls.entity';
+import { dbNow } from '../../../../src/db/types';
 import { AirportsService } from '../../../../src/nest/airports/airports.service';
 import {
   AssistantProposalsService,
@@ -27,7 +28,7 @@ import { RateLimitService } from '../../../../src/nest/common/rate-limit.service
 import { UnitOfWork } from '../../../../src/nest/database/unit-of-work';
 import { tourRouteCard } from '../../../helpers/assistant-tour-cards';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
-import { createRow, findRows } from '../../../helpers/factories/rows';
+import { createRow, findRows, updateRows } from '../../../helpers/factories/rows';
 import { makeTrip } from '../../../helpers/factories/trips';
 import { makeUser } from '../../../helpers/factories/users';
 import { resetTestDb } from '../../../helpers/test-db';
@@ -224,6 +225,19 @@ describe('AssistantProposalsService', () => {
     rateLimit.check.mockResolvedValueOnce(false);
     await expect(take(c, 'w1')).rejects.toMatchObject({ status: 429, code: 'too_many_requests' });
     expect(await calls(c.threadId)).toHaveLength(1);
+  });
+
+  it('ASTPROP-011: a change left waiting past its day holds nothing back, before the nightly sweep marks it', async () => {
+    const c = await conversation();
+    await take(c, 'h1');
+    const [stale] = await calls(c.threadId);
+    const dayAndHourAgo = dbNow(new Date(Date.now() - 25 * 60 * 60_000));
+    await updateRows(t.get(MikroORM), AssistantToolCalls, { id: stale?.id ?? '' }, { created_at: dayAndHourAgo });
+
+    await take(c, 'w1');
+    const held = await calls(c.threadId);
+    expect(held).toHaveLength(2);
+    expect(held.map((call) => call.state)).toEqual(['approval_requested', 'approval_requested']);
   });
 
   it('ASTPROP-008: a walk stored cut down and masked is created from the tool asked again, named and on no day', async () => {

@@ -45,8 +45,8 @@ import { AssistantScopes, findScopedCall, scopedThreads, tripScope } from './ass
 import { AssistantStreamRegistry } from './assistant-stream.registry';
 import { titleFrom } from './assistant-title';
 import {
-  APPROVAL_TTL_MS,
   ASSISTANT_SERVER_WRITE_TOOLS,
+  decisionCutoff,
   foundPlaceArgs,
   IMPORT_BOOKING_TOOL,
   REMEMBER_TOOL,
@@ -316,7 +316,7 @@ export class AssistantService {
   ): Promise<void> {
     if (!(await scopedThreads(this.threads, scope).find(threadId, userId))) throw threadNotFound();
     await this.admit(userId);
-    const open = await this.toolCalls.listOpen(threadId);
+    const open = await this.toolCalls.listOpen(threadId, decisionCutoff());
     if (open.length > 0 && open.every((call) => ASSISTANT_SERVER_WRITE_TOOLS[call.tool_name]?.quiet === true)) {
       await this.decideQuietly(userId, scope, threadId, req, channel);
       return;
@@ -624,7 +624,7 @@ export class AssistantService {
   }
 
   private async cancelOpen(threadId: number, now: string): Promise<void> {
-    const open = await this.toolCalls.listOpen(threadId);
+    const open = await this.toolCalls.listOpen(threadId, decisionCutoff());
     const claimed = await Promise.all(
       open.map((call) => this.toolCalls.claimDecision(call.id, threadId, false, dbNow(new Date(0)), now)),
     );
@@ -644,14 +644,16 @@ export class AssistantService {
 
   /**
    * Records the decisions, each only while its change still waits and is less
-   * than a day old. The request must name every waiting change and nothing
-   * else (422); when none could be taken any more, 409.
+   * than a day old. The request must name every change waiting within its day
+   * and nothing else (422); when none could be taken any more, 409.
    */
   private async claimDecisions(
     threadId: number,
     decisions: AssistantDecision[],
   ): Promise<Array<{ call: AssistantToolCallRow; approved: boolean }>> {
-    const open = await this.toolCalls.listOpen(threadId);
+    const now = new Date();
+    const notBefore = decisionCutoff(now);
+    const open = await this.toolCalls.listOpen(threadId, notBefore);
     if (open.length === 0) throw conflict('No change is waiting for a decision', { code: 'generic' });
     const wanted = new Map(decisions.map((decision) => [decision.toolCallId, decision.approved]));
     const complete =
@@ -659,8 +661,6 @@ export class AssistantService {
     if (!complete) {
       throw new DomainError(422, 'Decide on every change that is waiting', { details: { code: 'generic' } });
     }
-    const now = new Date();
-    const notBefore = dbNow(new Date(now.getTime() - APPROVAL_TTL_MS));
     // In the order the decisions name them, the order the chat shows the changes in: the changes of one step
     // share their time, and their ids sort at random, so only this order lets "undo all" walk them back.
     const position = new Map(decisions.map((decision, i) => [decision.toolCallId, i]));

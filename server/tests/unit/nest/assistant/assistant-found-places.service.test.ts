@@ -3,7 +3,7 @@
  * call repositories on a migrated test db: the place comes from the search
  * results stored in the thread, the day must be one of the trip's, and the
  * suggestion is held as a change card in one transaction, refused while a turn
- * runs, while another change waits, or past the per-minute limit.
+ * runs, while another change waits within its day, or past the per-minute limit.
  *
  * Replaced: the trip tools (what the trip reads as), the rate limit, the
  * stream registry and the airports.
@@ -11,6 +11,7 @@
 import { AssistantMessages } from '../../../../src/db/entities/AssistantMessages.entity';
 import { AssistantThreads } from '../../../../src/db/entities/AssistantThreads.entity';
 import { AssistantToolCalls } from '../../../../src/db/entities/AssistantToolCalls.entity';
+import { dbNow } from '../../../../src/db/types';
 import { AirportsService } from '../../../../src/nest/airports/airports.service';
 import { AssistantFoundPlacesService } from '../../../../src/nest/assistant/assistant-found-places.service';
 import { AssistantStreamRegistry } from '../../../../src/nest/assistant/assistant-stream.registry';
@@ -19,7 +20,7 @@ import { AssistantCardContext } from '../../../../src/nest/assistant/cards/card-
 import { RateLimitService } from '../../../../src/nest/common/rate-limit.service';
 import { UnitOfWork } from '../../../../src/nest/database/unit-of-work';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
-import { createRow, findRows } from '../../../helpers/factories/rows';
+import { createRow, findRows, updateRows } from '../../../helpers/factories/rows';
 import { makeTrip } from '../../../helpers/factories/trips';
 import { makeUser } from '../../../helpers/factories/users';
 import { resetTestDb } from '../../../helpers/test-db';
@@ -180,6 +181,19 @@ describe('AssistantFoundPlacesService', () => {
     await expect(add(c, 's1:1')).rejects.toMatchObject({ status: 409, code: 'decide_first' });
     expect(streams.release).toHaveBeenCalledTimes(2);
     expect(await calls(c.threadId)).toHaveLength(1);
+  });
+
+  it('ASTFND-008: a change left waiting past its day holds nothing back, before the nightly sweep marks it', async () => {
+    const c = await conversation();
+    await add(c, 's1:0');
+    const [stale] = await calls(c.threadId);
+    const dayAndHourAgo = dbNow(new Date(Date.now() - 25 * 60 * 60_000));
+    await updateRows(t.get(MikroORM), AssistantToolCalls, { id: stale?.id ?? '' }, { created_at: dayAndHourAgo });
+
+    await add(c, 's1:1');
+    const held = await calls(c.threadId);
+    expect(held).toHaveLength(2);
+    expect(held.map((call) => call.state)).toEqual(['approval_requested', 'approval_requested']);
   });
 
   it('ASTFND-007: a ref outside the search results or a day of another trip proposes nothing', async () => {

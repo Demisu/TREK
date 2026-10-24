@@ -7,7 +7,7 @@ import { AiConnectionsService } from '../ai-connections/ai-connections.service';
 import { AiUsageService } from '../ai-connections/ai-usage.service';
 import { logError, logInfo } from '../audit/audit-log.logger';
 import { CronRegistrarService } from '../scheduling/cron-registrar.service';
-import { APPROVAL_TTL_MS } from './assistant-tools.constants';
+import { decisionCutoff } from './assistant-tools.constants';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, type OnApplicationBootstrap } from '@nestjs/common';
 
@@ -51,7 +51,7 @@ export class AssistantRetentionJob implements OnApplicationBootstrap {
           : 0;
       const orphaned = await this.threads.deleteWithoutAccess();
       if (idle + orphaned > 0) logInfo(`Assistant retention: removed ${idle + orphaned} conversation(s)`);
-      const expired = await this.toolCalls.expireBefore(dbNow(new Date(now.getTime() - APPROVAL_TTL_MS)));
+      const expired = await this.toolCalls.expireBefore(decisionCutoff(now));
       if (expired.length > 0) logInfo(`Assistant retention: ${expired.length} proposed change(s) expired`);
       await this.usage.purgeOlderThan(ASSISTANT_USAGE_RETENTION_DAYS);
     } catch (err: unknown) {

@@ -30,7 +30,7 @@ import {
 } from './assistant-context';
 import { partsOf, toThreadMessages } from './assistant-history';
 import { AssistantStreamRegistry } from './assistant-stream.registry';
-import { ADD_FOUND_PLACE_TOOL, TURNS_PER_MINUTE } from './assistant-tools.constants';
+import { ADD_FOUND_PLACE_TOOL, decisionCutoff, TURNS_PER_MINUTE } from './assistant-tools.constants';
 import { AssistantToolsService } from './assistant-tools.service';
 import { AssistantCardContext } from './cards/card-context';
 import { recordOf } from './cards/card-values';
@@ -248,7 +248,7 @@ export class AssistantFoundPlacesService {
     tourId: number | null,
     argsOf: ArgsOf,
   ): Promise<void> {
-    if ((await this.toolCalls.listOpen(threadId)).length > 0) {
+    if ((await this.toolCalls.listOpen(threadId, decisionCutoff())).length > 0) {
       throw aiRefusal('decide_first', 'Decide on the changes that are waiting first');
     }
     const place = foundPlace(await this.messages.listLatest(threadId, SEARCHED_ROWS), req.ref);

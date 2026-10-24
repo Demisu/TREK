@@ -1,3 +1,4 @@
+import { dbNow, type DbTimestamp } from '../../db/types';
 import type { ToolUndo } from './cards/card-types';
 import { argId, idIn } from './cards/card-values';
 import type { AssistantApplied, AssistantChangeVerbKey } from '@trek/shared';
@@ -26,6 +27,11 @@ export const UNDO_WINDOW_MS = 15 * 60_000;
 
 /** How long a proposed change waits for a decision before it expires. */
 export const APPROVAL_TTL_MS = 24 * 60 * 60_000;
+
+/** The oldest a change still waiting at `now` may have been proposed and still be decided, as the database writes it. */
+export function decisionCutoff(now: Date = new Date()): DbTimestamp {
+  return dbNow(new Date(now.getTime() - APPROVAL_TTL_MS));
+}
 
 /** Turns (chat, decisions, undo) a user may start per minute. */
 export const TURNS_PER_MINUTE = 30;

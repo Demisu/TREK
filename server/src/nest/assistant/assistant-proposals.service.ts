@@ -25,7 +25,7 @@ import { partsOf, toThreadMessages } from './assistant-history';
 import { isSportPlan, SPORT_CREATES, sportTakeArgsOf, tourTypeWord } from './assistant-proposal-sports';
 import { isWayProposal, WAY_CREATES, wayTakeArgsOf } from './assistant-proposal-ways';
 import { AssistantStreamRegistry } from './assistant-stream.registry';
-import { TAKE_PROPOSAL_TOOL, TURNS_PER_MINUTE } from './assistant-tools.constants';
+import { decisionCutoff, TAKE_PROPOSAL_TOOL, TURNS_PER_MINUTE } from './assistant-tools.constants';
 import { AssistantToolsService, type ToolRun } from './assistant-tools.service';
 import { AssistantCardContext } from './cards/card-context';
 import { recordOf, type Row } from './cards/card-values';
@@ -276,7 +276,7 @@ export class AssistantProposalsService {
   }
 
   private async hold(userId: number, tripId: number, threadId: number, req: AssistantTakeProposalRequest) {
-    if ((await this.toolCalls.listOpen(threadId)).length > 0) {
+    if ((await this.toolCalls.listOpen(threadId, decisionCutoff())).length > 0) {
       throw aiRefusal('decide_first', 'Decide on the changes that are waiting first');
     }
     const stored = storedProposal(await this.messages.listLatest(threadId, SEARCHED_ROWS), req.toolCallId);

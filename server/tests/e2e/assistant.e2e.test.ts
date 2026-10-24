@@ -27,6 +27,7 @@ import { DayAssignments } from '../../src/db/entities/DayAssignments.entity';
 import { Places } from '../../src/db/entities/Places.entity';
 import { Reservations } from '../../src/db/entities/Reservations.entity';
 import { Trips } from '../../src/db/entities/Trips.entity';
+import { dbNow } from '../../src/db/types';
 import { TURNS_PER_MINUTE } from '../../src/nest/assistant/assistant-tools.constants';
 import { AssistantToolsService } from '../../src/nest/assistant/assistant-tools.service';
 import { AssistantCardContext } from '../../src/nest/assistant/cards/card-context';
@@ -894,6 +895,43 @@ describe('Trip assistant e2e', () => {
     expect(twice).toMatchObject({ status: 409, body: { code: 'decide_first' } });
     expect(await countRows(orm, AssistantToolCalls, { thread: threadId })).toBe(1);
     expect(provider.requests).toHaveLength(2);
+  });
+
+  it('ASTE2E-025: a change left waiting past its day holds nothing back, and the next one is decided alone', async () => {
+    const t = await travelerWithTrip();
+    const [day] = await readTripDays(orm, t.tripId);
+    const { threadId } = await searchTurn(t);
+    const path = `${t.base}/threads/${threadId}/found-places`;
+    // The newest change the answer holds: a found place joins the answer of its search.
+    const changeOf = (res: { body: { message: { parts: AssistantMessagePart[] } } }) =>
+      res.body.message.parts
+        .flatMap((part) => (part.type === 'data-trek-change' ? [part.data.toolCallId] : []))
+        .at(-1) ?? '';
+    const stale = changeOf(await addFound(path, t.userId, { ref: 'call_find:0', dayId: day.id }));
+    // A day and an hour old: the thread shows it expired, and the nightly sweep has not run yet.
+    await updateRows(
+      orm,
+      AssistantToolCalls,
+      { id: stale },
+      { created_at: dbNow(new Date(Date.now() - 25 * 3_600_000)) },
+    );
+    const shown = await get(`${t.base}/threads/${threadId}`, t.userId);
+    const parts = (shown.body.messages as Array<{ parts: AssistantMessagePart[] }>).flatMap((m) => m.parts);
+    expect(parts.find((part) => part.type === 'tool-call' && part.toolCallId === stale)).toMatchObject({
+      approval: { resolution: 'expired' },
+    });
+
+    const next = await addFound(path, t.userId, { ref: 'call_find:1', dayId: day.id });
+    expect(next.status).toBe(200);
+    const fresh = changeOf(next);
+    expect(fresh).not.toBe(stale);
+    const decided = await post(`${t.base}/threads/${threadId}/decisions`, t.userId, {
+      ...CTX,
+      decisions: [{ toolCallId: fresh, approved: true }],
+    });
+    expect(decided.status).toBe(200);
+    expect(ofType(decided.chunks, 'data-trek-applied')[0].data).toMatchObject({ toolCallId: fresh });
+    expect((await findRow(orm, AssistantToolCalls, { id: stale }))?.state).toBe('approval_requested');
   });
 
   it('ASTE2E-024: "+ Day" asks for the right to edit places: 403 and nothing held without it, 404 outside the trip', async () => {

@@ -324,7 +324,9 @@ describe('proposed changes', () => {
     const { threadId, messageId } = await threadWithMessage();
     await calls.insertProposals([proposal('c1', threadId, messageId), proposal('c2', threadId, messageId)]);
     await calls.insertProposals([]);
-    expect((await calls.listOpen(threadId)).map((row) => row.id)).toEqual(['c1', 'c2']);
+    expect((await calls.listOpen(threadId, AT)).map((row) => row.id)).toEqual(['c1', 'c2']);
+    // Proposed before `notBefore`, a change waits no more, though no sweep has marked it expired yet.
+    expect(await calls.listOpen(threadId, LATER)).toEqual([]);
 
     expect(await calls.claimDecision('c1', threadId + 1, true, AT, LATER)).toBe(false);
     expect(await calls.claimDecision('c1', threadId, true, '2026-10-21 00:00:00', LATER)).toBe(false);

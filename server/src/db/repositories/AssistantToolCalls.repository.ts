@@ -145,13 +145,18 @@ export class AssistantToolCallsRepository extends TrekRepository<AssistantToolCa
       .execute();
   }
 
-  /** The calls of a thread still waiting for a decision. */
-  async listOpen(threadId: number): Promise<AssistantToolCallRow[]> {
+  /**
+   * The calls of a thread still waiting for a decision, proposed at or after
+   * `notBefore`: an older one has expired, as the thread shows it and as
+   * `claimDecision` refuses it, even before the nightly sweep marks it so.
+   */
+  async listOpen(threadId: number, notBefore: string): Promise<AssistantToolCallRow[]> {
     return this.db()
       .selectFrom('assistant_tool_calls')
       .select(COLUMNS)
       .where('thread_id', '=', threadId)
       .where('state', '=', 'approval_requested')
+      .where('created_at', '>=', notBefore)
       .orderBy('created_at')
       .orderBy('id')
       .execute();
