@@ -5,6 +5,7 @@ import { CurrentUser } from '../auth-core/current-user.decorator';
 import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
 import { MfaExempt } from '../auth-core/mfa-policy.guard';
 import { setAuthCookie } from '../common/cookie';
+import { DEMO_ACCOUNT_REFUSAL, refuseForDemoAccount } from '../common/demo-write';
 import { RateLimitService } from '../common/rate-limit.service';
 import { sessionClientFrom } from '../sessions/sessions.service';
 import {
@@ -69,6 +70,9 @@ export class PasskeyController {
   @HttpCode(200)
   @UseGuards(PasskeyEnabledGuard, JwtAuthGuard)
   async registerOptions(@CurrentUser() user: User, @Body() body: PasskeyRegisterOptionsDto, @Req() req: Request) {
+    // Every visitor shares the demo account: a passkey enrolled on it would be
+    // one stranger's key to everybody's demo.
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.passkeys);
     await this.limit('mfa', req, 5);
     // The Origin header is only a pre-ceremony sanity input (see PasskeyService)
     // — the RP ID itself is never derived from request headers.
@@ -81,6 +85,7 @@ export class PasskeyController {
   @HttpCode(200)
   @UseGuards(PasskeyEnabledGuard, JwtAuthGuard)
   async registerVerify(@CurrentUser() user: User, @Body() body: PasskeyRegisterVerifyDto, @Req() req: Request) {
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.passkeys);
     const result = await this.passkeys.passkeyRegisterVerify(user.id, body);
     await this.audit.writeAudit({ userId: user.id, action: 'user.passkey_register', ip: getClientIp(req) });
     return { success: true, credential: result.credential };
@@ -142,6 +147,7 @@ export class PasskeyController {
   @Patch('credentials/:id')
   @UseGuards(JwtAuthGuard)
   async rename(@CurrentUser() user: User, @Param('id') id: string, @Body() body: PasskeyRenameDto) {
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.passkeys);
     await this.passkeys.renamePasskey(user.id, id, body?.name);
     return { success: true };
   }
@@ -154,6 +160,7 @@ export class PasskeyController {
     @Body() body: PasskeyDeleteDto,
     @Req() req: Request,
   ) {
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.passkeys);
     await this.limit('login', req, 5);
     await this.passkeys.deletePasskey(user.id, id, body?.password);
     await this.audit.writeAudit({

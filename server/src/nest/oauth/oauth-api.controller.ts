@@ -4,6 +4,7 @@ import { CookieAuthGuard } from '../auth-core/cookie-auth.guard';
 import { CurrentUser } from '../auth-core/current-user.decorator';
 import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
 import { OptionalJwtGuard } from '../auth-core/optional-jwt.guard';
+import { DEMO_ACCOUNT_REFUSAL, refuseForDemoAccount } from '../common/demo-write';
 import { RateLimitService } from '../common/rate-limit.service';
 import { OauthClientCreateDto, OauthConsentDto } from './oauth.dto';
 import { OauthService } from './oauth.service';
@@ -122,6 +123,8 @@ export class OauthApiController {
       if (body.state) url.searchParams.set('state', body.state);
       return { redirect: url.toString() };
     }
+    // Saying no stays possible. Handing the shared demo account to an app does not.
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.mcp);
     const scopes = validation.scopes!;
     await this.oauth.saveConsent(body.client_id, user.id, scopes, ip);
     const code = await this.oauth.createAuthCode({
@@ -157,6 +160,7 @@ export class OauthApiController {
   @UseGuards(CookieAuthGuard)
   async createClient(@CurrentUser() user: User, @Body() body: OauthClientCreateDto, @Req() req: Request) {
     await this.requireMcp403();
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.mcp);
     const result = await this.oauth.createOAuthClient(
       user.id,
       body.name,
@@ -176,6 +180,7 @@ export class OauthApiController {
   @UseGuards(CookieAuthGuard)
   async rotateClient(@CurrentUser() user: User, @Param('id') id: string, @Req() req: Request) {
     await this.requireMcp403();
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.mcp);
     const result = await this.oauth.rotateOAuthClientSecret(user.id, id, getClientIp(req));
     if (result.error) {
       throw new HttpException({ error: result.error }, result.status || 400);
@@ -187,6 +192,7 @@ export class OauthApiController {
   @UseGuards(CookieAuthGuard)
   async deleteClient(@CurrentUser() user: User, @Param('id') id: string, @Req() req: Request) {
     await this.requireMcp403();
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.mcp);
     const result = await this.oauth.deleteOAuthClient(user.id, id, getClientIp(req));
     if (result.error) {
       throw new HttpException({ error: result.error }, result.status || 400);
@@ -205,6 +211,7 @@ export class OauthApiController {
   @UseGuards(CookieAuthGuard)
   async revokeSession(@CurrentUser() user: User, @Param('id') id: string, @Req() req: Request) {
     await this.requireMcp403();
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.mcp);
     const result = await this.oauth.revokeSession(user.id, Number(id), getClientIp(req));
     if (result.error) {
       throw new HttpException({ error: result.error }, result.status || 400);

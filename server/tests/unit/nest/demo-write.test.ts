@@ -12,11 +12,23 @@
  */
 import { RuntimeEnvService } from '../../../src/nest/app-config/runtime-env.service';
 import { isDemoEmail } from '../../../src/nest/common/demo';
-import { isDemoWriteBlocked, DEMO_WRITE_ERROR } from '../../../src/nest/common/demo-write';
+import {
+  DEMO_ACCOUNT_REFUSAL,
+  DEMO_WRITE_ERROR,
+  isDemoAccount,
+  isDemoLockedSetting,
+  isDemoWriteBlocked,
+  refuseForDemoAccount,
+  withoutDemoLockedSettings,
+} from '../../../src/nest/common/demo-write';
+import { DomainError } from '../../../src/nest/common/domain-error';
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
-vi.mock('../../../src/nest/common/demo', () => ({ isDemoEmail: vi.fn(() => false) }));
+vi.mock('../../../src/nest/common/demo', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../src/nest/common/demo')>()),
+  isDemoEmail: vi.fn(() => false),
+}));
 
 const env = new RuntimeEnvService();
 
@@ -58,5 +70,52 @@ describe('isDemoWriteBlocked', () => {
     expect(DEMO_WRITE_ERROR).toEqual({
       error: 'Uploads are disabled in demo mode. Self-host TREK for full functionality.',
     });
+  });
+});
+
+describe('the demo account locks', () => {
+  const demo = { email: 'demo@trek.app' };
+  const other = { email: 'alice@example.com' };
+  const onDemoInstance = () => {
+    process.env.DEMO_MODE = 'true';
+    vi.mocked(isDemoEmail).mockImplementation((email) => email === 'demo@trek.app');
+  };
+
+  it('DEMO-WRITE-006: isDemoAccount is the demo address on a demo instance, and nothing else', () => {
+    vi.mocked(isDemoEmail).mockImplementation((email) => email === 'demo@trek.app');
+    expect(isDemoAccount(demo)).toBe(false);
+    onDemoInstance();
+    expect(isDemoAccount(demo)).toBe(true);
+    expect(isDemoAccount(other)).toBe(false);
+    expect(isDemoAccount(null)).toBe(false);
+  });
+
+  it('DEMO-WRITE-007: refuseForDemoAccount throws a 403 with the message for the demo account only', () => {
+    onDemoInstance();
+    expect(() => refuseForDemoAccount(other, DEMO_ACCOUNT_REFUSAL.apiKeys)).not.toThrow();
+    let thrown: unknown;
+    try {
+      refuseForDemoAccount(demo, DEMO_ACCOUNT_REFUSAL.apiKeys);
+    } catch (err) {
+      thrown = err;
+    }
+    expect(thrown).toBeInstanceOf(DomainError);
+    expect((thrown as DomainError).getStatus()).toBe(403);
+    expect((thrown as DomainError).getResponse()).toEqual({ error: 'API keys cannot be created in demo mode.' });
+  });
+
+  it('DEMO-WRITE-008: the language is the setting the demo account keeps', () => {
+    onDemoInstance();
+    expect(isDemoLockedSetting(demo, 'language')).toBe(true);
+    expect(isDemoLockedSetting(demo, 'temperature_unit')).toBe(false);
+    expect(isDemoLockedSetting(other, 'language')).toBe(false);
+  });
+
+  it('DEMO-WRITE-009: a bulk save of the demo account loses the language and keeps the rest', () => {
+    const settings = { language: 'de', distance_unit: 'imperial' };
+    expect(withoutDemoLockedSettings(demo, settings)).toBe(settings);
+    onDemoInstance();
+    expect(withoutDemoLockedSettings(demo, settings)).toEqual({ distance_unit: 'imperial' });
+    expect(withoutDemoLockedSettings(other, settings)).toBe(settings);
   });
 });

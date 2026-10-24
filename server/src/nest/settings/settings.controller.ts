@@ -5,6 +5,7 @@ import { getClientIp } from '../audit/client-ip';
 import { AdminGuard } from '../auth-core/admin.guard';
 import { CurrentUser } from '../auth-core/current-user.decorator';
 import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
+import { isDemoLockedSetting, withoutDemoLockedSettings } from '../common/demo-write';
 import { isManagedLockedKey, splitManagedKeys } from '../common/managed';
 import { ResponseContract } from '../common/response-contract';
 import { SettingsWritesService } from './settings-writes.service';
@@ -99,6 +100,10 @@ export class SettingsController {
     if (isManagedLockedKey(body.key) && this.env.isManaged()) {
       return { success: true, key: body.key, managed: true };
     }
+    // The demo account keeps its language: every visitor sees the same demo.
+    if (isDemoLockedSetting(user, body.key)) {
+      return { success: true, key: body.key, unchanged: true };
+    }
     // The client echoes a redacted secret back unchanged — treat as a no-op.
     if (body.value === MASKED_SETTING_VALUE) {
       return { success: true, key: body.key, unchanged: true };
@@ -113,7 +118,7 @@ export class SettingsController {
   async bulk(@CurrentUser() user: User, @Body() body: SettingsBulkDto, @Headers('x-socket-id') socketId?: string) {
     this.assertMayWriteInstanceEndpoint(body.settings);
     this.assertValidValues(body.settings);
-    const { allowed, blocked } = splitManagedKeys(body.settings, this.env.isManaged());
+    const { allowed, blocked } = splitManagedKeys(withoutDemoLockedSettings(user, body.settings), this.env.isManaged());
     try {
       const updated = await this.writes.saveMany(user.id, allowed, socketId);
       return { success: true, updated, ...(blocked.length ? { managed_keys: blocked } : {}) };

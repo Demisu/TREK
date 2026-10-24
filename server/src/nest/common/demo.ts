@@ -28,3 +28,12 @@ export const DEMO_EMAILS: ReadonlySet<string> = new Set([DEMO_EMAIL_PRIMARY, 'de
 export function isDemoEmail(email: string | null | undefined): boolean {
   return !!email && DEMO_EMAILS.has(email);
 }
+
+/**
+ * User settings the shared demo account always holds, whatever a visitor picks.
+ * The demo seed writes them on every boot and after every hourly reset, and the
+ * settings routes leave them alone for the demo account (`demo-write.ts`), so a
+ * visitor cannot switch the demo every other visitor sees into another
+ * language.
+ */
+export const DEMO_ACCOUNT_SETTINGS: Readonly<Record<string, string>> = { language: 'en' };

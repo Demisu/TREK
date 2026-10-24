@@ -6,7 +6,7 @@ import { CurrentUser } from '../auth-core/current-user.decorator';
 import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
 import { currentSessionId, decodeSessionClaims } from '../auth-core/jwt-verify';
 import { MfaExempt } from '../auth-core/mfa-policy.guard';
-import { isDemoWriteBlocked, DEMO_WRITE_ERROR } from '../common/demo-write';
+import { DEMO_ACCOUNT_REFUSAL, DEMO_WRITE_ERROR, isDemoWriteBlocked, refuseForDemoAccount } from '../common/demo-write';
 import { ManagedForbidden } from '../common/managed';
 import { RateLimitService } from '../common/rate-limit.service';
 import { sessionClientFrom } from '../sessions/sessions.service';
@@ -194,6 +194,11 @@ export class AuthController {
 
   @Put('me/settings')
   async updateSettings(@CurrentUser() user: User, @Body() body: SettingsUpdateDto, @Req() req: Request) {
+    // The name and the address belong to the Account tab. Every visitor of a
+    // demo instance shares this account, so they stay what the demo seeded.
+    if (body.username !== undefined || body.email !== undefined) {
+      refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.account);
+    }
     const result = await this.profile.updateSettings(user.id, body);
     await this.auditApiKeys(user.id, result.changedKeys ?? [], req);
     // The address itself stays out of the row, like the key values above; the row
@@ -228,6 +233,7 @@ export class AuthController {
 
   @Delete('avatar')
   async deleteAvatar(@CurrentUser() user: User) {
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.account);
     return this.profile.deleteAvatar(user.id);
   }
 
@@ -312,6 +318,7 @@ export class AuthController {
   @Post('mcp-tokens')
   @HttpCode(201)
   async createMcpToken(@CurrentUser() user: User, @Body() body: McpTokenCreateDto, @Req() req: Request) {
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.mcp);
     await this.limit('login', req, 5);
     const result = await this.tokens.createMcpToken(user.id, body.name);
     return { token: result.token };
@@ -319,6 +326,7 @@ export class AuthController {
 
   @Delete('mcp-tokens/:id')
   async deleteMcpToken(@CurrentUser() user: User, @Param('id') id: string) {
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.mcp);
     await this.tokens.deleteMcpToken(user.id, id);
     return { success: true };
   }
@@ -343,6 +351,7 @@ export class AuthController {
   @Post('api-tokens')
   @HttpCode(201)
   async createApiToken(@CurrentUser() user: User, @Body() body: ApiTokenCreateDto, @Req() req: Request) {
+    refuseForDemoAccount(user, DEMO_ACCOUNT_REFUSAL.apiKeys);
     await this.limit('login', req, 5);
     // No `scopes` means the key reads everything, which is what every key minted
     // before this field existed does. Narrowing stays opt-in so the change
