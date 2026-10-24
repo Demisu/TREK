@@ -215,6 +215,7 @@ export * from './book/theme/book-theme-photos';
 export { bookThemeCatalogue, bookThemeLine } from './book/theme/book-theme-describe';
 export * from './book/templates/template-format';
 export * from './book/templates/template-catalogue';
+export * from './book/templates/template-match';
 export * from './book/templates/template-apply';
 export * from './book/templates/template-words';
 export * from './book/templates/template-extract';

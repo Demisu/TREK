@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
-import type { AutoEntry, AutoInput, AutoPhoto, BookElement, BookPageNumbers, JourneyStats } from '@trek/shared'
+import type { AutoDesignedInput, AutoEntry, AutoPhoto, BookElement, BookPageNumbers, JourneyStats } from '@trek/shared'
 import {
-  autoEntriesWithStops, bookElementId as elementId, bookPageSetupSchema, bookPath, buildBook, distributeGallery,
-  emptyBook, layoutAroundLocks, relayoutSpread,
+  autoDesignedBook, autoEntriesWithStops, autoRelayoutKind, autoRelayoutSpread, bookElementId as elementId,
+  bookPageSetupSchema, bookPath, emptyBook,
 } from '@trek/shared'
 import { journeyApi } from '../../api/client'
 import { useJourneyStore, type GalleryPhoto, type JourneyEntry, type JourneyPhoto } from '../../store/journeyStore'
@@ -153,7 +153,7 @@ export function useJourneyStudio() {
    * possible; rebuilding it from the journey on every click would be the same
    * work plus a chance of the two disagreeing.
    */
-  const autoInput = useRef<AutoInput | null>(null)
+  const autoInput = useRef<AutoDesignedInput | null>(null)
 
   const journey = current && current.id === journeyId ? current : null
 
@@ -274,14 +274,14 @@ export function useJourneyStudio() {
         })),
       }))
 
+    // When each loose photo was taken: the auto layout gives it to the entry of its day first.
     const gallery: AutoPhoto[] = (journey.gallery || []).map((p: GalleryPhoto) => ({
       photoId: p.photo_id,
       width: p.width ?? null,
       height: p.height ?? null,
       caption: p.caption ?? null,
+      takenAt: p.taken_at ?? null,
     }))
-
-    const withPhotos = distributeGallery(entries, gallery)
 
     /*
      * Give every entry what the journey's figures know about its stop: the
@@ -290,7 +290,7 @@ export function useJourneyStudio() {
      * is shared (autoEntriesWithStops) so the server's design tool reads the
      * same stops.
      */
-    const placed = autoEntriesWithStops(withPhotos, stats)
+    const placed = autoEntriesWithStops(entries, stats)
 
     const preset = PAGE_PRESETS['square-210']
 
@@ -300,6 +300,8 @@ export function useJourneyStudio() {
       subtitle: journey.subtitle ?? null,
       coverPhotoId: gallery[0]?.photoId ?? null,
       entries: placed,
+      // The loose photos stay loose here: the layout shares them out itself, by day, and loses none.
+      gallery,
       page: {
         preset: preset.id,
         pageWidth: preset.pageWidthMm,
@@ -375,7 +377,7 @@ export function useJourneyStudio() {
      *
      * The build effect runs as soon as the book and the figures are in, which is
      * usually before this answers, and what it froze is what the Auto layout
-     * buttons hand to buildBook afterwards. Without the patch a relayout drew
+     * buttons hand to the layout afterwards. Without the patch a relayout drew
      * the straight line between stops over a route somebody had walked.
      */
     const applyPath = (p: [number, number][][]) => {
@@ -471,8 +473,10 @@ export function useJourneyStudio() {
   const relayoutBook = useCallback(() => {
     const input = autoInput.current
     if (!input) return
+    // A new seed every press: "the whole book" twice gives two books, each one undo away.
+    const seed = Date.now() % 2 ** 31
     commit(d => ({
-      ...buildBook({ ...input, page: d.page }),
+      ...autoDesignedBook(d, { ...input, page: d.page }, { theme: d.theme, seed }),
       title: d.title,
     }))
     setActiveSpread(0)
@@ -481,22 +485,20 @@ export function useJourneyStudio() {
   const relayoutCurrentSpread = useCallback(() => {
     const input = autoInput.current
     if (!input) return
+    const seed = Date.now() % 2 ** 31
     commit(d => {
-      const sp = d.spreads[activeSpread]
-      if (!sp) return d
-      // Laid out around what is locked, as the assistant's auto layout leaves it.
-      const next = layoutAroundLocks(sp, free => relayoutSpread(free, { ...input, page: d.page }))
+      // Laid out around what is locked, its id kept, on another template than the one on screen.
+      const next = autoRelayoutSpread(d, activeSpread, { ...input, page: d.page }, { seed })
       if (!next) return d
       return { ...d, spreads: d.spreads.map((x, i) => (i === activeSpread ? next : x)) }
     })
     select([])
   }, [commit, activeSpread, select])
 
-  /** Whether the spread on screen came from an entry, and so can be redone. */
+  /** Whether the auto layout knows the spread on screen (an entry's page, the cover, the summary, the countries). */
   const canRelayoutSpread = !!(
     autoInput.current
-    && doc?.spreads[activeSpread]?.entryId != null
-    && doc.spreads[activeSpread].role === 'inner'
+    && autoRelayoutKind(doc?.spreads[activeSpread]) !== null
   )
 
   /** Page numbers and anything else that belongs to the book rather than a page. */

@@ -37,10 +37,13 @@ vi.mock('../../api/websocket', async importOriginal => ({
 
 // The auto layout lives in @trek/shared now; the hook's call into it is watched through a partial mock.
 const shared = await vi.importActual<typeof import('@trek/shared')>('@trek/shared')
-const buildBook = vi.fn(shared.buildBook)
+const autoDesignedBook = vi.fn(shared.autoDesignedBook)
 vi.mock('@trek/shared', async importOriginal => {
   const actual = await importOriginal<typeof import('@trek/shared')>()
-  return { ...actual, buildBook: (...args: Parameters<typeof actual.buildBook>) => buildBook(...args) }
+  return {
+    ...actual,
+    autoDesignedBook: (...args: Parameters<typeof actual.autoDesignedBook>) => autoDesignedBook(...args),
+  }
 })
 
 import { useJourneyStudio } from './useJourneyStudio'
@@ -67,7 +70,7 @@ function seedJourney() {
 
 beforeEach(() => {
   seedJourney()
-  buildBook.mockClear()
+  autoDesignedBook.mockClear()
   useStudioStore.setState({ doc: null, selection: [], activeSpread: 0, past: [], future: [], readOnly: false })
   vi.spyOn(journeyApi, 'getBook').mockResolvedValue({ book: null } as never)
   vi.spyOn(journeyApi, 'saveBook').mockResolvedValue({} as never)
@@ -140,8 +143,8 @@ describe('the auto layout input', () => {
 
     act(() => { result.current.relayoutBook() })
 
-    expect(buildBook).toHaveBeenCalled()
-    const input = buildBook.mock.calls[buildBook.mock.calls.length - 1][0]
+    expect(autoDesignedBook).toHaveBeenCalled()
+    const input = autoDesignedBook.mock.calls[autoDesignedBook.mock.calls.length - 1][1]
     expect(input.path).toEqual([TRACK])
   })
 
@@ -176,8 +179,50 @@ describe('the auto layout input', () => {
 
     act(() => { result.current.relayoutBook() })
 
-    const input = buildBook.mock.calls[buildBook.mock.calls.length - 1][0]
+    const input = autoDesignedBook.mock.calls[autoDesignedBook.mock.calls.length - 1][1]
     expect(input.path).toEqual([])
+  })
+
+  it("lays the whole book on the designed pages in the book's own page format, theme and title", async () => {
+    const { result } = await mountStudio()
+    const theme = shared.bookThemeOf('midnight')
+    const page = { ...shared.bookPageSetupSchema.parse({}), pageWidth: 200 }
+    act(() => {
+      useStudioStore.getState().commit(d => ({ ...d, title: 'My own title', page, theme }))
+    })
+
+    act(() => { result.current.relayoutBook() })
+
+    const [doc, input, opts] = autoDesignedBook.mock.calls[autoDesignedBook.mock.calls.length - 1]
+    expect(input.page).toEqual(page)
+    expect(opts?.theme).toEqual(theme)
+    expect(doc?.title).toBe('My own title')
+    const laid = useStudioStore.getState().doc
+    expect(laid?.title).toBe('My own title')
+    expect(laid?.theme).toEqual(theme)
+    expect(laid?.page.pageWidth).toBe(200)
+    expect(laid?.spreads.some(s => s.role === 'inner' && s.entryId === 1)).toBe(true)
+  })
+
+  it('lays this spread on another design, its id kept, and knows the cover but not the back', async () => {
+    const { result } = await mountStudio()
+    act(() => { result.current.relayoutBook() })
+    const before = useStudioStore.getState().doc
+    if (!before) throw new Error('a laid book')
+    const at = before.spreads.findIndex(s => s.role === 'inner' && s.entryId === 1)
+    act(() => { useStudioStore.getState().setActiveSpread(at) })
+    expect(result.current.canRelayoutSpread).toBe(true)
+    const was = shared.matchDecoratedTemplate(before.spreads[at], before.page)?.id
+
+    act(() => { result.current.relayoutCurrentSpread() })
+
+    const after = useStudioStore.getState().doc?.spreads[at]
+    expect(after?.id).toBe(before.spreads[at].id)
+    expect(shared.matchDecoratedTemplate(after as never, before.page)?.id).not.toBe(was)
+    act(() => { useStudioStore.getState().setActiveSpread(0) })
+    expect(result.current.canRelayoutSpread).toBe(true)
+    act(() => { useStudioStore.getState().setActiveSpread(before.spreads.length - 1) })
+    expect(result.current.canRelayoutSpread).toBe(false)
   })
 })
 

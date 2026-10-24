@@ -640,8 +640,8 @@ const journey: TranslationStrings = {
   'journey.studio.folioMargin': 'Kənar boşluğu',
 
   'journey.studio.relayoutSpread': 'Bu açılım',
-  'journey.studio.relayoutSpreadHint': 'Onu qeydindən yenidən qur',
-  'journey.studio.relayoutSpreadNone': 'Bu səhifə qeyddən yaradılmayıb',
+  'journey.studio.relayoutSpreadHint': 'Başqa dizayna yerləşdir',
+  'journey.studio.relayoutSpreadNone': 'Bu səhifəni avtomatik tərtibat yaratmayıb',
   'journey.studio.relayoutBook': 'Bütün kitab',
   'journey.studio.relayoutBookHint': 'Bütün səhifələri əvəz edir — geri qaytarmaq mümkündür',
 

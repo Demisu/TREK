@@ -578,8 +578,8 @@ const journey: TranslationStrings = {
   'journey.studio.folioStart': 'Mulai dari',
   'journey.studio.folioMargin': 'Margin', // same-as-en
   'journey.studio.relayoutSpread': 'Halaman ini',
-  'journey.studio.relayoutSpreadHint': 'Bangun ulang dari catatannya',
-  'journey.studio.relayoutSpreadNone': 'Halaman ini bukan dari catatan',
+  'journey.studio.relayoutSpreadHint': 'Pasang pada desain lain',
+  'journey.studio.relayoutSpreadNone': 'Halaman ini tidak dibuat oleh tata letak otomatis',
   'journey.studio.relayoutBook': 'Seluruh buku',
   'journey.studio.relayoutBookHint': 'Mengganti semua halaman — bisa dibatalkan',
   'journey.studio.tpl.coverFull': 'Penuh',
