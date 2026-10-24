@@ -126,18 +126,24 @@ function enumerateTileUrls(bbox: TileBbox, sources: TileSource[]): string[] {
   const out: string[] = []
   for (const source of sources) {
     for (let z = Math.max(source.minZoom, VECTOR_MIN_ZOOM); z <= Math.min(source.maxZoom, VECTOR_MAX_ZOOM); z++) {
-      // Same screen-widened rectangle as the raster side: the opening fitBounds
-      // view shows more than the places extent on the non-limiting axis (#2180).
-      const { minX, maxX, minY, maxY } = tileRange(bbox, z)
-      for (let x = minX; x <= maxX; x++) {
-        for (let y = minY; y <= maxY; y++) {
-          out.push(source.template.replace('{z}', String(z)).replace('{x}', String(x)).replace('{y}', String(y)))
-          if (out.length >= MAX_VECTOR_TILES) return out
-        }
-      }
+      if (!pushZoomTiles(out, source.template, bbox, z)) return out
     }
   }
   return out
+}
+
+/** One zoom's tiles of a source onto `out`; false once the run is full. */
+function pushZoomTiles(out: string[], template: string, bbox: TileBbox, z: number): boolean {
+  // Same screen-widened rectangle as the raster side: the opening fitBounds
+  // view shows more than the places extent on the non-limiting axis (#2180).
+  const { minX, maxX, minY, maxY } = tileRange(bbox, z)
+  for (let x = minX; x <= maxX; x++) {
+    for (let y = minY; y <= maxY; y++) {
+      out.push(template.replace('{z}', String(z)).replace('{x}', String(x)).replace('{y}', String(y)))
+      if (out.length >= MAX_VECTOR_TILES) return false
+    }
+  }
+  return true
 }
 
 /**

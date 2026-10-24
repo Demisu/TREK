@@ -102,10 +102,10 @@ describe('StudioHeader', () => {
   it('FE-STUDIO-HEAD-006: auto layout offers this spread and the whole book', () => {
     const { s } = head();
     fireEvent.click(screen.getByRole('button', { name: /journey.studio.autoLayout/ }));
-    fireEvent.click(screen.getByRole('menuitem', { name: /journey.studio.relayoutSpread\b/ }));
+    fireEvent.click(screen.getByRole('menuitem', { name: /^journey\.studio\.relayoutSpread/ }));
     expect(s.relayoutCurrentSpread).toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: /journey.studio.autoLayout/ }));
-    fireEvent.click(screen.getByRole('menuitem', { name: /journey.studio.relayoutBook\b/ }));
+    fireEvent.click(screen.getByRole('menuitem', { name: /^journey\.studio\.relayoutBook/ }));
     expect(s.relayoutBook).toHaveBeenCalled();
   });
 

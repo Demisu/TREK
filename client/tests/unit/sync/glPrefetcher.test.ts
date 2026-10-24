@@ -147,7 +147,7 @@ describe('prefetchVectorForPlaces', () => {
     const zooms = new Set(
       [...cache.store.keys()]
         .filter(u => u.endsWith('.pbf') && u.includes('/planet/'))
-        .map(u => Number(u.split('/planet/')[1]!.split('/')[1])),
+        .map(u => Number((u.split('/planet/')[1] ?? '').split('/')[1])),
     );
     // z14 is the last one OpenFreeMap serves; MapLibre scales it beyond that
     // rather than asking for another, which is why this stops where raster could not.
@@ -166,7 +166,7 @@ describe('prefetchVectorForPlaces', () => {
 
     const xs = [...cache.store.keys()]
       .filter(u => u.endsWith('.pbf') && u.includes('/planet/'))
-      .map(u => u.split('/planet/')[1]!.split('/'))
+      .map(u => (u.split('/planet/')[1] ?? '').split('/'))
       .filter(parts => Number(parts[1]) === 7)
       .map(parts => Number(parts[2]));
     expect((Math.max(...xs) - Math.min(...xs) + 1) * 256).toBeGreaterThanOrEqual(window.innerWidth);
@@ -233,9 +233,9 @@ describe('a style with a raster source ahead of the vector one', () => {
     const result = await prefetchVectorForPlaces(places, STYLE_URL);
     expect(result.template).toBe(TILE_TEMPLATE);
     const urls = requested.map(r => r.url);
-    const vectorZooms = new Set(urls.filter(u => u.includes('/planet/')).map(u => Number(u.split('/planet/')[1]!.split('/')[1])));
+    const vectorZooms = new Set(urls.filter(u => u.includes('/planet/')).map(u => Number((u.split('/planet/')[1] ?? '').split('/')[1])));
     expect(Math.max(...vectorZooms)).toBe(14);
-    const reliefZooms = urls.filter(u => u.includes('/ne2sr/')).map(u => Number(u.split('/ne2sr/')[1]!.split('/')[0]));
+    const reliefZooms = urls.filter(u => u.includes('/ne2sr/')).map(u => Number((u.split('/ne2sr/')[1] ?? '').split('/')[0]));
     expect(reliefZooms.length).toBeGreaterThan(0);
     expect(Math.max(...reliefZooms)).toBe(6);
   });

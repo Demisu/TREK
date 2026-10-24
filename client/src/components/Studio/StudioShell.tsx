@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router'
 import { BookOpen, Download, Maximize2, Minus, Plus } from 'lucide-react'
 import { useJourneyStudio } from '../../pages/journeyStudio/useJourneyStudio'
+import { useTranslation } from '../../i18n'
 import { foliosOf } from './bookSheets'
 import { StudioSidebar } from './StudioSidebar'
 import type { RailSection } from './sidebar/railSections'
@@ -153,6 +154,7 @@ export default function StudioShell() {
 export type Studio = ReturnType<typeof useJourneyStudio>
 
 function Workbench({ s, bookView, setBookView }: { s: Studio; bookView: boolean; setBookView: (on: boolean) => void }) {
+  const { t } = useTranslation()
   return (
     <div className="st-work-wrap">
       <div className="st-work" ref={s.workRef}>
@@ -198,8 +200,8 @@ function Workbench({ s, bookView, setBookView }: { s: Studio; bookView: boolean;
         <button type="button"
           onClick={() => setBookView(!bookView)}
           aria-pressed={bookView}
-          aria-label={s.t('journey.studio.bookView')}
-          title={s.t('journey.studio.bookView')}
+          aria-label={t('journey.studio.bookView')}
+          title={t('journey.studio.bookView')}
           className={bookView ? 'is-on' : undefined}
         >
           <BookOpen size={14} />
