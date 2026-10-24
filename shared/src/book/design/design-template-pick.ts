@@ -83,7 +83,7 @@ export function archetypeOfTheme(theme: BookTheme | null | undefined): BookCover
 }
 
 /** How loud a template is, from its tags: a loud poster, a lively collage, a graphic grid, a calm page. */
-export type TemplateEnergy = 'loud' | 'lively' | 'medium' | 'calm';
+type TemplateEnergy = 'loud' | 'lively' | 'medium' | 'calm';
 
 /** A template's energy. Graphic pages, and the few drawn without a word for it, count as medium. */
 export function templateEnergy(tpl: Pick<BookDecoratedTemplate, 'tags'>): TemplateEnergy {
@@ -150,7 +150,7 @@ export function bodyCapacity(tpl: BookDecoratedTemplate, page: BookPageSetup, th
 }
 
 /** The parts a page of photos is cut into: how many photos each takes, the first one carrying the words. */
-export interface PhotoChunking {
+interface PhotoChunking {
   sizes: number[];
   /** Photos that find no frame: noted and parked, never lost. */
   parked: number;
@@ -346,7 +346,7 @@ export function pickInnerTemplate(chunk: TemplateChunk, ctx: TemplatePickCtx): B
 }
 
 /** What a cover may be laid with: how many photos there are, and whether the cover photo stands tall. */
-export interface CoverPick {
+interface CoverPick {
   archetype: BookCoverArchetype;
   photos: number;
   portrait: boolean;

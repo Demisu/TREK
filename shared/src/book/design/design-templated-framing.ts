@@ -34,7 +34,7 @@ import { pickCoverTemplate } from './design-template-pick';
  */
 
 /** The travel looks of this book, an element of a size centred on the right page unless a frame is named. */
-export function looksOf(c: ComposeCtx): BookTravelLooks | null {
+function looksOf(c: ComposeCtx): BookTravelLooks | null {
   const stats = c.travel.stats;
   if (!stats) return null;
   const box = liveBox(c, 'right');
@@ -119,9 +119,19 @@ export function composeTemplatedCover(
     avoid,
   });
   if (!tpl) return { spread: composeArchetypeCover(c, archetype, words, material), template: null };
+  return { spread: coverOnTemplate(c, words, material, tpl), template: tpl.id };
+}
+
+/** The cover laid on this cover template, its title and subtitle bound to the journey's. */
+export function coverOnTemplate(
+  c: ComposeCtx,
+  words: CoverWords,
+  material: CoverMaterial,
+  tpl: BookDecoratedTemplate,
+): BookSpread {
   const laid = pourTemplate(c, coverSeed(c, words, material, material.photos.length), tpl, material.entries);
   // The photos the cover has no frame for are the book's own pages', not the cover's to park.
-  return { spread: { ...laid, parked: [] }, template: tpl.id };
+  return { ...laid, parked: [] };
 }
 
 // ── the journey at a glance ───────────────────────────────────────────────
@@ -136,7 +146,7 @@ export function summaryLookFor(archetype: BookCoverArchetype): BookStatsLook {
 export const SUMMARY_CYCLE: readonly BookStatsLook[] = ['poster', 'tiles', 'sign'];
 
 /** Whether the journey adds up to a summary worth a spread: a way of two stops at least. */
-export const hasSummary = (stats: JourneyStats | null): stats is JourneyStats => !!stats && stats.points.length >= 2;
+const hasSummary = (stats: JourneyStats | null): stats is JourneyStats => !!stats && stats.points.length >= 2;
 
 /**
  * The journey at a glance: its map with a photo at every stop on the left

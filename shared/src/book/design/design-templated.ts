@@ -46,14 +46,14 @@ import {
  * found no entry with room close the book on pages of more moments.
  */
 
-export interface TemplatedInnerResult {
+interface TemplatedInnerResult {
   spreads: DesignedSpread[];
   leftOut: BookDesignLeftOut[];
   notes: string[];
 }
 
 /** What the inner pages are laid with beside the composer's context. */
-export interface TemplatedPlan {
+interface TemplatedPlan {
   archetype: BookCoverArchetype;
   /** The book counts as calm for template choice: its busy pages stay few. */
   calm: boolean;
@@ -92,7 +92,7 @@ function storyOf(c: ComposeCtx, entry: AutoEntry | undefined): string {
  * asked of each photo, and the photos in order. The title, place and date the
  * template takes from the journal itself, bound to the entry.
  */
-export function entrySeedSpread(
+function entrySeedSpread(
   c: ComposeCtx,
   entry: AutoEntry,
   photos: readonly AutoPhoto[],
@@ -131,9 +131,9 @@ function cutToFrame(el: BookTextElement, words: string): string {
 const isStory = (e: BookElement): e is BookTextElement => e.kind === 'text' && e.binding?.source === 'entry.story';
 
 /**
- * A laid page with its story cut to its frame where it runs over: no longer
- * bound to the journal and said in the notes, the rest handed back for the
- * next page. A story that fits stays as it is.
+ * A laid page with its story cut to its frame where it runs over: marked as
+ * no longer following the journal and said in the notes, the rest handed
+ * back for the next page. A story that fits stays as it is.
  */
 function fittedStory(c: ComposeCtx, spread: BookSpread, entry: AutoEntry): { spread: BookSpread; rest: string } {
   const story = spread.elements.find(isStory);
@@ -169,36 +169,64 @@ interface Laying {
   out: DesignedSpread[];
 }
 
-/** One page laid on a template, or composed where none takes it; its story's rest handed back. */
+/** A story to set on a page: its words, and whether they are the whole of the entry's. */
+export type PageStory = { words: string; whole: boolean } | null;
+
+/** One page as it is laid: the spread, the template it was laid on (none for a composed one) and the story's rest. */
+export interface LaidPage {
+  spread: BookSpread;
+  template: BookDecoratedTemplate | null;
+  rest: string;
+}
+
+/**
+ * One page of an entry laid on the template that suits it best, in the
+ * book's theme, or composed as a page of words where none takes it; the
+ * story cut to its frame, its rest handed back for the next page.
+ */
+export function layEntryPage(
+  c: ComposeCtx,
+  entry: AutoEntry,
+  page: { photos: readonly AutoPhoto[]; story: PageStory; entries: readonly AutoEntry[] },
+  pick: TemplatePickCtx,
+): LaidPage {
+  const mappable = (entry.lat != null && entry.lng != null) || !!c.travel.stats?.points.length;
+  const chunk = { photos: page.photos, story: page.story?.words ?? '', mappable };
+  const tpl = pickInnerTemplate(chunk, pick);
+  if (!tpl) {
+    const fitted = fittedStory(c, composeWordsPage(c, entry, wordsColumn(c, entry, page.story)), entry);
+    return { ...fitted, template: null };
+  }
+  const laid = tidied(pourTemplate(c, entrySeedSpread(c, entry, page.photos, page.story), tpl, page.entries));
+  return { ...fittedStory(c, laid, entry), template: tpl };
+}
+
+/** One page of the book laid and added; the rest of its story handed back. */
 function layPage(
   l: Laying,
   entry: AutoEntry,
   photos: readonly AutoPhoto[],
-  story: { words: string; whole: boolean } | null,
+  story: PageStory,
   chapter: string | null,
 ): string {
-  const { c } = l;
-  const mappable = (entry.lat != null && entry.lng != null) || !!c.travel.stats?.points.length;
-  const chunk = { photos, story: story?.words ?? '', mappable };
   const key = `e${entry.id}:${l.out.length}`;
-  const tpl = pickInnerTemplate(chunk, { ...l.base, history: l.history, key });
-  if (!tpl) {
-    const fitted = fittedStory(c, composeWordsPage(c, entry, wordsColumn(c, entry, story)), entry);
-    l.out.push({ spread: fitted.spread, beat: 'story', chapter, findings: [] });
-    return fitted.rest;
-  }
-  const laid = tidied(pourTemplate(c, entrySeedSpread(c, entry, photos, story), tpl, l.entries));
-  const fitted = fittedStory(c, laid, entry);
-  l.history.push(tpl.id);
-  l.out.push({ spread: fitted.spread, beat: beatOf(tpl, photos.length), chapter, findings: [], template: tpl.id });
-  return fitted.rest;
+  const laid = layEntryPage(l.c, entry, { photos, story, entries: l.entries }, { ...l.base, history: l.history, key });
+  if (laid.template) l.history.push(laid.template.id);
+  l.out.push({
+    spread: laid.spread,
+    beat: laid.template ? beatOf(laid.template, photos.length) : 'story',
+    chapter,
+    findings: [],
+    ...(laid.template ? { template: laid.template.id } : {}),
+  });
+  return laid.rest;
 }
 
 /**
  * A story set in a column down the left page, where no template takes it:
  * bound to the entry while it is the whole of it, for `fittedStory` to cut.
  */
-function wordsColumn(c: ComposeCtx, entry: AutoEntry, story: { words: string; whole: boolean } | null) {
+function wordsColumn(c: ComposeCtx, entry: AutoEntry, story: PageStory) {
   if (!story?.words) return null;
   const binding = { source: 'entry.story' as const, entryId: entry.id };
   const el = textEl(c, liveBox(c, 'left'), story.words, 'body', { binding, overridden: !story.whole });
@@ -260,7 +288,8 @@ function chapterPages(l: Laying, chapter: DesignChapter, notes: string[]) {
       ...last.spread,
       parked: [...last.spread.parked, ...parked.map((p) => photoEl(l.c, p, liveBox(l.c, 'right')))],
     };
-    notes.push(`${parked.length} photos of entry ${entry.id} found no frame and wait with its last page`);
+    const what = parked.length === 1 ? '1 photo' : `${parked.length} photos`;
+    notes.push(`${what} of entry ${entry.id} found no frame and wait with its last page`);
   }
   for (let n = 0; rest && n < MOST_CONTINUED; n++) rest = layPage(l, entry, [], { words: rest, whole: false }, name);
   if (rest) notes.push(`part of the story of entry ${entry.id} found no room on its pages and is left out`);
@@ -313,7 +342,7 @@ function withinCap(body: DesignedSpread[], keep: number, leftOut: BookDesignLeft
   if (body.length <= keep) return body;
   const cut = body.slice(Math.max(0, keep));
   for (const d of cut) {
-    for (const e of d.spread.elements) {
+    for (const e of [...d.spread.elements, ...d.spread.parked]) {
       if (e.kind === 'photo' && e.photoId != null) leftOut.push({ photoId: e.photoId, reason: 'page_budget' });
     }
   }

@@ -28,7 +28,13 @@ import { isLivelyBeat } from './design-lively-pacing';
 import { keepsStored, mergeDesign, type BookDesignPlanRow, type DesignedSpread } from './design-merge';
 import { applyPageOverrides } from './design-overrides';
 import type { BookDesignBeat } from './design-pacing';
-import { TEMPLATED_ENTRY_PHOTOS, choosePhotos, shareGalleryByDay, type BookDesignLeftOut } from './design-photos';
+import {
+  TEMPLATED_ENTRY_PHOTOS,
+  choosePhotos,
+  shareGalleryByDay,
+  type BookDesignLeftOut,
+  type DesignPhotoChoice,
+} from './design-photos';
 import { repairSpread } from './design-repair';
 import { designGrid, designLook, paperBackground, type BookDesignLook } from './design-style';
 import { archetypeOfTheme } from './design-template-pick';
@@ -171,7 +177,7 @@ function travelOf(input: BookDesignInput, entries: readonly AutoEntry[]): BookTr
 }
 
 /** The beat a page of the Auto layout plays, read from what it holds. */
-export function classicBeat(spread: BookSpread): BookDesignBeat {
+function classicBeat(spread: BookSpread): BookDesignBeat {
   if (spread.role !== 'inner') return spread.role;
   if (spread.entryId != null) return 'opener';
   const has = (kind: BookSpread['elements'][number]['kind']) => spread.elements.some((e) => e.kind === kind);
@@ -243,7 +249,7 @@ export function designBook(
   const directives = withBriefTheme(bookDesignDirectivesSchema.parse(raw));
   const entries = inScope(input.entries, directives.scope);
   if (classicOnly(directives)) return classicDesign(doc, input, directives, entries);
-  if (directives.layouts === 'templates') return templatedDesign(doc, input, directives, entries);
+  if (directives.layouts === 'templates') return templatedDesign(doc, input, raw);
 
   const newId = input.newId ?? bookElementId;
   const page = pageFor(doc, input, directives);
@@ -466,12 +472,33 @@ function templatedPages(
  * travel looks. The rest is the composer's: the scope, the photo picker, the
  * page budget, the stored pages kept, the repair and the findings.
  */
-function templatedDesign(
+/** What a book on the designed templates is laid with: its context, archetype, entries and photos. */
+export interface TemplatedSetting {
+  c: ComposeCtx;
+  archetype: BookCoverArchetype;
+  /** The book counts as calm for template choice. */
+  calm: boolean;
+  /** The entries in date order, the gallery shared out to them. */
+  placed: AutoEntry[];
+  /** Loose photos no entry had room for. */
+  rest: AutoPhoto[];
+  choice: DesignPhotoChoice;
+  /** A page finished as the design finishes it: a templated one repaired, a composed one linked to the theme too. */
+  finish: (spread: BookSpread, templated?: boolean) => { spread: BookSpread; findings: BookFinding[] };
+}
+
+/**
+ * The setting of a book laid on the designed templates, read from the
+ * stored book, the journey and the directives: what the whole book is laid
+ * with, and what laying one of its pages again needs.
+ */
+export function templatedSetting(
   doc: BookDocument | null,
   input: BookDesignInput,
-  directives: BookDesignDirectives,
-  entries: AutoEntry[],
-): BookDesignResult {
+  raw: BookDesignDirectivesInput,
+): TemplatedSetting {
+  const directives = withBriefTheme(bookDesignDirectivesSchema.parse(raw));
+  const entries = inScope(input.entries, directives.scope);
   const newId = input.newId ?? bookElementId;
   const page = pageFor(doc, input, directives);
   const shared = shareGalleryByDay(byDate(entries), input.gallery ?? [], input.candidates);
@@ -497,9 +524,6 @@ function templatedDesign(
   const archetype = directives.cover?.archetype ?? archetypeOfTheme(look.theme);
   // A rich theme designed without a brief is lively for its templates, so a poster book gets its loud pages at all.
   const calm = art.energy === 'calm' && !(look.theme.decoration === 'rich' && !art.briefed);
-  const needs: FramingNeeds = { room: roomFor(doc, directives.keep), perStations: stationsPerSpread(c) };
-  const inner = composeTemplatedInner(c, placed, choice, input, needs, { archetype, calm, rest: shared.rest });
-  const designed = templatedPages(c, input, { placed, usedPhotos, inner: inner.spreads, archetype });
   const repairCtx = { page, photos: input.photos, look, newId };
   // A templated page has its colours linked to the theme by its template, so it is repaired, not relinked.
   const finish = (spread: BookSpread, templated = false) => {
@@ -507,6 +531,26 @@ function templatedDesign(
     const weighted = { ...fixed.spread, elements: fixed.spread.elements.map(withRealWeight) };
     return { spread: templated ? weighted : unlinkDrifted(weighted, look.theme), findings: fixed.findings };
   };
+  return { c, archetype, calm, placed, rest: shared.rest, choice, finish };
+}
+
+/**
+ * The book laid on the Studio's designed templates (`layouts: 'templates'`):
+ * the cover on a cover template of the theme's archetype, every chapter on
+ * its spreads, the summary, the countries and the back cover in the newer
+ * travel looks. The rest is the composer's: the scope, the photo picker, the
+ * page budget, the stored pages kept, the repair and the findings.
+ */
+function templatedDesign(
+  doc: BookDocument | null,
+  input: BookDesignInput,
+  raw: BookDesignDirectivesInput,
+): BookDesignResult {
+  const { c, archetype, calm, placed, rest, choice, finish } = templatedSetting(doc, input, raw);
+  const needs: FramingNeeds = { room: roomFor(doc, c.directives.keep), perStations: stationsPerSpread(c) };
+  const inner = composeTemplatedInner(c, placed, choice, input, needs, { archetype, calm, rest });
+  const usedPhotos = [...choice.byEntry.values()].flat();
+  const designed = templatedPages(c, input, { placed, usedPhotos, inner: inner.spreads, archetype });
   const done = designed.map((d): DesignedSpread => ({ ...d, ...finish(d.spread, !!d.template) }));
   const leftOut = [...choice.leftOut, ...inner.leftOut];
   return templatedResult(doc, input, { c, done, finish, placed, leftOut, notes: inner.notes });

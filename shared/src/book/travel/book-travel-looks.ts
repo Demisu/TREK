@@ -116,7 +116,7 @@ export interface BookTravelMapCard {
   pins?: BookMapElement['pinStyle'];
 }
 
-export interface BookTravelLooksInput {
+interface BookTravelLooksInput {
   page: BookPageSetup;
   stats: JourneyStats;
   /** The journey's figures, way and words, as the engine's factories read them. */
