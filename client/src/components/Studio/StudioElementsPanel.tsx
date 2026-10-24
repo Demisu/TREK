@@ -195,7 +195,11 @@ function useElementAdders(page: BookPageSetup) {
     const els = gridElements(grid, defaultGridBox(page, single))
     // The page's own cap, as a duplicate keeps it: frames that would make the book unsaveable are not added.
     const on = useStudioStore.getState().doc?.spreads[active]
-    if (!on || on.elements.length + els.length > MAX_SPREAD_ELEMENTS) return
+    if (!on) return
+    if (on.elements.length + els.length > MAX_SPREAD_ELEMENTS) {
+      useStudioStore.getState().refuseFull()
+      return
+    }
     commit(d => ({
       ...d,
       spreads: d.spreads.map((sp, i) => (i !== active ? sp : { ...sp, elements: [...sp.elements, ...els] })),

@@ -493,6 +493,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'نسخ للصق في أي صفحة (Ctrl+C)',
   'journey.studio.paste': 'لصق (Ctrl+V)',
   'journey.studio.pasteEmpty': 'انسخ شيئًا أولًا، ثم الصقه في أي صفحة',
+  'journey.studio.pageFull':
+    'هذه الصفحة ممتلئة: تحتوي على {max} عنصرًا، وهو الحد الأقصى للصفحة. احذف شيئًا أولًا أو استخدم صفحة أخرى.',
   'journey.studio.myLayouts': 'تخطيطاتي',
   'journey.studio.myLayoutsEmpty': 'احتفظ بصفحة رتّبتها، ورتّب صفحات أخرى بالطريقة نفسها. تبقى صورها ونصوصها كما هي.',
   'journey.studio.saveLayout': 'حفظ هذه الصفحة كتخطيط',

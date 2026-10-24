@@ -449,6 +449,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'คัดลอกเพื่อวางในหน้าใดก็ได้ (Ctrl+C)',
   'journey.studio.paste': 'วาง (Ctrl+V)',
   'journey.studio.pasteEmpty': 'คัดลอกบางอย่างก่อน แล้ววางในหน้าใดก็ได้',
+  'journey.studio.pageFull':
+    'หน้านี้เต็มแล้ว มีองค์ประกอบ {max} ชิ้น ซึ่งเป็นจำนวนสูงสุดต่อหน้า โปรดลบบางอย่างก่อนหรือใช้หน้าอื่น',
   'journey.studio.myLayouts': 'เค้าโครงของฉัน',
   'journey.studio.myLayoutsEmpty':
     'เก็บหน้าที่คุณจัดไว้ แล้วจัดหน้าอื่นในแบบเดียวกัน รูปภาพและข้อความของหน้าเหล่านั้นยังคงอยู่',

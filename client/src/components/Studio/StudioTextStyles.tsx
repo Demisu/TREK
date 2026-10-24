@@ -99,7 +99,11 @@ export function StudioTextStyles({
   const place = (lockup: BookLockup) => {
     const els = placeLockup(lockup, { page, spread, words, gallery: source.photos, newId: bookElementId });
     // The page's own cap, as a duplicate keeps it: a set that would make the book unsaveable is not placed.
-    if (!els.length || !spread || spread.elements.length + els.length > MAX_SPREAD_ELEMENTS) return;
+    if (!els.length || !spread) return;
+    if (spread.elements.length + els.length > MAX_SPREAD_ELEMENTS) {
+      useStudioStore.getState().refuseFull();
+      return;
+    }
     commit((d) => ({
       ...d,
       spreads: d.spreads.map((sp, i) => (i === active ? addBookLockup(sp, els, bookElementId('g')) : sp)),

@@ -464,6 +464,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'Kopeeri, et kleepida mis tahes lehele (Ctrl+C)',
   'journey.studio.paste': 'Kleebi (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Kopeeri esmalt midagi, siis kleebi see mis tahes lehele',
+  'journey.studio.pageFull':
+    'See leht on täis: sellel on juba {max} elementi, rohkem ühele lehele ei mahu. Eemalda esmalt midagi või kasuta teist lehte.',
   'journey.studio.myLayouts': 'Minu paigutused',
   'journey.studio.myLayoutsEmpty':
     'Salvesta enda kujundatud leht ja paiguta teised lehed samamoodi. Nende fotod ja tekstid jäävad alles.',

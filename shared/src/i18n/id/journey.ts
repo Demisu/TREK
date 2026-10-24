@@ -456,6 +456,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'Salin, untuk ditempel di halaman mana pun (Ctrl+C)',
   'journey.studio.paste': 'Tempel (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Salin sesuatu dulu, lalu tempel di halaman mana pun',
+  'journey.studio.pageFull':
+    'Halaman ini penuh: sudah berisi {max} elemen, batas maksimal satu halaman. Hapus sesuatu dulu atau gunakan halaman lain.',
   'journey.studio.myLayouts': 'Tata letakku',
   'journey.studio.myLayoutsEmpty':
     'Simpan halaman yang sudah kamu susun dan tata halaman lain dengan cara yang sama. Foto dan teksnya tetap.',

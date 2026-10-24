@@ -463,6 +463,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'Másolás, bármelyik oldalra beilleszthető (Ctrl+C)',
   'journey.studio.paste': 'Beillesztés (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Előbb másoljon ki valamit, aztán illessze be bármelyik oldalra',
+  'journey.studio.pageFull':
+    'Ez az oldal megtelt: már {max} elem van rajta, ennél több nem fér egy oldalra. Előbb távolíts el valamit, vagy használj másik oldalt.',
   'journey.studio.myLayouts': 'Saját elrendezéseim',
   'journey.studio.myLayoutsEmpty':
     'Mentsen el egy elrendezett oldalt, és rendezzen el más oldalakat is ugyanígy. Azok fotói és szövegei megmaradnak.',

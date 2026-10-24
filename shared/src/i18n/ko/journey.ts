@@ -450,6 +450,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': '복사해서 아무 페이지에나 붙여넣기 (Ctrl+C)',
   'journey.studio.paste': '붙여넣기 (Ctrl+V)',
   'journey.studio.pasteEmpty': '먼저 무언가를 복사한 뒤 아무 페이지에나 붙여넣으세요',
+  'journey.studio.pageFull':
+    '이 페이지는 가득 찼습니다. 이미 요소가 {max}개 있어 한 페이지의 최대치입니다. 먼저 무언가를 지우거나 다른 페이지를 사용하세요.',
   'journey.studio.myLayouts': '내 레이아웃',
   'journey.studio.myLayoutsEmpty':
     '배치한 페이지를 저장해 두고 다른 페이지도 같은 방식으로 배치하세요. 사진과 글은 그대로 유지됩니다.',

@@ -465,6 +465,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'Copia, per enganxar a qualsevol pàgina (Ctrl+C)',
   'journey.studio.paste': 'Enganxa (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Primer copia alguna cosa i després enganxa-la a qualsevol pàgina',
+  'journey.studio.pageFull':
+    'Aquesta pàgina és plena: ja té {max} elements, el màxim que hi cap. Treu-ne algun primer o fes servir una altra pàgina.',
   'journey.studio.myLayouts': 'Les meves disposicions',
   'journey.studio.myLayoutsEmpty':
     'Guarda una pàgina que hagis organitzat i disposa altres pàgines de la mateixa manera. Les seves fotos i textos es mantenen.',

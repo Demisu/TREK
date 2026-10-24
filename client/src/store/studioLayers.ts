@@ -54,6 +54,7 @@ interface Host {
   styleClip: BookCopiedStyle | null;
   commit: (fn: (doc: BookDocument) => BookDocument) => void;
   apply: (fn: (doc: BookDocument) => BookDocument) => void;
+  refuseFull: () => void;
 }
 
 type Set = (partial: Partial<Host> | ((s: Host) => Partial<Host>)) => void;
@@ -370,7 +371,11 @@ function panelActions(
       if (!doc) return;
       const chosen = spread.elements.filter((e) => ids.includes(e.id));
       // The page's own cap: copies that would make the book unsaveable are not made.
-      if (!chosen.length || spread.elements.length + chosen.length > MAX_SPREAD_ELEMENTS) return;
+      if (!chosen.length) return;
+      if (spread.elements.length + chosen.length > MAX_SPREAD_ELEMENTS) {
+        get().refuseFull();
+        return;
+      }
       const copies = chosen.map(
         (e) =>
           ({

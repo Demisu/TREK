@@ -510,6 +510,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'İstənilən səhifəyə yapışdırmaq üçün kopyala (Ctrl+C)',
   'journey.studio.paste': 'Yapışdır (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Əvvəlcə nəyisə kopyalayın, sonra onu istənilən səhifəyə yapışdırın',
+  'journey.studio.pageFull':
+    'Bu səhifə doludur: onda artıq {max} element var, bir səhifəyə bundan çoxu sığmır. Əvvəlcə nəyisə silin və ya başqa səhifədən istifadə edin.',
   'journey.studio.myLayouts': 'Mənim tərtibatlarım',
   'journey.studio.myLayoutsEmpty':
     'Tərtib etdiyiniz səhifəni saxlayın və digər səhifələri eyni şəkildə düzün. Onların fotoları və mətnləri qalır.',

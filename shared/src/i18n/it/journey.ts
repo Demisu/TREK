@@ -465,6 +465,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'Copia, per incollare su qualsiasi pagina (Ctrl+C)',
   'journey.studio.paste': 'Incolla (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Copia prima qualcosa, poi incollalo su qualsiasi pagina',
+  'journey.studio.pageFull':
+    "Questa pagina è piena: contiene già {max} elementi, il massimo per una pagina. Rimuovi prima qualcosa o usa un'altra pagina.",
   'journey.studio.myLayouts': 'Le mie disposizioni',
   'journey.studio.myLayoutsEmpty':
     'Conserva una pagina che hai sistemato e disponi le altre pagine allo stesso modo. Le loro foto e i testi restano.',

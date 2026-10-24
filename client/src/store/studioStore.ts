@@ -36,6 +36,14 @@ interface StudioState extends StudioLayerActions {
   /** Elements copied for pasting onto any page of the book (#2316). Kept across page switches. */
   clipboard: StudioClipboard | null
   /**
+   * Counts the times something was not added because the page already holds
+   * MAX_SPREAD_ELEMENTS. The Studio says so once per count (StudioNotices), so
+   * a full page no longer swallows a click without a word.
+   */
+  refusedFull: number
+  /** Notes that an addition was refused because the page is full. */
+  refuseFull: () => void
+  /**
    * The page a chat card points at, outlined in the page rail (journey-studio.md
    * 4.2). Not part of the book or its history; opening a book clears it.
    */
@@ -147,6 +155,8 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   future: [],
   gestureBase: null,
   clipboard: null,
+  refusedFull: 0,
+  refuseFull: () => set(st => ({ refusedFull: st.refusedFull + 1 })),
   hintSpread: null,
   readOnly: false,
 
@@ -228,7 +238,11 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   addElement: (spreadIndex, el) => {
     // The page's own cap, as paste and duplicate keep it: what would make the book unsaveable is not added.
     const target = get().doc?.spreads[spreadIndex]
-    if (!target || target.elements.length >= MAX_SPREAD_ELEMENTS) return false
+    if (!target) return false
+    if (target.elements.length >= MAX_SPREAD_ELEMENTS) {
+      get().refuseFull()
+      return false
+    }
     get().commit(doc =>
       replaceSpread(doc, spreadIndex, sp => ({ ...sp, elements: [...sp.elements, el] })))
     /*
@@ -268,6 +282,10 @@ export const useStudioStore = create<StudioState>((set, get) => ({
     const room = Math.max(0, MAX_SPREAD_ELEMENTS - target.elements.length)
     const source = doc.spreads.find(sp => sp.id === clipboard.fromSpreadId)
     // A copied group arrives as a group of its own, never as part of one already on the page.
+    if (room === 0) {
+      get().refuseFull()
+      return
+    }
     const copies = regroupCopies(pastedElements(clipboard, target, doc.page).slice(0, room), source, bookElementId)
     if (!copies.elements.length) return
     get().commit(d => replaceSpread(d, spreadIndex, sp => withCopies(sp, copies)))

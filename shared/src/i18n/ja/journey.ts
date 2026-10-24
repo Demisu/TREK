@@ -454,6 +454,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'コピーして任意のページに貼り付け (Ctrl+C)',
   'journey.studio.paste': '貼り付け (Ctrl+V)',
   'journey.studio.pasteEmpty': 'まず何かをコピーしてから、任意のページに貼り付けてください',
+  'journey.studio.pageFull':
+    'このページはいっぱいです。すでに{max}個の要素があり、1ページの上限です。先に何かを削除するか、別のページを使ってください。',
   'journey.studio.myLayouts': 'マイレイアウト',
   'journey.studio.myLayoutsEmpty':
     '配置したページを保存して、他のページも同じ配置にできます。写真と文章はそのまま残ります。',

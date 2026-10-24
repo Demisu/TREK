@@ -463,6 +463,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'Copy, to paste on any page (Ctrl+C)',
   'journey.studio.paste': 'Paste (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Copy something first, then paste it on any page',
+  'journey.studio.pageFull':
+    'This page is full: it holds {max} elements, the most a page can. Remove something first, or use another page.',
   'journey.studio.myLayouts': 'My layouts',
   'journey.studio.myLayoutsEmpty':
     'Keep a page you arranged and lay other pages out the same way. Their photos and words stay.',

@@ -483,6 +483,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'Копировать, чтобы вставить на любую страницу (Ctrl+C)',
   'journey.studio.paste': 'Вставить (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Сначала скопируйте что-нибудь, затем вставьте на любую страницу',
+  'journey.studio.pageFull':
+    'Эта страница заполнена: на ней уже {max} элементов, больше на страницу не помещается. Сначала удалите что-нибудь или используйте другую страницу.',
   'journey.studio.myLayouts': 'Мои макеты',
   'journey.studio.myLayoutsEmpty':
     'Сохраните оформленную страницу и расположите другие страницы так же. Их фото и тексты останутся.',

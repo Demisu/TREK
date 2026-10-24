@@ -486,6 +486,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'Копіювати, щоб вставити на будь-яку сторінку (Ctrl+C)',
   'journey.studio.paste': 'Вставити (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Спершу щось скопіюйте, потім вставте на будь-яку сторінку',
+  'journey.studio.pageFull':
+    'Ця сторінка заповнена: на ній уже {max} елементів, більше на сторінку не вміщується. Спершу видаліть щось або скористайтеся іншою сторінкою.',
   'journey.studio.myLayouts': 'Мої макети',
   'journey.studio.myLayoutsEmpty':
     'Збережіть сторінку, яку ви впорядкували, і розкладайте інші сторінки так само. Їхні фото й тексти залишаться.',

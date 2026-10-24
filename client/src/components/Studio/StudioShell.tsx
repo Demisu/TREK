@@ -16,6 +16,7 @@ import { StudioExport } from './StudioExport'
 import { StudioAssistantColumn, StudioPageStage } from './StudioAssistantPanel'
 import { useStudioAssistant } from './useStudioAssistant'
 import { StudioHeader } from './StudioHeader'
+import { StudioNotices } from './StudioNotices'
 import '../../styles/dashboard.css'
 import '../../styles/studio.css'
 import './bookFontFaces'
@@ -84,6 +85,7 @@ export default function StudioShell() {
         aria-label={s.t('journey.studio.title')}
       >
         <StudioHeader s={s} onExport={() => setExporting(true)} assistant={assistant} />
+        <StudioNotices />
         {/* The journey gallery's picker, inside Studio's own layer (#2271). */}
         {s.providerPick && s.journey && (
           <ProviderPicker

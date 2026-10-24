@@ -447,6 +447,7 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': '複製，可貼到任何頁面 (Ctrl+C)',
   'journey.studio.paste': '貼上 (Ctrl+V)',
   'journey.studio.pasteEmpty': '請先複製內容，再貼到任何頁面',
+  'journey.studio.pageFull': '此頁面已滿：已有 {max} 個元素，達到單頁上限。請先刪除一些內容，或使用其他頁面。',
   'journey.studio.myLayouts': '我的版面',
   'journey.studio.myLayoutsEmpty': '保存你排好的頁面，讓其他頁面套用相同的版面。它們的照片與文字會保留。',
   'journey.studio.saveLayout': '將此頁面儲存為版面',

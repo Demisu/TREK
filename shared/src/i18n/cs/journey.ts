@@ -471,6 +471,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'Kopírovat pro vložení na libovolnou stranu (Ctrl+C)',
   'journey.studio.paste': 'Vložit (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Nejprve něco zkopírujte a pak to vložte na libovolnou stranu',
+  'journey.studio.pageFull':
+    'Tato stránka je plná: má už {max} prvků, víc se na stránku nevejde. Nejdřív něco odeberte, nebo použijte jinou stránku.',
   'journey.studio.myLayouts': 'Moje rozvržení',
   'journey.studio.myLayoutsEmpty':
     'Uložte si stranu, kterou jste uspořádali, a rozvrhněte stejně i další strany. Jejich fotky a texty zůstanou.',

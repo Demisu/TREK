@@ -463,6 +463,8 @@ const journey: TranslationStrings = {
   'journey.studio.copyToPage': 'Kopiera för att klistra in på valfri sida (Ctrl+C)',
   'journey.studio.paste': 'Klistra in (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Kopiera något först och klistra sedan in det på valfri sida',
+  'journey.studio.pageFull':
+    'Den här sidan är full: den har redan {max} element, det mesta en sida rymmer. Ta bort något först eller använd en annan sida.',
   'journey.studio.myLayouts': 'Mina layouter',
   'journey.studio.myLayoutsEmpty':
     'Spara en sida du har ordnat och lägg upp andra sidor på samma sätt. Deras foton och texter finns kvar.',
