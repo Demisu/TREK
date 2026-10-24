@@ -23,10 +23,10 @@ Templates are instance-wide. Besides the ones you build here, the list also show
 The template list shows each template as a collapsible row displaying:
 
 - Template name
-- Category count and item count (e.g., `3 categories · 12 items`)
+- Category count and item count (for example 3 categories and 12 items)
 - Rename and delete buttons
 
-Inside an expanded template, an item shows its quantity, weight and bag next to its name when it has them (for example `2× · 300 g · Backpack`). These values come from the trip list the template was saved from; items you add here start with none of them.
+Inside an expanded template, an item shows its quantity, weight and bag next to its name when it has them (for example 2×, 300 g, Backpack). These values come from the trip list the template was saved from; items you add here start with none of them.
 
 ## Creating a template
 
@@ -52,9 +52,11 @@ All editing is inline:
 
 ## Deleting
 
-- **Delete a template**: click the trash icon on the template row. The template is removed at once, without a confirmation. This does not affect trips that already had items from this template applied.
-- **Delete a category**: click the trash icon in the category header. All items in that category are also deleted from the template.
-- **Delete an item**: hover the item row to reveal the trash icon.
+- **Delete a template**: click the trash icon on the template row and confirm (**Delete the template "{name}" with all its categories and items?**). This does not affect trips that already had items from this template applied.
+- **Delete a category**: click the trash icon in the category header. A category that still has items asks first (**Delete the category "{name}" and all its items?**) and removes the items with it; an empty category goes at once.
+- **Delete an item**: hover the item row to reveal the trash icon. It goes at once.
+
+The phone admin has the same card in its **Personalization** section.
 
 ## Applying templates to a trip
 

@@ -21,7 +21,7 @@ Click **New Category** (top right of the card). A dialog opens:
 2. **Icon**: a grid of 47 curated Lucide icons (Pin, Hotel, Restaurant, Transport, Nature and so on). Click an icon to select it. The default icon is `MapPin`.
 3. **Color**: 12 preset swatches plus **Choose custom color** (pipette button). The default color is `#6366f1` (indigo). The 12 presets are:
 
-   `#6366f1` · `#8b5cf6` · `#ec4899` · `#ef4444` · `#f97316` · `#f59e0b` · `#10b981` · `#06b6d4` · `#3b82f6` · `#84cc16` · `#6b7280` · `#1f2937`
+   `#6366f1`, `#8b5cf6`, `#ec4899`, `#ef4444`, `#f97316`, `#f59e0b`, `#10b981`, `#06b6d4`, `#3b82f6`, `#84cc16`, `#6b7280`, `#1f2937`
 
 4. **Preview**: a chip shows how the category will look to users as you make selections.
 
@@ -42,6 +42,10 @@ When a user adds a place from the search or from a map POI, TREK picks the match
 ## List ordering
 
 Categories are always displayed in alphabetical order by name. There is no manual reordering.
+
+## On a phone
+
+The phone admin has the same card in its **Personalization** section, with the same create, edit and delete steps.
 
 ## Related pages
 
