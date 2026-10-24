@@ -48,7 +48,7 @@ Docker creates the volumes automatically on first `docker compose up`. Use `dock
 
 ### Optional storage seed
 
-A commented line mounts `./storage-config.json` read-only at `/app/data/storage-config.json`. Uncomment it to provision file storage once on the first start. See [Admin-Storage](Admin-Storage).
+A commented line mounts a storage-config.json file from the compose folder read-only into the data directory. Uncomment it to provision file storage once on the first start. See [Admin-Storage](Admin-Storage).
 
 ## Healthcheck and Logs
 
