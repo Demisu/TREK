@@ -102,8 +102,14 @@ describe('demo addon policy', () => {
     }
   });
 
-  it('DEMOPOL-002: keeps off exactly what reaches a server of the visitor’s own', () => {
-    expect(sorted(DEMO_ADDON_POLICY.addons.off)).toEqual(['airtrail', 'dawarich']);
+  it('DEMOPOL-002: keeps off exactly what reaches a server of the visitor’s own, and the AI features and MCP', () => {
+    expect(sorted(DEMO_ADDON_POLICY.addons.off)).toEqual([
+      'ai_assistant',
+      'airtrail',
+      'dawarich',
+      'llm_parsing',
+      'mcp',
+    ]);
     expect(sorted(DEMO_ADDON_POLICY.photoProviders.off)).toEqual(['immich', 'synologyphotos']);
     expect(sorted(DEMO_ADDON_POLICY.documentProviders.off)).toEqual(
       sorted(['paperless', 'papra', 'nextcloud', 'opencloud', 'synologydrive']),

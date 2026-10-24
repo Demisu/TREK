@@ -7,7 +7,10 @@ import type { DemoAddonStates, DemoRepository } from '../db/repositories/DemoRep
  * integration addon is on. What stays off is what needs a server of the
  * visitor's own, which a public demo has no address for and no business
  * reaching: the document sync providers, the wanderer connection under Tours,
- * the photo providers under Journey, AirTrail and Dawarich.
+ * the photo providers under Journey, AirTrail and Dawarich. The AI features
+ * (the assistant, AI parsing) and the MCP server stay off as well: they spend
+ * the instance's AI credit or hand out tokens to a shared account, so they are
+ * a feature of a self-hosted install, not of the public demo.
  *
  * Each list names its rows outright instead of "everything but", so a release
  * that adds an addon has to decide where it goes: the policy test fails on a
@@ -32,12 +35,9 @@ export const DEMO_ADDON_POLICY = {
       'journey',
       'collections',
       // Integrations TREK runs by itself
-      'mcp',
       'naver_list_import',
-      'llm_parsing',
-      'ai_assistant',
     ],
-    off: ['airtrail', 'dawarich'],
+    off: ['airtrail', 'dawarich', 'mcp', 'llm_parsing', 'ai_assistant'],
   },
   /** Rows of `photo_providers`, Journey's shelf. */
   photoProviders: {
