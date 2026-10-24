@@ -163,6 +163,7 @@ export * from './book/photo-pick';
 export * from './book/book-element-ops.schema';
 export * from './book/book-doc-ops';
 export * from './book/book-travel';
+export * from './book/travel/book-travel-looks';
 export * from './book/book-text';
 export * from './book/book-path';
 export * from './book/book-icons';
