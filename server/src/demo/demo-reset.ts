@@ -9,6 +9,7 @@ import {
 import type { CarriedUserSessionRow } from '../db/repositories/UserSessions.repository';
 import { dbNow } from '../db/types';
 import { DatabaseConnectionLostError, type DatabaseBackupStrategy } from '../nest/database/database-backup.interface';
+import { applyDemoAddonPolicy } from './demo-addon-policy';
 import { RequestContext, type EntityManager } from '@mikro-orm/core';
 
 import fs from 'fs';
@@ -154,6 +155,15 @@ async function resetDemoUser(database: DatabaseBackupStrategy): Promise<void> {
       } catch (e: unknown) {
         console.error('[Demo Reset] Failed to restore the active sessions:', e instanceof Error ? e.message : e);
       }
+    }
+
+    // The reopen's schema bootstrap ran the demo seed, which applies the demo
+    // addon set already. Applied here once more so the reset itself states
+    // what the demo offers after the hour, whatever the baseline holds.
+    try {
+      await applyDemoAddonPolicy(demoFresh);
+    } catch (e: unknown) {
+      console.error('[Demo Reset] Failed to apply the demo addon set:', e instanceof Error ? e.message : e);
     }
   });
 

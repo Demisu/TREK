@@ -1,6 +1,7 @@
 import { readEnv } from '../app-config';
 import { DemoRepository, type NewDemoPlaceRow } from '../db/repositories/DemoRepository';
-import { DEMO_PASS } from '../nest/common/demo';
+import { DEMO_ACCOUNT_SETTINGS, DEMO_PASS } from '../nest/common/demo';
+import { applyDemoAddonPolicy } from './demo-addon-policy';
 // Static like in demo-reset.job.ts: the module top is inert, everything that
 // touches the database happens inside the functions.
 import { markExampleTripsSeeded, requireEntityManager } from './demo-reset';
@@ -52,6 +53,13 @@ async function seedDemoData(): Promise<{ adminId: number; demoId: number }> {
 
   // Disable registration in demo mode
   await demo.setAllowRegistrationFalse();
+
+  // The fixed demo set: the addons every visitor can try, and the demo
+  // account's language. This runs on every boot and again after every reopen
+  // (the hourly reset included), so neither an admin's toggle nor an old
+  // baseline outlasts the hour.
+  await applyDemoAddonPolicy(demo);
+  for (const [key, value] of Object.entries(DEMO_ACCOUNT_SETTINGS)) await demo.setUserSetting(demoId, key, value);
 
   // Check if admin already has example trips
   const adminTripCount = await demo.countTripsByUser(adminId);

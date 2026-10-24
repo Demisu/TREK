@@ -1,5 +1,9 @@
 import { currentTimestampKysely } from '../dialect/kysely-functions';
+import { Addons } from '../entities/Addons.entity';
 import { AppSettings } from '../entities/AppSettings.entity';
+import { DocumentProviders } from '../entities/DocumentProviders.entity';
+import { PhotoProviders } from '../entities/PhotoProviders.entity';
+import { Settings } from '../entities/Settings.entity';
 import { Trips } from '../entities/Trips.entity';
 import { Users } from '../entities/Users.entity';
 import type { DB } from '../kysely/db';
@@ -34,6 +38,20 @@ export interface DemoAdminCredentialsRow {
 export interface DemoInstanceKeyRow {
   key: string;
   value: string | null;
+}
+
+/** One shelf of the demo addon policy (`demo/demo-addon-policy.ts`): the rows it switches on and off. */
+export interface DemoShelfStates {
+  readonly on: readonly string[];
+  readonly off: readonly string[];
+}
+
+/** The states `applyAddonStates` writes: three shelves and the switches under them in `app_settings`. */
+export interface DemoAddonStates {
+  readonly addons: DemoShelfStates;
+  readonly photoProviders: DemoShelfStates;
+  readonly documentProviders: DemoShelfStates;
+  readonly appSettings: Readonly<Record<string, string>>;
 }
 
 /**
@@ -399,5 +417,37 @@ export class DemoRepository {
     for (const row of rows) {
       await repo.upsert({ key: row.key, value: row.value }, { onConflictFields: ['key'], onConflictAction: 'merge' });
     }
+  }
+
+  // ---------------------------------------------------------------------
+  // The fixed demo set (demo-addon-policy.ts), applied by the seed and the reset
+  // ---------------------------------------------------------------------
+
+  /**
+   * Writes the demo's addon states in one transaction, so a reset that fails
+   * halfway does not leave half the shelf switched. A named row the database
+   * does not hold is an update that matches nothing, never an insert: the
+   * seeders own which rows exist.
+   */
+  async applyAddonStates(states: DemoAddonStates): Promise<void> {
+    this.validateRequestContext();
+    await this.em.transactional(async () => {
+      const addons = this.em.getRepository(Addons);
+      for (const id of states.addons.on) await addons.setEnabled(id, true);
+      for (const id of states.addons.off) await addons.setEnabled(id, false);
+      const photos = this.em.getRepository(PhotoProviders);
+      for (const id of states.photoProviders.on) await photos.setEnabled(id, 1);
+      for (const id of states.photoProviders.off) await photos.setEnabled(id, 0);
+      const documents = this.em.getRepository(DocumentProviders);
+      for (const id of states.documentProviders.on) await documents.setEnabled(id, 1);
+      for (const id of states.documentProviders.off) await documents.setEnabled(id, 0);
+      const settings = this.em.getRepository(AppSettings);
+      for (const [key, value] of Object.entries(states.appSettings)) await settings.setValue(key, value);
+    });
+  }
+
+  /** A user's own settings row, written as given (the demo account's fixed language). Composes `SettingsRepository#upsertForUser`. */
+  async setUserSetting(userId: number, key: string, value: string): Promise<void> {
+    await this.em.getRepository(Settings).upsertForUser(userId, key, value);
   }
 }
