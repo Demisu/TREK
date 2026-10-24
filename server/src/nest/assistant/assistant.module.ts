@@ -21,6 +21,7 @@ import { AssistantAttachmentsController } from './assistant-attachments.controll
 import { AssistantBookContext } from './assistant-book-context';
 import { AssistantBookGate } from './assistant-book-gate';
 import { AssistantBookingImportService } from './assistant-booking-import.service';
+import { AssistantFileAnswers } from './assistant-file-answer.service';
 import { AssistantFoundPlacesService } from './assistant-found-places.service';
 import { AssistantProposalsService } from './assistant-proposals.service';
 import { AssistantRenderRegistry, InMemoryAssistantRenderRegistry } from './assistant-render.registry';
@@ -99,6 +100,7 @@ import { Module } from '@nestjs/common';
     AssistantService,
     AssistantToolsService,
     AssistantBookingImportService,
+    AssistantFileAnswers,
     AssistantTourFileService,
     AssistantFoundPlacesService,
     AssistantProposalsService,

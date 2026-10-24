@@ -38,6 +38,7 @@ import { AssistantBookingImportService } from './assistant-booking-import.servic
 import { mentionItems } from './assistant-cards.helpers';
 import { todayIn } from './assistant-context';
 import { DISCARDED, NOT_RUN, type Outcome, withCancelled, withOutcomes } from './assistant-decisions.helpers';
+import { AssistantFileAnswers, type FileAnswerRows } from './assistant-file-answer.service';
 import { messageIdOf, outputText, partsOf, toChatHistory, toThreadMessages } from './assistant-history';
 import { rememberForTrip, rememberingPort } from './assistant-memory';
 import { toolOutputForProvider } from './assistant-output';
@@ -69,7 +70,6 @@ import { Injectable } from '@nestjs/common';
 import type {
   AssistantAttachmentRequest,
   AssistantChatRequest,
-  AssistantClientCtx,
   AssistantDecision,
   AssistantDecisionsRequest,
   AssistantFocus,
@@ -90,9 +90,6 @@ const THREADS_LISTED = 20;
 const THREAD_ROWS = 50;
 /** Message rows a turn sends the provider. */
 const HISTORY_ROWS = 120;
-
-/** What the read step of an attached file answers when the file could not be read. */
-const FILE_UNREADABLE = 'The file could not be read.';
 
 /** The longest file name a message keeps. */
 const MAX_FILE_NAME_CHARS = 255;
@@ -172,6 +169,7 @@ export class AssistantService {
     private readonly usage: AiUsageService,
     private readonly tools: AssistantToolsService,
     private readonly bookings: AssistantBookingImportService,
+    private readonly fileAnswers: AssistantFileAnswers,
     private readonly tourFiles: AssistantTourFileService,
     private readonly settings: SettingsService,
     private readonly rateLimit: RateLimitService,
@@ -255,8 +253,9 @@ export class AssistantService {
    * A file the user attached, in a thread of theirs on this trip or (no
    * threadId) a new one, answered as a stream: the file is read into bookings,
    * or a route file (GPX, KML, KMZ) into its tracks, and each is proposed as a
-   * change card, applied or discarded like any other. No model is asked here; the decision on the cards starts the next
-   * answer. Refused like a chat turn, and also when nothing here reads files.
+   * change card, applied or discarded like any other (AssistantFileAnswers).
+   * No model is asked here; the decision on the cards starts the next answer.
+   * Refused like a chat turn, and also when nothing here reads files.
    *
    * @txIndependent the opening rows are one transaction and the proposals
    * another, with the file being read between them.
@@ -286,7 +285,7 @@ export class AssistantService {
       try {
         const { locale, timeZone } = req;
         const turn = { userId, tripId, threadId: begun.threadId, rowId: begun.rowId, locale, timeZone, name };
-        await this.proposeFromFile(turn, file, reader, w, signal);
+        await this.fileAnswers.answer(turn, file, reader, { w, signal, rows: this.answerRows(turn) });
       } catch (err) {
         const reason = err instanceof Error ? err.message : String(err);
         logError(`[assistant] attachment in thread ${begun.threadId} failed: ${reason}`);
@@ -541,86 +540,15 @@ export class AssistantService {
   }
 
   /**
-   * Reads the attached file and proposes what it found, in the answer's first
-   * row: the read step, then one held change per booking (`import_booking`)
-   * or track (`import_tour_file`), each with its card. A file without any
-   * ends the answer with the reader's code; one that cannot be read, with
-   * `generic`.
-   *
-   * @txIndependent the row is written once the file was read, in a
-   * transaction of its own.
+   * How the answer to an attached file writes its first row.
+   * @txIndependent hands out two ways to write the row; an answer takes one, and each is its own transaction.
    */
-  private async proposeFromFile(
-    turn: { userId: number; tripId: number; threadId: number; rowId: number; name: string } & AssistantClientCtx,
-    file: Express.Multer.File,
-    reader: AttachedFileReader,
-    w: UiStreamWriter,
-    signal: AbortSignal,
-  ): Promise<void> {
-    const readId = randomUUID();
-    const readArgs = { name: turn.name };
-    const readPart = (result: unknown, isError = false): AssistantMessagePart => ({
-      type: 'tool-call',
-      toolCallId: readId,
-      toolName: reader.readTool,
-      args: readArgs,
-      result,
-      ...(isError ? { isError: true } : {}),
-    });
+  private answerRows(turn: { threadId: number; rowId: number }): FileAnswerRows {
     const fieldsOf = (parts: AssistantMessagePart[]) => ({ parts: encodeParts(parts), providerState: null });
-    w.startStep();
-    w.toolInput(readId, reader.readTool, readArgs);
-    let read: Awaited<ReturnType<AttachedFileReader['propose']>>;
-    try {
-      read = await this.inContext(() => reader.propose(turn.userId, turn.tripId, file));
-    } catch (err) {
-      logError(`[assistant] reading ${turn.name} failed: ${err instanceof Error ? err.message : String(err)}`);
-      await this.saveRow(turn.threadId, turn.rowId, fieldsOf([readPart(FILE_UNREADABLE, true)]), 'error');
-      w.toolError(readId, FILE_UNREADABLE);
-      w.error('generic');
-      w.finish('error');
-      return;
-    }
-    const { found, proposals } = read;
-    if (signal.aborted) {
-      await this.saveRow(turn.threadId, turn.rowId, fieldsOf([readPart(found)]), 'aborted');
-      w.abort();
-      return;
-    }
-    w.toolOutput(readId, found);
-    if (proposals.length === 0) {
-      await this.saveRow(turn.threadId, turn.rowId, fieldsOf([readPart(found)]), 'error');
-      w.finishStep();
-      w.error(reader.emptyCode);
-      w.finish('error');
-      return;
-    }
-    const card = await readTripCard(this.tools, turn.userId, turn.tripId);
-    const ctx = this.cardContext.contextOf(card, new Map(), turn.locale, todayIn(turn.timeZone, new Date()));
-    const proposed = proposals.map((proposal) => ({ ...proposal, id: randomUUID() }));
-    // The thread shows a call as the reader shows it; the held call keeps everything it runs with.
-    const shown = new Map<string, Record<string, unknown>>(proposed.map((c) => [c.id, c.shownArgs ?? c.args]));
-    const described = await this.cardContext.describeProposed(turn.userId, turn.tripId, ctx, proposed);
-    const held: HeldCall[] = described.map((change) => ({ ...change, providerCallId: `import_${change.id}` }));
-    const parts: AssistantMessagePart[] = [
-      readPart(found),
-      ...held.map((change): AssistantMessagePart => ({
-        type: 'tool-call',
-        toolCallId: change.id,
-        toolName: change.toolName,
-        args: shown.get(change.id) ?? change.args,
-        approval: { id: change.id },
-      })),
-      ...held.map((change): AssistantMessagePart => ({ type: 'data-trek-change', data: change.preview })),
-    ];
-    await this.holdChanges(turn.threadId, turn.rowId, fieldsOf(parts), held);
-    for (const change of held) {
-      w.toolInput(change.id, change.toolName, shown.get(change.id) ?? change.args);
-      w.approvalRequest(change.id);
-      w.change(change.preview);
-    }
-    w.finishStep();
-    w.finish('tool-calls');
+    return {
+      save: (parts, status) => this.saveRow(turn.threadId, turn.rowId, fieldsOf(parts), status),
+      hold: (parts, held) => this.holdChanges(turn.threadId, turn.rowId, fieldsOf(parts), held),
+    };
   }
 
   private async cancelOpen(threadId: number, now: string): Promise<void> {
