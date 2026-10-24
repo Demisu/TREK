@@ -36,7 +36,7 @@ Trips without dates are treated as past.
 
 ## Spotlight Card
 
-The first ongoing trip — or the next upcoming trip if none is ongoing — is promoted to a full-width **Spotlight card** at the top of the grid on desktop, where it carries a badge for the state of the trip (**LIVE NOW**, **STARTS TODAY**, **TOMORROW**, **UP NEXT** or **RECENT**), the action buttons on the cover, and a boarding pass strip below the title: your **Buddies**, the **Trip dates**, a countdown (days left, or **Trip starts in** a number of days) and the number of places as destinations. On mobile this card appears as a hero at the top of the page, with a progress bar for ongoing trips and a stats strip (days, places, travel companions).
+The first ongoing trip, or the next upcoming trip if none is ongoing, is promoted to a full-width **Spotlight card** at the top of the grid on desktop, where it carries a badge for the state of the trip (**LIVE NOW**, **STARTS TODAY**, **TOMORROW**, **UP NEXT** or **RECENT**), the action buttons on the cover, and a boarding pass strip below the title: your **Buddies**, the **Trip dates**, a countdown (days left, or **Trip starts in** a number of days) and the number of places as destinations. On mobile this card appears as a hero at the top of the page, with a progress bar for ongoing trips and a stats strip (days, places, travel companions).
 
 If you have no trips yet, the spotlight card is not shown.
 
@@ -63,7 +63,7 @@ Archived trips are kept out of the default list. The trips section header carrie
 
 ## Mobile Header
 
-On mobile, the header is a floating glass bar: the TREK logo on the left (tap it to scroll back to the top), a **Notifications** button (bell icon, with a dot when something is unread) that navigates to `/notifications`, and your avatar on the right. The inbox there has a tile per kind of notification and a list cut into days, with actions to clear what you have read; see [Notifications](Notifications). The top of the mobile dashboard greets you (*Good morning,*, *Good afternoon,* or *Good evening,*), and an ongoing trip is marked **Live Now**. The avatar opens the user menu — settings, the admin panel for admins, the dark/light/auto theme cycle, and sign out.
+On mobile, the header is a floating glass bar: the TREK logo on the left (tap it to scroll back to the top), a **Notifications** button (bell icon, with a dot when something is unread) that navigates to `/notifications`, and your avatar on the right. On a computer, the notifications page and the bell's panel show a coloured tile for what each notification is about and group the list under Today, Yesterday, the weekday or the date; see [Notifications](Notifications). The top of the mobile dashboard greets you (*Good morning,*, *Good afternoon,* or *Good evening,*), and an ongoing trip is marked **Live Now**. The avatar opens the user menu with settings, the admin panel for admins, the dark/light/auto theme cycle, and sign out.
 
 ## Dashboard Widgets Sidebar
 
