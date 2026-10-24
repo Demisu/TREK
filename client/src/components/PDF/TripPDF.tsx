@@ -24,7 +24,7 @@ import { fetchExchangeRates } from '../../hooks/useExchangeRates'
 import { getFlightLegs, getTrainLegs, usesStationRoute } from '../../utils/flightLegs'
 import { isServiceStopType } from '../Roadtrip/roadtripModel'
 import { onlyMyPlan } from './pdfScope'
-import { createMarkdownHtml } from '../shared/markdownHtml'
+import { createPdfMarkdown, PDF_MARKDOWN_CSS } from './pdfMarkdown'
 
 /**
  * Every day starts a new page by default. On a trip of short days that prints
@@ -232,10 +232,8 @@ export async function downloadTripPDF({ trip, days, places, assignments: allStor
   let hasTransportNotes = false
   const loc = _locale || undefined
   const tr = _t || (k => k)
-  // A place's description and notes are markdown in the app, so the export renders
-  // them the same way instead of printing the raw syntax (#2692).
-  const markdown = createMarkdownHtml()
-  const mdBlock = (text: string) => `<div class="info-row"><span class="info-spacer"></span><div class="info-text muted md">${markdown.html(text)}</div></div>`
+  const markdown = createPdfMarkdown()
+  const mdBlock = markdown.row
   // The store read is the fallback, not the source: a caller that forgets the
   // prop still prints the reader's own format instead of silently reverting.
   const is12h = (_timeFormat || useSettingsStore.getState().settings.time_format || '24h') === '12h'
@@ -841,17 +839,7 @@ export async function downloadTripPDF({ trip, days, places, assignments: allStor
   .info-spacer { width: 13px; flex-shrink: 0; }
   .info-text { font-size: 9px; color: #64748b; line-height: 1.5; }
   .info-text.muted { color: #94a3b8; }
-  .info-text.md { min-width: 0; overflow-wrap: anywhere; }
-  .md > :first-child { margin-top: 0; }
-  .md > :last-child { margin-bottom: 0; }
-  .md p, .md ul, .md ol, .md table, .md blockquote, .md pre { margin: 0 0 4px; }
-  .md ul, .md ol { padding-inline-start: 14px; }
-  .md h1, .md h2, .md h3, .md h4, .md h5, .md h6 { font-size: 1.1em; font-weight: 700; margin: 4px 0 2px; }
-  .md table { border-collapse: collapse; }
-  .md th, .md td { border: 1px solid #e2e8f0; padding: 2px 5px; text-align: start; }
-  .md code { font-family: ui-monospace, monospace; font-size: 8.5px; }
-  .md a { color: inherit; text-decoration: underline; }
-  .md blockquote { border-inline-start: 2px solid #e2e8f0; padding-inline-start: 6px; }
+  ${PDF_MARKDOWN_CSS}
 
   .chips { display: flex; flex-wrap: wrap; gap: 4px; padding-left: 21px; margin-top: 4px; }
   .chip { display: inline-flex; align-items: center; gap: 3px; font-size: 8px; font-weight: 600; background: #f1f5f9; color: #374151; border-radius: 99px; padding: 2px 7px; white-space: nowrap; }

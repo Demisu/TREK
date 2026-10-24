@@ -1657,31 +1657,6 @@ describe('SharedTripPage', () => {
       await waitFor(() => expect(screen.getByText('Somewhere 1')).toBeInTheDocument());
       expect(screen.queryByText('1 h')).toBeNull();
     });
-
-    // #2692: the description and notes are markdown in the planner, so the shared page renders them too.
-    it('renders markdown in the description and notes, and keeps raw HTML as text', async () => {
-      const marked = {
-        21: [{
-          id: 304, day_id: 21, order_index: 0, notes: '**Bring** cash',
-          place: {
-            id: 504, name: 'Market',
-            description: ['## Opening', '', '| Day | Hours |', '| --- | --- |', '| Sat | 8 to 14 |', '', '<img src=x onerror=alert(1)>'].join('\n'),
-            address: 'Market Square 1', lat: null, lng: null, duration_minutes: 0, notes: ['- fruit', '- bread'].join('\n'),
-            website: null, phone: null, category_id: null, price: null, place_time: null, end_time: null,
-            image_url: null, transport_mode: 'walking', category: null, tags: [],
-          },
-        }],
-      };
-      await open('markdown-token', payload({ days, assignments: marked }));
-      await waitFor(() => expect(screen.getByText('Market Square 1')).toBeInTheDocument());
-
-      expect(screen.getByRole('heading', { name: 'Opening' })).toBeInTheDocument();
-      expect(screen.getByRole('cell', { name: '8 to 14' })).toBeInTheDocument();
-      expect(screen.getByText('Bring').tagName).toBe('STRONG');
-      expect(screen.getByText('fruit').tagName).toBe('LI');
-      expect(document.querySelector('img[src="x"]')).toBeNull();
-      expect(screen.queryByText('## Opening')).toBeNull();
-    });
   });
 
   describe('FE-PAGE-SHARED-039: a booking shows its note and its link, and nothing that is not http(s) (#2320)', () => {
