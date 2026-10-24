@@ -34,6 +34,12 @@ Click a task row to open the detail pane, where every field can be changed. **Sa
 
 The description understands Markdown: bold text, lists and links render as such, in the task list (shortened to one line) and in the detail pane. In the detail pane a click on the text switches it back to the editing box (the tooltip reads *Click to edit, links open directly*); a click on a link opens the link instead. An empty description is the editing box straight away.
 
+**Delete** in the detail pane removes the task straight away, without asking.
+
+## On the phone
+
+On a phone the to-dos have their own layout: a filter row with **All**, **My Tasks**, **Overdue** and **Done**, the priority sort and the lists, then the tasks as cards. A task opens in a sheet with the same fields as the detail pane. The filters and the task form are the same ones the desktop uses, so both behave alike.
+
 ## Priority levels
 
 | Level | Label | Colour |
@@ -66,6 +72,10 @@ The sort sits in the head of the task list. **Priority** orders the tasks from P
 4. Click **Create task**, or press Enter in the name. The task is added and opens in the detail pane.
 
 **Create task** stays greyed out until the task has a name.
+
+## AI assistant
+
+The in-app AI assistant can propose to-dos as cards in the chat. Nothing is added until you confirm a card.
 
 ## Permissions
 
