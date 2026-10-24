@@ -4,7 +4,7 @@ TREK has **three** currency settings, and they answer three different questions.
 
 | Setting | Where | Question it answers | Affects |
 |---|---|---|---|
-| **Trip currency** | Trip → Edit trip | *What is this trip's money?* | Stored data: the base every balance is calculated in |
+| **Trip currency** | My Trips → pencil on the trip card (**Edit Trip**) | *What is this trip's money?* | Stored data: the base every balance is calculated in |
 | **Expense currency** | Costs → expense modal | *What currency did I actually pay in?* | Stored data: that one expense |
 | **Display currency** | Settings → General → Language & region | *What currency do I want to read?* | Presentation only, never the stored data |
 
@@ -12,7 +12,7 @@ The short version: **the trip currency is the accounting base, the expense curre
 
 ## Trip currency
 
-Every trip has exactly one currency. It is set when you create the trip and can be changed later in the trip edit dialog (requires the `trip_edit` permission). The new-trip dialog pre-fills it with **your display currency**, falling back to **EUR** when you have left that on *Trip currency*. A trip created through MCP or by a plugin without a currency gets the same value. This is the one moment the display currency touches stored data: it seeds the field, and from then on the trip's currency is its own.
+Every trip has exactly one currency. It is set when you create the trip and can be changed later in the same dialog: on **My Trips**, click the pencil on the trip card (**Edit Trip**). This needs the `trip_edit` permission. The **Trip settings** pill beside the trip name in the planner does not hold the currency; it only holds People, Sharing and Journal. The new-trip dialog pre-fills it with **your display currency**, falling back to **EUR** when you have left that on *Trip currency*. A trip created through MCP or by a plugin without a currency gets the same value. This is the one moment the display currency touches stored data: it seeds the field, and from then on the trip's currency is its own.
 
 This is the trip's **accounting base**. It is not a cosmetic label:
 
@@ -46,7 +46,11 @@ Rates come from [Frankfurter](https://frankfurter.dev) (European Central Bank da
 
 ### Settle-up payments
 
-A payment recorded in **Settle Up** also carries its own currency, for the same reason: settling a rouble debt with a euro transfer is perfectly normal. Its rate is frozen at the moment you record it, exactly like an expense's, so the payment keeps cancelling the debt it was meant to cancel.
+A payment recorded in **Settle Up** also carries its own currency, for the same reason: settling a rouble debt with a euro transfer is perfectly normal. Its rate is frozen at the moment you record it, exactly like an expense's, so the payment keeps cancelling the debt it was meant to cancel. A payment counts on the local day you give it, not on the day of the server.
+
+## Decimals and formats
+
+Every currency is shown with its own number of decimals. Most use two. The Japanese yen, Korean won, Vietnamese dong, Chilean peso, Icelandic krona and Hungarian forint have none, and the Bahraini, Iraqi, Jordanian, Kuwaiti, Libyan, Omani and Tunisian currencies have three. Amounts you type follow the same rule, and the suggested transfers in **Settle up** for won and yen are whole units, so the balances add up and settling clears them.
 
 ## Display currency
 
@@ -64,6 +68,8 @@ It has two modes:
 Leave it on **Trip currency** unless you specifically want everything in your home currency regardless of where you are going.
 
 An administrator can set an instance-wide default (Admin → User Defaults), and it interacts with **Trip currency**: picking **Trip currency** stores an *empty* value, and an empty value on a defaultable setting counts as "not set", so the admin's currency is applied again (#1634). While an instance-wide default currency is configured, there is no way back to per-trip currencies from the Settings page; the admin has to clear it.
+
+> The **Currency** converter widget on the dashboard is a separate tool. It converts an amount between two currencies and has no effect on trips or stored costs. See [Dashboard-Widgets](Dashboard-Widgets).
 
 > Display conversion uses **live** rates, not the frozen ones: it is a view, and a view should reflect today. This is why a converted total can shift slightly day to day while the underlying balances stay rock steady.
 
@@ -92,7 +98,7 @@ A public share page has no logged-in viewer, so it cannot use "your" display cur
 
 ## Relationship with the Costs addon
 
-The **trip currency lives on the trip itself**, not in the Costs addon. It is set in the trip dialog and remains set even if Costs is disabled. Expense currencies, frozen rates and settle-up all belong to **Costs** (addon id `budget`), which an admin can toggle in [Admin-Addons](Admin-Addons). Turning Costs off hides the money features; it does not clear the trip's currency.
+The **trip currency lives on the trip itself**, not in the Costs addon. It is set in the trip's create and edit dialog and remains set even if Costs is disabled. Expense currencies, frozen rates and settle-up all belong to **Costs** (addon id `budget`), which an admin can toggle in [Admin-Addons](Admin-Addons). Turning Costs off hides the money features; it does not clear the trip's currency.
 
 Changing the trip currency requires `trip_edit`. Adding or editing expenses (and their currencies) requires `budget_edit`. See [Admin-Permissions](Admin-Permissions).
 
@@ -112,8 +118,8 @@ Its rate was frozen when it was entered, and the market has moved since. That is
 
 ## See also
 
-- [Budget-Tracking](Budget-Tracking) — the Costs tab
-- [Creating-a-Trip](Creating-a-Trip) — where the trip currency is set
-- [Display-Settings](Display-Settings) — where the display currency is set
+- [Budget-Tracking](Budget-Tracking), the Costs tab
+- [Creating-a-Trip](Creating-a-Trip), where the trip currency is set
+- [Display-Settings](Display-Settings), where the display currency is set
 - [Public-Share-Links](Public-Share-Links)
 - [Admin-Addons](Admin-Addons)

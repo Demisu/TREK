@@ -19,7 +19,9 @@ The tab opens with the same bar as Transports, Bookings, Lists and Files. From l
 - The **Filter** button (funnel). Its popover holds the **All / Paid by me / I'm owed** switch, a **Category** list and a **Day** list with the days that have expenses. The button shows how many filters are on, and **Reset filters** at the foot of the popover switches them all off.
 - **Export CSV** (download icon), see [Exporting](#exporting).
 - **List** and **Table** (two icons), which switch the tab between the expense ledger and the [Table view](#table-view). The list is where Costs opens; the choice is remembered in this browser.
-- For members who may edit costs: **Settle up**, **Scan receipt** (only with the AI Parsing addon, see [Scanning a receipt](#scanning-a-receipt)) and **Add expense**.
+- For members who may edit costs: **Settle up**, **Scan receipt** (only with the AI Parsing addon and a model that reads images, see [Scanning a receipt](#scanning-a-receipt)) and **Add expense**.
+
+On a phone, the Costs tab shows the summary on top, the ledger below it, and a scan icon in the header when receipt scanning is available. Adding an expense opens a sheet, and the ticket split works there too.
 
 In a window narrower than 1024 px the tab stacks into one column: the total on a dark card with **Add expense** under it, then the summary cards, the settle-up list and the ledger with its own search and filters.
 
@@ -27,7 +29,7 @@ In a window narrower than 1024 px the tab stacks into one column: the total on a
 
 Costs is **multi-currency** (#551). Three settings are involved, and they do different jobs:
 
-- The **trip currency** (Trip → Edit trip) is the trip's accounting base. Every balance and settle-up is calculated in it.
+- The **trip currency** (set in the trip's dialog on My Trips: the pencil on the trip card, **Edit Trip**) is the trip's accounting base. Every balance and settle-up is calculated in it.
 - Each **expense** carries **its own currency**. Pick it in the expense dialog and enter what the receipt says (a $100 dinner on a rouble trip is `100 USD`). It is converted into the trip currency at a rate **frozen when you save it**, so a settled debt does not reopen when the market moves.
 - Your **display currency** (Settings → General → Language & region → **Display currency**) converts what you *read* (totals, balances, the ledger) into one currency. It changes nothing that is stored. Left on **Trip currency** (the default), each trip is shown in its own currency.
 
@@ -57,7 +59,7 @@ An expense row shows:
 - the **note** as a pill; click it to read the whole note, click again to fold it,
 - the **total**, and under it a green **you lent** or red **you borrowed** chip when the split leaves you up or down on it.
 
-Beside the row, members who may edit costs find a pencil that opens the expense and a bin that deletes it straight away, without asking. A payment row has a pencil and **Undo** instead.
+Beside the row, members who may edit costs find a pencil that opens the expense and a bin that deletes it. TREK asks first (*Delete expense?*, with *"{name}" will be permanently deleted.*), on the desktop and on the phone. When the expense has receipts, the question adds *Its receipt files stay in Files.* A payment row has a pencil and **Undo** instead.
 
 The filters work together: pick a day and a banner above the list names the day in full, with the number of expenses and their total. Payments carry no name or category, so a search or a category filter hides them; **I'm owed** hides them too, and **Paid by me** keeps only the transfers you are part of.
 
@@ -100,7 +102,9 @@ On the phone the booking, transport and place sheets carry the same block. Tap a
 
 ### Receipts and invoices
 
-An expense can carry the receipt or invoice behind it. **Attach** in the **Receipts & Invoices** block of the expense dialog opens the file picker for images and PDFs, and several files can go on one expense. They are uploaded when the expense is saved, land in the trip's Files with a link to the expense, and are listed in the block from then on; click a name to view it. If the save fails after the upload, the uploaded files are taken back out again; any that could not be removed are reported, so you can delete them in the Files tab.
+An expense can carry the receipt or invoice behind it. **Attach** in the **Receipts & Invoices** block of the expense dialog opens the file picker for images and PDFs, and several files can go on one expense. They are uploaded when the expense is saved, land in the trip's Files with a link to the expense, and are listed in the block from then on; click a name to view it. If the save fails after the upload, the uploaded files are taken back out again. Any that could not be removed are reported (*Save failed, and 1 uploaded receipt is still there. Remove it in the Files tab.*), so you can delete them there.
+
+Receipts need a connection. If you are offline, the dialog says *Receipts need a connection to upload. Remove the new ones to save the expense offline, or save once you are back online.* An expense without new receipts can be saved offline.
 
 A row with receipts shows a **Receipts** chip beside the name, with the count when there is more than one. Click it to open the viewer: it shows one receipt at a time, pages through them with the **arrow keys**, and offers a download for a PDF.
 
@@ -108,7 +112,7 @@ The bin beside a receipt (**Remove receipt**) only unlinks the file from the exp
 
 ### Scanning a receipt
 
-With the [AI Parsing](AI-Booking-Import) addon on and a model that reads images (see *Model reads images* there), **Scan receipt** sits beside **Add expense**, and on a phone the Costs header carries a scan icon. It is offered to whoever may add expenses.
+With the [AI Parsing](AI-Booking-Import) addon on and a model that reads images (see *Model reads images* there), **Scan receipt** sits beside **Add expense**, and on a phone the Costs header carries a scan icon. It is offered to whoever may add expenses. The model that reads the receipt can be the AI connection shared with the AI assistant; whether it reads images is the AI Parsing addon's own *Model reads images* setting. See [AI-Booking-Import](AI-Booking-Import#which-connection-reads-your-files).
 
 1. Click **Scan receipt**. The **Scan a receipt** dialog takes one photo of the receipt (JPG, PNG or WEBP, up to 10 MB; a photo over 40 megapixels or a WEBP over 3.5 MB is refused): drop it on the box, or click the box to pick one or, on a phone, take one. Then click **Scan**.
 2. The dialog closes and the model reads the photo in the background: the **background tasks** widget shows *Reading the receipt…*, and you can keep using TREK meanwhile. On a local model running on CPU this takes from a few seconds to a couple of minutes.
@@ -147,13 +151,29 @@ Costs works out the smallest number of transfers that settles every debt (a gree
 
 The final budget comes to each member's share of the paid expenses (exact in the trip's own currency; in another display currency, rounding can leave a single figure a cent off while the column still adds up), so recording a payment moves an amount from *pending* to *net reimbursements* without changing it. An expense nobody has paid yet stays out of it, as it stays out of the balances.
 
-**Settle up** in the bar at the top of the tab records every open transfer at once, without asking. **Add payment** in the head of the Settle up card records a single transfer by hand, for a repayment that did not follow a suggested one. Recorded payments then appear in the ledger as their own rows, with the pencil and **Undo** beside them.
+**Settle up** in the bar at the top of the tab records every open transfer at once, without asking. **Add payment** in the head of the Settle up card records a single transfer by hand, for a repayment that did not follow a suggested one. Recorded payments then appear in the ledger as their own rows, with the pencil and **Undo** beside them. Offline, a payment is saved in the queue (*You are offline. The payment is saved and shows up once TREK is back online.*) and sent when TREK is back online.
 
 ![The Add payment dialog with From and To, the amount, its currency and the day](assets/CostsSettleUp.png)
 
 The **Add payment** dialog has **From** and **To** (the head band reads *You → Anna* as you pick), **Amount**, **Currency**, **Day** and **Note**. The note is free text, such as *Paid in cash, by bank transfer…*; in the ledger it sits on the payment's row as a pill that opens on a click, like an expense's note. A payment carries **its own currency**: settling a rouble debt with a euro transfer is normal, and its rate is frozen when you record it. A payment made in another currency shows both amounts in the ledger (`$30.00 → 27,00 €`). The day is the day it happened, so a transfer you only get round to recording three days later still lands on the right day; payments recorded before this field existed stay on the day they were recorded.
 
 Balances are always netted in the **trip currency** and converted to your display currency once, at the end, so they stay stable even when the trip mixes currencies. An expense or payment in a foreign currency for which no exchange rate is known yet is left out of the balances and totals rather than counted 1:1; see [Currencies](Currencies#expense-currency).
+
+## Members who left and deleted guests
+
+Someone who has left the trip is still named in the lists and keeps their balance, so the settlement stays correct. Deleting a guest keeps the costs adding up: their payments are not dropped from the totals.
+
+## Currency decimals
+
+Amounts follow each currency's own decimals and format. Currencies without decimals, such as the Korean won and the Japanese yen, are shown and settled in whole units, so the suggested transfers in **Settle up** add up and settling them clears the balances. A payment counts on the day it happened in your local time. See [Currencies](Currencies).
+
+## Offline
+
+Expenses and payments you save while offline wait in a queue and sync when TREK is back online. Receipts are the exception, see [Receipts and invoices](#receipts-and-invoices).
+
+## AI assistant
+
+The in-app AI assistant can propose expenses, payments and settle-ups as cards in the chat, and give cost estimates for a trip. Nothing is saved until you confirm a card.
 
 ## Costs summary
 
