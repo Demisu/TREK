@@ -35,10 +35,10 @@ export function StudioSavedLayouts({
   const scale = width / (wMm * pxPerMm)
 
   return (
-    <div className="st-saved-layouts">
+    <div className="st-section st-saved-layouts">
       <div className="st-section-label">{t('journey.studio.myLayouts')}</div>
       {fitting.length === 0 && <p className="st-hint">{t('journey.studio.myLayoutsEmpty')}</p>}
-      <div className="st-thumbs">
+      <div className={`st-thumbs st-tpl-grid ${single ? 'is-pages' : 'is-spreads'}`}>
         {fitting.map(layout => (
           <div className="st-thumb-row" key={layout.id}>
             <button type="button" className="st-thumb" onClick={() => applyLayout(active, layout.id)}>
@@ -79,7 +79,6 @@ export function StudioSavedLayouts({
           {t('journey.studio.saveLayout')}
         </button>
       </Tooltip>
-      <div className="st-section-label st-builtin-label">{t('journey.studio.builtInLayouts')}</div>
     </div>
   )
 }

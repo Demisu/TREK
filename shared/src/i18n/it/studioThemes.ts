@@ -38,6 +38,7 @@ const studioThemes: TranslationStrings = {
   'studio.theme.token.accent': 'Accento',
   'studio.theme.token.accent2': 'Accento 2',
   'studio.theme.token.accent3': 'Accento 3',
+  'studio.theme.accents': 'Accenti',
   'studio.theme.fromPhotos': 'Colori dalle foto',
   'studio.theme.noPhotoColours': 'Le foto non hanno colori da prendere',
   'studio.theme.fonts': 'Caratteri',

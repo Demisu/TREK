@@ -215,13 +215,13 @@ export function StudioAssistantToggle({ assistant }: { assistant: StudioAssistan
   return (
     <button
       type="button"
-      className={`st-tool st-assistant-toggle ${assistant.open ? 'is-on' : ''}`}
+      className={`st-tool is-icon st-head-solo st-assistant-toggle ${assistant.open ? 'is-on' : ''}`}
       onClick={assistant.toggle}
       aria-pressed={assistant.open}
+      aria-label={t('journey.studio.assistant.toggle')}
       title={t('journey.studio.assistant.toggleHint')}
     >
-      <MessageSquare size={14} />
-      <span className="st-tool-label">{t('journey.studio.assistant.toggle')}</span>
+      <MessageSquare size={15} />
     </button>
   );
 }

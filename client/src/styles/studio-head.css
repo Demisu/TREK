@@ -1,6 +1,6 @@
 /* ----------------- head band (StudioHeader.tsx) ----------------- *
  * The shape every TREK dialog head has: a tinted band, a raised tile, a small
- * line above the title and a round close button at the end. The band keeps the
+ * line above the title and the close button at the end. The band keeps the
  * glass of the old bar under its tint, so the journey still shows through.
  */
 .trek-dash .st-head {
@@ -49,13 +49,13 @@
   flex: 1 1 auto;
 }
 
-/* The wordmark and the beta mark: what this screen is, quietly, above its name. */
+/* The wordmark: what this screen is, above its name, in the title's own ink. */
 .trek-dash .st-head-eyebrow {
   display: flex;
   align-items: center;
   gap: 7px;
   height: 17px;
-  color: var(--ink-2);
+  color: var(--ink);
 }
 .trek-dash .st-head-eyebrow svg {
   flex: none;
@@ -80,48 +80,6 @@
   min-width: 0;
 }
 
-/* The format, as a chip that opens the format menu. */
-.trek-dash .st-head-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 22px;
-  padding-inline: 7px 8px;
-  border-radius: 999px;
-  background: var(--surface);
-  box-shadow: var(--sh-xs);
-  color: var(--ink-2);
-  font-size: 11.5px;
-  font-weight: 500;
-  white-space: nowrap;
-  transition:
-    color 0.16s,
-    box-shadow 0.16s;
-}
-.trek-dash .st-head-chip:hover {
-  color: var(--ink);
-  box-shadow: var(--sh-sm);
-}
-.trek-dash .st-head-chip:focus {
-  outline: none;
-}
-.trek-dash .st-head-chip:focus-visible {
-  box-shadow:
-    0 0 0 2px var(--accent-soft),
-    0 0 0 3px var(--accent);
-}
-.trek-dash .st-head-chip-shape {
-  flex: none;
-  border: 1.5px solid currentColor;
-  border-radius: 2px;
-  opacity: 0.7;
-}
-/* The chip sits on the left, so its menu opens towards the page, not off the window. */
-.trek-dash .st-head-menu {
-  inset-inline-start: 0;
-  inset-inline-end: auto;
-}
-
 .trek-dash .st-head-tools {
   display: flex;
   align-items: center;
@@ -130,32 +88,79 @@
   margin-inline-start: auto;
 }
 
+/* Every piece of the row is one raised tile of one height and one corner:
+   the groups, who is here, help, export and close. */
+.trek-dash .st-head {
+  --st-head-h: 36px;
+}
+
 /* Tools that belong together share one raised group, like a segmented control. */
 .trek-dash .st-head-group {
   display: flex;
   align-items: center;
   gap: 2px;
+  height: var(--st-head-h);
   padding: 3px;
   border-radius: 12px;
   background: var(--surface);
   box-shadow: var(--sh-xs);
 }
 
+/* A tool standing alone is a group of one: help, and export in the accent. */
+.trek-dash .st-tool.st-head-solo {
+  height: var(--st-head-h);
+  border-radius: 12px;
+}
+.trek-dash .st-tool.is-icon.st-head-solo {
+  width: var(--st-head-h);
+  background: var(--surface);
+  box-shadow: var(--sh-xs);
+}
+.trek-dash .st-tool.is-icon.st-head-solo:hover:not(:disabled) {
+  background: var(--surface);
+  box-shadow: var(--sh-sm);
+}
+.trek-dash .st-tool.is-primary.st-head-solo {
+  padding-inline: 16px;
+  box-shadow: var(--sh-xs);
+}
+
+/* Who is here, as a tile like the tools beside it. */
+.trek-dash .st-head .st-peers {
+  height: var(--st-head-h);
+  padding-inline: 8px 12px;
+  margin-inline-start: 0;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--sh-xs);
+}
+.trek-dash .st-head .st-peer-dot {
+  width: 24px;
+  height: 24px;
+  border-color: var(--surface);
+}
+.trek-dash .st-head .st-peer-label {
+  font-size: 12.5px;
+}
+
 .trek-dash .st-head-close {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: var(--st-head-h);
+  height: var(--st-head-h);
   flex: none;
-  margin-inline-start: 2px;
-  border-radius: 999px;
+  border-radius: 12px;
   background: var(--surface);
-  box-shadow: var(--sh-sm);
+  box-shadow: var(--sh-xs);
   color: var(--ink-3);
-  transition: color 0.16s;
+  transition:
+    color 0.16s,
+    box-shadow 0.16s;
 }
 .trek-dash .st-head-close:hover {
   color: var(--ink);
+  box-shadow: var(--sh-sm);
 }
 .trek-dash .st-head-close:focus {
   outline: none;
@@ -164,6 +169,14 @@
   box-shadow:
     0 0 0 2px var(--accent-soft),
     0 0 0 3px var(--accent);
+}
+
+/* The format's shape, drawn in the tool's own ink. */
+.trek-dash .st-head-chip-shape {
+  flex: none;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  opacity: 0.7;
 }
 
 /* The book view moved to the zoom, where the page's view lives; on reads as pressed. */

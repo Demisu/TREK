@@ -300,7 +300,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Štvorec 30 × 30 cm',
   'journey.studio.pages': 'Strany',
   'journey.studio.cover': 'Obal',
-  'journey.studio.inspectorEmpty': 'Vyberte niečo na strane a upravte to.',
+  'journey.studio.inspectorEmpty': 'Vyberte niečo na úpravu',
   'journey.studio.autoLayout': 'Automatické rozloženie',
   'journey.studio.export': 'Exportovať',
   'journey.studio.day': 'DEŇ {day}',
@@ -555,7 +555,6 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Odstrániť dvojstranu',
   'journey.studio.movePageUp': 'Posunúť dopredu',
   'journey.studio.movePageDown': 'Posunúť dozadu',
-  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'Klady a zápory',
   'journey.studio.showMarks': 'Značky',
   'journey.studio.formatCustom': 'Vlastná veľkosť',

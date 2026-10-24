@@ -37,6 +37,7 @@ const studioThemes: TranslationStrings = {
   'studio.theme.token.accent': '포인트',
   'studio.theme.token.accent2': '포인트 2',
   'studio.theme.token.accent3': '포인트 3',
+  'studio.theme.accents': '포인트',
   'studio.theme.fromPhotos': '사진에서 색 가져오기',
   'studio.theme.noPhotoColours': '사진에서 가져올 색이 없습니다',
   'studio.theme.fonts': '글꼴',

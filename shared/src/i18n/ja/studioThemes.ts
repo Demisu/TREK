@@ -37,6 +37,7 @@ const studioThemes: TranslationStrings = {
   'studio.theme.token.accent': 'アクセント',
   'studio.theme.token.accent2': 'アクセント 2',
   'studio.theme.token.accent3': 'アクセント 3',
+  'studio.theme.accents': 'アクセント',
   'studio.theme.fromPhotos': '写真から色を取る',
   'studio.theme.noPhotoColours': '写真から取れる色がありません',
   'studio.theme.fonts': '書体',

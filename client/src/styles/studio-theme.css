@@ -65,10 +65,13 @@
   line-height: 1;
   letter-spacing: -0.01em;
 }
+/* The accents sit in the sheet's top corner, clear of a wide "Aa" below. */
 .trek-dash .st-theme-dots {
+  position: absolute;
+  top: 7px;
+  inset-inline-end: 8px;
   display: flex;
   gap: 3px;
-  padding-bottom: 2px;
 }
 .trek-dash .st-theme-dots > span {
   width: 11px;
@@ -127,6 +130,28 @@
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
 }
+/* The accents' one name spans their three columns, level with the others'
+   names; every entry is placed, so the name does not push them a row down. */
+.trek-dash .st-theme-palette > .st-theme-colour {
+  grid-row: 1;
+}
+.trek-dash .st-theme-palette > :nth-child(2) {
+  grid-column: 2;
+}
+.trek-dash .st-theme-palette > :nth-child(3) {
+  grid-column: 3;
+}
+.trek-dash .st-theme-palette > :nth-child(4) {
+  grid-column: 4;
+}
+.trek-dash .st-theme-palette > :nth-child(5) {
+  grid-column: 5;
+}
+.trek-dash .st-theme-accents-name {
+  grid-row: 1;
+  grid-column: 3 / span 3;
+  align-self: end;
+}
 .trek-dash .st-theme-colour {
   display: flex;
   flex-direction: column;
@@ -154,10 +179,14 @@
   opacity: 0;
   cursor: pointer;
 }
+/* On one line: broken inside a word, "Accent" read as "Accen t". A name the
+   column cannot hold is cut, and the entry's title says it whole. */
 .trek-dash .st-theme-colour-name {
   max-width: 100%;
-  overflow-wrap: anywhere;
-  hyphens: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
   text-align: center;
   line-height: 1.2;
   font-size: calc(10.5px * var(--fs-scale-caption, 1));
@@ -210,13 +239,12 @@
   padding: 0 2px;
 }
 
+/* The last section's own rule already sets this apart; a second one doubled it. */
 .trek-dash .st-theme-apply {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 6px;
-  padding-top: 12px;
-  border-top: 1px solid var(--line-2);
+  padding-top: 14px;
 }
 .trek-dash .st-theme-apply .st-hint {
   padding: 0 2px;

@@ -71,6 +71,19 @@
   white-space: nowrap;
 }
 
+/* In the closed picker the face's name comes first: the kind gives way, cut
+   short and then gone, before a letter of the name is lost. */
+.trek-dash .st-fontpick-current .st-fontpick-face {
+  flex: 0 1 auto;
+}
+.trek-dash .st-fontpick-current .st-fontpick-span {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: end;
+}
+
 .trek-dash .st-fontpick-caret {
   flex: none;
   color: var(--ink-3);

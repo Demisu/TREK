@@ -38,6 +38,7 @@ const studioThemes: TranslationStrings = {
   'studio.theme.token.accent': 'Aktsent',
   'studio.theme.token.accent2': 'Aktsent 2',
   'studio.theme.token.accent3': 'Aktsent 3',
+  'studio.theme.accents': 'Aktsendid',
   'studio.theme.fromPhotos': 'Värvid fotodelt',
   'studio.theme.noPhotoColours': 'Fotodel pole värvi, mida võtta',
   'studio.theme.fonts': 'Kirjatüübid',

@@ -294,7 +294,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Quadrat 30 × 30 cm',
   'journey.studio.pages': 'Pàgines',
   'journey.studio.cover': 'Coberta',
-  'journey.studio.inspectorEmpty': 'Selecciona alguna cosa a la pàgina per editar-la.',
+  'journey.studio.inspectorEmpty': 'Selecciona alguna cosa per editar',
   'journey.studio.autoLayout': 'Disseny automàtic',
   'journey.studio.export': 'Exporta',
   'journey.studio.day': 'DIA {day}',
@@ -546,7 +546,6 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Elimina la pàgina',
   'journey.studio.movePageUp': 'Mou abans',
   'journey.studio.movePageDown': 'Mou després',
-  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'Pros i contres',
   'journey.studio.showMarks': 'Marques',
   'journey.studio.formatCustom': 'Mida pròpia',

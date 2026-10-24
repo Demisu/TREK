@@ -37,6 +37,7 @@ const studioThemes: TranslationStrings = {
   'studio.theme.token.accent': 'لون مميز',
   'studio.theme.token.accent2': 'لون مميز 2',
   'studio.theme.token.accent3': 'لون مميز 3',
+  'studio.theme.accents': 'ألوان مميزة',
   'studio.theme.fromPhotos': 'ألوان من الصور',
   'studio.theme.noPhotoColours': 'لا تحتوي الصور على لون يمكن أخذه',
   'studio.theme.fonts': 'الخطوط',

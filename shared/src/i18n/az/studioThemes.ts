@@ -38,6 +38,7 @@ const studioThemes: TranslationStrings = {
   'studio.theme.token.accent': 'Vurğu',
   'studio.theme.token.accent2': 'Vurğu 2',
   'studio.theme.token.accent3': 'Vurğu 3',
+  'studio.theme.accents': 'Vurğular',
   'studio.theme.fromPhotos': 'Fotolardan rənglər',
   'studio.theme.noPhotoColours': 'Fotolarda götürüləcək rəng yoxdur',
   'studio.theme.fonts': 'Şriftlər',

@@ -287,7 +287,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Persegi 30 × 30 cm',
   'journey.studio.pages': 'Halaman',
   'journey.studio.cover': 'Sampul',
-  'journey.studio.inspectorEmpty': 'Pilih sesuatu di halaman untuk mengeditnya.',
+  'journey.studio.inspectorEmpty': 'Pilih sesuatu untuk diedit',
   'journey.studio.autoLayout': 'Tata letak otomatis',
   'journey.studio.export': 'Ekspor',
   'journey.studio.day': 'HARI {day}',
@@ -536,7 +536,6 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Hapus halaman',
   'journey.studio.movePageUp': 'Pindah ke depan',
   'journey.studio.movePageDown': 'Pindah ke belakang',
-  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'Pro & Kontra',
   'journey.studio.showMarks': 'Tanda',
   'journey.studio.formatCustom': 'Ukuran sendiri',

@@ -37,6 +37,7 @@ const studioThemes: TranslationStrings = {
   'studio.theme.token.accent': '強調色',
   'studio.theme.token.accent2': '強調色 2',
   'studio.theme.token.accent3': '強調色 3',
+  'studio.theme.accents': '強調色',
   'studio.theme.fromPhotos': '從照片取色',
   'studio.theme.noPhotoColours': '照片中沒有可取的顏色',
   'studio.theme.fonts': '字體',

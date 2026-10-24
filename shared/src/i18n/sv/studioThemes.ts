@@ -38,6 +38,7 @@ const studioThemes: TranslationStrings = {
   'studio.theme.token.accent': 'Accent', // same-as-en
   'studio.theme.token.accent2': 'Accent 2', // same-as-en
   'studio.theme.token.accent3': 'Accent 3', // same-as-en
+  'studio.theme.accents': 'Accenter',
   'studio.theme.fromPhotos': 'Färger från bilderna',
   'studio.theme.noPhotoColours': 'Bilderna har ingen färg att ta',
   'studio.theme.fonts': 'Typsnitt',

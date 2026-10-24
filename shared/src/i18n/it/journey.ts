@@ -294,7 +294,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Quadrato 30 × 30 cm',
   'journey.studio.pages': 'Pagine',
   'journey.studio.cover': 'Copertina',
-  'journey.studio.inspectorEmpty': 'Seleziona un elemento della pagina per modificarlo.',
+  'journey.studio.inspectorEmpty': 'Seleziona un elemento',
   'journey.studio.autoLayout': 'Layout automatico',
   'journey.studio.export': 'Esporta',
   'journey.studio.day': 'GIORNO {day}',
@@ -545,7 +545,6 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Elimina pagina',
   'journey.studio.movePageUp': 'Sposta prima',
   'journey.studio.movePageDown': 'Sposta dopo',
-  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'Pro e contro',
   'journey.studio.showMarks': 'Segni',
   'journey.studio.formatCustom': 'Formato libero',

@@ -293,7 +293,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Kare 30 × 30 cm',
   'journey.studio.pages': 'Sayfalar',
   'journey.studio.cover': 'Kapak',
-  'journey.studio.inspectorEmpty': 'Düzenlemek için sayfada bir öğe seç.',
+  'journey.studio.inspectorEmpty': 'Düzenlemek için bir öğe seç',
   'journey.studio.autoLayout': 'Otomatik yerleşim',
   'journey.studio.export': 'Dışa aktar',
   'journey.studio.day': '{day}. GÜN',
@@ -546,7 +546,6 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Sayfayı sil',
   'journey.studio.movePageUp': 'Öne al',
   'journey.studio.movePageDown': 'Arkaya al',
-  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'Artılar ve Eksiler',
   'journey.studio.showMarks': 'İşaretler',
   'journey.studio.formatCustom': 'Özel boyut',

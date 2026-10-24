@@ -37,6 +37,7 @@ const studioThemes: TranslationStrings = {
   'studio.theme.token.accent': 'สีเน้น',
   'studio.theme.token.accent2': 'สีเน้น 2',
   'studio.theme.token.accent3': 'สีเน้น 3',
+  'studio.theme.accents': 'สีเน้น',
   'studio.theme.fromPhotos': 'สีจากรูปภาพ',
   'studio.theme.noPhotoColours': 'รูปภาพไม่มีสีให้นำมาใช้',
   'studio.theme.fonts': 'แบบอักษร',

@@ -38,6 +38,7 @@ const studioThemes: TranslationStrings = {
   'studio.theme.token.accent': 'Kiemelés',
   'studio.theme.token.accent2': 'Kiemelés 2',
   'studio.theme.token.accent3': 'Kiemelés 3',
+  'studio.theme.accents': 'Kiemelések',
   'studio.theme.fromPhotos': 'Színek a fotókból',
   'studio.theme.noPhotoColours': 'A fotókon nincs átvehető szín',
   'studio.theme.fonts': 'Betűtípusok',

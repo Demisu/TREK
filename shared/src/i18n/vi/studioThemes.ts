@@ -38,6 +38,7 @@ const studioThemes: TranslationStrings = {
   'studio.theme.token.accent': 'Điểm nhấn',
   'studio.theme.token.accent2': 'Điểm nhấn 2',
   'studio.theme.token.accent3': 'Điểm nhấn 3',
+  'studio.theme.accents': 'Điểm nhấn',
   'studio.theme.fromPhotos': 'Màu từ ảnh',
   'studio.theme.noPhotoColours': 'Ảnh không có màu nào để lấy',
   'studio.theme.fonts': 'Kiểu chữ',

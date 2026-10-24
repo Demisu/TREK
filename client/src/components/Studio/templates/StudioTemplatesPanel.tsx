@@ -117,7 +117,7 @@ function BuiltInLayouts({
   const scale = width / (page.pageWidth * (single ? 1 : 2) * pxPerMm);
   const templates = single ? COVER_TEMPLATES : TEMPLATES;
   return (
-    <div className="st-thumbs">
+    <div className={`st-thumbs st-tpl-grid ${single ? 'is-pages' : 'is-spreads'}`}>
       {templates.map((tpl) => (
         <button type="button" key={tpl.id} className="st-thumb" onClick={() => onPick(tpl)}>
           {/* A page is laid out from its top left in either reading direction. */}
@@ -183,7 +183,7 @@ export function StudioTemplatesPanel({
   if (!doc || !spread || !ctx) return null;
   const single = spread.role !== 'inner';
   const templates = templatesForSpread(spread, filter);
-  const { full, card: cardWidth } = previewWidths(list.width, single);
+  const { card: cardWidth } = previewWidths(list.width, single);
 
   /**
    * One undo step: the page laid out, nothing selected, and the photos at hand
@@ -247,8 +247,11 @@ export function StudioTemplatesPanel({
           </div>
           <p className="st-hint">{t('studio.templates.hint')}</p>
         </div>
-        <StudioSavedLayouts page={page} width={full} pxPerMm={pxPerMm} t={t} />
-        <BuiltInLayouts spread={spread} page={page} pxPerMm={pxPerMm} width={full} t={t} onPick={pickBuiltIn} />
+        <StudioSavedLayouts page={page} width={cardWidth} pxPerMm={pxPerMm} t={t} />
+        <div className="st-section">
+          <div className="st-section-label">{t('journey.studio.builtInLayouts')}</div>
+          <BuiltInLayouts spread={spread} page={page} pxPerMm={pxPerMm} width={cardWidth} t={t} onPick={pickBuiltIn} />
+        </div>
       </div>
     </>
   );

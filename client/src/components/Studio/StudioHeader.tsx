@@ -15,14 +15,15 @@ import type { StudioAssistant } from './useStudioAssistant';
 
 /**
  * The Studio's head band, in the shape every TREK dialog has: a raised tile on
- * the left, a small line above the title, the title, a line under it, and the
- * round close button at the far end.
+ * the left, the Studio's mark above the title, the title, a line under it, and
+ * the close button at the far end.
  *
  * The tile is the journey's cover and the title its name, so it is always clear
- * whose book this is. What the book is printed as and whether it is saved sit
- * under the title, because they describe it. The tools on the right are grouped
- * by what they do: who else is here, editing (undo, redo, paste), making
- * (auto layout, the assistant), and getting the book out (help, export). How
+ * whose book this is. Whether it is saved sits under the title, because it
+ * describes it. The tools on the right are grouped by what they do: who else
+ * is here, what the book is printed as, editing (undo, redo, paste), auto
+ * layout, the assistant, help, and getting the book out. Every piece of
+ * the row is one raised tile of one height, export alone in the accent. How
  * the page is looked at, the book view, lives with the zoom under the page.
  */
 export function StudioHeader({
@@ -41,11 +42,9 @@ export function StudioHeader({
       <div className="st-head-text">
         <div className="st-head-eyebrow">
           <StudioWordmark style={{ height: 17 }} />
-          <span className="st-beta">{s.t('journey.studio.beta')}</span>
         </div>
         <h1 className="st-head-title">{s.journey?.title || s.t('journey.title')}</h1>
         <div className="st-head-sub">
-          <FormatPicker s={s} />
           <SaveIndicator
             state={s.saveState}
             t={s.t}
@@ -62,6 +61,10 @@ export function StudioHeader({
         <PeerBadges peers={s.peers} t={s.t} />
 
         <div className="st-head-group">
+          <FormatPicker s={s} />
+        </div>
+
+        <div className="st-head-group">
           <IconTool label={s.t('journey.studio.undo')} disabled={!s.canUndo} onClick={s.undo}>
             <Undo2 size={15} />
           </IconTool>
@@ -73,15 +76,15 @@ export function StudioHeader({
 
         <div className="st-head-group">
           <AutoLayoutButton s={s} />
-          {/* The book's assistant; only where it can run for this user. */}
-          <StudioAssistantToggle assistant={assistant} />
         </div>
 
+        {/* The book's assistant, a tile of its own like help; only where it can run for this user. */}
+        <StudioAssistantToggle assistant={assistant} />
         {/* Studio has no navbar, so the help center's button rides on its own bar. */}
-        <HelpButton className="st-tool is-icon" />
+        <HelpButton className="st-tool is-icon st-head-solo" />
         <button
           type="button"
-          className="st-tool is-primary"
+          className="st-tool is-primary st-head-solo"
           onClick={onExport}
           disabled={!s.doc}
           title={s.t('journey.studio.export')}
@@ -242,8 +245,8 @@ function AutoLayoutButton({ s }: { s: Studio }) {
 }
 
 /**
- * The format, as a chip under the book's name: it says what the book is
- * printed as, and opening it changes that.
+ * The format, as a tool of the head row: it says what the book is printed as,
+ * and opening it changes that.
  *
  * A native <select> was the first draft and it was wrong: the browser draws the
  * list in its own chrome, so it ignores the theme entirely and drops a list that
@@ -264,7 +267,7 @@ function FormatPicker({ s }: { s: Studio }) {
     <div className="st-picker" ref={box}>
       <button
         type="button"
-        className="st-head-chip"
+        className="st-tool"
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -278,16 +281,16 @@ function FormatPicker({ s }: { s: Studio }) {
               : { height: 12, width: Math.max(6, Math.round((12 * width) / height)) }
           }
         />
-        <span>
+        <span className="st-tool-label">
           {s.preset === 'custom'
             ? `${Math.round(s.page.pageWidth)} × ${Math.round(s.page.pageHeight)} mm`
             : s.t(active.labelKey)}
         </span>
-        <ChevronDown size={12} style={{ opacity: 0.55 }} />
+        <ChevronDown size={13} style={{ opacity: 0.5 }} />
       </button>
 
       {open && (
-        <div className="st-menu st-head-menu" role="listbox">
+        <div className="st-menu" role="listbox">
           {PAGE_PRESET_ORDER.map((id) => {
             const p = PAGE_PRESETS[id];
             const on = id === s.preset;

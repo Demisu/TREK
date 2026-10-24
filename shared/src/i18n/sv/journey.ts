@@ -294,7 +294,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Kvadrat 30 × 30 cm',
   'journey.studio.pages': 'Sidor',
   'journey.studio.cover': 'Omslag',
-  'journey.studio.inspectorEmpty': 'Markera något på sidan för att redigera det.',
+  'journey.studio.inspectorEmpty': 'Markera något att redigera',
   'journey.studio.autoLayout': 'Automatisk layout',
   'journey.studio.export': 'Exportera',
   'journey.studio.day': 'DAG {day}',
@@ -543,7 +543,6 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Ta bort uppslag',
   'journey.studio.movePageUp': 'Flytta tidigare',
   'journey.studio.movePageDown': 'Flytta senare',
-  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'För- och nackdelar',
   'journey.studio.showMarks': 'Tecken',
   'journey.studio.formatCustom': 'Eget format',

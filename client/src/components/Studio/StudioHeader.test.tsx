@@ -53,7 +53,7 @@ describe('StudioHeader', () => {
   it("FE-STUDIO-HEAD-001: names the journey under the Studio's mark, with its cover as the tile", () => {
     head();
     expect(screen.getByRole('heading', { name: 'Japan 2026' })).toBeInTheDocument();
-    expect(screen.getByText('journey.studio.beta')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'TREK Studio' })).toBeInTheDocument();
     expect(document.querySelector('.st-head-tile img')?.getAttribute('src')).toBe('/uploads/cover.jpg');
   });
 

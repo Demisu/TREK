@@ -288,7 +288,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Vuông 30 × 30 cm',
   'journey.studio.pages': 'Trang',
   'journey.studio.cover': 'Bìa',
-  'journey.studio.inspectorEmpty': 'Chọn một thứ trên trang để chỉnh sửa.',
+  'journey.studio.inspectorEmpty': 'Chọn một mục để sửa',
   'journey.studio.autoLayout': 'Bố cục tự động',
   'journey.studio.export': 'Xuất',
   'journey.studio.day': 'NGÀY {day}',
@@ -535,7 +535,6 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Xóa trang',
   'journey.studio.movePageUp': 'Chuyển lên trước',
   'journey.studio.movePageDown': 'Chuyển xuống sau',
-  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'Ưu và nhược điểm',
   'journey.studio.showMarks': 'Dấu',
   'journey.studio.formatCustom': 'Kích thước riêng',

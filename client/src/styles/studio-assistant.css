@@ -2,16 +2,10 @@
    Studio in the planner's window (assistantFrame.tsx), so the page and the
    inspector keep all their room. */
 
-/* The toggle is the bar's newest tool, so it gives up its label first: from 1360
-   to 1519 it is an icon while the others keep theirs, and the head band fits
-   where it did before. */
-@media (max-width: 1519px) {
-  .trek-dash .st-assistant-toggle .st-tool-label {
-    display: none;
-  }
-  .trek-dash .st-assistant-toggle {
-    padding: 0 8px;
-  }
+/* The toggle is an icon tile of the head row; open, it reads as pressed. */
+.trek-dash .st-tool.st-head-solo.st-assistant-toggle.is-on {
+  background: color-mix(in oklch, var(--accent) 14%, var(--surface));
+  color: var(--ink);
 }
 
 .trek-dash .st-assistant-notice {

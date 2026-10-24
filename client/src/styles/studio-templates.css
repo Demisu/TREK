@@ -28,6 +28,10 @@
 .trek-dash .st-tpl-grid.is-spreads {
   grid-template-columns: minmax(0, 1fr);
 }
+/* The book's own layouts and the built-in ones lie in the same grid as the designed pages. */
+.trek-dash .st-thumbs.st-tpl-grid {
+  display: grid;
+}
 
 .trek-dash .st-tpl-card {
   min-width: 0;

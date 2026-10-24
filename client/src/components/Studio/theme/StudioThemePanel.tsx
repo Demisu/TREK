@@ -67,7 +67,11 @@ function ThemeCard({
   );
 }
 
-/** One palette entry: its colour, which is the picker, and its name. */
+/**
+ * One palette entry: its colour, which is the picker, and its name. The three
+ * accents share one name under them, so each shows its colour alone and says
+ * its own name to a screen reader and on hover.
+ */
 function PaletteEntry({
   name,
   hex,
@@ -79,13 +83,14 @@ function PaletteEntry({
   onPick: (hex: string) => void;
   t: StudioT;
 }) {
+  const accent = name.startsWith('accent');
   const label = t(`studio.theme.token.${name}`);
   return (
-    <label className="st-theme-colour">
+    <label className="st-theme-colour" title={label}>
       <span className="st-theme-chip" style={{ background: hex }}>
         <input type="color" value={hex} aria-label={label} onChange={(e) => onPick(e.target.value)} />
       </span>
-      <span className="st-theme-colour-name">{label}</span>
+      {!accent && <span className="st-theme-colour-name">{label}</span>}
     </label>
   );
 }
@@ -181,6 +186,7 @@ export function StudioThemePanel({ t }: { t: StudioT }) {
                 t={t}
               />
             ))}
+            <span className="st-theme-colour-name st-theme-accents-name">{t('studio.theme.accents')}</span>
           </div>
           <button
             type="button"

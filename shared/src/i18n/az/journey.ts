@@ -319,7 +319,7 @@ const journey: TranslationStrings = {
   'journey.studio.formatSquare30': 'Kvadrat 30 × 30 sm',
   'journey.studio.pages': 'Səhifələr',
   'journey.studio.cover': 'Üzlük',
-  'journey.studio.inspectorEmpty': 'Redaktə etmək üçün səhifədə bir element seçin.',
+  'journey.studio.inspectorEmpty': 'Redaktə üçün nəsə seçin',
   'journey.studio.autoLayout': 'Avtomatik tərtibat',
   'journey.studio.export': 'İxrac et',
   'journey.studio.day': 'GÜN {day}',
@@ -596,7 +596,6 @@ const journey: TranslationStrings = {
   'journey.studio.deletePage': 'Açılımı sil',
   'journey.studio.movePageUp': 'Əvvələ daşı',
   'journey.studio.movePageDown': 'Sonraya daşı',
-  'journey.studio.beta': 'Beta', // same-as-en
   'journey.studio.addProsCons': 'Müsbət və mənfi cəhətlər',
   'journey.studio.showMarks': 'Nişanlar',
 

@@ -38,6 +38,7 @@ const studioThemes: TranslationStrings = {
   'studio.theme.token.accent': 'Τόνος',
   'studio.theme.token.accent2': 'Τόνος 2',
   'studio.theme.token.accent3': 'Τόνος 3',
+  'studio.theme.accents': 'Τόνοι',
   'studio.theme.fromPhotos': 'Χρώματα από τις φωτογραφίες',
   'studio.theme.noPhotoColours': 'Οι φωτογραφίες δεν έχουν χρώμα να πάρουμε',
   'studio.theme.fonts': 'Γραμματοσειρές',
