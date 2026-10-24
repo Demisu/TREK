@@ -140,7 +140,17 @@ export function ChatBubble({
           >
             {reply.name}
           </div>
-          <div style={{ opacity: 0.8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {/* Wrapped and cut after two lines: a quote kept on one line set the bubble's width and pushed it out of the chat. */}
+          <div
+            style={{
+              opacity: 0.8,
+              overflow: 'hidden',
+              whiteSpace: 'normal',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+            }}
+          >
             {reply.text}
           </div>
         </div>

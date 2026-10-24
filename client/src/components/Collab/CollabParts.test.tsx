@@ -26,6 +26,8 @@ describe('the Collab pieces', () => {
     expect(quoted.parentElement?.getAttribute('style')).toContain('background: var(--bg-card)');
     expect(screen.getByText('Anna')).toBeInTheDocument();
     expect(screen.getByText('Train?')).toBeInTheDocument();
+    // A long quote wraps instead of setting the bubble's width (it pushed the bubble out of the chat).
+    expect(screen.getByText('Train?').getAttribute('style')).toContain('white-space: normal');
   });
 
   it('FE-COLLAB-PARTS-002: a face is the picture, else the first letter; day, reactions and time draw their children', () => {

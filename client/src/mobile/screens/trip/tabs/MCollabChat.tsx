@@ -331,7 +331,7 @@ function ChatBubbleRow({ msg, own, showHeader, isLastInGroup, marginTop, is12h, 
               {hasReply && (
                 <div className="mb-1 rounded-[10px] bg-[color:var(--m-card)] px-[10px] py-[5px]">
                   <div className="font-geist text-[0.625rem] font-bold opacity-70">{msg.reply_username}</div>
-                  <div className="truncate text-[0.71875rem] opacity-80">{msg.reply_text?.slice(0, 80)}</div>
+                  <div className="line-clamp-2 text-[0.71875rem] opacity-80">{msg.reply_text?.slice(0, 80)}</div>
                 </div>
               )}
               <span className="whitespace-pre-wrap break-words">{msg.text}</span>
