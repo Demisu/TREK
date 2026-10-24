@@ -22,7 +22,7 @@ export default function MSettingsMap() {
   const {
     managed, saving, provider, changeProvider, mapTileUrl, setMapTileUrl, mapboxToken, setMapboxToken,
     cartoKey, setCartoKey, cartoNeedsKey, mapboxStyle, setMapboxStyle, mapbox3d, setMapbox3d,
-    mapboxQuality, setMapboxQuality, previewPlaces, save,
+    mapboxQuality, setMapboxQuality, previewPlaces, glPreview, webgl2Missing, save,
   } = useMapSettingsForm({ mirrorStyleBeforeSave: true })
   const [presetOpen, setPresetOpen] = useState(false)
   const [styleOpen, setStyleOpen] = useState(false)
@@ -170,7 +170,7 @@ export default function MSettingsMap() {
       )}
 
       <div className="relative mt-3 h-[200px] w-full overflow-hidden rounded-xl">
-        {provider !== 'leaflet' ? (
+        {glPreview ? (
           /* See MapSettingsTab: the preview gets its own net. */
           <ErrorBoundary boundaryId="settings:map-preview" resetKeys={[provider]} fallback={<div className="h-full w-full bg-m-card" />}>
           <Suspense fallback={<div className="h-full w-full bg-m-card animate-pulse" />}>
@@ -208,6 +208,7 @@ export default function MSettingsMap() {
           })
         )}
       </div>
+      {webgl2Missing && <MSetHint>{t('map.webgl2.fallback')}</MSetHint>}
 
       <MSetButton className="mt-3" onClick={save} disabled={saving}>
         <Save size={14} />

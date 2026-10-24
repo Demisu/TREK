@@ -1,6 +1,7 @@
 import { buildRouteOverlay, wrapSvg } from './tripMapSvg'
 import { hasWebGL } from '../../utils/webgl'
 import { normalizeStyleForProvider } from '../Map/glProviders'
+import { buildGlMap } from '../Map/glSupport'
 import type { TripOverviewDay } from '../Map/tripRouteGeometry'
 import { importChunk } from '../../utils/chunkReload'
 
@@ -59,7 +60,7 @@ export async function renderTripMapImage(
     const bounds = new gl.LngLatBounds()
     for (const [lat, lng] of points) bounds.extend([lng, lat])
 
-    const instance = new gl.Map({
+    const instance = buildGlMap(() => new gl.Map({
       container,
       style: normalizeStyleForProvider('maplibre-gl', opts.style),
       bounds,
@@ -70,7 +71,9 @@ export async function renderTripMapImage(
       // MapLibre 5 moved the WebGL flags off the top level into this bag.
       canvasContextAttributes: { preserveDrawingBuffer: true, antialias: true },
       fadeDuration: 0,
-    })
+    }))
+    // A GPU that offered WebGL2 and then refused it: reported, so the app's maps follow.
+    if (!instance) return null
     map = instance
 
     const ready = await new Promise<boolean>(resolve => {

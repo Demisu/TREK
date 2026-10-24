@@ -7,7 +7,8 @@ import {
   RASTER_FALLBACK_TILE_URL,
   attributionForTile,
 } from '../../constants/mapDefaults'
-import { hasWebGL } from '../../utils/webgl'
+import { hasWebGL, reportWebGLFailure } from '../../utils/webgl'
+import { isGpuInitFailure } from './glSupport'
 import { isChunkLoadError, reloadOnceForChunk } from '../../utils/chunkReload'
 
 /** The Leaflet layer maplibre-gl-leaflet hands back. */
@@ -96,6 +97,8 @@ function attachGlLayer(map: L.Map, layer: GlLeafletLayer, style: string): boolea
     layer.addTo(map)
   } catch (err) {
     console.warn('[basemap] no WebGL context for the vector basemap, drawing raster tiles', err)
+    // The GPU, not a context budget: the GL maps elsewhere in the app switch to Leaflet too.
+    if (isGpuInitFailure(err)) reportWebGLFailure()
     detachBasemapLayer(layer)
     return false
   }

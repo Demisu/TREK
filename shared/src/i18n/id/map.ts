@@ -38,5 +38,8 @@ const map: TranslationStrings = {
   'map.overview.unrouted': 'Rute untuk {count} ruas tidak dapat dihitung, jadi jaraknya belum lengkap.',
   'map.overview.dayUnrouted': 'Rute untuk {count} ruas pada hari ini tidak dapat dihitung',
   'map.baseLayer.topo': 'Topografi',
+  'map.webgl2.fallback':
+    'Browser ini tidak menyediakan WebGL2 yang dibutuhkan peta GL, jadi peta ditampilkan dengan Leaflet.',
+  'map.webgl2.terrain': '3D membutuhkan WebGL2, yang tidak disediakan browser ini. Peta tetap dalam 2D.',
 };
 export default map;

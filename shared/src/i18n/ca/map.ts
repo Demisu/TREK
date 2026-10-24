@@ -40,5 +40,8 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted': 'No s’han pogut calcular {count} trams d’aquest dia',
   'map.overview.dayUnrouted.one': 'No s’ha pogut calcular {count} tram d’aquest dia',
   'map.baseLayer.topo': 'Topogràfic',
+  'map.webgl2.fallback':
+    'Aquest navegador no ofereix WebGL2, que necessiten els mapes GL, així que els mapes es mostren amb Leaflet.',
+  'map.webgl2.terrain': 'El 3D necessita WebGL2, que aquest navegador no ofereix. El mapa es queda en 2D.',
 };
 export default map;

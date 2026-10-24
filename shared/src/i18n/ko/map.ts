@@ -38,5 +38,7 @@ const map: TranslationStrings = {
   'map.overview.unrouted': '{count}개 구간의 경로를 계산할 수 없어 거리가 불완전합니다.',
   'map.overview.dayUnrouted': '이 날의 {count}개 구간 경로를 계산할 수 없습니다',
   'map.baseLayer.topo': '지형도',
+  'map.webgl2.fallback': '이 브라우저는 GL 지도에 필요한 WebGL2를 지원하지 않아 지도를 Leaflet으로 표시합니다.',
+  'map.webgl2.terrain': '3D에는 WebGL2가 필요하지만 이 브라우저는 지원하지 않습니다. 지도는 2D로 유지됩니다.',
 };
 export default map;

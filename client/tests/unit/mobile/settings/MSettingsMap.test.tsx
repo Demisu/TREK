@@ -29,6 +29,11 @@ vi.mock('../../../../src/components/Settings/MapboxPreview', () => ({
     />
   ),
 }));
+// jsdom has no WebGL2; these cases are about a browser that has it.
+vi.mock('../../../../src/utils/webgl', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../../src/utils/webgl')>()),
+  hasWebGL: () => true,
+}));
 
 const OSM_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const CARTO_DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';

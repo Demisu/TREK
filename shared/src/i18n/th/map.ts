@@ -37,5 +37,7 @@ const map: TranslationStrings = {
   'map.overview.unrouted': 'มี {count} ช่วงที่คำนวณเส้นทางไม่ได้ ระยะทางจึงไม่ครบถ้วน',
   'map.overview.dayUnrouted': 'มี {count} ช่วงของวันนี้ที่คำนวณเส้นทางไม่ได้',
   'map.baseLayer.topo': 'ภูมิประเทศ',
+  'map.webgl2.fallback': 'เบราว์เซอร์นี้ไม่รองรับ WebGL2 ที่แผนที่ GL ต้องใช้ จึงแสดงแผนที่ด้วย Leaflet แทน',
+  'map.webgl2.terrain': 'โหมด 3D ต้องใช้ WebGL2 ซึ่งเบราว์เซอร์นี้ไม่รองรับ แผนที่จึงยังคงเป็น 2D',
 };
 export default map;

@@ -33,6 +33,12 @@ vi.mock('./MapboxPreview', () => ({
   ),
 }));
 
+// jsdom has no WebGL2; these cases are about a browser that has it.
+vi.mock('../../utils/webgl', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../utils/webgl')>()),
+  hasWebGL: () => true,
+}));
+
 beforeEach(() => {
   resetAllStores();
   vi.clearAllMocks();

@@ -47,5 +47,8 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted.few': 'تعذّر حساب {count} مراحل من هذا اليوم',
   'map.overview.dayUnrouted.many': 'تعذّر حساب {count} مرحلة من هذا اليوم',
   'map.baseLayer.topo': 'طبوغرافية',
+  'map.webgl2.fallback':
+    'لا يوفّر هذا المتصفح WebGL2 الذي تحتاجه خرائط GL، لذا تُعرض الخرائط باستخدام Leaflet بدلًا منها.',
+  'map.webgl2.terrain': 'يحتاج العرض ثلاثي الأبعاد إلى WebGL2، وهذا المتصفح لا يوفّره. تبقى الخريطة ثنائية الأبعاد.',
 };
 export default map;

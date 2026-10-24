@@ -44,5 +44,8 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted.few': 'Nie udało się wyznaczyć {count} odcinków tego dnia',
   'map.overview.dayUnrouted.many': 'Nie udało się wyznaczyć {count} odcinków tego dnia',
   'map.baseLayer.topo': 'Topograficzna',
+  'map.webgl2.fallback':
+    'Ta przeglądarka nie obsługuje WebGL2, którego potrzebują mapy GL, więc mapy są wyświetlane za pomocą Leaflet.',
+  'map.webgl2.terrain': 'Tryb 3D wymaga WebGL2, którego ta przeglądarka nie obsługuje. Mapa pozostaje w 2D.',
 };
 export default map;

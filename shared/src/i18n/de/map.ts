@@ -42,5 +42,8 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted': '{count} Etappen dieses Tages konnten nicht berechnet werden',
   'map.overview.dayUnrouted.one': '{count} Etappe dieses Tages konnte nicht berechnet werden',
   'map.baseLayer.topo': 'Topografisch',
+  'map.webgl2.fallback':
+    'Dieser Browser bietet kein WebGL2, das GL-Karten brauchen. Karten werden deshalb mit Leaflet angezeigt.',
+  'map.webgl2.terrain': '3D braucht WebGL2, das dieser Browser nicht bietet. Die Karte bleibt in 2D.',
 };
 export default map;

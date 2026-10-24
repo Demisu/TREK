@@ -1,5 +1,6 @@
 /**
- * Whether this browser will hand MapLibre a WebGL2 context.
+ * Whether this browser will hand a GL map a WebGL2 context. MapLibre 6 and
+ * Mapbox GL 3 both ask for webgl2 and nothing else.
  *
  * The default basemap has been a vector style since 4.1.0, and maplibre-gl builds
  * its GL context inside the Map constructor: no context, no map, and the throw
@@ -28,7 +29,39 @@ export function hasWebGL(): boolean {
   return probed
 }
 
-/** Test seam. Nothing in the app clears this: the answer cannot change mid-session. */
+const listeners = new Set<() => void>()
+let failures = 0
+
+/**
+ * A GL map that failed to build although the probe said yes: a GPU that offers
+ * WebGL2 and then cannot create the context, or a context budget that ran out.
+ * From here on the answer is no, and every map that asked is told, so it can
+ * redraw itself without WebGL instead of waiting for the next page load.
+ */
+export function reportWebGLFailure(): void {
+  if (probed === false) return
+  probed = false
+  failures++
+  for (const listener of listeners) listener()
+}
+
+/** For useSyncExternalStore: tells a map when reportWebGLFailure changed the answer. */
+export function subscribeWebGL(listener: () => void): () => void {
+  listeners.add(listener)
+  return () => {
+    listeners.delete(listener)
+  }
+}
+
+/** For useSyncExternalStore: changes each time reportWebGLFailure turned the answer to no. */
+export function webGLFailures(): number {
+  return failures
+}
+
+/**
+ * Test seam. The app never clears this, it only turns it to no through
+ * reportWebGLFailure: a browser does not gain WebGL2 mid-session.
+ */
 export function resetWebGLProbe(): void {
   probed = null
 }

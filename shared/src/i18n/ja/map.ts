@@ -38,5 +38,8 @@ const map: TranslationStrings = {
   'map.overview.unrouted': '{count}区間のルートを計算できなかったため、距離は不完全です。',
   'map.overview.dayUnrouted': 'この日の{count}区間のルートを計算できませんでした',
   'map.baseLayer.topo': '地形図',
+  'map.webgl2.fallback':
+    'このブラウザーは GL マップに必要な WebGL2 に対応していないため、地図は Leaflet で表示されます。',
+  'map.webgl2.terrain': '3D には WebGL2 が必要ですが、このブラウザーは対応していません。地図は 2D のままです。',
 };
 export default map;

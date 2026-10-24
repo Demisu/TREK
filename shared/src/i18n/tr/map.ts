@@ -39,5 +39,8 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted': 'Bu günün {count} etabı hesaplanamadı',
   'map.overview.dayUnrouted.one': 'Bu günün {count} etabı hesaplanamadı',
   'map.baseLayer.topo': 'Topoğrafik',
+  'map.webgl2.fallback':
+    "Bu tarayıcı GL haritalarının ihtiyaç duyduğu WebGL2'yi sunmuyor, bu yüzden haritalar Leaflet ile gösteriliyor.",
+  'map.webgl2.terrain': '3D için WebGL2 gerekir, bu tarayıcı ise onu sunmuyor. Harita 2D olarak kalır.',
 };
 export default map;

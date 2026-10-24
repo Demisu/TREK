@@ -5,6 +5,7 @@ import { useSettingsStore } from '../../store/settingsStore'
 import { MapView } from './MapView'
 import ErrorBoundary from '../shared/ErrorBoundary'
 import { MapViewGLMapbox, MapViewGLMaplibre } from './glLazy'
+import { useGlRenderer } from './glSupport'
 import { useRoadtripHazards } from './useRoadtripHazards'
 import { useTranslation } from '../../i18n/TranslationContext'
 import type { MapViewAutoProps, MapViewProps } from './mapViewContract'
@@ -28,11 +29,10 @@ export function MapViewAuto(props: MapViewAutoProps) {
   const mapProps = { ...props, hazards: hazards.feed?.hazards } as MapViewProps
   const provider = useSettingsStore(s => s.settings.map_provider)
   const token = useSettingsStore(s => s.settings.mapbox_access_token)
-  // Fall back to Leaflet when Mapbox is selected but no token is set,
-  // so trip planner never shows an empty map due to a missing token.
-  const glProvider = provider === 'maplibre-gl' ? 'maplibre-gl'
-    : provider === 'mapbox-gl' && token ? 'mapbox-gl'
-    : null
+  // Fall back to Leaflet when Mapbox is selected but no token is set, or when the
+  // browser has no WebGL2 (both GL engines need it), so the trip planner never
+  // shows an empty map or one that fails to start.
+  const glProvider = useGlRenderer(provider, token)
   // One chunk per engine: picking the binding here is what keeps mapbox-gl and
   // maplibre-gl out of each other's downloads.
   const MapViewGL = glProvider === 'maplibre-gl' ? MapViewGLMaplibre : MapViewGLMapbox

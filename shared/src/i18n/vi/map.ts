@@ -40,5 +40,7 @@ const map: TranslationStrings = {
   'map.overview.unrouted': 'Không thể tính đường đi cho {count} chặng, nên quãng đường chưa đầy đủ.',
   'map.overview.dayUnrouted': 'Không thể tính đường đi cho {count} chặng của ngày này',
   'map.baseLayer.topo': 'Địa hình',
+  'map.webgl2.fallback': 'Trình duyệt này không hỗ trợ WebGL2 mà bản đồ GL cần, nên bản đồ được hiển thị bằng Leaflet.',
+  'map.webgl2.terrain': 'Chế độ 3D cần WebGL2, nhưng trình duyệt này không hỗ trợ. Bản đồ vẫn ở dạng 2D.',
 };
 export default map;

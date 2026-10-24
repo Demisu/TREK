@@ -44,5 +44,7 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted.few': 'Не вдалося прокласти {count} відрізки цього дня',
   'map.overview.dayUnrouted.many': 'Не вдалося прокласти {count} відрізків цього дня',
   'map.baseLayer.topo': 'Топо',
+  'map.webgl2.fallback': 'Цей браузер не підтримує WebGL2, потрібний картам GL, тому карти показуються через Leaflet.',
+  'map.webgl2.terrain': 'Для 3D потрібен WebGL2, а цей браузер його не підтримує. Карта залишається у 2D.',
 };
 export default map;

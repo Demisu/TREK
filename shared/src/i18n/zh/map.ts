@@ -36,5 +36,7 @@ const map: TranslationStrings = {
   'map.overview.unrouted': '有 {count} 段无法计算路线，因此距离不完整。',
   'map.overview.dayUnrouted': '本日有 {count} 段无法计算路线',
   'map.baseLayer.topo': '地形图',
+  'map.webgl2.fallback': '此浏览器不支持 GL 地图所需的 WebGL2，因此地图改用 Leaflet 显示。',
+  'map.webgl2.terrain': '3D 需要 WebGL2，而此浏览器不支持。地图保持 2D。',
 };
 export default map;

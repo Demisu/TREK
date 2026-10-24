@@ -39,5 +39,7 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted': 'Selle päeva {count} lõigu marsruuti ei saanud arvutada',
   'map.overview.dayUnrouted.one': 'Selle päeva {count} lõigu marsruuti ei saanud arvutada',
   'map.baseLayer.topo': 'Topograafiline',
+  'map.webgl2.fallback': 'See brauser ei paku WebGL2-te, mida GL-kaardid vajavad, seega kuvatakse kaardid Leafletiga.',
+  'map.webgl2.terrain': '3D vajab WebGL2-te, mida see brauser ei paku. Kaart jääb 2D-vaatesse.',
 };
 export default map;

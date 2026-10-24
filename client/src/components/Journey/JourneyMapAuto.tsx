@@ -5,6 +5,7 @@ import ErrorBoundary from '../shared/ErrorBoundary'
 import type { JourneyMapGLHandle } from './JourneyMapGL'
 
 import { JourneyMapGLMapbox, JourneyMapGLMaplibre } from '../Map/glLazy'
+import { useGlRenderer } from '../Map/glSupport'
 import type { JourneyTrack } from '@trek/shared'
 import type { MapPhoto } from './journeyPhotoLayer'
 import type { JourneyMapLayerVisibility } from './journeyMapLayers'
@@ -56,10 +57,11 @@ function JourneyMapAuto({ ref, ...props }: Props) {
   const leafletRef = useRef<JourneyMapHandle>(null)
   const glRef = useRef<JourneyMapGLHandle>(null)
 
-  // Fall back to Leaflet when the user selected Mapbox GL but hasn't
-  // supplied a token yet. MapLibre/OpenFreeMap is tokenless.
-  const useGL = provider === 'maplibre-gl' || (provider === 'mapbox-gl' && !!token)
-  const glProvider = provider === 'maplibre-gl' ? 'maplibre-gl' : 'mapbox-gl'
+  // Fall back to Leaflet when the user selected Mapbox GL but hasn't supplied a
+  // token yet (MapLibre/OpenFreeMap is tokenless), or when the browser has no WebGL2.
+  const glRenderer = useGlRenderer(provider, token)
+  const useGL = glRenderer !== null
+  const glProvider = glRenderer ?? 'mapbox-gl'
 
   useImperativeHandle(ref, () => ({
     highlightMarker: (id) => (useGL ? glRef.current : leafletRef.current)?.highlightMarker(id),

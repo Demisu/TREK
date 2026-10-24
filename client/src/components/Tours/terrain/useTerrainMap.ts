@@ -1,6 +1,7 @@
 import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import type { TourBaseLayer } from '../../Map/MapLayerSwitcher';
+import { buildGlMap } from '../../Map/glSupport';
 import { isTourLayerHit } from '../../Map/mapRasterOverlay';
 import {
   addTerrainLayers,
@@ -110,8 +111,11 @@ export function useTerrainMap({ scene, baseLayer, data, exaggeration }: Options)
     let map: MapLibreMap | null = null;
     void import('../../Map/engines/maplibre').then(({ default: engine }) => {
       if (cancelled) return;
-      map = createTerrainMap(engine, container, scene, { onReady: markReady, onStyleIdle: countStyle });
-      setGl({ map, engine });
+      // Null when the GPU refused WebGL2. The report switches the planner back to the 2D map.
+      map = buildGlMap(() =>
+        createTerrainMap(engine, container, scene, { onReady: markReady, onStyleIdle: countStyle })
+      );
+      if (map) setGl({ map, engine });
     });
     return () => {
       cancelled = true;

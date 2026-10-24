@@ -3,6 +3,7 @@ import type mapboxgl from 'mapbox-gl'
 import { useSettingsStore } from '../../store/settingsStore'
 import { isStandardFamily, supportsCustom3d, wantsTerrain, addCustom3dBuildings, addTerrainAndSky } from '../Map/mapboxSetup'
 import { MAPBOX_DEFAULT_STYLE, styleForActiveProvider, basemapLanguage, type GlMapProvider } from '../Map/glProviders'
+import { buildGlMap } from '../Map/glSupport'
 import type { JourneyTrack } from '@trek/shared'
 import { SHOT_INDEX_ATTR, ensureJourneyPopupStyle, formatMarkerDate, journeyPopupHtml } from './journeyMapPopup'
 import { clusterPhotos, photoMarkerHtml, type MapPhoto } from './journeyPhotoLayer'
@@ -360,11 +361,13 @@ function JourneyMapGL(
       antialias: mapboxQuality,
     }
     if (!isMapLibre) mapOptions.projection = mapboxQuality ? 'globe' : 'mercator'
-    // MapLibre 5's around-center mouse rotate ping-pongs near mid-screen (#1545)
+    // MapLibre's around-center mouse rotate ping-pongs near mid-screen (#1545)
     // — see MapViewGL. Keep the plain dx-based rotate everywhere.
     if (isMapLibre) mapOptions.aroundCenter = false
 
-    const map = new gl.Map(mapOptions as any)
+    // Null when the GPU refused WebGL2: JourneyMapAuto has switched to Leaflet by then.
+    const map = buildGlMap(() => new gl.Map(mapOptions as any))
+    if (!map) return
     mapRef.current = map
     marksFramedRef.current = false
     entryPointsRef.current = [...items.map(i => [i.lng, i.lat] as [number, number]), ...stableTrail.map(p => [p.lng, p.lat] as [number, number])]

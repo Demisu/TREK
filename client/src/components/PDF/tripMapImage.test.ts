@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { TripOverviewDay } from '../Map/tripRouteGeometry'
 
-vi.mock('../../utils/webgl', () => ({ hasWebGL: vi.fn(() => true), resetWebGLProbe: vi.fn() }))
+vi.mock('../../utils/webgl', () => ({ hasWebGL: vi.fn(() => true), resetWebGLProbe: vi.fn(), reportWebGLFailure: vi.fn() }))
 
 const { hasWebGL } = await import('../../utils/webgl')
 const { renderTripMapImage } = await import('./tripMapImage')

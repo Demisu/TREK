@@ -39,5 +39,8 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted': '{count} delsträckor för den här dagen kunde inte beräknas',
   'map.overview.dayUnrouted.one': '{count} delsträcka för den här dagen kunde inte beräknas',
   'map.baseLayer.topo': 'Topografisk',
+  'map.webgl2.fallback':
+    'Den här webbläsaren erbjuder inte WebGL2, som GL-kartor behöver, så kartorna visas med Leaflet i stället.',
+  'map.webgl2.terrain': '3D kräver WebGL2, som den här webbläsaren inte erbjuder. Kartan stannar i 2D.',
 };
 export default map;

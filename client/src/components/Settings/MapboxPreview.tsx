@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { isStandardFamily, supportsCustom3d, addCustom3dBuildings, addTerrainAndSky } from '../Map/mapboxSetup'
 import { MAPBOX_DEFAULT_STYLE, normalizeStyleForProvider, type GlMapProvider } from '../Map/glProviders'
+import { buildGlMap } from '../Map/glSupport'
 import { fs } from '../shared/DialogShell'
 
 interface Props {
@@ -46,11 +47,13 @@ export default function GlMapPreview({ provider = 'mapbox-gl', token = '', style
       antialias: quality,
     }
     if (!isMapLibre) mapOptions.projection = quality ? 'globe' : 'mercator'
-    // MapLibre 5's around-center mouse rotate ping-pongs near mid-screen (#1545)
+    // MapLibre's around-center mouse rotate ping-pongs near mid-screen (#1545)
     // — see MapViewGL. Keep the plain dx-based rotate everywhere.
     if (isMapLibre) mapOptions.aroundCenter = false
 
-    const map = new gl.Map(mapOptions as any)
+    // Null when the GPU refused WebGL2: the settings form has switched the preview to Leaflet by then.
+    const map = buildGlMap(() => new gl.Map(mapOptions as any))
+    if (!map) return
     mapRef.current = map
 
     map.on('load', () => {

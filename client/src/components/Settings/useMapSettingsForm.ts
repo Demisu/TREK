@@ -5,6 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { Place } from '../../types';
 import { normalizeStyleForProvider } from '../Map/glProviders';
+import { useWebGL2 } from '../Map/glSupport';
 import { useToast } from '../shared/Toast';
 import { type MapProvider, normalizeProvider, previewPlace, slotStyle, styleForProvider } from './mapSettingsModel';
 
@@ -51,6 +52,11 @@ export function useMapSettingsForm({ mirrorStyleBeforeSave = false }: MapSetting
   }, [settings]);
 
   const previewPlaces = useMemo((): Place[] => [previewPlace()], []);
+  // Both GL engines need WebGL2. Without it the preview shows the Leaflet map the
+  // trip planner falls back to, and both shells say why.
+  const webgl2 = useWebGL2();
+  const glPreview = provider !== 'leaflet' && webgl2;
+  const webgl2Missing = provider !== 'leaflet' && !webgl2;
 
   const save = async (): Promise<void> => {
     setSaving(true);
@@ -105,6 +111,8 @@ export function useMapSettingsForm({ mirrorStyleBeforeSave = false }: MapSetting
     mapboxQuality,
     setMapboxQuality,
     previewPlaces,
+    glPreview,
+    webgl2Missing,
     save,
   };
 }

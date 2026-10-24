@@ -5,11 +5,13 @@ import FerrataDetailOverlay from '../../components/Ferratas/FerrataDetailOverlay
 import { ferrataLabel, type FerrataGroup } from '../../components/Ferratas/ferrataGroups';
 import { useFerrataMapLayer } from '../../components/Ferratas/useFerrataMapLayer';
 import { useOutsidePressGuard } from '../../components/Ferratas/useOutsidePressGuard';
+import { useWebGL2 } from '../../components/Map/glSupport';
 import { MAP_LAYER_SWITCHER_INSET, MAP_ROUND_CONTROL_SIZE } from '../../components/Map/MapLayerSwitcher';
 import { MapUndoHint } from '../../components/Map/MapUndoHint';
 import { MapViewAuto as MapView } from '../../components/Map/MapViewAuto';
 import type { AssistantMapProps } from '../../components/Map/mapViewContract';
 import LocationSelect from '../../components/Planner/LocationSelect';
+import { useToast } from '../../components/shared/Toast';
 import { ChecklistObstaclePanel } from '../../components/Tours/paddle/ObstacleDecisionPanel';
 import PaddleObstacleOverlay from '../../components/Tours/paddle/PaddleObstacleOverlay';
 import { PaddleObstaclePlaceButton } from '../../components/Tours/paddle/PaddleObstaclePlaceButton';
@@ -25,6 +27,7 @@ import { selectPaddleObstacle, usePaddleObstacleStore } from '../../store/paddle
 import { useSettingsStore } from '../../store/settingsStore';
 import { publishTourFerrataCrossings } from '../../store/tourFerrataCrossingStore';
 import { publishTourMapViewport } from '../../store/tourMapViewportStore';
+import { subscribeWebGL } from '../../utils/webgl';
 import { useFerrataAdopt } from './useFerrataAdopt';
 import { useOneCornerCard } from './useOneCornerCard';
 import { useTourMapPoints } from './useTourMapPoints';
@@ -112,7 +115,22 @@ export function TourPlannerMapStage({
   paddleChecklist,
   assistantRoutes,
 }: Readonly<TourPlannerMapStageProps>): ReactElement {
-  const [terrain3d, setTerrain3d] = useState(false);
+  const [terrainAsked, setTerrain3d] = useState(false);
+  // The terrain is a MapLibre map, so it needs WebGL2. Without it, or once its GPU
+  // refused the context, the stage stays on the 2D map and says why.
+  const webgl2 = useWebGL2();
+  const terrain3d = terrainAsked && webgl2;
+  const toast = useToast();
+  const openTerrain = useCallback(() => {
+    if (webgl2) setTerrain3d(true);
+    else toast.info(t('map.webgl2.terrain'));
+  }, [webgl2, toast, t]);
+  // A GPU that offered WebGL2 and then refused the terrain's context: the 2D map is
+  // back by itself, and this says why.
+  useEffect(() => {
+    if (!terrainAsked) return;
+    return subscribeWebGL(() => toast.info(t('map.webgl2.terrain')));
+  }, [terrainAsked, toast, t]);
   // How high the 3D map's controls reach: one row, or two once the grade legend moved above the dock.
   const [terrainControlsPx, setTerrainControlsPx] = useState(MAP_ROUND_CONTROL_SIZE);
   const [terrainLegend, setTerrainLegend] = useState<TerrainLegendLayout | null>(null);
@@ -287,7 +305,7 @@ export function TourPlannerMapStage({
             viewBaseLayer={baseLayer}
             onViewBaseLayerChange={tourPlanner.setMapBaseLayer}
             tourLayers={tourLayers}
-            onToggleTerrain3d={() => setTerrain3d(true)}
+            onToggleTerrain3d={openTerrain}
             ferrataLayer={ferrataLayer}
             onViewportChange={viewportChanged}
             placeTool={placeTool}

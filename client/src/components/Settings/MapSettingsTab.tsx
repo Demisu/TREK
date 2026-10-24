@@ -132,7 +132,7 @@ export default function MapSettingsTab(): React.ReactElement {
   const {
     managed, saving, provider, changeProvider, mapTileUrl, setMapTileUrl, mapboxToken, setMapboxToken,
     cartoKey, setCartoKey, cartoNeedsKey, mapboxStyle, setMapboxStyle, mapbox3d, setMapbox3d,
-    mapboxQuality, setMapboxQuality, previewPlaces, save: saveMapSettings,
+    mapboxQuality, setMapboxQuality, previewPlaces, glPreview, webgl2Missing, save: saveMapSettings,
   } = useMapSettingsForm()
   // One chunk per engine — see components/Map/glLazy.tsx.
   const GlMapPreview = provider === 'maplibre-gl' ? GlMapPreviewMaplibre : GlMapPreviewMapbox
@@ -318,7 +318,7 @@ export default function MapSettingsTab(): React.ReactElement {
       )}
 
       <div className="relative h-[200px] w-full overflow-hidden rounded-[14px] border border-edge-faint bg-surface-tertiary">
-        {provider !== 'leaflet' ? (
+        {glPreview ? (
           /* A net of its own: the preview is the one place a user flips providers
              live, so it is the likeliest chunk to fail — and a broken preview must
              not take the rest of the settings tab with it. */
@@ -363,6 +363,7 @@ export default function MapSettingsTab(): React.ReactElement {
           })
         )}
       </div>
+      {webgl2Missing && <SettingsHint>{t('map.webgl2.fallback')}</SettingsHint>}
 
       <div className="flex justify-end">
         <button type="button"

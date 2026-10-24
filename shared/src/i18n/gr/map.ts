@@ -40,5 +40,9 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted': '{count} σκέλη αυτής της ημέρας δεν μπόρεσαν να υπολογιστούν',
   'map.overview.dayUnrouted.one': '{count} σκέλος αυτής της ημέρας δεν μπόρεσε να υπολογιστεί',
   'map.baseLayer.topo': 'Τοπογραφικός',
+  'map.webgl2.fallback':
+    'Αυτό το πρόγραμμα περιήγησης δεν προσφέρει WebGL2, που χρειάζονται οι χάρτες GL, οπότε οι χάρτες εμφανίζονται με το Leaflet.',
+  'map.webgl2.terrain':
+    'Το 3D χρειάζεται WebGL2, που αυτό το πρόγραμμα περιήγησης δεν προσφέρει. Ο χάρτης μένει σε 2D.',
 };
 export default map;

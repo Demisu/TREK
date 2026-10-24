@@ -41,5 +41,8 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted.one': 'Trasu pre {count} úsek tohto dňa sa nepodarilo vypočítať',
   'map.overview.dayUnrouted.few': 'Trasu pre {count} úseky tohto dňa sa nepodarilo vypočítať',
   'map.baseLayer.topo': 'Topografická',
+  'map.webgl2.fallback':
+    'Tento prehliadač neponúka WebGL2, ktoré mapy GL potrebujú, preto sa mapy zobrazujú pomocou Leafletu.',
+  'map.webgl2.terrain': '3D potrebuje WebGL2, ktoré tento prehliadač neponúka. Mapa zostáva v 2D.',
 };
 export default map;

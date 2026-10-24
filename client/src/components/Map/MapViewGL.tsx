@@ -24,6 +24,7 @@ import { useTransportRoutes } from '../../hooks/useTransportRoutes'
 import { visibleRouteReservations } from '../../utils/reservationRoutes'
 import { safeHexColor } from '../../utils/safeColor'
 import { MAPBOX_DEFAULT_STYLE, styleForActiveProvider, basemapLanguage, type GlMapProvider } from './glProviders'
+import { buildGlMap } from './glSupport'
 import LocationButton from './LocationButton'
 import { useIsPhone } from '../../mobile/useIsPhone'
 import { useGeolocation } from '../../hooks/useGeolocation'
@@ -1104,13 +1105,12 @@ export function MapViewGL({
       antialias: mapboxQuality,
     }
     if (!isMapLibre) mapOptions.projection = mapboxQuality ? 'globe' : 'mercator'
-    // MapLibre 5's mouse-rotate inverts its sign at a mid-screen line it gets by
-    // re-projecting the map center — a line that drifts with the bearing, so a
-    // right-button drag near mid-screen ping-pongs instead of rotating (#1545).
-    // aroundCenter: false restores the plain dx-based rotate mapbox-gl uses.
+    // MapLibre's around-center rotate ping-pongs near mid-screen (#1545); false is mapbox-gl's dx rotate.
     if (isMapLibre) mapOptions.aroundCenter = false
 
-    const map = new gl.Map(mapOptions as any)
+    // Null when the GPU refused WebGL2: MapViewAuto has switched to Leaflet by then.
+    const map = buildGlMap(() => new gl.Map(mapOptions as any))
+    if (!map) return
     mapRef.current = map
     popupRef.current = new gl.Popup({
       closeButton: false,

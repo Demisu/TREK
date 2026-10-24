@@ -5,11 +5,13 @@ import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/
 import { idleLegVariants, idleRoundHikes } from '../../../tests/helpers/tourPlannerStub';
 import { useTripFerratas } from '../../components/Ferratas/useTripFerratas';
 import type { MapViewProps } from '../../components/Map/mapViewContract';
+import { ToastContainer } from '../../components/shared/Toast';
 import { useTourMapView } from '../../components/Tours/planner/useTourMapView';
 import { clearPaddleObstacles, publishPaddleObstacles, selectPaddleObstacle } from '../../store/paddleObstacleStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useTourMapViewportStore } from '../../store/tourMapViewportStore';
 import { initialTourPlaceToolState, useTourPlaceToolStore } from '../../store/tourPlaceToolStore';
+import { resetWebGLProbe } from '../../utils/webgl';
 import { TourPlannerMapStage, type TourPlannerMapStageProps } from './TourPlannerMapStage';
 
 type Handler = (event?: unknown) => void;
@@ -75,6 +77,12 @@ const stage = vi.hoisted(() => {
 });
 
 vi.mock('../../components/Map/engines/maplibre', () => ({ default: stage.engine }));
+// jsdom has no WebGL2: the stage is told it is there, except where a case takes it away.
+const webgl = vi.hoisted(() => ({ available: true }));
+vi.mock('../../utils/webgl', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../utils/webgl')>()),
+  hasWebGL: () => webgl.available,
+}));
 vi.mock('../../components/Map/MapViewAuto', () => ({
   MapViewAuto: (props: MapViewProps) => {
     stage.flatMap.props = props;
@@ -185,6 +193,8 @@ async function openTerrain() {
 }
 
 beforeEach(() => {
+  webgl.available = true;
+  resetWebGLProbe();
   window.sessionStorage.clear();
   useTourPlaceToolStore.setState(initialTourPlaceToolState());
   stage.listeners.clear();
@@ -926,5 +936,45 @@ describe('TourPlannerMapStage', () => {
       act(() => pistes()?.onToggle());
       expect(pistes()?.status).toBe('on');
     });
+  });
+});
+
+describe('3D without WebGL2', () => {
+  const NO_3D = '3D needs WebGL2, which this browser does not offer. The map stays in 2D.';
+
+  function renderWithToasts(tourPlanner: Planner) {
+    return render(
+      <>
+        <ToastContainer />
+        <TourPlannerMapStage {...stageProps(tourPlanner, true)} />
+      </>
+    );
+  }
+
+  it('FE-PAGE-TOURSTAGE-WEBGL-001: the 3D switch keeps the 2D map and says why', async () => {
+    webgl.available = false;
+    renderWithToasts(planner('edit-saved'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'flat map' }));
+
+    expect(await screen.findByText(NO_3D)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'flat map' })).toBeInTheDocument();
+    expect(stage.engine.Map).not.toHaveBeenCalled();
+  });
+
+  it('FE-PAGE-TOURSTAGE-WEBGL-002: a GPU that refuses the terrain context brings the 2D map back', async () => {
+    stage.engine.Map.mockImplementationOnce(function () {
+      webgl.available = false;
+      const err = new Error('WebGL2 is required to display this map.');
+      err.name = 'GPUInitializationError';
+      throw err;
+    });
+    renderWithToasts(planner('edit-saved'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'flat map' }));
+
+    expect(await screen.findByText(NO_3D)).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'flat map' })).toBeInTheDocument();
+    expect(stage.engine.Map).toHaveBeenCalledTimes(1);
   });
 });

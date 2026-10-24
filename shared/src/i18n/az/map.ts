@@ -45,6 +45,9 @@ const map: TranslationStrings = {
   'map.overview.dayUnrouted': 'Bu günün {count} marşrut hissəsini hesablamaq mümkün olmadı',
   'map.overview.dayUnrouted.one': 'Bu günün {count} marşrut hissəsini hesablamaq mümkün olmadı',
   'map.baseLayer.topo': 'Topoqrafik',
+  'map.webgl2.fallback':
+    'Bu brauzer GL xəritələrinin ehtiyac duyduğu WebGL2-ni təqdim etmir, ona görə xəritələr Leaflet ilə göstərilir.',
+  'map.webgl2.terrain': '3D üçün WebGL2 lazımdır, bu brauzer isə onu təqdim etmir. Xəritə 2D olaraq qalır.',
 };
 
 export default map;
