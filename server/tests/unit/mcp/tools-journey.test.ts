@@ -661,6 +661,8 @@ describe('journey write tools', () => {
         }),
       ) as any;
       expect(reordered.success).toBe(true);
+      // The ids as they stood before, in the journal's reading order, for a way back.
+      expect(reordered.previous_order).toEqual([a.id, b.id]);
       expect(
         (
           await h.client.callTool({
@@ -966,6 +968,33 @@ describe('journey entry fields', () => {
       // Untouched: the service only writes the keys it was handed.
       expect(row.title).toBe('Vik');
       expect(row.location_name).toBe('Reynisfjara');
+    });
+  });
+
+  it('update_journey_entry answers what the named fields held before, decoded, and nothing for the rest', async () => {
+    const { user } = createUser(testDb);
+    await withHarness(user.id, async (h) => {
+      const journey = await seedJourney(h);
+      const entry = await seedEntry(h, journey.id, {
+        title: 'Vik',
+        tags: ['beach'],
+        pros_cons: { pros: ['the stacks'], cons: [] },
+        is_draft: true,
+      });
+      const updated = parseToolResult(
+        await h.client.callTool({
+          name: 'update_journey_entry',
+          arguments: { entryId: entry.id, title: 'Reynisfjara', tags: null, is_draft: false, location_lat: 63.4 },
+        }),
+      ) as { entry: { title: string }; previous: Record<string, unknown> };
+      expect(updated.entry.title).toBe('Reynisfjara');
+      expect(updated.previous).toEqual({ title: 'Vik', tags: ['beach'], is_draft: true, location_lat: null });
+      // Written back through the same tool, the entry reads as it did.
+      await h.client.callTool({ name: 'update_journey_entry', arguments: { entryId: entry.id, ...updated.previous } });
+      const row = await entryRow(entry.id);
+      expect(row.title).toBe('Vik');
+      expect(row.tags).toBe('["beach"]');
+      expect(row.is_draft).toBe(1);
     });
   });
 

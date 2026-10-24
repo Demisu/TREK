@@ -220,6 +220,62 @@ export const journeyEntriesRangeSchema = z.object({
 });
 export type JourneyEntriesRange = z.infer<typeof journeyEntriesRangeSchema>;
 
+/**
+ * The change the MCP tool `update_journey_entry` makes to an entry. Fields
+ * left out keep their value; null clears one. Strict, unlike the REST body,
+ * which forwards whatever it is given.
+ */
+export const journeyEntryUpdateToolSchema = z.strictObject({
+  title: z.string().max(300).nullable().optional(),
+  story: z.string().nullable().optional(),
+  entry_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  entry_time: z.string().nullable().optional(),
+  location_name: z.string().nullable().optional(),
+  location_lat: z
+    .number()
+    .min(-90)
+    .max(90)
+    .nullable()
+    .optional()
+    .describe('Latitude, or null to take the entry off the journey map'),
+  location_lng: z.number().min(-180).max(180).nullable().optional(),
+  mood: z.string().nullable().optional(),
+  weather: z.string().max(100).nullable().optional(),
+  tags: z.array(z.string()).nullable().optional(),
+  pros_cons: journeyEntryProsConsSchema.nullable().optional().describe('Replaces the whole verdict; null clears it'),
+  visibility: journeyEntryVisibilitySchema.optional(),
+  type: journeyEntryTypeSchema
+    .optional()
+    .describe('Promote a trip-derived "skeleton" to a real "entry" once it has been written up'),
+  sort_order: z.number().int().min(0).optional(),
+  stats_excluded: z
+    .boolean()
+    .optional()
+    .describe(
+      'True leaves the entry in the journal but takes it off the journey route and out of its distance, countries and step count (see get_journey_stats); false puts it back. For the home airport, a stopover, the place the trip was planned from',
+    ),
+  dismissed: z
+    .boolean()
+    .optional()
+    .describe(
+      'True waves a trip-derived suggestion away: it leaves the journey without being deleted, so the trip sync does not offer it again. restore_journey_suggestions brings every dismissed one back',
+    ),
+  is_draft: z
+    .boolean()
+    .optional()
+    .describe('True turns the entry into a draft that the journey share link leaves out; false publishes it'),
+});
+export type JourneyEntryUpdateTool = z.infer<typeof journeyEntryUpdateToolSchema>;
+
+/** The new order the MCP tool `reorder_journey_entries` sets: entry ids, first first. */
+export const journeyReorderEntriesToolSchema = z.strictObject({
+  orderedIds: z.array(idSchema),
+});
+export type JourneyReorderEntriesTool = z.infer<typeof journeyReorderEntriesToolSchema>;
+
 /** Free-form plus the entry_date the handler demands itself. */
 export const journeyEntryCreateRequestSchema = z.looseObject({
   entry_date: z.unknown().optional(),

@@ -27,9 +27,9 @@ import { Trips } from '../../db/entities/Trips.entity';
 import type { TripsRepository } from '../../db/repositories/Trips.repository';
 import { Places } from '../../db/entities/Places.entity';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
-import { presenceSet } from '../../db/repositories/_shared/presence-set';
 import { parseRouteGeometry } from './journey-geometry';
 import { journeySettingsPatch, type JourneySettingsInput } from './journey-settings.helpers';
+import { entryPrevious, entryUpdatePatch, type JourneyEntryPrevious, type JourneyEntryUpdateInput } from './journey-entry-patch.helpers';
 
 /**
  * What makes a journal skeleton unique: the place *and* the day assignment it
@@ -1158,107 +1158,30 @@ export class JourneyDomainService {
     return created;
   }
 
-  async updateEntry(
+  async updateEntry(entryId: number, userId: number, data: JourneyEntryUpdateInput, sid?: string): Promise<JourneyEntryWire | null> {
+    return (await this.updateEntryWithPrevious(entryId, userId, data, sid))?.entry ?? null;
+  }
+
+  /** The update every surface makes, with what it replaced (journey-entry-patch.helpers.ts), for the assistant's undo. */
+  async updateEntryWithPrevious(
     entryId: number,
     userId: number,
-    data: Partial<{
-      type: string;
-      title: string;
-      story: string;
-      entry_date: string;
-      entry_time: string;
-      location_name: string;
-      location_lat: number;
-      location_lng: number;
-      mood: string;
-      weather: string;
-      tags: string[];
-      pros_cons: { pros: string[]; cons: string[] };
-      visibility: string;
-      sort_order: number;
-      stats_excluded: boolean;
-      dismissed: boolean;
-      is_draft: boolean;
-    }>,
+    data: JourneyEntryUpdateInput,
     sid?: string,
-  ): Promise<JourneyEntryWire | null> {
+  ): Promise<{ entry: JourneyEntryWire; previous: JourneyEntryPrevious } | null> {
     // JG77 — same text as JG76.
     const entry = await this.entriesRepo.findById(entryId);
     if (!entry) return null;
     if (!(await this.canEdit(entry.journey_id, userId))) return null;
 
-    // JG78 — R6's `presenceSet` conversion, the SECOND consumer of this
-    // pattern (JG24's `updateJourney`, Task 1's, is the first — same shape,
-    // not re-derived). The SERVICE resolves every field to its final bound
-    // value first: `tags`/`pros_cons` JSON-encoded, `stats_excluded`/
-    // `dismissed` boolean-coerced to 0/1 (better-sqlite3 refuses a JS
-    // boolean bind), `country_code` recomputed whenever EITHER half of the
-    // lat/lng pair is present in the patch — including when explicitly
-    // `null`, which means "take this entry off the map" and must clear the
-    // country rather than fall back to the old one, hence `!== undefined`,
-    // never `??` — before handing any of it to the repository.
-    //
-    // The skeleton→entry promotion preserves a real legacy nuance: the
-    // original dynamic-SET-list pushed a SECOND `type = ?` binding when a
-    // story was added to a skeleton, even when the caller's own `data.type`
-    // had already pushed one — SQLite's `SET col = a, col = b` keeps the
-    // LAST assignment, so the promotion always won over an explicit
-    // `data.type` whenever both applied. `presenceSet` takes one value per
-    // key, so that "last one wins" resolution happens here instead, in the
-    // same effective order the legacy statement's own field list built it.
-    const promoteToEntry = entry.type === 'skeleton' && !!data.story && data.story.trim().length > 0;
-    const patch = presenceSet<{
-      type: string;
-      title: string | null;
-      story: string | null;
-      entry_date: string;
-      entry_time: string | null;
-      location_name: string | null;
-      location_lat: number | null;
-      location_lng: number | null;
-      mood: string | null;
-      weather: string | null;
-      tags: string | null;
-      pros_cons: string | null;
-      visibility: string;
-      sort_order: number;
-      stats_excluded: number;
-      dismissed: number;
-      is_draft: number;
-      country_code: string | null;
-      updated_at: number;
-    }>({
-      type: [data.type !== undefined || promoteToEntry, promoteToEntry ? 'entry' : (data.type as string)],
-      title: [data.title !== undefined, data.title as string],
-      story: [data.story !== undefined, data.story as string],
-      entry_date: [data.entry_date !== undefined, data.entry_date as string],
-      entry_time: [data.entry_time !== undefined, data.entry_time as string],
-      location_name: [data.location_name !== undefined, data.location_name as string],
-      location_lat: [data.location_lat !== undefined, data.location_lat as number | null],
-      location_lng: [data.location_lng !== undefined, data.location_lng as number | null],
-      mood: [data.mood !== undefined, data.mood as string],
-      weather: [data.weather !== undefined, data.weather as string],
-      // `Array.isArray(val) ? JSON.stringify(val) : val` (legacy) — a caller
-      // sending `tags: null`/`pros_cons: null` explicitly (to CLEAR the
-      // field, not touch it) must write SQL NULL, not the JSON string
-      // `"null"` (`JSON.stringify(null)`) — caught live by
-      // `tools-journey.test.ts`'s own "clears a field on null" case.
-      tags: [data.tags !== undefined, Array.isArray(data.tags) ? JSON.stringify(data.tags) : null],
-      pros_cons: [data.pros_cons !== undefined, data.pros_cons && typeof data.pros_cons === 'object' ? JSON.stringify(data.pros_cons) : null],
-      visibility: [data.visibility !== undefined, data.visibility as string],
-      sort_order: [data.sort_order !== undefined, data.sort_order as number],
-      stats_excluded: [data.stats_excluded !== undefined, data.stats_excluded ? 1 : 0],
-      dismissed: [data.dismissed !== undefined, data.dismissed ? 1 : 0],
-      is_draft: [data.is_draft !== undefined, data.is_draft ? 1 : 0],
-      country_code: [
-        data.location_lat !== undefined || data.location_lng !== undefined,
-        this.countryFor(
-          data.location_lat !== undefined ? data.location_lat : entry.location_lat,
-          data.location_lng !== undefined ? data.location_lng : entry.location_lng,
-        ),
-      ],
-      updated_at: [true, this.ts()],
-    });
+    // JG78 — the patch is built in one place for every surface; the country is recomputed whenever
+    // EITHER half of the lat/lng pair is named, including as null, so it clears rather than falls back.
+    const country = this.countryFor(
+      data.location_lat !== undefined ? data.location_lat : entry.location_lat,
+      data.location_lng !== undefined ? data.location_lng : entry.location_lng,
+    );
+    const patch = entryUpdatePatch(entry, data, country, this.ts());
+    const previous = entryPrevious(entry, data);
 
     // M3 (parity) — the legacy no-op check (`fields.length === 0`) fires
     // exactly when NO allow-listed key made it into the dynamic SET list.
@@ -1266,10 +1189,10 @@ export class JourneyDomainService {
     // of that: `data` is `journeyEntryUpdateRequestSchema`'s `z.looseObject`,
     // so a PATCH body carrying only non-allow-listed keys (`{"foo":1}`) has
     // a defined value there and this used to write and broadcast anyway.
-    // `patch` (built above by `presenceSet`) always carries `updated_at`
+    // `patch` (built above by `entryUpdatePatch`) always carries `updated_at`
     // unconditionally, so its length is 1 exactly when nothing allow-listed
     // was provided — the same condition the legacy field-count check tested.
-    if (Object.keys(patch).length === 1) return decodeEntryRow(entry);
+    if (Object.keys(patch).length === 1) return { entry: decodeEntryRow(entry), previous: {} };
 
     await this.uow.transactional(async () => {
       await placeMovedEntry(this.entriesRepo, entry, patch, this.ts());
@@ -1280,19 +1203,26 @@ export class JourneyDomainService {
     // JG80 — same text as JG76.
     const updated = decodeEntryRow((await this.entriesRepo.findById(entryId)) as JourneyEntry);
     await this.broadcastJourneyEvent(entry.journey_id, 'journey:entry:updated', { entry: updated }, sid);
-    return updated;
+    return { entry: updated, previous };
   }
 
   // Reorder entries (typically within a single day). Caller passes the new
   // desired order of ids; each entry's sort_order is set to its index in the
   // array. Only entries owned by this journey are accepted.
   async reorderEntries(journeyId: number, userId: number, orderedIds: number[], sid?: string): Promise<boolean> {
-    if (!(await this.canEdit(journeyId, userId))) return false;
-    if (!orderedIds.length) return true;
+    return (await this.reorderEntriesWithPrevious(journeyId, userId, orderedIds, sid)) !== null;
+  }
+
+  /** The reorder every surface makes, with the order the ids stood in before it (the journal's reading order). */
+  async reorderEntriesWithPrevious(journeyId: number, userId: number, orderedIds: number[], sid?: string): Promise<{ previousOrder: number[] } | null> {
+    if (!(await this.canEdit(journeyId, userId))) return null;
+    if (!orderedIds.length) return { previousOrder: [] };
 
     // JG81 — ownership verification.
     const matchedIds = await this.entriesRepo.listIdsIn(journeyId, orderedIds);
-    if (matchedIds.length !== orderedIds.length) return false;
+    if (matchedIds.length !== orderedIds.length) return null;
+    const named = new Set(orderedIds);
+    const previousOrder = (await this.entriesRepo.listForJourney(journeyId)).map((e) => e.id).filter((id) => named.has(id));
 
     const now = this.ts();
     // JG82/JG83 (the fourth `uow.transactional` block) — the legacy
@@ -1311,7 +1241,7 @@ export class JourneyDomainService {
     });
 
     await this.broadcastJourneyEvent(journeyId, 'journey:entries:reordered', { orderedIds }, sid);
-    return true;
+    return { previousOrder };
   }
 
   /**

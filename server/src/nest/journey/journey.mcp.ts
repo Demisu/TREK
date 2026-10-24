@@ -22,6 +22,8 @@ import {
   idSchema,
   journeyCreateToolSchema,
   journeyEntriesRangeSchema,
+  journeyEntryUpdateToolSchema,
+  journeyReorderEntriesToolSchema,
   journeyEntryProsConsSchema,
   journeyEntryTypeSchema,
   journeyEntryVisibilitySchema,
@@ -29,7 +31,9 @@ import {
   journeyUpdateToolSchema,
   type JourneyCreateTool,
   type JourneyEntryType,
+  type JourneyEntryUpdateTool,
   type JourneyEntryVisibility,
+  type JourneyReorderEntriesTool,
   type JourneyUpdateTool,
 } from '@trek/shared';
 
@@ -428,87 +432,21 @@ export class JourneyMcp {
   @Tool({
     name: 'update_journey_entry',
     description:
-      'Update an existing journey entry: its text, date, place, coordinates, weather, tags, verdict, visibility, whether it is a draft, or whether it counts as a stop. Fields left out keep their value; pass null to clear one. To move an entry within its day use reorder_journey_entries rather than setting sort_order here.',
-    inputSchema: {
-      entryId: idSchema,
-      title: z.string().max(300).nullable().optional(),
-      story: z.string().nullable().optional(),
-      entry_date: z
-        .string()
-        .regex(/^\d{4}-\d{2}-\d{2}$/)
-        .optional(),
-      entry_time: z.string().nullable().optional(),
-      location_name: z.string().nullable().optional(),
-      location_lat: z
-        .number()
-        .min(-90)
-        .max(90)
-        .nullable()
-        .optional()
-        .describe('Latitude, or null to take the entry off the journey map'),
-      location_lng: z.number().min(-180).max(180).nullable().optional(),
-      mood: z.string().nullable().optional(),
-      weather: z.string().max(100).nullable().optional(),
-      tags: z.array(z.string()).nullable().optional(),
-      pros_cons: PROS_CONS.nullable().optional().describe('Replaces the whole verdict; null clears it'),
-      visibility: ENTRY_VISIBILITY.optional(),
-      type: ENTRY_TYPE.optional().describe(
-        'Promote a trip-derived "skeleton" to a real "entry" once it has been written up',
-      ),
-      sort_order: z.number().int().min(0).optional(),
-      stats_excluded: z
-        .boolean()
-        .optional()
-        .describe(
-          'True leaves the entry in the journal but takes it off the journey route and out of its distance, countries and step count (see get_journey_stats); false puts it back. For the home airport, a stopover, the place the trip was planned from',
-        ),
-      dismissed: z
-        .boolean()
-        .optional()
-        .describe(
-          'True waves a trip-derived suggestion away: it leaves the journey without being deleted, so the trip sync does not offer it again. restore_journey_suggestions brings every dismissed one back',
-        ),
-      is_draft: z
-        .boolean()
-        .optional()
-        .describe('True turns the entry into a draft that the journey share link leaves out; false publishes it'),
-    },
+      'Update an existing journey entry: its text, date, place, coordinates, weather, tags, verdict, visibility, whether it is a draft, or whether it counts as a stop. Fields left out keep their value; pass null to clear one. To move an entry within its day use reorder_journey_entries rather than setting sort_order here. Answers with the entry and, under previous, what the changed fields held before.',
+    inputSchema: { entryId: idSchema, ...journeyEntryUpdateToolSchema.shape },
     annotations: TOOL_ANNOTATIONS_WRITE,
     when: journeyAddonOn,
     access: { group: 'journey', mode: 'write' },
   })
-  async updateJourneyEntry(
-    {
-      entryId,
-      ...data
-    }: {
-      entryId: number;
-      title?: string | null;
-      story?: string | null;
-      entry_date?: string;
-      entry_time?: string | null;
-      location_name?: string | null;
-      location_lat?: number | null;
-      location_lng?: number | null;
-      mood?: string | null;
-      weather?: string | null;
-      tags?: string[] | null;
-      pros_cons?: { pros: string[]; cons: string[] } | null;
-      visibility?: JourneyEntryVisibility;
-      type?: JourneyEntryType;
-      sort_order?: number;
-      stats_excluded?: boolean;
-      dismissed?: boolean;
-      is_draft?: boolean;
-    },
-    ctx: McpContext,
-  ) {
-    const entry = await this.journey.updateEntry(entryId, ctx.userId, data, undefined);
-    if (!entry) return notFound('Entry not found or access denied.');
+  async updateJourneyEntry({ entryId, ...data }: JourneyEntryUpdateTool & { entryId: number }, ctx: McpContext) {
+    // The update PATCH /api/journeys/entries/:entryId makes, with what it replaced.
+    const updated = await this.journey.updateEntryWithPrevious(entryId, ctx.userId, data, undefined);
+    if (!updated) return notFound('Entry not found or access denied.');
+    const { entry, previous } = updated;
     // Return through the listEntries enrichment (parsed tags/pros_cons, photos), matching create_journey_entry.
     const enriched =
       (await this.journey.listEntries(entry.journey_id, ctx.userId))?.find((e) => e.id === entry.id) ?? entry;
-    return ok({ entry: enriched });
+    return ok({ entry: enriched, previous });
   }
 
   @Tool({
@@ -527,19 +465,20 @@ export class JourneyMcp {
 
   @Tool({
     name: 'reorder_journey_entries',
-    description: 'Reorder entries within a journey by providing the desired order of entry IDs.',
-    inputSchema: {
-      journeyId: idSchema,
-      orderedIds: z.array(idSchema),
-    },
+    description:
+      'Reorder entries within a journey by providing the desired order of entry IDs. Answers with previous_order, the same ids in the order they stood in before.',
+    inputSchema: { journeyId: idSchema, ...journeyReorderEntriesToolSchema.shape },
     annotations: TOOL_ANNOTATIONS_WRITE,
     when: journeyAddonOn,
     access: { group: 'journey', mode: 'write' },
   })
-  async reorderJourneyEntries({ journeyId, orderedIds }: { journeyId: number; orderedIds: number[] }, ctx: McpContext) {
-    const success = await this.journey.reorderEntries(journeyId, ctx.userId, orderedIds, undefined);
-    if (!success) return notFound('Journey not found, access denied, or entry IDs do not belong to this journey.');
-    return ok({ success: true });
+  async reorderJourneyEntries(
+    { journeyId, orderedIds }: JourneyReorderEntriesTool & { journeyId: number },
+    ctx: McpContext,
+  ) {
+    const reordered = await this.journey.reorderEntriesWithPrevious(journeyId, ctx.userId, orderedIds, undefined);
+    if (!reordered) return notFound('Journey not found, access denied, or entry IDs do not belong to this journey.');
+    return ok({ success: true, previous_order: reordered.previousOrder });
   }
 
   @Tool({
