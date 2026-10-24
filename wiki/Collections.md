@@ -12,7 +12,9 @@ A place you save to a trip only exists inside that trip. Collections is the oppo
 
 ## Accessing Collections
 
-When the admin has enabled the addon, a **Collections** entry appears in the main navigation (and a bottom-tab on mobile). Opening it shows your lists on the left, the active list's places in the middle, and a map on the right. **Expand map** above the map gives it the whole width, and **Show list** brings the places back.
+When the admin has enabled the addon, a **Collections** entry appears in the main navigation (and a bottom-tab on mobile). Opening it shows your lists on the left, the active list's places in the middle, and a map on the right. **Expand map** above the map gives it the whole width, and **Show list** brings the places back. In a window too narrow for the three columns, a **List** / **Map** switch in the toolbar changes between the places and the map (it appears once at least one saved place has coordinates).
+
+With the AI assistant on, it can also read and manage your lists for you, for example saving a place to a list or accepting and declining list invites.
 
 The dashboard also gains a **Collections widget** that surfaces your lists as compact badges. Each user can hide that widget from their own dashboard under **Dashboard widgets** on the Appearance tab (see [Appearance-Settings](Appearance-Settings)) without affecting anyone else.
 
