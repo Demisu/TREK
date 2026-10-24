@@ -926,9 +926,9 @@ const help: TranslationStrings = {
   'help.guide.studio.goal': 'Készíts a naplóból nyomtatható oldalakat.',
   'help.guide.studio.step.1': 'Kattints a fejlécben a „Studio” gombra. A tervező az útinapló fölött nyílik meg.',
   'help.guide.studio.step.2':
-    'Visszalépéshez kattints az útinapló nevére a felső sáv bal oldalán. Oda kerülsz vissza, ahol korábban voltál.',
+    'A visszatéréshez kattints a felső sáv jobb szélén lévő × jelre. Oda jutsz vissza, ahol voltál.',
   'help.guide.studio.result':
-    'Bal oldalon az oldalak sávja, a munkaterületen az oldalpár, jobb oldalon a tulajdonságok látszanak. Az automatikus elrendezés a bejegyzéseidből állítja össze a könyvet. Az „Exportálás” nyomdakész PDF-et készít.',
+    'A sáv a paneleivel balra van, az oldalpár a munkaterületen, a tulajdonságok pedig jobbra. Az Automatikus elrendezés a bejegyzéseidből építi fel a könyvet. Az Exportálás nyomtatásra kész PDF-et készít.',
   'help.guide.studio.tip.1': 'A Studióhoz legalább 1024 px széles ablak kell, telefonon nem érhető el.',
   'help.guide.studio.tip.2':
     'A könyvhöz ugyanaz a hozzáférés tartozik, mint az útinaplóhoz: aki olvashatja az útinaplót, megnyithatja a könyvet, aki szerkesztheti, mentheti is.',
@@ -961,19 +961,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'A TREK Studio nyomtatható fotókönyvvé tördeli az útinaplót. A napló fölött nyílik meg: balra az oldallista és a tartalom, középen az éppen szerkesztett oldalpár, jobbra a tulajdonságai. Az automatikus elrendezés a bejegyzéseidből elkészíti az első vázlatot. Ezután mindent áthelyezhetsz, körbevághatsz és átformázhatsz, és minden lépés visszavonható.',
+    'A TREK Studio nyomtatható fotókönyvvé tördeli az útinaplót. A napló fölött nyílik meg: balra a sáv a paneleivel, középen az éppen szerkesztett oldalpár, jobbra a tulajdonságai. Az Automatikus elrendezés a bejegyzéseidből elkészíti az első vázlatot, egy téma színeket és betűtípusokat ad a könyvnek, az asszisztens pedig veled együtt tervezhet oldalakat. Ezután mindent áthelyezhetsz, körbevághatsz és átformázhatsz, és minden lépés visszavonható.',
   'help.ctx.journey-studio.bullet.1':
-    'Felső sáv: „Vissza az útinaplóhoz”, „Könyvnézet”, visszavonás és újra, „Oldalformátum”, „Automatikus elrendezés” és „Exportálás”. A cím melletti „Mentve” jelzés mutatja, hogy a könyv el van-e mentve.',
+    'Felső sáv: balra az útinapló borítója és neve. Jobbra: ki van még a könyvben és el van-e mentve, az oldalformátum, a visszavonás, az újra és a beillesztés, az Automatikus elrendezés, az asszisztens, a súgó, az Exportálás és a Studiót bezáró gomb.',
   'help.ctx.journey-studio.bullet.2':
-    'Bal oldali sáv hét résszel: „Oldalak”, „Tartalom” (az útinapló fotói és bejegyzései), „Elrendezések”, „Elemek” (szöveg, alakzatok, vonalak, keretek és rácsok, ikonok és matricák), „Utazás” (az útinaplóból készült térképek, országok, zászlók és jelölések), alattuk külön pedig „Téma” és „Rétegek”.',
+    'Bal oldali sáv: Oldalak, Tartalom (az útinapló fotói és bejegyzései), Elrendezések, Elemek (szöveg, alakzatok, vonalak, keretek, ikonok és matricák), Utazás (az útinaplóból készült számok, térképek, országok és jelek), alattuk külön pedig Téma és Rétegek.',
   'help.ctx.journey-studio.bullet.3':
-    'Munkaterület: az aktuális oldalpár a kifutóval és a biztonsági margóval, alatta a nagyítósáv, a „Fit to view”, jobb oldalon pedig az „Oldalpár letöltése”.',
+    'Munkaterület: az aktuális oldalpár a kifutóval és a biztonsági margóval, alatta a nagyítósáv az Illesztés a nézethez, a Könyvnézet és az Oldalpár letöltése gombokkal.',
   'help.ctx.journey-studio.bullet.4':
-    '„Properties” a jobb oldalon: a kijelölt elem helyzete és mérete, vágása és fókuszpontja, kitöltés vagy illesztés, megjelenés, sarkok, keret, rétegsorrend és zárolás. Ha nincs kijelölve semmi, az oldalszámokat és a dokumentumot mutatja.',
+    'Tulajdonságok jobb oldalon: minden a kijelölt elemről, a helyzettől, mérettől és vágástól a színekig, effektekig, rétegsorrendig és zárolásig. Ha nincs kijelölve semmi, az oldal hátterét, a témát, az oldalszámokat és a dokumentumot mutatja.',
   'help.ctx.journey-studio.bullet.5':
-    'A könyv felépítése egy nyomtatott könyvét követi: borító, egy különálló első oldal, a kétoldalas nézetek, egy különálló utolsó oldal és a hátsó borító. Az oldalszámozás az első oldallal kezdődik, és nyomtatásban is úgy jelenik meg, ahogy látod.',
+    'A könyv felépítése egy nyomtatott könyvét követi: borító, egy különálló első oldal a borító üres belső oldalával szemben, az oldalpárok, egy különálló utolsó oldal és a hátsó borító. Az oldalszámozás az első oldallal kezdődik, és nyomtatásban is úgy jelenik meg, ahogy látod.',
   'help.ctx.journey-studio.bullet.6':
     'Egyszerre többen is dolgozhattok a terven: mindenki látja a többiek mutatóját a nevükkel. Ha olyan verziót mentesz, amelyet közben más módosított, a TREK ütközést jelez, és nem írja felül a munkáját.',
+  'help.ctx.journey-studio.bullet.7':
+    'Téma: egyetlen megjelenés az egész könyvnek, a papírja, a tintája és három kiemelőszíne, a betűtípusai és a motívumai. A témához kapcsolt elemek követik, ha módosítod.',
+  'help.ctx.journey-studio.bullet.8':
+    'Asszisztens: ha egy adminisztrátor beállította az MI-t, a felső sávban lévő szövegbuborék megnyit egy asszisztenst, amely veled együtt tördeli az oldalakat, ír képaláírásokat és formázza át a könyvet. Minden módosítása egy visszavonási lépés.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'A könyv automatikus összeállítása',
   'help.guide.studio-auto-layout.goal':
@@ -993,7 +997,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Oldalpárok hozzáadása, áthelyezése és törlése',
   'help.guide.studio-pages.goal': 'Szerkeszd a könyvet oldalanként.',
   'help.guide.studio-pages.step.1':
-    'Nyisd meg az oldalsávban a „Pages” részt. A bélyegképek sorrendben mutatják a könyvet: borító, első oldal, oldalpárok, utolsó oldal, hátsó borító.',
+    'Nyisd meg az Oldalak részt az oldalsávban. A miniatűrök sorrendben mutatják a könyvet: borító, első oldal, oldalpárok, utolsó oldal és hátsó borító. Az első és az utolsó oldal a borítójuk üres belső oldala mellett látszik, ahogy a bekötött könyv kinyílik.',
   'help.guide.studio-pages.step.2':
     'Az alul lévő „Oldal hozzáadása” új oldalpárt szúr be az utolsó oldal elé. A két bélyegkép közötti + jellel az adott helyre szúrhatsz be egyet.',
   'help.guide.studio-pages.step.3':
@@ -1008,11 +1012,21 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Elrendezés alkalmazása egy oldalpárra',
   'help.guide.studio-layouts.goal': 'Adj egy oldalpárnak kész elrendezést fotó- és szövegkeretekkel.',
   'help.guide.studio-layouts.step.1':
-    'Nyisd meg az oldalsávban a „Layouts” részt. Elöl a megtervezett oldalak állnak: teljes borítók és oldalpárok a könyv témájában, amelyeket a stílusgombok egyetlen megjelenésre szűkítenek. Alattuk következnek a könyv saját elrendezései és a beépítettek.',
+    'Nyisd meg az Elrendezések részt az oldalsávban. Elöl a megtervezett oldalak állnak: teljes borítók és oldalpárok a könyv témájában, amelyeket a stílusgombok egyetlen megjelenésre szűkítenek. Alattuk, ugyanabban a rácsban a Saját elrendezéseim és a Beépített következnek.',
   'help.guide.studio-layouts.step.2':
     'Kattints egyre. A munkaterületen lévő kétoldalas nézet megkapja ennek az elrendezésnek a kereteit, a meglévő fotóid és szövegeid pedig bekerülnek a keretekbe.',
   'help.guide.studio-layouts.result':
     'Az üres keretek a tartalom helyét jelölik: húzz rájuk egy fotót a „Tartalom” részből, vagy használd a „Hozzáadás ehhez az oldalhoz” lehetőséget.',
+  'help.guide.studio-my-layouts.title': 'Oldal mentése saját elrendezésként',
+  'help.guide.studio-my-layouts.goal': 'Használj újra egy elrendezést, amelyet a könyv más oldalain építettél fel.',
+  'help.guide.studio-my-layouts.step.1':
+    'Rendezd el az oldalt úgy, ahogy tetszik, majd nyisd meg az Elrendezések részt az oldalsávban.',
+  'help.guide.studio-my-layouts.step.2':
+    'Kattints az Oldal mentése elrendezésként gombra a Saját elrendezéseim alatt. Az oldal kártyaként jelenik meg a listában.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Kattints a saját elrendezésedre egy másik oldalon, és az ugyanígy kapja meg az elrendezést, a saját fotóival és szövegeivel.',
+  'help.guide.studio-my-layouts.result':
+    'Az elrendezéseid a könyvvel együtt mentődnek, és azonos fajtájú oldalakon jelennek meg: a borítóé a borítókon, az oldalpáré az oldalpárokon.',
   'help.guide.studio-layouts.tip.1': 'Egy elrendezés is ugyanolyan visszavonható lépés, mint bármelyik másik.',
   // studio-content
   'help.guide.studio-content.title': 'Fotók és bejegyzések elhelyezése az oldalon',
@@ -1025,28 +1039,83 @@ const help: TranslationStrings = {
     'Egy bejegyzés alatt a „Title”, a „Story” és a „Place” szövegelemként helyezi az oldalra az adott szöveget. A dátum és a koordináták jelölésként kerülnek fel, és itt találod a bejegyzés fotóit is.',
   'help.guide.studio-content.result':
     'A ráhúzott fotóból fotóelem lesz. A szöveg kapcsolatban marad a bejegyzéssel, amíg nem szerkeszted.',
+  'help.guide.studio-theme.title': 'Téma választása a könyvhöz',
+  'help.guide.studio-theme.goal': 'Állítsd be az egész könyv színeit és betűtípusait egyszerre.',
+  'help.guide.studio-theme.step.1':
+    'Nyisd meg a Téma részt az oldalsávban. Minden kártya egy témát mutat kis oldalként: a papírját, a betűtípusát és a három kiemelőszínét.',
+  'help.guide.studio-theme.step.2':
+    'Kattints egy témára, hogy kipróbáld. A kártyák alatt módosíthatod a palettáját, más betűtípusokat választhatsz, valamint motívumokat és díszítést.',
+  'help.guide.studio-theme.step.3':
+    'Kattints az Alkalmazás a könyvre vagy az Alkalmazás erre az oldalra gombra a képernyőn látható oldalpárhoz.',
+  'help.guide.studio-theme.tip.1':
+    'A témához kapcsolt elemek átveszik a színeit és betűtípusait, és követik, ha módosítod. A A még nem kapcsoltakat is alakítsa át először a többit is összekapcsolja.',
+  'help.guide.studio-theme.tip.2': 'A Színek a fotókból az útinapló képeiből épít palettát.',
+  'help.guide.studio-theme.result':
+    'A könyv minden kapcsolt színe és betűtípusa egyszerre változik, a téma alkalmazása pedig egyetlen visszavonási lépés.',
   'help.guide.studio-content.tip.1': 'A „Content” tetején lévő keresőmező mindkét listát szűri.',
   'help.guide.studio-content.tip.2':
     'Ha az asztalodról ráhúzol egy fájlt a munkaterületre, a TREK egy lépésben feltölti és el is helyezi.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Szöveg, alakzatok és ikonok hozzáadása',
+  'help.guide.studio-elements.title': 'Szöveg, alakzatok, ikonok és matricák hozzáadása',
   'help.guide.studio-elements.goal': 'Díszítsd az oldalpárt a fotókon és a történeteken túl.',
-  'help.guide.studio-elements.step.1': 'Nyisd meg az oldalsávban az „Elements” részt.',
+  'help.guide.studio-elements.step.1':
+    'Nyisd meg az Elemek részt az oldalsávban. Hat fül rendezi, mit adhatsz hozzá: Szöveg, Alakzatok, Vonalak, Keretek, Ikonok és Matricák.',
   'help.guide.studio-elements.step.2':
-    'Kattints egy szövegstílusra címsorhoz vagy képaláíráshoz, egy alakzatra, egy vonalra, egy rácsra, egy keretstílussal ellátott üres keretre, vagy egy ikonra a kereshető ikontárból. Mindegyik az oldalpár közepére kerül, onnan pedig áthelyezheted.',
+    'Kattints egy szövegstílusra vagy megtervezett címre, egy alakzatra, egy vonalra, egy üres keretre, egy ikonra vagy egy matricára. Mindegyik az oldalpár közepére kerül, onnan pedig áthelyezheted.',
   'help.guide.studio-elements.result':
     'Szövegelembe dupla kattintással írhatsz; a betűtípust, a vastagságot, a méretet, a térközt és az igazítást a „Tulajdonságok” panelen állíthatod be.',
+  'help.guide.studio-stickers.title': 'Díszítés matricákkal',
+  'help.guide.studio-stickers.goal':
+    'Adj hozzá illusztrációkat, a nevezetességektől és ételektől az állatokig és nyilakig.',
+  'help.guide.studio-stickers.step.1': 'Nyisd meg az Elemek részt az oldalsávban, és válaszd a Matricák fület.',
+  'help.guide.studio-stickers.step.2':
+    'Keress egy szóra vagy böngéssz a polcokon, majd kattints egy matricára, hogy az oldalpárra helyezd.',
+  'help.guide.studio-stickers.tip.1': 'Kijelölt matricánál a Tulajdonságok átszínezik a részeit, és tükrözik is.',
+  'help.guide.studio-stickers.result': 'A matrica rajz, ezért bármilyen méretben éles marad.',
   'help.guide.studio-elements.tip.1': 'A keretek üres fotóhelyek: később tehetsz beléjük képet.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Térkép, zászlók és számadatok hozzáadása',
-  'help.guide.studio-travel.goal': 'Jelenítsd meg magát az utazást számadatokként az oldalon.',
-  'help.guide.studio-travel.step.1': 'Nyisd meg a sávban az „Utazás” részt.',
+  'help.guide.studio-travel.title': 'Térképek, számok, országok és jelek hozzáadása',
+  'help.guide.studio-travel.goal': 'Alakítsd magát az utazást megtervezett elemekké az oldalon.',
+  'help.guide.studio-travel.step.1':
+    'Nyisd meg az Utazás részt az oldalsávban. Négy fül rendezi, mit adhatsz hozzá: Számok, Térképek, Országok és Jelek.',
   'help.guide.studio-travel.step.2':
-    'Válaszd ki, mit szeretnél hozzáadni: a bejegyzések útvonaltérképét, országkörvonalakat, országlistát vagy országrácsot, zászlókat, dátum-, nap- vagy távolságjelölést, esetleg az egész utazás összegzését. Mindegyik az útinapló adataiból készül, és frissül, amikor az adatok változnak.',
+    'Minden kártya az elemet mutatja az utazásod saját számaival, a téma színeiben: egy összegzés plakátként, jegyként, útjelző táblaként vagy kilométeróraként, egy térkép számozott megállókkal vagy egy országra szabva, egy ország bélyegként, képeslapként vagy tűként, egy dátum vagy egy távolság bélyegként, címkeként vagy szalagként.',
+  'help.guide.studio-travel.step.3':
+    'Kattints egy kártyára. Az elem az oldalpár közepére kerül, onnan pedig áthelyezheted és átméretezheted.',
   'help.guide.studio-travel.result':
-    'Az elem megjelenik a kétoldalas nézeten. A stílusát a „Properties” panelen, a megjelenített területet a térképen módosíthatod.',
+    'Az elem megjelenik az oldalpáron. A Tulajdonságok módosítják a kinézetét, és minden szám, térkép és ország frissül, amikor az utazás változik.',
+  'help.guide.studio-text-effects.title': 'Effektek hozzáadása a szöveghez',
+  'help.guide.studio-text-effects.goal': 'Adj egy címnek körvonalat, árnyékot, ívet vagy mintával kitöltött betűket.',
+  'help.guide.studio-text-effects.step.1': 'Kattints egy szövegelemre az oldalon, hogy kijelöld.',
+  'help.guide.studio-text-effects.step.2':
+    'A Tulajdonságokban nyisd meg az Effektek részt, hogy körvonalat, árnyékot vagy kiemelést adj hozzá, vagy színátmenettel vagy mintával töltsd ki a betűket. A Betűforma és elhelyezés ívbe hajlítja a sort, és a keretéhez igazítja.',
+  'help.guide.studio-text-effects.tip.1':
+    'A Kerethez igazítás addig kicsinyíti a szöveget, amíg belefér a keretébe, így egy hosszú cím sosem lóg ki.',
+  'help.guide.studio-text-effects.result':
+    'Az effekt a szöveggel együtt rajzolódik ki, nyomtatásban ugyanúgy, mint a képernyőn.',
+  'help.guide.studio-background.title': 'Az oldal hátterének módosítása',
+  'help.guide.studio-background.goal':
+    'Fesd be az oldalt egy színnel, színátmenettel vagy mintával, vagy tégy alá egy fotót.',
+  'help.guide.studio-background.step.1':
+    'Kattints az oldal egy üres részére, hogy semmi ne legyen kijelölve. Az Oldal háttere a Tulajdonságok tetején van.',
+  'help.guide.studio-background.step.2':
+    'Válaszd a Papír, Egyszínű, Színátmenet vagy Minta lehetőséget és egy színt, vagy kattints egy fotóra a Fotó háttérként alatt.',
+  'help.guide.studio-background.tip.1':
+    'Az Alkalmazás minden oldalra ugyanazt a hátteret adja a könyv minden oldalának.',
+  'help.guide.studio-background.result': 'A háttér belenyúlik a kifutóba, ezért nyomtatásban az oldal széléig ér.',
+  'help.guide.studio-layers.title': 'Rendezés, elrejtés és zárolás rétegekkel',
+  'help.guide.studio-layers.goal': 'Lásd az oldalpár minden elemét rétegsorrendben, és dolgozz velük ott.',
+  'help.guide.studio-layers.step.1': 'Nyisd meg a Rétegek részt az oldalsávban. A lista teteje az oldal eleje.',
+  'help.guide.studio-layers.step.2':
+    'Húzz át egy sort az átrendezéshez, a szemmel elrejthetsz egy elemet, a zárral pedig a helyén tarthatod. Jelölj ki többet, és csoportosítsd őket, hogy együtt mozgathasd őket.',
+  'help.guide.studio-layers.tip.1': 'Kattints duplán egy sorra, hogy az elem saját nevet kapjon.',
+  'help.guide.studio-layers.tip.2': 'Az elrejtett elemek kimaradnak a PDF-ből.',
+  'help.guide.studio-layers.result':
+    'A zsúfolt oldalak is könnyen szerkeszthetők maradnak, a kész részeket pedig nem lehet véletlenül elmozdítani.',
   'help.guide.studio-travel.tip.1':
-    'A jelölések annak a bejegyzésnek az adatait használják, amelyből az oldalpár készült. Így az „Auto layout” által készített oldalpáron a dátumjelölés már az adott napot mutatja.',
+    'A Térképek alatt a Megállók az útvonal minden megállóját felsorolják. Kapcsolj ki egyet, ha ki szeretnéd hagyni a térképekből és a számokból, például az otthoni repülőteret.',
+  'help.guide.studio-travel.tip.2':
+    'Egy ország térképe csak az adott ország megállóit mutatja, így az ország akkor is kitölti az oldalt, ha az utazás hosszú repüléssel kezdődött.',
   // studio-properties
   'help.guide.studio-properties.title': 'A kijelölt elem szerkesztése',
   'help.guide.studio-properties.goal':
@@ -1066,7 +1135,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Oldalformátum kiválasztása',
   'help.guide.studio-format.goal': 'Állítsd be a könyv nyomtatási méretét, mielőtt elkészíted az elrendezést.',
-  'help.guide.studio-format.step.1': 'Kattints a felső sávban az „Oldalformátum” gombra.',
+  'help.guide.studio-format.step.1':
+    'Kattints a felső sávban az oldalformátumra, a szerkesztőeszközök mellett. A formátum nevét és alakját mutatja.',
   'help.guide.studio-format.step.2':
     'Válassz a „Square 21 × 21 cm”, a „Square 30 × 30 cm”, az A4 vagy A5 fekvő vagy álló formátum közül, vagy adj meg egyéni szélességet és magasságot milliméterben. A kifutó és a biztonsági margó alatta állítható.',
   'help.guide.studio-format.result':

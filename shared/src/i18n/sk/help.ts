@@ -899,9 +899,9 @@ const help: TranslationStrings = {
   'help.guide.studio.goal': 'Premeňte denník na strany pripravené na tlač.',
   'help.guide.studio.step.1': 'V hlavičke kliknite na Studio. Návrhár sa otvorí nad cestovným denníkom.',
   'help.guide.studio.step.2':
-    'Späť sa vrátite kliknutím na názov cestovného denníka vľavo na hornej lište. Ocitnete sa tam, kde ste boli.',
+    'Späť sa vrátite kliknutím na × na pravom konci hornej lišty. Ocitnete sa tam, kde ste boli.',
   'help.guide.studio.result':
-    'Vľavo je panel „Strany“, v strede na pracovnej ploche dvojstrana a vpravo vlastnosti. „Automatické rozloženie“ zostaví knihu z vašich záznamov. „Exportovať“ vytvorí PDF pripravené na tlač.',
+    'Panel a jeho sekcie sú vľavo, dvojstrana na pracovnej ploche a vlastnosti vpravo. Automatické rozloženie zostaví knihu z vašich záznamov. Exportovať vytvorí PDF pripravené na tlač.',
   'help.guide.studio.tip.1': 'Studio potrebuje okno široké aspoň 1024 px a na telefóne sa neponúka.',
   'help.guide.studio.tip.2':
     'Kniha má rovnaké prístupové práva ako denník: kto môže denník čítať, môže knihu otvoriť, a kto ho môže upravovať, môže ju aj uložiť.',
@@ -931,19 +931,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ─────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'TREK Studio rozloží cestovný denník ako fotoknihu, ktorú môžete vytlačiť. Otvorí sa nad denníkom: vľavo zoznam strán a obsah, uprostred dvojstrana, na ktorej pracujete, a vpravo jej vlastnosti. Automatické rozloženie vytvorí z vašich záznamov prvý návrh. Potom môžete všetko presúvať, orezávať a upravovať vzhľad a každý krok sa dá vrátiť späť.',
+    'TREK Studio rozloží denník do fotoknihy, ktorú môžete vytlačiť. Otvorí sa nad denníkom: panel a jeho sekcie sú vľavo, dvojstrana, na ktorej pracujete, uprostred a jej vlastnosti vpravo. Automatické rozloženie zostaví prvý návrh z vašich záznamov, motív dá knihe farby a písma a asistent s vami vie navrhovať strany. Potom môžete všetko presúvať, orezávať a prestylovať a každý krok sa dá vrátiť späť.',
   'help.ctx.journey-studio.bullet.1':
-    'Horná lišta: Späť na cestovný denník, Zobrazenie knihy, vrátiť späť a zopakovať, Formát strany, Automatické rozloženie a Exportovať. Značka Uložené vedľa názvu ukazuje, kedy bola kniha uložená.',
+    'Horná lišta: vľavo obálka a názov denníka. Vpravo kto ďalší je v knihe a či je uložená, formát strany, späť, znova a vložiť, Automatické rozloženie, asistent, pomocník, Exportovať a tlačidlo, ktoré zavrie Studio.',
   'help.ctx.journey-studio.bullet.2':
-    'Panel vľavo má sedem sekcií: Strany, Obsah (fotky a záznamy cestovného denníka), Rozloženia, Prvky (text, tvary, čiary, rámčeky a mriežky, ikony a nálepky), Cesta (mapy, krajiny, vlajky a značky vytvorené z cestovného denníka) a pod nimi zvlášť Motív a Vrstvy.',
+    'Panel vľavo: Strany, Obsah (fotky a záznamy denníka), Rozloženia, Prvky (text, tvary, čiary, rámčeky, ikony a nálepky), Cesta (čísla, mapy, krajiny a značky vytvorené z denníka) a oddelene pod nimi Motív a Vrstvy.',
   'help.ctx.journey-studio.bullet.3':
-    'Pracovná plocha: aktuálna dvojstrana so spadávkou a bezpečnými okrajmi, pod ňou lišta priblíženia, Prispôsobiť pohľadu a vpravo Stiahnuť túto dvojstranu.',
+    'Pracovná plocha: aktuálna dvojstrana so spadávkou a bezpečnými okrajmi a pod ňou lišta priblíženia s voľbami Prispôsobiť pohľadu, Zobrazenie knihy a Stiahnuť túto dvojstranu.',
   'help.ctx.journey-studio.bullet.4':
-    'Vlastnosti vpravo: poloha a veľkosť, orezanie a ohnisko, vyplnenie alebo prispôsobenie, vzhľad, rohy, rámček, poradie vrstiev a zamknutie vybraného prvku. Keď nie je vybraté nič, zobrazia sa čísla strán a dokument.',
+    'Vlastnosti vpravo: všetko o vybranom prvku, od polohy, veľkosti a orezania po farby, efekty, poradie vrstiev a zamknutie. Keď nie je vybraté nič, ukazujú pozadie stránky, motív, čísla strán a dokument.',
   'help.ctx.journey-studio.bullet.5':
-    'Kniha je usporiadaná ako tlačená kniha: obálka, samostatná prvá strana, dvojstrany, samostatná posledná strana a zadná obálka. Čísla strán sa počítajú od prvej strany a vytlačia sa tak, ako ich vidíte.',
+    'Kniha je rozložená ako tlačená kniha: obálka, jedna prvá strana oproti prázdnej vnútornej strane obálky, dvojstrany, jedna posledná strana a zadná obálka. Čísla strán sa počítajú od prvej strany a tlačia sa tak, ako ich vidíte.',
   'help.ctx.journey-studio.bullet.6':
     'Navrhovať môže viac ľudí naraz: každý vidí kurzory ostatných s ich menami. Ak uložíte verziu, ktorú medzitým zmenil niekto iný, TREK zobrazí konflikt a jeho prácu neprepíše.',
+  'help.ctx.journey-studio.bullet.7':
+    'Motív: jeden vzhľad pre celú knihu, jej papier, atrament a tri akcentové farby, písma a motívy. Prvky prepojené s motívom ho nasledujú, keď ho zmeníte.',
+  'help.ctx.journey-studio.bullet.8':
+    'Asistent: tam, kde správca nastavil AI, otvorí bublina na hornej lište asistenta, ktorý s vami rozvrhuje strany, píše popisky a mení štýl knihy. Každá jeho zmena je krok, ktorý sa dá vrátiť späť.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Automatické vytvorenie knihy',
   'help.guide.studio-auto-layout.goal': 'Získajte jedným kliknutím kompletný prvý návrh zo záznamov a fotiek denníka.',
@@ -962,7 +966,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Pridávanie, presúvanie a odstraňovanie dvojstrán',
   'help.guide.studio-pages.goal': 'Upravujte knihu stranu po strane.',
   'help.guide.studio-pages.step.1':
-    'V bočnom paneli otvorte Strany. Náhľady ukazujú knihu v poradí: obálka, prvá strana, dvojstrany, posledná strana, zadná obálka.',
+    'V paneli otvorte Strany. Náhľady ukazujú knihu po poradí: obálka, prvá strana, dvojstrany, posledná strana a zadná obálka. Prvá a posledná strana sú nakreslené vedľa prázdnej vnútornej strany svojej obálky, tak ako sa viazaná kniha otvára.',
   'help.guide.studio-pages.step.2':
     'Pridať dvojstranu dole vloží novú dvojstranu pred poslednú stranu. Znamienko + medzi dvoma náhľadmi vloží dvojstranu na túto pozíciu.',
   'help.guide.studio-pages.step.3':
@@ -976,11 +980,20 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Použiť rozloženie na dvojstranu',
   'help.guide.studio-layouts.goal': 'Dajte dvojstrane hotové rozloženie rámčekov pre fotky a text.',
   'help.guide.studio-layouts.step.1':
-    'V paneli otvorte Rozloženia. Najprv sú navrhnuté strany: celé obálky a dvojstrany v motíve knihy, ktoré tlačidlá štýlu zúžia na jeden vzhľad. Pod nimi nasledujú vlastné rozloženia knihy a vstavané rozloženia.',
+    'V paneli otvorte Rozloženia. Najprv sú navrhnuté strany: celé obálky a dvojstrany v motíve knihy, ktoré tlačidlá štýlu zúžia na jeden vzhľad. Moje rozloženia a Vstavané nasledujú pod nimi v rovnakej mriežke.',
   'help.guide.studio-layouts.step.2':
     'Kliknite na jedno z nich. Dvojstrana na pracovnej ploche dostane rámčeky tohto rozloženia a vaše existujúce fotky a texty sa do nich umiestnia.',
   'help.guide.studio-layouts.result':
     'Prázdne rámčeky sú zástupné miesta pre obsah: presuňte na jeden z nich fotku z Obsah, alebo použite Pridať na túto stranu.',
+  'help.guide.studio-my-layouts.title': 'Uloženie strany ako vlastného rozloženia',
+  'help.guide.studio-my-layouts.goal': 'Použite znova usporiadanie, ktoré ste vytvorili na iných stranách knihy.',
+  'help.guide.studio-my-layouts.step.1': 'Usporiadajte stranu podľa seba a potom v paneli otvorte Rozloženia.',
+  'help.guide.studio-my-layouts.step.2':
+    'Kliknite na Uložiť túto stranu ako rozloženie v časti Moje rozloženia. Strana sa v zozname zobrazí ako karta.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Kliknutím na svoje rozloženie na inej strane ju usporiadate rovnako, s jej vlastnými fotkami a textami.',
+  'help.guide.studio-my-layouts.result':
+    'Vaše rozloženia sa ukladajú s knihou a ponúkajú sa na stranách rovnakého druhu: rozloženia obálky pre obálky, rozloženia dvojstrany pre dvojstrany.',
   'help.guide.studio-layouts.tip.1': 'Použitie rozloženia sa dá vrátiť späť ako každý iný krok.',
   // studio-content
   'help.guide.studio-content.title': 'Umiestnenie fotiek a záznamov na stranu',
@@ -993,28 +1006,78 @@ const help: TranslationStrings = {
     'Pod záznamom Názov, Príbeh a Miesto vložia daný text na stranu ako textový prvok. Dátum a súradnice sa pridajú ako značky a fotky záznamu sú uvedené tam tiež.',
   'help.guide.studio-content.result':
     'Pustená fotka sa stane prvkom s fotkou. Text zostáva prepojený so záznamom, kým ho neupravíte.',
+  'help.guide.studio-theme.title': 'Dať knihe motív',
+  'help.guide.studio-theme.goal': 'Nastavte farby a písma celej knihy naraz.',
+  'help.guide.studio-theme.step.1':
+    'V paneli otvorte Motív. Každá karta ukazuje motív ako malú stranu: jeho papier, písmo a tri akcentové farby.',
+  'help.guide.studio-theme.step.2':
+    'Kliknutím na motív ho vyskúšate. Pod kartami môžete zmeniť jeho paletu, vybrať iné písma a zvoliť motívy a dekoráciu.',
+  'help.guide.studio-theme.step.3':
+    'Kliknite na Použiť na knihu, alebo na Použiť na túto stranu pre dvojstranu na obrazovke.',
+  'help.guide.studio-theme.tip.1':
+    'Prvky prepojené s motívom preberajú jeho farby a písma a nasledujú ho, keď ho zmeníte. Prestylovať aj to, čo ešte nie je prepojené, najprv prepojí zvyšok.',
+  'help.guide.studio-theme.tip.2': 'Farby z fotiek zostaví paletu z obrázkov denníka.',
+  'help.guide.studio-theme.result':
+    'Všetky prepojené farby a písma v knihe sa zmenia naraz a použitie motívu je jeden krok, ktorý sa dá vrátiť späť.',
   'help.guide.studio-content.tip.1': 'Vyhľadávacie pole v hornej časti panela „Obsah“ filtruje oba zoznamy.',
   'help.guide.studio-content.tip.2':
     'Keď súbor z počítača pretiahnete na pracovnú plochu, TREK ho naraz nahrá aj umiestni.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Pridanie textu, tvarov a ikon',
+  'help.guide.studio-elements.title': 'Pridanie textu, tvarov, ikon a nálepiek',
   'help.guide.studio-elements.goal': 'Doplňte dvojstranu okrem fotiek a príbehov aj o ozdoby.',
-  'help.guide.studio-elements.step.1': 'V bočnom paneli otvorte Prvky.',
+  'help.guide.studio-elements.step.1':
+    'V paneli otvorte Prvky. Šesť kariet triedi, čo môžete pridať: Text, Tvary, Čiary, Rámčeky, Ikony a Nálepky.',
   'help.guide.studio-elements.step.2':
-    'Kliknite na štýl textu pre nadpis alebo popisok, na tvar, čiaru, mriežku, prázdny rámček so štýlom rámčeka alebo na ikonu z knižnice s vyhľadávaním. Každý prvok sa umiestni do stredu dvojstrany a potom ho môžete presunúť.',
+    'Kliknite na štýl textu alebo navrhnutý nadpis, tvar, čiaru, prázdny rámček, ikonu či nálepku. Každý prvok sa umiestni do stredu dvojstrany a potom ním môžete hýbať.',
   'help.guide.studio-elements.result':
     'Do textového prvku začnete písať dvojitým kliknutím. Vo „Vlastnostiach“ nastavíte písmo, rez, veľkosť, rozostupy a zarovnanie.',
+  'help.guide.studio-stickers.title': 'Ozdobenie nálepkami',
+  'help.guide.studio-stickers.goal': 'Pridajte ilustrácie, od pamätihodností a jedla po zvieratá a šípky.',
+  'help.guide.studio-stickers.step.1': 'V paneli otvorte Prvky a vyberte Nálepky.',
+  'help.guide.studio-stickers.step.2':
+    'Vyhľadajte slovo alebo prechádzajte police a kliknutím na nálepku ju umiestnite na dvojstranu.',
+  'help.guide.studio-stickers.tip.1': 'Pri vybratej nálepke vo Vlastnostiach prefarbíte jej časti a zrkadlíte ju.',
+  'help.guide.studio-stickers.result': 'Nálepka je kresba, takže zostáva ostrá v akejkoľvek veľkosti.',
   'help.guide.studio-elements.tip.1': 'Rámčeky sú prázdne miesta na fotky, obrázok do nich vložíte neskôr.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Pridanie mapy, vlajok a údajov',
-  'help.guide.studio-travel.goal': 'Premeňte samotný cestovný denník na čísla a údaje na strane.',
-  'help.guide.studio-travel.step.1': 'V paneli otvorte sekciu Cesta.',
+  'help.guide.studio-travel.title': 'Pridanie máp, čísel, krajín a značiek',
+  'help.guide.studio-travel.goal': 'Premeňte samotný denník na navrhnuté prvky na strane.',
+  'help.guide.studio-travel.step.1':
+    'V paneli otvorte Cesta. Štyri karty triedia, čo môžete pridať: Čísla, Mapy, Krajiny a Značky.',
   'help.guide.studio-travel.step.2':
-    'Vyberte, čo chcete pridať: mapu trasy záznamov, obrysy krajín, zoznam alebo mriežku krajín, vlajky, značku dátumu, dňa alebo vzdialenosti, alebo súhrn celej cesty. Každý prvok sa vytvorí z údajov cestovného denníka a pri ich zmene sa aktualizuje.',
+    'Každá karta ukazuje prvok s číslami vášho denníka vo farbách motívu: súhrn ako plagát, lístok, dopravnú značku alebo počítadlo kilometrov, mapu s očíslovanými zastávkami alebo orezanú na jednu krajinu, krajinu ako pečiatku, pohľadnicu alebo špendlík, dátum či vzdialenosť ako pečiatku, štítok alebo stuhu.',
+  'help.guide.studio-travel.step.3':
+    'Kliknite na kartu. Prvok sa umiestni do stredu dvojstrany a potom ho môžete presunúť a zmeniť jeho veľkosť.',
   'help.guide.studio-travel.result':
-    'Prvok sa objaví na dvojstrane. Vo „Vlastnostiach“ zmeníte jeho štýl, na mape zasa zobrazenú oblasť.',
+    'Prvok sa zobrazí na dvojstrane. Vlastnosti menia jeho vzhľad a každé číslo, mapa i krajina sa aktualizujú, keď sa zmení denník.',
+  'help.guide.studio-text-effects.title': 'Pridanie efektov k textu',
+  'help.guide.studio-text-effects.goal': 'Dajte nadpisu obrys, tieň, oblúk alebo písmená vyplnené vzorom.',
+  'help.guide.studio-text-effects.step.1': 'Kliknutím na textový prvok na strane ho vyberiete.',
+  'help.guide.studio-text-effects.step.2':
+    'Vo Vlastnostiach otvorte Efekty a pridajte obrys, tieň alebo zvýraznenie, alebo vyplňte písmená prechodom či vzorom. Veľkosť písmen a umiestnenie zakrivia riadok a prispôsobia ho rámčeku.',
+  'help.guide.studio-text-effects.tip.1':
+    'Prispôsobiť rámčeku zmenšuje text, kým sa nezmestí do rámčeka, takže dlhý nadpis nikdy nepretečie.',
+  'help.guide.studio-text-effects.result': 'Efekt sa kreslí spolu s textom, v tlači rovnako ako na obrazovke.',
+  'help.guide.studio-background.title': 'Zmena pozadia strany',
+  'help.guide.studio-background.goal': 'Vyfarbite stranu farbou, prechodom alebo vzorom, alebo pod ňu položte fotku.',
+  'help.guide.studio-background.step.1':
+    'Kliknite na prázdne miesto strany, aby nebolo nič vybraté. Pozadie stránky je hore vo Vlastnostiach.',
+  'help.guide.studio-background.step.2':
+    'Vyberte Papier, Plná, Prechod alebo Vzor a farbu, alebo kliknite na fotku v časti Fotka ako pozadie.',
+  'help.guide.studio-background.tip.1': 'Použiť na všetky stránky dá všetkým stranám knihy rovnaké pozadie.',
+  'help.guide.studio-background.result': 'Pozadie zasahuje do spadávky, takže sa tlačí až po okraj strany.',
+  'help.guide.studio-layers.title': 'Usporiadanie, skrývanie a zamykanie pomocou vrstiev',
+  'help.guide.studio-layers.goal': 'Pozrite si všetko na dvojstrane v poradí vrstiev a pracujte s tým priamo tam.',
+  'help.guide.studio-layers.step.1': 'V paneli otvorte Vrstvy. Horná časť zoznamu je predná strana stránky.',
+  'help.guide.studio-layers.step.2':
+    'Potiahnutím riadka zmeníte poradie, okom prvok skryjete a zámkou ho udržíte na mieste. Vyberte ich viac a zoskupte ich, aby sa pohybovali spolu.',
+  'help.guide.studio-layers.tip.1': 'Dvojitým kliknutím na riadok dáte prvku vlastný názov.',
+  'help.guide.studio-layers.tip.2': 'Skryté prvky sa do PDF nedostanú.',
+  'help.guide.studio-layers.result': 'Plné strany sa naďalej ľahko upravujú a hotové časti sa nedajú posunúť omylom.',
   'help.guide.studio-travel.tip.1':
-    'Značky používajú údaje záznamu, z ktorého dvojstrana vznikla. Značka dátumu na dvojstrane vytvorenej automatickým rozložením tak už ukazuje príslušný deň.',
+    'V Mapách zoznam Zastávky obsahuje každú zastávku trasy. Vypnite jednu, aby sa vynechala z máp a čísel, napríklad domáce letisko.',
+  'help.guide.studio-travel.tip.2':
+    'Mapa krajiny ukazuje len zastávky tejto krajiny, takže krajina vyplní stranu, aj keď cesta začala dlhým letom.',
   // studio-properties
   'help.guide.studio-properties.title': 'Úprava vybraného prvku',
   'help.guide.studio-properties.goal':
@@ -1034,7 +1097,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Výber formátu strany',
   'help.guide.studio-format.goal': 'Nastavte tlačovú veľkosť knihy skôr, než vytvoríte rozloženie.',
-  'help.guide.studio-format.step.1': 'Na hornej lište kliknite na „Formát strany“.',
+  'help.guide.studio-format.step.1':
+    'Kliknite na formát strany na hornej lište, vedľa nástrojov na úpravy. Ukazuje názov a tvar formátu.',
   'help.guide.studio-format.step.2':
     'Vyberte Štvorec 21 × 21 cm, Štvorec 30 × 30 cm, A4 alebo A5 na šírku či na výšku, alebo zadajte vlastnú šírku a výšku v milimetroch. Spadávka a bezpečný okraj sú pod tým.',
   'help.guide.studio-format.result':

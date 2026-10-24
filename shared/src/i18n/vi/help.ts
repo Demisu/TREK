@@ -885,10 +885,9 @@ const help: TranslationStrings = {
   'help.guide.studio.title': 'Dàn trang hành trình thành sách ảnh',
   'help.guide.studio.goal': 'Biến nhật ký thành các trang có thể in.',
   'help.guide.studio.step.1': 'Bấm “Studio” ở đầu trang. Trình thiết kế mở ra phía trên hành trình.',
-  'help.guide.studio.step.2':
-    'Để quay lại, bấm vào tên hành trình ở bên trái thanh trên cùng. Bạn sẽ về đúng chỗ đã rời.',
+  'help.guide.studio.step.2': 'Để quay lại, bấm × ở đầu bên phải của thanh trên cùng. Bạn trở về chỗ đã ở trước đó.',
   'help.guide.studio.result':
-    'Dải trang nằm bên trái, trang đôi trên vùng làm việc, thuộc tính ở bên phải. “Auto layout” dựng cuốn sách từ các bài của bạn. “Export” tạo tệp PDF sẵn sàng để in.',
+    'Thanh bên và các bảng của nó ở bên trái, trang đôi trên vùng làm việc, còn thuộc tính ở bên phải. Bố cục tự động dựng cuốn sách từ các bài viết của bạn. Xuất tạo ra một tệp PDF sẵn sàng để in.',
   'help.guide.studio.tip.1': 'Studio cần cửa sổ rộng ít nhất 1024 px và không có trên điện thoại.',
   'help.guide.studio.tip.2':
     'Cuốn sách có cùng quyền truy cập với hành trình: ai đọc được hành trình thì mở được sách, ai sửa được hành trình thì lưu được sách.',
@@ -919,19 +918,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'TREK Studio dàn trang một hành trình thành cuốn sách ảnh để in. Studio mở phía trên nhật ký: danh sách trang và nội dung ở bên trái, trang đôi bạn đang làm ở giữa, thuộc tính của nó ở bên phải. Auto layout dựng bản nháp đầu tiên từ các bài viết của bạn. Sau đó, bạn có thể di chuyển, cắt và đổi kiểu mọi thứ, và hoàn tác được từng bước.',
+    'TREK Studio dàn trang một hành trình thành cuốn sách ảnh để bạn in ra. Studio mở phía trên nhật ký: thanh bên và các bảng của nó ở bên trái, trang đôi bạn đang làm ở giữa, còn thuộc tính ở bên phải. Bố cục tự động dựng bản nháp đầu tiên từ các bài viết của bạn, chủ đề cho sách màu sắc và phông chữ, và trợ lý có thể cùng bạn thiết kế các trang. Sau đó, bạn có thể di chuyển, cắt xén và đổi phong cách mọi thứ, và hoàn tác từng bước.',
   'help.ctx.journey-studio.bullet.1':
-    'Thanh trên cùng: Back to the journey, Book view, Undo và Redo, Page format, Auto layout và Export. Dấu “Đã lưu” cạnh tiêu đề cho biết khi nào sách đã được lưu.',
+    'Thanh trên cùng: bìa và tên hành trình ở bên trái. Bên phải là những ai khác đang ở trong sách và sách đã được lưu chưa, khổ trang, hoàn tác, làm lại và dán, Bố cục tự động, trợ lý, trợ giúp, Xuất và nút đóng Studio.',
   'help.ctx.journey-studio.bullet.2':
-    'Thanh bên trái có bảy mục: Trang, Nội dung (ảnh và các mục của hành trình), Bố cục, Thành phần (văn bản, hình khối, đường kẻ, khung và lưới, biểu tượng và nhãn dán), “Hành trình” (bản đồ, quốc gia, cờ và dấu được tạo từ hành trình), và tách riêng bên dưới là Chủ đề và Lớp.',
+    'Thanh bên trái: Trang, Nội dung (ảnh và bài viết của hành trình), Bố cục, Thành phần (văn bản, hình khối, đường kẻ, khung, icon và nhãn dán), Hành trình (con số, bản đồ, quốc gia và dấu được tạo từ hành trình) và, tách riêng bên dưới, Chủ đề và Lớp.',
   'help.ctx.journey-studio.bullet.3':
-    'Vùng làm việc: trang đôi hiện tại với lề tràn và lề an toàn, thanh thu phóng bên dưới, Fit to view, và “Tải trang đôi này về” ở bên phải.',
+    'Vùng làm việc: trang đôi hiện tại cùng vùng tràn lề và lề an toàn, và thanh thu phóng bên dưới với Vừa khung nhìn, Chế độ xem sách và Tải trang đôi này về.',
   'help.ctx.journey-studio.bullet.4':
-    'Properties ở bên phải: vị trí và kích thước, cắt và tiêu điểm, Fill hoặc Fit, diện mạo, góc, khung, thứ tự xếp lớp và khóa của phần tử đang chọn. Khi không chọn gì, bảng hiện số trang và tài liệu.',
+    'Thuộc tính ở bên phải: mọi thứ về thành phần đang chọn, từ vị trí, kích thước và cắt xén đến màu sắc, hiệu ứng, thứ tự xếp chồng và khóa. Khi không chọn gì, bảng này hiện nền trang, chủ đề, số trang và tài liệu.',
   'help.ctx.journey-studio.bullet.5':
-    'Cuốn sách được dàn trang như sách in: bìa trước, một trang đầu đơn, các trang đôi, một trang cuối đơn và bìa sau. Số trang đếm từ trang đầu và được in đúng như hiển thị.',
+    'Cuốn sách được dàn trang như sách in: bìa, một trang đầu đơn lẻ đối diện mặt trong trống của bìa, các trang đôi, một trang cuối đơn lẻ và bìa sau. Số trang được đếm từ trang đầu và in đúng như hiển thị.',
   'help.ctx.journey-studio.bullet.6':
     'Nhiều người có thể thiết kế cùng lúc: ai cũng thấy con trỏ của người khác kèm tên. Nếu bạn lưu một phiên bản mà người khác đã thay đổi, TREK sẽ báo xung đột thay vì ghi đè công việc của họ.',
+  'help.ctx.journey-studio.bullet.7':
+    'Chủ đề: một diện mạo cho cả cuốn sách, gồm giấy, mực và ba màu nhấn, phông chữ và họa tiết. Các thành phần liên kết với chủ đề sẽ đổi theo khi bạn thay chủ đề.',
+  'help.ctx.journey-studio.bullet.8':
+    'Trợ lý: nơi quản trị viên đã thiết lập AI, bong bóng thoại trên thanh trên cùng mở một trợ lý cùng bạn dàn trang, viết chú thích và đổi phong cách cho sách. Mỗi thay đổi nó thực hiện là một bước hoàn tác.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Dựng sách tự động',
   'help.guide.studio-auto-layout.goal':
@@ -951,7 +954,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Thêm, di chuyển và xóa trang đôi',
   'help.guide.studio-pages.goal': 'Chỉnh sửa cuốn sách từng trang một.',
   'help.guide.studio-pages.step.1':
-    'Mở Pages trên thanh bên. Các hình thu nhỏ cho thấy cuốn sách theo thứ tự: bìa, trang đầu, các trang đôi, trang cuối, bìa sau.',
+    'Mở Trang trên thanh bên. Các hình thu nhỏ cho thấy cuốn sách theo thứ tự: bìa, trang đầu, các trang đôi, trang cuối và bìa sau. Trang đầu và trang cuối được vẽ cạnh mặt trong trống của bìa tương ứng, đúng như khi cuốn sách đóng gáy được mở ra.',
   'help.guide.studio-pages.step.2':
     '“Thêm trang” ở dưới cùng thêm một trang đôi mới trước trang cuối. Dấu + giữa hai hình thu nhỏ chèn một trang đôi ngay tại vị trí đó.',
   'help.guide.studio-pages.step.3':
@@ -965,11 +968,20 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Áp dụng bố cục cho một trang đôi',
   'help.guide.studio-layouts.goal': 'Áp dụng cho trang đôi một cách sắp xếp sẵn của các khung ảnh và khung văn bản.',
   'help.guide.studio-layouts.step.1':
-    'Mở Layouts trên thanh bên. Trước tiên là các trang thiết kế sẵn: bìa và trang đôi hoàn chỉnh theo chủ đề của sách, có thể lọc theo một phong cách bằng các nút phong cách. Bên dưới là các bố cục riêng của sách và các bố cục có sẵn.',
+    'Mở Bố cục trên thanh bên. Trước tiên là các trang thiết kế sẵn: bìa và trang đôi hoàn chỉnh theo chủ đề của sách, được lọc về một phong cách bằng các nút phong cách. Bố cục của tôi và Có sẵn nằm bên dưới, trong cùng một lưới.',
   'help.guide.studio-layouts.step.2':
     'Nhấn vào một bố cục. Trang đôi trên vùng làm việc sẽ có các khung của bố cục này, và ảnh cùng văn bản bạn đã có được đặt vào các khung đó.',
   'help.guide.studio-layouts.result':
     'Khung trống là chỗ giữ nội dung: kéo ảnh từ Content vào một khung, hoặc dùng Add to this page.',
+  'help.guide.studio-my-layouts.title': 'Lưu một trang làm bố cục của riêng bạn',
+  'help.guide.studio-my-layouts.goal': 'Dùng lại một cách sắp xếp bạn đã làm trên các trang khác của sách.',
+  'help.guide.studio-my-layouts.step.1': 'Sắp xếp một trang theo ý bạn, rồi mở Bố cục trên thanh bên.',
+  'help.guide.studio-my-layouts.step.2':
+    'Bấm Lưu trang này làm bố cục dưới Bố cục của tôi. Trang xuất hiện dưới dạng một thẻ trong danh sách.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Bấm vào bố cục của bạn trên một trang khác để dàn trang đó theo cách tương tự, với ảnh và chữ riêng của nó.',
+  'help.guide.studio-my-layouts.result':
+    'Các bố cục của bạn được lưu cùng sách và được gợi ý trên các trang cùng loại: bố cục của bìa dành cho bìa, của trang đôi dành cho trang đôi.',
   'help.guide.studio-layouts.tip.1': 'Chọn bố cục cũng là một bước có thể hoàn tác như mọi bước khác.',
   // studio-content
   'help.guide.studio-content.title': 'Đặt ảnh và bài viết lên trang',
@@ -982,28 +994,82 @@ const help: TranslationStrings = {
     'Dưới một mục, Title, Story và Place đặt đoạn văn bản đó lên trang dưới dạng phần tử văn bản. Ngày và tọa độ được thêm dưới dạng dấu, và ảnh của mục cũng được liệt kê ở đó.',
   'help.guide.studio-content.result':
     'Ảnh được thả vào trở thành phần tử ảnh. Văn bản vẫn liên kết với bài viết cho đến khi bạn chỉnh sửa.',
+  'help.guide.studio-theme.title': 'Tạo chủ đề cho cuốn sách',
+  'help.guide.studio-theme.goal': 'Đặt màu sắc và phông chữ cho cả cuốn sách chỉ trong một lần.',
+  'help.guide.studio-theme.step.1':
+    'Mở Chủ đề trên thanh bên. Mỗi thẻ hiện một chủ đề như một trang nhỏ: giấy, phông chữ và ba màu nhấn của nó.',
+  'help.guide.studio-theme.step.2':
+    'Bấm vào một chủ đề để thử. Bên dưới các thẻ, bạn có thể đổi bảng màu, chọn phông chữ khác và chọn họa tiết cùng phần trang trí.',
+  'help.guide.studio-theme.step.3':
+    'Bấm Áp dụng cho sách, hoặc Áp dụng cho trang này cho trang đôi đang hiện trên màn hình.',
+  'help.guide.studio-theme.tip.1':
+    'Các thành phần liên kết với chủ đề lấy màu và phông chữ của nó và đổi theo khi bạn thay chủ đề. Đổi cả phong cách phần chưa liên kết sẽ liên kết phần còn lại trước.',
+  'help.guide.studio-theme.tip.2': 'Màu từ ảnh tạo một bảng màu từ các bức ảnh của hành trình.',
+  'help.guide.studio-theme.result':
+    'Mọi màu và phông chữ được liên kết trong sách thay đổi cùng lúc, và việc áp dụng chủ đề là một bước hoàn tác.',
   'help.guide.studio-content.tip.1': 'Ô tìm kiếm ở đầu “Content” lọc cả hai danh sách.',
   'help.guide.studio-content.tip.2':
     'Khi bạn thả một tệp từ màn hình nền máy tính vào vùng làm việc, TREK tải lên và đặt nó vào chỉ trong một bước.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Thêm văn bản, hình và biểu tượng',
+  'help.guide.studio-elements.title': 'Thêm văn bản, hình khối, icon và nhãn dán',
   'help.guide.studio-elements.goal': 'Trang trí trang đôi, ngoài ảnh và câu chuyện.',
-  'help.guide.studio-elements.step.1': 'Mở Elements trên thanh bên.',
+  'help.guide.studio-elements.step.1':
+    'Mở Thành phần trên thanh bên. Sáu tab phân loại những gì bạn có thể thêm: Văn bản, Hình khối, Đường kẻ, Khung, Icon và Nhãn dán.',
   'help.guide.studio-elements.step.2':
-    'Bấm vào kiểu văn bản cho tiêu đề hoặc chú thích, một hình khối, một đường kẻ, một lưới, một khung trống có kiểu khung, hoặc một biểu tượng từ thư viện có thể tìm kiếm. Mỗi phần tử được đặt vào giữa trang đôi, rồi bạn có thể di chuyển nó.',
+    'Bấm vào một kiểu văn bản hoặc một tiêu đề thiết kế sẵn, một hình khối, một đường kẻ, một khung trống, một icon hoặc một nhãn dán. Mỗi thứ được đặt ở giữa trang đôi, rồi bạn có thể di chuyển nó.',
   'help.guide.studio-elements.result':
     'Nhấn đúp vào phần tử văn bản để gõ chữ; “Properties” có phông chữ, độ đậm, cỡ chữ, khoảng cách và căn lề.',
+  'help.guide.studio-stickers.title': 'Trang trí bằng nhãn dán',
+  'help.guide.studio-stickers.goal': 'Thêm hình minh họa, từ danh lam thắng cảnh và đồ ăn đến động vật và mũi tên.',
+  'help.guide.studio-stickers.step.1': 'Mở Thành phần trên thanh bên và chọn Nhãn dán.',
+  'help.guide.studio-stickers.step.2':
+    'Tìm theo một từ hoặc duyệt các kệ, rồi bấm vào một nhãn dán để đặt nó lên trang đôi.',
+  'help.guide.studio-stickers.tip.1':
+    'Khi đã chọn một nhãn dán, Thuộc tính cho phép đổi màu các phần của nó và lật gương.',
+  'help.guide.studio-stickers.result': 'Nhãn dán là một hình vẽ, nên luôn sắc nét ở mọi kích thước.',
   'help.guide.studio-elements.tip.1': 'Khung là các ô ảnh trống: bạn có thể thả ảnh vào sau.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Thêm bản đồ, cờ và số liệu',
-  'help.guide.studio-travel.goal': 'Biến chính hành trình thành số liệu trên trang.',
-  'help.guide.studio-travel.step.1': 'Mở “Hành trình” trên thanh bên.',
+  'help.guide.studio-travel.title': 'Thêm bản đồ, con số, quốc gia và dấu',
+  'help.guide.studio-travel.goal': 'Biến chính hành trình thành các thành phần thiết kế sẵn trên trang.',
+  'help.guide.studio-travel.step.1':
+    'Mở Hành trình trên thanh bên. Bốn tab phân loại những gì bạn có thể thêm: Con số, Bản đồ, Quốc gia và Dấu.',
   'help.guide.studio-travel.step.2':
-    'Chọn thứ cần thêm: bản đồ lộ trình của các mục, đường viền quốc gia, danh sách hoặc lưới quốc gia, cờ, dấu ngày, dấu ngày thứ hoặc dấu quãng đường, hoặc bản tóm tắt cả chuyến đi. Mỗi thứ được dựng từ dữ liệu của hành trình và tự cập nhật khi dữ liệu thay đổi.',
+    'Mỗi thẻ hiện thành phần với chính số liệu của hành trình bạn, theo màu của chủ đề: bản tóm tắt dạng áp phích, vé, biển báo đường hoặc đồng hồ đo quãng đường, bản đồ có điểm dừng đánh số hoặc cắt theo một quốc gia, quốc gia dạng tem, bưu thiếp hoặc ghim, ngày hoặc quãng đường dạng con dấu, nhãn hoặc dải ruy băng.',
+  'help.guide.studio-travel.step.3':
+    'Bấm vào một thẻ. Thành phần được đặt ở giữa trang đôi, rồi bạn có thể di chuyển và chỉnh kích thước của nó.',
   'help.guide.studio-travel.result':
-    'Phần tử xuất hiện trên trang đôi. Dùng “Properties” để đổi kiểu của nó, và dùng bản đồ để đổi vùng hiển thị.',
+    'Thành phần xuất hiện trên trang đôi. Thuộc tính đổi diện mạo của nó, và mọi con số, bản đồ và quốc gia đều cập nhật khi hành trình thay đổi.',
+  'help.guide.studio-text-effects.title': 'Thêm hiệu ứng cho văn bản',
+  'help.guide.studio-text-effects.goal':
+    'Tạo cho tiêu đề một đường viền, một bóng đổ, một đường cong hoặc các chữ cái tô bằng hoa văn.',
+  'help.guide.studio-text-effects.step.1': 'Bấm vào một thành phần văn bản trên trang để chọn nó.',
+  'help.guide.studio-text-effects.step.2':
+    'Trong Thuộc tính, mở Hiệu ứng để thêm đường viền, bóng đổ hoặc phần tô sáng, hoặc tô các chữ cái bằng dải chuyển màu hay hoa văn. Kiểu chữ và vị trí uốn cong dòng chữ và làm nó vừa khung.',
+  'help.guide.studio-text-effects.tip.1':
+    'Co cho vừa khung thu nhỏ văn bản cho đến khi vừa khung của nó, nên một tiêu đề dài không bao giờ tràn ra ngoài.',
+  'help.guide.studio-text-effects.result': 'Hiệu ứng được vẽ cùng với văn bản, khi in giống hệt trên màn hình.',
+  'help.guide.studio-background.title': 'Đổi nền trang',
+  'help.guide.studio-background.goal':
+    'Tô trang bằng một màu, một dải chuyển màu hoặc một hoa văn, hoặc đặt một bức ảnh bên dưới.',
+  'help.guide.studio-background.step.1':
+    'Bấm vào một chỗ trống của trang để không chọn gì. Nền trang nằm ở đầu Thuộc tính.',
+  'help.guide.studio-background.step.2':
+    'Chọn Giấy, Đơn sắc, Chuyển màu hoặc Hoa văn cùng một màu, hoặc bấm vào một bức ảnh dưới Ảnh làm nền.',
+  'help.guide.studio-background.tip.1': 'Áp dụng cho mọi trang cho mọi trang của sách cùng một nền.',
+  'help.guide.studio-background.result': 'Nền kéo dài ra vùng tràn lề, nên được in đến sát mép trang.',
+  'help.guide.studio-layers.title': 'Sắp xếp, ẩn và khóa bằng các lớp',
+  'help.guide.studio-layers.goal': 'Xem mọi thứ trên trang đôi theo thứ tự xếp chồng và xử lý ngay tại đó.',
+  'help.guide.studio-layers.step.1': 'Mở Lớp trên thanh bên. Đầu danh sách là mặt trước của trang.',
+  'help.guide.studio-layers.step.2':
+    'Kéo một hàng để xếp lại thứ tự, dùng con mắt để ẩn một thành phần và ổ khóa để giữ nó tại chỗ. Chọn nhiều thành phần rồi nhóm lại để di chuyển cùng nhau.',
+  'help.guide.studio-layers.tip.1': 'Bấm đúp vào một hàng để đặt tên riêng cho thành phần.',
+  'help.guide.studio-layers.tip.2': 'Các thành phần bị ẩn sẽ không có trong PDF.',
+  'help.guide.studio-layers.result':
+    'Các trang đông đúc vẫn dễ chỉnh sửa, và những phần đã xong không thể bị di chuyển nhầm.',
   'help.guide.studio-travel.tip.1':
-    'Các dấu dùng dữ liệu của mục mà trang đôi được tạo từ đó. Vì vậy dấu ngày trên trang đôi do Auto layout tạo đã hiện đúng ngày đó.',
+    'Dưới Bản đồ, Điểm dừng liệt kê mọi điểm dừng của lộ trình. Tắt một điểm để loại nó khỏi các bản đồ và con số, ví dụ sân bay nhà bạn.',
+  'help.guide.studio-travel.tip.2':
+    'Bản đồ quốc gia chỉ hiện các điểm dừng của quốc gia đó, nên quốc gia lấp đầy trang ngay cả khi hành trình bắt đầu bằng một chuyến bay dài.',
   // studio-properties
   'help.guide.studio-properties.title': 'Chỉnh sửa phần tử bạn đã chọn',
   'help.guide.studio-properties.goal': 'Di chuyển, cắt, đổi kiểu và xếp lớp một phần tử bằng bảng thuộc tính.',
@@ -1022,7 +1088,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Chọn khổ trang',
   'help.guide.studio-format.goal': 'Đặt khổ in của cuốn sách trước khi dàn bố cục.',
-  'help.guide.studio-format.step.1': 'Bấm Page format trên thanh trên cùng.',
+  'help.guide.studio-format.step.1':
+    'Bấm vào khổ trang trên thanh trên cùng, cạnh các công cụ chỉnh sửa. Nó hiện tên và hình dạng của khổ trang.',
   'help.guide.studio-format.step.2':
     'Chọn Square 21 × 21 cm, Square 30 × 30 cm, A4 hoặc A5 ngang hoặc dọc, hoặc nhập chiều rộng và chiều cao tùy chỉnh theo milimét. Phần tràn lề và lề an toàn nằm bên dưới.',
   'help.guide.studio-format.result':

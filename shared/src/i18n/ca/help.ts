@@ -917,10 +917,9 @@ const help: TranslationStrings = {
   'help.guide.studio.title': 'Maquetar la travessia com un àlbum de fotos',
   'help.guide.studio.goal': 'Converteix el diari en pàgines per imprimir.',
   'help.guide.studio.step.1': "Fes clic a Studio a la capçalera. El dissenyador s'obre a sobre de la travessia.",
-  'help.guide.studio.step.2':
-    'Per tornar enrere, fes clic al nom de la travessia, a l’esquerra de la barra superior. Tornaràs on eres.',
+  'help.guide.studio.step.2': "Per tornar enrere, fes clic a × a l'extrem dret de la barra superior. Tornaràs on eres.",
   'help.guide.studio.result':
-    "La barra de pàgines és a l'esquerra, la doble pàgina és a la taula de treball i les propietats són a la dreta. La composició automàtica («Auto layout») munta el llibre a partir de les teves entrades. «Exporta» crea un PDF llest per imprimir.",
+    "La columna i els seus tauler són a l'esquerra, la doble pàgina és a la taula de treball i les propietats són a la dreta. Disseny automàtic crea el llibre a partir de les entrades. Exporta crea un PDF a punt per imprimir.",
   'help.guide.studio.tip.1':
     'L’Estudi necessita una finestra d’almenys 1024 px d’amplada i no està disponible al mòbil.',
   'help.guide.studio.tip.2':
@@ -953,19 +952,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'TREK Studio maqueta una travessia com un àlbum de fotos que pots imprimir. S’obre damunt del diari: a l’esquerra hi ha la llista de pàgines i el contingut, al mig la doble pàgina en què treballes i a la dreta les seves propietats. «Auto layout» crea un primer esborrany a partir de les teves entrades. Després, ho pots moure, retallar i canviar d’estil tot, i pots desfer cada pas.',
+    "TREK Studio maqueta una travessia com un àlbum de fotos que pots imprimir. S'obre a sobre del diari: la columna i els seus tauler són a l'esquerra, la doble pàgina en què treballes és al mig i les propietats són a la dreta. Disseny automàtic crea un primer esborrany a partir de les entrades, un tema dona al llibre els colors i les tipografies, i l'assistent pot dissenyar pàgines amb tu. Després pots moure, retallar i canviar l'estil de tot, i pots desfer cada pas.",
   'help.ctx.journey-studio.bullet.1':
-    "Barra superior: «Torna a la travesia», «Vista de llibre», desfer i refer, «Format de pàgina», «Disseny automàtic» i «Exporta». La marca «Desat» al costat del títol indica quan s'ha desat el llibre.",
+    "Barra superior: a l'esquerra, la coberta i el nom de la travessia. A la dreta, qui més és al llibre i si està desat, el format de pàgina, desfés, refés i enganxa, Disseny automàtic, l'assistent, l'ajuda, Exporta i el botó que tanca Studio.",
   'help.ctx.journey-studio.bullet.2':
-    "Barra lateral a l'esquerra amb set seccions: «Pàgines», «Contingut» (les fotos i entrades de la travessia), «Maquetacions», «Elements» (text, formes, línies, marcs i graelles, icones i adhesius), «Viatge» (mapes, països, banderes i marques creats a partir de la travessia) i, separades a sota, «Tema» i «Capes».",
+    "Columna de l'esquerra: Pàgines, Contingut (les fotos i entrades de la travessia), Maquetacions, Elements (text, formes, línies, marcs, icones i adhesius), Viatge (xifres, mapes, països i marques fets a partir de la travessia) i, apartats a sota, Tema i Capes.",
   'help.ctx.journey-studio.bullet.3':
-    'Taula de treball: la doble pàgina actual amb el sagnat i els marges de seguretat, la barra de zoom a sota, «Fit to view» i, a la dreta, «Baixa aquesta doble pàgina».',
+    'Taula de treball: la doble pàgina actual amb el sagnat i els marges de seguretat, i a sota la barra de zoom amb Ajusta a la vista, Vista de llibre i Baixa aquesta doble pàgina.',
   'help.ctx.journey-studio.bullet.4':
-    '«Propietats» a la dreta: posició i mida, retall i punt focal, omplir o ajustar, aspecte, cantonades, marc, ordre d’apilament i bloqueig de l’element seleccionat. Quan no hi ha res seleccionat, mostra els números de pàgina i el document.',
+    "Propietats a la dreta: tot sobre l'element seleccionat, de la posició, la mida i el retall als colors, els efectes, l'ordre d'apilament i el bloqueig. Quan no hi ha res seleccionat, mostra el fons de pàgina, el tema, els números de pàgina i el document.",
   'help.ctx.journey-studio.bullet.5':
-    "El llibre es compon com un llibre imprès: portada, una primera pàgina sola, les dobles pàgines, una última pàgina sola i la contraportada. Els números de pàgina comencen a la primera pàgina i s'imprimeixen tal com es mostren.",
+    "El llibre es maqueta com un llibre imprès: coberta, una primera pàgina sola davant l'interior en blanc de la coberta, les dobles pàgines, una última pàgina sola i la contracoberta. Els números de pàgina compten des de la primera pàgina i s'imprimeixen tal com es veuen.",
   'help.ctx.journey-studio.bullet.6':
     'Diverses persones poden dissenyar alhora: tothom veu els punters dels altres amb el seu nom. Si deses una versió que algú altre ha modificat, TREK mostra un conflicte en lloc de sobreescriure-li la feina.',
+  'help.ctx.journey-studio.bullet.7':
+    'Tema: un aspecte per a tot el llibre, amb el seu paper, la seva tinta i tres accents, les seves tipografies i els seus motius. Els elements vinculats al tema el segueixen quan el canvies.',
+  'help.ctx.journey-studio.bullet.8':
+    "Assistent: allà on un administrador ha configurat la IA, el globus de la barra superior obre un assistent que maqueta pàgines, escriu peus de foto i canvia l'estil del llibre amb tu. Cada canvi que fa és un pas de desfer.",
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Crear l’àlbum automàticament',
   'help.guide.studio-auto-layout.goal':
@@ -985,7 +988,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Afegir, moure i treure dobles pàgines',
   'help.guide.studio-pages.goal': 'Edita el llibre pàgina per pàgina.',
   'help.guide.studio-pages.step.1':
-    'Obre «Pages» a la barra lateral. Les miniatures mostren el llibre en ordre: coberta, primera pàgina, dobles pàgines, última pàgina i contracoberta.',
+    "Obre Pàgines a la columna. Les miniatures mostren el llibre per ordre: coberta, primera pàgina, dobles pàgines, última pàgina i contracoberta. La primera i la última pàgina es dibuixen al costat de l'interior en blanc de la seva coberta, tal com s'obre el llibre enquadernat.",
   'help.guide.studio-pages.step.2':
     '«Afegeix una pàgina», a la part de baix, afegeix una doble pàgina nova abans de l’última pàgina. El + entre dues miniatures n’insereix una en aquella posició.',
   'help.guide.studio-pages.step.3':
@@ -1000,11 +1003,21 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Aplicar un layout a una doble pàgina',
   'help.guide.studio-layouts.goal': 'Aplica a una doble pàgina una distribució predefinida de marcs de foto i de text.',
   'help.guide.studio-layouts.step.1':
-    'Obre «Disposicions» a la columna. Primer hi ha les pàgines dissenyades: cobertes i dobles pàgines senceres amb el tema del llibre, que els botons d’estil redueixen a un sol aspecte. A sota hi ha les disposicions del llibre i les predefinides.',
+    "Obre Maquetacions a la columna. Primer hi ha les pàgines dissenyades: cobertes i dobles pàgines senceres amb el tema del llibre, que els botons d'estil redueixen a un sol aspecte. Les Les meves disposicions i les Predefinides vénen a continuació, a la mateixa quadrícula.",
   'help.guide.studio-layouts.step.2':
     "Fes clic en una. La doble pàgina de la taula de treball rep els marcs d'aquesta composició, i les fotos i el text que ja hi tenies s'hi col·loquen.",
   'help.guide.studio-layouts.result':
     'Els marcs buits reserven lloc per al contingut: arrossega-hi una foto des de «Contingut» o fes servir «Add to this page».',
+  'help.guide.studio-my-layouts.title': 'Desar una pàgina com a disposició pròpia',
+  'help.guide.studio-my-layouts.goal': 'Reutilitza una disposició que has fet en altres pàgines del llibre.',
+  'help.guide.studio-my-layouts.step.1':
+    "Organitza una pàgina com més t'agradi i després obre Maquetacions a la columna.",
+  'help.guide.studio-my-layouts.step.2':
+    'Fes clic a Desa aquesta pàgina com a disposició sota Les meves disposicions. La pàgina apareix com una targeta a la llista.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Fes clic a la teva disposició en una altra pàgina per maquetar-la igual, amb les seves fotos i textos.',
+  'help.guide.studio-my-layouts.result':
+    "Les teves disposicions es desen amb el llibre i s'ofereixen en pàgines del mateix tipus: les d'una coberta per a cobertes, les d'una doble pàgina per a dobles pàgines.",
   'help.guide.studio-layouts.tip.1': 'Una composició és un pas de desfer com qualsevol altre.',
   // studio-content
   'help.guide.studio-content.title': 'Posar fotos i entrades en una pàgina',
@@ -1017,29 +1030,86 @@ const help: TranslationStrings = {
     'Sota una entrada, «Títol», «Història» i «Lloc» posen aquest text a la pàgina com a element de text. La data i les coordenades s’afegeixen com a marques, i també hi trobes les fotos de l’entrada.',
   'help.guide.studio-content.result':
     'Una foto que hi deixes anar es converteix en un element de foto. El text continua vinculat a l’entrada fins que l’edites.',
+  'help.guide.studio-theme.title': 'Donar un tema al llibre',
+  'help.guide.studio-theme.goal': "Defineix els colors i les tipografies de tot el llibre d'un sol cop.",
+  'help.guide.studio-theme.step.1':
+    "Obre Tema a la columna. Cada targeta mostra un tema com una pàgina petita: el seu paper, la seva tipografia i els seus tres colors d'accent.",
+  'help.guide.studio-theme.step.2':
+    'Fes clic en un tema per provar-lo. Sota les targetes pots canviar-ne la paleta, triar altres tipografies i escollir motius i decoració.',
+  'help.guide.studio-theme.step.3':
+    'Fes clic a Aplicar al llibre, o a Aplicar a aquesta pàgina per a la doble pàgina en pantalla.',
+  'help.guide.studio-theme.tip.1':
+    'Els elements vinculats al tema en prenen els colors i les tipografies i el segueixen quan el canvies. Reestilitzar també el que encara no està vinculat vincula primer la resta.',
+  'help.guide.studio-theme.tip.2': 'Colors de les fotos crea una paleta a partir de les imatges de la travessia.',
+  'help.guide.studio-theme.result':
+    'Tots els colors i tipografies vinculats del llibre canvien alhora, i aplicar el tema és un sol pas de desfer.',
   'help.guide.studio-content.tip.1': 'El quadre de cerca de dalt de «Contingut» filtra totes dues llistes.',
   'help.guide.studio-content.tip.2':
     "Quan deixes anar un fitxer de l'escriptori a la taula de treball, TREK el puja i el col·loca d'un sol cop.",
   // studio-elements
-  'help.guide.studio-elements.title': 'Afegir text, formes i icones',
+  'help.guide.studio-elements.title': 'Afegir text, formes, icones i adhesius',
   'help.guide.studio-elements.goal': 'Decora una doble pàgina amb més coses a part de fotos i textos.',
-  'help.guide.studio-elements.step.1': 'Obre «Elements» a la barra lateral.',
+  'help.guide.studio-elements.step.1':
+    'Obre Elements a la columna. Sis pestanyes ordenen el que pots afegir: Text, Formes, Línies, Marcs, Icones i Adhesius.',
   'help.guide.studio-elements.step.2':
-    'Fes clic en un estil de text per a un titular o un peu de foto, una forma, una línia, una graella, un marc buit amb un estil de marc o una icona de la biblioteca, que té cercador. Cada element es col·loca al centre de la doble pàgina i després el pots moure.',
+    'Fes clic en un estil de text o en un títol dissenyat, una forma, una línia, un marc buit, una icona o un adhesiu. Cadascun es col·loca al mig de la doble pàgina, i després el pots moure.',
   'help.guide.studio-elements.result':
     "Fes doble clic en un element de text per escriure-hi; «Properties» conté el tipus de lletra, el gruix, la mida, l'espaiat i l'alineació.",
+  'help.guide.studio-stickers.title': 'Decorar amb adhesius',
+  'help.guide.studio-stickers.goal': 'Afegeix il·lustracions, de monuments i menjar a animals i fletxes.',
+  'help.guide.studio-stickers.step.1': 'Obre Elements a la columna i tria Adhesius.',
+  'help.guide.studio-stickers.step.2':
+    'Cerca una paraula o mira els prestatges, i fes clic en un adhesiu per posar-lo a la doble pàgina.',
+  'help.guide.studio-stickers.tip.1':
+    "Amb un adhesiu seleccionat, Propietats en canvia el color de les parts i l'emmiralla.",
+  'help.guide.studio-stickers.result': "L'adhesiu és un dibuix, així que es veu nítid en qualsevol mida.",
   'help.guide.studio-elements.tip.1':
     'Els marcs són espais buits per a fotos: hi pots deixar anar una imatge més endavant.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Afegir un mapa, banderes i xifres',
-  'help.guide.studio-travel.goal': 'Converteix la mateixa travesia en xifres a la pàgina.',
-  'help.guide.studio-travel.step.1': 'Obre «Viatge» a la barra lateral.',
+  'help.guide.studio-travel.title': 'Afegir mapes, xifres, països i marques',
+  'help.guide.studio-travel.goal': 'Converteix la mateixa travessia en elements dissenyats a la pàgina.',
+  'help.guide.studio-travel.step.1':
+    'Obre Viatge a la columna. Quatre pestanyes ordenen el que pots afegir: Xifres, Mapes, Països i Marques.',
   'help.guide.studio-travel.step.2':
-    'Tria què vols afegir: un mapa del recorregut de les entrades, siluetes de països, una llista o una graella de països, banderes, una marca de data, de dia o de distància, o un resum de tot el viatge. Cada element es crea amb les dades de la travessia i s’actualitza quan les dades canvien.',
+    "Cada targeta mostra l'element amb les xifres de la teva travessia, amb els colors del tema: un resum com a cartell, bitllet, senyal de carretera o comptaquilòmetres, un mapa amb parades numerades o retallat a un país, un país com a segell, postal o xinxeta, una data o una distància com a segell, etiqueta o cinta.",
+  'help.guide.studio-travel.step.3':
+    "Fes clic en una targeta. L'element es col·loca al mig de la doble pàgina, i després el pots moure i canviar-ne la mida.",
   'help.guide.studio-travel.result':
-    "L'element apareix a la doble pàgina. Fes servir «Properties» per canviar-ne l'estil, i el mapa per canviar-ne la zona.",
+    "L'element apareix a la doble pàgina. Propietats en canvia l'aspecte, i cada xifra, mapa i país s'actualitza quan canvia la travessia.",
+  'help.guide.studio-text-effects.title': 'Afegir efectes al text',
+  'help.guide.studio-text-effects.goal':
+    'Dona a un títol un contorn, una ombra, una corba o lletres emplenades amb un patró.',
+  'help.guide.studio-text-effects.step.1': 'Fes clic en un element de text de la pàgina per seleccionar-lo.',
+  'help.guide.studio-text-effects.step.2':
+    "A Propietats, obre Efectes per afegir un contorn, una ombra o un ressaltat, o emplenar les lletres amb un degradat o un patró. Majúscules i posició corba la línia i l'ajusta al marc.",
+  'help.guide.studio-text-effects.tip.1':
+    "Ajusta al marc redueix el text fins que hi cap, així que un títol llarg mai no se'n surt.",
+  'help.guide.studio-text-effects.result': "L'efecte es dibuixa amb el text, a la impressió igual que a la pantalla.",
+  'help.guide.studio-background.title': 'Canviar el fons de la pàgina',
+  'help.guide.studio-background.goal':
+    'Pinta la pàgina amb un color, un degradat o un patró, o posa-hi una foto a sota.',
+  'help.guide.studio-background.step.1':
+    'Fes clic en una part buida de la pàgina perquè no hi hagi res seleccionat. Fons de pàgina és a dalt de Propietats.',
+  'help.guide.studio-background.step.2':
+    'Tria Paper, Sòlid, Degradat o Patró i un color, o fes clic en una foto a Foto de fons.',
+  'help.guide.studio-background.tip.1':
+    'Aplica a totes les pàgines dona a totes les pàgines del llibre el mateix fons.',
+  'help.guide.studio-background.result':
+    "El fons arriba fins al sagnat, així que s'imprimeix fins a la vora de la pàgina.",
+  'help.guide.studio-layers.title': 'Ordenar, amagar i bloquejar amb capes',
+  'help.guide.studio-layers.goal':
+    "Mira tot el que hi ha a la doble pàgina per ordre d'apilament i treballa-ho allà mateix.",
+  'help.guide.studio-layers.step.1': 'Obre Capes a la columna. La part de dalt de la llista és el davant de la pàgina.',
+  'help.guide.studio-layers.step.2':
+    "Arrossega una fila per reordenar-la, fes servir l'ull per amagar un element i el cadenat per mantenir-lo al seu lloc. Selecciona'n diversos i agrupa'ls per moure'ls junts.",
+  'help.guide.studio-layers.tip.1': "Fes doble clic en una fila per donar a l'element un nom propi.",
+  'help.guide.studio-layers.tip.2': 'Els elements amagats no surten al PDF.',
+  'help.guide.studio-layers.result':
+    "Les pàgines carregades continuen sent fàcils d'editar, i les parts acabades no es poden moure per error.",
   'help.guide.studio-travel.tip.1':
-    'Les marques fan servir les dades de l’entrada a partir de la qual s’ha creat la doble pàgina. Per això, una marca de data en una doble pàgina creada amb la disposició automàtica ja mostra aquell dia.',
+    "A Mapes, Parades llista totes les parades de la ruta. Desactiva'n una per deixar-la fora dels mapes i de les xifres, l'aeroport de casa per exemple.",
+  'help.guide.studio-travel.tip.2':
+    "Un mapa de país mostra només les parades d'aquell país, així que el país omple la pàgina encara que la travessia hagi començat amb un vol llarg.",
   // studio-properties
   'help.guide.studio-properties.title': 'Editar el que has seleccionat',
   'help.guide.studio-properties.goal': 'Mou, retalla, dona estil i ordena per capes un element amb l’inspector.',
@@ -1058,7 +1128,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Triar el format de pàgina',
   'help.guide.studio-format.goal': "Defineix la mida d'impressió del llibre abans de muntar el disseny.",
-  'help.guide.studio-format.step.1': 'Fes clic a Page format a la barra superior.',
+  'help.guide.studio-format.step.1':
+    "Fes clic al format de pàgina de la barra superior, al costat de les eines d'edició. Mostra el nom i la forma del format.",
   'help.guide.studio-format.step.2':
     'Tria «Square 21 × 21 cm», «Square 30 × 30 cm», A4 o A5 en horitzontal o vertical, o introdueix una amplada i una alçada personalitzades en mil·límetres. El sagnat i el marge de seguretat són a sota.',
   'help.guide.studio-format.result':

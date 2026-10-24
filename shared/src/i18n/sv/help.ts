@@ -889,9 +889,9 @@ const help: TranslationStrings = {
   'help.guide.studio.goal': 'Gör dagboken till sidor som går att skriva ut.',
   'help.guide.studio.step.1': 'Klicka på Studio i sidhuvudet. Designern öppnas ovanpå din Journey.',
   'help.guide.studio.step.2':
-    'För att gå tillbaka klickar du på Journeyns namn till vänster i det övre fältet. Du kommer tillbaka dit du var.',
+    'För att gå tillbaka klickar du på × längst till höger i övre fältet. Du kommer tillbaka dit du var.',
   'help.guide.studio.result':
-    'Sidlistan finns till vänster, uppslaget på arbetsbänken och egenskaperna till höger. Auto layout bygger boken av dina inlägg. Export skapar en tryckklar PDF.',
+    'Sidofältet och dess paneler ligger till vänster, uppslaget på arbetsytan och egenskaperna till höger. Automatisk layout bygger boken av dina inlägg. Exportera skapar en tryckklar PDF.',
   'help.guide.studio.tip.1': 'Studio kräver ett fönster som är minst 1024 px brett och finns inte på telefon.',
   'help.guide.studio.tip.2':
     'Boken har samma åtkomst som journeyn: alla som får läsa journeyn kan öppna boken, och alla som får redigera journeyn kan spara den.',
@@ -922,19 +922,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'TREK Studio lägger ut en Journey som en fotobok som du kan skriva ut. Studio öppnas ovanpå dagboken: sidlistan och innehållet finns till vänster, uppslaget du arbetar med i mitten och dess egenskaper till höger. Auto layout bygger ett första utkast av dina inlägg. Därefter kan du flytta, beskära och ändra allt, och du kan ångra varje steg.',
+    'TREK Studio lägger ut en resa som en fotobok som du kan skriva ut. Den öppnas ovanpå dagboken: sidofältet och dess paneler ligger till vänster, uppslaget du arbetar med i mitten och dess egenskaper till höger. Automatisk layout bygger ett första utkast av dina inlägg, ett tema ger boken färger och typsnitt, och assistenten kan formge sidor tillsammans med dig. Sedan kan du flytta, beskära och ändra stilen på allt, och du kan ångra varje steg.',
   'help.ctx.journey-studio.bullet.1':
-    'Övre fältet: Back to the journey, Book view, ångra och gör om, Page format, Auto layout och Export. Märket Sparad bredvid titeln visar när boken har sparats.',
+    'Övre fältet: reseboksomslaget och namnet till vänster. Till höger syns vem mer som är med i boken och om den är sparad, sidformatet, ångra, gör om och klistra in, Automatisk layout, assistenten, hjälpen, Exportera och knappen som stänger Studio.',
   'help.ctx.journey-studio.bullet.2':
-    'Listen till vänster har sju avsnitt: Sidor, Innehåll (Journeyns foton och inlägg), Layouter, Element (text, former, linjer, ramar och rutnät, ikoner och klistermärken), Resa (kartor, länder, flaggor och märken som byggs av Journey) och, för sig nedanför, Tema och Lager.',
+    'Sidofältet till vänster: Sidor, Innehåll (resens foton och inlägg), Layouter, Element (text, former, linjer, ramar, ikoner och klistermärken), Resa (siffror, kartor, länder och märken som byggs av resan) och, avskilda under dem, Tema och Lager.',
   'help.ctx.journey-studio.bullet.3':
-    'Arbetsytan: det aktuella uppslaget med utfall och skyddsmarginaler, zoomfältet under det, ”Fit to view” och ”Ladda ner det här uppslaget” till höger.',
+    'Arbetsytan: det aktuella uppslaget med utfall och säkra marginaler, och zoomfältet under det med Anpassa till vyn, Bokvy och Ladda ner det här uppslaget.',
   'help.ctx.journey-studio.bullet.4':
-    '”Properties” till höger: position och storlek, beskärning och fokuspunkt, fyllning eller anpassning, utseende, hörn, ram, lagerordning och lås för det markerade elementet. När inget är markerat visas sidnummer och dokumentet.',
+    'Egenskaper till höger: allt om det markerade elementet, från läge, storlek och beskärning till färger, effekter, staplingsordning och lås. När inget är markerat visas sidbakgrunden, temat, sidnumren och dokumentet.',
   'help.ctx.journey-studio.bullet.5':
-    'Boken är upplagd som en tryckt bok: omslag, en enskild första sida, uppslagen, en enskild sista sida och baksida. Sidnumren räknas från första sidan och trycks som de visas.',
+    'Boken läggs ut som en tryckt bok: omslag, en ensam första sida mitt emot omslagets tomma insida, uppslagen, en ensam sista sida och baksidan. Sidnumren räknas från första sidan och trycks som de visas.',
   'help.ctx.journey-studio.bullet.6':
     'Flera personer kan designa samtidigt: alla ser de andras pekare med deras namn. Om du sparar en version som någon annan har ändrat visar TREK en konflikt i stället för att skriva över deras arbete.',
+  'help.ctx.journey-studio.bullet.7':
+    'Tema: ett uttryck för hela boken, med papper, bläck och tre accentfärger, typsnitt och motiv. Element som är länkade till temat följer med när du ändrar det.',
+  'help.ctx.journey-studio.bullet.8':
+    'Assistent: där en administratör har ställt in AI öppnar pratbubblan i övre fältet en assistent som lägger ut sidor, skriver bildtexter och ändrar bokens stil tillsammans med dig. Varje ändring den gör är ett ångrasteg.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Bygg boken automatiskt',
   'help.guide.studio-auto-layout.goal': 'Få ett komplett första utkast av dagbokens inlägg och foton med ett klick.',
@@ -952,7 +956,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Lägg till, flytta och ta bort uppslag',
   'help.guide.studio-pages.goal': 'Redigera boken sida för sida.',
   'help.guide.studio-pages.step.1':
-    'Öppna ”Pages” i sidofältet. Miniatyrerna visar boken i ordning: omslag, första sidan, uppslag, sista sidan, baksida.',
+    'Öppna Sidor i sidofältet. Miniatyrerna visar boken i ordning: omslag, första sidan, uppslag, sista sidan och baksida. Första och sista sidan ritas bredvid den tomma insidan av sitt omslag, så som den bundna boken öppnas.',
   'help.guide.studio-pages.step.2':
     '”Lägg till uppslag” längst ner lägger till ett nytt uppslag före sista sidan. Plustecknet mellan två miniatyrer infogar ett på just den platsen.',
   'help.guide.studio-pages.step.3':
@@ -965,11 +969,20 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Använd en layout på ett uppslag',
   'help.guide.studio-layouts.goal': 'Ge ett uppslag en färdig uppställning av foto- och textramar.',
   'help.guide.studio-layouts.step.1':
-    'Öppna ”Layouts” i sidofältet. Först kommer de formgivna sidorna: hela omslag och uppslag i bokens tema, som stilknapparna begränsar till ett uttryck. Under dem följer bokens egna layouter och de inbyggda.',
+    'Öppna Layouter i sidofältet. Först kommer de formgivna sidorna: hela omslag och uppslag i bokens tema, som stilknapparna begränsar till ett uttryck. Mina layouter och Inbyggda följer under dem, i samma rutnät.',
   'help.guide.studio-layouts.step.2':
     'Klicka på en. Uppslaget på arbetsytan får layoutens ramar, och dina befintliga foton och texter placeras i dem.',
   'help.guide.studio-layouts.result':
     'Tomma ramar är platshållare för innehåll: dra ett foto från Content till en ram, eller använd Add to this page.',
+  'help.guide.studio-my-layouts.title': 'Spara en sida som din egen layout',
+  'help.guide.studio-my-layouts.goal': 'Återanvänd en uppställning som du har byggt på andra sidor i boken.',
+  'help.guide.studio-my-layouts.step.1': 'Ordna en sida som du vill ha den och öppna sedan Layouter i sidofältet.',
+  'help.guide.studio-my-layouts.step.2':
+    'Klicka på Spara den här sidan som layout under Mina layouter. Sidan visas som ett kort i listan.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Klicka på din layout på en annan sida för att lägga ut den sidan på samma sätt, med dess egna foton och ord.',
+  'help.guide.studio-my-layouts.result':
+    'Dina layouter sparas med boken och erbjuds på sidor av samma slag: ett omslags för omslag, ett uppslags för uppslag.',
   'help.guide.studio-layouts.tip.1': 'En layout är ett ångrasteg som alla andra.',
   // studio-content
   'help.guide.studio-content.title': 'Lägg foton och inlägg på en sida',
@@ -982,28 +995,82 @@ const help: TranslationStrings = {
     'Under ett inlägg lägger ”Title”, ”Story” och ”Place” in den texten på sidan som ett textelement. Datum och koordinater läggs till som märken, och inläggets foton listas också där.',
   'help.guide.studio-content.result':
     'Ett foto som du släpper blir ett fotoelement. Text förblir kopplad till inlägget tills du redigerar den.',
+  'help.guide.studio-theme.title': 'Ge boken ett tema',
+  'help.guide.studio-theme.goal': 'Ställ in färger och typsnitt för hela boken på en gång.',
+  'help.guide.studio-theme.step.1':
+    'Öppna Tema i sidofältet. Varje kort visar ett tema som en liten sida: dess papper, dess typsnitt och dess tre accentfärger.',
+  'help.guide.studio-theme.step.2':
+    'Klicka på ett tema för att prova det. Under korten kan du ändra dess palett, välja andra typsnitt och välja motiv och dekoration.',
+  'help.guide.studio-theme.step.3':
+    'Klicka på Använd på boken, eller Använd på den här sidan för uppslaget på skärmen.',
+  'help.guide.studio-theme.tip.1':
+    'Element som är länkade till temat tar dess färger och typsnitt och följer med när du ändrar det. Ändra även stilen på det som inte är länkat än länkar först resten.',
+  'help.guide.studio-theme.tip.2': 'Färger från bilderna bygger en palett av resens bilder.',
+  'help.guide.studio-theme.result':
+    'Varje länkad färg och varje länkat typsnitt i boken ändras samtidigt, och att använda temat är ett enda ångrasteg.',
   'help.guide.studio-content.tip.1': 'Sökrutan överst i Content filtrerar båda listorna.',
   'help.guide.studio-content.tip.2':
     'Om du släpper en fil från skrivbordet på arbetsbänken laddar TREK upp den och placerar den i ett enda steg.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Lägg till text, former och ikoner',
+  'help.guide.studio-elements.title': 'Lägg till text, former, ikoner och klistermärken',
   'help.guide.studio-elements.goal': 'Lägg till dekoration på ett uppslag utöver foton och berättelser.',
-  'help.guide.studio-elements.step.1': 'Öppna ”Elements” i sidofältet.',
+  'help.guide.studio-elements.step.1':
+    'Öppna Element i sidofältet. Sex flikar sorterar det du kan lägga till: Text, Former, Linjer, Ramar, Ikoner och Klistermärken.',
   'help.guide.studio-elements.step.2':
-    'Klicka på en textstil för en rubrik eller bildtext, en form, en linje, ett rutnät, en tom ram med en ramstil, eller en ikon från det sökbara biblioteket. Varje element placeras mitt på uppslaget och du kan sedan flytta det.',
+    'Klicka på en textstil eller en formgiven rubrik, en form, en linje, en tom ram, en ikon eller ett klistermärke. Varje element placeras mitt på uppslaget, och sedan kan du flytta det.',
   'help.guide.studio-elements.result':
     'Dubbelklicka på ett textelement för att skriva i det. I Properties finns typsnitt, vikt, storlek, avstånd och justering.',
+  'help.guide.studio-stickers.title': 'Dekorera med klistermärken',
+  'help.guide.studio-stickers.goal': 'Lägg till illustrationer, från sevärdheter och mat till djur och pilar.',
+  'help.guide.studio-stickers.step.1': 'Öppna Element i sidofältet och välj Klistermärken.',
+  'help.guide.studio-stickers.step.2':
+    'Sök efter ett ord eller bläddra bland hyllorna och klicka sedan på ett klistermärke för att placera det på uppslaget.',
+  'help.guide.studio-stickers.tip.1':
+    'När ett klistermärke är markerat kan du i Egenskaper färga om dess delar och spegla det.',
+  'help.guide.studio-stickers.result': 'Klistermärket är en teckning, så det förblir skarpt i alla storlekar.',
   'help.guide.studio-elements.tip.1': 'Ramar är tomma fotoplatser: du kan släppa in en bild senare.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Lägg till en karta, flaggor och siffror',
-  'help.guide.studio-travel.goal': 'Gör själva Journey till siffror på sidan.',
-  'help.guide.studio-travel.step.1': 'Öppna Resa i listen.',
+  'help.guide.studio-travel.title': 'Lägg till kartor, siffror, länder och märken',
+  'help.guide.studio-travel.goal': 'Förvandla själva resan till formgivna element på sidan.',
+  'help.guide.studio-travel.step.1':
+    'Öppna Resa i sidofältet. Fyra flikar sorterar det du kan lägga till: Siffror, Kartor, Länder och Märken.',
   'help.guide.studio-travel.step.2':
-    'Välj vad som ska läggas till: en ruttkarta över inläggen, landkonturer, en landlista eller ett landrutnät, flaggor, ett datum-, dag- eller avståndsmärke, eller en sammanfattning av hela resan. Allt byggs av Journeyns data och uppdateras när datan ändras.',
+    'Varje kort visar elementet med din resas egna siffror, i temats färger: en sammanfattning som affisch, biljett, vägskylt eller trippmätare, en karta med numrerade stopp eller beskuren till ett land, ett land som frimärke, vykort eller knappnål, ett datum eller ett avstånd som stämpel, etikett eller band.',
+  'help.guide.studio-travel.step.3':
+    'Klicka på ett kort. Elementet placeras mitt på uppslaget, och sedan kan du flytta det och ändra storlek på det.',
   'help.guide.studio-travel.result':
-    'Elementet visas på uppslaget. Använd Properties för att ändra dess stil och kartan för att ändra dess område.',
+    'Elementet visas på uppslaget. Egenskaper ändrar dess utseende, och varje siffra, karta och land uppdateras när resan ändras.',
+  'help.guide.studio-text-effects.title': 'Lägg till effekter på text',
+  'help.guide.studio-text-effects.goal':
+    'Ge en rubrik en kontur, en skugga, en kurva eller bokstäver fyllda med ett mönster.',
+  'help.guide.studio-text-effects.step.1': 'Klicka på ett textelement på sidan för att markera det.',
+  'help.guide.studio-text-effects.step.2':
+    'Öppna Effekter i Egenskaper för att lägga till en kontur, en skugga eller en markering, eller fyll bokstäverna med en toning eller ett mönster. Skiftläge och placering kröker raden och anpassar den till ramen.',
+  'help.guide.studio-text-effects.tip.1':
+    'Anpassa till ramen krymper texten tills den ryms i ramen, så en lång rubrik aldrig rinner över.',
+  'help.guide.studio-text-effects.result': 'Effekten ritas tillsammans med texten, i tryck precis som på skärmen.',
+  'help.guide.studio-background.title': 'Ändra sidbakgrunden',
+  'help.guide.studio-background.goal':
+    'Måla sidan i en färg, en toning eller ett mönster, eller lägg ett foto under den.',
+  'help.guide.studio-background.step.1':
+    'Klicka på en tom del av sidan så att inget är markerat. Sidbakgrund ligger överst i Egenskaper.',
+  'help.guide.studio-background.step.2':
+    'Välj Papper, Enfärgad, Toning eller Mönster och en färg, eller klicka på ett foto under Foto som bakgrund.',
+  'help.guide.studio-background.tip.1': 'Använd på alla sidor ger varje sida i boken samma bakgrund.',
+  'help.guide.studio-background.result': 'Bakgrunden går ut i utfallet, så den trycks ända ut till sidans kant.',
+  'help.guide.studio-layers.title': 'Ordna, dölj och lås med lager',
+  'help.guide.studio-layers.goal': 'Se allt på uppslaget i staplingsordning och arbeta med det där.',
+  'help.guide.studio-layers.step.1': 'Öppna Lager i sidofältet. Överst i listan ligger sidans framsida.',
+  'help.guide.studio-layers.step.2':
+    'Dra en rad för att ändra ordningen, använd ögat för att dölja ett element och låset för att hålla det på plats. Markera flera och gruppera dem för att flytta dem tillsammans.',
+  'help.guide.studio-layers.tip.1': 'Dubbelklicka på en rad för att ge elementet ett eget namn.',
+  'help.guide.studio-layers.tip.2': 'Dolda element lämnas utanför PDF-filen.',
+  'help.guide.studio-layers.result':
+    'Fyllda sidor är fortfarande enkla att redigera, och det som är klart kan inte flyttas av misstag.',
   'help.guide.studio-travel.tip.1':
-    'Märken använder data från inlägget som uppslaget skapades från. Ett datummärke på ett uppslag som skapats med ”Auto layout” visar därför redan den dagen.',
+    'Under Kartor listar Stopp varje stopp på rutten. Stäng av ett för att utesluta det från kartorna och siffrorna, till exempel din hemmaflygplats.',
+  'help.guide.studio-travel.tip.2':
+    'En landskarta visar bara det landets stopp, så landet fyller sidan även när resan började med en lång flygning.',
   // studio-properties
   'help.guide.studio-properties.title': 'Redigera det du har markerat',
   'help.guide.studio-properties.goal': 'Flytta, beskär, utforma och ordna ett element i lager med inspektören.',
@@ -1021,7 +1088,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Välj sidformat',
   'help.guide.studio-format.goal': 'Ställ in bokens tryckstorlek innan du bygger layouten.',
-  'help.guide.studio-format.step.1': 'Klicka på Page format i övre fältet.',
+  'help.guide.studio-format.step.1':
+    'Klicka på sidformatet i övre fältet, bredvid redigeringsverktygen. Där visas formatets namn och form.',
   'help.guide.studio-format.step.2':
     'Välj ”Square 21 × 21 cm”, ”Square 30 × 30 cm”, A4 eller A5 i liggande eller stående format, eller ange en egen bredd och höjd i millimeter. Utfall och skyddszon finns längre ner.',
   'help.guide.studio-format.result':

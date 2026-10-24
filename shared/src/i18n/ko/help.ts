@@ -810,9 +810,9 @@ const help: TranslationStrings = {
   'help.guide.studio.title': 'Journey를 포토북으로 만들기',
   'help.guide.studio.goal': '일기를 인쇄용 페이지로 만들어요.',
   'help.guide.studio.step.1': '헤더의 “Studio”를 클릭하세요. Journey 위에 디자이너가 열려요.',
-  'help.guide.studio.step.2': '돌아가려면 상단 바 왼쪽의 Journey 이름을 클릭하세요. 보던 곳으로 돌아가요.',
+  'help.guide.studio.step.2': '돌아가려면 상단 바 오른쪽 끝의 ×를 클릭하세요. 보던 곳으로 돌아가요.',
   'help.guide.studio.result':
-    '왼쪽에 페이지 레일, 작업 공간에 펼침면, 오른쪽에 속성이 있어요. 자동 레이아웃으로 항목에서 책을 만들고, 내보내기로 인쇄용 PDF를 만들어요.',
+    '왼쪽에 사이드바와 패널, 작업 영역에 펼침면, 오른쪽에 속성이 있어요. 자동 레이아웃은 기록으로 책을 만들고, 내보내기는 인쇄용 PDF를 만들어요.',
   'help.guide.studio.tip.1': 'Studio는 창 너비가 1024px 이상이어야 쓸 수 있고, 휴대폰에서는 제공되지 않아요.',
   'help.guide.studio.tip.2':
     '책의 권한은 Journey와 같아요: Journey를 읽을 수 있으면 책을 열 수 있고, Journey를 편집할 수 있으면 책을 저장할 수 있어요.',
@@ -839,19 +839,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': '스튜디오',
   'help.ctx.journey-studio.summary':
-    'TREK 스튜디오는 Journey를 인쇄할 수 있는 포토북으로 꾸며요. Journey 위에 열리고, 왼쪽에 페이지 목록과 콘텐츠, 가운데에 작업 중인 펼침면, 오른쪽에 속성이 있어요. 자동 레이아웃으로 항목에서 첫 초안을 만들고, 그다음에는 모든 걸 옮기고, 자르고, 스타일을 바꿀 수 있으며, 모든 단계를 실행 취소할 수 있어요.',
+    'TREK Studio는 Journey를 인쇄할 수 있는 포토북으로 만들어 줘요. Journey 위에 열리며, 왼쪽에는 사이드바와 패널, 가운데에는 작업 중인 펼침면, 오른쪽에는 속성이 있어요. 자동 레이아웃은 기록으로 첫 초안을 만들고, 테마는 책에 색과 글꼴을 입히고, 어시스턴트는 페이지 디자인을 함께해요. 그 뒤에는 무엇이든 옮기고, 자르고, 스타일을 바꿀 수 있고, 모든 단계를 실행 취소할 수 있어요.',
   'help.ctx.journey-studio.bullet.1':
-    '상단 바: Back to the journey, Book view, 실행 취소와 다시 실행, Page format, Auto layout, Export. 제목 옆의 “저장됨” 표시로 책이 저장되었는지 알 수 있어요.',
+    '상단 바: 왼쪽에는 Journey의 표지와 이름이 있어요. 오른쪽에는 이 책에 함께 있는 사람과 저장 여부, 페이지 형식, 실행 취소, 다시 실행, 붙여넣기, 자동 레이아웃, 어시스턴트, 도움말, 내보내기, 그리고 스튜디오를 닫는 버튼이 있어요.',
   'help.ctx.journey-studio.bullet.2':
-    '왼쪽 레일에 일곱 섹션이 있어요: 페이지, 콘텐츠(Journey의 사진과 기록), 레이아웃, 요소(텍스트, 도형, 선, 프레임과 그리드, 아이콘과 스티커), 여행(Journey로 만든 지도, 국가, 국기, 표시), 그리고 그 아래 따로 테마와 레이어.',
+    '왼쪽 사이드바: 페이지, 콘텐츠(Journey의 사진과 기록), 레이아웃, 요소(텍스트, 도형, 선, 프레임, 아이콘, 스티커), 여행(Journey로 만드는 숫자, 지도, 국가, 표시), 그리고 떨어져 있는 테마와 레이어가 있어요.',
   'help.ctx.journey-studio.bullet.3':
-    '작업 영역: 도련과 안전 여백이 표시된 현재 펼침면, 그 아래 확대 바, Fit to view, 오른쪽의 “이 펼침면 내려받기”.',
+    '작업 영역: 도련과 안전 영역이 표시된 현재 펼침면이에요. 아래 확대/축소 바에는 화면에 맞추기, 책 보기, 이 펼침면 내려받기가 있어요.',
   'help.ctx.journey-studio.bullet.4':
-    '오른쪽 Properties: 선택한 요소의 위치와 크기, 자르기와 초점, 채우기 또는 맞추기, 스타일, 모서리, 프레임, 겹침 순서, 잠금. 아무것도 선택하지 않으면 쪽 번호와 문서 설정이 나와요.',
+    '오른쪽 속성: 선택한 요소의 모든 것을 다뤄요. 위치, 크기, 자르기부터 색, 효과, 쌓는 순서, 잠금까지예요. 아무것도 선택하지 않았을 때는 페이지 배경, 테마, 쪽 번호, 문서가 보여요.',
   'help.ctx.journey-studio.bullet.5':
-    '책은 인쇄된 책처럼 구성돼요: 표지, 낱장 첫 페이지, 펼침면들, 낱장 마지막 페이지, 뒤표지. 쪽 번호는 첫 페이지부터 세고, 보이는 그대로 인쇄돼요.',
+    '책은 인쇄된 책과 같은 구성이에요. 표지, 표지 안쪽 빈 면과 마주 보는 낱쪽 첫 페이지, 펼침면, 낱쪽 마지막 페이지, 뒤표지 순이에요. 쪽 번호는 첫 페이지부터 세고 보이는 그대로 인쇄돼요.',
   'help.ctx.journey-studio.bullet.6':
     '여러 사람이 동시에 디자인할 수 있어요: 서로의 포인터가 이름과 함께 보여요. 다른 사람이 바꾼 버전에 저장하면 TREK가 그 작업을 덮어쓰지 않고 충돌로 알려 줘요.',
+  'help.ctx.journey-studio.bullet.7':
+    '테마: 책 전체의 모습을 하나로 맞춰요. 종이, 잉크, 강조색 세 가지, 글꼴, 모티프가 포함돼요. 테마에 연결된 요소는 테마를 바꾸면 함께 바뀌어요.',
+  'help.ctx.journey-studio.bullet.8':
+    '어시스턴트: 관리자가 AI를 설정해 두었다면 상단 바의 말풍선으로 어시스턴트를 열 수 있어요. 어시스턴트가 함께 페이지를 배치하고, 캡션을 쓰고, 책의 스타일을 바꿔 줘요. 어시스턴트가 한 변경은 모두 실행 취소 단계가 돼요.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': '책 자동으로 만들기',
   'help.guide.studio-auto-layout.goal': '클릭 한 번으로 일기의 기록과 사진을 모아 완성된 초안을 만들어요.',
@@ -869,7 +873,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': '펼침면 추가, 이동, 삭제하기',
   'help.guide.studio-pages.goal': '책을 한 페이지씩 편집해요.',
   'help.guide.studio-pages.step.1':
-    '사이드바에서 Pages를 여세요. 썸네일이 책 순서대로 나와요: 표지, 첫 페이지, 펼침면, 마지막 페이지, 뒤표지.',
+    '사이드바에서 페이지를 여세요. 썸네일이 책을 순서대로 보여 줘요. 표지, 첫 페이지, 펼침면, 마지막 페이지, 뒤표지 순이에요. 첫 페이지와 마지막 페이지는 제본된 책을 펼쳤을 때처럼 표지 안쪽 빈 면 옆에 그려져요.',
   'help.guide.studio-pages.step.2':
     '맨 아래 “페이지 추가”는 마지막 페이지 앞에 새 펼침면을 추가해요. 두 썸네일 사이의 +를 누르면 그 위치에 넣어요.',
   'help.guide.studio-pages.step.3':
@@ -882,11 +886,20 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': '펼침면에 레이아웃 적용하기',
   'help.guide.studio-layouts.goal': '사진과 텍스트 프레임이 미리 배치된 레이아웃을 펼침면에 적용해요.',
   'help.guide.studio-layouts.step.1':
-    '레일에서 Layouts를 여세요. 먼저 디자인된 페이지가 나와요. 책의 테마로 꾸민 표지와 펼침면 전체이고, 스타일 버튼으로 한 가지 느낌만 골라 볼 수 있어요. 그 아래에 이 책의 레이아웃과 기본 제공 레이아웃이 이어져요.',
+    '사이드바에서 레이아웃을 여세요. 디자인된 페이지가 먼저 나와요. 책의 테마로 꾸민 표지와 펼침면 전체이고, 스타일 칩으로 하나의 분위기만 골라 볼 수 있어요. 내 레이아웃과 기본 제공이 그 아래에 같은 격자로 이어져요.',
   'help.guide.studio-layouts.step.2':
     '하나를 클릭하세요. 작업 공간의 펼침면에 이 레이아웃의 프레임이 적용되고, 기존 사진과 글이 그 안에 배치돼요.',
   'help.guide.studio-layouts.result':
     '빈 프레임은 콘텐츠 자리예요: Content에서 사진을 끌어다 놓거나 Add to this page를 쓰세요.',
+  'help.guide.studio-my-layouts.title': '페이지를 나만의 레이아웃으로 저장하기',
+  'help.guide.studio-my-layouts.goal': '책의 다른 페이지에서 만든 배치를 다시 써요.',
+  'help.guide.studio-my-layouts.step.1': '페이지를 마음에 드는 대로 배치한 뒤 사이드바에서 레이아웃을 여세요.',
+  'help.guide.studio-my-layouts.step.2':
+    '내 레이아웃 아래의 이 페이지를 레이아웃으로 저장을 클릭하세요. 페이지가 카드로 목록에 나타나요.',
+  'help.guide.studio-my-layouts.tip.1':
+    '다른 페이지에서 내 레이아웃을 클릭하면, 그 페이지의 사진과 글은 그대로 두고 같은 방식으로 배치돼요.',
+  'help.guide.studio-my-layouts.result':
+    '레이아웃은 책과 함께 저장되고 같은 종류의 페이지에서 보여요. 표지용은 표지에, 펼침면용은 펼침면에 나와요.',
   'help.guide.studio-layouts.tip.1': '레이아웃 적용도 다른 작업처럼 실행 취소할 수 있어요.',
   // studio-content
   'help.guide.studio-content.title': '페이지에 사진과 기록 넣기',
@@ -898,27 +911,75 @@ const help: TranslationStrings = {
   'help.guide.studio-content.step.3':
     '기록 아래의 Title, Story, Place를 누르면 그 글이 텍스트 요소로 페이지에 들어가요. 날짜와 좌표는 표시로 추가되고, 기록의 사진도 거기에 나와요.',
   'help.guide.studio-content.result': '끌어다 놓은 사진은 사진 요소가 돼요. 글은 편집하기 전까지 항목과 연결돼 있어요.',
+  'help.guide.studio-theme.title': '책에 테마 입히기',
+  'help.guide.studio-theme.goal': '책 전체의 색과 글꼴을 한 번에 정해요.',
+  'help.guide.studio-theme.step.1':
+    '사이드바에서 테마를 여세요. 각 카드는 테마를 작은 페이지로 보여 줘요. 종이, 글꼴, 강조색 세 가지가 담겨 있어요.',
+  'help.guide.studio-theme.step.2':
+    '테마를 클릭해서 써 보세요. 카드 아래에서 팔레트를 바꾸고, 다른 글꼴을 고르고, 모티프와 장식을 선택할 수 있어요.',
+  'help.guide.studio-theme.step.3': '책에 적용을 클릭하세요. 화면에 보이는 펼침면에만 쓰려면 이 페이지에 적용이에요.',
+  'help.guide.studio-theme.tip.1':
+    '테마에 연결된 요소는 테마의 색과 글꼴을 가져오고, 테마를 바꾸면 따라 바뀌어요. 아직 연결되지 않은 것도 스타일 변경을 쓰면 나머지를 먼저 연결해요.',
+  'help.guide.studio-theme.tip.2': '사진에서 색 가져오기는 Journey의 사진으로 팔레트를 만들어요.',
+  'help.guide.studio-theme.result':
+    '책에서 연결된 색과 글꼴이 모두 한꺼번에 바뀌고, 테마 적용은 실행 취소 한 단계예요.',
   'help.guide.studio-content.tip.1': 'Content 위쪽 검색창으로 두 목록을 모두 걸러요.',
   'help.guide.studio-content.tip.2':
     '컴퓨터 바탕화면에서 파일을 작업 공간에 끌어다 놓으면, TREK가 업로드와 배치를 한 번에 해요.',
   // studio-elements
-  'help.guide.studio-elements.title': '텍스트, 도형, 아이콘 추가하기',
+  'help.guide.studio-elements.title': '텍스트, 도형, 아이콘, 스티커 추가하기',
   'help.guide.studio-elements.goal': '사진과 이야기 외에 장식 요소로 펼침면을 꾸며요.',
-  'help.guide.studio-elements.step.1': '사이드바에서 Elements를 여세요.',
+  'help.guide.studio-elements.step.1':
+    '사이드바에서 요소를 여세요. 추가할 수 있는 것이 텍스트, 도형, 선, 프레임, 아이콘, 스티커의 여섯 탭으로 나뉘어 있어요.',
   'help.guide.studio-elements.step.2':
-    '제목이나 캡션용 텍스트 스타일, 도형, 선, 격자, 프레임 스타일이 있는 빈 프레임, 검색 가능한 라이브러리의 아이콘 중 하나를 클릭하세요. 펼침면 가운데에 놓이고, 그다음 원하는 곳으로 옮길 수 있어요.',
+    '텍스트 스타일이나 디자인된 제목, 도형, 선, 빈 프레임, 아이콘, 스티커를 클릭하세요. 모두 펼침면 가운데에 놓이니 그 뒤에 옮기면 돼요.',
   'help.guide.studio-elements.result':
     '텍스트 요소를 더블클릭하면 입력할 수 있어요. Properties에서 글꼴, 굵기, 크기, 간격, 정렬을 정해요.',
+  'help.guide.studio-stickers.title': '스티커로 꾸미기',
+  'help.guide.studio-stickers.goal': '명소와 음식부터 동물과 화살표까지 일러스트를 추가해요.',
+  'help.guide.studio-stickers.step.1': '사이드바에서 요소를 열고 스티커를 고르세요.',
+  'help.guide.studio-stickers.step.2': '단어로 검색하거나 선반을 둘러본 뒤, 스티커를 클릭해서 펼침면에 놓으세요.',
+  'help.guide.studio-stickers.tip.1': '스티커를 선택하면 속성에서 각 부분의 색을 바꾸고 좌우로 뒤집을 수 있어요.',
+  'help.guide.studio-stickers.result': '스티커는 그림이라서 어떤 크기에서도 선명해요.',
   'help.guide.studio-elements.tip.1': '프레임은 빈 사진 자리예요. 사진은 나중에 끌어다 놓으면 돼요.',
   // studio-travel
-  'help.guide.studio-travel.title': '지도, 국기, 수치 추가하기',
-  'help.guide.studio-travel.goal': '여행 자체를 페이지 위의 수치로 보여 줘요.',
-  'help.guide.studio-travel.step.1': '레일에서 Travel을 여세요.',
+  'help.guide.studio-travel.title': '지도, 숫자, 국가, 표시 추가하기',
+  'help.guide.studio-travel.goal': '여행 자체를 페이지 위의 디자인된 요소로 바꿔요.',
+  'help.guide.studio-travel.step.1':
+    '사이드바에서 여행을 여세요. 추가할 수 있는 것이 숫자, 지도, 국가, 표시의 네 탭으로 나뉘어 있어요.',
   'help.guide.studio-travel.step.2':
-    '추가할 항목을 고르세요: 기록의 경로 지도, 국가 윤곽, 국가 목록이나 격자, 국기, 날짜나 일차, 거리 표시, 여행 전체 요약. 모두 Journey 데이터로 만들어지고 데이터가 바뀌면 함께 업데이트돼요.',
-  'help.guide.studio-travel.result': '요소가 펼침면에 나타나요. Properties에서 스타일을, 지도에서 범위를 바꿔요.',
+    '각 카드는 내 Journey의 숫자를 테마 색으로 보여 줘요. 요약은 포스터, 티켓, 도로 표지판, 주행 거리계로, 지도는 번호가 붙은 경유지나 한 국가만 잘라낸 모양으로, 국가는 스탬프, 엽서, 핀으로, 날짜나 거리는 스탬프, 태그, 리본으로 나와요.',
+  'help.guide.studio-travel.step.3':
+    '카드를 클릭하세요. 요소가 펼침면 가운데에 놓이니 그 뒤에 옮기고 크기를 바꾸면 돼요.',
+  'help.guide.studio-travel.result':
+    '요소가 펼침면에 나타나요. 속성에서 모양을 바꿀 수 있고, 숫자, 지도, 국가는 Journey가 바뀔 때마다 갱신돼요.',
+  'help.guide.studio-text-effects.title': '텍스트에 효과 넣기',
+  'help.guide.studio-text-effects.goal': '제목에 윤곽선, 그림자, 곡선을 주거나 글자를 패턴으로 채워요.',
+  'help.guide.studio-text-effects.step.1': '페이지의 텍스트 요소를 클릭해서 선택하세요.',
+  'help.guide.studio-text-effects.step.2':
+    '속성에서 효과를 열어 윤곽선, 그림자, 하이라이트를 더하거나 글자를 그라데이션이나 패턴으로 채우세요. 배치에서는 줄을 곡선으로 만들고 상자에 맞출 수 있어요.',
+  'help.guide.studio-text-effects.tip.1': '맞추기는 텍스트가 상자에 들어올 때까지 줄여서, 긴 제목도 넘치지 않아요.',
+  'help.guide.studio-text-effects.result': '효과가 텍스트와 함께 그려지므로 인쇄해도 화면과 똑같아요.',
+  'help.guide.studio-background.title': '페이지 배경 바꾸기',
+  'help.guide.studio-background.goal': '페이지를 단색, 그라데이션, 패턴으로 칠하거나 사진을 깔아요.',
+  'help.guide.studio-background.step.1':
+    '페이지의 빈 곳을 클릭해서 아무것도 선택되지 않게 하세요. 속성 맨 위에 페이지 배경이 있어요.',
+  'help.guide.studio-background.step.2':
+    '종이, 단색, 그라데이션, 패턴 중 하나와 색을 고르거나, 배경으로 쓸 사진에서 사진을 클릭하세요.',
+  'help.guide.studio-background.tip.1': '모든 페이지에 적용을 누르면 책의 모든 페이지에 같은 배경이 들어가요.',
+  'help.guide.studio-background.result': '배경은 도련까지 이어져서 페이지 가장자리까지 인쇄돼요.',
+  'help.guide.studio-layers.title': '레이어로 정렬하고, 숨기고, 잠그기',
+  'help.guide.studio-layers.goal': '펼침면의 모든 것을 쌓인 순서대로 보고 거기서 작업해요.',
+  'help.guide.studio-layers.step.1': '사이드바에서 레이어를 여세요. 목록의 맨 위가 페이지의 맨 앞이에요.',
+  'help.guide.studio-layers.step.2':
+    '행을 끌어서 순서를 바꾸고, 눈 아이콘으로 요소를 숨기고, 잠금으로 제자리에 고정하세요. 여러 개를 선택해 그룹으로 묶으면 함께 움직여요.',
+  'help.guide.studio-layers.tip.1': '행을 더블클릭하면 요소에 고유한 이름을 붙일 수 있어요.',
+  'help.guide.studio-layers.tip.2': '숨긴 요소는 PDF에서 빠져요.',
+  'help.guide.studio-layers.result': '요소가 많은 페이지도 편집하기 쉽고, 끝낸 부분이 실수로 움직이지 않아요.',
   'help.guide.studio-travel.tip.1':
-    '표시는 펼침면을 만든 기록의 데이터를 써요. 그래서 Auto layout으로 만든 펼침면의 날짜 표시에는 이미 그날이 나와요.',
+    '지도 아래의 경유지에는 경로의 모든 경유지가 나열돼요. 집 근처 공항처럼 지도와 숫자에서 빼고 싶은 것은 꺼 두세요.',
+  'help.guide.studio-travel.tip.2':
+    '국가 지도는 그 국가의 경유지만 보여 주므로, 여행이 긴 비행으로 시작했더라도 국가가 페이지를 가득 채워요.',
   // studio-properties
   'help.guide.studio-properties.title': '선택한 요소 편집하기',
   'help.guide.studio-properties.goal': '인스펙터로 요소를 옮기고, 자르고, 꾸미고, 겹쳐 쌓아요.',
@@ -937,7 +998,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': '페이지 규격 고르기',
   'help.guide.studio-format.goal': '레이아웃을 만들기 전에 책의 인쇄 크기를 정해요.',
-  'help.guide.studio-format.step.1': '상단 바에서 Page format을 클릭하세요.',
+  'help.guide.studio-format.step.1':
+    '상단 바에서 편집 도구 옆에 있는 페이지 형식을 클릭하세요. 형식의 이름과 모양이 보여요.',
   'help.guide.studio-format.step.2':
     'Square 21 × 21 cm, Square 30 × 30 cm, A4 또는 A5 가로나 세로 중에서 고르거나, 너비와 높이를 밀리미터로 직접 입력하세요. 도련과 안전 여백은 그 아래에 있어요.',
   'help.guide.studio-format.result': '모든 펼침면이 그 크기로 그려지고, 기본 재단 여백은 3mm, 안전 영역은 5mm예요.',

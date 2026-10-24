@@ -933,9 +933,9 @@ const help: TranslationStrings = {
   'help.guide.studio.step.1':
     "Cliquez sur « Studio » dans l'en-tête. L'éditeur de mise en page s'ouvre par-dessus le journal.",
   'help.guide.studio.step.2':
-    "Pour revenir, cliquez sur le nom du journal à gauche de la barre du haut. Vous retrouvez l'endroit où vous étiez.",
+    'Pour revenir, cliquez sur × à l’extrémité droite de la barre du haut. Vous retrouvez l’endroit où vous étiez.',
   'help.guide.studio.result':
-    'La colonne des pages se trouve à gauche, la double page sur le plan de travail et les propriétés à droite. La mise en page automatique construit le livre à partir de vos entrées. L’export crée un PDF prêt à imprimer.',
+    'La colonne et ses panneaux sont à gauche, la double page sur le plan de travail et les propriétés à droite. Mise en page auto construit le livre à partir de vos entrées. Exporter crée un PDF prêt à imprimer.',
   'help.guide.studio.tip.1':
     "Le Studio nécessite une fenêtre d'au moins 1024 px de large et n'est pas disponible sur téléphone.",
   'help.guide.studio.tip.2':
@@ -970,19 +970,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'TREK Studio met en page un journal sous forme de livre photo imprimable. Il s’ouvre par-dessus le journal : la liste des pages et le contenu à gauche, la double page en cours au centre, et ses propriétés à droite. La mise en page automatique crée un premier jet à partir de vos entrées. Vous pouvez ensuite tout déplacer, recadrer et restyler, et annuler chaque étape.',
+    'TREK Studio met en page un journal sous forme de livre photo imprimable. Il s’ouvre par-dessus le journal : la colonne et ses panneaux à gauche, la double page en cours au centre, ses propriétés à droite. Mise en page auto crée un premier jet à partir de vos entrées, un thème donne au livre ses couleurs et ses polices, et l’assistant peut composer des pages avec vous. Vous pouvez ensuite tout déplacer, recadrer et restyler, et annuler chaque étape.',
   'help.ctx.journey-studio.bullet.1':
-    'Barre du haut : « Back to the journey », « Book view », annuler et rétablir, « Page format », « Auto layout » et « Exporter ». La mention « Enregistré » à côté du titre indique quand le livre a été enregistré.',
+    'Barre du haut : à gauche, la couverture et le nom du journal. À droite, qui d’autre est dans le livre et si celui-ci est enregistré, le format de page, annuler, rétablir et coller, Mise en page auto, l’assistant, l’aide, Exporter et le bouton qui ferme Studio.',
   'help.ctx.journey-studio.bullet.2':
-    'Colonne de gauche en sept sections : « Pages », « Contenu » (les photos et les entrées du journal), « Mises en page », « Éléments » (texte, formes, lignes, cadres et grilles, icônes et autocollants), « Voyage » (cartes, pays, drapeaux et repères tirés du journal) et, à part en dessous, « Thème » et « Calques ».',
+    'Colonne de gauche : Pages, Contenu (les photos et les entrées du journal), Mises en page, Éléments (texte, formes, lignes, cadres, icônes et autocollants), Voyage (chiffres, cartes, pays et repères tirés du journal) et, à part en dessous, Thème et Calques.',
   'help.ctx.journey-studio.bullet.3':
-    'Plan de travail : la double page en cours avec son fond perdu et ses marges de sécurité, la barre de zoom en dessous, « Fit to view » et « Télécharger cette double page » à droite.',
+    'Plan de travail : la double page en cours avec son fond perdu et ses marges de sécurité, et en dessous la barre de zoom avec Ajuster à la vue, Vue livre et Télécharger cette double page.',
   'help.ctx.journey-studio.bullet.4':
-    "« Properties », à droite : position et taille, recadrage et point focal, remplissage ou ajustement, rendu, coins, cadre, ordre de superposition et verrouillage de l'élément sélectionné. Quand rien n'est sélectionné, le panneau affiche les numéros de page et le document.",
+    'Propriétés à droite : tout ce qui concerne l’élément sélectionné, de la position, la taille et le recadrage aux couleurs, effets, ordre de superposition et verrouillage. Quand rien n’est sélectionné, le panneau affiche le fond de page, le thème, les numéros de page et le document.',
   'help.ctx.journey-studio.bullet.5':
-    'Le livre est mis en page comme un livre imprimé : couverture, une première page seule, les doubles pages, une dernière page seule et la quatrième de couverture. Les numéros de page partent de la première page et s’impriment tels qu’affichés.',
+    'Le livre est mis en page comme un livre imprimé : couverture, une première page seule en face de l’intérieur vierge de la couverture, les doubles pages, une dernière page seule et la quatrième de couverture. Les numéros de page partent de la première page et s’impriment tels qu’affichés.',
   'help.ctx.journey-studio.bullet.6':
     'Plusieurs personnes peuvent travailler en même temps sur la maquette : chacun voit les pointeurs des autres avec leur nom. Si vous enregistrez une version modifiée entre-temps par quelqu’un d’autre, TREK signale un conflit au lieu d’écraser son travail.',
+  'help.ctx.journey-studio.bullet.7':
+    'Thème : un seul style pour tout le livre, avec son papier, son encre et trois couleurs d’accent, ses polices et ses motifs. Les éléments liés au thème le suivent quand vous le changez.',
+  'help.ctx.journey-studio.bullet.8':
+    'Assistant : lorsqu’un administrateur a configuré l’IA, la bulle de la barre du haut ouvre un assistant qui compose des pages, rédige des légendes et restyle le livre avec vous. Chacune de ses modifications peut être annulée.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Construire le livre automatiquement',
   'help.guide.studio-auto-layout.goal':
@@ -1002,7 +1006,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Ajouter, déplacer et supprimer des doubles pages',
   'help.guide.studio-pages.goal': 'Modifier le livre page par page.',
   'help.guide.studio-pages.step.1':
-    "Ouvrez « Pages » dans la colonne de gauche. Les vignettes présentent le livre dans l'ordre : couverture, première page, doubles pages, dernière page, quatrième de couverture.",
+    'Ouvrez Pages dans la colonne. Les vignettes montrent le livre dans l’ordre : couverture, première page, doubles pages, dernière page et quatrième de couverture. La première et la dernière page sont dessinées à côté de l’intérieur vierge de leur couverture, comme s’ouvre le livre relié.',
   'help.guide.studio-pages.step.2':
     '« Ajouter une page », en bas, ajoute une nouvelle double page avant la dernière page. Le + entre deux vignettes en insère une à cet endroit.',
   'help.guide.studio-pages.step.3':
@@ -1017,11 +1021,22 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Appliquer une mise en page à une double page',
   'help.guide.studio-layouts.goal': 'Appliquer à une double page une disposition toute prête de cadres photo et texte.',
   'help.guide.studio-layouts.step.1':
-    'Ouvrez « Layouts » dans la colonne de gauche. Les pages composées viennent d’abord : couvertures et doubles pages entières dans le thème du livre, que les pastilles de style restreignent à un seul style. Plus bas suivent les mises en page du livre et les mises en page intégrées.',
+    'Ouvrez Mises en page dans la colonne. Les pages dessinées viennent d’abord : couvertures et doubles pages entières composées dans le thème du livre, que les pastilles de style réduisent à un seul aspect. Mes dispositions et Intégrées suivent en dessous, dans la même grille.',
   'help.guide.studio-layouts.step.2':
     'Cliquez sur l’une d’elles. La double page du plan de travail reprend les cadres de cette mise en page, et vos photos et textes existants y sont placés.',
   'help.guide.studio-layouts.result':
     'Les cadres vides sont des emplacements réservés : faites-y glisser une photo depuis « Contenu », ou utilisez « Ajouter à cette page ».',
+  'help.guide.studio-my-layouts.title': 'Enregistrer une page comme votre propre disposition',
+  'help.guide.studio-my-layouts.goal':
+    'Réutilisez une disposition que vous avez construite sur d’autres pages du livre.',
+  'help.guide.studio-my-layouts.step.1':
+    'Disposez une page comme vous le souhaitez, puis ouvrez Mises en page dans la colonne.',
+  'help.guide.studio-my-layouts.step.2':
+    'Cliquez sur Enregistrer cette page comme disposition sous Mes dispositions. La page apparaît sous forme de carte dans la liste.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Cliquez sur votre disposition sur une autre page pour la composer de la même façon, avec ses propres photos et ses propres textes.',
+  'help.guide.studio-my-layouts.result':
+    'Vos dispositions sont enregistrées avec le livre et proposées sur les pages du même type : celles d’une couverture pour les couvertures, celles d’une double page pour les doubles pages.',
   'help.guide.studio-layouts.tip.1': 'Appliquer une mise en page s’annule comme n’importe quelle autre action.',
   // studio-content
   'help.guide.studio-content.title': 'Placer des photos et des entrées sur une page',
@@ -1034,29 +1049,87 @@ const help: TranslationStrings = {
     "Sous une entrée, « Title », « Story » et « Place » placent ce texte sur la page sous forme d'élément texte. La date et les coordonnées sont ajoutées sous forme de repères, et les photos de l'entrée sont aussi listées à cet endroit.",
   'help.guide.studio-content.result':
     'Une photo déposée devient un élément photo. Le texte reste lié à l’entrée jusqu’à ce que vous le modifiiez.',
+  'help.guide.studio-theme.title': 'Donner un thème au livre',
+  'help.guide.studio-theme.goal': 'Définissez les couleurs et les polices de tout le livre d’un seul coup.',
+  'help.guide.studio-theme.step.1':
+    'Ouvrez Thème dans la colonne. Chaque carte montre un thème sous forme de petite page : son papier, sa police et ses trois couleurs d’accent.',
+  'help.guide.studio-theme.step.2':
+    'Cliquez sur un thème pour l’essayer. Sous les cartes, vous pouvez modifier sa palette, choisir d’autres polices, ainsi que des motifs et une décoration.',
+  'help.guide.studio-theme.step.3':
+    'Cliquez sur Appliquer au livre, ou sur Appliquer à cette page pour la double page affichée.',
+  'help.guide.studio-theme.tip.1':
+    'Les éléments liés au thème prennent ses couleurs et ses polices et suivent quand vous le changez. Restyler aussi ce qui n’est pas encore lié lie d’abord le reste.',
+  'help.guide.studio-theme.tip.2': 'Couleurs des photos crée une palette à partir des images du journal.',
+  'help.guide.studio-theme.result':
+    'Chaque couleur et chaque police liée du livre change en même temps, et l’application du thème est une seule étape d’annulation.',
   'help.guide.studio-content.tip.1': 'Le champ de recherche en haut de « Contenu » filtre les deux listes.',
   'help.guide.studio-content.tip.2':
     'Quand vous déposez un fichier de votre ordinateur sur le plan de travail, TREK l’importe et le place en une seule opération.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Ajouter du texte, des formes et des icônes',
+  'help.guide.studio-elements.title': 'Ajouter du texte, des formes, des icônes et des autocollants',
   'help.guide.studio-elements.goal': 'Décorer une double page en plus des photos et des récits.',
-  'help.guide.studio-elements.step.1': 'Ouvrez « Elements » dans la colonne de gauche.',
+  'help.guide.studio-elements.step.1':
+    'Ouvrez Éléments dans la colonne. Six onglets classent ce que vous pouvez ajouter : Texte, Formes, Lignes, Cadres, Icônes et Autocollants.',
   'help.guide.studio-elements.step.2':
-    'Cliquez sur un style de texte pour un titre ou une légende, une forme, une ligne, une grille, un cadre vide avec un style de cadre, ou une icône de la bibliothèque, dans laquelle vous pouvez chercher. Chaque élément est placé au milieu de la double page, et vous pouvez ensuite le déplacer.',
+    'Cliquez sur un style de texte ou un titre dessiné, une forme, une ligne, un cadre vide, une icône ou un autocollant. Chacun est placé au milieu de la double page, et vous pouvez ensuite le déplacer.',
   'help.guide.studio-elements.result':
     'Double-cliquez sur un élément de texte pour y écrire ; les propriétés regroupent la police, la graisse, la taille, l’espacement et l’alignement.',
+  'help.guide.studio-stickers.title': 'Décorer avec des autocollants',
+  'help.guide.studio-stickers.goal':
+    'Ajoutez des illustrations, des monuments et de la cuisine aux animaux et aux flèches.',
+  'help.guide.studio-stickers.step.1': 'Ouvrez Éléments dans la colonne et choisissez Autocollants.',
+  'help.guide.studio-stickers.step.2':
+    'Cherchez un mot ou parcourez les étagères, puis cliquez sur un autocollant pour le placer sur la double page.',
+  'help.guide.studio-stickers.tip.1':
+    'Quand un autocollant est sélectionné, Propriétés recolore ses parties et le retourne en miroir.',
+  'help.guide.studio-stickers.result': 'L’autocollant est un dessin, il reste donc net à toutes les tailles.',
   'help.guide.studio-elements.tip.1':
     'Les cadres sont des emplacements photo vides : vous y déposerez une image plus tard.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Ajouter une carte, des drapeaux et des chiffres',
-  'help.guide.studio-travel.goal': 'Mettre en chiffres votre voyage sur la page.',
-  'help.guide.studio-travel.step.1': 'Ouvrez « Voyage » dans la colonne de gauche.',
+  'help.guide.studio-travel.title': 'Ajouter des cartes, des chiffres, des pays et des repères',
+  'help.guide.studio-travel.goal': 'Transformez le voyage lui-même en éléments dessinés sur la page.',
+  'help.guide.studio-travel.step.1':
+    'Ouvrez Voyage dans la colonne. Quatre onglets classent ce que vous pouvez ajouter : Chiffres, Cartes, Pays et Repères.',
   'help.guide.studio-travel.step.2':
-    "Choisissez ce que vous voulez ajouter : une carte de l'itinéraire des entrées, des contours de pays, une liste ou une grille de pays, des drapeaux, un repère de date, de jour ou de distance, ou un résumé de tout le voyage. Chaque élément est généré à partir des données du journal et se met à jour quand elles changent.",
+    'Chaque carte montre l’élément avec les chiffres propres à votre journal, aux couleurs du thème : un récapitulatif en affiche, en billet, en panneau routier ou en compteur kilométrique, une carte avec des étapes numérotées ou découpée sur un pays, un pays en tampon, en carte postale ou en épingle, une date ou une distance en tampon, en étiquette ou en ruban.',
+  'help.guide.studio-travel.step.3':
+    'Cliquez sur une carte. L’élément est placé au milieu de la double page, et vous pouvez ensuite le déplacer et le redimensionner.',
   'help.guide.studio-travel.result':
-    'L’élément apparaît sur la double page. Utilisez les propriétés pour modifier son style et, pour une carte, sa zone.',
+    'L’élément apparaît sur la double page. Propriétés change son apparence, et chaque chiffre, carte et pays se met à jour quand le journal change.',
+  'help.guide.studio-text-effects.title': 'Ajouter des effets au texte',
+  'help.guide.studio-text-effects.goal':
+    'Donnez à un titre un contour, une ombre, une courbe ou des lettres remplies d’un motif.',
+  'help.guide.studio-text-effects.step.1': 'Cliquez sur un élément de texte de la page pour le sélectionner.',
+  'help.guide.studio-text-effects.step.2':
+    'Dans Propriétés, ouvrez Effets pour ajouter un contour, une ombre ou un surlignage, ou remplir les lettres d’un dégradé ou d’un motif. Casse et position courbe la ligne et l’ajuste à son cadre.',
+  'help.guide.studio-text-effects.tip.1':
+    'Ajuster au cadre réduit le texte jusqu’à ce qu’il tienne dans son cadre, si bien qu’un long titre ne déborde jamais.',
+  'help.guide.studio-text-effects.result': 'L’effet est dessiné avec le texte, à l’impression comme à l’écran.',
+  'help.guide.studio-background.title': 'Changer le fond de la page',
+  'help.guide.studio-background.goal':
+    'Peignez la page d’une couleur, d’un dégradé ou d’un motif, ou posez une photo en dessous.',
+  'help.guide.studio-background.step.1':
+    'Cliquez sur une zone vide de la page pour ne rien sélectionner. Fond de page se trouve en haut de Propriétés.',
+  'help.guide.studio-background.step.2':
+    'Choisissez Papier, Uni, Dégradé ou Motif et une couleur, ou cliquez sur une photo sous Photo en arrière-plan.',
+  'help.guide.studio-background.tip.1': 'Appliquer à toutes les pages donne le même fond à chaque page du livre.',
+  'help.guide.studio-background.result':
+    'Le fond déborde dans le fond perdu, il s’imprime donc jusqu’au bord de la page.',
+  'help.guide.studio-layers.title': 'Organiser, masquer et verrouiller avec les calques',
+  'help.guide.studio-layers.goal':
+    'Voyez tout ce que contient la double page dans l’ordre de superposition et travaillez dessus à cet endroit.',
+  'help.guide.studio-layers.step.1':
+    'Ouvrez Calques dans la colonne. Le haut de la liste correspond à l’avant de la page.',
+  'help.guide.studio-layers.step.2':
+    'Faites glisser une ligne pour la repositionner, utilisez l’œil pour masquer un élément et le cadenas pour le garder en place. Sélectionnez-en plusieurs et groupez-les pour les déplacer ensemble.',
+  'help.guide.studio-layers.tip.1': 'Double-cliquez sur une ligne pour donner un nom à l’élément.',
+  'help.guide.studio-layers.tip.2': 'Les éléments masqués ne figurent pas dans le PDF.',
+  'help.guide.studio-layers.result':
+    'Les pages chargées restent faciles à modifier, et les parties terminées ne peuvent pas être déplacées par accident.',
   'help.guide.studio-travel.tip.1':
-    "Les repères utilisent les données de l'entrée à partir de laquelle la double page a été créée. Un repère de date sur une double page créée par « Auto layout » affiche donc déjà ce jour.",
+    'Sous Cartes, Étapes liste chaque étape du parcours. Désactivez-en une pour l’écarter des cartes et des chiffres, votre aéroport de départ par exemple.',
+  'help.guide.studio-travel.tip.2':
+    'Une carte de pays n’affiche que les étapes de ce pays, si bien que le pays remplit la page même quand le journal a commencé par un long vol.',
   // studio-properties
   'help.guide.studio-properties.title': 'Modifier la sélection',
   'help.guide.studio-properties.goal': 'Déplacer, recadrer, styliser et superposer un élément avec l’inspecteur.',
@@ -1075,7 +1148,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Choisir le format de page',
   'help.guide.studio-format.goal': "Choisir le format d'impression du livre avant de créer la mise en page.",
-  'help.guide.studio-format.step.1': 'Cliquez sur « Page format » dans la barre du haut.',
+  'help.guide.studio-format.step.1':
+    'Cliquez sur le format de page dans la barre du haut, à côté des outils d’édition. Il indique le nom et la forme du format.',
   'help.guide.studio-format.step.2':
     'Choisissez « Square 21 × 21 cm », « Square 30 × 30 cm », A4 ou A5 en paysage ou en portrait, ou saisissez une largeur et une hauteur personnalisées en millimètres. Le fond perdu et la marge de sécurité se règlent juste en dessous.',
   'help.guide.studio-format.result':

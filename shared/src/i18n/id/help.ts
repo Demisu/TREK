@@ -905,10 +905,9 @@ const help: TranslationStrings = {
   'help.guide.studio.title': 'Menyusun journey sebagai buku foto',
   'help.guide.studio.goal': 'Ubah jurnal menjadi halaman yang siap dicetak.',
   'help.guide.studio.step.1': 'Klik “Studio” di header. Desainer terbuka di atas journey.',
-  'help.guide.studio.step.2':
-    'Untuk kembali, klik nama journey di sisi kiri bilah atas. Kamu akan kembali ke posisi sebelumnya.',
+  'help.guide.studio.step.2': 'Untuk kembali, klik × di ujung kanan bar atas. Anda kembali ke tempat sebelumnya.',
   'help.guide.studio.result':
-    'Rel halaman ada di kiri, halaman ganda di area kerja, dan propertinya di kanan. Auto layout menyusun buku dari entri-entrimu. Export membuat PDF siap cetak.',
+    'Panel dan isinya ada di kiri, halaman ganda di area kerja, dan properti di kanan. Tata letak otomatis membuat buku dari entri Anda. Ekspor membuat PDF siap cetak.',
   'help.guide.studio.tip.1': 'Studio butuh jendela dengan lebar minimal 1024 px dan tidak tersedia di ponsel.',
   'help.guide.studio.tip.2':
     'Bukunya punya akses yang sama dengan journey: siapa pun yang bisa membaca journey bisa membuka bukunya, dan siapa pun yang bisa mengedit journey bisa menyimpannya.',
@@ -939,19 +938,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'TREK Studio menyusun journey menjadi buku foto yang bisa dicetak. Studio terbuka di atas jurnal: daftar halaman dan konten di kiri, halaman ganda yang sedang dikerjakan di tengah, dan propertinya di kanan. Auto layout membuat draf pertama dari entri-entrimu. Setelah itu, kamu bisa memindahkan, memotong, dan mengubah gaya semuanya, dan setiap langkah bisa diurungkan.',
+    'TREK Studio menata journey sebagai buku foto yang bisa Anda cetak. Studio terbuka di atas jurnal: panel dan isinya ada di kiri, halaman ganda yang sedang Anda kerjakan di tengah, dan propertinya di kanan. Tata letak otomatis membuat draf pertama dari entri Anda, tema memberi buku warna dan jenis hurufnya, dan asisten bisa merancang halaman bersama Anda. Setelah itu, Anda bisa memindahkan, memangkas, dan mengubah gaya semuanya, dan Anda bisa mengurungkan setiap langkah.',
   'help.ctx.journey-studio.bullet.1':
-    'Bilah atas: “Back to the journey”, “Book view”, urungkan dan ulangi, “Page format”, “Auto layout”, dan “Export”. Tanda “Tersimpan” di samping judul menunjukkan kapan buku terakhir disimpan.',
+    'Bar atas: sampul dan nama journey di kiri. Di kanan ada siapa lagi yang ada di buku dan apakah buku sudah tersimpan, format halaman, urungkan, ulangi dan tempel, Tata letak otomatis, asisten, bantuan, Ekspor, dan tombol yang menutup Studio.',
   'help.ctx.journey-studio.bullet.2':
-    'Panel samping di kiri dengan tujuh bagian: “Halaman”, “Konten” (foto dan catatan journey), “Tata letak”, “Elemen” (teks, bentuk, garis, bingkai dan kisi, ikon dan stiker), “Perjalanan” (peta, negara, bendera, dan penanda yang dibuat dari journey), serta “Tema” dan “Lapisan” yang terpisah di bawahnya.',
+    'Panel di kiri: Halaman, Konten (foto dan entri journey), Tata letak, Elemen (teks, bentuk, garis, bingkai, ikon, dan stiker), Perjalanan (angka, peta, negara, dan tanda yang dibuat dari journey) dan, terpisah di bawahnya, Tema dan Lapisan.',
   'help.ctx.journey-studio.bullet.3':
-    'Area kerja: halaman ganda yang sedang dibuka beserta margin bleed dan margin amannya, bilah zoom di bawahnya, “Fit to view”, dan “Unduh halaman ganda ini” di kanan.',
+    'Area kerja: halaman ganda saat ini dengan bleed dan margin aman, serta bar zoom di bawahnya dengan Sesuaikan tampilan, Tampilan buku, dan Unduh halaman ganda ini.',
   'help.ctx.journey-studio.bullet.4':
-    '“Properties” di kanan: posisi dan ukuran, potongan dan titik fokus, fill atau fit, tampilan, sudut, bingkai, urutan tumpukan, dan kunci untuk elemen yang dipilih. Kalau tidak ada yang dipilih, panel ini menampilkan nomor halaman dan dokumennya.',
+    'Properti di kanan: semua tentang elemen yang dipilih, dari posisi, ukuran, dan pemangkasan hingga warna, efek, urutan tumpukan, dan kunci. Saat tidak ada yang dipilih, panel ini menampilkan latar halaman, tema, nomor halaman, dan dokumen.',
   'help.ctx.journey-studio.bullet.5':
-    'Bukunya disusun seperti buku cetak: sampul, satu halaman pertama, halaman-halaman ganda, satu halaman terakhir, dan sampul belakang. Nomor halaman dihitung dari halaman pertama dan dicetak seperti yang ditampilkan.',
+    'Buku ditata seperti buku cetak: sampul, satu halaman pertama di seberang bagian dalam sampul yang kosong, halaman ganda, satu halaman terakhir, dan sampul belakang. Nomor halaman dihitung dari halaman pertama dan dicetak seperti yang ditampilkan.',
   'help.ctx.journey-studio.bullet.6':
     'Beberapa orang bisa mendesain bersamaan: semua orang melihat kursor orang lain beserta namanya. Jika kamu menyimpan versi yang sudah diubah orang lain, TREK menampilkan konflik dan tidak menimpa pekerjaan mereka.',
+  'help.ctx.journey-studio.bullet.7':
+    'Tema: satu tampilan untuk seluruh buku, berupa kertas, tinta, dan tiga warna aksen, jenis huruf, serta motifnya. Elemen yang terhubung ke tema mengikutinya saat Anda mengubahnya.',
+  'help.ctx.journey-studio.bullet.8':
+    'Asisten: jika administrator telah menyiapkan AI, balon percakapan di bar atas membuka asisten yang menata halaman, menulis keterangan, dan mengubah gaya buku bersama Anda. Setiap perubahan yang dibuatnya adalah satu langkah urungkan.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Menyusun buku secara otomatis',
   'help.guide.studio-auto-layout.goal':
@@ -971,7 +974,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Tambah, pindahkan, dan hapus halaman ganda',
   'help.guide.studio-pages.goal': 'Edit buku halaman demi halaman.',
   'help.guide.studio-pages.step.1':
-    'Buka “Pages” di panel samping. Thumbnail menampilkan buku sesuai urutannya: sampul depan, halaman pertama, halaman ganda, halaman terakhir, sampul belakang.',
+    'Buka Halaman di panel. Thumbnail menampilkan buku sesuai urutannya: sampul depan, halaman pertama, halaman ganda, halaman terakhir, dan sampul belakang. Halaman pertama dan terakhir digambar di samping bagian dalam sampulnya yang kosong, seperti buku berjilid saat dibuka.',
   'help.guide.studio-pages.step.2':
     '“Tambah halaman” di bagian bawah menambahkan halaman ganda baru sebelum halaman terakhir. Tanda + di antara dua thumbnail menyisipkannya di posisi itu.',
   'help.guide.studio-pages.step.3':
@@ -986,11 +989,20 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Terapkan tata letak ke halaman ganda',
   'help.guide.studio-layouts.goal': 'Beri halaman ganda susunan bingkai foto dan teks yang siap pakai.',
   'help.guide.studio-layouts.step.1':
-    'Buka “Layouts” di panel samping. Halaman berdesain tampil lebih dulu: sampul dan halaman ganda utuh dengan tema buku, yang bisa dipersempit ke satu gaya lewat tombol gaya. Di bawahnya ada tata letak milik buku dan tata letak bawaan.',
+    'Buka Tata letak di panel. Halaman berdesain tampil lebih dulu: sampul dan halaman ganda utuh dengan tema buku, yang dipersempit ke satu gaya oleh tombol gaya. Tata letakku dan Bawaan menyusul di bawahnya, dalam kisi yang sama.',
   'help.guide.studio-layouts.step.2':
     'Klik salah satunya. Halaman ganda di area kerja mendapat bingkai-bingkai dari tata letak ini, dan foto serta teks yang sudah ada ditempatkan ke dalamnya.',
   'help.guide.studio-layouts.result':
     'Bingkai kosong adalah tempat untuk konten: seret foto dari Content ke salah satunya, atau pakai Add to this page.',
+  'help.guide.studio-my-layouts.title': 'Simpan halaman sebagai tata letak Anda sendiri',
+  'help.guide.studio-my-layouts.goal': 'Pakai ulang susunan yang Anda buat di halaman lain dalam buku.',
+  'help.guide.studio-my-layouts.step.1': 'Susun halaman sesuai keinginan Anda, lalu buka Tata letak di panel.',
+  'help.guide.studio-my-layouts.step.2':
+    'Klik Simpan halaman ini sebagai tata letak di bawah Tata letakku. Halaman muncul sebagai kartu di daftar.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Klik tata letak Anda di halaman lain untuk menata halaman itu dengan cara yang sama, dengan foto dan teksnya sendiri.',
+  'help.guide.studio-my-layouts.result':
+    'Tata letak Anda disimpan bersama buku dan ditawarkan di halaman sejenis: milik sampul untuk sampul, milik halaman ganda untuk halaman ganda.',
   'help.guide.studio-layouts.tip.1': 'Tata letak juga tercatat sebagai satu langkah urungkan seperti biasa.',
   // studio-content
   'help.guide.studio-content.title': 'Taruh foto dan catatan di halaman',
@@ -1003,28 +1015,81 @@ const help: TranslationStrings = {
     'Di bawah sebuah catatan, “Title”, “Story”, dan “Place” menaruh teks itu di halaman sebagai elemen teks. Tanggal dan koordinat ditambahkan sebagai penanda, dan foto catatan itu juga tercantum di sana.',
   'help.guide.studio-content.result':
     'Foto yang dijatuhkan menjadi elemen foto. Teks tetap terhubung ke entri sampai kamu mengeditnya.',
+  'help.guide.studio-theme.title': 'Beri buku sebuah tema',
+  'help.guide.studio-theme.goal': 'Atur warna dan jenis huruf seluruh buku sekaligus.',
+  'help.guide.studio-theme.step.1':
+    'Buka Tema di panel. Setiap kartu menampilkan tema sebagai halaman kecil: kertasnya, jenis hurufnya, dan tiga warna aksennya.',
+  'help.guide.studio-theme.step.2':
+    'Klik tema untuk mencobanya. Di bawah kartu, Anda bisa mengubah paletnya, memilih jenis huruf lain, serta memilih motif dan dekorasi.',
+  'help.guide.studio-theme.step.3': 'Klik Terapkan ke buku, atau Terapkan ke halaman ini untuk halaman ganda di layar.',
+  'help.guide.studio-theme.tip.1':
+    'Elemen yang terhubung ke tema mengambil warna dan jenis hurufnya serta mengikutinya saat Anda mengubahnya. Ubah juga gaya yang belum terhubung menghubungkan sisanya terlebih dahulu.',
+  'help.guide.studio-theme.tip.2': 'Warna dari foto membuat palet dari gambar-gambar journey.',
+  'help.guide.studio-theme.result':
+    'Setiap warna dan jenis huruf yang terhubung di buku berubah sekaligus, dan menerapkan tema adalah satu langkah urungkan.',
   'help.guide.studio-content.tip.1': 'Kotak pencarian di bagian atas Content menyaring kedua daftar.',
   'help.guide.studio-content.tip.2':
     'Saat kamu menjatuhkan file dari desktop ke area kerja, TREK mengunggah dan menempatkannya sekaligus.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Tambahkan teks, bentuk, dan ikon',
+  'help.guide.studio-elements.title': 'Tambahkan teks, bentuk, ikon, dan stiker',
   'help.guide.studio-elements.goal': 'Tambahkan hiasan ke halaman ganda selain foto dan cerita.',
-  'help.guide.studio-elements.step.1': 'Buka “Elements” di panel samping.',
+  'help.guide.studio-elements.step.1':
+    'Buka Elemen di panel. Enam tab memilah apa yang bisa Anda tambahkan: Teks, Bentuk, Garis, Bingkai, Ikon, dan Stiker.',
   'help.guide.studio-elements.step.2':
-    'Klik gaya teks untuk judul atau keterangan, bentuk, garis, kisi, bingkai kosong dengan gaya bingkainya, atau ikon dari pustaka yang bisa dicari. Setiap elemen ditaruh di tengah halaman ganda, lalu bisa kamu pindahkan.',
+    'Klik gaya teks atau judul yang dirancang, bentuk, garis, bingkai kosong, ikon, atau stiker. Masing-masing ditempatkan di tengah halaman ganda, lalu Anda bisa memindahkannya.',
   'help.guide.studio-elements.result':
     'Klik dua kali elemen teks untuk mengetik di dalamnya; Properties berisi font, ketebalan, ukuran, spasi, dan perataan.',
+  'help.guide.studio-stickers.title': 'Hias dengan stiker',
+  'help.guide.studio-stickers.goal': 'Tambahkan ilustrasi, dari landmark dan makanan hingga hewan dan panah.',
+  'help.guide.studio-stickers.step.1': 'Buka Elemen di panel dan pilih Stiker.',
+  'help.guide.studio-stickers.step.2':
+    'Cari sebuah kata atau jelajahi raknya, lalu klik stiker untuk menempatkannya di halaman ganda.',
+  'help.guide.studio-stickers.tip.1':
+    'Saat stiker dipilih, Properti mewarnai ulang bagian-bagiannya dan membalikkannya.',
+  'help.guide.studio-stickers.result': 'Stiker adalah gambar, sehingga tetap tajam di ukuran berapa pun.',
   'help.guide.studio-elements.tip.1': '“Bingkai” adalah slot foto kosong: jatuhkan gambar ke sana nanti.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Menambahkan peta, bendera, dan angka',
-  'help.guide.studio-travel.goal': 'Tampilkan data perjalananmu sebagai angka di halaman.',
-  'help.guide.studio-travel.step.1': 'Buka “Perjalanan” di panel samping.',
+  'help.guide.studio-travel.title': 'Tambahkan peta, angka, negara, dan tanda',
+  'help.guide.studio-travel.goal': 'Ubah journey itu sendiri menjadi elemen berdesain di halaman.',
+  'help.guide.studio-travel.step.1':
+    'Buka Perjalanan di panel. Empat tab memilah apa yang bisa Anda tambahkan: Angka, Peta, Negara, dan Tanda.',
   'help.guide.studio-travel.step.2':
-    'Pilih yang ingin ditambahkan: peta rute dari catatan, garis batas negara, daftar atau kisi negara, bendera, penanda tanggal, hari, atau jarak, atau ringkasan seluruh perjalanan. Semuanya dibuat dari data journey dan diperbarui saat datanya berubah.',
+    'Setiap kartu menampilkan elemen dengan angka journey Anda sendiri, dalam warna tema: ringkasan sebagai poster, tiket, rambu jalan, atau odometer, peta dengan perhentian bernomor atau dipotong ke satu negara, negara sebagai prangko, kartu pos, atau pin, tanggal atau jarak sebagai stempel, label, atau pita.',
+  'help.guide.studio-travel.step.3':
+    'Klik sebuah kartu. Elemen ditempatkan di tengah halaman ganda, lalu Anda bisa memindahkan dan mengubah ukurannya.',
   'help.guide.studio-travel.result':
-    'Elemen itu muncul di halaman ganda. Pakai Properties untuk mengubah gayanya, dan petanya untuk mengubah areanya.',
+    'Elemen muncul di halaman ganda. Properti mengubah tampilannya, dan setiap angka, peta, dan negara diperbarui saat journey berubah.',
+  'help.guide.studio-text-effects.title': 'Tambahkan efek pada teks',
+  'help.guide.studio-text-effects.goal': 'Beri judul kontur, bayangan, lengkungan, atau huruf yang diisi pola.',
+  'help.guide.studio-text-effects.step.1': 'Klik elemen teks di halaman untuk memilihnya.',
+  'help.guide.studio-text-effects.step.2':
+    'Di Properti, buka Efek untuk menambahkan kontur, bayangan, atau sorotan, atau isi huruf dengan gradien atau pola. Huruf dan posisi melengkungkan baris dan menyesuaikannya dengan kotaknya.',
+  'help.guide.studio-text-effects.tip.1':
+    'Sesuaikan dengan bingkai mengecilkan teks sampai muat di kotaknya, sehingga judul panjang tidak pernah meluap.',
+  'help.guide.studio-text-effects.result': 'Efek digambar bersama teks, saat dicetak sama seperti di layar.',
+  'help.guide.studio-background.title': 'Ubah latar halaman',
+  'help.guide.studio-background.goal':
+    'Warnai halaman dengan warna, gradien, atau pola, atau letakkan foto di bawahnya.',
+  'help.guide.studio-background.step.1':
+    'Klik bagian kosong halaman agar tidak ada yang dipilih. Latar halaman ada di bagian atas Properti.',
+  'help.guide.studio-background.step.2':
+    'Pilih Kertas, Polos, Gradien, atau Pola dan sebuah warna, atau klik foto di bawah Foto sebagai latar.',
+  'help.guide.studio-background.tip.1': 'Terapkan ke semua halaman memberi setiap halaman buku latar yang sama.',
+  'help.guide.studio-background.result': 'Latar meluas hingga bleed, sehingga tercetak sampai tepi halaman.',
+  'help.guide.studio-layers.title': 'Atur, sembunyikan, dan kunci dengan lapisan',
+  'help.guide.studio-layers.goal':
+    'Lihat semua yang ada di halaman ganda menurut urutan tumpukan dan kerjakan langsung dari sana.',
+  'help.guide.studio-layers.step.1': 'Buka Lapisan di panel. Bagian atas daftar adalah bagian depan halaman.',
+  'help.guide.studio-layers.step.2':
+    'Seret baris untuk mengubah urutannya, gunakan ikon mata untuk menyembunyikan elemen dan kunci agar tetap di tempatnya. Pilih beberapa elemen lalu kelompokkan agar bergerak bersama.',
+  'help.guide.studio-layers.tip.1': 'Klik dua kali sebuah baris untuk memberi elemen namanya sendiri.',
+  'help.guide.studio-layers.tip.2': 'Elemen yang disembunyikan tidak disertakan dalam PDF.',
+  'help.guide.studio-layers.result':
+    'Halaman yang padat tetap mudah diedit, dan bagian yang sudah selesai tidak bisa bergeser secara tidak sengaja.',
   'help.guide.studio-travel.tip.1':
-    'Penanda memakai data catatan yang menjadi asal halaman ganda itu. Jadi penanda tanggal di halaman ganda buatan “Auto layout” sudah langsung menampilkan hari tersebut.',
+    'Di bawah Peta, Perhentian mendaftar setiap perhentian rute. Matikan salah satunya agar tidak muncul di peta dan angka, misalnya bandara asal Anda.',
+  'help.guide.studio-travel.tip.2':
+    'Peta negara hanya menampilkan perhentian negara itu, sehingga negara memenuhi halaman meskipun journey dimulai dengan penerbangan panjang.',
   // studio-properties
   'help.guide.studio-properties.title': 'Mengedit elemen yang dipilih',
   'help.guide.studio-properties.goal': 'Pindahkan, potong, ubah gaya, dan atur tumpukan elemen lewat panel properti.',
@@ -1043,7 +1108,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Memilih format halaman',
   'help.guide.studio-format.goal': 'Atur ukuran cetak buku sebelum kamu menyusun tata letaknya.',
-  'help.guide.studio-format.step.1': 'Klik “Page format” di bilah atas.',
+  'help.guide.studio-format.step.1':
+    'Klik format halaman di bar atas, di samping alat edit. Tombol ini menampilkan nama dan bentuk format.',
   'help.guide.studio-format.step.2':
     'Pilih Square 21 × 21 cm, Square 30 × 30 cm, A4 atau A5 lanskap atau potret, atau masukkan lebar dan tinggi sendiri dalam milimeter. Bleed dan margin aman ada di bawahnya.',
   'help.guide.studio-format.result':

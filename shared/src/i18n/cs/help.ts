@@ -884,9 +884,9 @@ const help: TranslationStrings = {
   'help.guide.studio.goal': 'Udělejte z deníku stránky připravené k tisku.',
   'help.guide.studio.step.1': 'V záhlaví klikněte na „Studio“. Návrhář se otevře přes deník.',
   'help.guide.studio.step.2':
-    'Zpět se dostanete kliknutím na název deníku vlevo v horní liště. Vrátíte se tam, kde jste byli.',
+    'Zpět se dostanete kliknutím na × na pravém konci horní lišty. Vrátíte se tam, kde jste byli.',
   'help.guide.studio.result':
-    'Vlevo je panel stránek, na pracovní ploše dvojstrana a vpravo vlastnosti. Auto layout sestaví knihu z vašich záznamů. Export vytvoří PDF připravené k tisku.',
+    'Lišta a její panely jsou vlevo, dvoustrana na pracovní ploše a vlastnosti vpravo. Automatické rozvržení sestaví knihu z vašich záznamů. Exportovat vytvoří PDF připravené k tisku.',
   'help.guide.studio.tip.1': 'Studio potřebuje okno široké alespoň 1024 px a na telefonu není k dispozici.',
   'help.guide.studio.tip.2':
     'Kniha má stejná přístupová práva jako deník: kdo může deník číst, může knihu otevřít, a kdo může deník upravovat, může ji ukládat.',
@@ -917,19 +917,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'TREK Studio uspořádá deník do fotoknihy, kterou si můžete vytisknout. Otevře se nad deníkem: vlevo je seznam stran a obsah, uprostřed dvoustrana, na které právě pracujete, a vpravo její vlastnosti. Auto layout z vašich záznamů sestaví první návrh. Potom můžete vše přesouvat, ořezávat a měnit styl a každý krok jde vrátit zpět.',
+    'TREK Studio rozvrhne deník do fotoknihy, kterou můžete vytisknout. Otevře se přes deník: lišta a její panely jsou vlevo, dvoustrana, na které pracujete, uprostřed a její vlastnosti vpravo. Automatické rozvržení sestaví první návrh z vašich záznamů, motiv dá knize barvy a písma a asistent s vámi umí navrhovat stránky. Potom můžete vše přesouvat, ořezávat a přestylovat a každý krok lze vrátit.',
   'help.ctx.journey-studio.bullet.1':
-    'Horní lišta: „Back to the journey“, „Book view“, zpět a znovu, „Page format“, „Auto layout“ a „Exportovat“. Značka „Uloženo“ vedle názvu ukazuje, kdy byla kniha uložena.',
+    'Horní lišta: vlevo obálka a název deníku. Vpravo kdo další je v knize a zda je uložená, formát stránky, zpět, znovu a vložit, Automatické rozvržení, asistent, nápověda, Exportovat a tlačítko, které zavře Studio.',
   'help.ctx.journey-studio.bullet.2':
-    'Lišta vlevo má sedm sekcí: „Stránky“, „Obsah“ (fotky a záznamy deníku), „Rozvržení“, „Prvky“ (text, tvary, čáry, rámečky a mřížky, ikony a samolepky), „Cesta“ (mapy, země, vlajky a značky vytvořené z deníku) a pod nimi zvlášť „Motiv“ a „Vrstvy“.',
+    'Lišta vlevo: Stránky, Obsah (fotky a záznamy deníku), Rozvržení, Prvky (text, tvary, čáry, rámečky, ikony a samolepky), Cesta (čísla, mapy, země a značky vytvořené z deníku) a odděleně pod nimi Motiv a Vrstvy.',
   'help.ctx.journey-studio.bullet.3':
-    'Pracovní plocha: aktuální dvoustrana se spadávkou a bezpečnými okraji, pod ní lišta přiblížení, „Fit to view“ a vpravo „Stáhnout tuto dvoustranu“.',
+    'Pracovní plocha: aktuální dvoustrana se spadávkou a bezpečnými okraji a pod ní lišta přiblížení s volbami Přizpůsobit zobrazení, Zobrazení knihy a Stáhnout tuto dvoustranu.',
   'help.ctx.journey-studio.bullet.4':
-    'Vpravo „Properties“: poloha a velikost, ořez a ohnisko, vyplnění nebo přizpůsobení, vzhled, rohy, rámeček, pořadí vrstev a zamčení vybraného prvku. Když není nic vybrané, najdete tu čísla stran a nastavení dokumentu.',
+    'Vlastnosti vpravo: vše o vybraném prvku, od polohy, velikosti a ořezu po barvy, efekty, pořadí vrstev a zamčení. Když není nic vybrané, ukazují pozadí stránky, motiv, čísla stran a dokument.',
   'help.ctx.journey-studio.bullet.5':
-    'Kniha je uspořádaná jako tištěná kniha: přední obálka, samostatná první strana, dvojstrany, samostatná poslední strana a zadní obálka. Čísla stran se počítají od první strany a vytisknou se tak, jak je vidíte.',
+    'Kniha je rozvržena jako tištěná kniha: obálka, jedna první strana naproti prázdné vnitřní straně obálky, dvoustrany, jedna poslední strana a zadní obálka. Čísla stran se počítají od první strany a tisknou se tak, jak je vidíte.',
   'help.ctx.journey-studio.bullet.6':
     'Navrhovat může víc lidí současně: každý vidí kurzory ostatních s jejich jmény. Pokud uložíte verzi, kterou mezitím změnil někdo jiný, TREK místo přepsání jeho práce zobrazí konflikt.',
+  'help.ctx.journey-studio.bullet.7':
+    'Motiv: jeden vzhled pro celou knihu, její papír, inkoust a tři akcentní barvy, písma a motivy. Prvky propojené s motivem ho následují, když ho změníte.',
+  'help.ctx.journey-studio.bullet.8':
+    'Asistent: tam, kde správce nastavil AI, otevře bublina v horní liště asistenta, který s vámi rozvrhuje stránky, píše popisky a mění styl knihy. Každá jeho změna je krok, který lze vrátit.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Sestavit knihu automaticky',
   'help.guide.studio-auto-layout.goal': 'Získejte jedním kliknutím kompletní první návrh ze záznamů a fotek deníku.',
@@ -948,7 +952,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Přidat, přesunout a odebrat dvoustrany',
   'help.guide.studio-pages.goal': 'Upravujte knihu stránku po stránce.',
   'help.guide.studio-pages.step.1':
-    'V postranním panelu otevřete „Pages“. Miniatury ukazují knihu v pořadí: obálka, první strana, dvoustrany, poslední strana, zadní obálka.',
+    'V liště otevřete Stránky. Náhledy ukazují knihu popořadě: obálka, první strana, dvoustrany, poslední strana a zadní obálka. První a poslední strana jsou nakresleny vedle prázdné vnitřní strany své obálky, tak jak se vázaná kniha otevírá.',
   'help.guide.studio-pages.step.2':
     '„Přidat stranu“ dole vloží novou dvoustranu před poslední stranu. Tlačítkem + mezi dvěma náhledy ji vložíte přesně na to místo.',
   'help.guide.studio-pages.step.3':
@@ -961,11 +965,20 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Použít rozvržení na dvojstranu',
   'help.guide.studio-layouts.goal': 'Dejte dvoustraně hotové rozvržení rámečků pro fotky a text.',
   'help.guide.studio-layouts.step.1':
-    'Otevřete v liště „Layouts“. Nejdřív jsou navržené stránky: celé obálky a dvoustrany v motivu knihy, které tlačítka stylu zúží na jeden vzhled. Pod nimi následují vlastní rozvržení knihy a vestavěná rozvržení.',
+    'V liště otevřete Rozvržení. Nejdřív jsou navržené stránky: celé obálky a dvoustrany v motivu knihy, které tlačítka stylu zúží na jeden vzhled. Moje rozvržení a Vestavěná následují pod nimi ve stejné mřížce.',
   'help.guide.studio-layouts.step.2':
     'Klikněte na jedno z nich. Dvojstrana na pracovní ploše dostane rámečky tohoto rozvržení a vaše stávající fotky a text se do nich umístí.',
   'help.guide.studio-layouts.result':
     'Prázdné rámečky jsou zástupná místa pro obsah: přetáhněte do některého fotku z „Content“, nebo použijte „Add to this page“.',
+  'help.guide.studio-my-layouts.title': 'Uložit stránku jako vlastní rozvržení',
+  'help.guide.studio-my-layouts.goal': 'Použijte znovu uspořádání, které jste vytvořili na jiných stránkách knihy.',
+  'help.guide.studio-my-layouts.step.1': 'Uspořádejte stránku podle sebe a pak v liště otevřete Rozvržení.',
+  'help.guide.studio-my-layouts.step.2':
+    'Klikněte na Uložit tuto stranu jako rozvržení v části Moje rozvržení. Stránka se v seznamu objeví jako karta.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Kliknutím na své rozvržení na jiné stránce ji uspořádáte stejně, s jejími vlastními fotkami a texty.',
+  'help.guide.studio-my-layouts.result':
+    'Vaše rozvržení se ukládají s knihou a nabízejí se na stránkách stejného druhu: rozvržení obálky pro obálky, rozvržení dvoustrany pro dvoustrany.',
   'help.guide.studio-layouts.tip.1': 'Rozvržení je krok, který lze vrátit, jako každý jiný.',
   // studio-content
   'help.guide.studio-content.title': 'Umístit na stranu fotky a záznamy',
@@ -978,28 +991,78 @@ const help: TranslationStrings = {
     'Pod záznamem vloží „Title“, „Story“ a „Place“ příslušný text na stranu jako textový prvek. Datum a souřadnice se přidají jako značky a jsou tu vypsané i fotky záznamu.',
   'help.guide.studio-content.result':
     'Přetažená fotka se stane fotografickým prvkem. Text zůstává propojený se záznamem, dokud ho neupravíte.',
+  'help.guide.studio-theme.title': 'Dát knize motiv',
+  'help.guide.studio-theme.goal': 'Nastavte barvy a písma celé knihy najednou.',
+  'help.guide.studio-theme.step.1':
+    'V liště otevřete Motiv. Každá karta ukazuje motiv jako malou stránku: jeho papír, písmo a tři akcentní barvy.',
+  'help.guide.studio-theme.step.2':
+    'Kliknutím na motiv ho vyzkoušíte. Pod kartami můžete změnit jeho paletu, vybrat jiná písma a zvolit motivy a dekoraci.',
+  'help.guide.studio-theme.step.3':
+    'Klikněte na Použít na knihu, nebo na Použít na tuto stránku pro dvoustranu na obrazovce.',
+  'help.guide.studio-theme.tip.1':
+    'Prvky propojené s motivem přebírají jeho barvy a písma a následují ho, když ho změníte. Přestylovat i to, co ještě není propojené, nejdřív propojí zbytek.',
+  'help.guide.studio-theme.tip.2': 'Barvy z fotek sestaví paletu z obrázků deníku.',
+  'help.guide.studio-theme.result':
+    'Všechny propojené barvy a písma v knize se změní naráz a použití motivu je jeden krok, který lze vrátit.',
   'help.guide.studio-content.tip.1': 'Vyhledávací pole nahoře v Content filtruje oba seznamy.',
   'help.guide.studio-content.tip.2':
     'Když přetáhnete soubor z počítače na pracovní plochu, TREK ho nahraje a umístí v jednom kroku.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Přidat text, tvary a ikony',
+  'help.guide.studio-elements.title': 'Přidat text, tvary, ikony a samolepky',
   'help.guide.studio-elements.goal': 'Doplňte dvojstranu o ozdoby navíc k fotkám a příběhům.',
-  'help.guide.studio-elements.step.1': 'V postranním panelu otevřete „Elements“.',
+  'help.guide.studio-elements.step.1':
+    'V liště otevřete Prvky. Šest karet třídí, co můžete přidat: Text, Tvary, Čáry, Rámečky, Ikony a Samolepky.',
   'help.guide.studio-elements.step.2':
-    'Klikněte na textový styl pro nadpis nebo popisek, na tvar, čáru, mřížku, prázdný rámeček se stylem rámečku nebo na ikonu z knihovny s vyhledáváním. Každý prvek se umístí doprostřed dvoustrany a pak ho můžete přesunout.',
+    'Klikněte na styl textu nebo navržený titulek, tvar, čáru, prázdný rámeček, ikonu či samolepku. Každý prvek se umístí doprostřed dvoustrany a pak jím můžete pohybovat.',
   'help.guide.studio-elements.result':
     'Dvojklikem do textového prvku můžete psát; v Properties nastavíte písmo, řez, velikost, rozestupy a zarovnání.',
+  'help.guide.studio-stickers.title': 'Ozdobit samolepkami',
+  'help.guide.studio-stickers.goal': 'Přidejte ilustrace, od pamětihodností a jídla po zvířata a šipky.',
+  'help.guide.studio-stickers.step.1': 'V liště otevřete Prvky a vyberte Samolepky.',
+  'help.guide.studio-stickers.step.2':
+    'Vyhledejte slovo nebo procházejte police a kliknutím na samolepku ji umístěte na dvoustranu.',
+  'help.guide.studio-stickers.tip.1': 'Při vybrané samolepce ve Vlastnostech přebarvíte její části a zrcadlíte ji.',
+  'help.guide.studio-stickers.result': 'Samolepka je kresba, takže zůstává ostrá v jakékoli velikosti.',
   'help.guide.studio-elements.tip.1': 'Rámečky jsou prázdná místa pro fotky: obrázek do nich vložíte později.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Přidat mapu, vlajky a údaje',
-  'help.guide.studio-travel.goal': 'Převeďte samotnou cestu do údajů na stránce.',
-  'help.guide.studio-travel.step.1': 'V liště otevřete „Cesta“.',
+  'help.guide.studio-travel.title': 'Přidat mapy, čísla, země a značky',
+  'help.guide.studio-travel.goal': 'Přeměňte samotnou cestu na navržené prvky na stránce.',
+  'help.guide.studio-travel.step.1':
+    'V liště otevřete Cesta. Čtyři karty třídí, co můžete přidat: Čísla, Mapy, Země a Značky.',
   'help.guide.studio-travel.step.2':
-    'Vyberte, co přidat: mapu trasy záznamů, obrysy zemí, seznam nebo mřížku zemí, vlajky, značku data, dne nebo vzdálenosti, případně souhrn celé cesty. Každý prvek se sestaví z dat deníku a aktualizuje se, když se data změní.',
+    'Každá karta ukazuje prvek s čísly vašeho deníku v barvách motivu: souhrn jako plakát, jízdenku, dopravní značku nebo počítadlo kilometrů, mapu s číslovanými zastávkami nebo oříznutou na jednu zemi, zemi jako razítko, pohlednici nebo špendlík, datum či vzdálenost jako razítko, štítek nebo stuhu.',
+  'help.guide.studio-travel.step.3':
+    'Klikněte na kartu. Prvek se umístí doprostřed dvoustrany a pak ho můžete přesunout a změnit jeho velikost.',
   'help.guide.studio-travel.result':
-    'Prvek se objeví na dvojstraně. V Properties změníte jeho styl a na mapě zobrazenou oblast.',
+    'Prvek se objeví na dvoustraně. Vlastnosti mění jeho vzhled a každé číslo, mapa i země se aktualizují, když se změní deník.',
+  'help.guide.studio-text-effects.title': 'Přidat efekty k textu',
+  'help.guide.studio-text-effects.goal': 'Dejte nadpisu obrys, stín, oblouk nebo písmena vyplněná vzorem.',
+  'help.guide.studio-text-effects.step.1': 'Kliknutím na textový prvek na stránce ho vyberete.',
+  'help.guide.studio-text-effects.step.2':
+    'Ve Vlastnostech otevřete Efekty a přidejte obrys, stín nebo zvýraznění, nebo vyplňte písmena přechodem či vzorem. Velikost písmen a umístění zakřiví řádek a přizpůsobí ho rámečku.',
+  'help.guide.studio-text-effects.tip.1':
+    'Přizpůsobit rámečku zmenšuje text, dokud se do rámečku nevejde, takže dlouhý titulek nikdy nepřeteče.',
+  'help.guide.studio-text-effects.result': 'Efekt se kreslí spolu s textem, v tisku stejně jako na obrazovce.',
+  'help.guide.studio-background.title': 'Změnit pozadí stránky',
+  'help.guide.studio-background.goal': 'Vybarvěte stránku barvou, přechodem nebo vzorem, nebo pod ni položte fotku.',
+  'help.guide.studio-background.step.1':
+    'Klikněte na prázdné místo stránky, aby nebylo nic vybráno. Pozadí stránky je nahoře ve Vlastnostech.',
+  'help.guide.studio-background.step.2':
+    'Vyberte Papír, Plná, Přechod nebo Vzor a barvu, nebo klikněte na fotku v části Fotka jako pozadí.',
+  'help.guide.studio-background.tip.1': 'Použít na všechny stránky dá všem stránkám knihy stejné pozadí.',
+  'help.guide.studio-background.result': 'Pozadí zasahuje do spadávky, takže se tiskne až k okraji stránky.',
+  'help.guide.studio-layers.title': 'Řadit, skrývat a zamykat pomocí vrstev',
+  'help.guide.studio-layers.goal': 'Podívejte se na vše na dvoustraně v pořadí vrstev a pracujte s tím přímo tam.',
+  'help.guide.studio-layers.step.1': 'V liště otevřete Vrstvy. Horní část seznamu je přední strana stránky.',
+  'help.guide.studio-layers.step.2':
+    'Přetažením řádku změníte pořadí, okem prvek skryjete a zámkem ho udržíte na místě. Vyberte jich víc a seskupte je, aby se pohybovaly společně.',
+  'help.guide.studio-layers.tip.1': 'Dvojitým kliknutím na řádek dáte prvku vlastní název.',
+  'help.guide.studio-layers.tip.2': 'Skryté prvky se do PDF nedostanou.',
+  'help.guide.studio-layers.result': 'Plné stránky se dál snadno upravují a hotové části se nedají posunout omylem.',
   'help.guide.studio-travel.tip.1':
-    'Značky berou data ze záznamu, ze kterého dvoustrana vznikla. Značka data na dvoustraně z „Auto layout“ proto už ukazuje správný den.',
+    'V Mapách seznam Zastávky obsahuje každou zastávku trasy. Vypněte jednu, aby se vynechala z map a čísel, třeba domácí letiště.',
+  'help.guide.studio-travel.tip.2':
+    'Mapa země ukazuje jen zastávky této země, takže země vyplní stránku, i když cesta začala dlouhým letem.',
   // studio-properties
   'help.guide.studio-properties.title': 'Úprava vybraného prvku',
   'help.guide.studio-properties.goal': 'Upravte v inspektoru polohu, ořez, styl a vrstvu prvku.',
@@ -1017,7 +1080,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Zvolit formát stránky',
   'help.guide.studio-format.goal': 'Než začnete tvořit rozvržení, nastavte tiskový formát knihy.',
-  'help.guide.studio-format.step.1': 'V horní liště klikněte na „Page format“.',
+  'help.guide.studio-format.step.1':
+    'Klikněte na formát stránky v horní liště, vedle nástrojů pro úpravy. Ukazuje název a tvar formátu.',
   'help.guide.studio-format.step.2':
     'Vyberte „Square 21 × 21 cm“, „Square 30 × 30 cm“, A4 nebo A5 na šířku či na výšku, nebo zadejte vlastní šířku a výšku v milimetrech. Spadávka a bezpečný okraj jsou níže.',
   'help.guide.studio-format.result':

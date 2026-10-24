@@ -915,9 +915,9 @@ const help: TranslationStrings = {
   'help.guide.studio.goal': 'Trasforma il diario in pagine da stampare.',
   'help.guide.studio.step.1': "Clicca «Studio» nell'intestazione. L'editor grafico si apre sopra il diario.",
   'help.guide.studio.step.2':
-    'Per tornare indietro, clicca il nome del diario a sinistra nella barra in alto. Torni al punto in cui eri.',
+    'Per tornare indietro, clicca × all’estremità destra della barra in alto. Torni al punto in cui eri.',
   'help.guide.studio.result':
-    "La barra delle pagine è a sinistra, la doppia pagina sul piano di lavoro e le proprietà a destra. Il layout automatico costruisce il libro dalle tue voci. L'esportazione crea un PDF pronto per la stampa.",
+    'La barra e i suoi pannelli sono a sinistra, la doppia pagina sul piano di lavoro e le proprietà a destra. Layout automatico costruisce il libro dalle tue voci. Esporta crea un PDF pronto per la stampa.',
   'help.guide.studio.tip.1': 'Lo Studio richiede una finestra larga almeno 1024 px e non è disponibile su telefono.',
   'help.guide.studio.tip.2':
     'Il libro ha gli stessi permessi del diario: chi può leggere il diario può aprire il libro, e chi può modificare il diario può salvarlo.',
@@ -949,19 +949,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    "TREK Studio impagina un diario come fotolibro da stampare. Si apre sopra il diario: a sinistra l'elenco delle pagine e i contenuti, al centro la doppia pagina su cui stai lavorando, a destra le sue proprietà. Il layout automatico crea una prima bozza dalle tue voci. Poi puoi spostare, ritagliare e modificare lo stile di tutto, e ogni passaggio si può annullare.",
+    'TREK Studio impagina un diario come fotolibro da stampare. Si apre sopra il diario: la barra e i suoi pannelli a sinistra, la doppia pagina su cui lavori al centro, le sue proprietà a destra. Layout automatico crea una prima bozza dalle tue voci, un tema dà al libro colori e caratteri, e l’assistente può progettare le pagine con te. Poi puoi spostare, ritagliare e modificare lo stile di tutto, e ogni passaggio si può annullare.',
   'help.ctx.journey-studio.bullet.1':
-    "Barra in alto: «Torna al diario», «Vista libro», annulla e ripeti, «Formato pagina», «Impaginazione automatica» ed «Esporta». L'indicazione «Salvato» accanto al titolo mostra quando il libro è stato salvato.",
+    'Barra in alto: a sinistra la copertina e il nome del diario. A destra, chi altro è nel libro e se è salvato, il formato pagina, annulla, ripeti e incolla, Layout automatico, l’assistente, la guida, Esporta e il pulsante che chiude Studio.',
   'help.ctx.journey-studio.bullet.2':
-    'Barra a sinistra con sette sezioni: «Pagine», «Contenuti» (foto e voci del diario), «Layout», «Elementi» (testo, forme, linee, cornici e griglie, icone e adesivi), «Viaggio» (mappe, paesi, bandiere e segni ricavati dal diario) e, separate sotto, «Tema» e «Livelli».',
+    'Barra a sinistra: Pagine, Contenuti (le foto e le voci del diario), Layout, Elementi (testo, forme, linee, cornici, icone e adesivi), Viaggio (cifre, mappe, paesi e segni ricavati dal diario) e, separate sotto, Tema e Livelli.',
   'help.ctx.journey-studio.bullet.3':
-    'Area di lavoro: la doppia pagina corrente con abbondanza e margini di sicurezza, sotto la barra dello zoom con «Adatta alla vista» e, a destra, «Scarica questa doppia pagina».',
+    'Area di lavoro: la doppia pagina corrente con abbondanza e margini di sicurezza, e sotto la barra dello zoom con Adatta alla vista, Vista libro e Scarica questa doppia pagina.',
   'help.ctx.journey-studio.bullet.4':
-    "«Proprietà» a destra: posizione e dimensioni, ritaglio e punto focale, riempimento o adattamento, stile, angoli, cornice, ordine di sovrapposizione e blocco dell'elemento selezionato. Quando non è selezionato nulla, mostra i numeri di pagina e il documento.",
+    'Proprietà a destra: tutto sull’elemento selezionato, da posizione, dimensioni e ritaglio a colori, effetti, ordine di sovrapposizione e blocco. Quando non è selezionato nulla, mostra lo sfondo della pagina, il tema, i numeri di pagina e il documento.',
   'help.ctx.journey-studio.bullet.5':
-    "Il libro è impaginato come un libro stampato: copertina, una prima pagina singola, le doppie pagine, un'ultima pagina singola e la quarta di copertina. I numeri di pagina partono dalla prima pagina e vengono stampati come appaiono.",
+    'Il libro è impaginato come un libro stampato: copertina, una prima pagina singola di fronte all’interno bianco della copertina, le doppie pagine, un’ultima pagina singola e la quarta di copertina. I numeri di pagina partono dalla prima pagina e vengono stampati come appaiono.',
   'help.ctx.journey-studio.bullet.6':
     'Più persone possono impaginare insieme: ognuno vede i puntatori degli altri con il loro nome. Se salvi una versione che qualcun altro ha modificato, TREK segnala un conflitto invece di sovrascrivere il suo lavoro.',
+  'help.ctx.journey-studio.bullet.7':
+    'Tema: un unico aspetto per tutto il libro, con carta, inchiostro e tre colori d’accento, caratteri e motivi. Gli elementi collegati al tema lo seguono quando lo cambi.',
+  'help.ctx.journey-studio.bullet.8':
+    'Assistente: dove un amministratore ha configurato l’IA, il fumetto nella barra in alto apre un assistente che impagina pagine, scrive didascalie e ridisegna lo stile del libro con te. Ogni sua modifica è un passaggio annullabile.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Creare il libro automaticamente',
   'help.guide.studio-auto-layout.goal':
@@ -981,7 +985,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Aggiungere, spostare e rimuovere doppie pagine',
   'help.guide.studio-pages.goal': 'Modifica il libro pagina per pagina.',
   'help.guide.studio-pages.step.1':
-    'Apri «Pagine» nella barra laterale. Le miniature mostrano il libro in ordine: copertina, prima pagina, doppie pagine, ultima pagina, quarta di copertina.',
+    'Apri Pagine nella barra. Le miniature mostrano il libro in ordine: copertina, prima pagina, doppie pagine, ultima pagina e quarta di copertina. La prima e l’ultima pagina sono disegnate accanto all’interno bianco della loro copertina, come si apre il libro rilegato.',
   'help.guide.studio-pages.step.2':
     "«Aggiungi pagina» in basso aggiunge una nuova doppia pagina prima dell'ultima pagina. Il + tra due miniature ne inserisce una in quella posizione.",
   'help.guide.studio-pages.step.3':
@@ -996,11 +1000,20 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Applicare un layout a una doppia pagina',
   'help.guide.studio-layouts.goal': 'Dai a una doppia pagina una disposizione già pronta di cornici per foto e testo.',
   'help.guide.studio-layouts.step.1':
-    'Apri «Layout» nella barra laterale. Per prime ci sono le pagine progettate: copertine e doppie pagine intere nel tema del libro, che i pulsanti di stile restringono a un solo aspetto. Sotto seguono i layout del libro e quelli predefiniti.',
+    'Apri Layout nella barra. Prima ci sono le pagine progettate: copertine e doppie pagine intere nel tema del libro, che i chip di stile restringono a un solo aspetto. Le mie disposizioni e Predefinite seguono sotto, nella stessa griglia.',
   'help.guide.studio-layouts.step.2':
     'Cliccane uno. La doppia pagina sul piano di lavoro riceve le cornici di quel layout, e le foto e i testi già presenti vengono inseriti al loro interno.',
   'help.guide.studio-layouts.result':
     'Le cornici vuote sono segnaposto per i contenuti: trascinaci una foto da Content, oppure usa Add to this page.',
+  'help.guide.studio-my-layouts.title': 'Salvare una pagina come disposizione personale',
+  'help.guide.studio-my-layouts.goal': 'Riutilizza una disposizione che hai creato su altre pagine del libro.',
+  'help.guide.studio-my-layouts.step.1': 'Disponi una pagina come preferisci, poi apri Layout nella barra.',
+  'help.guide.studio-my-layouts.step.2':
+    'Clicca Salva questa pagina come disposizione sotto Le mie disposizioni. La pagina compare come scheda nell’elenco.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Clicca la tua disposizione su un’altra pagina per impaginarla allo stesso modo, con le sue foto e le sue parole.',
+  'help.guide.studio-my-layouts.result':
+    'Le tue disposizioni vengono salvate con il libro e proposte sulle pagine dello stesso tipo: quella di una copertina per le copertine, quella di una doppia pagina per le doppie pagine.',
   'help.guide.studio-layouts.tip.1': 'Un layout è un passaggio annullabile come tutti gli altri.',
   // studio-content
   'help.guide.studio-content.title': 'Inserire foto e voci in una pagina',
@@ -1013,29 +1026,84 @@ const help: TranslationStrings = {
     'Sotto una voce, «Titolo», «Racconto» e «Luogo» inseriscono quel testo nella pagina come elemento di testo. Data e coordinate vengono aggiunte come segni, e lì sono elencate anche le foto della voce.',
   'help.guide.studio-content.result':
     'Una foto rilasciata diventa un elemento foto. Il testo resta collegato alla voce finché non lo modifichi.',
+  'help.guide.studio-theme.title': 'Dare un tema al libro',
+  'help.guide.studio-theme.goal': 'Imposta colori e caratteri di tutto il libro in un colpo solo.',
+  'help.guide.studio-theme.step.1':
+    'Apri Tema nella barra. Ogni scheda mostra un tema come una piccola pagina: la sua carta, il suo carattere e i suoi tre colori d’accento.',
+  'help.guide.studio-theme.step.2':
+    'Clicca un tema per provarlo. Sotto le schede puoi cambiarne la tavolozza, scegliere altri caratteri e scegliere motivi e decorazioni.',
+  'help.guide.studio-theme.step.3':
+    'Clicca Applica al libro, oppure Applica a questa pagina per la doppia pagina sullo schermo.',
+  'help.guide.studio-theme.tip.1':
+    'Gli elementi collegati al tema ne prendono colori e caratteri e lo seguono quando lo cambi. Ridisegna anche ciò che non è ancora collegato collega prima il resto.',
+  'help.guide.studio-theme.tip.2': 'Colori dalle foto crea una tavolozza dalle immagini del diario.',
+  'help.guide.studio-theme.result':
+    'Tutti i colori e i caratteri collegati del libro cambiano insieme, e applicare il tema è un unico passaggio annullabile.',
   'help.guide.studio-content.tip.1': 'La casella di ricerca in cima a Content filtra entrambi gli elenchi.',
   'help.guide.studio-content.tip.2':
     'Se trascini un file dal desktop sul piano di lavoro, TREK lo carica e lo posiziona in un solo passaggio.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Aggiungere testo, forme e icone',
+  'help.guide.studio-elements.title': 'Aggiungere testo, forme, icone e adesivi',
   'help.guide.studio-elements.goal': 'Aggiungi decorazioni a una doppia pagina, oltre a foto e racconti.',
-  'help.guide.studio-elements.step.1': 'Apri «Elementi» nella barra laterale.',
+  'help.guide.studio-elements.step.1':
+    'Apri Elementi nella barra. Sei schede ordinano ciò che puoi aggiungere: Testo, Forme, Linee, Cornici, Icone e Adesivi.',
   'help.guide.studio-elements.step.2':
-    "Clicca uno stile di testo per un titolo o una didascalia, una forma, una linea, una griglia, una cornice vuota con uno stile di cornice o un'icona dalla libreria con ricerca. Ogni elemento viene inserito al centro della doppia pagina e poi puoi spostarlo.",
+    'Clicca su uno stile di testo o un titolo disegnato, una forma, una linea, una cornice vuota, un’icona o un adesivo. Ognuno viene posto al centro della doppia pagina e poi puoi spostarlo.',
   'help.guide.studio-elements.result':
     'Fai doppio clic su un elemento di testo per scriverci; Properties contiene carattere, spessore, dimensione, spaziatura e allineamento.',
+  'help.guide.studio-stickers.title': 'Decorare con gli adesivi',
+  'help.guide.studio-stickers.goal': 'Aggiungi illustrazioni, da monumenti e cibo ad animali e frecce.',
+  'help.guide.studio-stickers.step.1': 'Apri Elementi nella barra e scegli Adesivi.',
+  'help.guide.studio-stickers.step.2':
+    'Cerca una parola o sfoglia gli scaffali, poi clicca un adesivo per metterlo sulla doppia pagina.',
+  'help.guide.studio-stickers.tip.1': 'Con un adesivo selezionato, Proprietà ricolora le sue parti e lo specchia.',
+  'help.guide.studio-stickers.result': 'L’adesivo è un disegno, quindi resta nitido a qualsiasi dimensione.',
   'help.guide.studio-elements.tip.1':
     "Le cornici sono spazi vuoti per le foto: potrai inserirci un'immagine in seguito.",
   // studio-travel
-  'help.guide.studio-travel.title': 'Aggiungere una mappa, bandiere e dati',
-  'help.guide.studio-travel.goal': 'Trasforma il viaggio in elementi grafici sulla pagina.',
-  'help.guide.studio-travel.step.1': 'Apri «Viaggio» nella barra laterale.',
+  'help.guide.studio-travel.title': 'Aggiungere mappe, cifre, paesi e segni',
+  'help.guide.studio-travel.goal': 'Trasforma il viaggio stesso in elementi progettati sulla pagina.',
+  'help.guide.studio-travel.step.1':
+    'Apri Viaggio nella barra. Quattro schede ordinano ciò che puoi aggiungere: Cifre, Mappe, Paesi e Segni.',
   'help.guide.studio-travel.step.2':
-    "Scegli cosa aggiungere: una mappa del percorso delle voci, i contorni dei paesi, un elenco o una griglia di paesi, bandiere, un segno con data, giorno o distanza, oppure un riepilogo dell'intero viaggio. Ogni elemento è creato dai dati del diario e si aggiorna quando i dati cambiano.",
+    'Ogni scheda mostra l’elemento con i numeri del tuo diario, nei colori del tema: un riepilogo come poster, biglietto, cartello stradale o contachilometri, una mappa con tappe numerate o ritagliata su un paese, un paese come timbro, cartolina o spilla, una data o una distanza come timbro, etichetta o nastro.',
+  'help.guide.studio-travel.step.3':
+    'Clicca una scheda. L’elemento viene messo al centro della doppia pagina e poi puoi spostarlo e ridimensionarlo.',
   'help.guide.studio-travel.result':
-    "L'elemento compare sulla doppia pagina. Usa Properties per cambiarne lo stile e la mappa per cambiarne l'area.",
+    'L’elemento compare sulla doppia pagina. Proprietà ne cambia l’aspetto, e ogni cifra, mappa e paese si aggiorna quando il diario cambia.',
+  'help.guide.studio-text-effects.title': 'Aggiungere effetti al testo',
+  'help.guide.studio-text-effects.goal':
+    'Dai a un titolo un contorno, un’ombra, una curva o lettere riempite con un motivo.',
+  'help.guide.studio-text-effects.step.1': 'Clicca un elemento di testo sulla pagina per selezionarlo.',
+  'help.guide.studio-text-effects.step.2':
+    'In Proprietà apri Effetti per aggiungere un contorno, un’ombra o un’evidenziazione, oppure riempire le lettere con una sfumatura o un motivo. Maiuscole e posizione curva la riga e la adatta alla sua cornice.',
+  'help.guide.studio-text-effects.tip.1':
+    'Adatta alla cornice riduce il testo finché non entra nella sua cornice, così un titolo lungo non esce mai.',
+  'help.guide.studio-text-effects.result': 'L’effetto è disegnato insieme al testo, in stampa come a schermo.',
+  'help.guide.studio-background.title': 'Cambiare lo sfondo della pagina',
+  'help.guide.studio-background.goal':
+    'Colora la pagina con un colore, una sfumatura o un motivo, oppure metti una foto sotto.',
+  'help.guide.studio-background.step.1':
+    'Clicca su una parte vuota della pagina in modo che nulla sia selezionato. Sfondo della pagina è in cima a Proprietà.',
+  'help.guide.studio-background.step.2':
+    'Scegli Carta, Pieno, Sfumatura o Motivo e un colore, oppure clicca su una foto sotto Foto come sfondo.',
+  'help.guide.studio-background.tip.1': 'Applica a tutte le pagine dà lo stesso sfondo a ogni pagina del libro.',
+  'help.guide.studio-background.result':
+    'Lo sfondo arriva fino all’abbondanza, quindi si stampa fino al bordo della pagina.',
+  'help.guide.studio-layers.title': 'Ordinare, nascondere e bloccare con i livelli',
+  'help.guide.studio-layers.goal':
+    'Vedi tutto ciò che c’è sulla doppia pagina in ordine di sovrapposizione e lavoraci direttamente.',
+  'help.guide.studio-layers.step.1': 'Apri Livelli nella barra. La parte alta dell’elenco è il davanti della pagina.',
+  'help.guide.studio-layers.step.2':
+    'Trascina una riga per cambiarne l’ordine, usa l’occhio per nascondere un elemento e il lucchetto per tenerlo fermo. Seleziona più elementi e raggruppali per spostarli insieme.',
+  'help.guide.studio-layers.tip.1': 'Fai doppio clic su una riga per dare all’elemento un nome tutto suo.',
+  'help.guide.studio-layers.tip.2': 'Gli elementi nascosti non compaiono nel PDF.',
+  'help.guide.studio-layers.result':
+    'Le pagine affollate restano facili da modificare, e le parti finite non si spostano per sbaglio.',
   'help.guide.studio-travel.tip.1':
-    'I segni usano i dati della voce da cui è stata creata la doppia pagina. Quindi un segno di data su una doppia pagina creata con «Impaginazione automatica» mostra già quel giorno.',
+    'Sotto Mappe, Tappe elenca ogni tappa del percorso. Disattivane una per escluderla da mappe e cifre, per esempio il tuo aeroporto di casa.',
+  'help.guide.studio-travel.tip.2':
+    'Una mappa di un paese mostra solo le tappe di quel paese, così il paese riempie la pagina anche se il viaggio è iniziato con un lungo volo.',
   // studio-properties
   'help.guide.studio-properties.title': 'Modificare ciò che hai selezionato',
   'help.guide.studio-properties.goal':
@@ -1055,7 +1123,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Scegliere il formato di pagina',
   'help.guide.studio-format.goal': 'Imposta il formato di stampa del libro prima di creare il layout.',
-  'help.guide.studio-format.step.1': 'Clicca «Formato pagina» nella barra in alto.',
+  'help.guide.studio-format.step.1':
+    'Clicca sul formato pagina nella barra in alto, accanto agli strumenti di modifica. Mostra il nome e la forma del formato.',
   'help.guide.studio-format.step.2':
     'Scegli «Quadrato 21 × 21 cm», «Quadrato 30 × 30 cm», A4 o A5 in orizzontale o in verticale, oppure inserisci larghezza e altezza personalizzate in millimetri. Sotto trovi abbondanza e margine di sicurezza.',
   'help.guide.studio-format.result':

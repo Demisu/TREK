@@ -6,6 +6,7 @@ import {
   Book, Palette, Map, Bell, Plug, CloudOff, User, Lock, ShieldCheck, Fingerprint, KeyRound,
   Route, Users, UserRound, Crown, PanelLeftClose, Undo2, Ticket, Train, Plane, ListChecks, Wallet, FolderOpen, MessagesSquare,
   ArrowUpDown, Backpack, BatteryCharging, BedDouble, BellRing, Bike, Blocks, CableCar, Car, CloudDownload, CopyPlus, FileDown, FilePen, FileSpreadsheet, FolderInput, Footprints, History, Info, Layers, MailCheck, MapPinned, Moon, Mountain, MountainSnow, MoveRight, NotebookPen, PackagePlus, Pin, Receipt, Rotate3d, RouteOff, Shuffle, Spline, TriangleAlert, Waves, Wind,
+  PaintBucket, Sticker, Type,
   type LucideIcon,
 } from 'lucide-react'
 import type { HelpIcon } from '../../help/types'
@@ -13,6 +14,9 @@ import type { HelpIcon } from '../../help/types'
 /** The registry names icons; the components draw them. Unknown names fall back to the compass. */
 const ICONS: Record<HelpIcon, LucideIcon> = {
   plus: Plus,
+  sticker: Sticker,
+  type: Type,
+  paintBucket: PaintBucket,
   pencil: Pencil,
   image: Image,
   copy: Copy,

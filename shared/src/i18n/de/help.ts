@@ -924,9 +924,9 @@ const help: TranslationStrings = {
   'help.guide.studio.goal': 'Aus dem Tagebuch druckbare Seiten machen.',
   'help.guide.studio.step.1': 'Klick in der Kopfzeile auf „Studio“. Der Designer öffnet sich über der Journey.',
   'help.guide.studio.step.2':
-    'Zurück geht es mit einem Klick auf den Namen der Journey links in der oberen Leiste. Du landest wieder dort, wo du warst.',
+    'Zurück geht es mit einem Klick auf × am rechten Ende der oberen Leiste. Du landest wieder dort, wo du warst.',
   'help.guide.studio.result':
-    'Links ist die Leiste „Seiten“, in der Mitte die Doppelseite auf der Arbeitsfläche und rechts die Eigenschaften. „Automatisch anordnen“ baut das Buch aus deinen Einträgen, „Exportieren“ erzeugt ein druckfertiges PDF.',
+    'Links sind die Leiste und ihre Bereiche, die Doppelseite liegt auf der Arbeitsfläche, und rechts stehen die Eigenschaften. Automatisch anordnen baut das Buch aus deinen Einträgen. Exportieren erzeugt ein druckfertiges PDF.',
   'help.guide.studio.tip.1':
     'Studio braucht ein mindestens 1024 px breites Fenster und steht auf dem Smartphone nicht zur Verfügung.',
   'help.guide.studio.tip.2':
@@ -960,19 +960,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'TREK Studio gestaltet eine Journey als Fotobuch, das du drucken kannst. Es öffnet sich über dem Tagebuch: Links sind die Seitenliste und die Inhalte, in der Mitte die Doppelseite, an der du gerade arbeitest, und rechts ihre Eigenschaften. „Automatisch anordnen“ erstellt aus deinen Einträgen einen ersten Entwurf. Danach kannst du alles verschieben, zuschneiden und neu gestalten und jeden Schritt rückgängig machen.',
+    'TREK Studio gestaltet eine Journey als Fotobuch, das du drucken kannst. Es öffnet sich über dem Tagebuch: Links sind die Leiste und ihre Bereiche, in der Mitte die Doppelseite, an der du arbeitest, und rechts ihre Eigenschaften. Automatisch anordnen erstellt aus deinen Einträgen einen ersten Entwurf, ein Thema gibt dem Buch Farben und Schriften, und der Assistent kann mit dir Seiten gestalten. Danach kannst du alles verschieben, zuschneiden und neu gestalten und jeden Schritt rückgängig machen.',
   'help.ctx.journey-studio.bullet.1':
-    'Obere Leiste: „Zurück zur Journey“, „Buchansicht“, Rückgängig und Wiederholen, „Seitenformat“, „Automatisch anordnen“ und „Exportieren“. Der Hinweis „Gespeichert“ neben dem Titel zeigt, wann das Buch gespeichert wurde.',
+    'Obere Leiste: links Titelbild und Name der Journey. Rechts siehst du, wer sonst noch im Buch ist und ob es gespeichert ist, dazu Seitenformat, Rückgängig, Wiederholen und Einfügen, Automatisch anordnen, den Assistenten, die Hilfe, Exportieren und die Schaltfläche, die Studio schließt.',
   'help.ctx.journey-studio.bullet.2':
-    'Links eine Leiste mit sieben Bereichen: Seiten, Inhalte (Fotos und Einträge der Journey), Layouts, Elemente (Text, Formen, Linien, Rahmen und Raster, Symbole und Sticker), Reise (Karten, Länder, Flaggen und Markierungen aus der Journey) und, darunter abgesetzt, Thema und Ebenen.',
+    'Leiste links: Seiten, Inhalte (die Fotos und Einträge der Journey), Layouts, Elemente (Text, Formen, Linien, Rahmen, Symbole und Sticker), Reise (Zahlen, Karten, Länder und Marken aus der Journey) und, abgesetzt darunter, Thema und Ebenen.',
   'help.ctx.journey-studio.bullet.3':
-    'Arbeitsfläche: die aktuelle Doppelseite mit Anschnitt und Sicherheitsabstand, darunter die Zoomleiste, „Einpassen“ und rechts „Diese Doppelseite herunterladen“.',
+    'Arbeitsfläche: die aktuelle Doppelseite mit Anschnitt und Sicherheitsabstand, darunter die Zoomleiste mit Einpassen, Buchansicht und Diese Doppelseite herunterladen.',
   'help.ctx.journey-studio.bullet.4':
-    'Rechts „Eigenschaften“: Position und Größe, Ausschnitt und Fokuspunkt, Füllen oder Einpassen, Look, Ecken, Rahmen, Stapelreihenfolge und Sperren des ausgewählten Elements. Ist nichts ausgewählt, stehen dort die Seitenzahlen und das Dokument.',
+    'Eigenschaften rechts: alles zum ausgewählten Element, von Position, Größe und Ausschnitt bis zu Farben, Effekten, Stapelreihenfolge und Sperre. Ist nichts ausgewählt, zeigt der Bereich den Seitenhintergrund, das Thema, die Seitenzahlen und das Dokument.',
   'help.ctx.journey-studio.bullet.5':
-    'Das Buch ist wie ein gedrucktes Buch aufgebaut: Cover, eine einzelne erste Seite, die Doppelseiten, eine einzelne letzte Seite und die Rückseite. Die Seitenzahlen beginnen bei der ersten Seite und werden so gedruckt, wie sie angezeigt werden.',
+    'Das Buch ist aufgebaut wie ein gedrucktes Buch: Cover, eine einzelne erste Seite gegenüber der leeren Innenseite des Covers, die Doppelseiten, eine einzelne letzte Seite und die Rückseite. Die Seitenzahlen beginnen bei der ersten Seite und werden so gedruckt, wie sie angezeigt werden.',
   'help.ctx.journey-studio.bullet.6':
     'Mehrere Personen können gleichzeitig gestalten: Alle sehen die Mauszeiger der anderen mit Namen. Speicherst du eine Version, die jemand anderes inzwischen geändert hat, zeigt TREK einen Konflikt an, statt dessen Arbeit zu überschreiben.',
+  'help.ctx.journey-studio.bullet.7':
+    'Thema: ein Look für das ganze Buch, mit Papier, Tinte und drei Akzentfarben, Schriften und Motiven. Mit dem Thema verknüpfte Elemente folgen ihm, wenn du es änderst.',
+  'help.ctx.journey-studio.bullet.8':
+    'Assistent: Wo ein Administrator KI eingerichtet hat, öffnet die Sprechblase in der oberen Leiste einen Assistenten, der mit dir Seiten gestaltet, Bildunterschriften schreibt und das Buch neu stylt. Jede seiner Änderungen ist ein Schritt, den du rückgängig machen kannst.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Buch automatisch erstellen',
   'help.guide.studio-auto-layout.goal':
@@ -992,7 +996,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Doppelseiten hinzufügen, verschieben und entfernen',
   'help.guide.studio-pages.goal': 'Bearbeite das Buch Seite für Seite.',
   'help.guide.studio-pages.step.1':
-    'Öffne in der Seitenleiste „Seiten“. Die Miniaturen zeigen das Buch in seiner Reihenfolge: Cover, erste Seite, Doppelseiten, letzte Seite, Rückseite.',
+    'Öffne in der Leiste Seiten. Die Vorschaubilder zeigen das Buch der Reihe nach: Cover, erste Seite, Doppelseiten, letzte Seite und Rückseite. Die erste und die letzte Seite sind neben der leeren Innenseite ihres Covers gezeichnet, so wie sich das gebundene Buch aufschlägt.',
   'help.guide.studio-pages.step.2':
     '„Seite hinzufügen“ unten fügt vor der letzten Seite eine neue Doppelseite ein. Das + zwischen zwei Miniaturen fügt eine an genau dieser Stelle ein.',
   'help.guide.studio-pages.step.3':
@@ -1007,11 +1011,22 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Layout auf eine Doppelseite anwenden',
   'help.guide.studio-layouts.goal': 'Gib einer Doppelseite eine fertige Anordnung aus Foto- und Textrahmen.',
   'help.guide.studio-layouts.step.1':
-    'Öffne in der Leiste „Layouts“. Zuerst kommen die gestalteten Seiten: ganze Cover und Doppelseiten im Thema des Buchs, die du über die Stile auf einen Look eingrenzt. Darunter folgen die eigenen Layouts des Buchs und die vorgefertigten.',
+    'Öffne in der Leiste Layouts. Zuerst kommen gestaltete Seiten: ganze Cover und Doppelseiten im Thema des Buchs, die du mit den Stilchips auf einen Look eingrenzt. Meine Anordnungen und Vorgefertigt folgen darunter, im selben Raster.',
   'help.guide.studio-layouts.step.2':
     'Klick eines an. Die Doppelseite auf der Arbeitsfläche bekommt die Rahmen dieses Layouts, und deine vorhandenen Fotos und Texte werden darin platziert.',
   'help.guide.studio-layouts.result':
     'Leere Rahmen sind Platzhalter für Inhalte: Zieh ein Foto aus „Inhalt“ hinein oder nutze „Auf diese Seite setzen“.',
+  'help.guide.studio-my-layouts.title': 'Eine Seite als eigene Anordnung speichern',
+  'help.guide.studio-my-layouts.goal':
+    'Verwende eine Anordnung wieder, die du auf anderen Seiten des Buchs gebaut hast.',
+  'help.guide.studio-my-layouts.step.1':
+    'Ordne eine Seite so an, wie du sie willst, und öffne dann in der Leiste Layouts.',
+  'help.guide.studio-my-layouts.step.2':
+    'Klick unter Meine Anordnungen auf Diese Seite als Anordnung speichern. Die Seite erscheint als Karte in der Liste.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Klick auf deine Anordnung auf einer anderen Seite, um diese Seite genauso anzuordnen, mit ihren eigenen Fotos und Texten.',
+  'help.guide.studio-my-layouts.result':
+    'Deine Anordnungen werden mit dem Buch gespeichert und auf Seiten derselben Art angeboten: die eines Covers für Cover, die einer Doppelseite für Doppelseiten.',
   'help.guide.studio-layouts.tip.1': 'Ein Layout lässt sich wie jeder andere Schritt rückgängig machen.',
   // studio-content
   'help.guide.studio-content.title': 'Fotos und Einträge auf eine Seite bringen',
@@ -1024,28 +1039,84 @@ const help: TranslationStrings = {
     'Unter einem Eintrag setzen „Titel“, „Text“ und „Ort“ den jeweiligen Text als Textelement auf die Seite. Datum und Koordinaten kommen als Markierungen dazu, und auch die Fotos des Eintrags sind dort aufgelistet.',
   'help.guide.studio-content.result':
     'Ein abgelegtes Foto wird zum Fotoelement. Text bleibt mit dem Eintrag verknüpft, bis du ihn bearbeitest.',
+  'help.guide.studio-theme.title': 'Dem Buch ein Thema geben',
+  'help.guide.studio-theme.goal': 'Lege Farben und Schriften des ganzen Buchs in einem Zug fest.',
+  'help.guide.studio-theme.step.1':
+    'Öffne in der Leiste Thema. Jede Karte zeigt ein Thema als kleine Seite: Papier, Schrift und die drei Akzentfarben.',
+  'help.guide.studio-theme.step.2':
+    'Klick auf ein Thema, um es auszuprobieren. Unter den Karten kannst du die Palette ändern, andere Schriften wählen sowie Motive und Dekor festlegen.',
+  'help.guide.studio-theme.step.3':
+    'Klick auf Auf das Buch anwenden oder auf Auf diese Seite anwenden für die Doppelseite auf dem Bildschirm.',
+  'help.guide.studio-theme.tip.1':
+    'Mit dem Thema verknüpfte Elemente übernehmen seine Farben und Schriften und folgen, wenn du es änderst. Auch noch nicht Verknüpftes neu gestalten verknüpft zuerst den Rest.',
+  'help.guide.studio-theme.tip.2': 'Farben aus den Fotos erstellt eine Palette aus den Bildern der Journey.',
+  'help.guide.studio-theme.result':
+    'Alle verknüpften Farben und Schriften im Buch ändern sich auf einmal, und das Anwenden des Themas ist ein einziger Rückgängig-Schritt.',
   'help.guide.studio-content.tip.1': 'Das Suchfeld oben in „Inhalt“ filtert beide Listen.',
   'help.guide.studio-content.tip.2':
     'Ziehst du eine Datei vom Desktop auf die Arbeitsfläche, lädt TREK sie hoch und platziert sie in einem Schritt.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Text, Formen und Symbole hinzufügen',
+  'help.guide.studio-elements.title': 'Text, Formen, Symbole und Sticker hinzufügen',
   'help.guide.studio-elements.goal': 'Schmück eine Doppelseite zusätzlich zu Fotos und Texten aus.',
-  'help.guide.studio-elements.step.1': 'Öffne in der Seitenleiste „Elemente“.',
+  'help.guide.studio-elements.step.1':
+    'Öffne in der Leiste Elemente. Sechs Tabs sortieren, was du hinzufügen kannst: Text, Formen, Linien, Rahmen, Symbole und Sticker.',
   'help.guide.studio-elements.step.2':
-    'Klick auf einen Textstil für Überschrift oder Bildunterschrift, eine Form, eine Linie, ein Raster, einen leeren Rahmen mit Rahmenstil oder ein Symbol aus der durchsuchbaren Bibliothek. Alles wird in der Mitte der Doppelseite platziert, danach kannst du es verschieben.',
+    'Klick auf einen Textstil oder einen gestalteten Titel, eine Form, eine Linie, einen leeren Rahmen, ein Symbol oder einen Sticker. Jedes Element landet in der Mitte der Doppelseite, und du kannst es danach verschieben.',
   'help.guide.studio-elements.result':
     'Doppelklick auf ein Textelement, um darin zu schreiben. Unter „Eigenschaften“ findest du Schriftart, Schnitt, Größe, Abstand und Ausrichtung.',
+  'help.guide.studio-stickers.title': 'Mit Stickern dekorieren',
+  'help.guide.studio-stickers.goal':
+    'Füge Illustrationen hinzu, von Sehenswürdigkeiten und Essen bis zu Tieren und Pfeilen.',
+  'help.guide.studio-stickers.step.1': 'Öffne in der Leiste Elemente und wähle Sticker.',
+  'help.guide.studio-stickers.step.2':
+    'Suche nach einem Wort oder stöber in den Regalen, dann klick auf einen Sticker, um ihn auf der Doppelseite zu platzieren.',
+  'help.guide.studio-stickers.tip.1': 'Bei ausgewähltem Sticker färbt Eigenschaften seine Teile um und spiegelt ihn.',
+  'help.guide.studio-stickers.result': 'Der Sticker ist eine Zeichnung und bleibt deshalb in jeder Größe scharf.',
   'help.guide.studio-elements.tip.1': 'Rahmen sind leere Platzhalter für Fotos: Zieh später ein Bild hinein.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Karte, Flaggen und Kennzahlen hinzufügen',
-  'help.guide.studio-travel.goal': 'Die Reise selbst als Kennzahlen auf die Seite bringen.',
-  'help.guide.studio-travel.step.1': 'Öffne in der Leiste „Reise“.',
+  'help.guide.studio-travel.title': 'Karten, Zahlen, Länder und Marken hinzufügen',
+  'help.guide.studio-travel.goal': 'Verwandle die Journey selbst in gestaltete Elemente auf der Seite.',
+  'help.guide.studio-travel.step.1':
+    'Öffne in der Leiste Reise. Vier Tabs sortieren, was du hinzufügen kannst: Zahlen, Karten, Länder und Marken.',
   'help.guide.studio-travel.step.2':
-    'Wähle, was du hinzufügen willst: eine Routenkarte der Einträge, Länderumrisse, eine Länderliste oder ein Ländergitter, Flaggen, eine Markierung für Datum, Tag oder Strecke oder eine Zusammenfassung der ganzen Reise. Alles wird aus den Daten der Journey erzeugt und aktualisiert sich, wenn sich die Daten ändern.',
+    'Jede Karte zeigt das Element mit den eigenen Zahlen deiner Journey, in den Farben des Themas: eine Zusammenfassung als Poster, Ticket, Verkehrsschild oder Kilometerzähler, eine Karte mit nummerierten Stationen oder auf ein Land zugeschnitten, ein Land als Stempel, Postkarte oder Pin, ein Datum oder eine Strecke als Stempel, Anhänger oder Banner.',
+  'help.guide.studio-travel.step.3':
+    'Klick auf eine Karte. Das Element landet in der Mitte der Doppelseite, und du kannst es danach verschieben und seine Größe ändern.',
   'help.guide.studio-travel.result':
-    'Das Element erscheint auf der Doppelseite. Über „Eigenschaften“ änderst du seinen Stil, bei der Karte auch den Ausschnitt.',
+    'Das Element erscheint auf der Doppelseite. Eigenschaften ändert sein Aussehen, und jede Zahl, Karte und jedes Land wird aktualisiert, wenn sich die Journey ändert.',
+  'help.guide.studio-text-effects.title': 'Effekte für Text hinzufügen',
+  'help.guide.studio-text-effects.goal':
+    'Gib einer Überschrift eine Kontur, einen Schatten, eine Biegung oder mit einem Muster gefüllte Buchstaben.',
+  'help.guide.studio-text-effects.step.1': 'Klick auf ein Textelement auf der Seite, um es auszuwählen.',
+  'help.guide.studio-text-effects.step.2':
+    'Öffne in den Eigenschaften Effekte, um eine Kontur, einen Schatten oder eine Hervorhebung hinzuzufügen oder die Buchstaben mit einem Verlauf oder Muster zu füllen. Schreibweise und Position biegt die Zeile und passt sie an ihren Rahmen an.',
+  'help.guide.studio-text-effects.tip.1':
+    'An Rahmen anpassen verkleinert den Text, bis er in seinen Rahmen passt, damit ein langer Titel nie überläuft.',
+  'help.guide.studio-text-effects.result':
+    'Der Effekt wird mit dem Text gezeichnet, im Druck genauso wie am Bildschirm.',
+  'help.guide.studio-background.title': 'Seitenhintergrund ändern',
+  'help.guide.studio-background.goal':
+    'Färbe die Seite mit einer Farbe, einem Verlauf oder einem Muster, oder lege ein Foto darunter.',
+  'help.guide.studio-background.step.1':
+    'Klick auf eine leere Stelle der Seite, damit nichts ausgewählt ist. Seitenhintergrund steht oben in den Eigenschaften.',
+  'help.guide.studio-background.step.2':
+    'Wähle Papier, Einfarbig, Verlauf oder Muster und eine Farbe, oder klick unter Foto als Hintergrund auf ein Foto.',
+  'help.guide.studio-background.tip.1': 'Auf alle Seiten anwenden gibt jeder Seite des Buchs denselben Hintergrund.',
+  'help.guide.studio-background.result':
+    'Der Hintergrund reicht in den Anschnitt, sodass er bis zum Seitenrand gedruckt wird.',
+  'help.guide.studio-layers.title': 'Mit Ebenen anordnen, ausblenden und sperren',
+  'help.guide.studio-layers.goal': 'Sieh alles auf der Doppelseite in Stapelreihenfolge und bearbeite es dort.',
+  'help.guide.studio-layers.step.1': 'Öffne in der Leiste Ebenen. Oben in der Liste ist die Vorderseite der Seite.',
+  'help.guide.studio-layers.step.2':
+    'Zieh eine Zeile, um die Reihenfolge zu ändern, blende ein Element mit dem Auge aus und halte es mit dem Schloss an seinem Platz. Wähle mehrere aus und gruppiere sie, um sie gemeinsam zu bewegen.',
+  'help.guide.studio-layers.tip.1': 'Doppelklick auf eine Zeile gibt dem Element einen eigenen Namen.',
+  'help.guide.studio-layers.tip.2': 'Ausgeblendete Elemente fehlen im PDF.',
+  'help.guide.studio-layers.result':
+    'Auch volle Seiten bleiben leicht zu bearbeiten, und fertige Teile lassen sich nicht versehentlich verschieben.',
   'help.guide.studio-travel.tip.1':
-    'Markierungen nutzen die Daten des Eintrags, aus dem die Doppelseite entstanden ist. Eine Datumsmarkierung auf einer mit „Automatisch anordnen“ erstellten Doppelseite zeigt also schon den richtigen Tag.',
+    'Unter Karten listet Stationen jede Station der Route auf. Schalte eine aus, um sie aus Karten und Zahlen auszulassen, zum Beispiel deinen Heimatflughafen.',
+  'help.guide.studio-travel.tip.2':
+    'Eine Länderkarte zeigt nur die Stationen dieses Landes, sodass das Land die Seite füllt, auch wenn die Journey mit einem langen Flug begann.',
   // studio-properties
   'help.guide.studio-properties.title': 'Auswahl bearbeiten',
   'help.guide.studio-properties.goal':
@@ -1065,7 +1136,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Seitenformat wählen',
   'help.guide.studio-format.goal': 'Das Druckformat des Buches festlegen, bevor du das Layout erstellst.',
-  'help.guide.studio-format.step.1': 'Klick in der oberen Leiste auf „Seitenformat“.',
+  'help.guide.studio-format.step.1':
+    'Klick in der oberen Leiste neben den Bearbeitungswerkzeugen auf das Seitenformat. Es zeigt Name und Form des Formats.',
   'help.guide.studio-format.step.2':
     'Wähle „Quadratisch 21 × 21 cm“, „Quadratisch 30 × 30 cm“, A4 oder A5 im Quer- oder Hochformat oder gib eine eigene Breite und Höhe in Millimetern ein. Anschnitt und Sicherheitsabstand stehen darunter.',
   'help.guide.studio-format.result':

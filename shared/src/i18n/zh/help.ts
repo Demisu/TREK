@@ -759,9 +759,9 @@ const help: TranslationStrings = {
   'help.guide.studio.title': '把旅程排成一本相册',
   'help.guide.studio.goal': '把旅程日志变成可以打印的页面。',
   'help.guide.studio.step.1': '点击页眉中的“Studio”，设计器会在旅程上方打开。',
-  'help.guide.studio.step.2': '要返回时，点击顶栏左侧的旅程名称，就会回到你之前所在的位置。',
+  'help.guide.studio.step.2': '要返回时，点击顶栏最右端的 ×，就会回到你之前所在的位置。',
   'help.guide.studio.result':
-    '页面栏在左侧，跨页在工作台上，属性在右侧。“自动布局”会根据你的日志生成整本书，“导出”会生成可直接打印的 PDF。',
+    '侧栏和面板在左侧，跨页在工作台上，属性在右侧。自动排版根据你的条目生成整本书。导出会生成可直接印刷的 PDF。',
   'help.guide.studio.tip.1': 'Studio 需要宽度至少 1024 px 的窗口，手机上不可用。',
   'help.guide.studio.tip.2': '这本书的访问权限与旅程相同：能阅读旅程的人都能打开这本书，能编辑旅程的人都能保存它。',
   // archive-journey
@@ -786,19 +786,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio',
   'help.ctx.journey-studio.summary':
-    'TREK Studio 把一段旅程排成可以打印的相册。它在日志之上打开：左侧是页面列表和内容，中间是你正在编辑的跨页，右侧是它的属性。“自动布局”会根据你的日志生成初稿，之后你可以移动、裁剪并重新设置所有元素的样式，每一步都能撤销。',
+    'TREK Studio 把旅程排成可以打印的相册。它在日志上方打开：左侧是侧栏和面板，中间是你正在处理的跨页，右侧是它的属性。自动排版根据你的条目生成第一版草稿，主题给书配上颜色和字体，助手可以和你一起设计页面。之后你可以移动、裁剪、重新设置任何内容的样式，每一步都能撤销。',
   'help.ctx.journey-studio.bullet.1':
-    '顶部栏：返回旅程、书籍视图、撤销和重做、页面格式、自动布局和导出。标题旁边的“已保存”标记表示这本书已保存。',
+    '顶栏：左侧是旅程的封面和名称。右侧依次是还有谁在这本书里以及是否已保存、页面尺寸、撤销、重做、粘贴、自动排版、助手、帮助、导出，以及关闭 Studio 的按钮。',
   'help.ctx.journey-studio.bullet.2':
-    '左侧的侧栏分为七个部分：页面、内容（旅程的照片和记录）、版式、元素（文字、形状、线条、相框和网格、图标和贴纸）、“旅程”（根据旅程生成的地图、国家、国旗和标记），以及下方单独列出的主题和图层。',
+    '左侧侧栏：页面、内容（旅程的照片和条目）、版式、元素（文字、形状、线条、相框、图标和贴纸）、旅程（由旅程生成的数字、地图、国家和标记），下方单独分开的是主题和图层。',
   'help.ctx.journey-studio.bullet.3':
-    '工作区：显示当前跨页，包括出血和安全边距；下方是缩放条和 Fit to view；右侧是“下载此跨页”。',
+    '工作台：当前跨页，带有出血和安全边距，下方的缩放栏有适合视图、书本视图和下载此跨页。',
   'help.ctx.journey-studio.bullet.4':
-    '右侧的 Properties：所选对象的位置和大小、裁剪和焦点、Fill 或 Fit、外观、圆角、相框、叠放顺序和锁定。未选中任何对象时，则显示页码和文档设置。',
+    '右侧属性：所选元素的一切设置，从位置、尺寸和裁剪，到颜色、效果、叠放顺序和锁定。没有选中任何内容时，这里显示页面背景、主题、页码和文档。',
   'help.ctx.journey-studio.bullet.5':
-    '这本书的版式与印刷成册的书一样：封面、单独的第一页、各个跨页、单独的最后一页和封底。页码从第一页开始计数，打印时按显示的页码印出。',
+    '这本书的排布和印刷的书一样：封面、与封面内页空白面相对的单独第一页、各个跨页、单独的最后一页和封底。页码从第一页开始计数，按显示的样子印出。',
   'help.ctx.journey-studio.bullet.6':
     '多人可以同时设计：每个人都能看到其他人带名字的指针。如果你保存的版本已被别人修改过，TREK 会提示冲突，而不是覆盖对方的成果。',
+  'help.ctx.journey-studio.bullet.7':
+    '主题：整本书统一的外观，包括纸张、墨色、三种强调色、字体和装饰图案。与主题关联的元素会在你更换主题时跟着变化。',
+  'help.ctx.journey-studio.bullet.8':
+    '助手：管理员设置了 AI 后，顶栏的对话气泡会打开助手，与你一起排页面、写图注、调整整本书的样式。它做的每一处改动都是一个可撤销的步骤。',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': '自动生成整本书',
   'help.guide.studio-auto-layout.goal': '一键根据日志里的条目和照片生成完整的初稿。',
@@ -815,7 +819,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': '添加、移动和删除跨页',
   'help.guide.studio-pages.goal': '一页一页地编辑这本书。',
   'help.guide.studio-pages.step.1':
-    '在侧栏中打开 Pages。缩略图按顺序显示整本书：封面、第一页、各个跨页、最后一页、封底。',
+    '在侧栏打开页面。缩略图按顺序显示整本书：封面、第一页、各个跨页、最后一页和封底。第一页和最后一页画在各自封面内页空白面的旁边，就像装订好的书翻开时那样。',
   'help.guide.studio-pages.step.2':
     '底部的“添加页面”会在最后一页之前添加一个新跨页。两张缩略图之间的 + 会在该位置插入一个跨页。',
   'help.guide.studio-pages.step.3':
@@ -827,10 +831,18 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': '为跨页应用版式',
   'help.guide.studio-layouts.goal': '为跨页套用一组现成的照片框和文字框排版。',
   'help.guide.studio-layouts.step.1':
-    '在侧栏中打开 Layouts。最上面是设计好的页面：以书的主题呈现的完整封面和跨页，可用风格按钮筛选出一种风格。下面接着是这本书自己的版式和内置版式。',
+    '在侧栏打开版式。设计好的页面排在最前：套用了本书主题的整套封面和跨页，样式标签可以把它们筛选为某一种风格。我的版式和内置排在它们下面，使用同样的网格。',
   'help.guide.studio-layouts.step.2':
     '点击其中一个。工作台上的跨页会换成这个版式的相框，你已有的照片和文字会放进这些相框里。',
   'help.guide.studio-layouts.result': '空相框是内容的占位：把照片从“内容”拖到相框上，或使用“添加到此页”。',
+  'help.guide.studio-my-layouts.title': '把页面保存为你自己的版式',
+  'help.guide.studio-my-layouts.goal': '重复使用你在书中其他页面排好的布局。',
+  'help.guide.studio-my-layouts.step.1': '把一个页面排成你喜欢的样子，然后在侧栏打开版式。',
+  'help.guide.studio-my-layouts.step.2': '点击我的版式下的将此页面保存为版式。这个页面会作为一张卡片出现在列表中。',
+  'help.guide.studio-my-layouts.tip.1':
+    '在另一个页面点击你的版式，就能用同样的方式排好那一页，保留它自己的照片和文字。',
+  'help.guide.studio-my-layouts.result':
+    '你的版式会随书一起保存，并出现在同类页面上：封面的版式用于封面，跨页的版式用于跨页。',
   'help.guide.studio-layouts.tip.1': '套用版式和其他操作一样，可以撤销。',
   // studio-content
   'help.guide.studio-content.title': '把照片和日志放到页面上',
@@ -841,25 +853,66 @@ const help: TranslationStrings = {
   'help.guide.studio-content.step.3':
     '在条目下方，Title、Story 和 Place 会把对应的文字作为文字元素放到页面上。日期和坐标会作为标记添加，条目的照片也列在这里。',
   'help.guide.studio-content.result': '拖入的照片会变成照片元素。文字在你编辑之前一直与日志保持关联。',
+  'help.guide.studio-theme.title': '为整本书选一个主题',
+  'help.guide.studio-theme.goal': '一次设置整本书的颜色和字体。',
+  'help.guide.studio-theme.step.1': '在侧栏打开主题。每张卡片把一个主题显示成小小的页面：它的纸张、字体和三种强调色。',
+  'help.guide.studio-theme.step.2':
+    '点击一个主题试用。在卡片下方，你可以修改它的配色、选择其他字体，并挑选装饰图案和装饰元素。',
+  'help.guide.studio-theme.step.3': '点击应用到整本书，或者点击应用到此页，只作用于屏幕上的这个跨页。',
+  'help.guide.studio-theme.tip.1':
+    '与主题关联的元素会采用主题的颜色和字体，并在你更换主题时跟着变化。同时重新设置未关联元素的样式会先关联其余的元素。',
+  'help.guide.studio-theme.tip.2': '从照片取色会根据旅程的图片生成一套配色。',
+  'help.guide.studio-theme.result': '书中所有已关联的颜色和字体会同时改变，应用主题是一个可撤销的步骤。',
   'help.guide.studio-content.tip.1': '“内容”顶部的搜索框会同时筛选两个列表。',
   'help.guide.studio-content.tip.2': '把桌面上的文件拖到工作台上时，TREK 会一步完成上传和放置。',
   // studio-elements
-  'help.guide.studio-elements.title': '添加文字、形状和图标',
+  'help.guide.studio-elements.title': '添加文字、形状、图标和贴纸',
   'help.guide.studio-elements.goal': '除了照片和文字故事，再为跨页添加一些装饰。',
-  'help.guide.studio-elements.step.1': '在侧栏中打开 Elements。',
+  'help.guide.studio-elements.step.1': '在侧栏打开元素。可添加的内容分为六个标签：文字、形状、线条、相框、图标和贴纸。',
   'help.guide.studio-elements.step.2':
-    '点击用于标题或说明的文字样式、形状、线条、网格、带相框样式的空相框，或者可搜索图标库中的图标。每一项都会放在跨页中央，之后可以自由移动。',
+    '点击一种文字样式或设计好的标题、形状、线条、空相框、图标或贴纸。每一项都会放在跨页中央，之后你可以再移动它。',
   'help.guide.studio-elements.result': '双击文字元素即可输入文字；“属性”里可以设置字体、字重、字号、间距和对齐方式。',
+  'help.guide.studio-stickers.title': '用贴纸装饰',
+  'help.guide.studio-stickers.goal': '添加插画，从地标和美食到动物和箭头。',
+  'help.guide.studio-stickers.step.1': '在侧栏打开元素，选择贴纸。',
+  'help.guide.studio-stickers.step.2': '搜索一个词或浏览各个货架，然后点击一张贴纸，把它放到跨页上。',
+  'help.guide.studio-stickers.tip.1': '选中贴纸后，属性可以为它的各个部分重新着色，也可以镜像翻转。',
+  'help.guide.studio-stickers.result': '贴纸是矢量绘制的，所以无论放多大都保持清晰。',
   'help.guide.studio-elements.tip.1': '相框是空的照片位，之后再把图片放进去即可。',
   // studio-travel
-  'help.guide.studio-travel.title': '添加地图、国旗和数据',
-  'help.guide.studio-travel.goal': '把旅程本身变成页面上的数据。',
-  'help.guide.studio-travel.step.1': '在侧栏中打开“旅程”。',
+  'help.guide.studio-travel.title': '添加地图、数字、国家和标记',
+  'help.guide.studio-travel.goal': '把旅程本身变成页面上设计好的元素。',
+  'help.guide.studio-travel.step.1': '在侧栏打开旅程。可添加的内容分为四个标签：数字、地图、国家和标记。',
   'help.guide.studio-travel.step.2':
-    '选择要添加的内容：条目的路线图、国家轮廓、国家列表或网格、国旗、日期、天数或距离标记，或整个旅行的概览。每一项都由旅程的数据生成，数据变化时会自动更新。',
-  'help.guide.studio-travel.result': '元素会出现在跨页上。用“属性”修改它的样式，用地图修改它的范围。',
+    '每张卡片都用旅程自己的数据，按主题的颜色展示元素：汇总可以是海报、车票、路牌或里程表，地图可以带编号的停留点或裁成某个国家，国家可以是邮戳、明信片或图钉，日期或距离可以是印章、标签或丝带。',
+  'help.guide.studio-travel.step.3': '点击一张卡片。元素会放在跨页中央，之后你可以移动它并调整大小。',
+  'help.guide.studio-travel.result':
+    '元素会出现在跨页上。属性可以改变它的外观，旅程发生变化时，每个数字、地图和国家都会随之更新。',
+  'help.guide.studio-text-effects.title': '为文字添加效果',
+  'help.guide.studio-text-effects.goal': '给标题加上描边、阴影、弧形，或者用图案填充文字。',
+  'help.guide.studio-text-effects.step.1': '点击页面上的文字元素将其选中。',
+  'help.guide.studio-text-effects.step.2':
+    '在属性中打开效果，添加描边、阴影或高亮，也可以用渐变或图案填充文字。位置可以把文字行弯成弧形，并让它适应文本框。',
+  'help.guide.studio-text-effects.tip.1': '适应会缩小文字直到放进文本框，所以很长的标题也不会溢出。',
+  'help.guide.studio-text-effects.result': '效果与文字一起绘制，印刷出来和屏幕上一样。',
+  'help.guide.studio-background.title': '更改页面背景',
+  'help.guide.studio-background.goal': '给页面涂上纯色、渐变或图案，或者在下面铺一张照片。',
+  'help.guide.studio-background.step.1': '点击页面的空白处，让任何内容都不被选中。页面背景位于属性的顶部。',
+  'help.guide.studio-background.step.2': '选择纸张、纯色、渐变或图案并挑一个颜色，或在照片作背景下点击一张照片。',
+  'help.guide.studio-background.tip.1': '应用到所有页面会让整本书的每一页都使用同一个背景。',
+  'help.guide.studio-background.result': '背景会延伸到出血区，所以会印到页面边缘。',
+  'help.guide.studio-layers.title': '用图层排列、隐藏和锁定',
+  'help.guide.studio-layers.goal': '按叠放顺序查看跨页上的所有内容，并在那里操作。',
+  'help.guide.studio-layers.step.1': '在侧栏打开图层。列表顶部是页面的最前面。',
+  'help.guide.studio-layers.step.2':
+    '拖动一行来调整叠放顺序，用眼睛图标隐藏元素，用锁定让它固定不动。选中多个后编组，就能一起移动。',
+  'help.guide.studio-layers.tip.1': '双击一行，可以给元素起一个自己的名字。',
+  'help.guide.studio-layers.tip.2': '隐藏的元素不会出现在 PDF 中。',
+  'help.guide.studio-layers.result': '内容很多的页面也容易编辑，已经完成的部分不会被误移动。',
   'help.guide.studio-travel.tip.1':
-    '标记使用生成该跨页的那条条目的数据。所以通过 Auto layout 生成的跨页上的日期标记，已经显示了对应的那一天。',
+    '在地图下，停留点列出路线上的每一个停留点。关掉某一个，就能把它从地图和数字中排除，例如你的出发机场。',
+  'help.guide.studio-travel.tip.2':
+    '国家地图只显示该国的停留点，所以即使旅程以一次长途飞行开始，这个国家也会铺满整个页面。',
   // studio-properties
   'help.guide.studio-properties.title': '编辑选中的元素',
   'help.guide.studio-properties.goal': '用检查器移动、裁剪元素，设置样式并调整层叠顺序。',
@@ -876,7 +929,7 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': '选择页面格式',
   'help.guide.studio-format.goal': '在搭建版面之前，先设定这本书的印刷尺寸。',
-  'help.guide.studio-format.step.1': '点击顶部栏中的 Page format。',
+  'help.guide.studio-format.step.1': '点击顶栏中编辑工具旁边的页面尺寸，那里显示尺寸的名称和形状。',
   'help.guide.studio-format.step.2':
     '可以选择 Square 21 × 21 cm、Square 30 × 30 cm、横向或纵向的 A4 或 A5，也可以用毫米输入自定义的宽度和高度。出血和安全边距在下方设置。',
   'help.guide.studio-format.result': '每个跨页都按该尺寸绘制，默认出血 3 mm，安全边距 5 mm。',

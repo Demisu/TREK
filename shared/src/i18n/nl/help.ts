@@ -909,10 +909,9 @@ const help: TranslationStrings = {
   'help.guide.studio.title': 'Het reisverslag opmaken als fotoboek',
   'help.guide.studio.goal': "Maak van het reisverslag afdrukbare pagina's.",
   'help.guide.studio.step.1': 'Klik bovenaan op Studio. De ontwerper opent over het reisverslag heen.',
-  'help.guide.studio.step.2':
-    'Wil je terug? Klik links in de bovenste balk op de naam van het reisverslag. Je komt terug waar je was.',
+  'help.guide.studio.step.2': 'Wil je terug? Klik op × aan de rechterkant van de bovenbalk. Je komt terug waar je was.',
   'help.guide.studio.result':
-    'Links staat de paginabalk, op het werkblad de dubbele pagina en rechts de eigenschappen. ‘Auto layout’ bouwt het boek op uit je vermeldingen. Exporteren maakt een drukklare PDF.',
+    'Links staan de balk en zijn panelen, op het werkblad de dubbele pagina en rechts de eigenschappen. Automatische opmaak bouwt het boek op uit je vermeldingen. Exporteren maakt een drukklare PDF.',
   'help.guide.studio.tip.1':
     'Studio heeft een venster van minstens 1024 px breed nodig en is niet beschikbaar op een telefoon.',
   'help.guide.studio.tip.2':
@@ -945,19 +944,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'Met TREK Studio maak je van een reisverslag een fotoboek dat je kunt laten drukken. Studio opent boven het reisverslag: links de paginalijst en de inhoud, in het midden de dubbele pagina waaraan je werkt en rechts de eigenschappen ervan. ‘Auto layout’ maakt een eerste opzet op basis van je vermeldingen. Daarna kun je alles verplaatsen, bijsnijden en anders opmaken, en elke stap ongedaan maken.',
+    'Met TREK Studio maak je van een reisverslag een fotoboek dat je kunt laten drukken. Studio opent boven het reisverslag: links de balk met zijn panelen, in het midden de dubbele pagina waaraan je werkt en rechts de eigenschappen ervan. Automatische opmaak maakt een eerste opzet op basis van je vermeldingen, een thema geeft het boek zijn kleuren en lettertypen, en de assistent kan samen met jou pagina’s ontwerpen. Daarna kun je alles verplaatsen, bijsnijden en anders opmaken, en elke stap ongedaan maken.',
   'help.ctx.journey-studio.bullet.1':
-    'Bovenbalk: ‘Back to the journey’, ‘Book view’, ongedaan maken en opnieuw, ‘Page format’, ‘Auto layout’ en Exporteren. Het vinkje Opgeslagen naast de titel laat zien wanneer het boek is opgeslagen.',
+    'Bovenbalk: links de omslag en de naam van het reisverslag. Rechts wie er nog meer in het boek zit en of het is opgeslagen, het paginaformaat, ongedaan maken, opnieuw en plakken, Automatische opmaak, de assistent, help, Exporteren en de knop waarmee je Studio sluit.',
   'help.ctx.journey-studio.bullet.2':
-    "Links een balk met zeven onderdelen: Pagina's, Inhoud (de foto's en items van het reisverslag), Lay-outs, Elementen (tekst, vormen, lijnen, kaders en rasters, iconen en stickers), Reis (kaarten, landen, vlaggen en markeringen op basis van het reisverslag) en, apart daaronder, Thema en Lagen.",
+    'Balk links: Pagina’s, Inhoud (de foto’s en vermeldingen van het reisverslag), Lay-outs, Elementen (tekst, vormen, lijnen, kaders, iconen en stickers), Reis (cijfers, kaarten, landen en markeringen op basis van het reisverslag) en, apart daaronder, Thema en Lagen.',
   'help.ctx.journey-studio.bullet.3':
-    "Werkblad: de huidige dubbele pagina met afloop en veilige marges, met eronder de zoombalk, 'Fit to view' en rechts 'Deze dubbele pagina downloaden'.",
+    'Werkblad: de huidige dubbele pagina met afloop en veilige marges, met eronder de zoombalk met Passend maken, Boekweergave en Deze dubbele pagina downloaden.',
   'help.ctx.journey-studio.bullet.4':
-    'Rechts Properties: positie en grootte, uitsnede en focuspunt, vullen of passend maken, look, hoeken, kader, stapelvolgorde en vergrendeling van het geselecteerde element. Is er niets geselecteerd, dan zie je de paginanummers en het document.',
+    'Eigenschappen rechts: alles over het geselecteerde element, van positie, grootte en uitsnede tot kleuren, effecten, stapelvolgorde en vergrendeling. Is er niets geselecteerd, dan toont het paneel de paginaachtergrond, het thema, de paginanummers en het document.',
   'help.ctx.journey-studio.bullet.5':
-    "Het boek is opgebouwd als een gedrukt boek: voorkant, een losse eerste pagina, de dubbele pagina's, een losse laatste pagina en de achterkant. De paginanummers tellen vanaf de eerste pagina en worden afgedrukt zoals je ze ziet.",
+    'Het boek is opgebouwd als een gedrukt boek: omslag, een losse eerste pagina tegenover de lege binnenkant van de omslag, de dubbele pagina’s, een losse laatste pagina en de achterkant. De paginanummers tellen vanaf de eerste pagina en worden afgedrukt zoals je ze ziet.',
   'help.ctx.journey-studio.bullet.6':
     'Meerdere mensen kunnen tegelijk ontwerpen: iedereen ziet de cursors van de anderen met hun naam. Sla je een versie op die iemand anders heeft gewijzigd, dan meldt TREK een conflict in plaats van diens werk te overschrijven.',
+  'help.ctx.journey-studio.bullet.7':
+    'Thema: één look voor het hele boek, met papier, inkt en drie accenten, lettertypen en motieven. Elementen die aan het thema zijn gekoppeld, volgen het als je het wijzigt.',
+  'help.ctx.journey-studio.bullet.8':
+    'Assistent: waar een beheerder AI heeft ingesteld, opent de spraakwolk in de bovenbalk een assistent die samen met jou pagina’s opmaakt, bijschriften schrijft en het boek anders vormgeeft. Elke wijziging van de assistent is een stap die je ongedaan kunt maken.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Het boek automatisch laten opbouwen',
   'help.guide.studio-auto-layout.goal':
@@ -976,7 +979,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': "Dubbele pagina's toevoegen, verplaatsen en verwijderen",
   'help.guide.studio-pages.goal': 'Werk het boek pagina voor pagina uit.',
   'help.guide.studio-pages.step.1':
-    "Open Pages in de zijbalk. De miniaturen tonen het boek op volgorde: omslag, eerste pagina, dubbele pagina's, laatste pagina, achterkant.",
+    'Open Pagina’s in de balk. De miniaturen tonen het boek op volgorde: omslag, eerste pagina, dubbele pagina’s, laatste pagina en achterkant. De eerste en de laatste pagina staan naast de lege binnenkant van hun omslag getekend, zoals het gebonden boek opengaat.',
   'help.guide.studio-pages.step.2':
     "'Pagina toevoegen' onderaan voegt een nieuwe dubbele pagina toe vóór de laatste pagina. Met de + tussen twee miniaturen voeg je er een in op die plek.",
   'help.guide.studio-pages.step.3':
@@ -992,11 +995,21 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.goal':
     "Geef een dubbele pagina een kant-en-klare indeling met kaders voor foto's en tekst.",
   'help.guide.studio-layouts.step.1':
-    'Open Layouts in de zijbalk. Eerst komen de ontworpen pagina’s: hele omslagen en dubbele pagina’s in het thema van het boek, die je met de stijlknoppen tot één uitstraling beperkt. Daaronder volgen de eigen lay-outs van het boek en de standaardlay-outs.',
+    'Open Lay-outs in de balk. Eerst komen ontworpen pagina’s: hele omslagen en dubbele pagina’s in het thema van het boek, die je met de stijlchips tot één look beperkt. Mijn indelingen en Standaard volgen daaronder, in hetzelfde raster.',
   'help.guide.studio-layouts.step.2':
     "Klik op een opmaak. De dubbele pagina op het werkblad krijgt de kaders van die opmaak, en je bestaande foto's en tekst worden erin geplaatst.",
   'help.guide.studio-layouts.result':
     'Lege kaders zijn plaatshouders voor inhoud: sleep er een foto uit Inhoud naartoe, of gebruik ‘Add to this page’.',
+  'help.guide.studio-my-layouts.title': 'Een pagina als eigen indeling opslaan',
+  'help.guide.studio-my-layouts.goal':
+    'Gebruik een indeling opnieuw die je op andere pagina’s van het boek hebt gemaakt.',
+  'help.guide.studio-my-layouts.step.1': 'Richt een pagina in zoals je wilt en open dan Lay-outs in de balk.',
+  'help.guide.studio-my-layouts.step.2':
+    'Klik onder Mijn indelingen op Deze pagina als indeling opslaan. De pagina verschijnt als kaart in de lijst.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Klik op je indeling op een andere pagina om die pagina op dezelfde manier in te delen, met haar eigen foto’s en teksten.',
+  'help.guide.studio-my-layouts.result':
+    'Je indelingen worden met het boek opgeslagen en aangeboden op pagina’s van hetzelfde soort: die van een omslag voor omslagen, die van een dubbele pagina voor dubbele pagina’s.',
   'help.guide.studio-layouts.tip.1': 'Een opmaak kun je net als elke andere stap ongedaan maken.',
   // studio-content
   'help.guide.studio-content.title': "Foto's en vermeldingen op een pagina zetten",
@@ -1009,28 +1022,84 @@ const help: TranslationStrings = {
     "Onder een vermelding zetten Title, Story en Place die tekst als tekstelement op de pagina. Datum en de coördinaten worden als markeringen toegevoegd, en de foto's van de vermelding staan daar ook.",
   'help.guide.studio-content.result':
     'Een foto die je erin sleept, wordt een foto-element. Tekst blijft aan de vermelding gekoppeld tot je hem bewerkt.',
+  'help.guide.studio-theme.title': 'Het boek een thema geven',
+  'help.guide.studio-theme.goal': 'Stel de kleuren en lettertypen van het hele boek in één keer in.',
+  'help.guide.studio-theme.step.1':
+    'Open Thema in de balk. Elke kaart toont een thema als een kleine pagina: het papier, het lettertype en de drie accentkleuren.',
+  'help.guide.studio-theme.step.2':
+    'Klik op een thema om het uit te proberen. Onder de kaarten kun je het palet wijzigen, andere lettertypen kiezen en motieven en versiering kiezen.',
+  'help.guide.studio-theme.step.3':
+    'Klik op Op het boek toepassen, of op Op deze pagina toepassen voor de dubbele pagina op het scherm.',
+  'help.guide.studio-theme.tip.1':
+    'Elementen die aan het thema zijn gekoppeld, nemen de kleuren en lettertypen over en volgen mee als je het wijzigt. Ook restylen wat nog niet gekoppeld is koppelt eerst de rest.',
+  'help.guide.studio-theme.tip.2': 'Kleuren uit de foto’s maakt een palet van de beelden van het reisverslag.',
+  'help.guide.studio-theme.result':
+    'Alle gekoppelde kleuren en lettertypen in het boek veranderen tegelijk, en het toepassen van het thema is één stap ongedaan maken.',
   'help.guide.studio-content.tip.1': 'Het zoekveld boven in Inhoud filtert beide lijsten.',
   'help.guide.studio-content.tip.2':
     'Sleep je een bestand van je bureaublad naar het werkblad, dan uploadt TREK het en plaatst het in één keer.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Tekst, vormen en pictogrammen toevoegen',
+  'help.guide.studio-elements.title': 'Tekst, vormen, iconen en stickers toevoegen',
   'help.guide.studio-elements.goal': "Versier een dubbele pagina, naast foto's en verhalen.",
-  'help.guide.studio-elements.step.1': 'Open Elements in de zijbalk.',
+  'help.guide.studio-elements.step.1':
+    'Open Elementen in de balk. Zes tabs sorteren wat je kunt toevoegen: Tekst, Vormen, Lijnen, Kaders, Iconen en Stickers.',
   'help.guide.studio-elements.step.2':
-    'Klik op een tekststijl voor een kop of bijschrift, een vorm, een lijn, een raster, een leeg kader met een kaderstijl, of een icoon uit de doorzoekbare bibliotheek. Elk element komt midden op de dubbele pagina en kun je daarna verplaatsen.',
+    'Klik op een tekststijl of een ontworpen titel, een vorm, een lijn, een leeg kader, een icoon of een sticker. Elk element komt in het midden van de dubbele pagina te staan en daarna kun je het verplaatsen.',
   'help.guide.studio-elements.result':
     'Dubbelklik op een tekstelement om erin te typen. In Properties vind je lettertype, dikte, grootte, spatiëring en uitlijning.',
+  'help.guide.studio-stickers.title': 'Versieren met stickers',
+  'help.guide.studio-stickers.goal': 'Voeg illustraties toe, van bezienswaardigheden en eten tot dieren en pijlen.',
+  'help.guide.studio-stickers.step.1': 'Open Elementen in de balk en kies Stickers.',
+  'help.guide.studio-stickers.step.2':
+    'Zoek op een woord of blader door de schappen en klik dan op een sticker om hem op de dubbele pagina te plaatsen.',
+  'help.guide.studio-stickers.tip.1':
+    'Is een sticker geselecteerd, dan kleurt Eigenschappen de onderdelen om en spiegelt je hem.',
+  'help.guide.studio-stickers.result': 'De sticker is een tekening, dus hij blijft scherp op elke grootte.',
   'help.guide.studio-elements.tip.1': "Kaders zijn lege plekken voor foto's: je zet er later een foto in.",
   // studio-travel
-  'help.guide.studio-travel.title': 'Een kaart, vlaggen en cijfers toevoegen',
-  'help.guide.studio-travel.goal': 'Maak van de reis zelf cijfers op de pagina.',
-  'help.guide.studio-travel.step.1': 'Open Reis in de balk links.',
+  'help.guide.studio-travel.title': 'Kaarten, cijfers, landen en markeringen toevoegen',
+  'help.guide.studio-travel.goal': 'Maak van het reisverslag zelf ontworpen elementen op de pagina.',
+  'help.guide.studio-travel.step.1':
+    'Open Reis in de balk. Vier tabs sorteren wat je kunt toevoegen: Cijfers, Kaarten, Landen en Markeringen.',
   'help.guide.studio-travel.step.2':
-    'Kies wat je wilt toevoegen: een routekaart van de vermeldingen, landcontouren, een lijst of raster van landen, vlaggen, een markering voor datum, dag of afstand, of een overzicht van de hele reis. Alles wordt gemaakt op basis van de gegevens van het reisverslag en wordt bijgewerkt als die gegevens veranderen.',
+    'Elke kaart toont het element met de eigen cijfers van je reisverslag, in de kleuren van het thema: een samenvatting als poster, ticket, verkeersbord of kilometerteller, een kaart met genummerde stops of bijgesneden op een land, een land als stempel, ansichtkaart of speld, een datum of afstand als stempel, label of lint.',
+  'help.guide.studio-travel.step.3':
+    'Klik op een kaart. Het element komt in het midden van de dubbele pagina te staan en daarna kun je het verplaatsen en de grootte aanpassen.',
   'help.guide.studio-travel.result':
-    'Het element verschijnt op de dubbele pagina. Wijzig de stijl via Properties en het kaartgebied via de kaart.',
+    'Het element verschijnt op de dubbele pagina. Eigenschappen wijzigt de look ervan, en elk cijfer, elke kaart en elk land wordt bijgewerkt als het reisverslag verandert.',
+  'help.guide.studio-text-effects.title': 'Effecten aan tekst toevoegen',
+  'help.guide.studio-text-effects.goal':
+    'Geef een kop een contour, een schaduw, een kromming of letters gevuld met een patroon.',
+  'help.guide.studio-text-effects.step.1': 'Klik op een tekstelement op de pagina om het te selecteren.',
+  'help.guide.studio-text-effects.step.2':
+    'Open in Eigenschappen Effecten om een contour, een schaduw of een markering toe te voegen, of vul de letters met een verloop of een patroon. Hoofdletters en positie kromt de regel en maakt hem passend voor zijn kader.',
+  'help.guide.studio-text-effects.tip.1':
+    'Passend maken verkleint de tekst tot hij in zijn kader past, zodat een lange titel nooit overloopt.',
+  'help.guide.studio-text-effects.result': 'Het effect wordt met de tekst getekend, in druk net als op het scherm.',
+  'help.guide.studio-background.title': 'De paginaachtergrond wijzigen',
+  'help.guide.studio-background.goal':
+    'Geef de pagina een kleur, een verloop of een patroon, of leg er een foto onder.',
+  'help.guide.studio-background.step.1':
+    'Klik op een lege plek van de pagina zodat er niets is geselecteerd. Paginaachtergrond staat bovenaan in Eigenschappen.',
+  'help.guide.studio-background.step.2':
+    'Kies Papier, Effen, Verloop of Patroon en een kleur, of klik onder Foto als achtergrond op een foto.',
+  'help.guide.studio-background.tip.1':
+    'Op alle pagina’s toepassen geeft elke pagina van het boek dezelfde achtergrond.',
+  'help.guide.studio-background.result':
+    'De achtergrond loopt door in de afloop, dus hij wordt tot aan de rand van de pagina gedrukt.',
+  'help.guide.studio-layers.title': 'Ordenen, verbergen en vergrendelen met lagen',
+  'help.guide.studio-layers.goal': 'Zie alles op de dubbele pagina in stapelvolgorde en werk het daar bij.',
+  'help.guide.studio-layers.step.1': 'Open Lagen in de balk. Bovenaan de lijst staat de voorkant van de pagina.',
+  'help.guide.studio-layers.step.2':
+    'Sleep een rij om de volgorde te wijzigen, verberg een element met het oog en houd het op zijn plek met het slot. Selecteer er meerdere en groepeer ze om ze samen te verplaatsen.',
+  'help.guide.studio-layers.tip.1': 'Dubbelklik op een rij om het element een eigen naam te geven.',
+  'help.guide.studio-layers.tip.2': 'Verborgen elementen komen niet in de PDF.',
+  'help.guide.studio-layers.result':
+    'Drukke pagina’s blijven makkelijk te bewerken, en afgewerkte onderdelen kunnen niet per ongeluk worden verschoven.',
   'help.guide.studio-travel.tip.1':
-    "Markeringen gebruiken de gegevens van de vermelding waarvan de dubbele pagina is gemaakt. Een datummarkering op een dubbele pagina die met 'Auto layout' is gemaakt, toont dus al die dag.",
+    'Onder Kaarten toont Stops elke stop van de route. Zet er een uit om hem weg te laten uit de kaarten en cijfers, bijvoorbeeld je thuisvliegveld.',
+  'help.guide.studio-travel.tip.2':
+    'Een landkaart toont alleen de stops van dat land, zodat het land de pagina vult, ook als het reisverslag met een lange vlucht begon.',
   // studio-properties
   'help.guide.studio-properties.title': 'Je selectie bewerken',
   'help.guide.studio-properties.goal': 'Verplaats, snijd bij, geef stijl aan en stapel een element met de inspector.',
@@ -1049,7 +1118,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Het paginaformaat kiezen',
   'help.guide.studio-format.goal': 'Stel het drukformaat van het boek in voordat je de opmaak bouwt.',
-  'help.guide.studio-format.step.1': "Klik in de bovenste balk op 'Page format'.",
+  'help.guide.studio-format.step.1':
+    'Klik in de bovenbalk naast de bewerkingsgereedschappen op het paginaformaat. Het toont de naam en de vorm van het formaat.',
   'help.guide.studio-format.step.2':
     'Kies Square 21 × 21 cm, Square 30 × 30 cm, A4 of A5 liggend of staand, of vul zelf een breedte en hoogte in millimeters in. Afloop en veilige marge staan eronder.',
   'help.guide.studio-format.result':

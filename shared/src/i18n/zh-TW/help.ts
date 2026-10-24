@@ -761,9 +761,9 @@ const help: TranslationStrings = {
   'help.guide.studio.title': '把旅程排成相簿',
   'help.guide.studio.goal': '把日誌變成可以印刷的頁面。',
   'help.guide.studio.step.1': '點選頁首的「Studio」。設計器會疊在旅程上方開啟。',
-  'help.guide.studio.step.2': '要返回時，點選頂部列左側的旅程名稱，就會回到你原本所在的位置。',
+  'help.guide.studio.step.2': '要返回時，點選頂部列最右端的 ×，就會回到你原本所在的位置。',
   'help.guide.studio.result':
-    '左邊是頁面列，工作區放著跨頁，右邊是屬性面板。「Auto layout」會依你的條目排出整本相簿，「Export」則會產生可直接印刷的 PDF。',
+    '側欄和面板在左側，跨頁在工作區上，屬性在右側。自動排版會根據你的條目產生整本相簿。匯出會產生可直接印刷的 PDF。',
   'help.guide.studio.tip.1': 'Studio 需要寬度至少 1024 px 的視窗，手機上無法使用。',
   'help.guide.studio.tip.2': '相簿的存取權限和旅程相同：能閱讀旅程的人都能開啟相簿，能編輯旅程的人都能儲存相簿。',
   // archive-journey
@@ -788,19 +788,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio',
   'help.ctx.journey-studio.summary':
-    'TREK Studio 可以把旅程排成可印刷的相簿。它會在日誌上方開啟：左邊是頁面清單和內容，中間是你正在編輯的跨頁，右邊是屬性。Auto layout 會依你的條目排出第一版草稿，之後你可以自行移動、裁切和調整樣式，每一步都能復原。',
+    'TREK Studio 會把旅程排成可以印刷的相簿。它疊在日誌上方開啟：左側是側欄和面板，中間是你正在處理的跨頁，右側是它的屬性。自動排版會根據你的條目產生第一版草稿，主題為相簿配上顏色和字體，助理可以和你一起設計頁面。之後你可以移動、裁切、重新設定任何內容的樣式，每一步都能復原。',
   'help.ctx.journey-studio.bullet.1':
-    '頂端列：Back to the journey、Book view、復原與重做、Page format、Auto layout 和 Export。標題旁的「已儲存」標記會告訴你相簿何時已儲存。',
+    '頂部列：左側是旅程的封面和名稱。右側依序是還有誰在這本相簿裡以及是否已儲存、頁面格式、復原、重做、貼上、自動排版、助理、說明、匯出，以及關閉 Studio 的按鈕。',
   'help.ctx.journey-studio.bullet.2':
-    '左側欄有七個區塊：頁面、內容（旅程的照片和紀錄）、版面、元素（文字、形狀、線條、相框和格線、圖示和貼紙）、「旅程」（由旅程產生的地圖、國家、國旗和標記），以及下方另外列出的主題和圖層。',
+    '左側側欄：頁面、內容（旅程的照片和條目）、版面、元素（文字、形狀、線條、相框、圖示和貼紙）、旅程（由旅程產生的數字、地圖、國家和標記），下方獨立分開的是主題和圖層。',
   'help.ctx.journey-studio.bullet.3':
-    'Workbench：目前的跨頁及其出血和安全邊界，下方是縮放列、Fit to view，右側則是「下載這個跨頁」。',
+    '工作區：目前的跨頁，附有出血和安全邊界，下方的縮放列有符合檢視、書本檢視和下載這個跨頁。',
   'help.ctx.journey-studio.bullet.4':
-    '右側的 Properties：所選元素的位置和大小、裁切和焦點、Fill 或 Fit、外觀、圓角、相框、堆疊順序和鎖定。未選取任何元素時，則顯示頁碼和文件設定。',
+    '右側屬性：所選元素的一切設定，從位置、尺寸和裁切，到顏色、效果、堆疊順序和鎖定。沒有選取任何物件時，這裡會顯示頁面背景、主題、頁碼和文件。',
   'help.ctx.journey-studio.bullet.5':
-    '相簿的版面就像印刷成冊的書：封面、單獨的第一頁、各個跨頁、單獨的最後一頁，以及封底。頁碼從第一頁開始算，列印時照畫面所示。',
+    '相簿的編排和印刷的書一樣：封面、與封面內頁空白面相對的單獨第一頁、各個跨頁、單獨的最後一頁和封底。頁碼從第一頁開始計算，並依顯示的樣子印出。',
   'help.ctx.journey-studio.bullet.6':
     '多人可以同時設計：每個人都能看到其他人的游標和名字。如果你儲存的版本已被別人修改過，TREK 會顯示衝突，而不會覆蓋對方的成果。',
+  'help.ctx.journey-studio.bullet.7':
+    '主題：整本相簿統一的外觀，包括紙張、墨色、三種強調色、字體和裝飾圖案。與主題連結的元素會在你更換主題時跟著改變。',
+  'help.ctx.journey-studio.bullet.8':
+    '助理：管理員設定好 AI 之後，頂部列的對話氣泡會開啟助理，和你一起排頁面、寫圖說、調整整本相簿的風格。它做的每一項變更都是一個可復原的步驟。',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': '自動排出整本相簿',
   'help.guide.studio-auto-layout.goal': '只要點一下，就能根據日誌的條目和照片得到完整的第一版草稿。',
@@ -816,7 +820,8 @@ const help: TranslationStrings = {
   // studio-pages
   'help.guide.studio-pages.title': '新增、移動和刪除跨頁',
   'help.guide.studio-pages.goal': '一頁一頁地編輯這本書。',
-  'help.guide.studio-pages.step.1': '在側欄開啟 Pages。縮圖會依序顯示整本書：封面、第一頁、各個跨頁、最後一頁、封底。',
+  'help.guide.studio-pages.step.1':
+    '在側欄開啟頁面。縮圖會依序顯示整本相簿：封面、第一頁、各個跨頁、最後一頁和封底。第一頁和最後一頁會畫在各自封面內頁空白面的旁邊，就像裝訂好的書翻開時那樣。',
   'help.guide.studio-pages.step.2':
     '底部的「新增頁面」會在最後一頁之前加入新的跨頁。兩張縮圖之間的 + 則會在該位置插入一個。',
   'help.guide.studio-pages.step.3':
@@ -828,10 +833,18 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': '為跨頁套用版面',
   'help.guide.studio-layouts.goal': '為跨頁套用現成的照片框和文字框排版。',
   'help.guide.studio-layouts.step.1':
-    '在側欄開啟 Layouts。最上方是設計好的頁面：以書的主題呈現的完整封面與跨頁，可用風格按鈕篩選出一種風格。下方接著是這本書自己的版面和內建版面。',
+    '在側欄開啟版面。設計好的頁面排在最前：套用了相簿主題的整套封面和跨頁，樣式標籤可以把它們篩選成某一種風格。我的版面和內建排在它們下方，使用同樣的格狀排列。',
   'help.guide.studio-layouts.step.2':
     '點選其中一個。工作區中的跨頁會套用這個版型的框，你原有的照片和文字也會放進這些框裡。',
   'help.guide.studio-layouts.result': '空框是內容的預留位置：從 Content 把照片拖到框上，或使用 Add to this page。',
+  'help.guide.studio-my-layouts.title': '把頁面儲存為你自己的版面',
+  'help.guide.studio-my-layouts.goal': '重複使用你在相簿其他頁面排好的版面。',
+  'help.guide.studio-my-layouts.step.1': '把一個頁面排成你喜歡的樣子，然後在側欄開啟版面。',
+  'help.guide.studio-my-layouts.step.2': '點選我的版面下的將此頁面儲存為版面。這個頁面會以卡片的形式出現在清單中。',
+  'help.guide.studio-my-layouts.tip.1':
+    '在另一個頁面點選你的版面，就能用同樣的方式排好那一頁，並保留它自己的照片和文字。',
+  'help.guide.studio-my-layouts.result':
+    '你的版面會隨相簿一起儲存，並出現在同類型的頁面上：封面的版面用於封面，跨頁的版面用於跨頁。',
   'help.guide.studio-layouts.tip.1': '套用版型和其他操作一樣，都是一個可以復原的步驟。',
   // studio-content
   'help.guide.studio-content.title': '把照片和條目放到頁面上',
@@ -842,25 +855,66 @@ const help: TranslationStrings = {
   'help.guide.studio-content.step.3':
     '在紀錄下方，Title、Story 和 Place 會把該段文字作為文字元素放到頁面上。日期和座標會加為標記，紀錄的照片也列在那裡。',
   'help.guide.studio-content.result': '拖進去的照片會成為照片元素。在你編輯之前，文字會一直與條目連動。',
+  'help.guide.studio-theme.title': '為整本相簿選一個主題',
+  'help.guide.studio-theme.goal': '一次設定整本相簿的顏色和字體。',
+  'help.guide.studio-theme.step.1': '在側欄開啟主題。每張卡片把一個主題顯示成小小的頁面：它的紙張、字體和三種強調色。',
+  'help.guide.studio-theme.step.2':
+    '點選一個主題試用。在卡片下方，你可以修改它的配色、選擇其他字體，並挑選裝飾圖案和裝飾元素。',
+  'help.guide.studio-theme.step.3': '點選套用到整本書，或是點選套用到此頁，只作用於螢幕上的這個跨頁。',
+  'help.guide.studio-theme.tip.1':
+    '與主題連結的元素會採用主題的顏色和字體，並在你更換主題時跟著改變。同時重新設定未連結元素的樣式會先連結其餘的元素。',
+  'help.guide.studio-theme.tip.2': '從照片取色會根據旅程的圖片產生一組配色。',
+  'help.guide.studio-theme.result': '相簿中所有已連結的顏色和字體會同時改變，套用主題是一個可復原的步驟。',
   'help.guide.studio-content.tip.1': '「內容」頂端的搜尋框會同時篩選下面兩份清單。',
   'help.guide.studio-content.tip.2': '把桌面上的檔案拖到工作區時，TREK 會一次完成上傳和放置。',
   // studio-elements
-  'help.guide.studio-elements.title': '加入文字、形狀和圖示',
+  'help.guide.studio-elements.title': '加入文字、形狀、圖示和貼紙',
   'help.guide.studio-elements.goal': '除了照片和故事之外，再為跨頁加上裝飾。',
-  'help.guide.studio-elements.step.1': '在側欄開啟 Elements。',
+  'help.guide.studio-elements.step.1': '在側欄開啟元素。可加入的內容分成六個分頁：文字、形狀、線條、相框、圖示和貼紙。',
   'help.guide.studio-elements.step.2':
-    '點選標題或說明用的文字樣式、形狀、線條、格線、帶有相框樣式的空白相框，或可搜尋圖庫中的圖示。每一個都會放在跨頁中央，之後可以自行移動。',
+    '點選一種文字樣式或設計好的標題、形狀、線條、空相框、圖示或貼紙。每一項都會放在跨頁中央，之後你可以再移動它。',
   'help.guide.studio-elements.result': '雙擊文字元素即可輸入文字；「Properties」裡有字型、字重、字級、間距和對齊方式。',
+  'help.guide.studio-stickers.title': '用貼紙裝飾',
+  'help.guide.studio-stickers.goal': '加入插畫，從地標和美食到動物和箭頭都有。',
+  'help.guide.studio-stickers.step.1': '在側欄開啟元素，選擇貼紙。',
+  'help.guide.studio-stickers.step.2': '搜尋一個詞或瀏覽各個貨架，然後點選一張貼紙，把它放到跨頁上。',
+  'help.guide.studio-stickers.tip.1': '選取貼紙後，屬性可以為它的各個部分重新上色，也可以鏡射翻轉。',
+  'help.guide.studio-stickers.result': '貼紙是向量繪製的，所以無論放多大都保持清晰。',
   'help.guide.studio-elements.tip.1': '相框是空的照片位置，之後再放入照片就行。',
   // studio-travel
-  'help.guide.studio-travel.title': '加入地圖、國旗和數據',
-  'help.guide.studio-travel.goal': '把旅程本身變成頁面上的數據。',
-  'help.guide.studio-travel.step.1': '在側欄開啟「旅程」。',
+  'help.guide.studio-travel.title': '加入地圖、數字、國家和標記',
+  'help.guide.studio-travel.goal': '把旅程本身變成頁面上設計好的元素。',
+  'help.guide.studio-travel.step.1': '在側欄開啟旅程。可加入的內容分成四個分頁：數字、地圖、國家和標記。',
   'help.guide.studio-travel.step.2':
-    '選擇要加入的內容：紀錄的路線地圖、國家輪廓、國家清單或格線、國旗、日期、天數或距離標記，或整趟旅行的摘要。每一種都由旅程的資料產生，資料變動時也會跟著更新。',
-  'help.guide.studio-travel.result': '元素會出現在跨頁上。用「屬性」調整樣式，用地圖調整範圍。',
+    '每張卡片都用旅程自己的數據，依主題的顏色展示元素：彙整可以是海報、車票、路牌或里程表，地圖可以帶編號的停留點或裁成某個國家，國家可以是郵戳、明信片或圖釘，日期或距離可以是印章、標籤或緞帶。',
+  'help.guide.studio-travel.step.3': '點選一張卡片。元素會放在跨頁中央，之後你可以移動它並調整大小。',
+  'help.guide.studio-travel.result':
+    '元素會出現在跨頁上。屬性可以改變它的外觀，旅程有變動時，每個數字、地圖和國家都會跟著更新。',
+  'help.guide.studio-text-effects.title': '為文字加入效果',
+  'help.guide.studio-text-effects.goal': '為標題加上外框、陰影、弧形，或是用圖案填滿文字。',
+  'help.guide.studio-text-effects.step.1': '點選頁面上的文字元素將其選取。',
+  'help.guide.studio-text-effects.step.2':
+    '在屬性中開啟效果，加入外框、陰影或醒目提示，也可以用漸層或圖案填滿文字。位置可以把文字行彎成弧形，並讓它符合文字框。',
+  'help.guide.studio-text-effects.tip.1': '符合會縮小文字直到放進文字框，所以很長的標題也不會溢出。',
+  'help.guide.studio-text-effects.result': '效果會和文字一起繪製，印刷出來和螢幕上一樣。',
+  'help.guide.studio-background.title': '變更頁面背景',
+  'help.guide.studio-background.goal': '為頁面塗上純色、漸層或圖案，或是在底下鋪一張照片。',
+  'help.guide.studio-background.step.1': '點選頁面的空白處，讓任何物件都不被選取。頁面背景位於屬性的最上方。',
+  'help.guide.studio-background.step.2': '選擇紙張、純色、漸層或圖案並挑一個顏色，或在照片作背景下點選一張照片。',
+  'help.guide.studio-background.tip.1': '套用到所有頁面會讓整本相簿的每一頁都使用同一個背景。',
+  'help.guide.studio-background.result': '背景會延伸到出血區，所以會印到頁面邊緣。',
+  'help.guide.studio-layers.title': '用圖層排列、隱藏和鎖定',
+  'help.guide.studio-layers.goal': '依堆疊順序查看跨頁上的所有內容，並在那裡操作。',
+  'help.guide.studio-layers.step.1': '在側欄開啟圖層。清單最上方是頁面的最前面。',
+  'help.guide.studio-layers.step.2':
+    '拖曳一列來調整堆疊順序，用眼睛圖示隱藏元素，用鎖定讓它固定不動。選取多個後群組，就能一起移動。',
+  'help.guide.studio-layers.tip.1': '連按兩下一列，可以為元素取一個自己的名稱。',
+  'help.guide.studio-layers.tip.2': '隱藏的元素不會出現在 PDF 中。',
+  'help.guide.studio-layers.result': '內容很多的頁面也容易編輯，已經完成的部分不會被誤移動。',
   'help.guide.studio-travel.tip.1':
-    '標記會使用該跨頁所來自的紀錄資料。所以用 Auto layout 產生的跨頁，日期標記會直接顯示那一天。',
+    '在地圖下，停留點列出路線上的每一個停留點。關閉某一個，就能把它從地圖和數字中排除，例如你的出發機場。',
+  'help.guide.studio-travel.tip.2':
+    '國家地圖只會顯示該國的停留點，所以即使旅程以一趟長途飛行開始，這個國家也會鋪滿整個頁面。',
   // studio-properties
   'help.guide.studio-properties.title': '編輯選取的內容',
   'help.guide.studio-properties.goal': '用檢視面板移動、裁切、調整樣式和排列元素的上下層順序。',
@@ -876,7 +930,7 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': '選擇頁面格式',
   'help.guide.studio-format.goal': '在排版之前，先設定相簿的印刷尺寸。',
-  'help.guide.studio-format.step.1': '點選頂部列的 Page format。',
+  'help.guide.studio-format.step.1': '點選頂部列中編輯工具旁邊的頁面格式，那裡會顯示格式的名稱和形狀。',
   'help.guide.studio-format.step.2':
     '選擇 Square 21 × 21 cm、Square 30 × 30 cm、A4 或 A5 的橫向或直向，也可以用公釐輸入自訂的寬度和高度。出血和安全邊界設定在下方。',
   'help.guide.studio-format.result': '所有跨頁都會以這個尺寸繪製，預設出血 3 mm，安全邊界 5 mm。',

@@ -900,9 +900,9 @@ const help: TranslationStrings = {
   'help.guide.studio.goal': 'Günlüğü yazdırılabilir sayfalara dönüştürün.',
   'help.guide.studio.step.1': "Üst çubukta “Studio” seçeneğine tıklayın. Tasarımcı, Journey'in üzerinde açılır.",
   'help.guide.studio.step.2':
-    'Geri dönmek için üst çubuğun solundaki Journey adına tıklayın. Kaldığınız yere dönersiniz.',
+    'Geri dönmek için üst çubuğun sağ ucundaki × simgesine tıklayın. Kaldığınız yere dönersiniz.',
   'help.guide.studio.result':
-    'Solda Pages şeridi, çalışma alanında çift sayfa, sağda özellikler yer alır. Auto layout kitabı kayıtlarınızdan oluşturur. Export baskıya hazır bir PDF üretir.',
+    'Şerit ve panelleri solda, çift sayfa çalışma alanında, özellikler sağdadır. Otomatik yerleşim kitabı kayıtlarınızdan oluşturur. Dışa aktar, baskıya hazır bir PDF oluşturur.',
   'help.guide.studio.tip.1': 'Studio için pencerenin en az 1024 px genişliğinde olması gerekir ve telefonda sunulmaz.',
   'help.guide.studio.tip.2':
     'Kitap, Journey ile aynı erişime sahiptir: Journey’i okuyabilen herkes kitabı açabilir, Journey’i düzenleyebilen herkes kitabı kaydedebilir.',
@@ -933,19 +933,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'TREK Studio, bir Journey’i basılabilir bir fotoğraf kitabı olarak düzenler. Günlüğün üzerinde açılır: sayfa listesi ve içerik solda, üzerinde çalıştığınız çift sayfa ortada, özellikleri sağdadır. Auto layout kayıtlarınızdan ilk taslağı oluşturur. Sonrasında her şeyi taşıyabilir, kırpabilir ve yeniden biçimlendirebilirsiniz; her adım geri alınabilir.',
+    'TREK Studio, bir yolculuğu basabileceğiniz bir fotoğraf kitabı olarak düzenler. Günlüğün üzerinde açılır: şerit ve panelleri solda, üzerinde çalıştığınız çift sayfa ortada, özellikleri sağdadır. Otomatik yerleşim kayıtlarınızdan ilk taslağı oluşturur, bir tema kitaba renklerini ve yazı tiplerini verir, asistan da sizinle birlikte sayfa tasarlayabilir. Sonrasında her şeyi taşıyabilir, kırpabilir ve yeniden biçimlendirebilirsiniz; her adım geri alınabilir.',
   'help.ctx.journey-studio.bullet.1':
-    'Üst çubuk: Back to the journey, Book view, geri al ve yinele, Page format, Auto layout ve Export. Başlığın yanındaki “Kaydedildi” işareti kitabın ne zaman kaydedildiğini gösterir.',
+    'Üst çubuk: solda yolculuğun kapağı ve adı. Sağda kitapta başka kimlerin olduğu ve kitabın kaydedilip kaydedilmediği, sayfa biçimi, geri al, yinele ve yapıştır, Otomatik yerleşim, asistan, yardım, Dışa aktar ve Studio’yu kapatan düğme.',
   'help.ctx.journey-studio.bullet.2':
-    "Solda yedi bölümlü bir şerit bulunur: Sayfalar, İçerik (Journey'in fotoğrafları ve kayıtları), Düzenler, Öğeler (metin, şekiller, çizgiler, çerçeveler ve ızgaralar, simgeler ve çıkartmalar), Seyahat (Journey'den oluşturulan haritalar, ülkeler, bayraklar ve işaretler) ve bunların altında ayrı olarak Tema ile Katmanlar.",
+    'Soldaki şerit: Sayfalar, İçerik (yolculuğun fotoğrafları ve kayıtları), Düzenler, Öğeler (metin, şekiller, çizgiler, çerçeveler, simgeler ve çıkartmalar), Seyahat (yolculuktan oluşturulan rakamlar, haritalar, ülkeler ve işaretler) ve bunların altında ayrı olarak Tema ile Katmanlar.',
   'help.ctx.journey-studio.bullet.3':
-    'Çalışma alanı: taşma payı ve güvenli kenar boşluklarıyla geçerli çift sayfa, altında yakınlaştırma çubuğu, Fit to view ve sağda “Bu çift sayfayı indir”.',
+    'Çalışma alanı: taşma payı ve güvenli kenar boşluklarıyla geçerli çift sayfa ve altında Görünüme sığdır, Kitap görünümü ve Bu çift sayfayı indir düğmelerinin bulunduğu yakınlaştırma çubuğu.',
   'help.ctx.journey-studio.bullet.4':
-    'Sağdaki Properties: seçili öğenin konumu ve boyutu, kırpma ve odak noktası, doldurma ya da sığdırma, görünüm, köşeler, çerçeve, katman sırası ve kilidi. Hiçbir şey seçili değilken sayfa numaralarını ve belgeyi gösterir.',
+    'Sağdaki Özellikler: seçili öğeyle ilgili her şey; konumdan, boyuttan ve kırpmadan renklere, efektlere, katman sırasına ve kilide kadar. Hiçbir şey seçili değilken sayfa arka planını, temayı, sayfa numaralarını ve belgeyi gösterir.',
   'help.ctx.journey-studio.bullet.5':
-    'Kitap basılı bir kitap gibi düzenlenir: kapak, tek bir ilk sayfa, çift sayfalar, tek bir son sayfa ve arka kapak. Sayfa numaraları ilk sayfadan başlar ve gösterildiği gibi basılır.',
+    'Kitap basılı bir kitap gibi düzenlenir: kapak, kapağın boş iç yüzünün karşısında tek bir ilk sayfa, çift sayfalar, tek bir son sayfa ve arka kapak. Sayfa numaraları ilk sayfadan başlar ve gösterildiği gibi basılır.',
   'help.ctx.journey-studio.bullet.6':
     'Birden çok kişi aynı anda tasarım yapabilir: herkes diğerlerinin imleçlerini adlarıyla görür. Başkasının değiştirdiği bir sürümü kaydederseniz TREK onun çalışmasının üzerine yazmaz, bir çakışma gösterir.',
+  'help.ctx.journey-studio.bullet.7':
+    'Tema: tüm kitap için tek bir görünüm; kâğıdı, mürekkebi ve üç vurgusu, yazı tipleri ve motifleri. Temaya bağlı öğeler, temayı değiştirdiğinizde onu izler.',
+  'help.ctx.journey-studio.bullet.8':
+    'Asistan: bir yönetici yapay zekâyı ayarladıysa, üst çubuktaki konuşma balonu sizinle birlikte sayfaları düzenleyen, alt yazılar yazan ve kitabı yeniden biçimlendiren bir asistan açar. Yaptığı her değişiklik bir geri alma adımıdır.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Kitabı otomatik oluşturun',
   'help.guide.studio-auto-layout.goal':
@@ -965,7 +969,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Çift sayfa ekleyin, taşıyın ve kaldırın',
   'help.guide.studio-pages.goal': 'Kitabı sayfa sayfa düzenleyin.',
   'help.guide.studio-pages.step.1':
-    'Kenar çubuğunda Pages bölümünü açın. Küçük resimler kitabı sırasıyla gösterir: kapak, ilk sayfa, çift sayfalar, son sayfa, arka kapak.',
+    'Şeritte Sayfalar bölümünü açın. Küçük resimler kitabı sırasıyla gösterir: kapak, ilk sayfa, çift sayfalar, son sayfa ve arka kapak. İlk ve son sayfa, ciltli kitabın açıldığı gibi kapaklarının boş iç yüzünün yanında çizilir.',
   'help.guide.studio-pages.step.2':
     'Alttaki “Sayfa ekle”, son sayfadan önce yeni bir çift sayfa ekler. İki küçük resim arasındaki + ise tam o konuma bir tane ekler.',
   'help.guide.studio-pages.step.3':
@@ -980,11 +984,21 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Bir çift sayfaya yerleşim uygulayın',
   'help.guide.studio-layouts.goal': 'Bir çift sayfaya hazır bir fotoğraf ve metin çerçevesi düzeni uygulayın.',
   'help.guide.studio-layouts.step.1':
-    'Şeritte Layouts bölümünü açın. Önce tasarlanmış sayfalar gelir: kitabın temasında hazırlanmış kapaklar ve çift sayfalar; stil düğmeleri bunları tek bir görünüme daraltır. Altlarında kitabın kendi düzenleri ve hazır düzenler yer alır.',
+    'Şeritte Düzenler bölümünü açın. Önce tasarlanmış sayfalar gelir: kitabın temasında hazırlanmış kapaklar ve çift sayfalar; stil düğmeleri bunları tek bir görünüme daraltır. Yerleşimlerim ve Hazır, aynı ızgarada bunların altında yer alır.',
   'help.guide.studio-layouts.step.2':
     'Birine tıklayın. Çalışma alanındaki çift sayfa bu düzenin çerçevelerini alır; mevcut fotoğraflarınız ve metinleriniz bu çerçevelere yerleştirilir.',
   'help.guide.studio-layouts.result':
     'Boş çerçeveler içerik için yer tutucudur: “Content”ten bir fotoğrafı üzerine sürükleyin ya da “Add to this page”i kullanın.',
+  'help.guide.studio-my-layouts.title': 'Bir sayfayı kendi yerleşiminiz olarak kaydedin',
+  'help.guide.studio-my-layouts.goal': 'Kitabın başka sayfalarında oluşturduğunuz bir düzeni yeniden kullanın.',
+  'help.guide.studio-my-layouts.step.1':
+    'Bir sayfayı beğendiğiniz gibi düzenleyin, sonra şeritte Düzenler bölümünü açın.',
+  'help.guide.studio-my-layouts.step.2':
+    'Yerleşimlerim altındaki Bu sayfayı yerleşim olarak kaydet seçeneğine tıklayın. Sayfa listede bir kart olarak görünür.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Başka bir sayfada yerleşiminize tıklayın; o sayfa da kendi fotoğrafları ve metinleriyle aynı şekilde düzenlenir.',
+  'help.guide.studio-my-layouts.result':
+    'Yerleşimleriniz kitapla birlikte kaydedilir ve aynı türden sayfalarda sunulur: kapak yerleşimi kapaklarda, çift sayfa yerleşimi çift sayfalarda.',
   'help.guide.studio-layouts.tip.1': 'Bir düzen de diğerleri gibi bir geri alma adımıdır.',
   // studio-content
   'help.guide.studio-content.title': 'Sayfaya fotoğraf ve kayıt koyun',
@@ -997,28 +1011,82 @@ const help: TranslationStrings = {
     'Bir kaydın altında “Başlık”, Story ve “Yer”, o metni sayfaya metin öğesi olarak koyar. Tarih ve koordinatlar işaret olarak eklenir, kaydın fotoğrafları da orada listelenir.',
   'help.guide.studio-content.result':
     'Bıraktığınız fotoğraf bir fotoğraf öğesi olur. Metin, siz düzenleyene kadar kayda bağlı kalır.',
+  'help.guide.studio-theme.title': 'Kitaba bir tema verin',
+  'help.guide.studio-theme.goal': 'Tüm kitabın renklerini ve yazı tiplerini tek seferde belirleyin.',
+  'help.guide.studio-theme.step.1':
+    'Şeritte Tema bölümünü açın. Her kart bir temayı küçük bir sayfa olarak gösterir: kâğıdını, yazı tipini ve üç vurgu rengini.',
+  'help.guide.studio-theme.step.2':
+    'Denemek için bir temaya tıklayın. Kartların altında paletini değiştirebilir, başka yazı tipleri seçebilir, motifleri ve süslemeyi belirleyebilirsiniz.',
+  'help.guide.studio-theme.step.3':
+    'Kitaba uygula seçeneğine tıklayın; ekrandaki çift sayfa için ise Bu sayfaya uygula seçeneğine.',
+  'help.guide.studio-theme.tip.1':
+    'Temaya bağlı öğeler temanın renklerini ve yazı tiplerini alır ve temayı değiştirdiğinizde onu izler. Henüz bağlı olmayanları da yeniden biçimlendir, önce geri kalanları bağlar.',
+  'help.guide.studio-theme.tip.2': 'Fotoğraflardan renkler, yolculuğun görsellerinden bir palet oluşturur.',
+  'help.guide.studio-theme.result':
+    'Kitaptaki bağlı tüm renkler ve yazı tipleri aynı anda değişir; temayı uygulamak tek bir geri alma adımıdır.',
   'help.guide.studio-content.tip.1': '“Content” bölümünün üstündeki arama kutusu her iki listeyi de filtreler.',
   'help.guide.studio-content.tip.2':
     'Masaüstünüzden çalışma alanına bir dosya bıraktığınızda TREK onu yükler ve tek adımda yerleştirir.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Metin, şekil ve simge ekleyin',
+  'help.guide.studio-elements.title': 'Metin, şekil, simge ve çıkartma ekleyin',
   'help.guide.studio-elements.goal': 'Fotoğraf ve hikâyelerin yanı sıra çift sayfayı süsleyen öğeler ekleyin.',
-  'help.guide.studio-elements.step.1': 'Kenar çubuğunda Elements bölümünü açın.',
+  'help.guide.studio-elements.step.1':
+    'Şeritte Öğeler bölümünü açın. Eklenebilecekleri altı sekme ayırır: Metin, Şekiller, Çizgiler, Çerçeve, Simgeler ve Çıkartmalar.',
   'help.guide.studio-elements.step.2':
-    'Başlık ya da alt yazı için bir metin stiline, bir şekle, çizgiye, ızgaraya, çerçeve stilli boş bir çerçeveye ya da aranabilir kitaplıktan bir simgeye tıklayın. Her biri çift sayfanın ortasına yerleşir ve sonra taşıyabilirsiniz.',
+    'Bir metin stiline ya da tasarlanmış bir başlığa, bir şekle, bir çizgiye, boş bir çerçeveye, bir simgeye veya bir çıkartmaya tıklayın. Her biri çift sayfanın ortasına yerleştirilir ve sonra taşıyabilirsiniz.',
   'help.guide.studio-elements.result':
     'Yazmak için bir metin öğesine çift tıklayın; yazı tipi, kalınlık, boyut, aralık ve hizalama “Properties”tedir.',
+  'help.guide.studio-stickers.title': 'Çıkartmalarla süsleyin',
+  'help.guide.studio-stickers.goal': 'Simge yapılardan ve yemeklerden hayvanlara ve oklara kadar çizimler ekleyin.',
+  'help.guide.studio-stickers.step.1': 'Şeritte Öğeler bölümünü açın ve Çıkartmalar sekmesini seçin.',
+  'help.guide.studio-stickers.step.2':
+    'Bir sözcük arayın veya raflara göz atın, sonra çıkartmayı çift sayfaya yerleştirmek için tıklayın.',
+  'help.guide.studio-stickers.tip.1':
+    'Bir çıkartma seçiliyken Özellikler, parçalarının rengini değiştirir ve çıkartmayı aynalar.',
+  'help.guide.studio-stickers.result': 'Çıkartma bir çizimdir, bu yüzden her boyutta keskin kalır.',
   'help.guide.studio-elements.tip.1': 'Çerçeveler boş fotoğraf alanlarıdır: resmi sonradan bırakabilirsiniz.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Harita, bayrak ve rakam ekleyin',
-  'help.guide.studio-travel.goal': 'Journey’in kendisini sayfada rakamlara dönüştürün.',
-  'help.guide.studio-travel.step.1': 'Şeritte “Seyahat” bölümünü açın.',
+  'help.guide.studio-travel.title': 'Harita, rakam, ülke ve işaret ekleyin',
+  'help.guide.studio-travel.goal': 'Yolculuğun kendisini sayfada tasarlanmış öğelere dönüştürün.',
+  'help.guide.studio-travel.step.1':
+    'Şeritte Seyahat bölümünü açın. Eklenebilecekleri dört sekme ayırır: Rakamlar, Haritalar, Ülkeler ve İşaretler.',
   'help.guide.studio-travel.step.2':
-    "Eklemek istediğinizi seçin: kayıtların rota haritası, ülke sınırları, ülke listesi ya da ızgarası, bayraklar, tarih, gün ya da mesafe işareti veya tüm seyahatin özeti. Hepsi Journey'in verilerinden oluşturulur ve veriler değiştiğinde güncellenir.",
+    'Her kart öğeyi yolculuğunuzun kendi rakamlarıyla, temanın renklerinde gösterir: bir özet afiş, bilet, yol levhası ya da kilometre sayacı olarak, numaralı duraklı ya da bir ülkeye göre kesilmiş bir harita, damga, kartpostal ya da iğne olarak bir ülke, damga, etiket ya da kurdele olarak bir tarih veya mesafe.',
+  'help.guide.studio-travel.step.3':
+    'Bir karta tıklayın. Öğe çift sayfanın ortasına yerleştirilir ve sonra taşıyıp boyutlandırabilirsiniz.',
   'help.guide.studio-travel.result':
-    'Öğe çift sayfada görünür. Stilini değiştirmek için “Properties”i, kapsadığı alanı değiştirmek için haritayı kullanın.',
+    'Öğe çift sayfada görünür. Özellikler görünümünü değiştirir; yolculuk değiştiğinde her rakam, harita ve ülke güncellenir.',
+  'help.guide.studio-text-effects.title': 'Metne efekt ekleyin',
+  'help.guide.studio-text-effects.goal': 'Bir başlığa kontur, gölge, kavis ya da desenle doldurulmuş harfler verin.',
+  'help.guide.studio-text-effects.step.1': 'Seçmek için sayfadaki bir metin öğesine tıklayın.',
+  'help.guide.studio-text-effects.step.2':
+    'Özellikler’de Efektler bölümünü açarak kontur, gölge ya da vurgu ekleyin veya harfleri bir geçişle ya da desenle doldurun. Harf biçimi ve konum satırı kavisler ve kutusuna sığdırır.',
+  'help.guide.studio-text-effects.tip.1':
+    'Çerçeveye sığdır, metni kutusuna sığana kadar küçültür; böylece uzun bir başlık asla taşmaz.',
+  'help.guide.studio-text-effects.result': 'Efekt metinle birlikte çizilir; baskıda ekrandakiyle aynı görünür.',
+  'help.guide.studio-background.title': 'Sayfa arka planını değiştirin',
+  'help.guide.studio-background.goal':
+    'Sayfayı bir renk, bir geçiş ya da bir desenle boyayın veya altına bir fotoğraf koyun.',
+  'help.guide.studio-background.step.1':
+    'Hiçbir şey seçili kalmasın diye sayfanın boş bir yerine tıklayın. Sayfa arka planı Özellikler’in en üstündedir.',
+  'help.guide.studio-background.step.2':
+    'Kâğıt, Düz, Geçiş ya da Desen seçeneğini ve bir renk seçin veya Arka plan olarak fotoğraf altındaki bir fotoğrafa tıklayın.',
+  'help.guide.studio-background.tip.1': 'Tüm sayfalara uygula, kitabın her sayfasına aynı arka planı verir.',
+  'help.guide.studio-background.result':
+    'Arka plan taşma payına kadar uzanır, bu yüzden baskıda sayfanın kenarına kadar basılır.',
+  'help.guide.studio-layers.title': 'Katmanlarla düzenleyin, gizleyin ve kilitleyin',
+  'help.guide.studio-layers.goal': 'Çift sayfadaki her şeyi üst üste sıralanma düzeninde görün ve orada düzenleyin.',
+  'help.guide.studio-layers.step.1': 'Şeritte Katmanlar bölümünü açın. Listenin üstü sayfanın ön tarafıdır.',
+  'help.guide.studio-layers.step.2':
+    'Sırayı değiştirmek için bir satırı sürükleyin, bir öğeyi gizlemek için göz simgesini, yerinde sabit tutmak için kilidi kullanın. Birkaçını seçip birlikte taşımak için gruplayın.',
+  'help.guide.studio-layers.tip.1': 'Öğeye kendi adını vermek için satıra çift tıklayın.',
+  'help.guide.studio-layers.tip.2': 'Gizlenen öğeler PDF’e dahil edilmez.',
+  'help.guide.studio-layers.result':
+    'Kalabalık sayfaları düzenlemek kolay kalır, bitmiş kısımlar da yanlışlıkla taşınamaz.',
   'help.guide.studio-travel.tip.1':
-    'İşaretler, çift sayfanın oluşturulduğu kaydın verilerini kullanır. Bu yüzden Auto layout ile oluşturulan bir çift sayfadaki tarih işareti o günü zaten gösterir.',
+    'Haritalar altında Duraklar, rotanın her durağını listeler. Örneğin kalkış havalimanınız gibi bir durağı haritaların ve rakamların dışında bırakmak için kapatın.',
+  'help.guide.studio-travel.tip.2':
+    'Bir ülke haritası yalnızca o ülkenin duraklarını gösterir; böylece yolculuk uzun bir uçuşla başlasa bile ülke sayfayı doldurur.',
   // studio-properties
   'help.guide.studio-properties.title': 'Seçtiğinizi düzenleyin',
   'help.guide.studio-properties.goal':
@@ -1038,7 +1106,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Sayfa biçimini seçin',
   'help.guide.studio-format.goal': 'Düzeni oluşturmadan önce kitabın baskı boyutunu ayarlayın.',
-  'help.guide.studio-format.step.1': 'Üst çubukta “Page format” seçeneğine tıklayın.',
+  'help.guide.studio-format.step.1':
+    'Üst çubukta düzenleme araçlarının yanındaki sayfa biçimine tıklayın. Biçimin adını ve şeklini gösterir.',
   'help.guide.studio-format.step.2':
     'Square 21 × 21 cm, Square 30 × 30 cm, A4 veya A5 yatay ya da dikey seçin, ya da milimetre cinsinden özel bir genişlik ve yükseklik girin. “Taşma” ve güvenli kenar boşluğu bunların altındadır.',
   'help.guide.studio-format.result':

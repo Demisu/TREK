@@ -897,10 +897,9 @@ const help: TranslationStrings = {
   'help.guide.studio.title': 'Kujunda reisilugu fotoraamatuks',
   'help.guide.studio.goal': 'Muuda reisipäevik trükitavateks lehtedeks.',
   'help.guide.studio.step.1': 'Klõpsa päises „Stuudio“. Kujundaja avaneb reisiloo peal.',
-  'help.guide.studio.step.2':
-    'Tagasi minemiseks klõpsa ülemise riba vasakus servas reisiloo nimel. Jõuad tagasi sinna, kus olid.',
+  'help.guide.studio.step.2': 'Tagasi minemiseks klõpsa ülariba paremas otsas ×. Naased sinna, kus olid.',
   'help.guide.studio.result':
-    'Vasakul on lehtede riba „Lehed“, tööpinnal lehepaar ja paremal omadused. „Automaatne paigutus“ koostab raamatu sinu sissekannetest. „Ekspordi“ loob trükivalmis PDF-i.',
+    'Külgriba paneelidega on vasakul, lehepaar tööpinnal ja omadused paremal. Automaatne paigutus ehitab raamatu sinu kirjetest. Eksport loob trükivalmis PDF-i.',
   'help.guide.studio.tip.1': 'Stuudio vajab vähemalt 1024 px laiust akent ja telefonis seda ei pakuta.',
   'help.guide.studio.tip.2':
     'Raamatul on samad õigused mis reisiloos: kes saab reisilugu lugeda, saab raamatu avada, ja kes saab reisilugu muuta, saab raamatu salvestada.',
@@ -931,19 +930,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ─────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Stuudio',
   'help.ctx.journey-studio.summary':
-    'TREK Studio kujundab reisiloost fotoraamatu, mida saad trükkida. See avaneb reisipäeviku peal: vasakul on lehtede loend ja sisu, keskel lehepaar, millega töötad, ja paremal selle omadused. „Automaatne paigutus“ koostab sinu sissekannetest esimese mustandi. Pärast seda saad kõike liigutada, kärpida ja ümber kujundada ning iga sammu saab tagasi võtta.',
+    'TREK Studio paigutab reisi trükitavaks fotoraamatuks. See avaneb päeviku peal: külgriba paneelidega on vasakul, töötatav lehepaar keskel ja selle omadused paremal. Automaatne paigutus koostab sinu kirjetest esimese kavandi, teema annab raamatule värvid ja kirjatüübid ning assistent oskab lehti sinuga koos kujundada. Pärast seda saad kõike liigutada, kärpida ja ümber kujundada ning iga sammu tagasi võtta.',
   'help.ctx.journey-studio.bullet.1':
-    'Ülemine riba: „Tagasi reisiloo juurde“, „Raamatuvaade“, tagasivõtmine ja uuesti tegemine, „Lehevorming“, „Automaatne paigutus“ ja „Ekspordi“. Pealkirja kõrval olev märge „Salvestatud“ näitab, millal raamat on salvestatud.',
+    'Ülariba: vasakul reisiloo kaas ja nimi. Paremal on näha, kes veel raamatus osaleb ja kas see on salvestatud, lehe formaat, tagasivõtmine, uuesti tegemine ja kleebi, Automaatne paigutus, assistent, abi, Eksport ning nupp, mis sulgeb Stuudio.',
   'help.ctx.journey-studio.bullet.2':
-    'Vasakul on riba seitsme jaotisega: „Lehed“, „Sisu“ (reisiloo fotod ja sissekanded), „Paigutused“, „Elemendid“ (tekst, kujundid, jooned, raamid ja ruudustikud, ikoonid ja kleebised), „Reisimine“ (reisiloo põhjal tehtud kaardid, riigid, lipud ja märgised) ning nende all eraldi „Teema“ ja „Kihid“.',
+    'Külgriba vasakul: Lehed, Sisu (reisi fotod ja kirjed), Paigutused, Elemendid (tekst, kujundid, jooned, raamid, ikoonid ja kleebised), Reisimine (reisist ehitatud arvud, kaardid, riigid ja märgised) ning nendest eraldi allpool Teema ja Kihid.',
   'help.ctx.journey-studio.bullet.3':
-    'Tööpind: praegune lehepaar koos lõikevaru ja ohutute veeristega, selle all suumiriba, „Mahuta vaatesse“ ning paremal „Laadi see lehepaar alla“.',
+    'Tööpind: praegune lehepaar koos lõikevaru ja turvaääristega ning selle all suumiriba nuppudega Mahuta vaatesse, Raamatuvaade ja Laadi see lehepaar alla.',
   'help.ctx.journey-studio.bullet.4':
-    'Paremal „Omadused“: valitud elemendi asukoht ja suurus, kärpimine ja fookuspunkt, täitmine või mahutamine, välimus, nurgad, raam, kihtide järjekord ja lukustus. Kui midagi pole valitud, on seal leheküljenumbrid ja dokument.',
+    'Omadused paremal: kõik valitud elemendi kohta, alates asukohast, suurusest ja kärpimisest kuni värvide, efektide, kihijärjestuse ja lukuni. Kui midagi pole valitud, näitab see lehe tausta, teemat, leheküljenumbreid ja dokumenti.',
   'help.ctx.journey-studio.bullet.5':
-    'Raamat on üles ehitatud nagu trükitud raamat: kaas, üksik esimene lehekülg, lehepaarid, üksik viimane lehekülg ja tagakaas. Leheküljenumbrid algavad esimesest leheküljest ja prinditakse nii, nagu näidatud.',
+    'Raamat on paigutatud nagu trükitud raamat: kaas, üksik esimene lehekülg tühja kaanesisu vastas, lehepaarid, üksik viimane lehekülg ja tagakaas. Leheküljenumbrid loetakse esimesest leheküljest ja trükitakse nii, nagu need on näidatud.',
   'help.ctx.journey-studio.bullet.6':
     'Kujundada saab mitu inimest korraga: igaüks näeb teiste kursoreid koos nimedega. Kui salvestad versiooni, mida keegi teine on vahepeal muutnud, näitab TREK konflikti ega kirjuta tema tööd üle.',
+  'help.ctx.journey-studio.bullet.7':
+    'Teema: üks ilme kogu raamatule, selle paber, tint ja kolm rõhuvärvi, kirjatüübid ja motiivid. Teemaga seotud elemendid järgivad seda, kui sa teemat muudad.',
+  'help.ctx.journey-studio.bullet.8':
+    'Assistent: kui administraator on tehisintellekti seadistanud, avab ülaribal olev jutumull assistendi, mis koostab koos sinuga lehti, kirjutab allkirju ja kujundab raamatut ümber. Iga tema tehtud muudatus on üks tagasivõtmise samm.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Koosta raamat automaatselt',
   'help.guide.studio-auto-layout.goal':
@@ -963,7 +966,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Lisa, liiguta ja eemalda lehepaare',
   'help.guide.studio-pages.goal': 'Muuda raamatut lehekülg lehekülje haaval.',
   'help.guide.studio-pages.step.1':
-    'Ava külgribal „Lehed“. Pisipildid näitavad raamatut järjekorras: kaas, esimene lehekülg, lehepaarid, viimane lehekülg, tagakaas.',
+    'Ava külgribal Lehed. Pisipildid näitavad raamatut järjekorras: kaas, esimene lehekülg, lehepaarid, viimane lehekülg ja tagakaas. Esimene ja viimane lehekülg on joonistatud oma kaane tühja siseküljega kõrvuti, nii nagu köidetud raamat avaneb.',
   'help.guide.studio-pages.step.2':
     'All olev „Lisa lehepaar“ lisab uue lehepaari enne viimast lehekülge. Kahe pisipildi vahel olev + lisab lehepaari sellesse kohta.',
   'help.guide.studio-pages.step.3':
@@ -978,11 +981,20 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Rakenda lehepaarile paigutus',
   'help.guide.studio-layouts.goal': 'Anna lehepaarile valmis paigutus foto- ja tekstiraamidega.',
   'help.guide.studio-layouts.step.1':
-    'Ava külgribal „Paigutused“. Kõigepealt tulevad kujundatud lehed: terved kaaned ja lehepaarid raamatu teemas, mida stiilinupud ühe ilmeni kitsendavad. Nende all on raamatu enda paigutused ja sisseehitatud paigutused.',
+    'Ava külgribal Paigutused. Kõigepealt tulevad kujundatud lehed: terved kaaned ja lehepaarid raamatu teemas, mida stiilinupud ühe ilmeni kitsendavad. Minu paigutused ja Sisseehitatud järgnevad nende all samas ruudustikus.',
   'help.guide.studio-layouts.step.2':
     'Klõpsa ühel neist. Tööpinnal olev lehepaar saab selle paigutuse raamid ning olemasolevad fotod ja tekst paigutatakse neisse.',
   'help.guide.studio-layouts.result':
     'Tühjad raamid on sisu kohahoidjad: lohista foto jaotisest „Sisu“ raamile või kasuta nuppu „Lisa sellele lehele“.',
+  'help.guide.studio-my-layouts.title': 'Salvesta leht oma paigutusena',
+  'help.guide.studio-my-layouts.goal': 'Kasuta uuesti paigutust, mille oled raamatu teistel lehtedel loonud.',
+  'help.guide.studio-my-layouts.step.1': 'Korralda leht nii, nagu soovid, ja ava seejärel külgribal Paigutused.',
+  'help.guide.studio-my-layouts.step.2':
+    'Klõpsa jaotises Minu paigutused nupul Salvesta see leht paigutusena. Leht ilmub loendisse kaardina.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Klõpsa oma paigutusel teisel lehel, et paigutada see leht samamoodi, oma fotode ja sõnadega.',
+  'help.guide.studio-my-layouts.result':
+    'Sinu paigutused salvestatakse raamatuga ja pakutakse sama liiki lehtedel: kaane oma kaantele, lehepaari oma lehepaaridele.',
   'help.guide.studio-layouts.tip.1': 'Paigutuse saab tagasi võtta nagu iga teise sammu.',
   // studio-content
   'help.guide.studio-content.title': 'Pane fotod ja sissekanded lehele',
@@ -995,28 +1007,80 @@ const help: TranslationStrings = {
     'Sissekande all panevad „Pealkiri“, „Lugu“ ja „Koht“ selle teksti lehele tekstielemendina. Kuupäev ja koordinaadid lisatakse märgistena ning seal on ka sissekande fotod.',
   'help.guide.studio-content.result':
     'Lohistatud fotost saab fotoelement. Tekst jääb sissekandega seotuks, kuni seda muudad.',
+  'help.guide.studio-theme.title': 'Anna raamatule teema',
+  'help.guide.studio-theme.goal': 'Määra kogu raamatu värvid ja kirjatüübid ühe korraga.',
+  'help.guide.studio-theme.step.1':
+    'Ava külgribal Teema. Iga kaart näitab teemat väikese lehena: selle paberit, kirjatüüpi ja kolme rõhuvärvi.',
+  'help.guide.studio-theme.step.2':
+    'Klõpsa teemal, et seda proovida. Kaartide all saad muuta selle paletti, valida muid kirjatüüpe ning valida motiive ja kaunistusi.',
+  'help.guide.studio-theme.step.3':
+    'Klõpsa nupul Rakenda raamatule või ekraanil oleva lehepaari jaoks nupul Rakenda sellele lehele.',
+  'help.guide.studio-theme.tip.1':
+    'Teemaga seotud elemendid võtavad selle värvid ja kirjatüübid ning järgivad seda muutmisel. Kujunda ümber ka see, mis pole veel seotud, seob esmalt ülejäänu.',
+  'help.guide.studio-theme.tip.2': 'Värvid fotodelt koostab paleti reisi piltidest.',
+  'help.guide.studio-theme.result':
+    'Kõik seotud värvid ja kirjatüübid raamatus muutuvad korraga ning teema rakendamine on üks tagasivõtmise samm.',
   'help.guide.studio-content.tip.1': 'Jaotise „Sisu“ ülaosas olev otsinguväli filtreerib mõlemat loendit.',
   'help.guide.studio-content.tip.2':
     'Kui lohistad faili arvutist tööpinnale, laadib TREK selle üles ja paigutab ühe sammuga.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Lisa teksti, kujundeid ja ikoone',
+  'help.guide.studio-elements.title': 'Lisa tekst, kujundid, ikoonid ja kleebised',
   'help.guide.studio-elements.goal': 'Kaunista lehepaari lisaks fotodele ja lugudele.',
-  'help.guide.studio-elements.step.1': 'Ava külgribal „Elemendid“.',
+  'help.guide.studio-elements.step.1':
+    'Ava külgribal Elemendid. Kuus vahekaarti sorteerivad lisatava: Tekst, Kujundid, Jooned, Raamid, Ikoonid ja Kleebised.',
   'help.guide.studio-elements.step.2':
-    'Klõpsa pealkirja või allkirja tekstistiilil, kujundil, joonel, ruudustikul, raamistiiliga tühjal raamil või otsitavast kogust valitud ikoonil. Iga element paigutatakse lehepaari keskele ja seejärel saad seda liigutada.',
+    'Klõpsa tekstistiilil või kujundatud pealkirjal, kujundil, joonel, tühjal raamil, ikoonil või kleebisel. Iga element asetatakse lehepaari keskele ja seejärel saad seda liigutada.',
   'help.guide.studio-elements.result':
     'Tekstielementi kirjutamiseks topeltklõpsa sellel. Jaotises „Omadused“ on font, paksus, suurus, vahed ja joondus.',
+  'help.guide.studio-stickers.title': 'Kaunista kleebistega',
+  'help.guide.studio-stickers.goal':
+    'Lisa illustratsioone, alates vaatamisväärsustest ja toidust kuni loomade ja nooltega.',
+  'help.guide.studio-stickers.step.1': 'Ava külgribal Elemendid ja vali Kleebised.',
+  'help.guide.studio-stickers.step.2':
+    'Otsi sõna järgi või sirvi riiuleid, seejärel klõpsa kleebisel, et see lehepaarile asetada.',
+  'help.guide.studio-stickers.tip.1': 'Kui kleebis on valitud, värvib Omadused selle osad ümber ja peegeldab seda.',
+  'help.guide.studio-stickers.result': 'Kleebis on joonistus, mistõttu see jääb igas suuruses terav.',
   'help.guide.studio-elements.tip.1': 'Raamid on tühjad fotokohad: lisa pilt hiljem.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Lisa kaart, lipud ja arvandmed',
-  'help.guide.studio-travel.goal': 'Muuda reis ise lehel arvudeks ja jooniseks.',
-  'help.guide.studio-travel.step.1': 'Ava ribal „Reisimine“.',
+  'help.guide.studio-travel.title': 'Lisa kaarte, arve, riike ja märgiseid',
+  'help.guide.studio-travel.goal': 'Muuda reis ise lehel kujundatud elementideks.',
+  'help.guide.studio-travel.step.1':
+    'Ava külgribal Reisimine. Neli vahekaarti sorteerivad lisatava: Arvud, Kaardid, Riigid ja Märgised.',
   'help.guide.studio-travel.step.2':
-    'Vali, mida lisada: sissekannete marsruudikaart, riikide piirjooned, riikide loend või ruudustik, lipud, kuupäeva-, päeva- või vahemaamärgis või kogu reisi kokkuvõte. Iga element koostatakse reisiloo andmetest ja uueneb, kui andmed muutuvad.',
+    'Iga kaart näitab elementi sinu reisi enda arvudega teema värvides: kokkuvõte plakati, pileti, liiklusmärgi või odomeetrina, kaart numbritega peatustega või riigini kärbitult, riik margi, postkaardi või nööpnõelana, kuupäev või vahemaa templi, sildi või paelana.',
+  'help.guide.studio-travel.step.3':
+    'Klõpsa kaardil. Element asetatakse lehepaari keskele ja seejärel saad seda liigutada ja selle suurust muuta.',
   'help.guide.studio-travel.result':
-    'Element ilmub lehepaarile. Kasuta selle stiili muutmiseks jaotist „Omadused“ ja kaardi ala muutmiseks kaarti.',
+    'Element ilmub lehepaarile. Omadused muudab selle ilmet ning iga arv, kaart ja riik uueneb, kui reis muutub.',
+  'help.guide.studio-text-effects.title': 'Lisa tekstile efekte',
+  'help.guide.studio-text-effects.goal': 'Anna pealkirjale kontuur, vari, kõver või mustriga täidetud tähed.',
+  'help.guide.studio-text-effects.step.1': 'Klõpsa lehel tekstielemendil, et see valida.',
+  'help.guide.studio-text-effects.step.2':
+    'Ava Omadustes Efektid, et lisada kontuur, vari või esiletõst, või täida tähed ülemineku või mustriga. Täheregister ja asend kõverdab rea ja sobitab selle raamiga.',
+  'help.guide.studio-text-effects.tip.1':
+    'Sobita raami kahandab teksti, kuni see mahub oma raami, nii et pikk pealkiri ei voola kunagi üle.',
+  'help.guide.studio-text-effects.result': 'Efekt joonistatakse koos tekstiga, prindis samamoodi nagu ekraanil.',
+  'help.guide.studio-background.title': 'Muuda lehe tausta',
+  'help.guide.studio-background.goal': 'Värvi leht ühte värvi, üleminekuga või mustriga või pane selle alla foto.',
+  'help.guide.studio-background.step.1':
+    'Klõpsa lehe tühjal kohal, et midagi poleks valitud. Lehe taust on Omaduste ülaosas.',
+  'help.guide.studio-background.step.2':
+    'Vali Paber, Ühtlane, Üleminek või Muster ja värv või klõpsa fotol jaotises Foto taustaks.',
+  'help.guide.studio-background.tip.1': 'Rakenda kõigile lehtedele annab raamatu igale lehele sama tausta.',
+  'help.guide.studio-background.result': 'Taust ulatub lõikevarusse, nii et see prinditakse kuni lehe servani.',
+  'help.guide.studio-layers.title': 'Korralda, peida ja lukusta kihtidega',
+  'help.guide.studio-layers.goal': 'Näe kõike lehepaaril kihijärjestuses ja töötle seda seal.',
+  'help.guide.studio-layers.step.1': 'Ava külgribal Kihid. Loendi ülaosa on lehe esiplaan.',
+  'help.guide.studio-layers.step.2':
+    'Lohista rida, et kihte ümber paigutada, peida element silmaga ja hoia see lukuga paigal. Vali mitu ja grupeeri need, et neid koos liigutada.',
+  'help.guide.studio-layers.tip.1': 'Topeltklõpsa real, et anda elemendile oma nimi.',
+  'help.guide.studio-layers.tip.2': 'Peidetud elemendid jäetakse PDF-ist välja.',
+  'help.guide.studio-layers.result':
+    'Tihedad lehed jäävad hõlpsasti muudetavaks ja valmis osi ei saa kogemata liigutada.',
   'help.guide.studio-travel.tip.1':
-    'Märgised kasutavad selle sissekande andmeid, millest lehepaar loodi. Nii näitab automaatse paigutusega loodud lehepaari kuupäevamärgis juba seda päeva.',
+    'Jaotises Kaardid loetleb Peatused marsruudi kõik peatused. Lülita üks välja, et jätta see kaartidelt ja arvudest välja, näiteks oma koduloomaja lennujaam.',
+  'help.guide.studio-travel.tip.2':
+    'Riigikaart näitab ainult selle riigi peatusi, nii et riik täidab lehe ka siis, kui reis algas pika lennuga.',
   // studio-properties
   'help.guide.studio-properties.title': 'Muuda valitud elementi',
   'help.guide.studio-properties.goal': 'Liiguta, kärbi, kujunda ja järjesta elementi inspektori abil.',
@@ -1034,7 +1098,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Vali lehevorming',
   'help.guide.studio-format.goal': 'Määra raamatu trükisuurus enne, kui paigutust koostad.',
-  'help.guide.studio-format.step.1': 'Klõpsa ülemisel ribal „Lehevorming“.',
+  'help.guide.studio-format.step.1':
+    'Klõpsa ülaribal lehe formaadil, redigeerimisriistade kõrval. See näitab formaadi nime ja kuju.',
   'help.guide.studio-format.step.2':
     'Vali „Ruut 21 × 21 cm“, „Ruut 30 × 30 cm“, A4 või A5 rõht- või püstpaigutuses või sisesta kohandatud laius ja kõrgus millimeetrites. Lõikevaru ja ohutu veeris on allpool.',
   'help.guide.studio-format.result':

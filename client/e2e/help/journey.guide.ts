@@ -460,6 +460,20 @@ const exportDialog = (page: Page) => page.getByRole('dialog', { name: 'Export' }
 const thumbs = (page: Page) => page.locator('.st-thumb-row')
 /** The hit targets over the spread, one per element. */
 const sheetElements = (page: Page) => page.locator('.st-sheet > div[style*="left:"]')
+/**
+ * The hit target of the first text on the spread on screen. The targets above the page are empty
+ * boxes, so the one over the drawn words is found by where the words are and marked for the locator.
+ */
+async function markTextTarget(page: Page): Promise<void> {
+  const words = page.locator('.st-sheet').getByText(/\p{L}{3,}/u).first()
+  await expect(words).toBeVisible()
+  await words.evaluate(el => {
+    const r = el.getBoundingClientRect()
+    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
+    hit?.setAttribute('data-help-text', '')
+  })
+}
+const textTarget = (page: Page) => page.locator('.st-sheet [data-help-text]')
 
 async function studioSection(page: Page, name: string): Promise<void> {
   await railButton(page, name).click()
@@ -1458,16 +1472,162 @@ const SCRIPTS: Record<string, GuideScript> = {
     ],
   },
 
+  'studio-my-layouts': {
+    guide: guide('studio-my-layouts'),
+    start: openStudio,
+    steps: [
+      {
+        prepare: async p => {
+          await studioSection(p, 'Pages')
+          await thumbs(p).nth(2).locator('.st-thumb').click()
+          await settle(p)
+        },
+        target: p => railButton(p, 'Layouts'),
+        act: async p => { await studioSection(p, 'Layouts') },
+      },
+      {
+        // Pointed at rather than pressed, so the seed book keeps no layout of its own for the guides after this one.
+        prepare: async p => {
+          await sidePanel(p).getByRole('button', { name: 'Save this page as a layout' }).scrollIntoViewIfNeeded()
+          await settle(p)
+        },
+        target: p => sidePanel(p).locator('.st-saved-layouts'),
+      },
+    ],
+  },
+
+  'studio-theme': {
+    guide: guide('studio-theme'),
+    start: openStudio,
+    steps: [
+      {
+        target: p => railButton(p, 'Theme'),
+        act: async p => { await studioSection(p, 'Theme') },
+      },
+      {
+        target: p => sidePanel(p).locator('.st-theme-grid'),
+        act: async p => {
+          await sidePanel(p).locator('.st-theme-card').nth(1).click()
+          await settle(p)
+        },
+      },
+      {
+        prepare: async p => {
+          await sidePanel(p).getByRole('button', { name: 'Apply to the book' }).scrollIntoViewIfNeeded()
+          await settle(p)
+        },
+        target: p => sidePanel(p).locator('.st-theme-apply'),
+      },
+    ],
+  },
+
+  'studio-stickers': {
+    guide: guide('studio-stickers'),
+    start: openStudio,
+    steps: [
+      {
+        prepare: async p => { await studioSection(p, 'Elements') },
+        target: p => sidePanel(p).getByRole('tab', { name: 'Stickers' }),
+        act: async p => {
+          await sidePanel(p).getByRole('tab', { name: 'Stickers' }).click()
+          await expect(sidePanel(p).locator('.st-shape-grid').first()).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        target: p => sidePanel(p).locator('.st-shape-grid').first(),
+      },
+    ],
+  },
+
   'studio-travel': {
     guide: guide('studio-travel'),
     start: openStudio,
     steps: [
       {
         target: p => railButton(p, 'Travel'),
-        act: async p => { await studioSection(p, 'Travel') },
+        act: async p => {
+          await studioSection(p, 'Travel')
+          await expect(sidePanel(p).locator('.st-travel-card').first()).toBeVisible({ timeout: 15_000 })
+          await settle(p)
+        },
       },
       {
-        target: sidePanel,
+        target: p => sidePanel(p).locator('.st-travel-grid').first(),
+      },
+      {
+        target: p => sidePanel(p).locator('.st-travel-card').first(),
+      },
+    ],
+  },
+
+  'studio-text-effects': {
+    guide: guide('studio-text-effects'),
+    start: openStudio,
+    steps: [
+      {
+        prepare: async p => {
+          await studioSection(p, 'Pages')
+          await thumbs(p).nth(2).locator('.st-thumb').click()
+          await settle(p)
+          await markTextTarget(p)
+        },
+        target: p => textTarget(p),
+        act: async p => {
+          await textTarget(p).click()
+          await expect(inspector(p).getByRole('button', { name: 'Effects' })).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        prepare: async p => {
+          const head = inspector(p).getByRole('button', { name: 'Effects' })
+          if ((await head.getAttribute('aria-expanded')) !== 'true') await head.click()
+          await head.scrollIntoViewIfNeeded()
+          await settle(p)
+        },
+        target: p => inspector(p).locator('.st-section').filter({ has: p.getByRole('button', { name: 'Effects' }) }),
+      },
+    ],
+  },
+
+  'studio-background': {
+    guide: guide('studio-background'),
+    start: openStudio,
+    steps: [
+      {
+        prepare: async p => {
+          await studioSection(p, 'Pages')
+          await thumbs(p).nth(2).locator('.st-thumb').click()
+          await settle(p)
+        },
+        target: p => inspector(p).locator('.st-section').filter({ hasText: 'Page background' }).first(),
+      },
+      {
+        target: p => inspector(p).locator('.st-paint-tabs').first(),
+      },
+    ],
+  },
+
+  'studio-layers': {
+    guide: guide('studio-layers'),
+    start: openStudio,
+    steps: [
+      {
+        prepare: async p => {
+          await studioSection(p, 'Pages')
+          await thumbs(p).nth(2).locator('.st-thumb').click()
+          await settle(p)
+        },
+        target: p => railButton(p, 'Layers'),
+        act: async p => {
+          await studioSection(p, 'Layers')
+          await expect(sidePanel(p).locator('.st-layer').first()).toBeVisible()
+          await settle(p)
+        },
+      },
+      {
+        target: p => sidePanel(p).locator('.st-layer').first(),
       },
     ],
   },

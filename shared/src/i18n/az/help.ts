@@ -937,9 +937,9 @@ const help: TranslationStrings = {
   'help.guide.studio.step.1':
     'Yuxarı hissədə Studio düyməsinə klikləyin. Dizayner səyahət gündəliyinin üzərində açılır.',
   'help.guide.studio.step.2':
-    'Geri qayıtmaq üçün yuxarı panelin solundakı səyahət gündəliyinin adına klikləyin. Olduğunuz yerə qayıdırsınız.',
+    'Geri qayıtmaq üçün yuxarı panelin sağ ucundakı × işarəsinə klikləyin. Olduğunuz yerə qayıdırsınız.',
   'help.guide.studio.result':
-    'Solda «Səhifələr» paneli, iş masasında açılım, sağda isə xüsusiyyətlər yerləşir. «Avtomatik tərtibat» kitabı qeydlərinizdən qurur. «İxrac et» çapa hazır PDF yaradır.',
+    'Panel və onun bölmələri solda, açılım iş masasında, xüsusiyyətlər isə sağdadır. Avtomatik tərtibat kitabı qeydlərinizdən qurur. İxrac et çapa hazır PDF yaradır.',
   'help.guide.studio.tip.1':
     'Studio üçün pəncərənin eni ən azı 1024 px olmalıdır, telefonda isə Studio təklif olunmur.',
   'help.guide.studio.tip.2':
@@ -973,19 +973,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ─────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'TREK Studio səyahət gündəliyini çap edilə bilən foto kitab kimi tərtib edir. Studio gündəliyin üzərində açılır: səhifələr siyahısı və məzmun solda, üzərində işlədiyiniz ikiqat səhifə ortada, onun xüsusiyyətləri isə sağdadır. «Avtomatik tərtibat» qeydlərinizdən ilk qaralamanı hazırlayır. Bundan sonra hər şeyin yerini dəyişə, kəsə və üslubunu yeniləyə bilərsiniz, hər addımı da geri almaq olar.',
+    'TREK Studio səyahəti çap edə biləcəyiniz foto kitab kimi tərtib edir. O, gündəliyin üzərində açılır: panel və onun bölmələri solda, üzərində işlədiyiniz açılım ortada, xüsusiyyətləri isə sağdadır. Avtomatik tərtibat qeydlərinizdən ilk layihəni qurur, mövzu kitaba rənglərini və şriftlərini verir, köməkçi isə səhifələri sizinlə birlikdə dizayn edə bilər. Bundan sonra hər şeyi köçürə, kəsə və yenidən üslublaşdıra bilərsiniz, hər addımı da geri ala bilərsiniz.',
   'help.ctx.journey-studio.bullet.1':
-    'Yuxarı panel: «Səyahət gündəliyinə qayıt», «Kitab görünüşü», geri al və təkrarla, «Səhifə formatı», «Avtomatik tərtibat» və «İxrac et». Başlığın yanındakı «Yadda saxlandı» işarəsi kitabın nə vaxt saxlandığını göstərir.',
+    'Yuxarı panel: solda səyahətin üz qabığı və adı. Sağda kitabda daha kimin olduğu və onun yadda saxlanıb-saxlanmadığı, səhifə formatı, geri al, təkrar et və yapışdır, Avtomatik tərtibat, köməkçi, kömək, İxrac et və Studio-nu bağlayan düymə.',
   'help.ctx.journey-studio.bullet.2':
-    'Solda yeddi bölməli panel var: Səhifələr, Məzmun (səyahət gündəliyinin fotoları və qeydləri), Tərtibatlar, Elementlər (mətn, fiqurlar, xətlər, çərçivələr və torlar, ikonlar və stikerlər), Səyahət (gündəlikdən yaradılan xəritələr, ölkələr, bayraqlar və nişanlar), onların altında ayrıca isə Mövzu və Laylar.',
+    'Soldakı panel: Səhifələr, Məzmun (səyahətin fotoları və qeydləri), Tərtibatlar, Elementlər (mətn, fiqurlar, xətlər, çərçivələr, ikonlar və stikerlər), Səyahət (səyahətdən qurulan rəqəmlər, xəritələr, ölkələr və nişanlar) və onların altında ayrıca Mövzu və Laylar.',
   'help.ctx.journey-studio.bullet.3':
-    'İş masası: daşma payı və təhlükəsiz kənar boşluqları ilə cari açılım, altında miqyas paneli, «Görünüşə sığdır» və sağda «Bu açılımı endir».',
+    'İş masası: daşma payı və təhlükəsiz kənar boşluqları ilə cari açılım, onun altında isə Görünüşə sığdır, Kitab görünüşü və Bu açılımı endir düymələri olan miqyas paneli.',
   'help.ctx.journey-studio.bullet.4':
-    'Sağda «Xüsusiyyətlər»: seçilmiş elementin yeri və ölçüsü, kəsimi və fokus nöqtəsi, doldurma və ya sığdırma, görünüşü, küncləri, çərçivəsi, qat sırası və kilidi. Heç nə seçilməyəndə burada səhifə nömrələri və sənəd görünür.',
+    'Sağdakı Xüsusiyyətlər: seçilmiş element haqqında hər şey, mövqe, ölçü və kəsmədən tutmuş rənglərə, effektlərə, üst-üstə düzülmə sırasına və kilidə qədər. Heç nə seçilməyibsə, səhifə fonu, mövzu, səhifə nömrələri və sənəd göstərilir.',
   'help.ctx.journey-studio.bullet.5':
-    'Kitab çap olunmuş kitab kimi düzülür: üz qabığı, tək ilk səhifə, açılımlar, tək son səhifə və arxa qabıq. Səhifə nömrələri ilk səhifədən sayılır və göstərildiyi kimi çap olunur.',
+    'Kitab çap olunmuş kitab kimi düzülür: üz qabığı, qabığın boş daxili üzünün qarşısında tək ilk səhifə, açılımlar, tək son səhifə və arxa qabıq. Səhifə nömrələri ilk səhifədən hesablanır və göstərildiyi kimi çap olunur.',
   'help.ctx.journey-studio.bullet.6':
     'Bir neçə nəfər eyni anda dizayn edə bilər: hər kəs digərlərinin kursorlarını adları ilə görür. Başqasının dəyişdirdiyi versiyanı yadda saxlasanız, TREK onun işinin üzərinə yazmır, ziddiyyət göstərir.',
+  'help.ctx.journey-studio.bullet.7':
+    'Mövzu: bütün kitab üçün bir görünüş, onun kağızı, mürəkkəbi və üç vurğu rəngi, şriftləri və motivləri. Mövzuya bağlı elementlər onu dəyişdiyiniz zaman ona uyğunlaşır.',
+  'help.ctx.journey-studio.bullet.8':
+    'Köməkçi: administrator süni intellekti qurubsa, yuxarı paneldəki söz balonu sizinlə birlikdə səhifələr düzən, izahlar yazan və kitabın üslubunu dəyişən köməkçini açır. Onun etdiyi hər dəyişiklik bir geri alma addımıdır.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Kitabı avtomatik qurmaq',
   'help.guide.studio-auto-layout.goal': 'Gündəliyin qeyd və fotolarından bir kliklə tam ilk qaralama alın.',
@@ -1004,7 +1008,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Açılımları əlavə edin, yerini dəyişin və silin',
   'help.guide.studio-pages.goal': 'Kitabı səhifə-səhifə redaktə edin.',
   'help.guide.studio-pages.step.1':
-    'Yan paneldə «Səhifələr»i açın. Miniatürlər kitabı ardıcıllıqla göstərir: üz qabığı, ilk səhifə, açılımlar, son səhifə, arxa qabıq.',
+    'Paneldə Səhifələr bölməsini açın. Miniatürlər kitabı ardıcıllıqla göstərir: üz qabığı, ilk səhifə, açılımlar, son səhifə və arxa qabıq. İlk və son səhifə öz qabıqlarının boş daxili üzünün yanında, cildlənmiş kitabın açıldığı kimi çəkilir.',
   'help.guide.studio-pages.step.2':
     'Aşağıdakı «Açılım əlavə et» son səhifədən əvvəl yeni açılım əlavə edir. İki miniatür arasındakı + isə açılımı məhz həmin yerə daxil edir.',
   'help.guide.studio-pages.step.3':
@@ -1019,11 +1023,20 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Açılıma tərtibat tətbiq edin',
   'help.guide.studio-layouts.goal': 'Açılıma foto və mətn çərçivələrinin hazır düzülüşünü verin.',
   'help.guide.studio-layouts.step.1':
-    'Paneldə «Tərtibatlar» bölməsini açın. Əvvəlcə dizayn olunmuş səhifələr gəlir: kitabın mövzusunda hazırlanmış bütöv üzlüklər və açılımlar; «Üslub» düymələri onları bir görünüşə qədər daraldır. Onların altında kitabın öz tərtibatları və daxili tərtibatlar gəlir.',
+    'Paneldə Tərtibatlar bölməsini açın. Əvvəlcə dizayn olunmuş səhifələr gəlir: kitabın mövzusunda hazırlanmış bütöv üz qabıqları və açılımlar; üslub düymələri onları bir görünüşə qədər daraldır. Mənim tərtibatlarım və Daxili onların altında eyni şəbəkədə gəlir.',
   'help.guide.studio-layouts.step.2':
     'Birinə klikləyin. İş masasındakı açılım bu tərtibatın çərçivələrini alır, mövcud fotolarınız və mətniniz də onlara yerləşdirilir.',
   'help.guide.studio-layouts.result':
     'Boş çərçivələr məzmun üçün yer tutucudur: «Məzmun» bölməsindən birinin üzərinə foto sürüşdürün və ya «Bu səhifəyə əlavə et» düyməsindən istifadə edin.',
+  'help.guide.studio-my-layouts.title': 'Səhifəni öz tərtibatınız kimi saxlayın',
+  'help.guide.studio-my-layouts.goal': 'Kitabın digər səhifələrində qurduğunuz düzülüşdən təkrar istifadə edin.',
+  'help.guide.studio-my-layouts.step.1': 'Səhifəni istədiyiniz kimi düzün, sonra paneldə Tərtibatlar bölməsini açın.',
+  'help.guide.studio-my-layouts.step.2':
+    'Mənim tərtibatlarım altında Bu səhifəni tərtibat kimi saxla düyməsinə klikləyin. Səhifə siyahıda kart kimi görünür.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Başqa səhifədə öz tərtibatınıza klikləyin ki, həmin səhifə öz foto və sözləri ilə eyni cür düzülsün.',
+  'help.guide.studio-my-layouts.result':
+    'Tərtibatlarınız kitabla birlikdə saxlanılır və eyni növ səhifələrdə təklif olunur: üz qabığınınkı üz qabıqlarında, açılımınkı açılımlarda.',
   'help.guide.studio-layouts.tip.1': 'Tərtibatı da istənilən digər addım kimi geri qaytarmaq olar.',
   // studio-content
   'help.guide.studio-content.title': 'Səhifəyə foto və qeydlər yerləşdirin',
@@ -1036,28 +1049,82 @@ const help: TranslationStrings = {
     'Qeydin altında «Başlıq», «Hekayə» və «Məkan» həmin mətni səhifəyə mətn elementi kimi yerləşdirir. Tarix və koordinatlar nişan kimi əlavə olunur, qeydin fotoları da elə orada sıralanır.',
   'help.guide.studio-content.result':
     'Buraxdığınız foto foto elementinə çevrilir. Mətn isə siz onu redaktə edənədək qeydə bağlı qalır.',
+  'help.guide.studio-theme.title': 'Kitaba mövzu verin',
+  'help.guide.studio-theme.goal': 'Bütün kitabın rənglərini və şriftlərini bir dəfəyə təyin edin.',
+  'help.guide.studio-theme.step.1':
+    'Paneldə Mövzu bölməsini açın. Hər kart mövzunu kiçik səhifə kimi göstərir: onun kağızı, şrifti və üç vurğu rəngi.',
+  'help.guide.studio-theme.step.2':
+    'Sınamaq üçün mövzuya klikləyin. Kartların altında onun palitrasını dəyişə, başqa şriftlər seçə, motivləri və bəzəyi təyin edə bilərsiniz.',
+  'help.guide.studio-theme.step.3':
+    'Kitaba tətbiq et düyməsinə, ekrandakı açılım üçün isə Bu səhifəyə tətbiq et düyməsinə klikləyin.',
+  'help.guide.studio-theme.tip.1':
+    'Mövzuya bağlı elementlər onun rənglərini və şriftlərini alır, mövzu dəyişəndə də ona uyğunlaşır. Hələ bağlı olmayanı da yenidən üslublaşdır əvvəlcə qalanını bağlayır.',
+  'help.guide.studio-theme.tip.2': 'Fotolardan rənglər səyahətin şəkillərindən palitra qurur.',
+  'help.guide.studio-theme.result':
+    'Kitabdakı bütün bağlı rənglər və şriftlər eyni anda dəyişir, mövzunun tətbiqi isə bir geri alma addımıdır.',
   'help.guide.studio-content.tip.1': '«Məzmun» bölməsinin yuxarısındakı axtarış sahəsi hər iki siyahını süzür.',
   'help.guide.studio-content.tip.2':
     'Kompüterinizdən faylı iş masasına atdıqda TREK onu bir addımda yükləyir və yerləşdirir.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Mətn, fiqur və ikonlar əlavə edin',
+  'help.guide.studio-elements.title': 'Mətn, fiqur, ikon və stiker əlavə edin',
   'help.guide.studio-elements.goal': 'Açılıma fotolar və hekayələrdən əlavə bəzək elementləri qoyun.',
-  'help.guide.studio-elements.step.1': 'Yan paneldə «Elementlər»i açın.',
+  'help.guide.studio-elements.step.1':
+    'Paneldə Elementlər bölməsini açın. Altı tab əlavə edə biləcəklərinizi ayırır: Mətn, Fiqurlar, Xətlər, Çərçivələr, İkonlar və Stikerlər.',
   'help.guide.studio-elements.step.2':
-    'Başlıq və ya izahat üçün mətn üslubuna, fiqura, xəttə, şəbəkəyə, çərçivə üslubu olan boş çərçivəyə və ya axtarışı olan kitabxanadan ikona klikləyin. Hər biri açılımın ortasına qoyulur, sonra onu istədiyiniz yerə çəkə bilərsiniz.',
+    'Mətn üslubuna və ya dizayn olunmuş başlığa, fiqura, xəttə, boş çərçivəyə, ikona və ya stikerə klikləyin. Hər biri açılımın ortasına yerləşdirilir və sonra onu köçürə bilərsiniz.',
   'help.guide.studio-elements.result':
     'Mətn elementinə yazmaq üçün onu iki dəfə klikləyin. Şrift, qalınlıq, ölçü, aralıq və düzləndirmə «Xüsusiyyətlər» panelindədir.',
+  'help.guide.studio-stickers.title': 'Stikerlərlə bəzəyin',
+  'help.guide.studio-stickers.goal':
+    'Görməli yerlərdən və yeməklərdən heyvanlara və oxlara qədər illüstrasiyalar əlavə edin.',
+  'help.guide.studio-stickers.step.1': 'Paneldə Elementlər bölməsini açın və Stikerlər seçin.',
+  'help.guide.studio-stickers.step.2':
+    'Söz axtarın və ya rəflərə baxın, sonra stikeri açılıma yerləşdirmək üçün ona klikləyin.',
+  'help.guide.studio-stickers.tip.1':
+    'Stiker seçiləndə Xüsusiyyətlər onun hissələrini yenidən rəngləyir və güzgüdə əks etdirir.',
+  'help.guide.studio-stickers.result': 'Stiker çəkilmiş şəkildir, ona görə də istənilən ölçüdə kəskin qalır.',
   'help.guide.studio-elements.tip.1': 'Çərçivələr boş foto yerləridir: şəkli sonra ora atın.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Xəritə, bayraqlar və rəqəmlər əlavə etmək',
-  'help.guide.studio-travel.goal': 'Səyahətin özünü səhifədə rəqəm və göstəricilərə çevirin.',
-  'help.guide.studio-travel.step.1': 'Paneldə «Səyahət» bölməsini açın.',
+  'help.guide.studio-travel.title': 'Xəritə, rəqəm, ölkə və nişan əlavə edin',
+  'help.guide.studio-travel.goal': 'Səyahətin özünü səhifədə dizayn olunmuş elementlərə çevirin.',
+  'help.guide.studio-travel.step.1':
+    'Paneldə Səyahət bölməsini açın. Dörd tab əlavə edə biləcəklərinizi ayırır: Rəqəmlər, Xəritələr, Ölkələr və Nişanlar.',
   'help.guide.studio-travel.step.2':
-    'Nə əlavə edəcəyinizi seçin: qeydlərin marşrut xəritəsi, ölkə konturları, ölkə siyahısı və ya şəbəkəsi, bayraqlar, tarix, gün və ya məsafə nişanı, yaxud bütün səyahətin xülasəsi. Hər biri səyahət gündəliyinin məlumatlarından qurulur və məlumatlar dəyişəndə yenilənir.',
+    'Hər kart elementi səyahətinizin öz rəqəmləri ilə, mövzunun rənglərində göstərir: afişa, bilet, yol nişanı və ya kilometrsayan kimi xülasə, nömrələnmiş dayanacaqlı və ya bir ölkəyə kəsilmiş xəritə, marka, açıqca və ya sancaq kimi ölkə, möhür, etiket və ya lent kimi tarix və ya məsafə.',
+  'help.guide.studio-travel.step.3':
+    'Karta klikləyin. Element açılımın ortasına yerləşdirilir, sonra onu köçürə və ölçüsünü dəyişə bilərsiniz.',
   'help.guide.studio-travel.result':
-    'Element açılımda görünür. Üslubunu dəyişmək üçün «Xüsusiyyətlər» bölməsindən, ərazisini dəyişmək üçün isə xəritədən istifadə edin.',
+    'Element açılımda görünür. Xüsusiyyətlər onun görünüşünü dəyişir, səyahət dəyişəndə isə hər rəqəm, xəritə və ölkə yenilənir.',
+  'help.guide.studio-text-effects.title': 'Mətnə effekt əlavə edin',
+  'help.guide.studio-text-effects.goal': 'Başlığa kontur, kölgə, əyri və ya naxışla doldurulmuş hərflər verin.',
+  'help.guide.studio-text-effects.step.1': 'Seçmək üçün səhifədəki mətn elementinə klikləyin.',
+  'help.guide.studio-text-effects.step.2':
+    'Xüsusiyyətlərdə Effektlər bölməsini açıb kontur, kölgə və ya vurğu əlavə edin, yaxud hərfləri keçid və ya naxışla doldurun. Hərf ölçüsü və yer sətri əyir və çərçivəyə uyğunlaşdırır.',
+  'help.guide.studio-text-effects.tip.1':
+    'Çərçivəyə sığdır mətni çərçivəyə sığana qədər kiçildir, ona görə də uzun başlıq heç vaxt kənara daşmır.',
+  'help.guide.studio-text-effects.result': 'Effekt mətnlə birlikdə çəkilir, çapda ekrandakı kimi görünür.',
+  'help.guide.studio-background.title': 'Səhifə fonunu dəyişin',
+  'help.guide.studio-background.goal': 'Səhifəni rənglə, keçidlə və ya naxışla boyayın, yaxud altına foto qoyun.',
+  'help.guide.studio-background.step.1':
+    'Heç nə seçilməsin deyə səhifənin boş yerinə klikləyin. Səhifə fonu Xüsusiyyətlərin yuxarısındadır.',
+  'help.guide.studio-background.step.2':
+    'Kağız, Bərk, Keçid və ya Naxış və bir rəng seçin, yaxud Fon kimi foto altında fotoya klikləyin.',
+  'help.guide.studio-background.tip.1': 'Bütün səhifələrə tətbiq et kitabın hər səhifəsinə eyni fonu verir.',
+  'help.guide.studio-background.result':
+    'Fon daşma payına qədər uzanır, ona görə də səhifənin kənarına qədər çap olunur.',
+  'help.guide.studio-layers.title': 'Laylarla düzün, gizlədin və kilidləyin',
+  'help.guide.studio-layers.goal': 'Açılımdakı hər şeyi üst-üstə düzülmə sırası ilə görün və orada onunla işləyin.',
+  'help.guide.studio-layers.step.1': 'Paneldə Laylar bölməsini açın. Siyahının yuxarısı səhifənin ön hissəsidir.',
+  'help.guide.studio-layers.step.2':
+    'Sırasını dəyişmək üçün sətri sürüşdürün, elementi gizlətmək üçün gözdən, yerində saxlamaq üçün kilidən istifadə edin. Bir neçəsini seçib birlikdə köçürmək üçün qruplaşdırın.',
+  'help.guide.studio-layers.tip.1': 'Elementə öz adını vermək üçün sətrə iki dəfə klikləyin.',
+  'help.guide.studio-layers.tip.2': 'Gizlədilmiş elementlər PDF-ə daxil edilmir.',
+  'help.guide.studio-layers.result':
+    'Dolu səhifələrin redaktəsi asan qalır, hazır hissələr isə təsadüfən köçürülə bilməz.',
   'help.guide.studio-travel.tip.1':
-    'Nişanlar açılımın yaradıldığı qeydin məlumatlarını götürür. Ona görə «Avtomatik tərtibat» ilə yaradılmış açılımdakı tarix nişanı artıq həmin günü göstərir.',
+    'Xəritələr altında Dayanacaqlar marşrutun hər dayanacağını sadalayır. Birini xəritələrdən və rəqəmlərdən çıxarmaq üçün söndürün, məsələn ev hava limanınızı.',
+  'help.guide.studio-travel.tip.2':
+    'Ölkə xəritəsi yalnız həmin ölkənin dayanacaqlarını göstərir, ona görə də səyahət uzun uçuşla başlasa belə ölkə səhifəni doldurur.',
   // studio-properties
   'help.guide.studio-properties.title': 'Seçdiyinizi redaktə etmək',
   'help.guide.studio-properties.goal': 'Elementin yerini, kəsimini, üslubunu və qat sırasını inspektorla dəyişin.',
@@ -1076,7 +1143,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Səhifə formatını seçmək',
   'help.guide.studio-format.goal': 'Tərtibata başlamazdan əvvəl kitabın çap ölçüsünü təyin edin.',
-  'help.guide.studio-format.step.1': 'Yuxarı paneldə «Səhifə formatı» düyməsinə klikləyin.',
+  'help.guide.studio-format.step.1':
+    'Yuxarı paneldə, redaktə alətlərinin yanında səhifə formatına klikləyin. O, formatın adını və formasını göstərir.',
   'help.guide.studio-format.step.2':
     '«Kvadrat 21 × 21 sm», «Kvadrat 30 × 30 sm», A4 və ya A5 albom və ya portret formatını seçin, yaxud eni və hündürlüyü millimetrlə özünüz daxil edin. Daşma payı və təhlükəsiz kənar boşluğu aşağıdadır.',
   'help.guide.studio-format.result':

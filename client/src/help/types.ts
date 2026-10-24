@@ -36,6 +36,9 @@ export interface HelpGuideMedia {
 /** Icon names the help components know how to draw (see components/Help/helpIcons.ts). */
 export type HelpIcon =
   | 'plus'
+  | 'sticker'
+  | 'type'
+  | 'paintBucket'
   | 'pencil'
   | 'image'
   | 'copy'

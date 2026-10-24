@@ -1125,13 +1125,12 @@ const help: TranslationStrings = {
   'help.guide.studio.title': 'Lay the journey out as a photo book',
   'help.guide.studio.goal': 'Turn the journal into printable pages.',
   'help.guide.studio.step.1': 'Click Studio in the header. The designer opens on top of the journey.',
-  'help.guide.studio.step.2':
-    "To go back, click the journey's name at the left of the top bar. You return to where you were.",
+  'help.guide.studio.step.2': 'To go back, click × at the right end of the top bar. You return to where you were.',
   'help.guide.studio.tip.1': 'Studio needs a window at least 1024 px wide and is not offered on a phone.',
   'help.guide.studio.tip.2':
     'The book has the same access as the journey: anyone who can read the journey can open the book, and anyone who can edit the journey can save it.',
   'help.guide.studio.result':
-    'The Pages rail is on the left, the spread is on the workbench, and the properties are on the right. Auto layout builds the book from your entries. Export creates a print-ready PDF.',
+    'The rail and its panels are on the left, the spread is on the workbench, and the properties are on the right. Auto layout builds the book from your entries. Export creates a print-ready PDF.',
   'help.guide.archive-journey.title': 'Archive or delete a journey',
   'help.guide.archive-journey.goal': 'Close a finished journey, or delete one permanently.',
   'help.guide.archive-journey.step.1': 'Click ⋯ at the top right of the header to open Journey Settings.',
@@ -1144,19 +1143,23 @@ const help: TranslationStrings = {
     'An archived journey stays readable and shareable; it just no longer opens on today.',
   'help.ctx.journey-studio.title': 'Studio',
   'help.ctx.journey-studio.summary':
-    'TREK Studio lays out a journey as a photo book that you can print. It opens on top of the journal: the page list and the content are on the left, the spread you are working on is in the middle, and its properties are on the right. Auto layout builds a first draft from your entries. After that, you can move, crop and restyle everything, and you can undo every step.',
+    'TREK Studio lays out a journey as a photo book that you can print. It opens on top of the journal: the rail and its panels are on the left, the spread you are working on is in the middle, and its properties are on the right. Auto layout builds a first draft from your entries, a theme gives the book its colours and typefaces, and the assistant can design pages with you. After that, you can move, crop and restyle everything, and you can undo every step.',
   'help.ctx.journey-studio.bullet.1':
-    'Top bar: Back to the journey, Book view, undo and redo, Page format, Auto layout and Export. The Saved mark next to the title shows when the book has been saved.',
+    "Top bar: the journey's cover and name on the left. On the right, who else is in the book and whether it is saved, the page format, undo, redo and paste, Auto layout, the assistant, help, Export and the button that closes Studio.",
   'help.ctx.journey-studio.bullet.2':
-    "Rail on the left with seven sections: Pages, Content (the journey's photos and entries), Layouts, Elements (text, shapes, lines, frames and grids, icons and stickers), Travel (maps, countries, flags and marks built from the journey) and, set apart below them, Theme and Layers.",
+    "Rail on the left: Pages, Content (the journey's photos and entries), Layouts, Elements (text, shapes, lines, frames, icons and stickers), Travel (figures, maps, countries and marks built from the journey) and, set apart below them, Theme and Layers.",
   'help.ctx.journey-studio.bullet.3':
-    'Workbench: the current spread with its bleed and safe margins, the zoom bar below it, Fit to view, and Download this spread on the right.',
+    'Workbench: the current spread with its bleed and safe margins, and the zoom bar below it with Fit to view, Book view and Download this spread.',
   'help.ctx.journey-studio.bullet.4':
-    'Properties on the right: position and size, crop and focal point, fill or fit, look, corners, frame, stacking order and lock of the selected element. When nothing is selected, it shows the page numbers and the document.',
+    'Properties on the right: everything about the selected element, from position, size and crop to colours, effects, stacking order and lock. When nothing is selected, it shows the page background, the theme, the page numbers and the document.',
   'help.ctx.journey-studio.bullet.5':
-    'The book is laid out like a printed book: cover, a single first page, the spreads, a single last page and the back cover. Page numbers count from the first page and print as shown.',
+    'The book is laid out like a printed book: cover, a single first page opposite the blank inside of the cover, the spreads, a single last page and the back cover. Page numbers count from the first page and print as shown.',
   'help.ctx.journey-studio.bullet.6':
     'Several people can design at the same time: everyone sees the pointers of the others with their names. If you save a version that somebody else has changed, TREK shows a conflict instead of overwriting their work.',
+  'help.ctx.journey-studio.bullet.7':
+    'Theme: one look for the whole book, its paper, ink and three accents, its typefaces and its motifs. Elements linked to the theme follow it when you change it.',
+  'help.ctx.journey-studio.bullet.8':
+    'Assistant: where an administrator has set up AI, the speech bubble in the top bar opens an assistant that lays out pages, writes captions and restyles the book with you. Every change it makes is an undo step.',
   'help.guide.studio-auto-layout.title': 'Build the book automatically',
   'help.guide.studio-auto-layout.goal':
     "Get a complete first draft from the journal's entries and photos in one click.",
@@ -1173,7 +1176,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Add, move and remove spreads',
   'help.guide.studio-pages.goal': 'Edit the book page by page.',
   'help.guide.studio-pages.step.1':
-    'Open Pages in the sidebar. The thumbnails show the book in order: cover, first page, spreads, last page, back cover.',
+    'Open Pages in the rail. The thumbnails show the book in order: cover, first page, spreads, last page and back cover. The first and the last page are drawn beside the blank inside of their cover, the way the bound book opens.',
   'help.guide.studio-pages.step.2':
     'Add spread at the bottom adds a new spread before the last page. The + between two thumbnails inserts one at that position.',
   'help.guide.studio-pages.step.3':
@@ -1185,12 +1188,21 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Apply a layout to a spread',
   'help.guide.studio-layouts.goal': 'Give a spread a ready-made arrangement of photo and text frames.',
   'help.guide.studio-layouts.step.1':
-    "Open Layouts in the rail. Designed pages come first: whole covers and spreads set in the book's theme, which the style chips narrow to one look. The book's own layouts and the built-in ones follow below them.",
+    "Open Layouts in the rail. Designed pages come first: whole covers and spreads set in the book's theme, which the style chips narrow to one look. My layouts and Built in follow below them, in the same grid.",
   'help.guide.studio-layouts.step.2':
     'Click one. The spread on the workbench gets the frames of this layout, and your existing photos and text are placed into them.',
   'help.guide.studio-layouts.tip.1': 'A layout is an undo step like any other.',
   'help.guide.studio-layouts.result':
     'Empty frames are placeholders for content: drag a photo from Content onto one, or use Add to this page.',
+  'help.guide.studio-my-layouts.title': 'Save a page as your own layout',
+  'help.guide.studio-my-layouts.goal': 'Reuse an arrangement you built on other pages of the book.',
+  'help.guide.studio-my-layouts.step.1': 'Arrange a page the way you like it, then open Layouts in the rail.',
+  'help.guide.studio-my-layouts.step.2':
+    'Click Save this page as a layout under My layouts. The page appears as a card in the list.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Click your layout on another page to lay that page out the same way, with its own photos and words.',
+  'help.guide.studio-my-layouts.result':
+    "Your layouts are saved with the book and offered on pages of the same kind: a cover's for covers, a spread's for spreads.",
   'help.guide.studio-content.title': 'Put photos and entries on a page',
   'help.guide.studio-content.goal': "Add the journey's own photos and entries to the spread.",
   'help.guide.studio-content.step.1':
@@ -1204,23 +1216,74 @@ const help: TranslationStrings = {
     'When you drop a file from your desktop onto the workbench, TREK uploads it and places it in one step.',
   'help.guide.studio-content.result':
     'A dropped photo becomes a photo element. Text stays linked to the entry until you edit it.',
-  'help.guide.studio-elements.title': 'Add text, shapes and icons',
+  'help.guide.studio-theme.title': 'Give the book a theme',
+  'help.guide.studio-theme.goal': 'Set the colours and typefaces of the whole book in one go.',
+  'help.guide.studio-theme.step.1':
+    'Open Theme in the rail. Each card shows a theme as a little page: its paper, its typeface and its three accent colours.',
+  'help.guide.studio-theme.step.2':
+    'Click a theme to try it. Below the cards you can change its palette, pick other typefaces and choose motifs and decoration.',
+  'help.guide.studio-theme.step.3': 'Click Apply to the book, or Apply to this page for the spread on screen.',
+  'help.guide.studio-theme.tip.1':
+    'Elements linked to the theme take its colours and typefaces and follow when you change it. Also restyle what is not linked yet links the rest first.',
+  'help.guide.studio-theme.tip.2': 'Colours from the photos builds a palette from the pictures of the journey.',
+  'help.guide.studio-theme.result':
+    'Every linked colour and typeface in the book changes at once, and applying the theme is one undo step.',
+  'help.guide.studio-elements.title': 'Add text, shapes, icons and stickers',
   'help.guide.studio-elements.goal': 'Add decoration to a spread in addition to photos and stories.',
-  'help.guide.studio-elements.step.1': 'Open Elements in the sidebar.',
+  'help.guide.studio-elements.step.1':
+    'Open Elements in the rail. Six tabs sort what you can add: Text, Shapes, Lines, Frames, Icons and Stickers.',
   'help.guide.studio-elements.step.2':
-    'Click a text style for a headline or caption, a shape, a line, a grid, an empty frame with a frame style, or an icon from the searchable library. Each one is placed in the middle of the spread, and you can then move it.',
+    'Click a text style or a designed title, a shape, a line, an empty frame, an icon or a sticker. Each one is placed in the middle of the spread, and you can then move it.',
   'help.guide.studio-elements.tip.1': 'Frames are empty photo slots: drop a picture in later.',
   'help.guide.studio-elements.result':
     'Double-click a text element to type into it; Properties holds font, weight, size, spacing and alignment.',
-  'help.guide.studio-travel.title': 'Add a map, flags and figures',
-  'help.guide.studio-travel.goal': 'Turn the journey itself into figures on the page.',
-  'help.guide.studio-travel.step.1': 'Open Travel in the rail.',
+  'help.guide.studio-stickers.title': 'Decorate with stickers',
+  'help.guide.studio-stickers.goal': 'Add illustrations, from landmarks and food to animals and arrows.',
+  'help.guide.studio-stickers.step.1': 'Open Elements in the rail and choose Stickers.',
+  'help.guide.studio-stickers.step.2':
+    'Search for a word or browse the shelves, then click a sticker to place it on the spread.',
+  'help.guide.studio-stickers.tip.1': 'With a sticker selected, Properties recolours its parts and mirrors it.',
+  'help.guide.studio-stickers.result': 'The sticker is a drawing, so it stays sharp at any size.',
+  'help.guide.studio-travel.title': 'Add maps, figures, countries and marks',
+  'help.guide.studio-travel.goal': 'Turn the journey itself into designed elements on the page.',
+  'help.guide.studio-travel.step.1':
+    'Open Travel in the rail. Four tabs sort what you can add: Figures, Maps, Countries and Marks.',
   'help.guide.studio-travel.step.2':
-    "Pick what to add: a route map of the entries, country outlines, a country list or grid, flags, a date, day or distance mark, or a summary of the whole trip. Each is built from the journey's data and updates when the data changes.",
+    "Each card shows the element with your journey's own numbers, in the colours of the theme: a summary as a poster, a ticket, a road sign or an odometer, a map with numbered stops or cut to a country, a country as a stamp, a postcard or a pin, a date or a distance as a stamp, a tag or a ribbon.",
+  'help.guide.studio-travel.step.3':
+    'Click a card. The element is placed in the middle of the spread, and you can then move it and size it.',
   'help.guide.studio-travel.tip.1':
-    'Marks use the data of the entry that the spread was made from. So a date mark on a spread made by Auto layout already shows that day.',
+    'Under Maps, Stops lists every stop of the route. Switch one off to leave it out of the maps and figures, your home airport for instance.',
+  'help.guide.studio-travel.tip.2':
+    "A country map shows that country's stops alone, so the country fills the page even when the journey began with a long flight.",
   'help.guide.studio-travel.result':
-    'The element appears on the spread. Use Properties to change its style, and the map to change its area.',
+    'The element appears on the spread. Properties changes its look, and every figure, map and country updates when the journey changes.',
+  'help.guide.studio-text-effects.title': 'Add effects to text',
+  'help.guide.studio-text-effects.goal':
+    'Give a headline an outline, a shadow, a curve or letters filled with a pattern.',
+  'help.guide.studio-text-effects.step.1': 'Click a text element on the page to select it.',
+  'help.guide.studio-text-effects.step.2':
+    'In Properties, open Effects to add an outline, a shadow or a highlight, or fill the letters with a gradient or a pattern. Placement curves the line and fits it to its box.',
+  'help.guide.studio-text-effects.tip.1':
+    'Fit shrinks the text until it fits its box, so a long title never spills over.',
+  'help.guide.studio-text-effects.result': 'The effect is drawn with the text, in print the same as on screen.',
+  'help.guide.studio-background.title': 'Change the page background',
+  'help.guide.studio-background.goal': 'Paint the page in a colour, a gradient or a pattern, or lay a photo under it.',
+  'help.guide.studio-background.step.1':
+    'Click an empty part of the page so nothing is selected. Page background is at the top of Properties.',
+  'help.guide.studio-background.step.2':
+    'Choose Paper, Solid, Gradient or Pattern and a colour, or click a photo under Photo as background.',
+  'help.guide.studio-background.tip.1': 'Apply to all pages gives every page of the book the same background.',
+  'help.guide.studio-background.result': 'The background runs into the bleed, so it prints to the edge of the page.',
+  'help.guide.studio-layers.title': 'Arrange, hide and lock with layers',
+  'help.guide.studio-layers.goal': 'See everything on the spread in stacking order and work on it there.',
+  'help.guide.studio-layers.step.1': 'Open Layers in the rail. The top of the list is the front of the page.',
+  'help.guide.studio-layers.step.2':
+    'Drag a row to restack it, use the eye to hide an element and the lock to keep it in place. Select several and group them to move them together.',
+  'help.guide.studio-layers.tip.1': 'Double-click a row to give the element a name of its own.',
+  'help.guide.studio-layers.tip.2': 'Hidden elements are left out of the PDF.',
+  'help.guide.studio-layers.result':
+    'Busy pages stay easy to edit, and the finished parts cannot be moved by accident.',
   'help.guide.studio-properties.title': 'Edit what you selected',
   'help.guide.studio-properties.goal': 'Move, crop, style and stack an element with the inspector.',
   'help.guide.studio-properties.step.1':
@@ -1236,7 +1299,8 @@ const help: TranslationStrings = {
     'You cannot select or move a locked element on the page. This protects a finished layout while you work on the other elements.',
   'help.guide.studio-format.title': 'Choose the page format',
   'help.guide.studio-format.goal': 'Set the print size of the book before you build the layout.',
-  'help.guide.studio-format.step.1': 'Click Page format in the top bar.',
+  'help.guide.studio-format.step.1':
+    "Click the page format in the top bar, beside the editing tools. It shows the format's name and shape.",
   'help.guide.studio-format.step.2':
     'Pick Square 21 × 21 cm, Square 30 × 30 cm, A4 or A5 landscape or portrait, or enter a custom width and height in millimetres. Bleed and safe margin are below.',
   'help.guide.studio-format.tip.1':

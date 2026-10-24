@@ -902,10 +902,9 @@ const help: TranslationStrings = {
   'help.guide.studio.title': 'Tworzenie fotoksiążki z dziennika',
   'help.guide.studio.goal': 'Zamień dziennik w strony do druku.',
   'help.guide.studio.step.1': 'Kliknij Studio w nagłówku. Nad dziennikiem otworzy się projektant.',
-  'help.guide.studio.step.2':
-    'Aby wrócić, kliknij nazwę dziennika po lewej stronie górnego paska. Wrócisz tam, gdzie byłeś.',
+  'help.guide.studio.step.2': 'Aby wrócić, kliknij × na prawym końcu górnego paska. Wrócisz tam, gdzie byłeś.',
   'help.guide.studio.result':
-    'Po lewej jest pasek stron, na środku rozkładówka na stole roboczym, a po prawej właściwości. „Automatyczny układ” tworzy książkę z Twoich wpisów, a „Eksportuj” tworzy PDF gotowy do druku.',
+    'Pasek boczny i jego panele są po lewej, rozkładówka na obszarze roboczym, a właściwości po prawej. Układ automatyczny buduje książkę z Twoich wpisów. Eksportuj tworzy plik PDF gotowy do druku.',
   'help.guide.studio.tip.1': 'Studio wymaga okna o szerokości co najmniej 1024 px i nie jest dostępne na telefonie.',
   'help.guide.studio.tip.2':
     'Książka ma te same uprawnienia co dziennik: kto może czytać dziennik, może otworzyć książkę, a kto może edytować dziennik, może ją zapisać.',
@@ -938,19 +937,23 @@ const help: TranslationStrings = {
   // ── Screen: journey-studio ────────────────────────────────────────────────────────────
   'help.ctx.journey-studio.title': 'Studio', // same-as-en
   'help.ctx.journey-studio.summary':
-    'TREK Studio zamienia dziennik w fotoksiążkę do wydruku. Otwiera się nad dziennikiem: po lewej jest lista stron i treść, na środku rozkładówka, nad którą pracujesz, a po prawej jej właściwości. Automatyczny układ tworzy pierwszą wersję z Twoich wpisów. Potem możesz wszystko przesuwać, kadrować i zmieniać styl, a każdy krok da się cofnąć.',
+    'TREK Studio układa dziennik w fotoksiążkę, którą można wydrukować. Otwiera się nad dziennikiem: pasek boczny i jego panele są po lewej, rozkładówka, nad którą pracujesz, pośrodku, a jej właściwości po prawej. Układ automatyczny buduje pierwszy szkic z Twoich wpisów, motyw nadaje książce kolory i kroje pisma, a asystent może projektować strony razem z Tobą. Potem możesz przesuwać, kadrować i zmieniać styl wszystkiego, a każdy krok da się cofnąć.',
   'help.ctx.journey-studio.bullet.1':
-    'Górny pasek: Wróć do dziennika, Widok książki, cofanie i ponawianie, Format strony, Układ automatyczny oraz Eksportuj. Znacznik Zapisano obok tytułu pokazuje, kiedy książka została zapisana.',
+    'Górny pasek: po lewej okładka i nazwa dziennika. Po prawej kto jeszcze jest w książce i czy jest zapisana, format strony, cofnij, ponów i wklej, Układ automatyczny, asystent, pomoc, Eksportuj oraz przycisk zamykający Studio.',
   'help.ctx.journey-studio.bullet.2':
-    'Pasek po lewej ma siedem sekcji: Strony, Treść (zdjęcia i wpisy z dziennika), Układy, Elementy (tekst, kształty, linie, ramki i siatki, ikony i naklejki), Podróż (mapy, kraje, flagi i znaczniki utworzone z dziennika) oraz, osobno pod nimi, Motyw i Warstwy.',
+    'Pasek boczny po lewej: Strony, Treść (zdjęcia i wpisy z dziennika), Układy, Elementy (tekst, kształty, linie, ramki, ikony i naklejki), Podróż (liczby, mapy, kraje i znaczniki zbudowane z dziennika) oraz, osobno pod nimi, Motyw i Warstwy.',
   'help.ctx.journey-studio.bullet.3':
-    'Obszar roboczy: bieżąca rozkładówka ze spadem i marginesami bezpieczeństwa, pod nią pasek powiększenia, „Fit to view”, a po prawej „Pobierz tę rozkładówkę”.',
+    'Obszar roboczy: bieżąca rozkładówka ze spadem i marginesami bezpieczeństwa, a pod nią pasek powiększenia z opcjami Dopasuj do widoku, Widok książki i Pobierz tę rozkładówkę.',
   'help.ctx.journey-studio.bullet.4':
-    'Panel Properties po prawej: pozycja i rozmiar, kadrowanie i punkt ostrości, wypełnienie lub dopasowanie, wygląd, narożniki, ramka, kolejność warstw i blokada zaznaczonego elementu. Gdy nic nie jest zaznaczone, panel pokazuje numery stron i ustawienia dokumentu.',
+    'Właściwości po prawej: wszystko o zaznaczonym elemencie, od położenia, rozmiaru i kadrowania po kolory, efekty, kolejność warstw i blokadę. Gdy nic nie jest zaznaczone, pokazują tło strony, motyw, numery stron i dokument.',
   'help.ctx.journey-studio.bullet.5':
-    'Książka ma układ drukowanej książki: okładka, pojedyncza pierwsza strona, rozkładówki, pojedyncza ostatnia strona i tylna okładka. Numery stron liczą się od pierwszej strony i drukują się tak, jak je widzisz.',
+    'Książka jest ułożona jak książka drukowana: okładka, pojedyncza pierwsza strona naprzeciw pustej wewnętrznej strony okładki, rozkładówki, pojedyncza ostatnia strona i tylna okładka. Numery stron liczą się od pierwszej strony i drukują się tak, jak je widać.',
   'help.ctx.journey-studio.bullet.6':
     'Kilka osób może projektować jednocześnie: każdy widzi kursory pozostałych z ich imionami. Jeśli zapiszesz wersję, którą ktoś inny w międzyczasie zmienił, TREK pokaże konflikt zamiast nadpisać jego pracę.',
+  'help.ctx.journey-studio.bullet.7':
+    'Motyw: jeden wygląd całej książki, jej papier, tusz i trzy kolory akcentowe, kroje pisma i motywy ozdobne. Elementy powiązane z motywem podążają za nim, gdy go zmienisz.',
+  'help.ctx.journey-studio.bullet.8':
+    'Asystent: tam, gdzie administrator skonfigurował AI, dymek na górnym pasku otwiera asystenta, który układa strony, pisze podpisy i zmienia styl książki razem z Tobą. Każda jego zmiana to krok do cofnięcia.',
   // studio-auto-layout
   'help.guide.studio-auto-layout.title': 'Automatyczne tworzenie książki',
   'help.guide.studio-auto-layout.goal':
@@ -970,7 +973,7 @@ const help: TranslationStrings = {
   'help.guide.studio-pages.title': 'Dodawaj, przenoś i usuwaj rozkładówki',
   'help.guide.studio-pages.goal': 'Edytuj książkę strona po stronie.',
   'help.guide.studio-pages.step.1':
-    'Otwórz Pages na pasku bocznym. Miniatury pokazują książkę po kolei: okładkę, pierwszą stronę, rozkładówki, ostatnią stronę i tylną okładkę.',
+    'Otwórz Strony na pasku bocznym. Miniatury pokazują książkę po kolei: okładka, pierwsza strona, rozkładówki, ostatnia strona i tylna okładka. Pierwsza i ostatnia strona są narysowane obok pustej wewnętrznej strony swojej okładki, tak jak otwiera się oprawiona książka.',
   'help.guide.studio-pages.step.2':
     '„Dodaj stronę” na dole dodaje nową rozkładówkę przed ostatnią stroną. Znak + między dwiema miniaturami wstawia ją w tym miejscu.',
   'help.guide.studio-pages.step.3':
@@ -985,11 +988,20 @@ const help: TranslationStrings = {
   'help.guide.studio-layouts.title': 'Zastosuj układ do rozkładówki',
   'help.guide.studio-layouts.goal': 'Nadaj rozkładówce gotowy układ ramek na zdjęcia i tekst.',
   'help.guide.studio-layouts.step.1':
-    'Otwórz Layouts na pasku bocznym. Najpierw są zaprojektowane strony: całe okładki i rozkładówki w motywie książki, które przyciski stylu zawężają do jednego wyglądu. Pod nimi są własne układy książki i układy wbudowane.',
+    'Otwórz Układy na pasku bocznym. Najpierw są zaprojektowane strony: całe okładki i rozkładówki w motywie książki, które przyciski stylu zawężają do jednego wyglądu. Pod nimi, w tej samej siatce, są Moje układy i Wbudowane.',
   'help.guide.studio-layouts.step.2':
     'Kliknij jeden z układów. Rozkładówka na stole roboczym dostaje ramki tego układu, a Twoje dotychczasowe zdjęcia i teksty zostają w nich rozmieszczone.',
   'help.guide.studio-layouts.result':
     'Puste ramki to miejsca na treść: przeciągnij na nie zdjęcie z panelu „Treść” albo użyj „Dodaj do tej strony”.',
+  'help.guide.studio-my-layouts.title': 'Zapisz stronę jako własny układ',
+  'help.guide.studio-my-layouts.goal': 'Użyj ponownie układu, który zbudowałeś na innych stronach książki.',
+  'help.guide.studio-my-layouts.step.1': 'Ułóż stronę tak, jak chcesz, a potem otwórz Układy na pasku bocznym.',
+  'help.guide.studio-my-layouts.step.2':
+    'Kliknij Zapisz tę stronę jako układ w sekcji Moje układy. Strona pojawi się na liście jako karta.',
+  'help.guide.studio-my-layouts.tip.1':
+    'Kliknij swój układ na innej stronie, aby ułożyć ją tak samo, z jej własnymi zdjęciami i tekstami.',
+  'help.guide.studio-my-layouts.result':
+    'Twoje układy zapisują się razem z książką i są proponowane na stronach tego samego rodzaju: układ okładki dla okładek, układ rozkładówki dla rozkładówek.',
   'help.guide.studio-layouts.tip.1': 'Zmianę układu można cofnąć jak każdy inny krok.',
   // studio-content
   'help.guide.studio-content.title': 'Umieść zdjęcia i wpisy na stronie',
@@ -1002,28 +1014,80 @@ const help: TranslationStrings = {
     'Pod wpisem opcje Title, Story i Place umieszczają dany tekst na stronie jako element tekstowy. Data i współrzędne są dodawane jako znaczniki, a pod wpisem są też jego zdjęcia.',
   'help.guide.studio-content.result':
     'Upuszczone zdjęcie staje się elementem zdjęcia. Tekst pozostaje powiązany z wpisem, dopóki go nie zmienisz.',
+  'help.guide.studio-theme.title': 'Nadaj książce motyw',
+  'help.guide.studio-theme.goal': 'Ustaw kolory i kroje pisma całej książki za jednym razem.',
+  'help.guide.studio-theme.step.1':
+    'Otwórz Motyw na pasku bocznym. Każda karta pokazuje motyw jako małą stronę: jego papier, krój pisma i trzy kolory akcentowe.',
+  'help.guide.studio-theme.step.2':
+    'Kliknij motyw, aby go wypróbować. Pod kartami możesz zmienić jego paletę, wybrać inne kroje pisma oraz motywy ozdobne i dekoracje.',
+  'help.guide.studio-theme.step.3':
+    'Kliknij Zastosuj do książki albo Zastosuj do tej strony, aby objąć rozkładówkę widoczną na ekranie.',
+  'help.guide.studio-theme.tip.1':
+    'Elementy powiązane z motywem przejmują jego kolory i kroje pisma i podążają za nim, gdy go zmienisz. Przestylizuj też to, co nie jest jeszcze powiązane, najpierw powiązuje resztę.',
+  'help.guide.studio-theme.tip.2': 'Kolory ze zdjęć buduje paletę z obrazów z dziennika.',
+  'help.guide.studio-theme.result':
+    'Wszystkie powiązane kolory i kroje pisma w książce zmieniają się naraz, a zastosowanie motywu to jeden krok do cofnięcia.',
   'help.guide.studio-content.tip.1': 'Pole wyszukiwania u góry panelu „Treść” filtruje obie listy.',
   'help.guide.studio-content.tip.2':
     'Gdy przeciągniesz plik z pulpitu na stół roboczy, TREK od razu go prześle i umieści.',
   // studio-elements
-  'help.guide.studio-elements.title': 'Dodaj tekst, kształty i ikony',
+  'help.guide.studio-elements.title': 'Dodawanie tekstu, kształtów, ikon i naklejek',
   'help.guide.studio-elements.goal': 'Ozdób rozkładówkę nie tylko zdjęciami i opowieściami.',
-  'help.guide.studio-elements.step.1': 'Otwórz Elements na pasku bocznym.',
+  'help.guide.studio-elements.step.1':
+    'Otwórz Elementy na pasku bocznym. Sześć kart porządkuje to, co możesz dodać: Tekst, Kształty, Linie, Ramki, Ikony i Naklejki.',
   'help.guide.studio-elements.step.2':
-    'Kliknij styl tekstu dla nagłówka lub podpisu, kształt, linię, siatkę, pustą ramkę ze stylem ramki albo ikonę z biblioteki z wyszukiwarką. Każdy element pojawi się na środku rozkładówki, a potem możesz go przesunąć.',
+    'Kliknij styl tekstu lub zaprojektowany tytuł, kształt, linię, pustą ramkę, ikonę albo naklejkę. Każdy z nich trafia na środek rozkładówki, a potem możesz go przesunąć.',
   'help.guide.studio-elements.result':
     'Kliknij dwukrotnie element tekstowy, aby w nim pisać. W panelu „Właściwości” ustawisz czcionkę, grubość, rozmiar, odstępy i wyrównanie.',
+  'help.guide.studio-stickers.title': 'Ozdabianie naklejkami',
+  'help.guide.studio-stickers.goal': 'Dodaj ilustracje, od zabytków i jedzenia po zwierzęta i strzałki.',
+  'help.guide.studio-stickers.step.1': 'Otwórz Elementy na pasku bocznym i wybierz Naklejki.',
+  'help.guide.studio-stickers.step.2':
+    'Wyszukaj słowo lub przeglądaj półki, a potem kliknij naklejkę, aby umieścić ją na rozkładówce.',
+  'help.guide.studio-stickers.tip.1':
+    'Przy zaznaczonej naklejce Właściwości zmieniają kolory jej części i odbijają ją lustrzanie.',
+  'help.guide.studio-stickers.result': 'Naklejka jest rysunkiem, więc pozostaje ostra w każdym rozmiarze.',
   'help.guide.studio-elements.tip.1': 'Ramki to puste miejsca na zdjęcia: obraz możesz wstawić później.',
   // studio-travel
-  'help.guide.studio-travel.title': 'Dodawanie mapy, flag i liczb',
-  'help.guide.studio-travel.goal': 'Zamień samą podróż w liczby na stronie.',
-  'help.guide.studio-travel.step.1': 'Otwórz „Podróż” na pasku bocznym.',
+  'help.guide.studio-travel.title': 'Dodawanie map, liczb, krajów i znaczników',
+  'help.guide.studio-travel.goal': 'Zamień samą podróż w zaprojektowane elementy na stronie.',
+  'help.guide.studio-travel.step.1':
+    'Otwórz Podróż na pasku bocznym. Cztery karty porządkują to, co możesz dodać: Liczby, Mapy, Kraje i Znaczniki.',
   'help.guide.studio-travel.step.2':
-    'Wybierz, co chcesz dodać: mapę trasy wpisów, kontury krajów, listę lub siatkę krajów, flagi, znacznik daty, dnia lub dystansu albo podsumowanie całej podróży. Każdy element powstaje z danych dziennika i aktualizuje się, gdy dane się zmieniają.',
+    'Każda karta pokazuje element z liczbami z Twojego dziennika, w kolorach motywu: podsumowanie jako plakat, bilet, znak drogowy lub licznik kilometrów, mapę z ponumerowanymi przystankami albo przyciętą do jednego kraju, kraj jako stempel, pocztówkę lub pinezkę, datę albo odległość jako stempel, metkę lub wstęgę.',
+  'help.guide.studio-travel.step.3':
+    'Kliknij kartę. Element trafia na środek rozkładówki, a potem możesz go przesunąć i zmienić jego rozmiar.',
   'help.guide.studio-travel.result':
-    'Element pojawia się na rozkładówce. Jego styl zmienisz w panelu „Właściwości”, a obszar na mapie.',
+    'Element pojawia się na rozkładówce. Właściwości zmieniają jego wygląd, a każda liczba, mapa i kraj aktualizują się, gdy zmieni się dziennik.',
+  'help.guide.studio-text-effects.title': 'Dodawanie efektów do tekstu',
+  'help.guide.studio-text-effects.goal': 'Nadaj nagłówkowi obrys, cień, łuk albo litery wypełnione wzorem.',
+  'help.guide.studio-text-effects.step.1': 'Kliknij element tekstowy na stronie, aby go zaznaczyć.',
+  'help.guide.studio-text-effects.step.2':
+    'We Właściwościach otwórz Efekty, aby dodać obrys, cień lub podświetlenie albo wypełnić litery gradientem lub wzorem. Wielkość liter i położenie wygina linię i dopasowuje ją do ramki.',
+  'help.guide.studio-text-effects.tip.1':
+    'Dopasuj do ramki zmniejsza tekst, aż zmieści się w ramce, więc długi tytuł nigdy się nie wylewa.',
+  'help.guide.studio-text-effects.result': 'Efekt jest rysowany razem z tekstem, w druku tak samo jak na ekranie.',
+  'help.guide.studio-background.title': 'Zmiana tła strony',
+  'help.guide.studio-background.goal': 'Pomaluj stronę kolorem, gradientem lub wzorem albo połóż pod spodem zdjęcie.',
+  'help.guide.studio-background.step.1':
+    'Kliknij puste miejsce na stronie, aby nic nie było zaznaczone. Tło strony jest na górze Właściwości.',
+  'help.guide.studio-background.step.2':
+    'Wybierz Papier, Jednolite, Gradient lub Wzór i kolor albo kliknij zdjęcie w sekcji Zdjęcie jako tło.',
+  'help.guide.studio-background.tip.1': 'Zastosuj do wszystkich stron daje każdej stronie książki to samo tło.',
+  'help.guide.studio-background.result': 'Tło sięga w spad, więc drukuje się aż do krawędzi strony.',
+  'help.guide.studio-layers.title': 'Porządkowanie, ukrywanie i blokowanie warstwami',
+  'help.guide.studio-layers.goal': 'Zobacz wszystko na rozkładówce w kolejności warstw i pracuj na tym właśnie tam.',
+  'help.guide.studio-layers.step.1': 'Otwórz Warstwy na pasku bocznym. Góra listy to przód strony.',
+  'help.guide.studio-layers.step.2':
+    'Przeciągnij wiersz, aby zmienić kolejność, użyj oka, aby ukryć element, i kłódki, aby zostawić go na miejscu. Zaznacz kilka i zgrupuj je, aby przesuwać razem.',
+  'help.guide.studio-layers.tip.1': 'Kliknij wiersz dwukrotnie, aby nadać elementowi własną nazwę.',
+  'help.guide.studio-layers.tip.2': 'Ukryte elementy nie trafiają do pliku PDF.',
+  'help.guide.studio-layers.result':
+    'Zapełnione strony nadal łatwo edytować, a gotowych części nie da się przypadkiem przesunąć.',
   'help.guide.studio-travel.tip.1':
-    'Znaczniki korzystają z danych wpisu, z którego powstała rozkładówka. Dlatego znacznik daty na rozkładówce utworzonej przez Auto layout od razu pokazuje właściwy dzień.',
+    'W Mapach lista Przystanki zawiera każdy przystanek trasy. Wyłącz jeden, aby pominąć go na mapach i w liczbach, na przykład lotnisko w miejscu zamieszkania.',
+  'help.guide.studio-travel.tip.2':
+    'Mapa kraju pokazuje same przystanki tego kraju, więc kraj wypełnia stronę, nawet gdy podróż zaczęła się od długiego lotu.',
   // studio-properties
   'help.guide.studio-properties.title': 'Edycja zaznaczonego elementu',
   'help.guide.studio-properties.goal': 'Przesuwaj, kadruj, styluj i układaj warstwy elementu w inspektorze.',
@@ -1042,7 +1106,8 @@ const help: TranslationStrings = {
   // studio-format
   'help.guide.studio-format.title': 'Wybór formatu strony',
   'help.guide.studio-format.goal': 'Ustaw rozmiar druku książki, zanim zbudujesz układ.',
-  'help.guide.studio-format.step.1': 'Kliknij „Page format” na górnym pasku.',
+  'help.guide.studio-format.step.1':
+    'Kliknij format strony na górnym pasku, obok narzędzi edycji. Pokazuje nazwę i kształt formatu.',
   'help.guide.studio-format.step.2':
     'Wybierz Square 21 × 21 cm, Square 30 × 30 cm, A4 lub A5 w orientacji landscape albo portrait albo wpisz własną szerokość i wysokość w milimetrach. Spad i margines bezpieczeństwa ustawisz poniżej.',
   'help.guide.studio-format.result':
