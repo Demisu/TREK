@@ -1000,35 +1000,36 @@ export class VacayService {
   }
 
   async addYear(planId: number, year: number, socketId: string | undefined): Promise<number[]> {
-    // A duplicate year is a no-op (the legacy blanket try/catch was written for
-    // exactly this constraint hit); real errors now propagate instead of being
-    // swallowed. The insert + per-user seeding runs atomically.
-    const exists = await this.years.exists(planId, year);
-    if (!exists) {
-      await this.uow.transactional(async () => {
-        await this.years.insertYear(planId, year);
-        const plan = await this.plans.findById(planId);
-        const carryOverEnabled = plan ? !!plan.carry_over_enabled : true;
-        const users = await this.getPlanUsers(planId);
-        for (const u of users) {
-          let carriedOver = 0;
-          if (carryOverEnabled) {
-            const prevConfig = await this.userYears.findForYear(u.id, planId, year - 1);
-            if (prevConfig) {
-              const used = await this.usedDays(u.id, planId, year - 1);
-              // L1 (task-7-review.md): `?? 0`, not `?? 30` — reproduces
-              // legacy's raw `prevConfig.vacation_days + prevConfig.carried_over`,
-              // where a NULL vacation_days coerced to 0 in the `+`, never to 30.
-              const total = (prevConfig.vacation_days ?? 0) + (prevConfig.carried_over ?? 0);
-              carriedOver = Math.max(0, total - used);
-            }
-          }
-          await this.userYears.insertIgnore(u.id, planId, year, 30, carriedOver);
-        }
-      });
-    }
+    // A duplicate year is a no-op (the legacy blanket try/catch was written for exactly this
+    // constraint hit); real errors propagate. The insert + per-user seeding runs atomically.
+    if (!(await this.years.exists(planId, year))) await this.openYear(planId, year);
     await this.notifyPlanUsers(planId, socketId, 'vacay:settings');
     return await this.listYears(planId);
+  }
+
+  /** The year's row and every member's allowance for it, with no broadcast: the caller sends it after its commit. */
+  private async openYear(planId: number, year: number): Promise<void> {
+    await this.uow.transactional(async () => {
+      await this.years.insertYear(planId, year);
+      const plan = await this.plans.findById(planId);
+      const carryOverEnabled = plan ? !!plan.carry_over_enabled : true;
+      const users = await this.getPlanUsers(planId);
+      for (const u of users) {
+        let carriedOver = 0;
+        if (carryOverEnabled) {
+          const prevConfig = await this.userYears.findForYear(u.id, planId, year - 1);
+          if (prevConfig) {
+            const used = await this.usedDays(u.id, planId, year - 1);
+            // L1 (task-7-review.md): `?? 0`, not `?? 30` — reproduces
+            // legacy's raw `prevConfig.vacation_days + prevConfig.carried_over`,
+            // where a NULL vacation_days coerced to 0 in the `+`, never to 30.
+            const total = (prevConfig.vacation_days ?? 0) + (prevConfig.carried_over ?? 0);
+            carriedOver = Math.max(0, total - used);
+          }
+        }
+        await this.userYears.insertIgnore(u.id, planId, year, 30, carriedOver);
+      }
+    });
   }
 
   async deleteYear(planId: number, year: number, socketId: string | undefined): Promise<number[]> {
@@ -1119,38 +1120,32 @@ export class VacayService {
     const knd = normalizeKind(kind);
     const weekendBlocked = plan ? isBlockedWeekend(plan, date) : false;
     const existing = await this.entries.findByUserDatePlan(userId, date, planId);
-    if (existing) {
-      // Clicking the exact same day again (same type AND same fraction) clears it;
-      // clicking a different type or fraction converts it in place (#552/#1074).
-      if (existing.fraction === frac && (existing.kind || 'vacation') === knd) {
-        await this.entries.deleteById(existing.id);
-        await this.notifyPlanUsers(planId, socketId);
-        return { action: 'removed' };
-      }
-      // Removing a stray entry on a blocked day stays possible; keeping one
-      // there (converted in place) does not.
-      if (weekendBlocked) return { error: 'weekend_blocked' };
-      await this.uow.transactional(async () => {
-        await this.entries.updateFractionKind(existing.id, frac, knd);
-        await this.ensureYearOf(planId, userId, date);
-      });
+    // Clicking the exact same day again (same type AND same fraction) clears it;
+    // clicking a different type or fraction converts it in place (#552/#1074).
+    if (existing && existing.fraction === frac && (existing.kind || 'vacation') === knd) {
+      await this.entries.deleteById(existing.id);
       await this.notifyPlanUsers(planId, socketId);
-      return { action: 'updated', fraction: frac, kind: knd };
+      return { action: 'removed' };
     }
+    // Removing a stray entry on a blocked day stays possible; keeping one there does not.
     if (weekendBlocked) return { error: 'weekend_blocked' };
-    await this.uow.transactional(async () => {
-      await this.entries.insertEntry(planId, userId, date, '', frac, knd);
-      await this.ensureYearOf(planId, userId, date);
+    const opened = await this.uow.transactional(async () => {
+      if (existing) await this.entries.updateFractionKind(existing.id, frac, knd);
+      else await this.entries.insertEntry(planId, userId, date, '', frac, knd);
+      return this.ensureYearOf(planId, userId, date);
     });
+    if (opened) await this.notifyPlanUsers(planId, undefined, 'vacay:settings');
     await this.notifyPlanUsers(planId, socketId);
-    return { action: 'added', fraction: frac, kind: knd };
+    return { action: existing ? 'updated' : 'added', fraction: frac, kind: knd };
   }
 
   /** A day written for a year the plan has not opened adds that year, or the calendar never shows it (#737 picks the period). */
-  private async ensureYearOf(planId: number, userId: number, date: string): Promise<void> {
+  private async ensureYearOf(planId: number, userId: number, date: string): Promise<boolean> {
     const [y, m, d] = date.split('-').map(Number);
     const year = await this.currentPeriodYear(userId, new Date(y, m - 1, d));
-    if (!(await this.years.exists(planId, year))) await this.addYear(planId, year, undefined);
+    if (await this.years.exists(planId, year)) return false;
+    await this.openYear(planId, year);
+    return true;
   }
 
   /**
@@ -1160,6 +1155,7 @@ export class VacayService {
    */
   async toggleCompanyHoliday(planId: number, date: string, note: string | undefined, socketId: string | undefined, fraction?: unknown): Promise<{ action: string; fraction?: number }> {
     const frac = normalizeFraction(fraction);
+    let opened = false;
     const result = await this.uow.transactional(async () => {
       const existing = await this.companyHolidays.findByPlanAndDate(planId, date); // VC118
       if (existing && existing.fraction === frac) {
@@ -1173,9 +1169,10 @@ export class VacayService {
       }
       await this.makeRoomForCompanyHoliday(planId, date, frac);
       const owner = await this.plans.findOwnerId(planId);
-      if (owner) await this.ensureYearOf(planId, owner.owner_id, date);
+      if (owner) opened = await this.ensureYearOf(planId, owner.owner_id, date);
       return { action: existing ? 'updated' : 'added', fraction: frac };
     });
+    if (opened) await this.notifyPlanUsers(planId, undefined, 'vacay:settings');
     await this.notifyPlanUsers(planId, socketId);
     return result;
   }
