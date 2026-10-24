@@ -36,9 +36,26 @@ Trips without dates are treated as past.
 
 ## Spotlight Card
 
-The first ongoing trip — or the next upcoming trip if none is ongoing — is promoted to a full-width **Spotlight card** at the top of the grid on desktop, where it shows the travel companions, the trip dates, a countdown and the places as a boarding pass. On mobile this card appears as a hero at the top of the page, with a progress bar for ongoing trips and a stats strip (days, places, travel companions).
+The first ongoing trip — or the next upcoming trip if none is ongoing — is promoted to a full-width **Spotlight card** at the top of the grid on desktop, where it carries a badge for the state of the trip (**LIVE NOW**, **STARTS TODAY**, **TOMORROW**, **UP NEXT** or **RECENT**), the action buttons on the cover, and a boarding pass strip below the title: your **Buddies**, the **Trip dates**, a countdown (days left, or **Trip starts in** a number of days) and the number of places as destinations. On mobile this card appears as a hero at the top of the page, with a progress bar for ongoing trips and a stats strip (days, places, travel companions).
 
 If you have no trips yet, the spotlight card is not shown.
+
+## Stat tiles
+
+Under the spotlight card on desktop, a row of four tiles sums up all your trips:
+
+| Tile | What it shows |
+|---|---|
+| **Atlas · Countries visited** | The number of countries found in the places and transports of your trips, of 195, with the first flags. A country you removed in [Atlas](Atlas) stays removed here. |
+| **Trips total** | How many trips you have, and how many places are mapped on them. |
+| **Days traveled** | The days across all trips. |
+| **Distance flown** | The distance of your flights, and what that comes to in trips around the equator. |
+
+Each tile is switched on or off under **Settings → Appearance → Dashboard widgets**, in the **Below the hero** group; see [Dashboard-Widgets](Dashboard-Widgets#showing-and-hiding-widgets). When all four are off the row disappears.
+
+## Trips without dates
+
+A trip with no dates is not past and not upcoming. Its card carries an **Idea** badge in place of a countdown, and, as described under Sort Order, it is sorted with the past trips.
 
 ## Archived Trips
 
@@ -46,7 +63,7 @@ Archived trips are kept out of the default list. The trips section header carrie
 
 ## Mobile Header
 
-On mobile, the header is a floating glass bar: the TREK logo on the left (tap it to scroll back to the top), a **Notifications** button (bell icon, with a dot when something is unread) that navigates to `/notifications`, and your avatar on the right. The avatar opens the user menu — settings, the admin panel for admins, the dark/light/auto theme cycle, and sign out.
+On mobile, the header is a floating glass bar: the TREK logo on the left (tap it to scroll back to the top), a **Notifications** button (bell icon, with a dot when something is unread) that navigates to `/notifications`, and your avatar on the right. The inbox there has a tile per kind of notification and a list cut into days, with actions to clear what you have read; see [Notifications](Notifications). The top of the mobile dashboard greets you (*Good morning,*, *Good afternoon,* or *Good evening,*), and an ongoing trip is marked **Live Now**. The avatar opens the user menu — settings, the admin panel for admins, the dark/light/auto theme cycle, and sign out.
 
 ## Dashboard Widgets Sidebar
 
@@ -79,3 +96,4 @@ When you have no trips, the dashboard shows the TREK mascot with the caption **N
 - [Trip-Planner-Overview](Trip-Planner-Overview)
 - [Dashboard-Widgets](Dashboard-Widgets)
 - [Calendar-Feeds](Calendar-Feeds)
+- [Notifications](Notifications)

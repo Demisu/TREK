@@ -43,7 +43,7 @@ The cover image is displayed on the trip card and as the background of the Spotl
 - **Drag and drop** an image file onto the dashed upload area.
 - **Paste from clipboard**: if you have an image in your clipboard, paste it anywhere in the dialog.
 - **File picker**: click the upload area to browse for a file.
-- **Search Unsplash**: type a query to pick a stock photo. If this returns *"Unsplash search unavailable"* (common on VPS/datacenter IPs), configure a free Unsplash Access Key; see [Environment-Variables → Image Search (Unsplash)](Environment-Variables#image-search-unsplash).
+- **Search Unsplash**: type a query into the **Search destination photos** field and click **Search Unsplash** to pick a stock photo. With the field empty, the button searches for the trip title. If this returns *"Unsplash search unavailable"* (common on VPS/datacenter IPs), configure a free Unsplash Access Key; see [Environment-Variables → Image Search (Unsplash)](Environment-Variables#image-search-unsplash).
 
 When **creating** a new trip the cover image field is always visible. When **editing** an existing trip it is only shown if you have the `trip_cover_upload` permission. For a new trip, the image is uploaded immediately after the trip is created.
 
@@ -68,6 +68,16 @@ A new trip starts on **3 days**. If reminders are switched off on your instance,
 ### Members
 
 Add initial trip members under **Travel buddies**. On a **new** trip, selected members are queued locally and added to the trip immediately after it is saved. The selector shows all registered users on your instance except yourself.
+
+Once the trip exists, people are managed from the planner instead: the **Trip settings** pill in the top bar opens **People** (members and guests without an account) and **Sharing** (the read-only link and the invite link). See [Trip-Members-and-Sharing](Trip-Members-and-Sharing).
+
+## Changing the start date
+
+When you move the start date of an existing trip, a step called **New start date** asks how your plans follow: **Keep bookings on their dates** moves the day plans with the new dates while reservations and accommodations stay on their original dates as long as those are still part of the trip, and **Shift everything** moves the entire itinerary, bookings included. If the new dates hold fewer days than the plan, a **Remove days?** step lists what goes first; see [Shortening a trip](Day-Plans-and-Notes#shortening-a-trip).
+
+## Editing offline
+
+Editing a trip uses this same dialog. While you are offline, the name, description and reminder can be changed, and they are sent when the connection is back. New dates, a different number of days, another currency or a new cover need a connection.
 
 ## Saving
 
