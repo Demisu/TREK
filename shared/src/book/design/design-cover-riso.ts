@@ -5,6 +5,7 @@ import { frameOf } from './design-compose';
 import {
   addLockup,
   clearOfTrim,
+  deepened,
   inkOn,
   keptTurn,
   mmOn,
@@ -96,11 +97,12 @@ export function riso(k: CoverKit): CoverDraft {
     if (head.length > 1) draft.groups.push(head.map((t) => t.id));
   }
   const year = k.words.year ?? '';
-  // The year on a band of the second ink at the foot, left of the photo and its block.
+  // The year on a band of the second ink at the foot, left of the photo and its block, deepened
+  // where a mid-tone ink would not carry a small line.
   const room = (photoBox ? photoBox.x : W - m) - m - mmOn(k, 4);
   if (year && room > mmOn(k, 18)) {
     const frame = frameOf(m, H - m - mmOn(k, 7), Math.min(room, mmOn(k, 40)), mmOn(k, 7));
-    draft.elements.push(onBand(k, { ...spacedLine(k, year, frame, ink, 9), align: 'left' }, second));
+    draft.elements.push(onBand(k, { ...spacedLine(k, year, frame, ink, 9), align: 'left' }, deepened(second)));
   }
   const count = (c.art ?? CALM_ART).bare ? 0 : k.rng.int(2, 4);
   draft.elements.push(
