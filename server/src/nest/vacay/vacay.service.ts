@@ -1134,7 +1134,7 @@ export class VacayService {
       else await this.entries.insertEntry(planId, userId, date, '', frac, knd);
       return this.ensureYearOf(planId, userId, date);
     });
-    if (opened) await this.notifyPlanUsers(planId, undefined, 'vacay:settings');
+    if (opened) await this.notifyPlanUsers(planId, socketId, 'vacay:settings');
     await this.notifyPlanUsers(planId, socketId);
     return { action: existing ? 'updated' : 'added', fraction: frac, kind: knd };
   }
@@ -1172,7 +1172,7 @@ export class VacayService {
       if (owner) opened = await this.ensureYearOf(planId, owner.owner_id, date);
       return { action: existing ? 'updated' : 'added', fraction: frac };
     });
-    if (opened) await this.notifyPlanUsers(planId, undefined, 'vacay:settings');
+    if (opened) await this.notifyPlanUsers(planId, socketId, 'vacay:settings');
     await this.notifyPlanUsers(planId, socketId);
     return result;
   }
