@@ -14,7 +14,7 @@ import { useInAppNotificationStore } from '../../../store/inAppNotificationStore
 import { useDashboardPlugins } from '../../../components/Dashboard/useDashboardPlugins'
 import { useAssistantHomeLauncher } from '../../../components/Assistant/useAssistantHome'
 import type { TripCardBadge } from '../../../api/client'
-import DemoBanner from '../../../components/Layout/DemoBanner'
+import DemoWelcome from '../../../components/Demo/DemoWelcome'
 import { IcsSubscribeModal } from '../../../components/Planner/IcsSubscribeModal'
 import PluginWidgets from '../../../components/Plugins/PluginWidgets'
 import { entityGradient } from '../../../utils/gradients'
@@ -247,7 +247,7 @@ export default function MDashboard(): React.ReactElement {
 
       <MUserMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      {demoMode && <DemoBanner />}
+      {demoMode && <DemoWelcome />}
 
       <div className="px-4 pb-[calc(var(--bottom-nav-h,84px)+32px)] pt-[calc(var(--m-safe-top,12px)+82px)]">
         {loadError && (

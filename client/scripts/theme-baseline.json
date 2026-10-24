@@ -51,7 +51,6 @@
   "components/Journey/journeyMapPopup.ts": 17,
   "components/Journey/moodConfig.ts": 5,
   "components/Layout/BottomNav.tsx": 3,
-  "components/Layout/DemoBanner.tsx": 25,
   "components/Layout/InAppNotificationBell.tsx": 3,
   "components/Layout/MobileTopBar.tsx": 51,
   "components/Layout/Navbar.tsx": 21,

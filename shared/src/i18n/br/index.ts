@@ -27,6 +27,7 @@ import dashboard from './dashboard';
 import dawarich from './dawarich';
 import day from './day';
 import dayplan from './dayplan';
+import demo from './demo';
 import docsync from './docsync';
 import ferratas from './ferratas';
 import files from './files';
@@ -118,6 +119,7 @@ const locale = {
   ...pdf,
   ...planner,
   ...day,
+  ...demo,
   ...collab,
   ...memories,
   ...perm,

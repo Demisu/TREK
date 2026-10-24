@@ -173,11 +173,11 @@ describe('MDashboard', () => {
     expect(screen.queryByText('dashboard.emptyTitle')).not.toBeInTheDocument();
   });
 
-  it('FE-MOB-DASH-008: demo mode adds the banner', () => {
+  it('FE-MOB-DASH-008: demo mode opens the demo welcome', () => {
     mocks.dash = buildDash({ demoMode: true });
     render(<MDashboard />);
 
-    expect(screen.getByText(/demo/i)).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toHaveTextContent('Welcome to TREK');
   });
 
   it('FE-MOB-DASH-009: unread notifications mark the bell and it opens the list', () => {

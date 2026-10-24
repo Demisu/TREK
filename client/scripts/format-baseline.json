@@ -408,7 +408,6 @@
   "src/components/Journey/usePhotoZoom.ts",
   "src/components/Layout/BottomNav.test.tsx",
   "src/components/Layout/BottomNav.tsx",
-  "src/components/Layout/DemoBanner.tsx",
   "src/components/Layout/InAppNotificationBell.test.tsx",
   "src/components/Layout/InAppNotificationBell.tsx",
   "src/components/Layout/MobileTopBar.test.tsx",

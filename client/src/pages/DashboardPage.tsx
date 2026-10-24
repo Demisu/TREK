@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from '../i18n'
 import Navbar from '../components/Layout/Navbar'
-import DemoBanner from '../components/Layout/DemoBanner'
+import DemoWelcome from '../components/Demo/DemoWelcome'
 import TripFormModal from '../components/Trips/TripFormModal'
 import ConfirmDialog from '../components/shared/ConfirmDialog'
 import CopyTripDialog from '../components/shared/CopyTripDialog'
@@ -138,7 +138,7 @@ function DashboardPageDesktop(): React.ReactElement {
       <Navbar />
       <HelpAnchor id="dashboard" />
       <div className="trek-dash trek-dash-shell">
-      {demoMode && <DemoBanner />}
+      {demoMode && <DemoWelcome />}
       <div className="trek-dash-scroll">
         <MobileTopBar />
         <main className="page" data-no-sidebar={sidebarVisible ? undefined : 'true'}>
