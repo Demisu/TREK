@@ -82,9 +82,9 @@ async function expectPolicyApplied(): Promise<void> {
     on: [],
     off: sorted(DEMO_ADDON_POLICY.documentProviders.off),
   });
-  for (const [key, value] of Object.entries(DEMO_ADDON_POLICY.appSettings)) {
-    expect([key, await readAppSetting(t, key)]).toEqual([key, value]);
-  }
+  const keys = Object.keys(DEMO_ADDON_POLICY.appSettings);
+  const values = await Promise.all(keys.map((key) => readAppSetting(t, key)));
+  expect(Object.fromEntries(keys.map((key, i) => [key, values[i]]))).toEqual(DEMO_ADDON_POLICY.appSettings);
 }
 
 describe('demo addon policy', () => {
@@ -94,21 +94,22 @@ describe('demo addon policy', () => {
       [PhotoProviders, DEMO_ADDON_POLICY.photoProviders],
       [DocumentProviders, DEMO_ADDON_POLICY.documentProviders],
     ] as const;
-    for (const [entity, shelf] of shelves) {
-      const seeded = (await findRows(t, entity as typeof Addons)).map((r) => r.id).sort();
+    const seeded = await Promise.all(shelves.map(([entity]) => findRows(t, entity as typeof Addons)));
+    shelves.forEach(([, shelf], i) => {
       const listed = [...shelf.on, ...shelf.off];
       expect(new Set(listed).size).toBe(listed.length);
-      expect(sorted(listed)).toEqual(seeded);
-    }
+      expect(sorted(listed)).toEqual(seeded[i].map((r) => r.id).sort());
+    });
   });
 
-  it('DEMOPOL-002: keeps off exactly what reaches a server of the visitor’s own, and the AI features and MCP', () => {
+  it('DEMOPOL-002: keeps off exactly what reaches a server of the visitor’s own, the AI features, MCP and the legacy Photos row', () => {
     expect(sorted(DEMO_ADDON_POLICY.addons.off)).toEqual([
       'ai_assistant',
       'airtrail',
       'dawarich',
       'llm_parsing',
       'mcp',
+      'memories',
     ]);
     expect(sorted(DEMO_ADDON_POLICY.photoProviders.off)).toEqual(['immich', 'synologyphotos']);
     expect(sorted(DEMO_ADDON_POLICY.documentProviders.off)).toEqual(

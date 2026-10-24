@@ -10,7 +10,8 @@ import type { DemoAddonStates, DemoRepository } from '../db/repositories/DemoRep
  * the photo providers under Journey, AirTrail and Dawarich. The AI features
  * (the assistant, AI parsing) and the MCP server stay off as well: they spend
  * the instance's AI credit or hand out tokens to a shared account, so they are
- * a feature of a self-hosted install, not of the public demo.
+ * a feature of a self-hosted install, not of the public demo. So does the
+ * legacy `memories` row, which nothing reads any more.
  *
  * Each list names its rows outright instead of "everything but", so a release
  * that adds an addon has to decide where it goes: the policy test fails on a
@@ -37,7 +38,18 @@ export const DEMO_ADDON_POLICY = {
       // Integrations TREK runs by itself
       'naver_list_import',
     ],
-    off: ['airtrail', 'dawarich', 'mcp', 'llm_parsing', 'ai_assistant'],
+    off: [
+      'airtrail',
+      'dawarich',
+      'mcp',
+      'llm_parsing',
+      'ai_assistant',
+      // The trip Photos addon of old releases. Its migration seeds the row
+      // switched off and nothing removes it; the client reads Photos from the
+      // photo providers (addonStore's isEnabled) and the admin panel keeps the
+      // row out of its trip list, so it switches nothing.
+      'memories',
+    ],
   },
   /** Rows of `photo_providers`, Journey's shelf. */
   photoProviders: {
