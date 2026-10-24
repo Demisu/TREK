@@ -496,5 +496,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'Engedd, hogy az asszisztens elolvassa a fájlt',
   'assistant.change.label.sentTo': 'Címzett',
   'assistant.step.readingAttachment': 'A fájl olvasása',
+  'assistant.change.verb.keepFile': 'A fájl mentése a Fájlok közé',
+  'assistant.change.label.attachedTo': 'Csatolva ehhez',
+  'assistant.card.file.open': 'Megnyitás a Fájlokban',
 };
 export default assistant;

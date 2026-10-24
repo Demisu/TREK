@@ -141,6 +141,15 @@ const TOUR_FILE_VIA = 'import_tour_gpx';
 export const READ_ATTACHED_FILE_TOOL = 'read_attached_file';
 
 /**
+ * A file the user attached in this conversation, kept in the trip's Files,
+ * on its own or attached to a booking, an expense or a place of the trip.
+ * The server offers it to the model where the thread holds an attachment,
+ * holds it as a change card like any write, and applies it with the Files
+ * rights of the user (AssistantAttachmentsService.keep).
+ */
+export const KEEP_ATTACHED_FILE_TOOL = 'keep_attached_file';
+
+/**
  * A place from the search results of an answer, suggested for a day by the
  * user ("+ Day 3"). Held as a change card like any write, without a model turn.
  */
@@ -206,6 +215,7 @@ export const ASSISTANT_SERVER_WRITE_TOOLS: Readonly<Record<string, AssistantWrit
   [REMEMBER_TOOL]: { verbKey: 'rememberNote', entity: 'memory' },
   // Held only until the user let the model read the file; it writes nothing but that agreement.
   [READ_ATTACHED_FILE_TOOL]: { verbKey: 'readAttachment', entity: 'other' },
+  [KEEP_ATTACHED_FILE_TOOL]: { verbKey: 'keepFile', entity: 'file' },
 };
 
 /**

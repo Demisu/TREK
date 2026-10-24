@@ -360,6 +360,57 @@ describe('describeToolCall', () => {
     const note = describe_('remember_for_trip', { note: ' We travel as two. ' });
     expect(note).toMatchObject({ verbKey: 'rememberNote', subject: 'We travel as two.', rows: [] });
   });
+
+  it('ASTPRV-023: an attached file is read by its name and where its text goes, kept by what it goes with', () => {
+    const read = describe_('read_attached_file', {
+      attachmentId: 'a',
+      name: 'AirBnB Buchung.pdf',
+      sentTo: 'gpt-5 (api.openai.com)',
+    });
+    expect(read).toMatchObject({
+      verbKey: 'readAttachment',
+      subject: 'AirBnB Buchung.pdf',
+      rows: [{ op: 'add', labelKey: 'sentTo', before: null, after: 'gpt-5 (api.openai.com)' }],
+      undoable: false,
+    });
+    const tripCard = buildTripCard(
+      1,
+      7,
+      { reservations: [{ id: 5, title: 'Casa Lisboa' }], budget: { items: [{ id: 12, name: 'Deposit' }] } },
+      { places: [{ id: 12, name: 'Nishiki Market', lat: 35, lng: 135 }] },
+      null,
+    );
+    const kept = describeToolCall(
+      'keep_attached_file',
+      'tc-2',
+      {
+        attachmentId: 'a',
+        name: 'AirBnB Buchung.pdf',
+        reservation_id: 5,
+        budget_item_id: 12,
+        place_id: 12,
+        description: 'Stay',
+      },
+      { ...ctx, card: tripCard },
+    );
+    expect(kept).toMatchObject({ verbKey: 'keepFile', subject: 'AirBnB Buchung.pdf', placeIds: [12], undoable: false });
+    expect(kept.rows).toEqual([
+      { op: 'add', labelKey: 'attachedTo', before: null, after: 'Casa Lisboa, Deposit, Nishiki Market' },
+      { op: 'add', labelKey: 'description', before: null, after: 'Stay' },
+    ]);
+    const unknown = describe_('keep_attached_file', {
+      attachmentId: 'a',
+      name: 'x.pdf',
+      reservation_id: 77,
+      budget_item_id: 78,
+    });
+    expect(unknown.rows[0]).toMatchObject({ labelKey: 'attachedTo', after: '#77, #78' });
+    expect(describe_('keep_attached_file', { attachmentId: 'a', name: 'x.pdf' }).rows).toEqual([]);
+    expect(appliedChange('keep_attached_file', 'tc', {}, { file: { id: 31 } }, null, null)).toMatchObject({
+      entity: 'file',
+      ids: [],
+    });
+  });
 });
 
 describe('appliedChange', () => {

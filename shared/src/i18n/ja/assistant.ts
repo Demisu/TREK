@@ -465,5 +465,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'アシスタントにファイルを読ませる',
   'assistant.change.label.sentTo': '送信先',
   'assistant.step.readingAttachment': 'ファイルを読んでいます',
+  'assistant.change.verb.keepFile': 'ファイルに保存',
+  'assistant.change.label.attachedTo': '添付先',
+  'assistant.card.file.open': 'ファイルで開く',
 };
 export default assistant;

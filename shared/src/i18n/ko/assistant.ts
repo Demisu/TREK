@@ -462,5 +462,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': '어시스턴트가 파일을 읽도록 허용',
   'assistant.change.label.sentTo': '전송 대상',
   'assistant.step.readingAttachment': '파일을 읽는 중',
+  'assistant.change.verb.keepFile': '파일에 보관',
+  'assistant.change.label.attachedTo': '첨부 대상',
+  'assistant.card.file.open': '파일에서 열기',
 };
 export default assistant;

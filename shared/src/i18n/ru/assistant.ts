@@ -538,5 +538,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'Разрешить ассистенту прочитать файл',
   'assistant.change.label.sentTo': 'Отправляется в',
   'assistant.step.readingAttachment': 'Читаю файл',
+  'assistant.change.verb.keepFile': 'Сохранить файл в Файлы',
+  'assistant.change.label.attachedTo': 'Прикреплён к',
+  'assistant.card.file.open': 'Открыть в Файлах',
 };
 export default assistant;

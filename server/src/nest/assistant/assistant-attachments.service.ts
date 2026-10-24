@@ -12,7 +12,8 @@ import { LlmParseService } from '../llm-parse/llm-parse.service';
 import { StorageService } from '../storage/storage.service';
 import type { AgentToolRun } from './assistant-agent';
 import { NO_SUCH_ATTACHMENT, NO_TEXT, type AttachedTurn } from './assistant-attachment-tools';
-import { READ_ATTACHED_FILE_TOOL } from './assistant-tools.constants';
+import { AssistantKeepFileService } from './assistant-keep-file.service';
+import { KEEP_ATTACHED_FILE_TOOL, READ_ATTACHED_FILE_TOOL } from './assistant-tools.constants';
 import type { ToolRun } from './assistant-tools.service';
 import { MikroORM } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -60,7 +61,7 @@ export interface PreparedAttachment {
 }
 
 /** The held changes on an attachment this service applies. */
-const ATTACHMENT_CHANGES: ReadonlySet<string> = new Set([READ_ATTACHED_FILE_TOOL]);
+const ATTACHMENT_CHANGES: ReadonlySet<string> = new Set([READ_ATTACHED_FILE_TOOL, KEEP_ATTACHED_FILE_TOOL]);
 
 /** What a read of a file the user has not agreed to send answers with. */
 const NOT_SHARED = 'The user has not let you read this file yet.';
@@ -110,6 +111,7 @@ export class AssistantAttachmentsService {
     private readonly storage: StorageService,
     private readonly llmParse: LlmParseService,
     private readonly orm: MikroORM,
+    private readonly keeper: AssistantKeepFileService,
   ) {}
 
   /**
@@ -193,6 +195,7 @@ export class AssistantAttachmentsService {
   /** Applies a held change on an attachment. */
   applyChange(name: string, at: AttachmentChangeAt, args: Record<string, unknown>): Promise<ToolRun> {
     if (name === READ_ATTACHED_FILE_TOOL) return this.share(at.userId, at.threadId, args);
+    if (name === KEEP_ATTACHED_FILE_TOOL) return this.keeper.keep(at, args);
     return Promise.resolve({ ok: false, value: `Unknown tool: ${name}` });
   }
 

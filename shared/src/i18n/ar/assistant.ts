@@ -574,5 +574,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'اسمح للمساعد بقراءة الملف',
   'assistant.change.label.sentTo': 'يُرسل إلى',
   'assistant.step.readingAttachment': 'جارٍ قراءة الملف',
+  'assistant.change.verb.keepFile': 'احفظ الملف في الملفات',
+  'assistant.change.label.attachedTo': 'مرفق بـ',
+  'assistant.card.file.open': 'افتح في الملفات',
 };
 export default assistant;

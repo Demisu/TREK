@@ -471,5 +471,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'Izinkan asisten membaca berkas',
   'assistant.change.label.sentTo': 'Dikirim ke',
   'assistant.step.readingAttachment': 'Membaca berkas',
+  'assistant.change.verb.keepFile': 'Simpan berkas di Berkas',
+  'assistant.change.label.attachedTo': 'Dilampirkan ke',
+  'assistant.card.file.open': 'Buka di Berkas',
 };
 export default assistant;

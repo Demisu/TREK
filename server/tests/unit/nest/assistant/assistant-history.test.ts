@@ -317,6 +317,41 @@ describe('toChatHistory', () => {
     );
   });
 
+  it('ASTHIS-005f: keeping an attached file is told after its step, whatever became of it', () => {
+    const keep = (extra: Partial<Extract<AssistantMessagePart, { type: 'tool-call' }>>) =>
+      toChatHistory(
+        [
+          row('user', [{ type: 'text', text: 'Keep it in Files' }]),
+          row('assistant', [
+            { type: 'text', text: 'Here is the card.' },
+            {
+              type: 'tool-call',
+              toolCallId: 'k',
+              toolName: 'keep_attached_file',
+              args: { attachmentId: 'a', name: 'a.pdf' },
+              ...extra,
+            },
+          ]),
+        ],
+        new Map(),
+      );
+    const kept = keep({ approval: { id: 'k', approved: true }, result: { file: { id: 31 } } });
+    expect(kept.map((message) => message.role)).toEqual(['user', 'assistant', 'user']);
+    expect((kept[2] as { text: string }).text).toBe(
+      'The attached file "a.pdf" is in the trip\'s Files now (file id 31).',
+    );
+    const lastOf = (extra: Parameters<typeof keep>[0]) => (keep(extra).at(-1) as { text: string }).text;
+    expect(
+      lastOf({ approval: { id: 'k', approved: true }, result: 'The file could not be kept.', isError: true }),
+    ).toBe('The attached file "a.pdf" could not be kept in Files: The file could not be kept.');
+    expect(lastOf({ approval: { id: 'k', approved: false } })).toBe(
+      'The user did not keep the attached file "a.pdf" in Files.',
+    );
+    expect(lastOf({ result: 'No such attachment in this conversation.', isError: true })).toContain('was refused');
+    expect(lastOf({ approval: { id: 'k', resolution: 'cancelled' } })).toContain('the user moved on without deciding');
+    expect(lastOf({ approval: { id: 'k' } })).toContain('waits for the user to apply or discard it');
+  });
+
   it('ASTHIS-006: a place the user picked from the search results is told as a note, whatever became of it', () => {
     const found = (approval: AssistantToolApproval, isError = false) =>
       serverStepsNote([

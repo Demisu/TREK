@@ -464,6 +464,7 @@ export const CHANGE_LABELS: Record<AssistantChangeLabelKey, { labelKey: string }
   packing: { labelKey: 'assistant.change.label.packing' },
   breaks: { labelKey: 'assistant.change.label.breaks' },
   sentTo: { labelKey: 'assistant.change.label.sentTo' },
+  attachedTo: { labelKey: 'assistant.change.label.attachedTo' },
 };
 
 /**

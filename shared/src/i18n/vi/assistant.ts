@@ -466,5 +466,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'Cho phép trợ lý đọc tệp',
   'assistant.change.label.sentTo': 'Gửi đến',
   'assistant.step.readingAttachment': 'Đang đọc tệp',
+  'assistant.change.verb.keepFile': 'Lưu tệp vào Tệp',
+  'assistant.change.label.attachedTo': 'Đính kèm vào',
+  'assistant.card.file.open': 'Mở trong Tệp',
 };
 export default assistant;

@@ -12,18 +12,23 @@
  * user's language, never with an error; the model reads a file only after
  * the user agreed on its card, its text reaching the model and nothing else,
  * and proposes the booking from it; an attachment of another conversation is
- * answered like one that does not exist.
+ * answered like one that does not exist; a file is kept in Files with the
+ * booking it belongs to, with the rights of Files, and only once.
  */
 import { buildApp } from '../../src/bootstrap';
 import { AssistantAttachments } from '../../src/db/entities/AssistantAttachments.entity';
 import { AssistantMessages } from '../../src/db/entities/AssistantMessages.entity';
 import { AssistantThreads } from '../../src/db/entities/AssistantThreads.entity';
 import { BookingImportService } from '../../src/nest/booking-import/booking-import.service';
+import { DemoService } from '../../src/nest/common/demo.service';
+import { PermissionsService } from '../../src/nest/permissions/permissions.service';
 import { StorageService } from '../../src/nest/storage/storage.service';
+import { makeReservation } from '../helpers/factories/reservations';
 import { countRows, findRow, findRows } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
 import { makeTrip } from '../helpers/factories/trips';
 import { makeUser } from '../helpers/factories/users';
+import { spyOnRealtime, type RealtimeSpies } from '../helpers/fake-realtime';
 import { resetRateLimits } from '../helpers/test-db';
 import { sessionCookie } from './harness';
 import { MikroORM } from '@mikro-orm/core';
@@ -104,6 +109,7 @@ async function answer(req: IncomingMessage, res: ServerResponse): Promise<void> 
 let nestApp: INestApplication;
 let orm: MikroORM;
 let fake: HttpServer;
+let broadcasts: RealtimeSpies;
 
 beforeAll(async () => {
   fake = createServer((req, res) => {
@@ -112,6 +118,7 @@ beforeAll(async () => {
   await new Promise<void>((resolve) => fake.listen(0, '127.0.0.1', resolve));
   nestApp = await buildApp();
   orm = nestApp.get(MikroORM);
+  broadcasts = spyOnRealtime(nestApp);
   await setAddonEnabled(orm, 'ai_assistant', true);
   const adminId = (await makeUser(orm, { role: 'admin' })).user.id;
   const { port } = fake.address() as AddressInfo;
@@ -126,6 +133,7 @@ beforeEach(async () => {
   await resetRateLimits(nestApp);
   provider.requests = [];
   provider.script = [];
+  broadcasts.broadcast.mockClear();
 });
 
 afterAll(async () => {
@@ -460,5 +468,91 @@ describe('Trip assistant: attached files', () => {
     expect(await refusalOf(owner, sameTripThread.threadId, attachmentId)).toBe(message);
     expect(await refusalOf(owner, sameTripThread.threadId, '9f1e2d3c-4b5a-4968-8776-655443322110')).toBe(message);
     expect((await findRow(orm, AssistantAttachments, { id: attachmentId }))?.shared_at).toBeNull();
+  });
+
+  /** A chat turn in which the model proposes keeping the file, and the id the change is held under. */
+  async function proposeKeep(t: { userId: number; base: string }, threadId: number, args: Record<string, unknown>) {
+    provider.script = [callTools({ id: `call_keep_${threadId}`, name: 'keep_attached_file', args })];
+    const turn = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId, text: 'Keep it with the booking' });
+    return { turn, toolCallId: ofType(turn.chunks, 'tool-approval-request')[0]?.toolCallId };
+  }
+
+  it('ATTE2E-008: the file is kept in Files with its booking once the user applies it, and only once', async () => {
+    const t = await travelerWithTrip();
+    const booking = await makeReservation(orm, t.tripId, { title: 'Casa Lisboa', type: 'hotel' });
+    const { threadId, attachmentId } = await threadWithFile(t);
+    const { turn, toolCallId } = await proposeKeep(t, threadId, { attachmentId, reservation_id: booking.id });
+    expect(provider.requests[0].tools?.map((tool) => tool.function.name)).toContain('keep_attached_file');
+    expect(ofType(turn.chunks, 'data-trek-change')[0].data).toMatchObject({
+      verbKey: 'keepFile',
+      subject: 'AirBnB Buchung.txt',
+      rows: [{ labelKey: 'attachedTo', after: 'Casa Lisboa' }],
+    });
+
+    provider.script = [say('It is in Files now.')];
+    const decided = await post(`${t.base}/threads/${threadId}/decisions`, t.userId, {
+      ...CTX,
+      decisions: [{ toolCallId, approved: true }],
+    });
+    expect(ofType(decided.chunks, 'data-trek-applied')[0].data).toMatchObject({ toolCallId, entity: 'file' });
+    const listed = await get(`/api/trips/${t.tripId}/files`, t.userId);
+    expect(listed.status).toBe(200);
+    expect(listed.body.files).toHaveLength(1);
+    const [file] = listed.body.files as Array<{ id: number; original_name: string; reservation_id: number | null }>;
+    expect(file).toMatchObject({ original_name: 'AirBnB Buchung.txt', reservation_id: booking.id });
+    expect((await findRow(orm, AssistantAttachments, { id: attachmentId }))?.file_id).toBe(file.id);
+    expect(broadcasts.broadcast).toHaveBeenCalledWith(
+      String(t.tripId),
+      'file:created',
+      { file: expect.objectContaining({ id: file.id }) },
+      undefined,
+    );
+    const sent = provider.requests[1].messages.map((message) => String(message.content ?? '')).join(' ');
+    expect(sent).toContain(`The attached file "AirBnB Buchung.txt" is in the trip's Files now (file id ${file.id}).`);
+    const download = await get(`/api/trips/${t.tripId}/files/${file.id}/download`, t.userId);
+    expect(download.status).toBe(200);
+
+    // A second keep of the same file answers the first one.
+    const second = await proposeKeep(t, threadId, { attachmentId });
+    provider.script = [say('Already there.')];
+    await post(`${t.base}/threads/${threadId}/decisions`, t.userId, {
+      ...CTX,
+      decisions: [{ toolCallId: second.toolCallId, approved: true }],
+    });
+    expect((await get(`/api/trips/${t.tripId}/files`, t.userId)).body.files).toHaveLength(1);
+  });
+
+  it('ATTE2E-009: a demo account and a member without the right to upload keep nothing', async () => {
+    const t = await travelerWithTrip();
+    const { threadId, attachmentId } = await threadWithFile(t);
+    const tryKeep = async () => {
+      const { toolCallId } = await proposeKeep(t, threadId, { attachmentId });
+      provider.script = [say('Could not keep it.')];
+      const decided = await post(`${t.base}/threads/${threadId}/decisions`, t.userId, {
+        ...CTX,
+        decisions: [{ toolCallId, approved: true }],
+      });
+      return ofType(decided.chunks, 'tool-output-error')[0]?.errorText;
+    };
+    const demo = vi.spyOn(nestApp.get(DemoService), 'isDemoUserId').mockResolvedValue(true);
+    try {
+      expect(await tryKeep()).toBe('You are not allowed to keep files on this trip.');
+    } finally {
+      demo.mockRestore();
+    }
+    const permissions = vi.spyOn(nestApp.get(PermissionsService), 'checkPermission');
+    permissions.mockImplementation((action: string) => Promise.resolve(action !== 'file_upload'));
+    try {
+      expect(await tryKeep()).toBe('You are not allowed to keep files on this trip.');
+    } finally {
+      permissions.mockRestore();
+    }
+    expect((await get(`/api/trips/${t.tripId}/files`, t.userId)).body.files).toHaveLength(0);
+    expect(broadcasts.broadcast).not.toHaveBeenCalledWith(
+      String(t.tripId),
+      'file:created',
+      expect.anything(),
+      undefined,
+    );
   });
 });

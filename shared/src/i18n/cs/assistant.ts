@@ -512,5 +512,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'Nechat asistenta přečíst soubor',
   'assistant.change.label.sentTo': 'Odesílá se do',
   'assistant.step.readingAttachment': 'Čtu soubor',
+  'assistant.change.verb.keepFile': 'Uložit soubor do Souborů',
+  'assistant.change.label.attachedTo': 'Připojeno k',
+  'assistant.card.file.open': 'Otevřít v Souborech',
 };
 export default assistant;

@@ -492,5 +492,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'Luba assistendil fail läbi lugeda',
   'assistant.change.label.sentTo': 'Saadetakse',
   'assistant.step.readingAttachment': 'Loen faili',
+  'assistant.change.verb.keepFile': 'Salvesta fail failidesse',
+  'assistant.change.label.attachedTo': 'Lisatud juurde',
+  'assistant.card.file.open': 'Ava failides',
 };
 export default assistant;

@@ -537,5 +537,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'Pozwól asystentowi przeczytać plik',
   'assistant.change.label.sentTo': 'Trafia do',
   'assistant.step.readingAttachment': 'Czytam plik',
+  'assistant.change.verb.keepFile': 'Zapisz plik w Plikach',
+  'assistant.change.label.attachedTo': 'Dołączono do',
+  'assistant.card.file.open': 'Otwórz w Plikach',
 };
 export default assistant;

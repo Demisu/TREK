@@ -9,6 +9,7 @@ import {
   ASSISTANT_ATTACHMENT_TTL_DAYS,
   AssistantAttachmentsService,
 } from '../../../../src/nest/assistant/assistant-attachments.service';
+import { AssistantKeepFileService } from '../../../../src/nest/assistant/assistant-keep-file.service';
 import { LlmParseService } from '../../../../src/nest/llm-parse/llm-parse.service';
 import { StorageService } from '../../../../src/nest/storage/storage.service';
 import { MikroORM } from '@mikro-orm/core';
@@ -96,6 +97,10 @@ async function make(opts: { text?: string | Error; listed?: Listed[]; failDelete
       { provide: StorageService, useValue: storage },
       { provide: LlmParseService, useValue: llmParse },
       { provide: MikroORM, useValue: {} },
+      {
+        provide: AssistantKeepFileService,
+        useValue: { keep: vi.fn(async () => ({ ok: true, value: { file: { id: 3 } } })) },
+      },
     ],
   }).compile();
   return { service: moduleRef.get(AssistantAttachmentsService), rows, storage, llmParse };
@@ -212,6 +217,15 @@ describe('AssistantAttachmentsService', () => {
     });
     expect(t.service.handles('read_attached_file')).toBe(true);
     expect(t.service.handles('create_place')).toBe(false);
+    const at = { userId: 7, threadId: 4, tripId: 9 };
+    expect(await t.service.applyChange('keep_attached_file', at, { attachmentId: FRESH })).toEqual({
+      ok: true,
+      value: { file: { id: 3 } },
+    });
+    expect(await t.service.applyChange('create_place', at, {})).toEqual({
+      ok: false,
+      value: 'Unknown tool: create_place',
+    });
   });
 
   it('ASTATT-010: a shared file is read for the model only; one not shared yet is not read', async () => {

@@ -1,4 +1,8 @@
-import { assistantAttachmentIdSchema, assistantReadAttachedFileArgsSchema } from './assistant-attachments.schema';
+import {
+  assistantAttachmentIdSchema,
+  assistantKeepFileArgsSchema,
+  assistantReadAttachedFileArgsSchema,
+} from './assistant-attachments.schema';
 
 import { describe, expect, it } from 'vitest';
 
@@ -17,5 +21,14 @@ describe('assistant attachments contract', () => {
       attachmentId: ID,
     });
     expect(assistantReadAttachedFileArgsSchema.safeParse({}).success).toBe(false);
+  });
+
+  it('keeps a file with plain ids of the trip, never a string or a negative id, and a short description', () => {
+    const kept = { attachmentId: ID, reservation_id: 5, budget_item_id: 7, place_id: 9, description: 'Airbnb' };
+    expect(assistantKeepFileArgsSchema.parse({ ...kept, name: 'x.pdf' })).toEqual(kept);
+    expect(assistantKeepFileArgsSchema.parse({ attachmentId: ID })).toEqual({ attachmentId: ID });
+    for (const bad of [{ reservation_id: '5' }, { budget_item_id: -1 }, { description: 'x'.repeat(1001) }]) {
+      expect(assistantKeepFileArgsSchema.safeParse({ attachmentId: ID, ...bad }).success).toBe(false);
+    }
   });
 });

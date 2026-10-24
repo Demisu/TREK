@@ -10,6 +10,7 @@ import { BookingImportModule } from '../booking-import/booking-import.module';
 import { CollabModule } from '../collab/collab.module';
 import { RateLimitModule } from '../common/rate-limit.module';
 import { AllowedFileTypesModule } from '../files/allowed-file-types.module';
+import { FilesModule } from '../files/files.module';
 import { JourneyBookModule } from '../journey/journey-book.module';
 import { JourneyDomainModule } from '../journey/journey-domain.module';
 import { LlmParseModule } from '../llm-parse/llm-parse.module';
@@ -28,6 +29,7 @@ import { AssistantBookGate } from './assistant-book-gate';
 import { AssistantBookingImportService } from './assistant-booking-import.service';
 import { AssistantFileAnswers } from './assistant-file-answer.service';
 import { AssistantFoundPlacesService } from './assistant-found-places.service';
+import { AssistantKeepFileService } from './assistant-keep-file.service';
 import { AssistantProposalsService } from './assistant-proposals.service';
 import { AssistantRenderRegistry, InMemoryAssistantRenderRegistry } from './assistant-render.registry';
 import { AssistantRendersController } from './assistant-renders.controller';
@@ -95,6 +97,8 @@ import { Module } from '@nestjs/common';
     LlmParseModule,
     // The chips under the answer offer to keep a file only where Files takes its type.
     AllowedFileTypesModule,
+    // A file attached in the chat is kept in Files through the Files service, with its rights and checks.
+    FilesModule,
     MikroOrmModule.forFeature([AssistantThreads, AssistantMessages, AssistantToolCalls, AssistantAttachments]),
   ],
   controllers: [
@@ -113,6 +117,7 @@ import { Module } from '@nestjs/common';
     AssistantBookingImportService,
     AssistantFileAnswers,
     AssistantAttachmentsService,
+    AssistantKeepFileService,
     AssistantTourFileService,
     AssistantFoundPlacesService,
     AssistantProposalsService,

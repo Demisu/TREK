@@ -487,5 +487,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'Let the assistant read the file',
   'assistant.change.label.sentTo': 'Sent to',
   'assistant.step.readingAttachment': 'Reading the file',
+  'assistant.change.verb.keepFile': 'Keep the file in Files',
+  'assistant.change.label.attachedTo': 'Attached to',
+  'assistant.card.file.open': 'Open in Files',
 };
 export default assistant;

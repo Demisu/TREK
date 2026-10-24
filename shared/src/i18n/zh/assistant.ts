@@ -457,5 +457,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': '允许助手读取文件',
   'assistant.change.label.sentTo': '发送至',
   'assistant.step.readingAttachment': '正在读取文件',
+  'assistant.change.verb.keepFile': '把文件保存到文件',
+  'assistant.change.label.attachedTo': '附加到',
+  'assistant.card.file.open': '在文件中打开',
 };
 export default assistant;

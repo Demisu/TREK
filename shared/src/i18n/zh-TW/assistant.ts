@@ -457,5 +457,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': '允許助理讀取檔案',
   'assistant.change.label.sentTo': '傳送至',
   'assistant.step.readingAttachment': '正在讀取檔案',
+  'assistant.change.verb.keepFile': '將檔案儲存到檔案',
+  'assistant.change.label.attachedTo': '附加到',
+  'assistant.card.file.open': '在檔案中開啟',
 };
 export default assistant;

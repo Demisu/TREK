@@ -492,5 +492,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'Köməkçiyə faylı oxumağa icazə ver',
   'assistant.change.label.sentTo': 'Göndərilir',
   'assistant.step.readingAttachment': 'Fayl oxunur',
+  'assistant.change.verb.keepFile': 'Faylı Fayllarda saxla',
+  'assistant.change.label.attachedTo': 'Əlavə olunduğu yer',
+  'assistant.card.file.open': 'Fayllarda aç',
 };
 export default assistant;

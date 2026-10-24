@@ -495,5 +495,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'Deixa que l’assistent llegeixi el fitxer',
   'assistant.change.label.sentTo': 'S’envia a',
   'assistant.step.readingAttachment': 'S’està llegint el fitxer',
+  'assistant.change.verb.keepFile': 'Desa el fitxer a Fitxers',
+  'assistant.change.label.attachedTo': 'Adjunt a',
+  'assistant.card.file.open': 'Obre a Fitxers',
 };
 export default assistant;

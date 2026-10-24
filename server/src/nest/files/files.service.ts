@@ -406,14 +406,31 @@ export class FilesService {
     uploadedBy: number,
     opts: { place_id?: number | null; reservation_id?: number | null; description?: string | null },
   ) {
-    const filename = `${randomUUID()}${path.extname(upload.originalname)}`;
-    await this.storage.put('files', filename, Readable.from([upload.bytes]), { contentType: upload.mimetype });
+    const filename = await this.storeBytes(upload);
     return this.createFile(
       tripId,
       { filename, originalname: upload.originalname, size: upload.bytes.length, mimetype: upload.mimetype },
       uploadedBy,
       opts,
     );
+  }
+
+  /**
+   * Puts bytes under a fresh storage key of the trip files, the one
+   * `createFileFromBytes` would choose, and answers the name a `trip_files`
+   * row records them under. For a caller that writes that row inside a
+   * transaction of its own (the assistant keeping an attached file), so the
+   * storage write stays out of it.
+   */
+  async storeBytes(upload: { originalname: string; mimetype: string; bytes: Buffer }): Promise<string> {
+    const filename = `${randomUUID()}${path.extname(upload.originalname)}`;
+    await this.storage.put('files', filename, Readable.from([upload.bytes]), { contentType: upload.mimetype });
+    return filename;
+  }
+
+  /** Drops bytes `storeBytes` put, when the row that was to record them could not be written. */
+  async discardBytes(filename: string): Promise<void> {
+    await this.storage.delete('files', path.basename(filename));
   }
 
   /** R2: `updateFile`'s field update and its conditional `file_links` insert/delete (FL12+FL13+FL14) run inside one transaction. */

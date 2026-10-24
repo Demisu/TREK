@@ -65,6 +65,13 @@ describe('cardLooks', () => {
     }
   });
 
+  it('FE-AI-LOOK-003b: a file kept from the chat opens the trip Files and shows nothing on the map', () => {
+    const kept: AssistantApplied = { toolCallId: 'k', entity: 'file', ids: [], dayId: null, undoUntil: null };
+    expect(ENTITY_LOOK.file.open?.(kept, null)).toEqual({ kind: 'tab', tab: 'dateien' });
+    expect(ENTITY_LOOK.file.onMap).toBeUndefined();
+    expect(ENTITY_LOOK.file.openLabelKey).toBe('assistant.card.file.open');
+  });
+
   it('FE-AI-LOOK-004: every kind has a look and a view; a pending view groups by kind and gives way to nothing', () => {
     expect(Object.keys(CARD_LOOKS).sort()).toEqual([...KINDS].sort());
     expect(Object.keys(CARD_VIEWS).sort()).toEqual([...KINDS].sort());

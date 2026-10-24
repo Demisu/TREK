@@ -492,5 +492,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'Låt assistenten läsa filen',
   'assistant.change.label.sentTo': 'Skickas till',
   'assistant.step.readingAttachment': 'Läser filen',
+  'assistant.change.verb.keepFile': 'Spara filen i Filer',
+  'assistant.change.label.attachedTo': 'Bifogad till',
+  'assistant.card.file.open': 'Öppna i Filer',
 };
 export default assistant;

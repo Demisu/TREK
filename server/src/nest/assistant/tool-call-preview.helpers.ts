@@ -2,6 +2,7 @@ import type { CardPlace } from './assistant-context';
 import { noteOf } from './assistant-memory';
 import {
   ASSISTANT_SERVER_WRITE_TOOLS,
+  KEEP_ATTACHED_FILE_TOOL,
   READ_ATTACHED_FILE_TOOL,
   REMEMBER_TOOL,
   writeToolOf,
@@ -124,6 +125,26 @@ function updatePlaceRows(ctx: PreviewContext, args: Args, rows: Rows): void {
 }
 
 type Describer = (ctx: PreviewContext, args: Args) => Described;
+
+/** The name of an expense of the trip, from the trip summary the card was read from; its number otherwise. */
+function expenseName(ctx: PreviewContext, itemId: number | null): string {
+  if (itemId === null) return '';
+  const summary = ctx.card.sources.summary;
+  const budget = summary && typeof summary === 'object' ? (summary as { budget?: { items?: unknown } }).budget : null;
+  const items = Array.isArray(budget?.items) ? (budget.items as Array<{ id?: unknown; name?: unknown }>) : [];
+  const found = items.find((item) => item.id === itemId);
+  return typeof found?.name === 'string' && found.name ? found.name : `#${itemId}`;
+}
+
+/** What a kept file is attached to, by name: the booking, the expense, the place. */
+function keptWith(ctx: PreviewContext, args: Args): string {
+  const reservationId = id(args, 'reservation_id');
+  const booking =
+    reservationId === null ? '' : (ctx.card.reservations.get(reservationId)?.title ?? `#${reservationId}`);
+  return [booking, expenseName(ctx, id(args, 'budget_item_id')), placeName(ctx, id(args, 'place_id'))]
+    .filter((name) => name !== '')
+    .join(', ');
+}
 
 /** Who shares an expense: the uneven split's members, else the equal one's. */
 function splitOf(args: Args): unknown {
@@ -248,6 +269,16 @@ const DESCRIBERS: Readonly<Record<string, Describer>> = {
     return { subject: text(args.name) || `#${id(args, 'itemId') ?? ''}`, rows, dayId: null, placeIds: [] };
   },
   [REMEMBER_TOOL]: (_ctx, args) => ({ subject: noteOf(args) ?? '', rows: new Rows(), dayId: null, placeIds: [] }),
+  // The file by its name, and what of the trip it is attached to.
+  [KEEP_ATTACHED_FILE_TOOL]: (ctx, args) => {
+    const placeId = id(args, 'place_id');
+    return {
+      subject: text(args.name),
+      rows: new Rows().add('attachedTo', keptWith(ctx, args)).add('description', text(args.description)),
+      dayId: null,
+      placeIds: placeId ? [placeId] : [],
+    };
+  },
   // The file by its name and where its text would go; the server set both when it held the call.
   [READ_ATTACHED_FILE_TOOL]: (_ctx, args) => ({
     subject: text(args.name),

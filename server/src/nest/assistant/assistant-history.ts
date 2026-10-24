@@ -12,6 +12,7 @@ import {
   ASSISTANT_SERVER_TOOLS,
   IMPORT_BOOKING_TOOL,
   IMPORT_TOUR_FILE_TOOL,
+  KEEP_ATTACHED_FILE_TOOL,
   READ_ATTACHED_FILE_TOOL,
   READ_BOOKING_FILE_TOOL,
   READ_TOUR_FILE_TOOL,
@@ -129,7 +130,7 @@ function takenProposalOutcome(part: ToolCallPart): string {
   return `The user took the proposed ${what} ${name} to add it; it waits for them to add or discard it.`;
 }
 
-/** Why a booking file held no booking, as the model is told it (BookingReadReason); a reason not listed adds nothing. */
+/** Why a booking file held no booking, as the model is told it; a reason this build does not know adds nothing. */
 const EMPTY_REASONS: Readonly<Record<string, string>> = {
   ai_not_configured: "AI reading for imports is not set up on this server, so only TREK's own reader looked at it",
   ai_failed: 'the AI reader for imports could not read it',
@@ -189,6 +190,27 @@ function earlierCut(text: string, earlier: boolean): string {
     : text;
 }
 
+/**
+ * The model's own calls on attached files: told after the step that made
+ * them, so the history ends on the user's side when the user's decision on
+ * them goes on.
+ */
+const ATTACHED_FILE_TOOLS: ReadonlySet<string> = new Set([READ_ATTACHED_FILE_TOOL, KEEP_ATTACHED_FILE_TOOL]);
+
+/** What became of keeping an attached file in Files, as its stored part says. */
+function keptFileLine(part: ToolCallPart): string {
+  const file = quoted(part.args.name);
+  if (part.approval?.approved === true) {
+    const kept = (part.result ?? {}) as { file?: { id?: unknown } };
+    if (part.isError) return `The attached file ${file} could not be kept in Files: ${outputText(part.result)}`;
+    return `The attached file ${file} is in the trip's Files now (file id ${String(kept.file?.id ?? '?')}).`;
+  }
+  if (part.approval?.approved === false) return `The user did not keep the attached file ${file} in Files.`;
+  if (part.isError) return `Keeping the attached file ${file} was refused: ${outputText(part.result)}`;
+  if (part.approval?.resolution) return `The attached file ${file} was not kept; the user moved on without deciding.`;
+  return `Keeping the attached file ${file} in Files waits for the user to apply or discard it.`;
+}
+
 /** What the model is told of one read of an attached file. */
 function attachedReadLine(
   part: ToolCallPart,
@@ -224,7 +246,11 @@ function attachedReadNote(
   told: Set<string>,
   earlier: boolean,
 ): string {
-  return calls.map((part) => attachedReadLine(part, texts, told, earlier)).join('\n\n');
+  return calls
+    .map((part) =>
+      part.toolName === KEEP_ATTACHED_FILE_TOOL ? keptFileLine(part) : attachedReadLine(part, texts, told, earlier),
+    )
+    .join('\n\n');
 }
 
 /**
@@ -256,9 +282,9 @@ export function toChatHistory(
       (part): part is Extract<AssistantMessagePart, { type: 'tool-call' }> =>
         part.type === 'tool-call' && part.toolName !== ASSISTANT_WEB_SEARCH_STEP,
     );
-    const reads = allCalls.filter((part) => part.toolName === READ_ATTACHED_FILE_TOOL);
+    const reads = allCalls.filter((part) => ATTACHED_FILE_TOOLS.has(part.toolName));
     const serverCalls = allCalls.filter(
-      (part) => ASSISTANT_SERVER_TOOLS.has(part.toolName) && part.toolName !== READ_ATTACHED_FILE_TOOL,
+      (part) => ASSISTANT_SERVER_TOOLS.has(part.toolName) && !ATTACHED_FILE_TOOLS.has(part.toolName),
     );
     // Told as the user's side of the conversation: the history then ends on it
     // when a decision on these bookings starts the next answer.

@@ -93,8 +93,10 @@ const { consumeEphemeralToken } = vi.hoisted(() => ({ consumeEphemeralToken: vi.
 vi.mock('../../../src/nest/auth-core/ephemeral-tokens', () => ({ consumeEphemeralToken }));
 
 const storageDelete = vi.fn();
+const storagePut = vi.fn(async () => undefined);
 const storageStub = {
   delete: storageDelete,
+  put: storagePut,
 } as unknown as import('../../../src/nest/storage/storage.service').StorageService;
 // EntityManager stub (Plan 3b Task 1 RULING): verifyJwtAndLoadUser is
 // fully mocked above, so `em.getRepository` never needs to return
@@ -446,6 +448,18 @@ describe('createFile', () => {
     expect(file.original_name).toBe('ticket.pdf');
     expect(file.file_size).toBe(99);
     expect(file.uploaded_by).toBe(user.id);
+  });
+
+  it('FILE-SVC-061: bytes for a row written elsewhere go under a fresh key with their extension, and can be dropped', async () => {
+    const filename = await svc.storeBytes({
+      originalname: 'AirBnB Buchung.pdf',
+      mimetype: 'application/pdf',
+      bytes: Buffer.from('x'),
+    });
+    expect(filename).toMatch(/^[0-9a-f-]{36}\.pdf$/);
+    expect(storagePut).toHaveBeenCalledWith('files', filename, expect.anything(), { contentType: 'application/pdf' });
+    await svc.discardBytes(filename);
+    expect(storageDelete).toHaveBeenCalledWith('files', filename);
   });
 
   it('FILE-SVC-060 (R2): a failing file_links insert rolls back the trip_files row too', async () => {

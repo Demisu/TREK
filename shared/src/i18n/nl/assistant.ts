@@ -494,5 +494,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'De assistent het bestand laten lezen',
   'assistant.change.label.sentTo': 'Gaat naar',
   'assistant.step.readingAttachment': 'Bestand lezen',
+  'assistant.change.verb.keepFile': 'Bestand bewaren in Bestanden',
+  'assistant.change.label.attachedTo': 'Gekoppeld aan',
+  'assistant.card.file.open': 'Openen in Bestanden',
 };
 export default assistant;

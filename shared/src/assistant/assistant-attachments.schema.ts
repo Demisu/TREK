@@ -1,3 +1,6 @@
+import { idSchema } from '../common/primitives.schema';
+import { fileUpdateRequestSchema } from '../file/file.schema';
+
 import { z } from 'zod';
 
 /**
@@ -20,3 +23,18 @@ export const assistantReadAttachedFileArgsSchema = z.object({
   attachmentId: assistantAttachmentIdSchema,
 });
 export type AssistantReadAttachedFileArgs = z.infer<typeof assistantReadAttachedFileArgsSchema>;
+
+/**
+ * What the model calls `keep_attached_file` with: the attachment, and what
+ * of the trip the kept file is attached to, the fields a trip file's update
+ * takes (`fileUpdateRequestSchema`) as plain ids. Every id must name a row of
+ * the same trip; the server checks that when the user applies the change.
+ */
+export const assistantKeepFileArgsSchema = z.object({
+  attachmentId: assistantAttachmentIdSchema,
+  reservation_id: idSchema.optional(),
+  budget_item_id: idSchema.optional(),
+  place_id: idSchema.optional(),
+  description: fileUpdateRequestSchema.shape.description.unwrap().max(1000).optional(),
+});
+export type AssistantKeepFileArgs = z.infer<typeof assistantKeepFileArgsSchema>;

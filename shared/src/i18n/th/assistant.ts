@@ -463,5 +463,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'อนุญาตให้ผู้ช่วยอ่านไฟล์',
   'assistant.change.label.sentTo': 'ส่งไปยัง',
   'assistant.step.readingAttachment': 'กำลังอ่านไฟล์',
+  'assistant.change.verb.keepFile': 'เก็บไฟล์ไว้ในไฟล์',
+  'assistant.change.label.attachedTo': 'แนบกับ',
+  'assistant.card.file.open': 'เปิดในไฟล์',
 };
 export default assistant;

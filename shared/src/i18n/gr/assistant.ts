@@ -496,5 +496,8 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.readAttachment': 'Άφησε τον βοηθό να διαβάσει το αρχείο',
   'assistant.change.label.sentTo': 'Αποστέλλεται σε',
   'assistant.step.readingAttachment': 'Ανάγνωση του αρχείου',
+  'assistant.change.verb.keepFile': 'Αποθήκευση του αρχείου στα Αρχεία',
+  'assistant.change.label.attachedTo': 'Επισυνάπτεται σε',
+  'assistant.card.file.open': 'Άνοιγμα στα Αρχεία',
 };
 export default assistant;
