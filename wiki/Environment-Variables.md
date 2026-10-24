@@ -7,8 +7,8 @@ Complete reference for all environment variables TREK reads.
 - **Docker Compose** — use the `environment:` block or a `.env` file alongside `docker-compose.yml`
 - **Docker run** — pass each variable with `-e VARIABLE=value`
 - **Helm** — use `env:` for plain values and `secretEnv:` for sensitive values in `values.yaml`. The chart only
-  passes through the keys it declares (37 in `templates/configmap.yaml`, the credentials in `templates/secret.yaml`), so a variable
-  that is not one of them (`DEFAULT_LANGUAGE`, `FILE_UPLOAD_LIMIT_MB`, `RESTORE_FROM_BACKUP` and `MCP_MAX_SESSION_PER_USER` among them) is dropped silently. Patch it onto the Deployment or add it to the chart
+  passes through the keys it declares in `templates/configmap.yaml` (plus the credentials in `templates/secret.yaml`), so a variable
+  that is not one of them (`FILE_UPLOAD_LIMIT_MB` and `RESTORE_FROM_BACKUP` among them) is dropped silently. Put it in `extraEnv` instead.
 - **Unraid** — set in the container template editor
 - **Proxmox Community Script** — set in `/opt/trek/server/.env`
 
@@ -49,7 +49,7 @@ warning in the log; the web UI is only served with `NODE_ENV=production` in lowe
 |-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
 | `PORT`                      | Server port                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Sources: `3001`, Docker: `3000` |
 | `HOST`                      | Bind address for the HTTP server (e.g. `127.0.0.1`, `10.0.0.72`). **Source / Proxmox installs only** — do not set this in Docker or any containerized deployment. See note below.                                                                                                                                                                                                                                                                                                                                                 | all interfaces                  |
-| `NODE_ENV`                  | Environment (`production` / `development`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `production`                    |
+| `NODE_ENV`                  | Environment (`production` / `development`). The Docker image sets `production`; a start from source defaults to `development`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `production`                    |
 | `ENCRYPTION_KEY`            | At-rest encryption key — see resolution order below                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | auto                            |
 | `TZ`                        | Timezone for logs, reminders, and cron jobs (e.g. `Europe/Berlin`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                | `UTC`                           |
 | `LOG_LEVEL`                 | `info` = concise user actions; `debug` = verbose details                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | `info`                          |
@@ -296,6 +296,12 @@ randomly generated password that is printed to the server log. Once any user exi
 
 ---
 
+## AI Assistant
+
+The AI Assistant addon has no environment variables for its provider. The AI connection (provider, API key or sign-in) is set up inside TREK, and its secrets are encrypted with `ENCRYPTION_KEY`. `LLM_TIMEOUT_MS` and `LLM_MAX_OUTPUT_TOKENS` under [Booking Import](#booking-import-kde-itinerary) bound the AI calls.
+
+---
+
 ## MCP
 
 For setup instructions, see [MCP-Overview](MCP-Overview).
@@ -397,6 +403,7 @@ A Google Maps API key gives place search Google as the keyed provider beside the
 | Variable         | Description | Default |
 |------------------|-------------|---------|
 | `PLACES_API_KEY` | Google Maps API key with the **Places API (New)** enabled. When set, it takes priority over the key configured in **Admin → Settings → API Keys** and is used for every member of the instance. | unset |
+| `PLACES_API_BASE` | Base URL for the Google Places calls, for routing them through an egress proxy, a cache or a gateway that speaks the same API instead of Google directly. Must be a valid URL. | unset |
 
 **Two ways to configure it**, pick one; the env var wins if both are present:
 
@@ -461,6 +468,7 @@ through environment variables. `TREK_PLACE_PHOTO_DIR` below is unaffected.
 | `BACKUP_UPLOAD_LIMIT_MB`     | Maximum **compressed** size (in MB) of a restore-backup archive that may be uploaded. Raise it if your backups (which include the `uploads/` directory) exceed the default. Non-positive or invalid values abort startup. | `500`                   |
 | `RESTORE_FROM_BACKUP` | Path to a backup ZIP to restore on the **first** start, before any setup. Only acts while no database exists; afterwards it is ignored with a warning. A backup that fails the restore checks stops the start. See [Backups](Backups#restoring-on-a-new-install-before-setup). | none |
 | `BACKUP_MAX_DECOMPRESSED_MB` | Maximum **decompressed** size (in MB) of a restore-backup archive — the zip-bomb guard. Independent of `BACKUP_UPLOAD_LIMIT_MB` and enforced on both restore paths, so a restore that fits the upload cap can still be refused with `Backup exceeds the maximum decompressed size.` Raise both when restoring a very large instance. | `5120` (5 GB)          |
+| `TREK_DB_FILE`               | Explicit path of the database file. Unset, TREK uses `travel.db` in the data directory. | unset |
 | `TREK_DB_JOURNAL_MODE`       | SQLite [journal mode](https://sqlite.org/pragma.html#pragma_journal_mode): `DELETE`, `TRUNCATE`, `PERSIST`, `MEMORY`, `WAL` or `OFF`. Set `DELETE` when the data directory lives on network storage — see below. Values SQLite doesn't know log a warning and fall back. | `WAL`                   |
 | `TREK_DB_PRE_MIGRATE_SNAPSHOT` | Copy the database to `pre-migrate-<schema>-<time>.db` next to it before a startup applies pending migrations, so the previous image can be started on that copy again. If the copy cannot be written the startup refuses rather than migrate without one. Set `false` only to get past that when you cannot free space and have a backup of your own. See [Updating](Updating#database-migrations). | `true` |
 | `TREK_DB_PRE_MIGRATE_SNAPSHOT_KEEP` | How many of those copies stay in the data directory, newest first (1 to 100). | `3` |

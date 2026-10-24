@@ -16,6 +16,8 @@ TREK encrypts sensitive settings at rest using AES-256-GCM. The following values
 - Synology Photos password, session ID, and device ID (per user)
 - Per-user webhook URL, ntfy notification token, and LLM provider API key (in `settings` table)
 - Instance-wide API key of the AI Parsing addon (in `addons.config`)
+- Credentials of the AI Assistant's connections: an API key, or the tokens of a ChatGPT sign-in, kept as one encrypted blob per connection (in `ai_connections`)
+- Wanderer access token (per user, in `wanderer_connections`)
 - Document sync credentials of a trip's stores, one encrypted blob per store and trip (in `document_connections`), and the webhook secret of each binding (in `trip_document_links`); see [Document-Sync](Document-Sync)
 - OIDC client secret (global, in `app_settings`)
 - SMTP password (global, in `app_settings`)
@@ -40,7 +42,7 @@ On startup, TREK resolves the encryption key in this order:
 
 ## What happens if the key is lost
 
-All encrypted settings (API keys, SMTP password, OIDC secret, MFA secrets, notification tokens, etc.) become unreadable — TREK cannot decrypt them. They must be re-entered manually after the key is restored or replaced. Unencrypted data (trips, places, users, etc.) is unaffected.
+All encrypted settings (API keys, SMTP password, OIDC secret, MFA secrets, notification tokens, the AI Assistant's provider key and ChatGPT sign-ins, Wanderer tokens, etc.) become unreadable — TREK cannot decrypt them. They must be re-entered manually after the key is restored or replaced. Unencrypted data (trips, places, users, etc.) is unaffected.
 
 The Web Push key pair cannot be re-entered, and TREK never replaces it on its own: unless the `VAPID_*` variables supply a pair, push stays off, with an error in the log, until TREK runs with the original key again, and then every device receives as before. To give it up instead, delete both `web_push_vapid_public_key` and `web_push_vapid_private_key` from `app_settings`. TREK then generates a new pair, and every device has to subscribe again (see [Environment-Variables](Environment-Variables#web-push)).
 
@@ -86,6 +88,7 @@ The script:
    - `document_connections`: `secrets` (the one encrypted blob per store and trip, including tokens the store handed out itself, such as Synology's device token)
    - `trip_document_links`: `webhook_secret`
    - `addons.config`: the instance-wide API key of the AI Parsing addon
+   - `ai_connections`: `secrets` (the AI Assistant's API key or ChatGPT sign-in tokens; left out, the admin would have to enter the key again and every ChatGPT user would have to sign in anew)
 5. Reports counts of migrated, already-migrated, skipped (empty), and errored values.
 6. Writes the new key to `.encryption_key` next to the database, when that file exists, so the file and the secrets agree again.
 
@@ -93,6 +96,8 @@ After a successful migration:
 
 1. If you supply the key through `ENCRYPTION_KEY`, update it to the new value. (TREK refuses to start while the variable and the key file disagree.)
 2. Restart TREK.
+
+The rotation script does not cover the Wanderer access token. After a rotation, each user who connected Wanderer enters the token again in their settings; the rest of the connection is unaffected.
 
 If any secrets could not be migrated, the script exits with a non-zero status and the original database backup is retained.
 
