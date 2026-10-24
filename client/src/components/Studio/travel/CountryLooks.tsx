@@ -253,7 +253,7 @@ export function CountryLookView({ el, frameStyle }: { el: BookCountriesElement; 
         const key = `${c.code}-${i}`;
         if (el.look === 'stamp') return <Stamp key={key} el={el} c={c} size={Math.min(cellW, cellH)} />;
         if (el.look === 'postcard') return <Postcard key={key} el={el} c={c} w={cellW} h={cellH} />;
-        const Look = MORE[el.look] ?? Visa;
+        const Look = MORE[el.look ?? 'visa'] ?? Visa;
         return <Look key={key} el={el} code={c.code} name={c.name} w={cellW} h={cellH} />;
       })}
     </div>

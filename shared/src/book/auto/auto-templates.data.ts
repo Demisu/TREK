@@ -156,7 +156,6 @@ export const AUTO_TEMPLATES: readonly AutoTemplate[] = [
         kind: 'stats',
         metrics: ['distance', 'days', 'steps', 'photos', 'countries', 'places'],
         layout: 'grid',
-        look: 'classic',
         showIcons: true,
         units: 'metric',
         values: {
@@ -223,7 +222,6 @@ export const AUTO_TEMPLATES: readonly AutoTemplate[] = [
         showFlag: false,
         showName: true,
         align: 'center',
-        look: 'classic',
       },
     ],
   },

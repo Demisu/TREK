@@ -509,7 +509,7 @@ export function StatsLookView({ el, frameStyle }: { el: BookStatsElement; frameS
     ...metricValue(metric, el.values, el.units, locale),
     label: t(`journey.studio.metric.${metric}`),
   }));
-  const Look = LOOKS[el.look] ?? PosterLook;
+  const Look = LOOKS[el.look ?? 'poster'] ?? PosterLook;
   return (
     <div
       style={{

@@ -692,16 +692,16 @@ export const bookStatsElementSchema = z.object({
   metrics: z.array(z.enum(BOOK_METRICS)).max(7).default(['distance', 'days', 'steps', 'photos']),
   layout: z.enum(['grid', 'row', 'column']).default('grid'),
   /**
-   * How the figures are drawn. `classic` is the icon, figure and caption every
-   * summary placed so far draws, and the default for exactly that reason: a
-   * stored book must not change the day it is opened. The others are newer
+   * How the figures are drawn. Absent, or `classic`, is the icon, figure and
+   * caption every summary placed so far draws: optional rather than defaulted,
+   * so a stored book reads and saves exactly as it did. The others are newer
    * compositions: one figure set as a poster with the rest beside it, a ticket
    * stub, a tile per figure, a band of figures between hairlines, a round
    * medal per figure with its name running round the rim, the drums of an
    * odometer, a road sign listing them, a handwritten note, and a pencil
    * sketch with a hand-drawn frame.
    */
-  look: z.enum(BOOK_STATS_LOOKS).default('classic'),
+  look: z.enum(BOOK_STATS_LOOKS).optional(),
   showIcons: z.boolean().default(true),
   units: bookUnitsSchema.default('metric'),
   /**
@@ -738,15 +738,15 @@ export const bookCountriesElementSchema = z.object({
   showName: z.boolean().default(true),
   align: z.enum(['left', 'center', 'right']).default('center'),
   /**
-   * How a country is drawn. `classic` is the name over its silhouette that
-   * every country placed so far draws, kept as the default so a stored book
-   * stays as it was. `stamp` sets it as a round passport stamp, `postcard` as
+   * How a country is drawn. Absent, or `classic`, is the name over its
+   * silhouette that every country placed so far draws, so a stored book stays
+   * as it was. `stamp` sets it as a round passport stamp, `postcard` as
    * an airmail card, `visa` as an entry stamp with cut corners, `flag` as the
    * flag in cloth, `pin` as a map pin carrying the flag, and `label` as an old
    * luggage label with the name on a ribbon, `sketch` as the outline drawn by
    * hand and hatched, with the name written under it.
    */
-  look: z.enum(BOOK_COUNTRY_LOOKS).default('classic'),
+  look: z.enum(BOOK_COUNTRY_LOOKS).optional(),
 });
 
 export const BOOK_BADGES = [

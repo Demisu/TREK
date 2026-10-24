@@ -37,7 +37,7 @@ import { studioTravelContext } from '../studioTravelContext';
  */
 
 /** The figures a summary offers: how far, how long, where, and how much was kept. */
-export const SUMMARY_METRICS: BookMetric[] = ['distance', 'days', 'countries', 'photos'];
+const SUMMARY_METRICS: BookMetric[] = ['distance', 'days', 'countries', 'photos'];
 
 /** The looks of a summary, in the order the panel offers them. */
 export const SUMMARY_LOOKS: BookStatsLook[] = [
