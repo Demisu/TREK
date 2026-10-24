@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import type { BookDocument, BookElement } from '@trek/shared';
+import type { BookDocument, BookElement, BookTheme } from '@trek/shared';
 import { bookPageSetupSchema, bookTextElementSchema, bookThemeOf } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { StudioThemeLink } from '../../../src/components/Studio/theme/StudioThemeLink';
@@ -99,6 +99,24 @@ describe('the theme draft', () => {
     expect(themeRequest(theme, undefined, true)).not.toHaveProperty('theme');
     expect(themeRequest(bookThemeOf('cutout'), undefined, true)).toMatchObject({ theme: 'cutout' });
     expect(isEdited(theme)).toBe(false);
+  });
+});
+
+describe('the draft and saves from elsewhere', () => {
+  it('FE-STUDIO-THEME-012: keeps colours being tried when the same theme is read anew, follows another', () => {
+    load([text()], { theme: bookThemeOf('nordic') });
+    const { result } = renderHook(() => useStudioTheme());
+    act(() => result.current.setColour('accent', '#ff0000'));
+
+    // Another editor saved a page: the book comes back parsed again, its theme the same in new objects and key order.
+    const before = doc().theme as BookTheme;
+    const reread = Object.fromEntries(Object.entries(JSON.parse(JSON.stringify(before)) as BookTheme).reverse());
+    act(() => useStudioStore.setState({ doc: { ...doc(), theme: reread as BookTheme } }));
+    expect(result.current.draft.palette.accent).toBe('#ff0000');
+
+    act(() => useStudioStore.setState({ doc: { ...doc(), theme: bookThemeOf('alpine') } }));
+    expect(result.current.draft.id).toBe('alpine');
+    expect(result.current.draft.palette).toEqual(bookThemeOf('alpine').palette);
   });
 });
 

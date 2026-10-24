@@ -87,7 +87,8 @@ interface StudioState extends StudioLayerActions {
    * step, and the gesture that drives this calls it on every pointer move.
    */
   setRotation: (spreadIndex: number, id: string, rotation: number) => void
-  addElement: (spreadIndex: number, el: BookElement) => void
+  /** One element onto a page, selected; false, and nothing changed, when the page holds all it can. */
+  addElement: (spreadIndex: number, el: BookElement) => boolean
   removeElements: (spreadIndex: number, ids: string[]) => void
   /** Copy elements of a spread to the clipboard (#2316). */
   copy: (spreadIndex: number, ids: string[]) => void
@@ -225,6 +226,9 @@ export const useStudioStore = create<StudioState>((set, get) => ({
     }))),
 
   addElement: (spreadIndex, el) => {
+    // The page's own cap, as paste and duplicate keep it: what would make the book unsaveable is not added.
+    const target = get().doc?.spreads[spreadIndex]
+    if (!target || target.elements.length >= MAX_SPREAD_ELEMENTS) return false
     get().commit(doc =>
       replaceSpread(doc, spreadIndex, sp => ({ ...sp, elements: [...sp.elements, el] })))
     /*
@@ -236,6 +240,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
      * asked for. Duplicating already worked this way; placing did not.
      */
     set({ selection: [el.id] })
+    return true
   },
 
   removeElements: (spreadIndex, ids) => {

@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import type { BookDocument, BookTextElement } from '@trek/shared';
-import { BOOK_LOCKUPS, bookPageSetupSchema, normalizeBookDocument } from '@trek/shared';
+import { BOOK_LOCKUPS, MAX_SPREAD_ELEMENTS, bookPageSetupSchema, normalizeBookDocument } from '@trek/shared';
 
 import { fireEvent, render, screen } from '../../../tests/helpers/render';
 import { useStudioStore } from '../../store/studioStore';
@@ -71,6 +71,23 @@ describe('the Text styles shelf', () => {
     expect(useStudioStore.getState().canUndo()).toBe(true);
     useStudioStore.getState().undo();
     expect(elements()).toEqual([]);
+  });
+
+  it('places nothing on a page without room for the whole set, so the book stays saveable', () => {
+    const shapes = Array.from({ length: MAX_SPREAD_ELEMENTS - 2 }, (_, i) => ({
+      id: `s${i}`,
+      kind: 'shape',
+      frame: { x: 0, y: 0, w: 5, h: 5 },
+    }));
+    const crowded = book();
+    useStudioStore
+      .getState()
+      .load(normalizeBookDocument({ ...crowded, spreads: crowded.spreads.map((sp) => ({ ...sp, elements: shapes })) }));
+    render(<StudioTextStyles page={page} source={source} t={t} />);
+    fireEvent.click(screen.getByRole('button', { name: 'journey.studio.lockup.circle-badge' }));
+    expect(elements()).toHaveLength(MAX_SPREAD_ELEMENTS - 2);
+    expect(useStudioStore.getState().canUndo()).toBe(false);
+    expect(useStudioStore.getState().selection).toEqual([]);
   });
 
   it('opens the Elements panel on the type tab, the plain styles above the lockups', () => {

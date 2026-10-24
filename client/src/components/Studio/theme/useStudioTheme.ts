@@ -2,6 +2,7 @@ import {
   BOOK_THEME_IDS,
   bookPaletteFromPhotos,
   bookThemeOf,
+  compareCodeUnits,
   setBookTheme,
   type BookFontSlot,
   type BookPaletteKey,
@@ -42,6 +43,15 @@ export function themeRequest(draft: BookTheme, spreadIds: string[] | undefined, 
   };
 }
 
+/** A theme as text, its keys in one order at every depth, so the same theme read twice compares equal. */
+function themeKey(theme: BookTheme | undefined): string {
+  if (!theme) return '';
+  return JSON.stringify(theme, (_key, value: unknown) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+    return Object.fromEntries(Object.entries(value).sort(([a], [b]) => compareCodeUnits(a, b)));
+  });
+}
+
 /** Whether a draft differs from the built-in theme it is named after. */
 export function isEdited(draft: BookTheme): boolean {
   if (!draft.id) return false;
@@ -60,10 +70,13 @@ export function useStudioTheme() {
   const [reading, setReading] = useState(false);
 
   // The book's theme changed under the panel (applied, undone, another editor): the draft follows it,
-  // set while rendering rather than in an effect, so the panel never paints the old draft first.
-  const [seen, setSeen] = useState(current);
-  if (seen !== current) {
-    setSeen(current);
+  // set while rendering rather than in an effect, so the panel never paints the old draft first. Compared
+  // by what it says, not by identity: a save from elsewhere reads the same theme in anew, and must not
+  // throw away colours being tried here.
+  const currentKey = useMemo(() => themeKey(current), [current]);
+  const [seen, setSeen] = useState(currentKey);
+  if (seen !== currentKey) {
+    setSeen(currentKey);
     if (current) setDraft(current);
   }
 

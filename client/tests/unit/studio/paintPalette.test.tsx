@@ -221,8 +221,9 @@ describe('the opacity slider', () => {
     expect(onChange).toHaveBeenLastCalledWith(0.3, false);
     fireEvent.pointerUp(range);
     expect(onChange).toHaveBeenLastCalledWith(0.3, true);
+    // A key let go without a move since that commit is no change, so nothing more is reported.
     fireEvent.keyUp(range, { key: 'ArrowLeft' });
-    expect(onChange).toHaveBeenCalledTimes(3);
+    expect(onChange).toHaveBeenCalledTimes(2);
   });
 
   it('sits under the swatches only when the caller takes an alpha', () => {

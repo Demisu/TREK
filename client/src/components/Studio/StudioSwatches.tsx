@@ -116,11 +116,18 @@ export function AlphaSlider({ color, value, onChange, label }: {
   const pct = Math.round(value * 100)
   // What the slider was last moved to: a controlled input may still show the old value when it is let go.
   const moved = useRef(value)
+  // Whether it moved since the last commit: a key let go on it (the Tab that brought the focus) is no change.
+  const dirty = useRef(false)
   const move = (raw: string) => {
     moved.current = Math.max(0, Math.min(100, Number(raw))) / 100
+    dirty.current = true
     onChange(moved.current, false)
   }
-  const finish = () => onChange(moved.current, true)
+  const finish = () => {
+    if (!dirty.current) return
+    dirty.current = false
+    onChange(moved.current, true)
+  }
   return (
     <div className="st-alpha">
       <div className="st-alpha-track" style={{ ['--st-alpha-colour' as string]: color }}>
@@ -136,6 +143,7 @@ export function AlphaSlider({ color, value, onChange, label }: {
           onChange={e => move(e.target.value)}
           onPointerUp={finish}
           onKeyUp={finish}
+          onBlur={finish}
         />
       </div>
       <span className="st-alpha-value">{pct}%</span>

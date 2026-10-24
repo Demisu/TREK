@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import type { BookDocument, BookElement, BookPageSetup, BookSpread } from '@trek/shared'
 import {
-  MAX_BOOK_LAYOUTS, bookBadgeElementSchema, bookLayoutSchema, bookPageSetupSchema, bookPhotoElementSchema,
-  bookShapeElementSchema, bookTextElementSchema,
+  MAX_BOOK_LAYOUTS, MAX_SPREAD_ELEMENTS, bookBadgeElementSchema, bookLayoutSchema, bookPageSetupSchema,
+  bookPhotoElementSchema, bookShapeElementSchema, bookTextElementSchema,
   applySavedBookLayout as applySavedLayout, bookLayoutFromSpread as layoutFromSpread,
   bookLayoutPreview as layoutPreview, bookLayoutRole as layoutRole, nextBookLayoutName as nextLayoutName,
 } from '@trek/shared'
@@ -164,6 +164,17 @@ describe('studio store: clipboard and layouts', () => {
     expect(applied[0]).toEqual(panel)
     expect(applied.find(e => e.id === 'pin')).toEqual(pinned)
     expect(applied.filter(e => e.kind === 'photo' && !e.locked).map(e => e.kind === 'photo' && e.photoId)).toEqual([9])
+  })
+
+  it('FE-STUDIO-STORE-ADD-001: a full page takes no new element, and nothing is selected for it', () => {
+    const full = Array.from({ length: MAX_SPREAD_ELEMENTS }, (_, i) => ({ ...shape('s'), id: `s${i}` }) as BookElement)
+    load({ spreads: [spread('a', full), spread('b', [])] })
+    const before = useStudioStore.getState().doc
+    expect(useStudioStore.getState().addElement(0, text('extra', 'One more'))).toBe(false)
+    expect(useStudioStore.getState().doc).toBe(before)
+    expect(useStudioStore.getState().selection).toEqual([])
+    expect(useStudioStore.getState().addElement(1, text('first', 'Fits'))).toBe(true)
+    expect(useStudioStore.getState().selection).toEqual(['first'])
   })
 
   it('FE-STUDIO-STORE-LAYOUT-002: an empty page is not a layout, and a full book says no', () => {

@@ -235,7 +235,6 @@ export function StudioCanvas({
           photoId, fit: 'cover', focalX: 0.5, focalY: 0.5, radius: 0, filter: 'none',
           mask: null, frameStyle: 'none',
         } as BookElement)
-        select([id])
       }}
     >
       {/*

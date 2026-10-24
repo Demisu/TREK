@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import type { BookLockup, BookLockupWords, BookPageSetup } from '@trek/shared';
-import { addBookLockup, bookElementId } from '@trek/shared';
+import { MAX_SPREAD_ELEMENTS, addBookLockup, bookElementId } from '@trek/shared';
 
 import { useElementSize } from '../../hooks/useElementSize';
 import { useStudioStore } from '../../store/studioStore';
@@ -98,7 +98,8 @@ export function StudioTextStyles({
 
   const place = (lockup: BookLockup) => {
     const els = placeLockup(lockup, { page, spread, words, gallery: source.photos, newId: bookElementId });
-    if (!els.length) return;
+    // The page's own cap, as a duplicate keeps it: a set that would make the book unsaveable is not placed.
+    if (!els.length || !spread || spread.elements.length + els.length > MAX_SPREAD_ELEMENTS) return;
     commit((d) => ({
       ...d,
       spreads: d.spreads.map((sp, i) => (i === active ? addBookLockup(sp, els, bookElementId('g')) : sp)),

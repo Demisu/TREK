@@ -1,5 +1,5 @@
 import type { BookDocument } from '@trek/shared';
-import { BOOK_GRIDS, bookPageSetupSchema, normalizeBookDocument } from '@trek/shared';
+import { BOOK_GRIDS, MAX_SPREAD_ELEMENTS, bookPageSetupSchema, normalizeBookDocument } from '@trek/shared';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { fireEvent, render, screen } from '../../../tests/helpers/render';
@@ -10,9 +10,9 @@ import { DIVIDER_PRESETS, LINE_PRESETS } from './linePresets';
 import { matchStickers } from './stickerLibrary';
 
 /**
- * FE-STUDIO-ELEMENTS-001 to FE-STUDIO-ELEMENTS-006: the Elements panel's six
+ * FE-STUDIO-ELEMENTS-001 to FE-STUDIO-ELEMENTS-007: the Elements panel's six
  * tabs, each opening its own shelves, and each placing what it shows on the
- * open page.
+ * open page, as long as the page has room for it.
  */
 
 const t = (k: string) => k;
@@ -76,6 +76,40 @@ describe('the Elements panel', () => {
     if (!grid) throw new Error('no grids');
     fireEvent.click(screen.getByRole('button', { name: grid.id }));
     expect(useStudioStore.getState().selection).toHaveLength(grid.cells.length);
+  });
+
+  it('FE-STUDIO-ELEMENTS-007: places nothing on a page that holds all it can, a frame or a whole grid', () => {
+    const grid = BOOK_GRIDS.find((g) => g.cells.length > 1);
+    if (!grid) throw new Error('no grid of several frames');
+    const crowded = (n: number) =>
+      normalizeBookDocument({
+        ...book(),
+        spreads: [
+          {
+            id: 'sp1',
+            role: 'inner',
+            entryId: null,
+            background: null,
+            parked: [],
+            elements: Array.from({ length: n }, (_, i) => ({
+              id: `s${i}`,
+              kind: 'shape',
+              frame: { x: 0, y: 0, w: 5, h: 5 },
+            })),
+          },
+        ],
+      });
+    useStudioStore.getState().load(crowded(MAX_SPREAD_ELEMENTS));
+    render(<StudioElementsPanel page={page} t={t} source={source} />);
+    open('journey.studio.frames');
+    fireEvent.click(screen.getByRole('button', { name: 'journey.studio.polaroidFrame' }));
+    expect(elements()).toHaveLength(MAX_SPREAD_ELEMENTS);
+    expect(useStudioStore.getState().selection).toEqual([]);
+
+    useStudioStore.getState().load(crowded(MAX_SPREAD_ELEMENTS - 1));
+    fireEvent.click(screen.getByRole('button', { name: grid.id }));
+    expect(elements()).toHaveLength(MAX_SPREAD_ELEMENTS - 1);
+    expect(useStudioStore.getState().canUndo()).toBe(false);
   });
 
   it('FE-STUDIO-ELEMENTS-005: searches the icons and the stickers above their grids', () => {

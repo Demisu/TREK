@@ -3,7 +3,10 @@ import { Frame, Minus, Quote, Shapes, Spline, Sparkles, Square, Sticker, Type, t
 import type { BookElement, BookPageSetup, BookShapeId } from '@trek/shared'
 import { useStudioStore } from '../../store/studioStore'
 import { FRAME_SHAPES, HOLED_SHAPES, SHAPE_GROUPS } from './shapes'
-import { BOOK_GRIDS as GRIDS, bookElementId, bookShapeSize, bookGridElements as gridElements, defaultBookGridBox as defaultGridBox } from '@trek/shared'
+import {
+  BOOK_GRIDS as GRIDS, MAX_SPREAD_ELEMENTS, bookElementId, bookShapeSize, bookGridElements as gridElements,
+  defaultBookGridBox as defaultGridBox,
+} from '@trek/shared'
 import { shapeTile } from './shapeOutline'
 import { StudioLineShelf } from './StudioLineShelf'
 import { PanelHead, Shelf } from './StudioPanelHead'
@@ -190,6 +193,9 @@ function useElementAdders(page: BookPageSetup) {
   /** A block of empty frames, selected as a group so it moves and resizes as one thing straight away. */
   const addGrid = (grid: (typeof GRIDS)[number]) => {
     const els = gridElements(grid, defaultGridBox(page, single))
+    // The page's own cap, as a duplicate keeps it: frames that would make the book unsaveable are not added.
+    const on = useStudioStore.getState().doc?.spreads[active]
+    if (!on || on.elements.length + els.length > MAX_SPREAD_ELEMENTS) return
     commit(d => ({
       ...d,
       spreads: d.spreads.map((sp, i) => (i !== active ? sp : { ...sp, elements: [...sp.elements, ...els] })),
