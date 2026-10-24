@@ -71,6 +71,12 @@ describe('the catalogue', () => {
       for (const w of face.italics) expect(face.weights, `${id} italic ${w}`).toContain(w);
       expect(face.letterEm, id).toBeGreaterThan(0.2);
       expect(face.letterEm, id).toBeLessThan(0.7);
+      // A measured bold only where the family ships one, and never narrower than its regular.
+      const bold = (face as { boldEm?: number }).boldEm;
+      if (bold !== undefined) {
+        expect(face.weights as readonly number[], id).toContain(700);
+        expect(bold, id).toBeGreaterThanOrEqual(face.letterEm);
+      }
       expect(face.roles.length, id).toBeGreaterThan(0);
     }
   });

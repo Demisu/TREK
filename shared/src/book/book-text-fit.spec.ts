@@ -1,4 +1,4 @@
-import { textHeightNeeded } from './book-findings';
+import { bookLetterMm, textHeightNeeded } from './book-findings';
 import { blankBook } from './book-pages';
 import {
   bookCasedText,
@@ -137,5 +137,13 @@ describe('fitting a page', () => {
     const next = fitBookTexts({ ...doc, spreads }, doc);
     expect((next.spreads[0]?.elements[0] as BookTextElement).size).toBeLessThan(60);
     expect(next.spreads[1]).toBe(doc.spreads[1]);
+  });
+
+  it('BKFIT-011: a bold condensed face is measured at its own width, not the regular widened by a guess', () => {
+    const oswald = (weight: number) => bookLetterMm(text({ font: 'oswald', weight, size: 20 }));
+    // Oswald's 700 sets about 13% wider than its 400; a flat 6% would let a bold heading overrun its frame.
+    expect(oswald(700) / oswald(400)).toBeGreaterThan(1.1);
+    const vibes = (weight: number) => bookLetterMm(text({ font: 'vibes', weight, size: 20 }));
+    expect(vibes(700) / vibes(400)).toBeCloseTo(1.06, 6);
   });
 });

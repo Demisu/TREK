@@ -76,7 +76,12 @@ export function photoDpi(el: BookPhotoElement, info: BookPhotoInfo | undefined):
 }
 
 /** Average letter width per em at weight 400, per family: the catalogue's measure (book-fonts.data.ts). */
-const letterEm = (font: string) => bookFontFace(font)?.letterEm ?? 0.5;
+/** A family's average letter width per em at a weight: its measured bold from 600 on, else a guess a little wider. */
+function letterEm(font: string, weight: number): number {
+  const face = bookFontFace(font);
+  const regular = face?.letterEm ?? 0.5;
+  return weight >= 600 ? (face?.boldEm ?? regular * 1.06) : regular;
+}
 
 /**
  * The headroom on letter width the design engine sizes a text frame with. A
@@ -124,7 +129,7 @@ export function bookLetterMm(el: BookTextElement, headroom = 1): number {
   const sizeMm = (orDefault(el.size, 11) * 25.4) / 72;
   const tracking = orDefault(el.tracking, 0);
   const caps = bookFontFace(el.font)?.caps ? 1 : (CASE_WIDTH[el.transform ?? 'none'] ?? 1);
-  return sizeMm * (letterEm(el.font) * (el.weight >= 600 ? 1.06 : 1) * caps * headroom + tracking);
+  return sizeMm * (letterEm(el.font, el.weight) * caps * headroom + tracking);
 }
 
 /**

@@ -58,6 +58,11 @@ export interface BookFontFace {
    * the face's own advance widths, for the text measure in book-findings.ts.
    */
   letterEm: number;
+  /**
+   * The same at weight 700, measured the same way, for a family that ships a
+   * real bold: a condensed bold sets up to a sixth wider than its regular.
+   */
+  boldEm?: number;
   /** Set in capitals whatever is typed. */
   caps?: true;
 }
@@ -81,6 +86,7 @@ export const BOOK_FONT_FACES = {
     weights: ALL,
     italics: [],
     letterEm: 0.507,
+    boldEm: 0.519,
   },
   inter: {
     name: 'Inter',
@@ -91,6 +97,7 @@ export const BOOK_FONT_FACES = {
     weights: ALL,
     italics: [],
     letterEm: 0.478,
+    boldEm: 0.491,
   },
   montserrat: {
     name: 'Montserrat',
@@ -101,6 +108,7 @@ export const BOOK_FONT_FACES = {
     weights: ALL,
     italics: [],
     letterEm: 0.507,
+    boldEm: 0.536,
   },
   // ── serif ──
   serif: {
@@ -112,6 +120,7 @@ export const BOOK_FONT_FACES = {
     weights: MID,
     italics: MID,
     letterEm: 0.469,
+    boldEm: 0.481,
   },
   garamond: {
     name: 'EB Garamond',
@@ -122,6 +131,7 @@ export const BOOK_FONT_FACES = {
     weights: [400, 500, 600, 700, 800],
     italics: [400, 500, 600, 700, 800],
     letterEm: 0.383,
+    boldEm: 0.424,
   },
   // ── elegant display serifs ──
   playfair: {
@@ -133,6 +143,7 @@ export const BOOK_FONT_FACES = {
     weights: [400, 500, 600, 700, 800, 900],
     italics: [400, 500, 600, 700, 800, 900],
     letterEm: 0.454,
+    boldEm: 0.462,
   },
   fraunces: {
     name: 'Fraunces',
@@ -143,6 +154,7 @@ export const BOOK_FONT_FACES = {
     weights: ALL,
     italics: ALL,
     letterEm: 0.467,
+    boldEm: 0.497,
   },
   cormorant: {
     name: 'Cormorant Garamond',
@@ -153,6 +165,7 @@ export const BOOK_FONT_FACES = {
     weights: [300, 400, 500, 600, 700],
     italics: [300, 400, 500, 600, 700],
     letterEm: 0.393,
+    boldEm: 0.398,
   },
   dmserif: {
     name: 'DM Serif Display',
@@ -173,6 +186,7 @@ export const BOOK_FONT_FACES = {
     weights: [400, 500, 600, 700, 800, 900],
     italics: [400, 500, 600, 700, 800, 900],
     letterEm: 0.463,
+    boldEm: 0.488,
   },
   // ── condensed and poster ──
   bebas: {
@@ -205,6 +219,7 @@ export const BOOK_FONT_FACES = {
     weights: [200, 300, 400, 500, 600, 700],
     italics: [],
     letterEm: 0.365,
+    boldEm: 0.412,
   },
   league: {
     name: 'League Gothic',
@@ -225,6 +240,7 @@ export const BOOK_FONT_FACES = {
     weights: ALL,
     italics: [],
     letterEm: 0.304,
+    boldEm: 0.355,
   },
   archivo: {
     name: 'Archivo Black',
@@ -246,6 +262,7 @@ export const BOOK_FONT_FACES = {
     weights: ALL,
     italics: [],
     letterEm: 0.492,
+    boldEm: 0.5,
   },
   shrikhand: {
     name: 'Shrikhand',
@@ -276,6 +293,7 @@ export const BOOK_FONT_FACES = {
     weights: [200, 300, 400, 500, 600, 700, 800],
     italics: [],
     letterEm: 0.471,
+    boldEm: 0.49,
   },
   abril: {
     name: 'Abril Fatface',
@@ -297,6 +315,7 @@ export const BOOK_FONT_FACES = {
     weights: MID,
     italics: [],
     letterEm: 0.344,
+    boldEm: 0.349,
   },
   dancing: {
     name: 'Dancing Script',
@@ -307,6 +326,7 @@ export const BOOK_FONT_FACES = {
     weights: MID,
     italics: [],
     letterEm: 0.363,
+    boldEm: 0.372,
   },
   pacifico: {
     name: 'Pacifico',
