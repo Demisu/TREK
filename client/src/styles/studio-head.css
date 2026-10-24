@@ -1,0 +1,173 @@
+/* ----------------- head band (StudioHeader.tsx) ----------------- *
+ * The shape every TREK dialog head has: a tinted band, a raised tile, a small
+ * line above the title and a round close button at the end. The band keeps the
+ * glass of the old bar under its tint, so the journey still shows through.
+ */
+.trek-dash .st-head {
+  /* Its own stacking context, above the rails: the panels below carry z-index 1,
+     and without this the format menu would open behind them. */
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding-inline: 14px 16px;
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--accent) 7%, transparent),
+      color-mix(in srgb, var(--accent) 7%, transparent)
+    ),
+    var(--glass-bg);
+  border-bottom: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* The journey's cover, so it is always clear whose book this is. */
+.trek-dash .st-head-tile {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  overflow: hidden;
+  border-radius: 13px;
+  background: var(--surface);
+  box-shadow: var(--sh-sm);
+}
+.trek-dash .st-head-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.trek-dash .st-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* The wordmark and the beta mark: what this screen is, quietly, above its name. */
+.trek-dash .st-head-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 17px;
+  color: var(--ink-2);
+}
+.trek-dash .st-head-eyebrow svg {
+  flex: none;
+}
+
+.trek-dash .st-head-title {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.trek-dash .st-head-sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* The format, as a chip that opens the format menu. */
+.trek-dash .st-head-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding-inline: 7px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--sh-xs);
+  color: var(--ink-2);
+  font-size: 11.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    color 0.16s,
+    box-shadow 0.16s;
+}
+.trek-dash .st-head-chip:hover {
+  color: var(--ink);
+  box-shadow: var(--sh-sm);
+}
+.trek-dash .st-head-chip:focus {
+  outline: none;
+}
+.trek-dash .st-head-chip:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--accent-soft),
+    0 0 0 3px var(--accent);
+}
+.trek-dash .st-head-chip-shape {
+  flex: none;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  opacity: 0.7;
+}
+/* The chip sits on the left, so its menu opens towards the page, not off the window. */
+.trek-dash .st-head-menu {
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+}
+
+.trek-dash .st-head-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  margin-inline-start: auto;
+}
+
+/* Tools that belong together share one raised group, like a segmented control. */
+.trek-dash .st-head-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--sh-xs);
+}
+
+.trek-dash .st-head-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  margin-inline-start: 2px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--sh-sm);
+  color: var(--ink-3);
+  transition: color 0.16s;
+}
+.trek-dash .st-head-close:hover {
+  color: var(--ink);
+}
+.trek-dash .st-head-close:focus {
+  outline: none;
+}
+.trek-dash .st-head-close:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--accent-soft),
+    0 0 0 3px var(--accent);
+}
+
+/* The book view moved to the zoom, where the page's view lives; on reads as pressed. */
+.trek-dash .st-zoom button.is-on {
+  background: color-mix(in oklch, var(--accent) 14%, transparent);
+  color: var(--ink);
+}

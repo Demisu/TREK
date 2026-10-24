@@ -3,9 +3,8 @@
    inspector keep all their room. */
 
 /* The toggle is the bar's newest tool, so it gives up its label first: from 1360
-   to 1519 it is an icon while the others keep theirs, and the bar fits where it
-   did before. The journey's name gives way too rather than push the bar past
-   the window. */
+   to 1519 it is an icon while the others keep theirs, and the head band fits
+   where it did before. */
 @media (max-width: 1519px) {
   .trek-dash .st-assistant-toggle .st-tool-label {
     display: none;
@@ -13,14 +12,6 @@
   .trek-dash .st-assistant-toggle {
     padding: 0 8px;
   }
-}
-
-.trek-dash .st-bar .st-back {
-  min-width: 0;
-}
-
-.trek-dash .st-bar .st-back > svg {
-  flex: none;
 }
 
 .trek-dash .st-assistant-notice {

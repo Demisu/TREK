@@ -1300,7 +1300,7 @@ const SCRIPTS: Record<string, GuideScript> = {
         },
       },
       {
-        target: p => p.locator('.st-back'),
+        target: p => p.locator('.st-head-close'),
       },
     ],
   },
