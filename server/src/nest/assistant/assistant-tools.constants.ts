@@ -131,6 +131,16 @@ export const IMPORT_TOUR_FILE_TOOL = 'import_tour_file';
 const TOUR_FILE_VIA = 'import_tour_gpx';
 
 /**
+ * The text of a file the user attached in this conversation, for the model
+ * to work with (assistant-attachment-tools.ts). It is no MCP tool and never
+ * reaches a file of another conversation: the server offers it in a trip's
+ * turns that hold an attachment with text, holds the first read of each file
+ * as a card that asks the user to let its text go to the provider, and runs
+ * later reads of that file at once.
+ */
+export const READ_ATTACHED_FILE_TOOL = 'read_attached_file';
+
+/**
  * A place from the search results of an answer, suggested for a day by the
  * user ("+ Day 3"). Held as a change card like any write, without a model turn.
  */
@@ -194,6 +204,8 @@ export const ASSISTANT_SERVER_WRITE_TOOLS: Readonly<Record<string, AssistantWrit
   [ADD_FOUND_PLACE_TOOL]: { verbKey: 'addPlaceToDay', entity: 'place', quiet: true },
   [TAKE_PROPOSAL_TOOL]: { verbKey: 'addTour', entity: 'tour', quiet: true },
   [REMEMBER_TOOL]: { verbKey: 'rememberNote', entity: 'memory' },
+  // Held only until the user let the model read the file; it writes nothing but that agreement.
+  [READ_ATTACHED_FILE_TOOL]: { verbKey: 'readAttachment', entity: 'other' },
 };
 
 /**

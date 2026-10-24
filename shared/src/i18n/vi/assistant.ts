@@ -463,5 +463,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Đính kèm vào một đặt chỗ hoặc khoản chi',
   'assistant.attach.chip.read': 'Trong tệp có gì?',
   'assistant.attach.chip.keepWithBooking': 'Lưu tệp cùng đặt chỗ này',
+  'assistant.change.verb.readAttachment': 'Cho phép trợ lý đọc tệp',
+  'assistant.change.label.sentTo': 'Gửi đến',
+  'assistant.step.readingAttachment': 'Đang đọc tệp',
 };
 export default assistant;

@@ -490,5 +490,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'An eine Buchung oder Ausgabe hängen',
   'assistant.attach.chip.read': 'Was steht in der Datei?',
   'assistant.attach.chip.keepWithBooking': 'Datei bei dieser Buchung ablegen',
+  'assistant.change.verb.readAttachment': 'Den Assistenten die Datei lesen lassen',
+  'assistant.change.label.sentTo': 'Geht an',
+  'assistant.step.readingAttachment': 'Lese die Datei',
 };
 export default assistant;

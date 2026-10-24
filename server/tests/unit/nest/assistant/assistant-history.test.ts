@@ -229,6 +229,94 @@ describe('toChatHistory', () => {
     expect(read('later_reason')).toBe('TREK read the attached file "AirBnB Buchung.pdf" and found no booking in it.');
   });
 
+  it('ASTHIS-005c: a kept attachment is named with the id the model reads it by', () => {
+    const id = '0b7c2f0e-6f6d-4a8e-9b1a-3d2c1e0f9a87';
+    const history = toChatHistory(
+      [
+        row('user', [
+          { type: 'attachment', name: 'AirBnB Buchung.pdf', mime: 'application/pdf', size: 9, attachmentId: id },
+        ]),
+      ],
+      new Map(),
+    );
+    expect(history).toEqual([
+      {
+        role: 'user',
+        text:
+          `[The user attached the file "AirBnB Buchung.pdf" (application/pdf, 9 bytes), attachment id ${id}. ` +
+          'Read it with read_attached_file if the user wants you to work with its content.]',
+      },
+    ]);
+  });
+
+  it('ASTHIS-005d: the text of a file the user let the model read comes after the step, once, cut in earlier turns', () => {
+    const id = '0b7c2f0e-6f6d-4a8e-9b1a-3d2c1e0f9a87';
+    type CallPart = Extract<AssistantMessagePart, { type: 'tool-call' }>;
+    const read = (toolCallId: string, extra: Partial<CallPart>): AssistantMessagePart => ({
+      type: 'tool-call',
+      toolCallId,
+      toolName: 'read_attached_file',
+      args: { attachmentId: id, name: 'AirBnB Buchung.pdf', sentTo: 'm (h)' },
+      ...extra,
+    });
+    const long = `Casa Lisboa ${'x'.repeat(9_000)}`;
+    const rows = [
+      row('user', [{ type: 'text', text: 'Make a booking from it' }]),
+      row('assistant', [
+        { type: 'text', text: 'I need to read it first.' },
+        read('r1', { approval: { id: 'r1', approved: true }, result: { name: 'AirBnB Buchung.pdf', read: true } }),
+      ]),
+      row('assistant', [read('r2', { result: { name: 'AirBnB Buchung.pdf', read: true } })]),
+      row('user', [{ type: 'text', text: 'Thanks' }]),
+    ];
+    const history = toChatHistory(rows, new Map(), new Map([[id, long]]));
+    expect(history.map((message) => message.role)).toEqual(['user', 'assistant', 'user', 'user', 'user']);
+    expect(history[1]).toMatchObject({ role: 'assistant', text: 'I need to read it first.', toolCalls: [] });
+    const told = (history[2] as { text: string }).text;
+    expect(told).toContain('The user let you read the attached file "AirBnB Buchung.pdf".');
+    expect(told).toContain('Casa Lisboa');
+    // An earlier turn's text is cut so it does not crowd out the conversation.
+    expect(told.length).toBeLessThan(long.length);
+    expect(told.endsWith('[...]')).toBe(true);
+    expect((history[3] as { text: string }).text).toBe(
+      'You read the attached file "AirBnB Buchung.pdf" again; its text is above.',
+    );
+    // The latest turn keeps the whole text.
+    const latest = toChatHistory(rows.slice(0, 2), new Map(), new Map([[id, long]]));
+    expect((latest[2] as { text: string }).text).toContain(long);
+  });
+
+  it('ASTHIS-005e: a read the user did not allow, one still waiting, a refused one and a swept file say so', () => {
+    const id = '0b7c2f0e-6f6d-4a8e-9b1a-3d2c1e0f9a87';
+    const step = (extra: Partial<Extract<AssistantMessagePart, { type: 'tool-call' }>>) =>
+      toChatHistory(
+        [
+          row('user', [{ type: 'text', text: 'Read it' }]),
+          row('assistant', [
+            {
+              type: 'tool-call',
+              toolCallId: 'r',
+              toolName: 'read_attached_file',
+              args: { attachmentId: id, name: 'a.pdf' },
+              ...extra,
+            },
+          ]),
+        ],
+        new Map(),
+      ).map((message) => (message as { text: string }).text);
+    expect(step({ approval: { id: 'r', approved: false } })[1]).toBe(
+      'The user did not let you read the attached file "a.pdf".',
+    );
+    expect(step({ approval: { id: 'r' } })[1]).toContain("waits for the user's agreement; you have not read it.");
+    expect(step({ approval: { id: 'r', resolution: 'expired' } })[1]).toContain('you have not read it');
+    expect(step({ result: 'No such attachment in this conversation.', isError: true })[1]).toBe(
+      'Reading the attached file "a.pdf" failed: No such attachment in this conversation.',
+    );
+    expect(step({ result: { read: true } })[1]).toBe(
+      'The attached file "a.pdf" is no longer kept; you cannot read it again.',
+    );
+  });
+
   it('ASTHIS-006: a place the user picked from the search results is told as a note, whatever became of it', () => {
     const found = (approval: AssistantToolApproval, isError = false) =>
       serverStepsNote([

@@ -491,5 +491,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Koppel het aan een boeking of een uitgave',
   'assistant.attach.chip.read': 'Wat staat er in het bestand?',
   'assistant.attach.chip.keepWithBooking': 'Bewaar het bestand bij deze boeking',
+  'assistant.change.verb.readAttachment': 'De assistent het bestand laten lezen',
+  'assistant.change.label.sentTo': 'Gaat naar',
+  'assistant.step.readingAttachment': 'Bestand lezen',
 };
 export default assistant;

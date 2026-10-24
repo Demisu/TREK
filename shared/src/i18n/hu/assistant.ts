@@ -493,5 +493,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Csatold egy foglaláshoz vagy kiadáshoz',
   'assistant.attach.chip.read': 'Mi van a fájlban?',
   'assistant.attach.chip.keepWithBooking': 'Mentsd a fájlt ehhez a foglaláshoz',
+  'assistant.change.verb.readAttachment': 'Engedd, hogy az asszisztens elolvassa a fájlt',
+  'assistant.change.label.sentTo': 'Címzett',
+  'assistant.step.readingAttachment': 'A fájl olvasása',
 };
 export default assistant;

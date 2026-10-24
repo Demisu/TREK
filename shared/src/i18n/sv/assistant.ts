@@ -489,5 +489,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Bifoga den till en bokning eller en utgift',
   'assistant.attach.chip.read': 'Vad står det i filen?',
   'assistant.attach.chip.keepWithBooking': 'Spara filen med den här bokningen',
+  'assistant.change.verb.readAttachment': 'Låt assistenten läsa filen',
+  'assistant.change.label.sentTo': 'Skickas till',
+  'assistant.step.readingAttachment': 'Läser filen',
 };
 export default assistant;

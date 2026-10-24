@@ -534,5 +534,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Dołącz go do rezerwacji lub wydatku',
   'assistant.attach.chip.read': 'Co jest w pliku?',
   'assistant.attach.chip.keepWithBooking': 'Zapisz plik przy tej rezerwacji',
+  'assistant.change.verb.readAttachment': 'Pozwól asystentowi przeczytać plik',
+  'assistant.change.label.sentTo': 'Trafia do',
+  'assistant.step.readingAttachment': 'Czytam plik',
 };
 export default assistant;

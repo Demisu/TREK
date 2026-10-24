@@ -533,5 +533,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Прикріпи його до бронювання або витрати',
   'assistant.attach.chip.read': 'Що в цьому файлі?',
   'assistant.attach.chip.keepWithBooking': 'Збережи файл разом із цим бронюванням',
+  'assistant.change.verb.readAttachment': 'Дозволити асистентові прочитати файл',
+  'assistant.change.label.sentTo': 'Надсилається до',
+  'assistant.step.readingAttachment': 'Читаю файл',
 };
 export default assistant;

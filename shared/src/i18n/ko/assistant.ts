@@ -459,5 +459,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': '예약이나 지출에 첨부해 줘',
   'assistant.attach.chip.read': '파일에 무엇이 있어?',
   'assistant.attach.chip.keepWithBooking': '이 예약과 함께 파일을 보관해 줘',
+  'assistant.change.verb.readAttachment': '어시스턴트가 파일을 읽도록 허용',
+  'assistant.change.label.sentTo': '전송 대상',
+  'assistant.step.readingAttachment': '파일을 읽는 중',
 };
 export default assistant;

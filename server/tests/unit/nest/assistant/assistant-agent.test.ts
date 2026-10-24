@@ -876,4 +876,38 @@ describe('runAgentLoop', () => {
     const answers = t.requests[1].messages.filter((m) => m.role === 'tool');
     expect(answers.map((m) => (m as { toolCallId: string }).toolCallId)).toEqual(['call_1']);
   });
+
+  it('ASTAGT-042: an answer only the model reads goes to its next request; the step and the stream keep the stub', async () => {
+    const t = setup([
+      [
+        { type: 'tool-call', call: { id: 'toolu_f', name: 'read_attached_file', args: { attachmentId: 'a' } } },
+        { type: 'finish', reason: 'tool-calls' },
+      ],
+      [{ type: 'text-delta', delta: 'It is a stay at Casa Lisboa.' }],
+    ]);
+    const stub = { name: 'AirBnB Buchung.pdf', read: true };
+    t.deps.tools = {
+      ...t.tools,
+      kindOf: (name: string, args?: Record<string, unknown>) =>
+        name === 'read_attached_file' && args?.attachmentId === 'a' ? 'read' : t.tools.kindOf(name),
+      call: vi.fn(async (): Promise<AgentToolRun> => ({ ok: true, value: stub, modelText: 'Casa Lisboa, HM4X2' })),
+    };
+    await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
+    expect(t.requests[1].messages[2]).toMatchObject({
+      role: 'tool',
+      toolCallId: 'toolu_f',
+      output: 'Casa Lisboa, HM4X2',
+    });
+    expect(t.memory.saved[0].step.parts).toEqual([
+      {
+        type: 'tool-call',
+        toolCallId: 'toolu_f',
+        toolName: 'read_attached_file',
+        args: { attachmentId: 'a' },
+        result: stub,
+      },
+    ]);
+    expect(JSON.stringify(t.chunks)).not.toContain('HM4X2');
+    expect(JSON.stringify(t.memory.saved)).not.toContain('HM4X2');
+  });
 });

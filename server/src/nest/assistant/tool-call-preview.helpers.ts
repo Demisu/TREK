@@ -1,6 +1,11 @@
 import type { CardPlace } from './assistant-context';
 import { noteOf } from './assistant-memory';
-import { ASSISTANT_SERVER_WRITE_TOOLS, REMEMBER_TOOL, writeToolOf } from './assistant-tools.constants';
+import {
+  ASSISTANT_SERVER_WRITE_TOOLS,
+  READ_ATTACHED_FILE_TOOL,
+  REMEMBER_TOOL,
+  writeToolOf,
+} from './assistant-tools.constants';
 import type { AppliedFrom, Described, PreviewContext } from './cards/card-types';
 import {
   categoryName,
@@ -243,6 +248,13 @@ const DESCRIBERS: Readonly<Record<string, Describer>> = {
     return { subject: text(args.name) || `#${id(args, 'itemId') ?? ''}`, rows, dayId: null, placeIds: [] };
   },
   [REMEMBER_TOOL]: (_ctx, args) => ({ subject: noteOf(args) ?? '', rows: new Rows(), dayId: null, placeIds: [] }),
+  // The file by its name and where its text would go; the server set both when it held the call.
+  [READ_ATTACHED_FILE_TOOL]: (_ctx, args) => ({
+    subject: text(args.name),
+    rows: new Rows().add('sentTo', text(args.sentTo)),
+    dayId: null,
+    placeIds: [],
+  }),
 };
 
 /** A held write of the model's tools or of the server's own (a booking from a file). */

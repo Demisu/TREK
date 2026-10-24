@@ -7,11 +7,17 @@ import type {
 } from '../../db/repositories/AssistantAttachments.repository';
 import { dbNow } from '../../db/types';
 import { logError, logInfo } from '../audit/audit-log.logger';
+import { withRequestContext } from '../database/request-context';
 import { LlmParseService } from '../llm-parse/llm-parse.service';
 import { StorageService } from '../storage/storage.service';
+import type { AgentToolRun } from './assistant-agent';
+import { NO_SUCH_ATTACHMENT, NO_TEXT, type AttachedTurn } from './assistant-attachment-tools';
+import { READ_ATTACHED_FILE_TOOL } from './assistant-tools.constants';
+import type { ToolRun } from './assistant-tools.service';
+import { MikroORM } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
-import { LLM_PHOTO_EXTENSIONS } from '@trek/shared';
+import { assistantReadAttachedFileArgsSchema, LLM_PHOTO_EXTENSIONS } from '@trek/shared';
 
 import { createHash, randomUUID } from 'node:crypto';
 import { extname } from 'node:path';
@@ -53,6 +59,38 @@ export interface PreparedAttachment {
   textStatus: AssistantAttachmentTextStatus;
 }
 
+/** The held changes on an attachment this service applies. */
+const ATTACHMENT_CHANGES: ReadonlySet<string> = new Set([READ_ATTACHED_FILE_TOOL]);
+
+/** What a read of a file the user has not agreed to send answers with. */
+const NOT_SHARED = 'The user has not let you read this file yet.';
+
+/** What a turn knows of its thread's files: the list without their texts, and the texts the model may read. */
+export interface TurnAttachments {
+  attached: AssistantAttachmentSummary[];
+  /** The texts of the files the user let the model read, by attachment id, cut to one model request. */
+  texts: Map<string, string>;
+}
+
+/** The connection a turn talks to, as far as a file's text is concerned. */
+interface TextReader {
+  kind: string;
+  model: string;
+  host: string;
+}
+
+/** Where a change on an attachment runs: the user, and the thread and trip of the conversation. */
+export interface AttachmentChangeAt {
+  userId: number;
+  threadId: number;
+  tripId: number;
+}
+
+/** What the thread and the stream are told of a read: the file, never its text. */
+function readStub(row: { name: string; mime: string }) {
+  return { name: row.name, mime: row.mime, read: true };
+}
+
 /** A plain extension of a file name for its storage key, or none when the name carries something else. */
 function keyExtension(name: string): string {
   const ext = extname(name).toLowerCase();
@@ -71,6 +109,7 @@ export class AssistantAttachmentsService {
     @InjectRepository(AssistantAttachments) private readonly rows: AssistantAttachmentsRepository,
     private readonly storage: StorageService,
     private readonly llmParse: LlmParseService,
+    private readonly orm: MikroORM,
   ) {}
 
   /**
@@ -113,6 +152,73 @@ export class AssistantAttachmentsService {
   /** The user's attachments in a thread, without their text. */
   listForThread(threadId: number, userId: number): Promise<AssistantAttachmentSummary[]> {
     return this.rows.listForThread(threadId, userId);
+  }
+
+  /**
+   * The thread's files for a turn, and the texts the user let the model read,
+   * each cut to what one request carries (`compact` for a server whose
+   * context may be small).
+   */
+  async forTurn(threadId: number, userId: number, compact: boolean): Promise<TurnAttachments> {
+    const [attached, shared] = await Promise.all([
+      this.rows.listForThread(threadId, userId),
+      this.rows.listSharedTexts(threadId, userId),
+    ]);
+    return { attached, texts: new Map(shared.map((row) => [row.id, this.llmParse.fitText(row.text, compact)])) };
+  }
+
+  /**
+   * A trip turn's view of its thread's files, for the history and the tools:
+   * the shared texts, and the port's turn (assistant-attachment-tools.ts). A
+   * server whose context may be small (an admin's own) gets the compact cut.
+   */
+  async turnFor(
+    userId: number,
+    threadId: number,
+    connection: TextReader,
+  ): Promise<{ texts: Map<string, string>; turn: AttachedTurn }> {
+    const compact = connection.kind === 'custom';
+    const { attached, texts } = await this.forTurn(threadId, userId, compact);
+    const sentTo = `${connection.model} (${connection.host})`;
+    // Read while the turn streams, outside any request's context.
+    const read = (id: string) => withRequestContext(this.orm, () => this.readShared(userId, threadId, id, compact));
+    return { texts, turn: { attached, sentTo, read } };
+  }
+
+  /** Whether a held change is one on an attachment, which `applyChange` runs. */
+  handles(name: string): boolean {
+    return ATTACHMENT_CHANGES.has(name);
+  }
+
+  /** Applies a held change on an attachment. */
+  applyChange(name: string, at: AttachmentChangeAt, args: Record<string, unknown>): Promise<ToolRun> {
+    if (name === READ_ATTACHED_FILE_TOOL) return this.share(at.userId, at.threadId, args);
+    return Promise.resolve({ ok: false, value: `Unknown tool: ${name}` });
+  }
+
+  /**
+   * The user agreed on the card that the file's text may go to the model:
+   * the agreement is kept on the attachment, and later reads in the thread
+   * run at once. The answer names the file, never its text; the text reaches
+   * the model through the history (assistant-history.ts).
+   */
+  async share(userId: number, threadId: number, args: Record<string, unknown>): Promise<ToolRun> {
+    const parsed = assistantReadAttachedFileArgsSchema.safeParse(args);
+    const row = parsed.success ? await this.rows.findInThread(parsed.data.attachmentId, threadId, userId) : null;
+    if (!row) return { ok: false, value: NO_SUCH_ATTACHMENT };
+    if (row.text === null) return { ok: false, value: NO_TEXT };
+    await this.rows.markShared(row.id, threadId, userId, dbNow());
+    return { ok: true, value: readStub(row) };
+  }
+
+  /** A file the user let the model read already: its text for the model only, the stub for the thread. */
+  async readShared(userId: number, threadId: number, attachmentId: string, compact: boolean): Promise<AgentToolRun> {
+    const row = await this.rows.findInThread(attachmentId, threadId, userId);
+    if (!row) return { ok: false, value: NO_SUCH_ATTACHMENT };
+    if (!row.shared_at) return { ok: false, value: NOT_SHARED };
+    if (row.text === null) return { ok: false, value: NO_TEXT };
+    const text = this.llmParse.fitText(row.text, compact);
+    return { ok: true, value: readStub(row), modelText: JSON.stringify({ ...readStub(row), text }) };
   }
 
   /** Where the bytes of a thread's attachments sit, read before the thread is deleted. */

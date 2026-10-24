@@ -463,6 +463,7 @@ export const CHANGE_LABELS: Record<AssistantChangeLabelKey, { labelKey: string }
   track: { labelKey: 'assistant.change.label.track' },
   packing: { labelKey: 'assistant.change.label.packing' },
   breaks: { labelKey: 'assistant.change.label.breaks' },
+  sentTo: { labelKey: 'assistant.change.label.sentTo' },
 };
 
 /**

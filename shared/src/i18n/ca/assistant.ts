@@ -492,5 +492,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Adjunta’l a una reserva o a una despesa',
   'assistant.attach.chip.read': 'Què hi ha al fitxer?',
   'assistant.attach.chip.keepWithBooking': 'Desa el fitxer amb aquesta reserva',
+  'assistant.change.verb.readAttachment': 'Deixa que l’assistent llegeixi el fitxer',
+  'assistant.change.label.sentTo': 'S’envia a',
+  'assistant.step.readingAttachment': 'S’està llegint el fitxer',
 };
 export default assistant;

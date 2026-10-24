@@ -34,6 +34,7 @@ import { UnitOfWork } from '../database/unit-of-work';
 import { SettingsService } from '../settings/settings.service';
 import { runAgentLoop, type AgentStore, type HeldCall, type StepRecord } from './assistant-agent';
 import type { AttachedFileReader } from './assistant-attached-file';
+import { attachedPort } from './assistant-attachment-tools';
 import { AssistantAttachmentsService } from './assistant-attachments.service';
 import { AssistantBookingImportService } from './assistant-booking-import.service';
 import { mentionItems } from './assistant-cards.helpers';
@@ -387,11 +388,16 @@ export class AssistantService {
           renders: req.renders === true,
         };
         await this.converse(spec, stream, w, signal, (session) =>
-          this.applyDecisions((name, args) => this.runChange(session, userId, scope, name, args), threadId, decided, {
-            w,
-            unrun,
-            scope,
-          }),
+          this.applyDecisions(
+            (name, args) => this.runChange(session, { userId, scope, threadId }, name, args),
+            threadId,
+            decided,
+            {
+              w,
+              unrun,
+              scope,
+            },
+          ),
         );
       } finally {
         if (unrun.size > 0) await this.failUnrun(threadId, decided, unrun);
@@ -423,7 +429,8 @@ export class AssistantService {
         w.start(messageIdOf(await this.answerStart(threadId, decided[0].call.message_id)));
         const session = await this.scopes.open(userId, scope);
         opened = session;
-        const run = (name: string, args: Record<string, unknown>) => this.runChange(session, userId, scope, name, args);
+        const run = (name: string, args: Record<string, unknown>) =>
+          this.runChange(session, { userId, scope, threadId }, name, args);
         await this.applyDecisions(run, threadId, decided, { w, unrun, scope });
         w.finish('stop');
       } catch (err) {
@@ -446,12 +453,15 @@ export class AssistantService {
    */
   private runChange(
     session: AssistantToolSession,
-    userId: number,
-    scope: AssistantScope,
+    at: { userId: number; scope: AssistantScope; threadId: number },
     name: string,
     args: Record<string, unknown>,
   ): Promise<ToolRun> {
+    const { userId, scope, threadId } = at;
     const tripId = scope.kind === 'trip' ? scope.tripId : null;
+    if (tripId !== null && this.attachments.handles(name)) {
+      return this.inContext(() => this.attachments.applyChange(name, { userId, threadId, tripId }, args));
+    }
     if (name === IMPORT_BOOKING_TOOL && tripId !== null) {
       return this.inContext(() => this.bookings.apply(userId, tripId, args));
     }
@@ -814,7 +824,11 @@ export class AssistantService {
       const rows = await this.inContext(() => this.messages.listLatest(spec.threadId, HISTORY_ROWS));
       const calls = await this.inContext(() => this.callsOf(rows));
       const providerIds = new Map([...calls.values()].map((call) => [call.id, call.provider_call_id]));
-      const history = toChatHistory(rows, providerIds);
+      const attached =
+        spec.scope.kind === 'trip'
+          ? await this.inContext(() => this.attachments.turnFor(spec.userId, spec.threadId, spec.connection))
+          : null;
+      const history = toChatHistory(rows, providerIds, attached?.texts);
       const today = todayIn(spec.timeZone, new Date());
       const { userId, threadId, connection } = spec;
       const seen = { userId, threadId, connection, renders: spec.renders === true, w, signal };
@@ -822,7 +836,10 @@ export class AssistantService {
       const outcome = await runAgentLoop(
         {
           client: this.chatClients.create(spec.connection),
-          tools: rememberingPort(seeing.tools, this.remembering(userId, spec.scope)),
+          tools: attachedPort(
+            rememberingPort(seeing.tools, this.remembering(userId, spec.scope)),
+            attached?.turn ?? null,
+          ),
           store: this.stepStore(spec),
           describe: this.cardContext.forTurn(gate.reader, card, spec.locale, today).describe,
           refusalOf: gate.refusalOf,

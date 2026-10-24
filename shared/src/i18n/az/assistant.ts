@@ -489,5 +489,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Brona və ya xərcə əlavə et',
   'assistant.attach.chip.read': 'Faylda nə var?',
   'assistant.attach.chip.keepWithBooking': 'Faylı bu bronla saxla',
+  'assistant.change.verb.readAttachment': 'Köməkçiyə faylı oxumağa icazə ver',
+  'assistant.change.label.sentTo': 'Göndərilir',
+  'assistant.step.readingAttachment': 'Fayl oxunur',
 };
 export default assistant;

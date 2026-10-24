@@ -535,5 +535,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Прикрепи его к бронированию или расходу',
   'assistant.attach.chip.read': 'Что в этом файле?',
   'assistant.attach.chip.keepWithBooking': 'Сохрани файл вместе с этим бронированием',
+  'assistant.change.verb.readAttachment': 'Разрешить ассистенту прочитать файл',
+  'assistant.change.label.sentTo': 'Отправляется в',
+  'assistant.step.readingAttachment': 'Читаю файл',
 };
 export default assistant;

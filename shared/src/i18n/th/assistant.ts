@@ -460,5 +460,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'แนบกับการจองหรือค่าใช้จ่าย',
   'assistant.attach.chip.read': 'ในไฟล์มีอะไรบ้าง',
   'assistant.attach.chip.keepWithBooking': 'เก็บไฟล์ไว้กับการจองนี้',
+  'assistant.change.verb.readAttachment': 'อนุญาตให้ผู้ช่วยอ่านไฟล์',
+  'assistant.change.label.sentTo': 'ส่งไปยัง',
+  'assistant.step.readingAttachment': 'กำลังอ่านไฟล์',
 };
 export default assistant;

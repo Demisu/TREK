@@ -103,6 +103,8 @@ export const CORE_VERB_KEYS = [
   'addReservation',
   'importBooking',
   'rememberNote',
+  // The text of a file attached in the chat, sent to the AI provider once the user agrees.
+  'readAttachment',
   // A tour: a hike or a city walk created, a hike changed, tours taken in from a GPX file.
   'addTour',
   'updateTour',
@@ -179,6 +181,8 @@ export const ASSISTANT_CHANGE_LABEL_KEYS = [
   'order',
   // An argument of a tool without a card of its own; the row names it in `field`.
   'field',
+  // Where the text of an attached file goes once the user agrees: the model and its host.
+  'sentTo',
 ] as const;
 export const assistantChangeLabelKeySchema = z.enum(ASSISTANT_CHANGE_LABEL_KEYS);
 export type AssistantChangeLabelKey = z.infer<typeof assistantChangeLabelKeySchema>;

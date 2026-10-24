@@ -10,3 +10,13 @@ import { z } from 'zod';
  */
 export const assistantAttachmentIdSchema = z.uuid();
 export type AssistantAttachmentId = z.infer<typeof assistantAttachmentIdSchema>;
+
+/**
+ * What the model calls `read_attached_file` with: the attachment, by the id
+ * the user's message names. The server adds the file's name and where its
+ * text would go to the held call before the user sees it; those are no input.
+ */
+export const assistantReadAttachedFileArgsSchema = z.object({
+  attachmentId: assistantAttachmentIdSchema,
+});
+export type AssistantReadAttachedFileArgs = z.infer<typeof assistantReadAttachedFileArgsSchema>;

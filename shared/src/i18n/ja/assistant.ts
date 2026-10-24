@@ -462,5 +462,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': '予約か支出に添付して',
   'assistant.attach.chip.read': 'ファイルの中身は？',
   'assistant.attach.chip.keepWithBooking': 'このファイルをこの予約と一緒に保存して',
+  'assistant.change.verb.readAttachment': 'アシスタントにファイルを読ませる',
+  'assistant.change.label.sentTo': '送信先',
+  'assistant.step.readingAttachment': 'ファイルを読んでいます',
 };
 export default assistant;

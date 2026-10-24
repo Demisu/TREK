@@ -571,5 +571,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'أرفقه بحجز أو بمصروف',
   'assistant.attach.chip.read': 'ماذا يحتوي الملف؟',
   'assistant.attach.chip.keepWithBooking': 'احفظ الملف مع هذا الحجز',
+  'assistant.change.verb.readAttachment': 'اسمح للمساعد بقراءة الملف',
+  'assistant.change.label.sentTo': 'يُرسل إلى',
+  'assistant.step.readingAttachment': 'جارٍ قراءة الملف',
 };
 export default assistant;

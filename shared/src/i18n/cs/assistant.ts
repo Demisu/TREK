@@ -509,5 +509,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Připoj ho k rezervaci nebo k výdaji',
   'assistant.attach.chip.read': 'Co je v souboru?',
   'assistant.attach.chip.keepWithBooking': 'Ulož soubor k této rezervaci',
+  'assistant.change.verb.readAttachment': 'Nechat asistenta přečíst soubor',
+  'assistant.change.label.sentTo': 'Odesílá se do',
+  'assistant.step.readingAttachment': 'Čtu soubor',
 };
 export default assistant;

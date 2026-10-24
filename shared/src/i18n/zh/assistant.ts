@@ -454,5 +454,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': '附加到某个预订或支出',
   'assistant.attach.chip.read': '文件里有什么？',
   'assistant.attach.chip.keepWithBooking': '把文件和这个预订放在一起',
+  'assistant.change.verb.readAttachment': '允许助手读取文件',
+  'assistant.change.label.sentTo': '发送至',
+  'assistant.step.readingAttachment': '正在读取文件',
 };
 export default assistant;

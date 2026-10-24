@@ -489,5 +489,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Bir rezervasyona veya harcamaya ekle',
   'assistant.attach.chip.read': 'Dosyada ne var?',
   'assistant.attach.chip.keepWithBooking': 'Dosyayı bu rezervasyonla sakla',
+  'assistant.change.verb.readAttachment': 'Asistanın dosyayı okumasına izin ver',
+  'assistant.change.label.sentTo': 'Gönderileceği yer',
+  'assistant.step.readingAttachment': 'Dosya okunuyor',
 };
 export default assistant;

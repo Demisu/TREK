@@ -42,12 +42,19 @@ type ToolArgs = Record<string, unknown>;
 export interface AgentToolRun extends ToolRun {
   images?: AiImage[];
   view?: AssistantPageView;
+  /**
+   * What the model reads as the answer instead of `value`, for this turn
+   * only: the text of an attached file the user let it read. The message
+   * and the stream keep `value`, so the text is never stored or shown.
+   */
+  modelText?: string;
 }
 
 /** The tools of the turn, as the loop uses them (an AssistantToolSession, in the Studio with its page preview). */
 export interface AgentToolPort {
   specs(): AiToolSpec[];
-  kindOf(name: string): AssistantToolKind | null;
+  /** A call's kind may depend on its arguments (an attached file the user already let the model read). */
+  kindOf(name: string, args?: ToolArgs): AssistantToolKind | null;
   pinArgs(name: string, args: ToolArgs): { args: ToolArgs } | { error: string };
   call(name: string, args: ToolArgs): Promise<AgentToolRun>;
 }
@@ -141,6 +148,8 @@ interface StepParts {
   cards: number;
   /** The page images of the step's reads, by call id, for the model's next request only. */
   images: Map<string, AiImage[]>;
+  /** The answers only the model reads, by call id, for its next request only (AgentToolRun.modelText). */
+  modelTexts: Map<string, string>;
 }
 
 /** The longest call id a card is kept under; a read under a longer one shows no card. */
@@ -213,6 +222,7 @@ async function runRead(
     step.parts.push({ type: 'data-trek-page-view', data: run.view });
   }
   if (run.images?.length) step.images.set(id, run.images.slice(0, 1));
+  if (run.modelText !== undefined) step.modelTexts.set(id, run.modelText);
   const input = { toolCallId: id, args, value: run.value, card: deps.card, today: deps.today };
   const card = id.length <= MAX_CARD_CALL_ID ? (deps.answerCard ?? answerCardOf)(name, input) : null;
   if (card && step.cards++ < MAX_CARDS_PER_STEP) {
@@ -396,12 +406,12 @@ async function streamAnswer(turn: Turn, rowId: number): Promise<StepAnswer | Age
  */
 async function runCalls(turn: Turn, calls: AiToolCall[], collected: StepParts): Promise<HeldCall[]> {
   const { deps, w, signal } = turn;
-  const writes = calls.filter((call) => deps.tools.kindOf(call.name) === 'write').length;
+  const writes = calls.filter((call) => deps.tools.kindOf(call.name, call.args) === 'write').length;
   const held: HeldCall[] = [];
   let reads = 0;
   const runOne = async (call: AiToolCall): Promise<void> => {
     if (signal.aborted) return;
-    const kind = deps.tools.kindOf(call.name);
+    const kind = deps.tools.kindOf(call.name, call.args);
     let prepared = kind ? deps.tools.pinArgs(call.name, call.args) : { error: `Unknown tool: ${call.name}` };
     const unknownPlace = 'error' in prepared ? null : placeIdRefusal(call.name, prepared.args, turn.knownPlaceIds);
     if (unknownPlace) prepared = { error: unknownPlace };
@@ -461,19 +471,22 @@ async function holdChanges(turn: Turn, rowId: number, step: StepRecord, held: He
   return outcomeOf(turn, 'awaiting');
 }
 
+/** What a step that ran its reads hands on to the next one. */
+interface StepCarry {
+  text: string;
+  calls: AiToolCall[];
+  images: ReadonlyMap<string, AiImage[]>;
+  modelTexts: ReadonlyMap<string, string>;
+}
+
 /**
  * Records a step that ran its reads, and hands their answers back for the
  * next one, a page image beside the answer of the look that brought it.
  */
-async function carryOn(
-  turn: Turn,
-  rowId: number,
-  step: StepRecord,
-  answer: { text: string; calls: AiToolCall[]; images: ReadonlyMap<string, AiImage[]> },
-): Promise<void> {
+async function carryOn(turn: Turn, rowId: number, step: StepRecord, answer: StepCarry): Promise<void> {
   await turn.deps.store.saveStep(rowId, step, 'complete');
   turn.w.finishStep();
-  const { text, calls, images } = answer;
+  const { text, calls, images, modelTexts } = answer;
   turn.history.push({ role: 'assistant', text, toolCalls: calls, providerState: step.providerState });
   for (const part of step.parts) {
     // A web search is the provider's own record, kept in the provider state; an answer to it would
@@ -484,7 +497,7 @@ async function carryOn(
       role: 'tool',
       toolCallId: part.toolCallId,
       name: part.toolName,
-      output: outputText(part.result),
+      output: modelTexts.get(part.toolCallId) ?? outputText(part.result),
       ...(part.isError ? { isError: true } : {}),
       ...(seen ? { images: seen } : {}),
     });
@@ -550,7 +563,14 @@ async function runStep(turn: Turn, step: number): Promise<AgentOutcome | null> {
   }
 
   const calls = [...received, ...asks];
-  const collected: StepParts = { parts, weather: [], knownPlaceIds: turn.knownPlaceIds, cards: 0, images: new Map() };
+  const collected: StepParts = {
+    parts,
+    weather: [],
+    knownPlaceIds: turn.knownPlaceIds,
+    cards: 0,
+    images: new Map(),
+    modelTexts: new Map(),
+  };
   const held = await runCalls(turn, received, collected);
   // One weather strip per step, whatever the step held: it is told before the changes.
   const weather = weatherOf(collected.weather);
@@ -566,7 +586,8 @@ async function runStep(turn: Turn, step: number): Promise<AgentOutcome | null> {
     return outcomeOf(turn, 'aborted');
   }
   if (held.length > 0) return holdChanges(turn, rowId, { parts, providerState }, held);
-  await carryOn(turn, rowId, { parts, providerState }, { text, calls, images: collected.images });
+  const { images, modelTexts } = collected;
+  await carryOn(turn, rowId, { parts, providerState }, { text, calls, images, modelTexts });
   return null;
 }
 

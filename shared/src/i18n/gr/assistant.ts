@@ -493,5 +493,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Επισύναψέ το σε κράτηση ή έξοδο',
   'assistant.attach.chip.read': 'Τι περιέχει το αρχείο;',
   'assistant.attach.chip.keepWithBooking': 'Κράτα το αρχείο με αυτή την κράτηση',
+  'assistant.change.verb.readAttachment': 'Άφησε τον βοηθό να διαβάσει το αρχείο',
+  'assistant.change.label.sentTo': 'Αποστέλλεται σε',
+  'assistant.step.readingAttachment': 'Ανάγνωση του αρχείου',
 };
 export default assistant;

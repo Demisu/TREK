@@ -490,5 +490,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Anexar a uma reserva ou a uma despesa',
   'assistant.attach.chip.read': 'O que tem no arquivo?',
   'assistant.attach.chip.keepWithBooking': 'Guardar o arquivo com esta reserva',
+  'assistant.change.verb.readAttachment': 'Deixar o assistente ler o arquivo',
+  'assistant.change.label.sentTo': 'Enviado para',
+  'assistant.step.readingAttachment': 'Lendo o arquivo',
 };
 export default assistant;

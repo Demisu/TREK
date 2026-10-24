@@ -9,14 +9,18 @@
  * the id its message part carries, and goes with the thread; a storage that
  * refuses the bytes refuses the turn before anything is written; a file
  * without a booking is answered with a line that says why and chips, in the
- * user's language, never with an error.
+ * user's language, never with an error; the model reads a file only after
+ * the user agreed on its card, its text reaching the model and nothing else,
+ * and proposes the booking from it; an attachment of another conversation is
+ * answered like one that does not exist.
  */
 import { buildApp } from '../../src/bootstrap';
 import { AssistantAttachments } from '../../src/db/entities/AssistantAttachments.entity';
+import { AssistantMessages } from '../../src/db/entities/AssistantMessages.entity';
 import { AssistantThreads } from '../../src/db/entities/AssistantThreads.entity';
 import { BookingImportService } from '../../src/nest/booking-import/booking-import.service';
 import { StorageService } from '../../src/nest/storage/storage.service';
-import { countRows, findRow } from '../helpers/factories/rows';
+import { countRows, findRow, findRows } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
 import { makeTrip } from '../helpers/factories/trips';
 import { makeUser } from '../helpers/factories/users';
@@ -50,6 +54,29 @@ const say =
       { choices: [{ index: 0, delta: { content: text } }] },
       { choices: [{ index: 0, delta: {}, finish_reason: 'stop' }] },
       { choices: [], usage: { prompt_tokens: 12, completion_tokens: 4 } },
+    ],
+  });
+
+const callTools =
+  (...calls: Array<{ id: string; name: string; args: Record<string, unknown> }>): Step =>
+  () => ({
+    chunks: [
+      {
+        choices: [
+          {
+            index: 0,
+            delta: {
+              tool_calls: calls.map((call, index) => ({
+                index,
+                id: call.id,
+                type: 'function',
+                function: { name: call.name, arguments: JSON.stringify(call.args) },
+              })),
+            },
+          },
+        ],
+      },
+      { choices: [{ index: 0, delta: {}, finish_reason: 'tool_calls' }] },
     ],
   });
 
@@ -325,5 +352,113 @@ describe('Trip assistant: attached files', () => {
     } finally {
       restore();
     }
+  });
+
+  /** A thread holding the booking file without a booking, and the id the file is kept under. */
+  async function threadWithFile(t: { userId: number; base: string }) {
+    const restore = stubImport(NO_BOOKING);
+    try {
+      const turn = await upload(`${t.base}/attachments`, t.userId);
+      const threadId = ofType(turn.chunks, 'data-trek-thread')[0].data.threadId;
+      const { part } = await keptAttachment(t, threadId);
+      return { threadId, attachmentId: String(part.attachmentId) };
+    } finally {
+      restore();
+    }
+  }
+
+  it('ATTE2E-005: the model reads the file only after the user agreed, and proposes the booking from it', async () => {
+    const t = await travelerWithTrip();
+    const { threadId, attachmentId } = await threadWithFile(t);
+
+    provider.script = [callTools({ id: 'call_read', name: 'read_attached_file', args: { attachmentId } })];
+    const asked = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId, text: 'Create a booking from it' });
+    const offered = provider.requests[0];
+    expect(offered.tools?.map((tool) => tool.function.name)).toContain('read_attached_file');
+    const sentFirst = offered.messages.map((message) => String(message.content ?? '')).join(' ');
+    expect(sentFirst).toContain(`attachment id ${attachmentId}`);
+    expect(sentFirst).not.toContain('HM4X2');
+    const [card] = ofType(asked.chunks, 'data-trek-change');
+    expect(card.data).toMatchObject({
+      verbKey: 'readAttachment',
+      subject: 'AirBnB Buchung.txt',
+      rows: [{ labelKey: 'sentTo', after: expect.stringContaining('fake-model') }],
+      undoable: false,
+    });
+    const toolCallId = ofType(asked.chunks, 'tool-approval-request')[0].toolCallId;
+
+    provider.script = [
+      callTools({
+        id: 'call_book',
+        name: 'create_reservation',
+        args: { title: 'Casa Lisboa', type: 'hotel', confirmation_number: 'HM4X2' },
+      }),
+    ];
+    const decided = await post(`${t.base}/threads/${threadId}/decisions`, t.userId, {
+      ...CTX,
+      decisions: [{ toolCallId, approved: true }],
+    });
+    expect(decided.status).toBe(200);
+    const sentAfter = provider.requests[1].messages.map((message) => String(message.content ?? '')).join(' ');
+    expect(sentAfter).toContain('The user let you read the attached file "AirBnB Buchung.txt"');
+    expect(sentAfter).toContain('Confirmation HM4X2');
+    const booking = ofType(decided.chunks, 'tool-input-start').find((chunk) => chunk.toolName === 'create_reservation');
+    expect(booking).toBeDefined();
+    expect(ofType(decided.chunks, 'tool-approval-request').map((chunk) => chunk.toolCallId)).toContain(
+      booking?.toolCallId,
+    );
+    expect((await findRow(orm, AssistantAttachments, { id: attachmentId }))?.shared_at).not.toBeNull();
+
+    // The text stays on the server: not in the stream of the read, not in the thread, not in a stored part.
+    const readOutput = ofType(decided.chunks, 'tool-output-available').find((chunk) => chunk.toolCallId === toolCallId);
+    expect(JSON.stringify(readOutput)).not.toContain('HM4X2');
+    const shown = await get(`${t.base}/threads/${threadId}`, t.userId);
+    expect(JSON.stringify(shown.body)).not.toContain('Check-in 2026-06-11');
+    const stored = await findRows(orm, AssistantMessages, { thread: threadId });
+    expect(stored.map((row) => row.parts).join(' ')).not.toContain('Check-in 2026-06-11');
+  });
+
+  it('ATTE2E-006: once agreed, a later read of the same file runs at once', async () => {
+    const t = await travelerWithTrip();
+    const { threadId, attachmentId } = await threadWithFile(t);
+    provider.script = [callTools({ id: 'call_read', name: 'read_attached_file', args: { attachmentId } })];
+    const asked = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId, text: 'What is in the file?' });
+    const toolCallId = ofType(asked.chunks, 'tool-approval-request')[0].toolCallId;
+    provider.script = [say('A stay at Casa Lisboa.')];
+    await post(`${t.base}/threads/${threadId}/decisions`, t.userId, {
+      ...CTX,
+      decisions: [{ toolCallId, approved: true }],
+    });
+
+    provider.requests = [];
+    provider.script = [
+      callTools({ id: 'call_again', name: 'read_attached_file', args: { attachmentId } }),
+      say('The confirmation is HM4X2.'),
+    ];
+    const again = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId, text: 'And the confirmation?' });
+    expect(ofType(again.chunks, 'tool-approval-request')).toEqual([]);
+    const answer = provider.requests[1].messages.find((message) => message.tool_call_id === 'call_again');
+    expect(String(answer?.content)).toContain('Confirmation HM4X2');
+    const streamed = ofType(again.chunks, 'tool-output-available').find((chunk) => chunk.toolCallId === 'call_again');
+    expect(streamed?.output).toEqual({ name: 'AirBnB Buchung.txt', mime: 'text/plain', read: true });
+  });
+
+  it('ATTE2E-007: a file of another conversation or another user reads like one that does not exist', async () => {
+    const owner = await travelerWithTrip();
+    const { attachmentId } = await threadWithFile(owner);
+    const other = await travelerWithTrip();
+    const own = await threadWithFile(other);
+    const sameTripThread = await threadWithFile(owner);
+    const refusalOf = async (t: { userId: number; base: string }, threadId: number, id: string) => {
+      provider.script = [callTools({ id: `call_${id}`, name: 'read_attached_file', args: { attachmentId: id } })];
+      const turn = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId, text: 'Read it' });
+      expect(ofType(turn.chunks, 'tool-approval-request')).toEqual([]);
+      return ofType(turn.chunks, 'tool-output-error')[0]?.errorText;
+    };
+    const message = 'No such attachment in this conversation.';
+    expect(await refusalOf(other, own.threadId, attachmentId)).toBe(message);
+    expect(await refusalOf(owner, sameTripThread.threadId, attachmentId)).toBe(message);
+    expect(await refusalOf(owner, sameTripThread.threadId, '9f1e2d3c-4b5a-4968-8776-655443322110')).toBe(message);
+    expect((await findRow(orm, AssistantAttachments, { id: attachmentId }))?.shared_at).toBeNull();
   });
 });

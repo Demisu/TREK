@@ -80,7 +80,7 @@ export function rememberingPort(
   if (!remember) return port;
   return {
     specs: () => port.specs(),
-    kindOf: (name) => (name === REMEMBER_TOOL && port.kindOf(name) !== null ? 'read' : port.kindOf(name)),
+    kindOf: (name, args) => (name === REMEMBER_TOOL && port.kindOf(name) !== null ? 'read' : port.kindOf(name, args)),
     pinArgs: (name, args) => (name === REMEMBER_TOOL ? { args } : port.pinArgs(name, args)),
     call: (name, args) => (name === REMEMBER_TOOL ? remember(args) : port.call(name, args)),
   };

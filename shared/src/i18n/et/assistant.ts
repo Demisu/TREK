@@ -489,5 +489,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Lisa see broneeringu või kulu juurde',
   'assistant.attach.chip.read': 'Mis failis on?',
   'assistant.attach.chip.keepWithBooking': 'Salvesta fail selle broneeringu juurde',
+  'assistant.change.verb.readAttachment': 'Luba assistendil fail läbi lugeda',
+  'assistant.change.label.sentTo': 'Saadetakse',
+  'assistant.step.readingAttachment': 'Loen faili',
 };
 export default assistant;

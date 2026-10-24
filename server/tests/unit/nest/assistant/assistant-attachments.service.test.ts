@@ -11,6 +11,7 @@ import {
 } from '../../../../src/nest/assistant/assistant-attachments.service';
 import { LlmParseService } from '../../../../src/nest/llm-parse/llm-parse.service';
 import { StorageService } from '../../../../src/nest/storage/storage.service';
+import { MikroORM } from '@mikro-orm/core';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { Test } from '@nestjs/testing';
 
@@ -21,6 +22,24 @@ const logMock = vi.hoisted(() => ({ logInfo: vi.fn(), logError: vi.fn(), logWarn
 vi.mock('../../../../src/nest/audit/audit-log.logger', () => logMock);
 
 const NOW = new Date('2026-10-24T03:45:00.000Z');
+
+const FRESH = '0b7c2f0e-6f6d-4a8e-9b1a-3d2c1e0f9a87';
+const SHARED = '1c8d3f1f-7a7e-4b9f-8c2b-4e3d2f1a0b98';
+const SCAN = '2d9e4a2a-8b8f-4cab-9d3c-5f4e3a2b1c09';
+const ELSEWHERE = '3eaf5b3b-9c9a-4dbc-8e4d-6a5f4b3c2d10';
+
+/** The rows findInThread answers: a file not shared yet, one shared, one without text. */
+const KEPT = [
+  { id: FRESH, name: 'AirBnB Buchung.pdf', mime: 'application/pdf', text: 'Casa Lisboa', shared_at: null },
+  {
+    id: SHARED,
+    name: 'ticket.pdf',
+    mime: 'application/pdf',
+    text: 'Casa Lisboa, HM4X2',
+    shared_at: '2026-10-24 08:00:00',
+  },
+  { id: SCAN, name: 'scan.pdf', mime: 'application/pdf', text: null, shared_at: '2026-10-24 08:00:00' },
+];
 const HOUR = 60 * 60_000;
 
 function file(name: string, content = 'Booking ABC123', mimetype = 'application/pdf'): Express.Multer.File {
@@ -44,6 +63,9 @@ async function make(opts: { text?: string | Error; listed?: Listed[]; failDelete
     ]),
     deleteByIds: vi.fn(async (ids: string[]) => ids.length),
     listKnownKeys: vi.fn(async (keys: string[]) => keys.filter((key) => key.startsWith('assistant/kept'))),
+    findInThread: vi.fn(async (id: string) => KEPT.find((row) => row.id === id) ?? null),
+    listSharedTexts: vi.fn(async () => [{ id: SHARED, text: 'Casa Lisboa, HM4X2' }]),
+    markShared: vi.fn(async () => true),
   };
   const put = vi.fn(async (_category: string, _key: string, source: Readable) => {
     if (opts.failPut) throw new Error('bucket is gone');
@@ -65,6 +87,7 @@ async function make(opts: { text?: string | Error; listed?: Listed[]; failDelete
       if (opts.text instanceof Error) throw opts.text;
       return opts.text ?? ' Booking ABC123 ';
     }),
+    fitText: vi.fn((text: string, compact: boolean) => (compact ? text.slice(0, 4) : text)),
   };
   const moduleRef = await Test.createTestingModule({
     providers: [
@@ -72,6 +95,7 @@ async function make(opts: { text?: string | Error; listed?: Listed[]; failDelete
       { provide: getRepositoryToken(AssistantAttachments), useValue: rows },
       { provide: StorageService, useValue: storage },
       { provide: LlmParseService, useValue: llmParse },
+      { provide: MikroORM, useValue: {} },
     ],
   }).compile();
   return { service: moduleRef.get(AssistantAttachmentsService), rows, storage, llmParse };
@@ -168,5 +192,57 @@ describe('AssistantAttachmentsService', () => {
     const t = await make();
     await t.service.listForThread(4, 7);
     expect(t.rows.listForThread).toHaveBeenCalledWith(4, 7);
+  });
+
+  it('ASTATT-009: the consent is kept on the file, and the answer names the file, never its text', async () => {
+    const t = await make();
+    const run = await t.service.share(7, 4, { attachmentId: FRESH });
+    expect(run).toEqual({ ok: true, value: { name: 'AirBnB Buchung.pdf', mime: 'application/pdf', read: true } });
+    expect(t.rows.findInThread).toHaveBeenCalledWith(FRESH, 4, 7);
+    expect(t.rows.markShared).toHaveBeenCalledWith(FRESH, 4, 7, expect.stringMatching(/^\d{4}-\d{2}-\d{2} /));
+    expect(JSON.stringify(run)).not.toContain('Casa');
+    expect(await t.service.share(7, 4, { attachmentId: ELSEWHERE })).toEqual({
+      ok: false,
+      value: 'No such attachment in this conversation.',
+    });
+    expect(await t.service.share(7, 4, { attachmentId: SCAN })).toMatchObject({ ok: false });
+    expect(await t.service.applyChange('read_attached_file', { userId: 7, threadId: 4, tripId: 9 }, {})).toEqual({
+      ok: false,
+      value: 'No such attachment in this conversation.',
+    });
+    expect(t.service.handles('read_attached_file')).toBe(true);
+    expect(t.service.handles('create_place')).toBe(false);
+  });
+
+  it('ASTATT-010: a shared file is read for the model only; one not shared yet is not read', async () => {
+    const t = await make();
+    const run = await t.service.readShared(7, 4, SHARED, false);
+    expect(run).toEqual({
+      ok: true,
+      value: { name: 'ticket.pdf', mime: 'application/pdf', read: true },
+      modelText: JSON.stringify({
+        name: 'ticket.pdf',
+        mime: 'application/pdf',
+        read: true,
+        text: 'Casa Lisboa, HM4X2',
+      }),
+    });
+    expect((await t.service.readShared(7, 4, SHARED, true)).modelText).toContain('"text":"Casa"');
+    expect(await t.service.readShared(7, 4, FRESH, false)).toEqual({
+      ok: false,
+      value: 'The user has not let you read this file yet.',
+    });
+    expect(await t.service.readShared(7, 4, ELSEWHERE, false)).toMatchObject({ ok: false });
+    expect(await t.service.readShared(7, 4, SCAN, false)).toMatchObject({ ok: false });
+  });
+
+  it("ASTATT-011: a turn gets the thread's files and the shared texts, cut for its connection", async () => {
+    const t = await make();
+    const custom = await t.service.turnFor(7, 4, { kind: 'custom', model: 'llama', host: 'gpu.lan' });
+    expect(custom.texts).toEqual(new Map([[SHARED, 'Casa']]));
+    expect(custom.turn.sentTo).toBe('llama (gpu.lan)');
+    const cloud = await t.service.turnFor(7, 4, { kind: 'openai', model: 'gpt-5', host: 'api.openai.com' });
+    expect(cloud.texts).toEqual(new Map([[SHARED, 'Casa Lisboa, HM4X2']]));
+    expect(t.rows.listSharedTexts).toHaveBeenCalledWith(4, 7);
   });
 });

@@ -468,5 +468,8 @@ const assistant: TranslationStrings = {
   'assistant.attach.chip.attach': 'Lampirkan ke pemesanan atau pengeluaran',
   'assistant.attach.chip.read': 'Apa isi berkas ini?',
   'assistant.attach.chip.keepWithBooking': 'Simpan berkas dengan pemesanan ini',
+  'assistant.change.verb.readAttachment': 'Izinkan asisten membaca berkas',
+  'assistant.change.label.sentTo': 'Dikirim ke',
+  'assistant.step.readingAttachment': 'Membaca berkas',
 };
 export default assistant;
