@@ -255,8 +255,8 @@ export default function AddonManager({ bagTrackingEnabled, onToggleBagTracking, 
     )
   }
 
-  const [left, ...right] = groups
-  const cards = { left: left ? card(left) : null, right: right.map(card).filter(Boolean) }
+  const [first, ...rest] = groups
+  const cards = { start: first ? card(first) : null, end: rest.map(card).filter(Boolean) }
 
   return (
     <>
@@ -277,10 +277,10 @@ export default function AddonManager({ bagTrackingEnabled, onToggleBagTracking, 
           : <AddonToolbar groups={groups.map(g => ({ key: g.key, addons: g.key === 'integration' ? [...aiAddons, ...g.addons] : g.addons }))} query={query} onQuery={setQuery} view={view} onView={setView} t={t} />}
       </SettingsCard>
 
-      {addons.length > 0 && (cards.left || cards.right.length > 0 ? (
+      {addons.length > 0 && (cards.start || cards.end.length > 0 ? (
         <div className="grid grid-cols-1 gap-x-5 xl:grid-cols-2 xl:items-start">
-          <div className="min-w-0">{cards.left}</div>
-          <div className="min-w-0">{cards.right}</div>
+          <div className="min-w-0">{cards.start}</div>
+          <div className="min-w-0">{cards.end}</div>
         </div>
       ) : (
         <p className="m-0 rounded-2xl border border-dashed border-edge-faint px-4 py-8 text-center text-content-muted" style={fs(13, 'body')}>
