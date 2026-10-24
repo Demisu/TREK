@@ -204,7 +204,7 @@ On desktop the place form carries a **Place details** column on its left. Pick a
 
 The column shows what it can find:
 
-- **Pick a picture**: pictures near or of the place. Click one to make it that place's thumbnail; click it again to clear the choice. The picture then appears everywhere the place does (list, map marker, itinerary, PDF export and shared trips), exactly like a [custom place image](#custom-place-image).
+- **Pick a picture**: the place's picture is chosen here, with the pictures near or of the place beside the tiles for your own. Click a tile to choose it; click a source's picture again to let go of it. See [Pick a picture](#custom-place-image) below for every tile. The picture then appears everywhere the place does (list, map marker, itinerary, PDF export and shared trips).
 - **A rating**, for a place that came from Google or Amap.
 - **Opening Hours**: today's hours up front and the whole week a click away, with an open or closed badge worked out in the place's own time zone. When the hours cannot be read reliably there is no badge rather than a wrong one.
 - **Good to know**: facts such as cuisine, outdoor seating, takeaway, step-free access, Wi-Fi or a menu link, where OpenStreetMap carries them.
@@ -252,7 +252,7 @@ Click a place in the places column, in a day, or on the map, and its inspector o
 
 ![The place inspector over the map: the photo, name and address in its head, then the rating, the description, the notes and the files, with Add to Day, Navigation, Save to Collection and Edit at its foot](assets/PlaceInspector.png)
 
-- **The head band** shows the photo, with a green ring while the place is open and a red one while it is closed, the name (double-click it to rename the place), the address on one line with the full address in a tooltip, and pills: **Open** or **Closed**, the category, the time of the visit, the Google rating, the phone number to call, the e-mail address, and the coordinates. **X** closes the inspector.
+- **The head band** shows the photo (a click opens it in a gallery, see [The photo gallery](#the-photo-gallery)), with a green ring while the place is open and a red one while it is closed, the name (double-click it to rename the place), the address on one line with the full address in a tooltip, and pills: **Open** or **Closed**, the category, the time of the visit, the Google rating, the phone number to call, the e-mail address, and the coordinates. **X** closes the inspector.
 - **Rating**: every member's vote, see [Rating a place](#rating-a-place).
 - **Description**, **Notes** and **Notes for this day**, rendered as Markdown.
 - **Bookings** pinned to this stop, as small cards with the status, date, time and booking code. For a hotel, the stays booked there are listed too (see [Accommodations](Accommodations)). Click a card (*Open booking*) to open the booking's detail. Next to them, **Participants** says who joins this stop.
@@ -272,11 +272,21 @@ Saved places in [Collections](Collections) are rated the same way. Saving a trip
 
 > **AI / MCP:** `rate_place` sets or clears your own vote; see [MCP-Tools-and-Resources](MCP-Tools-and-Resources).
 
+## The photo gallery
+
+Click the round photo in the head band of the place inspector, or the photo in the phone's place sheet, to open a full screen gallery of the place's own picture and the photos its sources know, each with its credit. While there is nothing to show, the photo is just a picture and does not open.
+
 ## Custom place image
 
-By default a place's thumbnail is fetched automatically (from Google or Wikimedia when the place was imported or matched, otherwise it shows a category icon). To use your own photo instead, click the round photo in the head band of the place inspector. When the place or one of its bookings has pictures attached (JPG, PNG, GIF or WebP), a small menu offers **Upload from device** and **From attached files**, so a photo already on the trip can be reused without uploading it again. Pick an image and it becomes that place's thumbnail everywhere (list, map marker, itinerary, PDF export and shared trips). A small remove button on the photo clears the custom image and restores the automatic default. Accepted formats are JPG, PNG, GIF and WebP (HEIC is converted automatically), up to 20 MB.
+By default a place's thumbnail is fetched automatically (from Google or Wikimedia when the place was imported or matched, otherwise it shows a category icon). The picture is changed in the place editor, under **Pick a picture** (open the place and click **Edit**). It is a grid of tiles:
 
-A picture picked under **Pick a picture** in the place form works the same way, see [Place details while searching](#place-details-while-searching). The same control is available on saved places in [Collections](Collections#place-detail).
+- **Upload image** takes a picture from your device. It is left out when you may not upload files to the trip. Accepted formats are JPG, PNG, GIF and WebP (HEIC is converted automatically), up to 20 MB. Once you have chosen a file, the tile shows it as a preview.
+- **Current picture** is the picture the place has now. Click it again to drop it.
+- **Images attached to the place**, from the place or one of its bookings (JPG, PNG, GIF or WebP), so a photo already on the trip can be reused without uploading it again.
+- **The pictures its sources know**, with their credit line, see [Place details while searching](#place-details-while-searching).
+- **Remove image**, beside the credit line, leaves the place without a picture.
+
+Nothing is saved before you click **Update**: **Cancel** keeps the old picture, and a new place can get one too. A picture needs a connection; offline, the form says *A new picture needs a connection. Save again once you are online.* The chosen picture becomes the place's thumbnail everywhere (list, map marker, itinerary, PDF export and shared trips). The same control is available on saved places in [Collections](Collections#place-detail). Where place details are switched off, the same tiles sit in the form itself under **Pick a picture**.
 
 ## Opening a place in a map app
 
