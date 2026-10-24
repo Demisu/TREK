@@ -11,16 +11,16 @@ Back up your data first. Go to Admin Panel → **Backup** and create a manual ba
 | Tag | Example | Behavior |
 |---|---|---|
 | `latest` | `mauriceboe/trek:latest` | Always the newest release across all major versions |
-| Major version | `mauriceboe/trek:4` | Latest release pinned to that major version |
+| Major version | `mauriceboe/trek:5` | Latest release pinned to that major version |
 | Minor version | `mauriceboe/trek:5.0` | Latest patch of that minor version; never moves to the next minor. Published from 5.0.0 on: 4.x releases have no minor tag, so pin those by major or full version |
-| Full version | `mauriceboe/trek:4.0.0` | Exact release; never changes |
+| Full version | `mauriceboe/trek:5.0.0` | Exact release; never changes |
 | Prerelease | `mauriceboe/trek:latest-pre` | The newest test build of the next version. For trying it out on a copy of your data, not for the instance you rely on |
 
 Use `latest` or a major-version tag if you want updates on each redeploy. A minor-version tag still brings fixes but waits for you to move to the next minor, which is where larger changes and database upgrades usually land. Use a full version tag for explicit control: update by changing the tag, not by re-pulling.
 
 ## Docker Compose (Recommended)
 
-**`latest` or major-version tag:**
+**`latest`, major-version or minor-version tag:**
 
 ```bash
 docker compose pull && docker compose up -d
@@ -30,7 +30,7 @@ This pulls the newest matching image and recreates the container with your exist
 
 **Pinned full-version tag:**
 
-Edit `docker-compose.yml`, update the tag in the `image:` line (e.g. `4.0.0` → `4.0.1`), then redeploy:
+Edit `docker-compose.yml`, update the tag in the `image:` line (e.g. `5.0.0` → `5.0.1`), then redeploy:
 
 ```bash
 docker compose up -d
@@ -122,6 +122,13 @@ Two things change with 4.3.1. Neither needs a manual step on Docker, but they ar
 
 ## Upgrading to 5.0
 
+5.0 is a large release. Apart from the point below about the Places API, updating needs no manual step on any install method: migrations run at startup, and TREK copies the database first (see [Database Migrations](#database-migrations)).
+
+- **A new look, and a phone interface of its own.** Dialogs are redesigned and the phone gets its own screens instead of a squeezed desktop layout. Open apps switch over after **Reload page** (see [Open apps after an update](#open-apps-after-an-update)).
+- **New features.** Tours, TREK Studio for journeys, the AI Assistant addon, notifications in an inbox, trip settings and a Help Center inside the app. The addons are switched on or off under **Admin → Addons**; see [Addons-Overview](Addons-Overview) and [Help-Center](Help-Center).
+- **AI assistant secrets are encrypted** with your `ENCRYPTION_KEY` like the other stored secrets, and the connections need no action on update. A key rotation covers them; see [Encryption-Key-Rotation](Encryption-Key-Rotation).
+- **Web Push needs no VAPID setup.** TREK generates its key pair on first start and keeps it in the database. See [Environment-Variables](Environment-Variables#web-push).
+- **Remove any `APP_VERSION` override.** The version now comes from the image itself. A leftover `APP_VERSION=` line in your compose file, `.env` or Portainer stack only gets in the way.
 - **Tours asks the TREK Places API first.** The grades, surfaces and kinds of way under a planned tour and the horse routes around the map are read from `https://places.liketrek.com`, and the Overpass mirrors are asked only when it has no answer. An `OVERPASS_URL` pointed at an internal Overpass therefore no longer keeps these lookups inside your network: set `TREK_PLACES_ENABLED=false`, or point `TREK_PLACES_URL` at a copy you run yourself. [TREK-Places-API](TREK-Places-API#what-leaves-your-instance) lists what is sent.
 
 ## Encryption Key Note
@@ -153,11 +160,11 @@ journalctl -u trek -n 50
 
 Open the **Stacks** list, click the TREK stack, then click **Redeploy**.
 
-**`latest` or major-version tag** — enable the **Re-pull image and redeploy** switch before confirming. Portainer pulls the newest matching image and recreates the container.
+**`latest`, major-version or minor-version tag** — enable the **Re-pull image and redeploy** switch before confirming. Portainer pulls the newest matching image and recreates the container.
 
 ![Re-pull image and redeploy switch ticked, with arrows pointing to the switch and the Update button](assets/portainer-force-pull.png)
 
-**Pinned full-version tag** (e.g. `4.0.0`) — edit the stack, update the tag in the `image:` line, then click **Update the stack**. No re-pull switch needed; the tag change forces a fresh pull.
+**Pinned full-version tag** (e.g. `5.0.0`) — edit the stack, update the tag in the `image:` line, then click **Update the stack**. No re-pull switch needed; the tag change forces a fresh pull.
 
 ![Edit stack page with an arrow pointing to the image tag in the compose editor](assets/portainer-update-version.png)
 
