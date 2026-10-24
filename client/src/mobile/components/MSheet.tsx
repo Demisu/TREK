@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { lockBodyScroll } from '../../utils/bodyScrollLock'
 import { useTranslation } from '../../i18n'
 import { useDiscardGuard } from '../../components/shared/useDiscardGuard'
+import { keepTabInside, useModalFocus } from './modalFocus'
 
 export type MSheetVariant = 'card' | 'bottom' | 'drawer'
 export type MSheetMaterial = 'glass' | 'bar-glass' | 'opaque'
@@ -33,9 +34,6 @@ interface MSheetProps {
 const EXIT_MS = 280
 
 const DISCARD_BUTTON = 'rounded-full bg-danger px-4 py-2 text-body font-semibold text-white' // theme-lint-disable: white on the danger fill, as ConfirmDialog draws it
-
-const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 const POSITION: Record<MSheetVariant, string> = {
   card: 'absolute inset-x-[14px] top-1/2 -translate-y-1/2',
@@ -128,12 +126,7 @@ export default function MSheet({
   }, [open])
 
   // Move focus into the dialog on open, hand it back on close.
-  useEffect(() => {
-    if (!open || !rendered) return
-    const previous = document.activeElement as HTMLElement | null
-    panelRef.current?.focus()
-    return () => previous?.focus()
-  }, [open, rendered])
+  useModalFocus(panelRef, open && rendered)
 
   if (!rendered) return null
 
@@ -164,25 +157,7 @@ export default function MSheet({
   }
 
   // Keep Tab inside the dialog while it is open.
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key !== 'Tab') return
-    const panel = panelRef.current
-    if (!panel) return
-    const focusable = panel.querySelectorAll<HTMLElement>(FOCUSABLE)
-    if (focusable.length === 0) {
-      e.preventDefault()
-      return
-    }
-    const first = focusable[0]
-    const last = focusable[focusable.length - 1]
-    if (e.shiftKey && (document.activeElement === first || document.activeElement === panel)) {
-      e.preventDefault()
-      last.focus()
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault()
-      first.focus()
-    }
-  }
+  const handleKeyDown = (e: React.KeyboardEvent) => keepTabInside(e, panelRef.current)
 
   const enterClass = variant === 'drawer' ? 'm-drawer-in' : 'm-sheet-in'
   const exitClass = variant === 'drawer' ? 'm-drawer-out' : 'm-sheet-out'

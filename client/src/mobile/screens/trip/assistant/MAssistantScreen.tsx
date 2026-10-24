@@ -32,6 +32,7 @@ import { chatOf, useAssistantStore } from '../../../../store/assistantStore';
 import MDropdownPanel from '../../../components/MDropdownPanel';
 import MIconBtn from '../../../components/MIconBtn';
 import MListRow from '../../../components/MListRow';
+import { keepTabInside, useModalFocus } from '../../../components/modalFocus';
 import MConfirmSheet from '../../settings/MConfirmSheet';
 import type { MTripSheetsProps } from '../MTripShell';
 
@@ -165,6 +166,8 @@ interface ScreenProps {
  * The chat screen itself, the same over a trip and (the home chat) on the
  * pages outside one: the head with the history and the menu, and the chat.
  * The trip notes are a trip's, so the home chat's menu goes without them.
+ * A modal dialog over the page: shown, it takes the focus and keeps Tab
+ * inside; set aside or closed, it hands the focus back.
  */
 export function AssistantScreen({ tripId, tripTitle, hidden, hops, onOpenTripChat }: ScreenProps) {
   const { t, locale } = useTranslation();
@@ -178,7 +181,9 @@ export function AssistantScreen({ tripId, tripTitle, hidden, hops, onOpenTripCha
   const memory = useTripMemory(tripId);
   const tripChat = assistantScopeOf(tripId).kind === 'trip';
   const hints = useAssistantHintsSetting();
+  const sectionRef = useRef<HTMLElement>(null);
   useBackCloses(!hidden, close);
+  useModalFocus(sectionRef, !hidden);
 
   const pick = (run: () => void) => {
     setPanel(null);
@@ -192,11 +197,14 @@ export function AssistantScreen({ tripId, tripTitle, hidden, hops, onOpenTripCha
 
   return (
     <section
+      ref={sectionRef}
       role="dialog"
       aria-modal="true"
       aria-label={t('assistant.window.title')}
       hidden={hidden}
-      className={`fixed inset-0 z-[var(--z-bar)] ${hidden ? 'hidden' : 'flex'} flex-col bg-[var(--m-bg)] bg-[image:var(--m-scr)] text-m-ink`}
+      tabIndex={-1}
+      onKeyDown={(e) => keepTabInside(e, sectionRef.current)}
+      className={`fixed inset-0 z-[var(--z-bar)] ${hidden ? 'hidden' : 'flex'} flex-col bg-[var(--m-bg)] bg-[image:var(--m-scr)] text-m-ink outline-none`}
       style={{ paddingBottom: `max(env(safe-area-inset-bottom, 0px), ${keyboard}px)` }}
     >
       <header className="flex flex-none items-center gap-2 px-4 pb-2 pt-[var(--m-safe-top,12px)]">
@@ -213,7 +221,7 @@ export function AssistantScreen({ tripId, tripTitle, hidden, hops, onOpenTripCha
             </div>
           )}
         </div>
-        <MIconBtn ariaLabel={t('assistant.history.open')} onClick={openHistory}>
+        <MIconBtn ariaLabel={t('assistant.history.open')} ariaExpanded={panel === 'history'} onClick={openHistory}>
           <History size={16} strokeWidth={2} />
         </MIconBtn>
         <MIconBtn
@@ -223,7 +231,12 @@ export function AssistantScreen({ tripId, tripTitle, hidden, hops, onOpenTripCha
         >
           <Plus size={17} strokeWidth={2.2} />
         </MIconBtn>
-        <MIconBtn ariaLabel={t('assistant.window.menu')} onClick={() => setPanel('menu')}>
+        <MIconBtn
+          ariaLabel={t('assistant.window.menu')}
+          ariaExpanded={panel === 'menu'}
+          ariaHaspopup="menu"
+          onClick={() => setPanel('menu')}
+        >
           <Ellipsis size={17} strokeWidth={2.2} />
         </MIconBtn>
       </header>
@@ -242,6 +255,7 @@ export function AssistantScreen({ tripId, tripTitle, hidden, hops, onOpenTripCha
               key={th.id}
               label={th.title}
               className={th.id === thread.threadId ? 'bg-[color:var(--m-ic)]' : ''}
+              current={th.id === thread.threadId}
               onClick={() => pick(() => thread.openThread(th.id))}
               trailing={
                 <span className="flex-none text-caption text-m-muted">

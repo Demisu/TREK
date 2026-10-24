@@ -8,11 +8,11 @@ import { chatOf, useAssistantStore } from '../../../../src/store/assistantStore'
 import { buildPlanner, buildShell } from '../../../helpers/mobileTrip';
 import { act, cleanup, fireEvent, render, screen } from '../../../helpers/render';
 
-// FE-MOB-ASSIST-001 to FE-MOB-ASSIST-015
+// FE-MOB-ASSIST-001 to FE-MOB-ASSIST-017
 //
 // The phone's full-screen chat around the shared chat surface, which is
 // replaced here: what is tested is the frame, the header and the way to the
-// map and back.
+// map and back, and where the focus goes as the chat and its lists open.
 
 const surface = vi.hoisted(() => ({
   onOpen: null as ((target: EntityTarget) => void) | null,
@@ -127,6 +127,53 @@ describe('MAssistantScreen', () => {
     expect(screen.getByText('Chats are deleted after 90 days.')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Temples on day 2/ }));
     expect(thread.openThread).toHaveBeenCalledWith(3);
+  });
+
+  it('FE-MOB-ASSIST-016: the chat takes the focus when it opens, keeps Tab inside and hands the focus back', () => {
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    outside.focus();
+    try {
+      renderScreen();
+      const dialog = screen.getByRole('dialog', { name: 'Assistant' });
+      expect(dialog).toHaveFocus();
+      fireEvent.keyDown(dialog, { key: 'Tab', shiftKey: true });
+      const more = screen.getByRole('button', { name: 'More options' });
+      expect(more).toHaveFocus();
+      fireEvent.keyDown(more, { key: 'Tab' });
+      expect(screen.getByRole('button', { name: 'Back' })).toHaveFocus();
+
+      // Set aside for the map, the chat gives the focus back to where it was.
+      act(() => useAssistantStore.getState().setMinimized(true));
+      expect(outside).toHaveFocus();
+    } finally {
+      outside.remove();
+    }
+  });
+
+  it('FE-MOB-ASSIST-017: the recent chats and the menu say whether they are open, and Escape closes them onto their button', () => {
+    renderScreen();
+    const history = screen.getByRole('button', { name: 'Recent chats' });
+    expect(history).toHaveAttribute('aria-expanded', 'false');
+    history.focus();
+    fireEvent.click(history);
+    expect(history).toHaveAttribute('aria-expanded', 'true');
+    // The list takes the focus onto its first entry and says which chat is open.
+    expect(screen.getAllByRole('button', { name: 'New chat' })[1]).toHaveFocus();
+    expect(screen.getByRole('button', { name: /Temples on day 2/ })).toHaveAttribute('aria-current', 'true');
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+    expect(screen.queryByText('Chats are deleted after 90 days.')).not.toBeInTheDocument();
+    expect(history).toHaveFocus();
+    expect(history).toHaveAttribute('aria-expanded', 'false');
+
+    const more = screen.getByRole('button', { name: 'More options' });
+    expect(more).toHaveAttribute('aria-haspopup', 'menu');
+    more.focus();
+    fireEvent.click(more);
+    expect(more).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+    expect(screen.queryByRole('button', { name: 'Delete chat' })).not.toBeInTheDocument();
+    expect(more).toHaveFocus();
   });
 
   it('FE-MOB-ASSIST-006: deleting the chat asks first', () => {
