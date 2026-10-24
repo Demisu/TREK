@@ -10,7 +10,9 @@ Open the user menu in the top navigation bar (your avatar), then select **Admin*
 
 ## Layout
 
-On desktop the page opens with a header (**Administration**, *User management and system settings*) whose right side shows four counters: **Users**, **Trips**, **Places** and **Files**. When a newer TREK release exists, an update banner sits below it. Under that, a side navigation on the left lists the tabs in four groups, and the selected tab fills the right side. Every tab is built from cards with toggle rows, and anything that needs confirming (deleting a user, restoring a backup, revoking a token) asks in TREK's own dialog rather than the browser's.
+On desktop the page opens with a header (**Administration**, *User management and system settings*) whose right side shows four counters: **Users**, **Trips**, **Places** and **Files**. When a newer TREK release exists, an update banner sits below it, with a **How to Update** button that opens a dialog with the update commands for your kind of install and a link to the update guide. On a demo instance a **Demo Baseline** card with a **Save Baseline** button sits there too, see [Demo-Mode](Demo-Mode). Under that, a side navigation on the left lists the tabs in four groups, and the selected tab fills the right side. Every tab is built from cards with toggle rows, and anything that needs confirming (deleting a user, restoring a backup, revoking a token) asks in TREK's own dialog rather than the browser's.
+
+On a phone the admin is a separate screen: the same four counters sit at the top and a section picker switches between the same sections (users, user defaults, personalization, settings, addons, plugins, storage, notifications, MCP, GitHub, backup, audit). Each section offers what its desktop tab offers, including the permissions panel within the users section.
 
 ## Tabs
 
@@ -22,7 +24,7 @@ Most tabs are always visible; a few appear only under specific conditions.
 | Users | **User Defaults** | Default settings applied to users who have not picked their own: colour mode, units, time format, currency, week start, blurred booking codes, map engine and the routing services. See [Admin-User-Defaults](Admin-User-Defaults) | No |
 | Configuration | **Personalization** | Packing templates, place categories and the manually maintained school holiday catalog (see [Vacay](Vacay#manually-maintained-school-holidays)) | No |
 | Configuration | **Settings** | Authentication methods (password and SSO login and registration), passkeys, required MFA, OIDC/SSO configuration, allowed file types, API keys and place providers (Google, Unsplash, Amap, public transit backend, place search provider, the **Daily limit for Google calls**), and **Rotate JWT Secret**. See [Admin-Settings](Admin-Settings) | No |
-| Configuration | **Addons** | Enable or disable optional features instance-wide. See [Admin-Addons](Admin-Addons) | No |
+| Configuration | **Addons** | Enable or disable optional features instance-wide, and manage the **Paddle water data** regions below the addon cards. See [Admin-Addons](Admin-Addons) | No |
 | Configuration | **Plugins** | Install, update, and manage plugins; rescan the plugins folder; view each plugin's error log. See [Admin-Plugins](Admin-Plugins) | No |
 | Configuration | **Storage** | Storage backends, category assignment, replication, health. See [Admin-Storage](Admin-Storage) | No |
 | Integrations | **Notifications** | Email (SMTP), webhook, ntfy and Web Push channels; trip reminders; the admin's own webhook and ntfy; **Defaults for users** (see below). See [Admin-Notifications](Admin-Notifications) | No |
