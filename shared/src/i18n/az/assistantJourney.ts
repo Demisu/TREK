@@ -55,5 +55,10 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsGo.one': '{count} açıq təklif silinir',
   'assistant.card.journeyHeader.suggestionsCome': '{count} yer təklif kimi əlavə olunur',
   'assistant.card.journeyHeader.suggestionsCome.one': '{count} yer təklif kimi əlavə olunur',
+  'assistant.change.verb.reorderJournalEntries': 'Qeydləri yenidən sırala',
+  'assistant.card.journey.pros': '{count} müsbət cəhət',
+  'assistant.card.journey.pros.one': '{count} müsbət cəhət',
+  'assistant.card.journey.cons': '{count} mənfi cəhət',
+  'assistant.card.journey.cons.one': '{count} mənfi cəhət',
 };
 export default assistantJourney;

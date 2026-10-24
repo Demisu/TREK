@@ -47,5 +47,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.entriesStay': '已写的 {count} 条条目会保留',
   'assistant.card.journeyHeader.suggestionsGo': '{count} 条未写的建议会被移除',
   'assistant.card.journeyHeader.suggestionsCome': '{count} 个地点会作为建议加入',
+  'assistant.change.verb.reorderJournalEntries': '重新排列条目',
+  'assistant.card.journey.pros': '{count} 个优点',
+  'assistant.card.journey.cons': '{count} 个不足',
 };
 export default assistantJourney;

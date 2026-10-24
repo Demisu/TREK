@@ -377,7 +377,7 @@ describe('the applied change', () => {
     expect(ASSISTANT_WRITE_TOOLS.create_journey_entry).toEqual({ verbKey: 'addJournalEntry', entity: 'journey_entry' });
     expect(ASSISTANT_WRITE_TOOLS.update_journey_entry?.verbKey).toBe('updateJournalEntry');
     expect(ASSISTANT_WRITE_TOOLS.delete_journey_entry?.verbKey).toBe('removeJournalEntry');
-    expect(ASSISTANT_UNDO_MAP.update_journey_entry).toBeUndefined();
+    expect(ASSISTANT_UNDO_MAP.update_journey_entry?.tool).toBe('update_journey_entry');
     expect(CARD_PROMPT_LINES).toEqual(expect.arrayContaining([...(JOURNEY_CARDS.prompt ?? [])]));
     expect(JOURNEY_CARDS.prompt).toHaveLength(2);
     // A trip chat sends a book request to the Studio instead of trying it.

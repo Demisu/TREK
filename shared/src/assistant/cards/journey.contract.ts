@@ -13,7 +13,7 @@ export * from './journey-header.card';
  */
 export const JOURNEY_CARD_SCHEMAS = [journeyEntriesCardSchema, journeyHeaderCardSchema] as const;
 /**
- * An entry written, changed or deleted; a journal started, renamed, given
+ * An entry written, changed or deleted, the entries put in a new order; a journal started, renamed, given
  * another status or other settings, deleted; a trip linked or unlinked; its
  * suggestions brought back; the user's own view of it changed.
  */
@@ -21,6 +21,7 @@ export const JOURNEY_VERB_KEYS = [
   'addJournalEntry',
   'updateJournalEntry',
   'removeJournalEntry',
+  'reorderJournalEntries',
   'createJournal',
   'renameJournal',
   'setJournalStatus',

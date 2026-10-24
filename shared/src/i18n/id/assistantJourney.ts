@@ -48,5 +48,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.entriesStay': '{count} entri tertulis tetap ada',
   'assistant.card.journeyHeader.suggestionsGo': '{count} saran terbuka hilang',
   'assistant.card.journeyHeader.suggestionsCome': '{count} tempat masuk sebagai saran',
+  'assistant.change.verb.reorderJournalEntries': 'Urutkan ulang entri',
+  'assistant.card.journey.pros': '{count} hal positif',
+  'assistant.card.journey.cons': '{count} hal negatif',
 };
 export default assistantJourney;

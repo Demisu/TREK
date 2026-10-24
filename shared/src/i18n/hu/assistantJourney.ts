@@ -55,5 +55,10 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsGo.one': '{count} nyitott javaslat eltűnik',
   'assistant.card.journeyHeader.suggestionsCome': '{count} hely javaslatként érkezik',
   'assistant.card.journeyHeader.suggestionsCome.one': '{count} hely javaslatként érkezik',
+  'assistant.change.verb.reorderJournalEntries': 'Bejegyzések átrendezése',
+  'assistant.card.journey.pros': '{count} előny',
+  'assistant.card.journey.pros.one': '{count} előny',
+  'assistant.card.journey.cons': '{count} hátrány',
+  'assistant.card.journey.cons.one': '{count} hátrány',
 };
 export default assistantJourney;

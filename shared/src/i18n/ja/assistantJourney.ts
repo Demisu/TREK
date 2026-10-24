@@ -47,5 +47,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.entriesStay': '書かれたエントリー{count}件は残ります',
   'assistant.card.journeyHeader.suggestionsGo': '未記入の提案{count}件はなくなります',
   'assistant.card.journeyHeader.suggestionsCome': '{count}か所が提案として加わります',
+  'assistant.change.verb.reorderJournalEntries': 'エントリーを並べ替える',
+  'assistant.card.journey.pros': '良い点 {count} 件',
+  'assistant.card.journey.cons': '残念な点 {count} 件',
 };
 export default assistantJourney;

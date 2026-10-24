@@ -47,5 +47,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.entriesStay': 'รายการที่เขียนแล้ว {count} รายการยังอยู่',
   'assistant.card.journeyHeader.suggestionsGo': 'คำแนะนำที่ยังไม่เขียน {count} รายการจะหายไป',
   'assistant.card.journeyHeader.suggestionsCome': 'สถานที่ {count} แห่งจะเข้ามาเป็นคำแนะนำ',
+  'assistant.change.verb.reorderJournalEntries': 'จัดลำดับรายการใหม่',
+  'assistant.card.journey.pros': 'ข้อดี {count} ข้อ',
+  'assistant.card.journey.cons': 'ข้อเสีย {count} ข้อ',
 };
 export default assistantJourney;

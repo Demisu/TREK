@@ -53,5 +53,10 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsGo.one': '{count} öppet förslag försvinner',
   'assistant.card.journeyHeader.suggestionsCome': '{count} platser kommer in som förslag',
   'assistant.card.journeyHeader.suggestionsCome.one': '{count} plats kommer in som förslag',
+  'assistant.change.verb.reorderJournalEntries': 'Ordna om inläggen',
+  'assistant.card.journey.pros': '{count} fördelar',
+  'assistant.card.journey.pros.one': '{count} fördel',
+  'assistant.card.journey.cons': '{count} nackdelar',
+  'assistant.card.journey.cons.one': '{count} nackdel',
 };
 export default assistantJourney;

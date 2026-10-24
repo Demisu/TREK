@@ -1,4 +1,5 @@
 import {
+  ArrowDownUp,
   BookCheck,
   BookOpen,
   BookOpenText,
@@ -29,6 +30,11 @@ export const JOURNEY_LOOK = {
     addJournalEntry: { Icon: BookPlus, tone: 'success', labelKey: 'assistant.change.verb.addJournalEntry' },
     updateJournalEntry: { Icon: BookOpenText, tone: 'info', labelKey: 'assistant.change.verb.updateJournalEntry' },
     removeJournalEntry: { Icon: BookX, tone: 'danger', labelKey: 'assistant.change.verb.removeJournalEntry' },
+    reorderJournalEntries: {
+      Icon: ArrowDownUp,
+      tone: 'info',
+      labelKey: 'assistant.change.verb.reorderJournalEntries',
+    },
     createJournal: { Icon: BookPlus, tone: 'success', labelKey: 'assistant.change.verb.createJournal' },
     renameJournal: { Icon: Type, tone: 'info', labelKey: 'assistant.change.verb.renameJournal' },
     setJournalStatus: { Icon: BookCheck, tone: 'info', labelKey: 'assistant.change.verb.setJournalStatus' },

@@ -54,5 +54,10 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsGo.one': '{count} avatud soovitus kaob',
   'assistant.card.journeyHeader.suggestionsCome': '{count} kohta tuleb soovitustena juurde',
   'assistant.card.journeyHeader.suggestionsCome.one': '{count} koht tuleb soovitusena juurde',
+  'assistant.change.verb.reorderJournalEntries': 'Järjesta sissekanded ümber',
+  'assistant.card.journey.pros': '{count} plussi',
+  'assistant.card.journey.pros.one': '{count} pluss',
+  'assistant.card.journey.cons': '{count} miinust',
+  'assistant.card.journey.cons.one': '{count} miinus',
 };
 export default assistantJourney;

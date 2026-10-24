@@ -77,5 +77,18 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsCome.two': 'يُضاف {count} مكانان كاقتراحين',
   'assistant.card.journeyHeader.suggestionsCome.few': 'تُضاف {count} أماكن كاقتراحات',
   'assistant.card.journeyHeader.suggestionsCome.many': 'يُضاف {count} مكانًا كاقتراحات',
+  'assistant.change.verb.reorderJournalEntries': 'إعادة ترتيب المدخلات',
+  'assistant.card.journey.pros': '{count} نقطة إيجابية',
+  'assistant.card.journey.pros.zero': '{count} نقاط إيجابية',
+  'assistant.card.journey.pros.one': '{count} نقطة إيجابية',
+  'assistant.card.journey.pros.two': '{count} نقطتان إيجابيتان',
+  'assistant.card.journey.pros.few': '{count} نقاط إيجابية',
+  'assistant.card.journey.pros.many': '{count} نقطة إيجابية',
+  'assistant.card.journey.cons': '{count} نقطة سلبية',
+  'assistant.card.journey.cons.zero': '{count} نقاط سلبية',
+  'assistant.card.journey.cons.one': '{count} نقطة سلبية',
+  'assistant.card.journey.cons.two': '{count} نقطتان سلبيتان',
+  'assistant.card.journey.cons.few': '{count} نقاط سلبية',
+  'assistant.card.journey.cons.many': '{count} نقطة سلبية',
 };
 export default assistantJourney;

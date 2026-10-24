@@ -47,6 +47,8 @@ const ENTRY_FIELDS = [
   'visibility',
   'type',
   'is_draft',
+  'tags',
+  'pros_cons',
 ] as const;
 
 /** The states of an entry an update can set, each a row of its own when it changes. */
@@ -142,6 +144,41 @@ function addStateRows(rows: Rows, before: Row, args: ToolArgs): void {
   }
 }
 
+/** A list the user wrote (tags, a side of the verdict) as one row value: its items in order, joined. */
+function listText(value: unknown): string {
+  return text(Array.isArray(value) ? value.filter((item) => typeof item === 'string' && item.trim()).join(', ') : '');
+}
+
+/** Coordinates as a row shows them, both or none. */
+function pointText(lat: unknown, lng: unknown): string {
+  return typeof lat === 'number' && typeof lng === 'number' ? `${lat.toFixed(4)}, ${lng.toFixed(4)}` : '';
+}
+
+/**
+ * The rows of what an update sets beyond the words and the states: the tags,
+ * each side of the verdict, and the coordinates (the entry placed on the map,
+ * moved or taken off it), each when it changes.
+ */
+function addListRows(rows: Rows, before: Row, args: ToolArgs): void {
+  const push = (field: string, was: string, now: string) => {
+    if (was !== now) rows.rows.push({ op: 'change', labelKey: 'field', field, before: was || null, after: now });
+  };
+  if ('tags' in args) push('tags', listText(before.tags), listText(args.tags));
+  if ('pros_cons' in args) {
+    const was = recordOf(before.pros_cons);
+    const now = recordOf(args.pros_cons);
+    push('pros', listText(was.pros), listText(now.pros));
+    push('cons', listText(was.cons), listText(now.cons));
+  }
+  if ('location_lat' in args || 'location_lng' in args) {
+    const lat = 'location_lat' in args ? args.location_lat : before.location_lat;
+    const lng = 'location_lng' in args ? args.location_lng : before.location_lng;
+    const was = pointText(before.location_lat, before.location_lng);
+    const now = pointText(lat, lng);
+    if (was !== now) rows.change('coordinates', was, now);
+  }
+}
+
 /** The fields of the entry an update sets: those its arguments name, a null among them clearing one. */
 function changedFields(args: ToolArgs): Array<(typeof ENTRY_FIELDS)[number]> {
   return ENTRY_FIELDS.filter((field) => field in args);
@@ -165,6 +202,7 @@ export const JOURNEY_DESCRIBERS = {
     if ('location_name' in args) rows.change('location', text(before.location_name), text(args.location_name));
     if ('story' in args) rows.change('text', storyText(before.story), storyText(args.story));
     addStateRows(rows, before, args);
+    addListRows(rows, before, args);
     return described(subjectOf(ctx, { ...before, ...args }), rows);
   },
   delete_journey_entry: (ctx: PreviewContext, _args: ToolArgs, loaded: JournalLoaded | null): Described => {

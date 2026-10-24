@@ -7,6 +7,7 @@ import {
   stripMarkdown,
   type JourneyEntriesCard,
   type JourneyEntryLook,
+  type JourneyEntryVerdict,
 } from '@trek/shared';
 
 /**
@@ -74,6 +75,30 @@ function coverOf(photos: Row[]): { photoId: number | null; video: boolean } {
   return { photoId: positiveId(cover.photo_id), video: cover.media_type === 'video' };
 }
 
+/** Lines of text a list field holds (tags, a side of the verdict), each read like any line of its source. */
+function linesOf(value: unknown, key: string, max: number, source: LookSource): string[] {
+  const items = Array.isArray(value) ? value : [];
+  return items.flatMap((item) => {
+    const line = lineOf({ [key]: item }, key, max, source);
+    return line === null ? [] : [line];
+  });
+}
+
+/** The first tags, as many as a card carries. */
+function tagsOf(row: Row, source: LookSource): string[] {
+  return linesOf(row.tags, 'tags', JOURNEY_CARD_LIMITS.tag, source).slice(0, JOURNEY_CARD_LIMITS.tags);
+}
+
+/** The verdict's first points on each side and how many there are; null for an entry without one. */
+function verdictOf(row: Row, source: LookSource): JourneyEntryVerdict | null {
+  const verdict = recordOf(row.pros_cons);
+  const pros = linesOf(verdict.pros, 'pros_cons', JOURNEY_CARD_LIMITS.point, source);
+  const cons = linesOf(verdict.cons, 'pros_cons', JOURNEY_CARD_LIMITS.point, source);
+  if (pros.length === 0 && cons.length === 0) return null;
+  const cut = JOURNEY_CARD_LIMITS.points;
+  return { pros: pros.slice(0, cut), cons: cons.slice(0, cut), prosCount: pros.length, consCount: cons.length };
+}
+
 /** Both coordinates, or neither. */
 function pointOf(row: Row): JourneyEntryLook['point'] {
   const lat = finite(row.location_lat);
@@ -110,6 +135,8 @@ export function lookOf(value: unknown, source: LookSource = {}): JourneyEntryLoo
     draft: row.is_draft === true || row.is_draft === 1,
     fromTripPlace: positiveId(row.source_place_id) !== null && row.type !== 'skeleton',
     dayIndex: day >= 0 && day <= 9_999 ? day : null,
+    tags: tagsOf(row, source),
+    verdict: verdictOf(row, source),
   };
 }
 

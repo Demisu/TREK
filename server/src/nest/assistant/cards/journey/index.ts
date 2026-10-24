@@ -21,7 +21,17 @@ import {
   UNLINK_LINKED_TRIP,
 } from './journey-header-undo';
 import { readCard } from './journey-look';
-import { DELETE_CREATED_ENTRY } from './journey-undo';
+import {
+  describeReorder,
+  describeStay,
+  loadJournalOrder,
+  loadStay,
+  reorderCard,
+  stayCard,
+  type JournalOrderLoaded,
+  type StayLoaded,
+} from './journey-order';
+import { DELETE_CREATED_ENTRY, RESTORE_CHANGED_ENTRY, RESTORE_ENTRY_ORDER } from './journey-undo';
 import type { AssistantChangeVerbKey, JourneyEntriesCard } from '@trek/shared';
 
 /**
@@ -85,6 +95,35 @@ function journalHeader(
   };
 }
 
+/** A new order of the journal's entries: the entries that move, in their new places, and the way back. */
+const reorderCards: ToolCards<JournalOrderLoaded> = {
+  write: { verbKey: 'reorderJournalEntries', entity: 'journey_entry' },
+  load: (args, read) => loadJournalOrder(args, read),
+  describe: describeReorder,
+  change: (_ctx, args, loaded) => reorderCard(args, loaded),
+  appliedIds: (args) => {
+    const first = Array.isArray(args.orderedIds) ? args.orderedIds[0] : null;
+    return typeof first === 'number' ? [first] : [];
+  },
+  undo: RESTORE_ENTRY_ORDER,
+};
+
+/**
+ * A stay Dawarich recorded taken in as an entry: the entry it writes. No way
+ * back: deleting the entry would leave the stay marked as taken in, with no
+ * way to take it in again.
+ */
+const stayCards: ToolCards<StayLoaded> = {
+  write: { verbKey: 'addJournalEntry', entity: 'journey_entry' },
+  load: (args, read) => loadStay(args, read),
+  describe: describeStay,
+  change: (_ctx, args, loaded) => stayCard(args, loaded),
+  appliedIds: (_args, result) => {
+    const id = recordOf(result).createdJournalEntryId;
+    return typeof id === 'number' ? [id] : [];
+  },
+};
+
 export const JOURNEY_CARDS: DomainCards = {
   id: 'journey',
   tools: {
@@ -108,6 +147,7 @@ export const JOURNEY_CARDS: DomainCards = {
     update_journey_entry: {
       write: { verbKey: 'updateJournalEntry', entity: 'journey_entry' },
       describe: JOURNEY_DESCRIBERS.update_journey_entry,
+      undo: RESTORE_CHANGED_ENTRY,
       ...journalWrite('update_journey_entry'),
     },
     delete_journey_entry: {
@@ -115,6 +155,8 @@ export const JOURNEY_CARDS: DomainCards = {
       describe: JOURNEY_DESCRIBERS.delete_journey_entry,
       ...journalWrite('delete_journey_entry'),
     },
+    reorder_journey_entries: reorderCards,
+    accept_dawarich_suggestion_as_journal_entry: stayCards,
     create_journey: journalHeader('create_journey', 'createJournal', DELETE_CREATED_JOURNEY),
     update_journey: journalHeader('update_journey', 'updateJournalSettings', RESTORE_JOURNEY_SETTINGS),
     delete_journey: journalHeader('delete_journey', 'deleteJournal'),

@@ -1,5 +1,5 @@
 import type { JourneyEntryLook } from '@trek/shared';
-import { CalendarDays, Globe, Images, MapPin, Play, Users } from 'lucide-react';
+import { CalendarDays, Globe, Images, MapPin, Play, Tag, ThumbsDown, ThumbsUp, Users } from 'lucide-react';
 
 import { useTranslation } from '../../../../i18n';
 import { cardDateLabel, cardPlace } from '../../../Journey/journeyCard';
@@ -101,11 +101,39 @@ function WeatherMark({ weather }: { weather: string | null }) {
   );
 }
 
-/** How the entry reads: shared or public, a draft, its mood and weather, its photos past the first. */
+/** Its tags and how its verdict leans: the good and the weak points counted. */
+function ListMarks({ look }: { look: JourneyEntryLook }) {
+  const { t } = useTranslation();
+  const verdict = look.verdict ?? null;
+  return (
+    <>
+      {(look.tags ?? []).map((tag, index) => (
+        <SoftPill key={`${tag}-${index}`} icon={<Tag size={10} strokeWidth={2.2} aria-hidden="true" className={ICON} />}>
+          <bdi className="truncate">{tag}</bdi>
+        </SoftPill>
+      ))}
+      {verdict && verdict.prosCount > 0 && (
+        <SoftPill tone="success" icon={<ThumbsUp size={10} strokeWidth={2.2} aria-hidden="true" />}>
+          {t('assistant.card.journey.pros', { count: verdict.prosCount })}
+        </SoftPill>
+      )}
+      {verdict && verdict.consCount > 0 && (
+        <SoftPill tone="warning" icon={<ThumbsDown size={10} strokeWidth={2.2} aria-hidden="true" />}>
+          {t('assistant.card.journey.cons', { count: verdict.consCount })}
+        </SoftPill>
+      )}
+    </>
+  );
+}
+
+/** How the entry reads: shared or public, a draft, its mood and weather, its photos past the first, its tags and verdict. */
 export function EntryMarks({ look }: { look: JourneyEntryLook }) {
   const { t } = useTranslation();
   const mood = moodOf(look.mood) !== null;
-  if (look.visibility === 'private' && !look.draft && !mood && !look.weather && look.photoCount < 2) return null;
+  const lists = (look.tags?.length ?? 0) > 0 || !!look.verdict;
+  if (look.visibility === 'private' && !look.draft && !mood && !look.weather && look.photoCount < 2 && !lists) {
+    return null;
+  }
   return (
     <CardFacts>
       <VisibilityMark visibility={look.visibility} />
@@ -117,6 +145,7 @@ export function EntryMarks({ look }: { look: JourneyEntryLook }) {
           {t('assistant.card.journey.photos', { count: look.photoCount })}
         </SoftPill>
       )}
+      <ListMarks look={look} />
     </CardFacts>
   );
 }

@@ -47,5 +47,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.entriesStay': '작성된 항목 {count}개는 남아요',
   'assistant.card.journeyHeader.suggestionsGo': '열린 제안 {count}개는 사라져요',
   'assistant.card.journeyHeader.suggestionsCome': '장소 {count}곳이 제안으로 들어와요',
+  'assistant.change.verb.reorderJournalEntries': '항목 순서 바꾸기',
+  'assistant.card.journey.pros': '좋은 점 {count}개',
+  'assistant.card.journey.cons': '아쉬운 점 {count}개',
 };
 export default assistantJourney;

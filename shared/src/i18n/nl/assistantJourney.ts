@@ -54,5 +54,10 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsGo.one': '{count} open suggestie verdwijnt',
   'assistant.card.journeyHeader.suggestionsCome': '{count} plekken komen erbij als suggestie',
   'assistant.card.journeyHeader.suggestionsCome.one': '{count} plek komt erbij als suggestie',
+  'assistant.change.verb.reorderJournalEntries': 'Berichten opnieuw ordenen',
+  'assistant.card.journey.pros': '{count} pluspunten',
+  'assistant.card.journey.pros.one': '{count} pluspunt',
+  'assistant.card.journey.cons': '{count} minpunten',
+  'assistant.card.journey.cons.one': '{count} minpunt',
 };
 export default assistantJourney;

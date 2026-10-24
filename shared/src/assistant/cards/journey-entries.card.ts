@@ -12,7 +12,27 @@ import { z } from 'zod';
  */
 
 /** How much of a journal a card carries; the server clips to the same numbers. */
-export const JOURNEY_CARD_LIMITS = { entries: 8, title: 100, place: 80, story: 240, journal: 80, weather: 40 } as const;
+export const JOURNEY_CARD_LIMITS = {
+  entries: 8,
+  title: 100,
+  place: 80,
+  story: 240,
+  journal: 80,
+  weather: 40,
+  tags: 6,
+  tag: 40,
+  points: 3,
+  point: 80,
+} as const;
+
+/** The verdict on a place as a card shows it: the first points on each side, and how many each side holds. */
+export const journeyEntryVerdictSchema = z.object({
+  pros: z.array(cardText(JOURNEY_CARD_LIMITS.point)).max(JOURNEY_CARD_LIMITS.points),
+  cons: z.array(cardText(JOURNEY_CARD_LIMITS.point)).max(JOURNEY_CARD_LIMITS.points),
+  prosCount: cardCountSchema,
+  consCount: cardCountSchema,
+});
+export type JourneyEntryVerdict = z.infer<typeof journeyEntryVerdictSchema>;
 
 /**
  * One entry as a card shows it. Its texts are plain and on one line (the story
@@ -52,11 +72,16 @@ export const journeyEntryLookSchema = z.object({
   fromTripPlace: z.boolean(),
   /** Which day of the journal it falls on, counted from 0, for the day's colour; null when unknown. */
   dayIndex: z.number().int().min(0).max(9_999).nullable(),
+  /** Its first tags. Optional, like the two below: cards stored before they existed leave them out. */
+  tags: z.array(cardText(JOURNEY_CARD_LIMITS.tag)).max(JOURNEY_CARD_LIMITS.tags).optional(),
+  verdict: journeyEntryVerdictSchema.nullable().optional(),
+  /** In a new order of the journal's entries, this one changed its place. */
+  moved: z.boolean().optional(),
 });
 export type JourneyEntryLook = z.infer<typeof journeyEntryLookSchema>;
 
-/** What a change card's entry goes through: nothing on an answer, else what the change does to it. */
-export const JOURNEY_CARD_CHANGES = ['none', 'new', 'changed', 'willDelete'] as const;
+/** What a change card's entries go through: nothing on an answer, else what the change does to them. */
+export const JOURNEY_CARD_CHANGES = ['none', 'new', 'changed', 'willDelete', 'reordered'] as const;
 
 export const journeyEntriesCardSchema = z.object({
   kind: z.literal('journeyEntries'),

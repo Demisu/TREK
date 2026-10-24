@@ -48,5 +48,8 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.entriesStay': '{count} mục đã viết vẫn được giữ',
   'assistant.card.journeyHeader.suggestionsGo': '{count} gợi ý chưa viết sẽ bị bỏ',
   'assistant.card.journeyHeader.suggestionsCome': '{count} địa điểm được thêm vào làm gợi ý',
+  'assistant.change.verb.reorderJournalEntries': 'Sắp xếp lại các mục',
+  'assistant.card.journey.pros': '{count} điểm cộng',
+  'assistant.card.journey.cons': '{count} điểm trừ',
 };
 export default assistantJourney;

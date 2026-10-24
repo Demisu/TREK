@@ -55,5 +55,10 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsGo.one': 'Φεύγει {count} ανοιχτή πρόταση',
   'assistant.card.journeyHeader.suggestionsCome': '{count} μέρη μπαίνουν ως προτάσεις',
   'assistant.card.journeyHeader.suggestionsCome.one': '{count} μέρος μπαίνει ως πρόταση',
+  'assistant.change.verb.reorderJournalEntries': 'Αναδιάταξη καταχωρίσεων',
+  'assistant.card.journey.pros': '{count} θετικά',
+  'assistant.card.journey.pros.one': '{count} θετικό',
+  'assistant.card.journey.cons': '{count} αρνητικά',
+  'assistant.card.journey.cons.one': '{count} αρνητικό',
 };
 export default assistantJourney;

@@ -55,5 +55,10 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsGo.one': '{count} offener Vorschlag fällt weg',
   'assistant.card.journeyHeader.suggestionsCome': '{count} Orte kommen als Vorschläge dazu',
   'assistant.card.journeyHeader.suggestionsCome.one': '{count} Ort kommt als Vorschlag dazu',
+  'assistant.change.verb.reorderJournalEntries': 'Einträge neu ordnen',
+  'assistant.card.journey.pros': '{count} Pluspunkte',
+  'assistant.card.journey.pros.one': '{count} Pluspunkt',
+  'assistant.card.journey.cons': '{count} Minuspunkte',
+  'assistant.card.journey.cons.one': '{count} Minuspunkt',
 };
 export default assistantJourney;

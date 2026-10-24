@@ -66,5 +66,14 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsCome.one': '{count} miejsce dojdzie jako sugestia',
   'assistant.card.journeyHeader.suggestionsCome.few': '{count} miejsca dojdą jako sugestie',
   'assistant.card.journeyHeader.suggestionsCome.many': '{count} miejsc dojdzie jako sugestie',
+  'assistant.change.verb.reorderJournalEntries': 'Zmień kolejność wpisów',
+  'assistant.card.journey.pros': '{count} plusa',
+  'assistant.card.journey.pros.one': '{count} plus',
+  'assistant.card.journey.pros.few': '{count} plusy',
+  'assistant.card.journey.pros.many': '{count} plusów',
+  'assistant.card.journey.cons': '{count} minusa',
+  'assistant.card.journey.cons.one': '{count} minus',
+  'assistant.card.journey.cons.few': '{count} minusy',
+  'assistant.card.journey.cons.many': '{count} minusów',
 };
 export default assistantJourney;

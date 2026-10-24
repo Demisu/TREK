@@ -1,7 +1,20 @@
 import type { AssistantChangeRow, JourneyEntriesCard } from '@trek/shared';
-import { AlignLeft, CalendarDays, Clock, MapPin, Tag, Type } from 'lucide-react';
+import {
+  AlignLeft,
+  ArrowDownUp,
+  CalendarDays,
+  Clock,
+  LocateFixed,
+  MapPin,
+  Tag,
+  Tags,
+  ThumbsDown,
+  ThumbsUp,
+  Type,
+} from 'lucide-react';
 
 import { useTranslation } from '../../../../i18n';
+import { cardDateLabel } from '../../../Journey/journeyCard';
 import type { ChangeItem } from '../../assistantParts';
 import { FactChange } from '../parts/CardFacts';
 import { EntryMarks, EntryStory, EntryThumb } from './JourneyEntryParts';
@@ -20,7 +33,9 @@ import { entryHoverProps, useEntryHover } from './useEntryHover';
 const GONE: ReadonlySet<ChangeItem['state']> = new Set(['failed', 'discarded', 'expired']);
 
 /** The facts a journal change row names on its faint line, in this order: when, then where. */
-const FACT_ICONS = { day: CalendarDays, time: Clock, location: MapPin } as const;
+const FACT_ICONS = { day: CalendarDays, time: Clock, location: MapPin, coordinates: LocateFixed } as const;
+/** The lists an update rewrites, each by its glyph: the tags and the two sides of the verdict. */
+const LIST_ICONS: Readonly<Record<string, typeof Tag>> = { tags: Tags, pros: ThumbsUp, cons: ThumbsDown };
 /** The words an update rewrites, named only when they change: the entry's title and its text. */
 const WORD_ICONS = { name: Type, text: AlignLeft } as const;
 type FactRow = AssistantChangeRow & { labelKey: keyof typeof FACT_ICONS };
@@ -45,7 +60,9 @@ function StateChange({ row }: { row: AssistantChangeRow }) {
   if (flag) return <FactChange icon={flag.Icon} before={null} after={t(flag.labelKey)} tone="info" />;
   const was = stateOf(row.field, row.before);
   const now = stateOf(row.field, row.after);
-  const Icon = (now ?? was)?.Icon ?? Tag;
+  const listed =
+    row.field && Object.prototype.hasOwnProperty.call(LIST_ICONS, row.field) ? LIST_ICONS[row.field] : undefined;
+  const Icon = (now ?? was)?.Icon ?? listed ?? Tag;
   const named = (tone: typeof now, value: string | null) => (tone ? t(tone.labelKey) : value);
   return (
     <FactChange
@@ -110,12 +127,32 @@ export function JourneyEntryAside({ card, item }: { card: JourneyEntriesCard; it
   );
 }
 
+/** A new order: the entries that move, in their new places, each with its day; the rest counted. */
+function NewOrder({ card }: { card: JourneyEntriesCard }) {
+  const { t, locale } = useTranslation();
+  return (
+    <ol className="m-0 mt-1 list-none space-y-0.5 p-0">
+      {card.entries.map((look, index) => (
+        <li key={look.entryId ?? index} className="flex items-center gap-1.5 text-caption text-content-secondary">
+          <ArrowDownUp size={11} aria-hidden="true" className="flex-none text-info" />
+          <bdi className="min-w-0 truncate">{look.title ?? look.place ?? cardDateLabel(look.date, locale)}</bdi>
+          <span className="flex-none text-content-faint">{cardDateLabel(look.date, locale)}</span>
+        </li>
+      ))}
+      {card.more > 0 && (
+        <li className="text-caption text-content-faint">{t('assistant.card.common.more', { count: card.more })}</li>
+      )}
+    </ol>
+  );
+}
+
 /** The start of the entry's text and its marks, under the row; resting on them shows its place on the map. */
 export function JourneyEntryBody({ card, item }: { card: JourneyEntriesCard; item: ChangeItem }) {
   const { t } = useTranslation();
   const hover = useEntryHover(card.journeyId, item.toolCallId);
   const look = card.entries[0];
   if (!look || GONE.has(item.state)) return null;
+  if (card.change === 'reordered') return <NewOrder card={card} />;
   return (
     <div {...entryHoverProps(hover, look)}>
       <EntryStory look={look} roomy={false} />

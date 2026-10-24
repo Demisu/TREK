@@ -53,5 +53,10 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsGo.one': "Se'n va {count} suggeriment obert",
   'assistant.card.journeyHeader.suggestionsCome': '{count} llocs entren com a suggeriments',
   'assistant.card.journeyHeader.suggestionsCome.one': '{count} lloc entra com a suggeriment',
+  'assistant.change.verb.reorderJournalEntries': 'Reordenar les entrades',
+  'assistant.card.journey.pros': '{count} punts forts',
+  'assistant.card.journey.pros.one': '{count} punt fort',
+  'assistant.card.journey.cons': '{count} punts febles',
+  'assistant.card.journey.cons.one': '{count} punt feble',
 };
 export default assistantJourney;

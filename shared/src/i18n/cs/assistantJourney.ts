@@ -59,5 +59,12 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsCome': '{count} míst přibude jako návrhy',
   'assistant.card.journeyHeader.suggestionsCome.one': '{count} místo přibude jako návrh',
   'assistant.card.journeyHeader.suggestionsCome.few': '{count} místa přibudou jako návrhy',
+  'assistant.change.verb.reorderJournalEntries': 'Přeuspořádat záznamy',
+  'assistant.card.journey.pros': '{count} plusů',
+  'assistant.card.journey.pros.one': '{count} plus',
+  'assistant.card.journey.pros.few': '{count} plusy',
+  'assistant.card.journey.cons': '{count} minusů',
+  'assistant.card.journey.cons.one': '{count} minus',
+  'assistant.card.journey.cons.few': '{count} minusy',
 };
 export default assistantJourney;

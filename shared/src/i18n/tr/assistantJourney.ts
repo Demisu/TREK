@@ -54,5 +54,10 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsGo.one': '{count} açık öneri kalkar',
   'assistant.card.journeyHeader.suggestionsCome': '{count} yer öneri olarak eklenir',
   'assistant.card.journeyHeader.suggestionsCome.one': '{count} yer öneri olarak eklenir',
+  'assistant.change.verb.reorderJournalEntries': 'Kayıtları yeniden sırala',
+  'assistant.card.journey.pros': '{count} artı',
+  'assistant.card.journey.pros.one': '{count} artı',
+  'assistant.card.journey.cons': '{count} eksi',
+  'assistant.card.journey.cons.one': '{count} eksi',
 };
 export default assistantJourney;

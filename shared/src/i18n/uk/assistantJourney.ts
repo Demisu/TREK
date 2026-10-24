@@ -66,5 +66,14 @@ const assistantJourney: TranslationStrings = {
   'assistant.card.journeyHeader.suggestionsCome.one': '{count} місце з’явиться як пропозиція',
   'assistant.card.journeyHeader.suggestionsCome.few': '{count} місця з’являться як пропозиції',
   'assistant.card.journeyHeader.suggestionsCome.many': '{count} місць з’являться як пропозиції',
+  'assistant.change.verb.reorderJournalEntries': 'Змінити порядок записів',
+  'assistant.card.journey.pros': '{count} плюса',
+  'assistant.card.journey.pros.one': '{count} плюс',
+  'assistant.card.journey.pros.few': '{count} плюси',
+  'assistant.card.journey.pros.many': '{count} плюсів',
+  'assistant.card.journey.cons': '{count} мінуса',
+  'assistant.card.journey.cons.one': '{count} мінус',
+  'assistant.card.journey.cons.few': '{count} мінуси',
+  'assistant.card.journey.cons.many': '{count} мінусів',
 };
 export default assistantJourney;
