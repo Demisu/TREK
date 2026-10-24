@@ -279,7 +279,8 @@ const journey: TranslationStrings = {
   'journey.editor.externalPhotosNoLocation': 'Bu günün tüm fotoğrafları',
   'journey.editor.externalPhotosQueued': 'sırada',
   'journey.editor.externalPhotosUnavailable': 'Bağlı fotoğraf sağlayıcısı yok.',
-  'journey.editor.externalPhotosPartialFailed': '{failed} fotoğraf grubu başarısız oldu, yeniden denemek için tekrar kaydet',
+  'journey.editor.externalPhotosPartialFailed':
+    '{failed} fotoğraf grubu başarısız oldu, yeniden denemek için tekrar kaydet',
   'journey.picker.day': 'Bu gün',
   'journey.studio.title': 'TREK Studio',
   'journey.studio.open': 'Studio',
@@ -383,7 +384,8 @@ const journey: TranslationStrings = {
   'journey.studio.shapes': 'Şekiller',
   'journey.studio.frames': 'Çerçeve',
   'journey.studio.emptyFrame': 'Boş çerçeve',
-  'journey.studio.frameHint': 'Boş çerçeve bir resmin nereye geleceğini gösterir. İçerik bölümünden birini üzerine bırak.',
+  'journey.studio.frameHint':
+    'Boş çerçeve bir resmin nereye geleceğini gösterir. İçerik bölümünden birini üzerine bırak.',
   'journey.studio.shapeKind.line': 'Çizgi',
   'journey.studio.styleTitle': 'Başlık',
   'journey.studio.styleSubtitle': 'Alt başlık',

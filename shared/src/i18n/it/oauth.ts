@@ -85,7 +85,8 @@ const oauth: TranslationStrings = {
   'oauth.authorize.requestLabel': 'Richiesta di autorizzazione',
   'oauth.authorize.requestDescription': "Questa applicazione richiede l'accesso al tuo account TREK.",
   'oauth.authorize.verifiedHost': 'Dominio verificato: {host}',
-  'oauth.authorize.trustNote': "Concedi l'accesso solo ad applicazioni di cui ti fidi. I tuoi dati restano sul tuo server.",
+  'oauth.authorize.trustNote':
+    "Concedi l'accesso solo ad applicazioni di cui ti fidi. I tuoi dati restano sul tuo server.",
   'oauth.authorize.selectScope': 'Seleziona almeno un ambito',
   'oauth.authorize.approveScopes': 'Approva ({count} ambiti)',
   'oauth.authorize.approveScopes.one': 'Approva ({count} ambito)',
@@ -95,7 +96,8 @@ const oauth: TranslationStrings = {
   'oauth.authorize.permissionsRequested': 'Permessi richiesti',
   'oauth.authorize.alwaysIncluded': 'Sempre inclusi',
   'oauth.authorize.alwaysTool.listTrips': "Elenca i tuoi viaggi così l'IA può trovare gli ID dei viaggi",
-  'oauth.authorize.alwaysTool.getTripSummary': 'Leggi la panoramica di un viaggio, necessaria per usare qualsiasi altro strumento',
+  'oauth.authorize.alwaysTool.getTripSummary':
+    'Leggi la panoramica di un viaggio, necessaria per usare qualsiasi altro strumento',
   'oauth.scope.group.files': 'File',
   'oauth.scope.group.settings': 'Impostazioni',
   'oauth.scope.files:read.label': 'Vedere i file del viaggio',

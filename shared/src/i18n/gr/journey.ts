@@ -284,7 +284,8 @@ const journey: TranslationStrings = {
   'journey.editor.externalPhotosNoLocation': 'Όλες οι φωτογραφίες αυτής της ημέρας',
   'journey.editor.externalPhotosQueued': 'στην ουρά',
   'journey.editor.externalPhotosUnavailable': 'Δεν υπάρχουν διαθέσιμοι συνδεδεμένοι πάροχοι φωτογραφιών.',
-  'journey.editor.externalPhotosPartialFailed': '{failed} ομάδες φωτογραφιών απέτυχαν: αποθηκεύστε ξανά για να δοκιμάσετε πάλι',
+  'journey.editor.externalPhotosPartialFailed':
+    '{failed} ομάδες φωτογραφιών απέτυχαν: αποθηκεύστε ξανά για να δοκιμάσετε πάλι',
   'journey.picker.day': 'Αυτή η ημέρα',
   'journey.studio.title': 'TREK Studio',
   'journey.studio.open': 'Studio',
@@ -363,7 +364,8 @@ const journey: TranslationStrings = {
   'journey.studio.unlock': 'Ξεκλείδωμα',
   'journey.studio.delete': 'Διαγραφή',
   'journey.studio.pageHint': 'Σελίδα',
-  'journey.studio.boundHint': 'Ακολουθεί την καταχώριση του ημερολογίου. Αν το επεξεργαστείτε εδώ, η σύνδεση διακόπτεται.',
+  'journey.studio.boundHint':
+    'Ακολουθεί την καταχώριση του ημερολογίου. Αν το επεξεργαστείτε εδώ, η σύνδεση διακόπτεται.',
   'journey.studio.fit.cover': 'Γέμισμα',
   'journey.studio.fit.contain': 'Προσαρμογή',
   'journey.studio.filter.none': 'Πρωτότυπο',
@@ -388,7 +390,8 @@ const journey: TranslationStrings = {
   'journey.studio.shapes': 'Σχήματα',
   'journey.studio.frames': 'Πλαίσια',
   'journey.studio.emptyFrame': 'Κενό πλαίσιο',
-  'journey.studio.frameHint': 'Ένα κενό πλαίσιο δείχνει πού μπαίνει μια εικόνα. Σύρετε μία πάνω του από το Περιεχόμενο.',
+  'journey.studio.frameHint':
+    'Ένα κενό πλαίσιο δείχνει πού μπαίνει μια εικόνα. Σύρετε μία πάνω του από το Περιεχόμενο.',
   'journey.studio.shapeKind.line': 'Γραμμή',
   'journey.studio.styleTitle': 'Επικεφαλίδα',
   'journey.studio.styleSubtitle': 'Υπότιτλος',

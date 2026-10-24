@@ -286,7 +286,8 @@ const journey: TranslationStrings = {
   'journey.editor.externalPhotosNoLocation': 'Všechny fotky z tohoto dne',
   'journey.editor.externalPhotosQueued': 've frontě',
   'journey.editor.externalPhotosUnavailable': 'Nejsou dostupní žádní připojení poskytovatelé fotek.',
-  'journey.editor.externalPhotosPartialFailed': 'Skupin fotek, které selhaly: {failed}. Uložte znovu a zkuste to ještě jednou',
+  'journey.editor.externalPhotosPartialFailed':
+    'Skupin fotek, které selhaly: {failed}. Uložte znovu a zkuste to ještě jednou',
   'journey.picker.day': 'Tento den',
   'journey.studio.title': 'TREK Studio', // same-as-en
   'journey.studio.open': 'Studio', // same-as-en

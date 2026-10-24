@@ -86,7 +86,8 @@ const settings: TranslationStrings = {
     'Met een gekozen app opent de navigatieknop die meteen, in plaats van alle kaart-apps aan te bieden.',
   'settings.blurBookingCodes': 'Boekingscodes vervagen',
   'settings.aiAlwaysRetry': 'Boekingsimports altijd opnieuw proberen met AI',
-  'settings.aiAlwaysRetryHint': 'Als een bestand niet door de standaardparser kan worden gelezen, wordt het automatisch opnieuw geprobeerd met AI.',
+  'settings.aiAlwaysRetryHint':
+    'Als een bestand niet door de standaardparser kan worden gelezen, wordt het automatisch opnieuw geprobeerd met AI.',
   'settings.optimizeFromAccommodation': 'Route optimaliseren vanaf accommodatie',
   'settings.optimizeFromAccommodationHint':
     'Begin bij het optimaliseren van een dag de route bij het hotel waar je wakker wordt en eindig bij het hotel waar je die avond incheckt.',

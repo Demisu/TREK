@@ -455,7 +455,8 @@ const settings: TranslationStrings = {
   'settings.appearance.tier.body': 'Corpo del testo',
   'settings.appearance.tier.caption': 'Didascalie',
   'settings.appearance.dashboardWidgets': 'Widget della dashboard',
-  'settings.appearance.dashboardWidgetsHint': 'Mostra o nascondi i widget della dashboard separatamente su desktop e mobile.',
+  'settings.appearance.dashboardWidgetsHint':
+    'Mostra o nascondi i widget della dashboard separatamente su desktop e mobile.',
   'settings.appearance.desktop': 'Desktop', // same-as-en
   'settings.appearance.mobile': 'Mobile', // same-as-en
   'settings.appearance.widget.sidebar': 'Barra laterale destra',

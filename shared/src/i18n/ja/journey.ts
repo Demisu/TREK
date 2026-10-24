@@ -272,7 +272,8 @@ const journey: TranslationStrings = {
   'journey.editor.externalPhotosNoLocation': 'この日の写真をすべて表示',
   'journey.editor.externalPhotosQueued': '待機中',
   'journey.editor.externalPhotosUnavailable': '接続済みの写真プロバイダーがありません。',
-  'journey.editor.externalPhotosPartialFailed': '{failed} 件の写真グループで失敗しました。もう一度保存すると再試行します',
+  'journey.editor.externalPhotosPartialFailed':
+    '{failed} 件の写真グループで失敗しました。もう一度保存すると再試行します',
   'journey.picker.day': 'この日',
   'journey.studio.title': 'TREK Studio',
   'journey.studio.open': 'Studio',

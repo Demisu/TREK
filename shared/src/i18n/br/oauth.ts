@@ -85,7 +85,8 @@ const oauth: TranslationStrings = {
   'oauth.authorize.requestLabel': 'Solicitação de autorização',
   'oauth.authorize.requestDescription': 'Este aplicativo está solicitando acesso à sua conta do TREK.',
   'oauth.authorize.verifiedHost': 'Domínio verificado: {host}',
-  'oauth.authorize.trustNote': 'Conceda acesso apenas a aplicativos em que você confia. Seus dados ficam no seu servidor.',
+  'oauth.authorize.trustNote':
+    'Conceda acesso apenas a aplicativos em que você confia. Seus dados ficam no seu servidor.',
   'oauth.authorize.selectScope': 'Selecione pelo menos um escopo',
   'oauth.authorize.approveScopes': 'Aprovar ({count} escopos)',
   'oauth.authorize.approveScopes.one': 'Aprovar ({count} escopo)',
@@ -95,7 +96,8 @@ const oauth: TranslationStrings = {
   'oauth.authorize.permissionsRequested': 'Permissões solicitadas',
   'oauth.authorize.alwaysIncluded': 'Sempre incluído',
   'oauth.authorize.alwaysTool.listTrips': 'Listar suas viagens para que a IA descubra os IDs das viagens',
-  'oauth.authorize.alwaysTool.getTripSummary': 'Ler o resumo de uma viagem, necessário para usar qualquer outra ferramenta',
+  'oauth.authorize.alwaysTool.getTripSummary':
+    'Ler o resumo de uma viagem, necessário para usar qualquer outra ferramenta',
   'oauth.scope.group.files': 'Arquivos',
   'oauth.scope.group.settings': 'Configurações',
   'oauth.scope.files:read.label': 'Ver arquivos da viagem',

@@ -84,7 +84,8 @@ const oauth: TranslationStrings = {
   'oauth.authorize.requestLabel': 'Запит на авторизацію',
   'oauth.authorize.requestDescription': 'Цей застосунок запитує доступ до твого облікового запису TREK.',
   'oauth.authorize.verifiedHost': 'Підтверджений домен: {host}',
-  'oauth.authorize.trustNote': 'Надавай доступ лише застосункам, яким довіряєш. Твої дані залишаються на твоєму сервері.',
+  'oauth.authorize.trustNote':
+    'Надавай доступ лише застосункам, яким довіряєш. Твої дані залишаються на твоєму сервері.',
   'oauth.authorize.selectScope': 'Вибери принаймні одну область доступу',
   'oauth.authorize.approveScopes': 'Дозволити ({count} області доступу)',
   'oauth.authorize.approveScopes.one': 'Дозволити ({count} область доступу)',

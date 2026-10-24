@@ -427,8 +427,7 @@ const settings: TranslationStrings = {
   'settings.appearance.contrastLow': '대비 낮음',
   'settings.appearance.readability': '가독성',
   'settings.appearance.transparency': '투명도',
-  'settings.appearance.transparencyHint':
-    '유리 같은 반투명 표면입니다. 끄면 대비가 더 높은 단색 배경이 됩니다.',
+  'settings.appearance.transparencyHint': '유리 같은 반투명 표면입니다. 끄면 대비가 더 높은 단색 배경이 됩니다.',
   'settings.appearance.reduceMotion': '동작 줄이기',
   'settings.appearance.reduceMotionHint': '애니메이션과 전환 효과를 최소화합니다.',
   'settings.appearance.density': '밀도',
@@ -458,8 +457,7 @@ const settings: TranslationStrings = {
   'settings.appearance.group.belowHero': '히어로 아래',
   'settings.appearance.group.bottomOfPage': '페이지 하단',
   'settings.appearance.sidebarHint': '오른쪽 열 전체입니다. 끄면 대시보드가 가운데로 정렬됩니다.',
-  'settings.appearance.densityHint':
-    '촘촘하게를 선택하면 간격과 여백이 줄어 화면에 더 많은 내용이 들어갑니다.',
+  'settings.appearance.densityHint': '촘촘하게를 선택하면 간격과 여백이 줄어 화면에 더 많은 내용이 들어갑니다.',
   'settings.appearance.textSizeAll': '전체',
   'settings.appearance.perSize': '크기별로 따로 조정',
   'settings.appearance.size.large': '크게',

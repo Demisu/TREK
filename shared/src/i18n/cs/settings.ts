@@ -433,8 +433,7 @@ const settings: TranslationStrings = {
   'settings.appearance.contrastLow': 'Nízký kontrast',
   'settings.appearance.readability': 'Čitelnost',
   'settings.appearance.transparency': 'Průhlednost',
-  'settings.appearance.transparencyHint':
-    'Průsvitné skleněné povrchy. Vypněte pro plné pozadí s vyšším kontrastem.',
+  'settings.appearance.transparencyHint': 'Průsvitné skleněné povrchy. Vypněte pro plné pozadí s vyšším kontrastem.',
   'settings.appearance.reduceMotion': 'Omezit animace',
   'settings.appearance.reduceMotionHint': 'Minimalizovat animace a přechody.',
   'settings.appearance.density': 'Hustota',
@@ -464,8 +463,7 @@ const settings: TranslationStrings = {
   'settings.appearance.group.belowHero': 'Pod hlavním panelem',
   'settings.appearance.group.bottomOfPage': 'Dole na stránce',
   'settings.appearance.sidebarHint': 'Celý pravý sloupec. Po vypnutí se přehled vycentruje.',
-  'settings.appearance.densityHint':
-    'Kompaktní zmenší mezery a odsazení, takže se na obrazovku vejde víc.',
+  'settings.appearance.densityHint': 'Kompaktní zmenší mezery a odsazení, takže se na obrazovku vejde víc.',
   'settings.appearance.textSizeAll': 'Všechno',
   'settings.appearance.perSize': 'Upravit každou velikost zvlášť',
   'settings.appearance.size.large': 'Velká',

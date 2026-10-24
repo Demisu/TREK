@@ -453,7 +453,8 @@ const settings: TranslationStrings = {
   'settings.appearance.tier.body': 'Isi',
   'settings.appearance.tier.caption': 'Keterangan',
   'settings.appearance.dashboardWidgets': 'Widget dasbor',
-  'settings.appearance.dashboardWidgetsHint': 'Tampilkan atau sembunyikan widget dasbor secara terpisah di desktop dan seluler.',
+  'settings.appearance.dashboardWidgetsHint':
+    'Tampilkan atau sembunyikan widget dasbor secara terpisah di desktop dan seluler.',
   'settings.appearance.desktop': 'Desktop', // same-as-en
   'settings.appearance.mobile': 'Seluler',
   'settings.appearance.widget.sidebar': 'Bilah samping kanan',

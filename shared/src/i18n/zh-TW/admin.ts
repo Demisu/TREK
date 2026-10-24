@@ -130,8 +130,7 @@ const admin: TranslationStrings = {
   'admin.oidcLoginHint': '允許使用者透過 SSO 登入',
   'admin.oidcRegistration': 'SSO Auto-Provisioning',
   'admin.oidcRegistrationHint': '自動為新的 SSO 使用者建立帳號',
-  'admin.envOverrideHint':
-    '密碼登入設定由環境變數 OIDC_ONLY 控制，無法在此變更。',
+  'admin.envOverrideHint': '密碼登入設定由環境變數 OIDC_ONLY 控制，無法在此變更。',
   'admin.lockoutWarning': '至少須保留一種登入方式',
   'admin.requireMfa': '要求雙因素身份驗證（2FA）',
   'admin.requireMfaHint': '未啟用 2FA 的使用者必須先完成設定中的配置才能使用應用。',

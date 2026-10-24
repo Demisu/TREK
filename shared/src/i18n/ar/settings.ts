@@ -84,7 +84,8 @@ const settings: TranslationStrings = {
   'settings.bookingLabelsHint': 'عرض أسماء المحطات/المطارات على الخريطة. عند الإيقاف، يتم عرض الرمز فقط.',
   'settings.blurBookingCodes': 'إخفاء رموز الحجز',
   'settings.aiAlwaysRetry': 'إعادة محاولة استيراد الحجوزات دائمًا بالذكاء الاصطناعي',
-  'settings.aiAlwaysRetryHint': 'عندما يتعذّر على المحلّل القياسي قراءة ملف، تتم إعادة المحاولة تلقائيًا بالذكاء الاصطناعي.',
+  'settings.aiAlwaysRetryHint':
+    'عندما يتعذّر على المحلّل القياسي قراءة ملف، تتم إعادة المحاولة تلقائيًا بالذكاء الاصطناعي.',
   'settings.optimizeFromAccommodation': 'تحسين المسار انطلاقًا من مكان الإقامة',
   'settings.optimizeFromAccommodationHint':
     'عند تحسين يوم ما، يبدأ المسار من الفندق الذي تستيقظ فيه وينتهي عند الفندق الذي تسجّل الوصول إليه في تلك الليلة.',
@@ -427,8 +428,7 @@ const settings: TranslationStrings = {
   'settings.appearance.contrastLow': 'تباين منخفض',
   'settings.appearance.readability': 'سهولة القراءة',
   'settings.appearance.transparency': 'الشفافية',
-  'settings.appearance.transparencyHint':
-    'أسطح زجاجية شبه شفافة. أوقفها للحصول على خلفيات صلبة بتباين أعلى.',
+  'settings.appearance.transparencyHint': 'أسطح زجاجية شبه شفافة. أوقفها للحصول على خلفيات صلبة بتباين أعلى.',
   'settings.appearance.reduceMotion': 'تقليل الحركة',
   'settings.appearance.reduceMotionHint': 'تقليل الرسوم المتحركة والانتقالات.',
   'settings.appearance.density': 'الكثافة',
@@ -458,8 +458,7 @@ const settings: TranslationStrings = {
   'settings.appearance.group.belowHero': 'أسفل الواجهة الرئيسية',
   'settings.appearance.group.bottomOfPage': 'أسفل الصفحة',
   'settings.appearance.sidebarHint': 'العمود الأيمن بالكامل. عند إيقافه تتوسط لوحة التحكم.',
-  'settings.appearance.densityHint':
-    'المضغوطة تقلل المسافات والحشوة لتخطيط أكثر كثافة يتسع لمحتوى أكثر على الشاشة.',
+  'settings.appearance.densityHint': 'المضغوطة تقلل المسافات والحشوة لتخطيط أكثر كثافة يتسع لمحتوى أكثر على الشاشة.',
   'settings.appearance.textSizeAll': 'الكل',
   'settings.appearance.perSize': 'اضبط كل حجم على حدة',
   'settings.appearance.size.large': 'كبير',

@@ -80,12 +80,14 @@ const oauth: TranslationStrings = {
   'oauth.authorize.loading': 'Загрузка…',
   'oauth.authorize.errorTitle': 'Ошибка авторизации',
   'oauth.authorize.loginTitle': 'Войдите, чтобы продолжить',
-  'oauth.authorize.loginDescription': '{client} запрашивает доступ к вашей учётной записи TREK. Сначала войдите в систему.',
+  'oauth.authorize.loginDescription':
+    '{client} запрашивает доступ к вашей учётной записи TREK. Сначала войдите в систему.',
   'oauth.authorize.loginButton': 'Войти в TREK',
   'oauth.authorize.requestLabel': 'Запрос авторизации',
   'oauth.authorize.requestDescription': 'Это приложение запрашивает доступ к вашей учётной записи TREK.',
   'oauth.authorize.verifiedHost': 'Подтверждённый домен: {host}',
-  'oauth.authorize.trustNote': 'Предоставляйте доступ только приложениям, которым доверяете. Ваши данные остаются на вашем сервере.',
+  'oauth.authorize.trustNote':
+    'Предоставляйте доступ только приложениям, которым доверяете. Ваши данные остаются на вашем сервере.',
   'oauth.authorize.selectScope': 'Выберите хотя бы одно разрешение',
   'oauth.authorize.approveScopes': 'Разрешить ({count} области доступа)',
   'oauth.authorize.approveScopes.one': 'Разрешить ({count} область доступа)',
@@ -97,7 +99,8 @@ const oauth: TranslationStrings = {
   'oauth.authorize.permissionsRequested': 'Запрошенные разрешения',
   'oauth.authorize.alwaysIncluded': 'Всегда включено',
   'oauth.authorize.alwaysTool.listTrips': 'Показывать список ваших поездок, чтобы ИИ мог узнать ID поездок',
-  'oauth.authorize.alwaysTool.getTripSummary': 'Читать обзор поездки, необходимый для работы любого другого инструмента',
+  'oauth.authorize.alwaysTool.getTripSummary':
+    'Читать обзор поездки, необходимый для работы любого другого инструмента',
   'oauth.scope.group.files': 'Файлы',
   'oauth.scope.group.settings': 'Настройки',
   'oauth.scope.files:read.label': 'Просмотр файлов поездки',

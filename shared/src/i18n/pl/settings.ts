@@ -457,7 +457,8 @@ const settings: TranslationStrings = {
   'settings.appearance.tier.body': 'Treść',
   'settings.appearance.tier.caption': 'Podpisy',
   'settings.appearance.dashboardWidgets': 'Widżety pulpitu',
-  'settings.appearance.dashboardWidgetsHint': 'Pokazuj lub ukrywaj widżety pulpitu niezależnie na komputerze i telefonie.',
+  'settings.appearance.dashboardWidgetsHint':
+    'Pokazuj lub ukrywaj widżety pulpitu niezależnie na komputerze i telefonie.',
   'settings.appearance.desktop': 'Komputer',
   'settings.appearance.mobile': 'Telefon',
   'settings.appearance.widget.sidebar': 'Prawy panel boczny',
@@ -473,8 +474,7 @@ const settings: TranslationStrings = {
   'settings.appearance.group.belowHero': 'Pod głównym kafelkiem',
   'settings.appearance.group.bottomOfPage': 'Dół strony',
   'settings.appearance.sidebarHint': 'Cała prawa kolumna. Po wyłączeniu pulpit zostaje wyśrodkowany.',
-  'settings.appearance.densityHint':
-    'Zwarta zmniejsza odstępy i marginesy, dzięki czemu na ekranie mieści się więcej.',
+  'settings.appearance.densityHint': 'Zwarta zmniejsza odstępy i marginesy, dzięki czemu na ekranie mieści się więcej.',
   'settings.appearance.textSizeAll': 'Wszystko',
   'settings.appearance.perSize': 'Dostosuj każdy rozmiar osobno',
   'settings.appearance.size.large': 'Duży',

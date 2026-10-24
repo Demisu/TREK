@@ -88,7 +88,8 @@ const settings: TranslationStrings = {
   'settings.bookingLabelsHint': 'Haritada istasyon / havalimanı adlarını göster. Kapalıyken yalnızca simge görünür.',
   'settings.blurBookingCodes': 'Rezervasyon Kodlarını Bulanıklaştır',
   'settings.aiAlwaysRetry': 'Rezervasyon aktarımlarını her zaman yapay zekayla yeniden dene',
-  'settings.aiAlwaysRetryHint': 'Bir dosya standart ayrıştırıcıyla okunamazsa otomatik olarak yapay zekayla yeniden denenir.',
+  'settings.aiAlwaysRetryHint':
+    'Bir dosya standart ayrıştırıcıyla okunamazsa otomatik olarak yapay zekayla yeniden denenir.',
   'settings.optimizeFromAccommodation': 'Rotayı konaklamadan optimize et',
   'settings.optimizeFromAccommodationHint':
     'Bir günü optimize ederken rotaya o sabah uyandığınız otelden başlayın ve akşam giriş yaptığınız otelde sonlandırın.',
@@ -469,8 +470,7 @@ const settings: TranslationStrings = {
   'settings.appearance.group.belowHero': 'Ana görselin altında',
   'settings.appearance.group.bottomOfPage': 'Sayfanın altı',
   'settings.appearance.sidebarHint': 'Sağ sütunun tamamı. Kapatırsan pano ortalanır.',
-  'settings.appearance.densityHint':
-    'Sıkı düzen boşlukları ve dolguyu daraltır, ekrana daha fazla şey sığar.',
+  'settings.appearance.densityHint': 'Sıkı düzen boşlukları ve dolguyu daraltır, ekrana daha fazla şey sığar.',
   'settings.appearance.textSizeAll': 'Hepsi',
   'settings.appearance.perSize': 'Her boyutu ayrı ayarla',
   'settings.appearance.size.large': 'Büyük',

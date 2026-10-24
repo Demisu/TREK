@@ -282,7 +282,8 @@ const journey: TranslationStrings = {
   'journey.editor.externalPhotosNoLocation': 'Alle Fotos von diesem Tag',
   'journey.editor.externalPhotosQueued': 'in Warteschlange',
   'journey.editor.externalPhotosUnavailable': 'Es sind keine verbundenen Foto-Anbieter verfügbar.',
-  'journey.editor.externalPhotosPartialFailed': '{failed} Fotogruppen sind fehlgeschlagen, speichere erneut, um es noch einmal zu versuchen',
+  'journey.editor.externalPhotosPartialFailed':
+    '{failed} Fotogruppen sind fehlgeschlagen, speichere erneut, um es noch einmal zu versuchen',
   'journey.picker.day': 'Dieser Tag',
   'journey.studio.title': 'TREK Studio', // same-as-en
   'journey.studio.open': 'Studio', // same-as-en

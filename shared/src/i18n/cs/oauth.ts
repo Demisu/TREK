@@ -83,7 +83,8 @@ const oauth: TranslationStrings = {
   'oauth.authorize.requestLabel': 'Žádost o autorizaci',
   'oauth.authorize.requestDescription': 'Tato aplikace žádá o přístup k vašemu účtu TREK.',
   'oauth.authorize.verifiedHost': 'Ověřená doména: {host}',
-  'oauth.authorize.trustNote': 'Přístup udělujte jen aplikacím, kterým důvěřujete. Vaše data zůstávají na vašem serveru.',
+  'oauth.authorize.trustNote':
+    'Přístup udělujte jen aplikacím, kterým důvěřujete. Vaše data zůstávají na vašem serveru.',
   'oauth.authorize.selectScope': 'Vyberte alespoň jedno oprávnění',
   'oauth.authorize.approveScopes': 'Schválit ({count} oprávnění)',
   'oauth.authorize.approveScopes.one': 'Schválit ({count} oprávnění)',

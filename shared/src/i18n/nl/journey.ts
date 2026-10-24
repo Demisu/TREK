@@ -282,7 +282,8 @@ const journey: TranslationStrings = {
   'journey.editor.externalPhotosNoLocation': "Alle foto's van deze dag",
   'journey.editor.externalPhotosQueued': 'in wachtrij',
   'journey.editor.externalPhotosUnavailable': 'Er zijn geen gekoppelde fotoaanbieders beschikbaar.',
-  'journey.editor.externalPhotosPartialFailed': '{failed} fotogroepen mislukt: sla opnieuw op om het nog eens te proberen',
+  'journey.editor.externalPhotosPartialFailed':
+    '{failed} fotogroepen mislukt: sla opnieuw op om het nog eens te proberen',
   'journey.picker.day': 'Deze dag',
   'journey.studio.title': 'TREK Studio',
   'journey.studio.open': 'Studio',

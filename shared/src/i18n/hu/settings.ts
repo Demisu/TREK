@@ -87,7 +87,8 @@ const settings: TranslationStrings = {
     'Ha van kiválasztott app, a navigáció gomb azonnal azt nyitja meg, és nem kínálja fel az összes térképappot.',
   'settings.blurBookingCodes': 'Foglalási kódok elrejtése',
   'settings.aiAlwaysRetry': 'Foglalás-importok mindig újrapróbálása AI-jal',
-  'settings.aiAlwaysRetryHint': 'Ha a szokásos feldolgozó nem tud beolvasni egy fájlt, automatikusan újrapróbálja AI-jal.',
+  'settings.aiAlwaysRetryHint':
+    'Ha a szokásos feldolgozó nem tud beolvasni egy fájlt, automatikusan újrapróbálja AI-jal.',
   'settings.optimizeFromAccommodation': 'Útvonal optimalizálása a szállástól',
   'settings.optimizeFromAccommodationHint':
     'A nap optimalizálásakor az útvonal annál a szállásnál kezdődjön, ahol felébredsz, és annál érjen véget, ahova este bejelentkezel.',
@@ -455,7 +456,8 @@ const settings: TranslationStrings = {
   'settings.appearance.tier.body': 'Törzsszöveg',
   'settings.appearance.tier.caption': 'Képaláírások',
   'settings.appearance.dashboardWidgets': 'Irányítópult-widgetek',
-  'settings.appearance.dashboardWidgetsHint': 'Az irányítópult widgetjeit asztali gépen és mobilon egymástól függetlenül mutathatod vagy rejtheted el.',
+  'settings.appearance.dashboardWidgetsHint':
+    'Az irányítópult widgetjeit asztali gépen és mobilon egymástól függetlenül mutathatod vagy rejtheted el.',
   'settings.appearance.desktop': 'Asztali',
   'settings.appearance.mobile': 'Mobil',
   'settings.appearance.widget.sidebar': 'Jobb oldalsáv',

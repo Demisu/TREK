@@ -294,7 +294,8 @@ const journey: TranslationStrings = {
   'journey.editor.externalPhotosNoLocation': 'Все фото за этот день',
   'journey.editor.externalPhotosQueued': 'в очереди',
   'journey.editor.externalPhotosUnavailable': 'Нет доступных подключённых фотосервисов.',
-  'journey.editor.externalPhotosPartialFailed': 'Не удалось загрузить групп фото: {failed}. Сохраните ещё раз, чтобы повторить',
+  'journey.editor.externalPhotosPartialFailed':
+    'Не удалось загрузить групп фото: {failed}. Сохраните ещё раз, чтобы повторить',
   'journey.picker.day': 'Этот день',
   'journey.studio.title': 'TREK Studio',
   'journey.studio.open': 'Студия',
@@ -401,7 +402,8 @@ const journey: TranslationStrings = {
   'journey.studio.shapes': 'Фигуры',
   'journey.studio.frames': 'Рамки',
   'journey.studio.emptyFrame': 'Пустая рамка',
-  'journey.studio.frameHint': 'Пустая рамка отмечает место для картинки. Перетащите на неё снимок из раздела «Содержимое».',
+  'journey.studio.frameHint':
+    'Пустая рамка отмечает место для картинки. Перетащите на неё снимок из раздела «Содержимое».',
   'journey.studio.shapeKind.line': 'Линия',
   'journey.studio.styleTitle': 'Заголовок',
   'journey.studio.styleSubtitle': 'Подзаголовок',

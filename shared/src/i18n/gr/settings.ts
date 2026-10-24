@@ -94,7 +94,8 @@ const settings: TranslationStrings = {
     'Εμφάνιση ονομάτων σταθμών / αεροδρομίων στον χάρτη. Όταν είναι απενεργοποιημένο, εμφανίζεται μόνο το εικονίδιο.',
   'settings.blurBookingCodes': 'Θόλωμα Κωδικών Κρατήσεων',
   'settings.aiAlwaysRetry': 'Πάντα επανάληψη εισαγωγής κρατήσεων με AI',
-  'settings.aiAlwaysRetryHint': 'Όταν ένα αρχείο δεν μπορεί να διαβαστεί από τον τυπικό αναλυτή, γίνεται αυτόματα νέα προσπάθεια με AI.',
+  'settings.aiAlwaysRetryHint':
+    'Όταν ένα αρχείο δεν μπορεί να διαβαστεί από τον τυπικό αναλυτή, γίνεται αυτόματα νέα προσπάθεια με AI.',
   'settings.optimizeFromAccommodation': 'Βελτιστοποίηση διαδρομής από το κατάλυμα',
   'settings.optimizeFromAccommodationHint':
     'Κατά τη βελτιστοποίηση μιας ημέρας, ξεκινήστε τη διαδρομή από το ξενοδοχείο στο οποίο ξυπνάτε και τερματίστε την σε αυτό στο οποίο κάνετε check-in το ίδιο βράδυ.',
@@ -466,7 +467,8 @@ const settings: TranslationStrings = {
   'settings.appearance.tier.body': 'Κείμενο',
   'settings.appearance.tier.caption': 'Λεζάντες',
   'settings.appearance.dashboardWidgets': 'Widgets πίνακα ελέγχου',
-  'settings.appearance.dashboardWidgetsHint': 'Εμφάνιση ή απόκρυψη των widgets του πίνακα ελέγχου ξεχωριστά για υπολογιστή και κινητό.',
+  'settings.appearance.dashboardWidgetsHint':
+    'Εμφάνιση ή απόκρυψη των widgets του πίνακα ελέγχου ξεχωριστά για υπολογιστή και κινητό.',
   'settings.appearance.desktop': 'Υπολογιστής',
   'settings.appearance.mobile': 'Κινητό',
   'settings.appearance.widget.sidebar': 'Δεξιά πλαϊνή στήλη',

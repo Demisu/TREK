@@ -429,7 +429,8 @@ const settings: TranslationStrings = {
   'settings.appearance.tier.body': '本文',
   'settings.appearance.tier.caption': 'キャプション',
   'settings.appearance.dashboardWidgets': 'ダッシュボードのウィジェット',
-  'settings.appearance.dashboardWidgetsHint': 'デスクトップとモバイルで、ダッシュボードのウィジェットの表示と非表示を個別に設定できます。',
+  'settings.appearance.dashboardWidgetsHint':
+    'デスクトップとモバイルで、ダッシュボードのウィジェットの表示と非表示を個別に設定できます。',
   'settings.appearance.desktop': 'デスクトップ',
   'settings.appearance.mobile': 'モバイル',
   'settings.appearance.widget.sidebar': '右サイドバー',
@@ -445,8 +446,7 @@ const settings: TranslationStrings = {
   'settings.appearance.group.belowHero': 'ヒーローの下',
   'settings.appearance.group.bottomOfPage': 'ページ下部',
   'settings.appearance.sidebarHint': '右側の列全体です。オフにするとダッシュボードが中央寄せになります。',
-  'settings.appearance.densityHint':
-    'コンパクトにすると余白が狭まり、画面に多くの内容を表示できます。',
+  'settings.appearance.densityHint': 'コンパクトにすると余白が狭まり、画面に多くの内容を表示できます。',
   'settings.appearance.textSizeAll': 'すべて',
   'settings.appearance.perSize': 'サイズごとに個別に調整',
   'settings.appearance.size.large': '大',

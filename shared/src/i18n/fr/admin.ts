@@ -80,7 +80,8 @@ const admin: TranslationStrings = {
   'admin.passwordLogin': 'Connexion par mot de passe',
   'admin.passwordLoginHint': 'Autoriser les utilisateurs à se connecter avec leur e-mail et leur mot de passe',
   'admin.passwordRegistration': 'Inscription par mot de passe',
-  'admin.passwordRegistrationHint': "Autoriser les nouveaux utilisateurs à s'inscrire avec un e-mail et un mot de passe",
+  'admin.passwordRegistrationHint':
+    "Autoriser les nouveaux utilisateurs à s'inscrire avec un e-mail et un mot de passe",
   'admin.oidcLogin': 'Connexion SSO',
   'admin.oidcLoginHint': 'Autoriser les utilisateurs à se connecter via SSO',
   'admin.oidcRegistration': 'SSO Auto-Provisioning',

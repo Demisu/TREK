@@ -97,7 +97,8 @@ const oauth: TranslationStrings = {
   'oauth.authorize.permissionsRequested': 'Żądane uprawnienia',
   'oauth.authorize.alwaysIncluded': 'Zawsze uwzględnione',
   'oauth.authorize.alwaysTool.listTrips': 'Wyświetl listę Twoich podróży, aby AI mogła poznać ich identyfikatory',
-  'oauth.authorize.alwaysTool.getTripSummary': 'Odczytaj przegląd podróży potrzebny do użycia dowolnego innego narzędzia',
+  'oauth.authorize.alwaysTool.getTripSummary':
+    'Odczytaj przegląd podróży potrzebny do użycia dowolnego innego narzędzia',
   'oauth.scope.group.files': 'Pliki',
   'oauth.scope.group.settings': 'Ustawienia',
   'oauth.scope.files:read.label': 'Przeglądanie plików podróży',

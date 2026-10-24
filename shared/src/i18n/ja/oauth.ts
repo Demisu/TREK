@@ -79,12 +79,14 @@ const oauth: TranslationStrings = {
   'oauth.authorize.loading': '読み込み中…',
   'oauth.authorize.errorTitle': '認可エラー',
   'oauth.authorize.loginTitle': '続行するにはサインインしてください',
-  'oauth.authorize.loginDescription': '{client} が TREK アカウントへのアクセスを求めています。先にサインインしてください。',
+  'oauth.authorize.loginDescription':
+    '{client} が TREK アカウントへのアクセスを求めています。先にサインインしてください。',
   'oauth.authorize.loginButton': 'TREK にサインイン',
   'oauth.authorize.requestLabel': '認可リクエスト',
   'oauth.authorize.requestDescription': 'このアプリケーションが TREK アカウントへのアクセスを求めています。',
   'oauth.authorize.verifiedHost': '確認済みのドメイン: {host}',
-  'oauth.authorize.trustNote': '信頼できるアプリケーションにのみアクセスを許可してください。データはお使いのサーバーに保管されたままです。',
+  'oauth.authorize.trustNote':
+    '信頼できるアプリケーションにのみアクセスを許可してください。データはお使いのサーバーに保管されたままです。',
   'oauth.authorize.selectScope': 'スコープを1つ以上選択してください',
   'oauth.authorize.approveScopes': '承認（スコープ {count} 件）',
   'oauth.authorize.approveAccess': 'アクセスを許可',

@@ -86,7 +86,8 @@ const oauth: TranslationStrings = {
   'oauth.authorize.requestLabel': 'Autorisatieverzoek',
   'oauth.authorize.requestDescription': 'Deze toepassing vraagt toegang tot je TREK-account.',
   'oauth.authorize.verifiedHost': 'Geverifieerd domein: {host}',
-  'oauth.authorize.trustNote': 'Geef alleen toegang aan toepassingen die je vertrouwt. Je gegevens blijven op je eigen server.',
+  'oauth.authorize.trustNote':
+    'Geef alleen toegang aan toepassingen die je vertrouwt. Je gegevens blijven op je eigen server.',
   'oauth.authorize.selectScope': 'Selecteer minstens één scope',
   'oauth.authorize.approveScopes': 'Goedkeuren ({count} machtigingen)',
   'oauth.authorize.approveScopes.one': 'Goedkeuren ({count} machtiging)',

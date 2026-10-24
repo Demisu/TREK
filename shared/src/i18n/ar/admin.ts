@@ -844,8 +844,7 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.mcp.name': 'MCP',
   'admin.tabs.github': 'GitHub',
   'admin.addons.catalog.journey.name': 'يوميات',
-  'admin.addons.catalog.journey.description':
-    'تتبّع الرحلات ويوميات سفر مع تسجيلات الوصول والصور وقصص كل يوم',
+  'admin.addons.catalog.journey.description': 'تتبّع الرحلات ويوميات سفر مع تسجيلات الوصول والصور وقصص كل يوم',
   'admin.addons.catalog.collections.name': 'المجموعات',
   'admin.addons.catalog.collections.description': 'اجمع الأماكن من أي رحلة في قوائم مسماة وأعد استخدامها',
   'admin.passkey.title': 'تسجيل الدخول بمفتاح المرور',

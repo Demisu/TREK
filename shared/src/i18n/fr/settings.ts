@@ -89,7 +89,8 @@ const settings: TranslationStrings = {
     "Avec une app choisie, le bouton de navigation l'ouvre directement au lieu de proposer toutes les apps de cartes.",
   'settings.blurBookingCodes': 'Masquer les codes de réservation',
   'settings.aiAlwaysRetry': "Toujours réessayer les imports de réservations avec l'IA",
-  'settings.aiAlwaysRetryHint': "Quand un fichier ne peut pas être lu par l'analyseur standard, le réessayer automatiquement avec l'IA.",
+  'settings.aiAlwaysRetryHint':
+    "Quand un fichier ne peut pas être lu par l'analyseur standard, le réessayer automatiquement avec l'IA.",
   'settings.optimizeFromAccommodation': "Optimiser l'itinéraire depuis l'hébergement",
   'settings.optimizeFromAccommodationHint':
     "Lors de l'optimisation d'une journée, commencez l'itinéraire à l'hôtel où vous vous réveillez et terminez-le à celui où vous arrivez le soir.",
@@ -464,7 +465,8 @@ const settings: TranslationStrings = {
   'settings.appearance.tier.body': 'Corps du texte',
   'settings.appearance.tier.caption': 'Légendes',
   'settings.appearance.dashboardWidgets': 'Widgets du tableau de bord',
-  'settings.appearance.dashboardWidgetsHint': 'Affichez ou masquez les widgets du tableau de bord séparément sur ordinateur et sur mobile.',
+  'settings.appearance.dashboardWidgetsHint':
+    'Affichez ou masquez les widgets du tableau de bord séparément sur ordinateur et sur mobile.',
   'settings.appearance.desktop': 'Ordinateur',
   'settings.appearance.mobile': 'Mobile', // same-as-en
   'settings.appearance.widget.sidebar': 'Colonne de droite',

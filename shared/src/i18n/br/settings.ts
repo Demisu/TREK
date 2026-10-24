@@ -88,7 +88,8 @@ const settings: TranslationStrings = {
     'Com um app escolhido, o botão de navegação o abre direto em vez de oferecer todos os apps de mapa.',
   'settings.blurBookingCodes': 'Ocultar códigos de reserva',
   'settings.aiAlwaysRetry': 'Sempre tentar de novo importar reservas com IA',
-  'settings.aiAlwaysRetryHint': 'Quando o leitor padrão não consegue ler um arquivo, tenta de novo automaticamente com IA.',
+  'settings.aiAlwaysRetryHint':
+    'Quando o leitor padrão não consegue ler um arquivo, tenta de novo automaticamente com IA.',
   'settings.optimizeFromAccommodation': 'Otimizar rota a partir da hospedagem',
   'settings.optimizeFromAccommodationHint':
     'Ao otimizar um dia, comece a rota no hotel onde você acorda e termine no hotel em que você faz check-in à noite.',
@@ -455,7 +456,8 @@ const settings: TranslationStrings = {
   'settings.appearance.tier.body': 'Corpo do texto',
   'settings.appearance.tier.caption': 'Legendas',
   'settings.appearance.dashboardWidgets': 'Widgets do painel',
-  'settings.appearance.dashboardWidgetsHint': 'Mostre ou oculte os widgets do painel separadamente no computador e no celular.',
+  'settings.appearance.dashboardWidgetsHint':
+    'Mostre ou oculte os widgets do painel separadamente no computador e no celular.',
   'settings.appearance.desktop': 'Computador',
   'settings.appearance.mobile': 'Celular',
   'settings.appearance.widget.sidebar': 'Barra lateral direita',

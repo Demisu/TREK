@@ -295,7 +295,8 @@ const journey: TranslationStrings = {
   'journey.editor.externalPhotosNoLocation': 'Усі фото за цей день',
   'journey.editor.externalPhotosQueued': 'у черзі',
   'journey.editor.externalPhotosUnavailable': 'Немає підключених провайдерів фото.',
-  'journey.editor.externalPhotosPartialFailed': 'Не вдалося завантажити груп фото: {failed}. Збережи ще раз, щоб повторити',
+  'journey.editor.externalPhotosPartialFailed':
+    'Не вдалося завантажити груп фото: {failed}. Збережи ще раз, щоб повторити',
   'journey.picker.day': 'Цей день',
   'journey.studio.title': 'TREK Studio',
   'journey.studio.open': 'Studio',

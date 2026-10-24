@@ -89,8 +89,7 @@ const admin: TranslationStrings = {
   'admin.oidcLoginHint': 'Povolit uživatelům přihlášení přes SSO',
   'admin.oidcRegistration': 'SSO Auto-Provisioning',
   'admin.oidcRegistrationHint': 'Automaticky vytvářet účty pro nové uživatele SSO',
-  'admin.envOverrideHint':
-    'Nastavení přihlášení heslem řídí proměnná prostředí OIDC_ONLY a nelze je zde změnit.',
+  'admin.envOverrideHint': 'Nastavení přihlášení heslem řídí proměnná prostředí OIDC_ONLY a nelze je zde změnit.',
   'admin.lockoutWarning': 'Alespoň jedna metoda přihlášení musí zůstat povolená',
   'admin.requireMfa': 'Vyžadovat dvoufázové ověření (2FA)',
   'admin.requireMfaHint': 'Uživatelé bez 2FA musí dokončit nastavení v Nastavení před použitím aplikace.',

@@ -412,8 +412,7 @@ const settings: TranslationStrings = {
   'settings.appearance.contrastLow': '對比偏低',
   'settings.appearance.readability': '可讀性',
   'settings.appearance.transparency': '透明效果',
-  'settings.appearance.transparencyHint':
-    '毛玻璃般的半透明介面。關閉後會使用不透明、對比更高的背景。',
+  'settings.appearance.transparencyHint': '毛玻璃般的半透明介面。關閉後會使用不透明、對比更高的背景。',
   'settings.appearance.reduceMotion': '減少動態效果',
   'settings.appearance.reduceMotionHint': '盡量減少動畫和轉場。',
   'settings.appearance.density': '密度',
@@ -443,8 +442,7 @@ const settings: TranslationStrings = {
   'settings.appearance.group.belowHero': '主視覺下方',
   'settings.appearance.group.bottomOfPage': '頁面底部',
   'settings.appearance.sidebarHint': '整個右側欄。關閉後儀表板會置中。',
-  'settings.appearance.densityHint':
-    '緊湊會縮小間距和內距，讓畫面容納更多內容。',
+  'settings.appearance.densityHint': '緊湊會縮小間距和內距，讓畫面容納更多內容。',
   'settings.appearance.textSizeAll': '全部',
   'settings.appearance.perSize': '分別調整各個大小',
   'settings.appearance.size.large': '大',

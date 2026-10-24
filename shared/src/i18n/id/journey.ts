@@ -375,7 +375,8 @@ const journey: TranslationStrings = {
   'journey.studio.shapes': 'Bentuk',
   'journey.studio.frames': 'Bingkai',
   'journey.studio.emptyFrame': 'Bingkai kosong',
-  'journey.studio.frameHint': 'Bingkai kosong menandai tempat gambar diletakkan. Jatuhkan satu gambar ke dalamnya dari Konten.',
+  'journey.studio.frameHint':
+    'Bingkai kosong menandai tempat gambar diletakkan. Jatuhkan satu gambar ke dalamnya dari Konten.',
   'journey.studio.shapeKind.line': 'Garis',
   'journey.studio.styleTitle': 'Judul',
   'journey.studio.styleSubtitle': 'Subjudul',

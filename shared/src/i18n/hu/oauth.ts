@@ -87,7 +87,8 @@ const oauth: TranslationStrings = {
   'oauth.authorize.requestLabel': 'Engedélykérés',
   'oauth.authorize.requestDescription': 'Ez az alkalmazás hozzáférést kér a TREK-fiókodhoz.',
   'oauth.authorize.verifiedHost': 'Ellenőrzött domain: {host}',
-  'oauth.authorize.trustNote': 'Csak megbízható alkalmazásoknak adj hozzáférést. Az adataid a saját szervereden maradnak.',
+  'oauth.authorize.trustNote':
+    'Csak megbízható alkalmazásoknak adj hozzáférést. Az adataid a saját szervereden maradnak.',
   'oauth.authorize.selectScope': 'Válassz ki legalább egy hatókört',
   'oauth.authorize.approveScopes': 'Jóváhagyás ({count} jogosultság)',
   'oauth.authorize.approveScopes.one': 'Jóváhagyás ({count} jogosultság)',

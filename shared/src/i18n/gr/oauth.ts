@@ -84,12 +84,14 @@ const oauth: TranslationStrings = {
   'oauth.authorize.loading': 'Φόρτωση…',
   'oauth.authorize.errorTitle': 'Σφάλμα εξουσιοδότησης',
   'oauth.authorize.loginTitle': 'Συνδεθείτε για να συνεχίσετε',
-  'oauth.authorize.loginDescription': 'Η εφαρμογή {client} ζητά πρόσβαση στον λογαριασμό σας στο TREK. Συνδεθείτε πρώτα.',
+  'oauth.authorize.loginDescription':
+    'Η εφαρμογή {client} ζητά πρόσβαση στον λογαριασμό σας στο TREK. Συνδεθείτε πρώτα.',
   'oauth.authorize.loginButton': 'Σύνδεση στο TREK',
   'oauth.authorize.requestLabel': 'Αίτημα εξουσιοδότησης',
   'oauth.authorize.requestDescription': 'Αυτή η εφαρμογή ζητά πρόσβαση στον λογαριασμό σας στο TREK.',
   'oauth.authorize.verifiedHost': 'Επαληθευμένος τομέας: {host}',
-  'oauth.authorize.trustNote': 'Δώστε πρόσβαση μόνο σε εφαρμογές που εμπιστεύεστε. Τα δεδομένα σας μένουν στον διακομιστή σας.',
+  'oauth.authorize.trustNote':
+    'Δώστε πρόσβαση μόνο σε εφαρμογές που εμπιστεύεστε. Τα δεδομένα σας μένουν στον διακομιστή σας.',
   'oauth.authorize.selectScope': 'Επιλέξτε τουλάχιστον μία εμβέλεια',
   'oauth.authorize.approveScopes': 'Έγκριση ({count} δικαιώματα)',
   'oauth.authorize.approveScopes.one': 'Έγκριση ({count} δικαίωμα)',
@@ -99,7 +101,8 @@ const oauth: TranslationStrings = {
   'oauth.authorize.permissionsRequested': 'Δικαιώματα που ζητούνται',
   'oauth.authorize.alwaysIncluded': 'Πάντα συμπεριλαμβάνονται',
   'oauth.authorize.alwaysTool.listTrips': 'Εμφάνιση των ταξιδιών σας ώστε η AI να βρίσκει τα ID των ταξιδιών',
-  'oauth.authorize.alwaysTool.getTripSummary': 'Ανάγνωση της επισκόπησης ενός ταξιδιού, απαραίτητη για κάθε άλλο εργαλείο',
+  'oauth.authorize.alwaysTool.getTripSummary':
+    'Ανάγνωση της επισκόπησης ενός ταξιδιού, απαραίτητη για κάθε άλλο εργαλείο',
   'oauth.scope.group.files': 'Αρχεία',
   'oauth.scope.group.settings': 'Ρυθμίσεις',
   'oauth.scope.files:read.label': 'Προβολή αρχείων ταξιδιού',
