@@ -1,10 +1,10 @@
 import { bookSpreadSchema, bookTextElementSchema, type BookSpread, type BookTextElement } from '../book.schema';
 import type { BookTemplateTextRole } from './template-format';
-import { assignTemplateTexts, bookTemplateWords } from './template-words';
+import { assignTemplateTexts, bookTemplateWords, isTemplateFigureText } from './template-words';
 
 import { describe, expect, it } from 'vitest';
 
-// TPLWORDS-001 to TPLWORDS-006
+// TPLWORDS-001 to TPLWORDS-007
 
 /**
  * Which of a page's words a template's roles take: the journal's bindings
@@ -56,6 +56,15 @@ describe('the page words in the roles', () => {
     expect(ids(got)).toEqual({ title: 'b' });
     const spare = assignTemplateTexts([text('a', 'One'), text('b', 'Two'), text('c', 'Three')], new Set(['title']));
     expect(ids(spare)).toEqual({ title: 'a' });
+  });
+
+  it('TPLWORDS-007: takes the figures a template drew for its design, never a date or a bound text', () => {
+    expect(isTemplateFigureText(text('tc', '00:12:48:03'))).toBe(true);
+    expect(isTemplateFigureText(text('frame', '21'))).toBe(true);
+    expect(isTemplateFigureText(text('day', '12.08.2025'))).toBe(false);
+    expect(isTemplateFigureText(text('year', '2027'))).toBe(false);
+    expect(isTemplateFigureText(text('word', 'REC'))).toBe(false);
+    expect(isTemplateFigureText(text('bound', '14', { binding: { source: 'entry.title', entryId: 1 } }))).toBe(false);
   });
 });
 
