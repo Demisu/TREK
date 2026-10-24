@@ -1,6 +1,6 @@
 # Day Plans and Notes
 
-The days column on the left of the Plan tab holds the itinerary: one card per day, with the places, bookings, transports and notes of that day in order.
+The days column on the left of the Plan tab holds the itinerary: one card per day, with the places, bookings, transports, tours and notes of that day in order.
 
 ![An expanded day card: the head band with the day number, the forecast, the date and the stay and cost pills, then a note, the places and the bookings of the day](assets/PlanDayCard.png)
 
@@ -41,7 +41,7 @@ An empty day shows a dashed **Add place to this day** button instead of an empty
 
 ## Day timeline
 
-An expanded day lists its places, bookings, transports and notes in one merged order: by time where they have one, and by their position otherwise.
+An expanded day lists its places, bookings, transports, tours and notes in one merged order: by time where they have one, and by their position otherwise.
 
 ### Places
 
@@ -70,6 +70,16 @@ Clicking the row opens the booking's detail, see [Bookings on the plan](Trip-Pla
 ### Notes
 
 A note row shows its icon in the note's colour, the title and, under it, the text, rendered as Markdown. Click a note to edit it. See [Day notes](#day-notes).
+
+### Tours
+
+While the Tours addon is on, a tour put on a day is a row of its own, like any stop. It has no entry in the **+** menu: a tour comes onto a day from the Tours list in the places column, by dragging or with its **Add to day** button; see [Putting a tour on a day](Tours#putting-a-tour-on-a-day).
+
+- The row can carry a **Start** and an **End**, worked out from the tour's time when you only give a start. See [Tour times in the day plan](Tours#tour-times-in-the-day-plan).
+- A day that holds one stage of a multi-day tour shows it as **Stage N**, with its own distance and time. See [Multi-day tours on the trip days](Tours#multi-day-tours-on-the-trip-days).
+- A city walk shows how many of its stops you have checked off, for example **3/7**. See [Checking off a city walk](Tours#checking-off-a-city-walk).
+- When two city walks are on the same day, the leg between them can be planned by public transit. See [Public transit between city walks](Tours#public-transit-between-city-walks).
+- The row's **…** menu (*More options*) offers **Edit** for the times, **Remove from day**, **Leave out of route**, **Open Website** and **Save to Collection**. There is no **Delete** for a tour here.
 
 ### The row menu
 
@@ -204,4 +214,4 @@ The save button then reads **Remove days and save**. When the start moved, the s
 
 On a trip without dates, a lower **Day count** only takes away days with no places, notes or stay on them, starting from the end. A day with plans on it stays.
 
-**See also:** [Trip Planner Overview](Trip-Planner-Overview) · [Places-and-Search](Places-and-Search) · [Map-Features](Map-Features) · [Route-Optimization](Route-Optimization) · [Weather-Forecasts](Weather-Forecasts) · [Accommodations](Accommodations) · [Reservations-and-Bookings](Reservations-and-Bookings)
+**See also:** [Trip Planner Overview](Trip-Planner-Overview), [Places-and-Search](Places-and-Search), [Map-Features](Map-Features), [Route-Optimization](Route-Optimization), [Weather-Forecasts](Weather-Forecasts), [Accommodations](Accommodations), [Reservations-and-Bookings](Reservations-and-Bookings), [Tours](Tours)
