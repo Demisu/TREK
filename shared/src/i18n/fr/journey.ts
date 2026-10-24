@@ -466,7 +466,7 @@ const journey: TranslationStrings = {
   'journey.studio.paste': 'Coller (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Copiez d’abord quelque chose, puis collez-le sur n’importe quelle page',
   'journey.studio.pageFull':
-    "Cette page est pleine : elle contient déjà {max} éléments, le maximum pour une page. Retirez d'abord un élément ou utilisez une autre page.",
+    "Cette page est pleine : elle contient déjà le maximum d'éléments. Retirez d'abord un élément ou utilisez une autre page.",
   'journey.studio.myLayouts': 'Mes dispositions',
   'journey.studio.myLayoutsEmpty':
     'Conservez une page que vous avez agencée et disposez d’autres pages de la même façon. Leurs photos et textes restent.',

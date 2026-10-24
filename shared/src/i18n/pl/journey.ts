@@ -484,7 +484,7 @@ const journey: TranslationStrings = {
   'journey.studio.paste': 'Wklej (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Najpierw coś skopiuj, a potem wklej to na dowolnej stronie',
   'journey.studio.pageFull':
-    'Ta strona jest pełna: ma już {max} elementów, tyle, ile mieści się na stronie. Najpierw coś usuń albo użyj innej strony.',
+    'Ta strona jest pełna: więcej elementów się na niej nie zmieści. Najpierw coś usuń albo użyj innej strony.',
   'journey.studio.myLayouts': 'Moje układy',
   'journey.studio.myLayoutsEmpty':
     'Zachowaj ułożoną stronę i rozmieść inne strony w ten sam sposób. Ich zdjęcia i teksty pozostaną.',

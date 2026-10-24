@@ -467,7 +467,7 @@ const journey: TranslationStrings = {
   'journey.studio.paste': 'Yapıştır (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Önce bir şey kopyala, sonra herhangi bir sayfaya yapıştır',
   'journey.studio.pageFull':
-    'Bu sayfa dolu: zaten {max} öğe var, bir sayfaya sığabilecek en fazla sayı bu. Önce bir şey kaldırın ya da başka bir sayfa kullanın.',
+    'Bu sayfa dolu: bir sayfaya daha fazla öğe sığmıyor. Önce bir şey kaldırın ya da başka bir sayfa kullanın.',
   'journey.studio.myLayouts': 'Yerleşimlerim',
   'journey.studio.myLayoutsEmpty':
     'Düzenlediğin bir sayfayı sakla ve diğer sayfaları da aynı şekilde yerleştir. Fotoğrafları ve metinleri olduğu gibi kalır.',

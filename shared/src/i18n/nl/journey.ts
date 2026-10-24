@@ -468,7 +468,7 @@ const journey: TranslationStrings = {
   'journey.studio.paste': 'Plakken (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Kopieer eerst iets en plak het dan op een willekeurige pagina',
   'journey.studio.pageFull':
-    'Deze pagina is vol: er staan al {max} elementen op, het maximum voor een pagina. Verwijder eerst iets of gebruik een andere pagina.',
+    'Deze pagina is vol: er passen niet meer elementen op een pagina. Verwijder eerst iets of gebruik een andere pagina.',
   'journey.studio.myLayouts': 'Mijn indelingen',
   'journey.studio.myLayoutsEmpty':
     'Bewaar een pagina die je hebt ingedeeld en deel andere pagina’s op dezelfde manier in. Hun foto’s en teksten blijven staan.',

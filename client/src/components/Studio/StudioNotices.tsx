@@ -1,4 +1,3 @@
-import { MAX_SPREAD_ELEMENTS } from '@trek/shared';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from '../../i18n';
 import { useStudioStore } from '../../store/studioStore';
@@ -18,7 +17,7 @@ export function StudioNotices() {
   useEffect(() => {
     if (refused === seen.current) return;
     seen.current = refused;
-    toast.warning(t('journey.studio.pageFull', { max: MAX_SPREAD_ELEMENTS }));
+    toast.warning(t('journey.studio.pageFull'));
   }, [refused, toast, t]);
   return null;
 }

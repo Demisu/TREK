@@ -456,7 +456,7 @@ const journey: TranslationStrings = {
   'journey.studio.paste': 'Dán (Ctrl+V)',
   'journey.studio.pasteEmpty': 'Hãy sao chép thứ gì đó trước, rồi dán vào trang bất kỳ',
   'journey.studio.pageFull':
-    'Trang này đã đầy: đã có {max} thành phần, mức tối đa cho một trang. Hãy xóa bớt trước hoặc dùng trang khác.',
+    'Trang này đã đầy: không thể thêm thành phần nào nữa. Hãy xóa bớt trước hoặc dùng trang khác.',
   'journey.studio.myLayouts': 'Bố cục của tôi',
   'journey.studio.myLayoutsEmpty':
     'Lưu một trang bạn đã sắp xếp và dàn các trang khác theo cùng cách. Ảnh và chữ của chúng được giữ nguyên.',
