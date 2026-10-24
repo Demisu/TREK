@@ -175,6 +175,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': 'Corona de laurel',
   'journey.studio.sticker.cornerFlourish': 'Esquina con floritura',
   'journey.studio.sticker.cornerScroll': 'Esquina con volutas',
+  'journey.studio.sticker.parthenon': 'Partenón',
+  'journey.studio.sticker.milanDuomo': 'Catedral de Milán',
+  'journey.studio.sticker.canalHouses': 'Casas del canal',
+  'journey.studio.sticker.gondola': 'Góndola',
+  'journey.studio.sticker.lisbonTram': 'Tranvía de Lisboa',
+  'journey.studio.sticker.celticHarp': 'Arpa celta',
+  'journey.studio.sticker.tiger': 'Tigre',
+  'journey.studio.sticker.monkey': 'Mono',
+  'journey.studio.sticker.camel': 'Camello',
+  'journey.studio.sticker.doodlePalm': 'Palmera dibujada',
+  'journey.studio.sticker.doodleWaves': 'Olas dibujadas',
+  'journey.studio.sticker.doodleSunRays': 'Sol naciente dibujado',
 };
 
 export default studioStickers;

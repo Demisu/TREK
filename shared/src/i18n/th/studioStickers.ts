@@ -174,6 +174,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': 'มงกุฎใบลอเรล',
   'journey.studio.sticker.cornerFlourish': 'มุมลายประดับ',
   'journey.studio.sticker.cornerScroll': 'มุมลายก้นหอย',
+  'journey.studio.sticker.parthenon': 'วิหารพาร์เธนอน',
+  'journey.studio.sticker.milanDuomo': 'มหาวิหารมิลาน',
+  'journey.studio.sticker.canalHouses': 'บ้านริมคลอง',
+  'journey.studio.sticker.gondola': 'เรือกอนโดลา',
+  'journey.studio.sticker.lisbonTram': 'รถรางลิสบอน',
+  'journey.studio.sticker.celticHarp': 'พิณเซลติก',
+  'journey.studio.sticker.tiger': 'เสือ',
+  'journey.studio.sticker.monkey': 'ลิง',
+  'journey.studio.sticker.camel': 'อูฐ',
+  'journey.studio.sticker.doodlePalm': 'ภาพวาดต้นปาล์ม',
+  'journey.studio.sticker.doodleWaves': 'ภาพวาดคลื่น',
+  'journey.studio.sticker.doodleSunRays': 'ภาพวาดพระอาทิตย์ขึ้น',
 };
 
 export default studioStickers;

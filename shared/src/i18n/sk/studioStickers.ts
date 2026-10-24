@@ -174,6 +174,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': 'Vavrínový veniec',
   'journey.studio.sticker.cornerFlourish': 'Ozdobný roh',
   'journey.studio.sticker.cornerScroll': 'Roh s volútami',
+  'journey.studio.sticker.parthenon': 'Parthenón',
+  'journey.studio.sticker.milanDuomo': 'Milánsky dóm',
+  'journey.studio.sticker.canalHouses': 'Domy pri kanáli',
+  'journey.studio.sticker.gondola': 'Gondola', // same-as-en
+  'journey.studio.sticker.lisbonTram': 'Lisabonská električka',
+  'journey.studio.sticker.celticHarp': 'Keltská harfa',
+  'journey.studio.sticker.tiger': 'Tiger', // same-as-en
+  'journey.studio.sticker.monkey': 'Opica',
+  'journey.studio.sticker.camel': 'Ťava',
+  'journey.studio.sticker.doodlePalm': 'Kreslená palma',
+  'journey.studio.sticker.doodleWaves': 'Kreslené vlny',
+  'journey.studio.sticker.doodleSunRays': 'Kreslené vychádzajúce slnko',
 };
 
 export default studioStickers;

@@ -174,6 +174,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': '월계관',
   'journey.studio.sticker.cornerFlourish': '장식 모서리',
   'journey.studio.sticker.cornerScroll': '소용돌이 모서리',
+  'journey.studio.sticker.parthenon': '파르테논 신전',
+  'journey.studio.sticker.milanDuomo': '밀라노 대성당',
+  'journey.studio.sticker.canalHouses': '운하 주택',
+  'journey.studio.sticker.gondola': '곤돌라',
+  'journey.studio.sticker.lisbonTram': '리스본 트램',
+  'journey.studio.sticker.celticHarp': '켈틱 하프',
+  'journey.studio.sticker.tiger': '호랑이',
+  'journey.studio.sticker.monkey': '원숭이',
+  'journey.studio.sticker.camel': '낙타',
+  'journey.studio.sticker.doodlePalm': '손그림 야자수',
+  'journey.studio.sticker.doodleWaves': '손그림 파도',
+  'journey.studio.sticker.doodleSunRays': '손그림 떠오르는 해',
 };
 
 export default studioStickers;

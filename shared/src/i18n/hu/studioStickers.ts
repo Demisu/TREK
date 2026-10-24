@@ -175,6 +175,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': 'Babérkoszorú',
   'journey.studio.sticker.cornerFlourish': 'Díszes sarok',
   'journey.studio.sticker.cornerScroll': 'Csigavonalas sarok',
+  'journey.studio.sticker.parthenon': 'Parthenón',
+  'journey.studio.sticker.milanDuomo': 'Milánói dóm',
+  'journey.studio.sticker.canalHouses': 'Csatornaparti házak',
+  'journey.studio.sticker.gondola': 'Gondola', // same-as-en
+  'journey.studio.sticker.lisbonTram': 'Lisszaboni villamos',
+  'journey.studio.sticker.celticHarp': 'Kelta hárfa',
+  'journey.studio.sticker.tiger': 'Tigris',
+  'journey.studio.sticker.monkey': 'Majom',
+  'journey.studio.sticker.camel': 'Teve',
+  'journey.studio.sticker.doodlePalm': 'Rajzolt pálma',
+  'journey.studio.sticker.doodleWaves': 'Rajzolt hullámok',
+  'journey.studio.sticker.doodleSunRays': 'Rajzolt felkelő nap',
 };
 
 export default studioStickers;

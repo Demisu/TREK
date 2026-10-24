@@ -175,6 +175,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': 'Δάφνινο στεφάνι',
   'journey.studio.sticker.cornerFlourish': 'Γωνία με στολίδι',
   'journey.studio.sticker.cornerScroll': 'Γωνία με έλικες',
+  'journey.studio.sticker.parthenon': 'Παρθενώνας',
+  'journey.studio.sticker.milanDuomo': 'Καθεδρικός του Μιλάνου',
+  'journey.studio.sticker.canalHouses': 'Σπίτια στο κανάλι',
+  'journey.studio.sticker.gondola': 'Γόνδολα',
+  'journey.studio.sticker.lisbonTram': 'Τραμ της Λισαβόνας',
+  'journey.studio.sticker.celticHarp': 'Κελτική άρπα',
+  'journey.studio.sticker.tiger': 'Τίγρης',
+  'journey.studio.sticker.monkey': 'Μαϊμού',
+  'journey.studio.sticker.camel': 'Καμήλα',
+  'journey.studio.sticker.doodlePalm': 'Ζωγραφιστός φοίνικας',
+  'journey.studio.sticker.doodleWaves': 'Ζωγραφιστά κύματα',
+  'journey.studio.sticker.doodleSunRays': 'Ζωγραφιστός ήλιος που ανατέλλει',
 };
 
 export default studioStickers;

@@ -174,6 +174,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': 'إكليل غار',
   'journey.studio.sticker.cornerFlourish': 'زاوية مزخرفة',
   'journey.studio.sticker.cornerScroll': 'زاوية بلفائف',
+  'journey.studio.sticker.parthenon': 'البارثينون',
+  'journey.studio.sticker.milanDuomo': 'كاتدرائية ميلانو',
+  'journey.studio.sticker.canalHouses': 'بيوت القنوات',
+  'journey.studio.sticker.gondola': 'جندول',
+  'journey.studio.sticker.lisbonTram': 'ترام لشبونة',
+  'journey.studio.sticker.celticHarp': 'قيثارة سلتية',
+  'journey.studio.sticker.tiger': 'نمر',
+  'journey.studio.sticker.monkey': 'قرد',
+  'journey.studio.sticker.camel': 'جمل',
+  'journey.studio.sticker.doodlePalm': 'نخلة مرسومة باليد',
+  'journey.studio.sticker.doodleWaves': 'أمواج مرسومة باليد',
+  'journey.studio.sticker.doodleSunRays': 'شمس مشرقة مرسومة باليد',
 };
 
 export default studioStickers;

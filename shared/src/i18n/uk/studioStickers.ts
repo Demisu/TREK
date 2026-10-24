@@ -175,6 +175,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': 'Лавровий вінок',
   'journey.studio.sticker.cornerFlourish': 'Кутик із завитком',
   'journey.studio.sticker.cornerScroll': 'Кутик із волютами',
+  'journey.studio.sticker.parthenon': 'Парфенон',
+  'journey.studio.sticker.milanDuomo': 'Міланський собор',
+  'journey.studio.sticker.canalHouses': 'Будинки на каналі',
+  'journey.studio.sticker.gondola': 'Гондола',
+  'journey.studio.sticker.lisbonTram': 'Лісабонський трамвай',
+  'journey.studio.sticker.celticHarp': 'Кельтська арфа',
+  'journey.studio.sticker.tiger': 'Тигр',
+  'journey.studio.sticker.monkey': 'Мавпа',
+  'journey.studio.sticker.camel': 'Верблюд',
+  'journey.studio.sticker.doodlePalm': 'Мальована пальма',
+  'journey.studio.sticker.doodleWaves': 'Мальовані хвилі',
+  'journey.studio.sticker.doodleSunRays': 'Мальоване сонце, що сходить',
 };
 
 export default studioStickers;

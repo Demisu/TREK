@@ -175,6 +175,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': 'Лавровый венок',
   'journey.studio.sticker.cornerFlourish': 'Уголок с завитком',
   'journey.studio.sticker.cornerScroll': 'Уголок с волютами',
+  'journey.studio.sticker.parthenon': 'Парфенон',
+  'journey.studio.sticker.milanDuomo': 'Миланский собор',
+  'journey.studio.sticker.canalHouses': 'Дома на канале',
+  'journey.studio.sticker.gondola': 'Гондола',
+  'journey.studio.sticker.lisbonTram': 'Лиссабонский трамвай',
+  'journey.studio.sticker.celticHarp': 'Кельтская арфа',
+  'journey.studio.sticker.tiger': 'Тигр',
+  'journey.studio.sticker.monkey': 'Обезьяна',
+  'journey.studio.sticker.camel': 'Верблюд',
+  'journey.studio.sticker.doodlePalm': 'Рисованная пальма',
+  'journey.studio.sticker.doodleWaves': 'Рисованные волны',
+  'journey.studio.sticker.doodleSunRays': 'Рисованное восходящее солнце',
 };
 
 export default studioStickers;

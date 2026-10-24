@@ -175,6 +175,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': 'Defne çelengi',
   'journey.studio.sticker.cornerFlourish': 'Süslü köşe',
   'journey.studio.sticker.cornerScroll': 'Kıvrımlı köşe',
+  'journey.studio.sticker.parthenon': 'Parthenon', // same-as-en
+  'journey.studio.sticker.milanDuomo': 'Milano Katedrali',
+  'journey.studio.sticker.canalHouses': 'Kanal evleri',
+  'journey.studio.sticker.gondola': 'Gondol',
+  'journey.studio.sticker.lisbonTram': 'Lizbon tramvayı',
+  'journey.studio.sticker.celticHarp': 'Kelt arpı',
+  'journey.studio.sticker.tiger': 'Kaplan',
+  'journey.studio.sticker.monkey': 'Maymun',
+  'journey.studio.sticker.camel': 'Deve',
+  'journey.studio.sticker.doodlePalm': 'Çizim palmiye',
+  'journey.studio.sticker.doodleWaves': 'Çizim dalgalar',
+  'journey.studio.sticker.doodleSunRays': 'Çizim doğan güneş',
 };
 
 export default studioStickers;

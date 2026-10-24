@@ -174,6 +174,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': 'Vòng nguyệt quế',
   'journey.studio.sticker.cornerFlourish': 'Góc hoa văn',
   'journey.studio.sticker.cornerScroll': 'Góc xoắn ốc',
+  'journey.studio.sticker.parthenon': 'Đền Parthenon',
+  'journey.studio.sticker.milanDuomo': 'Nhà thờ chính tòa Milan',
+  'journey.studio.sticker.canalHouses': 'Nhà bên kênh',
+  'journey.studio.sticker.gondola': 'Thuyền gondola',
+  'journey.studio.sticker.lisbonTram': 'Xe điện Lisbon',
+  'journey.studio.sticker.celticHarp': 'Đàn hạc Celt',
+  'journey.studio.sticker.tiger': 'Con hổ',
+  'journey.studio.sticker.monkey': 'Con khỉ',
+  'journey.studio.sticker.camel': 'Lạc đà',
+  'journey.studio.sticker.doodlePalm': 'Cây cọ vẽ tay',
+  'journey.studio.sticker.doodleWaves': 'Sóng vẽ tay',
+  'journey.studio.sticker.doodleSunRays': 'Mặt trời mọc vẽ tay',
 };
 
 export default studioStickers;

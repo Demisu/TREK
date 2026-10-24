@@ -175,6 +175,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': '月桂冠',
   'journey.studio.sticker.cornerFlourish': '飾り罫の角',
   'journey.studio.sticker.cornerScroll': '渦巻き模様の角',
+  'journey.studio.sticker.parthenon': 'パルテノン神殿',
+  'journey.studio.sticker.milanDuomo': 'ミラノ大聖堂',
+  'journey.studio.sticker.canalHouses': '運河沿いの家並み',
+  'journey.studio.sticker.gondola': 'ゴンドラ',
+  'journey.studio.sticker.lisbonTram': 'リスボンの路面電車',
+  'journey.studio.sticker.celticHarp': 'ケルティックハープ',
+  'journey.studio.sticker.tiger': 'トラ',
+  'journey.studio.sticker.monkey': 'サル',
+  'journey.studio.sticker.camel': 'ラクダ',
+  'journey.studio.sticker.doodlePalm': '手描きのヤシ',
+  'journey.studio.sticker.doodleWaves': '手描きの波',
+  'journey.studio.sticker.doodleSunRays': '手描きの朝日',
 };
 
 export default studioStickers;

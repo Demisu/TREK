@@ -174,6 +174,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': 'Loorberipärg',
   'journey.studio.sticker.cornerFlourish': 'Kaunistatud nurk',
   'journey.studio.sticker.cornerScroll': 'Voluudiga nurk',
+  'journey.studio.sticker.parthenon': 'Parthenon', // same-as-en
+  'journey.studio.sticker.milanDuomo': 'Milano katedraal',
+  'journey.studio.sticker.canalHouses': 'Kanalimajad',
+  'journey.studio.sticker.gondola': 'Gondel',
+  'journey.studio.sticker.lisbonTram': 'Lissaboni tramm',
+  'journey.studio.sticker.celticHarp': 'Keldi harf',
+  'journey.studio.sticker.tiger': 'Tiiger',
+  'journey.studio.sticker.monkey': 'Ahv',
+  'journey.studio.sticker.camel': 'Kaamel',
+  'journey.studio.sticker.doodlePalm': 'Joonistatud palm',
+  'journey.studio.sticker.doodleWaves': 'Joonistatud lained',
+  'journey.studio.sticker.doodleSunRays': 'Joonistatud tõusev päike',
 };
 
 export default studioStickers;

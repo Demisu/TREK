@@ -174,6 +174,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': '月桂花環',
   'journey.studio.sticker.cornerFlourish': '花飾角',
   'journey.studio.sticker.cornerScroll': '捲渦角飾',
+  'journey.studio.sticker.parthenon': '帕德嫩神廟',
+  'journey.studio.sticker.milanDuomo': '米蘭大教堂',
+  'journey.studio.sticker.canalHouses': '運河屋',
+  'journey.studio.sticker.gondola': '貢多拉',
+  'journey.studio.sticker.lisbonTram': '里斯本電車',
+  'journey.studio.sticker.celticHarp': '凱爾特豎琴',
+  'journey.studio.sticker.tiger': '老虎',
+  'journey.studio.sticker.monkey': '猴子',
+  'journey.studio.sticker.camel': '駱駝',
+  'journey.studio.sticker.doodlePalm': '手繪棕櫚',
+  'journey.studio.sticker.doodleWaves': '手繪波浪',
+  'journey.studio.sticker.doodleSunRays': '手繪日出',
 };
 
 export default studioStickers;

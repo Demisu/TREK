@@ -175,6 +175,18 @@ const studioStickers: TranslationStrings = {
   'journey.studio.sticker.laurelWreath': 'Mahkota daun laurel',
   'journey.studio.sticker.cornerFlourish': 'Hiasan sudut',
   'journey.studio.sticker.cornerScroll': 'Sudut ukiran',
+  'journey.studio.sticker.parthenon': 'Parthenon', // same-as-en
+  'journey.studio.sticker.milanDuomo': 'Katedral Milan',
+  'journey.studio.sticker.canalHouses': 'Rumah kanal',
+  'journey.studio.sticker.gondola': 'Gondola', // same-as-en
+  'journey.studio.sticker.lisbonTram': 'Trem Lisbon',
+  'journey.studio.sticker.celticHarp': 'Harpa Kelt',
+  'journey.studio.sticker.tiger': 'Harimau',
+  'journey.studio.sticker.monkey': 'Monyet',
+  'journey.studio.sticker.camel': 'Unta',
+  'journey.studio.sticker.doodlePalm': 'Coretan pohon palem',
+  'journey.studio.sticker.doodleWaves': 'Coretan ombak',
+  'journey.studio.sticker.doodleSunRays': 'Coretan matahari terbit',
 };
 
 export default studioStickers;
