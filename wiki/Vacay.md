@@ -20,9 +20,9 @@ Vacay is organised by year. You can have multiple years active at once and navig
 
 For each year, your entitlement panel shows:
 
-- **Entitlement days** — your vacation allowance for that year (editable inline by clicking the field).
+- **Days** — your vacation allowance for that year (editable inline by clicking the field).
 - **Used** — days you have logged on the calendar.
-- **Remaining** — entitlement plus any carried-over days, minus used days.
+- **Left** — entitlement plus any carried-over days, minus used days.
 
 **Carry-over** — when `carry_over_enabled` is on, unused days from the previous period are automatically added to the next one's total. When you toggle this setting, the carry-over amount is recalculated across all existing year records. Turn it off to zero out all carry-over balances.
 

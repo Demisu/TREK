@@ -27,7 +27,7 @@ Open the trip planner, select the **Collab** tab and look for the card headed **
 
 ## The poll card
 
-Each poll is a card. Its head band holds the question and, under it, small chips: **Closed** when voting has ended, the time left while a deadline runs (for example `2d 5h`), **Multiple choice** for such a poll, and the number of votes. Members with `collab_edit` find two round buttons on the right: the lock (**Close**) while the poll is open, and the bin (**Delete**).
+Each poll is a card. Its head band holds the question and, under it, small chips: **Closed** when voting has ended, the time left while a deadline runs (for example `2d 5h left`), **Multiple choice** for such a poll, and the number of votes. Members with `collab_edit` find two round buttons on the right: the lock (**Close**) while the poll is open, and the bin (**Delete**).
 
 Below the head band every option is a bar you can click.
 
