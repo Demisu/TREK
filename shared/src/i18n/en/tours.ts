@@ -54,6 +54,8 @@ const tours: TranslationStrings = {
     'The waypoints and the routed line are dropped, and the tour shows the track it was recorded with again. Its days and notes stay.',
   'tours.recorded.restored': 'Recorded track restored',
   'tours.recorded.failed': 'The recorded track could not be restored.',
+  'tours.recorded.offline':
+    'Restoring the recorded track needs a connection, and this tour’s waiting changes go first.',
   'tours.conversion.analyze': 'Plan an editable version',
   'tours.conversion.analyzing': 'Routing through {count} control points…',
   'tours.conversion.analyzing.one': 'Routing through {count} control point…',
@@ -658,6 +660,7 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (copy)',
   'tours.copy.saved': 'Saved as a new tour',
   'tours.copy.failed': 'The tour could not be copied.',
+  'tours.copy.offline': 'Saving as a new tour needs a connection, and this tour’s waiting changes go first.',
   'tours.gpxExport.action': 'Download GPX',
   'tours.gpxExport.hint':
     'Downloads the saved tour as a GPX file: its whole route with the heights it has, for a navigation app or a GPS device.',

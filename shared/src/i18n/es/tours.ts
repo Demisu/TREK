@@ -55,6 +55,8 @@ const tours: TranslationStrings = {
     'Los puntos de paso y la línea calculada se descartan, y la excursión vuelve a mostrar el track con el que se grabó. Sus días y notas se mantienen.',
   'tours.recorded.restored': 'Track grabado restaurado',
   'tours.recorded.failed': 'No se ha podido restaurar el track grabado.',
+  'tours.recorded.offline':
+    'Restaurar el track grabado necesita conexión, y los cambios pendientes de esta excursión van primero.',
   'tours.conversion.analyze': 'Planificar una versión editable',
   'tours.conversion.analyzing': 'Calculando la ruta por {count} puntos de control…',
   'tours.conversion.analyzing.one': 'Calculando la ruta por {count} punto de control…',
@@ -673,6 +675,8 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (copia)',
   'tours.copy.saved': 'Guardada como nueva excursión',
   'tours.copy.failed': 'No se pudo copiar la excursión.',
+  'tours.copy.offline':
+    'Guardar como nueva excursión necesita conexión, y los cambios pendientes de esta excursión van primero.',
   'tours.gpxExport.action': 'Descargar GPX',
   'tours.gpxExport.hint':
     'Descarga la excursión guardada como archivo GPX: toda la ruta con las altitudes disponibles, para una app de navegación o un GPS.',

@@ -55,6 +55,8 @@ const tours: TranslationStrings = {
     'Les points de passage et la ligne calculée sont supprimés, et la sortie affiche de nouveau la trace avec laquelle elle a été enregistrée. Ses jours et ses notes sont conservés.',
   'tours.recorded.restored': 'Trace enregistrée restaurée',
   'tours.recorded.failed': "La trace enregistrée n'a pas pu être restaurée.",
+  'tours.recorded.offline':
+    'Restaurer la trace enregistrée demande une connexion, et les modifications en attente de cette sortie passent d’abord.',
   'tours.conversion.analyze': 'Planifier une version modifiable',
   'tours.conversion.analyzing': "Calcul de l'itinéraire par {count} points de contrôle…",
   'tours.conversion.analyzing.one': "Calcul de l'itinéraire par {count} point de contrôle…",
@@ -684,6 +686,8 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (copie)',
   'tours.copy.saved': 'Enregistrée comme nouvelle sortie',
   'tours.copy.failed': 'La sortie n’a pas pu être copiée.',
+  'tours.copy.offline':
+    'Enregistrer comme nouvelle sortie demande une connexion, et les modifications en attente de cette sortie passent d’abord.',
   'tours.gpxExport.action': 'Télécharger le GPX',
   'tours.gpxExport.hint':
     'Télécharge la sortie enregistrée en fichier GPX : tout l’itinéraire avec les altitudes disponibles, pour une app de navigation ou un GPS.',

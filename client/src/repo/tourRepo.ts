@@ -18,10 +18,13 @@ import { OnlineOnlyError } from './onlineOnly'
 import type { Place } from '../types'
 
 /**
- * ACT-01: an assignment change goes out only for a tour the server has, while
- * no older write of it waits in the queue; `mustQueue` is true offline too.
+ * A write only the server can make (ACT-01's assignments, the restore of a
+ * recorded track, a copy) goes out only for a tour the server has, while no
+ * older write of it waits in the queue: its answer is the server's tour from
+ * before that write, and the write replayed after it would undo this one.
+ * `mustQueue` is true offline too.
  */
-async function requireActivityWrite(placeId: number): Promise<void> {
+async function requireServerWrite(placeId: number): Promise<void> {
   if (placeId < 0 || (await mutationQueue.mustQueue('tours', placeId))) throw new OnlineOnlyError()
 }
 
@@ -350,8 +353,13 @@ export const tourRepo = {
     return result
   },
 
-  /** Online only, like the import: the recorded track is kept on the server, not in the cache. */
+  /**
+   * Online only, like the import: the recorded track is kept on the server,
+   * not in the cache. Held back behind a queued edit of the tour, which would
+   * plan it over again once replayed.
+   */
   async restoreRecorded(tripId: number | string, placeId: number): Promise<TourDetailResponse> {
+    await requireServerWrite(placeId)
     const result = await recordedTrackApi.restore(tripId, placeId)
     await cacheTourAnswer(Number(tripId), result)
     return result
@@ -367,7 +375,7 @@ export const tourRepo = {
    * changes, so only the recordings of the cached tour take the answer in.
    */
   async assignActivity(tripId: number | string, placeId: number, body: TourActivityAssignRequest): Promise<TourDetailResponse> {
-    await requireActivityWrite(placeId)
+    await requireServerWrite(placeId)
     const result = await tourActivitiesApi.assign(tripId, placeId, body)
     await cacheActivities(tripId, placeId, result)
     return result
@@ -375,7 +383,7 @@ export const tourRepo = {
 
   /** ACT-01: a recorded track taken off the tour again; online only and held back like the assignment. */
   async unassignActivity(tripId: number | string, placeId: number, activityId: number): Promise<TourDetailResponse> {
-    await requireActivityWrite(placeId)
+    await requireServerWrite(placeId)
     const result = await tourActivitiesApi.unassign(tripId, placeId, activityId)
     await cacheActivities(tripId, placeId, result)
     return result
@@ -397,9 +405,11 @@ export const tourRepo = {
 
   /**
    * P2C-07, online only like the restore: the copy is made from the server's
-   * stored line and control points, so it needs the server to answer.
+   * stored line and control points, so it needs the server to answer, and
+   * waits for a queued edit of the tour so that it copies what the user sees.
    */
   async copy(tripId: number | string, placeId: number, name: string): Promise<TourCreateResponse> {
+    await requireServerWrite(placeId)
     const result = await tourCopiesApi.copy(tripId, placeId, { name })
     await cacheTourAnswer(Number(tripId), result)
     return result

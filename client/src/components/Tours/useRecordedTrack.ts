@@ -1,6 +1,7 @@
 import type { TourListItem } from '@trek/shared';
 import { useCallback, useState } from 'react';
 import { useTranslation } from '../../i18n';
+import { OnlineOnlyError } from '../../repo/onlineOnly';
 import { tourRepo } from '../../repo/tourRepo';
 import { useToast } from '../shared/Toast';
 import type { TourPlannerController } from './planner/useTourPlanner';
@@ -36,8 +37,9 @@ export function useRecordedTrack({ tripId, planner, tours, canEdit, onRestored }
       returnToNeutral();
       await onRestored(result.tour);
       toast.success(t('tours.recorded.restored'));
-    } catch {
-      toast.error(t('tours.recorded.failed'));
+    } catch (err: unknown) {
+      // Offline, or behind an edit of the tour still waiting to be sent: said as such, not as a failure.
+      toast.error(t(err instanceof OnlineOnlyError ? 'tours.recorded.offline' : 'tours.recorded.failed'));
     } finally {
       setRestoring(false);
     }

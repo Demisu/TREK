@@ -53,6 +53,8 @@ const tours: TranslationStrings = {
     'Các điểm trên tuyến và đường đã định tuyến sẽ bị xóa, chuyến tham quan sẽ hiển thị lại vệt hành trình đã ghi. Các ngày và ghi chú được giữ nguyên.',
   'tours.recorded.restored': 'Đã khôi phục vệt hành trình đã ghi',
   'tours.recorded.failed': 'Không thể khôi phục vệt hành trình đã ghi.',
+  'tours.recorded.offline':
+    'Khôi phục vệt hành trình đã ghi cần kết nối mạng, và các thay đổi đang chờ của chuyến này được gửi trước.',
   'tours.conversion.analyze': 'Lên kế hoạch phiên bản có thể chỉnh sửa',
   'tours.conversion.analyzing': 'Đang định tuyến qua {count} điểm kiểm soát…',
   'tours.conversion.failedTrack': 'Vệt hành trình này quá ngắn để lên kế hoạch chuyến tham quan.',
@@ -660,6 +662,8 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (bản sao)',
   'tours.copy.saved': 'Đã lưu thành chuyến đi bộ mới',
   'tours.copy.failed': 'Không thể sao chép chuyến đi bộ.',
+  'tours.copy.offline':
+    'Lưu thành chuyến đi bộ mới cần kết nối mạng, và các thay đổi đang chờ của chuyến này được gửi trước.',
   'tours.gpxExport.action': 'Tải GPX',
   'tours.gpxExport.hint':
     'Tải chuyến đi bộ đã lưu dưới dạng tệp GPX: toàn bộ tuyến đường kèm độ cao hiện có, dùng cho ứng dụng dẫn đường hoặc thiết bị GPS.',

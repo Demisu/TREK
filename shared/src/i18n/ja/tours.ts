@@ -52,6 +52,8 @@ const tours: TranslationStrings = {
     'ルート上の地点と引き直した線は破棄され、ツアーには記録時のトラックが再び表示されます。日程とメモはそのまま残ります。',
   'tours.recorded.restored': '記録されたトラックを復元しました',
   'tours.recorded.failed': '記録されたトラックを復元できませんでした。',
+  'tours.recorded.offline':
+    '記録されたトラックを復元するには接続が必要です。このツアーの未送信の変更が先に送られます。',
   'tours.conversion.analyze': '編集可能なバージョンを計画',
   'tours.conversion.analyzing': '{count}個のコントロールポイントを通るルートを計算中…',
   'tours.conversion.failedTrack': 'このトラックは短すぎるため、ツアーを計画できません。',
@@ -651,6 +653,7 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name}（コピー）',
   'tours.copy.saved': '新しいツアーとして保存しました',
   'tours.copy.failed': 'ツアーをコピーできませんでした。',
+  'tours.copy.offline': '新しいツアーとして保存するには接続が必要です。このツアーの未送信の変更が先に送られます。',
   'tours.gpxExport.action': 'GPXをダウンロード',
   'tours.gpxExport.hint':
     '保存したツアーをGPXファイルとしてダウンロードします。ルート全体と記録されている標高を含み、ナビアプリやGPS機器で使えます。',

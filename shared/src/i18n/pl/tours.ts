@@ -61,6 +61,8 @@ const tours: TranslationStrings = {
     'Punkty trasy i wyznaczona linia zostaną usunięte, a wycieczka znów pokaże ślad, z którym została zarejestrowana. Jej dni i notatki zostają.',
   'tours.recorded.restored': 'Przywrócono zarejestrowany ślad',
   'tours.recorded.failed': 'Nie udało się przywrócić zarejestrowanego śladu.',
+  'tours.recorded.offline':
+    'Przywrócenie zarejestrowanego śladu wymaga połączenia, a oczekujące zmiany tej trasy idą najpierw.',
   'tours.conversion.analyze': 'Zaplanuj wersję do edycji',
   'tours.conversion.analyzing': 'Wyznaczanie trasy przez {count} punktu kontrolnego…',
   'tours.conversion.analyzing.one': 'Wyznaczanie trasy przez {count} punkt kontrolny…',
@@ -678,6 +680,7 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (kopia)',
   'tours.copy.saved': 'Zapisano jako nową trasę',
   'tours.copy.failed': 'Nie udało się skopiować trasy.',
+  'tours.copy.offline': 'Zapisanie jako nowej trasy wymaga połączenia, a oczekujące zmiany tej trasy idą najpierw.',
   'tours.gpxExport.action': 'Pobierz GPX',
   'tours.gpxExport.hint':
     'Pobiera zapisaną trasę jako plik GPX: cały przebieg z dostępnymi wysokościami, do aplikacji nawigacyjnej lub urządzenia GPS.',

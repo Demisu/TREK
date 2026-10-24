@@ -55,6 +55,8 @@ const tours: TranslationStrings = {
     "Els punts de pas i la línia calculada es descarten, i l'excursió torna a mostrar la traça amb què es va enregistrar. Els dies i les notes es mantenen.",
   'tours.recorded.restored': 'Traça enregistrada restaurada',
   'tours.recorded.failed': "No s'ha pogut restaurar la traça enregistrada.",
+  'tours.recorded.offline':
+    'Restaurar la traça enregistrada necessita connexió, i els canvis pendents d’aquesta excursió van primer.',
   'tours.conversion.analyze': 'Planifica una versió editable',
   'tours.conversion.analyzing': "S'està calculant la ruta per {count} punts de control…",
   'tours.conversion.analyzing.one': "S'està calculant la ruta per {count} punt de control…",
@@ -675,6 +677,8 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (còpia)',
   'tours.copy.saved': 'Desada com a excursió nova',
   'tours.copy.failed': 'No s’ha pogut copiar l’excursió.',
+  'tours.copy.offline':
+    'Desar com a excursió nova necessita connexió, i els canvis pendents d’aquesta excursió van primer.',
   'tours.gpxExport.action': 'Baixa el GPX',
   'tours.gpxExport.hint':
     'Baixa l’excursió desada com a fitxer GPX: tota la ruta amb les altituds que té, per a una aplicació de navegació o un GPS.',

@@ -65,6 +65,7 @@ const tours: TranslationStrings = {
     'تُحذف نقاط المرور والخط المحسوب، وتعرض الجولة مجددًا الأثر الذي سُجّلت به. تبقى أيامها وملاحظاتها.',
   'tours.recorded.restored': 'تمت استعادة الأثر المسجّل',
   'tours.recorded.failed': 'تعذّرت استعادة الأثر المسجّل.',
+  'tours.recorded.offline': 'استعادة الأثر المسجّل تحتاج إلى اتصال، وتُرسَل التغييرات المنتظرة لهذه الجولة أولًا.',
   'tours.conversion.analyze': 'تخطيط نسخة قابلة للتعديل',
   'tours.conversion.analyzing': 'جارٍ حساب المسار عبر {count} نقطة تحكم…',
   'tours.conversion.analyzing.zero': 'جارٍ حساب المسار دون نقاط تحكم…',
@@ -668,6 +669,7 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (نسخة)',
   'tours.copy.saved': 'تم الحفظ كجولة جديدة',
   'tours.copy.failed': 'تعذّر نسخ الجولة.',
+  'tours.copy.offline': 'الحفظ كجولة جديدة يحتاج إلى اتصال، وتُرسَل التغييرات المنتظرة لهذه الجولة أولًا.',
   'tours.gpxExport.action': 'تنزيل GPX',
   'tours.gpxExport.hint':
     'ينزّل الجولة المحفوظة كملف GPX: المسار كاملًا مع الارتفاعات المتوفرة، لتطبيق ملاحة أو جهاز GPS.',

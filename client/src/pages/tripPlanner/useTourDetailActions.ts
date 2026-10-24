@@ -1,5 +1,6 @@
 import type { TourListItem } from '@trek/shared';
 import { rememberListsSubTab } from '../../hooks/useListsSubTab';
+import { OnlineOnlyError } from '../../repo/onlineOnly';
 import { tourRepo } from '../../repo/tourRepo';
 import { useTripStore } from '../../store/tripStore';
 import type { Place } from '../../types';
@@ -49,8 +50,9 @@ export function useTourDetailActions(planner: ReturnType<typeof useTripPlanner>)
         const { tour: copy } = await tourRepo.copy(tripId, tour.place_id, name);
         await takeIn(copy);
         toast.success(t('tours.copy.saved'));
-      } catch {
-        toast.error(t('tours.copy.failed'));
+      } catch (err: unknown) {
+        // Offline, or behind an edit of the tour still waiting to be sent, which the copy would leave out.
+        toast.error(t(err instanceof OnlineOnlyError ? 'tours.copy.offline' : 'tours.copy.failed'));
       }
     },
   };

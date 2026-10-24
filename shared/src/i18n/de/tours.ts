@@ -55,6 +55,8 @@ const tours: TranslationStrings = {
     'Die Wegpunkte und die geroutete Linie werden verworfen, und die Tour zeigt wieder die Strecke, mit der sie aufgezeichnet wurde. Ihre Tage und Notizen bleiben.',
   'tours.recorded.restored': 'Aufgezeichnete Strecke wiederhergestellt',
   'tours.recorded.failed': 'Die aufgezeichnete Strecke konnte nicht wiederhergestellt werden.',
+  'tours.recorded.offline':
+    'Die aufgezeichnete Strecke wiederherzustellen braucht eine Verbindung, und die wartenden Änderungen dieser Tour gehen vor.',
   'tours.conversion.analyze': 'Bearbeitbare Version planen',
   'tours.conversion.analyzing': 'Route durch {count} Kontrollpunkte wird berechnet…',
   'tours.conversion.analyzing.one': 'Route durch {count} Kontrollpunkt wird berechnet…',
@@ -677,6 +679,8 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (Kopie)',
   'tours.copy.saved': 'Als neue Tour gespeichert',
   'tours.copy.failed': 'Die Tour konnte nicht kopiert werden.',
+  'tours.copy.offline':
+    'Als neue Tour zu speichern braucht eine Verbindung, und die wartenden Änderungen dieser Tour gehen vor.',
   'tours.gpxExport.action': 'GPX herunterladen',
   'tours.gpxExport.hint':
     'Lädt die gespeicherte Tour als GPX-Datei herunter: die ganze Route mit den vorhandenen Höhen, für eine Navigations-App oder ein GPS-Gerät.',

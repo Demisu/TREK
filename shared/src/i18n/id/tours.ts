@@ -52,6 +52,8 @@ const tours: TranslationStrings = {
     'Titik lintasan dan garis rute akan dihapus, dan tur kembali menampilkan jejak yang digunakan saat merekamnya. Hari dan catatannya tetap ada.',
   'tours.recorded.restored': 'Jejak yang direkam dipulihkan',
   'tours.recorded.failed': 'Jejak yang direkam tidak dapat dipulihkan.',
+  'tours.recorded.offline':
+    'Memulihkan jejak yang direkam memerlukan koneksi, dan perubahan tur ini yang masih menunggu dikirim lebih dulu.',
   'tours.conversion.analyze': 'Rencanakan versi yang dapat diedit',
   'tours.conversion.analyzing': 'Merutekan melalui {count} titik kontrol…',
   'tours.conversion.failedTrack': 'Jejak ini terlalu pendek untuk direncanakan menjadi tur.',
@@ -669,6 +671,8 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (salinan)',
   'tours.copy.saved': 'Disimpan sebagai tur baru',
   'tours.copy.failed': 'Tur tidak dapat disalin.',
+  'tours.copy.offline':
+    'Menyimpan sebagai tur baru memerlukan koneksi, dan perubahan tur ini yang masih menunggu dikirim lebih dulu.',
   'tours.gpxExport.action': 'Unduh GPX',
   'tours.gpxExport.hint':
     'Mengunduh tur yang disimpan sebagai file GPX: seluruh rute dengan ketinggian yang tersedia, untuk aplikasi navigasi atau perangkat GPS.',

@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import type { TourListItem } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { OnlineOnlyError } from '../../repo/onlineOnly';
 import type { TourPlannerController } from './planner/useTourPlanner';
 import { useRecordedTrack } from './useRecordedTrack';
 
@@ -84,6 +85,23 @@ describe('useRecordedTrack', () => {
     });
 
     expect(toast.error).toHaveBeenCalledWith('tours.recorded.failed');
+    expect(controller.returnToNeutral).not.toHaveBeenCalled();
+    expect(onRestored).not.toHaveBeenCalled();
+  });
+
+  it('says it needs a connection when it is offline or behind an edit of the tour still waiting', async () => {
+    repo.restoreRecorded.mockRejectedValueOnce(new OnlineOnlyError());
+    const controller = planner(7);
+    const onRestored = vi.fn();
+    const { result } = renderHook(() =>
+      useRecordedTrack({ tripId: 1, planner: controller, tours: [replaced], canEdit: true, onRestored })
+    );
+
+    await act(async () => {
+      await result.current.restore();
+    });
+
+    expect(toast.error).toHaveBeenCalledWith('tours.recorded.offline');
     expect(controller.returnToNeutral).not.toHaveBeenCalled();
     expect(onRestored).not.toHaveBeenCalled();
   });

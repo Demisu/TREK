@@ -54,6 +54,8 @@ const tours: TranslationStrings = {
     'Ruttpunkterna och den ruttade linjen tas bort, och turen visar åter spåret den spelades in med. Dess dagar och anteckningar finns kvar.',
   'tours.recorded.restored': 'Inspelat spår återställt',
   'tours.recorded.failed': 'Det inspelade spåret kunde inte återställas.',
+  'tours.recorded.offline':
+    'Att återställa det inspelade spåret kräver en anslutning, och turens väntande ändringar skickas först.',
   'tours.conversion.analyze': 'Planera en redigerbar version',
   'tours.conversion.analyzing': 'Beräknar rutt genom {count} kontrollpunkter…',
   'tours.conversion.analyzing.one': 'Beräknar rutt genom {count} kontrollpunkt…',
@@ -657,6 +659,7 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (kopia)',
   'tours.copy.saved': 'Sparad som ny tur',
   'tours.copy.failed': 'Turen kunde inte kopieras.',
+  'tours.copy.offline': 'Att spara som ny tur kräver en anslutning, och turens väntande ändringar skickas först.',
   'tours.gpxExport.action': 'Ladda ner GPX',
   'tours.gpxExport.hint':
     'Laddar ner den sparade turen som GPX-fil: hela rutten med de höjder som finns, för en navigeringsapp eller en GPS-enhet.',

@@ -51,6 +51,7 @@ const tours: TranslationStrings = {
     '경로 지점과 계산된 선이 삭제되고, 투어에 기록 당시의 트랙이 다시 표시됩니다. 일정과 메모는 그대로 유지됩니다.',
   'tours.recorded.restored': '기록된 트랙을 복원했습니다',
   'tours.recorded.failed': '기록된 트랙을 복원하지 못했습니다.',
+  'tours.recorded.offline': '기록된 트랙을 복원하려면 연결이 필요하며, 이 투어의 대기 중인 변경이 먼저 전송됩니다.',
   'tours.conversion.analyze': '편집 가능한 버전 계획',
   'tours.conversion.analyzing': '제어 지점 {count}개를 지나는 경로 계산 중…',
   'tours.conversion.failedTrack': '이 트랙은 너무 짧아 투어를 계획할 수 없습니다.',
@@ -646,6 +647,7 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (사본)',
   'tours.copy.saved': '새 투어로 저장했습니다',
   'tours.copy.failed': '투어를 복사하지 못했습니다.',
+  'tours.copy.offline': '새 투어로 저장하려면 연결이 필요하며, 이 투어의 대기 중인 변경이 먼저 전송됩니다.',
   'tours.gpxExport.action': 'GPX 다운로드',
   'tours.gpxExport.hint':
     '저장된 투어를 GPX 파일로 다운로드합니다. 경로 전체와 있는 고도 정보를 담아 내비게이션 앱이나 GPS 기기에서 쓸 수 있습니다.',

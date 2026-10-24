@@ -58,6 +58,7 @@ const tours: TranslationStrings = {
     'Body trasy a vypočítaná línia sa zahodia a túra bude opäť zobrazovať stopu, s ktorou bola zaznamenaná. Jej dni a poznámky zostanú.',
   'tours.recorded.restored': 'Zaznamenaná stopa obnovená',
   'tours.recorded.failed': 'Zaznamenanú stopu sa nepodarilo obnoviť.',
+  'tours.recorded.offline': 'Obnovenie zaznamenanej stopy potrebuje pripojenie a čakajúce zmeny tejto túry idú prvé.',
   'tours.conversion.analyze': 'Naplánovať upraviteľnú verziu',
   'tours.conversion.analyzing': 'Výpočet trasy cez {count} kontrolných bodov…',
   'tours.conversion.analyzing.one': 'Výpočet trasy cez {count} kontrolný bod…',
@@ -661,6 +662,7 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (kópia)',
   'tours.copy.saved': 'Uložené ako nová túra',
   'tours.copy.failed': 'Túru sa nepodarilo skopírovať.',
+  'tours.copy.offline': 'Uloženie ako novej túry potrebuje pripojenie a čakajúce zmeny tejto túry idú prvé.',
   'tours.gpxExport.action': 'Stiahnuť GPX',
   'tours.gpxExport.hint':
     'Stiahne uloženú túru ako súbor GPX: celú trasu s dostupnými výškami, pre navigačnú aplikáciu alebo GPS zariadenie.',

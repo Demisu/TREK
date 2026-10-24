@@ -55,6 +55,8 @@ const tours: TranslationStrings = {
     'Os pontos de passagem e a linha calculada são descartados, e o passeio volta a mostrar o traçado com que foi gravado. Os dias e as notas permanecem.',
   'tours.recorded.restored': 'Traçado gravado restaurado',
   'tours.recorded.failed': 'Não foi possível restaurar o traçado gravado.',
+  'tours.recorded.offline':
+    'Restaurar o traçado gravado precisa de conexão, e as alterações pendentes deste passeio vão primeiro.',
   'tours.conversion.analyze': 'Planejar uma versão editável',
   'tours.conversion.analyzing': 'Calculando a rota por {count} pontos de controle…',
   'tours.conversion.analyzing.one': 'Calculando a rota por {count} ponto de controle…',
@@ -671,6 +673,8 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (cópia)',
   'tours.copy.saved': 'Salvo como novo passeio',
   'tours.copy.failed': 'Não foi possível copiar o passeio.',
+  'tours.copy.offline':
+    'Salvar como novo passeio precisa de conexão, e as alterações pendentes deste passeio vão primeiro.',
   'tours.gpxExport.action': 'Baixar GPX',
   'tours.gpxExport.hint':
     'Baixa o passeio salvo como arquivo GPX: a rota inteira com as altitudes disponíveis, para um app de navegação ou um aparelho GPS.',

@@ -54,6 +54,8 @@ const tours: TranslationStrings = {
     'Az útvonalpontok és a tervezett vonal törlődnek, a túra pedig ismét azt a nyomvonalat mutatja, amellyel rögzítették. A napjai és jegyzetei megmaradnak.',
   'tours.recorded.restored': 'Rögzített nyomvonal visszaállítva',
   'tours.recorded.failed': 'A rögzített nyomvonalat nem sikerült visszaállítani.',
+  'tours.recorded.offline':
+    'A rögzített nyomvonal visszaállításához kapcsolat kell, és a túra várakozó módosításai mennek előbb.',
   'tours.conversion.analyze': 'Szerkeszthető változat tervezése',
   'tours.conversion.analyzing': 'Útvonaltervezés {count} ellenőrzőponton át…',
   'tours.conversion.analyzing.one': 'Útvonaltervezés {count} ellenőrzőponton át…',
@@ -672,6 +674,7 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (másolat)',
   'tours.copy.saved': 'Új túraként mentve',
   'tours.copy.failed': 'A túrát nem sikerült másolni.',
+  'tours.copy.offline': 'Az új túraként való mentéshez kapcsolat kell, és a túra várakozó módosításai mennek előbb.',
   'tours.gpxExport.action': 'GPX letöltése',
   'tours.gpxExport.hint':
     'Letölti a mentett túrát GPX-fájlként: a teljes útvonalat a meglévő magasságokkal, navigációs apphoz vagy GPS-készülékhez.',

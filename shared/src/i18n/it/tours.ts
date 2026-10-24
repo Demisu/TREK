@@ -55,6 +55,8 @@ const tours: TranslationStrings = {
     "I punti di passaggio e la linea calcolata vengono eliminati, e l'escursione mostra di nuovo la traccia con cui è stata registrata. I suoi giorni e le note restano.",
   'tours.recorded.restored': 'Traccia registrata ripristinata',
   'tours.recorded.failed': 'Impossibile ripristinare la traccia registrata.',
+  'tours.recorded.offline':
+    'Per ripristinare la traccia registrata serve una connessione, e le modifiche in attesa di questo tour vanno prima.',
   'tours.conversion.analyze': 'Pianifica una versione modificabile',
   'tours.conversion.analyzing': 'Calcolo del percorso attraverso {count} punti di controllo…',
   'tours.conversion.analyzing.one': 'Calcolo del percorso attraverso {count} punto di controllo…',
@@ -677,6 +679,8 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (copia)',
   'tours.copy.saved': 'Salvato come nuovo tour',
   'tours.copy.failed': 'Non è stato possibile copiare il tour.',
+  'tours.copy.offline':
+    'Per salvare come nuovo tour serve una connessione, e le modifiche in attesa di questo tour vanno prima.',
   'tours.gpxExport.action': 'Scarica GPX',
   'tours.gpxExport.hint':
     'Scarica il tour salvato come file GPX: tutto il percorso con le quote disponibili, per un’app di navigazione o un GPS.',

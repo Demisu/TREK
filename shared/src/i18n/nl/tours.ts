@@ -55,6 +55,8 @@ const tours: TranslationStrings = {
     'De routepunten en de gerouteerde lijn worden verwijderd, en de tocht toont weer de track waarmee hij is opgenomen. De dagen en notities blijven.',
   'tours.recorded.restored': 'Opgenomen track hersteld',
   'tours.recorded.failed': 'De opgenomen track kon niet worden hersteld.',
+  'tours.recorded.offline':
+    'De opgenomen track herstellen vraagt een verbinding, en de wachtende wijzigingen van deze tocht gaan voor.',
   'tours.conversion.analyze': 'Een bewerkbare versie plannen',
   'tours.conversion.analyzing': 'Route berekenen via {count} controlepunten…',
   'tours.conversion.analyzing.one': 'Route berekenen via {count} controlepunt…',
@@ -674,6 +676,8 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (kopie)',
   'tours.copy.saved': 'Opgeslagen als nieuwe tocht',
   'tours.copy.failed': 'De tocht kon niet worden gekopieerd.',
+  'tours.copy.offline':
+    'Opslaan als nieuwe tocht vraagt een verbinding, en de wachtende wijzigingen van deze tocht gaan voor.',
   'tours.gpxExport.action': 'GPX downloaden',
   'tours.gpxExport.hint':
     'Downloadt de opgeslagen tocht als GPX-bestand: de hele route met de beschikbare hoogtes, voor een navigatie-app of een gps-apparaat.',

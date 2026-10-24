@@ -54,6 +54,8 @@ const tours: TranslationStrings = {
     'Teekonnapunktid ja arvutatud joon eemaldatakse ning retk näitab taas rada, millega see salvestati. Selle päevad ja märkmed jäävad alles.',
   'tours.recorded.restored': 'Salvestatud rada taastatud',
   'tours.recorded.failed': 'Salvestatud rada ei õnnestunud taastada.',
+  'tours.recorded.offline':
+    'Salvestatud raja taastamiseks on vaja ühendust ja selle matka ootel muudatused lähevad enne.',
   'tours.conversion.analyze': 'Planeeri muudetav versioon',
   'tours.conversion.analyzing': 'Marsruudi arvutamine {count} kontrollpunkti kaudu…',
   'tours.conversion.analyzing.one': 'Marsruudi arvutamine {count} kontrollpunkti kaudu…',
@@ -662,6 +664,7 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (koopia)',
   'tours.copy.saved': 'Salvestatud uue matkana',
   'tours.copy.failed': 'Matka ei õnnestunud kopeerida.',
+  'tours.copy.offline': 'Uue matkana salvestamiseks on vaja ühendust ja selle matka ootel muudatused lähevad enne.',
   'tours.gpxExport.action': 'Laadi GPX alla',
   'tours.gpxExport.hint':
     'Laadib salvestatud matka alla GPX-failina: kogu marsruut olemasolevate kõrgustega, navigatsioonirakenduse või GPS-seadme jaoks.',

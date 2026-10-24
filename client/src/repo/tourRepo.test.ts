@@ -1,4 +1,4 @@
-// FE-REPO-TOUR-001 to FE-REPO-TOUR-014, FE-REPO-TOUR-042 to FE-REPO-TOUR-047
+// FE-REPO-TOUR-001 to FE-REPO-TOUR-014, FE-REPO-TOUR-042 to FE-REPO-TOUR-048
 // Tours through the offline core: read-through to Dexie, offline create and
 // edit written there and queued, and the online paths keeping the copy fresh.
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
@@ -500,6 +500,43 @@ describe('tourRepo provenance and copies (P2C-02, P2C-07)', () => {
     expect(cached?.name).toBe('Edited here')
     expect(cached?.activities).toEqual([])
     expect(cached?.activity_tracks).toEqual([{ id: 5, track_place_id: 41, assignment_id: null }])
+  })
+
+  it('FE-REPO-TOUR-048: the restore of a recorded track and a copy wait for a queued edit of the tour, and go out neither offline nor for a tour the server has not got', async () => {
+    let sent = 0
+    server.use(
+      http.post('/api/trips/3/tours/40/restore-recorded', () => {
+        sent++
+        return HttpResponse.json({ tour: tour({ name: 'Recorded', has_waypoints: false }), waypoints: [] })
+      }),
+      http.post('/api/trips/3/tours/40/copy', () => {
+        sent++
+        return HttpResponse.json({ tour: tour({ place_id: 41, name: 'Ridge walk (copy)' }), waypoints: [] }, { status: 201 })
+      }),
+    )
+    // An edit made here offline whose replay failed and waits: it would plan the restored track over again.
+    await offlineDb.tours.put({ ...tour({ name: 'Edited here' }), trip_id: 3 })
+    await offlineDb.mutationQueue.put({
+      id: 'queued-tour', tripId: 3, method: 'PUT', url: '/trips/3/tours/40', body, createdAt: 1,
+      status: 'failed', attempts: 3, lastError: 'Server error', resource: 'tours', entityId: 40,
+    })
+    await expect(tourRepo.restoreRecorded(3, 40)).rejects.toBeInstanceOf(OnlineOnlyError)
+    await expect(tourRepo.copy(3, 40, 'Ridge walk (copy)')).rejects.toBeInstanceOf(OnlineOnlyError)
+    expect(sent).toBe(0)
+    expect((await offlineDb.tours.get(40))?.name).toBe('Edited here')
+    await offlineDb.mutationQueue.clear()
+
+    setOnline(false)
+    await expect(tourRepo.restoreRecorded(3, 40)).rejects.toBeInstanceOf(OnlineOnlyError)
+    await expect(tourRepo.copy(3, 40, 'Ridge walk (copy)')).rejects.toBeInstanceOf(OnlineOnlyError)
+    setOnline(true)
+    await expect(tourRepo.copy(3, -7, 'Draft (copy)')).rejects.toBeInstanceOf(OnlineOnlyError)
+    expect(sent).toBe(0)
+
+    // Once nothing waits, the restore goes out and the cache takes the restored tour in.
+    await tourRepo.restoreRecorded(3, 40)
+    expect(sent).toBe(1)
+    expect(await offlineDb.tours.get(40)).toMatchObject({ name: 'Recorded', has_waypoints: false })
   })
 
   it('FE-REPO-TOUR-021: a copy is asked of the server under its name and cached as a tour of the trip', async () => {

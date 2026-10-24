@@ -54,6 +54,8 @@ const tours: TranslationStrings = {
     'Yol nöqtələri və hesablanmış xətt silinir, tur yenidən qeydə alındığı izi göstərir. Günləri və qeydləri qalır.',
   'tours.recorded.restored': 'Qeydə alınmış iz bərpa edildi',
   'tours.recorded.failed': 'Qeydə alınmış izi bərpa etmək mümkün olmadı.',
+  'tours.recorded.offline':
+    'Qeydə alınmış izi bərpa etmək üçün bağlantı lazımdır və bu turun gözləyən dəyişiklikləri əvvəlcə göndərilir.',
   'tours.conversion.analyze': 'Redaktə edilə bilən versiya planlaşdır',
   'tours.conversion.analyzing': '{count} nəzarət nöqtəsi üzərindən marşrut hesablanır…',
   'tours.conversion.analyzing.one': '{count} nəzarət nöqtəsi üzərindən marşrut hesablanır…',
@@ -662,6 +664,8 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (surət)',
   'tours.copy.saved': 'Yeni tur kimi saxlanıldı',
   'tours.copy.failed': 'Turu kopyalamaq olmadı.',
+  'tours.copy.offline':
+    'Yeni tur kimi saxlamaq üçün bağlantı lazımdır və bu turun gözləyən dəyişiklikləri əvvəlcə göndərilir.',
   'tours.gpxExport.action': 'GPX yüklə',
   'tours.gpxExport.hint':
     'Saxlanmış turu GPX faylı kimi endirir: bütün marşrut mövcud hündürlüklərlə, naviqasiya tətbiqi və ya GPS cihazı üçün.',
