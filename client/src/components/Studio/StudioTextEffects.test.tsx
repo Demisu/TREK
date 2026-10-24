@@ -192,11 +192,11 @@ describe('the fill of the letters', () => {
   it('turns the letters into a gradient or a pattern from their own colour, edited as a shape is', () => {
     const plain = mount(text({ shadow: { dx: 1, dy: 1, color: '#111111' }, color: '#0f766e' }));
     fireEvent.click(screen.getByRole('radio', { name: 'journey.studio.paint.gradient' }));
-    const gradient = plain.set.mock.calls.at(-1)?.[0]?.fillPaint;
+    const gradient = plain.set.mock.lastCall?.[0]?.fillPaint;
     expect(gradient?.type).toBe('linear');
     expect(gradient?.stops[0]?.color).toBe('#0f766e');
     fireEvent.click(screen.getByRole('radio', { name: 'journey.studio.paint.pattern' }));
-    expect(plain.set.mock.calls.at(-1)?.[0]?.fillPaint?.type).toBe('pattern');
+    expect(plain.set.mock.lastCall?.[0]?.fillPaint?.type).toBe('pattern');
     plain.unmount();
 
     const patterned = {
