@@ -1,3 +1,5 @@
+import { DEMO_ACCOUNT_EMAILS } from '@trek/shared';
+
 // Central registry of demo-user email addresses.
 //
 // Historical: the demo account was seeded as "demo@trek.app" (see
@@ -23,7 +25,7 @@ export const DEMO_PASS = 'demo12345';
  * Includes the historical `demo@nomad.app` identifier so instances that
  * upgraded in place without resetting the DB still hit demo-mode guards.
  */
-export const DEMO_EMAILS: ReadonlySet<string> = new Set([DEMO_EMAIL_PRIMARY, 'demo@nomad.app']);
+export const DEMO_EMAILS: ReadonlySet<string> = new Set(DEMO_ACCOUNT_EMAILS);
 
 export function isDemoEmail(email: string | null | undefined): boolean {
   return !!email && DEMO_EMAILS.has(email);

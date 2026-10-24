@@ -280,6 +280,9 @@ export * from './money/money';
 // Trip permission catalog (keys, levels, defaults) and the rule that decides a check.
 export * from './permissions/permissions';
 
+// The shared account visitors of a demo instance sign in as.
+export * from './demo/demo-account';
+
 // Via ferratas around a trip, from OpenStreetMap through Overpass (GET /api/trips/:tripId/ferratas).
 export * from './ferratas/ferratas.schema';
 // The 0.05 degree tile grid both ends load, cache and persist the layer on.
