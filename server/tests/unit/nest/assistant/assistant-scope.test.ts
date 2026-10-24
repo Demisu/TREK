@@ -16,6 +16,7 @@ import {
 } from '../../../../src/nest/assistant/assistant-book-context';
 import type { AssistantBookGate } from '../../../../src/nest/assistant/assistant-book-gate';
 import { homePrompt } from '../../../../src/nest/assistant/assistant-home';
+import { journalTurnContext, renderJournalCard } from '../../../../src/nest/assistant/assistant-journal-context';
 import {
   AssistantScopes,
   findScopedCall,
@@ -30,7 +31,7 @@ import {
 } from '../../../../src/nest/assistant/assistant-tool-offer';
 import type { AssistantToolsService } from '../../../../src/nest/assistant/assistant-tools.service';
 import { readTripCard, tripCardFrom } from '../../../../src/nest/assistant/assistant-trip-scope';
-import { studioPrompt, systemPrompt } from '../../../../src/nest/assistant/assistant.prompt';
+import { journalPrompt, studioPrompt, systemPrompt } from '../../../../src/nest/assistant/assistant.prompt';
 import type { JourneyAiPhotosService } from '../../../../src/nest/journey/journey-ai-photos.service';
 import type { JourneyBookEditService } from '../../../../src/nest/journey/journey-book-edit.service';
 import type { JourneyDomainService } from '../../../../src/nest/journey/journey-domain.service';
@@ -348,6 +349,16 @@ describe('the book context', () => {
       isOwner: vi.fn(async () => role === 'owner'),
       canEdit: vi.fn(async () => role === 'owner' || role === 'editor'),
       listEntries: vi.fn(async () => entries.map((entry) => ({ ...entry, location_name: null }))),
+      getJourneyFull: vi.fn(async () =>
+        role === 'none'
+          ? null
+          : {
+              ...journey,
+              entries: entries.map((entry) => ({ ...entry, entry_time: '18:30', location_lat: 38.71, is_draft: true })),
+              trips: [{ trip_id: 5, title: 'Lisbon days', start_date: '2026-04-01', end_date: '2026-04-05' }],
+              gallery: [{}, {}, {}],
+            },
+      ),
     };
   }
 
@@ -389,6 +400,44 @@ describe('the book context', () => {
     expect((await contextWith('viewer').context.cardOf(7, 12, null)).role).toBe('viewer');
   });
 
+  it('ASTSCP-043: reads the journal card with the user rights, and the role of the user in the journey', async () => {
+    const suggestion = { ...ALFAMA, id: 41, type: 'skeleton' };
+    const dismissed = { ...ALFAMA, id: 42, dismissed: true };
+    const { context, journeys } = contextWith('editor', [ALFAMA, suggestion, dismissed]);
+    const read = await context.journalCardOf(7, 12);
+    expect(journeys.getJourneyFull).toHaveBeenCalledWith(12, 7);
+    expect(read).toMatchObject({ journeyId: 12, title: 'Portugal', role: 'editor', galleryPhotos: 3 });
+    expect(read.trips).toEqual([{ id: 5, title: 'Lisbon days', startDate: '2026-04-01', endDate: '2026-04-05' }]);
+    expect(read.entries).toEqual([
+      {
+        id: 40,
+        date: '2026-04-02',
+        time: '18:30',
+        title: 'Alfama',
+        place: null,
+        photos: 2,
+        draft: true,
+        suggestion: false,
+        mapped: true,
+      },
+      {
+        id: 41,
+        date: '2026-04-02',
+        time: '18:30',
+        title: 'Alfama',
+        place: null,
+        photos: 2,
+        draft: true,
+        suggestion: true,
+        mapped: true,
+      },
+    ]);
+    expect(await contextWith('owner').context.roleIn(7, 12)).toBe('owner');
+    expect(await contextWith('viewer').context.roleIn(7, 12)).toBe('viewer');
+    const none = await contextWith('none').context.journalCardOf(7, 12);
+    expect(none).toMatchObject({ title: '', trips: [], entries: [], galleryPhotos: 0, role: 'viewer' });
+  });
+
   it('ASTSCP-042: lists no entry waved away, and the suggestions only while nothing is written', async () => {
     const suggestion = { ...ALFAMA, id: 41, type: 'skeleton' };
     const dismissed = { ...ALFAMA, id: 42, dismissed: true };
@@ -425,7 +474,17 @@ describe('a scope opens its session and writes its turn', () => {
     };
     const books = {
       canEdit: vi.fn(async () => canWrite),
+      roleIn: vi.fn(async () => (canWrite ? 'editor' : 'viewer')),
       cardOf: vi.fn(async () => card({ role: canWrite ? 'editor' : 'viewer' })),
+      journalCardOf: vi.fn(async () => ({
+        journeyId: 12,
+        title: 'Lisbon',
+        subtitle: null,
+        role: canWrite ? 'editor' : 'viewer',
+        trips: [],
+        galleryPhotos: 3,
+        entries: [],
+      })),
     };
     const settings = { getUserSettings: vi.fn(async () => ({ temperature_unit: 'celsius' })) };
     const studioGate = { refusalOf: vi.fn(async () => 'faults'), reader: session };
@@ -460,7 +519,7 @@ describe('a scope opens its session and writes its turn', () => {
     session.read.mockClear();
     const editor = scopesWith(true);
     const opened = await editor.scopes.open(7, { kind: 'journey', journeyId: 12 });
-    expect(editor.tools.openJourney).toHaveBeenCalledWith(7, 12, true, undefined);
+    expect(editor.tools.openJourney).toHaveBeenCalledWith(7, 12, { role: 'editor', surface: 'studio' }, undefined);
     const targets = new Set(['restore_book_page']);
     const read = await editor.scopes.turnOf(opened, { kind: 'journey', journeyId: 12 }, turn);
     expect(editor.books.cardOf).toHaveBeenCalledWith(7, 12, null);
@@ -474,10 +533,28 @@ describe('a scope opens its session and writes its turn', () => {
 
     const viewer = scopesWith(false);
     const viewing = await viewer.scopes.open(7, { kind: 'journey', journeyId: 12 }, targets);
-    expect(viewer.tools.openJourney).toHaveBeenCalledWith(7, 12, false, targets);
+    expect(viewer.tools.openJourney).toHaveBeenCalledWith(7, 12, { role: 'viewer', surface: 'studio' }, targets);
     // A viewer's turn reads the instructions without the designer's rules.
     const viewed = await viewer.scopes.turnOf(viewing, { kind: 'journey', journeyId: 12 }, turn);
     expect(viewed.system).toBe(studioPrompt('English', false));
+  });
+
+  it('ASTSCP-054: a turn on the journal page opens its session and reads the journal card and instructions', async () => {
+    const { tools, scopes, books, gate } = scopesWith(true);
+    const scope = { kind: 'journey', journeyId: 12, surface: 'journal' } as const;
+    const opened = await scopes.open(7, scope);
+    expect(tools.openJourney).toHaveBeenCalledWith(7, 12, { role: 'editor', surface: 'journal' }, undefined);
+    const read = await scopes.turnOf(opened, scope, turn);
+    expect(books.journalCardOf).toHaveBeenCalledWith(7, 12);
+    expect(books.cardOf).not.toHaveBeenCalled();
+    expect(read.system).toBe(journalPrompt('English'));
+    expect(read.context).toContain('<journal_card>');
+    expect(read.context).toContain('Journey: Lisbon');
+    expect(read.card.tripId).toBe(0);
+    // No book on this page: held calls pass as a trip's do, read through the session itself.
+    expect(gate.forTurn).not.toHaveBeenCalled();
+    expect(read.gate.reader).toBe(opened);
+    expect(await read.gate.refusalOf('create_journey_entry', { entry_date: '2026-10-24' })).toBeNull();
   });
 
   it('ASTSCP-053: a home turn opens the home session, reads the user trips through it and the home prompt', async () => {
@@ -514,5 +591,74 @@ describe('a scope opens its session and writes its turn', () => {
     await readTripCard(tools as unknown as AssistantToolsService, 7, 5);
     expect(tools.open).toHaveBeenCalledWith(7, 5, new Set(['get_trip_summary', 'list_places']));
     expect(session.close).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('the journal card', () => {
+  it('ASTSCP-060: names the journey, the role, the trips, the gallery and each entry with its id and state', () => {
+    const text = journalTurnContext(
+      {
+        journeyId: 12,
+        title: 'Portugal',
+        subtitle: 'Spring',
+        role: 'editor',
+        trips: [{ id: 5, title: 'Lisbon days', startDate: '2026-04-01', endDate: null }],
+        galleryPhotos: 3,
+        entries: [
+          {
+            id: 40,
+            date: '2026-04-02',
+            time: null,
+            title: 'Alfama',
+            place: 'Lisbon',
+            photos: 2,
+            draft: false,
+            suggestion: false,
+            mapped: true,
+          },
+          {
+            id: 41,
+            date: '2026-04-03',
+            time: '09:00',
+            title: null,
+            place: null,
+            photos: 0,
+            draft: true,
+            suggestion: true,
+            mapped: false,
+          },
+        ],
+      },
+      'UTC',
+      NOW,
+    );
+    expect(text).toContain('Today is 2026-07-03 (time zone UTC).');
+    expect(text).toContain('<journal_card>');
+    expect(text).toContain('Subtitle: Spring');
+    expect(text).toContain('Your role: editor (you may change the entries and the photos, not the journal itself)');
+    expect(text).toContain('5 | Lisbon days | 2026-04-01 to ?');
+    expect(text).toContain('Gallery: 3 photos and videos.');
+    expect(text).toContain('40 | 2026-04-02 |  | Alfama | Lisbon | 2 | published, on the map');
+    expect(text).toContain('41 | 2026-04-03 | 09:00 |  |  | 0 | draft, suggestion from a trip place, no coordinates');
+  });
+
+  it('ASTSCP-061: says when there are no trips or entries, and counts the entries past the ones it lists', () => {
+    const many = Array.from({ length: 203 }, (_, index) => ({
+      id: index + 1,
+      date: '2026-04-02',
+      time: null,
+      title: null,
+      place: null,
+      photos: 0,
+      draft: false,
+      suggestion: false,
+      mapped: false,
+    }));
+    const base = { journeyId: 1, title: 'X', subtitle: null, role: 'viewer' as const, trips: [], galleryPhotos: 0 };
+    expect(renderJournalCard({ ...base, entries: [] })).toContain('(no entries yet)');
+    expect(renderJournalCard({ ...base, entries: [] })).toContain('Trips: none linked.');
+    expect(renderJournalCard({ ...base, entries: many })).toContain('and 3 more; list_journey_entries lists them all.');
+    expect(journalPrompt('German')).toContain('in German.');
+    expect(journalPrompt('German')).toContain('search_place');
   });
 });

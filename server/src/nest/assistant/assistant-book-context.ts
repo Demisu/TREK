@@ -3,6 +3,7 @@ import { JourneyBookEditService } from '../journey/journey-book-edit.service';
 import { JourneyDomainService } from '../journey/journey-domain.service';
 import { PhotoSignalsService } from '../photos/photo-signals.service';
 import { buildTripCard, todayIn, type TripCard } from './assistant-context';
+import type { JournalCard, JournalCardEntry } from './assistant-journal-context';
 import { Injectable } from '@nestjs/common';
 import type { AssistantFocus, BookOverview, BookSpreadSummary } from '@trek/shared';
 
@@ -253,6 +254,49 @@ export class AssistantBookContext {
         photos: entry.photos.length,
       })),
       focus,
+    };
+  }
+
+  /** The user's role in the journey: its owner, an editor, or (also for a stranger, whom every tool refuses) a viewer. */
+  async roleIn(userId: number, journeyId: number): Promise<BookRole> {
+    return this.roleOf(userId, journeyId, await this.journeys.isOwner(journeyId, userId));
+  }
+
+  /**
+   * The journal card of one turn on the journey's own page, read as get_journey
+   * reads it, with the user's rights: the journey, its trips, its gallery in
+   * numbers and its entries (none waved away). A journey the user cannot open
+   * reads as an empty one; every tool refuses it as well.
+   */
+  async journalCardOf(userId: number, journeyId: number): Promise<JournalCard> {
+    const full = await this.journeys.getJourneyFull(journeyId, userId);
+    const role = await this.roleIn(userId, journeyId);
+    const entries: JournalCardEntry[] = (full?.entries ?? [])
+      .filter((entry) => !entry.dismissed)
+      .map((entry) => ({
+        id: entry.id,
+        date: entry.entry_date,
+        time: entry.entry_time ?? null,
+        title: entry.title ?? null,
+        place: entry.location_name ?? null,
+        photos: entry.photos.length,
+        draft: !!entry.is_draft,
+        suggestion: entry.type === 'skeleton',
+        mapped: entry.location_lat !== null && entry.location_lat !== undefined,
+      }));
+    return {
+      journeyId,
+      title: full?.title ?? '',
+      subtitle: full?.subtitle ?? null,
+      role,
+      trips: (full?.trips ?? []).map((trip) => ({
+        id: trip.trip_id,
+        title: trip.title,
+        startDate: trip.start_date ?? null,
+        endDate: trip.end_date ?? null,
+      })),
+      galleryPhotos: full?.gallery.length ?? 0,
+      entries,
     };
   }
 

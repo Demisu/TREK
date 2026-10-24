@@ -53,6 +53,7 @@ function sessionWith(found: unknown, kept: KeptItineraries, names = BOTH) {
     kind: name.startsWith('search') ? 'read' : 'write',
     pinned: false,
     hint: { destructive: false, creates: false, group: 'roadtrip' },
+    offered: true,
   });
   const tools = new Map(names.map((name) => [name, tool(name)]));
   const client = { callTool };

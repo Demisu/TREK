@@ -239,6 +239,15 @@ describe('the change cards', () => {
     const fromList = await loadJournal('create_journey_entry', args, other.read);
     expect(fromList).toMatchObject({ title: 'Japan', tripJournal: false });
     expect(await loadJournal('create_journey_entry', {}, other.read)).toBeNull();
+
+    // A journey's own conversation pins the journey, so the arguments name none: the pinned read does.
+    const pinned = readerOf({ get_journey: { journey: { id: 8, title: 'Lisbon' } } });
+    expect(await loadJournal('create_journey_entry', { entry_date: '2026-10-22' }, pinned.read)).toEqual({
+      entry: null,
+      journeyId: 8,
+      title: 'Lisbon',
+      tripJournal: false,
+    });
   });
 
   it('ASTCARD-JRN-010: a change merges its arguments over the entry: a named key wins, null clears, the rest stays', async () => {

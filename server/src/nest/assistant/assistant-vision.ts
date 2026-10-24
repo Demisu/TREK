@@ -159,7 +159,8 @@ export class AssistantVision {
     session: AgentToolPort,
     input: Omit<VisionTurnInput, 'journeyId'>,
   ): Promise<{ tools: AgentToolPort; vision: TurnVision | null }> {
-    if (scope.kind !== 'journey') return { tools: session, vision: null };
+    // The Studio draws pages; the journal page has no book on screen to look at.
+    if (scope.kind !== 'journey' || scope.surface === 'journal') return { tools: session, vision: null };
     const vision = await this.forTurn({ ...input, journeyId: scope.journeyId });
     return { tools: withPagePreview(session, vision), vision };
   }

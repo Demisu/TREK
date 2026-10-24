@@ -60,8 +60,20 @@ async function tripJournalOf(read: CardReader): Promise<{ journeyId: number | nu
 }
 
 /**
+ * The journal a journey's own conversation is about: its arguments hold no
+ * journey id there, since the session pins it, and `get_journey` reads the
+ * pinned one. Null outside such a conversation, where the read names none.
+ */
+async function pinnedJournalOf(read: CardReader): Promise<JournalLoaded | null> {
+  const journey = recordOf(recordOf(await read('get_journey')).journey);
+  const journeyId = argId(journey, 'id');
+  return journeyId === null ? null : { entry: null, journeyId, title: journey.title, tripJournal: false };
+}
+
+/**
  * What a journal write needs beyond its arguments: for a new entry the
- * journal's title (the trip's own journal, else the user's list), for a
+ * journal's title (the trip's own journal, else the user's list, or in a
+ * journey's own conversation the journey it pins), for a
  * change or a delete the entry as it stands. At most three reads. An update
  * that brings back a waved-away suggestion (`dismissed: false`) finds no
  * entry, since the read leaves dismissed ones out as the journal does: its
@@ -71,7 +83,7 @@ export async function loadJournal(tool: string, args: ToolArgs, read: CardReader
   const trip = await tripJournalOf(read);
   if (tool === 'create_journey_entry') {
     const journeyId = argId(args, 'journeyId');
-    if (journeyId === null) return null;
+    if (journeyId === null) return pinnedJournalOf(read);
     if (trip.journeyId === journeyId) return { entry: null, journeyId, title: trip.title, tripJournal: true };
     const journeys = recordOf(await read('list_journeys')).journeys;
     const own = Array.isArray(journeys) ? journeys.map(recordOf).find((row) => row.id === journeyId) : undefined;

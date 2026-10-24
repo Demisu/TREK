@@ -9,9 +9,10 @@ import { AssistantBookContext, bookTurnContext, emptyTripCard } from './assistan
 import { AssistantBookGate, openGate, type BookTurnGate } from './assistant-book-gate';
 import { languageName, todayIn, turnContext, type TripCard } from './assistant-context';
 import { homeCardFrom, homePrompt, homeTurnContext } from './assistant-home';
+import { journalTurnContext } from './assistant-journal-context';
 import { AssistantToolsService, type AssistantToolSession } from './assistant-tools.service';
 import { tripCardFrom } from './assistant-trip-scope';
-import { studioPrompt, systemPrompt } from './assistant.prompt';
+import { journalPrompt, studioPrompt, systemPrompt } from './assistant.prompt';
 import { MikroORM } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
 import type { AssistantFocus, AssistantMention, AssistantScope } from '@trek/shared';
@@ -113,14 +114,16 @@ export class AssistantScopes {
 
   /**
    * The tool session of a turn (or, with targets, of an undo). A journey's
-   * offers the book's writes only to someone who may change the book; the
-   * home chat's offers no trip's writes at all.
+   * offers what the page asking offers for the user's role in the journey
+   * (the Studio the book's writes only to someone who may change the book);
+   * the home chat's offers no trip's writes at all.
    */
   async open(userId: number, scope: AssistantScope, undoTargets?: ReadonlySet<string>): Promise<AssistantToolSession> {
     if (scope.kind === 'trip') return this.tools.open(userId, scope.tripId, undoTargets);
     if (scope.kind === 'home') return this.tools.openHome(userId, undoTargets);
-    const canWrite = await withRequestContext(this.orm, () => this.books.canEdit(userId, scope.journeyId));
-    return this.tools.openJourney(userId, scope.journeyId, canWrite, undoTargets);
+    const role = await withRequestContext(this.orm, () => this.books.roleIn(userId, scope.journeyId));
+    const offer = { role, surface: scope.surface ?? 'studio' } as const;
+    return this.tools.openJourney(userId, scope.journeyId, offer, undoTargets);
   }
 
   /**
@@ -145,6 +148,11 @@ export class AssistantScopes {
       return { card, system: systemPrompt(language), context, gate: openGate(session) };
     }
     const { journeyId } = scope;
+    if (scope.surface === 'journal') {
+      const journal = await withRequestContext(this.orm, () => this.books.journalCardOf(turn.userId, journeyId));
+      const context = journalTurnContext(journal, turn.timeZone, turn.now);
+      return { card: emptyTripCard(turn.userId), system: journalPrompt(language), context, gate: openGate(session) };
+    }
     const book = await withRequestContext(this.orm, () => this.books.cardOf(turn.userId, journeyId, turn.focus));
     const context = bookTurnContext(book, turn.timeZone, turn.now);
     const gate = this.bookGate.forTurn(turn.userId, journeyId, session);

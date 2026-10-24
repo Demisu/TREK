@@ -276,6 +276,7 @@ describe('calculate_roadtrip card', () => {
       kind: 'read',
       pinned: true,
       hint: { destructive: false, creates: false, group: 'roadtrip' },
+      offered: true,
     };
     const tools = new Map([['calculate_roadtrip', tool]]);
     const audit = () => undefined;
