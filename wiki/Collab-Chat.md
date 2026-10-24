@@ -38,6 +38,10 @@ Emoji are drawn with Twemoji, so they look the same on every platform.
 
 Hover a message to bring up its buttons. **Reply** (the arrow) quotes that message: a preview with a bar in the accent colour appears above the field, with an **×** to cancel. Once sent, the quoted text sits inside your bubble above your answer.
 
+## Answers from the assistant
+
+With the AI assistant on, a member can share one of its answers into the trip chat with **Share in the trip chat**. Everyone on the trip then sees the message marked **from the assistant**; hovering the badge reads *(name) shared this answer from the assistant*. The badge is set by the server, so nobody can fake it by typing into a normal message.
+
 ## URL link previews
 
 When a message contains a web address, TREK fetches an Open Graph preview (site, title, description and image) and shows it under the text. Only the first address in a message gets a preview.

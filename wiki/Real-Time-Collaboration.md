@@ -32,7 +32,7 @@ The Collab addon (`collab`) must be enabled by an admin before the panel is visi
 
 | Sub-feature | What it provides |
 |-------------|-----------------|
-| **Chat** | Group chat with reactions, replies, images, and URL previews |
+| **Chat** | Group chat with reactions, replies, images, and URL previews. With the AI assistant on, an answer can be shared into the chat, marked **from the assistant** |
 | **Notes** | Categorized, pinnable, markdown-formatted shared notes |
 | **Links** | Shared web addresses with a title, editable and pinnable, synced live between members |
 | **Polls** | Single- or multiple-choice votes with optional deadlines |
@@ -40,7 +40,7 @@ The Collab addon (`collab`) must be enabled by an admin before the panel is visi
 
 > **Admin:** enable the Collab addon and individual sub-features in [Admin-Addons](Admin-Addons). Links is on by default, like the other four.
 
-On a **desktop** (1024 px and wider) each sub-feature is a card with a head band that carries its name, its count and its actions. Chat is a fixed 380 px column on the left when other sub-features are also enabled; if only Chat is on, it fills the full width. Notes, Links, Polls and What's Next share the space on the right; with three or more of them, Notes and Links form the upper row and Polls and What's Next the lower one. On a narrower window a tab bar at the top switches between the enabled sub-features one at a time, and the phone app has its own Collab tab. Disabled sub-features are hidden.
+On a **desktop** (1024 px and wider) each sub-feature is a card with a head band that carries its name, its count and its actions. Chat is a fixed 380 px column on the left when other sub-features are also enabled; if only Chat is on, it fills the full width. Notes, Links, Polls and What's Next share the space on the right; with three or more of them, Notes and Links form the upper row and Polls and What's Next the lower one. On a narrower window a tab bar at the top switches between the enabled sub-features one at a time, and the phone app has its own Collab tab with Chat, Notes, Links and Polls (What's Next is not shown on the phone). Disabled sub-features are hidden.
 
 ### Links
 

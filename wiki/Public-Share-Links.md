@@ -2,11 +2,11 @@
 
 Share a read-only view of your trip with people who do not have a TREK account. The viewer opens in a browser without logging in.
 
-![Public share link](assets/Share.png)
+![The Sharing area of the Trip settings with a created public link](assets/Share.png)
 
 ## Creating a share link
 
-Open your trip and click the **Share** button (Users icon) in the top navbar. This opens the **Share Trip** dialog. The **Public Link** card appears in its right column and is visible only to users with the `share_manage` permission (trip owner and admins by default).
+Open your trip and click the **Trip settings** pill beside the trip's title in the top navbar, then pick the **Sharing** area (on a phone: **More**, then **Trip settings**). The **Public Link** section, with the **Trip invite link** stacked under it, is visible only to users with the `share_manage` permission (trip owner and admins by default).
 
 Click **Create link** to generate a token.
 
@@ -22,7 +22,7 @@ Copy this URL and send it to anyone you want to share the trip with. No TREK acc
 
 A share link is valid for **90 days**, counted from the last time it was saved. Creating the link writes a 90-day expiry, and flipping one of the unlocked permission toggles re-saves the link and writes a new one, so a link you actively manage never lapses under you.
 
-Once the 90 days are up, visitors get **Link expired or invalid**. Only an unknown, expired or deleted link shows that screen. When the page cannot be loaded for another reason (the server restarting, a proxy error, a viewer who is briefly offline), the visitor sees **This trip could not be loaded** with the hint that this does not mean the link has expired, and **Try again** reloads it in place. The **Public Link** card in the Share dialog does not show this: it keeps displaying the URL and the **Delete link** button, because the owner-side lookup ignores the expiry. There is no expired badge to warn you.
+Once the 90 days are up, visitors get **Link expired or invalid**. Only an unknown, expired or deleted link shows that screen. When the page cannot be loaded for another reason (the server restarting, a proxy error, a viewer who is briefly offline), the visitor sees **This trip could not be loaded** with the hint that this does not mean the link has expired, and **Try again** reloads it in place. The **Public Link** section in the Trip settings does not show this: it keeps displaying the URL and the **Delete link** button, because the owner-side lookup ignores the expiry. There is no expired badge to warn you.
 
 To revive a lapsed link, flip one of the unlocked toggles — **Bookings**, **Packing**, **Costs** or **Chat** — and flip it back if you did not mean to change anything. **Map & Plan** is locked, so clicking it sends no request and will not revive the link. Flipping an unlocked toggle re-saves the **same** token for another 90 days and the old URL starts working again. If you want a genuinely different URL, because the old one leaked for instance, use **Delete link** and then **Create link**.
 
@@ -73,7 +73,7 @@ The Packing tab shows how much is packed and one card per category. The Costs ta
 
 ## Revoking a share link
 
-Open the Share button in the navbar, then click **Delete link** in the share link section. The existing URL stops working immediately for anyone who has it.
+Open **Trip settings**, go to **Sharing** and click **Delete link** (on a phone: **More**, then **Trip settings**). The existing URL stops working immediately for anyone who has it.
 
 ## Journey public share
 
