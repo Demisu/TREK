@@ -6,11 +6,11 @@ TREK makes outbound HTTP requests when you configure integrations such as Immich
 
 TREK has two SSRF guards, both in `ssrfGuard.ts`. Which one applies depends on the call site, not on who configured the URL.
 
-**The strict guard** (`safeFetch` / `safeFetchFollow`, built on `checkSsrf`) covers most outbound traffic: Immich, Synology Photos, AirTrail, Dawarich, the document stores behind [Document-Sync](Document-Sync) (Paperless-ngx, Papra, Nextcloud, OpenCloud and Synology), notification webhooks, ntfy, Unsplash, and place lookups. It resolves the hostname to an IP address before allowing the connection and blocks loopback, link-local and private ranges. Only the private ranges open up, and only with `ALLOW_INTERNAL_NETWORK=true`. The two tables below describe this guard.
+**The strict guard** (`safeFetch` / `safeFetchFollow`, built on `checkSsrf`) covers most outbound traffic: Immich, Synology Photos, AirTrail, Dawarich, the wanderer connection, the document stores behind [Document-Sync](Document-Sync) (Paperless-ngx, Papra, Nextcloud, OpenCloud and Synology), notification webhooks, ntfy, Unsplash, place lookups, and the cloud hosts the AI assistant connections talk to (the ChatGPT sign-in and the hosted providers). It resolves the hostname to an IP address before allowing the connection and blocks loopback, link-local and private ranges. Only the private ranges open up, and only with `ALLOW_INTERNAL_NETWORK=true`. The two tables below describe this guard.
 
 [Web Push](Notifications#web-push) deliveries go through the strict guard as well, with two narrower rules: they only ever go to the known push services (Google, Mozilla, Apple and Microsoft), and private ranges stay closed for them even with `ALLOW_INTERNAL_NETWORK=true`, because a push service is never on your LAN.
 
-**The relaxed guard** (`safeFetchAdminConfigured`, also exported as `safeFetchLlm`) covers endpoints that are expected to live on your own network: OIDC (discovery, token, userinfo, JWKS), the LLM providers behind the AI Parsing addon (a local Ollama or any OpenAI-compatible endpoint), and plugin OAuth token exchanges. The self-hosted routing engines an admin sets for the [Road-Trip](Road-Trip) addon (**Own routing engine**, **Own Valhalla instance**) go through it too when the server asks them itself, which it does for the MCP road trip tools. The planner asks them from the browser, so they must also be reachable from your users' devices. It deliberately permits loopback and LAN targets, so a model server on `localhost` or an identity provider on your LAN works **without** `ALLOW_INTERNAL_NETWORK`. It still resolves every hostname, re-checks every redirect hop, and always blocks link-local and cloud-metadata addresses (`169.254.0.0/16`, the full `fe80::/10`, and the AWS and Alibaba metadata addresses). The only way past is a single address listed in `ALLOW_LINK_LOCAL_IPS`, see [below](#a-link-local-address-you-need).
+**The relaxed guard** (`safeFetchAdminConfigured`, also exported as `safeFetchLlm`) covers endpoints that are expected to live on your own network: OIDC (discovery, token, userinfo, JWKS), the LLM providers behind the AI Parsing addon (a local Ollama or any OpenAI-compatible endpoint), the AI server an admin sets up for the AI assistant, and plugin OAuth token exchanges. The self-hosted routing engines an admin sets for the [Road-Trip](Road-Trip) addon (**Own routing engine**, **Own Valhalla instance**) go through it too when the server asks them itself, which it does for the MCP road trip tools. The planner asks them from the browser, so they must also be reachable from your users' devices. It deliberately permits loopback and LAN targets, so a model server on `localhost` or an identity provider on your LAN works **without** `ALLOW_INTERNAL_NETWORK`. It still resolves every hostname, re-checks every redirect hop, and always blocks link-local and cloud-metadata addresses (`169.254.0.0/16`, the full `fe80::/10`, and the AWS and Alibaba metadata addresses). The only way past is a single address listed in `ALLOW_LINK_LOCAL_IPS`, see [below](#a-link-local-address-you-need).
 
 **No guard** applies to the addresses an admin sets in the environment for place search: `TREK_PLACES_URL`, `NOMINATIM_URL` and `OVERPASS_URL`. They are configuration rather than user input, so a self-run copy of the [TREK Places API](TREK-Places-API), a Nominatim or an Overpass instance on your LAN or in the same Docker network is reached without `ALLOW_INTERNAL_NETWORK`.
 
@@ -48,13 +48,13 @@ The hostname `localhost` is matched at the hostname stage too, but it normally r
 
 ## When to enable
 
-Set `ALLOW_INTERNAL_NETWORK=true` when a service reached through the strict guard (Immich, Synology Photos, AirTrail, Dawarich, a document store bound through [Document-Sync](Document-Sync), or a notification webhook) is hosted on your local network and you need TREK to reach it. You do **not** need it for a local or LAN Ollama, an OpenAI-compatible endpoint, an OIDC provider on your LAN, your own OSRM or Valhalla, or plugin OAuth; those go through the relaxed guard and already work. Nor do you need it for your own TREK Places API, Nominatim or Overpass, which are not guarded at all. Leave the flag off if only those need internal access, since turning it on widens the surface for every strict-guard integration at once.
+Set `ALLOW_INTERNAL_NETWORK=true` when a service reached through the strict guard (Immich, Synology Photos, AirTrail, Dawarich, wanderer, a document store bound through [Document-Sync](Document-Sync), or a notification webhook) is hosted on your local network and you need TREK to reach it. You do **not** need it for a local or LAN Ollama, an OpenAI-compatible endpoint, an OIDC provider on your LAN, your own OSRM or Valhalla, or plugin OAuth; those go through the relaxed guard and already work. Nor do you need it for your own TREK Places API, Nominatim or Overpass, which are not guarded at all. Leave the flag off if only those need internal access, since turning it on widens the surface for every strict-guard integration at once.
 
 A service in another container on the same Docker network counts as internal too, because its container name resolves to a private address; so do a Tailscale address (`100.64.0.0/10`) and a `.local` name. A service on loopback (`localhost`, `127.0.0.1`) is never reached through the strict guard, whatever the flag says: use the host's LAN address or the container name instead.
 
 See [Environment-Variables](Environment-Variables) for how to set environment variables.
 
-> **Admin:** Set `ALLOW_INTERNAL_NETWORK=true` in [Environment-Variables](Environment-Variables) before configuring Immich, Synology Photos, AirTrail, Dawarich or a document store on a LAN.
+> **Admin:** Set `ALLOW_INTERNAL_NETWORK=true` in [Environment-Variables](Environment-Variables) before configuring Immich, Synology Photos, AirTrail, Dawarich, wanderer or a document store on a LAN.
 
 ## A link-local address you need
 
@@ -66,7 +66,7 @@ Name that one address in `ALLOW_LINK_LOCAL_IPS`:
 ALLOW_LINK_LOCAL_IPS=169.254.1.2
 ```
 
-- The relaxed guard (OIDC, AI Parsing, plugin OAuth, your own routing engines) then reaches it with nothing else set.
+- The relaxed guard (OIDC, AI Parsing, the AI assistant's own server, plugin OAuth, your own routing engines) then reaches it with nothing else set.
 - The strict guard treats it as internal, like a `192.168.x` address, so Immich, a document store or any other integration behind it also needs `ALLOW_INTERNAL_NETWORK=true`.
 - Every other link-local address stays blocked. `169.254.169.x` and `169.254.170.x`, where AWS, GCP, Azure and the container services built on them hand out instance metadata and credentials, cannot be listed at all. TREK refuses to start with one of them in the list, and with any entry that is not a single IPv4 address such as `169.254.1.2`, so IPv6 link-local (`fe80::/10`) cannot be listed either.
 
@@ -84,7 +84,7 @@ A hostname can resolve to several addresses, and a LAN DNS server often hands ou
 
 ## Audit log
 
-When a user saves an Immich URL that resolves to a private IP, TREK records an `immich.private_ip_configured` entry in the [Audit-Log](Audit-Log) including the URL and the resolved IP address. AirTrail does the same with `airtrail.private_ip_configured`, and Dawarich with `dawarich.private_ip_configured`. Synology Photos does not emit an equivalent event, and neither does document sync.
+When a user saves an Immich URL that resolves to a private IP, TREK records an `immich.private_ip_configured` entry in the [Audit-Log](Audit-Log) including the URL and the resolved IP address. AirTrail does the same with `airtrail.private_ip_configured`, and Dawarich with `dawarich.private_ip_configured`. Synology Photos does not emit an equivalent event, and neither do wanderer and document sync.
 
 ## See also
 
