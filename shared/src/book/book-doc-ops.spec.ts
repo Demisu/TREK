@@ -3,9 +3,11 @@ import { blankBook } from './book-pages';
 import {
   MAX_BOOK_LAYOUTS,
   bookDocumentSchema,
+  bookPhotoElementSchema,
   bookTextElementSchema,
   type BookDocument,
   type BookElement,
+  type BookLayout,
   type BookSpread,
 } from './book.schema';
 
@@ -99,5 +101,43 @@ describe('pages and layouts', () => {
     const broken = restoreBookLayout(removed.doc, { ...removed.previousLayout, role: 'sideways' });
     expect(broken).toMatchObject({ ok: false, error: { code: 'invalid_op' } });
     expect(removeBookLayout(saved, { layoutId: 'ly-nope' })).toMatchObject({ error: { code: 'layout_not_found' } });
+  });
+
+  it('BOOKDOC-007: puts a layout back only with photos of the gallery or of the book, a letter fill counted', () => {
+    const saved = ok(saveBookLayout(book(), { spreadId: 'sp-in' }, { newId })).doc;
+    const layout = saved.layouts?.[0] as BookLayout;
+    const removed = ok(removeBookLayout(saved, { layoutId: layout.id })).doc;
+    const ctx = { photos: [{ photoId: 5 }] };
+    const framed = (photoId: number): BookLayout => ({
+      ...layout,
+      elements: [...layout.elements, bookPhotoElementSchema.parse({ id: 'p-1', kind: 'photo', frame, photoId })],
+    });
+    const lettered = (photoId: number): BookLayout => ({
+      ...layout,
+      elements: [
+        bookTextElementSchema.parse({
+          id: 't-2',
+          kind: 'text',
+          frame,
+          text: 'Fjord',
+          fillPaint: { type: 'photo', photoId },
+        }),
+      ],
+    });
+    const stray = { ok: false, error: { code: 'photo_not_in_gallery' } };
+
+    expect(restoreBookLayout(removed, framed(999), ctx)).toMatchObject(stray);
+    expect(restoreBookLayout(removed, lettered(999), ctx)).toMatchObject(stray);
+    expect(ok(restoreBookLayout(removed, framed(5), ctx)).doc.layouts).toHaveLength(1);
+    expect(ok(restoreBookLayout(removed, lettered(5), ctx)).doc.layouts).toHaveLength(1);
+
+    // A photo on a page of the book already may come back, and without a gallery nothing is checked.
+    const pictured = (removed.spreads[2] as BookSpread).elements.concat(framed(999).elements.slice(-1));
+    const holding = {
+      ...removed,
+      spreads: removed.spreads.map((sp, i) => (i === 2 ? { ...sp, elements: pictured } : sp)),
+    };
+    expect(ok(restoreBookLayout(holding, lettered(999), ctx)).doc.layouts).toHaveLength(1);
+    expect(ok(restoreBookLayout(removed, framed(999))).doc.layouts).toHaveLength(1);
   });
 });

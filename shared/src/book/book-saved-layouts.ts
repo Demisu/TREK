@@ -6,6 +6,7 @@ import {
   type BookLayout,
   type BookPageSetup,
   type BookSpread,
+  type BookTextElement,
 } from './book.schema';
 
 /**
@@ -25,6 +26,11 @@ import {
 export const bookLayoutRole = (spread: BookSpread): BookLayout['role'] =>
   spread.role === 'inner' ? 'inner' : 'single';
 
+/** A text with letters filled with a photo, as a layout keeps it: in its colour, the picture being the page's. */
+function withoutFillPhoto(el: BookElement): BookElement {
+  return el.kind === 'text' && el.fillPaint?.type === 'photo' ? { ...el, fillPaint: null } : el;
+}
+
 /** The arrangement of a spread, as a layout to keep. */
 export function bookLayoutFromSpread(spread: BookSpread, page: BookPageSetup, name: string): BookLayout {
   return {
@@ -35,8 +41,8 @@ export function bookLayoutFromSpread(spread: BookSpread, page: BookPageSetup, na
     pageHeight: page.pageHeight,
     background: spread.background,
     ...(spread.backgroundPaint ? { backgroundPaint: spread.backgroundPaint } : {}),
-    // The design, not the pictures: every frame comes out empty.
-    elements: spread.elements.map((el) => (el.kind === 'photo' ? { ...el, photoId: null } : el)),
+    // The design, not the pictures: every frame comes out empty, and no letters keep the page's photo.
+    elements: spread.elements.map((el) => (el.kind === 'photo' ? { ...el, photoId: null } : withoutFillPhoto(el))),
   };
 }
 
@@ -49,6 +55,14 @@ export function nextBookLayoutName(existing: readonly BookLayout[], base: string
 }
 
 const textSize = (el: BookElement) => (el.kind === 'text' ? el.size : 0);
+
+/** Letters a layout fills with a photo take this page's first picture, or keep their colour on a page without one. */
+function photoFilled(el: BookTextElement, photo: BookElement | undefined): BookTextElement {
+  if (el.fillPaint?.type !== 'photo') return el;
+  if (photo?.kind !== 'photo' || photo.photoId == null) return { ...el, fillPaint: null };
+  const fill = { type: 'photo' as const, photoId: photo.photoId, focalX: photo.focalX, focalY: photo.focalY, zoom: 1 };
+  return { ...el, fillPaint: fill };
+}
 
 /**
  * Lay a spread out on a saved layout, keeping what the spread holds.
@@ -105,11 +119,13 @@ export function applySavedBookLayout(spread: BookSpread, layout: BookLayout, pag
       continue;
     }
     if (base.kind === 'text' && el.kind === 'text') {
+      // A layout kept before its letters lost their photo still names the photo of the page it was saved from.
+      const own = photoFilled(base, photos[0]);
       const src = wordsFor.get(el);
       if (src && src.kind === 'text') {
-        out.push({ ...base, text: src.text, binding: src.binding, overridden: src.overridden });
+        out.push({ ...own, text: src.text, binding: src.binding, overridden: src.overridden });
       } else if (!el.binding) {
-        out.push(base);
+        out.push(own);
       }
       continue;
     }
@@ -146,7 +162,7 @@ export function bookLayoutPreview(layout: BookLayout, page: BookPageSetup): Book
     elements: layout.elements.map(
       (el) =>
         ({
-          ...el,
+          ...withoutFillPhoto(el),
           frame: { x: el.frame.x * sx, y: el.frame.y * sy, w: el.frame.w * sx, h: el.frame.h * sy },
         }) as BookElement,
     ),

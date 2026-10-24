@@ -6,13 +6,17 @@ import {
   findBookTemplate,
   isBookOrnamentText,
 } from './book-layouts';
-import { applySavedBookLayout, bookLayoutFromSpread } from './book-saved-layouts';
+import { bookElementPhotoIds, bookSpreadPhotoIds } from './book-photo-refs';
+import { applySavedBookLayout, bookLayoutFromSpread, bookLayoutPreview } from './book-saved-layouts';
 import {
   bookPageSetupSchema,
+  bookPhotoElementSchema,
   bookSpreadSchema,
   bookTextElementSchema,
   type BookElement,
+  type BookLayout,
   type BookPageSetup,
+  type BookSpread,
 } from './book.schema';
 
 import { describe, expect, it } from 'vitest';
@@ -257,5 +261,45 @@ describe('a mark set as text on a page laid out again', () => {
     expect(texts).toContainEqual({ text: '\u201c', size: 140 });
     expect(texts).toContainEqual({ text: 'Porto', size: 30 });
     expect(next.parked).toEqual([]);
+  });
+});
+
+describe('letters filled with a photo in a saved layout', () => {
+  const frame = { x: 10, y: 10, w: 80, h: 40 };
+  const filledWith = (photoId: number) => ({ type: 'photo' as const, photoId, focalX: 0.5, focalY: 0.5, zoom: 1 });
+  const title = (photoId: number) =>
+    bookTextElementSchema.parse({
+      id: 'h',
+      kind: 'text',
+      frame,
+      text: 'Sintra',
+      size: 40,
+      fillPaint: filledWith(photoId),
+    });
+  const pictured = (id: string, photoId: number) =>
+    bookPhotoElementSchema.parse({ id, kind: 'photo', frame, photoId, focalX: 0.2, focalY: 0.7 });
+  const spread = (id: string, elements: BookElement[]): BookSpread =>
+    bookSpreadSchema.parse({ id, role: 'inner', elements });
+  const fills = (sp: BookSpread) => sp.elements.flatMap((e) => (e.kind === 'text' ? [e.fillPaint ?? null] : []));
+
+  it('BOOKLAY-021: keeps no photo of the page it was saved from, in its frames or in its letters', () => {
+    const layout = bookLayoutFromSpread(spread('a', [pictured('p', 42), title(42)]), page, 'Title');
+    expect(layout.elements.map((e) => e.kind)).toEqual(['photo', 'text']);
+    expect(bookElementPhotoIds(layout.elements)).toEqual([]);
+    const next = applySavedBookLayout(spread('b', [pictured('q', 7), title(7)]), layout, page);
+    expect(fills(next)).toEqual([null]);
+    expect(bookSpreadPhotoIds(next)).toEqual([7]);
+  });
+
+  it("BOOKLAY-022: an older layout's filled title takes the page's own photo, or its colour without one", () => {
+    const saved: BookLayout = {
+      ...bookLayoutFromSpread(spread('a', [pictured('p', 42)]), page, 'Old'),
+      elements: [bookPhotoElementSchema.parse({ id: 'p', kind: 'photo', frame }), title(42)],
+    };
+    const onPhotos = applySavedBookLayout(spread('b', [pictured('q', 7), title(7)]), saved, page);
+    expect(fills(onPhotos)).toEqual([{ type: 'photo', photoId: 7, focalX: 0.2, focalY: 0.7, zoom: 1 }]);
+    const bare = applySavedBookLayout(spread('c', [title(7)]), saved, page);
+    expect(fills(bare)).toEqual([null]);
+    expect(fills(bookLayoutPreview(saved, page))).toEqual([null]);
   });
 });

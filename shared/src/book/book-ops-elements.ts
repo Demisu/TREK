@@ -445,7 +445,8 @@ function opStyle(spread: BookSpread, op: Op<'style'>, env: ElementOpEnv): BookSp
     throw failOp('wrong_kind', `${el.id} is a ${el.kind}; set.kind says ${op.set.kind}`, env.opIndex, el.id);
   }
   const styled = withProps(el, op.set, env.doc.theme);
-  checkTextFillPhoto(styled, env);
+  // Only a fill this style sets is checked: a text whose fill photo left the gallery can still be restyled.
+  if (op.set.kind === 'text' && op.set.fillPaint !== undefined) checkTextFillPhoto(styled, env);
   return replaceAll(spread, [styled]);
 }
 

@@ -102,6 +102,20 @@ describe('style sets the effects of a text', () => {
     );
   });
 
+  it('BKTOP-013: styles a text whose fill photo left the gallery since, and checks only a fill it sets', () => {
+    const gone = text('t1', { fillPaint: { type: 'photo', photoId: 42 } });
+    const resized = ok(run(book([gone]), [{ op: 'style', elementId: 't1', set: { kind: 'text', size: 40 } }]));
+    expect(only(resized)).toMatchObject({ size: 40, fillPaint: { type: 'photo', photoId: 42 } });
+    const tinted = ok(run(book([gone]), [{ op: 'style', elementId: 't1', set: { kind: 'text', color: '#c0392b' } }]));
+    expect(only(tinted).color).toBe('#c0392b');
+    const cleared = ok(run(book([gone]), [{ op: 'style', elementId: 't1', set: { kind: 'text', fillPaint: null } }]));
+    expect(only(cleared).fillPaint).toBeNull();
+    const again = { type: 'photo' as const, photoId: 42 };
+    expect(
+      refusal(run(book([gone]), [{ op: 'style', elementId: 't1', set: { kind: 'text', fillPaint: again } }])),
+    ).toBe('photo_not_in_gallery');
+  });
+
   it('BKTOP-003: refuses an effect value the document cannot hold', () => {
     const bad = run(book([text('t1')]), [
       { op: 'style', elementId: 't1', set: { kind: 'text', outline: { color: '#ffffff', width: 9 } } },

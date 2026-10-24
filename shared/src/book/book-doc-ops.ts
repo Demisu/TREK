@@ -17,6 +17,7 @@ import {
   setBookSetupRequestSchema,
 } from './book-ops.schema';
 import { BOOK_PAGE_PRESET_SIZES, canEditSpread } from './book-pages';
+import { bookElementPhotoIds, checkRestorablePhotos } from './book-photo-refs';
 import { bookLayoutFromSpread, nextBookLayoutName } from './book-saved-layouts';
 import {
   MAX_BOOK_LAYOUTS,
@@ -149,9 +150,12 @@ export function removeBookLayout(doc: BookDocument, args: unknown): BookDocOpRes
 /**
  * A removed layout put back as it was, for the assistant's undo of
  * `remove_book_layout`. The layout comes from a stored undo record, so it is
- * parsed again like every other argument.
+ * parsed again like every other argument, and held to a page restore's rule:
+ * with a gallery in the context, a photo it names (a frame's, a marker's, a
+ * letter fill's) is in the gallery or on a page of the book already, since a
+ * layout laid on a page brings its photos along.
  */
-export function restoreBookLayout(doc: BookDocument, raw: unknown): BookDocOpResult {
+export function restoreBookLayout(doc: BookDocument, raw: unknown, ctx: BookOpsContext = {}): BookDocOpResult {
   const parsed = bookLayoutSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, error: invalidOp(parsed.error, null) };
   const layout = parsed.data;
@@ -160,5 +164,8 @@ export function restoreBookLayout(doc: BookDocument, raw: unknown): BookDocOpRes
   if (layouts.length >= MAX_BOOK_LAYOUTS) {
     return refused('layouts_full', `a book keeps at most ${MAX_BOOK_LAYOUTS} layouts; remove one first`);
   }
-  return done({ ...doc, layouts: [...layouts, layout] }, { created: [layout.id] });
+  return caught(() => {
+    checkRestorablePhotos(bookElementPhotoIds(layout.elements), doc, ctx);
+    return done({ ...doc, layouts: [...layouts, layout] }, { created: [layout.id] });
+  });
 }

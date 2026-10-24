@@ -7,8 +7,8 @@
  * format and title come along unless someone set others since, and a page
  * size moved since takes nothing. A journey that had no book gets the chosen
  * pages as a new book (a cover photo gone since leaves an empty frame, a map
- * stop's picture gone since leaves a dot), one that lost its book since, or
- * got one since, gets nothing. A plan row the draft holds no page for writes
+ * stop's picture gone since leaves a dot, letters filled with it keep their
+ * colour), one that lost its book since, or got one since, gets nothing. A plan row the draft holds no page for writes
  * nothing, and a book at the page limit takes no new page.
  */
 import { applyDesignDraft, type DraftToApply } from '../../../../src/nest/journey/book-design-apply';
@@ -18,6 +18,7 @@ import {
   bookPageSetupForPreset,
   bookPhotoElementSchema,
   bookShapeElementSchema,
+  bookTextElementSchema,
   MAX_SPREADS,
   type BookDesignPlanRow,
   type BookDocument,
@@ -318,5 +319,45 @@ describe('applyDesignDraft', () => {
 
     expect(out.skipped).toEqual([{ spreadId: 'n', reason: 'changed_since' }]);
     expect(out.doc.spreads).toHaveLength(MAX_SPREADS);
+  });
+
+  it('JBAPPLY-015: a page whose letters are filled with a photo gone since stays out, as a frame of it would', () => {
+    const lettered = (id: string, photoId: number) =>
+      bookTextElementSchema.parse({
+        id,
+        kind: 'text',
+        frame: { x: 0, y: 0, w: 80, h: 30 },
+        text: 'Lisbon',
+        fillPaint: { type: 'photo', photoId },
+      });
+    const base = stored();
+    const filled = { ...page('a', 'inner'), elements: [lettered('t-a', 42)] };
+    const draft: DraftToApply = { base, doc: book([filled]), plan: [row('a', 'replace')], selection: ['a'] };
+
+    const out = applyDesignDraft(base, draft, new Set([7]));
+
+    expect(out.applied).toEqual([]);
+    expect(out.skipped).toEqual([{ spreadId: 'a', reason: 'photo_gone' }]);
+    expect(applyDesignDraft(base, draft, new Set([42])).applied).toEqual(['a']);
+  });
+
+  it('JBAPPLY-016: a new book keeps its cover title when its fill photo left the gallery, in its own colour', () => {
+    const framed = page('c', 'cover', [42]);
+    const title = bookTextElementSchema.parse({
+      id: 't-c',
+      kind: 'text',
+      frame: { x: 0, y: 0, w: 80, h: 30 },
+      text: 'Lisbon',
+      fillPaint: { type: 'photo', photoId: 42 },
+    });
+    const doc = book([{ ...framed, elements: [...framed.elements, title] }, ...pages('f:first', 'l:last', 'k:back')]);
+    const draft: DraftToApply = { base: null, doc, plan: doc.spreads.map((s) => row(s.id, 'insert')), selection: [] };
+
+    const out = applyDesignDraft(null, draft, new Set());
+
+    const [frame, words] = out.doc.spreads[0]?.elements ?? [];
+    expect(frame).toMatchObject({ kind: 'photo', photoId: null });
+    expect(words).toMatchObject({ kind: 'text', text: 'Lisbon', fillPaint: null });
+    expect(out.applied).toEqual(['c', 'f', 'l', 'k']);
   });
 });

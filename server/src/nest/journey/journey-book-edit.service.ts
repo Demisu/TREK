@@ -381,10 +381,11 @@ export class JourneyBookEditService {
   /**
    * `restore_book_layout`, the assistant's undo of `remove_book_layout`: the
    * layout it answered put back, only while the book is at `expectedVersion`.
-   * The layout comes as JSON and is parsed again like any argument.
+   * The layout comes as JSON and is parsed again like any argument; a photo it
+   * names is the gallery's or the book's already, as for a page put back.
    */
   async restoreLayout(journeyId: number, userId: number, args: RestoreBookLayoutRequest): Promise<BookWriteAnswer> {
-    return this.write(journeyId, userId, (doc) => restoreBookLayout(stored(doc), parsedJson(args.layout)), {
+    return this.write(journeyId, userId, (doc, ctx) => restoreBookLayout(stored(doc), parsedJson(args.layout), ctx), {
       expectedVersion: args.expectedVersion,
     });
   }

@@ -21,6 +21,7 @@ import {
   type BookPageOpInput,
 } from './book-ops.schema';
 import { blankSpread, canEditSpread, innerSpreadBounds } from './book-pages';
+import { bookSpreadPhotoIds, checkRestorablePhotos } from './book-photo-refs';
 import {
   MAX_SPREADS,
   bookSpreadSchema,
@@ -148,7 +149,8 @@ export function restoreBookPage(doc: BookDocument, args: unknown, ctx: BookOpsCo
       .sort((a, b) => a.index - b.index);
     let cur = doc;
     for (const { spread, index } of pages) {
-      restorablePhotos(spread, cur, ctx);
+      // A letter fill counts as a photo, as a frame does (book-photo-refs.ts).
+      checkRestorablePhotos(bookSpreadPhotoIds(spread), cur, ctx);
       cur = putBack(cur, spread, index);
     }
     const restored = [...new Set(pages.map((p) => p.spread.id))];
@@ -182,25 +184,6 @@ function putBack(doc: BookDocument, spread: BookSpread, index: number): BookDocu
   const { first, limit } = innerSpreadBounds(doc.spreads);
   const to = spread.role === 'inner' ? Math.min(Math.max(index, first), limit) : Math.min(index, doc.spreads.length);
   return { ...doc, spreads: [...doc.spreads.slice(0, to), spread, ...doc.spreads.slice(to)] };
-}
-
-/** The photos a page shows: its photo frames, placed or parked, and the pictures on its map markers. */
-function photoIdsOf(spread: BookSpread): number[] {
-  return [...spread.elements, ...spread.parked].flatMap((e) => {
-    if (e.kind === 'photo') return e.photoId == null ? [] : [e.photoId];
-    if (e.kind === 'map') return e.points.flatMap((p) => (p.photoId == null ? [] : [p.photoId]));
-    return [];
-  });
-}
-
-/** With a gallery known, every photo of a page coming back is in it or somewhere in the book already. */
-function restorablePhotos(spread: BookSpread, doc: BookDocument, ctx: BookOpsContext): void {
-  if (!ctx.photos) return;
-  const known = new Set([...ctx.photos.map((p) => p.photoId), ...doc.spreads.flatMap(photoIdsOf)]);
-  const stray = photoIdsOf(spread).find((id) => !known.has(id));
-  if (stray !== undefined) {
-    throw failOp('photo_not_in_gallery', `photo ${stray} is neither in this journey's gallery nor in the book`, null);
-  }
 }
 
 /** Key order aside, the same value: a parsed and a stored element list their fields in different orders. */

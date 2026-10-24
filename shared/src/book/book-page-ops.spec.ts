@@ -234,6 +234,35 @@ describe('restore', () => {
     expect(ok(restoreBookPage(withPhoto, args(stray))).spreads[3]?.elements[0]?.id).toBe('p-stray');
   });
 
+  it('BOOKPG-028: counts the photo the letters of a text are filled with, coming back and in the book', () => {
+    const base = book(2);
+    const box = { x: 10, y: 10, w: 80, h: 30 };
+    const lettered = (id: string, photoId: number) =>
+      bookTextElementSchema.parse({
+        id,
+        kind: 'text',
+        frame: box,
+        text: 'Fjord',
+        fillPaint: { type: 'photo', photoId },
+      });
+    const withFill = {
+      ...base,
+      spreads: base.spreads.map((s) => (s.id === 'sp-in1' ? { ...s, elements: [lettered('t-kept', 7)] } : s)),
+    };
+    const page = withFill.spreads[3] as BookSpread;
+    const photos = [{ photoId: 1 }];
+    const args = (spread: BookSpread) => ({ pages: [{ spread, index: 3 }], expectedVersion: 1 });
+    const stray = { ...page, elements: [lettered('t-stray', 99)] };
+    expect(refused(restoreBookPage(withFill, args(stray), { photos }))).toBe('photo_not_in_gallery');
+    // A photo the book holds only as a fill is in the book already.
+    const framed = bookPhotoElementSchema.parse({ id: 'p-again', kind: 'photo', frame: box, photoId: 7 });
+    expect(
+      ok(restoreBookPage(withFill, args({ ...page, elements: [framed] }), { photos })).spreads[3]?.elements[0]?.id,
+    ).toBe('p-again');
+    const fromGallery = { ...page, elements: [lettered('t-new', 1)] };
+    expect(ok(restoreBookPage(withFill, args(fromGallery), { photos })).spreads[3]?.elements[0]?.id).toBe('t-new');
+  });
+
   it('BOOKPG-026: keeps a locked element as it is on a page put back in place, and adds no locked one', () => {
     const base = book(1);
     const lockedText = bookTextElementSchema.parse({

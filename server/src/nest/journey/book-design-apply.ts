@@ -1,4 +1,5 @@
 import {
+  bookSpreadPhotoIds,
   compareCodeUnits,
   MAX_SPREADS,
   type BookDesignPlanRow,
@@ -53,15 +54,6 @@ export function canonical(value: unknown): string {
 const samePage = (a: BookSpread | undefined, b: BookSpread | undefined) =>
   a !== undefined && b !== undefined && canonical(a) === canonical(b);
 
-/** The photos a page shows: its frames, placed or parked, and the pictures its maps mark stops with. */
-function photosOf(spread: BookSpread): number[] {
-  return [...spread.elements, ...spread.parked].flatMap((el) => {
-    if (el.kind === 'photo') return el.photoId === null ? [] : [el.photoId];
-    if (el.kind === 'map') return el.points.flatMap((p) => (p.photoId === null ? [] : [p.photoId]));
-    return [];
-  });
-}
-
 /** Where a new page goes in `spreads`: after the nearest plan page before it that is there, inside the covers. */
 function insertAt(spreads: readonly BookSpread[], plan: readonly BookDesignPlanRow[], row: number, page: BookSpread) {
   /** Where the first page of one of these roles stands; the end of the book when there is none. */
@@ -86,16 +78,20 @@ function insertAt(spreads: readonly BookSpread[], plan: readonly BookDesignPlanR
 
 /**
  * A framing page of a new book without the photos that left the gallery: the
- * book needs its cover and its back, so their frames are emptied (and a map's
- * stops lose their picture) rather than the page left out.
+ * book needs its cover and its back, so their frames are emptied (a map's
+ * stops lose their picture, and letters filled with one keep their colour)
+ * rather than the page left out.
  */
 function withoutGonePhotos(spread: BookSpread, gallery: ReadonlySet<number>): BookSpread {
   const gone = (id: number | null) => id !== null && !gallery.has(id);
-  if (!photosOf(spread).some(gone)) return spread;
+  if (!bookSpreadPhotoIds(spread).some(gone)) return spread;
   const clean = (el: BookSpread['elements'][number]): BookSpread['elements'][number] => {
     if (el.kind === 'photo') return gone(el.photoId) ? { ...el, photoId: null } : el;
     if (el.kind === 'map') {
       return { ...el, points: el.points.map((p) => (gone(p.photoId) ? { ...p, photoId: null } : p)) };
+    }
+    if (el.kind === 'text' && el.fillPaint?.type === 'photo' && gone(el.fillPaint.photoId)) {
+      return { ...el, fillPaint: null };
     }
     return el;
   };
@@ -116,7 +112,7 @@ function newBook(draft: DraftToApply, gallery: ReadonlySet<number>): AppliedDesi
       skipped.push({ spreadId: spread.id, reason: 'excluded' });
       return [];
     }
-    if (!photosOf(spread).every((id) => gallery.has(id))) {
+    if (!bookSpreadPhotoIds(spread).every((id) => gallery.has(id))) {
       skipped.push({ spreadId: spread.id, reason: 'photo_gone' });
       return [];
     }
@@ -175,7 +171,7 @@ export function applyDesignDraft(
     }
     const page = designed.get(row.spreadId);
     if (!page) return;
-    if (!photosOf(page).every((id) => gallery.has(id))) return skip(row.spreadId, 'photo_gone');
+    if (!bookSpreadPhotoIds(page).every((id) => gallery.has(id))) return skip(row.spreadId, 'photo_gone');
     if (row.action === 'replace') {
       if (at < 0 || !samePage(spreads[at], base.get(row.spreadId))) return skip(row.spreadId, 'changed_since');
       spreads[at] = page;

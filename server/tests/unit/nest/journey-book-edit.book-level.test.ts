@@ -1,7 +1,8 @@
 /**
  * JourneyBookEditService, the book-level tools and what the engine now knows
  * (JBLVL-*): the page format and numbers set and set back at a version, a
- * page copied, a layout kept, taken away and put back; a page of a design
+ * page copied, a layout kept, taken away and put back, with no photo from
+ * outside the journey's gallery; a page of a design
  * draft read instead of the book's (410 once the draft is gone); the print
  * check reading the original's size from the pixel signals; and the travel
  * context in the user's language. Taken from JourneyBookModule over a
@@ -146,6 +147,38 @@ describe('the book-level tools', () => {
       status: 422,
       code: 'book_invalid_op',
     });
+  });
+});
+
+describe('what a restore may bring back', () => {
+  it('JBLVL-007: restore_book_layout takes no photo from outside the gallery or the book, letters too', async () => {
+    const { journey, owner, inner } = await crew();
+    const mine = await galleryPhoto(journey.id, owner.id);
+    const elsewhere = await makeJourney(orm, owner.id, { title: 'Porto' });
+    const foreign = await galleryPhoto(elsewhere.id, owner.id);
+    const saved = await edit.saveLayout(journey.id, owner.id, { spreadId: inner, name: 'Two photos' });
+    const layoutId = saved.layout_id ?? '';
+    const removed = await edit.removeLayout(journey.id, owner.id, { layoutId, expectedVersion: saved.version });
+    const layout = removed.previous_layout;
+    if (!layout) throw new Error('no layout answered');
+    const frame = { x: 10, y: 10, w: 80, h: 80 };
+    const framed = (photoId: number) =>
+      JSON.stringify({ ...layout, elements: [...layout.elements, { id: 'p-x', kind: 'photo', frame, photoId }] });
+    const lettered = (photoId: number) =>
+      JSON.stringify({
+        ...layout,
+        elements: [{ id: 't-x', kind: 'text', frame, text: 'Porto', fillPaint: { type: 'photo', photoId } }],
+      });
+    const at = removed.version;
+    const restore = (json: string) =>
+      refusal(() => edit.restoreLayout(journey.id, owner.id, { layout: json, expectedVersion: at }));
+    const stray = { status: 422, code: 'book_photo_not_in_gallery' };
+
+    expect(await restore(framed(foreign))).toMatchObject(stray);
+    expect(await restore(lettered(foreign))).toMatchObject(stray);
+    const back = await edit.restoreLayout(journey.id, owner.id, { layout: framed(mine), expectedVersion: at });
+    expect(back.version).toBe(at + 1);
+    expect((await edit.overview(journey.id, owner.id)).layouts.map((l) => l.id)).toEqual([layoutId]);
   });
 });
 
