@@ -6,15 +6,15 @@ The General tab (Settings → General) controls your locale preferences and a fe
 
 ## Where to find it
 
-Open the user menu in the top navigation bar, select **Settings**, and stay on the **General** tab — it is the tab the page opens on.
+Open the user menu in the top navigation bar, select **Settings**, and stay on the **General** tab; it is the tab the page opens on.
 
 The tab is split into three sections: **Startup** (where opening TREK lands), **Language & region** (currency, language, place names, temperature, distance, time format, week start) and **Travel & map** (open places in, date first in day headings, booking route labels, always show booking routes, compact markers for unplanned places, explore places on the map, blur booking codes, optimize route from accommodation).
 
-> Color mode (Light / Dark / Auto) is **not** here — it lives on the **Appearance** tab. See [Appearance-Settings](Appearance-Settings).
+> Color mode (Light / Dark / Auto) is **not** here; it lives on the **Appearance** tab. See [Appearance-Settings](Appearance-Settings).
 
 ## Start page
 
-Where TREK goes when you open it — the app root (`/`), which is also what the installed PWA and any home-screen shortcut launch.
+Where TREK goes when you open it: the app root (`/`), which is also what the installed PWA and any home-screen shortcut launch.
 
 | Option | Behaviour |
 |--------|-----------|
@@ -23,7 +23,7 @@ Where TREK goes when you open it — the app root (`/`), which is also what the 
 
 Your **active trip** is the one running today; if none is, the next one starting; if you have only past trips, the most recent one. That is the same trip the dashboard features in its hero, so the two never disagree. Archived trips are never picked, and if you have no trip at all, TREK opens the dashboard as usual.
 
-The dashboard stays reachable at `/dashboard` — only the root redirects.
+The dashboard stays reachable at `/dashboard`; only the root redirects.
 
 ## Start tab
 
@@ -57,16 +57,16 @@ The parameter is consumed on arrival and disappears from the address bar; switch
 
 ## Currency
 
-Your **display currency** — the currency you want to *read* amounts in on the Costs tab (totals, the category chart, balances, settle-up). It is presentation only: it never changes what is stored, and two members of the same trip can read it in different currencies and both see correct balances.
+Your **display currency**: the currency you want to *read* amounts in on the Costs tab (totals, the category chart, balances, settle-up). It is presentation only: it never changes what is stored, and two members of the same trip can read it in different currencies and both see correct balances.
 
 | Option | Behaviour |
 |--------|-----------|
-| **Trip currency** (default) | Each trip is shown in **its own** currency — a Tokyo trip in yen, a Moscow trip in roubles. |
+| **Trip currency** (default) | Each trip is shown in **its own** currency; a Tokyo trip in yen, a Moscow trip in roubles. |
 | A specific currency (e.g. `USD`) | **Every** trip is converted into that currency for you, whatever its own currency is. |
 
 165 currencies are available. Conversion uses live rates, so a converted total can shift slightly from day to day while the trip's actual balances stay fixed.
 
-> This is **not** the trip's currency, which is set on the trip itself and is the base its balances are calculated in. The distinction matters — see [Currencies](Currencies).
+> This is **not** the trip's currency, which is set on the trip itself and is the base its balances are calculated in. The distinction matters, see [Currencies](Currencies).
 
 An administrator can set an instance-wide default in **Admin → User Defaults**. It is not only a starting value for new accounts: it is merged in every time your settings are loaded, so it applies to anyone whose own display currency is empty. Picking a specific currency of your own overrides it. **Trip currency** does not, because it stores an empty value that counts as "not set", so the admin default takes effect again on your next reload.
 
