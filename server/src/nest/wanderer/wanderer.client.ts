@@ -55,11 +55,18 @@ const tokenListSchema = z.object({
   totalItems: z.number().optional(),
 });
 
-/** A user record with the ActivityPub actors that stand for it; the local one authors the user's trails. */
+const actorSchema = z.object({ id: z.string(), is_local: z.boolean().nullish() });
+
+/**
+ * A user record with the ActivityPub actors that stand for it; the local one
+ * authors the user's trails. PocketBase expands a back-relation as a single
+ * object when only one record can match and as a list otherwise, so an account
+ * with one actor answers with the object itself.
+ */
 const userActorsSchema = z.object({
   expand: z
     .object({
-      activitypub_actors_via_user: z.array(z.object({ id: z.string(), is_local: z.boolean().nullish() })).nullish(),
+      activitypub_actors_via_user: z.union([z.array(actorSchema), actorSchema.transform((actor) => [actor])]).nullish(),
     })
     .nullish(),
 });

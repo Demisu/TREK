@@ -126,6 +126,16 @@ describe('WandererClient', () => {
     expect(searchBody(0).options.filter).toEqual(["author IN ['nspsn7zu7octact']"]);
   });
 
+  it('RS-03b: an owner with one actor, which wanderer expands as an object rather than a list, is found', async () => {
+    answer({
+      ...OWNER,
+      '/api/v1/user/gixauk8ukjpqabm': reply({
+        expand: { activitypub_actors_via_user: { id: 'nspsn7zu7octact', is_local: true } },
+      }),
+    });
+    await expect(client.ownActors(CREDS)).resolves.toEqual(['nspsn7zu7octact']);
+  });
+
   it('RS-03: a token wanderer reads as anonymous is refused, however 200 the answer', async () => {
     answer({ '/api/v1/api-token': reply({ items: [], totalItems: 0 }) });
     expect((await failure(() => client.check(CREDS))).code).toBe('unauthorized');
