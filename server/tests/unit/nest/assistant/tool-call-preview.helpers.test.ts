@@ -69,6 +69,7 @@ describe('dayLabel', () => {
     expect(dayLabel(ctx, 99)).toBe('#99');
     expect(dayLabel({ ...ctx, locale: 'de' }, 32)).toBe('Fr., 12. Juni');
     expect(dayLabel({ ...ctx, locale: 'not a locale!' }, 32)).toBe('Fri, Jun 12');
+    expect(dayLabel({ ...ctx, locale: 'br' }, 32)).toBe(dayLabel({ ...ctx, locale: 'pt-BR' }, 32));
   });
 });
 
