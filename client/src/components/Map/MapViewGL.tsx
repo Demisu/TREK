@@ -48,7 +48,7 @@ import { addGpxTrackLayers, GPX_HIT_LAYER_ID, hasGpxTrackLayers, selectGpxTrack,
 import { buildPoiPopupHtml } from './placePopup'
 import { pluginsApi, type PluginMapMarker, type PluginMapLayer } from '../../api/client'
 import { DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM } from '../../constants/mapDefaults'
-import { computeMapViewport, TILE_SIZE_GL } from '../../utils/mapViewport'
+import { alongShortestArc, computeMapViewport, TILE_SIZE_GL } from '../../utils/mapViewport'
 import { selectedPlaceTarget } from './selectedPlaceTarget'
 import { PLACE_CLUSTER_CIRCLE_LAYER_ID, PLACE_CLUSTER_COUNT_LAYER_ID } from './placeClusterLayers'
 
@@ -2091,7 +2091,7 @@ export function MapViewGL({
       didInitialFocusRef.current = true
     }
     const bounds = new gl.LngLatBounds()
-    focusPoints.forEach(([lat, lng]) => bounds.extend([lng, lat]))
+    alongShortestArc(focusPoints).forEach(([lat, lng]) => bounds.extend([lng, lat]))
     // A day fit still waiting on its route must not overwrite this a moment later.
     pendingRouteFitRef.current = null
     try {
@@ -2099,7 +2099,7 @@ export function MapViewGL({
         padding: fitPadding ?? paddingOpts,
         maxZoom: 15,
         pitch: enableMapbox3d ? 45 : 0,
-        duration: 400,
+        duration: mapReady ? 400 : 0, // handed over while the map is built: it opens there, no flight in
       })
     } catch { /* noop */ }
   }, [focusPoints, focusKey, fitPaddingKey]) // eslint-disable-line react-hooks/exhaustive-deps

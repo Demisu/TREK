@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+  alongShortestArc,
   computeMapViewport,
   MAX_ZOOM_GL,
   MAX_ZOOM_RASTER,
@@ -261,5 +262,28 @@ describe('computeMapViewport', () => {
       tileSize: TILE_SIZE_RASTER,
     })!
     expect(withPadding.zoom).toBe(equivalent.zoom)
+  })
+})
+
+describe('alongShortestArc', () => {
+  const FIJI: [number, number] = [-18.14, 178.44]
+  const TONGA: [number, number] = [-21.14, -175.2]
+  const SAMOA: [number, number] = [-13.83, -171.76]
+
+  it('carries the places past the antimeridian on beyond 180, so a min-max box between them is the short one', () => {
+    const lngs = alongShortestArc([FIJI, TONGA, SAMOA]).map(([, lng]) => Math.round(lng * 100) / 100)
+
+    // From Fiji east across the date line: under ten degrees wide, not the 350 the other way round.
+    expect(lngs).toEqual([178.44, 184.8, 188.24])
+  })
+
+  it('leaves places that do not cross the antimeridian as they are', () => {
+    const cafes: [number, number][] = [[48.21, 16.37], [38.71, -9.14], [55.7, 12.55]]
+
+    expect(alongShortestArc(cafes)).toEqual(cafes)
+  })
+
+  it('has nothing to lay out for no places', () => {
+    expect(alongShortestArc([])).toEqual([])
   })
 })

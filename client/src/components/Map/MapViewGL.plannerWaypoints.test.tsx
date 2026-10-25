@@ -7,8 +7,8 @@ import { resetAllStores } from '../../../tests/helpers/store';
 import type { GeoPosition, TrackingMode } from '../../hooks/useGeolocation';
 import { useSettingsStore } from '../../store/settingsStore';
 
-// The planner-waypoint and location-search camera cases of MapViewGL, and the tour
-// map's via ferrata layer (RC-10), with the same map doubles as MapViewGL.test.tsx.
+// The planner-waypoint, location-search and antimeridian camera cases of MapViewGL, and
+// the tour map's via ferrata layer (RC-10), with the same map doubles as MapViewGL.test.tsx.
 
 // Stable fake map so fitBounds call counts survive re-renders. The canvas
 // container is a single element so listeners registered by the component are
@@ -354,6 +354,31 @@ describe('MapViewGL', () => {
     );
     await act(async () => {});
     expect(glMap.fitBounds).toHaveBeenCalledOnce();
+  });
+
+  it('frames handed-over points across the antimeridian the short way, as the opening camera does', async () => {
+    loadOnAttach();
+    // Fiji, Tonga and Samoa, a collection's list: a box from plain min and max would run
+    // from -175 to 178, round the far side of the world, with each pin on an edge.
+    render(
+      <MapViewGL
+        places={[]}
+        followSelection={false}
+        focusKey="1,2,3"
+        focusPoints={[
+          [-18.14, 178.44],
+          [-21.14, -175.2],
+          [-13.83, -171.76],
+        ]}
+        glProvider="maplibre-gl"
+      />
+    );
+    await act(async () => {});
+
+    expect(glMap.fitBounds).toHaveBeenCalledOnce();
+    const framed = glBounds.instances.find((bounds) => bounds === glMap.fitBounds.mock.calls[0][0]);
+    const lngs = framed?.extend.mock.calls.map(([lngLat]) => Math.round(lngLat[0] * 100) / 100);
+    expect(lngs).toEqual([178.44, 184.8, 188.24]);
   });
 
   it.each(['maplibre-gl', 'mapbox-gl'] as const)(

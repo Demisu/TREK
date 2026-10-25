@@ -534,6 +534,21 @@ describe('MapView', () => {
     expect(mapMock.fitBounds).toHaveBeenCalledOnce()
   })
 
+  it('FE-COMP-MAPVIEW-089: a frame handed over while the map is built lands at once, a later one flies', () => {
+    // The map opens on a guess framed for the browser window. A map in a smaller box, the
+    // collection's beside its list, hands its own frame over at once, and must open there
+    // rather than show the guess and then fly to the frame.
+    const cafes: [number, number][] = [[48.21, 16.37], [38.71, -9.14], [55.7, 12.55]]
+    const { rerender } = render(<MapView places={[]} focusKey="list:17" focusPoints={cafes} />)
+    expect(mapMock.fitBounds.mock.calls).toEqual([[expect.anything(), expect.objectContaining({ animate: false, maxZoom: 16 })]])
+    mapMock.fitBounds.mockClear()
+
+    // Another list on the same map is a change the user asked for, and it flies as before.
+    const viewpoints: [number, number][] = [[60.12, 6.74], [44.15, 9.65], [47.56, 13.65]]
+    rerender(<MapView places={[]} focusKey="list:20" focusPoints={viewpoints} />)
+    expect(mapMock.fitBounds.mock.calls).toEqual([[expect.anything(), expect.objectContaining({ animate: true, maxZoom: 16 })]])
+  })
+
   it('keeps selection fit and the pending route-arrival refit for semantic changes', () => {
     const selectedPlace = buildMapPlace({ id: 901, lat: 48, lng: 11 })
     const route: [number, number][][] = [[[48, 11], [48.2, 11.3]]]

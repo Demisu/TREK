@@ -146,6 +146,18 @@ function lngExtent(lngs: number[], wrapsWorld: boolean): { west: number; east: n
   return { west, east, span: east - west }
 }
 
+/**
+ * `[lat, lng]` points with their longitudes laid along the narrowest arc that holds them all
+ * (lngExtent), for a renderer that wraps the world: a point past the antimeridian goes on
+ * beyond 180 instead of starting over at -180. A bounding box built from them by plain min and max (MapLibre's and Mapbox's
+ * extend) then spans the few degrees from Fiji to Samoa, not the rest of the world.
+ */
+export function alongShortestArc(points: readonly [number, number][]): [number, number][] {
+  if (points.length === 0) return []
+  const { west } = lngExtent(points.map(([, lng]) => lng), true)
+  return points.map(([lat, lng]) => [lat, lng < west ? lng + 360 : lng])
+}
+
 /** Zoom at which a span covering `fraction` of the world fills `px` pixels. */
 function zoomForFraction(px: number, tileSize: number, fraction: number, maxZoom: number): number {
   // A zero fraction (identical coordinates) would divide by zero and yield Infinity.

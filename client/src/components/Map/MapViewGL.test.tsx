@@ -944,7 +944,7 @@ describe('MapViewGL', () => {
       />,
     )
     await act(async () => {})
-    expect(glMap.fitBounds).toHaveBeenCalledOnce()
+    expect(glMap.fitBounds.mock.calls).toEqual([[expect.anything(), expect.objectContaining({ duration: 0 })]])
     glMap.fitBounds.mockClear()
     const mapConstructions = (maplibregl.Map as any).mock.calls.length
     const retainedCenter = { lng: 135.8, lat: 35.2 }
@@ -979,7 +979,7 @@ describe('MapViewGL', () => {
       />,
     )
     await act(async () => {})
-    expect(glMap.fitBounds).toHaveBeenCalledOnce()
+    expect(glMap.fitBounds.mock.calls).toEqual([[expect.anything(), expect.objectContaining({ duration: 400 })]])
   })
 
   it('keeps selection fit and the pending route-arrival refit for semantic changes', async () => {

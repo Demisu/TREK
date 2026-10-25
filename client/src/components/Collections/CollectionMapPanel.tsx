@@ -50,6 +50,7 @@ export default function CollectionMapPanel({
         onOpenPlace={onSelect}
         onDeselect={onDeselect}
         dark={dark}
+        underBar={overlay}
       />
       {overlay && (
         <div className="col-map-topbar">

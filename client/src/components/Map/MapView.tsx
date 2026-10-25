@@ -427,35 +427,16 @@ function MapController({ center, zoom }: MapControllerProps) {
 // fit to that day's destinations immediately, then — once the day's route has
 // finished computing asynchronously — re-fit once more to include the full route
 // polyline, so a route that bulges past its stops stays in view (#1128).
-interface BoundsControllerProps {
+// The focus props are the contract's, documented there once rather than copied here.
+interface BoundsControllerProps extends Pick<MapViewProps, 'focusPoints' | 'focusKey' | 'fitPadding'> {
   places: Place[]
   routeCoords: [number, number][]
   fitKey: number
   paddingOpts: L.FitBoundsOptions
   /** The map was built already framed on these places, so the opening fit has nothing to do. */
   framedOnMount?: boolean
-  /**
-   * An explicit stretch of map to frame, independent of the day being shown.
-   *
-   * `fitKey` cannot express this: it carries no coordinates, and each renderer decides
-   * for itself that it means "the selected day". Weighing the ways of driving one leg
-   * needs that leg on screen, which is neither the day nor the trip.
-   */
-  focusPoints?: [number, number][]
-  /** Changes only when the caller intentionally wants a new initial frame. */
-  focusKey?: number | string
   /** False while the map is locked (#2010): an arriving route no longer re-fits it. */
   follow?: boolean
-  /**
-   * What the caller's own chrome covers while `focusPoints` is framed, in pixels per edge.
-   *
-   * `paddingOpts` knows the planner's panels and nothing else, and on a phone it is a flat
-   * margin. A shell that lays its own bars over the map passes what they cover, so the
-   * frame lands in the part still visible. Only the fit on `focusPoints` reads it.
-   * Compared by value: the same numbers in a new object do not refit, while new numbers
-   * refit the points already handed over, because the chrome they must clear has moved.
-   */
-  fitPadding?: ViewportPadding
 }
 
 /** A padding box as Leaflet's fit options spell it, corner pairs rather than edges. */
@@ -473,6 +454,7 @@ function BoundsController({ places, routeCoords, fitKey, paddingOpts, framedOnMo
   const fitRan = useRef(false)
   const didInitialFocus = useRef(false)
   const prevFocusKey = useRef(focusKey)
+  const built = useRef(false)
 
   const fitTo = useCallback((coords: [number, number][], padding: L.FitBoundsOptions = paddingOpts) => {
     if (coords.length === 0) return
@@ -493,7 +475,7 @@ function BoundsController({ places, routeCoords, fitKey, paddingOpts, framedOnMo
          * (#1982). MapViewGL never had the nudge, so this also brings the two
          * renderers back into agreement.
          */
-        map.fitBounds(bounds, { ...padding, maxZoom: 16, animate: true })
+        map.fitBounds(bounds, { maxZoom: 16, animate: true, ...padding })
       }
     } catch {}
   }, [map, paddingOpts])
@@ -534,6 +516,10 @@ function BoundsController({ places, routeCoords, fitKey, paddingOpts, framedOnMo
   // Frame whatever was handed over. Nothing happens when it empties, so closing the
   // picker leaves the map where the user left it rather than snapping back.
   useEffect(() => {
+    // The first run is the map being built. A frame handed over by then is where the map
+    // opens, so it lands at once instead of flying in from the window-sized opening guess.
+    const opening = !built.current
+    built.current = true
     if (!focusPoints?.length) return
     if (focusKey !== undefined) {
       const shouldFit = !didInitialFocus.current || focusKey !== prevFocusKey.current
@@ -543,7 +529,7 @@ function BoundsController({ places, routeCoords, fitKey, paddingOpts, framedOnMo
     }
     // A day fit that has not run yet must not overwrite this a moment later.
     awaitingRoute.current = false
-    fitTo(focusPoints, fitPadding ? leafletPadding(fitPadding) : paddingOpts)
+    fitTo(focusPoints, { ...(fitPadding ? leafletPadding(fitPadding) : paddingOpts), animate: !opening })
   }, [focusPoints, focusKey, fitPaddingKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return null
