@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import type { BudgetFallbackFx, BudgetParticipantFinal, BudgetUnconverted, TrekWsPayload, TrekWsTripEventName } from '@trek/shared';
-import { currencyDecimals, splitEqualShares, toMinor } from '@trek/shared';
+import { currencyDecimals, splitEqualShares, sumMinor, toMinor } from '@trek/shared';
 import { RealtimeService } from '../realtime/realtime.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { avatarUrl } from '../common/avatarUrl';
@@ -31,7 +31,7 @@ import { BUDGET_ITEM_TICKET, RESERVATION_METADATA } from '../../db/json-columns'
 import { decodeJson, decodeJsonResult, encodeJson } from '../../utils/json-column';
 import { DomainError } from '../common/domain-error';
 import { GUEST_HAS_PAYMENTS, shareAfterLeaving } from './budget-departure.helpers';
-import { allocateDisplayCents, isFrozenRate, NOT_FROZEN_RATE, quoteRatio, sumMoney, tripConverter } from './budget-money.helpers';
+import { allocateDisplayCents, customSplitCents, isFrozenRate, NOT_FROZEN_RATE, quoteRatio, summaryShareCents, sumMoney, tripConverter } from './budget-money.helpers';
 
 type Trip = TripAccess;
 
@@ -992,12 +992,9 @@ export class BudgetService {
       // A foreign row nothing can convert counts for nobody, as in the settlement.
       const convert = tripConverter(item.currency, item.exchange_rate, tripCurrency, rates);
       if (!convert) continue;
-      const toTripCents = (amount: number) => toMinor(convert(amount));
-      // A member with an amount of their own owes exactly that; the rest split the
-      // total evenly, as the query this replaces did.
-      const equal = splitEqualShares(toTripCents(item.total_price || 0), own, item.id);
+      const shares = summaryShareCents(own, convert, item.total_price || 0, item.id);
       for (const m of own) {
-        const share = m.amount !== null && m.amount !== undefined ? toTripCents(m.amount) : (equal[m.user_id] || 0);
+        const share = shares[m.user_id] || 0;
         let p = people.get(m.user_id);
         if (!p) {
           p = { user_id: m.user_id, username: m.username, avatar: m.avatar, assigned: 0, paid: 0, items_count: 0 };
@@ -1184,7 +1181,6 @@ export class BudgetService {
         unconvertedCurrencies.add((item.currency || '').toUpperCase());
         continue;
       }
-      const toTripCents = (amount: number): number => toMinor(convert(amount));
       const members = allMembers.filter(m => m.budget_item_id === item.id);
       const payers = allPayers.filter(p => p.budget_item_id === item.id);
       if (members.length === 0) continue; // planning-only entry → doesn't affect balances
@@ -1231,12 +1227,11 @@ export class BudgetService {
       // here since #2225. An item whose payers net to exactly zero still does, and
       // divides zero, which is what it is worth.
       const hasCustomSplit = members.some(m => m.amount !== null && m.amount !== undefined);
-      const equalShares = !hasCustomSplit ? splitEqualShares(creditCents, members, item.id) : {};
+      const shares = hasCustomSplit
+        ? customSplitCents(members, convert, creditCents, sumMinor(payers.map(p => p.amount)))
+        : splitEqualShares(creditCents, members, item.id);
       for (const m of members) {
-        const memberShare = hasCustomSplit && m.amount !== null && m.amount !== undefined
-          ? toTripCents(m.amount)
-          : (equalShares[m.user_id] || 0);
-        ensure(m.user_id, m).cents -= memberShare;
+        ensure(m.user_id, m).cents -= shares[m.user_id] || 0;
       }
     }
 

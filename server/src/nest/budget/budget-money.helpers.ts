@@ -1,4 +1,4 @@
-import { sumMinor } from '@trek/shared';
+import { splitEqualShares, sumMinor, toMinor } from '@trek/shared';
 
 /**
  * Re-denominate whole trip-currency cents into whole display-currency cents
@@ -52,6 +52,65 @@ export function allocateDisplayCents(cents: number[], factor: number, total?: nu
     .sort((a, b) => b.frac - a.frac || a.i - b.i);
   for (let k = 0; k < drift && k < byFraction.length; k++) out[byFraction[k].i] += 1;
   return unit === 1 ? out : out.map((v) => v * unit);
+}
+
+/**
+ * A custom split's member amounts as trip cents that add up to what the payers were
+ * credited. Converting each amount on its own rounds each one to a cent, so four
+ * quarters of a 136,000 ISK bill came to 4 x 249.38 = 997.52 EUR against the 997.51
+ * the payer was credited: every such bill left the balances a cent off zero, a cent
+ * the settle-up list then had no payment for. When the amounts add up to the payers'
+ * total in the bill's own currency, as the write path insists, they are allocated
+ * against `creditCents` by largest remainder, ties to the lower user id. A split that
+ * does not add up (rows from before that check) still converts member by member.
+ */
+export function customSplitCents(
+  members: readonly { user_id: number; amount?: number | null }[],
+  convert: (amount: number) => number,
+  creditCents: number,
+  paidMinor: number,
+): Record<number, number> {
+  const shares: Record<number, number> = {};
+  const own = members.map((m) => m.amount ?? 0);
+  if (members.length === 0) return shares;
+  if (sumMinor(own) !== paidMinor) {
+    members.forEach((m, i) => (shares[m.user_id] = toMinor(convert(own[i]))));
+    return shares;
+  }
+  const exact = own.map((amount) => convert(amount) * 100);
+  const cents = exact.map((v) => Math.floor(v));
+  let drift = creditCents - cents.reduce((a, c) => a + c, 0);
+  const rows = members.map((m, i) => ({ i, userId: m.user_id, frac: exact[i] - cents[i] }));
+  const up = [...rows].sort((a, b) => b.frac - a.frac || a.userId - b.userId);
+  const down = [...rows].sort((a, b) => a.frac - b.frac || a.userId - b.userId);
+  for (let k = 0; drift > 0; k++, drift--) cents[up[k % up.length].i] += 1;
+  for (let k = 0; drift < 0; k++, drift++) cents[down[k % down.length].i] -= 1;
+  members.forEach((m, i) => (shares[m.user_id] = cents[i]));
+  return shares;
+}
+
+/**
+ * Each member's part of one expense for the per-person summary, in trip cents. A
+ * member with an amount of their own owes exactly that, the rest split the total
+ * evenly, as the query this replaced did. When every member has an amount, the
+ * amounts are converted as one set (customSplitCents) the way the settlement
+ * converts them, so the parts add up to the bill.
+ */
+export function summaryShareCents(
+  members: readonly { user_id: number; amount?: number | null }[],
+  convert: (amount: number) => number,
+  totalPrice: number,
+  itemId: number,
+): Record<number, number> {
+  const totalCents = toMinor(convert(totalPrice));
+  const hasAmount = (m: { amount?: number | null }) => m.amount !== null && m.amount !== undefined;
+  if (members.length > 0 && members.every(hasAmount)) {
+    return customSplitCents(members, convert, totalCents, toMinor(totalPrice));
+  }
+  const equal = splitEqualShares(totalCents, members, itemId);
+  return Object.fromEntries(
+    members.map((m) => [m.user_id, hasAmount(m) ? toMinor(convert(m.amount as number)) : equal[m.user_id] || 0]),
+  );
 }
 
 /**
