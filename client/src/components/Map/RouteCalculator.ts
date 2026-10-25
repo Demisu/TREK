@@ -4,6 +4,7 @@ import type { DistanceUnit, RouteResult, RouteSegment, RouteWithLegs, SnappedWay
 import { haversineKm } from '../../utils/geo'
 import { formatDistance } from '../../utils/units'
 import { countRoute } from './routeUsageCounter'
+import { cacheRoute, rememberRoute, routeInMemory, storedRoute } from './routeStore'
 import { valhallaRouteAvoiding, valhallaRun, valhallaAvailable, valhallaAlternates, valhallaSpacing, legAvoids, type AvoidClass, type ValhallaLeg } from './valhallaRoute'
 import { furthestFrom, sameRoad, type RouteUsageSurface } from '@trek/shared'
 
@@ -196,10 +197,6 @@ function retryAfterMs(response: Response): number | null {
   return Number.isNaN(at) ? null : Math.max(0, at - Date.now())
 }
 
-// Cache route responses keyed by the exact waypoint list. Routes are stable, so
-// this avoids re-hitting the public OSRM demo server on every day switch / reorder.
-const routeCache = new Map<string, RouteWithLegs>()
-const ROUTE_CACHE_MAX = 200
 
 /**
  * A route profile is either one of the built-in OSRM profiles or a plugin profile
@@ -540,7 +537,10 @@ export async function calculateRouteWithLegs(
   const avoidScope = avoiding.length ? `:avoid=${avoiding.join(',')}` : ''
   const plainKey = `${profile}:${getDistanceUnit()}:${coords}${pluginScope}`
   const cacheKey = `${plainKey}${avoidScope}`
-  const cached = routeCache.get(cacheKey)
+  // A plugin route stays in memory: its answer depends on the trip and the day,
+  // and may carry live data such as charging stops. The rest is kept on the device
+  // too, so a trip that shows its whole route opens drawn (#2794).
+  const cached = pluginScope ? routeInMemory(cacheKey) : await storedRoute(cacheKey)
   if (cached) return cached
 
   if (avoiding.length) {
@@ -552,7 +552,7 @@ export async function calculateRouteWithLegs(
     // Null is a Valhalla that could not answer at all. OSRM keeps the day drawn rather
     // than blank, and the answer says that nothing was avoided, with the reason, so the
     // rail flags the day instead of implying the setting held on a road nobody weighed.
-    const plain = routeCache.get(plainKey) ?? await osrmWithLegs(waypoints, coords, profile, signal)
+    const plain = (await storedRoute(plainKey)) ?? await osrmWithLegs(waypoints, coords, profile, signal)
     cacheRoute(plainKey, plain)
     return { ...plain, avoidance: { asked: avoiding, achieved: [], fellBack: true } }
   }
@@ -591,11 +591,7 @@ export async function calculateRouteWithLegs(
       legs,
       ...(route.viaPoints.length ? { vias: route.viaPoints } : {}),
     }
-    routeCache.set(cacheKey, result)
-    if (routeCache.size > ROUTE_CACHE_MAX) {
-      const oldest = routeCache.keys().next().value
-      if (oldest !== undefined) routeCache.delete(oldest)
-    }
+    rememberRoute(cacheKey, result)
     return result
   }
 
@@ -636,15 +632,6 @@ async function osrmWithLegs(
 
   const snapped = readSnapped(data, waypoints)
   return { coordinates, distance: route.distance, duration: route.duration, legs, ...(snapped ? { snapped } : {}) }
-}
-
-/** Store a route and drop the oldest once the cache is over its cap. */
-function cacheRoute(key: string, route: RouteWithLegs): void {
-  routeCache.set(key, route)
-  if (routeCache.size > ROUTE_CACHE_MAX) {
-    const oldest = routeCache.keys().next().value
-    if (oldest !== undefined) routeCache.delete(oldest)
-  }
 }
 
 /**

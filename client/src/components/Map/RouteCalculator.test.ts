@@ -426,6 +426,23 @@ describe('calculateRouteWithLegs', () => {
     expect(second).toBe(first)
   })
 
+  it('FE-COMP-ROUTECALCULATOR-035b: a route answered once is still there after a reload, without asking the router (#2794)', async () => {
+    let hits = 0
+    server.use(http.get(`${FOSSGIS.driving}/:coords`, () => { hits++; return HttpResponse.json(buildLegsResponse()) }))
+    const wps = freshWaypoints()
+    const first = await calculateRouteWithLegs(wps)
+    const { offlineDb } = await import('../../db/offlineDb')
+    await vi.waitFor(async () => expect(await offlineDb.routeCache.count()).toBeGreaterThan(0))
+
+    // A reload: the module, and with it the cache in memory, starts over.
+    vi.resetModules()
+    const reloaded = await import('./RouteCalculator')
+    const again = await reloaded.calculateRouteWithLegs(wps)
+
+    expect(hits).toBe(1)
+    expect(again).toEqual(first)
+  })
+
   it('FE-COMP-ROUTECALCULATOR-036: switching the distance unit re-fetches instead of reusing stale text (#1300)', async () => {
     server.use(http.get(`${FOSSGIS.driving}/:coords`, () => HttpResponse.json(buildLegsResponse())))
     const wps = freshWaypoints()
