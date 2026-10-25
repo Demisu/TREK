@@ -281,7 +281,8 @@ export function TourPlannerMapStage({
         ) : (
           <MapView
             tripId={tripId}
-            places={[]}
+            places={tourMap.overviewPlaces}
+            onMarkerClick={tourMap.openOverviewTour}
             route={lines.route}
             routeWalking={lines.routeWalking}
             routeColors={lines.routeColors}

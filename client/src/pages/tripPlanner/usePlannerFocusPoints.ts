@@ -7,14 +7,16 @@ import type { Place } from '../../types';
 /**
  * What the TOUR-PLANNER map frames: a browsed wanderer trail, the recorded
  * track or the control points of the open tour, and with nothing open the
- * area the plan map last showed (or the trip's places). The plan map reports
- * its viewport into the returned ref.
+ * trip's tours on show (`overviewPoints`), else the area the plan map last
+ * showed (or the trip's places). The plan map reports its viewport into the
+ * returned ref.
  */
 export function usePlannerFocusPoints(
   activeTab: string,
   places: readonly Place[],
   tourPlanner: TourPlannerController,
-  wandererBrowser: Pick<WandererBrowser, 'open' | 'line'>
+  wandererBrowser: Pick<WandererBrowser, 'open' | 'line'>,
+  overviewPoints: readonly [number, number][] = []
 ) {
   const lastPlanMapViewportRef = useRef<Bbox | null>(null);
   // Nothing reported yet when the planner first opens; the effect takes the area the plan map last showed.
@@ -49,6 +51,7 @@ export function usePlannerFocusPoints(
     if (tourPlanner.mode.type === 'edit-saved' && tourPlanner.waypoints.length) {
       return tourPlanner.waypoints.map((point) => [point.lat, point.lng]);
     }
+    if (tourPlanner.mode.type === 'neutral' && overviewPoints.length) return [...overviewPoints];
     return plannerFallbackFocusPoints;
   }, [
     wandererBrowser.open,
@@ -56,6 +59,7 @@ export function usePlannerFocusPoints(
     tourPlanner.mode.type,
     tourPlanner.readOnlyGpxAnalysis?.routeCoordinates,
     tourPlanner.waypoints,
+    overviewPoints,
     plannerFallbackFocusPoints,
   ]);
 

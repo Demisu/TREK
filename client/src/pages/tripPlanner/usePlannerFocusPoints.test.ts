@@ -31,6 +31,25 @@ describe('usePlannerFocusPoints', () => {
     expect(result.current.focusPoints).toEqual([[48, 11]]);
   });
 
+  it('FE-TP-FOCUSPOINTS-005: with nothing open the trip tours on show are framed, an open tour frames its own points', () => {
+    const tours: [number, number][] = [
+      [46.5, 12.0],
+      [46.7, 12.2],
+    ];
+    const neutral = renderHook(() => usePlannerFocusPoints('tour-planner', PLACES, planner(), closed, tours));
+    expect(neutral.result.current.focusPoints).toEqual(tours);
+    const editing = renderHook(() =>
+      usePlannerFocusPoints(
+        'tour-planner',
+        PLACES,
+        planner({ mode: { type: 'new-draft' }, waypoints: [{ lat: 1, lng: 2 }] }),
+        closed,
+        tours
+      )
+    );
+    expect(editing.result.current.focusPoints).toEqual([[1, 2]]);
+  });
+
   it('FE-TP-FOCUSPOINTS-002: the area the plan map last showed wins once the planner opens again', () => {
     const { result, rerender } = renderHook(({ tab }) => usePlannerFocusPoints(tab, PLACES, planner(), closed), {
       initialProps: { tab: 'plan' },

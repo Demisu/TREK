@@ -16,6 +16,7 @@ import { useMapLocationSearch } from './useMapLocationSearch'
 import { usePlannerFocusPoints } from './usePlannerFocusPoints'
 import { useTripPlanner } from './useTripPlanner'
 import { useTourWorkspace } from './useTourWorkspace'
+import { useTourOverview } from './useTourOverview'
 import { mapFocusKeyOf, offeredWaysOf, paddleLineOf } from './tourMapFocus'
 import { placeFormContext } from './placeFormContext'
 
@@ -41,7 +42,12 @@ export function useTripPlannerPage() {
   useAssistantEntityLinks({ planner, workspace })
 
   const tourDetailOpenerRef = useRef<{ placeId: number; element: HTMLElement } | null>(null)
-  const { focusPoints, lastPlanMapViewportRef } = usePlannerFocusPoints(activeTab, places, tourPlanner, wandererBrowser)
+  // With no tour open, the Tours map shows the trip's tours and frames them.
+  const tourOverview = useTourOverview(
+    tripId, places, planner.tourPlaceIds,
+    activeTab === 'tour-planner' && tourPlanner.mode.type === 'neutral' && !wandererBrowser.open,
+  )
+  const { focusPoints, lastPlanMapViewportRef } = usePlannerFocusPoints(activeTab, places, tourPlanner, wandererBrowser, tourOverview.framePoints)
 
   // PAD-06: an obstacle or area the paddle checklist asks for moves the camera as a picked search result does.
   const paddleFocus = usePaddleObstacleStore(state => state.focus)
@@ -152,7 +158,9 @@ export function useTripPlannerPage() {
       variantLines: drawn.overlays,
       previewPoints: tourConversion.status === 'idle' ? null : tourConversion.points,
       focusPoints: offered.frame?.points ?? mapFocusPoints,
-      focusKey: mapFocusKeyOf(wandererBrowser, offered.frame, mapFocusKey),
+      focusKey: mapFocusKeyOf(wandererBrowser, offered.frame, mapFocusKey) + tourOverview.focusSuffix,
+      overviewPlaces: tourOverview.tourPlaces,
+      openOverviewTour: workspace.openTourInPlanner,
       captureViewport,
     },
     locationSearch,
