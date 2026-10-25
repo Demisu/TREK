@@ -25,13 +25,25 @@ interface CollabLink {
   pinned: boolean | number
 }
 
+// The glyph holds the place until a favicon has really arrived: a host that never
+// answers, or answers with a blank pixel, left the chip with an empty square.
 function LinkIcon({ url }: { url: string }) {
-  const [failed, setFailed] = useState(false)
+  const [state, setState] = useState<'loading' | 'loaded' | 'failed'>('loading')
   let favicon = ''
   try { favicon = new URL('/favicon.ico', url).href } catch { /* not a parseable url, fall through to the glyph */ }
+  const loaded = state === 'loaded'
   return (
     <span className="collab-link-chip__icon" aria-hidden="true">
-      {!favicon || failed ? <Link2 size={13} /> : <img src={favicon} alt="" onError={() => setFailed(true)} />}
+      {!loaded && <Link2 size={13} />}
+      {favicon && state !== 'failed' && (
+        <img
+          src={favicon}
+          alt=""
+          hidden={!loaded}
+          onLoad={(e) => setState(e.currentTarget.naturalWidth > 2 ? 'loaded' : 'failed')}
+          onError={() => setState('failed')}
+        />
+      )}
       <span className="collab-link-chip__go"><ExternalLink size={13} /></span>
     </span>
   )
