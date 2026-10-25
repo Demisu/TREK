@@ -616,6 +616,18 @@ describe('OpenAiResponsesClient', () => {
     expect(
       await failure(new OpenAiResponsesClient('m', tokens('a', 'b'), twice.fetcher).stream(REQUEST, signal())),
     ).toMatchObject({ code: 'needs_reauth' });
+
+    // An API key has nothing to refresh: one request, and the refusal names the key (#2792).
+    const keyed = fetchAnswering(jsonResponse(401, {}), streamResponse(STREAM));
+    const key = tokens('sk-key');
+    const refused = await failure(
+      new OpenAiResponsesClient('gpt-6.1-sol', key, keyed.fetcher, 'openai').stream(REQUEST, signal()),
+    );
+    expect(refused).toMatchObject({ code: 'invalid_key' });
+    expect(key).toHaveBeenCalledTimes(1);
+    expect(keyed.calls).toHaveLength(1);
+    expect(keyed.calls[0]?.url).toBe('https://api.openai.com/v1/responses');
+    expect(keyed.calls[0]?.init.headers).toMatchObject({ authorization: 'Bearer sk-key' });
   });
 
   it('OARS-005: a used-up plan, a failed response and a stream without completion are provider errors', async () => {
