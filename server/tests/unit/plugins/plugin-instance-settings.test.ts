@@ -145,7 +145,7 @@ async function installFixturePlugin(opts: { settings: Array<Record<string, unkno
       name: 'Fixture',
       version: '1.0.0',
       type: 'integration',
-      trek: '>=4.0.0 <5.0.0',
+      trek: '>=4.0.0 <6.0.0',
       settings: opts.settings,
     }),
   );
