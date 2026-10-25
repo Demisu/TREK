@@ -1,5 +1,7 @@
 import type { BookDocument } from '@trek/shared';
 import { normalizeBookDocument } from '@trek/shared';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { fireEvent, render, screen, within } from '../../../../tests/helpers/render';
@@ -9,11 +11,11 @@ import type { StudioUploader } from '../studioUpload';
 import { RAIL_SECTIONS, type RailSection } from './railSections';
 
 /**
- * FE-STUDIO-RAIL-001 to FE-STUDIO-RAIL-006: the rail down the side of Studio
+ * FE-STUDIO-RAIL-001 to FE-STUDIO-RAIL-007: the rail down the side of Studio
  * and the panel it opens. Every section is a tab that opens its own panel
  * under one head, the keyboard reaches every tab, a long name wraps inside
- * the rail, and the shell can hold the open section so the inspector can open
- * one from the other side.
+ * the rail and only between words, and the shell can hold the open section so
+ * the inspector can open one from the other side.
  */
 
 const SOURCE: JourneySource = { entries: [], photos: [], photoEntries: {} };
@@ -52,6 +54,16 @@ function draw(over: { section?: RailSection; onSection?: (s: RailSection) => voi
       onSection={over.onSection}
     />
   );
+}
+
+/** Studio's stylesheet, which jsdom does not apply: its rules are the assertion. */
+const STUDIO_CSS = readFileSync(resolve(process.cwd(), 'src/styles/studio.css'), 'utf8');
+
+/** The rule written for exactly this selector, searched in `source` (one media query, say). */
+function rule(selector: string, source = STUDIO_CSS): string {
+  const at = source.indexOf(`${selector} {`);
+  expect(at, `${selector} missing from studio.css`).toBeGreaterThan(-1);
+  return source.slice(at, source.indexOf('}', at) + 1);
 }
 
 /** The head of the panel that is open: the name every panel opens on. */
@@ -167,5 +179,43 @@ describe('the rail', () => {
     ]);
     fireEvent.click(screen.getByRole('tab', { name: 'journey.studio.stickers' }));
     expect(screen.getByRole('textbox', { name: 'journey.studio.searchStickers' })).toBeTruthy();
+  });
+
+  it('FE-STUDIO-RAIL-007: wraps a name only between words, the rail growing to its longest word instead', () => {
+    // "Elements" in the label's 9.5px Poppins is 50.4px wide and a 52px tab left
+    // it 48px, so overflow-wrap: anywhere cut it into "Element" and "s" wherever
+    // no hyphenation dictionary was at hand. Catalan's "Maquetacions" is 77px and
+    // a larger text size widens every word, so no fixed width holds them all.
+    draw();
+    const selector = '.trek-dash .st-rail-btn .st-rail-label';
+    const names = [...document.querySelectorAll('.st-rail-label')];
+    expect(names).toHaveLength(RAIL_SECTIONS.length);
+    // Every name the rail renders is one the rule reaches; .trek-dash is the shell's root.
+    for (const name of names) expect(name.matches(selector.replace('.trek-dash ', ''))).toBe(true);
+    const label = rule(selector);
+    expect(label).toMatch(/overflow-wrap:\s*normal;/);
+    expect(label).toMatch(/word-break:\s*keep-all;/);
+    expect(label).toMatch(/hyphens:\s*manual;/);
+    expect(label).not.toMatch(/anywhere|break-all|break-word|hyphens:\s*auto/);
+    // The type stays on the caption step the user's text size scales.
+    expect(label).toMatch(/font-size:\s*calc\([\d.]+px \* var\(--fs-scale-caption, 1\)\)/);
+
+    // A tab takes the rail's width, and the rail's column is 64px or its
+    // min-content, which is the longest word, in each of the three layouts.
+    expect(rule('.trek-dash .st-rail-btn')).not.toMatch(/[\s;{]width:/);
+    const columns = [...STUDIO_CSS.matchAll(/\.st-body \{[^}]*?grid-template-columns:\s*([^;]+);/g)].map((m) => m[1]);
+    expect(columns).toEqual([
+      'minmax(64px, min-content) 236px minmax(0, 1fr) 300px',
+      'minmax(64px, min-content) 236px minmax(0, 1fr)',
+      'minmax(64px, min-content) minmax(0, 1fr)',
+    ]);
+
+    // Below 1080 the panel floats over the workbench's own cell, so it starts
+    // where the rail ends, not at a fixed 64px from the edge.
+    const at = STUDIO_CSS.indexOf('@media (max-width: 1079px) {');
+    expect(at, 'the narrow layout missing from studio.css').toBeGreaterThan(-1);
+    const narrow = STUDIO_CSS.slice(at, STUDIO_CSS.indexOf('\n}', at));
+    expect(narrow).toContain('.trek-dash .st-side, .trek-dash .st-work-wrap { grid-area: 1 / 2; }');
+    expect(rule('.trek-dash .st-side', narrow)).not.toMatch(/position:\s*absolute|inset-inline-start/);
   });
 });

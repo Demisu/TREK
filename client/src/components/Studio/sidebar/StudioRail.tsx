@@ -11,9 +11,9 @@ import { RAIL_IDS, RAIL_SECTIONS, type RailSection } from './railSections';
  * A list of tabs to a screen reader and to the keyboard, as it is to the eye:
  * Tab reaches the open section, the arrows move up and down the rail, Home and
  * End jump to its ends, and Enter or Space opens a section (studioRoving.ts).
- * A name longer than the rail is wide wraps onto a second line and breaks
- * inside a word only when the word alone is wider than the rail; the title
- * carries it whole either way.
+ * A name longer than the rail is wide wraps onto a second line, only ever
+ * between words: where one word alone is wider, the rail grows to fit it
+ * (studio.css) instead of cutting it. The title carries the name whole.
  */
 export function StudioRail({
   section,

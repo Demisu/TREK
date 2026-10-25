@@ -19,7 +19,8 @@ import type { StudioUploader } from './studioUpload'
  * has a handful of completely different kinds of thing you reach for (which
  * page, what from the journey, what arrangement, what to draw), and putting
  * them behind tabs in a single 200px column would make each of them cramped.
- * An icon rail costs 64px and gives the panel the room a photo browser needs.
+ * An icon rail costs 64px, a little more where a section's name holds a longer
+ * word, and gives the panel the room a photo browser needs.
  *
  * Which section is open is the shell's when it says so (`section` and
  * `onSection`), so the inspector on the other side can open the Theme or the
