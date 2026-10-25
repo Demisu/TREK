@@ -1,3 +1,5 @@
+import { elevationGainLoss } from '@trek/shared'
+
 export interface DistanceIndexedProfileSample {
   distanceMeters: number
   elevationMeters: number
@@ -109,8 +111,6 @@ export function analyzeRouteGeometry(routeGeometry: string | null | undefined): 
   let distanceMeters = 0
   let minEle = hasElevation ? points[0][2]! : null
   let maxEle = minEle
-  let gain = hasElevation ? 0 : null
-  let loss = hasElevation ? 0 : null
   const distanceIndexedProfileSamples: DistanceIndexedProfileSample[] = hasElevation
     ? [{ distanceMeters: 0, elevationMeters: points[0][2]!, lat: points[0][0], lng: points[0][1] }]
     : []
@@ -122,19 +122,18 @@ export function analyzeRouteGeometry(routeGeometry: string | null | undefined): 
     const elevation = points[index][2]!
     minEle = Math.min(minEle!, elevation)
     maxEle = Math.max(maxEle!, elevation)
-    const delta = elevation - points[index - 1][2]!
-    if (delta > 0) gain! += delta
-    else loss! += Math.abs(delta)
     distanceIndexedProfileSamples.push({ distanceMeters, elevationMeters: elevation, lat: points[index][0], lng: points[index][1] })
   }
 
+  // Ascent and descent with the elevation model's jitter left out, as the server counts them.
+  const climb = hasElevation ? elevationGainLoss(points.map(point => point[2]!)) : null
   return {
     routeCoordinates: points.map(([lat, lng]) => [lat, lng]),
     distanceKm: distanceMeters / 1000,
     minEle,
     maxEle,
-    gain,
-    loss,
+    gain: climb ? climb.gain : null,
+    loss: climb ? climb.loss : null,
     distanceIndexedProfileSamples,
   }
 }

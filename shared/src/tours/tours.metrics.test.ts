@@ -1,5 +1,5 @@
 import { haversineMetres } from '../geo/haversine';
-import { computeTourMetrics } from './tours.metrics';
+import { computeTourMetrics, elevationGainLoss } from './tours.metrics';
 
 import { describe, expect, it } from 'vitest';
 
@@ -32,6 +32,24 @@ describe('computeTourMetrics', () => {
       elevationLossM: null,
       hasElevation: false,
     });
+  });
+});
+
+describe('elevationGainLoss', () => {
+  it('leaves out jitter that turns back before it reaches the noise floor', () => {
+    expect(elevationGainLoss([2, 6, 1, 5, 0, 4, 2])).toEqual({ gain: 0, loss: 0 });
+  });
+
+  it('counts a climb made of small steps in full once it passes the floor', () => {
+    expect(elevationGainLoss([100, 102, 104, 106, 108, 110, 112, 105])).toEqual({ gain: 12, loss: 7 });
+  });
+
+  it('keeps large moves exactly as they are', () => {
+    expect(elevationGainLoss([1000, 1100, 1050])).toEqual({ gain: 100, loss: 50 });
+  });
+
+  it('reads nothing into an empty run', () => {
+    expect(elevationGainLoss([])).toEqual({ gain: 0, loss: 0 });
   });
 });
 
