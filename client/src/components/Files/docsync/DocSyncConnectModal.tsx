@@ -6,7 +6,7 @@ import ToggleSwitch from '../../Settings/ToggleSwitch'
 import { useTranslation } from '../../../i18n/TranslationContext'
 import { useConnectForm } from './useConnectForm'
 import { Badge } from './DocSyncBits'
-import { DOCUMENT_PROVIDER_ICONS } from '../../shared/DocumentProviderIcons'
+import { DOCUMENT_PROVIDER_ICONS } from '../../shared/documentProviderIconMap'
 import type { DocSyncProvider, DocSyncVerdict, useDocSync } from './useDocSync'
 
 /**

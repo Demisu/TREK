@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useTranslation } from '../../../i18n/TranslationContext'
-import { DOCUMENT_PROVIDER_ICONS } from '../../shared/DocumentProviderIcons'
+import { DOCUMENT_PROVIDER_ICONS } from '../../shared/documentProviderIconMap'
 import TrekIcon from '../../shared/TrekIcon'
 import { Badge } from './DocSyncBits'
 import { toggledDirection, type SyncDirection } from './docSyncModel'

@@ -9,7 +9,7 @@ import MToggle from '../../../components/MToggle'
 import MConfirmSheet from '../../settings/MConfirmSheet'
 import { TileHeader } from '../sheets/MTripSheetUi'
 import { useTranslation } from '../../../../i18n'
-import { DOCUMENT_PROVIDER_ICONS } from '../../../../components/shared/DocumentProviderIcons'
+import { DOCUMENT_PROVIDER_ICONS } from '../../../../components/shared/documentProviderIconMap'
 import TrekIcon from '../../../../components/shared/TrekIcon'
 import {
   bindingNotice, needsReauth, storeName, useDocSync, type DocSyncLink, type DocSyncProvider, type DocSyncVerdict,

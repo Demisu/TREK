@@ -13,7 +13,7 @@
 import { describe, it, expect } from 'vitest'
 import { DOCUMENT_PROVIDER_IDS } from '@trek/shared'
 import { render } from '../../../tests/helpers/render'
-import { DOCUMENT_PROVIDER_ICONS } from './DocumentProviderIcons'
+import { DOCUMENT_PROVIDER_ICONS } from './documentProviderIconMap'
 import TrekIcon from './TrekIcon'
 
 const marks = Object.entries(DOCUMENT_PROVIDER_ICONS)

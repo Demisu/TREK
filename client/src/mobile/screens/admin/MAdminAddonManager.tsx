@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import DawarichIcon from '../../../components/shared/DawarichIcon'
 import AirTrailIcon from '../../../components/shared/AirTrailIcon'
-import { DOCUMENT_PROVIDER_ICONS } from '../../../components/shared/DocumentProviderIcons'
+import { DOCUMENT_PROVIDER_ICONS } from '../../../components/shared/documentProviderIconMap'
 import MToggle from '../../components/MToggle'
 import {
   type Addon,

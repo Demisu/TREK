@@ -20,7 +20,7 @@
     "no-useless-assignment": 7,
     "no-empty": 19,
     "trek/no-window-globals": 41,
-    "react-refresh/only-export-components": 45,
+    "react-refresh/only-export-components": 44,
     "unused-disable-directive": 6,
     "max-depth": 21,
     "react-hooks/void-use-memo": 1,

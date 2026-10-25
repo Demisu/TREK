@@ -5,7 +5,7 @@ import { Puzzle, ListChecks, Wallet, FileText, CalendarDays, Globe, Briefcase, I
 import EmptyState from '../shared/EmptyState'
 import DawarichIcon from '../shared/DawarichIcon'
 import AirTrailIcon from '../shared/AirTrailIcon'
-import { DOCUMENT_PROVIDER_ICONS } from '../shared/DocumentProviderIcons'
+import { DOCUMENT_PROVIDER_ICONS } from '../shared/documentProviderIconMap'
 import AddonTile from './AddonTile'
 import AddonSubRow from './AddonSubRow'
 import { Tooltip } from '../shared/Tooltip'
