@@ -655,7 +655,7 @@ const admin: TranslationStrings = {
   'admin.plugins.dep.trekAcceptedUnknown': 'Tanpa versi TREK, berjalan atas risikomu',
   'admin.plugins.activateAnyway': 'Tetap aktifkan',
   'admin.plugins.untestedChip': 'Belum dikonfirmasi untuk TREK {host}',
-  'admin.plugins.filters': 'Filter',
+  'admin.plugins.filters': 'Saring',
   'admin.plugins.security.short': 'Cara plugin diamankan',
   'admin.plugins.accessTitle': 'Yang bisa diaksesnya',
   'admin.plugins.connectsTitle': 'Terhubung ke',

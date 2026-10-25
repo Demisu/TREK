@@ -608,7 +608,7 @@ const admin: TranslationStrings = {
   'admin.plugins.dep.trekAcceptedUnknown': 'Geen TREK-versie opgegeven, draait op eigen risico',
   'admin.plugins.activateAnyway': 'Toch activeren',
   'admin.plugins.untestedChip': 'Nog niet bevestigd voor TREK {host}',
-  'admin.plugins.filters': 'Filter',
+  'admin.plugins.filters': 'Filteren',
   'admin.plugins.security.short': 'Zo zijn plugins beveiligd',
   'admin.plugins.accessTitle': 'Waartoe hij toegang heeft',
   'admin.plugins.connectsTitle': 'Maakt verbinding met',

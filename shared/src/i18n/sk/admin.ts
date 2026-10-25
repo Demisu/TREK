@@ -678,7 +678,7 @@ const admin: TranslationStrings = {
   'admin.plugins.dep.trekAcceptedUnknown': 'Bez uvedenej verzie TREK, beží na vlastné riziko',
   'admin.plugins.activateAnyway': 'Napriek tomu aktivovať',
   'admin.plugins.untestedChip': 'Pre TREK {host} zatiaľ nepotvrdené',
-  'admin.plugins.filters': 'Filter',
+  'admin.plugins.filters': 'Filtrovať',
   'admin.plugins.security.short': 'Ako sú pluginy zabezpečené',
   'admin.plugins.accessTitle': 'K čomu má prístup',
   'admin.plugins.connectsTitle': 'Pripája sa k',

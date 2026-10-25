@@ -673,7 +673,7 @@ const admin: TranslationStrings = {
   'admin.plugins.dep.trekAcceptedUnknown': 'TREK-i versioon puudub, töötab omal vastutusel',
   'admin.plugins.activateAnyway': 'Aktiveeri siiski',
   'admin.plugins.untestedChip': 'TREK {host} jaoks veel kinnitamata',
-  'admin.plugins.filters': 'Filter',
+  'admin.plugins.filters': 'Filtreeri',
   'admin.plugins.security.short': 'Nii on pluginad kaitstud',
   'admin.plugins.accessTitle': 'Millele see ligi pääseb',
   'admin.plugins.connectsTitle': 'Ühendub',
