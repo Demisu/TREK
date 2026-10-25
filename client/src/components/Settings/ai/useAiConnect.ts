@@ -5,7 +5,14 @@ import { useTranslation } from '../../../i18n';
 import { aiConnectionsRepo } from '../../../repo/aiConnectionsRepo';
 import { detectKeyKind, isChatgptCallback, providerLabel } from '../../Assistant/providerCatalog';
 import { useToast } from '../../shared/Toast';
-import { connectErrorKey, httpHostOf, refusalCode, rememberOpenrouterFlow, takeOpenrouterFlow } from './aiConnectModel';
+import {
+  callbackMatchesFlow,
+  connectErrorKey,
+  httpHostOf,
+  refusalCode,
+  rememberOpenrouterFlow,
+  takeOpenrouterFlow,
+} from './aiConnectModel';
 
 /**
  * The ways to connect a provider, one hook each, behind `AiConnectPanel`: a
@@ -205,6 +212,10 @@ export function useChatgptConnect({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ConnectError | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Set at once, unlike `busy`: the clipboard read on return and the user's own
+  // paste can hand in the same address within one render, and the server takes
+  // a sign-in only once, so the second would come back as expired.
+  const finishing = useRef(false);
 
   useEffect(() => {
     if (!active) return;
@@ -232,8 +243,8 @@ export function useChatgptConnect({
 
   const finish = async (raw: string) => {
     const url = raw.trim();
-    if (!flow || busy) return;
-    if (!isChatgptCallback(url)) {
+    if (!flow || finishing.current) return;
+    if (!isChatgptCallback(url) || !callbackMatchesFlow(url, flow.authorizeUrl)) {
       setError({ messageKey: 'assistant.connect.chatgptWrong', code: 'wrong_url' });
       return;
     }
@@ -242,6 +253,7 @@ export function useChatgptConnect({
       restart();
       return;
     }
+    finishing.current = true;
     setBusy(true);
     setError(null);
     try {
@@ -253,6 +265,7 @@ export function useChatgptConnect({
       setError({ messageKey: connectErrorKey(err), code });
       if (code === 'expired') restart();
     } finally {
+      finishing.current = false;
       setBusy(false);
     }
   };
@@ -280,10 +293,12 @@ export function useChatgptConnect({
 
   // Back from the sign-in window: the address the user just copied is taken
   // off the clipboard where the browser allows it, else the field has the cursor.
+  // An address left over from an earlier sign-in is not sent: it would use up this one.
   useOnReturnToTab(opened, () => {
     if (pasted.trim() || busy) return;
     readClipboard((text) => {
-      if (!paste(text)) focusField();
+      if (flow && !callbackMatchesFlow(text, flow.authorizeUrl)) focusField();
+      else if (!paste(text)) focusField();
     }, focusField);
   });
 

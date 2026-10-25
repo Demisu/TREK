@@ -1,4 +1,4 @@
-// FE-HOOK-AI-CONNECT-001 to FE-HOOK-AI-CONNECT-013: pasting a key, an own server, the ChatGPT sign-in and the OpenRouter return.
+// FE-HOOK-AI-CONNECT-001 to FE-HOOK-AI-CONNECT-015: pasting a key, an own server, the ChatGPT sign-in and the OpenRouter return.
 import { act, fireEvent, renderHook, waitFor } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
 import { MemoryRouter, useLocation } from 'react-router';
@@ -248,6 +248,52 @@ describe('useChatgptConnect', () => {
     expect(document.activeElement).toBe(input);
     expect(readText).toHaveBeenCalledTimes(1);
     input.remove();
+  });
+
+  it('FE-HOOK-AI-CONNECT-014: the same address handed in twice at once is sent once, so the sign-in is not used up', async () => {
+    let answer: (value: unknown) => void = () => undefined;
+    repo.chatgptFinish.mockImplementationOnce(() => new Promise((resolve) => (answer = resolve)));
+    const onConnected = vi.fn();
+    const { result } = renderHook(() => useChatgptConnect({ active: true, onConnected }), { wrapper: wrapperAt() });
+    await waitFor(() => expect(result.current.flow).not.toBeNull());
+    act(() => {
+      result.current.paste(CALLBACK);
+      result.current.paste(CALLBACK);
+    });
+    await act(async () => answer({}));
+    await waitFor(() => expect(onConnected).toHaveBeenCalledTimes(1));
+    expect(repo.chatgptFinish).toHaveBeenCalledTimes(1);
+    expect(result.current.error).toBeNull();
+  });
+
+  it('FE-HOOK-AI-CONNECT-015: an address from an earlier sign-in is not sent, and the one in progress stays usable', async () => {
+    repo.chatgptStart.mockResolvedValue({ ...FLOW, authorizeUrl: 'https://auth.openai.com/oauth/authorize?state=s2' });
+    const readText = vi.fn(async () => CALLBACK);
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { readText } });
+    Object.defineProperty(window, 'isSecureContext', { configurable: true, value: true });
+    const onConnected = vi.fn();
+    const { result } = renderHook(() => useChatgptConnect({ active: true, onConnected }), { wrapper: wrapperAt() });
+    await waitFor(() => expect(result.current.flow).not.toBeNull());
+
+    // Back from the sign-in window with the old address still on the clipboard: nothing is sent.
+    act(() => result.current.markOpened());
+    fireEvent.focus(window);
+    await waitFor(() => expect(readText).toHaveBeenCalled());
+    expect(repo.chatgptFinish).not.toHaveBeenCalled();
+    expect(result.current.error).toBeNull();
+
+    // Pasted by hand it is refused here, and the address this sign-in ended on still goes through.
+    act(() => {
+      result.current.paste(CALLBACK);
+    });
+    expect(result.current.error).toEqual({ messageKey: 'assistant.connect.chatgptWrong', code: 'wrong_url' });
+    const current = CALLBACK.replace('state=s1', 'state=s2');
+    act(() => {
+      result.current.paste(current);
+    });
+    await waitFor(() => expect(onConnected).toHaveBeenCalledTimes(1));
+    expect(repo.chatgptFinish).toHaveBeenCalledWith({ flowId: FLOW.flowId, pastedUrl: current });
+    expect(repo.chatgptStart).toHaveBeenCalledTimes(1);
   });
 });
 

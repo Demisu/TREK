@@ -56,6 +56,26 @@ export function repairModeOf(view: AiConnectionView): AiConnectMode | null {
   return view.kind === 'custom' ? 'custom' : 'key';
 }
 
+/**
+ * Whether a pasted ChatGPT callback ended this sign-in rather than an earlier
+ * one: its `state` is the one the sign-in address carried. The server takes a
+ * sign-in only once, so an address from an earlier attempt still on the
+ * clipboard would use up the one in progress. Without a state on either side
+ * the server decides.
+ */
+export function callbackMatchesFlow(callback: string, authorizeUrl: string): boolean {
+  const stateOf = (address: string) => {
+    try {
+      return new URL(address.trim()).searchParams.get('state');
+    } catch {
+      return null;
+    }
+  };
+  const expected = stateOf(authorizeUrl);
+  const pasted = stateOf(callback);
+  return !expected || !pasted || pasted === expected;
+}
+
 // The OpenRouter sign-in leaves the page and comes back with a code only; the
 // flow it belongs to waits here for that one return. Tab-scoped on purpose.
 const OPENROUTER_FLOW_KEY = 'trek.ai.openrouterFlow';
