@@ -5,6 +5,8 @@ import type { StayPin } from './useStayPin';
 
 interface StayPinStatusProps {
   pin: StayPin;
+  /** A stay already linked to a place of the trip shows on the map through that place. */
+  hidden?: boolean;
   /** Asks the map again with what the form now holds. */
   onRetry: () => void;
 }
@@ -15,9 +17,9 @@ interface StayPinStatusProps {
  * found, with a way to search again before it is saved without a pin. Shared by
  * the desktop booking dialog and the phone's booking sheet.
  */
-export default function StayPinStatus({ pin, onRetry }: StayPinStatusProps) {
+export default function StayPinStatus({ pin, hidden = false, onRetry }: StayPinStatusProps) {
   const { t } = useTranslation();
-  if (pin.status === 'idle') return null;
+  if (hidden || pin.status === 'idle') return null;
 
   if (pin.status === 'searching') {
     return (

@@ -339,11 +339,13 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
               placeholder={t('reservations.locationPlaceholder')}
               className={FIELD_CLS}
             />
-            {!form.hotel_place_id && (
-              <div className="mt-2">
-                <StayPinStatus pin={stayPin.pin} onRetry={() => stayPin.lookUp(form.title, form.hotel_address)} />
-              </div>
-            )}
+            <div className="mt-2 empty:hidden">
+              <StayPinStatus
+                pin={stayPin.pin}
+                hidden={!!form.hotel_place_id}
+                onRetry={() => stayPin.lookUp(form.title, form.hotel_address)}
+              />
+            </div>
           </>
         )}
 

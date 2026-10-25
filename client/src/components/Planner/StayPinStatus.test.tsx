@@ -23,6 +23,17 @@ describe('StayPinStatus', () => {
     expect(container.textContent).toBe('');
   });
 
+  it('FE-STAY-PIN-STATUS-001b: a stay already linked to a place of the trip shows nothing', () => {
+    const { container } = render(
+      createElement(
+        TranslationProvider,
+        null,
+        createElement(StayPinStatus, { pin: { status: 'missing' }, hidden: true, onRetry: vi.fn() })
+      )
+    );
+    expect(container.textContent).toBe('');
+  });
+
   it('FE-STAY-PIN-STATUS-002: says it is looking, then where it found the stay', () => {
     show({ status: 'searching' });
     expect(screen.getByRole('status')).toHaveTextContent('Looking for it on the map');

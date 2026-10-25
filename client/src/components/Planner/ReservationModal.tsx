@@ -368,12 +368,14 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
           </div>
           <EditorField label={t('reservations.locationAddress')}>
             <AddressInput value={form.hotel_address} onChange={v => set('hotel_address', v)}
-              onPick={!form.hotel_place_id ? stayPin.pick : undefined}
+              onPick={stayPin.pick}
               placeholder={t('reservations.locationPlaceholder')} className={INPUT} />
           </EditorField>
-          {!form.hotel_place_id && (
-            <StayPinStatus pin={stayPin.pin} onRetry={() => stayPin.lookUp(form.title, form.hotel_address)} />
-          )}
+          <StayPinStatus
+            pin={stayPin.pin}
+            hidden={!!form.hotel_place_id}
+            onRetry={() => stayPin.lookUp(form.title, form.hotel_address)}
+          />
         </>
       )}
 

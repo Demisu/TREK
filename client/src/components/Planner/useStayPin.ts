@@ -29,9 +29,9 @@ export function useStayPin() {
     []
   );
 
-  const lookUp = (name: string, address: string | null | undefined) => {
+  const lookUp = (name: string | null | undefined, address: string | null | undefined) => {
     const mine = ++ticket.current;
-    const queries = stayQueries(name, address);
+    const queries = stayQueries(name ?? '', address);
     if (isEffectivelyOffline()) {
       setPin({ status: 'idle' });
       return;
