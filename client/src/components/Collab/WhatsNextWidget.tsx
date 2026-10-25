@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { avatarSrc } from '../../utils/avatarSrc'
 import { useTripStore } from '../../store/tripStore'
 import { useSettingsStore } from '../../store/settingsStore'
@@ -8,6 +8,8 @@ import { fs } from '../shared/DialogShell'
 import CollabPanelHead from './CollabPanelHead'
 import EmptyState from '../shared/EmptyState'
 import { localToday } from '../Planner/today'
+import { useTripStays } from '../Planner/useTripStays'
+import { stayStartingOn } from '../../utils/dayMerge'
 
 function formatTime(timeStr, is12h) {
   if (!timeStr) return ''
@@ -48,6 +50,10 @@ export default function WhatsNextWidget({ tripMembers = [] }: WhatsNextWidgetPro
   const { days, assignments } = useTripStore()
   const { t, locale } = useTranslation()
   const is12h = useSettingsStore(s => s.settings.time_format) === '12h'
+  // A hotel on the day its stay begins is timed by the check-in when the stop has no time of its own.
+  const tripId = useTripStore(s => s.trip?.id ?? 0)
+  const { tripAccommodations, loadAccommodations } = useTripStays(tripId)
+  useEffect(() => { loadAccommodations() }, [loadAccommodations])
 
   const upcoming = useMemo(() => {
     const now = new Date()
@@ -60,14 +66,15 @@ export default function WhatsNextWidget({ tripMembers = [] }: WhatsNextWidgetPro
       const dayAssignments = assignments[String(day.id)] || []
       for (const a of dayAssignments) {
         if (!a.place) continue
+        const time = a.place.place_time || stayStartingOn(tripAccommodations, a.place.id, day.id)?.check_in || null
         // Include: today (not started yet, or still running) + all future days
         const isFutureDay = day.date > nowDate
-        const isTodayFuture = day.date === nowDate && (!a.place.place_time || a.place.place_time >= nowTime || (!!a.place.end_time && a.place.end_time >= nowTime))
+        const isTodayFuture = day.date === nowDate && (!time || time >= nowTime || (!!a.place.end_time && a.place.end_time >= nowTime))
         if (isFutureDay || isTodayFuture) {
           items.push({
             id: a.id,
             name: a.place.name,
-            time: a.place.place_time,
+            time,
             endTime: a.place.end_time,
             date: day.date,
             dayTitle: day.title,
@@ -88,7 +95,7 @@ export default function WhatsNextWidget({ tripMembers = [] }: WhatsNextWidgetPro
     })
 
     return items.slice(0, 8)
-  }, [days, assignments, tripMembers])
+  }, [days, assignments, tripMembers, tripAccommodations])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>

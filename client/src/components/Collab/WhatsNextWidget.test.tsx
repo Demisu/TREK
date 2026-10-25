@@ -1,4 +1,7 @@
 import { render, screen } from '../../../tests/helpers/render'
+import { http, HttpResponse } from 'msw'
+import { server } from '../../../tests/helpers/msw/server'
+import { buildTrip } from '../../../tests/helpers/factories'
 import { resetAllStores, seedStore } from '../../../tests/helpers/store'
 import { useTripStore } from '../../store/tripStore'
 import { useSettingsStore } from '../../store/settingsStore'
@@ -169,6 +172,20 @@ describe('WhatsNextWidget', () => {
     })
     render(<WhatsNextWidget />)
     expect(screen.getByText('TBD')).toBeInTheDocument()
+  })
+
+  it('FE-COMP-WHATSNEXT-018: a hotel without a time of its own shows the check-in of the stay it begins', async () => {
+    server.use(http.get('/api/trips/1/accommodations', () => HttpResponse.json({
+      accommodations: [{ id: 7, trip_id: 1, place_id: 40, start_day_id: 1, end_day_id: 2, check_in: '15:00', check_out: '11:00' }],
+    })))
+    seedStore(useTripStore, {
+      trip: buildTrip({ id: 1 }),
+      days: [{ id: 1, trip_id: 1, date: tomorrow, title: null, day_number: 0, assignments: [], notes_items: [], notes: null }],
+      assignments: { '1': [makeAssignment(40, { name: 'Hotel Kea', place_time: null })] },
+    })
+    render(<WhatsNextWidget />)
+    expect(await screen.findByText('15:00')).toBeInTheDocument()
+    expect(screen.queryByText('TBD')).not.toBeInTheDocument()
   })
 
   it('FE-COMP-WHATSNEXT-009: renders address when provided', () => {
