@@ -4,7 +4,9 @@ import type { AiConnectionView, AiStatusResponse } from '@trek/shared';
 import { createElement, type ReactNode } from 'react';
 import { MemoryRouter, useLocation } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { seedStore } from '../../../../tests/helpers/store';
 import { TranslationProvider } from '../../../i18n/TranslationContext';
+import { useAddonStore } from '../../../store/addonStore';
 import { useAssistantStore } from '../../../store/assistantStore';
 
 const repo = vi.hoisted(() => ({
@@ -61,6 +63,8 @@ function renderConnections(phone = false) {
 beforeEach(() => {
   vi.clearAllMocks();
   useAssistantStore.setState({ status: null, window: { open: false, minimized: false } });
+  // The card shows while the assistant is on, and only then is its status asked for.
+  seedStore(useAddonStore, { loaded: true, addons: [{ id: 'ai_assistant', enabled: true }] });
   repo.status.mockResolvedValue(status());
   repo.models.mockResolvedValue([
     { id: 'claude-sonnet', label: 'Claude Sonnet', supportsTools: true },

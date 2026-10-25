@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildUser } from '../../../../tests/helpers/factories';
 import { render, screen, waitFor } from '../../../../tests/helpers/render';
 import { seedStore } from '../../../../tests/helpers/store';
+import { useAddonStore } from '../../../store/addonStore';
 import { useAssistantStore } from '../../../store/assistantStore';
 import { useAuthStore } from '../../../store/authStore';
 
@@ -47,6 +48,8 @@ function status(over: Partial<AiStatusResponse> = {}): AiStatusResponse {
 beforeEach(() => {
   vi.clearAllMocks();
   useAssistantStore.setState({ status: null });
+  // The card shows while the assistant is on, and only then is its status asked for.
+  seedStore(useAddonStore, { loaded: true, addons: [{ id: 'ai_assistant', enabled: true }] });
   repo.models.mockResolvedValue([
     { id: 'gemini-flash', label: 'Gemini Flash', supportsTools: true, free: true },
     { id: 'gemini-pro', label: 'Gemini Pro', supportsTools: true },

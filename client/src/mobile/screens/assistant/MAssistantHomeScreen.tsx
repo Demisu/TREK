@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useMatch, useNavigate } from 'react-router';
 
 import type { AssistantChatTrip } from '../../../components/Assistant/assistantViewContext';
 import type { EntityTarget } from '../../../components/Assistant/cards/cardTypes';
 import { chatPagePath, useAssistantHome, useRouteJournalChat } from '../../../components/Assistant/useAssistantHome';
+import { useAssistantStatus } from '../../../components/Assistant/useAssistantStatus';
 import { useAssistantStore } from '../../../store/assistantStore';
 import { AssistantScreen, type MapHops } from '../trip/assistant/MAssistantScreen';
 
@@ -26,7 +27,6 @@ export default function MAssistantHomeScreen() {
   const available = useAssistantStore((s) => s.status?.available === true);
   const open = useAssistantStore((s) => s.window.open);
   const minimized = useAssistantStore((s) => s.window.minimized);
-  const loadStatus = useAssistantStore((s) => s.loadStatus);
   const close = useAssistantStore((s) => s.close);
 
   // The trip's screen (or the journal's) takes over with the window still open, so its chat comes up there.
@@ -46,10 +46,8 @@ export default function MAssistantHomeScreen() {
     [close, navigate]
   );
 
-  // The desktop window loads this itself; on the phone the pages outside a trip ask once.
-  useEffect(() => {
-    void loadStatus();
-  }, [loadStatus]);
+  // The desktop window loads this itself; on the phone the pages outside a trip ask here.
+  useAssistantStatus();
 
   if (inTrip || !available || !open || minimized) return null;
   return (

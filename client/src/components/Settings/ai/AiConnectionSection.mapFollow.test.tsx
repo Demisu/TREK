@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildUser } from '../../../../tests/helpers/factories';
 import { render, screen } from '../../../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
+import { useAddonStore } from '../../../store/addonStore';
 import { useAssistantStore } from '../../../store/assistantStore';
 import { useAuthStore } from '../../../store/authStore';
 import { useSettingsStore } from '../../../store/settingsStore';
@@ -33,6 +34,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   useAssistantStore.setState({ status: null });
   seedStore(useAuthStore, { user: buildUser(), isAuthenticated: true });
+  // The card shows while the assistant is on, and only then is its status asked for.
+  seedStore(useAddonStore, { loaded: true, addons: [{ id: 'ai_assistant', enabled: true }] });
   repo.models.mockResolvedValue([]);
 });
 

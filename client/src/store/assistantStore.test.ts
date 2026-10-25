@@ -1,5 +1,5 @@
 /**
- * FE-AI-STORE-001 to FE-AI-STORE-012
+ * FE-AI-STORE-001 to FE-AI-STORE-014
  *
  * The store runs a turn end to end against a faked repo: the request it
  * sends, how the stream lands in the chat, and what each way of failing
@@ -9,11 +9,14 @@
  */
 import type { AiStatusResponse, AssistantMessage, AssistantThreadResponse, UiStreamChunk } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { seedStore } from '../../tests/helpers/store';
 import { AssistantRequestError } from '../api/assistant';
 import { aiConnectionsRepo } from '../repo/aiConnectionsRepo';
 import { assistantRepo } from '../repo/assistantRepo';
 import { OnlineOnlyError } from '../repo/onlineOnly';
+import { useAddonStore } from './addonStore';
 import { chatOf, useAssistantStore } from './assistantStore';
+import { useAuthStore } from './authStore';
 import { useSettingsStore } from './settingsStore';
 
 const TRIP = 4;
@@ -60,6 +63,10 @@ async function* hangingStream(first: UiStreamChunk[], signal: AbortSignal): Asyn
   });
 }
 
+/** The addon list as it lands from the server, with these addons on. */
+const addonsOn = (...ids: string[]) =>
+  seedStore(useAddonStore, { loaded: true, addons: ids.map((id) => ({ id, enabled: true })) });
+
 const chat = () => chatOf(useAssistantStore.getState(), TRIP);
 const store = () => useAssistantStore.getState();
 
@@ -76,6 +83,7 @@ beforeEach(() => {
     lastApplied: null,
   });
   useSettingsStore.setState((s) => ({ settings: { ...s.settings, language: 'de' } }));
+  useAuthStore.setState({ managed: false });
 });
 afterEach(() => vi.restoreAllMocks());
 
@@ -311,6 +319,7 @@ describe('assistantStore: threads, window and status', () => {
   });
 
   it('FE-AI-STORE-012: status fails closed, offline keeps the last answer, and the privacy notice is acknowledged', async () => {
+    addonsOn('ai_assistant');
     vi.spyOn(aiConnectionsRepo, 'status').mockResolvedValueOnce(STATUS);
     await store().loadStatus();
     expect(store().status).toEqual(STATUS);
@@ -326,6 +335,41 @@ describe('assistantStore: threads, window and status', () => {
 
     vi.spyOn(aiConnectionsRepo, 'status').mockRejectedValueOnce({ response: { status: 500 } });
     await store().loadStatus();
+    expect(store().status).toBeNull();
+  });
+
+  it('FE-AI-STORE-013: the status is asked for only while the assistant or AI parsing is on', async () => {
+    const status = vi.spyOn(aiConnectionsRepo, 'status').mockResolvedValue(STATUS);
+    useAddonStore.setState({ addons: [], loaded: false });
+    await store().loadStatus();
+    addonsOn('mcp');
+    await store().loadStatus();
+    expect(status).not.toHaveBeenCalled();
+    expect(store().status).toBeNull();
+
+    addonsOn('llm_parsing');
+    await store().loadStatus();
+    expect(status).toHaveBeenCalledTimes(1);
+    expect(store().status).toEqual(STATUS);
+
+    addonsOn('ai_assistant');
+    await store().loadStatus();
+    expect(status).toHaveBeenCalledTimes(2);
+
+    // Switched off again, the assistant goes away without a request.
+    addonsOn();
+    await store().loadStatus();
+    expect(status).toHaveBeenCalledTimes(2);
+    expect(store().status).toBeNull();
+  });
+
+  it('FE-AI-STORE-014: a managed install, which refuses /api/ai, is not asked whatever its addons say', async () => {
+    const status = vi.spyOn(aiConnectionsRepo, 'status').mockResolvedValue(STATUS);
+    useAssistantStore.setState({ status: STATUS });
+    useAuthStore.setState({ managed: true });
+    addonsOn('ai_assistant', 'llm_parsing');
+    await store().loadStatus();
+    expect(status).not.toHaveBeenCalled();
     expect(store().status).toBeNull();
   });
 });

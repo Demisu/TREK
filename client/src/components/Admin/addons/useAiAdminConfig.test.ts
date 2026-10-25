@@ -5,7 +5,9 @@ import { MASKED_SETTING_VALUE } from '@trek/shared';
 import { createElement, type ReactNode } from 'react';
 import { MemoryRouter } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { seedStore } from '../../../../tests/helpers/store';
 import { TranslationProvider } from '../../../i18n/TranslationContext';
+import { useAddonStore } from '../../../store/addonStore';
 import { useAssistantStore } from '../../../store/assistantStore';
 
 const repo = vi.hoisted(() => ({
@@ -59,6 +61,8 @@ async function renderLoaded() {
 beforeEach(() => {
   vi.clearAllMocks();
   useAssistantStore.setState({ status: null });
+  // The settings show while the assistant is on, and only then is its status asked for.
+  seedStore(useAddonStore, { loaded: true, addons: [{ id: 'ai_assistant', enabled: true }] });
   repo.status.mockRejectedValue(new Error('not needed'));
   repo.adminSettings.mockResolvedValue(SETTINGS);
   repo.saveAdminSettings.mockImplementation(async (next: AiAdminSettings) => next);

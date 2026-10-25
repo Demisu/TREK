@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildAdmin, buildUser } from '../../../../tests/helpers/factories';
 import { render, screen, waitFor } from '../../../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
+import { useAddonStore } from '../../../store/addonStore';
 import { useAssistantStore } from '../../../store/assistantStore';
 import { useAuthStore } from '../../../store/authStore';
 
@@ -51,6 +52,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   useAssistantStore.setState({ status: null });
   seedStore(useAuthStore, { user: buildUser(), isAuthenticated: true });
+  // The card shows while the assistant is on, and only then is its status asked for.
+  seedStore(useAddonStore, { loaded: true, addons: [{ id: 'ai_assistant', enabled: true }] });
   repo.models.mockResolvedValue([{ id: 'claude-sonnet', label: 'Claude Sonnet', supportsTools: true }]);
   repo.disconnect.mockResolvedValue(undefined);
   repo.chatgptStart.mockResolvedValue({

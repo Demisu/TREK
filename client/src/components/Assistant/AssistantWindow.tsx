@@ -17,6 +17,7 @@ import type { AssistantChatTrip } from './assistantViewContext';
 import type { EntityTarget } from './cards/cardTypes';
 import { chatPagePath, useAssistantHome, useRouteJournalChat } from './useAssistantHome';
 import { useAssistantHotkey } from './useAssistantHotkey';
+import { useAssistantStatus } from './useAssistantStatus';
 import { useAssistantThread } from './useAssistantThread';
 
 /**
@@ -202,15 +203,12 @@ export default function AssistantWindow({ trip, onOpen, onFocusDay, onRevealMap 
   const available = useAssistantStore((s) => s.status?.available === true);
   const open = useAssistantStore((s) => s.window.open);
   const minimized = useAssistantStore((s) => s.window.minimized);
-  const loadStatus = useAssistantStore((s) => s.loadStatus);
   const toggle = useAssistantStore((s) => s.toggle);
   const [picked, setPicked] = useState<WindowTrip | null>(null);
   const [wasOpen, setWasOpen] = useState(open);
   const home = useAssistantHome(setPicked);
 
-  useEffect(() => {
-    void loadStatus();
-  }, [loadStatus]);
+  useAssistantStatus();
   useAssistantHotkey(available, toggle);
 
   // A trip picked outside the planner is only for this opening; the next one opens on the home chat again.

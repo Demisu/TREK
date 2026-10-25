@@ -25,6 +25,7 @@ import type { Assignment } from '../types';
 import { browserTimeZone } from '../utils/localDate';
 import { randomId } from '../utils/randomId';
 import type { RouteProfileFocus } from '../utils/routeGeometry';
+import { useAddonStore } from './addonStore';
 import { assistantScopeOf, assistantTargetOf, type AssistantChatKey } from './assistantChatKey';
 import {
   blockDays,
@@ -36,6 +37,7 @@ import {
   type WindowRect,
 } from './assistantMapModel';
 import { applyChunk, closeUndo, markDecisions } from './assistantMessages';
+import { useAuthStore } from './authStore';
 import { useSettingsStore } from './settingsStore';
 import { useTripStore } from './tripStore';
 
@@ -120,7 +122,10 @@ interface UndoBlockResult {
 }
 
 interface AssistantState {
-  /** What the assistant runs on for this user; null until loaded, and the assistant stays hidden until then. */
+  /**
+   * What the assistant runs on for this user; null until loaded, while no addon
+   * opens /api/ai (aiRoutesOpen) and on a managed install, and the assistant stays hidden then.
+   */
   status: AiStatusResponse | null;
   window: { open: boolean; minimized: boolean };
   /** The chats by `AssistantChatKey`: a trip's id, or a journey's key. */
@@ -314,6 +319,19 @@ const NO_ROUTE = { routeFocus: null, routePreview: null, routePeek: null } as co
 /** A chat as the store holds it, or the empty one; stable, so a selector can return it. */
 export function chatOf(state: Pick<AssistantState, 'byTrip'>, key: AssistantChatKey): AssistantTripChat {
   return state.byTrip[key] ?? EMPTY_CHAT;
+}
+
+/**
+ * Whether the addons open /api/ai: the server opens it while the assistant or
+ * AI parsing is on, the two sharing one connection, and answers 404 while
+ * both are off. Closed until the addon list is in. A selector on the addon
+ * store; a managed install refuses /api/ai whatever it says (loadStatus).
+ */
+export function aiRoutesOpen({
+  loaded,
+  isEnabled,
+}: Pick<ReturnType<typeof useAddonStore.getState>, 'loaded' | 'isEnabled'>): boolean {
+  return loaded && (isEnabled('ai_assistant') || isEnabled('llm_parsing'));
 }
 
 function httpStatus(err: unknown): number | undefined {
@@ -568,6 +586,12 @@ function backToAfter(byTrip: Record<number, AssistantTripChat>): Record<number, 
 function shellActions(ctx: Ctx) {
   return {
     loadStatus: async () => {
+      // While /api/ai is closed the request could only get a 404, or the 403 of a managed install: nothing is asked,
+      // and the assistant stays hidden. The managed flag comes with the app config, which can land after the addons.
+      if (useAuthStore.getState().managed || !aiRoutesOpen(useAddonStore.getState())) {
+        ctx.set({ status: null });
+        return;
+      }
       try {
         ctx.set({ status: await aiConnectionsRepo.status() });
       } catch (err) {

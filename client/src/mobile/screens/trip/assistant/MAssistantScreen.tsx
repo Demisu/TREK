@@ -23,6 +23,7 @@ import RoutePeekLazy from '../../../../components/Assistant/map/RoutePeekLazy';
 import { moveRoutePeek } from '../../../../components/Assistant/map/routePeekControl';
 import { useAssistantHintsSetting } from '../../../../components/Assistant/useAssistantHints';
 import { useAssistantLiveStep } from '../../../../components/Assistant/useAssistantLiveStep';
+import { useAssistantStatus } from '../../../../components/Assistant/useAssistantStatus';
 import { useAssistantThread } from '../../../../components/Assistant/useAssistantThread';
 import { useTripMemory } from '../../../../components/Assistant/useTripMemory';
 import { useKeyboardInset } from '../../../../hooks/useKeyboardInset';
@@ -395,13 +396,10 @@ export default function MAssistantScreen({ planner, shell }: MTripSheetsProps) {
   const minimized = useAssistantStore((s) => s.window.minimized);
   const peeking = useAssistantStore((s) => s.routePeek?.tripId === planner.tripId);
   const running = useAssistantStore((s) => s.byTrip[planner.tripId]?.isRunning === true);
-  const loadStatus = useAssistantStore((s) => s.loadStatus);
   const hops = useMapHops({ planner, shell });
 
-  // The desktop window loads this itself; on the phone the trip screen asks once.
-  useEffect(() => {
-    void loadStatus();
-  }, [loadStatus]);
+  // The desktop window loads this itself; on the phone the trip screen asks here.
+  useAssistantStatus();
 
   if (!available || !open || !planner.trip) return null;
   return (
