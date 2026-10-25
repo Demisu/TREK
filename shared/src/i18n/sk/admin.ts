@@ -669,7 +669,17 @@ const admin: TranslationStrings = {
     '„{name}“ neuvádza, ktoré verzie TREKu podporuje; tento server beží na {host}. TREK ho prepúšťa len preto, že je nastavené TREK_PLUGINS_IGNORE_TREK_RANGE. Nič nenasvedčuje tomu, že ho autor na tomto TREKu testoval, takže nie je zaručené, že bude fungovať — a v zriedkavých prípadoch môže nekompatibilný plugin poškodiť dáta TREKu. Pokračujte len vtedy, ak toto riziko prijímate.',
   'admin.plugins.dep.trekBypassed': 'Mimo svojho rozsahu TREKu ({range}) — kontroly verzií vypnuté',
   'admin.plugins.dep.trekBypassedUnknown': 'Neuvádza žiadny rozsah TREKu — kontroly verzií vypnuté',
-  'admin.plugins.incompatible': 'Nekompatibilný',
+  'admin.plugins.rangeBypass.titleAdmin': 'Na tomto TREK netestované',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Podľa autora „{name}“ podporuje TREK {range} a tento server beží na {host}. Autor ho pre tento TREK zatiaľ nepotvrdil, takže nemusí fungovať a v zriedkavých prípadoch môže nevhodný plugin poškodiť dáta TREK. Napriek tomu ho môžete používať: vaše rozhodnutie platí len pre tento plugin v tejto verzii a po aktualizácii sa TREK opýta znova.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '„{name}“ neuvádza, ktoré verzie TREK podporuje, a tento server beží na {host}. Nič nenasvedčuje tomu, že bol na tomto TREK testovaný, takže nemusí fungovať a v zriedkavých prípadoch môže nevhodný plugin poškodiť dáta TREK. Napriek tomu ho môžete používať: vaše rozhodnutie platí len pre tento plugin v tejto verzii a po aktualizácii sa TREK opýta znova.',
+  'admin.plugins.dep.trekAccepted': 'Vytvorené pre TREK {range}, beží na vlastné riziko',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Bez uvedenej verzie TREK, beží na vlastné riziko',
+  'admin.plugins.activateAnyway': 'Napriek tomu aktivovať',
+  'admin.plugins.untestedChip': 'Pre TREK {host} zatiaľ nepotvrdené',
+  'admin.plugins.filters': 'Filter',
+  'admin.plugins.security.short': 'Ako sú pluginy zabezpečené',
   'admin.plugins.accessTitle': 'K čomu má prístup',
   'admin.plugins.connectsTitle': 'Pripája sa k',
   'admin.plugins.detailsTitle': 'Podrobnosti',

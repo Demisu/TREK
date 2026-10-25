@@ -646,7 +646,17 @@ const admin: TranslationStrings = {
     '“{name}” tidak menyatakan versi TREK mana yang didukungnya; server ini menjalankan {host}. TREK meloloskannya hanya karena TREK_PLUGINS_IGNORE_TREK_RANGE disetel. Tidak ada tanda bahwa penulisnya mengujinya di TREK ini, jadi tidak ada jaminan plugin ini berfungsi — dan dalam kasus yang jarang, plugin yang tidak cocok dapat merusak data TREK. Lanjutkan hanya jika Anda menerima risiko itu.',
   'admin.plugins.dep.trekBypassed': 'Di luar rentang TREK-nya ({range}) — pemeriksaan versi nonaktif',
   'admin.plugins.dep.trekBypassedUnknown': 'Tidak menyatakan rentang TREK — pemeriksaan versi nonaktif',
-  'admin.plugins.incompatible': 'Tidak kompatibel',
+  'admin.plugins.rangeBypass.titleAdmin': 'Belum diuji di TREK ini',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Menurut pembuatnya, “{name}” mendukung TREK {range}, sedangkan server ini menjalankan {host}. Pembuatnya belum mengonfirmasinya untuk TREK ini, jadi mungkin tidak berfungsi, dan dalam kasus langka plugin yang tidak cocok dapat merusak data TREK. Kamu tetap bisa memakainya: pilihanmu hanya berlaku untuk plugin ini di versi ini, dan TREK akan bertanya lagi setelah pembaruan.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '“{name}” tidak menyebutkan versi TREK mana yang didukung, sedangkan server ini menjalankan {host}. Tidak ada tanda bahwa plugin ini sudah diuji di TREK ini, jadi mungkin tidak berfungsi, dan dalam kasus langka plugin yang tidak cocok dapat merusak data TREK. Kamu tetap bisa memakainya: pilihanmu hanya berlaku untuk plugin ini di versi ini, dan TREK akan bertanya lagi setelah pembaruan.',
+  'admin.plugins.dep.trekAccepted': 'Dibuat untuk TREK {range}, berjalan atas risikomu',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Tanpa versi TREK, berjalan atas risikomu',
+  'admin.plugins.activateAnyway': 'Tetap aktifkan',
+  'admin.plugins.untestedChip': 'Belum dikonfirmasi untuk TREK {host}',
+  'admin.plugins.filters': 'Filter',
+  'admin.plugins.security.short': 'Cara plugin diamankan',
   'admin.plugins.accessTitle': 'Yang bisa diaksesnya',
   'admin.plugins.connectsTitle': 'Terhubung ke',
   'admin.plugins.detailsTitle': 'Detail',

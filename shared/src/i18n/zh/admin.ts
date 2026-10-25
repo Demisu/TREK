@@ -536,7 +536,17 @@ const admin: TranslationStrings = {
     '“{name}”未声明支持哪些 TREK 版本；此服务器运行的是 {host}。仅因为设置了 TREK_PLUGINS_IGNORE_TREK_RANGE，TREK 才放行。没有迹象表明作者在此 TREK 上测试过它，因此无法保证它能正常工作——在极少数情况下，不匹配的插件可能损坏 TREK 数据。只有在接受该风险时才继续。',
   'admin.plugins.dep.trekBypassed': '超出其 TREK 范围（{range}）— 版本检查已关闭',
   'admin.plugins.dep.trekBypassedUnknown': '未声明 TREK 范围 — 版本检查已关闭',
-  'admin.plugins.incompatible': '不兼容',
+  'admin.plugins.rangeBypass.titleAdmin': '未在此 TREK 上验证',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    '据作者说明，“{name}” 支持 TREK {range}，而此服务器运行的是 {host}。作者尚未确认它适用于此 TREK，因此它可能无法正常工作，极少数情况下，不匹配的插件可能损坏 TREK 数据。你仍然可以使用它：你的选择只适用于此版本的此插件，更新后 TREK 会再次询问。',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '“{name}” 未说明支持哪些 TREK 版本，而此服务器运行的是 {host}。没有迹象表明它在此 TREK 上测试过，因此它可能无法正常工作，极少数情况下，不匹配的插件可能损坏 TREK 数据。你仍然可以使用它：你的选择只适用于此版本的此插件，更新后 TREK 会再次询问。',
+  'admin.plugins.dep.trekAccepted': '为 TREK {range} 制作，风险自负运行中',
+  'admin.plugins.dep.trekAcceptedUnknown': '未声明 TREK 版本，风险自负运行中',
+  'admin.plugins.activateAnyway': '仍然启用',
+  'admin.plugins.untestedChip': '尚未确认支持 TREK {host}',
+  'admin.plugins.filters': '筛选',
+  'admin.plugins.security.short': '插件如何受到保护',
   'admin.plugins.accessTitle': '可访问的内容',
   'admin.plugins.connectsTitle': '连接到',
   'admin.plugins.detailsTitle': '详情',

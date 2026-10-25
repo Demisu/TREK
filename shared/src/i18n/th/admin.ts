@@ -577,7 +577,17 @@ const admin: TranslationStrings = {
     '“{name}” ไม่ได้ประกาศว่า TREK เวอร์ชันใดรองรับ เซิร์ฟเวอร์นี้รัน {host} TREK ปล่อยให้ผ่านไปได้เพียงเพราะตั้งค่า TREK_PLUGINS_IGNORE_TREK_RANGE แล้ว ไม่มีสิ่งใดบอกว่าผู้เขียนได้ทำการทดสอบบน TREK นี้ ดังนั้นจึงไม่มีการรับประกันว่าจะใช้งานได้ และในบางกรณีที่เกิดขึ้นไม่บ่อยนัก ปลั๊กอินที่ไม่ตรงกันอาจทำให้ข้อมูล TREK เสียหายได้ ดำเนินการต่อเฉพาะเมื่อคุณยอมรับความเสี่ยงนั้น',
   'admin.plugins.dep.trekBypassed': 'อยู่นอกช่วง TREK ({range}) — เวอร์ชันถูกทำเครื่องหมายไว้',
   'admin.plugins.dep.trekBypassedUnknown': 'ประกาศไม่มีช่วง TREK — เวอร์ชันถูกทำเครื่องหมายไว้',
-  'admin.plugins.incompatible': 'เข้ากันไม่ได้',
+  'admin.plugins.rangeBypass.titleAdmin': 'ยังไม่ได้ทดสอบกับ TREK นี้',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'ตามที่ผู้สร้างระบุ “{name}” รองรับ TREK {range} ส่วนเซิร์ฟเวอร์นี้ใช้ {host} ผู้สร้างยังไม่ได้ยืนยันว่าใช้กับ TREK นี้ได้ จึงอาจทำงานไม่ได้ และในบางกรณีที่พบได้ยาก ปลั๊กอินที่ไม่เข้ากันอาจทำให้ข้อมูล TREK เสียหาย คุณยังใช้งานได้: การเลือกของคุณมีผลกับปลั๊กอินนี้ในเวอร์ชันนี้เท่านั้น และ TREK จะถามอีกครั้งหลังการอัปเดต',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '“{name}” ไม่ได้ระบุว่ารองรับ TREK เวอร์ชันใด ส่วนเซิร์ฟเวอร์นี้ใช้ {host} ไม่มีสิ่งใดบอกว่าได้ทดสอบกับ TREK นี้แล้ว จึงอาจทำงานไม่ได้ และในบางกรณีที่พบได้ยาก ปลั๊กอินที่ไม่เข้ากันอาจทำให้ข้อมูล TREK เสียหาย คุณยังใช้งานได้: การเลือกของคุณมีผลกับปลั๊กอินนี้ในเวอร์ชันนี้เท่านั้น และ TREK จะถามอีกครั้งหลังการอัปเดต',
+  'admin.plugins.dep.trekAccepted': 'สร้างสำหรับ TREK {range} ใช้งานโดยคุณรับความเสี่ยงเอง',
+  'admin.plugins.dep.trekAcceptedUnknown': 'ไม่ได้ระบุเวอร์ชัน TREK ใช้งานโดยคุณรับความเสี่ยงเอง',
+  'admin.plugins.activateAnyway': 'เปิดใช้งานต่อไป',
+  'admin.plugins.untestedChip': 'ยังไม่ยืนยันว่าใช้กับ TREK {host} ได้',
+  'admin.plugins.filters': 'ตัวกรอง',
+  'admin.plugins.security.short': 'ปลั๊กอินได้รับการป้องกันอย่างไร',
   'admin.plugins.accessTitle': 'สิ่งที่สามารถเข้าถึงได้',
   'admin.plugins.connectsTitle': 'เชื่อมต่อกับ',
   'admin.plugins.detailsTitle': 'รายละเอียด',

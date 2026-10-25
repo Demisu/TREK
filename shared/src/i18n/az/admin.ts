@@ -683,7 +683,17 @@ const admin: TranslationStrings = {
     '“{name}” hansı TREK versiyalarını dəstəklədiyini göstərmir; bu serverdə {host} işləyir. TREK buna yalnız TREK_PLUGINS_IGNORE_TREK_RANGE təyin edildiyi üçün icazə verir. Müəllifin onu bu TREK versiyasında sınaqdan keçirdiyinə dair məlumat yoxdur, buna görə işləyəcəyinə zəmanət verilmir — nadir hallarda uyğun olmayan plagin TREK məlumatlarını korlaya bilər. Yalnız bu riski qəbul edirsinizsə davam edin.',
   'admin.plugins.dep.trekBypassed': 'TREK versiya aralığından ({range}) kənardır — versiya yoxlamaları deaktivdir',
   'admin.plugins.dep.trekBypassedUnknown': 'TREK versiya aralığı göstərilməyib — versiya yoxlamaları deaktivdir',
-  'admin.plugins.incompatible': 'Uyğun deyil',
+  'admin.plugins.rangeBypass.titleAdmin': 'Bu TREK-də sınaqdan keçməyib',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Müəllifinə görə “{name}” TREK {range} versiyalarını dəstəkləyir, bu server isə {host} işlədir. Müəllif onu bu TREK üçün hələ təsdiqləməyib, ona görə də işləməyə bilər və nadir hallarda uyğun olmayan plagin TREK məlumatlarına zərər verə bilər. Yenə də istifadə edə bilərsən: seçimin yalnız bu versiyadakı bu plagin üçün keçərlidir, yeniləmədən sonra TREK yenidən soruşacaq.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '“{name}” hansı TREK versiyalarını dəstəklədiyini göstərmir, bu server isə {host} işlədir. Onun bu TREK-də sınaqdan keçdiyinə dair heç bir işarə yoxdur, ona görə də işləməyə bilər və nadir hallarda uyğun olmayan plagin TREK məlumatlarına zərər verə bilər. Yenə də istifadə edə bilərsən: seçimin yalnız bu versiyadakı bu plagin üçün keçərlidir, yeniləmədən sonra TREK yenidən soruşacaq.',
+  'admin.plugins.dep.trekAccepted': 'TREK {range} üçün hazırlanıb, öz riskinlə işləyir',
+  'admin.plugins.dep.trekAcceptedUnknown': 'TREK versiyası göstərilməyib, öz riskinlə işləyir',
+  'admin.plugins.activateAnyway': 'Yenə də aktivləşdir',
+  'admin.plugins.untestedChip': 'TREK {host} üçün hələ təsdiqlənməyib',
+  'admin.plugins.filters': 'Filtr',
+  'admin.plugins.security.short': 'Plaginlər necə qorunur',
   'admin.plugins.accessTitle': 'Giriş əldə edə biləcəyi məlumatlar',
   'admin.plugins.connectsTitle': 'Qoşulduğu xidmətlər',
   'admin.plugins.detailsTitle': 'Ətraflı məlumat',

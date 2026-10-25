@@ -599,7 +599,17 @@ const admin: TranslationStrings = {
     '“{name}” geeft niet op welke TREK-versies het ondersteunt; deze server draait {host}. TREK laat het alleen door omdat TREK_PLUGINS_IGNORE_TREK_RANGE is ingesteld. Niets wijst erop dat de auteur het op deze TREK heeft getest, dus er is geen garantie dat het werkt — en in zeldzame gevallen kan een niet-passende plugin TREK-gegevens beschadigen. Ga alleen verder als je dat risico accepteert.',
   'admin.plugins.dep.trekBypassed': 'Buiten zijn TREK-bereik ({range}) — versiecontroles uit',
   'admin.plugins.dep.trekBypassedUnknown': 'Geeft geen TREK-bereik op — versiecontroles uit',
-  'admin.plugins.incompatible': 'Niet compatibel',
+  'admin.plugins.rangeBypass.titleAdmin': 'Niet getest op deze TREK',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Volgens de maker ondersteunt “{name}” TREK {range}, en deze server draait {host}. De maker heeft het nog niet voor deze TREK bevestigd, dus het werkt mogelijk niet, en in zeldzame gevallen kan een plugin die niet past TREK-gegevens beschadigen. Je kunt het toch gebruiken: je keuze geldt alleen voor deze plugin in deze versie, en na een update vraagt TREK het opnieuw.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '“{name}” geeft niet aan welke TREK-versies het ondersteunt, en deze server draait {host}. Niets wijst erop dat het op deze TREK is getest, dus het werkt mogelijk niet, en in zeldzame gevallen kan een plugin die niet past TREK-gegevens beschadigen. Je kunt het toch gebruiken: je keuze geldt alleen voor deze plugin in deze versie, en na een update vraagt TREK het opnieuw.',
+  'admin.plugins.dep.trekAccepted': 'Gemaakt voor TREK {range}, draait op eigen risico',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Geen TREK-versie opgegeven, draait op eigen risico',
+  'admin.plugins.activateAnyway': 'Toch activeren',
+  'admin.plugins.untestedChip': 'Nog niet bevestigd voor TREK {host}',
+  'admin.plugins.filters': 'Filter',
+  'admin.plugins.security.short': 'Zo zijn plugins beveiligd',
   'admin.plugins.accessTitle': 'Waartoe hij toegang heeft',
   'admin.plugins.connectsTitle': 'Maakt verbinding met',
   'admin.plugins.detailsTitle': 'Details', // same-as-en

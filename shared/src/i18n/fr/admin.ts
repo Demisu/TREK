@@ -606,7 +606,17 @@ const admin: TranslationStrings = {
     '« {name} » n’indique pas quelles versions de TREK il prend en charge ; ce serveur exécute {host}. TREK le laisse passer uniquement parce que TREK_PLUGINS_IGNORE_TREK_RANGE est défini. Rien n’indique que son auteur l’a testé sur ce TREK : rien ne garantit qu’il fonctionne — et dans de rares cas, un plugin incompatible peut corrompre les données de TREK. Ne continuez que si vous acceptez ce risque.',
   'admin.plugins.dep.trekBypassed': 'Hors de sa plage TREK ({range}) — contrôles de version désactivés',
   'admin.plugins.dep.trekBypassedUnknown': 'Ne déclare aucune plage TREK — contrôles de version désactivés',
-  'admin.plugins.incompatible': 'Incompatible', // same-as-en
+  'admin.plugins.rangeBypass.titleAdmin': 'Non testé sur ce TREK',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Selon son auteur, « {name} » prend en charge TREK {range}, et ce serveur exécute {host}. L’auteur ne l’a pas encore validé pour ce TREK : il peut ne pas fonctionner et, dans de rares cas, un plugin inadapté peut endommager les données de TREK. Vous pouvez quand même l’utiliser : votre choix ne vaut que pour ce plugin dans cette version, et TREK vous redemandera après une mise à jour.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '« {name} » n’indique pas les versions de TREK qu’il prend en charge, et ce serveur exécute {host}. Rien n’indique qu’il a été testé sur ce TREK : il peut ne pas fonctionner et, dans de rares cas, un plugin inadapté peut endommager les données de TREK. Vous pouvez quand même l’utiliser : votre choix ne vaut que pour ce plugin dans cette version, et TREK vous redemandera après une mise à jour.',
+  'admin.plugins.dep.trekAccepted': 'Conçu pour TREK {range}, utilisé à vos risques',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Aucune version de TREK indiquée, utilisé à vos risques',
+  'admin.plugins.activateAnyway': 'Activer quand même',
+  'admin.plugins.untestedChip': 'Pas encore validé pour TREK {host}',
+  'admin.plugins.filters': 'Filtrer',
+  'admin.plugins.security.short': 'Comment les plugins sont sécurisés',
   'admin.plugins.accessTitle': 'Ce à quoi il peut accéder',
   'admin.plugins.connectsTitle': 'Se connecte à',
   'admin.plugins.detailsTitle': 'Détails',

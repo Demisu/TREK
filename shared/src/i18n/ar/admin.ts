@@ -646,7 +646,17 @@ const admin: TranslationStrings = {
     'لا تعلن «{name}» أي إصدارات TREK تدعمها؛ يعمل هذا الخادم بالإصدار {host}. يسمح TREK بذلك فقط لأن TREK_PLUGINS_IGNORE_TREK_RANGE مضبوط. لا شيء يدل على أن المطوّر اختبرها على هذا الإصدار من TREK، لذا لا يوجد ضمان أنها ستعمل — وفي حالات نادرة قد تُتلف إضافة غير متوافقة بيانات TREK. تابع فقط إذا كنت تقبل هذه المخاطرة.',
   'admin.plugins.dep.trekBypassed': 'خارج نطاق TREK الخاص بها ({range}) — فحوصات الإصدار متوقفة',
   'admin.plugins.dep.trekBypassedUnknown': 'لا تعلن أي نطاق TREK — فحوصات الإصدار متوقفة',
-  'admin.plugins.incompatible': 'غير متوافق',
+  'admin.plugins.rangeBypass.titleAdmin': 'غير مختبَر على هذا الإصدار من TREK',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'بحسب مطوّره، يدعم «{name}» إصدارات TREK {range}، بينما يعمل هذا الخادم بالإصدار {host}. لم يؤكد المطوّر توافقه مع هذا الإصدار بعد، لذا قد لا يعمل، وفي حالات نادرة قد تتلف إضافة غير متوافقة بيانات TREK. يمكنك استخدامها رغم ذلك: يسري اختيارك على هذه الإضافة في هذا الإصدار فقط، وسيسألك TREK مجددًا بعد أي تحديث.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    'لا يذكر «{name}» إصدارات TREK التي يدعمها، بينما يعمل هذا الخادم بالإصدار {host}. لا شيء يشير إلى أنه اختُبر على هذا الإصدار، لذا قد لا يعمل، وفي حالات نادرة قد تتلف إضافة غير متوافقة بيانات TREK. يمكنك استخدامها رغم ذلك: يسري اختيارك على هذه الإضافة في هذا الإصدار فقط، وسيسألك TREK مجددًا بعد أي تحديث.',
+  'admin.plugins.dep.trekAccepted': 'مصمَّمة لـ TREK {range}، تعمل على مسؤوليتك',
+  'admin.plugins.dep.trekAcceptedUnknown': 'لا يوجد إصدار TREK محدد، تعمل على مسؤوليتك',
+  'admin.plugins.activateAnyway': 'تفعيل رغم ذلك',
+  'admin.plugins.untestedChip': 'لم يُؤكَّد توافقه مع TREK {host} بعد',
+  'admin.plugins.filters': 'تصفية',
+  'admin.plugins.security.short': 'كيف تُحمى الإضافات',
   'admin.plugins.accessTitle': 'ما الذي يمكنها الوصول إليه',
   'admin.plugins.connectsTitle': 'يتصل بـ',
   'admin.plugins.detailsTitle': 'التفاصيل',

@@ -294,7 +294,7 @@ export default function MAdminPluginsPanel() {
       {bypass.copy && (
         <MConfirmSheet open onClose={bypass.dismiss} onConfirm={bypass.copy.confirm ? bypass.confirm : undefined}
           title={bypass.copy.title} message={bypass.copy.body}
-          confirmLabel={t('admin.plugins.installAnyway')} cancelLabel={bypass.copy.confirm ? t('common.cancel') : t('common.ok')} danger />
+          confirmLabel={bypass.copy.confirmLabel} cancelLabel={bypass.copy.confirm ? t('common.cancel') : t('common.ok')} danger />
       )}
 
       {/* Row ⋯ action sheet */}

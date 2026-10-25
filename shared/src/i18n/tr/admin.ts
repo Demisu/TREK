@@ -653,7 +653,17 @@ const admin: TranslationStrings = {
     '“{name}” hangi TREK sürümlerini desteklediğini bildirmiyor; bu sunucu {host} çalıştırıyor. TREK yalnızca TREK_PLUGINS_IGNORE_TREK_RANGE ayarlı olduğu için izin veriyor. Yazarının bu TREK üzerinde test ettiğine dair bir işaret yok, dolayısıyla çalışacağının garantisi yok — ve nadir durumlarda uyumsuz bir eklenti TREK verilerini bozabilir. Yalnızca bu riski kabul ediyorsanız devam edin.',
   'admin.plugins.dep.trekBypassed': 'TREK aralığının dışında ({range}) — sürüm denetimleri kapalı',
   'admin.plugins.dep.trekBypassedUnknown': 'TREK aralığı bildirmiyor — sürüm denetimleri kapalı',
-  'admin.plugins.incompatible': 'Uyumsuz',
+  'admin.plugins.rangeBypass.titleAdmin': "Bu TREK'te test edilmedi",
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Geliştiricisine göre “{name}” TREK {range} sürümlerini destekliyor, bu sunucu ise {host} çalıştırıyor. Geliştirici onu bu TREK için henüz onaylamadı; çalışmayabilir ve nadiren uyumsuz bir eklenti TREK verilerine zarar verebilir. Yine de kullanabilirsin: seçimin yalnızca bu sürümdeki bu eklenti için geçerli, bir güncellemeden sonra TREK yeniden sorar.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    "“{name}” hangi TREK sürümlerini desteklediğini belirtmiyor, bu sunucu ise {host} çalıştırıyor. Bu TREK'te test edildiğine dair bir işaret yok; çalışmayabilir ve nadiren uyumsuz bir eklenti TREK verilerine zarar verebilir. Yine de kullanabilirsin: seçimin yalnızca bu sürümdeki bu eklenti için geçerli, bir güncellemeden sonra TREK yeniden sorar.",
+  'admin.plugins.dep.trekAccepted': 'TREK {range} için yapıldı, sorumluluk sende',
+  'admin.plugins.dep.trekAcceptedUnknown': 'TREK sürümü belirtilmemiş, sorumluluk sende',
+  'admin.plugins.activateAnyway': 'Yine de etkinleştir',
+  'admin.plugins.untestedChip': 'TREK {host} için henüz onaylanmadı',
+  'admin.plugins.filters': 'Filtre',
+  'admin.plugins.security.short': 'Eklentiler nasıl korunuyor',
   'admin.plugins.accessTitle': 'Neye erişebilir',
   'admin.plugins.connectsTitle': 'Şuraya bağlanır',
   'admin.plugins.detailsTitle': 'Detaylar',

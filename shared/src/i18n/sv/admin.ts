@@ -668,7 +668,17 @@ const admin: TranslationStrings = {
     '”{name}” anger inte vilka TREK-versioner det stöder; den här servern kör {host}. TREK släpper igenom det bara för att TREK_PLUGINS_IGNORE_TREK_RANGE är satt. Inget tyder på att upphovspersonen har testat det på den här TREK-versionen, så det finns ingen garanti att det fungerar — och i sällsynta fall kan ett plugin som inte passar skada TREK-data. Fortsätt bara om du accepterar den risken.',
   'admin.plugins.dep.trekBypassed': 'Utanför sitt TREK-intervall ({range}) — versionskontroller av',
   'admin.plugins.dep.trekBypassedUnknown': 'Anger inget TREK-intervall — versionskontroller av',
-  'admin.plugins.incompatible': 'Inkompatibel',
+  'admin.plugins.rangeBypass.titleAdmin': 'Otestad på denna TREK',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Enligt upphovspersonen stöder ”{name}” TREK {range}, och den här servern kör {host}. Upphovspersonen har ännu inte bekräftat den för denna TREK, så den kanske inte fungerar, och i sällsynta fall kan ett plugin som inte passar skada TREK-data. Du kan ändå använda den: ditt val gäller bara detta plugin i den här versionen, och efter en uppdatering frågar TREK igen.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '”{name}” anger inte vilka TREK-versioner den stöder, och den här servern kör {host}. Inget tyder på att den har testats på denna TREK, så den kanske inte fungerar, och i sällsynta fall kan ett plugin som inte passar skada TREK-data. Du kan ändå använda den: ditt val gäller bara detta plugin i den här versionen, och efter en uppdatering frågar TREK igen.',
+  'admin.plugins.dep.trekAccepted': 'Gjord för TREK {range}, körs på egen risk',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Ingen TREK-version angiven, körs på egen risk',
+  'admin.plugins.activateAnyway': 'Aktivera ändå',
+  'admin.plugins.untestedChip': 'Ännu inte bekräftad för TREK {host}',
+  'admin.plugins.filters': 'Filter',
+  'admin.plugins.security.short': 'Så skyddas plugins',
   'admin.plugins.accessTitle': 'Vad det har åtkomst till',
   'admin.plugins.connectsTitle': 'Ansluter till',
   'admin.plugins.detailsTitle': 'Detaljer',

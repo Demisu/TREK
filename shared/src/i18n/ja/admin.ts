@@ -610,7 +610,17 @@ const admin: TranslationStrings = {
     '「{name}」はサポートする TREK バージョンを宣言していません。このサーバーは {host} で動作しています。TREK_PLUGINS_IGNORE_TREK_RANGE が設定されているため TREK はこれを許可します。作者がこの TREK で検証した形跡はなく、動作する保証はありません。まれに不適合なプラグインが TREK のデータを破損することがあります。このリスクを受け入れる場合のみ続行してください。',
   'admin.plugins.dep.trekBypassed': 'TREK 範囲外（{range}）— バージョンチェック無効',
   'admin.plugins.dep.trekBypassedUnknown': 'TREK 範囲の宣言なし — バージョンチェック無効',
-  'admin.plugins.incompatible': '非対応',
+  'admin.plugins.rangeBypass.titleAdmin': 'この TREK では未検証',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    '作者によると「{name}」は TREK {range} に対応しており、このサーバーは {host} で動いています。作者はまだこの TREK での動作を確認していないため、動かない可能性があり、まれに合わないプラグインが TREK のデータを壊すこともあります。それでも使うことはできます。この選択はこのバージョンのこのプラグインにだけ適用され、アップデート後に TREK が改めて確認します。',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '「{name}」は対応する TREK のバージョンを示しておらず、このサーバーは {host} で動いています。この TREK で検証された形跡はないため、動かない可能性があり、まれに合わないプラグインが TREK のデータを壊すこともあります。それでも使うことはできます。この選択はこのバージョンのこのプラグインにだけ適用され、アップデート後に TREK が改めて確認します。',
+  'admin.plugins.dep.trekAccepted': 'TREK {range} 向け、自己責任で稼働中',
+  'admin.plugins.dep.trekAcceptedUnknown': 'TREK の対応範囲なし、自己責任で稼働中',
+  'admin.plugins.activateAnyway': 'それでも有効にする',
+  'admin.plugins.untestedChip': 'TREK {host} での動作は未確認',
+  'admin.plugins.filters': 'フィルター',
+  'admin.plugins.security.short': 'プラグインの保護のしくみ',
   'admin.plugins.accessTitle': 'アクセスできるもの',
   'admin.plugins.connectsTitle': '接続先',
   'admin.plugins.detailsTitle': '詳細',

@@ -872,7 +872,17 @@ const admin: TranslationStrings = {
     '«{name}» no declara quines versions de TREK admet; aquest servidor executa {host}. TREK el deixa passar només perquè TREK_PLUGINS_IGNORE_TREK_RANGE està definit. Res no indica que l’autor l’hagi provat en aquest TREK, així que no hi ha cap garantia que funcioni — i en casos rars un connector incompatible pot corrompre les dades de TREK. Continua només si acceptes aquest risc.',
   'admin.plugins.dep.trekBypassed': 'Fora del seu rang de TREK ({range}) — comprovacions de versió desactivades',
   'admin.plugins.dep.trekBypassedUnknown': 'No declara cap rang de TREK — comprovacions de versió desactivades',
-  'admin.plugins.incompatible': 'Incompatible', // same-as-en
+  'admin.plugins.rangeBypass.titleAdmin': 'Sense provar en aquest TREK',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Segons el seu autor, «{name}» és compatible amb TREK {range}, i aquest servidor executa {host}. L’autor encara no l’ha confirmat per a aquest TREK, així que pot no funcionar i, en casos rars, un plugin que no encaixa pot malmetre les dades de TREK. Igualment el pots fer servir: la teva decisió val només per a aquest plugin en aquesta versió, i TREK tornarà a preguntar després d’una actualització.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '«{name}» no indica quines versions de TREK admet, i aquest servidor executa {host}. Res no indica que s’hagi provat en aquest TREK, així que pot no funcionar i, en casos rars, un plugin que no encaixa pot malmetre les dades de TREK. Igualment el pots fer servir: la teva decisió val només per a aquest plugin en aquesta versió, i TREK tornarà a preguntar després d’una actualització.',
+  'admin.plugins.dep.trekAccepted': 'Fet per a TREK {range}, en ús sota la teva responsabilitat',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Sense versió de TREK indicada, en ús sota la teva responsabilitat',
+  'admin.plugins.activateAnyway': 'Activa igualment',
+  'admin.plugins.untestedChip': 'Encara no confirmat per a TREK {host}',
+  'admin.plugins.filters': 'Filtra',
+  'admin.plugins.security.short': 'Com es protegeixen els plugins',
   'admin.plugins.accessTitle': 'A què pot accedir',
   'admin.plugins.connectsTitle': 'Es connecta a',
   'admin.plugins.detailsTitle': 'Detalls',

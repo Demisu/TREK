@@ -664,7 +664,17 @@ const admin: TranslationStrings = {
     '„{name}” ei deklareeri, milliseid TREKi versioone see toetab; selles serveris töötab {host}. TREK lubab selle ainult seetõttu, et TREK_PLUGINS_IGNORE_TREK_RANGE on määratud. Miski ei kinnita, et autor oleks seda selle TREKiga testinud, seega pole toimivus tagatud — harvadel juhtudel võib ühildumatu plugin TREKi andmeid rikkuda. Jätka ainult siis, kui nõustud selle riskiga.',
   'admin.plugins.dep.trekBypassed': 'Väljaspool TREKi versioonivahemikku ({range}) — versioonikontrollid väljas',
   'admin.plugins.dep.trekBypassedUnknown': 'TREKi versioonivahemik deklareerimata — versioonikontrollid väljas',
-  'admin.plugins.incompatible': 'Ühildumatu',
+  'admin.plugins.rangeBypass.titleAdmin': 'Selles TREK-is testimata',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Autori sõnul toetab „{name}“ TREK-i {range}, see server töötab aga versioonil {host}. Autor pole seda selle TREK-i jaoks veel kinnitanud, nii et see ei pruugi töötada ja harvadel juhtudel võib sobimatu plugin TREK-i andmeid kahjustada. Võid seda siiski kasutada: sinu valik kehtib ainult selle plugina selle versiooni kohta ja pärast uuendust küsib TREK uuesti.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '„{name}“ ei ütle, milliseid TREK-i versioone see toetab, see server töötab aga versioonil {host}. Miski ei viita, et seda oleks selles TREK-is testitud, nii et see ei pruugi töötada ja harvadel juhtudel võib sobimatu plugin TREK-i andmeid kahjustada. Võid seda siiski kasutada: sinu valik kehtib ainult selle plugina selle versiooni kohta ja pärast uuendust küsib TREK uuesti.',
+  'admin.plugins.dep.trekAccepted': 'Tehtud TREK-i {range} jaoks, töötab omal vastutusel',
+  'admin.plugins.dep.trekAcceptedUnknown': 'TREK-i versioon puudub, töötab omal vastutusel',
+  'admin.plugins.activateAnyway': 'Aktiveeri siiski',
+  'admin.plugins.untestedChip': 'TREK {host} jaoks veel kinnitamata',
+  'admin.plugins.filters': 'Filter',
+  'admin.plugins.security.short': 'Nii on pluginad kaitstud',
   'admin.plugins.accessTitle': 'Millele see ligi pääseb',
   'admin.plugins.connectsTitle': 'Ühendub',
   'admin.plugins.detailsTitle': 'Üksikasjad',

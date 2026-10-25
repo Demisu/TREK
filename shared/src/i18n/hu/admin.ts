@@ -605,7 +605,17 @@ const admin: TranslationStrings = {
     'A(z) „{name}” nem adja meg, mely TREK-verziókat támogatja; ez a szerver {host}-t futtat. A TREK csak azért engedi át, mert a TREK_PLUGINS_IGNORE_TREK_RANGE be van állítva. Semmi sem jelzi, hogy a szerző ezen a TREK-en tesztelte volna, így nincs garancia, hogy működik — és ritka esetben egy nem illeszkedő bővítmény megsértheti a TREK adatait. Csak akkor folytasd, ha vállalod ezt a kockázatot.',
   'admin.plugins.dep.trekBypassed': 'A TREK-tartományán kívül ({range}) — verzióellenőrzés kikapcsolva',
   'admin.plugins.dep.trekBypassedUnknown': 'Nem ad meg TREK-tartományt — verzióellenőrzés kikapcsolva',
-  'admin.plugins.incompatible': 'Nem kompatibilis',
+  'admin.plugins.rangeBypass.titleAdmin': 'Ezen a TREK-en nem tesztelt',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'A szerzője szerint a(z) „{name}” a TREK {range} verziókat támogatja, ez a szerver pedig {host} verziót futtat. A szerző még nem erősítette meg ehhez a TREK-hez, ezért lehet, hogy nem működik, és ritkán egy nem illő plugin károsíthatja a TREK adatait. Ennek ellenére használhatod: a döntésed csak erre a pluginra és erre a verzióra vonatkozik, frissítés után a TREK újra rákérdez.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    'A(z) „{name}” nem adja meg, mely TREK-verziókat támogatja, ez a szerver pedig {host} verziót futtat. Semmi nem utal arra, hogy ezen a TREK-en tesztelték, ezért lehet, hogy nem működik, és ritkán egy nem illő plugin károsíthatja a TREK adatait. Ennek ellenére használhatod: a döntésed csak erre a pluginra és erre a verzióra vonatkozik, frissítés után a TREK újra rákérdez.',
+  'admin.plugins.dep.trekAccepted': 'TREK {range} verzióhoz készült, saját felelősségre fut',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Nincs megadott TREK-verzió, saját felelősségre fut',
+  'admin.plugins.activateAnyway': 'Aktiválás mégis',
+  'admin.plugins.untestedChip': 'TREK {host} verzióhoz még nincs megerősítve',
+  'admin.plugins.filters': 'Szűrés',
+  'admin.plugins.security.short': 'Így védjük a pluginokat',
   'admin.plugins.accessTitle': 'Mihez fér hozzá',
   'admin.plugins.connectsTitle': 'Kapcsolódik ehhez',
   'admin.plugins.detailsTitle': 'Részletek',

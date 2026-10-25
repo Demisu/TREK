@@ -646,7 +646,17 @@ const admin: TranslationStrings = {
     '“{name}” does not declare which TREK versions it supports; this server runs {host}. TREK lets it through only because TREK_PLUGINS_IGNORE_TREK_RANGE is set. Nothing says its author tested it on this TREK, so there is no guarantee it works — and in rare cases a mismatched plugin can corrupt TREK data. Continue only if you accept that risk.',
   'admin.plugins.dep.trekBypassed': 'Outside its TREK range ({range}) — version checks off',
   'admin.plugins.dep.trekBypassedUnknown': 'Declares no TREK range — version checks off',
-  'admin.plugins.incompatible': 'Incompatible',
+  'admin.plugins.rangeBypass.titleAdmin': 'Untested on this TREK',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    '“{name}” supports TREK {range} according to its author, and this server runs {host}. The author has not confirmed it for this TREK yet, so it may not work, and in rare cases a plugin that does not fit can damage TREK data. You can still use it: your choice applies to this plugin in this version only, and TREK asks again after an update.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '“{name}” does not say which TREK versions it supports, and this server runs {host}. Nothing says it was tested on this TREK, so it may not work, and in rare cases a plugin that does not fit can damage TREK data. You can still use it: your choice applies to this plugin in this version only, and TREK asks again after an update.',
+  'admin.plugins.dep.trekAccepted': 'Made for TREK {range}, running at your own risk',
+  'admin.plugins.dep.trekAcceptedUnknown': 'No TREK range declared, running at your own risk',
+  'admin.plugins.activateAnyway': 'Activate anyway',
+  'admin.plugins.untestedChip': 'Not confirmed for TREK {host} yet',
+  'admin.plugins.filters': 'Filter',
+  'admin.plugins.security.short': 'How plugins are secured',
   'admin.plugins.accessTitle': 'What it can access',
   'admin.plugins.connectsTitle': 'Connects to',
   'admin.plugins.detailsTitle': 'Details',

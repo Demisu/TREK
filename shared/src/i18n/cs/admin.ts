@@ -596,7 +596,17 @@ const admin: TranslationStrings = {
     '„{name}“ neuvádí, které verze TREKu podporuje; tento server běží na {host}. TREK ho propouští jen proto, že je nastaveno TREK_PLUGINS_IGNORE_TREK_RANGE. Nic nenasvědčuje tomu, že ho autor na tomto TREKu testoval, takže není zaručeno, že bude fungovat — a ve vzácných případech může nekompatibilní plugin poškodit data TREKu. Pokračujte jen tehdy, pokud toto riziko přijímáte.',
   'admin.plugins.dep.trekBypassed': 'Mimo svůj rozsah TREKu ({range}) — kontroly verzí vypnuty',
   'admin.plugins.dep.trekBypassedUnknown': 'Neuvádí žádný rozsah TREKu — kontroly verzí vypnuty',
-  'admin.plugins.incompatible': 'Nekompatibilní',
+  'admin.plugins.rangeBypass.titleAdmin': 'Na tomto TREK netestováno',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Podle autora „{name}“ podporuje TREK {range} a tento server běží na {host}. Autor ho pro tento TREK zatím nepotvrdil, takže nemusí fungovat a ve vzácných případech může nevhodný plugin poškodit data TREK. Přesto ho můžete používat: vaše rozhodnutí platí jen pro tento plugin v této verzi a po aktualizaci se TREK zeptá znovu.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '„{name}“ neuvádí, které verze TREK podporuje, a tento server běží na {host}. Nic nenasvědčuje tomu, že byl na tomto TREK testován, takže nemusí fungovat a ve vzácných případech může nevhodný plugin poškodit data TREK. Přesto ho můžete používat: vaše rozhodnutí platí jen pro tento plugin v této verzi a po aktualizaci se TREK zeptá znovu.',
+  'admin.plugins.dep.trekAccepted': 'Vytvořeno pro TREK {range}, běží na vlastní riziko',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Bez uvedené verze TREK, běží na vlastní riziko',
+  'admin.plugins.activateAnyway': 'Přesto aktivovat',
+  'admin.plugins.untestedChip': 'Pro TREK {host} zatím nepotvrzeno',
+  'admin.plugins.filters': 'Filtr',
+  'admin.plugins.security.short': 'Jak jsou pluginy zabezpečené',
   'admin.plugins.accessTitle': 'K čemu má přístup',
   'admin.plugins.connectsTitle': 'Připojuje se k',
   'admin.plugins.detailsTitle': 'Podrobnosti',

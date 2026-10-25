@@ -660,7 +660,17 @@ const admin: TranslationStrings = {
     '“{name}” không khai báo hỗ trợ phiên bản TREK nào; máy chủ này đang chạy {host}. TREK chỉ cho phép vì TREK_PLUGINS_IGNORE_TREK_RANGE đã được đặt. Không có dấu hiệu nào cho thấy tác giả đã thử nghiệm trên TREK này, nên không có gì đảm bảo nó hoạt động — và trong một số ít trường hợp, plugin không tương thích có thể làm hỏng dữ liệu TREK. Chỉ tiếp tục nếu bạn chấp nhận rủi ro đó.',
   'admin.plugins.dep.trekBypassed': 'Ngoài phạm vi TREK của nó ({range}) — đã tắt kiểm tra phiên bản',
   'admin.plugins.dep.trekBypassedUnknown': 'Không khai báo phạm vi TREK — đã tắt kiểm tra phiên bản',
-  'admin.plugins.incompatible': 'Không tương thích',
+  'admin.plugins.rangeBypass.titleAdmin': 'Chưa thử trên TREK này',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Theo tác giả, “{name}” hỗ trợ TREK {range}, còn máy chủ này chạy {host}. Tác giả chưa xác nhận nó cho TREK này, nên nó có thể không hoạt động, và trong vài trường hợp hiếm, một plugin không phù hợp có thể làm hỏng dữ liệu TREK. Bạn vẫn có thể dùng nó: lựa chọn của bạn chỉ áp dụng cho plugin này ở phiên bản này, và TREK sẽ hỏi lại sau khi cập nhật.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '“{name}” không cho biết hỗ trợ những phiên bản TREK nào, còn máy chủ này chạy {host}. Không có dấu hiệu nào cho thấy nó đã được thử trên TREK này, nên nó có thể không hoạt động, và trong vài trường hợp hiếm, một plugin không phù hợp có thể làm hỏng dữ liệu TREK. Bạn vẫn có thể dùng nó: lựa chọn của bạn chỉ áp dụng cho plugin này ở phiên bản này, và TREK sẽ hỏi lại sau khi cập nhật.',
+  'admin.plugins.dep.trekAccepted': 'Làm cho TREK {range}, chạy với rủi ro của bạn',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Không ghi phiên bản TREK, chạy với rủi ro của bạn',
+  'admin.plugins.activateAnyway': 'Vẫn kích hoạt',
+  'admin.plugins.untestedChip': 'Chưa được xác nhận cho TREK {host}',
+  'admin.plugins.filters': 'Lọc',
+  'admin.plugins.security.short': 'Cách plugin được bảo vệ',
   'admin.plugins.accessTitle': 'Những gì có thể truy cập',
   'admin.plugins.connectsTitle': 'Kết nối tới',
   'admin.plugins.detailsTitle': 'Chi tiết',

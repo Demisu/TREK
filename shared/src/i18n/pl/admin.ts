@@ -615,7 +615,17 @@ const admin: TranslationStrings = {
     '„{name}” nie deklaruje, które wersje TREK obsługuje; ten serwer działa na {host}. TREK przepuszcza ją tylko dlatego, że ustawiono TREK_PLUGINS_IGNORE_TREK_RANGE. Nic nie wskazuje, że autor testował ją na tym TREK, więc nie ma gwarancji, że zadziała — a w rzadkich przypadkach niedopasowana wtyczka może uszkodzić dane TREK. Kontynuuj tylko, jeśli akceptujesz to ryzyko.',
   'admin.plugins.dep.trekBypassed': 'Poza swoim zakresem TREK ({range}) — kontrola wersji wyłączona',
   'admin.plugins.dep.trekBypassedUnknown': 'Nie deklaruje zakresu TREK — kontrola wersji wyłączona',
-  'admin.plugins.incompatible': 'Niezgodny',
+  'admin.plugins.rangeBypass.titleAdmin': 'Nietestowany na tym TREK',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Według autora „{name}” obsługuje TREK {range}, a ten serwer działa na {host}. Autor nie potwierdził go jeszcze dla tego TREK, więc może nie działać, a w rzadkich przypadkach niepasujący plugin może uszkodzić dane TREK. Możesz go mimo to używać: twoja decyzja dotyczy tylko tego pluginu w tej wersji, a po aktualizacji TREK zapyta ponownie.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '„{name}” nie podaje, które wersje TREK obsługuje, a ten serwer działa na {host}. Nic nie wskazuje, że był testowany na tym TREK, więc może nie działać, a w rzadkich przypadkach niepasujący plugin może uszkodzić dane TREK. Możesz go mimo to używać: twoja decyzja dotyczy tylko tego pluginu w tej wersji, a po aktualizacji TREK zapyta ponownie.',
+  'admin.plugins.dep.trekAccepted': 'Stworzony dla TREK {range}, działa na twoje ryzyko',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Brak podanej wersji TREK, działa na twoje ryzyko',
+  'admin.plugins.activateAnyway': 'Aktywuj mimo to',
+  'admin.plugins.untestedChip': 'Jeszcze niepotwierdzony dla TREK {host}',
+  'admin.plugins.filters': 'Filtruj',
+  'admin.plugins.security.short': 'Jak zabezpieczone są pluginy',
   'admin.plugins.accessTitle': 'Do czego ma dostęp',
   'admin.plugins.connectsTitle': 'Łączy się z',
   'admin.plugins.detailsTitle': 'Szczegóły',

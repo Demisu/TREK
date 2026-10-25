@@ -600,7 +600,17 @@ const admin: TranslationStrings = {
     '“{name}” non dichiara quali versioni di TREK supporta; questo server esegue {host}. TREK lo lascia passare solo perché TREK_PLUGINS_IGNORE_TREK_RANGE è impostato. Nulla indica che l’autore lo abbia testato su questo TREK, quindi non c’è garanzia che funzioni — e in rari casi un plugin incompatibile può corrompere i dati di TREK. Continua solo se accetti questo rischio.',
   'admin.plugins.dep.trekBypassed': 'Fuori dal suo intervallo TREK ({range}) — controlli di versione disattivati',
   'admin.plugins.dep.trekBypassedUnknown': 'Non dichiara alcun intervallo TREK — controlli di versione disattivati',
-  'admin.plugins.incompatible': 'Non compatibile',
+  'admin.plugins.rangeBypass.titleAdmin': 'Non testato su questo TREK',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Secondo il suo autore, «{name}» supporta TREK {range}, e questo server esegue {host}. L’autore non lo ha ancora confermato per questo TREK, quindi potrebbe non funzionare e, in rari casi, un plugin non adatto può danneggiare i dati di TREK. Puoi comunque usarlo: la tua scelta vale solo per questo plugin in questa versione, e TREK lo richiederà dopo un aggiornamento.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '«{name}» non indica quali versioni di TREK supporta, e questo server esegue {host}. Niente indica che sia stato testato su questo TREK, quindi potrebbe non funzionare e, in rari casi, un plugin non adatto può danneggiare i dati di TREK. Puoi comunque usarlo: la tua scelta vale solo per questo plugin in questa versione, e TREK lo richiederà dopo un aggiornamento.',
+  'admin.plugins.dep.trekAccepted': 'Pensato per TREK {range}, in uso a tuo rischio',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Nessuna versione di TREK indicata, in uso a tuo rischio',
+  'admin.plugins.activateAnyway': 'Attiva comunque',
+  'admin.plugins.untestedChip': 'Non ancora confermato per TREK {host}',
+  'admin.plugins.filters': 'Filtra',
+  'admin.plugins.security.short': 'Come sono protetti i plugin',
   'admin.plugins.accessTitle': 'A cosa può accedere',
   'admin.plugins.connectsTitle': 'Si connette a',
   'admin.plugins.detailsTitle': 'Dettagli',

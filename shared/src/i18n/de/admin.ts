@@ -600,7 +600,17 @@ const admin: TranslationStrings = {
     '„{name}“ gibt nicht an, welche TREK-Versionen es unterstützt; dieser Server läuft mit {host}. TREK lässt es nur durch, weil TREK_PLUGINS_IGNORE_TREK_RANGE gesetzt ist. Nichts belegt, dass der Autor es auf diesem TREK getestet hat, es gibt also keine Garantie, dass es funktioniert — und in seltenen Fällen kann ein unpassendes Plugin TREK-Daten beschädigen. Fahre nur fort, wenn du dieses Risiko akzeptierst.',
   'admin.plugins.dep.trekBypassed': 'Außerhalb seines TREK-Bereichs ({range}) — Versionsprüfung aus',
   'admin.plugins.dep.trekBypassedUnknown': 'Gibt keinen TREK-Bereich an — Versionsprüfung aus',
-  'admin.plugins.incompatible': 'Nicht kompatibel',
+  'admin.plugins.rangeBypass.titleAdmin': 'Ungeprüft auf diesem TREK',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    '„{name}“ unterstützt laut Autor TREK {range}, dieser Server läuft mit {host}. Für dieses TREK hat der Autor es noch nicht freigegeben. Es kann also sein, dass es nicht funktioniert, und in seltenen Fällen kann ein unpassendes Plugin TREK-Daten beschädigen. Du kannst es trotzdem nutzen: Deine Entscheidung gilt nur für dieses Plugin in dieser Version, nach einem Update fragt TREK erneut.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '„{name}“ gibt nicht an, welche TREK-Versionen es unterstützt, dieser Server läuft mit {host}. Nichts deutet darauf hin, dass es auf diesem TREK getestet wurde. Es kann also sein, dass es nicht funktioniert, und in seltenen Fällen kann ein unpassendes Plugin TREK-Daten beschädigen. Du kannst es trotzdem nutzen: Deine Entscheidung gilt nur für dieses Plugin in dieser Version, nach einem Update fragt TREK erneut.',
+  'admin.plugins.dep.trekAccepted': 'Für TREK {range} gebaut, läuft auf eigenes Risiko',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Keine TREK-Version angegeben, läuft auf eigenes Risiko',
+  'admin.plugins.activateAnyway': 'Trotzdem aktivieren',
+  'admin.plugins.untestedChip': 'Noch nicht für TREK {host} freigegeben',
+  'admin.plugins.filters': 'Filter',
+  'admin.plugins.security.short': 'So sind Plugins abgesichert',
   'admin.plugins.accessTitle': 'Worauf es zugreift',
   'admin.plugins.connectsTitle': 'Verbindet sich mit',
   'admin.plugins.detailsTitle': 'Details', // same-as-en

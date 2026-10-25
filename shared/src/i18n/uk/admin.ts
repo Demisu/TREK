@@ -617,7 +617,17 @@ const admin: TranslationStrings = {
     '«{name}» не вказує, які версії TREK він підтримує; цей сервер працює на {host}. TREK пропускає його лише тому, що задано TREK_PLUGINS_IGNORE_TREK_RANGE. Ніщо не свідчить, що автор тестував його на цьому TREK, тож працездатність не гарантується — а в рідкісних випадках несумісний плагін може пошкодити дані TREK. Продовжуйте, лише якщо приймаєте цей ризик.',
   'admin.plugins.dep.trekBypassed': 'Поза своїм діапазоном TREK ({range}) — перевірки версії вимкнено',
   'admin.plugins.dep.trekBypassedUnknown': 'Діапазон TREK не вказано — перевірки версії вимкнено',
-  'admin.plugins.incompatible': 'Несумісно',
+  'admin.plugins.rangeBypass.titleAdmin': 'Не перевірено на цьому TREK',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'За словами автора, «{name}» підтримує TREK {range}, а на цьому сервері працює {host}. Автор ще не підтвердив його для цього TREK, тож він може не працювати, а в рідкісних випадках невідповідний плагін може пошкодити дані TREK. Ви все одно можете ним користуватися: ваше рішення діє лише для цього плагіна в цій версії, після оновлення TREK запитає знову.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '«{name}» не вказує, які версії TREK підтримує, а на цьому сервері працює {host}. Ніщо не вказує на те, що його перевіряли на цьому TREK, тож він може не працювати, а в рідкісних випадках невідповідний плагін може пошкодити дані TREK. Ви все одно можете ним користуватися: ваше рішення діє лише для цього плагіна в цій версії, після оновлення TREK запитає знову.',
+  'admin.plugins.dep.trekAccepted': 'Створено для TREK {range}, працює на ваш ризик',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Версію TREK не вказано, працює на ваш ризик',
+  'admin.plugins.activateAnyway': 'Однаково увімкнути',
+  'admin.plugins.untestedChip': 'Ще не підтверджено для TREK {host}',
+  'admin.plugins.filters': 'Фільтр',
+  'admin.plugins.security.short': 'Як захищені плагіни',
   'admin.plugins.accessTitle': 'До чого має доступ',
   'admin.plugins.connectsTitle': 'Підключається до',
   'admin.plugins.detailsTitle': 'Деталі',

@@ -609,7 +609,17 @@ const admin: TranslationStrings = {
     '“{name}”은(는) 지원하는 TREK 버전을 선언하지 않았습니다. 이 서버는 {host}을(를) 실행 중입니다. TREK_PLUGINS_IGNORE_TREK_RANGE가 설정되어 있기 때문에만 TREK가 이를 허용합니다. 작성자가 이 TREK에서 테스트했다는 근거가 없으므로 정상 동작을 보장할 수 없으며, 드물게 호환되지 않는 플러그인이 TREK 데이터를 손상시킬 수 있습니다. 이 위험을 감수하는 경우에만 계속하세요.',
   'admin.plugins.dep.trekBypassed': 'TREK 범위 밖 ({range}) — 버전 검사 꺼짐',
   'admin.plugins.dep.trekBypassedUnknown': 'TREK 범위 선언 없음 — 버전 검사 꺼짐',
-  'admin.plugins.incompatible': '호환되지 않음',
+  'admin.plugins.rangeBypass.titleAdmin': '이 TREK에서 검증되지 않음',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    '제작자에 따르면 “{name}”은(는) TREK {range}을(를) 지원하며, 이 서버는 {host}을(를) 실행 중입니다. 제작자가 아직 이 TREK에서 확인하지 않았으므로 작동하지 않을 수 있고, 드물게 맞지 않는 플러그인이 TREK 데이터를 손상시킬 수 있습니다. 그래도 사용할 수 있습니다. 이 선택은 이 버전의 이 플러그인에만 적용되며, 업데이트 후 TREK이 다시 묻습니다.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '“{name}”은(는) 지원하는 TREK 버전을 밝히지 않으며, 이 서버는 {host}을(를) 실행 중입니다. 이 TREK에서 테스트되었다는 근거가 없으므로 작동하지 않을 수 있고, 드물게 맞지 않는 플러그인이 TREK 데이터를 손상시킬 수 있습니다. 그래도 사용할 수 있습니다. 이 선택은 이 버전의 이 플러그인에만 적용되며, 업데이트 후 TREK이 다시 묻습니다.',
+  'admin.plugins.dep.trekAccepted': 'TREK {range}용, 직접 책임지고 실행 중',
+  'admin.plugins.dep.trekAcceptedUnknown': 'TREK 버전 정보 없음, 직접 책임지고 실행 중',
+  'admin.plugins.activateAnyway': '그래도 활성화',
+  'admin.plugins.untestedChip': 'TREK {host}에서 아직 확인되지 않음',
+  'admin.plugins.filters': '필터',
+  'admin.plugins.security.short': '플러그인 보호 방식',
   'admin.plugins.accessTitle': '접근할 수 있는 항목',
   'admin.plugins.connectsTitle': '연결 대상',
   'admin.plugins.detailsTitle': '상세 정보',

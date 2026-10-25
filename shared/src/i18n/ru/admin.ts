@@ -620,7 +620,17 @@ const admin: TranslationStrings = {
     '«{name}» не указывает, какие версии TREK он поддерживает; этот сервер работает на {host}. TREK пропускает его только потому, что задано TREK_PLUGINS_IGNORE_TREK_RANGE. Ничто не говорит о том, что автор тестировал его на этом TREK, так что работоспособность не гарантируется — а в редких случаях несовместимый плагин может повредить данные TREK. Продолжайте, только если принимаете этот риск.',
   'admin.plugins.dep.trekBypassed': 'Вне своего диапазона TREK ({range}) — проверки версии отключены',
   'admin.plugins.dep.trekBypassedUnknown': 'Диапазон TREK не указан — проверки версии отключены',
-  'admin.plugins.incompatible': 'Несовместимо',
+  'admin.plugins.rangeBypass.titleAdmin': 'Не проверен на этом TREK',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'По словам автора, «{name}» поддерживает TREK {range}, а на этом сервере работает {host}. Автор ещё не подтвердил его для этого TREK, поэтому он может не работать, а в редких случаях неподходящий плагин может повредить данные TREK. Вы всё равно можете его использовать: ваше решение действует только для этого плагина в этой версии, после обновления TREK спросит снова.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '«{name}» не указывает, какие версии TREK поддерживает, а на этом сервере работает {host}. Ничто не говорит о том, что его проверяли на этом TREK, поэтому он может не работать, а в редких случаях неподходящий плагин может повредить данные TREK. Вы всё равно можете его использовать: ваше решение действует только для этого плагина в этой версии, после обновления TREK спросит снова.',
+  'admin.plugins.dep.trekAccepted': 'Создан для TREK {range}, работает на ваш риск',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Версия TREK не указана, работает на ваш риск',
+  'admin.plugins.activateAnyway': 'Всё равно включить',
+  'admin.plugins.untestedChip': 'Ещё не подтверждён для TREK {host}',
+  'admin.plugins.filters': 'Фильтр',
+  'admin.plugins.security.short': 'Как защищены плагины',
   'admin.plugins.accessTitle': 'К чему есть доступ',
   'admin.plugins.connectsTitle': 'Подключается к',
   'admin.plugins.detailsTitle': 'Подробности',

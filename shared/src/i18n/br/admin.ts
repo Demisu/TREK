@@ -593,7 +593,17 @@ const admin: TranslationStrings = {
     '“{name}” não declara quais versões do TREK suporta; este servidor executa {host}. O TREK só o deixa passar porque TREK_PLUGINS_IGNORE_TREK_RANGE está definido. Nada indica que o autor o tenha testado neste TREK, então não há garantia de que funcione — e, em casos raros, um plugin incompatível pode corromper os dados do TREK. Continue apenas se aceitar esse risco.',
   'admin.plugins.dep.trekBypassed': 'Fora do seu intervalo TREK ({range}) — verificações de versão desligadas',
   'admin.plugins.dep.trekBypassedUnknown': 'Não declara nenhum intervalo TREK — verificações de versão desligadas',
-  'admin.plugins.incompatible': 'Incompatível',
+  'admin.plugins.rangeBypass.titleAdmin': 'Não testado neste TREK',
+  'admin.plugins.rangeBypass.bodyAdmin':
+    'Segundo o autor, “{name}” é compatível com o TREK {range}, e este servidor roda o {host}. O autor ainda não o confirmou para este TREK, então ele pode não funcionar e, em casos raros, um plugin incompatível pode danificar os dados do TREK. Você ainda pode usá-lo: sua escolha vale só para este plugin nesta versão, e o TREK pergunta de novo depois de uma atualização.',
+  'admin.plugins.rangeBypass.bodyAdminUnknown':
+    '“{name}” não informa com quais versões do TREK é compatível, e este servidor roda o {host}. Nada indica que ele foi testado neste TREK, então ele pode não funcionar e, em casos raros, um plugin incompatível pode danificar os dados do TREK. Você ainda pode usá-lo: sua escolha vale só para este plugin nesta versão, e o TREK pergunta de novo depois de uma atualização.',
+  'admin.plugins.dep.trekAccepted': 'Feito para o TREK {range}, em uso por sua conta e risco',
+  'admin.plugins.dep.trekAcceptedUnknown': 'Sem versão do TREK informada, em uso por sua conta e risco',
+  'admin.plugins.activateAnyway': 'Ativar mesmo assim',
+  'admin.plugins.untestedChip': 'Ainda não confirmado para o TREK {host}',
+  'admin.plugins.filters': 'Filtrar',
+  'admin.plugins.security.short': 'Como os plugins são protegidos',
   'admin.plugins.accessTitle': 'O que ele pode acessar',
   'admin.plugins.connectsTitle': 'Conecta-se a',
   'admin.plugins.detailsTitle': 'Detalhes',
