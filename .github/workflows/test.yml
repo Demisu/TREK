@@ -1161,7 +1161,7 @@ jobs:
           docker run -d --name trek-ci -p 127.0.0.1:3000:3000 \
             --read-only --tmpfs /tmp:noexec,nosuid,size=128m \
             --security-opt no-new-privileges:true \
-            --cap-drop ALL --cap-add CHOWN --cap-add SETUID --cap-add SETGID \
+            --cap-drop ALL --cap-add CHOWN --cap-add SETUID --cap-add SETGID --cap-add KILL \
             -v "$RUNNER_TEMP/trek/data:/app/data" \
             -v "$RUNNER_TEMP/trek/uploads:/app/uploads" \
             -e ENCRYPTION_KEY="$(openssl rand -hex 32)" \
@@ -1193,6 +1193,17 @@ jobs:
           [ "$version" = "0.0.0-ci" ] || { echo "::error::VERSION holds '$version'"; exit 1; }
           curl -sf http://127.0.0.1:3000/ | grep -q '<div id="root">' \
             || { echo "::error::/ does not serve the client"; exit 1; }
+
+      # Same capabilities as the shipped compose file: dumb-init has to be able
+      # to pass the stop signal on to node, or docker stop ends in SIGKILL (137).
+      - name: Stop gracefully
+        run: |
+          set -euo pipefail
+          docker stop -t 30 trek-ci >/dev/null
+          code="$(docker inspect -f '{{.State.ExitCode}}' trek-ci)"
+          [ "$code" = "0" ] || { echo "::error::docker stop ended with exit code $code, not a graceful shutdown"; exit 1; }
+          docker logs trek-ci 2>&1 | grep -q 'SIGTERM received' \
+            || { echo "::error::the server never saw SIGTERM"; exit 1; }
 
       - name: Container log
         if: always()
