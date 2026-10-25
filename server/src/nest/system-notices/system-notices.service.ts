@@ -143,14 +143,18 @@ export class SystemNoticesService {
       managed: this.env.isManaged(),
       settingFlag: (key: string) => settingFlags.get(key) ?? false,
     };
-    const appVer = semver.coerce(currentAppVersion)?.version ?? '0.0.0';
+    // Full versions, the prerelease part included: a dismissal on 5.0.0-pre.2 is older
+    // than 5.0.0, so whoever tried a prerelease still gets the notes of the release.
+    const fullVersion = (v: string | null | undefined) =>
+      semver.valid(v ?? '') ?? semver.coerce(v ?? '')?.version ?? '0.0.0';
+    const appVer = fullVersion(currentAppVersion);
 
     const isStillDismissed = (n: SystemNotice): boolean => {
       if (!dismissals.has(n.id)) return false;
       if (n.recurring === 'per-version') {
         // Re-show once the running app version moves past the version it was last dismissed at,
         // so a per-version notice surfaces again on each install/upgrade.
-        const dismissedVer = semver.coerce(dismissals.get(n.id) ?? '0.0.0')?.version ?? '0.0.0';
+        const dismissedVer = fullVersion(dismissals.get(n.id));
         return semver.gte(dismissedVer, appVer);
       }
       return true; // default: permanent one-time dismissal

@@ -162,6 +162,18 @@ describe('SystemNoticesService (Plan 3f Task 6)', () => {
       ).not.toContain('sn-test-release');
     });
 
+    it('SN4b — a dismissal on a prerelease of the running version is older, so the notice of the release shows', async () => {
+      // Tried 5.0.0-pre.2, now on 5.0.0: the prerelease part must not be dropped.
+      const prerelease = makeService({
+        listForUser: [{ notice_id: 'sn-test-release', dismissed_app_version: `${getCurrentAppVersion()}-pre.2` }],
+      });
+      expect(
+        (await prerelease.svc.getActiveFor(BASE_USER.id, new Set(['release']), getCurrentAppVersion())).map(
+          (n) => n.id,
+        ),
+      ).toContain('sn-test-release');
+    });
+
     it('a permanently-dismissed (non-recurring) notice never returns', async () => {
       const { svc } = makeService({ listForUser: [{ notice_id: 'sn-test-generic', dismissed_app_version: null }] });
       expect((await svc.getActiveFor(BASE_USER.id)).map((n) => n.id)).not.toContain('sn-test-generic');
