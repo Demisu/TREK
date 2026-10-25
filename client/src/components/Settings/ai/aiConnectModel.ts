@@ -99,6 +99,21 @@ export function takeOpenrouterFlow(): string | null {
   }
 }
 
+/**
+ * The code an OpenRouter sign-in came back with, or `undefined` when the page
+ * was not opened by one. The return address already carries a query
+ * (`?tab=…&ai=openrouter`), and OpenRouter may add its code with a second `?`
+ * rather than an `&`, which leaves it inside the `ai` value
+ * (`ai=openrouter?code=…`); both shapes count.
+ */
+export function openrouterReturnCode(params: URLSearchParams): string | null | undefined {
+  const ai = params.get('ai');
+  if (ai === null) return undefined;
+  const [marker, rest] = ai.split('?', 2);
+  if (marker !== 'openrouter') return undefined;
+  return params.get('code') ?? new URLSearchParams(rest ?? '').get('code');
+}
+
 const PRIVATE_V4 = [/^10\./, /^127\./, /^169\.254\./, /^192\.168\./, /^172\.(1[6-9]|2\d|3[01])\./, /^0\./];
 
 /**
