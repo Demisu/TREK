@@ -234,12 +234,15 @@ the details.
 ## Get started in 30 seconds
 
 ```bash
-ENCRYPTION_KEY=$(openssl rand -hex 32) docker run -d -p 3000:3000 \
+ENCRYPTION_KEY=$(openssl rand -hex 32) docker run -d --name trek -p 3000:3000 \
   -e ENCRYPTION_KEY=$ENCRYPTION_KEY \
+  -e COOKIE_SECURE=false \
   -v ./data:/app/data -v ./uploads:/app/uploads mauriceboe/trek
 ```
 
-Open `http://localhost:3000`. On first boot TREK seeds an admin account — if you set `ADMIN_EMAIL`/`ADMIN_PASSWORD` those are used, otherwise the credentials are printed to the container log (`docker logs trek`).
+Open `http://localhost:3000`, or `http://<server-ip>:3000` from another machine. On first boot TREK seeds an admin account — if you set `ADMIN_EMAIL`/`ADMIN_PASSWORD` those are used, otherwise the credentials are printed to the container log (`docker logs trek`).
+
+`COOKIE_SECURE=false` is only for trying TREK over plain HTTP: without it the browser drops the session cookie and the login does not stick. Once TREK sits behind HTTPS (see [Reverse Proxy](#reverse-proxy)), remove it.
 
 <div align="center">
 
