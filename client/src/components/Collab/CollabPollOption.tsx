@@ -38,6 +38,20 @@ function VoterChip({ name, src, offset }: { name: string; src: string | null; of
   );
 }
 
+/** The voters past the third, as a count on the end of the stack; their names on hover. */
+function MoreVoters({ names }: { names: string[] }) {
+  return (
+    <Tooltip label={names.map((name) => name || '?').join(', ')}>
+      <span
+        className="grid h-[18px] min-w-[18px] flex-none place-items-center rounded-full border-[1.5px] border-surface-card bg-surface-tertiary px-[3px] font-bold tabular-nums text-content-muted"
+        style={{ ...fs(7), marginInlineStart: -5 }}
+      >
+        +{names.length}
+      </span>
+    </Tooltip>
+  );
+}
+
 /** A fact about the poll on its head band, set like the type chip on a booking card. */
 export function PollChip({
   icon,
@@ -138,6 +152,7 @@ export function PollOptionRow({
           {voters.slice(0, 3).map((voter, index) => (
             <VoterChip key={voter.key} name={voter.name} src={voter.src} offset={index > 0} />
           ))}
+          {voters.length > 3 && <MoreVoters names={voters.slice(3).map((voter) => voter.name)} />}
         </span>
       )}
       {pending && <span className="sr-only">{pending.label}</span>}

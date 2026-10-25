@@ -191,6 +191,18 @@ describe('CollabPolls', () => {
     expect(await screen.findByText(/closed/i)).toBeInTheDocument();
   });
 
+  it('FE-COMP-POLLS-025: past three voters the stack ends in a count of the rest', async () => {
+    const voters = ['anna', 'ben', 'cleo', 'dana', 'emil'].map((username, i) => ({ user_id: 10 + i, username, avatar_url: null }));
+    server.use(
+      http.get('/api/trips/1/collab/polls', () =>
+        HttpResponse.json({ polls: [buildPoll({ is_closed: true, options: [{ id: 1, text: 'Paris', label: 'Paris', voters }, { id: 2, text: 'Rome', label: 'Rome', voters: [] }] })] }),
+      ),
+    );
+    render(<CollabPolls {...defaultProps} />);
+    expect(await screen.findByText('+2')).toBeInTheDocument();
+    expect(screen.queryByText('D')).not.toBeInTheDocument();
+  });
+
   it('FE-COMP-POLLS-011: closed poll options are disabled (cannot vote)', async () => {
     server.use(
       http.get('/api/trips/1/collab/polls', () =>
