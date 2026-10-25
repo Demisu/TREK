@@ -50,13 +50,17 @@ export default function MAssistantHomeScreen() {
   useAssistantStatus();
 
   if (inTrip || !available || !open || minimized) return null;
+  // Mounted beside MobileShell, not inside it, so the --m-* tokens the screen paints
+  // with only resolve under an m-root of its own; without it the chat is see-through.
   return (
-    <AssistantScreen
-      tripId={chat.id}
-      tripTitle={chat.title}
-      hidden={false}
-      hops={hops}
-      onOpenTripChat={journal ? undefined : home.openTripChat}
-    />
+    <div className="m-root">
+      <AssistantScreen
+        tripId={chat.id}
+        tripTitle={chat.title}
+        hidden={false}
+        hops={hops}
+        onOpenTripChat={journal ? undefined : home.openTripChat}
+      />
+    </div>
   );
 }

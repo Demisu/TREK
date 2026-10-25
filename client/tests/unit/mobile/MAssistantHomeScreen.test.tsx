@@ -7,7 +7,7 @@ import MAssistantHomeScreen from '../../../src/mobile/screens/assistant/MAssista
 import { chatOf, useAssistantStore } from '../../../src/store/assistantStore';
 import { act, cleanup, fireEvent, render, screen } from '../../helpers/render';
 
-// FE-MOB-ASSIST-HOME-001 to FE-MOB-ASSIST-HOME-005
+// FE-MOB-ASSIST-HOME-001 to FE-MOB-ASSIST-HOME-006
 //
 // The phone's home chat, full screen outside a trip, around the shared chat
 // surface, which is replaced here: what is tested is when it shows, its
@@ -140,5 +140,10 @@ describe('MAssistantHomeScreen', () => {
     useAssistantStore.setState({ window: { open: true, minimized: true } });
     renderAt('/settings');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('FE-MOB-ASSIST-HOME-006: brings its own m-root, so the phone tokens resolve outside the mobile shell', () => {
+    renderAt('/dashboard');
+    expect(screen.getByRole('dialog', { name: 'Assistant' }).closest('.m-root')).not.toBeNull();
   });
 });
