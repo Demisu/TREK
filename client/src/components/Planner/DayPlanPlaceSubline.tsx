@@ -118,9 +118,10 @@ export function DayPlanPlaceSubline({
   const description = place.description || place.address || cat?.name;
   if (!(dayRowTour || place.place_time || hasPlannedTimes(tourTimes) || description)) return null;
   return (
-    // One line like the row's name: when the hover controls come out, the description
-    // gives way and the pills keep their place instead of wrapping onto a second line.
-    <div className="trek-fade-end mt-0.5 flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden">
+    // The description stays on one line and gives way first. The pills wrap rather
+    // than run out of the row: a tour carries a time, its duration and its distance,
+    // and in the narrow day column the last of them used to be cut off unseen.
+    <div className="trek-fade-end mt-0.5 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 overflow-hidden">
       {place.place_time && dayRowTour && (
         // TIME-02: a tour's end, typed or worked out from its start and its time.
         <TimePill quiet>
