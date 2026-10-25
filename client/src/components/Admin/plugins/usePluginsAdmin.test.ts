@@ -273,7 +273,7 @@ describe('usePluginsAdmin', () => {
     ]);
     vi.spyOn(adminApi, 'pluginActivate').mockResolvedValue({});
     const { result } = await mounted();
-    act(() => result.current.toggle(result.current.plugins[0]!));
+    act(() => result.current.toggle(result.current.plugins[0] as PluginRow));
     expect(adminApi.pluginActivate).not.toHaveBeenCalled();
     expect(result.current.bypass.warning).toMatchObject({
       acceptedByAdmin: true,

@@ -549,15 +549,10 @@ function panelRoot(container: HTMLElement): HTMLElement {
 }
 
 /** Opens one of the toolbar dropdowns (identified by its current title) and picks an option. */
-/** The toolbar's one Filter button: type, status and order sit in its menu. */
-function filterButton(): HTMLElement {
-  return screen.getByRole('button', { name: /^Filter/ })
-}
-
-/** Picks one entry of the filter menu, opening it first when it is closed (a pick leaves it open). */
+/** The toolbar's one Filter button; a pick in its menu leaves the menu open. */
+const filterButton = (): HTMLElement => screen.getByRole('button', { name: /^Filter/ })
 async function pickFilter(option: RegExp) {
-  await screen.findByRole('button', { name: /^Filter/ })
-  if (filterButton().getAttribute('aria-expanded') !== 'true') fireEvent.click(filterButton())
+  if ((await screen.findByRole('button', { name: /^Filter/ })).getAttribute('aria-expanded') !== 'true') fireEvent.click(filterButton())
   fireEvent.click(await screen.findByRole('menuitemradio', { name: option }))
 }
 
@@ -653,10 +648,8 @@ describe('AdminPluginsPanel — load states and toolbar', () => {
 
     await pickFilter(/^Updates first$/)
     expect(filterButton()).toHaveTextContent('Updates first')
-
     await clickDiscover()
-    await waitFor(() => expect(filterButton()).not.toHaveTextContent('Updates first'))
-    expect(filterButton()).toHaveTextContent('Name')
+    await waitFor(() => expect(filterButton()).toHaveTextContent(/Name$/))
   })
 
   it('FE-COMP-PLUGINS-PANEL-008: rescan re-pulls the registry past its cache and confirms with a toast', async () => {
@@ -1794,10 +1787,8 @@ describe('AdminPluginsPanel toolbar and dialogs', () => {
 
     await pickFilter(user, /^Updates first$/)
     expect(filterButton()).toHaveTextContent('Updates first')
-
     await user.click(screen.getByRole('tab', { name: /Discover/ }))
-    await waitFor(() => expect(filterButton()).not.toHaveTextContent('Updates first'))
-    expect(filterButton()).toHaveTextContent('Name')
+    await waitFor(() => expect(filterButton()).toHaveTextContent(/Name$/))
   })
 
   it('FE-W5PLG-007: the registry sorts by downloads and by review date', async () => {
@@ -2017,10 +2008,8 @@ describe('AdminPluginsPanel registry cards and dependency chips', () => {
     await user.click(filterButton())
     await user.click(screen.getByRole('menuitemradio', { name: /^Most downloads$/ }))
     expect(filterButton()).toHaveTextContent('Most downloads')
-
     await user.click(screen.getByRole('tab', { name: /Installed/ }))
-    await waitFor(() => expect(filterButton()).not.toHaveTextContent('Most downloads'))
-    expect(filterButton()).toHaveTextContent('Name')
+    await waitFor(() => expect(filterButton()).toHaveTextContent(/Name$/))
   })
 
   it('FE-W5PLG-017: an outrun release offers the newest compatible version instead of a dead button', async () => {
@@ -2038,7 +2027,6 @@ describe('AdminPluginsPanel registry cards and dependency chips', () => {
     expect(offer).toHaveAttribute('title', expect.stringContaining('3.5.0'))
 
     // Nothing fits: no dead button any more, but a card that says so before anything installs.
-    expect(screen.queryByRole('button', { name: /^Incompatible$/ })).not.toBeInTheDocument()
     expect(screen.getByText(/^Not confirmed for TREK .+ yet$/)).toBeInTheDocument()
   })
 

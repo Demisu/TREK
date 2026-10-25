@@ -24,7 +24,7 @@ import {
 } from '../Settings/settingsKit'
 import {
   KNOWN_TYPES, PERM_KEYS, blockIsCurrent, dependencyRows, fingerprint, formatCompactCount,
-  installOffer, isRegistrySourced, signatureBlockView,
+  installOffer, signatureBlockView,
   type PluginDep, type PluginRow, type RegistryItem, type SigSubject,
   type T, type VersionInfo, type VersionMismatch,
 } from './plugins/pluginModel'
