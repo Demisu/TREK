@@ -34,7 +34,7 @@ function frame(size: number, className: string | undefined) {
 }
 
 /** Paperless-ngx: the leaf, with the shoot curling out of its stem. */
-export function PaperlessIcon({ size = 20, className }: GlyphProps): React.ReactElement {
+function PaperlessIcon({ size = 20, className }: GlyphProps): React.ReactElement {
   return (
     <svg {...frame(size, className)}>
       <path
@@ -64,7 +64,7 @@ export function PaperlessIcon({ size = 20, className }: GlyphProps): React.React
 }
 
 /** Papra: a sheet with a folded corner and its lines of text. */
-export function PapraIcon({ size = 20, className }: GlyphProps): React.ReactElement {
+function PapraIcon({ size = 20, className }: GlyphProps): React.ReactElement {
   return (
     <svg {...frame(size, className)}>
       <path
@@ -87,7 +87,7 @@ export function PapraIcon({ size = 20, className }: GlyphProps): React.ReactElem
 }
 
 /** Nextcloud: the three rings. */
-export function NextcloudIcon({ size = 20, className }: GlyphProps): React.ReactElement {
+function NextcloudIcon({ size = 20, className }: GlyphProps): React.ReactElement {
   return (
     <svg {...frame(size, className)}>
       <circle cx="256" cy="256" r="97" stroke="currentColor" strokeWidth="42" />
@@ -98,7 +98,7 @@ export function NextcloudIcon({ size = 20, className }: GlyphProps): React.React
 }
 
 /** OpenCloud: the open hexagon with the junction inside it. */
-export function OpenCloudIcon({ size = 20, className }: GlyphProps): React.ReactElement {
+function OpenCloudIcon({ size = 20, className }: GlyphProps): React.ReactElement {
   return (
     <svg {...frame(size, className)}>
       <path d="M26 128 256 8l230 120v72L256 80 26 200z" fill="currentColor" />
@@ -112,7 +112,7 @@ export function OpenCloudIcon({ size = 20, className }: GlyphProps): React.React
 }
 
 /** Synology Drive: the wordmark's own glyph, as the addon list already draws it. */
-export function SynologyDriveIcon({ size = 20, className }: GlyphProps): React.ReactElement {
+function SynologyDriveIcon({ size = 20, className }: GlyphProps): React.ReactElement {
   return (
     <svg
       width={className ? undefined : size}
