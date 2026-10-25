@@ -139,6 +139,13 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'استيراد من ملف',
   'reservations.import.dropHere': 'أسقط ملفات تأكيد الحجز هنا أو انقر للتحديد',
   'reservations.import.dropActive': 'أسقط الملفات للاستيراد',
+  'reservations.import.pinSearching': 'جارٍ البحث على الخريطة…',
+  'reservations.import.pinFound': 'على الخريطة',
+  'reservations.import.pinMissingTitle': 'ليس على الخريطة بعد',
+  'reservations.import.pinMissingBody':
+    'لم يعثر TREK على مكان الإقامة هذا على الخريطة. تحقّق من الاسم والعنوان أعلاه وابحث مجددًا، أو احفظه دون دبوس.',
+  'reservations.import.pinRetry': 'ابحث مجددًا',
+  'reservations.import.savedWithoutPin': 'حُفظ دون دبوس على الخريطة. عدّل المكان وحدّد موقعه لتراه على الخريطة.',
   'reservations.import.acceptedFormats':
     'المقبول: EML، PDF، PKPass، HTML، TXT (بحد أقصى 10 ميغابايت لكل ملف، حتى 5 ملفات)',
   'reservations.import.acceptedPhotos': 'يقرأ نموذج الذكاء الاصطناعي الصور (JPG وPNG وWEBP).',

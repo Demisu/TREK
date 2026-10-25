@@ -144,6 +144,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Impordi failist',
   'reservations.import.dropHere': 'Lohista broneeringukinnituse failid siia või klõpsa valimiseks',
   'reservations.import.dropActive': 'Impordiks lohista failid siia',
+  'reservations.import.pinSearching': 'Kaardilt otsimine…',
+  'reservations.import.pinFound': 'Kaardil',
+  'reservations.import.pinMissingTitle': 'Veel pole kaardil',
+  'reservations.import.pinMissingBody':
+    'TREK ei leidnud seda majutust kaardilt. Kontrolli ülal nime ja aadressi ning otsi uuesti või salvesta see ilma nõelata.',
+  'reservations.import.pinRetry': 'Otsi uuesti',
+  'reservations.import.savedWithoutPin':
+    'Salvestatud ilma kaardinõelata. Muuda kohta ja määra selle asukoht, et seda kaardil näha.',
   'reservations.import.acceptedFormats': 'Lubatud: EML, PDF, PKPass, HTML, TXT (kuni 10 MB faili kohta, kuni 5 faili)',
   'reservations.import.acceptedPhotos': 'Fotosid (JPG, PNG, WEBP) loeb tehisintellekti mudel.',
   'reservations.import.parsing': 'Failide töötlemine…',

@@ -140,6 +140,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Impor dari file',
   'reservations.import.dropHere': 'Seret file konfirmasi pemesanan ke sini atau klik untuk memilih',
   'reservations.import.dropActive': 'Lepaskan file untuk mengimpor',
+  'reservations.import.pinSearching': 'Mencari di peta…',
+  'reservations.import.pinFound': 'Di peta',
+  'reservations.import.pinMissingTitle': 'Belum ada di peta',
+  'reservations.import.pinMissingBody':
+    'TREK tidak menemukan penginapan ini di peta. Periksa nama dan alamat di atas lalu cari lagi, atau simpan tanpa pin.',
+  'reservations.import.pinRetry': 'Cari lagi',
+  'reservations.import.savedWithoutPin':
+    'Disimpan tanpa pin peta. Edit tempatnya dan atur lokasinya agar muncul di peta.',
   'reservations.import.acceptedFormats': 'Diterima: EML, PDF, PKPass, HTML, TXT (maks. 10 MB per file, hingga 5 file)',
   'reservations.import.acceptedPhotos': 'Foto (JPG, PNG, WEBP) dibaca oleh model AI.',
   'reservations.import.parsing': 'Memproses file…',

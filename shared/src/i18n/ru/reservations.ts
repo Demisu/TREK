@@ -139,6 +139,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Импортировать из файла',
   'reservations.import.dropHere': 'Перетащите файлы подтверждений бронирования сюда или нажмите для выбора',
   'reservations.import.dropActive': 'Отпустите файлы для импорта',
+  'reservations.import.pinSearching': 'Поиск на карте…',
+  'reservations.import.pinFound': 'На карте',
+  'reservations.import.pinMissingTitle': 'Пока нет на карте',
+  'reservations.import.pinMissingBody':
+    'TREK не нашёл это жильё на карте. Проверьте название и адрес выше и повторите поиск или сохраните без метки.',
+  'reservations.import.pinRetry': 'Искать снова',
+  'reservations.import.savedWithoutPin':
+    'Сохранено без метки на карте. Измените место и укажите его расположение, чтобы увидеть его на карте.',
   'reservations.import.acceptedFormats': 'Принимаются: EML, PDF, PKPass, HTML, TXT (макс. 10 МБ каждый, до 5 файлов)',
   'reservations.import.acceptedPhotos': 'Фотографии (JPG, PNG, WEBP) читает модель ИИ.',
   'reservations.import.parsing': 'Обработка файлов…',

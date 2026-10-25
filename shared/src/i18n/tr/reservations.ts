@@ -140,6 +140,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Dosyadan içe aktar',
   'reservations.import.dropHere': 'Rezervasyon onay dosyalarını buraya sürükleyin veya seçmek için tıklayın',
   'reservations.import.dropActive': 'İçe aktarmak için dosyaları bırakın',
+  'reservations.import.pinSearching': 'Haritada aranıyor…',
+  'reservations.import.pinFound': 'Haritada',
+  'reservations.import.pinMissingTitle': 'Henüz haritada değil',
+  'reservations.import.pinMissingBody':
+    'TREK bu konaklamayı haritada bulamadı. Yukarıdaki adı ve adresi kontrol edip yeniden arayın ya da raptiye olmadan kaydedin.',
+  'reservations.import.pinRetry': 'Yeniden ara',
+  'reservations.import.savedWithoutPin':
+    'Harita raptiyesi olmadan kaydedildi. Haritada görmek için yeri düzenleyip konumunu ayarlayın.',
   'reservations.import.acceptedFormats':
     'Kabul edilenler: EML, PDF, PKPass, HTML, TXT (her biri maks. 10 MB, en fazla 5 dosya)',
   'reservations.import.acceptedPhotos': 'Fotoğrafları (JPG, PNG, WEBP) yapay zekâ modeli okur.',

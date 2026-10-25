@@ -139,6 +139,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'ファイルからインポート',
   'reservations.import.dropHere': '予約確認ファイルをここにドロップするか、クリックして選択',
   'reservations.import.dropActive': 'ファイルをドロップしてインポート',
+  'reservations.import.pinSearching': '地図で検索しています…',
+  'reservations.import.pinFound': '地図上の場所',
+  'reservations.import.pinMissingTitle': 'まだ地図にありません',
+  'reservations.import.pinMissingBody':
+    'TREK はこの宿泊先を地図上で見つけられませんでした。上の名前と住所を確認して再検索するか、ピンなしで保存してください。',
+  'reservations.import.pinRetry': '再検索',
+  'reservations.import.savedWithoutPin':
+    '地図のピンなしで保存しました。地図に表示するには、場所を編集して位置を設定してください。',
   'reservations.import.acceptedFormats': '対応形式：EML、PDF、PKPass、HTML、TXT（各最大 10 MB、最大 5 ファイル）',
   'reservations.import.acceptedPhotos': '写真（JPG、PNG、WEBP）は AI モデルが読み取ります。',
   'reservations.import.parsing': 'ファイルを解析中…',

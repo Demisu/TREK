@@ -139,6 +139,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Імпортувати з файлу',
   'reservations.import.dropHere': 'Перетягніть файли підтверджень бронювання сюди або натисніть для вибору',
   'reservations.import.dropActive': 'Відпустіть файли для імпорту',
+  'reservations.import.pinSearching': 'Пошук на мапі…',
+  'reservations.import.pinFound': 'На мапі',
+  'reservations.import.pinMissingTitle': 'Поки немає на мапі',
+  'reservations.import.pinMissingBody':
+    'TREK не знайшов це житло на мапі. Перевірте назву й адресу вище та повторіть пошук або збережіть без позначки.',
+  'reservations.import.pinRetry': 'Шукати знову',
+  'reservations.import.savedWithoutPin':
+    'Збережено без позначки на мапі. Відредагуйте місце й укажіть його розташування, щоб побачити його на мапі.',
   'reservations.import.acceptedFormats': 'Підтримуються: EML, PDF, PKPass, HTML, TXT (макс. 10 МБ кожен, до 5 файлів)',
   'reservations.import.acceptedPhotos': 'Фотографії (JPG, PNG, WEBP) читає модель ШІ.',
   'reservations.import.parsing': 'Обробка файлів…',

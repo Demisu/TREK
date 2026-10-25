@@ -29,6 +29,7 @@ import { useReservationForm } from './useReservationForm'
 import { expenseRequestAfterSave, pendingImportExpense, travelerIdsOf, travelersChanged, filesNeedConnection, uploadBookingFiles } from './bookingFormModel'
 import { useBookingExpenseIntent } from './useBookingExpenseIntent'
 import { useBookingFileAttach } from './useBookingFileAttach'
+import StayPinStatus from './StayPinStatus'
 
 const EMPTY_FORM = {
   title: '', type: 'other', status: 'pending',
@@ -81,7 +82,7 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
   const {
     form, setForm, set, isSaving, setIsSaving, pendingFiles, setPendingFiles, travelerIds, setTravelerIds, toggleTraveler,
     isEndBeforeStart, endTimeBeforeStartTime, dateBounds: tripDateRange, startDate, startTime, setStartDate, setStartTime, takeStopDay,
-    pickPlace, pickHotelPlace, pickHotelStart, pickHotelEnd, saveData: buildSaveData,
+    pickPlace, pickHotelPlace, pickHotelStart, pickHotelEnd, stayPin, saveData: buildSaveData,
   } = useReservationForm(EMPTY_FORM, days, places)
   const attach = useBookingFileAttach({ reservation, files, onFileUpload, setPendingFiles, toast, t })
 
@@ -102,17 +103,22 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
     }
 
     setTravelerIds(travelerIdsOf(reservation))
+    stayPin.reset()
     if (reservation) {
       setForm({ ...reservationFieldsFrom(reservation, accommodations, places, true), assignment_id: reservation.assignment_id || '' })
     } else if (prefill) {
       // Review-before-save: populate from a parsed import item, stay in create mode.
+      const hotelPlaceId = matchPlaceId(prefill._venue?.name || prefill.title)
       setForm({
         ...reservationFieldsFromPrefill(prefill, days, true),
         assignment_id: defaultAssignmentId ?? '',
         accommodation_id: '',
         place_id: '',
-        hotel_place_id: matchPlaceId(prefill._venue?.name || prefill.title),
+        hotel_place_id: hotelPlaceId,
       })
+      // A stay the trip does not hold yet: find it on the map now, so the review
+      // says whether it will show there before it is saved.
+      if (prefill.type === 'hotel' && !hotelPlaceId) stayPin.lookUp(prefill._venue?.name || prefill.title, prefill._venue?.address)
       // Seed the booking's Files with the document this item was parsed from.
       setPendingFiles(prefill._sourceFiles ?? [])
     } else {
@@ -362,8 +368,12 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
           </div>
           <EditorField label={t('reservations.locationAddress')}>
             <AddressInput value={form.hotel_address} onChange={v => set('hotel_address', v)}
+              onPick={!form.hotel_place_id ? stayPin.pick : undefined}
               placeholder={t('reservations.locationPlaceholder')} className={INPUT} />
           </EditorField>
+          {!form.hotel_place_id && (
+            <StayPinStatus pin={stayPin.pin} onRetry={() => stayPin.lookUp(form.title, form.hotel_address)} />
+          )}
         </>
       )}
 

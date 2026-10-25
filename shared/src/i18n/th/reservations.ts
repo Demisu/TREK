@@ -144,6 +144,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'นำเข้าจากไฟล์',
   'reservations.import.dropHere': 'วางไฟล์ยืนยันการจองที่นี่ หรือคลิกเพื่อเลือก',
   'reservations.import.dropActive': 'วางไฟล์ที่จะนำเข้า',
+  'reservations.import.pinSearching': 'กำลังค้นหาบนแผนที่…',
+  'reservations.import.pinFound': 'อยู่บนแผนที่',
+  'reservations.import.pinMissingTitle': 'ยังไม่อยู่บนแผนที่',
+  'reservations.import.pinMissingBody':
+    'TREK ไม่พบที่พักนี้บนแผนที่ ตรวจสอบชื่อและที่อยู่ด้านบนแล้วค้นหาอีกครั้ง หรือบันทึกโดยไม่มีหมุด',
+  'reservations.import.pinRetry': 'ค้นหาอีกครั้ง',
+  'reservations.import.savedWithoutPin':
+    'บันทึกแล้วโดยไม่มีหมุดบนแผนที่ แก้ไขสถานที่และกำหนดตำแหน่งเพื่อให้แสดงบนแผนที่',
   'reservations.import.acceptedFormats': 'ยอมรับ: EML, PDF, PKPass, HTML, TXT (สูงสุด 10 MB ต่อไฟล์ สูงสุด 5 ไฟล์)',
   'reservations.import.acceptedPhotos': 'โมเดล AI จะอ่านรูปถ่าย (JPG, PNG, WEBP)',
   'reservations.import.parsing': 'กำลังแยกวิเคราะห์ไฟล์...',

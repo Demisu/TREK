@@ -145,6 +145,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Importovať zo súboru',
   'reservations.import.dropHere': 'Presuňte sem súbory s potvrdením rezervácie alebo kliknite pre výber',
   'reservations.import.dropActive': 'Pustite súbory pre import',
+  'reservations.import.pinSearching': 'Hľadanie na mape…',
+  'reservations.import.pinFound': 'Na mape',
+  'reservations.import.pinMissingTitle': 'Zatiaľ nie je na mape',
+  'reservations.import.pinMissingBody':
+    'TREK toto ubytovanie na mape nenašiel. Skontrolujte názov a adresu vyššie a vyhľadajte znova, alebo ho uložte bez špendlíka.',
+  'reservations.import.pinRetry': 'Hľadať znova',
+  'reservations.import.savedWithoutPin':
+    'Uložené bez špendlíka na mape. Upravte miesto a nastavte jeho polohu, aby sa zobrazilo na mape.',
   'reservations.import.acceptedFormats': 'Prijímané: EML, PDF, PKPass, HTML, TXT (max. 10 MB každý, až 5 súborov)',
   'reservations.import.acceptedPhotos': 'Fotografie (JPG, PNG, WEBP) číta model AI.',
   'reservations.import.parsing': 'Spracúvajú sa súbory…',

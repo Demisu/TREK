@@ -170,6 +170,14 @@ const reservations: TranslationStrings = {
   'reservations.import.dropHere':
     'Rezervasiya təsdiqi fayllarını buraya sürükləyib buraxın və ya seçmək üçün klikləyin',
   'reservations.import.dropActive': 'İdxal etmək üçün faylları buraya buraxın',
+  'reservations.import.pinSearching': 'Xəritədə axtarılır…',
+  'reservations.import.pinFound': 'Xəritədə',
+  'reservations.import.pinMissingTitle': 'Hələ xəritədə deyil',
+  'reservations.import.pinMissingBody':
+    'TREK bu yaşayış yerini xəritədə tapa bilmədi. Yuxarıdakı adı və ünvanı yoxlayın və yenidən axtarın, ya da onu sancaqsız yadda saxlayın.',
+  'reservations.import.pinRetry': 'Yenidən axtar',
+  'reservations.import.savedWithoutPin':
+    'Xəritə sancağı olmadan yadda saxlanıldı. Xəritədə görmək üçün yeri redaktə edin və mövqeyini təyin edin.',
   'reservations.import.acceptedFormats':
     'Qəbul edilən formatlar: EML, PDF, PKPass, HTML, TXT (hər biri maksimum 10 MB, 5 fayladək)',
   'reservations.import.acceptedPhotos': 'Fotoları (JPG, PNG, WEBP) süni intellekt modeli oxuyur.',

@@ -141,6 +141,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Importuj z pliku',
   'reservations.import.dropHere': 'Upuść pliki potwierdzeń rezerwacji tutaj lub kliknij, aby wybrać',
   'reservations.import.dropActive': 'Upuść pliki, aby zaimportować',
+  'reservations.import.pinSearching': 'Szukanie na mapie…',
+  'reservations.import.pinFound': 'Na mapie',
+  'reservations.import.pinMissingTitle': 'Jeszcze nie na mapie',
+  'reservations.import.pinMissingBody':
+    'TREK nie znalazł tego noclegu na mapie. Sprawdź nazwę i adres powyżej i wyszukaj ponownie albo zapisz go bez pinezki.',
+  'reservations.import.pinRetry': 'Szukaj ponownie',
+  'reservations.import.savedWithoutPin':
+    'Zapisano bez pinezki na mapie. Edytuj miejsce i ustaw jego położenie, aby zobaczyć je na mapie.',
   'reservations.import.acceptedFormats': 'Akceptowane: EML, PDF, PKPass, HTML, TXT (maks. 10 MB każdy, do 5 plików)',
   'reservations.import.acceptedPhotos': 'Zdjęcia (JPG, PNG, WEBP) odczytuje model AI.',
   'reservations.import.parsing': 'Przetwarzanie plików…',

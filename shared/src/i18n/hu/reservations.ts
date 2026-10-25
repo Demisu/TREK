@@ -140,6 +140,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Importálás fájlból',
   'reservations.import.dropHere': 'Dobja ide a foglalási visszaigazolás fájlokat, vagy kattintson a kiválasztáshoz',
   'reservations.import.dropActive': 'Dobja ide a fájlokat az importáláshoz',
+  'reservations.import.pinSearching': 'Keresés a térképen…',
+  'reservations.import.pinFound': 'A térképen',
+  'reservations.import.pinMissingTitle': 'Még nincs a térképen',
+  'reservations.import.pinMissingBody':
+    'A TREK nem találta meg ezt a szállást a térképen. Ellenőrizd a fenti nevet és címet, és keress újra, vagy mentsd el tű nélkül.',
+  'reservations.import.pinRetry': 'Keresés újra',
+  'reservations.import.savedWithoutPin':
+    'Térképtű nélkül mentve. Szerkeszd a helyet, és állítsd be a pozícióját, hogy megjelenjen a térképen.',
   'reservations.import.acceptedFormats':
     'Elfogadott: EML, PDF, PKPass, HTML, TXT (max. 10 MB darabonként, legfeljebb 5 fájl)',
   'reservations.import.acceptedPhotos': 'A fotókat (JPG, PNG, WEBP) az MI-modell olvassa be.',

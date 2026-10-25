@@ -139,6 +139,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': "Importa des d'un fitxer",
   'reservations.import.dropHere': 'Deixa anar els fitxers de confirmació de reserva aquí o fes clic per seleccionar',
   'reservations.import.dropActive': 'Deixa anar els fitxers per importar',
+  'reservations.import.pinSearching': "S'està cercant al mapa…",
+  'reservations.import.pinFound': 'Al mapa',
+  'reservations.import.pinMissingTitle': 'Encara no és al mapa',
+  'reservations.import.pinMissingBody':
+    "TREK no ha trobat aquest allotjament al mapa. Revisa el nom i l'adreça de dalt i torna a cercar, o desa'l sense xinxeta.",
+  'reservations.import.pinRetry': 'Torna a cercar',
+  'reservations.import.savedWithoutPin':
+    "Desat sense xinxeta al mapa. Edita el lloc i fixa'n la ubicació per veure'l al mapa.",
   'reservations.import.acceptedFormats':
     'Acceptats: EML, PDF, PKPass, HTML, TXT (màx. 10 MB per fitxer, fins a 5 fitxers)',
   'reservations.import.acceptedPhotos': "El model d'IA llegeix les fotos (JPG, PNG, WEBP).",

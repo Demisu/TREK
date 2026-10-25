@@ -138,6 +138,13 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': '從檔案匯入',
   'reservations.import.dropHere': '將訂位確認檔案拖放到此處，或點擊選擇',
   'reservations.import.dropActive': '放開檔案以匯入',
+  'reservations.import.pinSearching': '正在地圖上尋找…',
+  'reservations.import.pinFound': '已在地圖上',
+  'reservations.import.pinMissingTitle': '尚未在地圖上',
+  'reservations.import.pinMissingBody':
+    'TREK 無法在地圖上找到這個住宿。請檢查上方的名稱和地址後重新搜尋，或不帶圖釘儲存。',
+  'reservations.import.pinRetry': '重新搜尋',
+  'reservations.import.savedWithoutPin': '已儲存，但沒有地圖圖釘。編輯該地點並設定位置後，即可在地圖上看到。',
   'reservations.import.acceptedFormats': '支援格式：EML、PDF、PKPass、HTML、TXT（每個最大 10 MB，最多 5 個檔案）',
   'reservations.import.acceptedPhotos': '照片（JPG、PNG、WEBP）由 AI 模型讀取。',
   'reservations.import.parsing': '正在解析檔案…',

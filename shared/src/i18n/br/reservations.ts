@@ -139,6 +139,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Importar de arquivo',
   'reservations.import.dropHere': 'Solte os arquivos de confirmação de reserva aqui ou clique para selecionar',
   'reservations.import.dropActive': 'Solte os arquivos para importar',
+  'reservations.import.pinSearching': 'Procurando no mapa…',
+  'reservations.import.pinFound': 'No mapa',
+  'reservations.import.pinMissingTitle': 'Ainda não está no mapa',
+  'reservations.import.pinMissingBody':
+    'O TREK não encontrou esta hospedagem no mapa. Confira o nome e o endereço acima e pesquise de novo, ou salve sem alfinete.',
+  'reservations.import.pinRetry': 'Pesquisar de novo',
+  'reservations.import.savedWithoutPin':
+    'Salvo sem alfinete no mapa. Edite o lugar e defina a localização para vê-lo no mapa.',
   'reservations.import.acceptedFormats': 'Aceitos: EML, PDF, PKPass, HTML, TXT (máx. 10 MB cada, até 5 arquivos)',
   'reservations.import.acceptedPhotos': 'As fotos (JPG, PNG, WEBP) são lidas pelo modelo de IA.',
   'reservations.import.parsing': 'Analisando arquivos…',

@@ -142,6 +142,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Εισαγωγή από αρχείο',
   'reservations.import.dropHere': 'Αποθέστε αρχεία επιβεβαίωσης κράτησης εδώ ή κάντε κλικ για επιλογή',
   'reservations.import.dropActive': 'Αποθέστε αρχεία για εισαγωγή',
+  'reservations.import.pinSearching': 'Αναζήτηση στον χάρτη…',
+  'reservations.import.pinFound': 'Στον χάρτη',
+  'reservations.import.pinMissingTitle': 'Δεν είναι ακόμη στον χάρτη',
+  'reservations.import.pinMissingBody':
+    'Το TREK δεν βρήκε αυτό το κατάλυμα στον χάρτη. Ελέγξτε το όνομα και τη διεύθυνση παραπάνω και αναζητήστε ξανά ή αποθηκεύστε το χωρίς καρφίτσα.',
+  'reservations.import.pinRetry': 'Νέα αναζήτηση',
+  'reservations.import.savedWithoutPin':
+    'Αποθηκεύτηκε χωρίς καρφίτσα στον χάρτη. Επεξεργαστείτε το μέρος και ορίστε τη θέση του για να εμφανιστεί στον χάρτη.',
   'reservations.import.acceptedFormats':
     'Αποδεκτά: EML, PDF, PKPass, HTML, TXT (μέγιστο 10 MB το καθένα, έως 5 αρχεία)',
   'reservations.import.acceptedPhotos': 'Τις φωτογραφίες (JPG, PNG, WEBP) τις διαβάζει το μοντέλο ΤΝ.',

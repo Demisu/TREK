@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react'
 import type { BookingImportPreviewItem } from '@trek/shared'
-import { mapsApi } from '../../api/client'
 import { receiptToPrefill } from '../../components/Budget/CostsPanel.helpers'
 import type { ExpensePrefill } from '../../components/Budget/CostsPanel'
 import { parsedItemToDraft, isTransportItem, isUnplaceableItem, type BookingReviewDraft } from '../../components/Planner/parsedItemToDraft'
 import { getImportFiles, deleteImportFiles } from '../../db/offlineDb'
 import { accommodationRepo } from '../../repo/accommodationRepo'
+import { findOnMap, stayQueries } from '../../repo/mapMatchRepo'
 import { useBackgroundTasksStore } from '../../store/backgroundTasksStore'
 import type { TripStoreState } from '../../store/tripStore'
 import { isEffectivelyOffline } from '../../sync/networkMode'
@@ -63,7 +63,10 @@ export function useBookingEdits(options: BookingEditsOptions) {
       // an existing place by name, else geocode the address and create one, then link it.
       const acc = (data as Record<string, any>).create_accommodation
       if (data.type === 'hotel' && acc && acc.venue && !acc.place_id) {
-        acc.place_id = (await resolveImportedPlace(acc.venue)) ?? undefined
+        const resolved = await resolveImportedPlace(acc.venue)
+        acc.place_id = resolved?.id ?? undefined
+        // Saved, but nowhere on the map: say so rather than leave the pin to go missing.
+        if (resolved && !resolved.placed) toast.warning(t('reservations.import.savedWithoutPin'))
         delete acc.venue
       }
       // A hotel's address lives on the linked place. Write an edited address
@@ -141,9 +144,13 @@ export function useBookingEdits(options: BookingEditsOptions) {
   }
 
   // ── Review-before-save booking import ───────────────────────────────────────
-  // Match an existing trip place by name, else geocode the reviewed address and
-  // create one. Returns the place id (or null if even creation failed).
-  const resolveImportedPlace = async (venue: { name?: string; address?: string | null }): Promise<number | null> => {
+  // Match an existing trip place by name, else create one at the spot the review
+  // found, or the first spot the map search knows for its name and address.
+  // Returns the place and whether it has a spot on the map (null if even creation
+  // failed).
+  const resolveImportedPlace = async (
+    venue: { name?: string; address?: string | null; lat?: number; lng?: number },
+  ): Promise<{ id: number; placed: boolean } | null> => {
     const name = (venue.name || '').trim()
     const n = name.toLowerCase()
     if (n) {
@@ -153,23 +160,23 @@ export function useBookingEdits(options: BookingEditsOptions) {
       // the booking waits in the queue behind that place and is sent with its real
       // id. Online the booking goes out at once, and day_accommodations.place_id
       // carries a foreign key, so a temp id there is a 500 instead of a saved booking.
-      if (existing && (existing.id > 0 || isEffectivelyOffline())) return existing.id
+      if (existing && (existing.id > 0 || isEffectivelyOffline())) return { id: existing.id, placed: existing.lat != null && existing.lng != null }
     }
-    let lat: number | null = null
-    let lng: number | null = null
+    let lat: number | null = venue.lat ?? null
+    let lng: number | null = venue.lng ?? null
     let address: string | null = venue.address ?? null
-    try {
-      const query = venue.address ? `${name} ${venue.address}`.trim() : name
-      // Offline there is no geocoder to ask; the place is created without coords.
-      if (query && !isEffectivelyOffline()) {
-        const res = await mapsApi.search(query)
-        const hit = res?.places?.[0] as { lat?: number; lng?: number; address?: string } | undefined
-        if (hit && hit.lat != null && hit.lng != null) {
+    if (lat == null || lng == null) {
+      try {
+        // Name and address, then each alone: a booking site's romanized address
+        // often matches nothing and sinks the hotel's name with it. Offline
+        // findOnMap answers null and the place is created without coords.
+        const hit = await findOnMap(stayQueries(name, venue.address))
+        if (hit) {
           lat = hit.lat; lng = hit.lng
           if (!address && hit.address) address = hit.address
         }
-      }
-    } catch { /* geocode failure is non-fatal: create the place without coords */ }
+      } catch { /* geocode failure is non-fatal: create the place without coords, and say so */ }
+    }
     try {
       // Through the store, not placesApi directly: the API answers { place },
       // and reading .id off that wrapper linked nothing. Every save of the
@@ -178,7 +185,7 @@ export function useBookingEdits(options: BookingEditsOptions) {
       // find it. addPlace unwraps the response and puts the place into
       // `places`, so the next save reuses it.
       const place = await tripActions.addPlace(tripId, { name: name || address || 'Accommodation', lat, lng, address })
-      return place && (place.id > 0 || isEffectivelyOffline()) ? place.id : null
+      return place && (place.id > 0 || isEffectivelyOffline()) ? { id: place.id, placed: lat != null && lng != null } : null
     } catch { return null }
   }
 

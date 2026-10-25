@@ -143,6 +143,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Aus Datei importieren',
   'reservations.import.dropHere': 'Buchungsbestätigungsdateien hier ablegen oder klicken zum Auswählen',
   'reservations.import.dropActive': 'Dateien zum Importieren ablegen',
+  'reservations.import.pinSearching': 'Wird auf der Karte gesucht …',
+  'reservations.import.pinFound': 'Auf der Karte',
+  'reservations.import.pinMissingTitle': 'Noch nicht auf der Karte',
+  'reservations.import.pinMissingBody':
+    'TREK hat diese Unterkunft nicht auf der Karte gefunden. Prüf Name und Adresse oben und such erneut, oder speichere sie ohne Kartenpunkt.',
+  'reservations.import.pinRetry': 'Erneut suchen',
+  'reservations.import.savedWithoutPin':
+    'Ohne Kartenpunkt gespeichert. Bearbeite den Ort und setze seine Position, damit er auf der Karte erscheint.',
   'reservations.import.acceptedFormats':
     'Akzeptiert: EML, PDF, PKPass, HTML, TXT (max. 10 MB pro Datei, bis zu 5 Dateien)',
   'reservations.import.acceptedPhotos': 'Fotos (JPG, PNG, WEBP) liest das KI-Modell.',

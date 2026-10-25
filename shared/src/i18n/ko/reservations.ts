@@ -139,6 +139,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': '파일에서 가져오기',
   'reservations.import.dropHere': '예약 확인 파일을 여기에 끌어다 놓거나 클릭하여 선택',
   'reservations.import.dropActive': '가져올 파일을 여기에 놓으세요',
+  'reservations.import.pinSearching': '지도에서 찾는 중…',
+  'reservations.import.pinFound': '지도에 있음',
+  'reservations.import.pinMissingTitle': '아직 지도에 없음',
+  'reservations.import.pinMissingBody':
+    'TREK이 지도에서 이 숙소를 찾지 못했습니다. 위의 이름과 주소를 확인하고 다시 검색하거나, 핀 없이 저장하세요.',
+  'reservations.import.pinRetry': '다시 검색',
+  'reservations.import.savedWithoutPin':
+    '지도 핀 없이 저장했습니다. 지도에 표시하려면 장소를 편집해 위치를 설정하세요.',
   'reservations.import.acceptedFormats': '허용 형식: EML, PDF, PKPass, HTML, TXT (파일당 최대 10 MB, 최대 5개)',
   'reservations.import.acceptedPhotos': '사진(JPG, PNG, WEBP)은 AI 모델이 읽습니다.',
   'reservations.import.parsing': '파일 분석 중…',

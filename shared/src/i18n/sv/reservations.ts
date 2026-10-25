@@ -140,6 +140,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Importera från fil',
   'reservations.import.dropHere': 'Dra och släpp bokningsbekräftelser här, eller klicka för att välja',
   'reservations.import.dropActive': 'Dra och släpp filerna som ska importeras',
+  'reservations.import.pinSearching': 'Söker på kartan…',
+  'reservations.import.pinFound': 'På kartan',
+  'reservations.import.pinMissingTitle': 'Inte på kartan än',
+  'reservations.import.pinMissingBody':
+    'TREK hittade inte boendet på kartan. Kontrollera namnet och adressen ovan och sök igen, eller spara det utan nål.',
+  'reservations.import.pinRetry': 'Sök igen',
+  'reservations.import.savedWithoutPin':
+    'Sparat utan nål på kartan. Redigera platsen och ange dess position för att se den på kartan.',
   'reservations.import.acceptedFormats':
     'Godkända filformat: EML, PDF, PKPass, HTML, TXT (högst 10 MB per fil, upp till 5 filer)',
   'reservations.import.acceptedPhotos': 'Foton (JPG, PNG, WEBP) läses av AI-modellen.',

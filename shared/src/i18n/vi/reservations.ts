@@ -140,6 +140,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Nhập từ tập tin',
   'reservations.import.dropHere': 'Thả file xác nhận đặt phòng tại đây, hoặc bấm để chọn',
   'reservations.import.dropActive': 'Thả tập tin để nhập',
+  'reservations.import.pinSearching': 'Đang tìm trên bản đồ…',
+  'reservations.import.pinFound': 'Trên bản đồ',
+  'reservations.import.pinMissingTitle': 'Chưa có trên bản đồ',
+  'reservations.import.pinMissingBody':
+    'TREK không tìm thấy chỗ ở này trên bản đồ. Kiểm tra tên và địa chỉ ở trên rồi tìm lại, hoặc lưu mà không có ghim.',
+  'reservations.import.pinRetry': 'Tìm lại',
+  'reservations.import.savedWithoutPin':
+    'Đã lưu mà không có ghim trên bản đồ. Hãy sửa địa điểm và đặt vị trí để thấy nó trên bản đồ.',
   'reservations.import.acceptedFormats':
     'Đã chấp nhận: EML, PDF, PKPass, HTML, TXT (tối đa 10 MB mỗi cái, tối đa 5 tệp)',
   'reservations.import.acceptedPhotos': 'Ảnh (JPG, PNG, WEBP) được mô hình AI đọc.',

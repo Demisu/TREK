@@ -144,6 +144,14 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': 'Import from file',
   'reservations.import.dropHere': 'Drop booking confirmation files here, or click to select',
   'reservations.import.dropActive': 'Drop files to import',
+  'reservations.import.pinSearching': 'Looking for it on the map…',
+  'reservations.import.pinFound': 'On the map',
+  'reservations.import.pinMissingTitle': 'Not on the map yet',
+  'reservations.import.pinMissingBody':
+    "TREK couldn't find this stay on the map. Check the name and address above and search again, or save it without a pin.",
+  'reservations.import.pinRetry': 'Search again',
+  'reservations.import.savedWithoutPin':
+    'Saved without a map pin. Edit the place and set its location to see it on the map.',
   'reservations.import.acceptedFormats': 'Accepted: EML, PDF, PKPass, HTML, TXT (max 10 MB each, up to 5 files)',
   'reservations.import.acceptedPhotos': 'Photos (JPG, PNG, WEBP) are read by the AI model.',
   'reservations.import.parsing': 'Parsing files…',

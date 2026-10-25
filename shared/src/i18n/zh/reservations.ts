@@ -138,6 +138,13 @@ const reservations: TranslationStrings = {
   'reservations.import.cta': '从文件导入',
   'reservations.import.dropHere': '将预订确认文件拖放到此处，或点击选择',
   'reservations.import.dropActive': '松开文件以导入',
+  'reservations.import.pinSearching': '正在地图上查找…',
+  'reservations.import.pinFound': '已在地图上',
+  'reservations.import.pinMissingTitle': '尚未在地图上',
+  'reservations.import.pinMissingBody':
+    'TREK 未能在地图上找到此住宿。请检查上方的名称和地址后重新搜索，或不带图钉保存。',
+  'reservations.import.pinRetry': '重新搜索',
+  'reservations.import.savedWithoutPin': '已保存，但没有地图图钉。编辑该地点并设置位置后即可在地图上看到。',
   'reservations.import.acceptedFormats': '支持格式：EML、PDF、PKPass、HTML、TXT（每个最大 10 MB，最多 5 个文件）',
   'reservations.import.acceptedPhotos': '照片（JPG、PNG、WEBP）由 AI 模型读取。',
   'reservations.import.parsing': '正在解析文件…',

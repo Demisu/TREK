@@ -15,6 +15,7 @@ import {
   RESERVATION_TYPE_OPTIONS as TYPE_OPTIONS, reservationFieldsFrom, reservationFieldsFromPrefill, selectedDayDate,
 } from '../../../../components/Planner/reservationFormModel'
 import { useReservationForm } from '../../../../components/Planner/useReservationForm'
+import StayPinStatus from '../../../../components/Planner/StayPinStatus'
 import { buildAssignmentOptions } from '../../../../components/Planner/assignmentOptions'
 import { useTripStore } from '../../../../store/tripStore'
 import type { BookingExpenseRequest } from '../../../../components/Planner/BookingCostsSection.types'
@@ -60,7 +61,7 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
   const {
     form, setForm, set, isSaving, setIsSaving, pendingFiles, setPendingFiles, travelerIds, setTravelerIds, toggleTraveler,
     isEndBeforeStart, endTimeBeforeStartTime, dateBounds, startDate, startTime, setStartDate, setStartTime, takeStopDay,
-    pickPlace, pickHotelPlace, pickHotelStart, pickHotelEnd, saveData: buildSaveData,
+    pickPlace, pickHotelPlace, pickHotelStart, pickHotelEnd, stayPin, saveData: buildSaveData,
   } = useReservationForm(EMPTY, days, places)
   const assignmentOptions = useMemo(
     () => buildAssignmentOptions(days, assignments, t, locale),
@@ -85,6 +86,7 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
     expense.reset()
     setPendingFiles([])
     setTravelerIds(travelerIdsOf(editingReservation))
+    stayPin.reset()
 
     const res = editingReservation
     if (res) {
@@ -93,6 +95,8 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
       const pf = reservationPrefill
       setForm({ ...EMPTY, ...reservationFieldsFromPrefill(pf, days, false) })
       setPendingFiles(pf._sourceFiles ?? [])
+      // Find an imported stay on the map now, so the review says whether it will show there.
+      if (pf.type === 'hotel') stayPin.lookUp(pf._venue?.name || pf.title, pf._venue?.address)
     } else {
       // Opened from a day's toolbar: start on that day rather than on a blank
       // date the user has to look up again (#1998). A hotel spans to the next
@@ -335,6 +339,11 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
               placeholder={t('reservations.locationPlaceholder')}
               className={FIELD_CLS}
             />
+            {!form.hotel_place_id && (
+              <div className="mt-2">
+                <StayPinStatus pin={stayPin.pin} onRetry={() => stayPin.lookUp(form.title, form.hotel_address)} />
+              </div>
+            )}
           </>
         )}
 
