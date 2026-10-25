@@ -71,6 +71,7 @@ export const MANAGED_ROUTE_ALLOW_LIST: string[] = [
   'AiAdminController.removeConnection',
   'AiAdminController.saveConnection',
   'AiAdminController.saveSettings',
+  'AiAdminController.setModel',
   'AiAdminController.settings',
   'AiAdminController.signOutChatgpt',
   'AiAdminController.startChatgpt',
