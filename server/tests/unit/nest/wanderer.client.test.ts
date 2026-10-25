@@ -131,14 +131,17 @@ describe('WandererClient', () => {
     expect((await failure(() => client.check(CREDS))).code).toBe('unauthorized');
   });
 
-  it('RS-03: an owner without a local author, or with an odd id, is an answer TREK does not trust', async () => {
+  it('RS-03: an owner without a local author is told as such; an odd id is an answer TREK does not trust', async () => {
     answer({
       ...OWNER,
       '/api/v1/user/gixauk8ukjpqabm': reply({
         expand: { activitypub_actors_via_user: [{ id: 'remote1', is_local: false }] },
       }),
     });
-    expect((await failure(() => client.ownActors(CREDS))).code).toBe('invalid_response');
+    // wanderer did answer, so the reason is the missing author, not an answer from somewhere else.
+    expect((await failure(() => client.ownActors(CREDS))).code).toBe('no_author');
+    answer({ ...OWNER, '/api/v1/user/gixauk8ukjpqabm': reply({}) });
+    expect((await failure(() => client.ownActors(CREDS))).code).toBe('no_author');
 
     answer({ '/api/v1/api-token': reply({ items: [{ user: 'Not-An-Id!' }] }) });
     expect((await failure(() => client.ownActors(CREDS))).code).toBe('invalid_response');

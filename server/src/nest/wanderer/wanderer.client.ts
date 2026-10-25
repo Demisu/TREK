@@ -259,7 +259,13 @@ export class WandererClient {
     const actors = (user.expand?.activitypub_actors_via_user ?? [])
       .filter((actor) => actor.is_local !== false && isTrailId(actor.id))
       .map((actor) => actor.id);
-    if (actors.length === 0) throw new WandererError('invalid_response', 'wanderer named no author for the token');
+    if (actors.length === 0) {
+      throw new WandererError(
+        'no_author',
+        'wanderer named no author for the token',
+        'no local actor in activitypub_actors_via_user',
+      );
+    }
     return actors;
   }
 
