@@ -32,10 +32,16 @@ afterAll(async () => {
 });
 
 async function seedQuarters() {
-  const users = [];
-  for (let i = 0; i < 4; i++) users.push((await makeUser(orm())).user);
+  const users = [
+    (await makeUser(orm())).user,
+    (await makeUser(orm())).user,
+    (await makeUser(orm())).user,
+    (await makeUser(orm())).user,
+  ];
   const trip = await makeTrip(orm(), users[0].id);
-  for (const u of users.slice(1)) await addTripMember(orm(), trip.id, u.id);
+  await addTripMember(orm(), trip.id, users[1].id);
+  await addTripMember(orm(), trip.id, users[2].id);
+  await addTripMember(orm(), trip.id, users[3].id);
   await budget.createBudgetItem(trip.id, {
     name: 'Sky Lagoon',
     currency: 'ISK',
@@ -54,7 +60,7 @@ describe('a custom split in a foreign currency', () => {
     const cents = result.balances.map((b) => Math.round(b.balance * 100));
     expect(cents.reduce((a, c) => a + c, 0)).toBe(0);
     // The payer has the lowest id, so the tie hands them one of the three rounded-up quarters.
-    expect(result.balances.find((b) => b.user_id === users[0].id)!.balance).toBe(748.13);
+    expect(result.balances.find((b) => b.user_id === users[0].id)?.balance).toBe(748.13);
     const owed = result.flows
       .filter((f) => f.to.user_id === users[0].id)
       .reduce((a, f) => a + Math.round(f.amount * 100), 0);

@@ -31,9 +31,9 @@ describe('analyzeRouteGeometry', () => {
     const analysis = analyzeRouteGeometry(JSON.stringify([
       [45.44, 12.32, 2], [45.441, 12.32, 9], [45.442, 12.32, 1], [45.443, 12.32, 4], [45.444, 12.32, 3],
     ]))
-    expect(analysis!.maxEle).toBe(9)
-    expect(analysis!.gain).toBe(7)
-    expect(analysis!.loss).toBe(8)
+    expect(analysis?.maxEle).toBe(9)
+    expect(analysis?.gain).toBe(7)
+    expect(analysis?.loss).toBe(8)
   })
 
   it('maps route endpoints and interpolates focus between prepared samples', () => {

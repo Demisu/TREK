@@ -42,11 +42,7 @@ export function useTripPlannerPage() {
   useAssistantEntityLinks({ planner, workspace })
 
   const tourDetailOpenerRef = useRef<{ placeId: number; element: HTMLElement } | null>(null)
-  // With no tour open, the Tours map shows the trip's tours and frames them.
-  const tourOverview = useTourOverview(
-    tripId, places, planner.tourPlaceIds,
-    activeTab === 'tour-planner' && tourPlanner.mode.type === 'neutral' && !wandererBrowser.open,
-  )
+  const tourOverview = useTourOverview(tripId, places, planner.tourPlaceIds, { activeTab, tourPlanner, wandererBrowser })
   const { focusPoints, lastPlanMapViewportRef } = usePlannerFocusPoints(activeTab, places, tourPlanner, wandererBrowser, tourOverview.framePoints)
 
   // PAD-06: an obstacle or area the paddle checklist asks for moves the camera as a picked search result does.

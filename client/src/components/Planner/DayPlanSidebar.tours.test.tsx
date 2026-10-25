@@ -201,9 +201,9 @@ describe('DayPlanSidebar', () => {
     const view = render(<DayPlanSidebar {...props} />);
     const tourPreview = view.container.querySelector('[data-testid="trip-plan-tour-description"]') as HTMLElement;
     expect(tourPreview).toHaveTextContent(description);
-    // One line like the row's name, so hover controls make the description give way instead of wrapping.
+    // The description keeps to one line; the pills beside it wrap rather than run out of the row.
     expect(tourPreview).toHaveStyle({ whiteSpace: 'nowrap', maxHeight: '1.3em' });
-    expect(tourPreview.parentElement).toHaveClass('flex-nowrap', 'overflow-hidden');
+    expect(tourPreview.parentElement).toHaveClass('flex-wrap', 'overflow-hidden');
     expect(screen.getByTestId('trip-plan-tour-walking-time')).toHaveTextContent('Walk: 1 h');
     expect(screen.getByTestId('trip-plan-tour-breaks')).toHaveTextContent('Breaks: 35 min');
     expect(screen.getByTestId('trip-plan-tour-planned-duration')).toHaveTextContent('Planned: 1 h 35 min');

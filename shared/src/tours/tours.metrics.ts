@@ -32,7 +32,8 @@ const ELEVATION_NOISE_M = 5;
 export function elevationGainLoss(heights: readonly number[]): { gain: number; loss: number } {
   let gain = 0;
   let loss = 0;
-  let ref = heights[0];
+  let [ref] = heights;
+  if (ref === undefined) return { gain, loss };
   for (const height of heights) {
     const delta = height - ref;
     if (delta >= ELEVATION_NOISE_M) gain += delta;
