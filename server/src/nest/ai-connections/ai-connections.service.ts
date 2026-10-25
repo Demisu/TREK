@@ -328,6 +328,26 @@ export class AiConnectionsService implements SharedAiConnectionPort {
     return this.modelsOf(adminId, row);
   }
 
+  /**
+   * Picks the model of the instance's connection, one the provider offers. The
+   * only way to do so for a shared ChatGPT plan: saving the connection again
+   * needs a key, and a plan has a sign-in instead.
+   * @txIndependent reading the credential may renew a ChatGPT sign-in first; that write stands on its own.
+   */
+  async setInstanceModel(adminId: number, model: string): Promise<AiAdminConnectionResponse> {
+    const row = await this.connections.findInstance();
+    if (!row) throw aiRefusal('not_found', 'No connection is set up for everyone');
+    const models = await this.modelsOf(adminId, row);
+    if (!models.some((m) => m.id === model)) throw aiRefusal('unknown_model', 'This model is not offered here');
+    await this.connections.setModel(row.id, model);
+    await this.audit.writeAudit({
+      userId: adminId,
+      action: 'ai.connection.saved',
+      details: { scope: 'instance', kind: row.kind, model },
+    });
+    return this.instanceConnection();
+  }
+
   async removeInstance(adminId: number): Promise<void> {
     const row = await this.connections.findInstance();
     if (!row) throw aiRefusal('not_found', 'No connection is set up for everyone');

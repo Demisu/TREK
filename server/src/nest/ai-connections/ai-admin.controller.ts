@@ -7,11 +7,11 @@ import { CurrentUser } from '../auth-core/current-user.decorator';
 import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
 import { ManagedForbidden } from '../common/managed';
 import { ResponseContract } from '../common/response-contract';
-import { AiAdminSettingsDto, AiInstanceConnectionDto } from './ai-connections.dto';
+import { AiAdminSettingsDto, AiInstanceConnectionDto, AiModelUpdateDto } from './ai-connections.dto';
 import { AiConnectionsService } from './ai-connections.service';
 import { ChatgptAuthService } from './chatgpt-auth.service';
 import { OpenrouterAuthService } from './openrouter-auth.service';
-import { Body, Controller, Delete, Get, HttpCode, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Patch, Post, Put, UseGuards } from '@nestjs/common';
 import {
   aiAdminConnectionResponseSchema,
   aiAdminSettingsSchema,
@@ -61,6 +61,12 @@ export class AiAdminController {
   saveConnection(@CurrentUser() user: User, @Body() body: AiInstanceConnectionDto) {
     // The pipe validated the body against the full union; the DTO only types its shared fields.
     return this.connections.saveInstance(user.id, body as AiInstanceConnectionRequest);
+  }
+
+  @Patch('connection/model')
+  @ResponseContract(aiAdminConnectionResponseSchema)
+  setModel(@CurrentUser() user: User, @Body() body: AiModelUpdateDto) {
+    return this.connections.setInstanceModel(user.id, body.model);
   }
 
   @Delete('connection')

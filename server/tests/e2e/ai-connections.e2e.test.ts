@@ -204,6 +204,16 @@ describe('AI connections e2e', () => {
     expect(saved.body.connection).toMatchObject({ scope: 'instance', kind: 'anthropic', hint: '…7777', baseUrl: null });
     expect(saved.body.prefill).toBeNull();
 
+    // The model for everyone is switched on its own, by an admin only, to one the provider offers (#2783).
+    const model = (as_: number, body: object) =>
+      request(server).patch('/api/admin/ai/connection/model').set(as(as_)).send(body);
+    expect((await model(USER, { model: 'claude-haiku' })).status).toBe(403);
+    expect((await model(ADMIN, {})).status).toBe(400);
+    expect((await model(ADMIN, { model: 'nope' })).body).toMatchObject({ code: 'unknown_model' });
+    const switched = await model(ADMIN, { model: 'claude-haiku' });
+    expect(switched.status).toBe(200);
+    expect(switched.body.connection).toMatchObject({ kind: 'anthropic', model: 'claude-haiku', hint: '…7777' });
+
     // A user now runs on the instance's connection, with the daily limit and a privacy notice to acknowledge.
     const status = await request(server).get('/api/ai/status').set(as(USER));
     expect(status.body).toMatchObject({

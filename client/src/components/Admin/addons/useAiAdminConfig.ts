@@ -124,9 +124,16 @@ function useInstanceConnection(onChanged: () => void) {
     }
   };
 
-  /** Another model on the same connection: the stored key is kept by sending the mask in its place. */
+  /**
+   * Another model on the same connection: the stored key is kept by sending the mask in its place.
+   * A shared ChatGPT plan has a sign-in, not a key, so its model is switched on its own (#2783).
+   */
   const setModel = (model: string) => {
-    if (!live || live.kind === 'chatgpt') return;
+    if (!live) return;
+    if (live.kind === 'chatgpt') {
+      void act(() => aiConnectionsRepo.setAdminModel(model), 'common.saved');
+      return;
+    }
     const request: AiInstanceConnectionRequest =
       live.kind === 'custom'
         ? { kind: 'custom', baseUrl: live.baseUrl ?? '', model, ...(live.hint ? { apiKey: MASKED_SETTING_VALUE } : {}) }

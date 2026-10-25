@@ -1,4 +1,4 @@
-// FE-HOOK-AI-ADMIN-001 to FE-HOOK-AI-ADMIN-007: the AI assistant's settings and connection for everyone.
+// FE-HOOK-AI-ADMIN-001 to FE-HOOK-AI-ADMIN-008: the AI assistant's settings and connection for everyone.
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { AiAdminConnectionResponse, AiAdminSettings } from '@trek/shared';
 import { MASKED_SETTING_VALUE } from '@trek/shared';
@@ -16,6 +16,7 @@ const repo = vi.hoisted(() => ({
   saveAdminSettings: vi.fn(),
   adminConnection: vi.fn(),
   saveAdminConnection: vi.fn(),
+  setAdminModel: vi.fn(),
   removeAdminConnection: vi.fn(),
   adminModels: vi.fn(),
 }));
@@ -155,6 +156,29 @@ describe('useAiAdminConfig', () => {
       baseUrl: 'http://ollama:11434/v1',
       model: 'qwen3:8b',
     });
+  });
+
+  it("FE-HOOK-AI-ADMIN-008: a shared ChatGPT plan's model is switched on its own, and the answer shows (#2783)", async () => {
+    const plan = (model: string): AiAdminConnectionResponse => ({
+      connection: {
+        scope: 'instance',
+        kind: 'chatgpt',
+        model,
+        hint: null,
+        status: 'ok',
+        host: 'api.openai.com',
+        baseUrl: null,
+      },
+      prefill: null,
+    });
+    repo.adminConnection.mockResolvedValue(plan('gpt-6.1-sol'));
+    repo.setAdminModel.mockResolvedValue(plan('gpt-6.1-sol-mini'));
+    const { result } = await renderLoaded();
+    await act(async () => result.current.instance.setModel('gpt-6.1-sol-mini'));
+    await waitFor(() => expect(repo.setAdminModel).toHaveBeenCalledWith('gpt-6.1-sol-mini'));
+    expect(repo.saveAdminConnection).not.toHaveBeenCalled();
+    await waitFor(() => expect(result.current.instance.live?.model).toBe('gpt-6.1-sol-mini'));
+    expect(toast.success).toHaveBeenCalled();
   });
 
   it('FE-HOOK-AI-ADMIN-007: removing asks first, then shows the setup again; replacing opens it beside the old one', async () => {

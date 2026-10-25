@@ -229,6 +229,8 @@ export const aiAdminApi = {
   connection: (): Promise<AiAdminConnectionResponse> => apiClient.get('/admin/ai/connection').then((r) => r.data),
   saveConnection: (body: AiInstanceConnectionRequest): Promise<AiAdminConnectionResponse> =>
     apiClient.put('/admin/ai/connection', body, viaProvider).then((r) => r.data),
+  setModel: (model: string): Promise<AiAdminConnectionResponse> =>
+    apiClient.patch('/admin/ai/connection/model', { model }).then((r) => r.data),
   removeConnection: (): Promise<SuccessResponse> => apiClient.delete('/admin/ai/connection').then((r) => r.data),
   models: (): Promise<AiModelListResponse> => apiClient.get('/admin/ai/models', viaProvider).then((r) => r.data),
 };

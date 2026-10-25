@@ -42,6 +42,7 @@ function services() {
       writeSettings: vi.fn(async () => ({ policy: 'user' })),
       instanceConnection: vi.fn(async () => ADMIN_CONNECTION),
       saveInstance: vi.fn(async () => ({ connection: null, prefill: null })),
+      setInstanceModel: vi.fn(async () => ADMIN_CONNECTION),
       removeInstance: vi.fn(async () => undefined),
       listInstanceModels: vi.fn(async () => []),
     },
@@ -187,6 +188,7 @@ describe('AiAdminController', () => {
         'saveSettings',
         'connection',
         'saveConnection',
+        'setModel',
         'removeConnection',
         'models',
         'startOpenrouter',
@@ -198,6 +200,7 @@ describe('AiAdminController', () => {
       { method: RequestMethod.PUT, path: 'settings', httpCode: undefined },
       { method: RequestMethod.GET, path: 'connection', httpCode: undefined },
       { method: RequestMethod.PUT, path: 'connection', httpCode: undefined },
+      { method: RequestMethod.PATCH, path: 'connection/model', httpCode: undefined },
       { method: RequestMethod.DELETE, path: 'connection', httpCode: 200 },
       { method: RequestMethod.GET, path: 'models', httpCode: undefined },
       { method: RequestMethod.POST, path: 'connect/openrouter/start', httpCode: 200 },
@@ -225,6 +228,9 @@ describe('AiAdminController', () => {
       baseUrl: 'http://ollama:11434/v1',
       model: 'llama',
     });
+    // A model picked for everyone, the only way to switch a shared ChatGPT plan's (#2783).
+    expect(await controller.setModel(admin, { model: 'gpt-6.1-sol-mini' })).toBe(ADMIN_CONNECTION);
+    expect(s.connections.setInstanceModel).toHaveBeenCalledWith(1, 'gpt-6.1-sol-mini');
     expect(await controller.removeConnection(admin)).toEqual({ success: true });
     expect(await controller.models(admin)).toEqual({ models: [] });
     await controller.startOpenrouter(admin);

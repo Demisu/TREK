@@ -316,6 +316,28 @@ describe('the instance connection', () => {
     expect(service().readsImages({ ...haiku, model: 'claude-sonnet' })).toBe(true);
   });
 
+  it("AICS-019: a shared ChatGPT plan's model is switched on its own, to one the plan offers (#2783)", async () => {
+    const admin = await user();
+    expect((await refusal(service().setInstanceModel(admin, 'claude-haiku'))).status).toBe(404);
+    await orm().em.fork().insert(AiConnections, { scope: 'instance', kind: 'chatgpt', model: 'claude-sonnet' });
+    audit.writeAudit.mockClear();
+
+    const saved = await service().setInstanceModel(admin, 'claude-haiku');
+    expect(catalog.list).toHaveBeenLastCalledWith({ kind: 'chatgpt', baseUrl: null, secret: 'chatgpt-access' });
+    expect(saved.connection).toMatchObject({ kind: 'chatgpt', model: 'claude-haiku' });
+    expect(audit.writeAudit).toHaveBeenCalledWith({
+      userId: admin,
+      action: 'ai.connection.saved',
+      details: { scope: 'instance', kind: 'chatgpt', model: 'claude-haiku' },
+    });
+    expect(await refusal(service().setInstanceModel(admin, 'nope'))).toMatchObject({
+      status: 422,
+      body: { code: 'unknown_model' },
+    });
+    expect((await service().instanceConnection()).connection?.model).toBe('claude-haiku');
+    await service().removeInstance(admin);
+  });
+
   it('AICS-014: settings are read with their defaults and written back', async () => {
     const admin = await user();
     expect(await service().readSettings()).toEqual({

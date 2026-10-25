@@ -104,6 +104,11 @@ export const aiConnectionsRepo = {
     return aiAdminConnectionResponseSchema.parse(await aiAdminApi.saveConnection(body));
   },
 
+  async setAdminModel(model: string) {
+    requireOnline();
+    return aiAdminConnectionResponseSchema.parse(await aiAdminApi.setModel(model));
+  },
+
   async removeAdminConnection(): Promise<void> {
     requireOnline();
     await aiAdminApi.removeConnection();
