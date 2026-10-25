@@ -2,7 +2,7 @@
 
 The **User Defaults** tab (in the **Users** group of the admin side navigation, `/admin?tab=defaults`) sets instance-wide defaults for user settings. Users who have not changed a setting see these values; their own changes always take priority. The defaults are merged in every time a user's settings load, so a default you change later reaches everyone who never picked their own value.
 
-![Admin panel on the User Defaults tab, setting instance-wide defaults for colour mode, temperature unit, distance unit, time format, currency and blurred booking codes](assets/AdminUserDefaults.png)
+![Admin panel on the User Defaults tab: the Default User Settings card with colour mode, temperature unit, distance unit, time format, week start, display currency and blurred booking codes, beside the Map card with map template, CARTO key, routing fields, preview and map engine](assets/AdminUserDefaults.png)
 
 On a wide screen the tab has two cards side by side: **Default User Settings** on the left, **Map** on the right. On a narrow screen the map card follows below. The phone admin has the same tab as a section of its own.
 
@@ -72,6 +72,8 @@ Depending on the engine, more rows appear below it:
 | **Map style** | Mapbox (3D), MapLibre (OpenFreeMap) | Pick a style from **Choose a style…** or type a style URL. Each engine keeps its own style, so switching engines does not overwrite the other one. |
 | **3D buildings & terrain** | Mapbox (3D) | **On** or **Off**. On unless set otherwise. |
 | **High-quality mode** | Mapbox (3D) | **On** or **Off**. Off unless set otherwise. |
+
+![The Map card with Mapbox (3D) picked as the map engine, showing the Shared Mapbox token, Map style, 3D buildings & terrain and High-quality mode rows below it](assets/AdminUserDefaults-Mapbox.png)
 
 See [Map-Settings](Map-Settings) for the styles and what the two Mapbox switches do.
 

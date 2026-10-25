@@ -63,6 +63,8 @@ An element that auto layout tied to a journal entry follows that entry, so a cor
 
 **Designed pages** come first: pages laid out by a designer, 48 for the cover and the other single pages and 60 double spreads, in twelve styles (**Spine band**, **Poster**, **Cut-out**, **Postcard**, **Grid and badge**, **Minimal**, **Stamps**, **Riso**, **Editorial**, **Vintage poster**, **Night film** and **Field notes**). Each card shows the page you are on as the click would lay it, with its own photos and words and in the book's theme. The **Style** chips narrow the set to one look. What a design has no room for stays with the page.
 
+![TREK Studio with the Layouts panel open on a spread of the Japan book: the Style chips and designed page cards drawn with the spread's own photos, the spread on the workbench and the page properties on the right](assets/StudioLayouts.png)
+
 Below come **My layouts** and the **Built in** ones: thirteen spread layouts (**Hero and story**, **Four up**, **Strip and text**, **Mosaic** and more) and five for the cover and back.
 
 **Save this page as a layout** keeps the arrangement of a page without its photos, for every editor of this book. Applying it lays another page out the same way and keeps that page's photos and words. A book keeps up to 24 layouts.

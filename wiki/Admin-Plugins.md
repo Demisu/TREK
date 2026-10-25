@@ -25,6 +25,8 @@ Both views share a toolbar: a **Search plugins…** box, a **Type** filter (Widg
 
 ## Installing from the registry
 
+![The Discover view: registry plugins as cards with a screenshot, the Reviewed and Signed badges, the type, latest version, download count and an Install button](assets/AdminPlugins-Discover.png)
+
 1. Switch to **Discover**. Each card shows the icon, name, author, description, type, a **Reviewed** badge if applicable, the **Signed**/**Unsigned** badge, the latest version, and a download count.
 2. Click a card to open the **pre-install review dialog** (see below).
 3. Click **Install**.

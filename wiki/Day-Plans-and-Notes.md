@@ -2,7 +2,7 @@
 
 The days column on the left of the Plan tab holds the itinerary: one card per day, with the places, bookings, transports, tours and notes of that day in order.
 
-![An expanded day card: the head band with the day number, the forecast, the date and the stay and cost pills, then a note, the places and the bookings of the day](assets/PlanDayCard.png)
+![Two expanded day cards in the days column: the head band with the day number, the forecast, the title, the date and the stay pill, then the day's parking drop-off, flight, note, places, bookings and city walk](assets/PlanDayCard.png)
 
 ## The Day Plan sidebar
 
@@ -167,7 +167,7 @@ At the foot of the column, **Total Cost** adds up every expense of the trip with
 
 The selected day ends in its route bar, as long as the day can be routed: two or more places, one located place that the day's accommodation can frame, or a transfer day from one hotel to another. On a phone the same controls sit in the **Daily Overview** sheet.
 
-![The route bar of the selected day: the Route toggle, the travel mode, Optimize, and the buttons for Google Maps and CoMaps](assets/PlanRouteBar.png)
+![A selected day with Route switched on: the route bar at the foot of the day with the Route toggle, the travel mode, Optimize, and the buttons for Google Maps and CoMaps, the travel times between the stops, and the route on the map](assets/PlanRouteBar.png)
 
 - **Route** draws the day's route on the map and puts the travel time between each pair of stops into the timeline.
 - **The travel mode**: Driving, Walking, Cycling, and any mode a plugin adds.

@@ -1,6 +1,6 @@
 # Trip Members and Sharing
 
-![The Trip settings dialog: the trip's name and the number of people in the head band, a side navigation with People, Sharing and Journal, and the members and guests of the People area](assets/Share.png)
+![The Trip settings dialog: the trip's name and the number of people in the head band, a side navigation with People, Sharing and Journal, and the members and guests of the People area](assets/TripMembers.png)
 
 ## Opening the Trip settings
 
@@ -95,6 +95,8 @@ There is no limit on the number of guests per trip.
 ## Public Share Link
 
 The **Sharing** area is only visible to users with the `share_manage` permission (default: trip owner). Its first section is **Public Link**.
+
+![The Sharing area of the Trip settings: the Public Link with its five toggles and the two Options switches, a created link with its Copy button and Delete link, and the Trip invite link below](assets/Share.png)
 
 A share link creates a **read-only, token-based URL**:
 

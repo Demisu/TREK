@@ -8,7 +8,7 @@ Everything you booked for a trip that is not a way of getting around: hotels, re
 
 Open a trip and select the **Bookings** tab. It lists accommodation, restaurant, event, tour, parking and other bookings. Transport records never show up here; they stay on the **Transports** tab, which works the same way and is described on [its own page](Transport-Flights-Trains-Cars).
 
-The tab starts with a bar like the other planner tabs. The name sits on the left. On the right are a search box, **Filter**, the switch between **Cards**, **List** and **Timeline**, **View options** and **Export as spreadsheet (CSV)** (the spreadsheet icon, see [Exporting as CSV](#exporting-as-csv)). If you may edit bookings, the bar ends with **Import booking confirmations** (the download icon, shown when your server can [import confirmations](#import-from-booking-confirmation)) and **Manual Booking**.
+The tab starts with a bar like the other planner tabs. The name sits on the left. On the right are a search box, **Filter**, the switch between **Cards**, **List** and **Timeline**, **View options** and **Export as spreadsheet (CSV)** (the download icon, see [Exporting as CSV](#exporting-as-csv)). If you may edit bookings, the bar ends with **Import booking confirmations** (the upload icon, shown when your server can [import confirmations](#import-from-booking-confirmation)) and **Manual Booking**.
 
 A trip without any bookings shows *No reservations yet* instead, with **Manual Booking** and **Import from file** as buttons right under it.
 
@@ -82,7 +82,7 @@ A number on the Filter button counts what is switched on, and a chip such as *3 
 
 ## Exporting as CSV
 
-**Export as spreadsheet (CSV)**, the spreadsheet icon after **View options**, downloads the bookings as a CSV file. It holds exactly what the tab shows: the search and the filters apply, and the rows follow **Sort by** from the view options (the grouping is left out, one row per booking). The columns are **Type**, **Title**, **Status**, **Start**, **End**, **From**, **To**, **Location**, **Confirmation** and **Notes**; **From** and **To** are filled for bookings with a route. The file is semicolon-separated with a UTF-8 byte-order mark, so Excel opens it cleanly, and is named after the trip and the tab, such as `berlin-2026-bookings.csv`. A cell that would start with `=`, `+`, `-` or `@` gets a leading apostrophe, so a spreadsheet never runs it as a formula.
+**Export as spreadsheet (CSV)**, the download icon after **View options**, downloads the bookings as a CSV file. It holds exactly what the tab shows: the search and the filters apply, and the rows follow **Sort by** from the view options (the grouping is left out, one row per booking). The columns are **Type**, **Title**, **Status**, **Start**, **End**, **From**, **To**, **Location**, **Confirmation** and **Notes**; **From** and **To** are filled for bookings with a route. The file is semicolon-separated with a UTF-8 byte-order mark, so Excel opens it cleanly, and is named after the trip and the tab, such as `berlin-2026-bookings.csv`. A cell that would start with `=`, `+`, `-` or `@` gets a leading apostrophe, so a spreadsheet never runs it as a formula.
 
 While a search or filter is active, the button's tooltip reads *Export the {shown} of {total} shown rows (CSV)*. The button is there for every member who can see the tab, as soon as it has at least one booking. The Transports tab exports its own list the same way.
 
@@ -181,7 +181,7 @@ Up to 5 files per import, 10 MB each. A photo always goes to the AI model, never
 
 ### How to import
 
-1. On the **Bookings** or the **Transports** tab, click **Import booking confirmations** (the download icon in the bar). On a tab without bookings the button reads **Import from file**.
+1. On the **Bookings** or the **Transports** tab, click **Import booking confirmations** (the upload icon in the bar). On a tab without bookings the button reads **Import from file**.
 2. Drop your files onto the upload area, or click it to pick them, then click **Import**.
 3. The dialog closes and a widget in the bottom right corner shows *Parsing files…*, with a count when there are several files. You can keep working meanwhile: the widget follows you to other pages and survives a reload.
 4. When it is done, click **Import** in the widget.

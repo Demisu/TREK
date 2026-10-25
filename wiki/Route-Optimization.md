@@ -2,7 +2,7 @@
 
 TREK works out the driving, walking and cycling times between the places of a day, draws the route on the map, can reorder the places into a shorter route, and hands the day to a map app for navigation. All of it sits in the route bar at the foot of the selected day.
 
-![The route bar of the selected day: the Route toggle, the travel mode, Optimize, and the buttons for Google Maps and CoMaps](assets/PlanRouteBar.png)
+![A selected day with Route switched on: the route bar at the foot of the day with the Route toggle, the travel mode, Optimize, and the buttons for Google Maps and CoMaps, the travel times between the stops, and the route on the map](assets/PlanRouteBar.png)
 
 ## The route bar
 

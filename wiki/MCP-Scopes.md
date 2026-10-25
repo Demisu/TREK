@@ -4,6 +4,8 @@ OAuth scopes control exactly which data your AI client can read or write in TREK
 
 ![OAuth consent screen](assets/OAuthConsentDCR.png)
 
+![The same consent screen on a phone: Approve (33 scopes) above the permission list with the Places and Collections groups, and further down Settings, Plugins with Run plugin tools left unticked and the tools that are always included](assets/OAuthConsentDCRPhone.png)
+
 ## All scopes
 
 TREK defines 35 scopes across 17 groups.

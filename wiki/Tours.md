@@ -13,6 +13,8 @@ With the AI Assistant addon on, the assistant can look for tours and propose the
 
 While the Tours add-on is on, the right column of the Plan tab has a switch at its top: **Places** and **Tours**. **Tours** replaces the places list with every tour of the trip, so you can plan them next to the days. Tours never appear in the Places list while the add-on is on; a GPX or KML track you import is always a tour.
 
+![Plan tab of the Japan trip with the right column switched to Tours: a bike tour, a city walk and a T2 hike as rows with colour bar, type tile, a day badge and a time badge, and the bike route of day 10 drawn on the map](assets/ToursPlanList.png)
+
 Each row shows:
 
 - a coloured bar: the colour of the tour's line on the map,
@@ -104,6 +106,8 @@ A tour opens a card of its own over the map on the **Plan** tab, the counterpart
 
 The map stays usable while the card is open, and **Escape** or the **X** in the head closes it.
 
+![Tour card of the Via ferrata Ivano Dibona open over the map: type, time, distance, ascent and descent pills in the head, Trip days with Day 9, the measures, the elevation profile and the footer buttons](assets/TourCard.png)
+
 The head shows the tour's round tile, its name and a row of pills: the type (Hike, Bike tour, Run, Ski & winter, Paddle tour, City / sightseeing walk, Horse ride), a run's profile and pace or a ski tour's discipline, a paddle tour's boat and water, where an imported tour came from, the planned time, the distance, the ascent and the descent. The time pill's tooltip lists its parts: the time on the move, the breaks and the planned total, or for a city walk the walking time and the stays. An amber **use with caution** pill marks an import whose heights or measures are incomplete.
 
 The body holds, as far as they apply:
@@ -185,6 +189,8 @@ The tab has three parts:
 | Left rail | The editor. With nothing open it offers **Plan new tour**. A tour in it shows **Tour name**, **Tour type**, **Days** (day tour or multi-day tour), **Waypoints**, the cards of its type and **Details**, with **Discard** and **Save** at the bottom. An imported track opens here as **GPX tour**, to look at. |
 | Map | **Search place or address** at the top moves the map. The pill at the bottom left switches the map and holds the switches of the open tour. |
 | Right rail, **Tours of this trip** | **Tour summary** of the tour in the editor, the filter, **Trip totals** and the list of every tour of the trip. The plus in its head, **Add tour**, offers **Import GPX or KML**, **Import walk from Google Maps**, **Take over a tour from another trip** and, while a tour is open, **Plan new tour**. |
+
+![Tours tab with the via ferrata open in the editor on the left, its route and numbered waypoints on the Topo map, and Tour summary, elevation profile, Trip totals and the tour list in the right rail](assets/ToursPlanner.png)
 
 **Collapse**, on the tab at the inner edge of each rail, folds the rail away; **Plan** and **Tours of this trip** bring them back. A rail's edge can be dragged to make it wider or narrower. GPX, KML and KMZ files dropped anywhere on the tab are imported as tours of the trip.
 

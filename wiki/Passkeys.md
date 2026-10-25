@@ -41,6 +41,8 @@ Each entry in the list shows its name, a **Synced** or **This device** badge, th
 - **Rename** (pencil icon): edit the name inline; press Enter to save, Escape to cancel. Names are capped at 60 characters.
 - **Delete** (trash icon): confirms with *Remove this passkey? Confirm with your password.* and requires your current password.
 
+![Settings, Account tab: the Passkeys card with two passkeys, one Synced and last used, one This device and never used, each with rename and delete, and Add a passkey open with the current password and name fields](assets/Passkeys.png)
+
 Removing every passkey can never lock you out; your password always remains as a fallback.
 
 > **Admin:** In **Admin → Users**, editing a user exposes a **Reset passkeys** action that removes all of that user's passkeys at once (for a lost device). The user can still sign in with their password.

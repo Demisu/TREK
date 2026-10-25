@@ -89,6 +89,8 @@ A small pill floats at the bottom centre of the window (just above the tab bar o
 
 On a phone, **Settings** has its own **Offline** screen with the same controls as the desktop tab.
 
+![The Offline screen on a phone: Force offline mode, Download for offline use and Re-sync now, the trips to store, and further down the offline cache with its counters and the stored trips](assets/SettingsOfflinePhone.png)
+
 ### Offline mode
 
 - **Force offline mode** — a switch that first downloads everything you need (see *Prepare for offline* below) and then routes the whole app to the local cache, queueing every change you make. Flip it back off to reconnect: queued changes are replayed and the cache is refreshed. The override is remembered across app restarts, so a session forced offline before a flight stays offline when the PWA relaunches.

@@ -31,6 +31,8 @@ In **Road trip** the planner changes shape:
 | Map | the selected day | every day of the trip. **Fold** on a day card takes that day off the map as well |
 | Right column | the places list | **Along the route** (the search, see below) and the **Driving settings** card |
 
+![Iceland trip in Road trip mode: Distance, Driving time and Stops on top of the left column and the day cards with drive bands and arrival times, the drive on the map, and Along the route on the right with 55 fuel stations found along day 1](assets/RoadTrip.png)
+
 The map's category pills still work, so you can look around what is in view as well as along the drive; a place both searches find is drawn once. **Show whole trip** is not offered, because this view already draws the whole trip.
 
 The drive is built from the places planned on each day. Plan the places the trip is for under **Days** as usual, or import them (see [Importing a Google Maps route](#importing-a-google-maps-route)). A day is routed once it has two places with coordinates; a day with fewer shows an empty card you can drop a stop onto, and a place without coordinates is left out of the drive. In the rail, drag a stop to reorder its day or to move it to another day, or focus it with the keyboard and press Alt with the up or down arrow.
@@ -148,6 +150,8 @@ The **Driving settings** card sits under the search in the right column. Its bad
 | **Vehicle** | What you drive (**Either**, **Petrol**, **Electric**), the range, **Fill up to**, and **Work it out from the car** |
 | **Route line** | **Connect the days**, **Start and end each day at your stay**, **A colour per day** |
 | **Current warnings** | **Show hazard areas** |
+
+![The Driving settings dialog: Driving with Longest drive at once and Driving per day, Daily travel times with End the day, Avoid where possible and Service stops on the left, Vehicle with range and Fill up to, Route line and Current warnings on the right](assets/RoadTripDrivingSettings.png)
 
 **Connect the days** routes the drive from one day's last stop to the next day's first and counts it towards the day it arrives on. It is off by default, and always on while daily travel times are set. **Start and end each day at your stay** is off by default too, see [Starting and ending the day at the stay](#starting-and-ending-the-day-at-the-stay). **A colour per day** draws each day in its own colour and tints its card to match.
 

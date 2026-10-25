@@ -85,7 +85,7 @@ Each GL provider keeps its own saved style, so switching between Mapbox GL and M
 
 ## Account tab summary
 
-![Settings page on the Account tab, with the settings tab rail on the left and username, email, change-password fields and the two-factor authentication section on the right](assets/SettingsAccount.png)
+![Settings page on the Account tab, with the settings tab rail on the left and the separate Account, Change Password, Two-factor authentication (2FA) and Passkeys cards on the right](assets/SettingsAccount.png)
 
 The Account tab is a stack of separate cards:
 

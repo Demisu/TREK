@@ -53,6 +53,8 @@ The area then shows the journal's cover and title, **Linked**, and what you may 
 - **Change journal** links another of your journals instead.
 - **Unlink** removes the link. *The Journal tab disappears from this trip. Members who could only open the journal through this trip lose access; people you added in the journal itself keep theirs.*
 
+![Trip settings of the Iceland trip on the Journal area: the linked journal with its cover, Linked and Your journal, the members with edit access, and Edit access, Change journal and Unlink](assets/TripSettingsJournal.png)
+
 The access a link gives lasts as long as the link holds a member and that member stays on the trip. Someone who leaves the trip loses the access they had through it.
 
 ### Who may link

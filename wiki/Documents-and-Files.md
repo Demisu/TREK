@@ -2,7 +2,7 @@
 
 Keep tickets, confirmations, vouchers and photos with the trip, and tie each one to the places and bookings it belongs to.
 
-![The Files tab: the bar with the type filters and the trash, the upload area and the list of files, each with its actions](assets/Files.png)
+![The Files tab: the bar with the type filters, Document sync and the trash, the upload area and the list of files with a starred ticket and a photo, each with its links and actions](assets/Files.png)
 
 ## Where to find it
 
@@ -13,8 +13,6 @@ Open the **Files** tab inside the trip planner. The same files also open on a st
 The tab opens with the same bar as Transports, Bookings, Lists and Costs: **Files**, the type filters (see [Browsing and filtering](#browsing-and-filtering)), then on the right **Document sync** when a document store is available (see [Document sync](#document-sync)) and the trash icon (see [Trash](#trash)).
 
 ## Uploading
-
-![The stand-alone Files & Documents page of a trip, with the upload area on top](assets/Documents.png)
 
 Drop files onto the dashed upload area under the bar, click it to open the file picker, or paste an image straight into the tab (Ctrl+V). Several files can go up at once.
 
@@ -92,6 +90,8 @@ A file can be tied to several places and bookings at once. The **Assign** pencil
 - **Booking** and **Transport** list the trip's bookings.
 
 Click an entry to tie the file to it, and click it again to untie it; a tied entry is highlighted with a check mark. Every click is saved at once, so the dialog has no save button: close it when you are done.
+
+![The Assign File dialog for a ryokan confirmation: the note on top, the places grouped by day on the left and the bookings and transports on the right, with the ryokan ticked on both sides](assets/Documents.png)
 
 From the other side, the booking and transport editors have **Attach file** for a new file and **Link existing file** for one the trip already has. On the phone it is the **Link** pill in the Files row of the booking and transport sheets. The files of a booking appear in its detail popup, where **Show in files** brings you here, and the files of a place appear in the place inspector.
 

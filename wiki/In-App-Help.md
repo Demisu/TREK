@@ -34,6 +34,8 @@ The bundled directory is found automatically. `TREK_WIKI_DIR` overrides where TR
 
 The left sidebar mirrors this wiki's own table of contents, parsed straight out of `_Sidebar.md`: the same sections, in the same order, with the same page titles. On screens narrower than desktop the sidebar collapses behind a **Contents** button that opens it as a drawer.
 
+![Help & Docs on a phone: a wiki page under its Contents button, and the Contents drawer open over it with the search box and the page list](assets/HelpInAppPhone.png)
+
 The page you are reading is highlighted with a chevron.
 
 ## Search

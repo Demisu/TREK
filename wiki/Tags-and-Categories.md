@@ -23,6 +23,8 @@ Categories appear in:
 - **Map hover cards**: resting the pointer on a marker shows the category with the place's name and address.
 - **Saved places** in [Collections](Collections), which use the same set.
 
+![Place form of Hallgrimskirkja with the category pill in the head band open: the categories with their colours, Attraction ticked, and the + for a new category beside the pill](assets/PlaceCategoryPicker.png)
+
 A place picked from the search or from a marker of the map's category buttons comes with a matching category already picked, when the palette has one whose name or icon fits (a hotel goes to a category such as Hotel or Accommodation, a museum to Sights or Museum). Pick another one and it stays yours. See [The place form](Places-and-Search#the-place-form).
 
 > **Admin:** Create and manage categories in [Admin-Categories](Admin-Categories), or create one on the spot with the **+** (*New category*) next to the category pill in the head band of the place form. Only admins can create, edit, or delete categories. All users can read them.

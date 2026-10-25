@@ -38,6 +38,8 @@ A screen that has sub-screens lists them under **Sub-screens**, folded: the trip
 columns, its panels and its tabs (including Place details, Day details and Road trip); Settings and the Admin panel fold their tabs; Journey folds the
 journal and the studio. Dashboard, Vacay, Atlas, Collections and the Notifications inbox have help of their own.
 
+![The help center open on the trip: the screen switcher with Trip marked Current, the How do I list on the left, and on the right the summary, Go to Trip, the sub-screen cards with their guide counts and the guide cards](assets/HelpCenter.png)
+
 ### Guides
 
 A guide is one task, start to finish. It opens with the goal and a chip that says how long it is,
@@ -51,6 +53,8 @@ A guide is one task, start to finish. It opens with the goal and a chip that say
 3. **Good to know**, the caveats: what needs an addon, what cannot be undone, what a permission
    hides.
 4. **Related**, the guides that go with this one, and **In the docs**, the wiki pages behind it.
+
+![The Create a trip guide in the help center: the Guide chip with 5 steps, and step 1 with its sentence beside a picture ringed on the New Trip card](assets/HelpCenterGuide.png)
 
 Some guides carry a button that takes you straight to the screen the task happens on.
 

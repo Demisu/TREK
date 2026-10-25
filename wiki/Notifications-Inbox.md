@@ -14,6 +14,8 @@ The bell in the navigation bar shows how many notifications you have not read ye
 
 Following a notification from the panel closes it. New notifications arrive live over TREK's connection, so the count and the panel update without a reload.
 
+![The bell panel open over the dashboard: Notifications with the unread count, Mark all read and Delete all, chat messages under Today with View Messages buttons, and Show all notifications at the bottom](assets/NotificationsBell.png)
+
 ## The inbox page
 
 The page lists every notification, newest first, and loads older ones as you scroll down.

@@ -68,7 +68,7 @@ Rest the pointer on a pill for *Check-in: Hotel Adler* or *Check-out: Hotel Adle
 
 A stay whose booking is still **Pending** gets a dashed, tinted pill, and its tooltip ends in *(Pending)*. On the map, the hotel's marker is drawn with a dashed ring and a lighter face until the booking is **Confirmed**, see [Map Features](Map-Features#place-markers).
 
-![A day card with the stay pill in its head band](assets/PlanDayCard.png)
+![Day cards with the stay pill in their head bands: a green hotel icon on the check-in day, a grey one on the night after](assets/PlanDayCard.png)
 
 ## In the Reservations panel
 

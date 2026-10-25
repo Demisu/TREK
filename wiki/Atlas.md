@@ -77,6 +77,8 @@ Your Atlas statistics panel shows:
 
 With the Tours addon on, the desktop panel has a third tab, **Tours**, next to **Stats** and **Bucket List**: what you have done on your tours across all your trips. Pick a **period** (all time, this year, the last 12 months or an earlier year) and a **tour type**, and the tab shows the distance with the number of tours at its corner, the ascent and descent, and the types with their distance. **Show tours** opens every tour of the period as a list.
 
+![The Atlas with the Tours tab open: the distance with the number of tours at its corner, ascent and descent, the distance per tour type and Show tours, with the Dawarich panel and its Wishlist and Countries buttons on the left](assets/AtlasTours.png)
+
 - **When a tour counts.** A tour counts once the day it is on in a trip is over; a tour on several days once the last of them is over. A tour on no day, a tour only on days without a date and a tour whose day is still ahead do not count; the tab says how many of each there are.
 - **Planned or recorded.** Until you link the track you actually took in the tour's detail, a tour counts with the values of your planning, and it says so with a **Planned** badge: they are not measured. A linked actual track replaces those values for that tour, marked **Recorded**; it is never added on top, and the track itself is not counted as a tour of its own.
 - **Only your own part.** A day of a tour counts for you when it names you among its participants, or names nobody, which in the planner means everyone of the trip. A day that names only others counts for them, not for you.

@@ -2,7 +2,7 @@
 
 TREK is a self-hosted, real-time collaborative travel planner licensed under AGPL-3.0.
 
-![Dashboard](assets/DashboardWidgets.png)
+![The My Trips dashboard: the Up next Spotlight card, the four stat tiles and the widget column with Currency, Collections, Timezones and Upcoming reservations](assets/Dashboard.png)
 
 ## Features
 

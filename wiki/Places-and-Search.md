@@ -2,7 +2,7 @@
 
 Places are the building blocks of a trip: sights, restaurants, hotels, stations, trailheads. You add them by searching, by pasting a map link, by typing coordinates, from your saved places, by right-clicking the map or by importing a file or a list.
 
-![The places column while a day is open: the head band with New place, To day and the import button, the search field with the select button, the Show, category and rating filters, and the list of places](assets/PlacesColumn.png)
+![The places column while a day is open: the head band with New place, To day and the import button, the search field with the select button, the Show, category, rating, country and sort buttons, and the list of places with a + on each place that is not on the open day yet](assets/PlacesColumn.png)
 
 ## The places column
 
@@ -16,6 +16,8 @@ The right column of the Plan tab lists every place of the trip. Its head band ha
    - **Filter by rating** (the star): **All**, or a floor from **5+** down to **1+**. The map's markers follow the floor too.
    - **Filter by country or region** (the globe): every country the trip's places lie in, with its regions underneath, each with the number of places in it. Pick a country or one region; **All countries** is the default and **Clear filter** goes back to it. The button only appears once the trip spans more than one country or region.
    - **Sort by**: newest first (**Recently added**, the default), **Oldest first**, by name, **Highest rated** or **Recently changed**. The order applies to the list only, not to the map, and your browser remembers it.
+
+![The Sort by menu open below the places column's filters: Recently added, Oldest first, Name (A-Z), Highest rated and Recently changed](assets/PlacesSortMenu.png)
 
 With a day open and **Planned** chosen, the list shows only that day's places, and a chip says **Showing the open day only**. Its **X** (*Show the whole trip*) closes the day. See [Trip Planner Overview](Trip-Planner-Overview#layout).
 
@@ -47,7 +49,7 @@ Click **Select** (the tick next to the search field) to switch the list into sel
 
 **Add Place/Activity** and **Edit Place** are the same dialog.
 
-![The Edit Place dialog: the name and category in the head band, Place details with picture choices on the left, the form in the middle and Saved places on the right](assets/PlaceForm.png)
+![The Edit Place dialog: the name and category in the head band, Place details on the left with Pick a picture (Upload image, the current picture, the source photos and Remove image), the form in the middle and Saved places on the right](assets/PlaceForm.png)
 
 - **The head band** holds the name, which you type straight into the band, and the category as a pill. The **+** next to the pill (*New category*) turns it into a field for a new category's name; **OK** or Enter creates it, **Cancel** or Escape closes the field. Categories are shared by the whole instance, so creating one takes an admin account (see [Tags and Categories](Tags-and-Categories)). After a search pick, a pill names where the place came from. Once the place has coordinates, the round **Open in maps** pill opens it in a map app, the same menu as **Navigation** (see [Opening a place in a map app](#opening-a-place-in-a-map-app)).
 - **Search** finds the place and fills in the rest, see [Searching for a place](#searching-for-a-place). A place picked from the search, or from a marker of the [map categories](#exploring-the-map-by-category), comes with the matching category already picked when the trip's palette has one (a hotel goes to the category named like Hotel or Accommodation, a café to Café or Bar, and so on). A category you chose yourself is never replaced.
@@ -250,7 +252,7 @@ Amap links work the same way, as long as the link carries a coordinate: `uri.ama
 
 Click a place in the places column, in a day, or on the map, and its inspector opens over the map.
 
-![The place inspector over the map: the photo, name and address in its head, then the rating, the description, the notes and the files, with Add to Day, Navigation, Save to Collection and Edit at its foot](assets/PlaceInspector.png)
+![The place inspector over the map: the photo, name, address, category and coordinates in its head, then the rating, the notes, the stay booked there under Bookings and the files, with Add to Day, Navigation, Save to Collection, Delete and Edit at its foot](assets/PlaceInspector.png)
 
 - **The head band** shows the photo (a click opens it in a gallery, see [The photo gallery](#the-photo-gallery)), with a green ring while the place is open and a red one while it is closed, the name (double-click it to rename the place), the address on one line with the full address in a tooltip, and pills: **Open** or **Closed**, the category, the time of the visit, the Google rating, the phone number to call, the e-mail address, and the coordinates. **X** closes the inspector.
 - **Rating**: every member's vote, see [Rating a place](#rating-a-place).
@@ -275,6 +277,8 @@ Saved places in [Collections](Collections) are rated the same way. Saving a trip
 ## The photo gallery
 
 Click the round photo in the head band of the place inspector, or the photo in the phone's place sheet, to open a full screen gallery of the place's own picture and the photos its sources know, each with its credit. While there is nothing to show, the photo is just a picture and does not open.
+
+![The photo gallery over the planner: the second of four photos with its credit line at the foot, the counter at the top left, zoom and close at the top right, and the arrows to the previous and next photo](assets/PlacePhotoGallery.png)
 
 ## Custom place image
 

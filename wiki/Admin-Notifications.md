@@ -82,6 +82,8 @@ Each cell is a pill that cycles through three states when clicked, and saves at 
 | **Off** | Switched off until the user turns it on. |
 | **Blocked** | Switched off for everyone. In each user's settings the cell shows a lock instead of a switch, and nothing is sent there. |
 
+![Admin Notifications tab scrolled to Defaults for users: the On, Off and Blocked legend and the matrix of user events by channel, with chat messages Off by email and push and Blocked by webhook](assets/AdminNotifications.png)
+
 A default applies to every user who has not changed that cell themselves, including users who joined before you set it, so a later change reaches them too. A cell a user switched keeps the user's choice, unless you block it. The events themselves are listed in [Notifications](Notifications#notification-events).
 
 ## On a phone

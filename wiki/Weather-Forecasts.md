@@ -2,7 +2,7 @@
 
 TREK shows a weather forecast for every dated day of a trip, and a climate estimate for days too far ahead for a forecast. The data comes from Open-Meteo, so no API key is needed.
 
-![The day details panel with the weather at the top: the icon, the temperature, the day's low and high, the weather pills and the hourly forecast](assets/DayDetails.png)
+![The weather at the top of the day details panel: the place it is for, the icon, the temperature, the day's low and high, the weather pills and the hourly forecast, here a climate estimate marked with Ø](assets/DayDetailsWeather.png)
 
 ## Where forecasts appear
 

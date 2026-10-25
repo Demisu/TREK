@@ -2,9 +2,9 @@
 
 Reuse packing lists across trips using pre-built templates.
 
-The screenshot shows where admins build templates, the **Packing Templates** card on **Admin > Personalization**. Applying a template is described below.
+The screenshot shows the **Apply template** menu in the Lists bar of a trip's packing list. Admins build the templates on the **Packing Templates** card on **Admin > Personalization**, see [Admin-Packing-Templates](Admin-Packing-Templates).
 
-![The Packing Templates card in the admin panel, with a template, its category and an item, and the New Template button](assets/PackingTemplate.png)
+![The Lists bar of a packing list with the Apply template menu open, listing three templates with their item counts](assets/PackingTemplateApply.png)
 
 ## Applying a template
 

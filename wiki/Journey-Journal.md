@@ -4,7 +4,7 @@ Journey is a photo-first travel journal. Each journey is linked to one or more o
 
 > **Admin:** enable Journey in [Admin-Addons](Admin-Addons).
 
-![Journey screenshot](assets/Journey.png)
+![The Journey list: the latest journey as the banner on top with Continue writing, and the other journeys as cards with their cover, their state (here Completed) and their entries, photos and places](assets/Journey.png)
 
 ## What Journey is
 
@@ -172,7 +172,7 @@ While you travel, the stays of each day can be ready for review without you star
 
 **Place entries from their photos**, a switch under **Photos** in **Journey Settings**, goes one step further: an entry without a place takes the spot where its first photo with GPS was taken. Places you set yourself are never moved. It is off by default.
 
-![Journey detail page for "Autumn in Japan" with its cover header and day/place/entry/photo counts, the day-by-day timeline with Add Entry actions on the left, and the entry map on the right](assets/JourneyDetail.png)
+![Journey detail page for "Tokyo, Hakone and Kyoto in November" with its cover header, its state and the day, place, entry and photo counts; on the left the day-by-day timeline with Add Entry, an entry with its photos, story, mood and weather, and the Jump to a day pill at the foot; on the right the map with its layer switches Plan, Recorded, Entries and Photos](assets/JourneyDetail.png)
 
 ## TREK Studio
 

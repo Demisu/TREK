@@ -24,7 +24,7 @@ The dashboard also gains a **Collections widget** that surfaces your lists as co
 - **Edit or delete a list** from the **Edit** button in the list's hero (owner only). Deleting a list removes its saved places.
 - **All saved** is a built-in view that unions the places from every list you own or co-own, so you can search and act across your whole library at once.
 
-![A single collection, "Kyoto shortlist", with its coloured hero, Edit and Share actions, the lists rail on the left and three saved places each marked Idea, next to the map](assets/CollectionDetail.png)
+![A single collection, "Viewpoints worth the climb", with its cover photo in the hero, Edit, Export and Share actions, the lists rail on the left and eight saved places with their labels, category and Idea, Want to go or Visited status, next to the map with the label filter](assets/CollectionDetail.png)
 
 ## Place status
 
@@ -43,7 +43,7 @@ You usually find out you have been somewhere while looking at the trip, not whil
 - The **Save to list** dialog on a trip place shows every list that already holds it, each with its own status pill. Tap a pill to cycle that list's status, or use **Visited everywhere** to mark all of them at once.
 - The places panel has **Mark visited in your lists** in its selection bar (and in the bulk toolbar on phones). Select the places (**Select all** covers the whole trip) and every saved copy of them is marked visited.
 
-![The Save to list dialog: the place's name in the head band, the lists below with a tick for the ones holding it, and View at its foot](assets/SaveToList.png)
+![The Save to list dialog for a trip place: the place's name and Visited everywhere in the head band, the lists below with a status pill and a tick for the two that hold it, and View at its foot](assets/SaveToList.png)
 
 Matching is by the place's provider id, its coordinates, or the link a place saved out of that trip already carries, so a copy you renamed inside a list is still found. Lists shared with you read-only are left alone.
 

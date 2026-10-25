@@ -56,6 +56,8 @@ Every currency is shown with its own number of decimals. Most use two. The Japan
 
 **Settings → General → Language & region → Display currency** is a **per-user, presentation-only** preference. It converts what you *read* in the Costs tab (totals, the category chart, balances, the settle-up amounts) into a single currency, so a trip with dollars, yen and roubles in it still adds up to one number you understand.
 
+![Settings, General tab: the Language & region card with Display currency set to Trip currency above the language, place names, units, time format and week start](assets/DisplayCurrency.png)
+
 It never changes what is stored. Two people looking at the same trip can read it in different currencies and both see correct, consistent balances.
 
 It has two modes:

@@ -2,7 +2,7 @@
 
 The trip planner is where a trip is built. Open it by clicking a trip card on the [dashboard](My-Trips-Dashboard).
 
-![The Plan tab with a day selected: the days column on the left, the map in the middle and the places column on the right](assets/TripPlanner.png)
+![The Plan tab with day 1 selected: the days column on the left, the day details panel over the map in the middle and the places column on the right](assets/TripPlanner.png)
 
 ## Layout
 

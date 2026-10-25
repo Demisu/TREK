@@ -92,6 +92,8 @@ A default applies to every cell you have not changed yourself, so when the admin
 
 ## Webhook configuration
 
+![The cards below the matrix: Webhook URL with Test and Save, Ntfy with topic, server URL and access token, and Push notifications on this device with Send test and Turn on for this device](assets/NotifChannels.png)
+
 Enter a URL that TREK will POST to when a notification fires. Once saved, the URL is displayed as `••••••••`. Use the **Test** button to send a test payload to the saved URL.
 
 TREK auto-detects the webhook destination and adjusts the payload format:
@@ -191,7 +193,9 @@ The bell icon in the navigation bar shows your unread notification count. Click 
 - Mark all notifications read at once.
 - Delete individual notifications or clear all at once.
 - Answer **boolean notifications**, which ask a yes-or-no question, with their two buttons directly in the panel.
-- Click **Show all notifications** to open the full page at `/notifications`, with **All** and **Unread** pills, **Mark all read** and **Delete all** (which asks *Delete all notifications?* first). On a phone the inbox is its own screen. With nothing in it, the page reads *No notifications* and *You're all caught up!*.
+- Click **Show all notifications** to open the full page at `/notifications`, with **All** and **Unread** pills, **Mark all read** and **Delete all** (which asks *Delete all notifications?* first). On a phone the inbox is its own screen. With nothing in it, the page reads *No notifications*; the bell's panel adds *You're all caught up!*.
+
+![The empty Notifications page: the All and Unread pills above a card that reads No notifications](assets/NotificationsEmpty.png)
 
 In-app notifications are pushed in real time via WebSocket so the badge and panel update without a page refresh.
 

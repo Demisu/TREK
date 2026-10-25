@@ -46,7 +46,7 @@ In **Settings > API Keys**, the **Google Maps API Key** block has a collapsible 
 
 At the bottom of **Notifications**, **Defaults for users** is a matrix of every notification event against every channel. Each cell cycles through **On**, **Off** and **Blocked** when clicked and is saved right away; an event a channel cannot deliver shows a dash. **On** and **Off** are only where a user's settings start: each user may still change them. **Blocked** turns that event off on that channel for everyone, and it shows as locked in their settings. The defaults apply to every user who has not changed that cell themselves. See [Notifications](Notifications).
 
-![Admin panel on the User Defaults tab, setting instance-wide defaults for colour mode, temperature unit, distance unit, time format, currency and blurred booking codes](assets/AdminUserDefaults.png)
+![Admin panel on the User Defaults tab: the Default User Settings card with colour mode, temperature unit, distance unit, time format, week start, display currency and blurred booking codes, beside the Map card with map template, CARTO key, routing fields, preview and map engine](assets/AdminUserDefaults.png)
 
 The **Week starts on** default decides which day opens each row of every date picker for users who have not picked their own (Monday unless set).
 

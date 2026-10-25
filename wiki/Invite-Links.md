@@ -22,6 +22,8 @@ Invite links live in the **Invite Links** card under **Admin > Users**. Click **
 
 **Add to trip (optional)**: bind the invite to any trip on the instance, not just your own. When someone registers through the link, they are automatically added to that trip as a member. Leave it on **No trip** for a plain registration invite. The selector only appears when at least one trip exists.
 
+![Create Link dialog with the Max. Uses and Expires after presets and a trip picked under Add to trip (optional)](assets/InviteLinkForm.png)
+
 **Create & Copy** generates a 32-character hexadecimal token and copies the URL to your clipboard.
 
 Each link in the list shows whether it is **Active**, **Expired** or **Used up**, how often it was used out of its limit, when it expires, the trip it adds to, and who created it. The copy button (**Copy link**) copies its URL again.

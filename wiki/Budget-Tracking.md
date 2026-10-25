@@ -4,7 +4,7 @@ Record what the trip costs, who put the money down and who it is shared with, an
 
 > **Renamed to Costs (v3.3.0, #1464):** the feature is called **Costs** everywhere in the UI: the planner tab reads **Costs**, and so does its entry in Admin → Addons. Its internal addon id is still `budget`, which is why the permission is `budget_edit` and the MCP scopes are `budget:read` and `budget:write`.
 
-![The Costs tab: the bar with search, filter and export, four summary cards, the expense ledger grouped by day and the Settle up, Balances, Final budget and By category cards on the right](assets/Costs.png)
+![The Costs tab: the bar with search, filter and export, four summary cards, the ledger grouped by day with a payment above the expenses, and the Settle up, Balances and Final budget cards on the right](assets/Costs.png)
 
 ## Where to find it
 
@@ -194,7 +194,7 @@ With Costs on, the cost pills on the days of the plan and **Total Cost** at its 
 
 The table is a second way to read and plan the same expenses, close to the categorized budget sheet TREK had before Costs was rebuilt. Switch to it with the **Table** icon in the bar; **List** brings the ledger back. Search and filters apply to the table as well.
 
-![The table view: expenses grouped by category with Name, Date, Total, Persons and Days, the per person and per day columns on grey, and the four-way Summary on the right](assets/CostsTable.png)
+![The table view: expenses grouped by category with Name, Date, Total, Persons and Days, the per person and per day columns on grey, Food & drink folded, a lock beside each total, and the Settle up, Balances and Final budget cards on the right](assets/CostsTable.png)
 
 - Expenses are grouped by **category**, in the order of the category pill, each group with how many entries it has and its subtotal. Click a category's header to fold it.
 - The columns are **Name**, **Date**, **Total**, **Persons** and **Days**, followed by the worked-out **Per Person**, **Per Day** and **P. p / Day** on their own grey ground. An expense with a custom (uneven) split leaves the per-person columns empty, since it has no single share per person.

@@ -2,6 +2,8 @@
 
 TREK has a layout of its own for phones. It is the same app at the same address with the same data, drawn for one hand and a small screen: a floating bar at the bottom, sheets that slide up instead of dialogs, and a trip screen built around the day you are on. Install it to your home screen and it behaves like an app; see [Offline-Mode-and-PWA](Offline-Mode-and-PWA).
 
+![Three phone screens side by side: the dashboard with the floating bottom bar, a trip in Travel mode with Up next, the day timeline and the trip dock, and the trip's More sheet with Files, Collab, Journal, Trip settings, Export and Edit Trip](assets/MobileApp.png)
+
 ## When the phone layout applies
 
 TREK switches to the phone layout when the window is narrower than 768 px, and also on a touch screen less than 500 px tall, so a phone turned on its side keeps the phone layout instead of jumping to the desktop planner. A tablet and a desktop window follow their width as usual. Turning the phone or resizing the window switches between the two layouts on the fly.

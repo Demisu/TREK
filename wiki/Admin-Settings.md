@@ -2,6 +2,8 @@
 
 The **Settings** tab (in the **Configuration** group of the admin side navigation, `/admin?tab=settings`) holds the instance-wide switches for signing in, uploads and place data. On a wide screen the cards sit in two columns: access and identity on the left (**Authentication Methods**, **Passkey login**, **Require two-factor authentication (2FA)**, **Single Sign-On (OIDC)**), files and place data on the right (**Allowed File Types**, **API Keys**). The **Danger Zone** runs across the full width at the bottom. On a narrow screen the same cards stack in that order.
 
+![Admin Settings tab: Authentication Methods, Passkey login and Require two-factor authentication in the left column, Allowed File Types and API Keys with the TREK Places API marked Recommended default in the right column](assets/AdminSettings.png)
+
 Switches save as soon as you flip them. Text fields save with the card's own **Save** button. The phone admin has the same cards in its **Settings** section.
 
 ## Authentication Methods

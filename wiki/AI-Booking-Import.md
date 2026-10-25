@@ -114,7 +114,7 @@ A personal parsing model has its own **Model reads images** switch, on or off. I
 
 The upload is the normal booking import; the model simply works behind it.
 
-1. In the trip, open the **Bookings** or **Transports** tab and click **Import booking confirmations** (the download icon in the bar). On a tab without bookings, the button reads **Import from file**.
+1. In the trip, open the **Bookings** or **Transports** tab and click **Import booking confirmations** (the upload icon in the bar). On a tab without bookings, the button reads **Import from file**.
 2. Drop your files onto the upload area: EML, PDF, PKPass, HTML or TXT, up to 5 files of 10 MB each. When the model reads images, photos (JPG, PNG, WEBP) are accepted too. Click **Import**.
 3. The dialog closes and a **background widget** in the bottom right corner shows *Parsing files…* with a count. You can keep working meanwhile; the widget survives a reload and follows you to other pages.
 4. When parsing is done, click **Import** in the widget.

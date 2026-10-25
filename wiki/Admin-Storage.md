@@ -4,6 +4,8 @@ The **Storage** tab (Admin Panel > Configuration > Storage) controls where TREK 
 kind of content: which storage backends exist, which content category writes
 to which backend, and whether writes are replicated to additional backends.
 
+![Admin Storage tab: the Health strip with no replica failures, the two built-in backends with their usage and Test and edit buttons, and the category cards with their backend](assets/AdminStorage.png)
+
 ## Backends
 
 A backend is a named place bytes can live. Two exist out of the box:

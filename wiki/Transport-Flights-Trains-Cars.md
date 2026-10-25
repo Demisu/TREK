@@ -2,7 +2,7 @@
 
 Flights, trains, rental cars, ferries and every other ride of a trip, with their departure and arrival points, local times and the details that come with each kind of ticket. Public transit connections can be looked up and added to a day in a few clicks.
 
-![Transports tab in the cards view: flight, train and car cards with their route, times, booking codes and travelers](assets/Transports.png)
+![Transports tab in the cards view: a car, a flight, a blue public transit journey with its itinerary and a train with a change on the way, with their routes, times, booking codes and travelers](assets/Transports.png)
 
 ## Where to create
 
@@ -33,7 +33,7 @@ The tab works exactly like the Bookings tab: the same bar with search, **Filter*
 
 ## The transport editor
 
-![Add transport dialog in Manual mode: the title in the head band with the status and type pills and the Manual/Automated switch, then travelers, the route with its stops, the booking code, notes, link, files and costs](assets/TransportEditor.png)
+![Add transport dialog in Manual mode: the title in the head band with the status and type pills and the Manual/Automated switch, then travelers, the route from From to To with Add stop between them, and the booking code](assets/TransportEditor.png)
 
 The head band holds the title, which you type straight into it, and three controls next to each other:
 
@@ -126,7 +126,7 @@ A transport you save while offline waits in a queue and is sent when TREK is bac
 
 Click a transport anywhere, on its card, in the day plan, on the map or in the road trip rail, and its detail opens.
 
-![Booking detail of a flight: status, type and day pills, the booking code with copy, tiles for departure and arrival with their airports, platform and seat](assets/TransportDetail.png)
+![Booking detail of a flight: status, type and day pills, the booking code with copy, tiles for departure and arrival with their airports, then the airline, flight number, price, travelers and notes](assets/TransportDetail.png)
 
 For a transport, the tiles at the top show the departure and arrival times with their airports or stations, and the platform and seat when they are set. A route with stops lists every stop with its time. The foot of the detail has **On map**, which switches the route's line on and opens the plan on its day, **Delete** and **Edit**. See [The booking detail](Reservations-and-Bookings#the-booking-detail) for everything else it shows.
 
@@ -160,7 +160,7 @@ A rental car in its middle days is not a row but a pill in the day's head band. 
 
 Drag a transport row to move it within its day or onto another day. The rows of a flight or train with stops, and the middle days of a longer ride, stay where their times put them. Click a row to open its detail.
 
-![An expanded day card with places, a transport row and a note, and the pills in its head band](assets/PlanDayCard.png)
+![Two expanded day cards: a parking drop-off row and a flight row above the note and the place of the first day, and the stay pills in the head bands](assets/PlanDayCard.png)
 
 A booking that is pinned to a stop on another day shows at that stop only, not on two days. The dashboard's upcoming reservations leave out planned public transit.
 

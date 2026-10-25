@@ -25,6 +25,8 @@ Click **New Category** (top right of the card). A dialog opens:
 
 4. **Preview**: a chip shows how the category will look to users as you make selections.
 
+![New Category dialog with the name in its head, the icon grid, the colour swatches and the preview chip](assets/CategoryManager-New.png)
+
 Click **Create** to save.
 
 ## Editing a category

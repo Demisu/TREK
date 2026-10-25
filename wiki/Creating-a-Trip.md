@@ -28,6 +28,8 @@ Only the **start** date is linked to the other one. Picking a start date fills t
 
 The same dialog changes the dates of an existing trip later. The day plans follow their position, so new dates that hold fewer days take the last days of the plan away. When anything is planned on those days, the dialog lists it and asks before it saves; see [Shortening a trip](Day-Plans-and-Notes#shortening-a-trip). To make a trip one day longer without opening the dialog, add a day with the next date in the planner; see [Adding a day](Day-Plans-and-Notes#adding-a-day).
 
+![The step the Edit Trip dialog puts before saving new dates: on the left the choice between Keep bookings on their dates and Shift everything, on the right the day the new dates remove and what is planned on it, with Back and Remove days and save below](assets/TripDateReview.png)
+
 ### Currency
 
 The trip's currency, its **accounting base**. Every expense in the Costs tab is converted into it, and every balance and settle-up suggestion is calculated in it. The dialog pre-fills your own display currency (Settings > General > Language & region > *Display currency*); if you left that on **Trip currency**, it falls back to **EUR**. An administrator can preset the instance-wide value under Admin → **User Defaults**, which new users inherit until they pick their own. 165 currencies are available.
