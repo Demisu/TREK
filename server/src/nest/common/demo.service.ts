@@ -16,7 +16,7 @@ import { Injectable } from '@nestjs/common';
  * hazard, confirmed by `task-0-report.md` §6), so an injected `EntityManager`
  * resolving the current request's fork is exactly the right shape.
  *
- * `isDemoWriteBlocked`/`DEMO_WRITE_ERROR` (the six-upload-endpoint sibling
+ * `isDemoWriteBlocked`/`DEMO_WRITE_ERROR` (the upload endpoints' sibling
  * check) stay exactly where they are, in `common/demo-write.ts` — a
  * different, pure-function check over an already-known email string that
  * this task does not touch.

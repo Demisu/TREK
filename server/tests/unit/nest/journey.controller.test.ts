@@ -1,6 +1,7 @@
 import { ADDON_IDS } from '../../../src/addons';
 import { AddonGuard } from '../../../src/nest/addons/addon.guard';
 import { REQUIRE_ADDON } from '../../../src/nest/addons/require-addon.decorator';
+import { RuntimeEnvService } from '../../../src/nest/app-config/runtime-env.service';
 import type { JourneyBookService } from '../../../src/nest/journey/journey-book.service';
 import type { JourneyPhotoCaptureService } from '../../../src/nest/journey/journey-photo-capture.service';
 import type { JourneyPhotoLinksService } from '../../../src/nest/journey/journey-photo-links.service';
@@ -13,7 +14,10 @@ import type { User } from '../../../src/types';
 import { HttpException } from '@nestjs/common';
 
 import type { Response } from 'express';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const user = { id: 1, username: 'u', role: 'user', email: 'u@example.test' } as User;
 
@@ -61,6 +65,8 @@ function ctl(
     books as JourneyBookService,
     captureBackfillStub,
     photoLinks as JourneyPhotoLinksService,
+    // The live env: a case about demo mode stubs DEMO_MODE, every other runs outside it.
+    new RuntimeEnvService(),
   );
 }
 
@@ -1052,6 +1058,75 @@ describe('JourneyController', () => {
         ),
       ),
     ).toEqual({ status: 403, body: { error: 'Not allowed' } });
+  });
+});
+
+describe('JourneyController in demo mode', () => {
+  // The shared demo account is refused every journey upload with the 403 the
+  // other upload routes answer it (common/demo-write.ts), and what multer
+  // spooled is removed before anything is committed: a committed object would
+  // stay, since a demo instance keeps what is deleted (StorageService.delete).
+  const demo = { ...user, email: 'demo@trek.app' } as User;
+  let spoolDir: string;
+  const spooled = (name: string): Express.Multer.File => {
+    const file = path.join(spoolDir, name);
+    fs.writeFileSync(file, 'x');
+    return { filename: name, originalname: name, path: file } as Express.Multer.File;
+  };
+  /** A service that takes every upload, so a case shows what the demo check alone decides. */
+  const takesAll = () =>
+    svc({
+      addPhoto: vi.fn().mockReturnValue({ id: 5 }),
+      immichAutoUploadEnabled: vi.fn().mockReturnValue(false),
+      uploadGalleryPhotos: vi.fn().mockReturnValue([{ id: 7 }]),
+      updateJourney: vi.fn().mockReturnValue({ id: 9 }),
+    } as Partial<JourneyService>);
+  const routes: Array<[string, (c: JourneyController, u: User) => Promise<unknown>]> = [
+    ['POST /entries/:entryId/photos', (c, u) => c.uploadEntryPhotos(u, '3', [spooled('a.jpg'), spooled('b.jpg')], {})],
+    [
+      'POST /entries/:entryId/video',
+      (c, u) => c.uploadEntryVideo(u, '3', { video: [spooled('v.mp4')], poster: [spooled('p.jpg')] }, {}),
+    ],
+    ['POST /:id/gallery/photos', (c, u) => c.uploadGalleryPhotos(u, '9', [spooled('g.jpg')])],
+    [
+      'POST /:id/gallery/video',
+      (c, u) => c.uploadGalleryVideo(u, '9', { video: [spooled('v.mp4')], poster: [spooled('p.jpg')] }, {}),
+    ],
+    ['POST /:id/cover', (c, u) => c.cover(u, '9', spooled('c.jpg'))],
+  ];
+
+  beforeEach(() => {
+    spoolDir = fs.mkdtempSync(path.join(os.tmpdir(), 'trek-journey-demo-'));
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    fs.rmSync(spoolDir, { recursive: true, force: true });
+  });
+
+  it.each(routes)('%s: 403 for the demo account, its spooled parts removed and nothing stored', async (_, call) => {
+    vi.stubEnv('DEMO_MODE', 'true');
+    const service = takesAll();
+    expect(await thrownAsync(() => call(ctl(service), demo))).toEqual({
+      status: 403,
+      body: { error: 'Uploads are disabled in demo mode. Self-host TREK for full functionality.' },
+    });
+    expect(fs.readdirSync(spoolDir)).toEqual([]);
+    expect(storageStub.put).not.toHaveBeenCalled();
+    expect(service.addPhoto).not.toHaveBeenCalled();
+    expect(service.uploadGalleryPhotos).not.toHaveBeenCalled();
+    expect(service.updateJourney).not.toHaveBeenCalled();
+  });
+
+  it.each(routes)('%s: still taken from any other account in demo mode', async (_, call) => {
+    vi.stubEnv('DEMO_MODE', 'true');
+    await call(ctl(takesAll()), user);
+    expect(storageStub.put).toHaveBeenCalled();
+  });
+
+  it.each(routes)('%s: still taken from the demo account outside demo mode', async (_, call) => {
+    vi.stubEnv('DEMO_MODE', 'false');
+    await call(ctl(takesAll()), demo);
+    expect(storageStub.put).toHaveBeenCalled();
   });
 });
 

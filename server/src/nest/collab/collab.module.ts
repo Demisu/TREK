@@ -7,6 +7,7 @@ import { CollabPolls } from '../../db/entities/CollabPolls.entity';
 import { Trips } from '../../db/entities/Trips.entity';
 import { PluginGuardsModule } from '../../nest-rpc/plugin-guards.module';
 import { AddonsModule } from '../addons/addons.module';
+import { AppConfigModule } from '../app-config/app-config.module';
 import { RateLimitModule } from '../common/rate-limit.module';
 import { McpSharedModule } from '../mcp-shared/mcp-shared.module';
 import { NotificationsModule } from '../notifications/notifications.module';
@@ -57,6 +58,8 @@ import { MulterModule } from '@nestjs/platform-express';
     PluginGuardsModule,
     AddonsModule,
     RateLimitModule,
+    // RuntimeEnvService: the controller refuses the demo account's uploads in demo mode.
+    AppConfigModule,
   ],
   controllers: [CollabController],
   providers: [CollabService, CollabMcp, CollabRpc],

@@ -32,8 +32,9 @@ import { Test } from '@nestjs/testing';
 
 import cookieParser from 'cookie-parser';
 import type { Server } from 'http';
+import path from 'node:path';
 import request from 'supertest';
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi, type MockInstance } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi, type MockInstance } from 'vitest';
 
 vi.mock('../../src/db/database', async () => {
   const { createSnapshotTestDb, buildDbMock } = await import('../helpers/db-mock');
@@ -327,6 +328,52 @@ describe('Collab e2e (real auth guard + temp SQLite)', () => {
       expect((await request(server).delete('/api/trips/5/collab/links/1').set('Cookie', sessionCookie(1))).status).toBe(
         403,
       );
+    });
+  });
+
+  describe('demo mode', () => {
+    // Over the wire, because a refusal from a guard would reset the connection
+    // while the client is still sending (PROFILE-015): the 403 has to arrive with
+    // its body, and nothing of the upload may be written.
+    const refused = { error: 'Uploads are disabled in demo mode. Self-host TREK for full functionality.' };
+
+    beforeAll(async () => {
+      // Pinned id: sessionCookie(2) signs for exactly this user, the owner of trip 6.
+      await makeUser(orm, { id: 2, username: 'demo', email: 'demo@trek.app', role: 'user', password_version: 0 });
+      await insertRow(orm, Trips, { id: 6, title: 'Demo trip', user: 2 });
+    });
+    beforeEach(() => {
+      vi.stubEnv('DEMO_MODE', 'true');
+    });
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it('403 with the demo body for a note file, and no file row', async () => {
+      const res = await request(server)
+        .post('/api/trips/6/collab/notes/1/files')
+        .set('Cookie', sessionCookie(2))
+        .attach('file', path.join(__dirname, '../fixtures/test.pdf'));
+      expect(res.status).toBe(403);
+      expect(res.body).toEqual(refused);
+      expect(await countRows(orm, TripFiles)).toBe(0);
+    });
+
+    it('403 with the demo body for a chat image, and no message row; a text message still posts', async () => {
+      const res = await request(server)
+        .post('/api/trips/6/collab/messages')
+        .set('Cookie', sessionCookie(2))
+        .field('text', 'look')
+        .attach('images', path.join(__dirname, '../fixtures/small-image.jpg'));
+      expect(res.status).toBe(403);
+      expect(res.body).toEqual(refused);
+      expect(await countRows(orm, CollabMessages)).toBe(0);
+      const text = await request(server)
+        .post('/api/trips/6/collab/messages')
+        .set('Cookie', sessionCookie(2))
+        .send({ text: 'hi' });
+      expect(text.status).toBe(201);
+      expect(text.body.message).toMatchObject({ text: 'hi', trip_id: 6, user_id: 2 });
     });
   });
 });

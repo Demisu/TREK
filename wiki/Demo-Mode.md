@@ -40,7 +40,7 @@ The demo user can work with the shared example trips like any member, but the fo
 - **Password change**: returns 403.
 - **Account deletion**: returns 403.
 - **MFA enrollment or removal**: returns 403. The 2FA card in Settings says it is not available in demo mode, and the Passkeys card is hidden.
-- **File uploads**: avatar uploads, trip cover uploads, and document/photo file attachments are blocked and return 403.
+- **File uploads**: avatars, trip and collection covers, place images, trip files, journey photos, videos and covers, and the files and images attached to collab notes and chat messages are blocked and return 403. A chat message without an image still posts. [Document-Sync](Document-Sync) is not covered by this block: all its stores ship switched off, but once an administrator switches one on, the demo account can bind a trip it owns in the trip's file manager and pull documents from that store into the trip files, also through the `sync_trip_documents` MCP tool.
 - **All MCP write tools**: create, update, and delete operations via the MCP API are blocked for the demo user.
 
 Registration is also disabled while demo mode is active; visitors cannot create new accounts.

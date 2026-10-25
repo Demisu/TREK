@@ -22,6 +22,8 @@ import path from 'node:path';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import type { User } from '../../types';
+import { RuntimeEnvService } from '../app-config/runtime-env.service';
+import { isDemoWriteBlocked, DEMO_WRITE_ERROR } from '../common/demo-write';
 import { StorageService } from '../storage/storage.service';
 import { journeyThumbName } from '../memories/thumbnail.service';
 import { JourneyService } from './journey.service';
@@ -172,6 +174,8 @@ export class JourneyController {
     private readonly photoCapture: JourneyPhotoCaptureService,
     // Which entries the gallery's photos sit on, told to every tab once written.
     private readonly photoLinks: JourneyPhotoLinksService,
+    // Whether DEMO_MODE is on, read on every upload (refuseDemoUpload).
+    private readonly env: RuntimeEnvService,
   ) {}
 
   /**
@@ -206,6 +210,22 @@ export class JourneyController {
       if (f.path) { try { fs.unlinkSync(f.path); } catch { /* best-effort */ } }
       await this.storage.delete('journey', f.filename).catch(() => {});
     }
+  }
+
+  /**
+   * Refuse the shared demo account's upload in demo mode, with the 403 the
+   * other upload routes answer (common/demo-write.ts). Called in the handler,
+   * once multer has drained the body, so the 403 arrives instead of an
+   * ECONNRESET. It runs before the commit: the spooled parts are all there is
+   * to take back, and a committed object would stay, since a demo instance
+   * keeps what is deleted (StorageService.delete).
+   */
+  private refuseDemoUpload(user: User, files: ReadonlyArray<Express.Multer.File | undefined>): void {
+    if (!isDemoWriteBlocked(this.env, user.email)) return;
+    for (const f of files) {
+      if (f?.path) { try { fs.unlinkSync(f.path); } catch { /* best-effort */ } }
+    }
+    throw new HttpException(DEMO_WRITE_ERROR, 403);
   }
 
   // ── Static prefix routes (before /:id) ──────────────────────────────────
@@ -271,6 +291,7 @@ export class JourneyController {
   @Post('entries/:entryId/photos')
   @UseInterceptors(FilesInterceptor('photos'))
   async uploadEntryPhotos(@CurrentUser() user: User, @Param('entryId') entryId: string, @UploadedFiles() files: Express.Multer.File[] | undefined, @Body() body: JourneyEntryPhotoUploadDto) {
+    this.refuseDemoUpload(user, files ?? []);
     if (!files?.length) {
       throw new HttpException({ error: 'No files uploaded' }, 400);
     }
@@ -337,6 +358,7 @@ export class JourneyController {
   ) {
     const video = files?.video?.[0];
     const poster = files?.poster?.[0];
+    this.refuseDemoUpload(user, [video, poster]);
     const cleanup = () => {
       for (const f of [video, poster]) {
         if (f?.path) { try { fs.unlinkSync(f.path); } catch { /* best-effort */ } }
@@ -478,6 +500,7 @@ export class JourneyController {
   @Post(':id/gallery/photos')
   @UseInterceptors(FilesInterceptor('photos'))
   async uploadGalleryPhotos(@CurrentUser() user: User, @Param('id') id: string, @UploadedFiles() files: Express.Multer.File[] | undefined) {
+    this.refuseDemoUpload(user, files ?? []);
     if (!files?.length) {
       throw new HttpException({ error: 'No files uploaded' }, 400);
     }
@@ -510,6 +533,7 @@ export class JourneyController {
   ) {
     const video = files?.video?.[0];
     const poster = files?.poster?.[0];
+    this.refuseDemoUpload(user, [video, poster]);
     // multer already spooled both parts; clean them up on a pre-commit rejection
     // so a bad POST doesn't orphan a 500 MB clip (#823).
     const cleanup = () => {
@@ -580,6 +604,7 @@ export class JourneyController {
   @HttpCode(200) // Express answers cover with res.json (200).
   @UseInterceptors(FileInterceptor('cover'))
   async cover(@CurrentUser() user: User, @Param('id') id: string, @UploadedFile() file: Express.Multer.File | undefined, @Headers('x-socket-id') socketId?: string) {
+    this.refuseDemoUpload(user, [file]);
     if (!file) {
       throw new HttpException({ error: 'No file uploaded' }, 400);
     }

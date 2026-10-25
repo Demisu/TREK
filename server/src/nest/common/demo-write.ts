@@ -3,7 +3,7 @@ import { RuntimeEnvService } from '../app-config/runtime-env.service';
 import { DEMO_ACCOUNT_SETTINGS, isDemoEmail } from './demo';
 import { DomainError } from './domain-error';
 
-/** The exact 403 body the six upload endpoints have always returned. */
+/** The exact 403 body the upload endpoints answer the demo account with. */
 export const DEMO_WRITE_ERROR = {
   error: 'Uploads are disabled in demo mode. Self-host TREK for full functionality.',
 } as const;
@@ -12,9 +12,11 @@ export const DEMO_WRITE_ERROR = {
  * Whether this user's writes are blocked because the instance runs in demo mode.
  *
  * The condition was copy-pasted into six upload handlers, each with its own copy
- * of the message. It lives here once now, and every one of them calls it.
+ * of the message. It lives here once now, and every one of them calls it, as do
+ * the journey photo, video and cover uploads and the collab note file and chat
+ * image uploads that came without it.
  *
- * Deliberately a function and not a guard, though all six sites are handlers and
+ * Deliberately a function and not a guard, though every site is a handler and
  * a guard is the obvious shape. Guards run before the multipart parser, so
  * throwing from one leaves the request body unread and Node resets the
  * connection: the client sees ECONNRESET instead of the 403. PROFILE-015 catches

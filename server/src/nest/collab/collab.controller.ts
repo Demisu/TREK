@@ -1,6 +1,8 @@
 import type { User } from '../../types';
+import { RuntimeEnvService } from '../app-config/runtime-env.service';
 import { CurrentUser } from '../auth-core/current-user.decorator';
 import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
+import { DEMO_WRITE_ERROR, isDemoWriteBlocked } from '../common/demo-write';
 import { ResponseContract } from '../common/response-contract';
 import { SpoolCleanupInterceptor } from '../common/spool-cleanup.interceptor';
 import { BLOCKED_EXTENSIONS, MAX_FILE_SIZE } from '../files/files.constants';
@@ -130,6 +132,8 @@ export class CollabController {
   constructor(
     private readonly collab: CollabService,
     private readonly storage: StorageService,
+    // Whether DEMO_MODE is on, read on every upload: the demo account's are refused.
+    private readonly env: RuntimeEnvService,
   ) {}
 
   private async requireTrip(tripId: string, user: User) {
@@ -242,6 +246,12 @@ export class CollabController {
     };
     try {
       const trip = await this.requireTrip(tripId, user);
+      // After the 404, as on the trip-file upload, so the demo account cannot
+      // learn which trips exist; refused like every other upload of it
+      // (common/demo-write.ts).
+      if (isDemoWriteBlocked(this.env, user.email)) {
+        throw new HttpException(DEMO_WRITE_ERROR, 403);
+      }
       if (!(await this.collab.canUploadFiles(trip, user))) {
         throw new HttpException({ error: 'No permission to upload files' }, 403);
       }
@@ -490,6 +500,11 @@ export class CollabController {
     } catch (err) {
       cleanupSpool();
       throw err;
+    }
+    // Only the images are refused to the demo account; its text still posts.
+    if (uploaded.length && isDemoWriteBlocked(this.env, user.email)) {
+      cleanupSpool();
+      throw new HttpException(DEMO_WRITE_ERROR, 403);
     }
     if (uploaded.length && !(await this.collab.canUploadFiles(trip, user))) {
       cleanupSpool();

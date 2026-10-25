@@ -1,5 +1,6 @@
 import { Users } from '../../db/entities/Users.entity';
 import { AddonsModule } from '../addons/addons.module';
+import { AppConfigModule } from '../app-config/app-config.module';
 import { UserConnectionRepositoriesModule } from '../database/user-connection-repositories.module';
 import { AllowedFileTypesModule } from '../files/allowed-file-types.module';
 import { AllowedFileTypesService } from '../files/allowed-file-types.service';
@@ -42,6 +43,8 @@ import { MulterModule } from '@nestjs/platform-express';
     }),
     StorageModule,
     AddonsModule,
+    // RuntimeEnvService: the controller refuses the demo account's uploads in demo mode.
+    AppConfigModule,
     MemoriesModule,
     JourneyDomainModule,
     JourneyPhotoCaptureModule,

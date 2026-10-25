@@ -1,3 +1,4 @@
+import { RuntimeEnvService } from '../../../src/nest/app-config/runtime-env.service';
 import { JwtAuthGuard } from '../../../src/nest/auth-core/jwt-auth.guard';
 import {
   CollabController,
@@ -14,7 +15,7 @@ import { HttpException } from '@nestjs/common';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const user = { id: 1, username: 'u', role: 'user', email: 'u@example.test' } as User;
 
@@ -49,6 +50,14 @@ const storageStub = {
   delete: vi.fn().mockResolvedValue(undefined),
 } as unknown as StorageService;
 
+/**
+ * Build the controller over its stubs. The env is the live one, so a case about
+ * demo mode stubs DEMO_MODE and every other case runs outside it.
+ */
+function ctl(service: CollabService, storage: StorageService = storageStub): CollabController {
+  return new CollabController(service, storage, new RuntimeEnvService());
+}
+
 async function thrownAsync(fn: () => Promise<unknown>): Promise<{ status: number; body: unknown }> {
   try {
     await fn();
@@ -66,15 +75,15 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
   describe('notes', () => {
     it('GET lists', async () => {
       const s = svc({ listNotes: vi.fn().mockResolvedValue([{ id: 1 }]) } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).listNotes(user, '5')).toEqual({ notes: [{ id: 1 }] });
+      expect(await ctl(s, storageStub).listNotes(user, '5')).toEqual({ notes: [{ id: 1 }] });
     });
 
     it('POST creates through the posting use case, which broadcasts and notifies (empty title now 400s in the Zod pipe)', async () => {
       const createNote = vi.fn().mockReturnValue({ id: 9 });
       const s = svc({ createNote } as Partial<CollabService>);
-      expect(
-        await new CollabController(s, storageStub).createNote(user, '5', { title: 'T', content: 'c' }, 'sock'),
-      ).toEqual({ note: { id: 9 } });
+      expect(await ctl(s, storageStub).createNote(user, '5', { title: 'T', content: 'c' }, 'sock')).toEqual({
+        note: { id: 9 },
+      });
       const fields = { title: 'T', content: 'c', category: undefined, color: undefined, website: undefined };
       expect(createNote).toHaveBeenCalledWith('5', 1, fields);
       expect(s.restWriter).toHaveBeenCalledWith('5', user, 'sock');
@@ -86,15 +95,17 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
     it('PUT 404 when missing, else updates + broadcasts', async () => {
       expect(
         await thrownAsync(() =>
-          new CollabController(
-            svc({ updateNote: vi.fn().mockResolvedValue(null) } as Partial<CollabService>),
-            storageStub,
-          ).updateNote(user, '5', '9', {}),
+          ctl(svc({ updateNote: vi.fn().mockResolvedValue(null) } as Partial<CollabService>), storageStub).updateNote(
+            user,
+            '5',
+            '9',
+            {},
+          ),
         ),
       ).toEqual({ status: 404, body: { error: 'Note not found' } });
       const broadcast = vi.fn();
       const s = svc({ updateNote: vi.fn().mockResolvedValue({ id: 9 }), broadcast } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).updateNote(user, '5', '9', { title: 'b' }, 'sock')).toEqual({
+      expect(await ctl(s, storageStub).updateNote(user, '5', '9', { title: 'b' }, 'sock')).toEqual({
         note: { id: 9 },
       });
       expect(broadcast).toHaveBeenCalledWith('5', 'collab:note:updated', { note: { id: 9 } }, 'sock');
@@ -103,15 +114,16 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
     it('DELETE 404 when missing, else success + broadcasts', async () => {
       expect(
         await thrownAsync(() =>
-          new CollabController(
-            svc({ deleteNote: vi.fn().mockResolvedValue(false) } as Partial<CollabService>),
-            storageStub,
-          ).deleteNote(user, '5', '9'),
+          ctl(svc({ deleteNote: vi.fn().mockResolvedValue(false) } as Partial<CollabService>), storageStub).deleteNote(
+            user,
+            '5',
+            '9',
+          ),
         ),
       ).toEqual({ status: 404, body: { error: 'Note not found' } });
       const broadcast = vi.fn();
       const s = svc({ deleteNote: vi.fn().mockResolvedValue(true), broadcast } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).deleteNote(user, '5', '9', 'sock')).toEqual({ success: true });
+      expect(await ctl(s, storageStub).deleteNote(user, '5', '9', 'sock')).toEqual({ success: true });
       expect(broadcast).toHaveBeenCalledWith('5', 'collab:note:deleted', { noteId: 9 }, 'sock');
     });
   });
@@ -121,23 +133,21 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
     it('403 without file_upload, 400 without file, 404 unknown note, else commits + returns result', async () => {
       expect(
         await thrownAsync(() =>
-          new CollabController(svc({ canUploadFiles: vi.fn().mockResolvedValue(false) }), storageStub).addNoteFile(
+          ctl(svc({ canUploadFiles: vi.fn().mockResolvedValue(false) }), storageStub).addNoteFile(user, '5', '9', file),
+        ),
+      ).toEqual({ status: 403, body: { error: 'No permission to upload files' } });
+      expect(await thrownAsync(() => ctl(svc(), storageStub).addNoteFile(user, '5', '9', undefined))).toEqual({
+        status: 400,
+        body: { error: 'No file uploaded' },
+      });
+      expect(
+        await thrownAsync(() =>
+          ctl(svc({ addNoteFile: vi.fn().mockResolvedValue(null) } as Partial<CollabService>), storageStub).addNoteFile(
             user,
             '5',
             '9',
             file,
           ),
-        ),
-      ).toEqual({ status: 403, body: { error: 'No permission to upload files' } });
-      expect(
-        await thrownAsync(() => new CollabController(svc(), storageStub).addNoteFile(user, '5', '9', undefined)),
-      ).toEqual({ status: 400, body: { error: 'No file uploaded' } });
-      expect(
-        await thrownAsync(() =>
-          new CollabController(
-            svc({ addNoteFile: vi.fn().mockResolvedValue(null) } as Partial<CollabService>),
-            storageStub,
-          ).addNoteFile(user, '5', '9', file),
         ),
       ).toEqual({ status: 404, body: { error: 'Note not found' } });
       const broadcast = vi.fn();
@@ -146,7 +156,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
         getFormattedNoteById: vi.fn().mockResolvedValue({ id: 9 }),
         broadcast,
       } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).addNoteFile(user, '5', '9', file, 'sock')).toEqual({
+      expect(await ctl(s, storageStub).addNoteFile(user, '5', '9', file, 'sock')).toEqual({
         file: { id: 3 },
       });
       expect(storageStub.put).toHaveBeenCalledWith('files', 'a.pdf', { tmpPath: undefined });
@@ -161,7 +171,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       const spooled = { filename: 'a.pdf', path: spool } as Express.Multer.File;
       expect(
         await thrownAsync(() =>
-          new CollabController(svc({ canUploadFiles: vi.fn().mockResolvedValue(false) }), storageStub).addNoteFile(
+          ctl(svc({ canUploadFiles: vi.fn().mockResolvedValue(false) }), storageStub).addNoteFile(
             user,
             '5',
             '9',
@@ -175,12 +185,10 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       fs.writeFileSync(spool2, 'x');
       expect(
         await thrownAsync(() =>
-          new CollabController(svc({ verifyTripAccess: vi.fn().mockResolvedValue(null) }), storageStub).addNoteFile(
-            user,
-            '5',
-            '9',
-            { filename: 'b.pdf', path: spool2 } as Express.Multer.File,
-          ),
+          ctl(svc({ verifyTripAccess: vi.fn().mockResolvedValue(null) }), storageStub).addNoteFile(user, '5', '9', {
+            filename: 'b.pdf',
+            path: spool2,
+          } as Express.Multer.File),
         ),
       ).toEqual({ status: 404, body: { error: 'Trip not found' } });
       expect(fs.existsSync(spool2)).toBe(false);
@@ -188,10 +196,12 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       // Past the commit the spool file is gone, so the final object is what has
       // to go instead.
       await thrownAsync(() =>
-        new CollabController(
-          svc({ addNoteFile: vi.fn().mockResolvedValue(null) } as Partial<CollabService>),
-          storageStub,
-        ).addNoteFile(user, '5', '9', file),
+        ctl(svc({ addNoteFile: vi.fn().mockResolvedValue(null) } as Partial<CollabService>), storageStub).addNoteFile(
+          user,
+          '5',
+          '9',
+          file,
+        ),
       );
       expect(storageStub.delete).toHaveBeenCalledWith('files', 'a.pdf');
     });
@@ -199,7 +209,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
     it('DELETE file 404 when missing, else success', async () => {
       expect(
         await thrownAsync(() =>
-          new CollabController(
+          ctl(
             svc({ deleteNoteFile: vi.fn().mockResolvedValue(false) } as Partial<CollabService>),
             storageStub,
           ).deleteNoteFile(user, '5', '9', '3'),
@@ -210,22 +220,22 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
         getFormattedNoteById: vi.fn().mockResolvedValue({ id: 9 }),
         broadcast: vi.fn(),
       } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).deleteNoteFile(user, '5', '9', '3')).toEqual({ success: true });
+      expect(await ctl(s, storageStub).deleteNoteFile(user, '5', '9', '3')).toEqual({ success: true });
     });
   });
 
   describe('polls', () => {
     it('POST creates (missing question / <2 options now 400 in the Zod pipe)', async () => {
       const s = svc({ createPoll: vi.fn().mockResolvedValue({ id: 7 }), broadcast: vi.fn() } as Partial<CollabService>);
-      expect(
-        await new CollabController(s, storageStub).createPoll(user, '5', { question: 'q', options: ['a', 'b'] }),
-      ).toEqual({ poll: { id: 7 } });
+      expect(await ctl(s, storageStub).createPoll(user, '5', { question: 'q', options: ['a', 'b'] })).toEqual({
+        poll: { id: 7 },
+      });
     });
 
     it('vote maps not_found/closed/invalid_index, else broadcasts the poll', async () => {
       expect(
         await thrownAsync(() =>
-          new CollabController(
+          ctl(
             svc({ votePoll: vi.fn().mockResolvedValue({ error: 'not_found' }) } as Partial<CollabService>),
             storageStub,
           ).votePoll(user, '5', '7', { option_index: 0 }),
@@ -233,7 +243,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       ).toEqual({ status: 404, body: { error: 'Poll not found' } });
       expect(
         await thrownAsync(() =>
-          new CollabController(
+          ctl(
             svc({ votePoll: vi.fn().mockResolvedValue({ error: 'closed' }) } as Partial<CollabService>),
             storageStub,
           ).votePoll(user, '5', '7', { option_index: 0 }),
@@ -241,7 +251,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       ).toEqual({ status: 400, body: { error: 'Poll is closed' } });
       expect(
         await thrownAsync(() =>
-          new CollabController(
+          ctl(
             svc({ votePoll: vi.fn().mockResolvedValue({ error: 'invalid_index' }) } as Partial<CollabService>),
             storageStub,
           ).votePoll(user, '5', '7', { option_index: 9 }),
@@ -249,7 +259,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       ).toEqual({ status: 400, body: { error: 'Invalid option index' } });
       const broadcast = vi.fn();
       const s = svc({ votePoll: vi.fn().mockResolvedValue({ poll: { id: 7 } }), broadcast } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).votePoll(user, '5', '7', { option_index: 0 }, 'sock')).toEqual({
+      expect(await ctl(s, storageStub).votePoll(user, '5', '7', { option_index: 0 }, 'sock')).toEqual({
         poll: { id: 7 },
       });
       expect(broadcast).toHaveBeenCalledWith('5', 'collab:poll:voted', { poll: { id: 7 } }, 'sock');
@@ -258,27 +268,29 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
     it('close 404 when missing, else broadcasts', async () => {
       expect(
         await thrownAsync(() =>
-          new CollabController(
-            svc({ closePoll: vi.fn().mockResolvedValue(null) } as Partial<CollabService>),
-            storageStub,
-          ).closePoll(user, '5', '7'),
+          ctl(svc({ closePoll: vi.fn().mockResolvedValue(null) } as Partial<CollabService>), storageStub).closePoll(
+            user,
+            '5',
+            '7',
+          ),
         ),
       ).toEqual({ status: 404, body: { error: 'Poll not found' } });
       const s = svc({ closePoll: vi.fn().mockResolvedValue({ id: 7 }), broadcast: vi.fn() } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).closePoll(user, '5', '7')).toEqual({ poll: { id: 7 } });
+      expect(await ctl(s, storageStub).closePoll(user, '5', '7')).toEqual({ poll: { id: 7 } });
     });
 
     it('delete 404 when missing, else success', async () => {
       expect(
         await thrownAsync(() =>
-          new CollabController(
-            svc({ deletePoll: vi.fn().mockResolvedValue(false) } as Partial<CollabService>),
-            storageStub,
-          ).deletePoll(user, '5', '7'),
+          ctl(svc({ deletePoll: vi.fn().mockResolvedValue(false) } as Partial<CollabService>), storageStub).deletePoll(
+            user,
+            '5',
+            '7',
+          ),
         ),
       ).toEqual({ status: 404, body: { error: 'Poll not found' } });
       const s = svc({ deletePoll: vi.fn().mockResolvedValue(true), broadcast: vi.fn() } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).deletePoll(user, '5', '7')).toEqual({ success: true });
+      expect(await ctl(s, storageStub).deletePoll(user, '5', '7')).toEqual({ success: true });
     });
   });
 
@@ -288,25 +300,24 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
     it('POST 400 whitespace-only, 400 reply_not_found, else creates + notifies (length checks now in the Zod pipe)', async () => {
       // A request with no file part keeps the wording it always had.
       expect(
-        await thrownAsync(() =>
-          new CollabController(svc(), storageStub).createMessage(user, '5', { text: '   ' }, undefined),
-        ),
+        await thrownAsync(() => ctl(svc(), storageStub).createMessage(user, '5', { text: '   ' }, undefined)),
       ).toEqual({ status: 400, body: { error: 'Message text is required' } });
-      expect(
-        await thrownAsync(() => new CollabController(svc(), storageStub).createMessage(user, '5', { text: '   ' }, [])),
-      ).toEqual({ status: 400, body: { error: 'Message text or image is required' } });
+      expect(await thrownAsync(() => ctl(svc(), storageStub).createMessage(user, '5', { text: '   ' }, []))).toEqual({
+        status: 400,
+        body: { error: 'Message text or image is required' },
+      });
       expect(
         await thrownAsync(() =>
-          new CollabController(
+          ctl(
             svc({ createMessage: vi.fn().mockResolvedValue({ error: 'reply_not_found' }) } as Partial<CollabService>),
             storageStub,
           ).createMessage(user, '5', { text: 'hi', reply_to: 99 }, undefined),
         ),
       ).toEqual({ status: 400, body: { error: 'Reply target message not found' } });
       const s = svc({ createMessage: vi.fn().mockResolvedValue({ message: { id: 3 } }) } as Partial<CollabService>);
-      expect(
-        await new CollabController(s, storageStub).createMessage(user, '5', { text: 'hello' }, undefined, 'sock'),
-      ).toEqual({ message: { id: 3 } });
+      expect(await ctl(s, storageStub).createMessage(user, '5', { text: 'hello' }, undefined, 'sock')).toEqual({
+        message: { id: 3 },
+      });
       // The posting use case sends and notifies; the route hands it the trimmed text and its writer.
       expect(s.postMessage).toHaveBeenCalledWith('5', { text: 'hello', replyTo: null, files: [] }, restWriter('sock'));
       expect(s.broadcast).not.toHaveBeenCalled();
@@ -317,7 +328,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       // refusals are the only thing standing in front of the route now.
       expect(
         await thrownAsync(() =>
-          new CollabController(
+          ctl(
             svc({ verifyTripAccess: vi.fn().mockResolvedValue(null) } as Partial<CollabService>),
             storageStub,
           ).createMessage(user, '5', { text: 'hi' }, undefined),
@@ -325,10 +336,12 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       ).toEqual({ status: 404, body: { error: 'Trip not found' } });
       expect(
         await thrownAsync(() =>
-          new CollabController(
-            svc({ canEdit: vi.fn().mockResolvedValue(false) } as Partial<CollabService>),
-            storageStub,
-          ).createMessage(user, '5', { text: 'hi' }, undefined),
+          ctl(svc({ canEdit: vi.fn().mockResolvedValue(false) } as Partial<CollabService>), storageStub).createMessage(
+            user,
+            '5',
+            { text: 'hi' },
+            undefined,
+          ),
         ),
       ).toEqual({ status: 403, body: { error: 'No permission' } });
     });
@@ -336,7 +349,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
     it('react 404 unknown, else broadcasts reactions (empty emoji now 400s in the Zod pipe)', async () => {
       expect(
         await thrownAsync(() =>
-          new CollabController(
+          ctl(
             svc({ reactMessage: vi.fn().mockResolvedValue({ found: false, reactions: [] }) } as Partial<CollabService>),
             storageStub,
           ).react(user, '5', '3', { emoji: '👍' }),
@@ -347,7 +360,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
         reactMessage: vi.fn().mockResolvedValue({ found: true, reactions: [{ emoji: '👍', count: 1 }] }),
         broadcast,
       } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).react(user, '5', '3', { emoji: '👍' }, 'sock')).toEqual({
+      expect(await ctl(s, storageStub).react(user, '5', '3', { emoji: '👍' }, 'sock')).toEqual({
         reactions: [{ emoji: '👍', count: 1 }],
       });
       expect(broadcast).toHaveBeenCalledWith(
@@ -361,7 +374,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
     it('delete maps not_found (404) / not_owner (403), else success with username', async () => {
       expect(
         await thrownAsync(() =>
-          new CollabController(
+          ctl(
             svc({ deleteMessage: vi.fn().mockResolvedValue({ error: 'not_found' }) } as Partial<CollabService>),
             storageStub,
           ).deleteMessage(user, '5', '3'),
@@ -369,7 +382,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       ).toEqual({ status: 404, body: { error: 'Message not found' } });
       expect(
         await thrownAsync(() =>
-          new CollabController(
+          ctl(
             svc({ deleteMessage: vi.fn().mockResolvedValue({ error: 'not_owner' }) } as Partial<CollabService>),
             storageStub,
           ).deleteMessage(user, '5', '3'),
@@ -380,7 +393,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
         deleteMessage: vi.fn().mockResolvedValue({ username: 'bob' }),
         broadcast,
       } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).deleteMessage(user, '5', '3', 'sock')).toEqual({
+      expect(await ctl(s, storageStub).deleteMessage(user, '5', '3', 'sock')).toEqual({
         success: true,
       });
       expect(broadcast).toHaveBeenCalledWith('5', 'collab:message:deleted', { messageId: 3, username: 'bob' }, 'sock');
@@ -396,7 +409,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
         deleteMessage: vi.fn().mockResolvedValue({ username: undefined }),
         broadcast,
       } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).deleteMessage(user, '5', '3', 'sock')).toEqual({
+      expect(await ctl(s, storageStub).deleteMessage(user, '5', '3', 'sock')).toEqual({
         success: true,
       });
       expect(broadcast).toHaveBeenCalledWith(
@@ -425,7 +438,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       const put = vi.fn().mockResolvedValue(undefined);
       const createMessage = vi.fn().mockReturnValue({ message: { id: 3 } });
       const s = svc({ createMessage, broadcast: vi.fn(), notifyCollab: vi.fn() } as Partial<CollabService>);
-      await new CollabController(s, { put, delete: vi.fn() } as never).createMessage(user, '5', { text: 'look' }, [
+      await ctl(s, { put, delete: vi.fn() } as never).createMessage(user, '5', { text: 'look' }, [
         img('a.png'),
         img('b.png'),
       ]);
@@ -444,10 +457,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       const s = svc({ createMessage } as Partial<CollabService>);
 
       await expect(
-        new CollabController(s, { put, delete: del } as never).createMessage(user, '5', { text: 'x' }, [
-          img('a.png'),
-          img('b.png'),
-        ]),
+        ctl(s, { put, delete: del } as never).createMessage(user, '5', { text: 'x' }, [img('a.png'), img('b.png')]),
       ).rejects.toThrow('disk full');
       // The first one is already in storage and has to come back out; the
       // message row was never written, so nothing would point at it.
@@ -463,7 +473,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
 
       expect(
         await thrownAsync(() =>
-          new CollabController(s, { put: vi.fn().mockResolvedValue(undefined), delete: del } as never).createMessage(
+          ctl(s, { put: vi.fn().mockResolvedValue(undefined), delete: del } as never).createMessage(
             user,
             '5',
             { text: 'x', reply_to: 99 },
@@ -479,12 +489,87 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       const s = svc({ canUploadFiles: vi.fn().mockResolvedValue(false) } as Partial<CollabService>);
       expect(
         await thrownAsync(() =>
-          new CollabController(s, { put, delete: vi.fn() } as never).createMessage(user, '5', { text: 'x' }, [
-            img('a.png'),
-          ]),
+          ctl(s, { put, delete: vi.fn() } as never).createMessage(user, '5', { text: 'x' }, [img('a.png')]),
         ),
       ).toEqual({ status: 403, body: { error: 'No permission to upload files' } });
       expect(put).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('demo mode', () => {
+    // The shared demo account is refused note files and chat images with the
+    // 403 the other upload routes answer it (common/demo-write.ts), and what
+    // multer spooled is removed before anything is committed: a committed object
+    // would stay, since a demo instance keeps what is deleted (StorageService.delete).
+    const demo = { ...user, email: 'demo@trek.app' } as User;
+    const refused = {
+      status: 403,
+      body: { error: 'Uploads are disabled in demo mode. Self-host TREK for full functionality.' },
+    };
+    let spoolDir: string;
+    const spooled = (name: string): Express.Multer.File => {
+      const file = path.join(spoolDir, name);
+      fs.writeFileSync(file, 'x');
+      return { filename: name, originalname: name, size: 1, mimetype: 'image/png', path: file } as Express.Multer.File;
+    };
+
+    beforeEach(() => {
+      spoolDir = fs.mkdtempSync(path.join(os.tmpdir(), 'trek-collab-demo-'));
+    });
+    afterEach(() => {
+      vi.unstubAllEnvs();
+      fs.rmSync(spoolDir, { recursive: true, force: true });
+    });
+
+    it('POST notes/:id/files: 403 for the demo account, its spooled file removed and nothing stored', async () => {
+      vi.stubEnv('DEMO_MODE', 'true');
+      const addNoteFile = vi.fn();
+      const s = svc({ addNoteFile } as Partial<CollabService>);
+      expect(await thrownAsync(() => ctl(s).addNoteFile(demo, '5', '9', spooled('a.pdf')))).toEqual(refused);
+      expect(fs.readdirSync(spoolDir)).toEqual([]);
+      expect(storageStub.put).not.toHaveBeenCalled();
+      expect(addNoteFile).not.toHaveBeenCalled();
+    });
+
+    it('POST notes/:id/files: still taken from any other account in demo mode, and from the demo account outside it', async () => {
+      const s = svc({
+        addNoteFile: vi.fn().mockResolvedValue({ file: { id: 3 } }),
+        getFormattedNoteById: vi.fn().mockResolvedValue({ id: 9 }),
+      } as Partial<CollabService>);
+      vi.stubEnv('DEMO_MODE', 'true');
+      expect(await ctl(s).addNoteFile(user, '5', '9', spooled('a.pdf'))).toEqual({ file: { id: 3 } });
+      vi.stubEnv('DEMO_MODE', 'false');
+      expect(await ctl(s).addNoteFile(demo, '5', '9', spooled('b.pdf'))).toEqual({ file: { id: 3 } });
+      expect(storageStub.put).toHaveBeenCalledTimes(2);
+    });
+
+    it('POST messages with images: 403 for the demo account, its spooled images removed and no message written', async () => {
+      vi.stubEnv('DEMO_MODE', 'true');
+      const createMessage = vi.fn();
+      const s = svc({ createMessage } as Partial<CollabService>);
+      expect(
+        await thrownAsync(() =>
+          ctl(s).createMessage(demo, '5', { text: 'look' }, [spooled('a.png'), spooled('b.png')]),
+        ),
+      ).toEqual(refused);
+      expect(fs.readdirSync(spoolDir)).toEqual([]);
+      expect(storageStub.put).not.toHaveBeenCalled();
+      expect(createMessage).not.toHaveBeenCalled();
+    });
+
+    it('POST messages: images still taken from any other account in demo mode and from the demo account outside it, text from the demo account always', async () => {
+      const s = svc({ createMessage: vi.fn().mockResolvedValue({ message: { id: 3 } }) } as Partial<CollabService>);
+      vi.stubEnv('DEMO_MODE', 'true');
+      expect(await ctl(s).createMessage(user, '5', { text: 'look' }, [spooled('a.png')])).toEqual({
+        message: { id: 3 },
+      });
+      // Text is not an upload: the chat stays open to the demo account.
+      expect(await ctl(s).createMessage(demo, '5', { text: 'hi' }, undefined)).toEqual({ message: { id: 3 } });
+      vi.stubEnv('DEMO_MODE', 'false');
+      expect(await ctl(s).createMessage(demo, '5', { text: 'look' }, [spooled('b.png')])).toEqual({
+        message: { id: 3 },
+      });
+      expect(storageStub.put).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -588,12 +673,13 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
 
   describe('link preview', () => {
     it('400 without url, maps an error result to 400, else returns the preview', async () => {
-      expect(
-        await thrownAsync(() => new CollabController(svc(), storageStub).linkPreview(user, '5', undefined)),
-      ).toEqual({ status: 400, body: { error: 'URL is required' } });
+      expect(await thrownAsync(() => ctl(svc(), storageStub).linkPreview(user, '5', undefined))).toEqual({
+        status: 400,
+        body: { error: 'URL is required' },
+      });
       expect(
         await thrownAsync(() =>
-          new CollabController(
+          ctl(
             svc({ linkPreview: vi.fn().mockResolvedValue({ error: 'bad url' }) } as Partial<CollabService>),
             storageStub,
           ).linkPreview(user, '5', 'http://x'),
@@ -602,7 +688,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
       const s = svc({
         linkPreview: vi.fn().mockResolvedValue({ title: 'T', description: null, image: null, url: 'http://x' }),
       } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).linkPreview(user, '5', 'http://x')).toEqual({
+      expect(await ctl(s, storageStub).linkPreview(user, '5', 'http://x')).toEqual({
         title: 'T',
         description: null,
         image: null,
@@ -616,7 +702,7 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
           .fn()
           .mockResolvedValue({ title: null, description: null, image: null, url: 'http://x', rateLimited: true }),
       } as Partial<CollabService>);
-      expect(await thrownAsync(() => new CollabController(s, storageStub).linkPreview(user, '5', 'http://x'))).toEqual({
+      expect(await thrownAsync(() => ctl(s, storageStub).linkPreview(user, '5', 'http://x'))).toEqual({
         status: 429,
         body: { error: 'Too many requests' },
       });
@@ -624,17 +710,13 @@ describe('CollabController (parity with the legacy /api/trips/:tripId/collab rou
 
     it('passes the caller through, so the budget is charged per user and not per instance', async () => {
       const linkPreview = vi.fn().mockResolvedValue({ title: 'T', description: null, image: null, url: 'http://x' });
-      await new CollabController(svc({ linkPreview } as Partial<CollabService>), storageStub).linkPreview(
-        user,
-        '5',
-        'http://x',
-      );
+      await ctl(svc({ linkPreview } as Partial<CollabService>), storageStub).linkPreview(user, '5', 'http://x');
       expect(linkPreview).toHaveBeenCalledWith('http://x', user.id);
     });
 
     it('falls back to a null preview when the service throws', async () => {
       const s = svc({ linkPreview: vi.fn().mockRejectedValue(new Error('network')) } as Partial<CollabService>);
-      expect(await new CollabController(s, storageStub).linkPreview(user, '5', 'http://x')).toEqual({
+      expect(await ctl(s, storageStub).linkPreview(user, '5', 'http://x')).toEqual({
         title: null,
         description: null,
         image: null,

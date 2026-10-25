@@ -28,7 +28,7 @@ import cookieParser from 'cookie-parser';
 import type { Server } from 'http';
 import path from 'node:path';
 import request from 'supertest';
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
 
 const { db } = vi.hoisted(() => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -747,6 +747,41 @@ describe('Journey e2e (real auth guard + temp SQLite)', () => {
       expect(denied.status).toBe(404);
       expect(denied.body).toEqual({ error: 'Entry not found' });
       expect(jsvc.linkPhotoToEntry).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('demo mode', () => {
+    // Over the wire, because a refusal from a guard would reset the connection
+    // while the client is still sending (PROFILE-015): the 403 has to arrive with
+    // its body, and nothing of the upload may reach the service.
+    const image = path.join(__dirname, '../fixtures/small-image.jpg');
+    const clip = { filename: 'clip.mp4', contentType: 'video/mp4' };
+
+    beforeAll(() => {
+      seedUser(db as never, { id: 2, username: 'demo', email: 'demo@trek.app' });
+    });
+    beforeEach(() => {
+      vi.stubEnv('DEMO_MODE', 'true');
+      jsvc.uploadGalleryPhotos.mockClear();
+    });
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it.each([
+      ['/api/journeys/entries/3/photos', 'photos'],
+      ['/api/journeys/entries/3/video', 'video'],
+      ['/api/journeys/9/gallery/photos', 'photos'],
+      ['/api/journeys/9/gallery/video', 'video'],
+      ['/api/journeys/9/cover', 'cover'],
+    ])('JOURNEY-E2E-020: POST %s answers the demo account 403 with the demo body', async (url, field) => {
+      const req = request(server).post(url).set('Cookie', sessionCookie(2));
+      const res = await (field === 'video'
+        ? req.attach(field, Buffer.from('not a clip'), clip)
+        : req.attach(field, image));
+      expect(res.status).toBe(403);
+      expect(res.body).toEqual({ error: 'Uploads are disabled in demo mode. Self-host TREK for full functionality.' });
+      expect(jsvc.uploadGalleryPhotos).not.toHaveBeenCalled();
     });
   });
 });
