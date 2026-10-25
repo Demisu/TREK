@@ -370,7 +370,7 @@ const aiProviderStateSchema = z.discriminatedUnion('adapter', [
     adapter: z.literal('openai-responses'),
     items: z.array(z.record(z.string(), z.unknown())),
   }),
-  // Anthropic's content blocks of an answer that searched the web, replayed with their search results.
+  // Anthropic's content blocks of an answer that searched the web or thought, replayed as they came.
   z.object({
     adapter: z.literal('anthropic-messages'),
     blocks: z.array(z.record(z.string(), z.unknown())),

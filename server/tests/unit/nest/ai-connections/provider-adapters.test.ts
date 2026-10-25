@@ -295,6 +295,79 @@ describe('AnthropicMessagesClient', () => {
     expect(err).not.toBeInstanceOf(AiProviderError);
     expect((err as Error).name).toBe('AbortError');
   });
+
+  it('ANTH-008: an answer that thought is replayed with its thinking blocks as they came, never marked for the cache (#2789)', async () => {
+    const thinking = { type: 'thinking', thinking: '', signature: 'sig-a1b2' };
+    const call = { type: 'tool_use', id: 'toolu_02', name: 'list_accommodations', input: {} };
+    const http = fetchAnswering(
+      streamResponse([
+        { type: 'message_start', message: { usage: { input_tokens: 5, output_tokens: 1 } } },
+        { type: 'content_block_start', index: 0, content_block: { type: 'thinking', thinking: '', signature: '' } },
+        { type: 'content_block_delta', index: 0, delta: { type: 'thinking_delta', thinking: '' } },
+        { type: 'content_block_delta', index: 0, delta: { type: 'signature_delta', signature: 'sig-a1b2' } },
+        { type: 'content_block_stop', index: 0 },
+        {
+          type: 'content_block_start',
+          index: 1,
+          content_block: { type: 'tool_use', id: 'toolu_02', name: 'list_accommodations' },
+        },
+        { type: 'content_block_delta', index: 1, delta: { type: 'input_json_delta', partial_json: '{}' } },
+        { type: 'content_block_stop', index: 1 },
+        { type: 'message_delta', delta: { stop_reason: 'tool_use' }, usage: { output_tokens: 30 } },
+        { type: 'message_stop' },
+      ]),
+    );
+    const events = await run(
+      new AnthropicMessagesClient('claude-sonnet-5-5', 'k', http.fetcher).stream(REQUEST, signal()),
+    );
+    // The thinking says nothing on screen; the call and the blocks to replay come back.
+    expect(events.filter((e) => e.type === 'text-delta')).toEqual([]);
+    expect(events).toContainEqual({
+      type: 'provider-state',
+      state: { adapter: 'anthropic-messages', blocks: [thinking, call] },
+    });
+
+    const next = toAnthropicMessages([
+      { role: 'user', text: 'Where are we staying?' },
+      {
+        role: 'assistant',
+        text: '',
+        toolCalls: [{ id: 'toolu_02', name: 'list_accommodations', args: {} }],
+        providerState: { adapter: 'anthropic-messages', blocks: [thinking, call] },
+      },
+      { role: 'tool', toolCallId: 'toolu_02', name: 'list_accommodations', output: '[]' },
+      { role: 'user', text: 'And in Kyoto?' },
+    ]);
+    expect(next[1]).toEqual({ role: 'assistant', content: [thinking, call] });
+    markHistoryForCache(next, 2);
+    expect(next[1]?.content[0]).toEqual(thinking);
+
+    // An answer that ended on a thinking block: the mark before the question skips it.
+    const ended = toAnthropicMessages([
+      { role: 'user', text: 'Hi' },
+      {
+        role: 'assistant',
+        text: '',
+        toolCalls: [],
+        providerState: { adapter: 'anthropic-messages', blocks: [thinking] },
+      },
+      { role: 'user', text: 'Still there?' },
+    ]);
+    markHistoryForCache(ended, 2);
+    expect(ended[1]?.content[0]).toEqual(thinking);
+    expect(ended[0]?.content[0]?.cache_control).toEqual({ type: 'ephemeral' });
+
+    // The request is marked, the stored answer is not: a mark left on it would go out on every later step.
+    const stored = { adapter: 'anthropic-messages' as const, blocks: [{ ...thinking }, { ...call }] };
+    const marked = toAnthropicMessages([
+      { role: 'user', text: 'Hi' },
+      { role: 'assistant', text: '', toolCalls: [], providerState: stored },
+      { role: 'user', text: 'Go on' },
+    ]);
+    markHistoryForCache(marked, 2);
+    expect(marked[1]?.content[1]?.cache_control).toEqual({ type: 'ephemeral' });
+    expect(stored.blocks[1]).not.toHaveProperty('cache_control');
+  });
 });
 
 describe('OpenAiChatClient', () => {
