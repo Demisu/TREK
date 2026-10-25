@@ -185,4 +185,18 @@ describe('sweepOrphanThumbs (spec fix #2)', () => {
     expect(await svc.sweepOrphanThumbs()).toBe(0);
     expect(fs.existsSync(note)).toBe(true);
   });
+
+  it('THUMB-SWEEP-005: a demo instance keeps every journey object, so the sweep reports none removed', async () => {
+    const prevDemo = process.env.DEMO_MODE;
+    process.env.DEMO_MODE = 'true';
+    try {
+      const stray = writeThumb('demostray0000000.jpg');
+
+      expect(await svc.sweepOrphanThumbs()).toBe(0);
+      expect(fs.existsSync(stray)).toBe(true);
+    } finally {
+      if (prevDemo === undefined) delete process.env.DEMO_MODE;
+      else process.env.DEMO_MODE = prevDemo;
+    }
+  });
 });

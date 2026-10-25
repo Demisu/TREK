@@ -106,6 +106,8 @@ export class ThumbnailService {
     let removed = 0;
     for await (const stat of this.storage.list('journey', 'thumbs/')) {
       if (!stat.key.endsWith('.jpg') || live.has(stat.key)) continue;
+      // A demo instance keeps it (StorageService.keepsOnDelete): not reclaimed, so not counted.
+      if (this.storage.keepsOnDelete('journey', stat.key)) continue;
       try {
         await this.storage.delete('journey', stat.key);
         removed++;

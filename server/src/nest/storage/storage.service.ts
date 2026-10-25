@@ -1,3 +1,5 @@
+import { RuntimeEnvService } from '../app-config/runtime-env.service';
+import { logDebug } from '../audit/audit-log.logger';
 import { contentTypeFor } from './content-type';
 import type { ReplicaFailure } from './drivers/mirror.driver';
 import { decideRange, isNotModified, validatorsFor, type ServingHeaders, type Validators } from './http-serving';
@@ -34,6 +36,47 @@ interface Resolved {
 }
 
 /**
+ * The folder under `files` the assistant keeps the files attached to a
+ * conversation in (assistant-attachments.service.ts takes it from here). They
+ * live by a retention of days, so no demo baseline can rely on their bytes, and
+ * a demo instance deletes them as any other does: attaching is not refused to
+ * the demo account, and kept bytes of a public visitor's files would stay for good.
+ */
+export const ASSISTANT_FILES_PREFIX = 'assistant/';
+
+/**
+ * What a delete does on a demo instance, per category: `true` leaves the
+ * object where it is. The hourly demo reset (src/demo/demo-reset.ts) puts only
+ * the database back to its baseline, so a file a visitor deleted in between
+ * would be missing from the restored rows for good. The categories holding
+ * content that rows point at are kept; the caches and the backups are deleted
+ * as on any other instance. A Record, so a new category does not compile until
+ * it is decided here.
+ */
+const KEPT_ON_DEMO: Readonly<Record<ServedCategory, boolean>> = {
+  // Trip files, collab note files and chat images. The assistant's attachments
+  // under ASSISTANT_FILES_PREFIX are the exception, see keepsOnDelete.
+  files: true,
+  // Journey photos, videos, posters, covers and thumbs. A thumb a row records
+  // is served as it is and never made again, so it stays with its photo.
+  journey: true,
+  // Trip and collection covers.
+  covers: true,
+  avatars: true,
+  // Images uploaded for places.
+  places: true,
+  // The legacy shared photo folder, served and backed up like the uploads.
+  photos: true,
+  // A cache of the photos the map providers hand back, written by every lookup
+  // and swept nightly. Kept, it would grow without bound on a public demo.
+  'photos-google': false,
+  // A cache of Immich and Synology assets that lives an hour and is fetched again on a miss.
+  'photos-trek': false,
+  // Never part of the baseline: the admin deletes them and auto-backup rotates them.
+  backups: false,
+};
+
+/**
  * The facade all call sites use — and the ONLY entry point: callers address
  * storage exclusively as (category, name) on this injected service. They
  * never import a driver, never hold a driver or backend reference, and never
@@ -47,7 +90,12 @@ interface Resolved {
  */
 @Injectable()
 export class StorageService {
-  constructor(private readonly registry: StorageRegistryService) {}
+  constructor(
+    private readonly registry: StorageRegistryService,
+    // Whether DEMO_MODE is on, read on every delete. A hand-built facade (the
+    // unit suites) reads the same live env the container's provider does.
+    private readonly runtimeEnv: RuntimeEnvService = new RuntimeEnvService(),
+  ) {}
 
   /** Driver-agnostic global scratch space (data/tmp). */
   tempDir(): string {
@@ -90,8 +138,32 @@ export class StorageService {
     return (await this.stat(category, name)) !== null;
   }
 
+  /**
+   * Whether delete() leaves this object where it is: on a demo instance, one of
+   * a category KEPT_ON_DEMO keeps, the assistant's attachments excepted. A
+   * sweep asks first, so it never counts as reclaimed an object that stays.
+   */
+  keepsOnDelete(category: ServedCategory, name: string): boolean {
+    if (!KEPT_ON_DEMO[category]) return false;
+    if (category === 'files' && name.startsWith(ASSISTANT_FILES_PREFIX)) return false;
+    return this.runtimeEnv.isDemoMode();
+  }
+
+  /**
+   * Idempotent, like the drivers. On a demo instance an object keepsOnDelete()
+   * names is left alone and the call resolves as if it were gone; a later put()
+   * under the same name still replaces it. That holds for the bytes a request
+   * takes back out after a refused upload too: on a demo they stay, as a
+   * visitor's uploads already do once the hourly reset drops their rows. The
+   * name is validated first in both modes, so a hostile one is refused either way.
+   */
   async delete(category: ServedCategory, name: string): Promise<void> {
     const { driver, key } = this.resolve(category, name);
+    if (this.keepsOnDelete(category, name)) {
+      // The category only: the name can come from a request, and a log line is no place for it.
+      logDebug(`[storage] demo mode keeps a deleted ${category} object, the hourly reset restores rows that name it`);
+      return;
+    }
     return driver.delete(key);
   }
 

@@ -199,6 +199,7 @@ export class JourneyController {
    * The commit has to happen first (the Immich mirror reads the final path), so
    * every refusal after it has to take the bytes back out. Nothing sweeps
    * orphans, and a loop of rejected POSTs would otherwise just fill the disk.
+   * A demo instance keeps them all the same (StorageService.delete).
    */
   private async discardJourneyUploads(files: Express.Multer.File[]): Promise<void> {
     for (const f of files) {

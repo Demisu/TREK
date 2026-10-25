@@ -9,7 +9,7 @@ import { dbNow } from '../../db/types';
 import { logError, logInfo } from '../audit/audit-log.logger';
 import { withRequestContext } from '../database/request-context';
 import { LlmParseService } from '../llm-parse/llm-parse.service';
-import { StorageService } from '../storage/storage.service';
+import { ASSISTANT_FILES_PREFIX, StorageService } from '../storage/storage.service';
 import type { AgentToolRun } from './assistant-agent';
 import { NO_SUCH_ATTACHMENT, NO_TEXT, type AttachedTurn } from './assistant-attachment-tools';
 import { AssistantKeepFileService } from './assistant-keep-file.service';
@@ -32,9 +32,10 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /**
  * Where the bytes sit: under the trip files' category, which is never served
  * by path (`/uploads/files` refuses every request), in a folder of their own.
+ * Storage names the folder, so a demo instance still deletes these bytes.
  */
 const STORAGE_CATEGORY = 'files';
-const KEY_PREFIX = 'assistant/';
+const KEY_PREFIX = ASSISTANT_FILES_PREFIX;
 
 /** The most text kept of one file; a model is sent a window of it, never all of it. */
 const MAX_STORED_TEXT_CHARS = 200_000;
