@@ -19,6 +19,7 @@ export default function AddonSubRow({
   icon,
   title,
   description,
+  badge,
   enabled,
   onToggle,
 }: {
@@ -26,6 +27,8 @@ export default function AddonSubRow({
   icon?: ReactNode
   title: string
   description?: string
+  /** A small pill after the title, e.g. the beta mark on the assistant. */
+  badge?: ReactNode
   enabled: boolean
   onToggle: () => void
 }) {
@@ -34,8 +37,11 @@ export default function AddonSubRow({
       {icon
         ? <span className={`grid h-6 w-6 flex-none place-items-center ${enabled ? 'text-content-muted' : 'text-content-faint'}`}>{icon}</span>
         : <span className="w-6 flex-none" aria-hidden />}
-      <span className={`min-w-0 flex-1 truncate font-medium ${enabled ? 'text-content' : 'text-content-muted'}`} style={fs(12.5, 'body')} title={description}>
-        {title}
+      <span className="flex min-w-0 flex-1 items-center gap-2">
+        <span className={`min-w-0 truncate font-medium ${enabled ? 'text-content' : 'text-content-muted'}`} style={fs(12.5, 'body')} title={description}>
+          {title}
+        </span>
+        {badge}
       </span>
       <ToggleSwitch on={enabled} onToggle={onToggle} label={title} />
     </li>

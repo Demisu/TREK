@@ -66,6 +66,7 @@ export default function AiAddonTile({
                 icon={<Icon size={14} />}
                 title={label.name}
                 description={label.description}
+                badge={addon.id === 'ai_assistant' ? <BetaBadge label={t('assistant.setup.beta')} /> : undefined}
                 enabled={addon.enabled}
                 onToggle={() => onToggle(addon)}
               />
@@ -91,5 +92,18 @@ export default function AiAddonTile({
 
       {tile.dialogOpen && <AiSettingsDialog addons={addons} onClose={tile.closeDialog} />}
     </article>
+  );
+}
+
+/** The assistant is still young; its switch says so with a small accent pill. */
+function BetaBadge({ label }: { label: string }): React.ReactElement {
+  return (
+    <span
+      className="inline-flex flex-none items-center gap-1 rounded-full bg-accent px-[7px] py-[2px] font-geist font-bold uppercase leading-none tracking-[.08em] text-accent-text shadow-sm"
+      style={fs(9)}
+    >
+      <Sparkles size={9} strokeWidth={2.6} aria-hidden />
+      {label}
+    </span>
   );
 }
