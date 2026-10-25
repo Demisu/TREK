@@ -57,20 +57,23 @@ const system_notice: TranslationStrings = {
   'system_notice.pager.goto': 'Μετάβαση στην ειδοποίηση {n}',
   'system_notice.pager.position': 'Ειδοποίηση {current} από {total}',
   'system_notice.release_notes.eyebrow': 'Ενημερώθηκε',
-  'system_notice.release_notes.headline': 'Τέσσερα πράγματα που το TREK κάνει πλέον μόνο του.',
+  'system_notice.release_notes.headline': 'Το μεγαλύτερο TREK μέχρι σήμερα.',
   'system_notice.release_notes.intro':
-    'Δικό του API τοποθεσιών, οδικά ταξίδια σχεδιασμένα από την αρχή ως το τέλος, το ιστορικό τοποθεσίας σας στα χέρια σας, και τα έγγραφά σας σε συγχρονισμό.',
+    'Εκδρομές για κάθε μέρα στη φύση, ένα στούντιο για τα φωτοβιβλία σας, ένας βοηθός που σχεδιάζει μαζί σας και βοήθεια σε κάθε οθόνη.',
   'system_notice.release_notes.features_label': 'Τα σημαντικότερα',
   'system_notice.release_notes.features_aside': 'Και δεν είναι μόνο αυτά',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
-  'system_notice.release_notes.feature_places_body':
-    'Ο πρώτος ανοιχτού κώδικα σχεδιαστής ταξιδιών με δικό του API τοποθεσιών. 73,6 εκατ. τοποθεσίες, χωρίς κλειδί, χωρίς όριο.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Πρόσθετο «Οδικό ταξίδι»',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Σχεδιάζει τη διαδρομή μόνο του: δρομολόγιο, απόσταση, ώρες και στάσεις. Ανενεργό μέχρι να το ενεργοποιήσει ένας διαχειριστής.',
-  'system_notice.release_notes.feature_dawarich_title': 'Ενσωμάτωση Dawarich',
-  'system_notice.release_notes.feature_dawarich_body':
-    'Η εναλλακτική του Google Timeline που φιλοξενείτε μόνοι σας, τώρα ορατή μέσα από το TREK. Το TREK διαβάζει, και μόνο διαβάζει.',
+  'system_notice.release_notes.feature_tours_title': 'Εκδρομές',
+  'system_notice.release_notes.feature_tours_body':
+    'Πεζοπορίες, ποδηλατάδες, τρέξιμο, ιππασία, κουπί, βόλτες στην πόλη και μέρες σκι, με υψομετρικό προφίλ, βαθμούς δυσκολίας και τρισδιάστατη πτήση.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'Μετατρέπει ένα ταξίδι σε σχεδιασμένο φωτοβιβλίο: 17 θέματα, 34 γραμματοσειρές, 160 αυτοκόλλητα και αυτόματη σελιδοποίηση με ένα κλικ.',
+  'system_notice.release_notes.feature_assistant_title': 'Βοηθός τεχνητής νοημοσύνης',
+  'system_notice.release_notes.feature_assistant_body':
+    'Σχεδιάζει μαζί σας τα πραγματικά σας ταξίδια, με τον λογαριασμό τεχνητής νοημοσύνης που ήδη έχετε. Κάθε αλλαγή τη βλέπετε πρώτα και μπορείτε να την αναιρέσετε.',
+  'system_notice.release_notes.feature_help_title': 'Βοήθεια σε κάθε οθόνη, σε 27 γλώσσες',
+  'system_notice.release_notes.feature_help_body':
+    'Περίπου 370 οδηγοί βήμα προς βήμα με 1.600 εικόνες, εκεί που τις χρειάζεστε. Νέες γλώσσες: αζερικά, εσθονικά, σλοβακικά και ταϊλανδικά.',
   'system_notice.release_notes.footnote': 'Και ακόμη μια μεγάλη λίστα με μικρότερες αλλαγές σε όλο το υπόλοιπο TREK.',
   'system_notice.release_notes.notes_label': 'Σημειώσεις έκδοσης',
   'system_notice.release_notes.note_eyebrow': 'Μια σημείωση από τον δημιουργό',
@@ -90,8 +93,5 @@ const system_notice: TranslationStrings = {
     'Αν έχει κερδίσει μια θέση στα ταξίδια σας, κεράστε με έναν καφέ και βοηθήστε να έρθει η επόμενη έκδοση.',
   'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
   'system_notice.release_notes.cta_kofi': 'Στηρίξτε στο Ko-fi',
-  'system_notice.release_notes.feature_docsync_title': 'Συγχρονισμός εγγράφων',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud και Synology Drive. Τα έγγραφα ενός ταξιδιού ρέουν και προς τις δύο κατευθύνσεις με τον χώρο που ήδη χρησιμοποιείτε.',
 };
 export default system_notice;

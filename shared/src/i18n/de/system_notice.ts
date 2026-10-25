@@ -57,20 +57,23 @@ const system_notice: TranslationStrings = {
     'Das 3.0.14-Upgrade hat einen oder mehrere Konflikte bei Benutzernamen oder E-Mail-Adressen festgestellt, die durch führende oder nachgestellte Leerzeichen in gespeicherten Konten verursacht wurden. Betroffene Konten wurden automatisch umbenannt. Prüfe die Serverprotokolle auf Zeilen, die mit **[migration] WHITESPACE COLLISION** beginnen, um die betroffenen Konten zu identifizieren.',
   // The release modal. One stable set of keys: each big release swaps the copy in place.
   'system_notice.release_notes.eyebrow': 'Update installiert',
-  'system_notice.release_notes.headline': 'Vier Dinge, die TREK jetzt selbst kann.',
+  'system_notice.release_notes.headline': 'Das größte TREK bisher.',
   'system_notice.release_notes.intro':
-    'Eine eigene Orts-API, Roadtrips komplett geplant, dein Standortverlauf wieder in deiner Hand, und deine Dokumente im Abgleich.',
+    'Touren für jeden Tag draußen, ein Studio für deine Fotobücher, ein Assistent, der mit dir plant, und Hilfe auf jedem Bildschirm.',
   'system_notice.release_notes.features_label': 'Die Highlights',
   'system_notice.release_notes.features_aside': 'Längst nicht alles',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
-  'system_notice.release_notes.feature_places_body':
-    'Der erste Open-Source-Reiseplaner mit eigener Orts-API. 73,6 Millionen Orte, kein Key, kein Kontingent.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Roadtrip-Addon',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Plant die Fahrt selbst: Route, Strecke, Stunden und Stopps. Aus, bis ein Admin es einschaltet.',
-  'system_notice.release_notes.feature_dawarich_title': 'Dawarich-Integration',
-  'system_notice.release_notes.feature_dawarich_body':
-    'Die selbst gehostete Antwort auf Google Timeline, jetzt direkt in TREK lesbar. TREK liest, und nur das.',
+  'system_notice.release_notes.feature_tours_title': 'Touren',
+  'system_notice.release_notes.feature_tours_body':
+    'Wanderungen, Radtouren, Läufe, Ausritte, Paddeltouren, Stadtspaziergänge und Skitage, mit Höhenprofil, Schwierigkeitsgraden und 3D-Überflug.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'Macht aus einer Reise ein gestaltetes Fotobuch: 17 Themes, 34 Schriften, 160 Sticker und Auto-Layout mit einem Klick.',
+  'system_notice.release_notes.feature_assistant_title': 'KI-Assistent',
+  'system_notice.release_notes.feature_assistant_body':
+    'Plant mit dir an deinen echten Reisen, über das KI-Konto, das du schon hast. Jede Änderung siehst du vorher und kannst sie rückgängig machen.',
+  'system_notice.release_notes.feature_help_title': 'Hilfe auf jedem Bildschirm, in 27 Sprachen',
+  'system_notice.release_notes.feature_help_body':
+    'Rund 370 Schritt-für-Schritt-Anleitungen mit 1.600 Bildern, genau dort, wo du sie brauchst. Neu: Aserbaidschanisch, Estnisch, Slowakisch und Thai.',
   'system_notice.release_notes.footnote': 'Dazu kommt eine lange Liste kleinerer Änderungen überall sonst in TREK.',
   'system_notice.release_notes.notes_label': 'Release Notes',
   'system_notice.release_notes.note_eyebrow': 'Ein Wort vom Maintainer',
@@ -90,8 +93,5 @@ const system_notice: TranslationStrings = {
     'Wenn TREK sich einen Platz auf deinen Reisen verdient hat, spendier mir einen Kaffee und hilf mit, dass auch das nächste Release kommt.',
   'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
   'system_notice.release_notes.cta_kofi': 'Ko-fi unterstützen',
-  'system_notice.release_notes.feature_docsync_title': 'Dokumenten-Sync',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud und Synology Drive. Die Dokumente einer Reise fließen in beide Richtungen mit dem Speicher, den du ohnehin betreibst.',
 };
 export default system_notice;

@@ -57,15 +57,18 @@ const system_notice: TranslationStrings = {
   'system_notice.release_notes.eyebrow': 'Güncelleme yüklendi',
   'system_notice.release_notes.features_label': 'Öne çıkanlar',
   'system_notice.release_notes.features_aside': 'Hepsi bu kadar değil',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
-  'system_notice.release_notes.feature_places_body':
-    'Kendi yer API’sine sahip ilk açık kaynak seyahat planlayıcısı. 73,6 milyon yer, anahtar yok, kota yok.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Yol gezisi eklentisi',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Sürüşü kendi planlar: rota, mesafe, saatler ve duraklar. Bir yönetici açana kadar kapalı.',
-  'system_notice.release_notes.feature_dawarich_title': 'Dawarich entegrasyonu',
-  'system_notice.release_notes.feature_dawarich_body':
-    'Google Timeline’ın kendi sunucunda çalışan alternatifi, artık TREK içinden okunabiliyor. TREK okur, yalnızca okur.',
+  'system_notice.release_notes.feature_tours_title': 'Turlar',
+  'system_notice.release_notes.feature_tours_body':
+    'Yürüyüşler, bisiklet turları, koşular, at binme, kürek, şehir yürüyüşleri ve kayak günleri; yükseklik profili, zorluk dereceleri ve 3B uçuşla.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'Bir yolculuğu tasarlanmış bir fotoğraf kitabına dönüştürür: 17 tema, 34 yazı tipi, 160 çıkartma ve tek tıkla otomatik yerleşim.',
+  'system_notice.release_notes.feature_assistant_title': 'Yapay zekâ asistanı',
+  'system_notice.release_notes.feature_assistant_body':
+    'Zaten sahip olduğunuz yapay zekâ hesabıyla gerçek seyahatlerinizi sizinle birlikte planlar. Her değişikliği önce görür, isterseniz geri alırsınız.',
+  'system_notice.release_notes.feature_help_title': 'Her ekranda yardım, 27 dilde',
+  'system_notice.release_notes.feature_help_body':
+    'Yaklaşık 370 adım adım rehber ve 1.600 görsel, tam ihtiyaç duyduğunuz yerde. Yeni: Azerbaycanca, Estonca, Slovakça ve Tayca.',
   'system_notice.release_notes.footnote':
     "Ayrıca TREK'in geri kalanına yayılmış, daha küçük değişikliklerden oluşan uzun bir liste var.",
   'system_notice.release_notes.notes_label': 'Sürüm notları',
@@ -86,11 +89,8 @@ const system_notice: TranslationStrings = {
     'TREK seyahatlerinde kendine bir yer edindiyse, bana bir kahve ısmarla ve bir sonraki sürümün gelmesine yardım et.',
   'system_notice.release_notes.cta_bmc': 'Bana bir kahve ısmarla',
   'system_notice.release_notes.cta_kofi': "Ko-fi'de Destek Ol",
-  'system_notice.release_notes.headline': 'TREK’in artık kendi başına yaptığı dört şey.',
+  'system_notice.release_notes.headline': 'Şimdiye kadarki en büyük TREK.',
   'system_notice.release_notes.intro':
-    'Kendi yer API’si, baştan sona planlanan yol gezileri, konum geçmişiniz sizin elinizde, ve belgeleriniz eşitlenmiş.',
-  'system_notice.release_notes.feature_docsync_title': 'Belge Eşitleme',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud ve Synology Drive. Bir seyahatin belgeleri, zaten kullandığınız depoyla iki yönlü akar.',
+    'Açık havadaki her gün için turlar, fotoğraf kitaplarınız için bir stüdyo, sizinle birlikte plan yapan bir asistan ve her ekranda yardım.',
 };
 export default system_notice;

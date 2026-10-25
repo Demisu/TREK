@@ -55,24 +55,24 @@ const system_notice: TranslationStrings = {
   'system_notice.pager.counter': '{current} / {total}',
   'system_notice.pager.goto': 'ไปที่ประกาศ {n}',
   'system_notice.pager.position': 'ประกาศ {current} จาก {total}',
-  'system_notice.release_notes.feature_docsync_title': 'ซิงค์เอกสาร',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud และ Synology Drive เอกสารของการเดินทางซิงค์ได้ทั้งสองทางกับที่จัดเก็บที่คุณใช้อยู่แล้ว',
   'system_notice.release_notes.eyebrow': 'ติดตั้งอัปเดตแล้ว',
-  'system_notice.release_notes.headline': 'สามสิ่งที่ TREK ทำได้ด้วยตัวเองแล้ว',
+  'system_notice.release_notes.headline': 'TREK ครั้งใหญ่ที่สุดเท่าที่เคยมีมา',
   'system_notice.release_notes.intro':
-    'API สถานที่ของตัวเอง การวางแผนโรดทริปตั้งแต่ต้นจนจบ และประวัติตำแหน่งของคุณกลับมาอยู่ในมือคุณ',
+    'ทัวร์สำหรับทุกวันกลางแจ้ง สตูดิโอสำหรับโฟโต้บุ๊กของคุณ ผู้ช่วยที่วางแผนไปกับคุณ และความช่วยเหลือในทุกหน้าจอ',
   'system_notice.release_notes.features_label': 'ไฮไลต์สำคัญ',
   'system_notice.release_notes.features_aside': 'ไกลจากทุกสิ่ง',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
-  'system_notice.release_notes.feature_places_body':
-    'โปรแกรมวางแผนท่องเที่ยวโอเพนซอร์สรายแรกที่โฮสต์ API สถานที่ของตัวเอง 73.6 ล้านสถานที่ สร้างใหม่ทุกเดือน ไม่ต้องมีคีย์ ไม่มีโควตา',
-  'system_notice.release_notes.feature_roadtrip_title': 'ส่วนเสริมโรดทริป',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'โหมดโรดทริปวางแผนการขับรถเอง: เส้นทาง ระยะทาง เวลา และจุดแวะ เป็นส่วนเสริมที่ปิดไว้จนกว่าผู้ดูแลจะเปิดใช้',
-  'system_notice.release_notes.feature_dawarich_title': 'การเชื่อมต่อ Dawarich',
-  'system_notice.release_notes.feature_dawarich_body':
-    'คำตอบแบบโฮสต์เองแทน Google Timeline ซึ่งอ่านได้แล้วใน TREK TREK อ่านอย่างเดียว และจะไม่เขียนข้อมูลกลับ',
+  'system_notice.release_notes.feature_tours_title': 'ทัวร์',
+  'system_notice.release_notes.feature_tours_body':
+    'เดินป่า ปั่นจักรยาน วิ่ง ขี่ม้า พายเรือ เดินชมเมือง และวันเล่นสกี พร้อมกราฟความสูง ระดับความยาก และการบินชมแบบ 3D',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'เปลี่ยนการเดินทางให้เป็นโฟโต้บุ๊กที่ออกแบบอย่างสวยงาม: 17 ธีม 34 แบบอักษร 160 สติกเกอร์ และจัดหน้าอัตโนมัติในคลิกเดียว',
+  'system_notice.release_notes.feature_assistant_title': 'ผู้ช่วย AI',
+  'system_notice.release_notes.feature_assistant_body':
+    'วางแผนทริปจริงของคุณไปพร้อมกับคุณ ด้วยบัญชี AI ที่คุณมีอยู่แล้ว ทุกการเปลี่ยนแปลงแสดงให้เห็นก่อนและย้อนกลับได้',
+  'system_notice.release_notes.feature_help_title': 'ความช่วยเหลือในทุกหน้าจอ ใน 27 ภาษา',
+  'system_notice.release_notes.feature_help_body':
+    'คู่มือทีละขั้นตอนราว 370 รายการ พร้อมภาพ 1,600 ภาพ อยู่ตรงที่คุณต้องการ ภาษาใหม่: อาเซอร์ไบจาน เอสโตเนีย สโลวัก และไทย',
   'system_notice.release_notes.footnote': 'รวมถึงรายการการเปลี่ยนแปลงเล็ก ๆ อีกยาวเหยียดทั่วทั้ง TREK',
   'system_notice.release_notes.notes_label': 'บันทึกประจำรุ่น',
   'system_notice.release_notes.note_eyebrow': 'ข้อความจากผู้ดูแลโครงการ',

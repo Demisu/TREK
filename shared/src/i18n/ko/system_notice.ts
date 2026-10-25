@@ -55,20 +55,23 @@ const system_notice: TranslationStrings = {
   'system_notice.pager.goto': '{n}번 공지로 이동',
   'system_notice.pager.position': '공지 {current}/{total}',
   'system_notice.release_notes.eyebrow': '업데이트 완료',
-  'system_notice.release_notes.headline': 'TREK가 이제 스스로 해내는 네 가지.',
+  'system_notice.release_notes.headline': '지금까지 가장 큰 TREK.',
   'system_notice.release_notes.intro':
-    '자체 장소 API, 처음부터 끝까지 계획되는 로드트립, 내 손에 있는 위치 기록, 그리고 동기화되는 문서.',
+    '모든 야외 일정을 위한 투어, 포토북을 위한 스튜디오, 함께 계획하는 어시스턴트, 그리고 모든 화면의 도움말.',
   'system_notice.release_notes.features_label': '이번 릴리스의 주역',
   'system_notice.release_notes.features_aside': '이게 전부는 아닙니다',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
-  'system_notice.release_notes.feature_places_body':
-    '자체 장소 API를 갖춘 최초의 오픈소스 여행 플래너. 7,360만 개 장소, 키 없음, 할당량 없음.',
-  'system_notice.release_notes.feature_roadtrip_title': '로드트립 애드온',
-  'system_notice.release_notes.feature_roadtrip_body':
-    '주행을 스스로 계획합니다: 경로, 거리, 시간, 정차지. 관리자가 켤 때까지 꺼져 있습니다.',
-  'system_notice.release_notes.feature_dawarich_title': 'Dawarich 연동',
-  'system_notice.release_notes.feature_dawarich_body':
-    'Google Timeline의 자체 호스팅 대안인 Dawarich를 이제 TREK 안에서 읽을 수 있습니다. TREK은 읽기만, 오직 읽기만 합니다.',
+  'system_notice.release_notes.feature_tours_title': '투어',
+  'system_notice.release_notes.feature_tours_body':
+    '하이킹, 자전거, 러닝, 승마, 패들링, 도시 산책, 스키까지. 고도 프로필, 난이도 등급, 3D 플라이오버와 함께.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    '여행을 디자인된 포토북으로. 17가지 테마, 34가지 서체, 160개의 스티커, 클릭 한 번의 자동 레이아웃.',
+  'system_notice.release_notes.feature_assistant_title': 'AI 어시스턴트',
+  'system_notice.release_notes.feature_assistant_body':
+    '이미 가진 AI 계정으로 실제 여행을 함께 계획합니다. 모든 변경 사항을 먼저 확인하고 되돌릴 수 있습니다.',
+  'system_notice.release_notes.feature_help_title': '모든 화면에 도움말, 27개 언어로',
+  'system_notice.release_notes.feature_help_body':
+    '약 370개의 단계별 가이드와 1,600장의 이미지를 필요한 바로 그곳에서. 아제르바이잔어, 에스토니아어, 슬로바키아어, 태국어가 새로 추가되었습니다.',
   'system_notice.release_notes.footnote': '그 밖에도 TREK 곳곳에 작은 변경이 많이 담겨 있습니다.',
   'system_notice.release_notes.notes_label': '릴리스 노트',
   'system_notice.release_notes.note_eyebrow': '개발자의 한마디',
@@ -88,8 +91,5 @@ const system_notice: TranslationStrings = {
     'TREK이 여러분의 여행에 자리를 잡았다면, 커피 한 잔으로 다음 릴리스가 계속 나올 수 있게 도와주세요.',
   'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
   'system_notice.release_notes.cta_kofi': 'Ko-fi에서 후원하기',
-  'system_notice.release_notes.feature_docsync_title': '문서 동기화',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud, Synology Drive. 여행의 문서가 이미 운영 중인 저장소와 양방향으로 흐릅니다.',
 };
 export default system_notice;

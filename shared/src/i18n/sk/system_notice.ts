@@ -52,20 +52,23 @@ const system_notice: TranslationStrings = {
   'system_notice.thank_you_support.cta_kofi': 'Podporiť na Ko-fi',
   // The release modal. One stable set of keys: each big release swaps the copy in place.
   'system_notice.release_notes.eyebrow': 'Aktualizácia nainštalovaná',
-  'system_notice.release_notes.headline': 'Štyri veci, ktoré TREK teraz zvládne sám.',
+  'system_notice.release_notes.headline': 'Najväčší TREK doteraz.',
   'system_notice.release_notes.intro':
-    'Vlastné API miest, cesty autom naplánované od začiatku do konca, história polohy späť vo vašich rukách a vaše dokumenty v synchronizácii.',
+    'Túry na každý deň vonku, štúdio pre vaše fotoknihy, asistent, ktorý plánuje s vami, a pomoc na každej obrazovke.',
   'system_notice.release_notes.features_label': 'Hlavné novinky',
   'system_notice.release_notes.features_aside': 'Zďaleka nie všetko',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
-  'system_notice.release_notes.feature_places_body':
-    'Prvý open source plánovač ciest s vlastným API miest. 73,6 milióna miest, bez kľúča, bez limitu.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Doplnok Cesta autom',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Naplánuje jazdu sám: trasu, vzdialenosť, hodiny a zastávky. Vypnuté, kým to správca nezapne.',
-  'system_notice.release_notes.feature_dawarich_title': 'Integrácia Dawarich',
-  'system_notice.release_notes.feature_dawarich_body':
-    'Self-hosted odpoveď na Google Timeline, teraz čitateľná priamo v TREK. TREK číta, a len číta.',
+  'system_notice.release_notes.feature_tours_title': 'Túry',
+  'system_notice.release_notes.feature_tours_body':
+    'Turistika, cyklotúry, behy, vychádzky na koni, pádlovanie, prechádzky mestom a dni na lyžiach, s výškovým profilom, obťažnosťou a 3D preletom.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'Premení cestu na navrhnutú fotoknihu: 17 motívov, 34 písiem, 160 nálepiek a automatické rozloženie jedným kliknutím.',
+  'system_notice.release_notes.feature_assistant_title': 'AI asistent',
+  'system_notice.release_notes.feature_assistant_body':
+    'Plánuje s vami vaše skutočné cesty cez účet AI, ktorý už máte. Každú zmenu najprv uvidíte a môžete ju vrátiť.',
+  'system_notice.release_notes.feature_help_title': 'Pomoc na každej obrazovke, v 27 jazykoch',
+  'system_notice.release_notes.feature_help_body':
+    'Približne 370 návodov krok za krokom s 1 600 obrázkami, presne tam, kde ich potrebujete. Novinka: azerbajdžančina, estónčina, slovenčina a thajčina.',
   'system_notice.release_notes.footnote': 'A k tomu dlhý zoznam menších zmien naprieč zvyškom TREK.',
   'system_notice.release_notes.notes_label': 'Poznámky k vydaniu',
   'system_notice.release_notes.note_eyebrow': 'Slovo od správcu',
@@ -90,8 +93,5 @@ const system_notice: TranslationStrings = {
   'system_notice.pager.counter': '{current} / {total}',
   'system_notice.pager.goto': 'Prejsť na oznámenie {n}',
   'system_notice.pager.position': 'Oznámenie {current} z {total}',
-  'system_notice.release_notes.feature_docsync_title': 'Synchronizácia dokumentov',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud a Synology Drive. Dokumenty cesty prúdia obomi smermi s úložiskom, ktoré už prevádzkujete.',
 };
 export default system_notice;

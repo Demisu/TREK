@@ -105,7 +105,6 @@
   "components/Studio/TravelElements.tsx": 5,
   "components/Studio/printSheets.ts": 5,
   "components/Studio/sidebar/contentDrops.ts": 2,
-  "components/SystemNotices/ReleaseNoticeVisuals.tsx": 4,
   "components/SystemNotices/SystemNoticeBanner.tsx": 28,
   "components/SystemNotices/SystemNoticeModal.tsx": 107,
   "components/Todo/TodoListPanel.tsx": 6,

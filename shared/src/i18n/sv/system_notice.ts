@@ -56,20 +56,23 @@ const system_notice: TranslationStrings = {
   'system_notice.pager.position': 'Meddlenade {current} av {total}',
   // The release modal. One stable set of keys: each big release swaps the copy in place.
   'system_notice.release_notes.eyebrow': 'Uppdatering klar',
-  'system_notice.release_notes.headline': 'Fyra saker TREK nu gör på egen hand.',
+  'system_notice.release_notes.headline': 'Den största TREK hittills.',
   'system_notice.release_notes.intro':
-    'Ett eget plats-API, bilresor planerade från början till slut, din platshistorik i dina händer, och dina dokument i synk.',
+    'Turer för varje dag ute, en studio för dina fotoböcker, en assistent som planerar med dig och hjälp på varje skärm.',
   'system_notice.release_notes.features_label': 'Höjdpunkterna',
   'system_notice.release_notes.features_aside': 'Långt ifrån allt',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
-  'system_notice.release_notes.feature_places_body':
-    'Den första reseplaneraren med öppen källkod och eget plats-API. 73,6 miljoner platser, ingen nyckel, ingen kvot.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Tillägget Bilresa',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Planerar körningen själv: rutt, sträcka, timmar och stopp. Av tills en admin slår på det.',
-  'system_notice.release_notes.feature_dawarich_title': 'Dawarich-integration',
-  'system_notice.release_notes.feature_dawarich_body':
-    'Det självhostade svaret på Google Timeline, nu läsbart direkt i TREK. TREK läser, och bara läser.',
+  'system_notice.release_notes.feature_tours_title': 'Turer',
+  'system_notice.release_notes.feature_tours_body':
+    'Vandringar, cykelturer, löprundor, ridturer, paddling, stadspromenader och skiddagar, med höjdprofil, svårighetsgrader och 3D-överflygning.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'Gör en resa till en formgiven fotobok: 17 teman, 34 typsnitt, 160 klistermärken och automatisk layout med ett klick.',
+  'system_notice.release_notes.feature_assistant_title': 'AI-assistent',
+  'system_notice.release_notes.feature_assistant_body':
+    'Planerar med dig i dina riktiga resor, med det AI-konto du redan har. Varje ändring ser du först och kan ångra.',
+  'system_notice.release_notes.feature_help_title': 'Hjälp på varje skärm, på 27 språk',
+  'system_notice.release_notes.feature_help_body':
+    'Omkring 370 steg-för-steg-guider med 1 600 bilder, precis där du behöver dem. Nytt: azerbajdzjanska, estniska, slovakiska och thailändska.',
   'system_notice.release_notes.footnote': 'Dessutom en lång rad mindre ändringar i resten av TREK.',
   'system_notice.release_notes.notes_label': 'Versionsnyheter',
   'system_notice.release_notes.note_eyebrow': 'Ett ord från utvecklaren',
@@ -89,8 +92,5 @@ const system_notice: TranslationStrings = {
     'Om TREK har förtjänat en plats på dina resor, så bjud mig gärna på en kaffe och hjälp till att nästa utgåva blir av.',
   'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
   'system_notice.release_notes.cta_kofi': 'Stöd på Ko-fi',
-  'system_notice.release_notes.feature_docsync_title': 'Dokumentsynk',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud och Synology Drive. En resas dokument flödar åt båda håll med lagringen du redan kör.',
 };
 export default system_notice;

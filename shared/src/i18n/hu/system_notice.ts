@@ -55,20 +55,23 @@ const system_notice: TranslationStrings = {
   'system_notice.v3014_whitespace_collision.body':
     'A 3.0.14-es frissítés egy vagy több felhasználónév- vagy e-mail-ütközést észlelt, amelyeket a tárolt értékek elején vagy végén lévő szóközök okoztak. Az érintett fiókok automatikusan át lettek nevezve. Ellenőrizze a szervernaplókat a **[migration] WHITESPACE COLLISION** kezdetű soroknál a felülvizsgálatot igénylő fiókok azonosításához.',
   'system_notice.release_notes.eyebrow': 'Frissítés telepítve',
-  'system_notice.release_notes.headline': 'Négy dolog, amit a TREK mostantól magától csinál.',
+  'system_notice.release_notes.headline': 'Az eddigi legnagyobb TREK.',
   'system_notice.release_notes.intro':
-    'Saját hely-API, teljesen megtervezett autós túrák, a helyelőzményeid a te kezedben, és a dokumentumaid szinkronban.',
+    'Túrák minden szabadban töltött napra, stúdió a fotókönyveidhez, asszisztens, amely veled együtt tervez, és súgó minden képernyőn.',
   'system_notice.release_notes.features_label': 'A fő újdonságok',
   'system_notice.release_notes.features_aside': 'És ez még nem minden',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
-  'system_notice.release_notes.feature_places_body':
-    'Az első nyílt forráskódú útitervező saját hely-API-val. 73,6 millió hely, kulcs és kvóta nélkül.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Autós út bővítmény',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Maga tervezi meg az utat: útvonal, távolság, órák és megállók. Kikapcsolva, amíg egy admin be nem kapcsolja.',
-  'system_notice.release_notes.feature_dawarich_title': 'Dawarich-integráció',
-  'system_notice.release_notes.feature_dawarich_body':
-    'A Google Timeline self-hosted megfelelője, mostantól a TREK-ben is olvasható. A TREK olvas, és csak olvas.',
+  'system_notice.release_notes.feature_tours_title': 'Túrák',
+  'system_notice.release_notes.feature_tours_body':
+    'Gyalogtúrák, kerékpártúrák, futások, lovaglások, evezés, városi séták és síelős napok, magassági profillal, nehézségi fokozatokkal és 3D-s átrepüléssel.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'Egy utazásból megtervezett fotókönyvet készít: 17 téma, 34 betűtípus, 160 matrica és automatikus elrendezés egy kattintással.',
+  'system_notice.release_notes.feature_assistant_title': 'MI-asszisztens',
+  'system_notice.release_notes.feature_assistant_body':
+    'Veled együtt tervez a valódi utazásaidon, a már meglévő MI-fiókoddal. Minden módosítást előbb látsz, és vissza is vonhatod.',
+  'system_notice.release_notes.feature_help_title': 'Súgó minden képernyőn, 27 nyelven',
+  'system_notice.release_notes.feature_help_body':
+    'Körülbelül 370 lépésről lépésre útmutató 1600 képpel, pont ott, ahol szükséged van rájuk. Új: azerbajdzsáni, észt, szlovák és thai.',
   'system_notice.release_notes.footnote': 'Plusz rengeteg kisebb változás a TREK többi részében.',
   'system_notice.release_notes.notes_label': 'Kiadási jegyzetek',
   'system_notice.release_notes.note_eyebrow': 'Egy szó a fejlesztőtől',
@@ -88,8 +91,5 @@ const system_notice: TranslationStrings = {
     'Ha kiérdemelt egy helyet az utazásaid között, hívj meg egy kávéra, és segíts, hogy jöhessen a következő kiadás.',
   'system_notice.release_notes.cta_bmc': 'Vegyél nekem egy kávét',
   'system_notice.release_notes.cta_kofi': 'Támogass a Ko-fi-n',
-  'system_notice.release_notes.feature_docsync_title': 'Dokumentumszinkron',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud és Synology Drive. Egy út dokumentumai mindkét irányban áramlanak az általad már használt tárolóval.',
 };
 export default system_notice;

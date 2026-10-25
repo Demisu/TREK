@@ -59,8 +59,6 @@
   "components/Studio/StudioSavedLayouts.tsx": 1,
   "components/Studio/TravelElements.tsx": 4,
   "components/Studio/TravelPreview.tsx": 1,
-  "components/SystemNotices/ReleaseNoticeVisuals.tsx": 3,
-  "components/SystemNotices/releaseNotice.css": 2,
   "components/Vacay/VacayCalendar.tsx": 3,
   "components/Vacay/VacayMonthCard.tsx": 7,
   "components/Vacay/VacaySettings.tsx": 1,

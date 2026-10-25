@@ -56,20 +56,23 @@ const system_notice: TranslationStrings = {
     'Обновление 3.0.14 обнаружило один или несколько конфликтов имён пользователей или адресов электронной почты, вызванных ведущими или завершающими пробелами в сохранённых значениях. Затронутые учётные записи были автоматически переименованы. Проверьте логи сервера на строки, начинающиеся с **[migration] WHITESPACE COLLISION**, чтобы определить учётные записи, требующие проверки.',
   // The release modal. One stable set of keys: each big release swaps the copy in place.
   'system_notice.release_notes.eyebrow': 'Обновление установлено',
-  'system_notice.release_notes.headline': 'Четыре вещи, которые TREK теперь делает сам.',
+  'system_notice.release_notes.headline': 'Самый большой TREK на сегодня.',
   'system_notice.release_notes.intro':
-    'Собственный API мест, автопутешествия от начала до конца, ваша история местоположений в ваших руках, и ваши документы в синхронизации.',
+    'Туры на любой день на природе, студия для ваших фотокниг, ассистент, который планирует вместе с вами, и справка на каждом экране.',
   'system_notice.release_notes.features_label': 'Главные новинки',
   'system_notice.release_notes.features_aside': 'И это далеко не всё',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
-  'system_notice.release_notes.feature_places_body':
-    'Первый планировщик путешествий с открытым кодом и собственным API мест. 73,6 миллиона мест, без ключа и квот.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Дополнение «Автопутешествие»',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Планирует поездку сам: маршрут, расстояние, часы и остановки. Выключено, пока админ не включит.',
-  'system_notice.release_notes.feature_dawarich_title': 'Интеграция с Dawarich',
-  'system_notice.release_notes.feature_dawarich_body':
-    'Альтернатива Google Timeline на вашем собственном сервере, и теперь её данные видны прямо в TREK. TREK читает, и только читает.',
+  'system_notice.release_notes.feature_tours_title': 'Туры',
+  'system_notice.release_notes.feature_tours_body':
+    'Походы, велотуры, пробежки, конные прогулки, сплавы, прогулки по городу и дни на лыжах, с профилем высот, категориями сложности и 3D-облётом.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'Превращает путешествие в оформленную фотокнигу: 17 тем, 34 шрифта, 160 стикеров и автоматическая вёрстка одним нажатием.',
+  'system_notice.release_notes.feature_assistant_title': 'ИИ-ассистент',
+  'system_notice.release_notes.feature_assistant_body':
+    'Планирует вместе с вами ваши настоящие поездки через уже имеющийся у вас аккаунт ИИ. Каждое изменение вы видите заранее и можете отменить.',
+  'system_notice.release_notes.feature_help_title': 'Справка на каждом экране, на 27 языках',
+  'system_notice.release_notes.feature_help_body':
+    'Около 370 пошаговых инструкций и 1600 иллюстраций прямо там, где они нужны. Новые языки: азербайджанский, эстонский, словацкий и тайский.',
   'system_notice.release_notes.footnote': 'Плюс длинный список небольших изменений во всём остальном TREK.',
   'system_notice.release_notes.notes_label': 'Заметки к релизу',
   'system_notice.release_notes.note_eyebrow': 'Слово от мейнтейнера',
@@ -89,8 +92,5 @@ const system_notice: TranslationStrings = {
     'Если TREK заслужил место в ваших поездках, угостите меня кофе и помогите выпустить следующий релиз.',
   'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
   'system_notice.release_notes.cta_kofi': 'Поддержать на Ko-fi',
-  'system_notice.release_notes.feature_docsync_title': 'Синхронизация документов',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud и Synology Drive. Документы поездки идут в обе стороны с хранилищем, которое у вас уже есть.',
 };
 export default system_notice;

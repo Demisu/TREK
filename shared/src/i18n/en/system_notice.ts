@@ -52,20 +52,23 @@ const system_notice: TranslationStrings = {
   'system_notice.thank_you_support.cta_kofi': 'Support on Ko-fi',
   // The release modal. One stable set of keys: each big release swaps the copy in place.
   'system_notice.release_notes.eyebrow': 'Update installed',
-  'system_notice.release_notes.headline': 'Four things TREK now does on its own.',
+  'system_notice.release_notes.headline': 'The biggest TREK yet.',
   'system_notice.release_notes.intro':
-    'Its own place API, road trips planned end to end, your location history back in your hands, and your documents in sync.',
+    'Tours for every kind of day outdoors, a studio for your photo books, an assistant that plans with you, and help on every screen.',
   'system_notice.release_notes.features_label': 'The headliners',
   'system_notice.release_notes.features_aside': 'Far from everything',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
-  'system_notice.release_notes.feature_places_body':
-    'The first open source travel planner with its own place API. 73.6 million places, no key, no quota.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Roadtrip Addon',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Plans the drive itself: route, distance, hours and stops. Off until an admin turns it on.',
-  'system_notice.release_notes.feature_dawarich_title': 'Dawarich Integration',
-  'system_notice.release_notes.feature_dawarich_body':
-    'The self-hosted answer to Google Timeline, now readable inside TREK. TREK reads, and only reads.',
+  'system_notice.release_notes.feature_tours_title': 'Tours',
+  'system_notice.release_notes.feature_tours_body':
+    'Hikes, bike tours, runs, rides, paddling, city walks and ski days, with an elevation profile, grades and a 3D flyover.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio',
+  'system_notice.release_notes.feature_studio_body':
+    'Turns a journey into a designed photo book: 17 themes, 34 typefaces, 160 stickers and auto layout in one click.',
+  'system_notice.release_notes.feature_assistant_title': 'AI Assistant',
+  'system_notice.release_notes.feature_assistant_body':
+    'Plans with you on your real trips, using the AI account you already have. You see every change first and can undo it.',
+  'system_notice.release_notes.feature_help_title': 'Help on every screen, in 27 languages',
+  'system_notice.release_notes.feature_help_body':
+    'About 370 step-by-step guides with 1,600 pictures, right where you need them. New: Azerbaijani, Estonian, Slovak and Thai.',
   'system_notice.release_notes.footnote': 'Plus a long list of smaller changes across the rest of TREK.',
   'system_notice.release_notes.notes_label': 'Release notes',
   'system_notice.release_notes.note_eyebrow': 'A note from the maintainer',
@@ -90,8 +93,5 @@ const system_notice: TranslationStrings = {
   'system_notice.pager.counter': '{current} / {total}',
   'system_notice.pager.goto': 'Go to notice {n}',
   'system_notice.pager.position': 'Notice {current} of {total}',
-  'system_notice.release_notes.feature_docsync_title': 'Document Sync',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud and Synology Drive. A trip’s documents flow both ways with the store you already run.',
 };
 export default system_notice;

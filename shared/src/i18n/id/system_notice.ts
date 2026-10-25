@@ -55,20 +55,23 @@ const system_notice: TranslationStrings = {
   'system_notice.v3014_whitespace_collision.body':
     'Pembaruan 3.0.14 mendeteksi satu atau lebih konflik nama pengguna atau email yang disebabkan oleh spasi di awal atau akhir nilai yang tersimpan. Akun yang terpengaruh telah diganti nama secara otomatis. Periksa log server untuk baris yang dimulai dengan **[migration] WHITESPACE COLLISION** guna mengidentifikasi akun mana yang perlu ditinjau.',
   'system_notice.release_notes.eyebrow': 'Pembaruan terpasang',
-  'system_notice.release_notes.headline': 'Empat hal yang kini dilakukan TREK sendiri.',
+  'system_notice.release_notes.headline': 'TREK terbesar sejauh ini.',
   'system_notice.release_notes.intro':
-    'API tempat sendiri, perjalanan darat yang direncanakan dari awal sampai akhir, riwayat lokasi di tangan Anda, dan dokumen Anda tersinkron.',
+    'Tur untuk setiap hari di alam terbuka, studio untuk buku foto Anda, asisten yang merencanakan bersama Anda, dan bantuan di setiap layar.',
   'system_notice.release_notes.features_label': 'Sorotan utama',
   'system_notice.release_notes.features_aside': 'Masih banyak lagi',
-  'system_notice.release_notes.feature_places_title': 'API Places TREK',
-  'system_notice.release_notes.feature_places_body':
-    'Perencana perjalanan open source pertama dengan API tempat sendiri. 73,6 juta tempat, tanpa kunci, tanpa kuota.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Addon Perjalanan Darat',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Merencanakan perjalanan sendiri: rute, jarak, jam, dan perhentian. Nonaktif sampai admin mengaktifkannya.',
-  'system_notice.release_notes.feature_dawarich_title': 'Integrasi Dawarich',
-  'system_notice.release_notes.feature_dawarich_body':
-    'Alternatif self-hosted untuk Google Timeline, kini bisa dibaca langsung di TREK. TREK hanya membaca, tidak lebih.',
+  'system_notice.release_notes.feature_tours_title': 'Tur',
+  'system_notice.release_notes.feature_tours_body':
+    'Pendakian, bersepeda, lari, berkuda, mendayung, jalan kaki di kota, dan hari bermain ski, dengan profil ketinggian, tingkat kesulitan, dan terbang lintas 3D.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'Mengubah perjalanan menjadi buku foto yang tertata: 17 tema, 34 jenis huruf, 160 stiker, dan tata letak otomatis dalam satu klik.',
+  'system_notice.release_notes.feature_assistant_title': 'Asisten AI',
+  'system_notice.release_notes.feature_assistant_body':
+    'Merencanakan bersama Anda di perjalanan nyata Anda, dengan akun AI yang sudah Anda miliki. Setiap perubahan tampil lebih dulu dan bisa dibatalkan.',
+  'system_notice.release_notes.feature_help_title': 'Bantuan di setiap layar, dalam 27 bahasa',
+  'system_notice.release_notes.feature_help_body':
+    'Sekitar 370 panduan langkah demi langkah dengan 1.600 gambar, tepat di tempat Anda membutuhkannya. Baru: Azerbaijan, Estonia, Slowakia, dan Thai.',
   'system_notice.release_notes.footnote': 'Ditambah deretan panjang perubahan kecil di bagian TREK lainnya.',
   'system_notice.release_notes.notes_label': 'Catatan rilis',
   'system_notice.release_notes.note_eyebrow': 'Catatan dari maintainer',
@@ -88,8 +91,5 @@ const system_notice: TranslationStrings = {
     'Jika TREK sudah mendapat tempat dalam perjalananmu, traktir saya secangkir kopi dan bantu rilis berikutnya terus hadir.',
   'system_notice.release_notes.cta_bmc': 'Traktir aku kopi',
   'system_notice.release_notes.cta_kofi': 'Dukung di Ko-fi',
-  'system_notice.release_notes.feature_docsync_title': 'Sinkronisasi Dokumen',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud, dan Synology Drive. Dokumen perjalanan mengalir dua arah dengan penyimpanan yang sudah Anda jalankan.',
 };
 export default system_notice;

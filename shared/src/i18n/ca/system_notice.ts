@@ -56,18 +56,21 @@ const system_notice: TranslationStrings = {
   'system_notice.thank_you_support.cta_bmc': 'Buy Me a Coffee',
   'system_notice.thank_you_support.cta_kofi': 'Dona suport a Ko-fi',
   'system_notice.release_notes.eyebrow': 'Actualització instal·lada',
-  'system_notice.release_notes.headline': 'Quatre coses que TREK ara fa tot sol.',
+  'system_notice.release_notes.headline': 'El TREK més gran fins ara.',
   'system_notice.release_notes.features_label': 'Els protagonistes',
   'system_notice.release_notes.features_aside': 'I això no és tot',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
-  'system_notice.release_notes.feature_places_body':
-    'El primer planificador de viatges de codi obert amb API de llocs pròpia. 73,6 milions de llocs, sense clau, sense quota.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Complement Roadtrip',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Planifica el trajecte tot sol: ruta, distància, hores i parades. Desactivat fins que un admin l’activi.',
-  'system_notice.release_notes.feature_dawarich_title': 'Integració amb Dawarich',
-  'system_notice.release_notes.feature_dawarich_body':
-    'L’alternativa autoallotjada a Google Timeline, ara llegible des de TREK. TREK llegeix, i només llegeix.',
+  'system_notice.release_notes.feature_tours_title': 'Excursions',
+  'system_notice.release_notes.feature_tours_body':
+    'Excursions a peu, en bici, curses, sortides a cavall, rem, passejades per la ciutat i dies d’esquí, amb perfil d’altitud, graus de dificultat i sobrevol en 3D.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'Converteix un viatge en un fotollibre dissenyat: 17 temes, 34 tipografies, 160 adhesius i maquetació automàtica amb un clic.',
+  'system_notice.release_notes.feature_assistant_title': 'Assistent d’IA',
+  'system_notice.release_notes.feature_assistant_body':
+    'Planifica amb tu sobre els teus viatges reals, amb el compte d’IA que ja tens. Cada canvi es mostra primer i es pot desfer.',
+  'system_notice.release_notes.feature_help_title': 'Ajuda a cada pantalla, en 27 idiomes',
+  'system_notice.release_notes.feature_help_body':
+    'Unes 370 guies pas a pas amb 1.600 imatges, just on les necessites. Novetat: azerbaidjanès, estonià, eslovac i tai.',
   'system_notice.release_notes.footnote': 'I una llarga llista de canvis més petits a la resta de TREK.',
   'system_notice.release_notes.notes_label': 'Notes de la versió',
   'system_notice.release_notes.note_eyebrow': 'Una nota del mantenidor',
@@ -88,9 +91,6 @@ const system_notice: TranslationStrings = {
   'system_notice.release_notes.cta_bmc': 'Buy me a coffee',
   'system_notice.release_notes.cta_kofi': 'Dona suport a Ko-fi',
   'system_notice.release_notes.intro':
-    'Una API de llocs pròpia, viatges per carretera planificats de cap a peus, el teu historial d’ubicacions a les teves mans, i els teus documents sincronitzats.',
-  'system_notice.release_notes.feature_docsync_title': 'Sincronització de documents',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud i Synology Drive. Els documents d’un viatge flueixen en tots dos sentits amb el magatzem que ja fas servir.',
+    'Excursions per a cada dia a l’aire lliure, un estudi per als teus fotollibres, un assistent que planifica amb tu i ajuda a cada pantalla.',
 };
 export default system_notice;

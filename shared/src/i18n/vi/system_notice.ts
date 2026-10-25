@@ -57,20 +57,23 @@ const system_notice: TranslationStrings = {
   'system_notice.pager.position': 'Thông báo {current} của {total}',
   // The release modal. One stable set of keys: each big release swaps the copy in place.
   'system_notice.release_notes.eyebrow': 'Đã cập nhật',
-  'system_notice.release_notes.headline': 'Bốn điều TREK giờ tự làm được.',
+  'system_notice.release_notes.headline': 'Phiên bản TREK lớn nhất từ trước đến nay.',
   'system_notice.release_notes.intro':
-    'API địa điểm riêng, chuyến đi đường bộ được lên kế hoạch từ đầu đến cuối, lịch sử vị trí trong tay bạn, và tài liệu được đồng bộ.',
+    'Chuyến tham quan cho mọi ngày ngoài trời, studio cho sách ảnh của bạn, trợ lý cùng bạn lên kế hoạch và trợ giúp trên mọi màn hình.',
   'system_notice.release_notes.features_label': 'Những điểm nhấn',
   'system_notice.release_notes.features_aside': 'Chưa phải tất cả',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
-  'system_notice.release_notes.feature_places_body':
-    'Trình lập kế hoạch du lịch mã nguồn mở đầu tiên có API địa điểm riêng. 73,6 triệu địa điểm, không cần khóa, không giới hạn.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Tiện ích Chuyến đi đường bộ',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Tự lên kế hoạch chuyến lái: tuyến đường, quãng đường, số giờ và điểm dừng. Tắt cho đến khi quản trị viên bật.',
-  'system_notice.release_notes.feature_dawarich_title': 'Tích hợp Dawarich',
-  'system_notice.release_notes.feature_dawarich_body':
-    'Lựa chọn tự lưu trữ thay cho Google Timeline, giờ đã đọc được ngay trong TREK. TREK chỉ đọc, và chỉ đọc mà thôi.',
+  'system_notice.release_notes.feature_tours_title': 'Chuyến tham quan',
+  'system_notice.release_notes.feature_tours_body':
+    'Đi bộ đường dài, đạp xe, chạy bộ, cưỡi ngựa, chèo thuyền, dạo phố và ngày trượt tuyết, với biểu đồ độ cao, cấp độ khó và bay lượn 3D.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'Biến chuyến đi thành một cuốn sách ảnh được thiết kế: 17 chủ đề, 34 kiểu chữ, 160 nhãn dán và tự động dàn trang chỉ với một cú nhấp.',
+  'system_notice.release_notes.feature_assistant_title': 'Trợ lý AI',
+  'system_notice.release_notes.feature_assistant_body':
+    'Cùng bạn lên kế hoạch cho những chuyến đi thật, bằng tài khoản AI bạn đã có. Mọi thay đổi đều hiện ra trước và có thể hoàn tác.',
+  'system_notice.release_notes.feature_help_title': 'Trợ giúp trên mọi màn hình, bằng 27 ngôn ngữ',
+  'system_notice.release_notes.feature_help_body':
+    'Khoảng 370 hướng dẫn từng bước cùng 1.600 hình ảnh, ngay nơi bạn cần. Mới: tiếng Azerbaijan, Estonia, Slovakia và Thái.',
   'system_notice.release_notes.footnote':
     'Và còn cả một danh sách dài những thay đổi nhỏ hơn ở khắp phần còn lại của TREK.',
   'system_notice.release_notes.notes_label': 'Ghi chú phát hành',
@@ -91,8 +94,5 @@ const system_notice: TranslationStrings = {
     'Nếu TREK đã có một chỗ trong những chuyến đi của bạn, hãy mời tôi một ly cà phê để bản phát hành tiếp theo tiếp tục ra đời.',
   'system_notice.release_notes.cta_bmc': 'Mời tôi một ly cà phê',
   'system_notice.release_notes.cta_kofi': 'Hỗ trợ trên Ko-fi',
-  'system_notice.release_notes.feature_docsync_title': 'Đồng bộ tài liệu',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud và Synology Drive. Tài liệu của chuyến đi luân chuyển hai chiều với kho lưu trữ bạn đang dùng.',
 };
 export default system_notice;

@@ -52,20 +52,23 @@ const system_notice: TranslationStrings = {
   'system_notice.thank_you_support.cta_kofi': 'Toeta Ko-fi kaudu',
   // The release modal. One stable set of keys: each big release swaps the copy in place.
   'system_notice.release_notes.eyebrow': 'Uuendus paigaldatud',
-  'system_notice.release_notes.headline': 'Neli asja, mida TREK nüüd ise teeb.',
+  'system_notice.release_notes.headline': 'Kõigi aegade suurim TREK.',
   'system_notice.release_notes.intro':
-    'Oma kohaandmete API, algusest lõpuni planeeritud autoreisid, sinu asukohaajalugu taas sinu kätes ja sünkroonitud dokumendid.',
+    'Retked igaks päevaks looduses, stuudio sinu fotoraamatutele, assistent, kes planeerib koos sinuga, ja abi igal ekraanil.',
   'system_notice.release_notes.features_label': 'Peamised uuendused',
   'system_notice.release_notes.features_aside': 'See pole kaugeltki kõik',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
-  'system_notice.release_notes.feature_places_body':
-    'Esimene avatud lähtekoodiga reisiplaneerija oma kohaandmete API-ga. 73,6 miljonit kohta, ilma võtme ja kvoodita.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Autoreisi lisamoodul',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Planeerib sõidu: marsruudi, vahemaad, ajakulu ja peatused. Vaikimisi välja lülitatud, kuni administraator selle lubab.',
-  'system_notice.release_notes.feature_dawarich_title': 'Dawarichi liidestus',
-  'system_notice.release_notes.feature_dawarich_body':
-    "Ise majutatav alternatiiv Google Timeline'ile, nüüd loetav TREKis. TREK ainult loeb andmeid.",
+  'system_notice.release_notes.feature_tours_title': 'Retked',
+  'system_notice.release_notes.feature_tours_body':
+    'Matkad, rattaretked, jooksud, ratsaretked, aerutamine, linnajalutuskäigud ja suusapäevad, kõrgusprofiili, raskusastmete ja 3D-ülelennuga.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'Teeb reisist kujundatud fotoraamatu: 17 teemat, 34 kirjatüüpi, 160 kleebist ja automaatne paigutus ühe klõpsuga.',
+  'system_notice.release_notes.feature_assistant_title': 'Tehisintellekti assistent',
+  'system_notice.release_notes.feature_assistant_body':
+    'Planeerib koos sinuga sinu päris reise, kasutades sinu olemasolevat tehisintellekti kontot. Iga muudatust näed enne ja saad selle tagasi võtta.',
+  'system_notice.release_notes.feature_help_title': 'Abi igal ekraanil, 27 keeles',
+  'system_notice.release_notes.feature_help_body':
+    'Umbes 370 samm-sammult juhendit 1600 pildiga, just seal, kus neid vajad. Uued keeled: aserbaidžaani, eesti, slovaki ja tai.',
   'system_notice.release_notes.footnote': 'Lisaks pikk loend väiksemaid muudatusi mujal TREKis.',
   'system_notice.release_notes.notes_label': 'Väljalaskemärkmed',
   'system_notice.release_notes.note_eyebrow': 'Sõnum hooldajalt',
@@ -90,8 +93,5 @@ const system_notice: TranslationStrings = {
   'system_notice.pager.counter': '{current} / {total}',
   'system_notice.pager.goto': 'Ava teade {n}',
   'system_notice.pager.position': 'Teade {current} / {total}',
-  'system_notice.release_notes.feature_docsync_title': 'Dokumentide sünkroonimine',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud ja Synology Drive. Reisi dokumendid liiguvad mõlemas suunas sinu juba kasutatava salvestusteenusega.',
 };
 export default system_notice;

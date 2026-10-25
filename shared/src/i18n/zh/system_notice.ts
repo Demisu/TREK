@@ -54,19 +54,23 @@ const system_notice: TranslationStrings = {
     '3.0.14 版本升级检测到一个或多个由存储账户中首尾空白字符引发的用户名或邮箱冲突。受影响的账户已自动重命名。请检查服务器日志中以 **[migration] WHITESPACE COLLISION** 开头的行，以确认哪些账户需要审查。',
   // The release modal. One stable set of keys: each big release swaps the copy in place.
   'system_notice.release_notes.eyebrow': '更新已安装',
-  'system_notice.release_notes.headline': 'TREK 现在能自己完成的四件事。',
+  'system_notice.release_notes.headline': '迄今最大的 TREK。',
   'system_notice.release_notes.intro':
-    '自有的地点 API、从头到尾规划的公路旅行、掌握在你手中的位置记录，以及保持同步的文档。',
+    '适合每一个户外日子的游览、为你的相册而生的工作室、与你一起规划的助手，以及每个页面上的帮助。',
   'system_notice.release_notes.features_label': '本次重头戏',
   'system_notice.release_notes.features_aside': '远不止这些',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API',
-  'system_notice.release_notes.feature_places_body':
-    '首个拥有自有地点 API 的开源旅行规划器。7360 万个地点，无需密钥，没有配额。',
-  'system_notice.release_notes.feature_roadtrip_title': '公路旅行扩展',
-  'system_notice.release_notes.feature_roadtrip_body': '自动规划行车：路线、距离、时长和停靠点。管理员开启前默认关闭。',
-  'system_notice.release_notes.feature_dawarich_title': 'Dawarich 集成',
-  'system_notice.release_notes.feature_dawarich_body':
-    'Google Timeline 的自托管替代方案，现在可以直接在 TREK 里查看。TREK 只读取，仅此而已。',
+  'system_notice.release_notes.feature_tours_title': '游览',
+  'system_notice.release_notes.feature_tours_body':
+    '徒步、骑行、跑步、骑马、划桨、城市漫步和滑雪日，附带海拔剖面、难度等级和 3D 飞览。',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    '把一段旅程变成精心设计的相册：17 种主题、34 款字体、160 枚贴纸，一键自动排版。',
+  'system_notice.release_notes.feature_assistant_title': 'AI 助手',
+  'system_notice.release_notes.feature_assistant_body':
+    '用你已有的 AI 账户，在你真实的旅行中与你一起规划。每项更改都会先展示给你，并且可以撤销。',
+  'system_notice.release_notes.feature_help_title': '每个页面都有帮助，支持 27 种语言',
+  'system_notice.release_notes.feature_help_body':
+    '约 370 篇分步指南、1,600 张配图，就在你需要的地方。新增阿塞拜疆语、爱沙尼亚语、斯洛伐克语和泰语。',
   'system_notice.release_notes.footnote': '除此之外，TREK 的其他部分还有一长串小改动。',
   'system_notice.release_notes.notes_label': '更新说明',
   'system_notice.release_notes.note_eyebrow': '来自维护者的话',
@@ -84,8 +88,5 @@ const system_notice: TranslationStrings = {
     '如果它已经在你的旅行中占有一席之地，请我喝杯咖啡，帮我把下一个版本继续做出来吧。',
   'system_notice.release_notes.cta_bmc': '请我喝杯咖啡',
   'system_notice.release_notes.cta_kofi': '在 Ko-fi 上支持',
-  'system_notice.release_notes.feature_docsync_title': '文档同步',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx、Papra、Nextcloud、OpenCloud 和 Synology Drive。行程的文档与你已在运行的存储双向流动。',
 };
 export default system_notice;

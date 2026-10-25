@@ -54,20 +54,23 @@ const system_notice: TranslationStrings = {
 
   // The release modal. One stable set of keys: each big release swaps the copy in place.
   'system_notice.release_notes.eyebrow': 'Yeniləmə quraşdırıldı',
-  'system_notice.release_notes.headline': 'TREK-in indi özü gördüyü dörd iş.',
+  'system_notice.release_notes.headline': 'İndiyədək ən böyük TREK.',
   'system_notice.release_notes.intro':
-    'Öz məkan API-si, başlanğıcdan sona qədər planlaşdırılan avtomobil səyahətləri, məkan tarixçənizin yenidən sizin nəzarətinizdə olması və sənədlərinizin sinxronlaşdırılması.',
+    'Açıq havada hər gün üçün turlar, foto kitablarınız üçün studiya, sizinlə birlikdə planlayan köməkçi və hər ekranda kömək.',
   'system_notice.release_notes.features_label': 'Əsas yeniliklər',
   'system_notice.release_notes.features_aside': 'Bundan əlavə',
-  'system_notice.release_notes.feature_places_title': 'TREK Places API', // same-as-en
-  'system_notice.release_notes.feature_places_body':
-    'Öz məkan API-sinə malik ilk açıq mənbəli səyahət planlayıcısı. 73,6 milyon məkan, açar və kvota yoxdur.',
-  'system_notice.release_notes.feature_roadtrip_title': 'Avtomobil səyahəti əlavəsi',
-  'system_notice.release_notes.feature_roadtrip_body':
-    'Sürüşü özü planlaşdırır: marşrut, məsafə, müddət və dayanacaqlar. Administrator aktivləşdirənə qədər deaktivdir.',
-  'system_notice.release_notes.feature_dawarich_title': 'Dawarich inteqrasiyası',
-  'system_notice.release_notes.feature_dawarich_body':
-    'Google Timeline xidmətinin şəxsi serverdə işləyən alternativini indi TREK daxilində oxumaq mümkündür. TREK məlumatları yalnız oxuyur.',
+  'system_notice.release_notes.feature_tours_title': 'Turlar',
+  'system_notice.release_notes.feature_tours_body':
+    'Piyada yürüşlər, velosiped turları, qaçışlar, at gəzintiləri, avarçəkmə, şəhər gəzintiləri və xizək günləri: hündürlük profili, çətinlik dərəcələri və 3D uçuşla.',
+  'system_notice.release_notes.feature_studio_title': 'TREK Studio', // same-as-en
+  'system_notice.release_notes.feature_studio_body':
+    'Səyahəti dizayn edilmiş foto kitaba çevirir: 17 mövzu, 34 şrift, 160 stiker və bir kliklə avtomatik tərtibat.',
+  'system_notice.release_notes.feature_assistant_title': 'Süni intellekt köməkçisi',
+  'system_notice.release_notes.feature_assistant_body':
+    'Artıq sahib olduğunuz süni intellekt hesabı ilə real səyahətlərinizi sizinlə birlikdə planlayır. Hər dəyişikliyi əvvəlcə görür və geri qaytara bilərsiniz.',
+  'system_notice.release_notes.feature_help_title': 'Hər ekranda kömək, 27 dildə',
+  'system_notice.release_notes.feature_help_body':
+    'Təxminən 370 addım-addım bələdçi və 1600 şəkil, məhz lazım olduğu yerdə. Yeni dillər: Azərbaycan, eston, slovak və tay dilləri.',
   'system_notice.release_notes.footnote': 'Bundan əlavə, TREK-in digər bölmələrində çoxsaylı kiçik dəyişikliklər var.',
   'system_notice.release_notes.notes_label': 'Buraxılış qeydləri',
   'system_notice.release_notes.note_eyebrow': 'Layihə rəhbərindən qeyd',
@@ -92,9 +95,6 @@ const system_notice: TranslationStrings = {
   'system_notice.pager.counter': '{current} / {total}',
   'system_notice.pager.goto': '{n}-ci bildirişə keç',
   'system_notice.pager.position': '{total} bildirişdən {current}-cisi',
-  'system_notice.release_notes.feature_docsync_title': 'Sənəd sinxronizasiyası',
-  'system_notice.release_notes.feature_docsync_body':
-    'Paperless-ngx, Papra, Nextcloud, OpenCloud və Synology Drive. Səyahət sənədləri artıq istifadə etdiyiniz saxlama xidməti ilə hər iki istiqamətdə ötürülür.',
 };
 
 export default system_notice;
