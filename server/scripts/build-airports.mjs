@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Build server/assets/airports.json from OurAirports (davidmegginson.github.io/ourairports-data).
-// License: Public Domain. Keeps large/medium airports with an IATA code; timezone derived from coords via tz-lookup.
+// License: Public Domain. Keeps large/medium airports with an IATA code, small ones only with scheduled service;
+// timezone derived from coords via tz-lookup.
 import fs from 'node:fs';
 import https from 'node:https';
 import path from 'node:path';
@@ -91,7 +92,9 @@ for (let i = 1; i < rows.length; i++) {
   if (!KEEP.has(r[TYPE])) continue;
   const iata = r[IATA]?.trim().toUpperCase();
   if (!iata || iata.length !== 3) continue;
-  if (r[SERVICE] !== 'yes') continue;
+  // The scheduled_service flag lags reality: Little Cayman (LYB) has daily flights and is
+  // marked "no". So it only filters the small fields, where it keeps every airstrip with a code out.
+  if (r[TYPE] === 'small_airport' && r[SERVICE] !== 'yes') continue;
   const lat = Number(r[LAT]);
   const lng = Number(r[LNG]);
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
