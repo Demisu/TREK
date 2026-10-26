@@ -49,7 +49,7 @@ export function toNativeBase(baseUrl: string): string {
  * Ollama's own 404 for a model it has not pulled (OLLAMA_MISSING_MODEL).
  */
 const NOT_OLLAMA_STATUSES = new Set([404, 405, 501]);
-const OLLAMA_MISSING_MODEL = /model.*not found/i;
+const OLLAMA_MISSING_MODEL = /\bmodel\b.*\bnot found\b/i;
 
 /**
  * Run one schema-constrained chat completion against Ollama's native `/api/chat`.

@@ -114,7 +114,7 @@ describe('extractEnforced on an OpenAI-compatible server (#2806)', () => {
     );
 
   it('sends the extraction to /chat/completions at the address as entered when /api/chat is missing', async () => {
-    const fetchFn = mockFetch((url) =>
+    const fetchFn = mockFetch((url = '') =>
       url.endsWith('/api/chat') ? unknownUrl(url) : chatAnswer('{"result":[{"name":"Hotel"}]}'),
     );
     expect(await extractEnforced(GROQ)).toEqual({ name: 'Hotel' });
@@ -136,23 +136,24 @@ describe('extractEnforced on an OpenAI-compatible server (#2806)', () => {
   });
 
   it('falls back on a 405 or 501 too, and on a 200 that is not an Ollama answer (LM Studio)', async () => {
-    for (const first of [
-      jsonResponse({}, false, 405),
-      jsonResponse({}, false, 501),
-      jsonResponse({ error: 'Unexpected endpoint' }),
-    ]) {
-      mockFetch((url) => (url.endsWith('/api/chat') ? first : chatAnswer('{"result":[{"a":1}]}')));
+    const fallsBackAfter = async (first: Response) => {
+      mockFetch((url = '') => (url.endsWith('/api/chat') ? first : chatAnswer('{"result":[{"a":1}]}')));
       expect(await extractEnforced(GROQ)).toEqual({ a: 1 });
-    }
+    };
+    await fallsBackAfter(jsonResponse({}, false, 405));
+    await fallsBackAfter(jsonResponse({}, false, 501));
+    await fallsBackAfter(jsonResponse({ error: 'Unexpected endpoint' }));
   });
 
   it('answers null when the server returns no object', async () => {
-    mockFetch((url) => (url.endsWith('/api/chat') ? unknownUrl(url) : chatAnswer('{"result":[]}')));
+    mockFetch((url = '') => (url.endsWith('/api/chat') ? unknownUrl(url) : chatAnswer('{"result":[]}')));
     expect(await extractEnforced(GROQ)).toBeNull();
   });
 
   it('passes the images on as image parts with their type', async () => {
-    const fetchFn = mockFetch((url) => (url.endsWith('/api/chat') ? unknownUrl(url) : chatAnswer('{"result":[{}]}')));
+    const fetchFn = mockFetch((url = '') =>
+      url.endsWith('/api/chat') ? unknownUrl(url) : chatAnswer('{"result":[{}]}'),
+    );
     await extractEnforced({ ...GROQ, images: ['iVBORw0K', '/9j/4AAQ', 'UklGRiQA', 'R0lGODlh'] });
     const parts = JSON.parse((fetchFn.mock.calls[1][1] as RequestInit).body as string).messages[1].content;
     expect(parts.slice(1).map((p: { image_url: { url: string } }) => p.image_url.url.split(';')[0])).toEqual([
@@ -164,7 +165,7 @@ describe('extractEnforced on an OpenAI-compatible server (#2806)', () => {
   });
 
   it('reports the OpenAI-compatible failure when that path fails too', async () => {
-    mockFetch((url) =>
+    mockFetch((url = '') =>
       url.endsWith('/api/chat') ? unknownUrl(url) : jsonResponse({ error: 'bad model' }, false, 404),
     );
     await expect(extractEnforced(GROQ)).rejects.toThrow(/LLM request failed \(404\)/);

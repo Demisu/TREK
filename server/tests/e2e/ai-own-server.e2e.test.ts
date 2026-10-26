@@ -9,6 +9,7 @@
  * fail with the server's 404 (#2806).
  */
 import { buildApp } from '../../src/bootstrap';
+import { withRequestContext } from '../../src/nest/database/request-context';
 import { LlmParseService } from '../../src/nest/llm-parse/llm-parse.service';
 import { setAddonEnabled } from '../helpers/factories/settings';
 import { makeUser } from '../helpers/factories/users';
@@ -136,15 +137,12 @@ describe('An OpenAI-compatible own server', () => {
     expect((await connect()).status).toBe(200);
     await setAddonEnabled(orm, 'llm_parsing', true);
     server.seen = [];
-    const out = await nestApp
-      .get(LlmParseService)
-      .parse(
-        {
-          buffer: Buffer.from('Booking confirmation\nHotel Sakura, Tokyo\nCheck-in 2 Nov 2026, check-out 5 Nov 2026'),
-          originalName: 'booking.txt',
-        },
-        adminId,
-      );
+    // Outside a request, so it needs its own ORM context, as a job would.
+    const booking = {
+      buffer: Buffer.from('Booking confirmation\nHotel Sakura, Tokyo\nCheck-in 2 Nov 2026, check-out 5 Nov 2026'),
+      originalName: 'booking.txt',
+    };
+    const out = await withRequestContext(orm, () => nestApp.get(LlmParseService).parse(booking, adminId));
     expect(out.warnings.filter((w) => /failed/i.test(w))).toEqual([]);
     expect(out.kiItems).toHaveLength(1);
     expect(server.seen).toContain('POST /openai/api/chat');
