@@ -25,6 +25,8 @@ interface ArtikelZeileProps {
   categories: string[]
   onCategoryChange: () => void
   onDelete?: (item: PackingItem) => Promise<void>
+  /** Enter on the filled '...' row, so the category's add field can take over the typing (#2825). */
+  onPlaceholderFilled?: () => void
   bagTrackingEnabled?: boolean
   bags?: PackingBag[]
   onCreateBag: (name: string) => Promise<PackingBag | undefined>
@@ -49,7 +51,7 @@ interface ArtikelZeileProps {
   }
 }
 
-export function ArtikelZeile({ item, tripId, categories, onCategoryChange: _onCategoryChange, onDelete, bagTrackingEnabled, bags = [], onCreateBag, canEdit = true, tripMembers = [], currentUserId, onSetSharing, onClone, onJoin, onLeave, divider = false, drag }: ArtikelZeileProps) {
+export function ArtikelZeile({ item, tripId, categories, onCategoryChange: _onCategoryChange, onDelete, onPlaceholderFilled, bagTrackingEnabled, bags = [], onCreateBag, canEdit = true, tripMembers = [], currentUserId, onSetSharing, onClone, onJoin, onLeave, divider = false, drag }: ArtikelZeileProps) {
   const isPlaceholder = item.name === PACKING_PLACEHOLDER_NAME
   const [editing, setEditing] = useState(false)
   const [editName, setEditName] = useState(isPlaceholder ? '' : item.name)
@@ -80,9 +82,12 @@ export function ArtikelZeile({ item, tripId, categories, onCategoryChange: _onCa
 
   const handleToggle = () => togglePackingItem(tripId, item.id, !item.checked)
 
-  const handleSaveName = async () => {
+  const handleSaveName = async (viaEnter = false) => {
     if (!editName.trim()) { setEditing(false); setEditName(isPlaceholder ? '' : item.name); return }
-    try { await updatePackingItem(tripId, item.id, { name: editName.trim() }); setEditing(false) }
+    try {
+      await updatePackingItem(tripId, item.id, { name: editName.trim() }); setEditing(false)
+      if (viaEnter && isPlaceholder) onPlaceholderFilled?.()
+    }
     catch { toast.error(t('packing.toast.saveError')) }
   }
 
@@ -188,8 +193,8 @@ export function ArtikelZeile({ item, tripId, categories, onCategoryChange: _onCa
           type="text" value={editName} autoFocus
           placeholder={isPlaceholder ? '...' : undefined}
           onChange={e => setEditName(e.target.value)}
-          onBlur={handleSaveName}
-          onKeyDown={e => { if (e.key === 'Enter') void handleSaveName(); if (e.key === 'Escape') { setEditing(false); setEditName(isPlaceholder ? '' : item.name) } }}
+          onBlur={() => void handleSaveName()}
+          onKeyDown={e => { if (e.key === 'Enter') void handleSaveName(true); if (e.key === 'Escape') { setEditing(false); setEditName(isPlaceholder ? '' : item.name) } }}
           style={{ flex: 1, minWidth: 0, fontSize: 'calc(13.5px * var(--fs-scale-body, 1))', padding: '2px 8px', borderRadius: 6, border: '1px solid var(--border-primary)', outline: 'none', fontFamily: 'inherit' }}
         />
       ) : canEdit ? (
