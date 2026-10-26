@@ -48,17 +48,13 @@ afterEach(() => {
 });
 
 describe('places pool helpers', () => {
-  it('FE-PLANNER-POOL-001: the Tracks choice needs a track that is no tour while tours are on (#2810)', () => {
+  it('FE-PLANNER-POOL-001: the Tracks choice needs a track and stays away while tours are on', () => {
     const track = buildPlace({ route_geometry: '[[1,2],[3,4]]' });
-    const tour = buildPlace({ route_geometry: '[[1,2],[3,4]]' });
-    tour.tour_place_id = tour.id;
     const pin = buildPlace();
     expect(poolHasTracks([pin], false)).toBe(false);
     expect(poolHasTracks([pin, track], false)).toBe(true);
     expect(poolHasTracks([pin, track], undefined)).toBe(true);
-    expect(poolHasTracks([pin, tour], true)).toBe(false);
-    expect(poolHasTracks([pin, tour], false)).toBe(true);
-    expect(poolHasTracks([pin, tour, track], true)).toBe(true);
+    expect(poolHasTracks([pin, track], true)).toBe(false);
   });
 
   it('FE-PLANNER-POOL-002: the show choices list all, unplanned and planned, then tracks when there are some', () => {

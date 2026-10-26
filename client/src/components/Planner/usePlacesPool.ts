@@ -12,13 +12,9 @@ export type PlacesFilter = 'all' | 'unplanned' | 'planned' | 'tracks';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
-/**
- * Whether the "Tracks" choice belongs in the pool: a place with a line that is
- * no tour. While tours are on a tour lists under Tours, but a track imported
- * before them (4.x) is a plain place and stays here (#2810).
- */
+/** Whether the "Tracks" choice belongs in the pool: never while tours are on, since tracks are tours then. */
 export function poolHasTracks(places: Place[], toursEnabled: boolean | undefined): boolean {
-  return places.some((p) => p.route_geometry && !(toursEnabled && p.tour_place_id === p.id));
+  return !toursEnabled && places.some((p) => p.route_geometry);
 }
 
 /** The "show" choices; tracks only once a place has one. */
