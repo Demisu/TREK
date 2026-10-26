@@ -5,7 +5,7 @@
     "@typescript-eslint/no-require-imports": 18,
     "@typescript-eslint/no-unsafe-function-type": 1,
     "@typescript-eslint/no-unused-vars": 36,
-    "no-await-in-loop": 563,
+    "no-await-in-loop": 562,
     "no-console": 235,
     "no-empty": 6
   },

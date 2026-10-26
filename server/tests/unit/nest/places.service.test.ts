@@ -1394,7 +1394,8 @@ describe('importGpx deduplication', () => {
       testDb.prepare('UPDATE places SET route_geometry = ? WHERE id = ?').run(line, id);
       return id;
     });
-    const row = (name: string) => ({ name, lat: 46.1, lng: 11.1, routeGeometry: line }) as any;
+    type Row = Parameters<PlacesService['tracksToAdopt']>[1][number];
+    const row = (name: string) => ({ name, lat: 46.1, lng: 11.1, routeGeometry: line }) as unknown as Row;
 
     const adopt = await svc.tracksToAdopt(String(trip.id), [row('GARMIN HIKE'), row(''), row('Garmin hike'), row('garmin hike')]);
     expect([...adopt.entries()]).toEqual([
