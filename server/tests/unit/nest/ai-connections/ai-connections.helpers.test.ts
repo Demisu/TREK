@@ -127,6 +127,16 @@ describe('constants', () => {
     });
   });
 
+  it('AIHLP-031b: an own server that answered without a model list says so in reason (#2808)', () => {
+    const err = providerRefusal(new AiProviderError('provider_unavailable', 404, true, undefined, 'no_model_list'));
+    expect(err.getStatus()).toBe(502);
+    expect(err.toBody()).toEqual({
+      error: 'The server answered, but sent no model list',
+      code: 'provider_unavailable',
+      reason: 'no_model_list',
+    });
+  });
+
   it('AIHLP-032: the host a conversation goes to', () => {
     expect(aiHostOf('anthropic', null)).toBe('api.anthropic.com');
     expect(aiHostOf('chatgpt', null)).toBe('api.openai.com');

@@ -91,7 +91,17 @@ const PROVIDER_MESSAGES: Partial<Record<AssistantErrorCode, string>> = {
   provider_unavailable: 'The provider is not responding',
 };
 
-/** A provider's failure as the refusal a REST route answers with. */
+/**
+ * A provider's failure as the refusal a REST route answers with. An own server
+ * that answered without a model list says so in `reason`, so the form can name
+ * the address instead of calling a server that is up unresponsive (#2808).
+ */
 export function providerRefusal(err: AiProviderError): DomainError {
+  if (err.providerCode === 'no_model_list') {
+    return new DomainError(REFUSAL_STATUS[err.code], 'The server answered, but sent no model list', {
+      code: err.code,
+      details: { code: err.code, reason: 'no_model_list' },
+    });
+  }
   return aiRefusal(err.code, PROVIDER_MESSAGES[err.code] ?? 'The provider refused the request');
 }

@@ -41,6 +41,8 @@ const assistant: TranslationStrings = {
   'assistant.connect.openAssistant': 'Buka asisten',
   'assistant.connect.badKey': 'Kunci ini tidak berfungsi.',
   'assistant.connect.unknownModel': 'Model ini tidak tersedia di sini.',
+  'assistant.connect.noModelList':
+    'Server menjawab, tetapi tidak mengirim daftar model. Periksa alamatnya, biasanya diakhiri dengan /v1.',
   'assistant.connect.getKey': 'Dapatkan kunci',
   'assistant.connect.hintAnthropic': 'Claude Max dan Team sudah termasuk kredit API.',
   'assistant.connect.hintOpenai': 'Buat kunci di dasbor OpenAI kamu.',

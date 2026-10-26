@@ -41,6 +41,8 @@ const assistant: TranslationStrings = {
   'assistant.connect.openAssistant': 'Ava assistent',
   'assistant.connect.badKey': 'See võti ei tööta.',
   'assistant.connect.unknownModel': 'Seda mudelit siin ei pakuta.',
+  'assistant.connect.noModelList':
+    'Server vastas, kuid ei saatnud mudelite loendit. Kontrolli aadressi, tavaliselt lõpeb see /v1-ga.',
   'assistant.connect.getKey': 'Hangi võti',
   'assistant.connect.hintAnthropic': 'Claude Max ja Team sisaldavad API-krediiti.',
   'assistant.connect.hintOpenai': 'Loo võti oma OpenAI juhtpaneelil.',

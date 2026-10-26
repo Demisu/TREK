@@ -47,6 +47,14 @@ describe('aiConnectModel', () => {
     expect(connectErrorKey(new Error('boom'))).toBe('assistant.error.generic');
   });
 
+  it('FE-AI-CONNECT-MODEL-002b: tells an own server that answered without a model list from one that is down (#2808)', () => {
+    const noList = { response: { data: { code: 'provider_unavailable', reason: 'no_model_list' } } };
+    expect(connectErrorKey(noList)).toBe('assistant.connect.noModelList');
+    expect(connectErrorKey({ response: { data: { code: 'provider_unavailable', reason: 'other' } } })).toBe(
+      'assistant.error.providerDown'
+    );
+  });
+
   it('FE-AI-CONNECT-MODEL-003: offers the way back into a broken connection, none for a working one', () => {
     expect(repairModeOf(VIEW)).toBeNull();
     expect(repairModeOf({ ...VIEW, status: 'error' })).toBe('key');

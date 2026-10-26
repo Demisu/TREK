@@ -39,6 +39,7 @@ const assistant: TranslationStrings = {
   'assistant.connect.openAssistant': '開啟助理',
   'assistant.connect.badKey': '這組金鑰無效。',
   'assistant.connect.unknownModel': '這裡不提供此模型。',
+  'assistant.connect.noModelList': '伺服器已回應，但沒有傳回模型清單。請檢查位址，通常以 /v1 結尾。',
   'assistant.connect.getKey': '取得金鑰',
   'assistant.connect.hintAnthropic': 'Claude Max 和 Team 包含 API 額度。',
   'assistant.connect.hintOpenai': '在你的 OpenAI 主控台建立金鑰。',

@@ -40,6 +40,8 @@ const assistant: TranslationStrings = {
   'assistant.connect.openAssistant': 'Asistanı aç',
   'assistant.connect.badKey': 'Bu anahtar çalışmıyor.',
   'assistant.connect.unknownModel': 'Bu model burada sunulmuyor.',
+  'assistant.connect.noModelList':
+    'Sunucu yanıt verdi ama model listesi göndermedi. Adresi kontrol edin, genellikle /v1 ile biter.',
   'assistant.connect.getKey': 'Anahtar al',
   'assistant.connect.hintAnthropic': 'Claude Max ve Team, API kredisi içerir.',
   'assistant.connect.hintOpenai': 'OpenAI panelinde bir anahtar oluştur.',

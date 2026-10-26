@@ -42,6 +42,8 @@ const assistant: TranslationStrings = {
   'assistant.connect.openAssistant': 'Assistent öffnen',
   'assistant.connect.badKey': 'Dieser Schlüssel funktioniert nicht.',
   'assistant.connect.unknownModel': 'Dieses Modell wird hier nicht angeboten.',
+  'assistant.connect.noModelList':
+    'Der Server antwortet, schickt aber keine Modellliste. Prüfe die Adresse, meist endet sie auf /v1.',
   'assistant.connect.getKey': 'Schlüssel holen',
   'assistant.connect.hintAnthropic': 'Claude Max und Team enthalten API-Guthaben.',
   'assistant.connect.hintOpenai': 'Leg einen Schlüssel in deinem OpenAI-Dashboard an.',

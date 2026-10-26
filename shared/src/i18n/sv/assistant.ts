@@ -42,6 +42,8 @@ const assistant: TranslationStrings = {
   'assistant.connect.openAssistant': 'Öppna assistenten',
   'assistant.connect.badKey': 'Den här nyckeln fungerar inte.',
   'assistant.connect.unknownModel': 'Den här modellen erbjuds inte här.',
+  'assistant.connect.noModelList':
+    'Servern svarade men skickade ingen lista med modeller. Kontrollera adressen, den slutar oftast på /v1.',
   'assistant.connect.getKey': 'Skaffa en nyckel',
   'assistant.connect.hintAnthropic': 'Claude Max och Team inkluderar API-krediter.',
   'assistant.connect.hintOpenai': 'Skapa en nyckel i din OpenAI-översikt.',

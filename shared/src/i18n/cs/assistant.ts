@@ -40,6 +40,8 @@ const assistant: TranslationStrings = {
   'assistant.connect.openAssistant': 'Otevřít asistenta',
   'assistant.connect.badKey': 'Tento klíč nefunguje.',
   'assistant.connect.unknownModel': 'Tento model tu není k dispozici.',
+  'assistant.connect.noModelList':
+    'Server odpověděl, ale neposlal seznam modelů. Zkontrolujte adresu, obvykle končí na /v1.',
   'assistant.connect.getKey': 'Získat klíč',
   'assistant.connect.hintAnthropic': 'Claude Max a Team zahrnují kredity API.',
   'assistant.connect.hintOpenai': 'Vytvoř klíč na svém panelu OpenAI.',

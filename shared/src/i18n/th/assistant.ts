@@ -40,6 +40,8 @@ const assistant: TranslationStrings = {
   'assistant.connect.openAssistant': 'เปิดผู้ช่วย',
   'assistant.connect.badKey': 'คีย์นี้ใช้งานไม่ได้',
   'assistant.connect.unknownModel': 'ไม่มีโมเดลนี้ให้ใช้ที่นี่',
+  'assistant.connect.noModelList':
+    'เซิร์ฟเวอร์ตอบกลับแล้ว แต่ไม่ได้ส่งรายการโมเดลมา ตรวจสอบที่อยู่ ซึ่งมักลงท้ายด้วย /v1',
   'assistant.connect.getKey': 'รับคีย์',
   'assistant.connect.hintAnthropic': 'Claude Max และ Team มีเครดิต API รวมอยู่ด้วย',
   'assistant.connect.hintOpenai': 'สร้างคีย์ในแดชบอร์ด OpenAI ของคุณ',

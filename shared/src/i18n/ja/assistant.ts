@@ -41,6 +41,8 @@ const assistant: TranslationStrings = {
   'assistant.connect.openAssistant': 'アシスタントを開く',
   'assistant.connect.badKey': 'このキーは使えません。',
   'assistant.connect.unknownModel': 'このモデルはここでは提供されていません。',
+  'assistant.connect.noModelList':
+    'サーバーは応答しましたが、モデル一覧が返りませんでした。アドレスを確認してください。通常は /v1 で終わります。',
   'assistant.connect.getKey': 'キーを取得',
   'assistant.connect.hintAnthropic': 'Claude Max と Team には API クレジットが含まれています。',
   'assistant.connect.hintOpenai': 'OpenAI のダッシュボードでキーを作成してください。',
