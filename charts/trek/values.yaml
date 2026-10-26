@@ -36,7 +36,7 @@ env:
   # Browser/OS language is auto-detected first; this is the fallback when no match is found.
   # Supported: ar, az, br, ca, cs, de, en, es, et, fr, gr, hu, id, it, ja, ko, nl, pl, ru, sk, sv, th, tr, uk, vi, zh, zh-TW
   # ALLOWED_ORIGINS: ""
-  # NOTE: If using ingress, ensure env.ALLOWED_ORIGINS matches the domains in ingress.hosts for proper CORS configuration.
+  # NOTE: If using ingress or HTTPRoute, ensure env.ALLOWED_ORIGINS matches the public domains for proper CORS configuration.
   # APP_URL: "https://trek.example.com"
   # Public base URL of this instance. Required when OIDC is enabled — must match the redirect URI registered with your IdP.
   # Also used as the base URL for links in email notifications and other external links.
@@ -294,3 +294,20 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs: []
+  #   - name: gateway
+  #     namespace: gateway-system
+  #     sectionName: https
+  hostnames: []
+  #   - trek.example.com
+  paths:
+    - /
+  # Timeout fields are Standard Channel in Gateway API v1.2; controller support varies.
+  # Leave empty for controller defaults. Use "0s" to disable the corresponding timeout.
+  timeouts: {}
+  #   request: "0s"
+  #   backendRequest: "0s"

@@ -271,6 +271,31 @@ ingress:
 
 > **Note:** When using ingress with TLS termination, set `env.FORCE_HTTPS: "true"` and `env.TRUST_PROXY: "1"` to enable HTTPS redirects, HSTS, and secure cookies.
 
+### HTTPRoute
+
+HTTPRoute support is off by default. To attach TREK to an existing Gateway, enable it in your values file:
+
+```yaml
+httpRoute:
+  enabled: true
+  annotations: {}
+  parentRefs:
+    - name: gateway
+      namespace: gateway-system
+      sectionName: https
+  hostnames:
+    - trek.example.com
+  paths:
+    - /
+  timeouts:
+    request: "0s"
+    backendRequest: "0s"
+```
+
+The cluster needs the Gateway API `HTTPRoute` v1 CRD and a compatible controller. The chart creates only an HTTPRoute to TREK's existing Service on `service.port`; your operator must provide the Gateway and GatewayClass, configure its listener and TLS certificate, and allow routes from the chart's namespace. When enabled, `parentRefs` and `paths` must be non-empty. Paths are string prefixes. Ingress and HTTPRoute may be enabled together.
+
+Timeout fields are Standard Channel in Gateway API v1.2, though controller support varies. If omitted, the controller's timeout defaults apply. `0s` disables that request timeout; controller idle and buffering limits can still affect `/ws` and streamed assistant responses. Set `env.ALLOWED_ORIGINS` and `env.APP_URL` to the public URL. If the Gateway terminates TLS, also set `env.FORCE_HTTPS: "true"` and `env.TRUST_PROXY: "1"`.
+
 ## Upgrade
 
 The Deployment uses the `Recreate` update strategy (`updateStrategy: Recreate`): the old pod stops before the new one starts. TREK is a single-writer SQLite application, and during a rolling update the new pod would migrate the database while the old one still writes to it. A ReadWriteMany volume does not make that safe, so leave the strategy as it is and keep one replica.

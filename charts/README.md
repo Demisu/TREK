@@ -8,6 +8,7 @@ This is a minimal Helm chart for deploying the TREK app.
 - Optional persistent storage for `/app/data` and `/app/uploads`, plus extra volumes and mounts
 - Configurable environment variables and secrets
 - Optional generic Ingress support
+- Optional Gateway API HTTPRoute support
 - Configurable health checks (liveness/readiness probes) on `/api/health`
 
 ## Helm Repository
@@ -27,12 +28,37 @@ helm install trek trek/trek
 Or install directly from the local chart:
 
 ```sh
-helm install trek ./chart \
+helm install trek ./charts/trek \
   --set ingress.enabled=true \
   --set ingress.hosts[0].host=yourdomain.com
 ```
 
 See `values.yaml` for more options.
+
+### HTTPRoute
+
+HTTPRoute support is off by default. Enable it to attach TREK to an existing Gateway:
+
+```yaml
+httpRoute:
+  enabled: true
+  annotations: {}
+  parentRefs:
+    - name: gateway
+      namespace: gateway-system
+      sectionName: https
+  hostnames:
+    - trek.example.com
+  paths:
+    - /
+  timeouts:
+    request: "0s"
+    backendRequest: "0s"
+```
+
+The cluster must have the Gateway API `HTTPRoute` v1 CRD and a Gateway API controller. The chart creates only the HTTPRoute, targeting TREK's existing Service and `service.port`; the Gateway, GatewayClass, listener, TLS certificate, and `allowedRoutes` configuration remain the operator's responsibility. When enabled, `parentRefs` and `paths` must be non-empty. Each path is a string prefix. Ingress and HTTPRoute can both be enabled.
+
+Timeout fields became Standard Channel in Gateway API v1.2, but controller support is implementation-specific. Omitting them leaves timeout behavior to the controller. `0s` disables the corresponding request timeout; controller idle and buffering settings can still interrupt `/ws` connections or streamed assistant responses. Set `env.ALLOWED_ORIGINS` and `env.APP_URL` to the public URL; when the Gateway terminates TLS, configure `env.FORCE_HTTPS: "true"` and `env.TRUST_PROXY: "1"`.
 
 ## Files
 - `Chart.yaml` — chart metadata
@@ -47,7 +73,7 @@ See `values.yaml` for more options.
 - `JWT_SECRET` is managed entirely by the server — auto-generated into the data PVC on first start and rotatable via the admin panel (Settings → Danger Zone). No Helm configuration needed.
 - `ENCRYPTION_KEY` encrypts stored secrets (API keys, MFA, SMTP, OIDC) at rest. Recommended: set via `secretEnv.ENCRYPTION_KEY` or `existingSecret`. If left empty, the server falls back automatically: existing installs use `data/.jwt_secret` (no action needed on upgrade); fresh installs auto-generate a key persisted to the data PVC.
 - Liveness and readiness probes are configurable under `probes`. Overrides are merged over the defaults, so `--set probes.liveness.initialDelaySeconds=60` keeps the `httpGet` handler. When switching to `exec` or `tcpSocket`, clear `httpGet` in the same override. Set `probes.liveness: null` to remove a probe.
-- If using ingress, you must manually keep `env.ALLOWED_ORIGINS` and `ingress.hosts` in sync to ensure CORS works correctly. The chart does not sync these automatically.
+- If exposing TREK through an Ingress or HTTPRoute, set `env.ALLOWED_ORIGINS` and `env.APP_URL` to the public URL. The chart does not sync these automatically.
 - Set `env.ALLOW_INTERNAL_NETWORK: "true"` if Immich or other integrated services are hosted on a private/RFC-1918 address (e.g. a pod on the same cluster or a NAS on your LAN). Loopback (`127.x`) and link-local/metadata addresses (`169.254.x`) remain blocked regardless.
 - Set `env.ALLOW_LINK_LOCAL_IPS` to a single link-local address (e.g. `"169.254.1.2"`) only when a service TREK needs sits behind one, such as a host gateway. Cloud metadata addresses (`169.254.169.x`, `169.254.170.x`) cannot be listed.
 - `FORCE_HTTPS` is optional. Set `env.FORCE_HTTPS: "true"` only when ingress (or another proxy) terminates TLS. It enables HTTPS redirects, HSTS, CSP `upgrade-insecure-requests`, and forces the session cookie `secure` flag. Requires `TRUST_PROXY` to be set.
