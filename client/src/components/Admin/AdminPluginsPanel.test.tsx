@@ -489,10 +489,10 @@ describe('AdminPluginsPanel — TREK-version compatibility', () => {
     fireEvent.click(await screen.findByText('Discover'))
   }
 
-  it('blocks Install when no published version runs on this TREK, and says why', async () => {
+  it('marks a plugin no published version runs on, and still lets the admin install it', async () => {
     await openDiscover({ trek: '>=4.0.0', hostVersion: '3.3.0', compatible: false, latestCompatible: null })
-    const btn = await screen.findByRole('button', { name: /^incompatible$/i })
-    expect(btn).toBeDisabled()
+    expect(await screen.findByText('Not confirmed for TREK 3.3.0 yet')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^install$/i })).toBeEnabled()
   })
 
   it('offers the newest version that DOES run here rather than a dead button', async () => {
