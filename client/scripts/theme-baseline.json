@@ -1,7 +1,7 @@
 {
   "App.tsx": 11,
-  "components/Admin/AdminPluginsPanel.tsx": 2,
   "components/Admin/DefaultUserSettingsTab.tsx": 1,
+  "components/Admin/plugins/pluginMenu.ts": 2,
   "components/Atlas/AtlasCountryPlaces.tsx": 6,
   "components/BackgroundTasks/BackgroundTasksWidget.tsx": 4,
   "components/Budget/BudgetPanel.helpers.ts": 2,

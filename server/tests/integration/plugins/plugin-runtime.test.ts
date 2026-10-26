@@ -24,7 +24,8 @@ const { testDb } = vi.hoisted(() => {
     -- otherwise fail on the version gate before reaching the behaviour under test. The gate
     -- itself is exercised in "TREK host-version gating" below, with explicit ranges.
     trek_range TEXT DEFAULT '>=3.0.0',
-    source_repo TEXT, author_pubkey TEXT, update_block_code TEXT, update_block_detail TEXT, update_block_version TEXT);
+    source_repo TEXT, author_pubkey TEXT, update_block_code TEXT, update_block_detail TEXT, update_block_version TEXT,
+    trek_range_accepted_version TEXT, trek_range_accepted_host TEXT);
     CREATE TABLE plugin_error_log (id INTEGER PRIMARY KEY AUTOINCREMENT, plugin_id TEXT, level TEXT, message TEXT, ts TEXT);
     CREATE TABLE plugin_settings_fields (id INTEGER PRIMARY KEY AUTOINCREMENT, plugin_id TEXT, field_key TEXT, scope TEXT, secret INTEGER, default_value TEXT);
     CREATE TABLE settings (user_id INTEGER, key TEXT, value TEXT);
