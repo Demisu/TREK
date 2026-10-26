@@ -963,6 +963,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': 'A(z) {name} nem tartalmaz KML-fájlt',
   'tours.import.archiveTooLargeIn': 'A(z) {name} kicsomagolva túl nagy',
   'tours.import.previewDuplicate': 'Már az utazásban van',
+  'tours.import.previewAdopts': 'Már nyomvonalként szerepel az utazásban, túra lesz belőle',
   'tours.import.previewAllDuplicates': 'Minden nyomvonal már az utazásban van, nincs mit importálni.',
   'tours.import.previewAs': 'Importálás mint',
   'tours.import.previewConfirm': '{count} túra importálása',

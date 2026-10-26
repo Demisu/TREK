@@ -875,6 +875,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': '{name} 中沒有 KML 檔案',
   'tours.import.archiveTooLargeIn': '{name} 解壓縮後過大',
   'tours.import.previewDuplicate': '已在旅程中',
+  'tours.import.previewAdopts': '已作為軌跡在旅程中，將變成遊程',
   'tours.import.previewAllDuplicates': '所有軌跡都已在旅程中，沒有可匯入的內容。',
   'tours.import.previewAs': '匯入為',
   'tours.import.previewConfirm': '匯入 {count} 條路線',

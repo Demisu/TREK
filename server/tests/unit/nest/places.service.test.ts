@@ -1385,6 +1385,24 @@ describe('searchImage', () => {
 // ── Import deduplication ──────────────────────────────────────────────────────
 
 describe('importGpx deduplication', () => {
+  it('PLACE-SVC-033b — tracksToAdopt pairs each named row with one track of that name that is no tour (#2810)', async () => {
+    const { user } = createUser(testDb);
+    const trip = createTrip(testDb, user.id);
+    const line = '[[46.1,11.1,1200],[46.2,11.2,1300]]';
+    const ids = ['Garmin Hike', 'garmin hike ', '  '].map((name) => {
+      const id = createPlace(testDb, trip.id, { name }).id;
+      testDb.prepare('UPDATE places SET route_geometry = ? WHERE id = ?').run(line, id);
+      return id;
+    });
+    const row = (name: string) => ({ name, lat: 46.1, lng: 11.1, routeGeometry: line }) as any;
+
+    const adopt = await svc.tracksToAdopt(String(trip.id), [row('GARMIN HIKE'), row(''), row('Garmin hike'), row('garmin hike')]);
+    expect([...adopt.entries()]).toEqual([
+      [0, { id: ids[0], route_geometry: line }],
+      [2, { id: ids[1], route_geometry: line }],
+    ]);
+  });
+
   it('PLACE-SVC-033 — skips waypoints already in trip by name', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);

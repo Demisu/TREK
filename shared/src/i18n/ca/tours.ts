@@ -966,6 +966,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': "No s'ha trobat cap fitxer KML a {name}",
   'tours.import.archiveTooLargeIn': '{name} és massa gran un cop descomprimit',
   'tours.import.previewDuplicate': 'Ja és al viatge',
+  'tours.import.previewAdopts': 'Ja és una traça al viatge, es converteix en excursió',
   'tours.import.previewAllDuplicates': 'Tots els tracks ja són al viatge, no hi ha res a importar.',
   'tours.import.previewAs': 'Importa com a',
   'tours.import.previewConfirm': 'Importa {count} rutes',

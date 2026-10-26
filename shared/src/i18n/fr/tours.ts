@@ -981,6 +981,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': 'Aucun fichier KML trouvé dans {name}',
   'tours.import.archiveTooLargeIn': '{name} est trop volumineux une fois décompressé',
   'tours.import.previewDuplicate': 'Déjà dans le voyage',
+  'tours.import.previewAdopts': 'Déjà une trace dans le voyage, devient une sortie',
   'tours.import.previewAllDuplicates': 'Toutes les traces sont déjà dans le voyage : il n’y a rien à importer.',
   'tours.import.previewAs': 'Importer comme',
   'tours.import.previewConfirm': 'Importer {count} sorties',

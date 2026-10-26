@@ -954,6 +954,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': 'Tidak ada berkas KML di {name}',
   'tours.import.archiveTooLargeIn': '{name} terlalu besar setelah diekstrak',
   'tours.import.previewDuplicate': 'Sudah ada di perjalanan',
+  'tours.import.previewAdopts': 'Sudah ada sebagai jalur di perjalanan, menjadi tur',
   'tours.import.previewAllDuplicates': 'Semua jejak sudah ada di perjalanan, tidak ada yang perlu diimpor.',
   'tours.import.previewAs': 'Impor sebagai',
   'tours.import.previewConfirm': 'Impor {count} tur',

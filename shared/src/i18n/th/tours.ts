@@ -907,6 +907,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': 'ไม่พบไฟล์ KML ใน {name}',
   'tours.import.archiveTooLargeIn': '{name} ใหญ่เกินไปเมื่อแตกไฟล์',
   'tours.import.previewDuplicate': 'มีอยู่ในทริปแล้ว',
+  'tours.import.previewAdopts': 'มีอยู่ในทริปเป็นเส้นทางแล้ว จะกลายเป็นทัวร์',
   'tours.import.previewAllDuplicates': 'ทุกแทร็กมีอยู่ในทริปแล้ว จึงไม่มีอะไรให้นำเข้า',
   'tours.import.previewAs': 'นำเข้าเป็น',
   'tours.import.previewConfirm': 'นำเข้า {count} ทริป',

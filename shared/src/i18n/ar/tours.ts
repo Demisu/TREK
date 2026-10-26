@@ -969,6 +969,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': 'لم يُعثر على ملف KML في {name}',
   'tours.import.archiveTooLargeIn': '{name} كبير جدًا بعد فك الضغط',
   'tours.import.previewDuplicate': 'موجود بالفعل في الرحلة',
+  'tours.import.previewAdopts': 'مسار موجود في الرحلة، سيصبح جولة',
   'tours.import.previewAllDuplicates': 'كل المسارات موجودة بالفعل في الرحلة، فلا شيء للاستيراد.',
   'tours.import.previewAs': 'الاستيراد كـ',
   'tours.import.previewConfirm': 'استيراد {count} جولة',

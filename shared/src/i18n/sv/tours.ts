@@ -945,6 +945,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': 'Ingen KML-fil hittades i {name}',
   'tours.import.archiveTooLargeIn': '{name} är för stor när den packats upp',
   'tours.import.previewDuplicate': 'Finns redan i resan',
+  'tours.import.previewAdopts': 'Finns redan som spår i resan, blir en tur',
   'tours.import.previewAllDuplicates': 'Alla spår finns redan i resan, det finns inget att importera.',
   'tours.import.previewAs': 'Importera som',
   'tours.import.previewConfirm': 'Importera {count} turer',

@@ -941,6 +941,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': 'Không tìm thấy tệp KML trong {name}',
   'tours.import.archiveTooLargeIn': '{name} quá lớn sau khi giải nén',
   'tours.import.previewDuplicate': 'Đã có trong chuyến đi',
+  'tours.import.previewAdopts': 'Đã có trong chuyến đi dưới dạng tuyến, sẽ thành chuyến tham quan',
   'tours.import.previewAllDuplicates': 'Mọi vết đã có trong chuyến đi, không có gì để nhập.',
   'tours.import.previewAs': 'Nhập dưới dạng',
   'tours.import.previewConfirm': 'Nhập {count} chuyến',

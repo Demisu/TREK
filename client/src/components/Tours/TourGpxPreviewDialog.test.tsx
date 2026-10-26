@@ -1,4 +1,4 @@
-// FE-GPX-PREVIEW-001 to FE-GPX-PREVIEW-003
+// FE-GPX-PREVIEW-001 to FE-GPX-PREVIEW-004
 // The GPX preview as ACT-01 uses it: preset to the tour's type, a city walk
 // imported as one, and when a track was recorded shown where it carried times.
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -45,6 +45,13 @@ describe('TourGpxPreviewDialog (ACT-01)', () => {
     const recorded = screen.getAllByTestId('gpx-preview-recorded');
     expect(recorded).toHaveLength(1);
     expect(recorded[0]).toHaveTextContent('50 min');
+  });
+
+  it('FE-GPX-PREVIEW-004: a track taken over from before Tours reads as one, not as a duplicate (#2810)', () => {
+    render(<TourGpxPreviewDialog gpxImport={gpxImport([track({ adopts_track: true })])} />);
+    expect(screen.getByTestId('gpx-preview-track')).not.toHaveAttribute('data-duplicate');
+    expect(screen.getByText(/tours\.import\.previewAdopts|becomes a tour/)).toBeInTheDocument();
+    expect(screen.queryByText(/tours\.import\.previewDuplicate|Already in the trip/)).toBeNull();
   });
 
   it('FE-GPX-PREVIEW-002: imports as the preset type, a paddle tour with its boat and water', () => {

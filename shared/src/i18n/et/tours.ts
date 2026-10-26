@@ -948,6 +948,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': 'Failis {name} pole KML-faili',
   'tours.import.archiveTooLargeIn': 'Fail {name} on lahtipakituna liiga suur',
   'tours.import.previewDuplicate': 'Juba reisil',
+  'tours.import.previewAdopts': 'Juba reisil rajana, muutub retkeks',
   'tours.import.previewAllDuplicates': 'Kõik rajad on juba reisil, pole midagi importida.',
   'tours.import.previewAs': 'Impordi kui',
   'tours.import.previewConfirm': 'Impordi {count} matka',

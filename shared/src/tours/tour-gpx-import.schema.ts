@@ -40,6 +40,12 @@ export const tourGpxPreviewTrackSchema = z.object({
   ended_at: z.string().nullable().optional(),
   /** Already in the trip under the same name and start: the import skips it, as it always has. */
   duplicate: z.boolean(),
+  /**
+   * A track of the same name already in the trip that is not a tour yet (one
+   * imported before Tours, #2810): the import makes that place the tour
+   * instead of skipping it. Never set together with `duplicate`.
+   */
+  adopts_track: z.boolean().optional(),
 });
 export type TourGpxPreviewTrack = z.infer<typeof tourGpxPreviewTrackSchema>;
 

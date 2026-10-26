@@ -986,6 +986,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': 'Δεν βρέθηκε αρχείο KML στο {name}',
   'tours.import.archiveTooLargeIn': 'Το {name} είναι πολύ μεγάλο μετά την αποσυμπίεση',
   'tours.import.previewDuplicate': 'Υπάρχει ήδη στο ταξίδι',
+  'tours.import.previewAdopts': 'Υπάρχει ήδη ως διαδρομή στο ταξίδι, γίνεται εκδρομή',
   'tours.import.previewAllDuplicates': 'Όλα τα ίχνη υπάρχουν ήδη στο ταξίδι, δεν υπάρχει τίποτα για εισαγωγή.',
   'tours.import.previewAs': 'Εισαγωγή ως',
   'tours.import.previewConfirm': 'Εισαγωγή {count} διαδρομών',

@@ -956,6 +956,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': '{name} içinde KML dosyası bulunamadı',
   'tours.import.archiveTooLargeIn': '{name} açıldığında çok büyük',
   'tours.import.previewDuplicate': 'Zaten seyahatte',
+  'tours.import.previewAdopts': 'Seyahatte iz olarak zaten var, tura dönüşecek',
   'tours.import.previewAllDuplicates': 'Tüm izler zaten seyahatte, içe aktarılacak bir şey yok.',
   'tours.import.previewAs': 'Şu olarak içe aktar',
   'tours.import.previewConfirm': '{count} turu içe aktar',

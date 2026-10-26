@@ -970,6 +970,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': 'Nessun file KML trovato in {name}',
   'tours.import.archiveTooLargeIn': '{name} è troppo grande una volta decompresso',
   'tours.import.previewDuplicate': 'Già nel viaggio',
+  'tours.import.previewAdopts': 'Già una traccia nel viaggio, diventa un’escursione',
   'tours.import.previewAllDuplicates': 'Tutte le tracce sono già nel viaggio, non c’è nulla da importare.',
   'tours.import.previewAs': 'Importa come',
   'tours.import.previewConfirm': 'Importa {count} tour',

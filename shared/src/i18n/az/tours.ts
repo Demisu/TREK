@@ -958,6 +958,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': '{name} içində KML faylı tapılmadı',
   'tours.import.archiveTooLargeIn': '{name} açıldıqdan sonra çox böyükdür',
   'tours.import.previewDuplicate': 'Artıq səyahətdədir',
+  'tours.import.previewAdopts': 'Artıq səyahətdə trek kimi var, tura çevriləcək',
   'tours.import.previewAllDuplicates': 'Bütün treklər artıq səyahətdədir, idxal ediləcək heç nə yoxdur.',
   'tours.import.previewAs': 'Bu kimi idxal et',
   'tours.import.previewConfirm': '{count} tur idxal et',

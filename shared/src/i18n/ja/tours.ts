@@ -930,6 +930,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': '{name}にKMLファイルが見つかりません',
   'tours.import.archiveTooLargeIn': '{name}は展開すると大きすぎます',
   'tours.import.previewDuplicate': 'すでに旅行にあります',
+  'tours.import.previewAdopts': '旅行にトラックとしてあります。ツアーになります',
   'tours.import.previewAllDuplicates': 'すべてのトラックがすでに旅行にあるため、取り込むものはありません。',
   'tours.import.previewAs': '取り込む種類',
   'tours.import.previewConfirm': '{count} 件のツアーを取り込む',

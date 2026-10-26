@@ -79,6 +79,7 @@ function PreviewTrackRow({
           {track.name || name}
         </span>
         {track.duplicate && <SoftPill tone="warning">{t('tours.import.previewDuplicate')}</SoftPill>}
+        {track.adopts_track && <SoftPill>{t('tours.import.previewAdopts')}</SoftPill>}
       </div>
       <div className="flex flex-wrap items-center gap-1.5 ps-8" style={fs(11)}>
         <span className={BADGE}>{formatDistance(track.distance_km, unit)}</span>

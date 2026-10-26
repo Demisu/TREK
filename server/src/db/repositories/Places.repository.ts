@@ -318,6 +318,21 @@ export class PlacesRepository extends TrekRepository<Places> {
     return !!row;
   }
 
+  /**
+   * The trip's tracks that are not tours: places with `route_geometry` and no
+   * `tours` row, oldest first. A GPX file imported before Tours existed (4.x)
+   * left its tracks like this, and the tour import takes one over by name
+   * instead of refusing it as a duplicate (#2810).
+   */
+  async listTracksWithoutTour(trip_id: number | string): Promise<{ id: number; name: string; route_geometry: string }[]> {
+    return this.qb('p')
+      .leftJoin('p.tours', 't')
+      .select(['p.id', 'p.name', 'p.route_geometry'])
+      .where('p.trip_id = ? AND p.route_geometry IS NOT NULL AND t.place_id IS NULL', [trip_id])
+      .orderBy({ 'p.id': 'asc' })
+      .execute<{ id: number; name: string; route_geometry: string }[]>('all', false);
+  }
+
   /** PL19/PL21 — `DELETE FROM places WHERE id = ?`, unscoped: every caller proved trip access first. */
   async deleteById(id: number): Promise<void> {
     await this.nativeDelete({ id });

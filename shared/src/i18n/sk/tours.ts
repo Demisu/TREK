@@ -954,6 +954,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': 'V súbore {name} nie je žiadny súbor KML',
   'tours.import.archiveTooLargeIn': 'Súbor {name} je po rozbalení príliš veľký',
   'tours.import.previewDuplicate': 'Už je v ceste',
+  'tours.import.previewAdopts': 'Už je v ceste ako trasa, stane sa túrou',
   'tours.import.previewAllDuplicates': 'Všetky trasy už v ceste sú, nie je čo importovať.',
   'tours.import.previewAs': 'Importovať ako',
   'tours.import.previewConfirm': 'Importovať {count} túr',

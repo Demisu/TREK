@@ -3,7 +3,7 @@ import path from 'node:path';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { resolveCountryCodeSync } from '../atlas/atlas-geo';
-import { TRACK_COLORS, placeMatchStrategies, type PlaceMatchCandidate } from '@trek/shared';
+import { TRACK_COLORS, normalizePlaceName, placeMatchStrategies, type PlaceMatchCandidate } from '@trek/shared';
 import type { TrekWsPayload, TrekWsTripEventName } from '@trek/shared';
 import { RealtimeService } from '../realtime/realtime.service';
 import type { TripAccess } from '../../db/repositories/Trips.repository';
@@ -763,6 +763,28 @@ export class PlacesService {
       trackInsertedInDedupSet(candidate, dedup);
       return false;
     });
+  }
+
+  /**
+   * The rows of a tour import that take over a track already in the trip,
+   * by row index: a place with a track and no tour yet, under the same name,
+   * one place per row. A GPX file imported before Tours existed (4.x) left
+   * its tracks as plain places, and the name alone made every tour import of
+   * the same file a duplicate with no tour to show for it (#2810).
+   */
+  async tracksToAdopt(tripId: string, rows: PreparedGpxPlace[]): Promise<Map<number, { id: number; route_geometry: string }>> {
+    const byName = new Map<string, { id: number; route_geometry: string }[]>();
+    for (const track of await this.placesRepo.listTracksWithoutTour(tripId)) {
+      const key = normalizePlaceName(track.name);
+      if (key) byName.set(key, [...(byName.get(key) ?? []), track]);
+    }
+    const adopt = new Map<number, { id: number; route_geometry: string }>();
+    rows.forEach((row, index) => {
+      const key = normalizePlaceName(row.name);
+      const track = key ? byName.get(key)?.shift() : undefined;
+      if (track) adopt.set(index, track);
+    });
+    return adopt;
   }
 
   /**

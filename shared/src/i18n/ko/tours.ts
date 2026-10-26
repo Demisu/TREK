@@ -922,6 +922,7 @@ const tours: TranslationStrings = {
   'tours.import.archiveNoKmlIn': '{name}에 KML 파일이 없습니다',
   'tours.import.archiveTooLargeIn': '{name}은(는) 압축을 풀면 너무 큽니다',
   'tours.import.previewDuplicate': '이미 여행에 있음',
+  'tours.import.previewAdopts': '이미 여행에 트랙으로 있음, 투어가 됩니다',
   'tours.import.previewAllDuplicates': '모든 트랙이 이미 여행에 있어 가져올 것이 없습니다.',
   'tours.import.previewAs': '가져올 유형',
   'tours.import.previewConfirm': '투어 {count}개 가져오기',
