@@ -1587,27 +1587,4 @@ describe('PlacesRepository.isTour / listForTrip tour_place_id', () => {
     expect(byId.get(tour.id)).toBe(tour.id);
     expect(byId.get(plain.id)).toBeNull();
   });
-
-  it("PLACEREPO-TOUR-005: listTracksWithoutTour lists the trip's tracks that are no tour yet, oldest first (#2810)", async () => {
-    const { user } = createUser(testDb);
-    const trip = createTrip(testDb, user.id);
-    const other = createTrip(testDb, user.id);
-    const line = '[[49,12,100],[49.01,12.01,150]]';
-    const track = async (tripId: number, name: string) => {
-      const place = createPlace(testDb, tripId, { name });
-      await updateRows(t.orm, Places, { id: place.id }, { route_geometry: line });
-      return place;
-    };
-    const first = await track(trip.id, 'Garmin hike');
-    const second = await track(trip.id, 'Garmin hike');
-    const toured = await track(trip.id, 'Ridge walk');
-    createTour(testDb, toured.id);
-    createPlace(testDb, trip.id, { name: 'Cafe' });
-    await track(other.id, 'Garmin hike');
-
-    expect(await places.listTracksWithoutTour(trip.id)).toEqual([
-      { id: first.id, name: 'Garmin hike', route_geometry: line },
-      { id: second.id, name: 'Garmin hike', route_geometry: line },
-    ]);
-  });
 });

@@ -29,6 +29,7 @@ import { readTourFile } from './tour-file-import.helpers';
 import { provenanceSource, tourItemOf } from './tour-item.helpers';
 import { TourPaddleCheckService } from './tour-paddle-check.service';
 import { advanceTourRevision } from './tour-revision';
+import { tracksToAdopt } from './tour-track-adoption';
 import { toVisit } from './tour-visits.service';
 import { checkTourCommand, firstPointOf, importFileName, keyedWaypoints, tourRouteFields } from './tour-write.helpers';
 import { computeTourMetrics, localHashOf, parseRouteGeometry, type GeometryPoint } from './tours.helpers';
@@ -809,7 +810,7 @@ export class ToursService {
     await this.assertTourTypeEnabled(fields.tour_type);
     const typeFields = importedTypeFields(fields);
 
-    const adopt = await this.places.tracksToAdopt(tripId, rows);
+    const adopt = await this.adoptableTracks(tripId, rows);
     const fresh = rows.filter((_, index) => !adopt.has(index));
     const tours: TourListItem[] = [];
     const adopted: number[] = [];
@@ -865,6 +866,11 @@ export class ToursService {
       }
     });
     return { tours, caution: tours.some((t) => t.caution), skipped: result.skipped };
+  }
+
+  /** Which rows of a file take over a track of the trip from before Tours (#2810), read off the places list. */
+  private async adoptableTracks(tripId: string, rows: ReadonlyArray<{ name: string }>) {
+    return tracksToAdopt(rows, await this.places.list(tripId, {}));
   }
 
   /**
@@ -944,7 +950,7 @@ export class ToursService {
     const { rows, leftOut } = await readTourFile(this.placeImport, fileBuffer, fileName);
     if (rows.length === 0) return null;
     const duplicates = await this.places.gpxDuplicates(tripId, rows);
-    const adopt = await this.places.tracksToAdopt(tripId, rows);
+    const adopt = await this.adoptableTracks(tripId, rows);
     return {
       tracks: rows.map((row, index) => {
         const geometry = parseRouteGeometry(row.routeGeometry);

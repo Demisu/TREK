@@ -1385,22 +1385,6 @@ describe('searchImage', () => {
 // ── Import deduplication ──────────────────────────────────────────────────────
 
 describe('importGpx deduplication', () => {
-  it('PLACE-SVC-033b — tracksToAdopt pairs each named row with one track of that name that is no tour (#2810)', async () => {
-    const { user } = createUser(testDb);
-    const trip = createTrip(testDb, user.id);
-    const line = '[[46.1,11.1,1200],[46.2,11.2,1300]]';
-    const ids = ['Garmin Hike', 'garmin hike ', '  '].map((name) => createPlace(testDb, trip.id, { name }).id);
-    await updateRows(orm, Places, { id: { $in: ids } }, { route_geometry: line });
-    type Row = Parameters<PlacesService['tracksToAdopt']>[1][number];
-    const row = (name: string) => ({ name, lat: 46.1, lng: 11.1, routeGeometry: line }) as unknown as Row;
-
-    const adopt = await svc.tracksToAdopt(String(trip.id), [row('GARMIN HIKE'), row(''), row('Garmin hike'), row('garmin hike')]);
-    expect([...adopt.entries()]).toEqual([
-      [0, { id: ids[0], name: 'Garmin Hike', route_geometry: line }],
-      [2, { id: ids[1], name: 'garmin hike ', route_geometry: line }],
-    ]);
-  });
-
   it('PLACE-SVC-033 — skips waypoints already in trip by name', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
