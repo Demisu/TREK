@@ -751,7 +751,7 @@ export class PlacesService {
   /** Build a lookup of names/coords for places already in a trip. */
   private async buildDedupSet(tripId: string): Promise<DedupSet> {
     // PL24 — `PlacesRepository.listDedupInputs` replaces the raw statement (Task 5 review L6 ruling).
-    return dedupSetOf(await this.placesRepo.listDedupInputs(tripId), await this.placesRepo.listTrackNames(toRowId(tripId) ?? -1));
+    return dedupSetOf(await this.placesRepo.listDedupInputs(tripId));
   }
 
   /** Which prepared GPX rows the import would skip as already in the trip: its own rule, read only. */

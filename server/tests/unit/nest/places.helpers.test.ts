@@ -28,13 +28,10 @@ const emptyDedup = (): DedupSet => ({ names: new Set(), coords: [], externalIds:
 describe('isPlaceDuplicate / trackInsertedInDedupSet', () => {
   it('matches a track only against the tracks of that name, never a sight of that name (#2810)', () => {
     // The watch named the hike after the gorge, and the gorge is already a place of the trip.
-    const dedup = dedupSetOf(
-      [
-        { name: 'Hokitika Gorge', lat: -42.95, lng: 171.0 },
-        { name: '008', lat: 1, lng: 2 },
-      ],
-      [' 008 ', null],
-    );
+    const dedup = dedupSetOf([
+      { name: 'Hokitika Gorge', lat: -42.95, lng: 171.0, route_geometry: null },
+      { name: ' 008 ', lat: 1, lng: 2, route_geometry: '[[1,2],[3,4]]' },
+    ]);
     expect(isPlaceDuplicate({ name: 'hokitika gorge', lat: -42.9, lng: 171.0, track: true }, dedup)).toBe(false);
     expect(isPlaceDuplicate({ name: '008', lat: 1, lng: 2, track: true }, dedup)).toBe(true);
     // A pin still matches every place of its name, a track included.

@@ -137,23 +137,25 @@ export function isPlaceDuplicate(candidate: DedupCandidate, dedup: DedupSet): bo
  */
 export function dedupSetOf(
   rows: ReadonlyArray<
-    { name: string | null; lat: number | null; lng: number | null } & Parameters<typeof externalIdsOf>[0]
+    { name: string | null; lat: number | null; lng: number | null; route_geometry?: string | null } & Parameters<
+      typeof externalIdsOf
+    >[0]
   >,
-  trackNames: ReadonlyArray<string | null> = [],
 ): DedupSet {
   const names = new Set<string>();
+  const trackNames = new Set<string>();
   const coords: Array<{ lat: number; lng: number }> = [];
   const externalIds = new Set<string>();
   for (const row of rows) {
     for (const id of externalIdsOf(row)) externalIds.add(id);
     if (row.name) {
       names.add(row.name.trim().toLowerCase());
+      if (row.route_geometry) trackNames.add(row.name.trim().toLowerCase());
     } else if (row.lat != null && row.lng != null) {
       coords.push({ lat: row.lat, lng: row.lng });
     }
   }
-  const tracks = trackNames.map(normalizePlaceName).filter((name): name is string => !!name);
-  return { names, trackNames: new Set(tracks), coords, externalIds };
+  return { names, trackNames, coords, externalIds };
 }
 
 /** Record a newly inserted place so subsequent candidates in the same batch are checked against it. */
