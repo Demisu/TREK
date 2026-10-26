@@ -773,12 +773,14 @@ export class PlacesService {
    * the same file a duplicate with no tour to show for it (#2810).
    */
   async tracksToAdopt(tripId: string, rows: PreparedGpxPlace[]): Promise<Map<number, { id: number; route_geometry: string }>> {
+    const adopt = new Map<number, { id: number; route_geometry: string }>();
+    const tid = toRowId(tripId);
+    if (tid === null) return adopt;
     const byName = new Map<string, { id: number; route_geometry: string }[]>();
-    for (const track of await this.placesRepo.listTracksWithoutTour(tripId)) {
+    for (const track of await this.placesRepo.listTracksWithoutTour(tid)) {
       const key = normalizePlaceName(track.name);
       if (key) byName.set(key, [...(byName.get(key) ?? []), track]);
     }
-    const adopt = new Map<number, { id: number; route_geometry: string }>();
     rows.forEach((row, index) => {
       const key = normalizePlaceName(row.name);
       const track = key ? byName.get(key)?.shift() : undefined;

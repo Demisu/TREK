@@ -28,7 +28,7 @@ import { ToursService } from '../../../src/nest/tours/tours.service';
 import { UnsplashService } from '../../../src/nest/unsplash/unsplash.service';
 import { accommodationsOver } from '../../helpers/accommodations-service';
 import { createPlace, createTrip, createUser } from '../../helpers/factories';
-import { countRows, findRows } from '../../helpers/factories/rows';
+import { countRows, findRows, updateRows } from '../../helpers/factories/rows';
 import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
 import { tourStageDays } from '../../helpers/fake-tour-stage-days';
 import { createTestBudgetItemsRepo } from '../../helpers/files-repos';
@@ -316,7 +316,12 @@ describe('Tours GPX atomic persistence and postcommit publication', () => {
 
   it('rolls the new places back too when taking over a track from before Tours fails (#2810)', async () => {
     const legacy = createPlace(testDb, Number(tripId), { name: 'Ridge' }).id;
-    testDb.prepare('UPDATE places SET route_geometry = ? WHERE id = ?').run('[[49,12,100],[49.01,12.01,150]]', legacy);
+    await updateRows(
+      await sharedTestOrm(testDb),
+      Places,
+      { id: legacy },
+      { route_geometry: '[[49,12,100],[49.01,12.01,150]]' },
+    );
     testDb.exec(`CREATE TRIGGER fail_adopt BEFORE INSERT ON tours WHEN NEW.place_id = ${legacy}
       BEGIN SELECT RAISE(ABORT, 'adopt failure'); END;`);
     await expect(tours.importGpxAsTour(tripId, mixedGpx)).rejects.toThrow('adopt failure');

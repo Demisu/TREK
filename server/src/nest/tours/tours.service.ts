@@ -820,7 +820,14 @@ export class ToursService {
       const times = trackTimesFor(fresh, imported.places);
       tours.push(
         ...(await inOrder(imported.places, (place) =>
-          this.insertImportedTour(place, place.route_geometry ?? null, times.get(place.id), fields, typeFields, fileName),
+          this.insertImportedTour(
+            place,
+            place.route_geometry ?? null,
+            times.get(place.id),
+            fields,
+            typeFields,
+            fileName,
+          ),
         )),
       );
       // A track from before Tours keeps its place and its line and becomes the

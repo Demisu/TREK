@@ -324,11 +324,11 @@ export class PlacesRepository extends TrekRepository<Places> {
    * left its tracks like this, and the tour import takes one over by name
    * instead of refusing it as a duplicate (#2810).
    */
-  async listTracksWithoutTour(trip_id: number | string): Promise<{ id: number; name: string; route_geometry: string }[]> {
+  async listTracksWithoutTour(trip_id: number): Promise<{ id: number; name: string; route_geometry: string }[]> {
     return this.qb('p')
       .leftJoin('p.tours', 't')
       .select(['p.id', 'p.name', 'p.route_geometry'])
-      .where('p.trip_id = ? AND p.route_geometry IS NOT NULL AND t.place_id IS NULL', [trip_id])
+      .where({ 'p.trip': trip_id, 'p.route_geometry': { $ne: null }, 't.place': null })
       .orderBy({ 'p.id': 'asc' })
       .execute<{ id: number; name: string; route_geometry: string }[]>('all', false);
   }

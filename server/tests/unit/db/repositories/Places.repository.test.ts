@@ -1593,17 +1593,17 @@ describe('PlacesRepository.isTour / listForTrip tour_place_id', () => {
     const trip = createTrip(testDb, user.id);
     const other = createTrip(testDb, user.id);
     const line = '[[49,12,100],[49.01,12.01,150]]';
-    const track = (tripId: number, name: string) => {
+    const track = async (tripId: number, name: string) => {
       const place = createPlace(testDb, tripId, { name });
-      testDb.prepare('UPDATE places SET route_geometry = ? WHERE id = ?').run(line, place.id);
+      await updateRows(t.orm, Places, { id: place.id }, { route_geometry: line });
       return place;
     };
-    const first = track(trip.id, 'Garmin hike');
-    const second = track(trip.id, 'Garmin hike');
-    const toured = track(trip.id, 'Ridge walk');
+    const first = await track(trip.id, 'Garmin hike');
+    const second = await track(trip.id, 'Garmin hike');
+    const toured = await track(trip.id, 'Ridge walk');
     createTour(testDb, toured.id);
     createPlace(testDb, trip.id, { name: 'Cafe' });
-    track(other.id, 'Garmin hike');
+    await track(other.id, 'Garmin hike');
 
     expect(await places.listTracksWithoutTour(trip.id)).toEqual([
       { id: first.id, name: 'Garmin hike', route_geometry: line },
