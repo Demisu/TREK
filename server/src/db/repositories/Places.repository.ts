@@ -590,6 +590,12 @@ export class PlacesRepository extends TrekRepository<Places> {
       .execute<{ name: string; description: string | null; address: string | null; lat: number | null; lng: number | null; route_geometry: string | null; category: string | null }[]>('all', false);
   }
 
+  /** The names of the trip's places that carry a line, which a track to import is matched against (#2810). */
+  async listTrackNames(trip_id: number): Promise<string[]> {
+    const rows = await this.find({ trip: trip_id, route_geometry: { $ne: null } }, { fields: ['name'] });
+    return rows.map((row) => row.name);
+  }
+
   /**
    * PL24 (`PlacesService.buildDedupSet`'s read) — `SELECT name, lat, lng,
    * google_place_id, google_ftid, osm_id, amap_poi_id FROM places WHERE

@@ -5,6 +5,7 @@
  */
 import {
   COORD_DEDUP_TOLERANCE,
+  dedupSetOf,
   externalIdsOf,
   isPlaceDuplicate,
   mapWithConcurrency,
@@ -25,6 +26,32 @@ vi.mock('../../../src/db/database', () => ({
 const emptyDedup = (): DedupSet => ({ names: new Set(), coords: [], externalIds: new Set() });
 
 describe('isPlaceDuplicate / trackInsertedInDedupSet', () => {
+  it('matches a track only against the tracks of that name, never a sight of that name (#2810)', () => {
+    // The watch named the hike after the gorge, and the gorge is already a place of the trip.
+    const dedup = dedupSetOf(
+      [
+        { name: 'Hokitika Gorge', lat: -42.95, lng: 171.0 },
+        { name: '008', lat: 1, lng: 2 },
+      ],
+      [' 008 ', null],
+    );
+    expect(isPlaceDuplicate({ name: 'hokitika gorge', lat: -42.9, lng: 171.0, track: true }, dedup)).toBe(false);
+    expect(isPlaceDuplicate({ name: '008', lat: 1, lng: 2, track: true }, dedup)).toBe(true);
+    // A pin still matches every place of its name, a track included.
+    expect(isPlaceDuplicate({ name: 'Hokitika Gorge', lat: null, lng: null }, dedup)).toBe(true);
+    expect(isPlaceDuplicate({ name: '008', lat: null, lng: null }, dedup)).toBe(true);
+
+    // A track imported earlier in the same file counts for the next one.
+    trackInsertedInDedupSet({ name: 'Hokitika Gorge', lat: -42.9, lng: 171.0, track: true }, dedup);
+    expect(isPlaceDuplicate({ name: 'Hokitika gorge ', lat: null, lng: null, track: true }, dedup)).toBe(true);
+    // A set built by hand without tracks matches no track by name.
+    const bare = emptyDedup();
+    trackInsertedInDedupSet({ name: 'Ridge', lat: 1, lng: 2 }, bare);
+    expect(isPlaceDuplicate({ name: 'Ridge', lat: 1, lng: 2, track: true }, bare)).toBe(false);
+    trackInsertedInDedupSet({ name: 'Lake', lat: 1, lng: 2, track: true }, bare);
+    expect([...(bare.trackNames ?? [])]).toEqual(['lake']);
+  });
+
   it('matches a named place case- and whitespace-insensitively', () => {
     const dedup = emptyDedup();
     trackInsertedInDedupSet({ name: '  Eiffel Tower ', lat: 1, lng: 2 }, dedup);

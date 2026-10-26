@@ -565,6 +565,21 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
       expect((await importGpx(OWNER, TRACK_GPX)).body).toEqual({ tours: [], caution: false, skipped: 1 });
     });
 
+    it('imports a hike named after a sight of the trip instead of skipping it as a duplicate (#2810)', async () => {
+      // A watch names the hike after where it went, and that place is already planned.
+      const sight = (await makePlace(orm, 5, { name: 'alpine loop', lat: 47, lng: 11 })).id;
+
+      const preview = await previewGpx(OWNER, TRACK_GPX);
+      expect(preview.body.tracks[0]).toMatchObject({ name: 'Alpine loop', duplicate: false });
+
+      const res = await importGpx(OWNER, TRACK_GPX);
+      expect(res.status).toBe(201);
+      expect(res.body).toMatchObject({ skipped: 0 });
+      expect(res.body.tours).toHaveLength(1);
+      expect(res.body.tours[0].place_id).not.toBe(sight);
+      expect(await placeColumns(sight, 'route_geometry')).toEqual({ route_geometry: null });
+    });
+
     it('400 without a file, and for a file with no track or route', async () => {
       const missing = await importGpx(OWNER, null);
       expect(missing.status).toBe(400);

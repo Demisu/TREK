@@ -1587,4 +1587,16 @@ describe('PlacesRepository.isTour / listForTrip tour_place_id', () => {
     expect(byId.get(tour.id)).toBe(tour.id);
     expect(byId.get(plain.id)).toBeNull();
   });
+
+  it("PLACEREPO-TOUR-005: listTrackNames lists the names of the trip's places with a line (#2810)", async () => {
+    const { user } = createUser(testDb);
+    const trip = createTrip(testDb, user.id);
+    const other = createTrip(testDb, user.id);
+    const line = '[[49,12],[49.01,12.01]]';
+    const tracks = [createPlace(testDb, trip.id, { name: 'Garmin hike' }), createPlace(testDb, trip.id, { name: 'Ridge walk' }), createPlace(testDb, other.id, { name: 'Elsewhere' })];
+    await updateRows(t.orm, Places, { id: { $in: tracks.map((p) => p.id) } }, { route_geometry: line });
+    createPlace(testDb, trip.id, { name: 'Hokitika Gorge' });
+
+    expect((await places.listTrackNames(trip.id)).sort()).toEqual(['Garmin hike', 'Ridge walk']);
+  });
 });
