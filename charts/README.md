@@ -35,31 +35,6 @@ helm install trek ./charts/trek \
 
 See `values.yaml` for more options.
 
-### HTTPRoute
-
-HTTPRoute support is off by default. Enable it to attach TREK to an existing Gateway:
-
-```yaml
-httpRoute:
-  enabled: true
-  annotations: {}
-  parentRefs:
-    - name: gateway
-      namespace: gateway-system
-      sectionName: https
-  hostnames:
-    - trek.example.com
-  paths:
-    - /
-  timeouts:
-    request: "0s"
-    backendRequest: "0s"
-```
-
-The cluster must have the Gateway API `HTTPRoute` v1 CRD and a Gateway API controller. The chart creates only the HTTPRoute, targeting TREK's existing Service and `service.port`; the Gateway, GatewayClass, listener, TLS certificate, and `allowedRoutes` configuration remain the operator's responsibility. When enabled, `parentRefs` and `paths` must be non-empty. Each path is a string prefix. Ingress and HTTPRoute can both be enabled.
-
-Timeout fields became Standard Channel in Gateway API v1.2, but controller support is implementation-specific. Omitting them leaves timeout behavior to the controller. `0s` disables the corresponding request timeout; controller idle and buffering settings can still interrupt `/ws` connections or streamed assistant responses. Set `env.ALLOWED_ORIGINS` and `env.APP_URL` to the public URL; when the Gateway terminates TLS, configure `env.FORCE_HTTPS: "true"` and `env.TRUST_PROXY: "1"`.
-
 ## Files
 - `Chart.yaml` — chart metadata
 - `values.yaml` — configuration values
