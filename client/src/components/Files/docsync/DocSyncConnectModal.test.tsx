@@ -502,7 +502,10 @@ describe('DocSyncConnectModal with a connection already stored', () => {
 describe('DocSyncConnectModal removal', () => {
   const removeButton = () => screen.queryByRole('button', { name: tx('docsync.connection.remove') })
   // The confirmation is portalled after the dialog, so its button is the last one of that name.
-  const confirmRemoval = () => screen.getAllByRole('button', { name: tx('docsync.connection.remove') }).at(-1)!
+  const confirmRemoval = () => {
+    const named = screen.getAllByRole('button', { name: tx('docsync.connection.remove') })
+    return named[named.length - 1]
+  }
 
   async function openWithRemoval(stored: boolean) {
     if (stored) listConnections.mockResolvedValue([connection()])
@@ -516,7 +519,7 @@ describe('DocSyncConnectModal removal', () => {
     const onRemoved = await openWithRemoval(true)
     await waitFor(() => expect(removeButton()).toBeInTheDocument())
 
-    fireEvent.click(removeButton()!)
+    fireEvent.click(screen.getByRole('button', { name: tx('docsync.connection.remove') }))
     expect(deleteConnection).not.toHaveBeenCalled()
     await screen.findByText(tx('docsync.connection.confirmRemove'))
     fireEvent.click(confirmRemoval())
@@ -530,7 +533,7 @@ describe('DocSyncConnectModal removal', () => {
     const onRemoved = await openWithRemoval(true)
     await waitFor(() => expect(removeButton()).toBeInTheDocument())
 
-    fireEvent.click(removeButton()!)
+    fireEvent.click(screen.getByRole('button', { name: tx('docsync.connection.remove') }))
     await screen.findByText(tx('docsync.connection.confirmRemove'))
     fireEvent.click(confirmRemoval())
 

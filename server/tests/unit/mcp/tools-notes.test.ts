@@ -104,7 +104,7 @@ describe('Tool: create_day_note', () => {
     await withHarness(user.id, async (h) => {
       const { tools } = await h.client.listTools();
       for (const name of ['create_day_note', 'update_day_note']) {
-        const props = tools.find((t) => t.name === name)?.inputSchema.properties as Record<string, any>;
+        const props = tools.find((t) => t.name === name)?.inputSchema.properties as Record<string, unknown>;
         // The nullable body may come out as an anyOf, so read the property whole.
         const time = JSON.stringify(props.time);
         expect(JSON.stringify(props.text)).toMatch(/title/i);
@@ -125,7 +125,7 @@ describe('Tool: create_day_note', () => {
         name: 'create_day_note',
         arguments: { tripId: trip.id, dayId: day.id, text: 'Museum day', time: body },
       });
-      const data = parseToolResult(result) as any;
+      const data = parseToolResult(result) as { note: { id: number } };
       expect((await dayNote(data.note.id)).time).toBe(body);
       const tooLong = await h.client.callTool({
         name: 'create_day_note',

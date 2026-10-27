@@ -548,7 +548,9 @@ describe('MDocSyncSheet: the stored connection', () => {
     fireEvent.click(removeButtons()[0])
     expect(docsyncApi.deleteConnection).not.toHaveBeenCalled()
     expect(await screen.findByText(/TREK forgets the address and login/)).toBeInTheDocument()
-    fireEvent.click(removeButtons().at(-1)!)
+    // The confirmation sheet opens over the form, so its button is the last one of that name.
+    const named = removeButtons()
+    fireEvent.click(named[named.length - 1])
 
     await waitFor(() => expect(docsyncApi.deleteConnection).toHaveBeenCalledWith(TRIP_ID, 5))
     // Back at the list, with Paperless offered again from scratch.
