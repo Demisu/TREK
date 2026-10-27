@@ -28,6 +28,12 @@ import { toProviderSchema, type AiFetch } from '../../../../src/nest/ai-connecti
 
 import { describe, expect, it, vi } from 'vitest';
 
+const { logWarn } = vi.hoisted(() => ({ logWarn: vi.fn() }));
+vi.mock('../../../../src/nest/audit/audit-log.logger', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../../src/nest/audit/audit-log.logger')>()),
+  logWarn,
+}));
+
 /** An SSE body from whole events, cut every `every` characters so no event arrives in one piece. */
 function sseBody(events: unknown[], every = 7): ReadableStream<Uint8Array> {
   const text = events.map((e) => `data: ${typeof e === 'string' ? e : JSON.stringify(e)}\n\n`).join('');
@@ -144,6 +150,40 @@ describe('provider errors', () => {
     expect(errorCodeOf({ detail: { code: 'deep' } })).toBe('deep');
     expect(errorCodeOf(null)).toBeUndefined();
     expect(errorCodeOf({})).toBeUndefined();
+  });
+
+  it('PERR-004: a refusal is logged with the path of the field it names, never with its message (#2845)', async () => {
+    const refused = (param: unknown) =>
+      failure(
+        new OpenAiResponsesClient(
+          'm',
+          async () => 'at',
+          fetchAnswering(
+            jsonResponse(400, {
+              error: {
+                type: 'invalid_request_error',
+                code: null,
+                message: 'No tool output found for function call call_note. Dinner in Rome at 20:00.',
+                param,
+              },
+            }),
+          ).fetcher,
+        ).stream(REQUEST, signal()),
+      );
+
+    logWarn.mockClear();
+    expect(await refused('input[3]')).toMatchObject({ code: 'generic', status: 400 });
+    expect(logWarn).toHaveBeenCalledWith(
+      '[ai] chatgpt refused the request: HTTP 400 (invalid_request_error) at input[3]',
+    );
+
+    logWarn.mockClear();
+    await refused('input[3] Dinner in Rome');
+    await refused(null);
+    expect(logWarn.mock.calls.map(([line]) => line)).toEqual([
+      '[ai] chatgpt refused the request: HTTP 400 (invalid_request_error)',
+      '[ai] chatgpt refused the request: HTTP 400 (invalid_request_error)',
+    ]);
   });
 });
 

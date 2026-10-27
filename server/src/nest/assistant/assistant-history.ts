@@ -9,6 +9,7 @@ import { fitToSize } from './assistant-output';
 import {
   ADD_FOUND_PLACE_TOOL,
   APPROVAL_TTL_MS,
+  ASSISTANT_MODEL_CALLED_SERVER_TOOLS,
   ASSISTANT_SERVER_TOOLS,
   IMPORT_BOOKING_TOOL,
   IMPORT_TOUR_FILE_TOOL,
@@ -190,13 +191,6 @@ function earlierCut(text: string, earlier: boolean): string {
     : text;
 }
 
-/**
- * The model's own calls on attached files: told after the step that made
- * them, so the history ends on the user's side when the user's decision on
- * them goes on.
- */
-const ATTACHED_FILE_TOOLS: ReadonlySet<string> = new Set([READ_ATTACHED_FILE_TOOL, KEEP_ATTACHED_FILE_TOOL]);
-
 /** What became of keeping an attached file in Files, as its stored part says. */
 function keptFileLine(part: ToolCallPart): string {
   const file = quoted(part.args.name);
@@ -234,30 +228,31 @@ function attachedReadLine(
 }
 
 /**
- * What the model is told of its reads of attached files in one step: the
- * text of each file the user let it read, the first time the history holds
- * it (`told` keeps track), and what became of a read the user did not allow.
- * `texts` are the shared files' texts, by attachment id; one no longer there
- * was swept with its file.
+ * The answer a replayed call gets: what became of an attached file (the text
+ * of a file the user let it read, the first time the history holds it, `told`
+ * keeping track; `texts` are the shared files' texts by attachment id), "not
+ * applied" for a held change that never ran, the stored result otherwise.
  */
-function attachedReadNote(
-  calls: readonly ToolCallPart[],
+function replayedOutput(
+  part: ToolCallPart,
   texts: ReadonlyMap<string, string>,
   told: Set<string>,
   earlier: boolean,
 ): string {
-  return calls
-    .map((part) =>
-      part.toolName === KEEP_ATTACHED_FILE_TOOL ? keptFileLine(part) : attachedReadLine(part, texts, told, earlier),
-    )
-    .join('\n\n');
+  if (part.toolName === KEEP_ATTACHED_FILE_TOOL) return keptFileLine(part);
+  if (part.toolName === READ_ATTACHED_FILE_TOOL) return attachedReadLine(part, texts, told, earlier);
+  if (part.result === undefined) return NOT_APPLIED;
+  return outputText(earlier ? fitToSize(part.result, EARLIER_TOOL_OUTPUT_CHARS) : part.result);
 }
 
 /**
  * The thread as the provider reads it, oldest first, from its first user
  * message on. A step's tool calls are followed by their answers; a held
  * change that was never applied answers that it was not, since every call
- * must be answered. `providerIds` maps a held call's own id to the id the
+ * must be answered. That includes the server's tools the model called itself
+ * (a trip note, an attached file): the providers that replay their own record
+ * of a step refuse it with a call left unanswered, and every later message of
+ * the thread with it. `providerIds` maps a held call's own id to the id the
  * provider gave it.
  */
 export function toChatHistory(
@@ -282,42 +277,31 @@ export function toChatHistory(
       (part): part is Extract<AssistantMessagePart, { type: 'tool-call' }> =>
         part.type === 'tool-call' && part.toolName !== ASSISTANT_WEB_SEARCH_STEP,
     );
-    const reads = allCalls.filter((part) => ATTACHED_FILE_TOOLS.has(part.toolName));
-    const serverCalls = allCalls.filter(
-      (part) => ASSISTANT_SERVER_TOOLS.has(part.toolName) && !ATTACHED_FILE_TOOLS.has(part.toolName),
-    );
+    const serverStep = (part: ToolCallPart) =>
+      ASSISTANT_SERVER_TOOLS.has(part.toolName) && !ASSISTANT_MODEL_CALLED_SERVER_TOOLS.has(part.toolName);
     // Told as the user's side of the conversation: the history then ends on it
     // when a decision on these bookings starts the next answer.
-    if (serverCalls.length > 0) history.push({ role: 'user', text: serverStepsNote(serverCalls) });
-    const calls = allCalls.filter((part) => !ASSISTANT_SERVER_TOOLS.has(part.toolName));
+    const note = serverStepsNote(allCalls.filter(serverStep));
+    if (note) history.push({ role: 'user', text: note });
+    const calls = allCalls.filter((part) => !serverStep(part));
     const toolCalls: AiToolCall[] = calls.map((part) => ({
       id: providerIds.get(part.toolCallId) ?? part.toolCallId,
       name: part.toolName,
       args: part.args,
     }));
     const text = textOf(parts);
-    // Told after the step that read the files, so the history ends on the user's side when a consent goes on.
-    const readNote = reads.length > 0 ? attachedReadNote(reads, attachedTexts, told, earlier) : '';
-    if (!text && toolCalls.length === 0) {
-      if (readNote) history.push({ role: 'user', text: readNote });
-      return;
-    }
+    if (!text && toolCalls.length === 0) return;
     const providerState = decodeJson(ASSISTANT_PROVIDER_STATE, row.provider_state, `message ${row.id}`);
     history.push({ role: 'assistant', text, toolCalls, providerState });
     calls.forEach((part, index) => {
-      const output =
-        part.result === undefined
-          ? NOT_APPLIED
-          : outputText(earlier ? fitToSize(part.result, EARLIER_TOOL_OUTPUT_CHARS) : part.result);
       history.push({
         role: 'tool',
         toolCallId: toolCalls[index].id,
         name: part.toolName,
-        output,
+        output: replayedOutput(part, attachedTexts, told, earlier),
         ...(part.isError ? { isError: true } : {}),
       });
     });
-    if (readNote) history.push({ role: 'user', text: readNote });
   });
   return history;
 }
