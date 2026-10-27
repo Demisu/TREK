@@ -529,6 +529,125 @@ describe('OpenAiChatClient', () => {
       await failure(client(streamResponse([{ choices: [{ delta: { content: 'half' } }] }])).stream(REQUEST, signal())),
     ).toMatchObject({ providerCode: 'stream_cut' });
   });
+
+  // Gemini 3 signs the first call of a step on its first piece, the way its Chat Completions endpoint streams it.
+  const SIGNED = [
+    {
+      choices: [
+        {
+          delta: {
+            tool_calls: [
+              {
+                index: 0,
+                id: 'function-call-1',
+                type: 'function',
+                function: { name: 'create_place', arguments: '{"name":"Nijo"}' },
+                extra_content: { google: { thought_signature: 'sig-A' } },
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      choices: [
+        {
+          delta: {
+            tool_calls: [{ index: 1, function: { name: 'list_places', arguments: '{}' } }],
+          },
+          finish_reason: 'tool_calls',
+        },
+      ],
+    },
+    '[DONE]',
+  ];
+
+  it('OACH-006: a signed call comes back as the provider state, keyed by the id it goes on with', async () => {
+    const events = await run(
+      new OpenAiChatClient(
+        'gemini',
+        'gemini-3-flash',
+        'https://g',
+        'k',
+        fetchAnswering(streamResponse(SIGNED)).fetcher,
+      ).stream(REQUEST, signal()),
+    );
+    expect(events.filter((event) => event.type === 'tool-call')).toEqual([
+      { type: 'tool-call', call: { id: 'function-call-1', name: 'create_place', args: { name: 'Nijo' } } },
+      { type: 'tool-call', call: { id: 'call_1', name: 'list_places', args: {} } },
+    ]);
+    expect(events.slice(-2)).toEqual([
+      {
+        type: 'provider-state',
+        state: { adapter: 'openai-chat', model: 'gemini-3-flash', signatures: { 'function-call-1': 'sig-A' } },
+      },
+      { type: 'finish', reason: 'tool-calls' },
+    ]);
+
+    // An unsigned turn keeps no state: nothing is stored for a provider that signs nothing.
+    const plain = await run(
+      new OpenAiChatClient('openai', 'm', 'https://x', 'k', fetchAnswering(streamResponse(STREAM)).fetcher).stream(
+        REQUEST,
+        signal(),
+      ),
+    );
+    expect(plain.some((event) => event.type === 'provider-state')).toBe(false);
+  });
+
+  it('OACH-007: the signature goes back with its call to the model that signed it, and to no other', async () => {
+    const signed: AiChatRequest = {
+      ...REQUEST,
+      messages: [
+        { role: 'user', text: 'Add Nijo' },
+        {
+          role: 'assistant',
+          text: '',
+          toolCalls: [
+            { id: 'function-call-1', name: 'create_place', args: { name: 'Nijo' } },
+            { id: 'call_1', name: 'list_places', args: {} },
+          ],
+          providerState: {
+            adapter: 'openai-chat',
+            model: 'gemini-3-flash',
+            signatures: { 'function-call-1': 'sig-A' },
+          },
+        },
+        { role: 'tool', toolCallId: 'function-call-1', name: 'create_place', output: '{"id":7}' },
+        { role: 'tool', toolCallId: 'call_1', name: 'list_places', output: '[]' },
+      ],
+    };
+    const http = fetchAnswering(streamResponse(['[DONE]']));
+    await run(
+      new OpenAiChatClient('gemini', 'gemini-3-flash', 'https://g', 'k', http.fetcher).stream(signed, signal()),
+    );
+    expect(dig(http.body(), 'messages', 2, 'tool_calls')).toEqual([
+      {
+        id: 'function-call-1',
+        type: 'function',
+        function: { name: 'create_place', arguments: '{"name":"Nijo"}' },
+        extra_content: { google: { thought_signature: 'sig-A' } },
+      },
+      { id: 'call_1', type: 'function', function: { name: 'list_places', arguments: '{}' } },
+    ]);
+
+    // A thread that moved on to another model sends the calls plain: no other model reads the signature.
+    for (const messages of [toChatMessages(signed, 'gpt-5-mini'), toChatMessages(signed)]) {
+      expect(JSON.stringify(messages)).not.toContain('extra_content');
+    }
+  });
+
+  it('OACH-008: an own server on Gemini’s endpoint gets Gemini’s narrower schemas, any other the full ones', async () => {
+    const parameters = async (baseUrl: string) => {
+      const http = fetchAnswering(streamResponse(['[DONE]']));
+      await run(new OpenAiChatClient('custom', 'm', baseUrl, 'k', http.fetcher).stream(REQUEST, signal()));
+      return dig(http.body(), 'tools', 0, 'function', 'parameters');
+    };
+    expect(await parameters('https://generativelanguage.googleapis.com/v1beta/openai')).toEqual(
+      toProviderSchema(TOOL.parameters, 'gemini'),
+    );
+    expect(await parameters('http://ollama:11434/v1')).toEqual(toProviderSchema(TOOL.parameters, 'custom'));
+    expect(await parameters('not a url')).toEqual(toProviderSchema(TOOL.parameters, 'custom'));
+  });
 });
 
 describe('OpenAiResponsesClient', () => {

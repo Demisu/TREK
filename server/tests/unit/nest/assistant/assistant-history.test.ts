@@ -8,6 +8,7 @@ import type { AssistantMessageRow } from '../../../../src/db/repositories/Assist
 import type { AssistantToolCallRow } from '../../../../src/db/repositories/AssistantToolCalls.repository';
 import type { AiChatMessage } from '../../../../src/nest/ai-connections/ai-chat-client.interface';
 import { toAnthropicMessages } from '../../../../src/nest/ai-connections/providers/anthropic-messages.client';
+import { toChatMessages } from '../../../../src/nest/ai-connections/providers/openai-chat.client';
 import { toResponsesInput } from '../../../../src/nest/ai-connections/providers/openai-responses.client';
 import {
   messageIdOf,
@@ -571,6 +572,23 @@ describe('toChatHistory: calls the model made of the server tools (#2845)', () =
       expect(results).toEqual(ids);
     });
     expect(messages.flatMap((message) => message.content).some((block) => block.text === '')).toBe(false);
+  });
+
+  it('ASTHIS-018: Gemini gets every stored call back with its thought signature, an applied change included', () => {
+    const state = (id: string, signature: string) => ({
+      adapter: 'openai-chat',
+      model: 'gemini-3-flash',
+      signatures: { [id]: signature },
+    });
+    type SentCall = { id: string; extra_content?: { google: { thought_signature: string } } };
+    const history = appliedAfterANote(state('call_note', 'sig-note'), state('call_move', 'sig-move'));
+    const sent = toChatMessages({ system: '', messages: history, tools: [] }, 'gemini-3-flash')
+      .flatMap((message) => (message.tool_calls ?? []) as SentCall[])
+      .map((call) => [call.id, call.extra_content?.google.thought_signature]);
+    expect(sent).toEqual([
+      ['call_note', 'sig-note'],
+      ['call_move', 'sig-move'],
+    ]);
   });
 
   it('ASTHIS-017: a step that only kept a note is the model call it was, answered with what was kept', () => {
