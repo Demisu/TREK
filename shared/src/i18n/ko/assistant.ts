@@ -174,6 +174,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': '통화',
   'assistant.change.label.stopType': '경유지 유형',
   'assistant.change.label.text': '텍스트',
+  'assistant.change.label.title': '제목',
+  'assistant.change.label.content': '내용',
   'assistant.change.label.icon': '아이콘',
   'assistant.change.label.color': '색상',
   'assistant.change.label.position': '위치',

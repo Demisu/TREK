@@ -184,6 +184,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': 'Pénznem',
   'assistant.change.label.stopType': 'Megálló típusa',
   'assistant.change.label.text': 'Szöveg',
+  'assistant.change.label.title': 'Cím',
+  'assistant.change.label.content': 'Tartalom',
   'assistant.change.label.icon': 'Ikon',
   'assistant.change.label.color': 'Szín',
   'assistant.change.label.position': 'Pozíció',

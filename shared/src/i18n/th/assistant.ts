@@ -174,6 +174,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': 'สกุลเงิน',
   'assistant.change.label.stopType': 'ประเภทจุดแวะ',
   'assistant.change.label.text': 'ข้อความ',
+  'assistant.change.label.title': 'หัวข้อ',
+  'assistant.change.label.content': 'เนื้อหา',
   'assistant.change.label.icon': 'ไอคอน',
   'assistant.change.label.color': 'สี',
   'assistant.change.label.position': 'ลำดับ',

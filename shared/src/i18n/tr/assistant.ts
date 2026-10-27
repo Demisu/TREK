@@ -181,6 +181,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': 'Para birimi',
   'assistant.change.label.stopType': 'Durak türü',
   'assistant.change.label.text': 'Metin',
+  'assistant.change.label.title': 'Başlık',
+  'assistant.change.label.content': 'İçerik',
   'assistant.change.label.icon': 'Simge',
   'assistant.change.label.color': 'Renk',
   'assistant.change.label.position': 'Sıra',

@@ -189,6 +189,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': 'Валюта',
   'assistant.change.label.stopType': 'Тип зупинки',
   'assistant.change.label.text': 'Текст',
+  'assistant.change.label.title': 'Заголовок',
+  'assistant.change.label.content': 'Вміст',
   'assistant.change.label.icon': 'Значок',
   'assistant.change.label.color': 'Колір',
   'assistant.change.label.position': 'Позиція',

@@ -142,7 +142,7 @@ describe('describeToolCall', () => {
     });
     expect(describe_('update_day_note', { dayId: 31, noteId: 41, time: null })).toMatchObject({
       subject: 'Rail pass',
-      rows: [{ op: 'change', labelKey: 'time', before: '09:00', after: '' }],
+      rows: [{ op: 'change', labelKey: 'content', before: '09:00', after: '' }],
     });
     expect(describe_('create_day_note', { dayId: 33, text: 'Laundry', icon: '🧺' }).rows).toEqual([
       { op: 'add', labelKey: 'day', before: null, after: 'Spare day' },

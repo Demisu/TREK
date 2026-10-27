@@ -176,6 +176,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': '通貨',
   'assistant.change.label.stopType': '立ち寄りの種類',
   'assistant.change.label.text': 'テキスト',
+  'assistant.change.label.title': 'タイトル',
+  'assistant.change.label.content': '内容',
   'assistant.change.label.icon': 'アイコン',
   'assistant.change.label.color': '色',
   'assistant.change.label.position': '位置',

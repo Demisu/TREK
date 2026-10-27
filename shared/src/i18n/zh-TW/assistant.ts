@@ -170,6 +170,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': '貨幣',
   'assistant.change.label.stopType': '停靠類型',
   'assistant.change.label.text': '文字',
+  'assistant.change.label.title': '標題',
+  'assistant.change.label.content': '內容',
   'assistant.change.label.icon': '圖示',
   'assistant.change.label.color': '顏色',
   'assistant.change.label.position': '位置',

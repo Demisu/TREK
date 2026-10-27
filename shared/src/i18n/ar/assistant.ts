@@ -191,6 +191,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': 'العملة',
   'assistant.change.label.stopType': 'نوع التوقف',
   'assistant.change.label.text': 'النص',
+  'assistant.change.label.title': 'العنوان',
+  'assistant.change.label.content': 'المحتوى',
   'assistant.change.label.icon': 'الأيقونة',
   'assistant.change.label.color': 'اللون',
   'assistant.change.label.position': 'الترتيب',

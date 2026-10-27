@@ -101,8 +101,8 @@ Requires `trips:read` or `trips:write` scope.
 
 | Tool | Description |
 |---|---|
-| `create_day_note` | Add a note to a specific day with optional time label and emoji icon. |
-| `update_day_note` | Edit a day note's text, time, or icon. |
+| `create_day_note` | Add a note to a specific day: `text` is the title, `time` the Markdown body (up to 2000 characters), plus an optional icon and colour. |
+| `update_day_note` | Edit a day note's title (`text`), body (`time`), icon, colour or position. |
 | `delete_day_note` | Remove a note from a day. |
 
 ### Accommodations

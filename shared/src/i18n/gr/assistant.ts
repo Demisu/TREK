@@ -185,6 +185,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': 'Νόμισμα',
   'assistant.change.label.stopType': 'Τύπος στάσης',
   'assistant.change.label.text': 'Κείμενο',
+  'assistant.change.label.title': 'Τίτλος',
+  'assistant.change.label.content': 'Περιεχόμενο',
   'assistant.change.label.icon': 'Εικονίδιο',
   'assistant.change.label.color': 'Χρώμα',
   'assistant.change.label.position': 'Σειρά',

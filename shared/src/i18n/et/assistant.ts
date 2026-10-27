@@ -182,6 +182,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': 'Valuuta',
   'assistant.change.label.stopType': 'Peatuse tüüp',
   'assistant.change.label.text': 'Tekst',
+  'assistant.change.label.title': 'Pealkiri',
+  'assistant.change.label.content': 'Sisu',
   'assistant.change.label.icon': 'Ikoon',
   'assistant.change.label.color': 'Värv',
   'assistant.change.label.position': 'Järjekord',

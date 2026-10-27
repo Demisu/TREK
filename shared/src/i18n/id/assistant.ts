@@ -176,6 +176,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': 'Mata uang',
   'assistant.change.label.stopType': 'Jenis pemberhentian',
   'assistant.change.label.text': 'Teks',
+  'assistant.change.label.title': 'Judul',
+  'assistant.change.label.content': 'Isi',
   'assistant.change.label.icon': 'Ikon',
   'assistant.change.label.color': 'Warna',
   'assistant.change.label.position': 'Posisi',

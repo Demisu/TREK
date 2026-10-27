@@ -181,6 +181,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': 'Moneda',
   'assistant.change.label.stopType': 'Tipo de parada',
   'assistant.change.label.text': 'Texto',
+  'assistant.change.label.title': 'Título',
+  'assistant.change.label.content': 'Contenido',
   'assistant.change.label.icon': 'Icono',
   'assistant.change.label.color': 'Color',
   'assistant.change.label.position': 'Orden',

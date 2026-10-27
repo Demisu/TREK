@@ -184,6 +184,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': 'Měna',
   'assistant.change.label.stopType': 'Typ zastávky',
   'assistant.change.label.text': 'Text', // same-as-en
+  'assistant.change.label.title': 'Název',
+  'assistant.change.label.content': 'Obsah',
   'assistant.change.label.icon': 'Ikona',
   'assistant.change.label.color': 'Barva',
   'assistant.change.label.position': 'Pořadí',

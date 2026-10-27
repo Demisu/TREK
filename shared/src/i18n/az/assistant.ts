@@ -182,6 +182,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': 'Valyuta',
   'assistant.change.label.stopType': 'Dayanacaq növü',
   'assistant.change.label.text': 'Mətn',
+  'assistant.change.label.title': 'Başlıq',
+  'assistant.change.label.content': 'Məzmun',
   'assistant.change.label.icon': 'İkon',
   'assistant.change.label.color': 'Rəng',
   'assistant.change.label.position': 'Sıra',

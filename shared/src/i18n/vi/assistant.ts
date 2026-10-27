@@ -176,6 +176,8 @@ const assistant: TranslationStrings = {
   'assistant.change.label.currency': 'Tiền tệ',
   'assistant.change.label.stopType': 'Loại điểm dừng',
   'assistant.change.label.text': 'Văn bản',
+  'assistant.change.label.title': 'Tiêu đề',
+  'assistant.change.label.content': 'Nội dung',
   'assistant.change.label.icon': 'Biểu tượng',
   'assistant.change.label.color': 'Màu',
   'assistant.change.label.position': 'Vị trí',
