@@ -803,6 +803,34 @@ describe('useRoadtripRoutes', () => {
       }
     })
 
+    it('FE-ROADTRIP-ROUTES-052: a join this device routed before is not paced like a request (#2794)', async () => {
+      // A join kept its request slot whatever answered it, so a month of connected days
+      // waited half a minute on every open with every road already on the device. The
+      // clock is held still, so every answer reads as one from the cache; a join that
+      // still waited its turn would wait 1.1 s of real time, past what waitFor gives it.
+      const clock = vi.spyOn(performance, 'now').mockImplementation(() => 10_000)
+      try {
+        const MUNICH: [number, number] = [48.1374, 11.5755]
+        const INNSBRUCK: [number, number] = [47.2692, 11.4041]
+        const BOZEN: [number, number] = [46.4983, 11.3548]
+        setting({ roadtrip_connect_days: true })
+        const daysList = [day(1, 1), day(2, 2), day(3, 3)]
+        const assignments = {
+          ...map(1, [{ id: 1, at: HAMBURG, time: '09:00' }, { id: 2, at: LUENEBURG }]),
+          ...map(2, [{ id: 3, at: BERLIN, time: '09:00' }, { id: 4, at: MUNICH }]),
+          ...map(3, [{ id: 5, at: INNSBRUCK, time: '09:00' }, { id: 6, at: BOZEN }]),
+        } as AssignmentsMap
+        renderHook(() => useRoadtripRoutes(7, daysList, assignments))
+
+        await waitFor(() => {
+          expect(askedFor(LUENEBURG, BERLIN)).toHaveLength(1)
+          expect(askedFor(MUNICH, INNSBRUCK)).toHaveLength(1)
+        })
+      } finally {
+        clock.mockRestore()
+      }
+    })
+
     it('FE-ROADTRIP-ROUTES-051: a join OSRM answered in the engine’s place is drawn, flagged, and asked for again on request', async () => {
       // Filed like any answer, it stood in for the weighed road until the page was loaded
       // again, and a picker on it read the stand-in line as the road already taken.

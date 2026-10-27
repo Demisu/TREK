@@ -692,11 +692,19 @@ export function useRoadtripRoutes(
    * for both, so a choice being checked cannot fire into the gap a seam is keeping.
    */
   const lastSpacedRequestAt = useRef(0)
-  /** Waits until the gap since the last such request is kept, then claims the next slot. */
-  const spacedRequest = useCallback(async (signal: AbortSignal): Promise<void> => {
+  /**
+   * Waits until the gap since the last such request is kept, then claims the next slot.
+   * Hands back what gives the slot up again, for a request the cache answered.
+   */
+  const spacedRequest = useCallback(async (signal: AbortSignal): Promise<() => void> => {
     const since = performance.now() - lastSpacedRequestAt.current
     if (since < REQUEST_SPACING_MS) await sleep(REQUEST_SPACING_MS - since, signal)
-    if (!signal.aborted) lastSpacedRequestAt.current = performance.now()
+    const before = lastSpacedRequestAt.current
+    const claimed = performance.now()
+    if (!signal.aborted) lastSpacedRequestAt.current = claimed
+    return () => {
+      if (lastSpacedRequestAt.current === claimed) lastSpacedRequestAt.current = before
+    }
   }, [])
 
   useEffect(() => {
@@ -727,7 +735,7 @@ export function useRoadtripRoutes(
         // shared routing hosts answered the tail with 429, and a refused seam
         // writes no state, so nothing changed to make the effect try again: the
         // map drew the trip in pieces and the totals came back short.
-        await spacedRequest(controller.signal)
+        const release = await spacedRequest(controller.signal)
         if (controller.signal.aborted) return
         try {
           // The via points on this seam, threaded in the same way the day runs thread
@@ -735,6 +743,7 @@ export function useRoadtripRoutes(
           // shape: it is asked for on its own, so the points the traveller dropped on it
           // never reached the router and dragging one did visibly nothing.
           const shaping = viasOnLeg(seam.from, seam.to, viasByDay[seam.from.ownerDayId] ?? [])
+          const startedAt = performance.now()
           const r = await calculateRouteWithLegs(
             [
               { lat: seam.from.lat, lng: seam.from.lng },
@@ -743,6 +752,10 @@ export function useRoadtripRoutes(
             ],
             { signal: controller.signal, profile: mode, tripId: tripId ?? null, dayId: seam.dayId, avoid },
           )
+          // A seam this device routed before came back from its cache and went nowhere, so
+          // its slot goes back before the store below re-runs this effect. Holding it made a
+          // trip of connected days wait a second per join on every open (#2794).
+          if (performance.now() - startedAt <= CACHE_HIT_MS) release()
           if (controller.signal.aborted) return
           // One leg per waypoint PAIR, so a shaped seam comes back in pieces and the rail
           // wants the whole drive: merged here, exactly as a day run folds its via legs
