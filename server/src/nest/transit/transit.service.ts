@@ -159,6 +159,11 @@ export class TransitService {
     @Inject(transitConfig.KEY) private readonly transitEnv: ConfigType<typeof transitConfig>,
   ) {}
 
+  /** The backend that answers this user's searches: Google where it is set up and keyed, Transitous otherwise. */
+  async activeProvider(userId = 0): Promise<TransitProvider> {
+    return (await this.google.isActive(userId)) ? 'google' : 'transitous';
+  }
+
   /**
    * Station/place search for the from/to pickers. `near` biases results.
    *
@@ -175,7 +180,7 @@ export class TransitService {
     const text = (query || '').trim();
     // Answered before either backend is consulted, so it reports the one that
     // WOULD have been asked rather than claiming nobody was.
-    const provider: TransitProvider = (await this.google.isActive(userId)) ? 'google' : 'transitous';
+    const provider = await this.activeProvider(userId);
     if (text.length < 2) return { results: [], provider };
     if (text.length > 200) {
       const e = new Error('Query too long') as Error & { status: number };
@@ -259,7 +264,7 @@ export class TransitService {
 
     // After validation on purpose: whichever backend answers, the caller is held
     // to the same coordinate/mode/transfer contract and gets the same 400s.
-    if (await this.google.isActive(userId)) {
+    if ((await this.activeProvider(userId)) === 'google') {
       return { ...(await this.google.plan(q, language, userId)), provider: 'google' };
     }
 

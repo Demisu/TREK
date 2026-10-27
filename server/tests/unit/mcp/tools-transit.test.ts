@@ -201,6 +201,7 @@ describe('MCP transit tools', () => {
       expect(routes.itineraries[0].legs[0].from.name).toBe('Namba');
       expect(routes.itineraries[0].legs[1].to.name).toBe('Umeda');
       expect(routes.itineraries).toHaveLength(1);
+      expect(routes.provider).toBe('transitous');
       expect(planMock).toHaveBeenCalledWith(expect.objectContaining({ modes: 'SUBWAY' }), undefined, user.id);
 
       const invalidNear = await harness.client.callTool({
@@ -242,6 +243,27 @@ describe('MCP transit tools', () => {
       expect(broadcastMock).toHaveBeenCalledWith(trip.id, 'reservation:created', expect.anything());
       expect(notifyBookingChangeMock).toHaveBeenCalledWith(trip.id, user.id, 'Namba → Umeda', 'transit');
     });
+  });
+
+  it('records Google as the provider of a journey planned while Google answers searches (#2850)', async () => {
+    const { user } = createUser(testDb);
+    const trip = createTrip(testDb, user.id, { start_date: '2026-12-03', end_date: '2026-12-04' });
+    const day = await dayOf(trip.id, '2026-12-03');
+    const active = vi.spyOn(TransitService.prototype, 'activeProvider').mockResolvedValue('google');
+    try {
+      await withHarness(user.id, ['reservations:write'], async (harness) => {
+        const result = parseToolResult(
+          await harness.client.callTool({
+            name: 'create_transit_journey',
+            arguments: { tripId: trip.id, dayId: day.id, from, to, itinerary },
+          }),
+        ) as { reservation: { metadata: string } };
+        expect(JSON.parse(result.reservation.metadata).transit.provider).toBe('google');
+      });
+      expect(active).toHaveBeenCalledWith(user.id);
+    } finally {
+      active.mockRestore();
+    }
   });
 
   it('rejects dateless, mismatched, and out-of-range journey dates', async () => {

@@ -110,7 +110,7 @@ export class TransitMcp {
   @Tool({
     name: 'search_transit_routes',
     description:
-      'Search scheduled public-transit routes between two coordinates, via whichever backend the instance is configured for. Returns itineraries that can be passed unchanged to create_transit_journey. `dropped` counts provider itineraries that failed validation and are therefore absent from the results — a non-zero value means the provider offered routes this tool could not represent.',
+      'Search scheduled public-transit routes between two coordinates, via whichever backend the instance is configured for. Returns itineraries that can be passed unchanged to create_transit_journey, and `provider`, the backend that answered. `dropped` counts provider itineraries that failed validation and are therefore absent from the results — a non-zero value means the provider offered routes this tool could not represent.',
     inputSchema: {
       from: transitPlaceInput,
       to: transitPlaceInput,
@@ -169,7 +169,7 @@ export class TransitMcp {
       // A rejected itinerary is provider data we could not vouch for, but dropping it
       // silently is indistinguishable from "no routes exist" — report the count so the
       // caller knows the difference.
-      return ok({ itineraries, dropped: result.itineraries.length - itineraries.length });
+      return ok({ itineraries, dropped: result.itineraries.length - itineraries.length, provider: result.provider });
     } catch (err) {
       return errorResult(err, 'Transit route search failed.');
     }
@@ -228,9 +228,11 @@ export class TransitMcp {
         isError: true,
       };
     }
+    // The itinerary came from search_transit_routes, which the active backend answered.
+    const provider = await this.transit.activeProvider(ctx.userId);
     let reservationParts: ReturnType<typeof buildTransitReservationParts>;
     try {
-      reservationParts = buildTransitReservationParts(from, to, cleaned);
+      reservationParts = buildTransitReservationParts(from, to, cleaned, provider);
     } catch (err) {
       return errorResult(err, 'Unable to resolve the transit journey timezones.');
     }
