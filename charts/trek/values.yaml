@@ -260,6 +260,20 @@ extraEnv: []
 #         name: trek-smtp
 extraEnvFrom: []
 
+# Further volumes for the pod. The chart does not create the objects they name.
+#   extraVolumes:
+#     - name: kitinerary-extractors
+#       configMap:
+#         name: trek-kitinerary-extractors
+extraVolumes: []
+# Where the trek container mounts them. For example, KItinerary
+# loads extractors for the booking import from this path:
+#   extraVolumeMounts:
+#     - name: kitinerary-extractors
+#       mountPath: /usr/local/share/kitinerary/extractors
+#       readOnly: true
+extraVolumeMounts: []
+
 resources:
   requests:
     cpu: 100m

@@ -141,6 +141,9 @@ spec:
               mountPath: /app/data
             - name: uploads
               mountPath: /app/uploads
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- with (default dict .Values.probes).startup }}
           startupProbe:
             {{- toYaml . | nindent 12 }}
@@ -168,3 +171,6 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}

@@ -203,6 +203,21 @@ The import button is hidden only when the server has neither the `kitinerary-ext
 
 The binary ships inside the official TREK Docker image. If you run TREK from source, install the `libkitinerary-bin` package (Debian trixie, Ubuntu 25.04 or newer) or set `KITINERARY_EXTRACTOR_PATH` to the binary's full path. See [Environment-Variables](Environment-Variables).
 
+### Your own extractors
+
+KDE Itinerary also loads extractor scripts that you write, from `/usr/local/share/kitinerary/extractors` in the container. Each extractor is a `.json` file and a `.js` file. Itinerary reads the directory on each import, so a new extractor works without a restart.
+
+With Docker Compose, mount a folder of extractors there with a plain volume:
+
+```yaml
+services:
+  app:
+    volumes:
+      - ./extractors:/usr/local/share/kitinerary/extractors:ro
+```
+
+With the Helm chart, mount a ConfigMap there with `extraVolumes` and `extraVolumeMounts`. See the example in the chart's `values.yaml`.
+
 ### Review mark
 
 A booking TREK could not complete on its own carries an amber warning icon next to its title, and a **Review** pill in its detail. It comes from AirTrail imports whose date is not exact or whose airport could not be placed, and from bookings an AI assistant created with the flag set. Open the booking, check the missing parts and save it; saving in the editor clears the mark. File imports never keep it, because each one passes through the editor before it is saved.

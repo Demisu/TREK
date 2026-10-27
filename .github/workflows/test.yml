@@ -1263,6 +1263,11 @@ jobs:
             --set 'extraEnv[0].name=SESSION_DURATION' \
             --set 'extraEnv[0].value=7d' \
             --set 'extraEnvFrom[0].secretRef.name=trek-smtp' \
+            --set 'extraVolumes[0].name=kitinerary-extractors' \
+            --set 'extraVolumes[0].configMap.name=trek-kitinerary-extractors' \
+            --set 'extraVolumeMounts[0].name=kitinerary-extractors' \
+            --set 'extraVolumeMounts[0].mountPath=/usr/local/share/kitinerary/extractors' \
+            --set 'extraVolumeMounts[0].readOnly=true' \
             --set probes.liveness=null \
             > "$out/variants.yaml"
 

@@ -5,7 +5,7 @@ This is a minimal Helm chart for deploying the TREK app.
 ## Features
 - Deploys the TREK container
 - Exposes port 3000 via Service
-- Optional persistent storage for `/app/data` and `/app/uploads`
+- Optional persistent storage for `/app/data` and `/app/uploads` and extra volumes support
 - Configurable environment variables and secrets
 - Optional generic Ingress support
 - Configurable health checks (liveness/readiness probes) on `/api/health`
@@ -55,3 +55,4 @@ See `values.yaml` for more options.
 - `COOKIE_SECURE` is auto-derived (on when `NODE_ENV=production` or `FORCE_HTTPS=true`). Set `env.COOKIE_SECURE: "false"` only during local testing without TLS. **Not recommended for production.**
 - Web Push needs no chart settings: TREK generates its key pair on first start and keeps it in the database on the data PVC. To bring your own pair, set `env.VAPID_PUBLIC_KEY` and `secretEnv.VAPID_PRIVATE_KEY` together (and optionally `env.VAPID_SUBJECT`); changing the pair later means every device has to turn push on again.
 - Set `env.OIDC_DISCOVERY_URL` to override the auto-constructed OIDC discovery endpoint. Required for providers (e.g. Authentik) that expose it at a non-standard path.
+- Use `extraVolumes` and `extraVolumeMounts` to add your own volumes to the pod. To give the booking import more KItinerary extractors, mount a ConfigMap at `/usr/local/share/kitinerary/extractors`, with one `.json` and one `.js` key for each extractor; see the example in `values.yaml`.
