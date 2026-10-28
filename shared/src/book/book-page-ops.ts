@@ -23,7 +23,6 @@ import {
 import { blankSpread, canEditSpread, innerSpreadBounds } from './book-pages';
 import { bookSpreadPhotoIds, checkRestorablePhotos } from './book-photo-refs';
 import {
-  MAX_SPREADS,
   bookSpreadSchema,
   type BookDocument,
   type BookElement,
@@ -57,9 +56,6 @@ export function addBookPages(doc: BookDocument, args: unknown, ctx: BookOpsConte
   return caught(() => {
     const after = indexOf(doc, afterSpreadId);
     if (entryId !== undefined) journeyEntry(entryId, ctx, null);
-    if (doc.spreads.length + count > MAX_SPREADS) {
-      throw failOp('too_many_spreads', `a book holds at most ${MAX_SPREADS} pages`, null);
-    }
     const { first, limit } = innerSpreadBounds(doc.spreads);
     const at = Math.min(Math.max(after + 1, first), limit);
     const added = Array.from({ length: count }, () =>
@@ -183,9 +179,6 @@ function putBack(doc: BookDocument, spread: BookSpread, index: number): BookDocu
   }
   if (spread.role !== 'inner' && doc.spreads.some((s) => s.role === spread.role)) {
     throw failOp('protected_spread', `the book already has its ${spread.role} page`, null);
-  }
-  if (doc.spreads.length >= MAX_SPREADS) {
-    throw failOp('too_many_spreads', `a book holds at most ${MAX_SPREADS} pages`, null);
   }
   const { first, limit } = innerSpreadBounds(doc.spreads);
   const to = spread.role === 'inner' ? Math.min(Math.max(index, first), limit) : Math.min(index, doc.spreads.length);

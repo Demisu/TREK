@@ -2,7 +2,6 @@ import type { BookEditResult } from './book-ops-core';
 import { addBookPages, deleteBookPages, moveBookPage, restoreBookPage, setBookCover } from './book-page-ops';
 import { blankBook, blankSpread, bookPageSetupForPreset, canEditSpread, innerSpreadBounds } from './book-pages';
 import {
-  MAX_SPREADS,
   bookDocumentSchema,
   bookPageSetupSchema,
   bookPhotoElementSchema,
@@ -129,10 +128,13 @@ describe('add, move and delete', () => {
     expect(refused(stray)).toBe('entry_not_found');
   });
 
-  it('BOOKPG-007: refuses an unknown page, more than ten pages, and a book at its page cap', () => {
+  it('BOOKPG-007: refuses an unknown page and more than ten pages, and grows a book of any length', () => {
     expect(refused(addBookPages(book(1), { afterSpreadId: 'sp-nope' }))).toBe('spread_not_found');
     expect(refused(addBookPages(book(1), { afterSpreadId: 'sp-in1', count: 11 }))).toBe('invalid_op');
-    expect(refused(addBookPages(book(MAX_SPREADS - 4), { afterSpreadId: 'sp-in1' }))).toBe('too_many_spreads');
+    const long = book(400);
+    const grown = ok(addBookPages(long, { afterSpreadId: 'sp-in400', count: 10 }, { newId }));
+    expect(grown.spreads).toHaveLength(long.spreads.length + 10);
+    expect(grown.spreads.slice(-2).map((s) => s.role)).toEqual(['last', 'back']);
   });
 
   it('BOOKPG-008: moves an inner spread within the inner range', () => {

@@ -65,7 +65,6 @@ const hex = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'expected #rrggbb');
  * `MAX_SPREAD_ELEMENTS` belongs to this set and is declared with the spread it
  * bounds, where the salvage pass reads it too.
  */
-export const MAX_SPREADS = 150;
 export const MAX_BOOK_TITLE = 200;
 export const MAX_TEXT_LENGTH = 8000;
 /** Codes on a map or a country page, and the names printed beside them. */
@@ -1122,7 +1121,11 @@ const bookDocumentObject = z.object({
   schemaRev: z.number().int().min(1).optional().catch(undefined),
   title: z.string().max(MAX_BOOK_TITLE).default(''),
   page: bookPageSetupSchema.default(() => bookPageSetupSchema.parse({})),
-  spreads: z.array(bookSpreadSchema).max(MAX_SPREADS).default([]),
+  /**
+   * As many as the journey needs: a long trip's book runs to hundreds of pages,
+   * and the save route's body limit is the only bound on its size.
+   */
+  spreads: z.array(bookSpreadSchema).default([]),
   /** The book's own layouts (#2316). Optional so a document from before still reads. */
   layouts: z.array(bookLayoutSchema).max(MAX_BOOK_LAYOUTS).optional(),
   /** Palette, typefaces and motifs; elements link to it through the fields of theme/book-theme.schema.ts. */

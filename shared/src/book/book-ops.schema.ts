@@ -20,7 +20,6 @@ import { bookElementIdSchema, bookGridIdSchema, bookSpreadIdSchema } from './boo
 import { bookPaintInSchema } from './book-paint.schema';
 import {
   MAX_BOOK_TITLE,
-  MAX_SPREADS,
   MAX_SPREAD_ELEMENTS,
   bookBadgeElementSchema,
   bookCountriesElementSchema,
@@ -273,11 +272,7 @@ export const addBookPagesArgs = {
 };
 export const moveBookPageArgs = {
   spreadId: bookSpreadIdSchema,
-  toIndex: z
-    .number()
-    .int()
-    .min(0)
-    .max(MAX_SPREADS - 1),
+  toIndex: z.number().int().min(0),
   expectedVersion,
 };
 export const deleteBookPagesArgs = {
@@ -302,11 +297,7 @@ export const createBookArgs = {
  * it goes back when it is gone, a page still in the book is replaced where it is.
  */
 export const bookPreviousSpreadSchema = z.object({
-  index: z
-    .number()
-    .int()
-    .min(0)
-    .max(MAX_SPREADS - 1),
+  index: z.number().int().min(0),
   spread: bookSpreadSchema,
 });
 export type BookPreviousSpread = z.infer<typeof bookPreviousSpreadSchema>;
@@ -625,7 +616,7 @@ export const bookWriteResultSchema = z.object({
   dropped: z.array(z.string()).max(MAX_SPREAD_ELEMENTS * 2),
   previous_spreads: z.array(bookPreviousSpreadSchema).optional(),
   /** The pages the write touched as it left them, for an undo that checks only those (`expectedPages`). */
-  page_digests: z.array(bookPageDigestSchema).max(MAX_SPREADS).optional(),
+  page_digests: z.array(bookPageDigestSchema).optional(),
   from_index: z.number().int().nonnegative().optional(),
   /** From `set_book_setup`: the setup as it was, to set it back. */
   previous_setup: bookPageSetupSchema.optional(),
