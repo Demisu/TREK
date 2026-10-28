@@ -91,6 +91,27 @@ beforeEach(() => {
 })
 
 describe('TransitSearchPanel', () => {
+  it.each(['google', 'transitous'] as const)('updates attribution when a later search returns %s fallback routes', async (provider) => {
+    const user = userEvent.setup()
+    const onAdd = vi.fn().mockResolvedValue({})
+    const previous = provider === 'google' ? 'transitous' : 'google'
+    transitApiMock.plan
+      .mockResolvedValueOnce({ itineraries: [ITINERARY], provider: previous })
+      .mockResolvedValueOnce({ itineraries: [ITINERARY], provider })
+    render(<TransitSearchPanel {...makeProps({ onAdd })} />)
+    await pickFromAndTo(user)
+    await user.click(screen.getByRole('button', { name: /^Search$/ }))
+    await screen.findByText(previous === 'google' ? 'Google Maps' : 'Transitous')
+    await user.click(screen.getByRole('button', { name: /^Search$/ }))
+    expect(await screen.findByText(provider === 'google' ? 'Google Maps' : 'Transitous')).toBeInTheDocument()
+    expect(screen.queryByText(previous === 'google' ? 'Google Maps' : 'Transitous')).not.toBeInTheDocument()
+    await user.click(await screen.findByText(/08:30 – 09:00/))
+    await user.click(await screen.findByRole('button', { name: 'Add to day' }))
+    await waitFor(() => expect(onAdd).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({ transit: expect.objectContaining({ provider }) }),
+    })))
+  })
+
   it('FE-PLANNER-TRANSIT-001: renders from/to pickers, modes and preferences', () => {
     render(<TransitSearchPanel {...makeProps()} />)
     expect(screen.getAllByPlaceholderText('Search stop or station…')).toHaveLength(2)

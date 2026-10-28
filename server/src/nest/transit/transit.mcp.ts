@@ -22,7 +22,7 @@ import {
 } from './transit-itinerary.helpers';
 import { SCHEDULED_TRANSIT_MODES, type TransitItinerary } from './transit.helpers';
 import { TransitService } from './transit.service';
-import { idSchema } from '@trek/shared';
+import { adminTransitProviderRequestSchema, idSchema, type TransitProvider } from '@trek/shared';
 
 import { z } from 'zod';
 
@@ -178,13 +178,16 @@ export class TransitMcp {
   @Tool({
     name: 'create_transit_journey',
     description:
-      'Add one itinerary returned by search_transit_routes to a trip day as a first-class automated public-transit journey.',
+      'Add one itinerary returned by search_transit_routes to a trip day as a first-class automated public-transit journey. Pass the search response provider unchanged so fallback routes retain their source.',
     inputSchema: {
       tripId: idSchema,
       dayId: idSchema.describe('Trip day on which the journey departs'),
       from: transitPlaceInput,
       to: transitPlaceInput,
       itinerary: transitItinerarySchema,
+      provider: adminTransitProviderRequestSchema.shape.provider
+        .optional()
+        .describe('Provider returned by search_transit_routes'),
       notes: z.string().max(1000).optional(),
     },
     annotations: TOOL_ANNOTATIONS_OPEN_WORLD_NON_IDEMPOTENT,
@@ -197,6 +200,7 @@ export class TransitMcp {
       from,
       to,
       itinerary,
+      provider,
       notes,
     }: {
       tripId: number;
@@ -206,6 +210,7 @@ export class TransitMcp {
       // The schema validates exactly the wire TransitItinerary shape; its
       // z.infer prints looser optionals, so name the contract type directly.
       itinerary: TransitItinerary;
+      provider?: TransitProvider;
       notes?: string;
     },
     ctx: McpContext,
@@ -228,11 +233,11 @@ export class TransitMcp {
         isError: true,
       };
     }
-    // The itinerary came from search_transit_routes, which the active backend answered.
-    const provider = await this.transit.activeProvider(ctx.userId);
+    // New callers carry the actual search source; omission keeps legacy callers working.
+    const itineraryProvider = provider ?? (await this.transit.activeProvider(ctx.userId));
     let reservationParts: ReturnType<typeof buildTransitReservationParts>;
     try {
-      reservationParts = buildTransitReservationParts(from, to, cleaned, provider);
+      reservationParts = buildTransitReservationParts(from, to, cleaned, itineraryProvider);
     } catch (err) {
       return errorResult(err, 'Unable to resolve the transit journey timezones.');
     }

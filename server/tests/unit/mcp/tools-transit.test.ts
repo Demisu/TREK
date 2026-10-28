@@ -146,6 +146,21 @@ async function withHarness(userId: number, scopes: string[] | null, fn: (harness
 }
 
 describe('MCP transit tools', () => {
+  it.each(['google', 'transitous'] as const)('preserves the %s route provider', async (provider) => {
+    const { user } = createUser(testDb);
+    planMock.mockResolvedValue({ itineraries: [itinerary], provider });
+    await withHarness(user.id, ['geo:read'], async (harness) => {
+      const routes = parseToolResult(
+        await harness.client.callTool({
+          name: 'search_transit_routes',
+          arguments: { from, to },
+        }),
+      ) as { provider: string; itineraries: unknown[]; dropped: number };
+      expect(routes.provider).toBe(provider);
+      expect(routes.itineraries).toHaveLength(1);
+      expect(routes.dropped).toBe(0);
+    });
+  });
   it('registers search tools for geo scope and create tool for reservations scope', async () => {
     const { user } = createUser(testDb);
     await withHarness(user.id, ['geo:read'], async (harness) => {
@@ -264,6 +279,66 @@ describe('MCP transit tools', () => {
     } finally {
       active.mockRestore();
     }
+  });
+
+  it.each(['google', 'transitous'] as const)(
+    'saves the %s fallback source from search rather than the configured primary',
+    async (provider) => {
+      const { user } = createUser(testDb);
+      const trip = createTrip(testDb, user.id, { start_date: '2026-12-03', end_date: '2026-12-04' });
+      const day = await dayOf(trip.id, '2026-12-03');
+      const primary = provider === 'google' ? 'transitous' : 'google';
+      const active = vi.spyOn(TransitService.prototype, 'activeProvider').mockResolvedValue(primary);
+      planMock.mockResolvedValue({ provider, itineraries: [itinerary] });
+      try {
+        await withHarness(user.id, ['geo:read', 'reservations:write'], async (harness) => {
+          const routes = parseToolResult(
+            await harness.client.callTool({
+              name: 'search_transit_routes',
+              arguments: { from, to },
+            }),
+          ) as { provider: typeof provider; itineraries: (typeof itinerary)[] };
+          const result = parseToolResult(
+            await harness.client.callTool({
+              name: 'create_transit_journey',
+              arguments: {
+                tripId: trip.id,
+                dayId: day.id,
+                from,
+                to,
+                itinerary: routes.itineraries[0],
+                provider: routes.provider,
+              },
+            }),
+          ) as { reservation: { metadata: string } };
+          expect(JSON.parse(result.reservation.metadata).transit.provider).toBe(provider);
+        });
+        expect(active).not.toHaveBeenCalled();
+      } finally {
+        active.mockRestore();
+      }
+    },
+  );
+
+  it('rejects an unknown itinerary provider before creating a journey', async () => {
+    const { user } = createUser(testDb);
+    const trip = createTrip(testDb, user.id, { start_date: '2026-12-03', end_date: '2026-12-04' });
+    const day = await dayOf(trip.id, '2026-12-03');
+    await withHarness(user.id, ['reservations:write'], async (harness) => {
+      const result = await harness.client.callTool({
+        name: 'create_transit_journey',
+        arguments: {
+          tripId: trip.id,
+          dayId: day.id,
+          from,
+          to,
+          itinerary,
+          provider: 'unknown',
+        },
+      });
+      expect(result.isError).toBe(true);
+      expect(await transitCount()).toBe(0);
+    });
   });
 
   it('rejects dateless, mismatched, and out-of-range journey dates', async () => {
