@@ -110,8 +110,10 @@ export default function HelpPanel(): React.ReactElement | null {
             >
               <X className="w-4 h-4" />
             </button>
+            {/* The close button floats over the scroll area, so the content keeps its own
+                gutter clear of it on the end side. */}
             <div ref={scrollRef} className="trek-help-scroll flex-1 min-h-0 overflow-y-auto overscroll-contain">
-              <div className="max-w-[1080px] mx-auto px-6 sm:px-10 py-8">
+              <div className="max-w-[1080px] mx-auto ps-6 pe-16 sm:ps-10 sm:pe-20 py-8">
                 {searching ? (
                   <HelpSearchResults key="search" />
                 ) : guide ? (
