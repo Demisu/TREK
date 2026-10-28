@@ -118,13 +118,19 @@ describe('unsplashService.searchUnsplashPhotos', () => {
   });
 
   it('UNSPLASH-016b: a keyless search turned away with 401 or 403 says the Access Key is the way out (#1449)', async () => {
-    for (const status of [401, 403]) {
+    const refusedWith = (status: number) => {
       const refused = fakeRes({ ok: false, status, type: 'text/plain' });
       (refused as { json: () => Promise<unknown> }).json = async () => {
         throw new SyntaxError('Unexpected token A in JSON');
       };
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(refused));
-      const err = await svc.searchUnsplashPhotos('paris').catch((e: unknown) => e);
+      return refused;
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(refusedWith(401)).mockResolvedValueOnce(refusedWith(403)));
+    const errors = [
+      await svc.searchUnsplashPhotos('paris').catch((e: unknown) => e),
+      await svc.searchUnsplashPhotos('paris').catch((e: unknown) => e),
+    ];
+    for (const err of errors) {
       expect(err).toBeInstanceOf(DomainError);
       expect((err as DomainError).getStatus()).toBe(502);
       expect(err).toMatchObject({ publicMessage: KEY_NEEDED, code: 'unsplash_key_needed' });
