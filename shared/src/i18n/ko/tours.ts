@@ -134,6 +134,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': '예상 총 소요 시간 정보',
   'tours.planner.plannedTotalManual': '직접 입력',
   'tours.planner.timeValueInvalid': '0~1440분 사이의 정수 값을 입력하세요.',
+  'tours.planner.plannedTotalOverDay':
+    '걷는 시간과 휴식을 합치면 하루 24시간을 넘습니다. 경유지에서 “여기서 구간 종료”로 여러 날 투어로 나누거나, 더 짧은 예상 총 소요 시간을 입력하세요.',
   'tours.planner.walkingTimeUnknown': '계산되지 않음',
   'tours.planner.walkingShort': '도보',
   'tours.planner.breaksShort': '휴식',

@@ -146,6 +146,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'Sobre la durada total planificada',
   'tours.planner.plannedTotalManual': 'Valor manual',
   'tours.planner.timeValueInvalid': 'Introduïu un valor enter de 0 a 1440 minuts.',
+  'tours.planner.plannedTotalOverDay':
+    'El temps de marxa i les pauses sumen més de 24 hores al dia. Feu-ne una ruta de diversos dies amb “Acaba l’etapa aquí” en una parada, o introduïu una durada total planificada més curta.',
   'tours.planner.walkingTimeUnknown': 'No calculat',
   'tours.planner.walkingShort': 'Caminada',
   'tours.planner.breaksShort': 'Pauses',

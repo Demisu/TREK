@@ -154,6 +154,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'O planowanym całkowitym czasie',
   'tours.planner.plannedTotalManual': 'Wartość ręczna',
   'tours.planner.timeValueInvalid': 'Wpisz liczbę całkowitą od 0 do 1440 minut.',
+  'tours.planner.plannedTotalOverDay':
+    'Czas marszu i przerwy dają razem ponad 24 godziny na dzień. Zrób z tego trasę wielodniową przez „Zakończ etap tutaj” na postoju albo wpisz krótszy planowany całkowity czas.',
   'tours.planner.walkingTimeUnknown': 'Nieobliczono',
   'tours.planner.walkingShort': 'Marsz',
   'tours.planner.breaksShort': 'Przerwy',

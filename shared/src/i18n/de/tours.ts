@@ -144,6 +144,8 @@ const tours: TranslationStrings = {
   'tours.planner.breaksAdditional': 'Pausen / zusätzliche Zeit',
   'tours.planner.plannedTotalManual': 'Manuell angepasst',
   'tours.planner.timeValueInvalid': 'Ganze Minuten von 0 bis 1.440 eingeben.',
+  'tours.planner.plannedTotalOverDay':
+    'Gehzeit und Pausen ergeben mehr als 24 Stunden am Tag. Mach eine Mehrtagestour daraus, mit „Etappe hier beenden“ an einem Halt, oder gib eine kürzere geplante Gesamtdauer ein.',
   'tours.planner.walkingTimeUnknown': 'Noch nicht berechnet',
   'tours.planner.walkingShort': 'Gehzeit',
   'tours.planner.breaksShort': 'Pausen',

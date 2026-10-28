@@ -143,6 +143,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'Planeeritud kogukestusest',
   'tours.planner.plannedTotalManual': 'Käsitsi määratud',
   'tours.planner.timeValueInvalid': 'Sisestage täisarv vahemikus 0–1440 minutit.',
+  'tours.planner.plannedTotalOverDay':
+    'Liikumisaeg koos pausidega on üle 24 tunni päevas. Tee sellest mitmepäevane matk, valides peatuses „Lõpeta etapp siin“, või sisesta lühem planeeritud kogukestus.',
   'tours.planner.walkingTimeUnknown': 'Arvutamata',
   'tours.planner.walkingShort': 'Kõnd',
   'tours.planner.breaksShort': 'Pausid',

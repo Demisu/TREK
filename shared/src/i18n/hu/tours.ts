@@ -143,6 +143,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'A tervezett teljes időtartamról',
   'tours.planner.plannedTotalManual': 'Kézi érték',
   'tours.planner.timeValueInvalid': 'Adjon meg egész értéket 0 és 1440 perc között.',
+  'tours.planner.plannedTotalOverDay':
+    'A menetidő a pihenőkkel együtt napi 24 óránál több. Tegye többnapossá a „Szakasz vége itt” lehetőséggel egy megállónál, vagy adjon meg rövidebb tervezett teljes időtartamot.',
   'tours.planner.walkingTimeUnknown': 'Nincs kiszámítva',
   'tours.planner.walkingShort': 'Séta',
   'tours.planner.breaksShort': 'Szünetek',

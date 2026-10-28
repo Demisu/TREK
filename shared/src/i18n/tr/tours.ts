@@ -141,6 +141,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'Planlanan toplam süre hakkında',
   'tours.planner.plannedTotalManual': 'Elle değiştirilen',
   'tours.planner.timeValueInvalid': '0 ile 1440 dakika arasında tam bir değer girin.',
+  'tours.planner.plannedTotalOverDay':
+    'Yürüyüş süresi ve molalar günde 24 saati aşıyor. Bir durakta “Etabı burada bitir” ile çok günlü bir tura dönüştürün ya da daha kısa bir planlanan toplam süre girin.',
   'tours.planner.walkingTimeUnknown': 'Hesaplanmadı',
   'tours.planner.walkingShort': 'Yürüyüş',
   'tours.planner.breaksShort': 'Molalar',

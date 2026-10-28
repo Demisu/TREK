@@ -134,6 +134,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'เกี่ยวกับระยะเวลารวมที่วางแผนไว้',
   'tours.planner.plannedTotalManual': 'กำหนดเอง',
   'tours.planner.timeValueInvalid': 'ป้อนค่าจำนวนเต็มตั้งแต่ 0 ถึง 1440 นาที',
+  'tours.planner.plannedTotalOverDay':
+    'เวลาเดินรวมเวลาพักเกิน 24 ชั่วโมงต่อวัน ให้แบ่งเป็นทริปหลายวันด้วย “จบช่วงที่นี่” ที่จุดแวะ หรือป้อนระยะเวลารวมที่วางแผนไว้ให้สั้นลง',
   'tours.planner.walkingTimeUnknown': 'ยังไม่ได้คำนวณ',
   'tours.planner.walkingShort': 'เดิน',
   'tours.planner.breaksShort': 'การพัก',

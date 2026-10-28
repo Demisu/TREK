@@ -155,6 +155,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'О запланированной общей длительности',
   'tours.planner.plannedTotalManual': 'Ручное значение',
   'tours.planner.timeValueInvalid': 'Введите целое значение от 0 до 1440 минут.',
+  'tours.planner.plannedTotalOverDay':
+    'Время в пути вместе с перерывами превышает 24 часа в день. Сделайте маршрут многодневным через «Завершить этап здесь» на остановке или введите меньшую запланированную общую длительность.',
   'tours.planner.walkingTimeUnknown': 'Не рассчитано',
   'tours.planner.walkingShort': 'Ходьба',
   'tours.planner.breaksShort': 'Перерывы',

@@ -139,6 +139,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'Tentang total durasi yang direncanakan',
   'tours.planner.plannedTotalManual': 'Penggantian manual',
   'tours.planner.timeValueInvalid': 'Masukkan nilai bulat dari 0 hingga 1440 menit.',
+  'tours.planner.plannedTotalOverDay':
+    'Waktu jalan ditambah istirahat lebih dari 24 jam sehari. Jadikan tur beberapa hari dengan “Akhiri etape di sini” di sebuah perhentian, atau masukkan total durasi rencana yang lebih singkat.',
   'tours.planner.walkingTimeUnknown': 'Belum dihitung',
   'tours.planner.walkingShort': 'Jalan kaki',
   'tours.planner.breaksShort': 'Istirahat',

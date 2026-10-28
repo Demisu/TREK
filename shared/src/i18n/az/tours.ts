@@ -142,6 +142,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'Planlaşdırılmış ümumi müddət haqqında',
   'tours.planner.plannedTotalManual': 'Əl ilə dəyişdirmə',
   'tours.planner.timeValueInvalid': '0 ilə 1440 dəqiqə arasında tam dəyər daxil edin.',
+  'tours.planner.plannedTotalOverDay':
+    'Yeriş vaxtı və fasilələr gündə 24 saatdan çox edir. Dayanacaqda “Mərhələni burada bitir” ilə onu çoxgünlük tura çevirin və ya daha qısa planlaşdırılmış ümumi müddət daxil edin.',
   'tours.planner.walkingTimeUnknown': 'Hesablanmayıb',
   'tours.planner.walkingShort': 'Gəzinti',
   'tours.planner.breaksShort': 'Fasilələr',

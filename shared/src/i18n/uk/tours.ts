@@ -152,6 +152,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'Про заплановану загальну тривалість',
   'tours.planner.plannedTotalManual': 'Ручне значення',
   'tours.planner.timeValueInvalid': 'Введіть ціле значення від 0 до 1440 хвилин.',
+  'tours.planner.plannedTotalOverDay':
+    'Час у дорозі разом із перервами перевищує 24 години на день. Зробіть маршрут багатоденним через «Завершити етап тут» на зупинці або введіть коротшу заплановану загальну тривалість.',
   'tours.planner.walkingTimeUnknown': 'Не розраховано',
   'tours.planner.walkingShort': 'Ходьба',
   'tours.planner.breaksShort': 'Перерви',

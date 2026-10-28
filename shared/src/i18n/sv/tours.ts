@@ -141,6 +141,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'Om planerad total tid',
   'tours.planner.plannedTotalManual': 'Manuellt värde',
   'tours.planner.timeValueInvalid': 'Ange ett helt värde från 0 till 1440 minuter.',
+  'tours.planner.plannedTotalOverDay':
+    'Gångtid och pauser blir tillsammans mer än 24 timmar per dag. Gör det till en flerdagarstur med ”Avsluta etappen här” vid ett stopp, eller ange en kortare planerad total tid.',
   'tours.planner.walkingTimeUnknown': 'Inte beräknad',
   'tours.planner.walkingShort': 'Gång',
   'tours.planner.breaksShort': 'Pauser',

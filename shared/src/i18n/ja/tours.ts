@@ -137,6 +137,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': '予定の合計所要時間について',
   'tours.planner.plannedTotalManual': '手動で上書き',
   'tours.planner.timeValueInvalid': '0〜1440分の整数を入力してください。',
+  'tours.planner.plannedTotalOverDay':
+    '歩行時間と休憩の合計が1日24時間を超えています。立ち寄り先で「ここでステージを終える」を選んで複数日のツアーにするか、予定の合計所要時間を短く入力してください。',
   'tours.planner.walkingTimeUnknown': '未計算',
   'tours.planner.walkingShort': '徒歩',
   'tours.planner.breaksShort': '休憩',

@@ -141,6 +141,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'About planned total duration',
   'tours.planner.plannedTotalManual': 'Manual override',
   'tours.planner.timeValueInvalid': 'Enter a whole value from 0 to 1,440 minutes.',
+  'tours.planner.plannedTotalOverDay':
+    'Walking time and breaks add up to more than 24 hours a day. Make it a multi-day tour with “End stage here” at a stop, or enter a shorter planned total.',
   'tours.planner.walkingTimeUnknown': 'Not calculated',
   'tours.planner.walkingShort': 'Walk',
   'tours.planner.breaksShort': 'Breaks',

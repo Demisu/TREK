@@ -148,6 +148,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'À propos de la durée totale prévue',
   'tours.planner.plannedTotalManual': 'Valeur manuelle',
   'tours.planner.timeValueInvalid': 'Saisissez une valeur entière de 0 à 1440 minutes.',
+  'tours.planner.plannedTotalOverDay':
+    'Le temps de marche et les pauses dépassent 24 heures par jour. Faites-en un itinéraire de plusieurs jours avec « Terminer l’étape ici » sur un arrêt, ou saisissez une durée totale prévue plus courte.',
   'tours.planner.walkingTimeUnknown': 'Non calculé',
   'tours.planner.walkingShort': 'Marche',
   'tours.planner.breaksShort': 'Pauses',

@@ -144,6 +144,8 @@ const tours: TranslationStrings = {
   'tours.planner.plannedTotalInfoLabel': 'O plánované celkové době',
   'tours.planner.plannedTotalManual': 'Ruční úprava',
   'tours.planner.timeValueInvalid': 'Zadejte celou hodnotu od 0 do 1440 minut.',
+  'tours.planner.plannedTotalOverDay':
+    'Doba chůze a přestávky dávají dohromady víc než 24 hodin denně. Udělejte z ní vícedenní túru pomocí „Ukončit etapu zde“ u zastávky, nebo zadejte kratší plánovanou celkovou dobu.',
   'tours.planner.walkingTimeUnknown': 'Nevypočteno',
   'tours.planner.walkingShort': 'Chůze',
   'tours.planner.breaksShort': 'Pauzy',
