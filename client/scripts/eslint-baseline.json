@@ -30,7 +30,7 @@
     "no-useless-escape": 1
   },
   "suppressed": {
-    "@typescript-eslint/no-explicit-any": 40,
+    "@typescript-eslint/no-explicit-any": 38,
     "react-hooks/exhaustive-deps": 46
   },
   "tests": {
