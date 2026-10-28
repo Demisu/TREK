@@ -7,6 +7,7 @@ import {
   aiHostOf,
   aiRefusal,
   openrouterOAuthAvailable,
+  ownServerChatBase,
   providerRefusal,
 } from '../../../../src/nest/ai-connections/ai-connections.constants';
 import { InMemoryAiRefreshLock } from '../../../../src/nest/ai-connections/ai-refresh-lock';
@@ -143,6 +144,16 @@ describe('constants', () => {
     expect(aiHostOf('custom', 'http://ollama.lan:11434/v1')).toBe('ollama.lan:11434');
     expect(aiHostOf('custom', 'not a url')).toBe('');
     expect(aiHostOf('custom', null)).toBe('');
+  });
+
+  it('AIHLP-032b: a bare own server address chats under /v1, an address with a path as entered', () => {
+    expect(ownServerChatBase('http://ollama.lan:11434')).toBe('http://ollama.lan:11434/v1');
+    expect(ownServerChatBase(' http://ollama.lan:11434/ ')).toBe('http://ollama.lan:11434/v1');
+    expect(ownServerChatBase('http://ollama.lan:11434/v1/')).toBe('http://ollama.lan:11434/v1');
+    expect(ownServerChatBase('https://api.groq.com/openai/v1')).toBe('https://api.groq.com/openai/v1');
+    expect(ownServerChatBase('https://llm.example.org/proxy')).toBe('https://llm.example.org/proxy');
+    expect(ownServerChatBase('not a url')).toBe('not a url');
+    expect(ownServerChatBase(null)).toBe('');
   });
 
   it('AIHLP-033: OpenRouter sign-in is offered only on an https app URL', () => {

@@ -1,6 +1,6 @@
 import { safeFetch, safeFetchLlm } from '../../utils/ssrfGuard';
 import type { AiChatClient } from './ai-chat-client.interface';
-import { AI_BASE_URLS } from './ai-connections.constants';
+import { AI_BASE_URLS, ownServerChatBase } from './ai-connections.constants';
 import type { ResolvedAiConnection } from './ai-connections.types';
 import { ChatgptAuthService } from './chatgpt-auth.service';
 import { AnthropicMessagesClient } from './providers/anthropic-messages.client';
@@ -67,7 +67,7 @@ export class AiChatClientService {
         return new OpenAiChatClient(
           kind,
           model,
-          (connection.baseUrl ?? '').replace(/(?<!\/)\/+$/, ''),
+          ownServerChatBase(connection.baseUrl),
           credential.apiKey,
           adminServerFetch,
         );

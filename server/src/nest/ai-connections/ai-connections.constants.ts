@@ -22,6 +22,26 @@ export function aiHostOf(kind: AiConnectionKind, baseUrl: string | null): string
   }
 }
 
+/**
+ * Where an own server's Chat Completions live. An address with a path, such as
+ * `https://api.groq.com/openai/v1` or `http://ollama.lan:11434/v1`, is used as
+ * entered. A bare server address gets `/v1`: Ollama, LM Studio, vLLM,
+ * llama.cpp and LiteLLM all answer there, while Ollama answers
+ * `/chat/completions` at its root with a 404. Connecting already found the
+ * model list of such an address under the root, so the chat failed where the
+ * connection had worked.
+ */
+export function ownServerChatBase(baseUrl: string | null): string {
+  const entered = (baseUrl ?? '').trim().replace(/(?<!\/)\/+$/, '');
+  try {
+    const url = new URL(entered);
+    if (url.pathname === '/' && !url.search && !url.hash) return `${entered}/v1`;
+  } catch {
+    // An address that does not parse fails on the request, as it did before.
+  }
+  return entered;
+}
+
 /** Whether OpenRouter's OAuth can send the browser back here: it only returns to an https address. */
 export function openrouterOAuthAvailable(): boolean {
   return getAppUrl().startsWith('https://');
