@@ -50,7 +50,7 @@ import { pluginsApi, type PluginMapMarker, type PluginMapLayer } from '../../api
 import { DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM } from '../../constants/mapDefaults'
 import { alongShortestArc, computeMapViewport, TILE_SIZE_GL } from '../../utils/mapViewport'
 import { selectedPlaceTarget } from './selectedPlaceTarget'
-import { PLACE_CLUSTER_CIRCLE_LAYER_ID, PLACE_CLUSTER_COUNT_LAYER_ID } from './placeClusterLayers'
+import { PLACE_CLUSTER_CIRCLE_LAYER_ID, PLACE_CLUSTER_COUNT_LAYER_ID, createClusterBubble } from './placeClusterLayers'
 
 // Marker grouping for the GL map (#1385): MapLibre/Mapbox can't show the rich
 // HTML photo markers *and* cluster them natively, so we feed the place points
@@ -140,12 +140,12 @@ function addPlaceClusterLayers(map: any): void {
         type: 'circle',
         source: PLACE_CLUSTER_SOURCE_ID,
         filter: ['has', 'point_count'],
+        // Invisible: the bubble the user sees is DOM (createClusterBubble), these two
+        // layers stay as the hit area the track and route layers check a click against.
         paint: {
-          'circle-color': '#111827',
-          'circle-opacity': 0.97,
+          'circle-opacity': 0,
+          'circle-stroke-opacity': 0,
           'circle-radius': ['step', ['get', 'point_count'], 18, 10, 21, 50, 24],
-          'circle-stroke-width': 2.5,
-          'circle-stroke-color': 'rgba(255,255,255,0.9)',
         },
       })
       map.addLayer({
@@ -158,11 +158,7 @@ function addPlaceClusterLayers(map: any): void {
           'text-size': 12,
           'text-allow-overlap': true,
         },
-        paint: {
-          'text-color': '#ffffff',
-          'text-halo-color': 'rgba(17,24,39,0.35)',
-          'text-halo-width': 1,
-        },
+        paint: { 'text-opacity': 0 },
       })
       map.addLayer({
         id: PLACE_UNCLUSTERED_LAYER_ID,
@@ -177,6 +173,31 @@ function addPlaceClusterLayers(map: any): void {
       })
 }
 
+/** Eases the map in to the zoom a cluster falls apart at. Both SDKs answer that
+ *  question, one through a callback and one through a promise. */
+function expandCluster(map: ClusterMap, clusterId: unknown, coordinates: unknown): void {
+  if (clusterId == null || !Array.isArray(coordinates)) return
+  const source = map.getSource(PLACE_CLUSTER_SOURCE_ID) as ClusterSource | undefined
+  const easeToZoom = (nextZoom: number) => {
+    try { map.easeTo({ center: coordinates, zoom: nextZoom, duration: 350 }) } catch { /* noop */ }
+  }
+  try {
+    const maybeZoom = source?.getClusterExpansionZoom?.(clusterId, (err, nextZoom) => {
+      if (!err && typeof nextZoom === 'number') easeToZoom(nextZoom)
+    })
+    if (typeof maybeZoom === 'number') easeToZoom(maybeZoom)
+    else if (maybeZoom instanceof Promise) maybeZoom.then(easeToZoom).catch(() => {})
+  } catch { /* noop */ }
+}
+
+/** The two map calls `expandCluster` makes, the same on both SDKs. */
+interface ClusterMap {
+  getSource: (id: string) => unknown
+  easeTo: (options: { center: unknown[]; zoom: number; duration: number }) => void
+}
+interface ClusterSource {
+  getClusterExpansionZoom?: (id: unknown, done: (err: Error | null, zoom: number) => void) => unknown
+}
 
 function createMarkerElement(place: Place & PlaceMarkerFlags & { category_color?: string; category_icon?: string }, photoUrl: string | null, orderNumbers: number[] | null, selected: boolean): HTMLDivElement {
   // A stop that interrupts the drive gets its own small disc, decided before the photo
@@ -612,6 +633,8 @@ export function MapViewGL({
   useDawarichTrailGL(mapRef.current, mapReady, dawarichTrack, dawarichSelectedDate, 'trip-route-casing', dawarichHiddenDates)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const markersRef = useRef<Map<number, PlacePin>>(new Map())
+  /** The count bubbles, one per cluster the source currently reports. */
+  const clusterPinsRef = useRef<PlacePin[]>([])
   // Own layer for the hand-positioned place pins (MapLibre path, see makePlacePin).
   const pinLayerRef = useRef<HTMLDivElement | null>(null)
   const locationMarkerRef = useRef<LocationMarkerHandle | null>(null)
@@ -642,6 +665,7 @@ export function MapViewGL({
   // in the same frame the canvas draws, or the ones left out swim against the ones in.
   const repositionPins = useCallback(() => {
     markersRef.current.forEach(pin => pin.reposition())
+    clusterPinsRef.current.forEach(pin => pin.reposition())
     poiMarkersRef.current.forEach(pin => pin.reposition())
     pluginMarkersRef.current.forEach(pin => pin.reposition())
     routeViaMarkersRef.current.forEach(pin => pin.reposition())
@@ -1304,21 +1328,7 @@ export function MapViewGL({
             ? map.queryRenderedFeatures(e.point, { layers: [PLACE_CLUSTER_CIRCLE_LAYER_ID, PLACE_CLUSTER_COUNT_LAYER_ID] })
             : []
           const feature = features?.[0]
-          const clusterId = feature?.properties?.cluster_id
-          const coordinates = feature?.geometry?.coordinates
-          if (clusterId == null || !Array.isArray(coordinates)) return
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const source = map.getSource(PLACE_CLUSTER_SOURCE_ID) as any
-          const easeToZoom = (nextZoom: number) => {
-            try { map.easeTo({ center: coordinates, zoom: nextZoom, duration: 350 }) } catch { /* noop */ }
-          }
-          try {
-            const maybeZoom = source?.getClusterExpansionZoom?.(clusterId, (err: Error | null, nextZoom: number) => {
-              if (!err && typeof nextZoom === 'number') easeToZoom(nextZoom)
-            })
-            if (typeof maybeZoom === 'number') easeToZoom(maybeZoom)
-            else if (maybeZoom && typeof maybeZoom.then === 'function') maybeZoom.then(easeToZoom).catch(() => {})
-          } catch { /* noop */ }
+          expandCluster(map, feature?.properties?.cluster_id, feature?.geometry?.coordinates)
         }
         const setClusterCursor = () => {
           const canvas = typeof map.getCanvas === 'function' ? map.getCanvas() : null
@@ -1704,8 +1714,27 @@ export function MapViewGL({
     source.setData(buildPlaceClusterData(places) as any)
     const placesById = new Map<number, PlaceWithCoords>(validPlaces.map(place => [place.id, place]))
     let raf: number | null = null
+    const dropClusterPins = () => {
+      clusterPinsRef.current.forEach(pin => pin.remove())
+      clusterPinsRef.current = []
+    }
+    // One bubble per cluster id: a cluster crossing a tile edge comes back once per tile.
+    const reconcileClusterPins = () => {
+      dropClusterPins()
+      const seenClusters = new Set<unknown>()
+      for (const feature of map.querySourceFeatures(PLACE_CLUSTER_SOURCE_ID, { filter: ['has', 'point_count'] }) || []) {
+        const { cluster_id: clusterId, point_count: count } = feature?.properties ?? {}
+        const coordinates = feature?.geometry?.coordinates
+        if (typeof count !== 'number' || !Array.isArray(coordinates) || seenClusters.has(clusterId)) continue
+        seenClusters.add(clusterId)
+        const el = createClusterBubble(count)
+        el.addEventListener('click', (ev) => { ev.stopPropagation(); expandCluster(map, clusterId, coordinates) })
+        clusterPinsRef.current.push(attachPin(map, gl, pinLayerRef.current, el, coordinates[0], coordinates[1]))
+      }
+    }
     const runReconcile = () => {
       raf = null
+      reconcileClusterPins()
       const features = map.querySourceFeatures(PLACE_CLUSTER_SOURCE_ID, { filter: ['!', ['has', 'point_count']] }) || []
       const seen = new Set<number>()
       const visiblePlaces: PlaceWithCoords[] = []
@@ -1752,6 +1781,7 @@ export function MapViewGL({
 
     return () => {
       if (raf !== null) cancelAnimationFrame(raf)
+      dropClusterPins()
       map.off('moveend', scheduleReconcile)
       map.off('zoomend', scheduleReconcile)
       map.off('idle', scheduleReconcile)

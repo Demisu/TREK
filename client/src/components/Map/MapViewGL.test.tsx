@@ -1768,6 +1768,35 @@ describe('MapViewGL', () => {
     expect(drawn).not.toContainEqual([2.3, 48.3])
   })
 
+  // The bubbles are DOM so they share the Leaflet map's font and hover; the canvas
+  // layers under them stay only as the hit area.
+  it('FE-COMP-MAPVIEWGL-106: every cluster draws one HTML count bubble that zooms in on a click', async () => {
+    loadOnAttach()
+    projectAtDayZoom()
+    const clusterSource = { ...geoSource(), getClusterExpansionZoom: vi.fn(() => 11) }
+    glMap.getSource.mockImplementation((id: string) => (id === 'trip-place-clusters' ? clusterSource : null))
+    const cluster = { properties: { cluster_id: 5, point_count: 12 }, geometry: { coordinates: [139.7, 35.6] } }
+    glMap.querySourceFeatures.mockImplementation((_id: string, query?: { filter?: unknown[] }) =>
+      query?.filter?.[0] === 'has'
+        // The same cluster crossing a tile edge, and a feature without a count.
+        ? [cluster, cluster, { properties: { cluster_id: 6 }, geometry: { coordinates: [1, 1] } }]
+        : [])
+
+    render(<MapViewGL places={[buildMapPlace({ id: 81, lat: 35.6, lng: 139.7 })]} fitKey={1} />)
+    await flushFrames()
+
+    const bubbles = glMarkers.created.filter(m => m.element.querySelector('.marker-cluster-custom'))
+    expect(bubbles).toHaveLength(1)
+    expect(bubbles[0].lngLat).toEqual([139.7, 35.6])
+    expect(bubbles[0].element.textContent).toBe('12')
+
+    act(() => { bubbles[0].element.dispatchEvent(new MouseEvent('click', { bubbles: true })) })
+    expect(clusterSource.getClusterExpansionZoom).toHaveBeenCalledWith(5, expect.any(Function))
+    expect(glMap.easeTo).toHaveBeenCalledWith({ center: [139.7, 35.6], zoom: 11, duration: 350 })
+    glMap.querySourceFeatures.mockReset()
+    glMap.querySourceFeatures.mockReturnValue([])
+  })
+
   // One building modelled as several stops — drop the bags, check in, the museum inside
   // it — puts every pin on the same spot, and all but the top one are unreachable. There
   // is no spiderfy on a GL map, so the stack draws as the one pin worth seeing (#2344).
