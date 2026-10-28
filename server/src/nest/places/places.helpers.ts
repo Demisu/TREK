@@ -134,6 +134,14 @@ function lineCourse(routeGeometry: string | null | undefined): string {
   return [first[0], first[1], last[0], last[1], south, west, north, east].map((v) => v.toFixed(3)).join(',');
 }
 
+/** An imported row as the dedup set reads it: a line when it carries one. */
+export function lineCandidate(
+  name: string | null | undefined,
+  row: { lat: number | null; lng: number | null; routeGeometry?: string | null },
+): DedupCandidate {
+  return { name, lat: row.lat, lng: row.lng, track: !!row.routeGeometry, routeGeometry: row.routeGeometry };
+}
+
 /** A track's entry in `DedupSet.tracks`: its normalized name and its course. */
 function trackKey(name: string, routeGeometry: string | null | undefined): string {
   return `${name}\u0000${lineCourse(routeGeometry)}`;

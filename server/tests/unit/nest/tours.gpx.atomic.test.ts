@@ -418,9 +418,10 @@ describe('Tours GPX atomic persistence and postcommit publication', () => {
   });
 
   it('imports only the new tracks and publishes only committed rows in a mixed result', async () => {
+    // The same Ridge as in the mixed file, line and all: a track is a duplicate only of one that runs alike (#2870).
     const existing = Buffer.from(`<gpx><trk><name>Ridge</name><trkseg>
       <trkpt lat="49" lon="12"><ele>100</ele></trkpt><trkpt lat="49.01" lon="12.01"><ele>150</ele></trkpt>
-    </trkseg></trk></gpx>`);
+    </trkseg><trkseg><trkpt lat="49.02" lon="12.02"><ele>120</ele></trkpt></trkseg></trk></gpx>`);
     expect((await tours.importGpxAsTour(tripId, existing))?.tours).toHaveLength(1);
     broadcast.mockClear();
 
