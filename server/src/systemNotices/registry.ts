@@ -59,7 +59,7 @@ export const SYSTEM_NOTICES: SystemNotice[] = [
     titleKey: 'system_notice.release_notes.headline',
     bodyKey: 'system_notice.release_notes.intro',
     release: {
-      version: '5.0.0',
+      version: '5.0.1',
       eyebrowKey: 'system_notice.release_notes.eyebrow',
       headlineKey: 'system_notice.release_notes.headline',
       introKey: 'system_notice.release_notes.intro',
@@ -95,7 +95,7 @@ export const SYSTEM_NOTICES: SystemNotice[] = [
       footnoteKey: 'system_notice.release_notes.footnote',
       notes: {
         labelKey: 'system_notice.release_notes.notes_label',
-        href: 'https://github.com/liketrek/TREK/releases/tag/v5.0.0',
+        href: 'https://github.com/liketrek/TREK/releases/tag/v5.0.1',
       },
       note: {
         eyebrowKey: 'system_notice.release_notes.note_eyebrow',
