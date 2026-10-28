@@ -86,15 +86,58 @@ export async function reclaimPhotoCache(
 
 export interface DedupSet {
   names: Set<string>;
-  /** The names of the places with a line: a track to import matches only these (#2810). Absent where none is read. */
-  trackNames?: Set<string>;
+  /**
+   * The places with a line, keyed by name and course (`trackKey`): a track to import
+   * matches only these (#2810), and only one that runs the same way (#2870). Absent
+   * where none is read.
+   */
+  tracks?: Set<string>;
   coords: Array<{ lat: number; lng: number }>;
   /** Provider ids (google_place_id, google_ftid, osm_id, amap_poi_id) of the places already in the trip. */
   externalIds: Set<string>;
 }
 
-/** A candidate for the dedup set; `track` when it is a line (a GPX track or route, a KML path). */
-export type DedupCandidate = PlaceMatchCandidate & { track?: boolean };
+/**
+ * A candidate for the dedup set; `track` when it is a line (a GPX track or route, a
+ * KML path), with that line in `routeGeometry`.
+ */
+export type DedupCandidate = PlaceMatchCandidate & { track?: boolean; routeGeometry?: string | null };
+
+/**
+ * Where a line starts, ends and how far it reaches, to about a hundred metres: two
+ * hikes a watch names alike ("Afternoon Hike") differ here, while the same file read
+ * again gives the same answer however its points were rounded or thinned. Empty for
+ * a line that does not parse.
+ */
+function lineCourse(routeGeometry: string | null | undefined): string {
+  let points: unknown;
+  try {
+    points = JSON.parse(routeGeometry ?? '');
+  } catch {
+    return '';
+  }
+  if (!Array.isArray(points)) return '';
+  const line = points.filter(
+    (p): p is [number, number] => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]),
+  );
+  if (line.length === 0) return '';
+  // A loop rather than Math.min(...): a recorded day holds more points than a call takes arguments.
+  let [south, west] = line[0];
+  let [north, east] = line[0];
+  for (const [lat, lng] of line) {
+    south = Math.min(south, lat);
+    north = Math.max(north, lat);
+    west = Math.min(west, lng);
+    east = Math.max(east, lng);
+  }
+  const [first, last] = [line[0], line[line.length - 1]];
+  return [first[0], first[1], last[0], last[1], south, west, north, east].map((v) => v.toFixed(3)).join(',');
+}
+
+/** A track's entry in `DedupSet.tracks`: its normalized name and its course. */
+function trackKey(name: string, routeGeometry: string | null | undefined): string {
+  return `${name}\u0000${lineCourse(routeGeometry)}`;
+}
 
 /**
  * Returns true if a candidate place is already represented in the dedup set.
@@ -114,9 +157,14 @@ export function isPlaceDuplicate(candidate: DedupCandidate, dedup: DedupSet): bo
     if (strategy.by === 'externalId') {
       if (dedup.externalIds.has(strategy.id)) return true;
     } else if (strategy.by === 'name') {
-      // A track is the same as a track of that name, never as a sight of that name:
-      // a watch names a hike after the place it went to (#2810).
-      if ((candidate.track ? dedup.trackNames : dedup.names)?.has(strategy.name)) return true;
+      // A track is the same as a track of that name that runs the same way, never as a
+      // sight of that name: a watch names a hike after the place it went to (#2810), and
+      // two hikes of one day alike (#2870).
+      if (candidate.track) {
+        if (dedup.tracks?.has(trackKey(strategy.name, candidate.routeGeometry))) return true;
+      } else if (dedup.names.has(strategy.name)) {
+        return true;
+      }
     } else if (
       dedup.coords.some(
         (c) =>
@@ -143,19 +191,19 @@ export function dedupSetOf(
   >,
 ): DedupSet {
   const names = new Set<string>();
-  const trackNames = new Set<string>();
+  const tracks = new Set<string>();
   const coords: Array<{ lat: number; lng: number }> = [];
   const externalIds = new Set<string>();
   for (const row of rows) {
     for (const id of externalIdsOf(row)) externalIds.add(id);
     if (row.name) {
       names.add(row.name.trim().toLowerCase());
-      if (row.route_geometry) trackNames.add(row.name.trim().toLowerCase());
+      if (row.route_geometry) tracks.add(trackKey(row.name.trim().toLowerCase(), row.route_geometry));
     } else if (row.lat != null && row.lng != null) {
       coords.push({ lat: row.lat, lng: row.lng });
     }
   }
-  return { names, trackNames, coords, externalIds };
+  return { names, tracks, coords, externalIds };
 }
 
 /** Record a newly inserted place so subsequent candidates in the same batch are checked against it. */
@@ -164,7 +212,7 @@ export function trackInsertedInDedupSet(place: DedupCandidate, dedup: DedupSet):
   const normalizedName = normalizePlaceName(place.name);
   if (normalizedName) {
     dedup.names.add(normalizedName);
-    if (place.track) (dedup.trackNames ??= new Set()).add(normalizedName);
+    if (place.track) (dedup.tracks ??= new Set()).add(trackKey(normalizedName, place.routeGeometry));
   } else if (place.lat != null && place.lng != null) {
     dedup.coords.push({ lat: place.lat, lng: place.lng });
   }

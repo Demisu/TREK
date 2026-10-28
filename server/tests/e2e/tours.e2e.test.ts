@@ -535,6 +535,22 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
       expect(await countRows(orm, Tours)).toBe(1);
     });
 
+    it('imports two different tracks of the same name, and still skips either one the second time (#2870)', async () => {
+      // A second hike the watch called "Alpine loop" too, somewhere else entirely.
+      const other = TRACK_GPX.replace(/lat="49(\.\d+)?" lon="12/g, (m) => m.replace('49', '47').replace('12', '11'));
+      expect((await importGpx(OWNER, TRACK_GPX)).body).toMatchObject({ skipped: 0 });
+      expect((await previewGpx(OWNER, other)).body.tracks[0]).toMatchObject({ duplicate: false });
+      const second = await importGpx(OWNER, other);
+      expect(second.status).toBe(201);
+      expect(second.body).toMatchObject({ skipped: 0 });
+      expect(second.body.tours).toHaveLength(1);
+      expect(await countRows(orm, Tours)).toBe(2);
+
+      expect((await importGpx(OWNER, TRACK_GPX)).body).toEqual({ tours: [], caution: false, skipped: 1 });
+      expect((await importGpx(OWNER, other)).body).toEqual({ tours: [], caution: false, skipped: 1 });
+      expect(await countRows(orm, Tours)).toBe(2);
+    });
+
     it('takes over a track from before Tours with the same name instead of skipping it (#2810)', async () => {
       // 4.x stored a GPX track as a plain place: a line, no tours row.
       const line = '[[49,12,100],[49.01,12.01,150],[49.02,12.02,120]]';
