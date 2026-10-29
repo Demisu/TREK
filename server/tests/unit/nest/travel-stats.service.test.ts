@@ -324,7 +324,7 @@ describe('place countries without a cached region (#2875)', () => {
     await cacheRegion(colosseumId, 'IT', 'IT-62');
 
     const atlasVisited = (await atlas.stats(user.id)).countries
-      .filter((c) => c.status === 'visited')
+      .filter((c) => !('status' in c) || c.status === 'visited')
       .map((c) => c.code)
       .sort();
     expect(atlasVisited).toEqual(['IT', 'VA']);

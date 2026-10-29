@@ -72,7 +72,7 @@ export function useBookingFollowUp({
     /** Whether a try in this session already stored the booking, so the form holds a retry. */
     holdsSaved: () => stored.current !== null,
     /** What the save hands the planner, for a booking whose files are described by `description`. */
-    steps: (description: string): BookingSaveSteps => ({
+    steps: (description: string): BookingSaveSteps & Required<Pick<BookingSaveSteps, 'afterSave'>> => ({
       saved: stored.current ?? undefined,
       afterSave: (saved) => afterSave(saved, description),
     }),
