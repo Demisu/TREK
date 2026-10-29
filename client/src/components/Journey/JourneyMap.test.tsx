@@ -281,7 +281,7 @@ describe('JourneyMap', () => {
       // A bound tooltip is what Leaflet closes on the pin's mouseout and blur, which
       // a tap on the card sends first. The pins bind none and listen for the tap alone.
       expect(mockedMarker().bindTooltip).not.toHaveBeenCalled();
-      expect(vi.mocked(mockedMarker().on).mock.calls.map(([type]) => type)).toEqual(['click', 'click']);
+      expect(vi.mocked(mockedMarker().on).mock.calls.map((call: unknown[]) => call[0])).toEqual(['click', 'click']);
       expect(mockedCard().state.onMap).toBe(true);
       expect(mockedCard().remove).not.toHaveBeenCalled();
     });

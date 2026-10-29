@@ -229,6 +229,7 @@ function createEntryCard(open: () => void): L.Tooltip {
 }
 
 interface PinRefs {
+  onCardClickRef: RefObject<((entryId: string) => void) | undefined>
   mapRef: RefObject<L.Map | null>
   markersRef: RefObject<Map<string, L.Marker>>
   itemsRef: RefObject<MapMarkerItem[]>
@@ -236,15 +237,10 @@ interface PinRefs {
 }
 
 /**
- * The openable card of a host that wires onMarkerCardClick. `sync` puts it over
- * the active pin while that pin is on the map and takes it off otherwise.
+ * The openable card of a host that wires onMarkerCardClick. The returned sync puts
+ * it over the active pin while that pin is on the map and takes it off otherwise.
  */
-function useEntryCard(onMarkerCardClick: ((entryId: string) => void) | undefined, pins: PinRefs) {
-  const { mapRef, markersRef, itemsRef, highlightedRef } = pins
-  // Read through a ref: the handler is fixed per surface, and putting it in the
-  // marker effect's deps would rebuild every marker for nothing.
-  const onCardClickRef = useRef(onMarkerCardClick)
-  onCardClickRef.current = onMarkerCardClick
+function useEntryCardSync({ onCardClickRef, mapRef, markersRef, itemsRef, highlightedRef }: PinRefs): () => void {
   const cardRef = useRef<L.Tooltip | null>(null)
   const cardEntryIdRef = useRef<string | null>(null)
 
@@ -269,9 +265,9 @@ function useEntryCard(onMarkerCardClick: ((entryId: string) => void) | undefined
     cardEntryIdRef.current = item.id
     card.setLatLng(marker.getLatLng()).setContent(entryCardHtml(item))
     if (!map.hasLayer(card)) card.addTo(map)
-  }, [mapRef, markersRef, itemsRef, highlightedRef])
+  }, [onCardClickRef, mapRef, markersRef, itemsRef, highlightedRef])
 
-  return { opensFromCardRef: onCardClickRef, sync }
+  return sync
 }
 
 const EMPTY_TRAIL: { lat: number; lng: number }[] = []
@@ -292,6 +288,10 @@ function fitOptions(paddingBottom: number | undefined): L.FitBoundsOptions {
 function JourneyMap(
   { entries, photos, onPhotoClick, trail, tracks, height = 220, dark, activeMarkerId, onMarkerClick, fullScreen, paddingBottom, cartoApiKey, onMarkerCardClick, layerVisibility = EVERY_LAYER, marks, onMarksPick, plannedEntryIds = NO_PLANNED, ref }: Props,
 ) {
+  // Read through a ref: the handler is fixed per surface, and putting it in the
+  // marker effect's deps would rebuild every marker for nothing.
+  const onMarkerCardClickRef = useRef(onMarkerCardClick)
+  onMarkerCardClickRef.current = onMarkerCardClick
   const stableTrail = trail || EMPTY_TRAIL
   const stableTracks = tracks || EMPTY_TRACKS
   const mapTileUrl = useSettingsStore(s => s.settings.map_tile_url)
@@ -342,7 +342,7 @@ function JourneyMap(
     plannedRef.current = plannedEntryIds
   })
 
-  const { opensFromCardRef, sync: syncEntryCard } = useEntryCard(onMarkerCardClick, { mapRef, markersRef, itemsRef, highlightedRef })
+  const syncEntryCard = useEntryCardSync({ onCardClickRef: onMarkerCardClickRef, mapRef, markersRef, itemsRef, highlightedRef })
 
   const highlightMarker = useCallback((id: string | null) => {
     const prev = highlightedRef.current
@@ -513,7 +513,7 @@ function JourneyMap(
       const marker = place('entries', L.marker(pos, { icon: entryIcon(item, false, plannedRef.current.has(item.id)) }))
       // A host that opens the entry from its card gets the one card that follows
       // the active pin instead (see syncEntryCard).
-      if (!opensFromCardRef.current) {
+      if (!onMarkerCardClickRef.current) {
         ensureJourneyPopupStyle()
         marker.bindTooltip(entryCardHtml(item), { ...ENTRY_CARD_OPTIONS, className: 'map-tooltip trek-journey-tooltip' })
       }
