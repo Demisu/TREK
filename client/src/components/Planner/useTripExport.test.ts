@@ -1,4 +1,4 @@
-// FE-PLANNER-TRIPEXPORT-001 to -010: the trip exports behind the desktop export
+// FE-PLANNER-TRIPEXPORT-001 to -011: the trip exports behind the desktop export
 // dialog and the phone's export sheet.
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
@@ -237,5 +237,43 @@ describe('useTripExport', () => {
     expect(opts.toast.error).toHaveBeenCalledWith('dayplan.gpxFailed');
     expect(opts.onExported).toHaveBeenCalledTimes(1);
     expect(result.current.anyRunning).toBe(false);
+  });
+
+  it('FE-PLANNER-TRIPEXPORT-011: the PDF routes what the planner draws, counts its legs and can print without the rest', async () => {
+    const pdf = deferred();
+    vi.mocked(downloadTripPDF).mockReturnValue(pdf.promise);
+    const viasByDay = { 7: [] };
+    const tourStageStops = new Map();
+    const opts = options({ data: { ...options().data, viasByDay, tourStageStops } });
+    const { result } = renderHook(() => useTripExport(opts));
+    let running!: Promise<void>;
+    act(() => {
+      running = result.current.exportPdf();
+    });
+    await vi.waitFor(() => expect(downloadTripPDF).toHaveBeenCalled());
+    const { route } = vi.mocked(downloadTripPDF).mock.calls[0][0];
+    expect(route).toMatchObject({ viasByDay, tourStageStops });
+    expect(result.current.pdfRouting).toBeNull();
+
+    act(() => route?.onProgress?.(0, 60));
+    act(() => route?.onProgress?.(23, 60));
+    expect(result.current.pdfRouting).toEqual({ done: 23, total: 60 });
+    expect(result.current.pdfRoutingLabel('pdf')).toBe('dayplan.pdfRouting');
+    expect(result.current.pdfRoutingLabel('pdf:mine')).toBeNull();
+
+    // Skipping stops the routing, not the export: the document still comes out.
+    act(() => result.current.skipPdfRouting());
+    expect(route?.signal?.aborted).toBe(true);
+    expect(result.current.pdfRouting).toBeNull();
+    // The leg that was already on its way still reports; the row does not come back for it.
+    act(() => route?.onProgress?.(24, 60));
+    expect(result.current.pdfRouting).toBeNull();
+    expect(result.current.isRunning('pdf')).toBe(true);
+    await act(async () => {
+      pdf.resolve();
+      await running;
+    });
+    expect(result.current.anyRunning).toBe(false);
+    expect(opts.onExported).toHaveBeenCalledTimes(1);
   });
 });

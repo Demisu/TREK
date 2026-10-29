@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { useRoadtripSettings } from '../../hooks/useRoadtripSettings';
 import { useAuthStore } from '../../store/authStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { AssignmentsMap, Category, Day, DayNote, Place, Reservation, Trip } from '../../types';
 import { importChunk } from '../../utils/chunkReload';
+import type { ViasByDay } from '../../utils/dayRouteVias';
+import type { TourStageStops } from '../Map/dayTourProjection';
 import { hasPersonalPlan } from '../PDF/pdfScope';
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;
@@ -21,6 +23,15 @@ export interface TripExportData {
   categories: Category[];
   reservations: Reservation[];
   dayNotes: Record<string, DayNote[]>;
+  /** The road trip's vias and the multi-day tour stages, so the PDF map routes what the planner map does. */
+  viasByDay?: ViasByDay;
+  tourStageStops?: TourStageStops;
+}
+
+/** How far the PDF's route map has got: legs answered or given up on, out of all of them. */
+interface PdfRouting {
+  done: number;
+  total: number;
 }
 
 export interface TripExportOptions {
@@ -68,6 +79,34 @@ export function flatDayNotes(dayNotes: Record<string, DayNote[]>) {
 }
 
 /**
+ * The PDF's routing round as the export rows show it. A cold month-long trip routes for
+ * minutes, one leg a second against the shared router, so the row counts the legs and
+ * offers to print without the ones still to come; those are marked in the document (#2876).
+ */
+function usePdfRouting() {
+  const [progress, setProgress] = useState<PdfRouting | null>(null);
+  const controller = useRef<AbortController | null>(null);
+
+  const start = () => {
+    const routing = new AbortController();
+    controller.current = routing;
+    // A leg already on its way still reports after a skip; the row stays quiet about it.
+    const onProgress = (done: number, total: number) =>
+      setProgress(!routing.signal.aborted && done < total ? { done, total } : null);
+    return { signal: routing.signal, onProgress };
+  };
+  const finish = () => {
+    controller.current = null;
+    setProgress(null);
+  };
+  const skip = () => {
+    controller.current?.abort();
+    setProgress(null);
+  };
+  return { progress, start, finish, skip };
+}
+
+/**
  * Every way a trip leaves TREK, behind the desktop export dialog and the phone's
  * export sheet: the day plan as a PDF (the whole plan, or my plan once somebody
  * has been given a part of the trip, #2168), the bookings as an .ics file and the
@@ -88,6 +127,7 @@ export function useTripExport({
   // Which export is working, per lane, so a row can say so instead of looking inert
   // while a 226 kB PDF builder is fetched and a document is rendered.
   const [running, setRunning] = useState<Record<string, ExportJob>>({});
+  const pdfRouting = usePdfRouting();
   // The PDF is built outside React, so it cannot read these itself (#2066).
   const timeFormat = useSettingsStore((s) => s.settings.time_format) || '24h';
   const distanceUnit = useSettingsStore((s) => s.settings.distance_unit);
@@ -108,11 +148,16 @@ export function useTripExport({
       return next;
     });
 
+  /** What a PDF row says while its route map is still being routed, instead of its own line. */
+  const pdfRoutingLabel = (job: ExportJob) =>
+    isRunning(job) && pdfRouting.progress ? t('dayplan.pdfRouting', { ...pdfRouting.progress }) : null;
+
   const exportPdf = async (mine = false) => {
     const job: ExportJob = mine ? 'pdf:mine' : 'pdf';
     if ((requireTrip && !data.trip) || running[laneOf(job)]) return;
     begin(job);
     const flatNotes = flatDayNotes(data.dayNotes);
+    const routing = pdfRouting.start();
     try {
       // Loaded on click: the PDF builder is ~226 kB, so every trip used to pay for it
       // whether or not anyone exported. A missing chunk lands in the catch and shows
@@ -132,12 +177,14 @@ export function useTripExport({
         distanceUnit,
         showServiceStops,
         onlyUserId: mine ? myId : undefined,
+        route: { viasByDay: data.viasByDay, tourStageStops: data.tourStageStops, ...routing },
       });
       if (closeAfterPdf) onExported();
     } catch (e) {
       if (logPdfErrors) console.error('PDF error:', e);
       toast.error(`${t('dayplan.pdfError')}: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
+      pdfRouting.finish();
       end(job);
     }
   };
@@ -187,6 +234,9 @@ export function useTripExport({
     isRunning,
     anyRunning: Object.keys(running).length > 0,
     exportPdf,
+    pdfRouting: pdfRouting.progress,
+    pdfRoutingLabel,
+    skipPdfRouting: pdfRouting.skip,
     downloadIcs,
     downloadGpx,
   };

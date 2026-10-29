@@ -1455,7 +1455,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
         days={days}
         places={places}
         categories={categories}
-        assignments={assignments}
+        assignments={assignments} roadtripViasByDay={props.roadtripViasByDay} tourStageStops={props.tourStageStops}
         reservations={reservations}
         allConnectionsShown={allConnectionsShown}
         onToggleAllConnections={onToggleAllConnections}

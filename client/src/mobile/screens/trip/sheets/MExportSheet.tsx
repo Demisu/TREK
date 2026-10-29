@@ -23,7 +23,7 @@ export default function MExportSheet({ planner, shell }: MTripSheetsProps) {
   // Fed the way the desktop dialog feeds it: the store's assignments, and the export
   // applies the day plan's filter itself, so both shells print the same. The PDF stays
   // open here; a calendar or GPX file closes the sheet.
-  const { offerMine, isRunning, exportPdf, downloadIcs, downloadGpx } = useTripExport({
+  const { offerMine, isRunning, exportPdf, pdfRouting, pdfRoutingLabel, skipPdfRouting, downloadIcs, downloadGpx } = useTripExport({
     tripId: planner.tripId,
     data: {
       trip: planner.trip,
@@ -33,6 +33,8 @@ export default function MExportSheet({ planner, shell }: MTripSheetsProps) {
       categories: planner.categories,
       reservations: planner.reservations,
       dayNotes,
+      viasByDay: planner.roadtripVias.byDay,
+      tourStageStops: planner.tourStageStops,
     },
     t,
     locale,
@@ -67,16 +69,25 @@ export default function MExportSheet({ planner, shell }: MTripSheetsProps) {
           <ExportRow
             icon={FileDown}
             title={isRunning('pdf') ? t('common.loading') : t('dayplan.pdf')}
-            sub={t('dayplan.pdfTooltip')}
+            sub={pdfRoutingLabel('pdf') ?? t('dayplan.pdfTooltip')}
             onClick={() => void exportPdf()}
           />
           {offerMine && (
             <ExportRow
               icon={UserRound}
               title={isRunning('pdf:mine') ? t('common.loading') : t('dayplan.pdfMine')}
-              sub={t('dayplan.pdfMineSub')}
+              sub={pdfRoutingLabel('pdf:mine') ?? t('dayplan.pdfMineSub')}
               onClick={() => void exportPdf(true)}
             />
+          )}
+          {pdfRouting && (
+            <button
+              type="button"
+              onClick={skipPdfRouting}
+              className="self-end rounded-[10px] px-2 py-1 text-caption font-semibold text-m-muted"
+            >
+              {t('dayplan.pdfSkipRouting')}
+            </button>
           )}
           <ExportRow
             icon={FileDown}
