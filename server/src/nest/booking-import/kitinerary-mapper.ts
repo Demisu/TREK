@@ -870,7 +870,7 @@ function priceRepeatedTotalOnce(items: ParsedBookingItem[]): ParsedBookingItem[]
   const repeats = new Set<ParsedBookingItem>();
   for (const priced of byReference.values()) {
     if (priced.length < 2 || !oneAmount(priced.map(fareOf))) continue;
-    const keeper = priced.reduce((first, item) => (departureMs(item) < departureMs(first) ? item : first));
+    const keeper = priced.reduce((first, item) => (departureMs(item) < departureMs(first) ? item : first), priced[0]);
     priced.filter((item) => item !== keeper).forEach((item) => repeats.add(item));
   }
   return repeats.size ? items.map((item) => (repeats.has(item) ? withoutPrice(item) : item)) : items;
