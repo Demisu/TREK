@@ -1,4 +1,4 @@
-// FE-COMP-JMAPGL-001 to FE-COMP-JMAPGL-042, FE-COMP-JMAPGL-2453
+// FE-COMP-JMAPGL-001 to FE-COMP-JMAPGL-043, FE-COMP-JMAPGL-2453
 
 type Spy = ReturnType<typeof vi.fn>
 
@@ -236,6 +236,15 @@ describe('JourneyMapGL', () => {
     // the second entry has no explicit day meta and falls back to the neutral defaults
     expect(gl.markers[1].element.innerHTML).toContain('#52525B')
     expect(gl.markers[1].element.innerHTML).toContain('>1<')
+  })
+
+  it('FE-COMP-JMAPGL-043: a stop without a number (a draft) gets an unnumbered pin', () => {
+    withToken()
+    render(<JourneyMapGL checkins={[]} entries={[{ ...entries[0], dayLabel: null }]} />)
+
+    expect(gl.markers).toHaveLength(1)
+    expect(gl.markers[0].element.innerHTML).toContain('#ff0055')
+    expect(gl.markers[0].element.innerHTML).toMatch(/font-weight="700"><\/text>/)
   })
 
   it('FE-COMP-JMAPGL-006: entries without coordinates never reach the map', () => {

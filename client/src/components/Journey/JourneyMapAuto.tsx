@@ -23,7 +23,8 @@ interface MapEntry {
   mood?: string | null
   entry_date: string
   dayColor?: string
-  dayLabel?: number
+  /** Null leaves the pin unnumbered: a draft the share link does not count. */
+  dayLabel?: number | null
 }
 
 interface Props {

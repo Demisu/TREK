@@ -5,6 +5,7 @@ import { useTranslation } from '../../i18n'
 import { addListener, removeListener } from '../../api/websocket'
 import { journeyApi } from '../../api/client'
 import { DAY_COLORS } from '../../components/Journey/dayColors'
+import { isGalleryPlaceholder, isJourneyMapEntry, journeyMapStops } from '../../components/Journey/journeyMapStops'
 import type { JourneyMapAutoHandle as JourneyMapHandle } from '../../components/Journey/JourneyMapAuto'
 import { useToast } from '../../components/shared/Toast'
 import { useIsMobile } from '../../hooks/useIsMobile'
@@ -421,31 +422,22 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     return lockBodyScroll()
   }, [isMobile, embedded])
 
-  // Map only shows real journal entries — skeletons are trip-derived
-  // suggestions, not something the user actually journaled at that spot.
   const mapEntries = useMemo(
-    () => (current?.entries || []).filter(e =>
-      e.location_lat && e.location_lng &&
-      e.title !== 'Gallery' &&
-      e.title !== '[Trip Photos]' &&
-      e.type !== 'skeleton'
-    ),
+    () => (current?.entries || []).filter(isJourneyMapEntry),
     [current?.entries]
   )
 
+  // Numbered by the rule the share link uses, so a stop reads the same here as
+  // for the people the journey is shared with (#2886).
   const sidebarMapItems = useMemo(() => {
     const allDates = [...new Set(
       (current?.entries || [])
-        .filter(e => e.title !== 'Gallery' && e.title !== '[Trip Photos]')
+        .filter(e => !isGalleryPlaceholder(e))
         .map(e => e.entry_date)
         .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
     )]
-    const sorted = [...mapEntries].sort((a, b) => a.entry_date.localeCompare(b.entry_date))
-    const dayCounters = new Map<string, number>()
-    return sorted.map(e => {
+    return journeyMapStops(mapEntries).map(({ entry: e, stop }) => {
       const dayIdx = allDates.indexOf(e.entry_date)
-      const dayLabel = (dayCounters.get(e.entry_date) ?? 0) + 1
-      dayCounters.set(e.entry_date, dayLabel)
       return {
         id: String(e.id),
         lat: e.location_lat!,
@@ -456,7 +448,7 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
         created_at: e.entry_date,
         entry_date: e.entry_date,
         dayColor: DAY_COLORS[dayIdx % DAY_COLORS.length],
-        dayLabel,
+        dayLabel: stop,
         // A glimpse of the entry's own pictures on its marker card. Three is what
         // the card has room for; the rest are one tap away in the entry itself.
         photoUrls: (e.photos ?? []).slice(0, 3).map(p => `/api/photos/${p.photo_id}/thumbnail`),

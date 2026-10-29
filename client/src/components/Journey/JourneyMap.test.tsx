@@ -1,4 +1,4 @@
-// FE-COMP-JOURNEYMAP-001 to FE-COMP-JOURNEYMAP-057
+// FE-COMP-JOURNEYMAP-001 to FE-COMP-JOURNEYMAP-058
 
 vi.mock('../../api/websocket', () => ({
   connect: vi.fn(),
@@ -203,6 +203,15 @@ describe('JourneyMap', () => {
     expect(firstCall.html).toContain('</svg>');
     // Marker index label "1" for first entry
     expect(firstCall.html).toContain('>1<');
+  });
+
+  it('FE-COMP-JOURNEYMAP-058: a stop without a number (a draft) gets an unnumbered pin', () => {
+    render(
+      <JourneyMap checkins={[]} entries={[{ ...entriesWithCoords[0], dayLabel: null }]} />
+    );
+    const html = String(vi.mocked(L.divIcon).mock.calls[0][0]?.html);
+    expect(html).toContain('<svg');
+    expect(html).toMatch(/font-weight="700"><\/text>/);
   });
 
   it('FE-COMP-JOURNEYMAP-008: renders markers with mood-based entry labels', () => {

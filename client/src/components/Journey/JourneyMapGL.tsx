@@ -26,7 +26,7 @@ interface MapEntry {
   mood?: string | null
   entry_date: string
   dayColor?: string
-  dayLabel?: number
+  dayLabel?: number | null
   /** Thumbnails for the marker card, already resolved by the caller (the share view signs its own). */
   photoUrls?: string[]
 }
@@ -79,7 +79,7 @@ interface Item {
   locationName: string
   time: string
   dayColor: string
-  dayLabel: number
+  dayLabel: number | null
   photoUrls: string[]
 }
 
@@ -98,7 +98,7 @@ function buildItems(entries: MapEntry[]): Item[] {
         locationName: e.location_name || '',
         time: e.entry_date,
         dayColor: e.dayColor || '#52525B',
-        dayLabel: e.dayLabel ?? 1,
+        dayLabel: e.dayLabel === undefined ? 1 : e.dayLabel,
         photoUrls: e.photoUrls ?? [],
       })
     }
@@ -143,7 +143,7 @@ function addConnectionLayer(map: mapboxgl.Map, id: string, lines: [number, numbe
   })
 }
 
-function markerHtml(dayColor: string, dayLabel: number, highlighted: boolean, planned = false): HTMLDivElement {
+function markerHtml(dayColor: string, dayLabel: number | null, highlighted: boolean, planned = false): HTMLDivElement {
   const fill = dayColor
   const textColor = '#fff'
   const stroke = highlighted ? '#fff' : 'rgba(255,255,255,0.5)'
@@ -151,7 +151,7 @@ function markerHtml(dayColor: string, dayLabel: number, highlighted: boolean, pl
     ? 'drop-shadow(0 0 10px rgba(0,0,0,0.4)) drop-shadow(0 2px 6px rgba(0,0,0,0.4))'
     : 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))'
   const scale = highlighted ? 1.2 : 1
-  const label = String(dayLabel)
+  const label = dayLabel === null ? '' : String(dayLabel)
 
   // Outer wrap holds the element mapbox positions via `transform: translate(...)`.
   // Anything animated (scale, filter) has to live on an inner child — otherwise

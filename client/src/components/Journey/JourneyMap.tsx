@@ -23,7 +23,7 @@ export interface MapMarkerItem {
   mood?: string | null
   time: string
   dayColor: string
-  dayLabel: number
+  dayLabel: number | null
   photoUrls: string[]
 }
 
@@ -45,7 +45,7 @@ interface MapEntry {
   mood?: string | null
   entry_date: string
   dayColor?: string
-  dayLabel?: number
+  dayLabel?: number | null
   /** Thumbnails for the marker card, already resolved by the caller (the share view signs its own). */
   photoUrls?: string[]
 }
@@ -117,7 +117,7 @@ function buildMarkerItems(entries: MapEntry[]): MapMarkerItem[] {
         mood: e.mood,
         time: e.entry_date,
         dayColor: e.dayColor || '#52525B',
-        dayLabel: e.dayLabel ?? 1,
+        dayLabel: e.dayLabel === undefined ? 1 : e.dayLabel,
         photoUrls: e.photoUrls ?? [],
       })
     }
@@ -129,12 +129,12 @@ function buildMarkerItems(entries: MapEntry[]): MapMarkerItem[] {
 const MARKER_W = 28
 const MARKER_H = 36
 
-function markerSvg(dayColor: string, dayLabel: number, highlighted: boolean, planned = false): string {
+function markerSvg(dayColor: string, dayLabel: number | null, highlighted: boolean, planned = false): string {
   const stroke = highlighted ? '#fff' : 'rgba(255,255,255,0.5)'
   const shadow = highlighted
     ? 'filter:drop-shadow(0 0 10px rgba(0,0,0,0.4)) drop-shadow(0 2px 6px rgba(0,0,0,0.4))'
     : 'filter:drop-shadow(0 2px 4px rgba(0,0,0,0.25))'
-  const label = String(dayLabel)
+  const label = dayLabel === null ? '' : String(dayLabel)
   const scale = highlighted ? 1.2 : 1
 
   return `<div style="transform:scale(${scale});transition:transform 0.2s ease;${shadow};transform-origin:bottom center">

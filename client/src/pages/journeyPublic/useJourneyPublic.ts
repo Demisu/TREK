@@ -5,6 +5,7 @@ import { useSettingsStore } from '../../store/settingsStore'
 import type { JourneyMapHandle } from '../../components/Journey/JourneyMap'
 import { useIsMobile } from '../../hooks/useIsMobile'
 import { DAY_COLORS } from '../../components/Journey/dayColors'
+import { journeyMapStops } from '../../components/Journey/journeyMapStops'
 import { posterlessVideo } from '../journeyDetail/JourneyDetailPage.helpers'
 import { groupByDate, type PublicEntry, type PublicGalleryPhoto } from './journeyPublicModel'
 import { useJourneyMapLayers } from '../../components/Journey/useJourneyMapLayers'
@@ -58,10 +59,6 @@ export function useJourneyPublic() {
   // Chronological throughout: this is what the day colours and the stop numbers are
   // derived from, so flipping the reading order must not renumber the trip.
   const sortedDates = useMemo(() => [...groupedEntries.keys()].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)), [groupedEntries])
-  const mapEntries = useMemo(
-    () => timelineEntries.filter(e => e.location_lat && e.location_lng),
-    [timelineEntries],
-  )
   const allPhotos = gallery
 
   // Map entries with day color/label for colored markers.
@@ -73,10 +70,8 @@ export function useJourneyPublic() {
   // missing entirely (#1962). It is now the stop's place in the whole journey, so
   // every number appears exactly once and the colour still groups the day.
   const sidebarMapItems = useMemo(() => {
-    let stop = 0
-    return mapEntries.map(e => {
+    return journeyMapStops(timelineEntries).map(({ entry: e, stop }) => {
       const dayIdx = sortedDates.indexOf(e.entry_date)
-      const dayLabel = ++stop
       return {
         id: String(e.id),
         lat: e.location_lat!,
@@ -86,7 +81,7 @@ export function useJourneyPublic() {
         created_at: e.entry_date,
         entry_date: e.entry_date,
         dayColor: DAY_COLORS[dayIdx % DAY_COLORS.length],
-        dayLabel,
+        dayLabel: stop,
         // Through the share token, like every other picture on this page: the
         // reader has no session, so `/api/photos/:id` would answer 401. The
         // poster rather than the file, as the owner's own map card does, since
@@ -98,13 +93,15 @@ export function useJourneyPublic() {
           .map(p => `/api/public/journey/${token}/photos/${p.photo_id}/thumbnail`),
       }
     })
-  }, [mapEntries, sortedDates, token])
+  }, [timelineEntries, sortedDates, token])
 
   // The same number the marker carries, so the timeline is the key to the map
   // rather than a second, unrelated numbering.
   const stopNumberById = useMemo(() => {
     const m = new Map<string, number>()
-    sidebarMapItems.forEach(i => m.set(i.id, i.dayLabel))
+    sidebarMapItems.forEach(i => {
+      if (i.dayLabel !== null) m.set(i.id, i.dayLabel)
+    })
     return m
   }, [sidebarMapItems])
 
