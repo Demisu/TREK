@@ -386,10 +386,8 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
       </div>
 
       <BookingNotesFilesCosts
-        notes={form.notes}
-        onNotesChange={value => set('notes', value)}
-        url={form.url}
-        onUrlChange={value => set('url', value)}
+        form={form}
+        set={set}
         reservationId={reservation?.id}
         tripFiles={files}
         pendingFiles={pendingFiles}

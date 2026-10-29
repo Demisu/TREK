@@ -13,10 +13,8 @@ import type { useBookingFileAttach } from './useBookingFileAttach';
  * files row, and the costs linked to this booking when the budget addon is on.
  */
 export function BookingNotesFilesCosts({
-  notes,
-  onNotesChange,
-  url,
-  onUrlChange,
+  form,
+  set,
   reservationId,
   tripFiles,
   pendingFiles,
@@ -28,10 +26,8 @@ export function BookingNotesFilesCosts({
   pendingExpense,
   expense,
 }: {
-  notes: string;
-  onNotesChange: (notes: string) => void;
-  url: string;
-  onUrlChange: (url: string) => void;
+  form: { notes: string; url: string };
+  set: (field: 'notes' | 'url', value: string) => void;
   /** The saved booking; unset while it is being created. */
   reservationId: number | undefined;
   tripFiles: TripFile[];
@@ -50,8 +46,8 @@ export function BookingNotesFilesCosts({
     <>
       <EditorField label={t('reservations.notes')}>
         <textarea
-          value={notes}
-          onChange={(e) => onNotesChange(e.target.value)}
+          value={form.notes}
+          onChange={(e) => set('notes', e.target.value)}
           rows={2}
           placeholder={t('reservations.notesPlaceholder')}
           className={TEXTAREA}
@@ -59,8 +55,8 @@ export function BookingNotesFilesCosts({
       </EditorField>
 
       <BookingLinkAndFiles
-        url={url}
-        onUrlChange={onUrlChange}
+        url={form.url}
+        onUrlChange={(url) => set('url', url)}
         labelClass={LABEL}
         inputClass={INPUT}
         reservationId={reservationId}
