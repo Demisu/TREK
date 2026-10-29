@@ -2,7 +2,7 @@
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 import { server } from '../../../tests/helpers/msw/server';
-import { render, waitFor } from '../../../tests/helpers/render';
+import { renderHook, waitFor } from '../../../tests/helpers/render';
 import type { PublicEntry } from './journeyPublicModel';
 import { useJourneyPublic } from './useJourneyPublic';
 
@@ -46,13 +46,6 @@ function serveShare(entries: PublicEntry[]): void {
   );
 }
 
-let latest: ReturnType<typeof useJourneyPublic>;
-
-function Harness() {
-  latest = useJourneyPublic();
-  return null;
-}
-
 describe('useJourneyPublic', () => {
   it('FE-JRN-PUBHOOK-001: the map and the timeline count the stops through the whole journey', async () => {
     serveShare([
@@ -62,17 +55,17 @@ describe('useJourneyPublic', () => {
       buildEntry({ id: 4, entry_date: '2026-10-24' }),
       buildEntry({ id: 5, entry_date: '2026-10-24', sort_order: 1 }),
     ]);
-    render(<Harness />);
+    const { result } = renderHook(() => useJourneyPublic());
 
-    await waitFor(() => expect(latest.sidebarMapItems).toHaveLength(5));
-    expect(latest.sidebarMapItems.map((m) => [m.id, m.dayLabel])).toEqual([
+    await waitFor(() => expect(result.current.sidebarMapItems).toHaveLength(5));
+    expect(result.current.sidebarMapItems.map((m) => [m.id, m.dayLabel])).toEqual([
       ['1', 1],
       ['2', 2],
       ['3', 3],
       ['4', 4],
       ['5', 5],
     ]);
-    expect([...latest.stopNumberById]).toEqual([
+    expect([...result.current.stopNumberById]).toEqual([
       ['1', 1],
       ['2', 2],
       ['3', 3],
@@ -88,14 +81,14 @@ describe('useJourneyPublic', () => {
       buildEntry({ id: 7, location_lat: null, location_lng: null }),
       buildEntry({ id: 9, entry_date: '2026-10-24' }),
     ]);
-    render(<Harness />);
+    const { result } = renderHook(() => useJourneyPublic());
 
-    await waitFor(() => expect(latest.sidebarMapItems).toHaveLength(3));
-    expect(latest.sidebarMapItems.map((m) => [m.id, m.dayLabel])).toEqual([
+    await waitFor(() => expect(result.current.sidebarMapItems).toHaveLength(3));
+    expect(result.current.sidebarMapItems.map((m) => [m.id, m.dayLabel])).toEqual([
       ['6', 1],
       ['8', 2],
       ['9', 3],
     ]);
-    expect(latest.stopNumberById.has('7')).toBe(false);
+    expect(result.current.stopNumberById.has('7')).toBe(false);
   });
 });

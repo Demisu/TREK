@@ -520,7 +520,7 @@ describe('JourneyMapGL', () => {
       render(<JourneyMapGL ref={ref} checkins={[]} entries={withPhotos} {...props} />)
       act(() => { ref.current?.highlightMarker(id) })
       const popup = gl.popups[0]
-      popup.element.innerHTML = String(popup.setHTML.mock.calls.at(-1)?.[0])
+      popup.element.innerHTML = String(popup.setHTML.mock.lastCall?.[0])
       const mapClick = vi.fn()
       const host = document.createElement('div')
       host.appendChild(popup.element)
@@ -578,7 +578,7 @@ describe('JourneyMapGL', () => {
       const { ref, popup } = openCard({ onMarkerCardClick })
 
       act(() => { ref.current?.highlightMarker('e2') })
-      popup.element.innerHTML = String(popup.setHTML.mock.calls.at(-1)?.[0])
+      popup.element.innerHTML = String(popup.setHTML.mock.lastCall?.[0])
       tap(popup, '.trek-journey-popup-title')
 
       expect(popup.element.classList.contains('is-openable')).toBe(true)

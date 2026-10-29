@@ -243,16 +243,22 @@ describe('JourneyMap', () => {
       return { ...view, ref, onMarkerCardClick };
     }
 
+    function cardElement(): HTMLElement {
+      const { element } = mockedCard().state;
+      if (!element) throw new Error('the card was never built');
+      return element;
+    }
+
     function cardTitle(): HTMLElement {
-      return mockedCard().state.element!.firstElementChild as HTMLElement;
+      return cardElement().firstElementChild as HTMLElement;
     }
 
     it('FE-COMP-JOURNEYMAP-059: a tap on the card over the active pin opens that entry and never reaches the map', () => {
       const { ref, onMarkerCardClick } = renderOpenable();
-      act(() => ref.current!.highlightMarker('e2'));
+      act(() => ref.current?.highlightMarker('e2'));
 
       expect(L.tooltip).toHaveBeenCalledWith(expect.objectContaining({ className: 'map-tooltip trek-journey-tooltip is-openable' }));
-      const container = mockedCard().state.element!.parentElement!;
+      const container = cardElement().parentElement as HTMLElement;
       const mapClick = vi.fn();
       const mapPress = vi.fn();
       container.addEventListener('click', mapClick);
@@ -260,7 +266,7 @@ describe('JourneyMap', () => {
 
       cardTitle().dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
       cardTitle().click();
-      act(() => ref.current!.highlightMarker('e1'));
+      act(() => ref.current?.highlightMarker('e1'));
       cardTitle().click();
 
       expect(onMarkerCardClick.mock.calls).toEqual([['e2'], ['e1']]);
@@ -270,7 +276,7 @@ describe('JourneyMap', () => {
 
     it('FE-COMP-JOURNEYMAP-060: the pins do not open or close the card, so leaving the pin for the card keeps it', () => {
       const { ref } = renderOpenable();
-      act(() => ref.current!.highlightMarker('e1'));
+      act(() => ref.current?.highlightMarker('e1'));
 
       // A bound tooltip is what Leaflet closes on the pin's mouseout and blur, which
       // a tap on the card sends first. The pins bind none and listen for the tap alone.
@@ -288,16 +294,16 @@ describe('JourneyMap', () => {
       const { ref, rerender } = renderOpenable(onMarkerCardClick, shown);
       const map = mockedMap();
 
-      act(() => ref.current!.highlightMarker('e1'));
+      act(() => ref.current?.highlightMarker('e1'));
       expect(card.setContent).toHaveBeenLastCalledWith(expect.stringContaining('Paris'));
-      act(() => ref.current!.highlightMarker('e2'));
+      act(() => ref.current?.highlightMarker('e2'));
       expect(card.setContent).toHaveBeenLastCalledWith(expect.stringContaining('Berlin'));
       expect(card.addTo).toHaveBeenCalledTimes(1);
 
-      act(() => ref.current!.highlightMarker(null));
+      act(() => ref.current?.highlightMarker(null));
       expect(card.state.onMap).toBe(false);
 
-      act(() => ref.current!.highlightMarker('e1'));
+      act(() => ref.current?.highlightMarker('e1'));
       map.hasLayer.mockImplementation((layer: unknown) => layer === card && card.state.onMap);
       try {
         rerender(<JourneyMap ref={ref} checkins={[]} entries={entriesWithCoords} onMarkerCardClick={onMarkerCardClick} layerVisibility={{ ...shown, entries: false }} />);
@@ -310,7 +316,7 @@ describe('JourneyMap', () => {
     it('FE-COMP-JOURNEYMAP-062: without a handler the card stays a hover label on each pin that the drags on the map pass through', () => {
       const ref = React.createRef<JourneyMapHandle>();
       render(<JourneyMap ref={ref} checkins={[]} entries={entriesWithCoords} />);
-      act(() => ref.current!.highlightMarker('e1'));
+      act(() => ref.current?.highlightMarker('e1'));
 
       expect(mockedMarker().bindTooltip).toHaveBeenCalledWith(
         expect.any(String),
