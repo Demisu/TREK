@@ -60,7 +60,7 @@ describe('kitinerary mapper — multi-leg flight grouping', () => {
     expect(booking.endpoints!.map((e) => e.role)).toEqual(['from', 'stop', 'to']);
     expect(booking.endpoints!.map((e) => e.sequence)).toEqual([0, 1, 2]);
     // The stop carries the onward departure, as the planner form and the MCP tools write it.
-    expect(booking.endpoints!.map((e) => e.local_time)).toEqual(['10:00', '14:30', '23:30']);
+    expect((booking.endpoints ?? []).map((e) => e.local_time)).toEqual(['10:00', '14:30', '23:30']);
     const meta = booking.metadata as any;
     expect(meta.legs).toHaveLength(2);
     expect(meta.legs[0]).toMatchObject({ from: 'FRA', to: 'BER', flight_number: 'LH 100' });
@@ -284,7 +284,7 @@ describe('kitinerary mapper: a rail ticket with changes (#2895)', () => {
       needs_review: false,
       source: { fileName: 'db-ticket.pdf', index: 0 },
     });
-    expect(booking.endpoints!.map((e) => [e.role, e.sequence, e.name, e.local_time])).toEqual([
+    expect((booking.endpoints ?? []).map((e) => [e.role, e.sequence, e.name, e.local_time])).toEqual([
       ['from', 0, 'Klagenfurt West', '06:12'],
       ['stop', 1, 'Villach Hbf', '06:40'],
       ['stop', 2, 'Heidelberg Hbf', '13:05'],
