@@ -149,11 +149,18 @@ export class JourneyEntriesRepository extends TrekRepository<JourneyEntries> {
    * relocated here now that it is stable.
    */
   async listPublicEntries(journeyId: number): Promise<JourneyEntry[]> {
-    return await this.qb('je')
-      .select(['je.*'])
-      .where({ journey: journeyId, type: { $ne: 'skeleton' }, dismissed: 0, is_draft: 0 })
-      .orderBy({ entry_date: 'asc', sort_order: 'asc', id: 'asc' })
-      .execute<JourneyEntry[]>('all', false);
+    const rows = await this.kysely<JourneyEntriesDateSortKyselyDB>()
+      .selectFrom('journey_entries')
+      .selectAll()
+      .where('journey_id', '=', journeyId)
+      .where('type', '!=', 'skeleton')
+      .where('dismissed', '=', 0)
+      .where('is_draft', '=', 0)
+      .orderBy('entry_date', 'asc')
+      .orderBy('sort_order', 'asc')
+      .orderBy('id', 'asc')
+      .execute();
+    return rows as JourneyEntry[];
   }
 
   /** JG22 — `getJourneyFull`'s `dismissed_count`: `SELECT COUNT(*) AS n FROM journey_entries WHERE journey_id = ? AND dismissed = 1`. */
