@@ -125,7 +125,7 @@ describe('MCP tool input schemas', () => {
     expect(sizeOf('restore_book_layout')).toBeLessThan(2_000);
   });
 
-  it('MCP-SCHEMA-005: every input schema is valid JSON Schema 2020-12 too, so no tool holds a tuple', () => {
+  it('MCP-SCHEMA-005: no input schema spells a tuple, the draft-07 form 2020-12 reads differently', () => {
     const tuples = [...schemas].flatMap(([key, json]) => tuplesIn(json, '').map((at) => `${key} ${at}`));
     expect(tuples).toEqual([]);
   });

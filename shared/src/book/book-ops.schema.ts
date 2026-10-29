@@ -378,7 +378,7 @@ const TRAVEL_TYPE = {
 } as const;
 const kindIn = (schema: z.ZodObject) => restoredFields(schema.omit(ELEMENT_BASE));
 const travelIn = (schema: z.ZodObject) => restoredFields(schema.omit({ ...ELEMENT_BASE, ...TRAVEL_TYPE }));
-const restoredPointIn = z.array(z.number()).length(2);
+const restoredPointIn = z.array(z.number()).length(2).describe('[lat, lng]');
 const restoredMapIn = travelIn(bookMapElementSchema).extend({
   path: z.array(z.array(restoredPointIn).max(MAX_PATH_POINTS)).max(MAX_PATH_SEGMENTS).optional(),
   roads: z.array(z.array(restoredPointIn).max(MAX_ROAD_POINTS).nullable()).max(MAX_ROAD_LEGS).optional(),
