@@ -14,7 +14,7 @@ import { plannerSave } from '../../../helpers/bookingSave'
 import { resetAllStores } from '../../../helpers/store'
 import { act, fireEvent, render, screen, waitFor } from '../../../helpers/render'
 
-// FE-MOB-RESSH-001 to FE-MOB-RESSH-069 (plus 037b)
+// FE-MOB-RESSH-001 to FE-MOB-RESSH-070 (plus 037b)
 
 // Date/time/select pickers have their own suites — here they only have to be
 // addressable, so they render as plain controls.
@@ -774,6 +774,24 @@ describe('MReservationSheet', () => {
     const [, fd] = vi.mocked(planner.tripActions.addFile).mock.calls[2] as [number, FormData]
     expect((fd.get('file') as File).name).toBe('fail.pdf')
     expect(fd.get('reservation_id')).toBe('99')
+  })
+
+  it('FE-MOB-RESSH-070: the next booking of an import review is added, not written over the one saved before it', async () => {
+    // The review keeps the sheet open and only swaps the draft, so the open flag never changes.
+    const { save } = plannerSave({ id: 99 })
+    const review = { importReviewActive: true, handleSaveReservation: save }
+    const first = makePlanner({ ...review, reservationPrefill: { title: 'First tour', type: 'tour', metadata: null } })
+    const { rerender, onOpenExpense } = setup(first)
+    fireEvent.click(submitBtn())
+    await waitFor(() => expect(first.advanceImportReview).toHaveBeenCalledTimes(1))
+
+    const second = makePlanner({ ...review, reservationPrefill: { title: 'Second tour', type: 'tour', metadata: null } })
+    rerender(<MReservationSheet planner={second} onOpenExpense={onOpenExpense} />)
+    expect(titleField()).toHaveValue('Second tour')
+    fireEvent.click(submitBtn())
+    await waitFor(() => expect(second.advanceImportReview).toHaveBeenCalledTimes(1))
+    expect(save).toHaveBeenCalledTimes(2)
+    expect(save.mock.calls[1][1]?.saved).toBeUndefined()
   })
 
   it('FE-MOB-RESSH-038: without upload permission the attachment block is gone', () => {

@@ -1,4 +1,4 @@
-// FE-PLANNER-NOTESFILESCOSTS-001 to FE-PLANNER-NOTESFILESCOSTS-003
+// FE-PLANNER-NOTESFILESCOSTS-001 to FE-PLANNER-NOTESFILESCOSTS-004
 import { createRef, type ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -37,7 +37,6 @@ function setup(overrides: Partial<Props> = {}) {
     pendingFiles: [],
     fileInputRef: createRef<HTMLInputElement>(),
     attach: {
-      uploadingFile: false,
       handleFileChange: vi.fn(),
       attachedFiles: [],
       removePending: vi.fn(),
@@ -45,6 +44,7 @@ function setup(overrides: Partial<Props> = {}) {
       detachFile: vi.fn(),
     },
     canAttach: true,
+    saving: false,
     showCosts: true,
     pendingExpense: null,
     expense: { reset: vi.fn(), take: vi.fn(), create: vi.fn(), edit: vi.fn(), remove: vi.fn() },
@@ -98,5 +98,11 @@ describe('BookingNotesFilesCosts', () => {
     expect(screen.getByTestId('link-and-files')).toBeInTheDocument();
     expect(screen.queryByTestId('costs')).toBeNull();
     expect(linkAndFiles).toHaveBeenCalledWith(expect.objectContaining({ reservationId: undefined }));
+  });
+
+  it('FE-PLANNER-NOTESFILESCOSTS-004: shows the files as uploading while the booking saves', () => {
+    setup({ saving: true });
+
+    expect(linkAndFiles).toHaveBeenCalledWith(expect.objectContaining({ uploading: true }));
   });
 });

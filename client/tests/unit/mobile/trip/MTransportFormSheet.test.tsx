@@ -15,7 +15,7 @@ import { plannerSave } from '../../../helpers/bookingSave'
 import { resetAllStores, seedStore } from '../../../helpers/store'
 import { act, fireEvent, render, screen, waitFor } from '../../../helpers/render'
 
-// FE-MOB-TRFRM-001 to FE-MOB-TRFRM-060
+// FE-MOB-TRFRM-001 to FE-MOB-TRFRM-062
 //
 // The sheet's own pickers (airport/location search, day select, time picker) and
 // the embedded transit panel are replaced by minimal controlled stand-ins so the
@@ -1147,7 +1147,7 @@ describe('MTransportFormSheet', () => {
     expect((fd.get('file') as File).name).toBe('extra.pdf')
   })
 
-  it('FE-MOB-TRFRM-060: a failed upload keeps the sheet and the file left, and the retry updates the same booking (#2883)', async () => {
+  it('FE-MOB-TRFRM-061: a failed upload keeps the sheet and the file left, and the retry updates the same booking (#2883)', async () => {
     const { save, failures } = plannerSave({ id: 99 })
     const addFile = vi.fn(async (_tripId: number, _form: FormData) => undefined)
       .mockResolvedValueOnce(undefined)
@@ -1169,6 +1169,24 @@ describe('MTransportFormSheet', () => {
     expect(save.mock.calls[1][1]?.saved).toEqual({ id: 99 })
     expect(addFile).toHaveBeenCalledTimes(3)
     expect((addFile.mock.calls[2][1] as FormData).get('reservation_id')).toBe('99')
+  })
+
+  it('FE-MOB-TRFRM-062: the next transport of an import review is added, not written over the one saved before it', async () => {
+    // The review keeps the sheet open and only swaps the draft, so the open flag never changes.
+    const { save } = plannerSave({ id: 99 })
+    const review = { importReviewActive: true, handleSaveTransport: save }
+    const first = makePlanner({ ...review, transportPrefill: { type: 'bus', title: 'Shuttle', metadata: {}, endpoints: [] } })
+    const { rerender, onOpenExpense } = renderSheet(first)
+    await submit()
+    await waitFor(() => expect(first.advanceImportReview).toHaveBeenCalledTimes(1))
+
+    const second = makePlanner({ ...review, transportPrefill: { type: 'train', title: 'Amtrak', metadata: {}, endpoints: [] } })
+    rerender(<MTransportFormSheet planner={second} onOpenExpense={onOpenExpense} />)
+    expect(screen.getByPlaceholderText('reservations.titlePlaceholder')).toHaveValue('Amtrak')
+    await submit()
+    await waitFor(() => expect(second.advanceImportReview).toHaveBeenCalledTimes(1))
+    expect(save).toHaveBeenCalledTimes(2)
+    expect(save.mock.calls[1][1]?.saved).toBeUndefined()
   })
 
   it('FE-MOB-TRFRM-059: a failed transport edit keeps the attached files off the server', async () => {

@@ -62,6 +62,10 @@ export function useBookingFollowUp({
       () => false
     );
     if (!uploaded) throw new Error(t('reservations.toast.filesNotUploaded'));
+    // Only a failed try is retried. The editor can stay open on to the next
+    // booking without a new session (the import review on the phone), and that
+    // one must be added, not written over this one.
+    stored.current = null;
   };
 
   return {

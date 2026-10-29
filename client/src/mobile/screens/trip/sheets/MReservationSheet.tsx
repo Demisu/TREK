@@ -63,8 +63,10 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
     isEndBeforeStart, endTimeBeforeStartTime, dateBounds, startDate, startTime, setStartDate, setStartTime, takeStopDay,
     pickPlace, pickHotelPlace, pickHotelStart, pickHotelEnd, stayPin, saveData: buildSaveData,
   } = useReservationForm(EMPTY, days, places)
+  // The import review hands the open sheet its next booking without closing it.
+  const session = showReservationModal ? (editingReservation ?? reservationPrefill ?? 'new') : null
   const followUp = useBookingFollowUp({
-    session: showReservationModal,
+    session,
     tripId, original: editingReservation, travelerIds, pendingFiles, setPendingFiles,
     upload: canUploadFiles ? fd => planner.tripActions.addFile(tripId, fd) : undefined, t,
   })
@@ -121,7 +123,7 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
         : EMPTY)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showReservationModal])
+  }, [session])
 
   const res = snap.res
   const isHotel = form.type === 'hotel'

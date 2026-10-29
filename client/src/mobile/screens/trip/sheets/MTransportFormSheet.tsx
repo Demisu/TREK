@@ -66,8 +66,10 @@ export default function MTransportFormSheet({ planner, onOpenExpense }: MTranspo
     pendingFiles, setPendingFiles, travelerIds, setTravelerIds, toggleTraveler, isSaving, setIsSaving,
     seed, payload: buildPayload, writesFlightLegs, writesTrainLegs,
   } = useTransportForm(EMPTY_TRANSPORT_FIELDS)
+  // The import review hands the open sheet its next booking without closing it.
+  const session = showTransportModal ? (editingTransport ?? transportPrefill ?? 'new') : null
   const followUp = useBookingFollowUp({
-    session: showTransportModal,
+    session,
     tripId, original: editingTransport, travelerIds, pendingFiles, setPendingFiles,
     upload: canUploadFiles ? fd => planner.tripActions.addFile(tripId, fd) : undefined, t,
   })
@@ -98,7 +100,7 @@ export default function MTransportFormSheet({ planner, onOpenExpense }: MTranspo
       stopDaysFromEndpoints: true,
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showTransportModal])
+  }, [session])
 
   const res = snap.res
   const prefill = snap.prefill
