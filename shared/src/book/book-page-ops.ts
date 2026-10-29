@@ -14,6 +14,7 @@ import {
 } from './book-ops-core';
 import {
   addBookPagesRequestSchema,
+  bookPreviousSpreadSchema,
   deleteBookPagesRequestSchema,
   moveBookPageRequestSchema,
   restoreBookPageRequestSchema,
@@ -22,13 +23,7 @@ import {
 } from './book-ops.schema';
 import { blankSpread, canEditSpread, innerSpreadBounds } from './book-pages';
 import { bookSpreadPhotoIds, checkRestorablePhotos } from './book-photo-refs';
-import {
-  bookSpreadSchema,
-  type BookDocument,
-  type BookElement,
-  type BookPhotoElement,
-  type BookSpread,
-} from './book.schema';
+import type { BookDocument, BookElement, BookPhotoElement, BookSpread } from './book.schema';
 
 /**
  * Operations on the pages of a book rather than on one page: add, move,
@@ -144,11 +139,12 @@ export function deleteBookPages(doc: BookDocument, args: unknown): BookEditResul
 export function restoreBookPage(doc: BookDocument, args: unknown, ctx: BookOpsContext = {}): BookEditResult {
   const parsed = restoreBookPageRequestSchema.safeParse(args);
   if (!parsed.success) return { ok: false, error: invalidOp(parsed.error, null) };
+  // Read again as the spreads they are: the tool takes them in a shape that states each field once
+  // and leaves the finer checks, a map point's lat and lng among them, to this parse (book-ops.schema.ts).
+  const spreads = bookPreviousSpreadSchema.array().safeParse(parsed.data.pages);
+  if (!spreads.success) return { ok: false, error: invalidOp(spreads.error, null) };
   return caught(() => {
-    // Read again as the spread it is: the tool takes it in a shape that states each field once (book-ops.schema.ts).
-    const pages = parsed.data.pages
-      .map((p) => ({ index: p.index, spread: bookSpreadSchema.parse(p.spread) }))
-      .sort((a, b) => a.index - b.index);
+    const pages = [...spreads.data].sort((a, b) => a.index - b.index);
     let cur = doc;
     for (const { spread, index } of pages) {
       // A letter fill counts as a photo, as a frame does (book-photo-refs.ts).

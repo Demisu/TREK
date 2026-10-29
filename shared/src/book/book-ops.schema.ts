@@ -20,6 +20,10 @@ import { bookElementIdSchema, bookGridIdSchema, bookSpreadIdSchema } from './boo
 import { bookPaintInSchema } from './book-paint.schema';
 import {
   MAX_BOOK_TITLE,
+  MAX_PATH_POINTS,
+  MAX_PATH_SEGMENTS,
+  MAX_ROAD_LEGS,
+  MAX_ROAD_POINTS,
   MAX_SPREAD_ELEMENTS,
   bookBadgeElementSchema,
   bookCountriesElementSchema,
@@ -336,6 +340,12 @@ export type BookPageDigest = z.infer<typeof bookPageDigestSchema>;
  * kind the tool's schema, which every client loads with tools/list, outgrew
  * its size. It takes the same values: restoreBookPage parses the page again as
  * a spread, which sets every default, before it puts it back.
+ *
+ * Its schema also has to read the same under JSON Schema draft-07, which the
+ * SDK writes, and 2020-12, the MCP default ChatGPT validates against, so it
+ * holds no tuple: draft-07 spells one as an array of `items`, which 2020-12
+ * refuses, and ChatGPT then drops every tool of the server, not only this one.
+ * A map's points come in as two numbers; the spread's parse checks lat and lng.
  */
 const ELEMENT_BASE = {
   id: true,
@@ -368,6 +378,11 @@ const TRAVEL_TYPE = {
 } as const;
 const kindIn = (schema: z.ZodObject) => restoredFields(schema.omit(ELEMENT_BASE));
 const travelIn = (schema: z.ZodObject) => restoredFields(schema.omit({ ...ELEMENT_BASE, ...TRAVEL_TYPE }));
+const restoredPointIn = z.array(z.number()).length(2);
+const restoredMapIn = travelIn(bookMapElementSchema).extend({
+  path: z.array(z.array(restoredPointIn).max(MAX_PATH_POINTS)).max(MAX_PATH_SEGMENTS).optional(),
+  roads: z.array(z.array(restoredPointIn).max(MAX_ROAD_POINTS).nullable()).max(MAX_ROAD_LEGS).optional(),
+});
 // Each union says what it holds: a described union stays one part of the intersection instead of
 // zod writing the shared fields out into every kind again.
 const restoredElementIn = z.intersection(
@@ -384,7 +399,7 @@ const restoredElementIn = z.intersection(
         restoredFields(bookMapElementSchema.pick(TRAVEL_TYPE)),
         z
           .union([
-            travelIn(bookMapElementSchema),
+            restoredMapIn,
             travelIn(bookStatsElementSchema),
             travelIn(bookCountriesElementSchema),
             travelIn(bookBadgeElementSchema),

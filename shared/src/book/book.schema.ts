@@ -75,6 +75,9 @@ export const MAX_MAP_POINT_LABEL = 120;
 /** A recorded track: segments, and points within one segment. */
 export const MAX_PATH_SEGMENTS = 40;
 export const MAX_PATH_POINTS = 1200;
+/** The roads a map draws: legs, and points along one leg. */
+export const MAX_ROAD_LEGS = 400;
+export const MAX_ROAD_POINTS = 200;
 
 /**
  * Every shape the book can draw — and, because a picture frame *is* a shape with
@@ -578,10 +581,10 @@ export const bookMapElementSchema = z.object({
     .array(
       z
         .array(z.tuple([z.number().min(-90).max(90), z.number().min(-180).max(180)]))
-        .max(200)
+        .max(MAX_ROAD_POINTS)
         .nullable(),
     )
-    .max(400)
+    .max(MAX_ROAD_LEGS)
     .default([]),
   /**
    * How much room to leave around what is drawn, as a share of its own extent.

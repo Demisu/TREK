@@ -337,6 +337,48 @@ describe('restore', () => {
       'invalid_op',
     );
   });
+
+  it("BOOKPG-031: puts a map's track and roads back point for point, placed or parked", () => {
+    const base = book(1);
+    const frame = { x: 20, y: 20, w: 120, h: 80 };
+    const path = [
+      [
+        [64.1466, -21.9426],
+        [64.2559, -15.2121],
+      ],
+    ];
+    const roads = [
+      [
+        [64.1466, -21.9426],
+        [63.4186, -19.006],
+        [64.2559, -15.2121],
+      ],
+      null,
+    ];
+    const spread = bookSpreadSchema.parse({
+      id: 'sp-in1',
+      elements: [{ id: 'm1', kind: 'map', frame, path, roads }],
+      parked: [{ id: 'm2', kind: 'map', frame, roads }],
+    });
+    const back = ok(restoreBookPage(base, { pages: [{ spread, index: 2 }], expectedVersion: 1 }));
+    expect(back.spreads[2]).toEqual(spread);
+    expect(back.spreads[2]?.elements[0]).toMatchObject({ path, roads });
+  });
+
+  it('BOOKPG-032: refuses a map point that is no [lat, lng], though the tool takes points as two numbers', () => {
+    const base = book(1);
+    const frame = { x: 20, y: 20, w: 120, h: 80 };
+    const withPath = (path: number[][][]) => ({
+      pages: [{ index: 2, spread: { id: 'sp-in1', elements: [{ id: 'm1', kind: 'map', frame, path }] } }],
+      expectedVersion: 1,
+    });
+    expect(ok(restoreBookPage(base, withPath([[[64.1, -21.9]]]))).spreads[2]?.elements[0]).toMatchObject({
+      path: [[[64.1, -21.9]]],
+    });
+    for (const point of [[120, 10], [10, 200], [64.1, -21.9, 3], [64.1]]) {
+      expect(refused(restoreBookPage(base, withPath([[point]])))).toBe('invalid_op');
+    }
+  });
 });
 
 describe('the cover', () => {
