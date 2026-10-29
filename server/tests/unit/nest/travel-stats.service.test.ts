@@ -300,7 +300,7 @@ describe('place countries without a cached region (#2875)', () => {
     });
   }
 
-  it('TRAVEL-2875-001: a place in Vatican City stamps VA on the passport card', async () => {
+  it('AUTH-DB-123: a place in Vatican City stamps VA on the passport card', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id, { title: 'Rome', start_date: PAST_START, end_date: PAST_END });
     await addPlace(trip.id, "St. Peter's Basilica", VATICAN);
@@ -308,7 +308,7 @@ describe('place countries without a cached region (#2875)', () => {
     expect((await atlas.getTravelStats(user.id)).countries).toContain('VA');
   });
 
-  it('TRAVEL-2875-002: any place still waiting for its region lookup counts by its borders', async () => {
+  it('AUTH-DB-124: any place still waiting for its region lookup counts by its borders', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id, { title: 'Paris', start_date: PAST_START, end_date: PAST_END });
     await addPlace(trip.id, 'Louvre', { lat: 48.8606, lng: 2.3376 });
@@ -316,7 +316,7 @@ describe('place countries without a cached region (#2875)', () => {
     expect((await atlas.getTravelStats(user.id)).countries).toEqual(['FR']);
   });
 
-  it('TRAVEL-2875-003: the passport card and the Atlas map list the same visited countries', async () => {
+  it('AUTH-DB-125: the passport card and the Atlas map list the same visited countries', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id, { title: 'Rome', start_date: PAST_START, end_date: PAST_END });
     await addPlace(trip.id, "St. Peter's Basilica", VATICAN);
@@ -331,7 +331,7 @@ describe('place countries without a cached region (#2875)', () => {
     expect([...(await atlas.getTravelStats(user.id)).countries].sort()).toEqual(atlasVisited);
   });
 
-  it('TRAVEL-2875-004: a Vatican place on a trip that has not started stays off the card (#1048)', async () => {
+  it('AUTH-DB-126: a Vatican place on a trip that has not started stays off the card (#1048)', async () => {
     const { user } = createUser(testDb);
     const start = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
     const trip = createTrip(testDb, user.id, { title: 'Rome, next month', start_date: start, end_date: start });
@@ -340,7 +340,7 @@ describe('place countries without a cached region (#2875)', () => {
     expect((await atlas.getTravelStats(user.id)).countries).not.toContain('VA');
   });
 
-  it('TRAVEL-2875-005: a place without coordinates counts by a country its address spells out, never by a bare code (#2111)', async () => {
+  it('AUTH-DB-127: a place without coordinates counts by a country its address spells out, never by a bare code (#2111)', async () => {
     const { user } = createUser(testDb);
     const named = createTrip(testDb, user.id, { title: 'Named', start_date: PAST_START, end_date: PAST_END });
     await addPlace(named.id, 'Vatican Museums', { address: 'Viale Vaticano, Vatican City' });
@@ -354,7 +354,7 @@ describe('place countries without a cached region (#2875)', () => {
     expect((await atlas.getTravelStats(other.id)).countries).toEqual([]);
   });
 
-  it('TRAVEL-2875-006: the last trip names Vatican City when that is all it went to', async () => {
+  it('AUTH-DB-128: the last trip names Vatican City when that is all it went to', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id, {
       title: 'Day in the Vatican',
@@ -367,7 +367,7 @@ describe('place countries without a cached region (#2875)', () => {
     expect((await atlas.lastTrip(user.id))?.countries).toEqual(['VA']);
   });
 
-  it('TRAVEL-2875-007: the last trip ranks cached and resolved places together, most places first', async () => {
+  it('AUTH-DB-129: the last trip ranks cached and resolved places together, most places first', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id, { title: 'Rome', start_date: PAST_START, end_date: PAST_END });
     const colosseumId = await addPlace(trip.id, 'Colosseum', { lat: 41.8902, lng: 12.4922 });

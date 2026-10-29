@@ -11,8 +11,15 @@ type LocatedPlace = Pick<PlaceRow, 'lat' | 'lng' | 'address'>;
  * background lookup has not finished holds no row there, so a count that read the
  * cache alone lost countries the Atlas map shows.
  *
- * The border lookup is a point-in-polygon test, so each resolver runs it once per
- * location: the places of a city trip mostly share their coordinates or address.
+ * A place without a cached region costs a border lookup on every count: a box
+ * prefilter, then a point-in-polygon test against the few countries whose box
+ * holds the point. The resolver runs it once per distinct coordinates and
+ * address, which only spares repeats of one place (a hotel added to every night
+ * of a stay, say), since every place keeps its own pin. The dashboard pays this on purpose rather than
+ * queueing the region lookup the Atlas runs: that lookup falls back to Nominatim
+ * where the bundle has no region, and a dashboard load must not send a user's
+ * places to a third party. place_regions fills up once the Atlas looks the places
+ * up, and from then on the count reads the cache.
  */
 export function placeCountryResolver(): (place: LocatedPlace, cached: string | null | undefined) => string | null {
   const byLocation = new Map<string, string | null>();
