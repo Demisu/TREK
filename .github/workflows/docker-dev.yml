@@ -5,6 +5,10 @@ name: Build & Push Docker Image (Prerelease)
 # :latest-pre, and tags the commit. Nothing moves :latest. Like the stable
 # release it refuses a commit whose ci-ok is not green. docker.yml with
 # bump=auto later finalizes the line once main carries it.
+#
+# A prerelease gets no registration dialect of its own; it carries the one of
+# the last stable release, which dev gets by merging main into dev after that
+# release. The build warns when that dialect is the original one or old.
 
 on:
   workflow_dispatch:
@@ -88,6 +92,27 @@ jobs:
           NEW_VERSION="${TARGET}-pre.${N}"
           echo "VERSION=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "$STABLE to $NEW_VERSION"
+
+      # A prerelease registers new installations in the dialect of the last
+      # stable release, which reaches dev when main is merged into dev after
+      # the release. The issuer takes a dialect for 180 days, so this warns
+      # (without stopping the build) while dev still speaks the original
+      # registration or a dialect older than 150 days.
+      - name: Check the registration dialect's age
+        run: |
+          set -eu
+          file=server/src/nest/service-identity/registration-dialect.ts
+          id="$(sed -n "s/^const DIALECT = '\(.*\)';$/\1/p" "$file")"
+          created="$(sed -n "s/^  createdAt: '\(.*\)',$/\1/p" "$file")"
+          if [ "$id" = 0 ]; then
+            message="This build registers in the original dialect, which the issuer accepts only for a transition period. Merge main into dev once a stable release carries a dialect of its own."
+          else
+            age=$(( ($(date -u +%s) - $(date -u -d "$created" +%s)) / 86400 ))
+            [ "$age" -gt 150 ] || { echo "This build registers in dialect $id from $created ($age days old)."; exit 0; }
+            message="This build registers in dialect $id from $created, $age days old; new installations of it stop registering on $(date -u -d "$created + 180 days" +%Y-%m-%d). Merge main into dev after the next stable release."
+          fi
+          echo "::warning::$message"
+          printf '### Registration dialect\n%s\n' "$message" >> "$GITHUB_STEP_SUMMARY"
 
   build:
     runs-on: ${{ matrix.runner }}
