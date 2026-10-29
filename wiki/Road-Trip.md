@@ -332,7 +332,7 @@ What the seam does not do: it never plans the ride itself, and a booking without
 
 ### Hire cars
 
-A **Car** booking is not a seam, you drive it, but its desks are where the drive starts and ends. The pick-up desk stands on the day card as a row with the car icon and *Pick-up 09:00* under its name, and it opens the day when nothing timed comes before it. The return desk closes the day it is handed back on, with *Return 11:30*. The road runs through both like any other stop, the range budget starts from a full tank at the pick-up, and both rows open the booking. The return only appears when the booking names a return day and a located return desk; nothing is guessed.
+A **Car** booking is not a seam, you drive it, but its desks are where the drive starts and ends. The pick-up desk stands on the day card as a row with the car icon and *Pick-up 09:00* under its name, and it opens the day when nothing timed comes before it. The return desk closes the day it is handed back on, with *Return 11:30*. The road runs through both like any other stop, the range budget starts from a full tank at the pick-up, and both rows open the booking. The return only appears when the booking has a located return desk; nothing is guessed. A booking without a return day is handed back on the day it is picked up, as **Days** shows it, so two one-way cars on one day each drive their own road, and one handed back without a time goes back before the next car of that day is picked up.
 
 ### Other bookings on the day
 
