@@ -529,10 +529,11 @@ export class OsmClient {
   /**
    * Suggestions from Photon, which is built for search-as-you-type, or null when
    * it is not in use or did not answer. Never Nominatim in its place: its usage
-   * policy rules out autocomplete.
+   * policy rules out autocomplete. Aborting `signal` drops a question nobody
+   * waits for any more.
    */
-  async autocompletePhoton(input: string, lang?: string, bias?: { lat: number; lng: number }) {
-    const found = await this.photon.search(input, { lang, bias });
+  async autocompletePhoton(input: string, lang?: string, bias?: { lat: number; lng: number }, signal?: AbortSignal) {
+    const found = await this.photon.suggest(input, { lang, bias, signal });
     return found?.map(asSuggestion).filter((row) => row !== null) ?? null;
   }
 

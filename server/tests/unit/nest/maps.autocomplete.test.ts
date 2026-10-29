@@ -1,5 +1,5 @@
 /**
- * MAPS-AUTO-001..024: the suggestion list behind the place search box.
+ * MAPS-AUTO-001..026: the suggestion list behind the place search box.
  *
  * This is the path the index was built for. Nominatim's usage policy names
  * autocomplete as unacceptable use in its own words, whatever the rate, and the
@@ -11,6 +11,7 @@
  */
 import type { AppSettingsRepository } from '../../../src/db/repositories/AppSettings.repository';
 import type { UsersRepository } from '../../../src/db/repositories/Users.repository';
+import { PHOTON_GRACE_MS } from '../../../src/nest/maps/maps-index.helpers';
 import type { PlacePhotoCacheService } from '../../../src/nest/place-photos/place-photo-cache.service';
 import { noGoogleQuota } from '../../helpers/google-quota';
 import { buildMapsParts, buildMapsService } from '../../helpers/maps-service';
@@ -475,7 +476,7 @@ describe('MapsService.autocompletePlaces', () => {
 
     const result = await svc.autocompletePlaces(1, INPUT, 'de', bias);
 
-    expect(photon).toHaveBeenCalledWith(INPUT, 'de', { lat: 54.1, lng: 12.1 });
+    expect(photon).toHaveBeenCalledWith(INPUT, 'de', { lat: 54.1, lng: 12.1 }, expect.any(AbortSignal));
     expect(result.source).toBe('trek-places');
     expect(result.suggestions.map((s) => s.placeId)).toEqual([
       'gers:abc-123',
@@ -515,5 +516,34 @@ describe('MapsService.autocompletePlaces', () => {
     expect(photon).not.toHaveBeenCalled();
     expect(result.source).toBe('google');
     vi.unstubAllGlobals();
+  });
+
+  it('MAPS-AUTO-025: once the index has answered, a slow Photon gets a moment more and is then dropped', async () => {
+    mockSearch.mockResolvedValue([hit()]);
+    const { svc, photon } = withPhoton(null);
+    photon.mockImplementation(() => new Promise(() => undefined));
+    const started = Date.now();
+
+    const result = await svc.autocompletePlaces(1, INPUT);
+
+    expect(Date.now() - started).toBeGreaterThanOrEqual(PHOTON_GRACE_MS - 50);
+    expect(result).toEqual({
+      suggestions: [expect.objectContaining({ placeId: 'gers:abc-123' })],
+      source: 'trek-places',
+    });
+    // The question nobody waits for any more is called off, which is no miss for Photon.
+    expect((photon.mock.calls[0][3] as AbortSignal).aborted).toBe(true);
+  });
+
+  it('MAPS-AUTO-026: with nothing from the index, Photon is waited for past that moment', async () => {
+    mockSearch.mockResolvedValue([]);
+    const { svc, photon } = withPhoton(null);
+    photon.mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve([photonRow()]), PHOTON_GRACE_MS + 100)),
+    );
+
+    const result = await svc.autocompletePlaces(1, INPUT);
+
+    expect(result).toEqual({ suggestions: [photonRow()], source: 'openstreetmap' });
   });
 });

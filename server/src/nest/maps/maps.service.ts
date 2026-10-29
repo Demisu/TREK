@@ -5,6 +5,7 @@ import type { GeoLane } from '../geo/nominatim.client';
 import { PlacePhotoCacheService } from '../place-photos/place-photo-cache.service';
 import type { ApiKeySource } from '../settings/instance-api-keys';
 import {
+  answerWithin,
   belonging,
   indexPoiAnswer,
   indexPoiPlan,
@@ -12,6 +13,7 @@ import {
   indexSuggestions,
   mergeIndexPages,
   mergeSuggestions,
+  PHOTON_GRACE_MS,
 } from './maps-index.helpers';
 import { NEARBY_DEFAULT_LIMIT, NEARBY_DEFAULT_RADIUS_M, nearbyCacheKey, nearestFirst } from './maps-nearby.helpers';
 import { MapsUrlResolver, type ResolvedMapsUrl } from './maps-url.resolver';
@@ -557,22 +559,25 @@ export class MapsService {
       // Photon beside them (#2877). The layer is a slice of OpenStreetMap, and
       // a place missing from it showed up only once the search was sent.
       // Photon is built for this keystroke and answers null when the services
-      // are off, so the pair costs the slower one and an install without
-      // Photon reads exactly as before. Each side swallows its own failure, so
-      // one that is down does not throw away what the other found.
-      const [found, photon] = await Promise.all([
-        trekPlacesSearch(input, {
-          lat: boxCentre?.lat,
-          lng: boxCentre?.lng,
-          limit: 8,
-          sources: 'index,osm',
-          lang,
-        }).catch((err: unknown) => {
-          console.warn('TREK Places autocomplete failed, falling back:', (err as Error).message);
-          return [];
-        }),
-        this.osm.autocompletePhoton(input, lang, boxCentre),
-      ]);
+      // are off, so an install without Photon reads exactly as before. Each
+      // side swallows its own failure, so one that is down does not throw away
+      // what the other found. Photon is the extra here, so once the index has
+      // answered it gets a moment more and is then dropped: a slow Photon must
+      // not hold back what the index already has.
+      const typing = new AbortController();
+      const asked = this.osm.autocompletePhoton(input, lang, boxCentre, typing.signal);
+      const found = await trekPlacesSearch(input, {
+        lat: boxCentre?.lat,
+        lng: boxCentre?.lng,
+        limit: 8,
+        sources: 'index,osm',
+        lang,
+      }).catch((err: unknown) => {
+        console.warn('TREK Places autocomplete failed, falling back:', (err as Error).message);
+        return [];
+      });
+      const photon = found.length > 0 ? await answerWithin(asked, PHOTON_GRACE_MS) : await asked;
+      typing.abort();
       const suggestions = mergeSuggestions(indexSuggestions(found, lang), photon ?? []);
       if (suggestions.length > 0) {
         return { suggestions, source: found.length > 0 ? 'trek-places' : 'openstreetmap' };

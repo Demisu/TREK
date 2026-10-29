@@ -1,5 +1,5 @@
 /**
- * PHOTON-001..016: when Photon is asked, what it is asked, and every way it
+ * PHOTON-001..019: when Photon is asked, what it is asked, and every way it
  * hands the question back to Nominatim. The network is a stubbed global fetch,
  * the installation identity a fake in the slot the service-identity module fills.
  */
@@ -195,5 +195,65 @@ describe('a spent allowance and a short deadline', () => {
     await client().reverse(52.5, 13.4, 'de');
     expect(timeout.mock.calls.map(([ms]) => ms)).toEqual([1500, 2500, 2500]);
     timeout.mockRestore();
+  });
+});
+
+describe('the suggestions asked per keystroke', () => {
+  it('PHOTON-017: their misses and a spent allowance pause the suggestions alone, never the search', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-29T10:00:00Z'));
+    const photon = client();
+    fetchMock.mockImplementation(async () => photonAnswer([], 503));
+    expect(await oneByOne([1, 2, 3, 4], () => photon.suggest('Ros'))).toEqual([null, null, null, null]);
+    expect(await photon.suggest('Rost')).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+
+    fetchMock.mockImplementation(async () => photonAnswer([gateFeature()]));
+    expect(await photon.search('Rostock')).toHaveLength(1);
+    expect(fetchMock).toHaveBeenCalledTimes(5);
+
+    vi.setSystemTime(new Date('2026-10-29T10:01:01Z'));
+    fetchMock.mockResolvedValueOnce(
+      new Response('{}', { status: 429, headers: { 'content-type': 'application/json', 'retry-after': '600' } }),
+    );
+    expect(await photon.suggest('Rost')).toBeNull();
+    expect(await photon.suggest('Rosto')).toBeNull();
+    expect(await photon.search('Rostock')).toHaveLength(1);
+    expect(await photon.reverse(52.5, 13.4)).toHaveLength(1);
+    expect(fetchMock).toHaveBeenCalledTimes(8);
+  });
+
+  it('PHOTON-018: a pause of the search holds them back too', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-29T10:00:00Z'));
+    const photon = client();
+    fetchMock.mockImplementation(async () => photonAnswer([], 503));
+    await oneByOne([1, 2, 3, 4], () => photon.search('Rostock'));
+    expect(await photon.suggest('Ros')).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+  });
+
+  it('PHOTON-019: they wait less than a search, and one called off by its caller is no miss', async () => {
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
+    const photon = client();
+    expect(await photon.suggest('Ros', { lang: 'de', bias: { lat: 54.1, lng: 12.1 } })).toHaveLength(1);
+    expect(timeout.mock.calls.map(([ms]) => ms)).toEqual([1500]);
+    expect(request().url.searchParams.get('lat')).toBe('54.1');
+    timeout.mockRestore();
+
+    fetchMock.mockImplementation(
+      (_url: URL, init: RequestInit) =>
+        new Promise((_resolve, reject) => {
+          init.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')));
+        }),
+    );
+    for (let i = 0; i < 5; i += 1) {
+      const dropped = new AbortController();
+      const asked = photon.suggest('Rost', { signal: dropped.signal });
+      dropped.abort();
+      expect(await asked).toBeNull();
+    }
+    fetchMock.mockImplementation(async () => photonAnswer([gateFeature()]));
+    expect(await photon.suggest('Rostock')).toHaveLength(1);
   });
 });

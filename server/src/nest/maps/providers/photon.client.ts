@@ -14,6 +14,12 @@
  * A spent allowance says itself how long to wait (Retry-After), and that wait
  * is kept instead.
  *
+ * The suggestions asked on every keystroke keep a tally of their own. They
+ * come far more often than a search, under a shorter deadline, and many are
+ * dropped unanswered once the next keystroke is in, so their misses and their
+ * spent allowance pause only the suggestions. A pause of the search holds the
+ * suggestions back too: a host the search cannot reach is not asked per letter.
+ *
  * The key comes from serviceIdentitySlot, as it does for the Places request
  * (trek-places.fetch.ts), so the maps domain reads the installation identity
  * one way and needs no import of ServiceIdentityModule; the slot holds the
@@ -33,6 +39,8 @@ import type { ConfigType } from '@nestjs/config';
 
 /** Short, because Nominatim still has to fit behind it inside the browser's wait. */
 const TIMEOUT_MS = 2500;
+/** The suggestion list is waiting on the index beside it, and the next keystroke is near. */
+const SUGGEST_TIMEOUT_MS = 1500;
 /** Ten hits are a few kB. */
 const MAX_BYTES = 512_000;
 const SEARCH_LIMIT = 10;
@@ -51,22 +59,33 @@ interface PhotonSearchOptions {
   bias?: { lat: number; lng: number };
 }
 
+/** The misses in a row and the pause of one kind of question. */
+interface Tally {
+  /** What answers instead while Photon does not. */
+  fallback: string;
+  misses: number;
+  pausedUntil: number;
+}
+
 @Injectable()
 export class PhotonClient {
-  private misses = 0;
-  private pausedUntil = 0;
+  private readonly lookups: Tally = { fallback: 'asking Nominatim', misses: 0, pausedUntil: 0 };
+  private readonly suggestions: Tally = { fallback: 'suggesting from the index', misses: 0, pausedUntil: 0 };
 
   constructor(@Inject(servicesConfig.KEY) private readonly config: ConfigType<typeof servicesConfig>) {}
 
   /** Places matching the query, best first, or null when Nominatim has to answer. */
   search(query: string, opts: PhotonSearchOptions = {}): Promise<PhotonFeature[] | null> {
-    const params = new URLSearchParams({ q: query, limit: String(SEARCH_LIMIT), lang: photonLang(opts.lang) });
-    if (opts.bias && Number.isFinite(opts.bias.lat) && Number.isFinite(opts.bias.lng)) {
-      params.set('lat', String(opts.bias.lat));
-      params.set('lon', String(opts.bias.lng));
-      params.set('zoom', String(BIAS_ZOOM));
-    }
-    return this.ask('api', params);
+    return this.ask('api', searchParams(query, opts), this.lookups);
+  }
+
+  /**
+   * Places for the suggestion list, or null when it goes without them. A caller
+   * that stops waiting aborts `signal`, and that counts as no miss.
+   */
+  suggest(query: string, opts: PhotonSearchOptions & { signal?: AbortSignal } = {}): Promise<PhotonFeature[] | null> {
+    if (Date.now() < this.lookups.pausedUntil) return Promise.resolve(null);
+    return this.ask('api', searchParams(query, opts), this.suggestions, SUGGEST_TIMEOUT_MS, opts.signal);
   }
 
   /**
@@ -76,15 +95,18 @@ export class PhotonClient {
   reverse(lat: number, lng: number, lang?: string, timeoutMs?: number): Promise<PhotonFeature[] | null> {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return Promise.resolve(null);
     const params = new URLSearchParams({ lat: String(lat), lon: String(lng), limit: '1', lang: photonLang(lang) });
-    return this.ask('reverse', params, timeoutMs ? Math.min(TIMEOUT_MS, timeoutMs / 2) : TIMEOUT_MS);
+    const deadline = timeoutMs ? Math.min(TIMEOUT_MS, timeoutMs / 2) : TIMEOUT_MS;
+    return this.ask('reverse', params, this.lookups, deadline);
   }
 
   private async ask(
     path: 'api' | 'reverse',
     params: URLSearchParams,
+    tally: Tally,
     timeoutMs = TIMEOUT_MS,
+    signal?: AbortSignal,
   ): Promise<PhotonFeature[] | null> {
-    if (!this.mayAsk()) return null;
+    if (!this.mayAsk(tally)) return null;
     const url = new URL(`${this.config.photonUrl}/${path}`);
     url.search = params.toString();
     const identity = serviceIdentitySlot.get();
@@ -95,13 +117,13 @@ export class PhotonClient {
         headers: { Accept: 'application/json', ...headers },
         // The key goes to this host alone, never on to wherever it points.
         redirect: 'error',
-        signal: AbortSignal.timeout(timeoutMs),
+        signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(timeoutMs)]) : AbortSignal.timeout(timeoutMs),
       });
       identity.observe(url, res);
       const wait = res.status === 429 ? retryAfterMs(res.headers.get('retry-after')) : null;
       if (wait !== null) {
         await res.body?.cancel();
-        this.pauseFor(wait);
+        this.pauseFor(tally, wait);
         return null;
       }
       if (!res.ok) {
@@ -109,37 +131,47 @@ export class PhotonClient {
         throw new Error(`answered ${res.status}`);
       }
       const { features } = photonAnswerSchema.parse(await capResponse(res, MAX_BYTES).json());
-      this.misses = 0;
+      tally.misses = 0;
       return features;
     } catch (err) {
-      this.noteMiss(err);
+      if (!signal?.aborted) this.noteMiss(tally, err);
       return null;
     }
   }
 
   /** Off with the services, beside an operator's own Nominatim, and during the pause. */
-  private mayAsk(): boolean {
+  private mayAsk(tally: Tally): boolean {
     if (this.config.mode === 'off' || readEnv().integrations.nominatimOwn) return false;
-    return Date.now() >= this.pausedUntil;
+    return Date.now() >= tally.pausedUntil;
   }
 
-  private noteMiss(err: unknown): void {
+  private noteMiss(tally: Tally, err: unknown): void {
     const reason = err instanceof Error ? err.message : String(err);
-    this.misses += 1;
-    if (this.misses < MISSES_BEFORE_PAUSE) {
-      logDebug(`[Photon] ${reason}; asking Nominatim instead`);
+    tally.misses += 1;
+    if (tally.misses < MISSES_BEFORE_PAUSE) {
+      logDebug(`[Photon] ${reason}; ${tally.fallback} instead`);
       return;
     }
-    this.pausedUntil = Date.now() + PAUSE_MS;
+    tally.pausedUntil = Date.now() + PAUSE_MS;
     // One more miss after the pause starts the next one.
-    this.misses = MISSES_BEFORE_PAUSE - 1;
-    logWarn(`[Photon] ${reason}; asking Nominatim alone for a minute`);
+    tally.misses = MISSES_BEFORE_PAUSE - 1;
+    logWarn(`[Photon] ${reason}; ${tally.fallback} alone for a minute`);
   }
 
-  private pauseFor(ms: number): void {
+  private pauseFor(tally: Tally, ms: number): void {
     const wait = Math.min(ms, MAX_PAUSE_MS);
-    this.pausedUntil = Date.now() + wait;
-    this.misses = MISSES_BEFORE_PAUSE - 1;
-    logWarn(`[Photon] allowance spent; asking Nominatim alone for ${Math.ceil(wait / 1000)} s`);
+    tally.pausedUntil = Date.now() + wait;
+    tally.misses = MISSES_BEFORE_PAUSE - 1;
+    logWarn(`[Photon] allowance spent; ${tally.fallback} alone for ${Math.ceil(wait / 1000)} s`);
   }
+}
+
+function searchParams(query: string, opts: PhotonSearchOptions): URLSearchParams {
+  const params = new URLSearchParams({ q: query, limit: String(SEARCH_LIMIT), lang: photonLang(opts.lang) });
+  if (opts.bias && Number.isFinite(opts.bias.lat) && Number.isFinite(opts.bias.lng)) {
+    params.set('lat', String(opts.bias.lat));
+    params.set('lon', String(opts.bias.lng));
+    params.set('zoom', String(BIAS_ZOOM));
+  }
+  return params;
 }

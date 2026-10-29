@@ -351,6 +351,22 @@ export function mergeSuggestions(fromIndex: Suggestion[], fromPhoton: Suggestion
   return interleave(fromIndex, extra, limit);
 }
 
+/** How long Photon's suggestions may still take once the index has answered. */
+export const PHOTON_GRACE_MS = 300;
+
+/** What `pending` answers within `ms`, or null when it takes longer than that. */
+export async function answerWithin<T>(pending: Promise<T | null>, ms: number): Promise<T | null> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<null>((resolve) => {
+    timer = setTimeout(() => resolve(null), ms);
+  });
+  try {
+    return await Promise.race([pending, late]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /**
  * The details record of a place picked out of the index, with what
  * OpenStreetMap knows about the same building filled in.
