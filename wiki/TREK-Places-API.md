@@ -65,7 +65,7 @@ The OpenStreetMap layers are kept apart from the place rows and are joined only 
 
 ## Installation key and daily allowance
 
-On its first search an installation registers itself with the service in the background: it solves a small proof of work (a few seconds on a Raspberry Pi) and receives a key, which TREK keeps encrypted in its database and renews on its own after 60 of its 90 days. Nobody clicks anything, and the first searches do not wait for it; until the key is there, requests go out the way they always did and are answered from a shared pool.
+On its first search an installation registers itself with the service in the background: it solves a small proof of work (a few seconds on a Raspberry Pi) and receives a key, which TREK keeps encrypted in its database and renews on its own after 60 of its 90 days. Nobody clicks anything, and the first searches do not wait for it; until the key is there, requests go out the way they always did and are answered from a shared pool. A key renews on its own for up to a year after it lapsed, whatever release the installation runs; registering anew needs a TREK release from the last six months.
 
 The key carries a random installation id and nothing else: no address, no host name, no user. It lets the service give each installation its own daily allowance instead of one pool per network, and it is sent only to the hosts in `TREK_SERVICES_HOSTS` (`places.liketrek.com`, `photon.liketrek.com` and `valhalla.liketrek.com` by default), never to a copy you run yourself or anywhere else.
 
