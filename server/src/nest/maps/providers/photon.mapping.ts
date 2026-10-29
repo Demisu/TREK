@@ -10,6 +10,7 @@
  */
 import { toApiLang } from '../maps.helpers';
 import type { NominatimResult, NominatimReverse } from './osm.client';
+import type { MapsAutocompleteResult } from '@trek/shared';
 
 import { z } from 'zod';
 
@@ -74,6 +75,7 @@ export const photonAnswerSchema = z.object({ features: z.array(photonFeatureSche
 
 export type PhotonFeature = z.infer<typeof photonFeatureSchema>;
 type PhotonProperties = PhotonFeature['properties'];
+type Suggestion = MapsAutocompleteResult['suggestions'][number];
 
 /**
  * The language Photon is asked in: TREK's code through toApiLang (`br` is
@@ -130,6 +132,33 @@ export function asNominatimHit(feature: PhotonFeature): NominatimResult | null {
     lat: String(lat),
     lon: String(lon),
     extratags: stringTags(p.extra),
+  };
+}
+
+/**
+ * A search hit as one row of the suggestion list, in the id form the details
+ * lookup reads (`node:123`, as the index's OpenStreetMap layer hands it over),
+ * or null for one without an id or a name to show.
+ */
+export function asSuggestion(feature: PhotonFeature): Suggestion | null {
+  const hit = asNominatimHit(feature);
+  const [lng, lat] = feature.geometry.coordinates;
+  if (!hit || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  // The address line starts with the name, so the rest of it reads as where the
+  // place is. Cut by the name rather than at its first comma, which a name can
+  // hold; a house without a name is titled by its number, as Nominatim does.
+  const name = feature.properties.name?.trim();
+  const line = hit.display_name;
+  const [head = '', ...rest] = line.split(', ');
+  const mainText = name || head;
+  if (!mainText) return null;
+  return {
+    placeId: `${hit.osm_type}:${hit.osm_id}`,
+    mainText,
+    secondaryText: name ? line.slice(name.length).replace(/^, /, '') : rest.join(', '),
+    source: 'openstreetmap',
+    lat,
+    lng,
   };
 }
 

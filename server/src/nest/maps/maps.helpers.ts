@@ -115,11 +115,15 @@ export function mergeSearchResults(
   limit = 10,
 ): Record<string, unknown>[] {
   const extra = fromOsm.filter((o) => !fromIndex.some((i) => samePlace(i, o)));
+  return interleave(fromIndex, extra, limit);
+}
 
-  const out: Record<string, unknown>[] = [];
-  for (let i = 0; i < Math.max(fromIndex.length, extra.length) && out.length < limit; i++) {
-    if (i < fromIndex.length) out.push(fromIndex[i]);
-    if (i < extra.length && out.length < limit) out.push(extra[i]);
+/** One row of each list in turn, the first list leading, up to `limit` rows. */
+export function interleave<T>(first: T[], second: T[], limit: number): T[] {
+  const out: T[] = [];
+  for (let i = 0; i < Math.max(first.length, second.length) && out.length < limit; i++) {
+    if (i < first.length) out.push(first[i]);
+    if (i < second.length && out.length < limit) out.push(second[i]);
   }
   return out;
 }

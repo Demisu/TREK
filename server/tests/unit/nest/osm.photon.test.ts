@@ -1,5 +1,5 @@
 /**
- * OSM-PHOTON-001..012: the OpenStreetMap search and reverse lookup ask Photon
+ * OSM-PHOTON-001..014: the OpenStreetMap search and reverse lookup ask Photon
  * first where the installation holds a key, answer in the shape Nominatim's
  * answers always had, and fall back to Nominatim whenever Photon gives none.
  * Lookups by id stay on Nominatim. The network is a stubbed global fetch
@@ -135,6 +135,31 @@ describe('search', () => {
         secondaryText: 'Pariser Platz, Mitte, Berlin, 10117, Deutschland',
       },
     ]);
+  });
+
+  it('OSM-PHOTON-013: the keystroke beside the index asks Photon alone, with the coordinates it found (#2877)', async () => {
+    photonReply = () => photonAnswer([gateFeature(), gateFeature({ osm_id: undefined })]);
+    const suggestions = await osm.autocompletePhoton('Brandenb', 'de', { lat: 52.5, lng: 13.4 });
+    expect(hosts).toEqual(['photon.liketrek.com']);
+    expect(suggestions).toEqual([
+      {
+        placeId: 'way:518071791',
+        mainText: 'Brandenburger Tor',
+        secondaryText: 'Pariser Platz, Mitte, Berlin, 10117, Deutschland',
+        source: 'openstreetmap',
+        lat: 52.5163,
+        lng: 13.3777,
+      },
+    ]);
+  });
+
+  it('OSM-PHOTON-014: answers null without Photon rather than asking Nominatim, whose policy rules out autocomplete', async () => {
+    identity.bearer = null;
+    expect(await osm.autocompletePhoton('Brandenb', 'de')).toBeNull();
+    photonReply = () => photonAnswer([], 503);
+    identity.bearer = 'tk1.kid.payload.signature';
+    expect(await osm.autocompletePhoton('Brandenb', 'de')).toBeNull();
+    expect(hosts).toEqual(['photon.liketrek.com']);
   });
 });
 

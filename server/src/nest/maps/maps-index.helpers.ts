@@ -5,7 +5,7 @@
  * the decision to make them is MapsService's.
  */
 import { getCountryFromCoords } from '../../utils/country-borders';
-import { buildOsmDetails, parsePoiCategories, samePlace, toApiLang } from './maps.helpers';
+import { buildOsmDetails, interleave, parsePoiCategories, samePlace, toApiLang } from './maps.helpers';
 import { POI_RESULT_CAP, type PoiSearchResult } from './providers/osm.client';
 import {
   INDEX_MAX_CATEGORY_CHARS,
@@ -333,6 +333,22 @@ export function indexSuggestions(found: TrekSearchHit[], lang?: string): MapsAut
           lng: p.lng,
         },
   );
+}
+
+type Suggestion = MapsAutocompleteResult['suggestions'][number];
+
+/**
+ * The index's suggestions with Photon's interleaved, the way the search list
+ * merges the index with Nominatim (#2877). A Photon row the list already holds
+ * is dropped: the same OpenStreetMap element under the layer's copy of its id,
+ * or the same place by the rule the search list dedupes with.
+ */
+export function mergeSuggestions(fromIndex: Suggestion[], fromPhoton: Suggestion[], limit = 8): Suggestion[] {
+  const asPlace = (s: Suggestion) => ({ lat: s.lat, lng: s.lng, name: s.mainText });
+  const extra = fromPhoton.filter(
+    (o) => !fromIndex.some((i) => i.placeId === o.placeId || samePlace(asPlace(i), asPlace(o))),
+  );
+  return interleave(fromIndex, extra, limit);
 }
 
 /**

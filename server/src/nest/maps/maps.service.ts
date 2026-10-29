@@ -11,6 +11,7 @@ import {
   indexRequests,
   indexSuggestions,
   mergeIndexPages,
+  mergeSuggestions,
 } from './maps-index.helpers';
 import { NEARBY_DEFAULT_LIMIT, NEARBY_DEFAULT_RADIUS_M, nearbyCacheKey, nearestFirst } from './maps-nearby.helpers';
 import { MapsUrlResolver, type ResolvedMapsUrl } from './maps-url.resolver';
@@ -542,29 +543,39 @@ export class MapsService {
     }
 
     if (this.trekPlacesEnabled() && !(await this.selector.googleOnly(keyed))) {
-      try {
-        const centre = boxCentre;
-        // Both layers here, unlike the explicit search above. That path asks
-        // Nominatim in parallel and would get the same OpenStreetMap places
-        // twice; this one asks nobody else, because Nominatim's usage policy
-        // names autocomplete as unacceptable use. So the layer is not a second
-        // opinion here, it is the only place the missing names live.
-        //
-        // Measured on the case that surfaced it: "Tokio station" typed from
-        // Tokyo returned a weigh station in Ritzville and a station in Mexico
-        // from the index alone, and "Tokio Hauptbahnhof" in second place with
-        // the layer. The index holds businesses; stations, temples and bridges
-        // are in OpenStreetMap, and so is every exonym a traveller types.
-        const found = await trekPlacesSearch(input, {
-          lat: centre?.lat,
-          lng: centre?.lng,
+      // Both layers here, unlike the explicit search above. That path asks
+      // Nominatim in parallel and would get the same OpenStreetMap places
+      // twice; this one never asks Nominatim, because its usage policy names
+      // autocomplete as unacceptable use.
+      //
+      // Measured on the case that surfaced the layer: "Tokio station" typed
+      // from Tokyo returned a weigh station in Ritzville and a station in
+      // Mexico from the index alone, and "Tokio Hauptbahnhof" in second place
+      // with the layer. The index holds businesses; stations, temples and
+      // bridges are in OpenStreetMap, and so is every exonym a traveller types.
+      //
+      // Photon beside them (#2877). The layer is a slice of OpenStreetMap, and
+      // a place missing from it showed up only once the search was sent.
+      // Photon is built for this keystroke and answers null when the services
+      // are off, so the pair costs the slower one and an install without
+      // Photon reads exactly as before. Each side swallows its own failure, so
+      // one that is down does not throw away what the other found.
+      const [found, photon] = await Promise.all([
+        trekPlacesSearch(input, {
+          lat: boxCentre?.lat,
+          lng: boxCentre?.lng,
           limit: 8,
           sources: 'index,osm',
           lang,
-        });
-        if (found.length > 0) return { suggestions: indexSuggestions(found, lang), source: 'trek-places' };
-      } catch (err: unknown) {
-        console.warn('TREK Places autocomplete failed, falling back:', (err as Error).message);
+        }).catch((err: unknown) => {
+          console.warn('TREK Places autocomplete failed, falling back:', (err as Error).message);
+          return [];
+        }),
+        this.osm.autocompletePhoton(input, lang, boxCentre),
+      ]);
+      const suggestions = mergeSuggestions(indexSuggestions(found, lang), photon ?? []);
+      if (suggestions.length > 0) {
+        return { suggestions, source: found.length > 0 ? 'trek-places' : 'openstreetmap' };
       }
     }
 

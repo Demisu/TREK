@@ -48,7 +48,7 @@ import {
 import { overpassSelector, tagsMatchFilter } from '../osm-filter.helpers';
 import { OverpassBusy, hedged, lastAnsweredFirst, retryAfterMs, soonestRetryMs } from '../overpass-hedge.helpers';
 import { PhotonClient } from './photon.client';
-import { asNominatimHit, asNominatimReverse } from './photon.mapping';
+import { asNominatimHit, asNominatimReverse, asSuggestion } from './photon.mapping';
 import { readWikiIdentity } from './wiki-identity';
 import { Injectable } from '@nestjs/common';
 import { normalizePlaceWebsite } from '@trek/shared';
@@ -524,6 +524,16 @@ export class OsmClient {
       console.error('Nominatim autocomplete failed:', err);
       return { suggestions: [], source: 'nominatim' };
     }
+  }
+
+  /**
+   * Suggestions from Photon, which is built for search-as-you-type, or null when
+   * it is not in use or did not answer. Never Nominatim in its place: its usage
+   * policy rules out autocomplete.
+   */
+  async autocompletePhoton(input: string, lang?: string, bias?: { lat: number; lng: number }) {
+    const found = await this.photon.search(input, { lang, bias });
+    return found?.map(asSuggestion).filter((row) => row !== null) ?? null;
   }
 
   /**

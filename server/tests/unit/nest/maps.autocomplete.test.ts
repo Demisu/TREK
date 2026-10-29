@@ -1,5 +1,5 @@
 /**
- * MAPS-AUTO-001..016: the suggestion list behind the place search box.
+ * MAPS-AUTO-001..024: the suggestion list behind the place search box.
  *
  * This is the path the index was built for. Nominatim's usage policy names
  * autocomplete as unacceptable use in its own words, whatever the rate, and the
@@ -13,7 +13,8 @@ import type { AppSettingsRepository } from '../../../src/db/repositories/AppSett
 import type { UsersRepository } from '../../../src/db/repositories/Users.repository';
 import type { PlacePhotoCacheService } from '../../../src/nest/place-photos/place-photo-cache.service';
 import { noGoogleQuota } from '../../helpers/google-quota';
-import { buildMapsService } from '../../helpers/maps-service';
+import { buildMapsParts, buildMapsService } from '../../helpers/maps-service';
+import type { MapsAutocompleteResult } from '@trek/shared';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -46,6 +47,8 @@ vi.mock('../../../src/app-config', async (importOriginal) => {
     },
   };
 });
+
+type Suggestion = MapsAutocompleteResult['suggestions'][number];
 
 const INPUT = 'Café Kröpel';
 
@@ -88,11 +91,43 @@ const osmHit = (over: Record<string, unknown> = {}) => ({
  */
 function make(enabled = true, rows: Record<string, string> = {}) {
   trekPlaces.on = enabled;
-  const appSettings = {
+  return buildMapsService(
+    {} as PlacePhotoCacheService,
+    settings(rows),
+    noUsers,
+    {} as never,
+    {} as never,
+    noGoogleQuota,
+  );
+}
+
+function settings(rows: Record<string, string>): AppSettingsRepository {
+  return {
     getValue: async (key: string) => (rows[key] !== undefined ? rows[key] : null),
   } as unknown as AppSettingsRepository;
-  return buildMapsService({} as PlacePhotoCacheService, appSettings, noUsers, {} as never, {} as never, noGoogleQuota);
 }
+
+/**
+ * The service with Photon answering `rows` (null: the services are off). The
+ * client itself is pinned in osm.photon.test.ts; here only what the keystroke
+ * path does with its answer matters.
+ */
+function withPhoton(rows: Suggestion[] | null, settingRows: Record<string, string> = {}) {
+  trekPlaces.on = true;
+  const parts = buildMapsParts({} as PlacePhotoCacheService, settings(settingRows), noUsers, {} as never, {} as never);
+  const photon = vi.spyOn(parts.osm, 'autocompletePhoton').mockResolvedValue(rows);
+  return { svc: parts.svc, photon };
+}
+
+const photonRow = (over: Partial<Suggestion> = {}): Suggestion => ({
+  placeId: 'way:518071791',
+  mainText: 'Kröpeliner Tor',
+  secondaryText: 'Kröpeliner Straße, Rostock, Deutschland',
+  source: 'openstreetmap',
+  lat: 54.0893,
+  lng: 12.1325,
+  ...over,
+});
 
 /** Google's autocomplete envelope, which is not the shape its text search answers in. */
 const googleSuggestions = (name: string) => ({
@@ -428,5 +463,57 @@ describe('MapsService.autocompletePlaces', () => {
     const { suggestions } = await make().autocompletePlaces(1, INPUT, 'en');
 
     expect(suggestions[0].secondaryText).toBe('Somewhere');
+  });
+
+  it('MAPS-AUTO-021: Photon is asked beside the index and its places join the list (#2877)', async () => {
+    mockSearch.mockResolvedValue([hit(), hit({ gers: 'def-456', name: 'Café Central', lat: 54.2, lng: 12.2 })]);
+    const { svc, photon } = withPhoton([
+      photonRow(),
+      photonRow({ placeId: 'node:7', mainText: 'Kröpeliner Straße', lat: 54.09, lng: 12.135 }),
+    ]);
+    const bias = { low: { lat: 54, lng: 12 }, high: { lat: 54.2, lng: 12.2 } };
+
+    const result = await svc.autocompletePlaces(1, INPUT, 'de', bias);
+
+    expect(photon).toHaveBeenCalledWith(INPUT, 'de', { lat: 54.1, lng: 12.1 });
+    expect(result.source).toBe('trek-places');
+    expect(result.suggestions.map((s) => s.placeId)).toEqual([
+      'gers:abc-123',
+      'way:518071791',
+      'gers:def-456',
+      'node:7',
+    ]);
+    expect(result.suggestions[1]).toMatchObject({ source: 'openstreetmap', mainText: 'Kröpeliner Tor' });
+  });
+
+  it('MAPS-AUTO-022: what only Photon found is the answer when the index has nothing, named as OpenStreetMap', async () => {
+    mockSearch.mockResolvedValue([]);
+    const { svc } = withPhoton([photonRow()]);
+
+    const result = await svc.autocompletePlaces(1, INPUT);
+
+    expect(result).toEqual({ suggestions: [photonRow()], source: 'openstreetmap' });
+  });
+
+  it('MAPS-AUTO-023: an index failure keeps what Photon found instead of throwing it away', async () => {
+    mockSearch.mockRejectedValue(new Error('places api down'));
+    const { svc } = withPhoton([photonRow()]);
+
+    const result = await svc.autocompletePlaces(1, INPUT);
+
+    expect(console.warn).toHaveBeenCalledWith('TREK Places autocomplete failed, falling back:', 'places api down');
+    expect(result.suggestions).toEqual([photonRow()]);
+  });
+
+  it('MAPS-AUTO-024: the Google-only switch skips Photon the way it skips the index', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(googleSuggestions('Tokyo Station'));
+    vi.stubGlobal('fetch', fetchMock);
+    const { svc, photon } = withPhoton([photonRow()], { maps_api_key: 'key', places_google_only: 'true' });
+
+    const result = await svc.autocompletePlaces(1, INPUT);
+
+    expect(photon).not.toHaveBeenCalled();
+    expect(result.source).toBe('google');
+    vi.unstubAllGlobals();
   });
 });

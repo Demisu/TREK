@@ -1,10 +1,11 @@
 /**
- * PHOTON-MAP-001..013: Photon's answers read into the shape Nominatim gives,
- * and the language Photon is asked in.
+ * PHOTON-MAP-001..016: Photon's answers read into the shape Nominatim gives,
+ * the rows of the suggestion list, and the language Photon is asked in.
  */
 import {
   asNominatimHit,
   asNominatimReverse,
+  asSuggestion,
   photonAnswerSchema,
   photonDisplayName,
   photonLang,
@@ -119,5 +120,38 @@ describe('asNominatimReverse', () => {
   it('PHOTON-MAP-012: a feature with nothing to name has no display name', () => {
     const bare = photonAnswerSchema.parse({ features: [{ geometry: { coordinates: [0, 0] }, properties: {} }] });
     expect(asNominatimReverse(bare.features[0])).toEqual({ display_name: undefined, name: undefined, address: {} });
+  });
+});
+
+describe('asSuggestion', () => {
+  it('PHOTON-MAP-014: titles the row by its name, with where it is below, in the id form the details lookup reads', () => {
+    expect(asSuggestion(feature())).toEqual({
+      placeId: 'way:518071791',
+      mainText: 'Brandenburger Tor',
+      secondaryText: 'Pariser Platz, Mitte, Berlin, 10117, Deutschland',
+      source: 'openstreetmap',
+      lat: 52.5163,
+      lng: 13.3777,
+    });
+  });
+
+  it('PHOTON-MAP-015: keeps a name that holds a comma whole, and titles a house without one by its number', () => {
+    const bar = asSuggestion(feature({ name: 'Bar, Café Einstein' }));
+    expect(bar?.mainText).toBe('Bar, Café Einstein');
+    expect(bar?.secondaryText).toBe('Pariser Platz, Mitte, Berlin, 10117, Deutschland');
+
+    const house = asSuggestion(
+      feature({ name: undefined, housenumber: '77', street: 'Unter den Linden', postcode: undefined }),
+    );
+    expect(house?.mainText).toBe('77');
+    expect(house?.secondaryText).toBe('Unter den Linden, Mitte, Berlin, Deutschland');
+  });
+
+  it('PHOTON-MAP-016: has no row for a hit without an id or anything to call it', () => {
+    expect(asSuggestion(feature({ osm_id: undefined }))).toBeNull();
+    const bare = photonAnswerSchema.parse({
+      features: [{ geometry: { coordinates: [13.4, 52.5] }, properties: { osm_type: 'N', osm_id: 1 } }],
+    });
+    expect(asSuggestion(bare.features[0])).toBeNull();
   });
 });
