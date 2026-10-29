@@ -1,6 +1,6 @@
 import L from 'leaflet';
 import type { JourneyMapLayerVisibility } from './journeyMapLayers';
-import { MARK_CLUSTER_PX, clusterPoints, markHitSvg, type JourneyMapMark } from './journeyMapMarks';
+import { MARK_CLUSTER_PX, clusterPoints, markHitSvg, type JourneyMapMark, type WorldPx } from './journeyMapMarks';
 
 /** The layers of the Leaflet journey map a switch takes off and puts back (JRN-04). */
 export type LeafletLayerKind = keyof JourneyMapLayerVisibility;
@@ -30,6 +30,15 @@ export function switchLeafletLayers(
 }
 
 /**
+ * World pixels at the map's current zoom, through the map's own CRS so a
+ * GCJ-02 basemap groups where it draws. Only meaningful once the map has a view.
+ */
+export function leafletWorldPx(map: L.Map): WorldPx {
+  const zoom = map.getZoom();
+  return (lat, lng) => map.project([lat, lng], zoom);
+}
+
+/**
  * The plan's places and the stays as one layer: below the entry pins, above
  * the photo thumbnails, joined only where they would overlap on screen.
  * Null while there is nothing to draw or the map has no view yet.
@@ -47,7 +56,7 @@ export function drawLeafletMarks(
     return null;
   }
   const group = L.layerGroup();
-  for (const hit of clusterPoints(marks, (lat, lng) => map.latLngToContainerPoint([lat, lng]), MARK_CLUSTER_PX)) {
+  for (const hit of clusterPoints(marks, leafletWorldPx(map), MARK_CLUSTER_PX)) {
     const look = markHitSvg(hit.members);
     const marker = L.marker([hit.lat, hit.lng], {
       icon: L.divIcon({

@@ -1,4 +1,4 @@
-// FE-COMP-JOURNEYMAP-001 to FE-COMP-JOURNEYMAP-054
+// FE-COMP-JOURNEYMAP-001 to FE-COMP-JOURNEYMAP-055
 
 vi.mock('../../api/websocket', () => ({
   connect: vi.fn(),
@@ -38,9 +38,11 @@ vi.mock('leaflet', () => {
     getCenter: vi.fn(() => ({ lat: 0, lng: 0 })),
     zoomIn: vi.fn(),
     zoomOut: vi.fn(),
-    // The photo layer subscribes to zoom/pan and clusters in screen space (#1614).
+    // The photo and mark layers subscribe to zoom/pan and cluster in world
+    // pixels at the current zoom (#1614, #2889).
     on: vi.fn(),
     off: vi.fn(),
+    project: vi.fn(() => ({ x: 0, y: 0 })),
     latLngToContainerPoint: vi.fn(() => ({ x: 0, y: 0 })),
   };
   return {
@@ -76,6 +78,8 @@ import type { Mock } from 'vitest';
 import L from 'leaflet';
 import JourneyMap from './JourneyMap';
 import type { JourneyMapHandle } from './JourneyMap';
+import { mercatorWorldPx } from './journeyMapMarks';
+import type { JourneyMapStay } from '@trek/shared';
 
 // maplibre-gl-leaflet hangs the vector basemap into Leaflet's tile pane. The mock
 // only has to be callable and hand back a layer with the three methods the callers
@@ -782,9 +786,8 @@ describe('JourneyMap', () => {
   });
 
   // #2254 — the map effect defers its opening fitBounds/setView to a rAF, so this
-  // effect can draw while the map still has no center or zoom. Clustering
-  // projects to container pixels, which throws in that window and took the whole
-  // public journey page down with it.
+  // effect can draw while the map still has no center or zoom. Projecting in that
+  // window throws and took the whole public journey page down with it.
   it('FE-COMP-JOURNEYMAP-050: waits out a map that has no view yet, then draws on moveend', () => {
     const noView = () => { throw new Error('Set map center and zoom first.'); };
     let hasView = false;
@@ -794,12 +797,12 @@ describe('JourneyMap', () => {
     // The mock hands out one shared map instance, so it can be reached — and
     // stripped of its view — before the component ever builds one. Typed down to
     // the three spies this needs: L.map's signature promises a real Leaflet map.
-    type MapProbe = { getCenter: Mock; latLngToContainerPoint: Mock; on: Mock };
+    type MapProbe = { getCenter: Mock; project: Mock; on: Mock };
     L.map(document.createElement('div'));
     const map = mockedMap() as MapProbe;
     vi.mocked(L.map).mockClear();
     map.getCenter.mockImplementation(() => (hasView ? { lat: 0, lng: 0 } : noView()));
-    map.latLngToContainerPoint.mockImplementation(() => (hasView ? { x: 0, y: 0 } : noView()));
+    map.project.mockImplementation(() => (hasView ? { x: 0, y: 0 } : noView()));
 
     try {
       // Rendering must survive the viewless window, and draw nothing in it.
@@ -820,7 +823,7 @@ describe('JourneyMap', () => {
       expect(photoHtml()[0]).toContain('/uploads/late.jpg');
     } finally {
       map.getCenter.mockImplementation(() => ({ lat: 0, lng: 0 }));
-      map.latLngToContainerPoint.mockImplementation(() => ({ x: 0, y: 0 }));
+      map.project.mockImplementation(() => ({ x: 0, y: 0 }));
     }
   });
 
@@ -867,6 +870,65 @@ describe('JourneyMap', () => {
     render(<JourneyMap checkins={[]} entries={entriesWithCoords} plannedEntryIds={new Set(['e2'])} />);
     expect(divIconHtml(0)).not.toContain('#16a34a');
     expect(divIconHtml(1)).toContain('#16a34a');
+  });
+
+  // #2889: a pan used to shift the screen grid the layers cluster on, so photos
+  // near a cell edge changed groups, counts and thumbnails without any zoom.
+  it('FE-COMP-JOURNEYMAP-055: panning keeps the photo and mark groups, only a zoom regroups them', () => {
+    const photos = [
+      { id: 'p1', lat: 45, lng: 5, thumbUrl: '/uploads/a.jpg' },
+      { id: 'p2', lat: 45, lng: 5.05, thumbUrl: '/uploads/b.jpg' },
+    ];
+    const marks = [
+      { kind: 'stay' as const, key: 's1', lat: 45, lng: 5, color: '#14b8a6', stay: {} as JourneyMapStay },
+      { kind: 'stay' as const, key: 's2', lat: 45, lng: 5.05, color: '#14b8a6', stay: {} as JourneyMapStay },
+    ];
+    L.map(document.createElement('div'));
+    const map = mockedMap() as { project: Mock; latLngToContainerPoint: Mock; getZoom: Mock; on: Mock; off: Mock };
+    vi.mocked(L.map).mockClear();
+    let zoom = 3;
+    let pan = 0;
+    map.getZoom.mockImplementation(() => zoom);
+    map.project.mockImplementation(([lat, lng]: [number, number], z: number) => mercatorWorldPx(lat, lng, z, 256));
+    map.latLngToContainerPoint.mockImplementation(([lat, lng]: [number, number]) => {
+      const world = mercatorWorldPx(lat, lng, zoom, 256);
+      return { x: world.x - pan, y: world.y };
+    });
+    const drawnSince = (from: number) =>
+      vi.mocked(L.divIcon).mock.calls.slice(from).map(c => String(c[0]?.html)).filter(h => h.includes('/uploads/') || h.includes('#14b8a6'));
+    const moveEnd = () => act(() => {
+      const gone = new Set(map.off.mock.calls.map(c => c[1]));
+      for (const [event, handler] of map.on.mock.calls) if (event === 'moveend' && !gone.has(handler)) (handler as () => void)();
+    });
+
+    try {
+      render(<JourneyMap checkins={[]} entries={[]} photos={photos} marks={marks} />);
+      let from = vi.mocked(L.divIcon).mock.calls.length;
+      moveEnd();
+      const first = drawnSince(from);
+      expect(first.filter(h => h.includes('/uploads/'))).toEqual([expect.stringContaining('>2<')]);
+      expect(first.filter(h => h.includes('#14b8a6'))).toHaveLength(1);
+      expect(map.project).toHaveBeenCalledWith([45, 5.05], 3);
+      expect(map.latLngToContainerPoint).not.toHaveBeenCalled();
+
+      // A pan that puts a 64 px cell edge between the two photos on screen.
+      const mid = (mercatorWorldPx(45, 5, 3, 256).x + mercatorWorldPx(45, 5.05, 3, 256).x) / 2;
+      pan = mid - (Math.floor(mid / 64) + 0.5) * 64;
+      from = vi.mocked(L.divIcon).mock.calls.length;
+      moveEnd();
+      expect(drawnSince(from)).toEqual(first);
+
+      zoom = 12;
+      from = vi.mocked(L.divIcon).mock.calls.length;
+      moveEnd();
+      const zoomed = drawnSince(from);
+      expect(zoomed.filter(h => h.includes('/uploads/'))).toHaveLength(2);
+      expect(zoomed.filter(h => h.includes('#14b8a6'))).toHaveLength(2);
+    } finally {
+      map.getZoom.mockImplementation(() => 10);
+      map.project.mockImplementation(() => ({ x: 0, y: 0 }));
+      map.latLngToContainerPoint.mockImplementation(() => ({ x: 0, y: 0 }));
+    }
   });
 });
 

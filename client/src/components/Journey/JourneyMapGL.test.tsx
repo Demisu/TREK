@@ -35,8 +35,9 @@ const gl = vi.hoisted(() => {
     off: vi.fn(),
     once: vi.fn(),
     loaded: vi.fn(() => true),
-    // Container pixels from lng/lat, ten per degree: enough to tell near from far.
-    project: vi.fn(([lng, lat]: [number, number]) => ({ x: lng * 10, y: lat * 10 })),
+    // Container pixels, ten per degree. The layers must not group by them: they
+    // shift with every pan (#2889).
+    project: vi.fn(),
     remove: vi.fn(),
     resize: vi.fn(),
     flyTo: vi.fn(),
@@ -182,6 +183,7 @@ beforeEach(() => {
     return gl.map
   })
   gl.map.getZoom.mockReturnValue(10)
+  gl.map.project.mockImplementation(([lng, lat]: [number, number]) => ({ x: lng * 10, y: lat * 10 }))
   gl.map.getSource.mockReturnValue(null)
   vi.mocked(isStandardFamily).mockReturnValue(false)
   vi.mocked(supportsCustom3d).mockReturnValue(false)
@@ -553,14 +555,54 @@ describe('JourneyMapGL', () => {
       { id: 'b', lat: 45.1, lng: 5.1, thumbUrl: '/api/photos/2/thumbnail' },
       { id: 'c', lat: 48, lng: 11, thumbUrl: '/api/photos/3/thumbnail' },
     ]
+    gl.map.getZoom.mockReturnValue(4)
     render(<JourneyMapGL checkins={[]} entries={entries} photos={photos} onPhotoClick={onPhotoClick} />)
     const thumbs = gl.markers.filter(m => m.element.innerHTML.includes('/api/photos/'))
-    // a and b fall in one 64px bucket at ten pixels a degree, c in its own.
+    // At zoom 4 a and b lie three world pixels apart in one 64px cell, c far off.
     expect(thumbs).toHaveLength(2)
     expect(thumbs[0].element.innerHTML).toContain('>2<')
     thumbs[0].element.click()
     expect(onPhotoClick).toHaveBeenCalledWith(['a', 'b'])
     expect(gl.map.on).toHaveBeenCalledWith('moveend', expect.any(Function))
+  })
+
+  it('FE-COMP-JMAPGL-2889: panning keeps the photo and mark groups, only a zoom regroups them', () => {
+    withToken()
+    const photos = [
+      { id: 'a', lat: 45, lng: 5, thumbUrl: '/api/photos/1/thumbnail' },
+      { id: 'b', lat: 45, lng: 5.1, thumbUrl: '/api/photos/2/thumbnail' },
+    ]
+    const marks = [
+      { kind: 'stay', key: 's1', lat: 45, lng: 5, color: '#14b8a6', stay: {} },
+      { kind: 'stay', key: 's2', lat: 45, lng: 5.1, color: '#14b8a6', stay: {} },
+    ]
+    gl.map.getZoom.mockReturnValue(4)
+    render(<JourneyMapGL checkins={[]} entries={entries} photos={photos} marks={marks} />)
+    const drawn = () => {
+      const shown = gl.markers.filter(m => !m.remove.mock.calls.length)
+      return {
+        photos: shown.filter(m => m.element.innerHTML.includes('/api/photos/')).map(m => [m.lngLat, m.element.innerHTML]),
+        marks: shown.filter(m => m.element.innerHTML.includes('#14b8a6')).map(m => [m.lngLat, m.element.innerHTML]),
+      }
+    }
+    const moveEnd = () => act(() => {
+      const gone = new Set(gl.map.off.mock.calls.map(c => c[1]))
+      for (const [event, handler] of gl.map.on.mock.calls) if (event === 'moveend' && !gone.has(handler)) (handler as () => void)()
+    })
+    const before = drawn()
+    expect(before.photos).toHaveLength(1)
+    expect(before.photos[0][1]).toContain('>2<')
+    expect(before.marks).toHaveLength(1)
+
+    // A pan moves every container point; at this offset b crosses a cell edge on screen.
+    gl.map.project.mockImplementation(([lng, lat]: [number, number]) => ({ x: lng * 10 - 19, y: lat * 10 }))
+    moveEnd()
+    expect(drawn()).toEqual(before)
+
+    gl.map.getZoom.mockReturnValue(12)
+    moveEnd()
+    expect(drawn().photos).toHaveLength(2)
+    expect(drawn().marks).toHaveLength(2)
   })
 
   it('FE-COMP-JMAPGL-026: focusMarker on an unknown id is a no-op', () => {

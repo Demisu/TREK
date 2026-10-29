@@ -11,7 +11,7 @@ import { escapeHtml, type JourneyTrack } from '@trek/shared'
 import { ensureJourneyPopupStyle, formatMarkerDate, journeyPopupHtml } from './journeyMapPopup'
 import { PLANNED_BADGE_SVG, type JourneyMapMark } from './journeyMapMarks'
 import { isPlannedTrack, type JourneyMapLayerVisibility } from './journeyMapLayers'
-import { NOTHING_DRAWN, drawLeafletMarks, switchLeafletLayers, type DrawnLayers, type LeafletLayerKind } from './journeyLeafletLayers'
+import { NOTHING_DRAWN, drawLeafletMarks, leafletWorldPx, switchLeafletLayers, type DrawnLayers, type LeafletLayerKind } from './journeyLeafletLayers'
 
 export interface MapMarkerItem {
   id: string
@@ -509,8 +509,8 @@ function JourneyMap(
   }, [tileUrl])
 
   // Photo layer (#1614). Its own effect on purpose: photos arriving must not tear
-  // down and rebuild the map the way the entry effect does. Redrawn on zoom and
-  // pan because the clustering is done in screen space.
+  // down and rebuild the map the way the entry effect does. Redrawn after every
+  // move, but the clusters sit on a world grid, so only a zoom regroups them.
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
@@ -522,7 +522,7 @@ function JourneyMap(
 
       // The initial view (setView/fitBounds) is set on a deferred rAF in the
       // map-build effect above, so this can run before the map has a center/zoom
-      // — latLngToContainerPoint throws in that window. Skip; the moveend/zoomend
+      // and nothing can be projected in that window. Skip; the moveend/zoomend
       // listener below redraws once the deferred view lands.
       try {
         map.getCenter()
@@ -531,7 +531,7 @@ function JourneyMap(
       }
 
       const group = L.layerGroup()
-      for (const cluster of clusterPhotos(photos, (lat, lng) => map.latLngToContainerPoint([lat, lng]))) {
+      for (const cluster of clusterPhotos(photos, leafletWorldPx(map))) {
         const marker = L.marker([cluster.lat, cluster.lng], {
           icon: L.divIcon({
             className: '',
@@ -563,7 +563,7 @@ function JourneyMap(
 
   // The plan's places and the stays of day reports (JRN-04), in their own layer
   // like the photos: below the entry pins and above the thumbnails, regrouped
-  // on every move because marks are only joined where they would overlap.
+  // on zoom because marks are only joined where they would overlap.
   useEffect(() => {
     const map = mapRef.current
     if (!map) return

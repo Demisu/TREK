@@ -7,7 +7,7 @@ import { buildGlMap } from '../Map/glSupport'
 import type { JourneyTrack } from '@trek/shared'
 import { SHOT_INDEX_ATTR, ensureJourneyPopupStyle, formatMarkerDate, journeyPopupHtml } from './journeyMapPopup'
 import { clusterPhotos, photoMarkerHtml, type MapPhoto } from './journeyPhotoLayer'
-import { MARK_CLUSTER_PX, PLANNED_BADGE_SVG, clusterPoints, markHitSvg, type JourneyMapMark } from './journeyMapMarks'
+import { MARK_CLUSTER_PX, PLANNED_BADGE_SVG, clusterPoints, glWorldPx, markHitSvg, type JourneyMapMark } from './journeyMapMarks'
 import { isPlannedTrack, type JourneyMapLayerVisibility } from './journeyMapLayers'
 
 export interface JourneyMapGLHandle {
@@ -526,9 +526,10 @@ function JourneyMapGL(
   }, [entries, stableTrail, stableTracks, glProvider, glStyle, mapboxToken, enableMapbox3d, mapboxQuality, fullScreen, paddingBottom])
 
   // Photo layer (#2453), the GL twin of the Leaflet one: its own effect so photos
-  // arriving do not rebuild the map, redrawn on every move because the clustering
-  // is done in screen space. Same dependencies as the build effect above, so it
-  // attaches to the map that effect just made.
+  // arriving do not rebuild the map. Redrawn after every move, but the clusters
+  // sit on a world grid, so only a zoom regroups them; a pan, a turn or a tilt
+  // leaves them as they were. Same dependencies as the build effect above, so
+  // it attaches to the map that effect just made.
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
@@ -539,7 +540,7 @@ function JourneyMapGL(
     const draw = () => {
       clear()
       if (!photos?.length) return
-      for (const cluster of clusterPhotos(photos, (lat, lng) => map.project([lng, lat]))) {
+      for (const cluster of clusterPhotos(photos, glWorldPx(map))) {
         const el = document.createElement('div')
         el.style.cssText = 'position:relative;width:48px;height:48px;cursor:pointer'
         el.innerHTML = photoMarkerHtml(cluster.members[0].thumbUrl, cluster.members.length)
@@ -589,7 +590,7 @@ function JourneyMapGL(
   }, [plannedEntryIds, setMarkerStyle])
 
   // The plan's places and the stays (JRN-04), the GL twin of the Leaflet layer:
-  // regrouped on every move, between the photos and the entry pins.
+  // regrouped on zoom, between the photos and the entry pins.
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
@@ -608,7 +609,7 @@ function JourneyMapGL(
           } catch { /* empty bounds */ }
         }
       }
-      for (const hit of clusterPoints(marks, (lat, lng) => map.project([lng, lat]), MARK_CLUSTER_PX)) {
+      for (const hit of clusterPoints(marks, glWorldPx(map), MARK_CLUSTER_PX)) {
         const look = markHitSvg(hit.members)
         const el = document.createElement('div')
         el.style.cssText = `width:${look.width}px;height:${look.height}px;cursor:pointer`
