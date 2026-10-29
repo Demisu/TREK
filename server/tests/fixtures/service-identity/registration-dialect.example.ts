@@ -64,7 +64,7 @@ export const SELF_CHECK: DialectSelfCheck = {
   random: '000102030405060708090a0b0c0d0e0f',
   nowSeconds: 1800000000,
   nonce: 41,
-  passwordSha256: 'cf7d2be18b531a1a1f2427ce744cd1bd7b18ae731e1449ac56c827e7a683da51',
+  inputSha256: 'cf7d2be18b531a1a1f2427ce744cd1bd7b18ae731e1449ac56c827e7a683da51',
   saltSha256: '005cc836f9d0a082e0c3712401f1d95515b6066855e8f10533353b6eb0e76f3d',
   scrypt: '5fd715b7942b9bc9ccee9b811b5566d31aa7ca6d3a011222fe3101d6178d4396',
   requestSha256: '2b41dc94a997e22cecc7bb946889208fc86c8dff0f5e30075a2fcee28239f0b8',

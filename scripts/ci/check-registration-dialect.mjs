@@ -451,7 +451,7 @@ export function runtimeProblems(mod, version) {
   };
   const attempt = dialect.begin(inputs);
   const { password, salt } = attempt.work(check.nonce);
-  if (sha256(password) !== check.passwordSha256) problems.push('its password is not the one the issuer computed');
+  if (sha256(password) !== check.inputSha256) problems.push('its password is not the one the issuer computed');
   if (sha256(salt) !== check.saltSha256) problems.push('its salt is not the one the issuer computed');
   const { N, r, p } = check.challenge;
   if (scryptSync(password, salt, 32, { N, r, p }).toString('hex') !== check.scrypt) {

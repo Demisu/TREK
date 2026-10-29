@@ -64,7 +64,7 @@ export interface DialectSelfCheck {
   random: string;
   nowSeconds: number;
   nonce: number;
-  passwordSha256: string;
+  inputSha256: string;
   saltSha256: string;
   /** Hex. */
   scrypt: string;

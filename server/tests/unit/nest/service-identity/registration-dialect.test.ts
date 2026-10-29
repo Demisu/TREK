@@ -48,7 +48,7 @@ const modules: [string, { registrationDialect: RegistrationDialect; SELF_CHECK: 
 describe.each(modules)('%s', (_, { registrationDialect: dialect, SELF_CHECK: check }) => {
   it('SIDIA-001: computes the password, salt and proof of work the issuer computed', () => {
     const { password, salt } = dialect.begin(inputsOf(check)).work(check.nonce);
-    expect(sha256(password)).toBe(check.passwordSha256);
+    expect(sha256(password)).toBe(check.inputSha256);
     expect(sha256(salt)).toBe(check.saltSha256);
     const { N, r, p } = check.challenge;
     expect(scryptSync(password, salt, 32, { N, r, p }).toString('hex')).toBe(check.scrypt);
