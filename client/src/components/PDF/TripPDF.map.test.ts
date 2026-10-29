@@ -393,4 +393,15 @@ describe('trip route map in the PDF', () => {
       .toEqual([[48.86, 2.35], [48.88, 2.5], [48.90, 2.42]])
     expect(onProgress).toHaveBeenLastCalledWith(2, 2)
   })
+
+  it('FE-COMP-TRIPPDF-MAP-016: an export given up while it routes opens no document', async () => {
+    const givenUp = new AbortController()
+    vi.mocked(calculateRouteWithLegs).mockImplementation(async (points) => {
+      givenUp.abort()
+      return { coordinates: points.map(p => [p.lat, p.lng] as [number, number]), distance: 0, duration: 0, legs: [leg(12000)] }
+    })
+    await downloadTripPDF({ ...args, signal: givenUp.signal })
+
+    expect(document.getElementById('pdf-preview-overlay')).toBeNull()
+  })
 })

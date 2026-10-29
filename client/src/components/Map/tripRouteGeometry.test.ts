@@ -108,7 +108,7 @@ describe('tripRouteGeometry', () => {
     }
   })
 
-  it('FE-MAP-TRG-006: a caller's own abort cuts the routing short, and what never answered is counted', async () => {
+  it("FE-MAP-TRG-006: a caller's own abort cuts the routing short, and what never answered is counted", async () => {
     neverAnswers()
     const controller = new AbortController()
     const pending = routeTrip(input, { profile: 'driving', tripId: 7, signal: controller.signal })

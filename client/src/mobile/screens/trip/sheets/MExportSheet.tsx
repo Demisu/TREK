@@ -25,6 +25,7 @@ export default function MExportSheet({ planner, shell }: MTripSheetsProps) {
   // open here; a calendar or GPX file closes the sheet.
   const { offerMine, isRunning, exportPdf, pdfRouting, pdfRoutingLabel, skipPdfRouting, downloadIcs, downloadGpx } = useTripExport({
     tripId: planner.tripId,
+    open,
     data: {
       trip: planner.trip,
       days: planner.days,

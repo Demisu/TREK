@@ -66,6 +66,7 @@ export function TripExportModal({
     fileBase, offerMine, isRunning, anyRunning, exportPdf, pdfRouting, pdfRoutingLabel, skipPdfRouting, downloadIcs, downloadGpx,
   } = useTripExport({
     tripId,
+    open: isOpen,
     data: { trip, days, places, assignments, categories, reservations, dayNotes, viasByDay: roadtripViasByDay, tourStageStops },
     t,
     locale,

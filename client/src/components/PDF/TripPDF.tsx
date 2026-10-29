@@ -20,8 +20,7 @@ import { routeDistanceLabel } from '../Map/tripRouteLabels'
 import { drawTripRoute, type TripPdfRouteOptions } from './tripPdfRoute'
 import { fetchExchangeRates } from '../../hooks/useExchangeRates'
 import { getFlightLegs, getTrainLegs, usesStationRoute } from '../../utils/flightLegs'
-import { isServiceStopType } from '../Roadtrip/roadtripModel'
-import { onlyMyPlan } from './pdfScope'
+import { onlyMyPlan, planAssignments } from './pdfScope'
 import { createPdfMarkdown, PDF_MARKDOWN_CSS } from './pdfMarkdown'
 
 /**
@@ -201,27 +200,13 @@ interface downloadTripPDFProps {
   onlyUserId?: number
   /** The planner's road trip vias and tour stages, and the routing progress and stop (#2876). */
   route?: TripPdfRouteOptions
-}
-
-/**
- * The stops the day plan lists, out of everything the store holds for the trip.
- *
- * The stop a booked night wrote onto its check-in day is out whatever the switch says:
- * the day already shows that booking as its accommodation block, and the row would be
- * the same hotel a second time. The service stops go with the setting. One predicate
- * for the whole document, so the day lists, the route map, the cover's planned count
- * and every cost total agree with the plan and with each other, whichever shell asked.
- */
-function planAssignments(assignments: AssignmentsMap, showServiceStops: boolean): AssignmentsMap {
-  return Object.fromEntries(Object.entries(assignments).map(([dayId, list]) => [
-    dayId,
-    (list || []).filter(a => a.accommodation_id == null && (showServiceStops || !isServiceStopType(a.place?.stop_type))),
-  ]))
+  /** Aborted once nobody waits for the document any more (its dialog was closed): it then never opens. */
+  signal?: AbortSignal
 }
 
 // `assignments` is normalised here once, to the plan's own list; every read below
 // (and fetchPlacePhotos) relies on it being an object.
-export async function downloadTripPDF({ trip, days, places, assignments: allStored = {}, categories, dayNotes, reservations: allReservations = [], t: _t, locale: _locale, timeFormat: _timeFormat, distanceUnit: _distanceUnit, showServiceStops = true, budgetItems, costsEnabled, onlyUserId, route }: downloadTripPDFProps) {
+export async function downloadTripPDF({ trip, days, places, assignments: allStored = {}, categories, dayNotes, reservations: allReservations = [], t: _t, locale: _locale, timeFormat: _timeFormat, distanceUnit: _distanceUnit, showServiceStops = true, budgetItems, costsEnabled, onlyUserId, route, signal }: downloadTripPDFProps) {
   const { assignments: stored, reservations } = onlyUserId != null
     ? onlyMyPlan(allStored, allReservations, onlyUserId)
     : { assignments: allStored, reservations: allReservations }
@@ -904,6 +889,7 @@ ${daysHtml}
 ${pluginSectionsHtml}
 </body></html>`
   markdown.dispose()
+  if (signal?.aborted) return
 
   // Open in modal with srcdoc iframe (no URL loading = no X-Frame-Options issue)
   const overlay = document.createElement('div')

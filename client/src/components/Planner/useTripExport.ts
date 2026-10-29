@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useRoadtripSettings } from '../../hooks/useRoadtripSettings';
 import { useAuthStore } from '../../store/authStore';
@@ -36,6 +36,11 @@ interface PdfRouting {
 
 export interface TripExportOptions {
   tripId: number;
+  /**
+   * Whether the dialog or sheet is shown. Closing it, or leaving the trip, gives up a
+   * PDF still routing: its legs stop going out and the document never opens.
+   */
+  open: boolean;
   data: TripExportData;
   t: Translate;
   locale: string;
@@ -83,26 +88,37 @@ export function flatDayNotes(dayNotes: Record<string, DayNote[]>) {
  * minutes, one leg a second against the shared router, so the row counts the legs and
  * offers to print without the ones still to come; those are marked in the document (#2876).
  */
-function usePdfRouting() {
+function usePdfRouting(open: boolean) {
   const [progress, setProgress] = useState<PdfRouting | null>(null);
-  const controller = useRef<AbortController | null>(null);
+  const controller = useRef<{ routing: AbortController; job: AbortController } | null>(null);
 
   const start = () => {
     const routing = new AbortController();
-    controller.current = routing;
+    const running = { routing, job: new AbortController() };
+    controller.current = running;
     // A leg already on its way still reports after a skip; the row stays quiet about it.
     const onProgress = (done: number, total: number) =>
       setProgress(!routing.signal.aborted && done < total ? { done, total } : null);
-    return { signal: routing.signal, onProgress };
+    return { signal: routing.signal, onProgress, givenUp: running.job.signal };
   };
   const finish = () => {
     controller.current = null;
     setProgress(null);
   };
   const skip = () => {
-    controller.current?.abort();
+    controller.current?.routing.abort();
     setProgress(null);
   };
+  // Unlike a skip, nobody is left to print for: the export ends without a document.
+  const giveUp = useCallback(() => {
+    controller.current?.routing.abort();
+    controller.current?.job.abort();
+  }, []);
+  useEffect(() => {
+    if (!open) giveUp();
+  }, [open, giveUp]);
+  useEffect(() => giveUp, [giveUp]);
+
   return { progress, start, finish, skip };
 }
 
@@ -114,6 +130,7 @@ function usePdfRouting() {
  */
 export function useTripExport({
   tripId,
+  open,
   data,
   t,
   locale,
@@ -127,7 +144,7 @@ export function useTripExport({
   // Which export is working, per lane, so a row can say so instead of looking inert
   // while a 226 kB PDF builder is fetched and a document is rendered.
   const [running, setRunning] = useState<Record<string, ExportJob>>({});
-  const pdfRouting = usePdfRouting();
+  const pdfRouting = usePdfRouting(open);
   // The PDF is built outside React, so it cannot read these itself (#2066).
   const timeFormat = useSettingsStore((s) => s.settings.time_format) || '24h';
   const distanceUnit = useSettingsStore((s) => s.settings.distance_unit);
@@ -157,7 +174,7 @@ export function useTripExport({
     if ((requireTrip && !data.trip) || running[laneOf(job)]) return;
     begin(job);
     const flatNotes = flatDayNotes(data.dayNotes);
-    const routing = pdfRouting.start();
+    const { givenUp, ...routing } = pdfRouting.start();
     try {
       // Loaded on click: the PDF builder is ~226 kB, so every trip used to pay for it
       // whether or not anyone exported. A missing chunk lands in the catch and shows
@@ -178,8 +195,9 @@ export function useTripExport({
         showServiceStops,
         onlyUserId: mine ? myId : undefined,
         route: { viasByDay: data.viasByDay, tourStageStops: data.tourStageStops, ...routing },
+        signal: givenUp,
       });
-      if (closeAfterPdf) onExported();
+      if (closeAfterPdf && !givenUp.aborted) onExported();
     } catch (e) {
       if (logPdfErrors) console.error('PDF error:', e);
       toast.error(`${t('dayplan.pdfError')}: ${e instanceof Error ? e.message : String(e)}`);

@@ -1,5 +1,5 @@
-// FE-PLANNER-EXPORTMODAL-001 to FE-PLANNER-EXPORTMODAL-018
-import { render, screen, waitFor } from '../../../tests/helpers/render'
+// FE-PLANNER-EXPORTMODAL-001 to FE-PLANNER-EXPORTMODAL-020
+import { act, render, screen, waitFor } from '../../../tests/helpers/render'
 import userEvent from '@testing-library/user-event'
 import { downloadTripPDF } from '../PDF/TripPDF'
 import { buildDay, buildDayNote, buildTrip, buildUser } from '../../../tests/helpers/factories'
@@ -290,5 +290,42 @@ describe('TripExportModal', () => {
     await user.click(screen.getByText('dayplan.pdfMine'))
     await waitFor(() => expect(downloadTripPDF).toHaveBeenCalledTimes(1))
     expect(vi.mocked(downloadTripPDF).mock.calls[0][0]).toMatchObject({ onlyUserId: 7 })
+  })
+
+  it('FE-PLANNER-EXPORTMODAL-019: while the PDF routes the row counts the legs, and the rest can be left out (#2876)', async () => {
+    const user = userEvent.setup()
+    let finish: (() => void) | null = null
+    vi.mocked(downloadTripPDF).mockImplementationOnce(() => new Promise<void>(res => { finish = res }))
+    const roadtripViasByDay = { 10: [] }
+    const tourStageStops = new Map()
+    render(<TripExportModal {...makeProps({ roadtripViasByDay, tourStageStops })} />)
+    await user.click(screen.getByText('dayplan.pdf'))
+    await waitFor(() => expect(downloadTripPDF).toHaveBeenCalledTimes(1))
+    const { route } = vi.mocked(downloadTripPDF).mock.calls[0][0]
+    expect(route).toMatchObject({ viasByDay: roadtripViasByDay, tourStageStops })
+
+    act(() => route?.onProgress?.(3, 10))
+    expect(screen.getByText('dayplan.pdfRouting|3|10')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'dayplan.pdfSkipRouting' }))
+    expect(route?.signal?.aborted).toBe(true)
+    expect(screen.queryByRole('button', { name: 'dayplan.pdfSkipRouting' })).toBeNull()
+    await act(async () => finish!())
+  })
+
+  it('FE-PLANNER-EXPORTMODAL-020: closing the dialog while the PDF routes gives the export up', async () => {
+    const user = userEvent.setup()
+    let finish: (() => void) | null = null
+    vi.mocked(downloadTripPDF).mockImplementationOnce(() => new Promise<void>(res => { finish = res }))
+    const props = makeProps()
+    const { rerender } = render(<TripExportModal {...props} />)
+    await user.click(screen.getByText('dayplan.pdf'))
+    await waitFor(() => expect(downloadTripPDF).toHaveBeenCalledTimes(1))
+    const { route, signal } = vi.mocked(downloadTripPDF).mock.calls[0][0]
+
+    rerender(<TripExportModal {...props} isOpen={false} />)
+    expect(route?.signal?.aborted).toBe(true)
+    expect(signal?.aborted).toBe(true)
+    await act(async () => finish!())
+    expect(props.onClose).not.toHaveBeenCalled()
   })
 })
