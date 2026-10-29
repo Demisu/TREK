@@ -230,7 +230,7 @@ export class BookingImportService {
       if (kiItems.length === 0) {
         allWarnings.push(`${file.originalname}: no reservations found`);
       } else {
-        const { items, warnings } = mapReservations(kiItems, file.originalname);
+        const { items, warnings } = mapReservations(kiItems, file.originalname, aiUsed ? 'ai' : 'kitinerary');
         // LLM extraction is less certain than kitinerary — always flag for review.
         if (aiUsed) for (const it of items) it.needs_review = true;
 

@@ -393,6 +393,44 @@ describe('BookingImportService.confirm writes the booking with its cost', () => 
     ]);
   });
 
+  it('BOOKING-IMPORT-2895: a rail ticket with changes is one booking with one cost for its fare', async () => {
+    const segment = (from: string, to: string, departureTime: string, arrivalTime: string, trainNumber: string) => ({
+      '@type': 'TrainReservation',
+      reservationNumber: '297199016704',
+      totalPrice: 71.67,
+      priceCurrency: 'EUR',
+      reservationFor: {
+        trainNumber,
+        departureStation: { name: from },
+        arrivalStation: { name: to },
+        departureTime,
+        arrivalTime,
+      },
+    });
+    const { svc: importer, maps } = make({
+      kit: true,
+      extract: async () => [
+        segment('Klagenfurt West', 'Villach Hbf', '2026-07-04T06:12:00', '2026-07-04T06:30:00', 'S1'),
+        segment('Villach Hbf', 'Heidelberg Hbf', '2026-07-04T06:40:00', '2026-07-04T12:50:00', 'ICE 116'),
+        segment('Heidelberg Hbf', 'Ludwigshafen (Rhein) Mitte', '2026-07-04T13:05:00', '2026-07-04T13:30:00', 'S1'),
+        segment('Ludwigshafen (Rhein) Mitte', 'Rheingönheim', '2026-07-04T13:41:00', '2026-07-04T13:55:00', 'STR 7'),
+      ],
+    });
+    maps.geocodeQuery.mockResolvedValue({ lat: 49, lng: 8 });
+    const preview = await importer.preview([file('ticket.pdf')], 'no-ai', 1);
+    expect(preview.items).toHaveLength(1);
+
+    const { svc, reservations } = makeConfirm({ freeze: async () => {} });
+    await svc.confirm('5', preview.items as never, undefined);
+
+    expect(reservations.createWithCostInTx).toHaveBeenCalledTimes(1);
+    expect(reservations.createWithCostInTx).toHaveBeenCalledWith(
+      '5',
+      expect.objectContaining({ type: 'train', confirmation_number: '297199016704' }),
+      { total_price: 71.67, category: 'transport', currency: 'EUR' },
+    );
+  });
+
   it('BOOKING-IMPORT-TX-002: no cost without the Costs addon or without a price', async () => {
     const off = makeConfirm({ budget: false });
     await off.svc.confirm('5', [priced as never], undefined);
