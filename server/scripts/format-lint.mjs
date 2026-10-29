@@ -34,13 +34,9 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 // byte to its output by check:entities, so their layout is the generator's, not
 // Prettier's. .prettierignore keeps `npm run format` off them for the same reason.
 const GENERATED = 'src/db/entities/';
-// The registration dialect and the issuer's sample of one are written by the
-// TREK services issuer and committed as it wrote them (the release job takes
-// the dialect over unchanged), so their layout is the issuer's generator's.
-const ISSUER_WRITTEN = [
-  'src/nest/service-identity/registration-dialect.ts',
-  'tests/fixtures/service-identity/registration-dialect.sample.ts',
-];
+// The registration dialect is written by the TREK services issuer and taken
+// over unchanged by the release job, so its layout is the issuer's generator's.
+const ISSUER_WRITTEN = ['src/nest/service-identity/registration-dialect.ts'];
 await runCli('lint:format', (args) =>
   check({
     prettier,

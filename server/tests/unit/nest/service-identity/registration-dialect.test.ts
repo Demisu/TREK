@@ -1,6 +1,6 @@
 /**
- * The registration dialect: the module this build carries, and the issuer's
- * sample that uses every building block a generated dialect can be made of.
+ * The registration dialect: the module this build carries, and a dialect
+ * written by hand in the shape of the issuer's (a tag in a header, helpers).
  * Each must compute what the issuer computed for its fixed inputs (SELF_CHECK),
  * and its requests must be ones the issuer client lets out, so a dialect that
  * reaches main is one TREK can run.
@@ -13,7 +13,7 @@ import type {
   RegistrationDialect,
 } from '../../../../src/nest/service-identity/registration-dialect.types';
 import { leadingZeroBits, powHash, solvePow } from '../../../../src/nest/service-identity/service-key.pow';
-import * as sample from '../../../fixtures/service-identity/registration-dialect.sample';
+import * as example from '../../../fixtures/service-identity/registration-dialect.example';
 
 import { createHash, scryptSync } from 'node:crypto';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -42,7 +42,7 @@ function inputsOf(check: DialectSelfCheck): DialectInputs {
 
 const modules: [string, { registrationDialect: RegistrationDialect; SELF_CHECK: DialectSelfCheck }][] = [
   ['the committed dialect', committed],
-  ["the issuer's sample", sample],
+  ['a hand-written dialect', example],
 ];
 
 describe.each(modules)('%s', (_, { registrationDialect: dialect, SELF_CHECK: check }) => {

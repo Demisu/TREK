@@ -4,8 +4,9 @@ name: Build & Push Docker Image
 #   1. refuses to run unless ci-ok passed on the main commit it releases,
 #   2. works out the version from the tags and the bump input,
 #   3. asks the TREK services issuer for the registration dialect of that
-#      version and checks it, in a job without write access (a release without
-#      one ships the dialect already on main, with a warning),
+#      version and checks it, in a job without write access
+#      (registration-dialect.yml); without one the release ships the dialect
+#      already on main, but only while that one still has 90 days to run,
 #   4. commits the bump to package.json, the lockfile, Chart.yaml and the
 #      dialect, tags it and pushes,
 #   5. builds both platforms from exactly that bump commit (never from
@@ -19,10 +20,11 @@ name: Build & Push Docker Image
 # someone picks patch, minor or major.
 #
 # Each stable release registers new installations in a dialect of its own,
-# which the issuer accepts for 180 days; renewing a key needs none. dev and
-# the prereleases built from it carry the dialect of the last stable release,
-# so after a release, merge main into dev. docker-dev.yml warns when dev's
-# dialect is the original one or getting old.
+# which the issuer accepts for 180 days, and for as long as it is the newest
+# release's; renewing a key needs none. dev gets the module when main is merged
+# back into dev after the release; a prerelease asks the issuer for one of its
+# own (docker-dev.yml). The issuer's side, and what to set up before the first
+# release with a dialect, is in the operations guide of the TREK services.
 
 on:
   workflow_dispatch:
@@ -36,6 +38,10 @@ on:
         description: "Type MAJOR (all caps) to confirm a major release"
         type: string
         default: ''
+      allow_stale_dialect:
+        description: 'Ship without a dialect of its own even if the one on main is the original one or has under 90 days left'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -155,90 +161,23 @@ jobs:
           echo "VERSION=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "$STABLE to $NEW_VERSION ($BUMP)"
 
-  # Fetches the registration dialect of this version from the TREK services
-  # issuer and checks it (scripts/ci/check-registration-dialect.mjs). The
-  # issuer's answer runs here, in a job that holds no write token and keeps no
-  # git credentials; only the checked file goes on, as an artifact. The job
-  # never fails the release: without a dialect, the release ships the one on
-  # main, which the issuer accepts for 180 days after it was made.
+  # The registration dialect of this version, fetched and checked in a job
+  # without write access. It never fails; without an artifact from it the
+  # bump decides below whether the dialect on main may ship.
   dialect:
     needs: version
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      # Every step either cannot fail or is allowed to, so this job always
-      # succeeds and never holds up the bump.
-      - uses: actions/checkout@v6
-        continue-on-error: true
-        with:
-          ref: ${{ needs.version.outputs.base }}
-          persist-credentials: false
+    uses: ./.github/workflows/registration-dialect.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+      ref: ${{ needs.version.outputs.base }}
+    secrets:
+      TREK_DIALECT_TOKEN: ${{ secrets.TREK_DIALECT_TOKEN }}
 
-      - uses: actions/setup-node@v6
-        continue-on-error: true
-        with:
-          node-version-file: .nvmrc
-
-      # The only step that sees the token. The URL is fixed; the answer is
-      # bounded in time and size and goes to a file nothing runs yet.
-      - name: Fetch the dialect from the issuer
-        id: fetch
-        env:
-          TREK_DIALECT_TOKEN: ${{ secrets.TREK_DIALECT_TOKEN }}
-          VERSION: ${{ needs.version.outputs.version }}
-        run: |
-          set -uo pipefail
-          out="$RUNNER_TEMP/registration-dialect.ts"
-          if [ -z "${TREK_DIALECT_TOKEN:-}" ]; then
-            echo "::warning::TREK_DIALECT_TOKEN is not set; $VERSION ships the registration dialect already on main."
-            exit 0
-          fi
-          status=$(curl --silent --show-error --proto '=https' --tlsv1.2 --max-time 30 --retry 2 --retry-delay 5 \
-            --max-filesize 262144 -H "Authorization: Bearer $TREK_DIALECT_TOKEN" -H 'Content-Type: application/json' \
-            --data "{\"version\":\"$VERSION\"}" -o "$out" -w '%{http_code}' https://places.liketrek.com/v1/dialects) \
-            || status=000
-          if [ "$status" != 200 ] && [ "$status" != 201 ]; then
-            echo "::warning::The issuer handed out no registration dialect for $VERSION (HTTP $status); it ships the one on main."
-            rm -f "$out"
-            exit 0
-          fi
-          if [ "$(wc -c < "$out")" -gt 262144 ]; then
-            echo "::warning::The issuer's registration dialect for $VERSION is larger than a dialect; it ships the one on main."
-            rm -f "$out"
-            exit 0
-          fi
-          echo "file=$out" >> "$GITHUB_OUTPUT"
-
-      - name: Check the dialect
-        id: check
-        if: steps.fetch.outputs.file != ''
-        env:
-          FILE: ${{ steps.fetch.outputs.file }}
-          VERSION: ${{ needs.version.outputs.version }}
-        run: |
-          set -uo pipefail
-          if ! node scripts/ci/check-registration-dialect.mjs "$FILE" "$VERSION"; then
-            echo "::warning::The issuer's registration dialect for $VERSION failed its check; $VERSION ships the one on main."
-            exit 0
-          fi
-          echo "What changes against the dialect on main:"
-          git diff --no-index -- server/src/nest/service-identity/registration-dialect.ts "$FILE" || true
-          echo "ok=true" >> "$GITHUB_OUTPUT"
-
-      - name: Hand the dialect to the bump
-        if: steps.check.outputs.ok == 'true'
-        uses: actions/upload-artifact@v6
-        continue-on-error: true
-        with:
-          name: registration-dialect
-          path: ${{ steps.fetch.outputs.file }}
-          if-no-files-found: error
-          retention-days: 1
-
+  # Runs whatever became of the dialect job, a timeout or a lost runner
+  # included: no artifact means the dialect on main, if it may still ship.
   version-bump:
     needs: [version, dialect]
+    if: ${{ !cancelled() && needs.version.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     outputs:
@@ -265,31 +204,56 @@ jobs:
           name: registration-dialect
           path: ${{ runner.temp }}/dialect
 
+      # Without a dialect of its own the release ships the one on main, but
+      # only while the issuer takes new registrations in it for 90 more days:
+      # dialect 0 closes on the issuer's transition date, and a dialect with
+      # little left would shut out new installations of this release soon after
+      # it is out. Then this stops before anything is committed, unless
+      # allow_stale_dialect says to ship anyway. The issuer keeps the newest
+      # release's dialect open past its date, so the date here is the least it
+      # has, not the most.
       - name: Place the dialect
         env:
           VERSION: ${{ needs.version.outputs.version }}
           TAKEN: ${{ steps.take.outcome }}
+          ALLOW_STALE: ${{ inputs.allow_stale_dialect }}
         run: |
-          set -eu
+          set -u
           target=server/src/nest/service-identity/registration-dialect.ts
           fetched="$RUNNER_TEMP/dialect/registration-dialect.ts"
+          dialect_id() { sed -n "s/^const DIALECT = '\(.*\)';$/\1/p" "$1"; }
+          report() {
+            echo "$2$1"
+            printf '### Registration dialect\n%s\n' "$1" >> "$GITHUB_STEP_SUMMARY"
+          }
           if [ "$TAKEN" = success ] && [ -f "$fetched" ]; then
             cp "$fetched" "$target"
-            message="$VERSION registers in dialect $(sed -n "s/^const DIALECT = '\(.*\)';$/\1/p" "$target"), written by the issuer for it."
-            echo "$message"
-            printf '### Registration dialect\n%s\n' "$message" >> "$GITHUB_STEP_SUMMARY"
+            report "$VERSION registers in dialect $(dialect_id "$target"), written by the issuer for it." ""
             exit 0
           fi
-          id="$(sed -n "s/^const DIALECT = '\(.*\)';$/\1/p" "$target")"
+          id="$(dialect_id "$target")"
           created="$(sed -n "s/^  createdAt: '\(.*\)',$/\1/p" "$target")"
-          if [ "$id" = 0 ]; then
-            until="the end of the transition period the issuer allows the original registration"
-          else
-            until="$(date -u -d "$created + 180 days" +%Y-%m-%d)"
+          left=""
+          if [ -n "$id" ] && [ "$id" != 0 ] && made="$(date -u -d "$created" +%s 2>/dev/null)"; then
+            left=$(( (made + 180 * 86400 - $(date -u +%s)) / 86400 ))
           fi
-          message="$VERSION ships without a dialect of its own and registers in dialect $id from $created, which the issuer accepts for new installations until $until. The issuer's operator can write the dialect by hand; it then ships with the next patch."
-          echo "::warning::$message"
-          printf '### Registration dialect\n%s\n' "$message" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "$left" ] && [ "$left" -ge 90 ]; then
+            report "$VERSION ships without a dialect of its own and registers in dialect $id from $created, which the issuer takes for new installations for $left more days at least. Its operator can write one by hand for the next patch." "::warning::"
+            exit 0
+          fi
+          if [ "$id" = 0 ]; then
+            what="the original registration, which the issuer accepts only until the end of its transition period"
+          elif [ -n "$left" ]; then
+            what="dialect $id from $created, which has $left days left"
+          else
+            what="a dialect whose id or date cannot be read from $target"
+          fi
+          if [ "$ALLOW_STALE" = true ]; then
+            report "$VERSION ships without a dialect of its own and registers in $what, as allow_stale_dialect asked." "::warning::"
+            exit 0
+          fi
+          report "$VERSION got no dialect of its own and would register in $what. Nothing was committed or pushed. Make sure the issuer runs with its dialect seed and release token and that TREK_DIALECT_TOKEN is set, then run the release again, or tick allow_stale_dialect to ship anyway." "::error::"
+          exit 1
 
       - name: Update the version, commit, tag and push
         id: commit
@@ -321,6 +285,8 @@ jobs:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
     needs: [version, version-bump]
+    # version-bump may run after a failed dialect job; that alone must not skip what follows it.
+    if: ${{ !cancelled() && needs.version-bump.result == 'success' }}
     strategy:
       fail-fast: false
       matrix:
@@ -384,6 +350,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     needs: [version, version-bump, build]
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -448,6 +415,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     needs: version-bump
+    if: ${{ !cancelled() && needs.version-bump.result == 'success' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6

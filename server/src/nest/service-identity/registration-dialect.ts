@@ -7,11 +7,7 @@
  * such release it speaks the original registration, which the issuer accepts
  * for a transition period. Renewing a key never goes through this file: an
  * installation keeps its key whatever release it runs. After a stable release,
- * merge main into dev so that dev and prerelease builds register with the
- * current dialect.
- *
- * The dialect is the registration's, not SQL's; lint:dialect has nothing to
- * look for here.
+ * merge main into dev so that dev builds register with the current dialect.
  */
 import type { DialectSelfCheck, RegistrationDialect } from './registration-dialect.types';
 
