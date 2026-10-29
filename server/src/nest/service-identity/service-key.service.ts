@@ -6,8 +6,9 @@ import { conflict } from '../common/domain-error';
 import { withRequestContext } from '../database/request-context';
 import { IssuerClient, IssuerError, type IssuerAnswer } from './issuer.client';
 import { RefusalStreak } from './refusal-streak';
+import type { RegistrationDialect } from './registration-dialect.types';
 import { ServiceClock } from './service-clock';
-import { SERVICE_ISSUER_ORIGIN } from './service-identity.constants';
+import { REGISTRATION_DIALECT, SERVICE_ISSUER_ORIGIN } from './service-identity.constants';
 import { isAllowlisted, keyFingerprint, sameServiceUrl } from './service-identity.helpers';
 import { parseServiceKey, type ServiceKey } from './service-key.format';
 import { solvePow } from './service-key.pow';
@@ -17,13 +18,20 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import type { ServiceIdentityState, ServiceKeyGrant } from '@trek/shared';
 
-import { randomInt } from 'node:crypto';
+import { randomBytes, randomInt } from 'node:crypto';
 
 const DAY_SECONDS = 86_400;
 /** A key is renewed from day 60 of its 90, unless the issuer said otherwise. */
 const RENEW_AGE_SECONDS = 60 * DAY_SECONDS;
-/** An expired key can still be renewed for this long; after that it registers anew. */
-const RENEW_GRACE_SECONDS = 30 * DAY_SECONDS;
+/**
+ * An expired key can still be renewed for this long; after that it registers
+ * anew. Renewing needs no dialect, so an installation that was offline for up
+ * to a year past its key's expiry comes back without an update. The issuer
+ * allows the same period; the two move together.
+ */
+const RENEW_GRACE_SECONDS = 365 * DAY_SECONDS;
+/** How long to leave the issuer alone after it no longer takes this release's dialect, unless it says. */
+const DIALECT_REFUSED_WAIT_MS = 24 * 3_600_000;
 /** Spreads the new registrations of every installation a broken key hit, instead of all at once. */
 const REREGISTER_JITTER_MS = 6 * 3_600_000;
 const FIRST_BACKOFF_MS = 5 * 60_000;
@@ -57,6 +65,7 @@ export class ServiceKeyService {
   private registering = false;
   private nextAttemptAt = 0;
   private failures = 0;
+  private dialectRefusalLogged = false;
   private readonly refusals = new RefusalStreak();
 
   constructor(
@@ -66,6 +75,7 @@ export class ServiceKeyService {
     private readonly issuer: IssuerClient,
     private readonly clock: ServiceClock,
     private readonly orm: MikroORM,
+    @Inject(REGISTRATION_DIALECT) private readonly dialect: RegistrationDialect,
   ) {}
 
   /** Whether the Places service this instance uses is one the key goes to. */
@@ -262,6 +272,10 @@ export class ServiceKeyService {
       this.failures = 0;
       logInfo('TREK services: this installation is registered.');
     } catch (err) {
+      if (err instanceof IssuerError && err.status === 410) {
+        this.dialectRefused(err);
+        return;
+      }
       this.backOff(err);
       throw err;
     } finally {
@@ -284,10 +298,32 @@ export class ServiceKeyService {
   }
 
   private async solveChallenge(): Promise<IssuerAnswer<ServiceKeyGrant>> {
-    const challenge = await this.issuer.challenge();
+    const challenge = await this.issuer.challenge(this.dialect.challengePath);
     this.clock.learn(challenge.serverMs);
-    const nonce = await solvePow(challenge.body, this.clock.toLocalMs(challenge.body.expires_at));
-    return this.issuer.register({ c: challenge.body.c, nonce, v: runningVersion() });
+    const attempt = this.dialect.begin({
+      challenge: challenge.body,
+      version: runningVersion().slice(0, 32),
+      random: randomBytes(16),
+      nowSeconds: this.clock.nowSeconds(),
+    });
+    const nonce = await solvePow(challenge.body, attempt, this.clock.toLocalMs(challenge.body.expires_at));
+    return this.issuer.register(this.dialect.registerPath, attempt.request(nonce));
+  }
+
+  /**
+   * The issuer no longer takes new registrations in this release's dialect.
+   * Nothing is wrong with the installation, and nothing it can do about it but
+   * an update, so this is said once per process and asked again a day later;
+   * until then requests go through the shared pool as without a key.
+   */
+  private dialectRefused(err: IssuerError): void {
+    this.nextAttemptAt = Date.now() + (err.retryAfterMs ?? DIALECT_REFUSED_WAIT_MS);
+    if (this.dialectRefusalLogged) return;
+    this.dialectRefusalLogged = true;
+    logWarn(
+      'TREK services: this release can no longer register with the TREK services. Searches and routes ' +
+        'continue through the shared pool and the public services; updating TREK restores the key.',
+    );
   }
 
   /** Same installation, new expiry; the old key is the proof, so no proof of work. */

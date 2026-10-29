@@ -43,12 +43,63 @@ describe('IssuerClient', () => {
 
   it('SIISS-002: registers with the solved challenge and the version as JSON', async () => {
     safeFetch.mockResolvedValueOnce(json(GRANT, 201));
-    expect((await issuer.register({ c: 'v1.x', nonce: '17', v: '5.1.0' })).body).toEqual(GRANT);
+    const request = { body: { c: 'v1.x', nonce: '17', v: '5.1.0' }, headers: {} };
+    expect((await issuer.register('/v1/register', request)).body).toEqual(GRANT);
     const { url, init } = lastCall();
     expect(url).toBe('https://places.liketrek.com/v1/register');
     expect(init.method).toBe('POST');
     expect(init.headers['Content-Type']).toBe('application/json');
     expect(JSON.parse(String(init.body))).toEqual({ c: 'v1.x', nonce: '17', v: '5.1.0' });
+  });
+
+  it("SIISS-007: asks and registers at a dialect's own paths, with its own header", async () => {
+    const challenge = { c: 'v1.x', alg: 'scrypt', N: 16_384, r: 8, p: 1, bits: 6, expires_at: 1_793_000_600 };
+    safeFetch.mockResolvedValueOnce(json(challenge));
+    await issuer.challenge('/v1/register/AbCdEfGhIj_-/challenge');
+    expect(lastCall().url).toBe('https://places.liketrek.com/v1/register/AbCdEfGhIj_-/challenge');
+
+    safeFetch.mockResolvedValueOnce(json(GRANT, 201));
+    const request = { body: { passage: { harbor: '2a' } }, headers: { 'X-TREK-Ferry-Seal': 'q1w2e3' } };
+    await issuer.register('/v1/register/AbCdEfGhIj_-', request);
+    const { url, init } = lastCall();
+    expect(url).toBe('https://places.liketrek.com/v1/register/AbCdEfGhIj_-');
+    expect(init.headers['X-TREK-Ferry-Seal']).toBe('q1w2e3');
+    expect(init.headers['Content-Type']).toBe('application/json');
+    expect(init.headers['User-Agent']).toMatch(/^TREK\//);
+    expect(JSON.parse(String(init.body))).toEqual({ passage: { harbor: '2a' } });
+  });
+
+  it.each([
+    ['the renewal path', '/v1/register/renew'],
+    ['another host', 'https://example.org/v1/register'],
+    ['a path past the dialect', '/v1/register/AbCdEfGhIj_-/x'],
+    ['an id of the wrong length', '/v1/register/short'],
+  ])('SIISS-008: never registers at %s', async (_, path) => {
+    await expect(issuer.register(path, { body: {}, headers: {} })).rejects.toThrow(/registers elsewhere/);
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
+  it('SIISS-009: never asks for a challenge outside the registration paths', async () => {
+    await expect(issuer.challenge('/v1/quota')).rejects.toThrow(/challenge elsewhere/);
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['a header outside X-TREK-', { Authorization: 'Bearer x' }],
+    ['a header the gate answers with', { 'X-TREK-Install': 'abc' }],
+    ['a quota header', { 'X-TREK-Quota-Remaining': '1' }],
+    ['a value with a line break', { 'X-TREK-Ferry-Seal': 'a\r\nb' }],
+    ['an empty value', { 'X-TREK-Ferry-Seal': '' }],
+    ['a value past 256 characters', { 'X-TREK-Ferry-Seal': 'a'.repeat(257) }],
+  ])('SIISS-010: never sends %s', async (_, headers) => {
+    await expect(issuer.register('/v1/register', { body: {}, headers })).rejects.toThrow(/header/);
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
+  it('SIISS-011: never sends a body larger than a registration', async () => {
+    const body = { padding: 'x'.repeat(2048) };
+    await expect(issuer.register('/v1/register', { body, headers: {} })).rejects.toThrow(/larger/);
+    expect(safeFetch).not.toHaveBeenCalled();
   });
 
   it('SIISS-003: renews and reads the allowance with the key as bearer, the legacy pool without one', async () => {

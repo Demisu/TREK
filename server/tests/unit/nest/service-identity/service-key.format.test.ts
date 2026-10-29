@@ -14,7 +14,7 @@ interface Vector {
   name: string;
   token: string;
   valid: boolean;
-  payload?: { i: string; iat: number; exp: number; q: string };
+  payload?: { i: string; iat: number; exp: number; q: string; d?: string };
   payload_json?: string;
 }
 
@@ -44,7 +44,10 @@ describe('parseServiceKey against the shared vectors', () => {
       const key = parseServiceKey(vector.token);
       expect(key).not.toBeNull();
       expect(key?.kid).toBe(fixture.kid);
-      expect(key?.payload).toEqual(vector.payload);
+      // The dialect a key was registered in is the issuer's statistic; TREK has no use for it.
+      const payload: NonNullable<Vector['payload']> = vector.payload ?? { i: '', iat: 0, exp: 0, q: '' };
+      const { d: _dialect, ...read } = payload;
+      expect(key?.payload).toEqual(read);
       const body = vector.token.split('.')[2];
       expect(Buffer.from(body, 'base64url').toString('utf8')).toBe(vector.payload_json);
     },
@@ -67,6 +70,17 @@ describe('parseServiceKey against the shared vectors', () => {
   it('SIKEY-004: leaves the signature to the gate, so a tampered key still reads', () => {
     const tampered = invalid.find((v) => v.name === 'tampered_payload')?.token ?? '';
     expect(parseServiceKey(tampered)?.payload.q).toBe('own');
+  });
+
+  it('SIKEY-005: reads a key that names the dialect it was registered in like any other', () => {
+    const vector = valid.find((v) => v.name === 'std_with_dialect');
+    expect(vector?.payload?.d).toBeDefined();
+    expect(parseServiceKey(vector?.token ?? '')?.payload).toEqual({
+      i: vector?.payload?.i,
+      iat: vector?.payload?.iat,
+      exp: vector?.payload?.exp,
+      q: 'std',
+    });
   });
 });
 

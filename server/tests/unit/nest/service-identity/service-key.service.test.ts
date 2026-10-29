@@ -9,7 +9,12 @@ import { RuntimeEnvService } from '../../../../src/nest/app-config/runtime-env.s
 import { servicesConfig } from '../../../../src/nest/app-config/tokens';
 import { DomainError } from '../../../../src/nest/common/domain-error';
 import { IssuerClient, IssuerError } from '../../../../src/nest/service-identity/issuer.client';
+import type {
+  DialectInputs,
+  RegistrationDialect,
+} from '../../../../src/nest/service-identity/registration-dialect.types';
 import { ServiceClock } from '../../../../src/nest/service-identity/service-clock';
+import { REGISTRATION_DIALECT } from '../../../../src/nest/service-identity/service-identity.constants';
 import { keyFingerprint } from '../../../../src/nest/service-identity/service-identity.helpers';
 import { ServiceKeyService } from '../../../../src/nest/service-identity/service-key.service';
 import {
@@ -24,6 +29,12 @@ import { serviceKeyTokenFor } from '../../../helpers/service-keys';
 import { createTestModule, type TestModule } from '../../../helpers/test-module';
 
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
+
+const { logWarn } = vi.hoisted(() => ({ logWarn: vi.fn() }));
+vi.mock('../../../../src/nest/audit/audit-log.logger', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../../src/nest/audit/audit-log.logger')>()),
+  logWarn,
+}));
 
 const DAY = 86_400;
 const now = () => Math.floor(Date.now() / 1000);
@@ -81,6 +92,23 @@ function fakeIssuer(issued = KEY) {
   };
 }
 
+/**
+ * The original registration, pinned here rather than read from the committed
+ * dialect, which every release replaces; registration-dialect.test.ts holds
+ * whatever the committed one is to the issuer's own computation.
+ */
+const DIALECT_ZERO: RegistrationDialect = {
+  id: '0',
+  releasedFor: 'dev',
+  createdAt: '2026-10-29',
+  challengePath: '/v1/register/challenge',
+  registerPath: '/v1/register',
+  begin: ({ challenge, version }) => ({
+    work: (nonce) => ({ password: Buffer.from(`${challenge.c}.${nonce}`), salt: Buffer.from('trek-pow-v1') }),
+    request: (nonce) => ({ body: { c: challenge.c, nonce: String(nonce), v: version }, headers: {} }),
+  }),
+};
+
 const testDb = createSnapshotTestDb();
 let t: TestModule | null = null;
 
@@ -90,6 +118,7 @@ interface Setup {
   isTest?: boolean;
   store?: ReturnType<typeof fakeStore>;
   issuer?: ReturnType<typeof fakeIssuer>;
+  dialect?: RegistrationDialect;
 }
 
 async function build(setup: Setup = {}) {
@@ -107,6 +136,7 @@ async function build(setup: Setup = {}) {
       { provide: IssuerClient, useValue: issuer },
       { provide: servicesConfig.KEY, useValue: config },
       { provide: RuntimeEnvService, useValue: { env: () => ({ maps }), isTest: () => setup.isTest ?? false } },
+      { provide: REGISTRATION_DIALECT, useValue: setup.dialect ?? DIALECT_ZERO },
     ],
   });
   return { keys: t.get(ServiceKeyService), store, issuer };
@@ -117,6 +147,7 @@ const settled = (keys: ServiceKeyService) => keys.whenIdle();
 
 afterEach(async () => {
   vi.useRealTimers();
+  logWarn.mockClear();
   await t?.close();
   t = null;
 });
@@ -128,7 +159,11 @@ describe('registration', () => {
     const { keys, store, issuer } = await build();
     expect(keys.bearer()).toBeNull();
     await settled(keys);
-    expect(issuer.register).toHaveBeenCalledWith({ c: 'v1.challenge', nonce: '0', v: runningVersion() });
+    expect(issuer.challenge).toHaveBeenCalledWith('/v1/register/challenge');
+    expect(issuer.register).toHaveBeenCalledWith('/v1/register', {
+      body: { c: 'v1.challenge', nonce: '0', v: runningVersion().slice(0, 32) },
+      headers: {},
+    });
     expect(store.claim).toHaveBeenCalledTimes(1);
     expect(store.current().state.renewAfter).toBeGreaterThan(now());
     expect(keys.bearer()).toBe(KEY);
@@ -209,6 +244,92 @@ describe('registration', () => {
     again.keys.bearer();
     await settled(again.keys);
     expect(refusing.challenge).toHaveBeenCalledTimes(2);
+  });
+
+  it('SIKEYS-008: a release whose dialect the issuer no longer takes waits a day, says so once, and is not retried', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    const issuer = fakeIssuer();
+    issuer.challenge.mockRejectedValue(new IssuerError(410, null, null));
+    const { keys, store } = await build({ issuer });
+    keys.bearer();
+    await settled(keys);
+    expect(issuer.challenge).toHaveBeenCalledTimes(1);
+    keys.bearer();
+    await settled(keys);
+    expect(issuer.challenge).toHaveBeenCalledTimes(1);
+
+    vi.setSystemTime(Date.now() + 23 * 3_600_000);
+    keys.bearer();
+    await settled(keys);
+    expect(issuer.challenge).toHaveBeenCalledTimes(1);
+    vi.setSystemTime(Date.now() + 2 * 3_600_000);
+    keys.bearer();
+    await settled(keys);
+    expect(issuer.challenge).toHaveBeenCalledTimes(2);
+
+    const lines = logWarn.mock.calls.map(([line]) => String(line));
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatch(/can no longer register/);
+    expect(store.claim).not.toHaveBeenCalled();
+    expect(keys.bearer()).toBeNull();
+    expect((await keys.snapshot()).state).toBe('legacy');
+  });
+
+  it('SIKEYS-015: the wait after a refused dialect follows the issuer when it names one', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    const issuer = fakeIssuer();
+    issuer.register.mockRejectedValueOnce(new IssuerError(410, 3_600_000, null));
+    const { keys } = await build({ issuer });
+    keys.bearer();
+    await settled(keys);
+    expect(issuer.challenge).toHaveBeenCalledTimes(1);
+    vi.setSystemTime(Date.now() + 3_601_000);
+    keys.bearer();
+    await settled(keys);
+    expect(issuer.challenge).toHaveBeenCalledTimes(2);
+    expect(keys.bearer()).toBe(KEY);
+  });
+
+  it('SIKEYS-009: the dialect decides where to ask, what to send and over what the work runs', async () => {
+    const seen: DialectInputs[] = [];
+    const worked: number[] = [];
+    const dialect: RegistrationDialect = {
+      id: 'AbCdEfGhIjKl',
+      releasedFor: '9.9.9',
+      createdAt: '2026-11-01',
+      challengePath: '/v1/register/AbCdEfGhIjKl/challenge',
+      registerPath: '/v1/register/AbCdEfGhIjKl',
+      begin(inputs) {
+        seen.push(inputs);
+        return {
+          work(nonce) {
+            worked.push(nonce);
+            return { password: Buffer.from(`work-${nonce}`), salt: Buffer.from('salt') };
+          },
+          request: (nonce) => ({ body: { harbor: nonce.toString(16) }, headers: { 'X-TREK-Ferry-Seal': 'abc' } }),
+        };
+      },
+    };
+    // The issuer's clock runs five days ahead of this server's; the dialect gets the issuer's time.
+    const issuer = fakeIssuer();
+    issuer.challenge.mockResolvedValueOnce({
+      body: { c: 'v1.challenge', alg: 'scrypt', N: 2, r: 1, p: 1, bits: 0, expires_at: now() + 5 * DAY + 600 },
+      serverMs: Date.now() + 5 * DAY * 1000,
+    });
+    const { keys } = await build({ dialect, issuer });
+    keys.bearer();
+    await settled(keys);
+    expect(issuer.challenge).toHaveBeenCalledWith('/v1/register/AbCdEfGhIjKl/challenge');
+    expect(issuer.register).toHaveBeenCalledWith('/v1/register/AbCdEfGhIjKl', {
+      body: { harbor: '0' },
+      headers: { 'X-TREK-Ferry-Seal': 'abc' },
+    });
+    expect(worked).toEqual([0]);
+    expect(seen).toHaveLength(1);
+    expect(seen[0].challenge.c).toBe('v1.challenge');
+    expect(seen[0].version).toBe(runningVersion().slice(0, 32));
+    expect(seen[0].random).toHaveLength(16);
+    expect(Math.abs(seen[0].nowSeconds - (now() + 5 * DAY))).toBeLessThanOrEqual(2);
   });
 });
 
@@ -413,13 +534,13 @@ describe('renewal', () => {
     expect(third.store.current().key?.token).toBe(oldKey);
   });
 
-  it('SIKEYS-034: a key past its 30 days of grace registers anew instead', async () => {
-    const lapsed = serviceKeyTokenFor({ i: 'installation-a', iat: now() - 130 * DAY, exp: now() - 40 * DAY });
+  it('SIKEYS-034: a key past its year of grace registers anew instead', async () => {
+    const lapsed = serviceKeyTokenFor({ i: 'installation-a', iat: now() - 456 * DAY, exp: now() - 366 * DAY });
     const store = fakeStore({
       key: {
         token: lapsed,
         kid: 'test',
-        payload: { i: 'installation-a', iat: now() - 130 * DAY, exp: now() - 40 * DAY, q: 'std' },
+        payload: { i: 'installation-a', iat: now() - 456 * DAY, exp: now() - 366 * DAY, q: 'std' },
       },
     });
     const { keys, issuer } = await build({ store });
@@ -447,22 +568,23 @@ describe('renewal', () => {
     expect(keys.bearer()).toBe(RENEWED_KEY);
   });
 
-  it('SIKEYS-037: an expired key within its grace stays home, and the next request renews it', async () => {
-    const expired = serviceKeyTokenFor({ i: 'installation-a', iat: now() - 95 * DAY, exp: now() - 5 * DAY });
-    const store = fakeStore({
-      key: {
-        token: expired,
-        kid: 'test',
-        payload: { i: 'installation-a', iat: now() - 95 * DAY, exp: now() - 5 * DAY, q: 'std' },
-      },
-    });
-    const { keys, issuer } = await build({ store });
-    expect(keys.bearer()).toBeNull();
-    await settled(keys);
-    expect(issuer.renew).toHaveBeenCalledWith(expired);
-    expect(issuer.register).not.toHaveBeenCalled();
-    expect(keys.bearer()).toBe(RENEWED_KEY);
-  });
+  it.each([5, 300])(
+    'SIKEYS-037: a key that expired %i days ago is within its grace, stays home, and the next request renews it',
+    async (daysAgo) => {
+      const iat = now() - (90 + daysAgo) * DAY;
+      const exp = now() - daysAgo * DAY;
+      const expired = serviceKeyTokenFor({ i: 'installation-a', iat, exp });
+      const store = fakeStore({
+        key: { token: expired, kid: 'test', payload: { i: 'installation-a', iat, exp, q: 'std' } },
+      });
+      const { keys, issuer } = await build({ store });
+      expect(keys.bearer()).toBeNull();
+      await settled(keys);
+      expect(issuer.renew).toHaveBeenCalledWith(expired);
+      expect(issuer.register).not.toHaveBeenCalled();
+      expect(keys.bearer()).toBe(RENEWED_KEY);
+    },
+  );
 
   it('SIKEYS-038: after a failed renewal the requests wait for the backoff instead of asking again', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });

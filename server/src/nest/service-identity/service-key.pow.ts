@@ -1,19 +1,19 @@
+import type { DialectAttempt, ProofInput } from './registration-dialect.types';
 import type { ServiceChallenge } from '@trek/shared';
 
 import { scrypt } from 'node:crypto';
 
-const SALT = 'trek-pow-v1';
 const HASH_BYTES = 32;
 
 type ScryptCost = Pick<ServiceChallenge, 'N' | 'r' | 'p'>;
 
-/** scrypt(c + "." + nonce, "trek-pow-v1"), off the event loop. */
-export function powHash(challenge: string, nonce: string, cost: ScryptCost): Promise<Buffer> {
+/** scrypt over what the dialect made of one nonce, off the event loop. */
+export function powHash(input: ProofInput, cost: ScryptCost): Promise<Buffer> {
   const { N, r, p } = cost;
   // Twice what scrypt needs, so Node's 32 MB default never refuses a valid challenge.
   const maxmem = 2 * 128 * N * r + 128 * r * p;
   return new Promise((resolve, reject) => {
-    scrypt(`${challenge}.${nonce}`, SALT, HASH_BYTES, { N, r, p, maxmem }, (err, hash) =>
+    scrypt(input.password, input.salt, HASH_BYTES, { N, r, p, maxmem }, (err, hash) =>
       err ? reject(err) : resolve(hash),
     );
   });
@@ -28,14 +28,19 @@ export function leadingZeroBits(hash: Uint8Array): number {
   return bits;
 }
 
-/** The first decimal nonce whose hash has at least `bits` leading zero bits, tried until `deadlineMs`. */
-export function solvePow(challenge: ServiceChallenge, deadlineMs: number): Promise<string> {
-  return firstNonceFrom(0, challenge, deadlineMs);
+/** The first nonce whose hash has at least `bits` leading zero bits, tried until `deadlineMs`. */
+export function solvePow(challenge: ServiceChallenge, attempt: DialectAttempt, deadlineMs: number): Promise<number> {
+  return firstNonceFrom(0, challenge, attempt, deadlineMs);
 }
 
-async function firstNonceFrom(nonce: number, challenge: ServiceChallenge, deadlineMs: number): Promise<string> {
+async function firstNonceFrom(
+  nonce: number,
+  challenge: ServiceChallenge,
+  attempt: DialectAttempt,
+  deadlineMs: number,
+): Promise<number> {
   if (Date.now() >= deadlineMs) throw new Error('the registration challenge expired before it was solved');
-  const hash = await powHash(challenge.c, String(nonce), challenge);
-  if (leadingZeroBits(hash) >= challenge.bits) return String(nonce);
-  return firstNonceFrom(nonce + 1, challenge, deadlineMs);
+  const hash = await powHash(attempt.work(nonce), challenge);
+  if (leadingZeroBits(hash) >= challenge.bits) return nonce;
+  return firstNonceFrom(nonce + 1, challenge, attempt, deadlineMs);
 }

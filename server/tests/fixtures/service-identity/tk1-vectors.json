@@ -29,6 +29,19 @@
       "valid": true
     },
     {
+      "name": "std_with_dialect",
+      "payload": {
+        "i": "ICEiIyQlJicoKSorLC0uLw",
+        "iat": 1793000000,
+        "exp": 1800776000,
+        "q": "std",
+        "d": "KitchenSink0"
+      },
+      "payload_json": "{\"i\":\"ICEiIyQlJicoKSorLC0uLw\",\"iat\":1793000000,\"exp\":1800776000,\"q\":\"std\",\"d\":\"KitchenSink0\"}",
+      "token": "tk1.test1.eyJpIjoiSUNFaUl5UWxKaWNvS1NvckxDMHVMdyIsImlhdCI6MTc5MzAwMDAwMCwiZXhwIjoxODAwNzc2MDAwLCJxIjoic3RkIiwiZCI6IktpdGNoZW5TaW5rMCJ9.B_Xw8kLVvXOwhzotyxvsBFR0aNpXmUWXXT_4LjjdCXyiAEFIxy_wGkgWqCClFdCwhNJnDe_SeaDjS4DLf6upAQ",
+      "valid": true
+    },
+    {
       "name": "tampered_signature",
       "token": "tk1.test1.eyJpIjoiQUFFQ0F3UUZCZ2NJQ1FvTERBME9EdyIsImlhdCI6MTc5MzAwMDAwMCwiZXhwIjoxODAwNzc2MDAwLCJxIjoic3RkIn0.UiQGzHwmtYj4s93PR6l5kqAsbEAZwURmhVlhljanHRTBB-FAE_20rbLWLsAlRQNn5faeigKXpFX_ZV5Ulr53BQ",
       "valid": false

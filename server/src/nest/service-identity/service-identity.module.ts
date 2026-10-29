@@ -4,7 +4,9 @@ import { SchedulingModule } from '../scheduling/scheduling.module';
 import { SettingsModule } from '../settings/settings.module';
 import { IssuerClient } from './issuer.client';
 import { QuotaTracker } from './quota-tracker';
+import { registrationDialect } from './registration-dialect';
 import { ServiceClock } from './service-clock';
+import { REGISTRATION_DIALECT } from './service-identity.constants';
 import { ServiceIdentityController } from './service-identity.controller';
 import { ServiceIdentityPort, serviceIdentitySlot } from './service-identity.interface';
 import { ServiceIdentityService } from './service-identity.service';
@@ -33,6 +35,7 @@ import { Module, type OnModuleDestroy } from '@nestjs/common';
     ServiceKeyService,
     ServiceKeyStore,
     { provide: ServiceIdentityPort, useClass: ServiceRequestIdentity },
+    { provide: REGISTRATION_DIALECT, useValue: registrationDialect },
   ],
   exports: [ServiceIdentityPort],
 })
