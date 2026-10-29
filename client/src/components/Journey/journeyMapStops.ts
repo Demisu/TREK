@@ -19,7 +19,7 @@ export interface JourneyStopEntry {
   location_lng?: number | null;
 }
 
-export interface JourneyMapStop<E> {
+interface JourneyMapStop<E> {
   entry: E;
   /** The stop's place in the whole journey, or null for a draft the share link does not show. */
   stop: number | null;

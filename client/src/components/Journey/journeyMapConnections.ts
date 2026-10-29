@@ -5,7 +5,7 @@ import { isPlannedTrack, type JourneyMapLayerVisibility } from './journeyMapLaye
 type LatLng = [number, number];
 
 /** An entry pin as the connection sees it: where it stands and on which day. */
-export interface ConnectionStop {
+interface ConnectionStop {
   lat: number;
   lng: number;
   /** `YYYY-MM-DD`; a longer ISO string is read by its date. */
@@ -22,7 +22,7 @@ export interface ConnectionStop {
  * one across it only gets in its way (#2888). It is still handed back, so a
  * reader who hides what was recorded gets the guess back for those stretches.
  */
-export interface EntryConnections {
+interface EntryConnections {
   open: LatLng[][];
   covered: LatLng[][];
 }
