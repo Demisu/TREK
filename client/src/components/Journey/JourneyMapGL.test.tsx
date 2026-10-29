@@ -1,4 +1,4 @@
-// FE-COMP-JMAPGL-001 to FE-COMP-JMAPGL-040, FE-COMP-JMAPGL-2453
+// FE-COMP-JMAPGL-001 to FE-COMP-JMAPGL-042, FE-COMP-JMAPGL-2453
 
 type Spy = ReturnType<typeof vi.fn>
 
@@ -255,23 +255,12 @@ describe('JourneyMapGL', () => {
     render(<JourneyMapGL checkins={[]} entries={entries} />)
 
     expect(gl.map.addSource).toHaveBeenCalledWith('journey-route', expect.objectContaining({ type: 'geojson' }))
-    const source = vi.mocked(gl.map.addSource).mock.calls[0][1] as { data: { geometry: { coordinates: number[][] } } }
-    expect(source.data.geometry.coordinates).toEqual([[2.3522, 48.8566], [13.405, 52.52]])
+    const source = vi.mocked(gl.map.addSource).mock.calls[0][1] as { data: { geometry: { coordinates: number[][][] } } }
+    expect(source.data.geometry.coordinates).toEqual([[[2.3522, 48.8566], [13.405, 52.52]]])
     expect(gl.map.addLayer).toHaveBeenCalledWith(expect.objectContaining({
       id: 'journey-route-line',
       source: 'journey-route',
     }))
-  })
-
-  it('FE-COMP-JMAPGL-008: an existing route source is updated instead of re-added', () => {
-    withToken()
-    const setData = vi.fn()
-    gl.map.getSource.mockReturnValue({ setData })
-
-    render(<JourneyMapGL checkins={[]} entries={entries} />)
-
-    expect(gl.map.addSource).not.toHaveBeenCalled()
-    expect(setData).toHaveBeenCalledWith(expect.objectContaining({ type: 'Feature' }))
   })
 
   it('FE-COMP-JMAPGL-038: a planned GPX track goes on the dashed layer, a recorded route on the solid one (JRN-01)', () => {
@@ -763,5 +752,46 @@ describe('JourneyMapGL', () => {
     expect(gl.map.setLayoutProperty).not.toHaveBeenCalledWith('journey-tracks-planned', 'visibility', expect.anything())
     expect(gl.markers[0].element.innerHTML).toContain('#16a34a')
     expect(mapboxgl.Map).toHaveBeenCalledTimes(1)
+  })
+
+  it('FE-COMP-JMAPGL-041: a recorded day takes the line between its entries off the map, the rest stays (#2888)', () => {
+    withToken()
+    const days = [
+      { id: 'a', lat: 48.1, lng: 11.5, entry_date: '2026-10-29' },
+      { id: 'b', lat: 48.2, lng: 11.6, entry_date: '2026-10-29' },
+      { id: 'c', lat: 48.3, lng: 11.7, entry_date: '2026-10-30' },
+      { id: 'd', lat: 48.4, lng: 11.8, entry_date: '2026-10-30' },
+    ]
+    render(
+      <JourneyMapGL
+        checkins={[]}
+        entries={days}
+        tracks={[{ place_id: -1, trip_id: 0, name: '2026-10-29', color: '#7c3aed', points: [[48.1, 11.5], [48.2, 11.6]], kind: 'dawarich_live', date: '2026-10-29' }]}
+      />,
+    )
+
+    const data = (id: string) => (vi.mocked(gl.map.addSource).mock.calls.find(c => c[0] === id)?.[1] as { data: { geometry: { coordinates: number[][][] } } }).data.geometry.coordinates
+    expect(data('journey-route')).toEqual([[[11.6, 48.2], [11.7, 48.3], [11.8, 48.4]]])
+    expect(data('journey-route-covered')).toEqual([[[11.5, 48.1], [11.6, 48.2]]])
+    const covered = vi.mocked(gl.map.addLayer).mock.calls.map(c => c[0] as { id: string; layout: Record<string, unknown> }).find(l => l.id === 'journey-route-covered-line')
+    expect(covered?.layout.visibility).toBe('none')
+  })
+
+  it('FE-COMP-JMAPGL-042: hiding what was recorded brings the covered stretches back while the entries show', () => {
+    withToken()
+    const shown = { plan: true, recorded: true, entries: true }
+    const days = [
+      { id: 'a', lat: 48.1, lng: 11.5, entry_date: '2026-10-29' },
+      { id: 'b', lat: 48.2, lng: 11.6, entry_date: '2026-10-29' },
+    ]
+    const tracks = [{ place_id: -1, trip_id: 0, name: 'Day', color: null, points: [[48.1, 11.5], [48.2, 11.6]] as [number, number][], kind: 'day_recording' as const, date: '2026-10-29' }]
+    const { rerender } = render(<JourneyMapGL checkins={[]} entries={days} tracks={tracks} layerVisibility={shown} />)
+    expect(gl.map.addSource).not.toHaveBeenCalledWith('journey-route', expect.anything())
+
+    rerender(<JourneyMapGL checkins={[]} entries={days} tracks={tracks} layerVisibility={{ ...shown, recorded: false }} />)
+    expect(gl.map.setLayoutProperty).toHaveBeenCalledWith('journey-route-covered-line', 'visibility', 'visible')
+
+    rerender(<JourneyMapGL checkins={[]} entries={days} tracks={tracks} layerVisibility={{ ...shown, recorded: false, entries: false }} />)
+    expect(gl.map.setLayoutProperty).toHaveBeenLastCalledWith('journey-route-covered-line', 'visibility', 'none')
   })
 })

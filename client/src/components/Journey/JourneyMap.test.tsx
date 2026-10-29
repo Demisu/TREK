@@ -1,4 +1,4 @@
-// FE-COMP-JOURNEYMAP-001 to FE-COMP-JOURNEYMAP-055
+// FE-COMP-JOURNEYMAP-001 to FE-COMP-JOURNEYMAP-057
 
 vi.mock('../../api/websocket', () => ({
   connect: vi.fn(),
@@ -50,7 +50,7 @@ vi.mock('leaflet', () => {
       map: vi.fn(() => mockMap),
       tileLayer: vi.fn(() => ({ addTo: vi.fn(), setUrl: vi.fn() })),
       marker: vi.fn(() => mockMarker),
-      polyline: vi.fn(() => { const line: any = { addTo: vi.fn(() => line), bindTooltip: vi.fn(() => line) }; return line }),
+      polyline: vi.fn(() => { const line: any = { addTo: vi.fn(() => line), bindTooltip: vi.fn(() => line), remove: vi.fn() }; return line }),
       divIcon: vi.fn(() => ({})),
       latLngBounds: vi.fn(() => ({})),
       layerGroup: vi.fn(() => ({ addLayer: vi.fn(), addTo: vi.fn(), remove: vi.fn() })),
@@ -61,7 +61,7 @@ vi.mock('leaflet', () => {
     map: vi.fn(() => mockMap),
     tileLayer: vi.fn(() => ({ addTo: vi.fn(), setUrl: vi.fn() })),
     marker: vi.fn(() => mockMarker),
-    polyline: vi.fn(() => { const line: any = { addTo: vi.fn(() => line), bindTooltip: vi.fn(() => line) }; return line }),
+    polyline: vi.fn(() => { const line: any = { addTo: vi.fn(() => line), bindTooltip: vi.fn(() => line), remove: vi.fn() }; return line }),
     divIcon: vi.fn(() => ({})),
     latLngBounds: vi.fn(() => ({})),
     control: { attribution: vi.fn(() => ({ addTo: vi.fn() })) },
@@ -929,6 +929,49 @@ describe('JourneyMap', () => {
       map.project.mockImplementation(() => ({ x: 0, y: 0 }));
       map.latLngToContainerPoint.mockImplementation(() => ({ x: 0, y: 0 }));
     }
+  });
+
+  describe('the line between the entries on recorded days (#2888)', () => {
+    const days = [
+      { id: 'a', lat: 48.1, lng: 11.5, title: 'A', mood: null, entry_date: '2026-10-29' },
+      { id: 'b', lat: 48.2, lng: 11.6, title: 'B', mood: null, entry_date: '2026-10-29' },
+      { id: 'c', lat: 48.3, lng: 11.7, title: 'C', mood: null, entry_date: '2026-10-30' },
+    ];
+    const tracks = [
+      { place_id: -1, trip_id: 0, name: '2026-10-29', color: '#7c3aed', points: [[48.1, 11.5], [48.2, 11.6]] as [number, number][], kind: 'dawarich_live' as const, date: '2026-10-29' },
+    ];
+    const connectionLines = () => {
+      const polyline = vi.mocked(L.polyline).mock;
+      return polyline.calls
+        .map((call, i) => ({ coords: call[0], dashed: (call[1] as { dashArray?: string } | undefined)?.dashArray === '4 6', line: polyline.results[i].value as { addTo: Mock; remove: Mock } }))
+        .filter(call => call.dashed);
+    };
+
+    it('FE-COMP-JOURNEYMAP-056: leaves the recorded day to its track and keeps the jump to the next day', () => {
+      render(<JourneyMap checkins={[]} entries={days} tracks={tracks} />);
+
+      const lines = connectionLines();
+      expect(lines.map(l => l.coords)).toEqual([
+        [[48.2, 11.6], [48.3, 11.7]],
+        [[48.1, 11.5], [48.2, 11.6]],
+      ]);
+      expect(lines[0].line.addTo).toHaveBeenCalled();
+      expect(lines[1].line.addTo).not.toHaveBeenCalled();
+    });
+
+    it('FE-COMP-JOURNEYMAP-057: hiding what was recorded puts the covered stretch back, hiding the entries takes it off again', () => {
+      mockedMarkerWithRemove();
+      const shown = { plan: true, recorded: true, entries: true };
+      const { rerender } = render(<JourneyMap checkins={[]} entries={days} tracks={tracks} layerVisibility={shown} />);
+      const covered = connectionLines()[1].line;
+
+      rerender(<JourneyMap checkins={[]} entries={days} tracks={tracks} layerVisibility={{ ...shown, recorded: false }} />);
+      expect(covered.addTo).toHaveBeenCalledTimes(1);
+
+      rerender(<JourneyMap checkins={[]} entries={days} tracks={tracks} layerVisibility={{ ...shown, recorded: false, entries: false }} />);
+      expect(covered.remove).toHaveBeenCalledTimes(1);
+      expect(L.map).toHaveBeenCalledTimes(1);
+    });
   });
 });
 

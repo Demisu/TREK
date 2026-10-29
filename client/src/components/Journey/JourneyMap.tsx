@@ -11,7 +11,8 @@ import { escapeHtml, type JourneyTrack } from '@trek/shared'
 import { ensureJourneyPopupStyle, formatMarkerDate, journeyPopupHtml } from './journeyMapPopup'
 import { PLANNED_BADGE_SVG, type JourneyMapMark } from './journeyMapMarks'
 import { isPlannedTrack, type JourneyMapLayerVisibility } from './journeyMapLayers'
-import { NOTHING_DRAWN, drawLeafletMarks, leafletWorldPx, switchLeafletLayers, type DrawnLayers, type LeafletLayerKind } from './journeyLeafletLayers'
+import { NOTHING_DRAWN, drawLeafletMarks, isLeafletLayerShown, leafletWorldPx, switchLeafletLayers, type DrawnLayers, type LeafletLayerKind } from './journeyLeafletLayers'
+import { entryConnections } from './journeyMapConnections'
 
 export interface MapMarkerItem {
   id: string
@@ -347,7 +348,7 @@ function JourneyMap(
     iconPlannedRef.current = plannedRef.current
     const place = <T extends L.Layer>(kind: LeafletLayerKind, layer: T): T => {
       drawn[kind].push(layer)
-      if (visibilityRef.current[kind]) layer.addTo(map)
+      if (isLeafletLayerShown(kind, visibilityRef.current)) layer.addTo(map)
       return layer
     }
 
@@ -403,17 +404,18 @@ function JourneyMap(
       coords.forEach(c => trackCoords.push(c))
     }
 
-    // route trail: dashed line connecting entries in time order, same as JourneyMapGL
-    if (items.length > 1) {
-      const routeCoords = items.map(i => [i.lat, i.lng] as L.LatLngTuple)
-      place('entries', L.polyline(routeCoords, {
-        color: dark ? '#71717A' : '#A1A1AA',
-        weight: 1.5,
-        opacity: 0.5,
-        dashArray: '4 6',
-        lineCap: 'round', lineJoin: 'round',
-      }))
+    // The faint line between the entries in their order, same as JourneyMapGL, left
+    // off the stretches a recorded day already draws as travelled (#2888).
+    const connections = entryConnections(items.map(i => ({ lat: i.lat, lng: i.lng, date: i.time })), stableTracks)
+    const connectionStyle: L.PolylineOptions = {
+      color: dark ? '#71717A' : '#A1A1AA',
+      weight: 1.5,
+      opacity: 0.5,
+      dashArray: '4 6',
+      lineCap: 'round', lineJoin: 'round',
     }
+    for (const line of connections.open) place('entries', L.polyline(line, connectionStyle))
+    for (const line of connections.covered) place('coveredConnections', L.polyline(line, connectionStyle))
 
     // place markers
     items.forEach((item, i) => {

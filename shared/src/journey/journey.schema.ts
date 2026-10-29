@@ -392,6 +392,11 @@ export const journeyTrackSchema = z.object({
    * which is all GET `:id/tracks` has ever answered.
    */
   kind: z.enum(['trip_gpx', 'day_recording', 'dawarich_live']).optional(),
+  /**
+   * The day a recorded line belongs to, so the map can tell which stretches
+   * between entries it already shows as travelled. A trip's GPX has none.
+   */
+  date: journeyRecordingDateSchema.optional(),
 });
 export type JourneyTrack = z.infer<typeof journeyTrackSchema>;
 

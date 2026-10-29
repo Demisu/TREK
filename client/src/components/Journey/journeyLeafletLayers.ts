@@ -1,12 +1,21 @@
 import L from 'leaflet';
+import { coveredConnectionsShown } from './journeyMapConnections';
 import type { JourneyMapLayerVisibility } from './journeyMapLayers';
 import { MARK_CLUSTER_PX, clusterPoints, markHitSvg, type JourneyMapMark, type WorldPx } from './journeyMapMarks';
 
-/** The layers of the Leaflet journey map a switch takes off and puts back (JRN-04). */
-export type LeafletLayerKind = keyof JourneyMapLayerVisibility;
+/**
+ * The layers of the Leaflet journey map a switch takes off and puts back (JRN-04),
+ * plus the stretches between entries a recording already shows, which follow two.
+ */
+export type LeafletLayerKind = keyof JourneyMapLayerVisibility | 'coveredConnections';
 export type DrawnLayers = Record<LeafletLayerKind, L.Layer[]>;
 
-export const NOTHING_DRAWN = (): DrawnLayers => ({ plan: [], recorded: [], entries: [] });
+export const NOTHING_DRAWN = (): DrawnLayers => ({ plan: [], recorded: [], entries: [], coveredConnections: [] });
+
+/** Whether a layer of this kind is on the map with these switches. */
+export function isLeafletLayerShown(kind: LeafletLayerKind, visibility: JourneyMapLayerVisibility): boolean {
+  return kind === 'coveredConnections' ? coveredConnectionsShown(visibility) : visibility[kind];
+}
 
 /**
  * Puts each layer whose switch changed back on the map or takes it off,
@@ -20,9 +29,10 @@ export function switchLeafletLayers(
 ): JourneyMapLayerVisibility {
   if (!map) return shown;
   for (const kind of Object.keys(drawn) as LeafletLayerKind[]) {
-    if (shown[kind] === next[kind]) continue;
+    const visible = isLeafletLayerShown(kind, next);
+    if (isLeafletLayerShown(kind, shown) === visible) continue;
     for (const layer of drawn[kind]) {
-      if (next[kind]) layer.addTo(map);
+      if (visible) layer.addTo(map);
       else layer.remove();
     }
   }

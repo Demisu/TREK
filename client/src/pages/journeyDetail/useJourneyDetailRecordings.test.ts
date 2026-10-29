@@ -25,8 +25,8 @@ const line = (over: Partial<JourneyTrack>): JourneyTrack => ({
 
 const GPX = [line({})];
 const LIVE = [
-  line({ place_id: -1, trip_id: 0, name: '2026-05-14', kind: 'dawarich_live' }),
-  line({ place_id: -2, trip_id: 0, name: '2026-05-15', kind: 'dawarich_live' }),
+  line({ place_id: -1, trip_id: 0, name: 'Live', kind: 'dawarich_live', date: '2026-05-14' }),
+  line({ place_id: -2, trip_id: 0, name: 'Live', kind: 'dawarich_live', date: '2026-05-15' }),
 ];
 const ITEMS = [{ entry_date: '2026-05-14', dayColor: '#ff0055' }];
 
@@ -58,7 +58,7 @@ describe('useJourneyDetailRecordings', () => {
     const kinds = result.current.mapTracks.map((track) => track.kind ?? 'trip_gpx');
     expect(kinds).toEqual(['trip_gpx', 'day_recording', 'dawarich_live']);
     expect(result.current.mapTracks[1]?.color).toBe('#ff0055');
-    expect(result.current.mapTracks[2]?.name).toBe('2026-05-15');
+    expect(result.current.mapTracks[2]?.date).toBe('2026-05-15');
   });
 
   it('FE-JRN-DETAIL-RECORDINGS-002: with nothing kept and no live trail the GPX tracks pass through as they are', async () => {

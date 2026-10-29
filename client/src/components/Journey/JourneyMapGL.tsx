@@ -9,6 +9,7 @@ import { SHOT_INDEX_ATTR, ensureJourneyPopupStyle, formatMarkerDate, journeyPopu
 import { clusterPhotos, photoMarkerHtml, type MapPhoto } from './journeyPhotoLayer'
 import { MARK_CLUSTER_PX, PLANNED_BADGE_SVG, clusterPoints, glWorldPx, markHitSvg, type JourneyMapMark } from './journeyMapMarks'
 import { isPlannedTrack, type JourneyMapLayerVisibility } from './journeyMapLayers'
+import { coveredConnectionsShown, entryConnections } from './journeyMapConnections'
 
 export interface JourneyMapGLHandle {
   highlightMarker: (id: string | null) => void
@@ -114,6 +115,33 @@ const LAYER_IDS: Record<keyof JourneyMapLayerVisibility, string[]> = {
 }
 const EVERY_LAYER: JourneyMapLayerVisibility = { plan: true, recorded: true, entries: true }
 const NO_PLANNED: ReadonlySet<string> = new Set()
+/** The stretches between entries a recorded day already draws; shown only while that recording is hidden. */
+const COVERED_CONNECTION_LAYER = 'journey-route-covered-line'
+
+/** One of the faint lines between the entries, as a dashed layer over its own source. */
+function addConnectionLayer(map: mapboxgl.Map, id: string, lines: [number, number][][], dark: boolean, visible: boolean) {
+  if (lines.length === 0) return
+  map.addSource(id, {
+    type: 'geojson',
+    data: {
+      type: 'Feature',
+      properties: {},
+      geometry: { type: 'MultiLineString', coordinates: lines.map(line => line.map(([lat, lng]) => [lng, lat])) },
+    },
+  })
+  map.addLayer({
+    id: `${id}-line`,
+    type: 'line',
+    source: id,
+    paint: {
+      'line-color': dark ? '#71717A' : '#A1A1AA',
+      'line-width': 1.5,
+      'line-opacity': 0.5,
+      'line-dasharray': [2, 3],
+    },
+    layout: { 'line-cap': 'round', 'line-join': 'round', visibility: visible ? 'visible' : 'none' },
+  })
+}
 
 function markerHtml(dayColor: string, dayLabel: number, highlighted: boolean, planned = false): HTMLDivElement {
   const fill = dayColor
@@ -397,31 +425,12 @@ function JourneyMapGL(
         try { map.setConfigProperty('basemap', 'language', basemapLanguage(mapLangRef.current)) } catch { /* style/SDK may not support it */ }
       }
 
-      // route trail — dashed line connecting entries in time order
-      if (items.length > 1) {
-        const coords = items.map(i => [i.lng, i.lat])
-        if (map.getSource('journey-route')) (map.getSource('journey-route') as mapboxgl.GeoJSONSource).setData({
-          type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coords } as GeoJSON.LineString,
-        })
-        else {
-          map.addSource('journey-route', {
-            type: 'geojson',
-            data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coords } as GeoJSON.LineString },
-          })
-          map.addLayer({
-            id: 'journey-route-line',
-            type: 'line',
-            source: 'journey-route',
-            paint: {
-              'line-color': darkRef.current ? '#71717A' : '#A1A1AA',
-              'line-width': 1.5,
-              'line-opacity': 0.5,
-              'line-dasharray': [2, 3],
-            },
-            layout: layout('entries', { 'line-cap': 'round', 'line-join': 'round' }),
-          })
-        }
-      }
+      // The faint line between the entries in their order, left off the stretches
+      // a recorded day already draws as travelled (#2888). Those go on a layer of
+      // their own that stands in while the reader hides the recording.
+      const connections = entryConnections(items.map(i => ({ lat: i.lat, lng: i.lng, date: i.time })), stableTracks)
+      addConnectionLayer(map, 'journey-route', connections.open, !!darkRef.current, visibilityRef.current.entries)
+      addConnectionLayer(map, 'journey-route-covered', connections.covered, !!darkRef.current, coveredConnectionsShown(visibilityRef.current))
 
       // Tracks, one source for all of them, coloured per feature so a journey
       // with several routes keeps them apart. Casing underneath, same as the
@@ -575,6 +584,10 @@ function JourneyMapGL(
       if (kind === 'entries') {
         markersRef.current.forEach(m => { m.getElement().style.display = layerVisibility.entries ? '' : 'none' })
       }
+    }
+    const coveredShown = coveredConnectionsShown(layerVisibility)
+    if (coveredConnectionsShown(shownRef.current) !== coveredShown) {
+      try { map.setLayoutProperty(COVERED_CONNECTION_LAYER, 'visibility', coveredShown ? 'visible' : 'none') } catch { /* not drawn on this map */ }
     }
     shownRef.current = layerVisibility
   }, [layerVisibility])

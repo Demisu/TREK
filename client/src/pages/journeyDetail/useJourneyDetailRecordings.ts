@@ -42,7 +42,7 @@ export function useJourneyDetailRecordings({
 
   const mapTracks = useMemo(() => {
     if (recordings.tracks.length === 0 && liveTracks.length === 0) return tripTracks;
-    const live = liveTracks.filter((track) => !recordings.byDate.has(track.name));
+    const live = liveTracks.filter((track) => !track.date || !recordings.byDate.has(track.date));
     return [...tripTracks, ...recordings.tracks, ...live];
   }, [tripTracks, recordings.tracks, recordings.byDate, liveTracks]);
 
