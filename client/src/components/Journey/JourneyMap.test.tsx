@@ -1,4 +1,4 @@
-// FE-COMP-JOURNEYMAP-001 to FE-COMP-JOURNEYMAP-058
+// FE-COMP-JOURNEYMAP-001 to FE-COMP-JOURNEYMAP-061
 
 vi.mock('../../api/websocket', () => ({
   connect: vi.fn(),
@@ -12,9 +12,18 @@ vi.mock('../../api/websocket', () => ({
 
 // Leaflet does not work in jsdom — mock the entire library
 vi.mock('leaflet', () => {
+  // The card a pin binds; `once('add')` is where its element gets its tap.
+  const mockTooltip = { once: vi.fn().mockReturnThis() };
+  const domEvent = {
+    on: vi.fn((el: HTMLElement, types: string, fn: (e: Event) => void) => {
+      types.split(' ').forEach(type => el.addEventListener(type, fn));
+    }),
+    stopPropagation: vi.fn((e: Event) => e.stopPropagation()),
+  };
   const mockMarker = {
     addTo: vi.fn().mockReturnThis(),
     bindTooltip: vi.fn().mockReturnThis(),
+    getTooltip: vi.fn(() => mockTooltip),
     on: vi.fn().mockReturnThis(),
     setIcon: vi.fn(),
     setZIndexOffset: vi.fn(),
@@ -57,6 +66,7 @@ vi.mock('leaflet', () => {
       // The map builds its own attribution control so it can collapse to the credit
       // alone (see the GL twin: the phone lays a carousel over the bottom edge).
       control: { attribution: vi.fn(() => ({ addTo: vi.fn() })) },
+      DomEvent: domEvent,
     },
     map: vi.fn(() => mockMap),
     tileLayer: vi.fn(() => ({ addTo: vi.fn(), setUrl: vi.fn() })),
@@ -65,6 +75,7 @@ vi.mock('leaflet', () => {
     divIcon: vi.fn(() => ({})),
     latLngBounds: vi.fn(() => ({})),
     control: { attribution: vi.fn(() => ({ addTo: vi.fn() })) },
+    DomEvent: domEvent,
   };
 });
 
@@ -180,6 +191,63 @@ describe('JourneyMap', () => {
       expect.stringContaining('Paris'),
       expect.objectContaining({ direction: 'top' }),
     );
+  });
+
+  describe('the marker card as a way into the entry (#2885)', () => {
+    /** Builds each card's element the way Leaflet does on its first open, inside the map. */
+    function openCards() {
+      const tooltip = mockedMarker().getTooltip();
+      const mapClick = vi.fn();
+      const mapPress = vi.fn();
+      return vi.mocked(tooltip.once).mock.calls.map(([event, onAdd]: [string, (e: unknown) => void]) => {
+        expect(event).toBe('add');
+        const el = document.createElement('div');
+        el.innerHTML = '<div class="trek-journey-popup-title">card</div>';
+        const map = document.createElement('div');
+        map.appendChild(el);
+        map.addEventListener('click', mapClick);
+        map.addEventListener('mousedown', mapPress);
+        onAdd({ target: { getElement: () => el } });
+        return { title: el.firstElementChild as HTMLElement, mapClick, mapPress };
+      });
+    }
+
+    it('FE-COMP-JOURNEYMAP-059: a tap on a pin's card opens that entry and never reaches the map', () => {
+      const onMarkerCardClick = vi.fn();
+      render(<JourneyMap checkins={[]} entries={entriesWithCoords} onMarkerCardClick={onMarkerCardClick} />);
+
+      expect(mockedMarker().bindTooltip).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ className: 'map-tooltip trek-journey-tooltip is-openable' }),
+      );
+      const [first, second] = openCards();
+      second.title.click();
+      first.title.click();
+
+      expect(onMarkerCardClick.mock.calls).toEqual([['e2'], ['e1']]);
+      expect(first.mapClick).not.toHaveBeenCalled();
+    });
+
+    it('FE-COMP-JOURNEYMAP-060: pressing the card keeps the focus, so the pin does not close it first', () => {
+      render(<JourneyMap checkins={[]} entries={entriesWithCoords} onMarkerCardClick={vi.fn()} />);
+      const [card] = openCards();
+
+      const press = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+      card.title.dispatchEvent(press);
+
+      expect(press.defaultPrevented).toBe(true);
+      expect(card.mapPress).not.toHaveBeenCalled();
+    });
+
+    it('FE-COMP-JOURNEYMAP-061: without a handler the card stays a label the map's drags pass through', () => {
+      render(<JourneyMap checkins={[]} entries={entriesWithCoords} />);
+
+      expect(mockedMarker().bindTooltip).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ className: 'map-tooltip trek-journey-tooltip' }),
+      );
+      expect(mockedMarker().getTooltip().once).not.toHaveBeenCalled();
+    });
   });
 
   it('FE-COMP-JOURNEYMAP-006: exposes imperative handle (focusMarker)', () => {

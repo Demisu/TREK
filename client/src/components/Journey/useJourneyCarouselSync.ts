@@ -123,6 +123,16 @@ export function useJourneyCarouselSync<E extends CarouselEntry>({
     [activeIndex, onOpenEntry, scrollCardIntoCenter, syncMapOnTap, syncMapToCard]
   );
 
+  // The marker card on the map names one entry, so a tap on it opens that entry
+  // straight away, the same way a tap on the active carousel card does (#2885).
+  const openEntryById = useCallback(
+    (id: string) => {
+      const entry = entries.find((e) => String(e.id) === id);
+      if (entry) onOpenEntry(entry);
+    },
+    [entries, onOpenEntry]
+  );
+
   // The day bar lands on the first entry of that day, which is where a reader who
   // asked for "day nine" means.
   const jumpToDay = useCallback(
@@ -146,6 +156,7 @@ export function useJourneyCarouselSync<E extends CarouselEntry>({
     syncMapToCard,
     handleMarkerClick,
     handleCardTap,
+    openEntryById,
     jumpToDay,
   };
 }

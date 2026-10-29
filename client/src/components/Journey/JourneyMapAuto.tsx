@@ -39,7 +39,8 @@ interface Props {
   onMarkerClick?: (id: string, type?: string) => void
   fullScreen?: boolean
   paddingBottom?: number
-  hideMarkerTooltip?: boolean
+  /** Open the entry a marker card names when the card is tapped, both renderers. */
+  onMarkerCardClick?: (entryId: string) => void
   /** Open an entry's photos from the marker card's thumbnail strip. GL renderer only. */
   onMarkerPhotoClick?: (entryId: string, photoIndex: number) => void
   /** Geotagged photos as thumbnails on the map, both renderers (#2453). */

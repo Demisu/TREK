@@ -103,7 +103,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
 
   const {
     mapRef, carouselRef, cardRefs, activeIndex, setActiveIndex, scrubberDays,
-    syncMapToCard, handleMarkerClick, handleCardTap, jumpToDay,
+    syncMapToCard, handleMarkerClick, handleCardTap, openEntryById, jumpToDay,
   } = useJourneyCarouselSync<JourneyEntry>({ entries, mapEntries: sidebarMapItems, onOpenEntry: setEditingEntry, syncMapOnTap: true })
 
   // Initial focus — give Leaflet time to initialise and fit bounds first. Opens on
@@ -317,6 +317,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
           dark={dark}
           activeMarkerId={entries[activeIndex] ? String(entries[activeIndex].id) : null}
           onMarkerClick={handleMarkerClick}
+          onMarkerCardClick={openEntryById}
           fullScreen
           paddingBottom={250}
         />

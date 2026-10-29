@@ -1,4 +1,4 @@
-// FE-COMP-JMAPGL-001 to FE-COMP-JMAPGL-043, FE-COMP-JMAPGL-2453
+// FE-COMP-JMAPGL-001 to FE-COMP-JMAPGL-048, FE-COMP-JMAPGL-2453
 
 type Spy = ReturnType<typeof vi.fn>
 
@@ -505,6 +505,86 @@ describe('JourneyMapGL', () => {
     act(() => { ref.current!.highlightMarker('e1') })
     act(() => { ref.current!.highlightMarker('e2') })
     expect(document.querySelectorAll('#trek-journey-popup-style')).toHaveLength(1)
+  })
+
+  describe('the marker card as a way into the entry (#2885)', () => {
+    const withPhotos = [
+      { ...entries[0], photoUrls: ['/a.jpg', '/b.jpg'] },
+      entries[1],
+    ]
+
+    // The stub's setHTML records the markup; the card's content is put in by hand.
+    function openCard(props: Record<string, unknown>, id = 'e1') {
+      withToken()
+      const ref = React.createRef<JourneyMapGLHandle>()
+      render(<JourneyMapGL ref={ref} checkins={[]} entries={withPhotos} {...props} />)
+      act(() => { ref.current?.highlightMarker(id) })
+      const popup = gl.popups[0]
+      popup.element.innerHTML = String(popup.setHTML.mock.calls.at(-1)?.[0])
+      const mapClick = vi.fn()
+      const host = document.createElement('div')
+      host.appendChild(popup.element)
+      host.addEventListener('click', mapClick)
+      return { ref, popup, mapClick }
+    }
+
+    function tap(popup: PopupStub, selector: string) {
+      const target = popup.element.querySelector(selector) as HTMLElement
+      target.click()
+    }
+
+    it('FE-COMP-JMAPGL-044: a tap anywhere on the card opens its entry and stays off the map', () => {
+      const onMarkerCardClick = vi.fn()
+      const { popup, mapClick } = openCard({ onMarkerCardClick })
+
+      expect(popup.options.className).toContain('is-openable')
+      tap(popup, '.trek-journey-popup-title')
+
+      expect(onMarkerCardClick).toHaveBeenCalledWith('e1')
+      expect(mapClick).not.toHaveBeenCalled()
+    })
+
+    it('FE-COMP-JMAPGL-045: with a photo handler a thumbnail opens the photo, not the entry', () => {
+      const onMarkerCardClick = vi.fn()
+      const onMarkerPhotoClick = vi.fn()
+      const { popup } = openCard({ onMarkerCardClick, onMarkerPhotoClick })
+
+      tap(popup, '[data-shot="1"]')
+
+      expect(onMarkerPhotoClick).toHaveBeenCalledWith('e1', 1)
+      expect(onMarkerCardClick).not.toHaveBeenCalled()
+    })
+
+    it('FE-COMP-JMAPGL-046: without a photo handler a thumbnail opens the entry like the rest of the card', () => {
+      const onMarkerCardClick = vi.fn()
+      const { popup } = openCard({ onMarkerCardClick })
+
+      tap(popup, '[data-shot]')
+
+      expect(onMarkerCardClick).toHaveBeenCalledWith('e1')
+    })
+
+    it('FE-COMP-JMAPGL-047: without a handler the card stays a label the tap passes through', () => {
+      const { popup, mapClick } = openCard({})
+
+      expect(popup.options.className).toBe('trek-journey-popup')
+      tap(popup, '.trek-journey-popup-title')
+
+      expect(mapClick).toHaveBeenCalled()
+    })
+
+    it('FE-COMP-JMAPGL-048: the reused card opens the entry it shows now', () => {
+      const onMarkerCardClick = vi.fn()
+      const { ref, popup } = openCard({ onMarkerCardClick })
+
+      act(() => { ref.current?.highlightMarker('e2') })
+      popup.element.innerHTML = String(popup.setHTML.mock.calls.at(-1)?.[0])
+      tap(popup, '.trek-journey-popup-title')
+
+      expect(popup.element.classList.contains('is-openable')).toBe(true)
+      expect(popup.element.classList.contains('is-interactive')).toBe(false)
+      expect(onMarkerCardClick).toHaveBeenCalledWith('e2')
+    })
   })
 
   it('FE-COMP-JMAPGL-023: focusMarker eases over with the 3D pitch and no zoom of its own', () => {

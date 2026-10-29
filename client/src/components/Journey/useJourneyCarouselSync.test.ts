@@ -1,4 +1,4 @@
-// FE-JRN-CAROUSEL-001 to FE-JRN-CAROUSEL-007: the card carousel over the journey map,
+// FE-JRN-CAROUSEL-001 to FE-JRN-CAROUSEL-008: the card carousel over the journey map,
 // behind both the phone journey screen and the narrow desktop and public timeline.
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -135,5 +135,14 @@ describe('useJourneyCarouselSync', () => {
     // Centre 250: card 1 spans 200 to 300.
     expect(hook.result.current.activeIndex).toBe(1);
     expect(map.highlightMarker).toHaveBeenCalledWith(null);
+  });
+
+  it('FE-JRN-CAROUSEL-008: a marker card opens its entry by id, wherever the carousel stands (#2885)', () => {
+    const { result, props } = setup();
+    act(() => result.current.openEntryById('3'));
+    expect(props.onOpenEntry).toHaveBeenCalledWith(ENTRIES[2]);
+    expect(result.current.activeIndex).toBe(0);
+    act(() => result.current.openEntryById('99'));
+    expect(props.onOpenEntry).toHaveBeenCalledTimes(1);
   });
 });

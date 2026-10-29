@@ -66,15 +66,14 @@ interface Props {
   onMarkerClick?: (id: string, type?: string) => void
   fullScreen?: boolean
   /**
-   * Leave the marker labels off.
+   * Open the entry a marker card names when the card itself is tapped.
    *
-   * On the phone the map sits above a carousel whose active card already carries
-   * the entry's name, and a tooltip on touch is a tap-to-open box rather than a
-   * hover hint — so it says the same thing twice and covers the map to do it
-   * (discussion #2299). On desktop the label is the only name a marker has, so
-   * this stays off there.
+   * On a phone the card is what a tap on a pin brings up, so it has to lead
+   * somewhere (#2885). Wiring it is what makes the card take the pointer; without
+   * it the card stays a label the map's drags pass through, as on desktop, where
+   * it is a hover card the mouse cannot reach.
    */
-  hideMarkerTooltip?: boolean
+  onMarkerCardClick?: (entryId: string) => void
   paddingBottom?: number
   /** CARTO key from the share payload: the public journey has no settings store to read. */
   cartoApiKey?: string
@@ -185,6 +184,29 @@ function panToMarker(map: L.Map, marker: L.Marker): void {
   })
 }
 
+/**
+ * Let a tap on a marker card open its entry (#2885).
+ *
+ * Handled on the card's own element rather than through Leaflet's interactive
+ * tooltip, and kept away from the map. A press that reaches the map container
+ * has Leaflet's keyboard handler focus it, which blurs the pin that opened the
+ * card, and Leaflet closes a pin's card on blur, so the card was gone before its
+ * click landed. Holding the mouse press back from the browser's focus change
+ * matters for the same reason; a touch press is left alone, since cancelling it
+ * would cancel the click as well.
+ */
+function makeCardOpenEntry(el: HTMLElement, open: () => void): void {
+  L.DomEvent.on(el, 'mousedown', (ev) => {
+    L.DomEvent.stopPropagation(ev)
+    ev.preventDefault()
+  })
+  L.DomEvent.on(el, 'touchstart pointerdown', L.DomEvent.stopPropagation)
+  L.DomEvent.on(el, 'click', (ev) => {
+    L.DomEvent.stopPropagation(ev)
+    open()
+  })
+}
+
 const EMPTY_TRAIL: { lat: number; lng: number }[] = []
 const EMPTY_TRACKS: JourneyTrack[] = []
 /** Fallback when a track carries no colour of its own, matching the planner's default. */
@@ -201,12 +223,12 @@ function fitOptions(paddingBottom: number | undefined): L.FitBoundsOptions {
 }
 
 function JourneyMap(
-  { entries, photos, onPhotoClick, trail, tracks, height = 220, dark, activeMarkerId, onMarkerClick, fullScreen, paddingBottom, cartoApiKey, hideMarkerTooltip, layerVisibility = EVERY_LAYER, marks, onMarksPick, plannedEntryIds = NO_PLANNED, ref }: Props,
+  { entries, photos, onPhotoClick, trail, tracks, height = 220, dark, activeMarkerId, onMarkerClick, fullScreen, paddingBottom, cartoApiKey, onMarkerCardClick, layerVisibility = EVERY_LAYER, marks, onMarksPick, plannedEntryIds = NO_PLANNED, ref }: Props,
 ) {
-  // Read through a ref: the flag is fixed per surface, and putting it in the
+  // Read through a ref: the handler is fixed per surface, and putting it in the
   // marker effect's deps would rebuild every marker for nothing.
-  const hideMarkerTooltipRef = useRef(hideMarkerTooltip)
-  hideMarkerTooltipRef.current = hideMarkerTooltip
+  const onMarkerCardClickRef = useRef(onMarkerCardClick)
+  onMarkerCardClickRef.current = onMarkerCardClick
   const stableTrail = trail || EMPTY_TRAIL
   const stableTracks = tracks || EMPTY_TRACKS
   const mapTileUrl = useSettingsStore(s => s.settings.map_tile_url)
@@ -428,21 +450,27 @@ function JourneyMap(
       // tells them (discussion #2299). The builder escapes everything that came
       // from a person, which matters most here — this map is what the public
       // journey page renders.
-      if (!hideMarkerTooltipRef.current) {
-        ensureJourneyPopupStyle()
-        marker.bindTooltip(
-          journeyPopupHtml({
-            title: item.label || item.locationName || 'Entry',
-            place: item.label ? item.locationName : '',
-            date: formatMarkerDate(item.time),
-            photoUrls: item.photoUrls,
-          }),
-          {
-            direction: 'top',
-            offset: [0, -MARKER_H],
-            className: 'map-tooltip trek-journey-tooltip',
-          },
-        )
+      ensureJourneyPopupStyle()
+      const openable = !!onMarkerCardClickRef.current
+      marker.bindTooltip(
+        journeyPopupHtml({
+          title: item.label || item.locationName || 'Entry',
+          place: item.label ? item.locationName : '',
+          date: formatMarkerDate(item.time),
+          photoUrls: item.photoUrls,
+        }),
+        {
+          direction: 'top',
+          offset: [0, -MARKER_H],
+          className: `map-tooltip trek-journey-tooltip${openable ? ' is-openable' : ''}`,
+        },
+      )
+      // The card's element is built on its first open and kept for every later one.
+      if (openable) {
+        marker.getTooltip()?.once('add', (e: L.LeafletEvent) => {
+          const el = (e.target as L.Tooltip).getElement()
+          if (el) makeCardOpenEntry(el, () => onMarkerCardClickRef.current?.(item.id))
+        })
       }
 
       marker.on('click', () => {

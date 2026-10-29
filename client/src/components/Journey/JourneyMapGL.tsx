@@ -43,8 +43,8 @@ interface Props {
   activeMarkerId?: string | null
   onMarkerClick?: (id: string, type?: string) => void
   fullScreen?: boolean
-  /** See the Leaflet twin: no marker labels where a carousel already names the entry. */
-  hideMarkerTooltip?: boolean
+  /** See the Leaflet twin: a tap on the card opens the entry it names (#2885). */
+  onMarkerCardClick?: (entryId: string) => void
   /**
    * Open the entry's photos from the card's thumbnail strip.
    *
@@ -194,13 +194,13 @@ function fitOptions(paddingBottom: number | undefined, tilted: boolean | undefin
 }
 
 function JourneyMapGL(
-  { entries, trail, tracks, height = 220, dark, activeMarkerId, onMarkerClick, fullScreen, paddingBottom, glProvider = 'mapbox-gl', gl, hideMarkerTooltip, onMarkerPhotoClick, photos, onPhotoClick, layerVisibility = EVERY_LAYER, marks, onMarksPick, plannedEntryIds = NO_PLANNED, ref }: Props,
+  { entries, trail, tracks, height = 220, dark, activeMarkerId, onMarkerClick, fullScreen, paddingBottom, glProvider = 'mapbox-gl', gl, onMarkerCardClick, onMarkerPhotoClick, photos, onPhotoClick, layerVisibility = EVERY_LAYER, marks, onMarksPick, plannedEntryIds = NO_PLANNED, ref }: Props,
 ) {
-  const hideMarkerTooltipRef = useRef(hideMarkerTooltip)
-  hideMarkerTooltipRef.current = hideMarkerTooltip
+  const onMarkerCardClickRef = useRef(onMarkerCardClick)
+  onMarkerCardClickRef.current = onMarkerCardClick
   const onMarkerPhotoClickRef = useRef(onMarkerPhotoClick)
   onMarkerPhotoClickRef.current = onMarkerPhotoClick
-  /** Which entry the card is currently describing, for the delegated photo click. */
+  /** Which entry the card is currently describing, for the delegated card and photo clicks. */
   const popupItemIdRef = useRef<string | null>(null)
   const stableTrail = trail || EMPTY_TRAIL
   const stableTracks = tracks || EMPTY_TRACKS
@@ -252,9 +252,6 @@ function JourneyMapGL(
   mapLangRef.current = mapLang
 
   const showPopup = useCallback((id: string) => {
-    // See `hideMarkerTooltip` on the Leaflet twin: below the carousel the card
-    // already says this, and the popup only covers the map to repeat it.
-    if (hideMarkerTooltipRef.current) return
     const item = itemsRef.current.find(i => i.id === id)
     if (!item || !mapRef.current) return
     ensureJourneyPopupStyle()
@@ -272,6 +269,7 @@ function JourneyMapGL(
     const offset: [number, number] = [0, -46]
     popupItemIdRef.current = item.id
     const interactive = !!onMarkerPhotoClickRef.current && item.photoUrls.length > 0
+    const openable = !!onMarkerCardClickRef.current
     if (popupRef.current) {
       popupRef.current.setLngLat([item.lng, item.lat])
       popupRef.current.setHTML(html)
@@ -280,6 +278,7 @@ function JourneyMapGL(
       if (el) {
         el.classList.toggle('trek-dark', !!darkRef.current)
         el.classList.toggle('is-interactive', interactive)
+        el.classList.toggle('is-openable', openable)
       }
     } else {
       popupRef.current = new gl.Popup({
@@ -288,7 +287,7 @@ function JourneyMapGL(
         closeOnMove: false,
         anchor: 'bottom',
         offset,
-        className: `trek-journey-popup${darkRef.current ? ' trek-dark' : ''}${interactive ? ' is-interactive' : ''}`,
+        className: `trek-journey-popup${darkRef.current ? ' trek-dark' : ''}${interactive ? ' is-interactive' : ''}${openable ? ' is-openable' : ''}`,
         maxWidth: '280px',
       })
         .setLngLat([item.lng, item.lat])
@@ -298,11 +297,18 @@ function JourneyMapGL(
       // strip on every entry, so a listener on the thumbnails themselves would have
       // to be rebound each time and would leak the ones it forgot.
       popupRef.current.getElement()?.addEventListener('click', (ev: Event) => {
-        const shot = (ev.target as HTMLElement | null)?.closest(`[${SHOT_INDEX_ATTR}]`)
         const entryId = popupItemIdRef.current
-        if (!shot || !entryId) return
-        ev.stopPropagation()
-        onMarkerPhotoClickRef.current?.(entryId, Number(shot.getAttribute(SHOT_INDEX_ATTR)))
+        if (!entryId) return
+        const shot = (ev.target as HTMLElement | null)?.closest(`[${SHOT_INDEX_ATTR}]`)
+        const onPhoto = onMarkerPhotoClickRef.current
+        const onCard = onMarkerCardClickRef.current
+        if (shot && onPhoto) {
+          ev.stopPropagation()
+          onPhoto(entryId, Number(shot.getAttribute(SHOT_INDEX_ATTR)))
+        } else if (onCard) {
+          ev.stopPropagation()
+          onCard(entryId)
+        }
       })
     }
   }, [gl])
