@@ -111,14 +111,14 @@ describe('TripExportModal', () => {
 
   it('FE-PLANNER-EXPORTMODAL-016: while one export works, every row waits', async () => {
     const user = userEvent.setup()
-    let finish: (() => void) | null = null
-    vi.mocked(downloadTripPDF).mockImplementationOnce(() => new Promise<void>(res => { finish = res }))
+    let finish = () => {}
+    vi.mocked(downloadTripPDF).mockImplementationOnce(() => new Promise<void>(res => { finish = () => res() }))
     render(<TripExportModal {...makeProps()} />)
     await user.click(screen.getByText('dayplan.pdf'))
     await waitFor(() => expect(screen.getByRole('button', { name: /dayplan\.gpxAll/ })).toBeDisabled())
     expect(screen.getByRole('button', { name: /mobileTrip\.icsDownload/ })).toBeDisabled()
     expect(screen.getByRole('button', { name: /dayplan\.pdf/ })).toBeDisabled()
-    finish!()
+    finish()
     await waitFor(() => expect(screen.getByRole('button', { name: /dayplan\.gpxAll/ })).toBeEnabled())
   })
 
@@ -203,7 +203,7 @@ describe('TripExportModal', () => {
     const onClose = vi.fn()
     render(<TripExportModal {...makeProps({ onClose })} />)
     await user.click(screen.getByText('mobileTrip.icsSubscribe'))
-    const exportBackdrop = screen.getByRole('dialog', { name: 'dayplan.export' }).parentElement!
+    const exportBackdrop = screen.getByRole('dialog', { name: 'dayplan.export' }).parentElement as HTMLElement
     const subscribe = screen.getByTestId('ics-subscribe-modal')
     // Both hang off the body; the later one paints above the earlier.
     expect(exportBackdrop.compareDocumentPosition(subscribe) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
@@ -294,8 +294,8 @@ describe('TripExportModal', () => {
 
   it('FE-PLANNER-EXPORTMODAL-019: while the PDF routes the row counts the legs, and the rest can be left out (#2876)', async () => {
     const user = userEvent.setup()
-    let finish: (() => void) | null = null
-    vi.mocked(downloadTripPDF).mockImplementationOnce(() => new Promise<void>(res => { finish = res }))
+    let finish = () => {}
+    vi.mocked(downloadTripPDF).mockImplementationOnce(() => new Promise<void>(res => { finish = () => res() }))
     const roadtripViasByDay = { 10: [] }
     const tourStageStops = new Map()
     render(<TripExportModal {...makeProps({ roadtripViasByDay, tourStageStops })} />)
@@ -309,13 +309,13 @@ describe('TripExportModal', () => {
     await user.click(screen.getByRole('button', { name: 'dayplan.pdfSkipRouting' }))
     expect(route?.signal?.aborted).toBe(true)
     expect(screen.queryByRole('button', { name: 'dayplan.pdfSkipRouting' })).toBeNull()
-    await act(async () => finish!())
+    await act(async () => finish())
   })
 
   it('FE-PLANNER-EXPORTMODAL-020: closing the dialog while the PDF routes gives the export up', async () => {
     const user = userEvent.setup()
-    let finish: (() => void) | null = null
-    vi.mocked(downloadTripPDF).mockImplementationOnce(() => new Promise<void>(res => { finish = res }))
+    let finish = () => {}
+    vi.mocked(downloadTripPDF).mockImplementationOnce(() => new Promise<void>(res => { finish = () => res() }))
     const props = makeProps()
     const { rerender } = render(<TripExportModal {...props} />)
     await user.click(screen.getByText('dayplan.pdf'))
@@ -325,7 +325,7 @@ describe('TripExportModal', () => {
     rerender(<TripExportModal {...props} isOpen={false} />)
     expect(route?.signal?.aborted).toBe(true)
     expect(signal?.aborted).toBe(true)
-    await act(async () => finish!())
+    await act(async () => finish())
     expect(props.onClose).not.toHaveBeenCalled()
   })
 })

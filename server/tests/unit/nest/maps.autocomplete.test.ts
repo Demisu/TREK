@@ -498,11 +498,12 @@ describe('MapsService.autocompletePlaces', () => {
 
   it('MAPS-AUTO-023: an index failure keeps what Photon found instead of throwing it away', async () => {
     mockSearch.mockRejectedValue(new Error('places api down'));
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const { svc } = withPhoton([photonRow()]);
 
     const result = await svc.autocompletePlaces(1, INPUT);
 
-    expect(console.warn).toHaveBeenCalledWith('TREK Places autocomplete failed, falling back:', 'places api down');
+    expect(warn).toHaveBeenCalledWith('TREK Places autocomplete failed, falling back:', 'places api down');
     expect(result.suggestions).toEqual([photonRow()]);
   });
 

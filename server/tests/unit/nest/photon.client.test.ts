@@ -247,12 +247,13 @@ describe('the suggestions asked per keystroke', () => {
           init.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')));
         }),
     );
-    for (let i = 0; i < 5; i += 1) {
-      const dropped = new AbortController();
-      const asked = photon.suggest('Rost', { signal: dropped.signal });
-      dropped.abort();
-      expect(await asked).toBeNull();
-    }
+    const dropped = Array.from({ length: 5 }, () => {
+      const controller = new AbortController();
+      const asked = photon.suggest('Rost', { signal: controller.signal });
+      controller.abort();
+      return asked;
+    });
+    expect(await Promise.all(dropped)).toEqual([null, null, null, null, null]);
     fetchMock.mockImplementation(async () => photonAnswer([gateFeature()]));
     expect(await photon.suggest('Rostock')).toHaveLength(1);
   });

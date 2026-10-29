@@ -12,14 +12,20 @@ import type { Reservation } from '../../src/types';
  */
 export function plannerSave(record: { id: number }) {
   const failures: Error[] = [];
-  const save = vi.fn(async (_data: unknown, steps?: BookingSaveSteps) => {
-    try {
-      await steps?.afterSave?.(record as Reservation);
-      return record;
-    } catch (err) {
-      failures.push(err as Error);
-      return undefined;
+  const stored = record as Reservation;
+  const save = vi.fn(
+    async (
+      _data: Record<string, unknown> & { title: string },
+      steps?: BookingSaveSteps
+    ): Promise<Reservation | undefined> => {
+      try {
+        await steps?.afterSave?.(stored);
+        return stored;
+      } catch (err) {
+        failures.push(err as Error);
+        return undefined;
+      }
     }
-  });
+  );
   return { save, failures };
 }

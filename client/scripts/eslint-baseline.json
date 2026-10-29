@@ -1,7 +1,7 @@
 {
   "src": {
     "@typescript-eslint/no-non-null-assertion": 382,
-    "@typescript-eslint/no-misused-promises": 848,
+    "@typescript-eslint/no-misused-promises": 847,
     "no-console": 88,
     "complexity": 219,
     "@typescript-eslint/no-explicit-any": 146,
@@ -35,11 +35,11 @@
   },
   "tests": {
     "@typescript-eslint/no-explicit-any": 490,
-    "@typescript-eslint/no-non-null-assertion": 1917,
+    "@typescript-eslint/no-non-null-assertion": 1914,
     "@typescript-eslint/no-misused-promises": 22,
     "@typescript-eslint/no-unused-vars": 51,
     "@typescript-eslint/no-floating-promises": 33,
-    "trek/no-window-globals": 331,
+    "trek/no-window-globals": 325,
     "trek/no-swallowed-catch": 14,
     "react-hooks/globals": 5,
     "react-hooks/refs": 22,

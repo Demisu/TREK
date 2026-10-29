@@ -148,7 +148,7 @@ export function asSuggestion(feature: PhotonFeature): Suggestion | null {
   // place is. Cut by the name rather than at its first comma, which a name can
   // hold; a house without a name is titled by its number, as Nominatim does.
   const name = feature.properties.name?.trim();
-  const line = hit.display_name;
+  const line = hit.display_name ?? '';
   const [head = '', ...rest] = line.split(', ');
   const mainText = name || head;
   if (!mainText) return null;

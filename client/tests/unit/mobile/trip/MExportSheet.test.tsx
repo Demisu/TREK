@@ -223,8 +223,8 @@ describe('MExportSheet', () => {
   })
 
   it('FE-MOB-EXPSH-014: while the PDF routes the row counts the legs, and the rest can be left out (#2876)', async () => {
-    let finish: (() => void) | null = null
-    vi.mocked(downloadTripPDF).mockImplementationOnce(() => new Promise<void>(res => { finish = res }))
+    let finish = () => {}
+    vi.mocked(downloadTripPDF).mockImplementationOnce(() => new Promise<void>(res => { finish = () => res() }))
     renderSheet()
     fireEvent.click(screen.getByText('PDF'))
     await waitFor(() => expect(downloadTripPDF).toHaveBeenCalledTimes(1))
@@ -234,7 +234,7 @@ describe('MExportSheet', () => {
     expect(screen.getByText('Calculating routes: 3 of 10')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Export without the remaining routes' }))
     expect(route?.signal?.aborted).toBe(true)
-    await act(async () => finish!())
+    await act(async () => finish())
   })
 
   it('FE-MOB-EXPSH-015: hiding the sheet while the PDF routes gives the export up', async () => {
