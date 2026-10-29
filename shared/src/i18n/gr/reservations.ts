@@ -80,8 +80,8 @@ const reservations: TranslationStrings = {
     'Η κράτηση "{name}" θα διαγραφεί οριστικά μαζί με τα συνδεδεμένα έξοδα.',
   'reservations.toast.updated': 'Η κράτηση ενημερώθηκε',
   'reservations.toast.removed': 'Η κράτηση διαγράφηκε',
-  'reservations.toast.fileUploaded': 'Το αρχείο μεταφορτώθηκε',
-  'reservations.toast.uploadError': 'Η μεταφόρτωση απέτυχε',
+  'reservations.toast.filesNotUploaded':
+    'Η κράτηση αποθηκεύτηκε, αλλά ορισμένα αρχεία δεν μεταφορτώθηκαν. Αποθήκευσε ξανά για να σταλούν.',
   'reservations.newTitle': 'Νέα Κράτηση',
   'reservations.bookingType': 'Τύπος Κράτησης',
   'reservations.titleLabel': 'Τίτλος',

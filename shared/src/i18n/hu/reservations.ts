@@ -79,8 +79,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '"{name}" a hozzá kapcsolt költségekkel együtt véglegesen törlődik.',
   'reservations.toast.updated': 'Foglalás frissítve',
   'reservations.toast.removed': 'Foglalás törölve',
-  'reservations.toast.fileUploaded': 'Fájl feltöltve',
-  'reservations.toast.uploadError': 'Feltöltés sikertelen',
+  'reservations.toast.filesNotUploaded':
+    'A foglalás mentve, de néhány fájlt nem sikerült feltölteni. Mentsd újra, hogy elküldd őket.',
   'reservations.newTitle': 'Új foglalás',
   'reservations.bookingType': 'Foglalás típusa',
   'reservations.titleLabel': 'Cím',

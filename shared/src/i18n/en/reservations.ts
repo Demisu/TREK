@@ -79,8 +79,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '"{name}" will be permanently deleted, along with its linked costs.',
   'reservations.toast.updated': 'Reservation updated',
   'reservations.toast.removed': 'Reservation deleted',
-  'reservations.toast.fileUploaded': 'File uploaded',
-  'reservations.toast.uploadError': 'Failed to upload',
+  'reservations.toast.filesNotUploaded':
+    'The booking is saved, but some files did not upload. Save again to send them.',
   'reservations.newTitle': 'New Reservation',
   'reservations.bookingType': 'Booking Type',
   'reservations.titleLabel': 'Title',

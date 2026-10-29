@@ -77,8 +77,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '"{name}" e os custos vinculados serão excluídos permanentemente.',
   'reservations.toast.updated': 'Reserva atualizada',
   'reservations.toast.removed': 'Reserva excluída',
-  'reservations.toast.fileUploaded': 'Arquivo enviado',
-  'reservations.toast.uploadError': 'Falha no envio',
+  'reservations.toast.filesNotUploaded':
+    'A reserva foi salva, mas alguns arquivos não foram enviados. Salve novamente para enviá-los.',
   'reservations.newTitle': 'Nova reserva',
   'reservations.bookingType': 'Tipo de reserva',
   'reservations.titleLabel': 'Título',

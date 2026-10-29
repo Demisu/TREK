@@ -77,8 +77,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '„{name}” bude trvale smazána i s propojenými náklady.',
   'reservations.toast.updated': 'Rezervace aktualizována',
   'reservations.toast.removed': 'Rezervace smazána',
-  'reservations.toast.fileUploaded': 'Soubor byl nahrán',
-  'reservations.toast.uploadError': 'Nahrávání se nezdařilo',
+  'reservations.toast.filesNotUploaded':
+    'Rezervace je uložená, ale některé soubory se nenahrály. Ulož znovu a odešli je.',
   'reservations.newTitle': 'Nová rezervace',
   'reservations.bookingType': 'Typ rezervace',
   'reservations.titleLabel': 'Název',

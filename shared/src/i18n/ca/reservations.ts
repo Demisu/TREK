@@ -46,8 +46,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': "« {name} » i els costos vinculats s'eliminaran permanentment.",
   'reservations.toast.updated': 'Reserva actualitzada',
   'reservations.toast.removed': 'Reserva eliminada',
-  'reservations.toast.fileUploaded': 'Fitxer pujat',
-  'reservations.toast.uploadError': "No s'ha pogut pujar",
+  'reservations.toast.filesNotUploaded':
+    "La reserva s'ha desat, però alguns fitxers no s'han pujat. Desa de nou per enviar-los.",
   'reservations.newTitle': 'Reserva nova',
   'reservations.bookingType': 'Tipus de reserva',
   'reservations.titleLabel': 'Títol',

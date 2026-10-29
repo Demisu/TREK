@@ -79,8 +79,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '« {name} » et ses coûts liés seront définitivement supprimés.',
   'reservations.toast.updated': 'Réservation mise à jour',
   'reservations.toast.removed': 'Réservation supprimée',
-  'reservations.toast.fileUploaded': 'Fichier importé',
-  'reservations.toast.uploadError': "Échec de l'import",
+  'reservations.toast.filesNotUploaded':
+    "La réservation est enregistrée, mais certains fichiers n'ont pas été importés. Enregistre à nouveau pour les envoyer.",
   'reservations.newTitle': 'Nouvelle réservation',
   'reservations.bookingType': 'Type de réservation',
   'reservations.titleLabel': 'Titre',

@@ -91,8 +91,8 @@ const reservations: TranslationStrings = {
 
   'reservations.toast.updated': 'Rezervasiya yeniləndi',
   'reservations.toast.removed': 'Rezervasiya silindi',
-  'reservations.toast.fileUploaded': 'Fayl yükləndi',
-  'reservations.toast.uploadError': 'Faylı yükləmək mümkün olmadı',
+  'reservations.toast.filesNotUploaded':
+    'Rezervasiya yadda saxlanıldı, lakin bəzi fayllar yüklənmədi. Onları göndərmək üçün yenidən yadda saxlayın.',
 
   'reservations.newTitle': 'Yeni rezervasiya',
   'reservations.bookingType': 'Rezervasiya növü',

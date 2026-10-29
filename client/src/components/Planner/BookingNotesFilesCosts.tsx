@@ -23,6 +23,7 @@ export function BookingNotesFilesCosts({
   fileInputRef,
   attach,
   canAttach,
+  saving,
   showCosts,
   pendingExpense,
   expense,
@@ -38,6 +39,8 @@ export function BookingNotesFilesCosts({
   fileInputRef: RefObject<HTMLInputElement | null>;
   attach: ReturnType<typeof useBookingFileAttach>;
   canAttach: boolean;
+  /** While the save runs the picked files are on their way, so no more can join them. */
+  saving: boolean;
   showCosts: boolean;
   pendingExpense: { total_price: number; currency?: string | null; category: string } | null;
   expense: ReturnType<typeof useBookingExpenseIntent>;
@@ -68,7 +71,7 @@ export function BookingNotesFilesCosts({
         fileInputRef={fileInputRef}
         onFileChange={attach.handleFileChange}
         canAttach={canAttach}
-        uploading={attach.uploadingFile}
+        uploading={saving}
         onLinked={attach.linkFile}
         onDetached={attach.detachFile}
       />

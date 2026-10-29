@@ -85,8 +85,8 @@ const reservations: TranslationStrings = {
   'reservations.toast.updateError': 'Fehler beim Aktualisieren',
   'reservations.toast.deleteError': 'Fehler beim Löschen',
   'reservations.confirm.remove': 'Reservierung für "{name}" entfernen?',
-  'reservations.toast.fileUploaded': 'Datei hochgeladen',
-  'reservations.toast.uploadError': 'Fehler beim Hochladen',
+  'reservations.toast.filesNotUploaded':
+    'Die Buchung ist gespeichert, aber einige Dateien wurden nicht hochgeladen. Speichere erneut, um sie zu senden.',
   'reservations.newTitle': 'Neue Buchung',
   'reservations.bookingType': 'Art der Buchung',
   'reservations.titleLabel': 'Titel',

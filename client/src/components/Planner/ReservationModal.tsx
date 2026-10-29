@@ -26,9 +26,10 @@ import { typeInfo } from './bookings/bookingsModel'
 import type { StatusTone } from './bookings/bookingParts'
 import { RESERVATION_TYPE_OPTIONS as TYPE_OPTIONS, reservationFieldsFrom, reservationFieldsFromPrefill, selectedDayDate } from './reservationFormModel'
 import { useReservationForm } from './useReservationForm'
-import { expenseRequestAfterSave, pendingImportExpense, travelerIdsOf, travelersChanged, filesNeedConnection, uploadBookingFiles } from './bookingFormModel'
+import { expenseRequestAfterSave, pendingImportExpense, travelerIdsOf, filesNeedConnection, type BookingSaveSteps } from './bookingFormModel'
 import { useBookingExpenseIntent } from './useBookingExpenseIntent'
 import { useBookingFileAttach } from './useBookingFileAttach'
+import { useBookingFollowUp } from './useBookingFollowUp'
 import StayPinStatus from './StayPinStatus'
 
 const EMPTY_FORM = {
@@ -44,7 +45,7 @@ const EMPTY_FORM = {
 interface ReservationModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (data: Record<string, string | number | null> & { title: string }) => Promise<Reservation | undefined>
+  onSave: (data: Record<string, string | number | null> & { title: string }, steps?: BookingSaveSteps) => Promise<Reservation | undefined>
   reservation: Reservation | null
   days: Day[]
   places: Place[]
@@ -65,7 +66,6 @@ interface ReservationModalProps {
 
 export function ReservationModal({ isOpen, onClose, onSave, reservation, days, places, assignments, selectedDayId, files = [], onFileUpload, onFileDelete, accommodations = [], defaultAssignmentId = null, onOpenExpense, prefill = null, tripMembers = [] }: ReservationModalProps) {
   const { id: tripId } = useParams<{ id: string }>()
-  const setReservationTravelers = useTripStore(s => s.setReservationTravelers)
   const toast = useToast()
   const { t, locale } = useTranslation()
   const fileInputRef = useRef(null)
@@ -84,7 +84,11 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
     isEndBeforeStart, endTimeBeforeStartTime, dateBounds: tripDateRange, startDate, startTime, setStartDate, setStartTime, takeStopDay,
     pickPlace, pickHotelPlace, pickHotelStart, pickHotelEnd, stayPin, saveData: buildSaveData,
   } = useReservationForm(EMPTY_FORM, days, places)
-  const attach = useBookingFileAttach({ reservation, files, onFileUpload, setPendingFiles, toast, t })
+  const attach = useBookingFileAttach({ reservation, files, setPendingFiles })
+  const followUp = useBookingFollowUp({
+    session: isOpen ? (reservation ?? prefill ?? 'new') : null,
+    tripId, original: reservation, travelerIds, pendingFiles, setPendingFiles, upload: onFileUpload, t,
+  })
 
   const assignmentOptions = useMemo(
     () => buildAssignmentOptions(days, assignments, t, locale),
@@ -92,6 +96,9 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
   )
 
   useEffect(() => {
+    // A try that stored the booking and failed on its files keeps the form as the
+    // user left it; the places and stays that save refreshed must not reseed it.
+    if (followUp.holdsSaved()) return
     // Match an existing place by name (exact, then loose contains) for hotels.
     const matchPlaceId = (name: string | undefined): string | number => {
       const n = (name || '').trim().toLowerCase()
@@ -142,19 +149,7 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
         const entry = importedPriceEntry(prefill.metadata, form.type)
         if (entry) saveData.create_budget_entry = entry
       }
-      const saved = await onSave(saveData as Record<string, string | number | null> & { title: string })
-      // Persist the traveler assignment once we have the reservation id (create → save
-      // result, edit → existing reservation), and only when it actually changed (#1517).
-      const savedId = saved?.id ?? reservation?.id
-      if (savedId && tripId) {
-        const { changed, nextIds } = travelersChanged(reservation, travelerIds)
-        if (changed) {
-          try { await setReservationTravelers(tripId, savedId, nextIds) } catch { toast.error(t('common.unknownError')) }
-        }
-      }
-      if (!reservation?.id && saved?.id && pendingFiles.length > 0) {
-        await uploadBookingFiles(onFileUpload, saved.id, pendingFiles, form.title)
-      }
+      const saved = await onSave(saveData as Record<string, string | number | null> & { title: string }, followUp.steps(form.title))
       // Open the Costs editor for the saved booking when the user asked to
       // create/edit its linked expense (gated on saved?.id).
       const expenseRequest = expenseRequestAfterSave(expense.take(), saved, form, days)
@@ -401,6 +396,7 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
         fileInputRef={fileInputRef}
         attach={attach}
         canAttach={!!onFileUpload}
+        saving={isSaving}
         showCosts={isBudgetEnabled}
         pendingExpense={pendingExpense}
         expense={expense}

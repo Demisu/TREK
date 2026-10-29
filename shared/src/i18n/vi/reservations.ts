@@ -78,8 +78,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '"{name}" và các chi phí liên kết sẽ bị xóa vĩnh viễn.',
   'reservations.toast.updated': 'Đã cập nhật đặt chỗ',
   'reservations.toast.removed': 'Đã xóa đặt chỗ',
-  'reservations.toast.fileUploaded': 'Tệp đã được tải lên',
-  'reservations.toast.uploadError': 'Không thể tải lên',
+  'reservations.toast.filesNotUploaded':
+    'Đã lưu đặt chỗ, nhưng một số tệp chưa tải lên được. Hãy lưu lại để gửi chúng.',
   'reservations.newTitle': 'Đặt chỗ mới',
   'reservations.bookingType': 'Loại đặt chỗ',
   'reservations.titleLabel': 'Tiêu đề',

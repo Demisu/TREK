@@ -78,8 +78,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '"{name}" och de kopplade kostnaderna kommer att raderas permanent.',
   'reservations.toast.updated': 'Bokning uppdaterad',
   'reservations.toast.removed': 'Bokning borttagen',
-  'reservations.toast.fileUploaded': 'Fil uppladdad',
-  'reservations.toast.uploadError': 'Det gick inte att ladda upp',
+  'reservations.toast.filesNotUploaded':
+    'Bokningen är sparad, men vissa filer laddades inte upp. Spara igen för att skicka dem.',
   'reservations.newTitle': 'Ny bokning',
   'reservations.bookingType': 'Bokningstyp',
   'reservations.titleLabel': 'Titel',

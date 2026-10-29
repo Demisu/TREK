@@ -9,7 +9,8 @@ import CustomTimePicker from '../../../../components/shared/CustomTimePicker'
 import { CustomDatePicker } from '../../../../components/shared/CustomDateTimePicker'
 import { Eyebrow, FIELD_CLS, FormSheetFooter, FormSheetHeader } from './PlSheetChrome'
 import MBookingFilesCosts from './MBookingFilesCosts'
-import { expenseRequestAfterSave, travelerIdsOf, travelersChanged, filesNeedConnection, uploadBookingFiles } from '../../../../components/Planner/bookingFormModel'
+import { expenseRequestAfterSave, travelerIdsOf, filesNeedConnection } from '../../../../components/Planner/bookingFormModel'
+import { useBookingFollowUp } from '../../../../components/Planner/useBookingFollowUp'
 import { useBookingExpenseIntent } from '../../../../components/Planner/useBookingExpenseIntent'
 import {
   RESERVATION_TYPE_OPTIONS as TYPE_OPTIONS, reservationFieldsFrom, reservationFieldsFromPrefill, selectedDayDate,
@@ -17,7 +18,6 @@ import {
 import { useReservationForm } from '../../../../components/Planner/useReservationForm'
 import StayPinStatus from '../../../../components/Planner/StayPinStatus'
 import { buildAssignmentOptions } from '../../../../components/Planner/assignmentOptions'
-import { useTripStore } from '../../../../store/tripStore'
 import type { BookingExpenseRequest } from '../../../../components/Planner/BookingCostsSection.types'
 import type { TripPlanner } from '../MTripShell'
 import { stayPlaces } from '../../../../utils/stayPlaces'
@@ -41,7 +41,8 @@ const EMPTY = {
  * driven by the planner's own editor flags (showReservationModal / editingReservation /
  * reservationPrefill / bookingForAssignmentId) so every entry point (bookings tab, day
  * sheet, timeline, import review) opens it unchanged. Saving reuses
- * planner.handleSaveReservation, which owns the accommodation split, file upload and undo.
+ * planner.handleSaveReservation, which owns the accommodation split and closes the sheet
+ * once the travellers and files that hang on the booking are written.
  */
 export default function MReservationSheet({ planner, onOpenExpense }: MReservationSheetProps) {
   const {
@@ -54,7 +55,6 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
     handleSaveReservation, canUploadFiles,
   } = planner
   const { locale } = useTranslation()
-  const setReservationTravelers = useTripStore(s => s.setReservationTravelers)
 
   const isBudgetEnabled = useAddonStore(s => s.isEnabled('budget'))
 
@@ -63,6 +63,11 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
     isEndBeforeStart, endTimeBeforeStartTime, dateBounds, startDate, startTime, setStartDate, setStartTime, takeStopDay,
     pickPlace, pickHotelPlace, pickHotelStart, pickHotelEnd, stayPin, saveData: buildSaveData,
   } = useReservationForm(EMPTY, days, places)
+  const followUp = useBookingFollowUp({
+    session: showReservationModal,
+    tripId, original: editingReservation, travelerIds, pendingFiles, setPendingFiles,
+    upload: canUploadFiles ? fd => planner.tripActions.addFile(tripId, fd) : undefined, t,
+  })
   const assignmentOptions = useMemo(
     () => buildAssignmentOptions(days, assignments, t, locale),
     [days, assignments, t, locale],
@@ -153,17 +158,7 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
     setIsSaving(true)
     try {
       const saveData = buildSaveData({ assignmentId, isEdit: !!snap.res?.id, withCheckInEnd: false })
-      const saved = await handleSaveReservation(saveData as never)
-      // Persist the traveler assignment once we have the reservation id (from the
-      // save result on create, or the edited reservation) — only when it changed.
-      const savedId = saved?.id ?? res?.id
-      if (savedId) {
-        const { changed, nextIds } = travelersChanged(res, travelerIds)
-        if (changed) await setReservationTravelers(tripId, savedId, nextIds)
-      }
-      if (saved?.id && canUploadFiles) {
-        await uploadBookingFiles(fd => planner.tripActions.addFile(tripId, fd), saved.id, pendingFiles, form.title)
-      }
+      const saved = await handleSaveReservation(saveData as never, followUp.steps(form.title))
       const expenseRequest = expenseRequestAfterSave(withExpense, saved, form, days)
       if (expenseRequest) onOpenExpense(expenseRequest)
       if (importReviewActive && saved) advanceImportReview()

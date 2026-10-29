@@ -78,8 +78,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '"{name}" beserta biaya yang terkait akan dihapus permanen.',
   'reservations.toast.updated': 'Reservasi diperbarui',
   'reservations.toast.removed': 'Reservasi dihapus',
-  'reservations.toast.fileUploaded': 'File diunggah',
-  'reservations.toast.uploadError': 'Gagal mengunggah',
+  'reservations.toast.filesNotUploaded':
+    'Pemesanan sudah tersimpan, tetapi beberapa file gagal diunggah. Simpan lagi untuk mengirimnya.',
   'reservations.newTitle': 'Reservasi Baru',
   'reservations.bookingType': 'Jenis Pemesanan',
   'reservations.titleLabel': 'Judul',

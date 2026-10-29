@@ -77,8 +77,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '«{name}» и связанные с ним расходы будут удалены навсегда.',
   'reservations.toast.updated': 'Бронирование обновлено',
   'reservations.toast.removed': 'Бронирование удалено',
-  'reservations.toast.fileUploaded': 'Файл загружен',
-  'reservations.toast.uploadError': 'Ошибка загрузки',
+  'reservations.toast.filesNotUploaded':
+    'Бронирование сохранено, но некоторые файлы не загрузились. Сохраните ещё раз, чтобы отправить их.',
   'reservations.newTitle': 'Новое бронирование',
   'reservations.bookingType': 'Тип бронирования',
   'reservations.titleLabel': 'Название',

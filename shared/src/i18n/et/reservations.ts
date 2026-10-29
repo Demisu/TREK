@@ -79,8 +79,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '"{name}" kustutatakse jäädavalt koos sellega seotud kuludega.',
   'reservations.toast.updated': 'Broneering uuendatud',
   'reservations.toast.removed': 'Broneering kustutatud',
-  'reservations.toast.fileUploaded': 'Fail üles laaditud',
-  'reservations.toast.uploadError': 'Üleslaadimine ebaõnnestus',
+  'reservations.toast.filesNotUploaded':
+    'Broneering on salvestatud, kuid mõned failid jäid üles laadimata. Salvesta uuesti, et need saata.',
   'reservations.newTitle': 'Uus broneering',
   'reservations.bookingType': 'Broneeringu tüüp',
   'reservations.titleLabel': 'Pealkiri',

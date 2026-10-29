@@ -77,8 +77,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '"{name}"과(와) 연결된 비용이 영구 삭제됩니다.',
   'reservations.toast.updated': '예약이 업데이트되었습니다',
   'reservations.toast.removed': '예약이 삭제되었습니다',
-  'reservations.toast.fileUploaded': '파일이 업로드되었습니다',
-  'reservations.toast.uploadError': '업로드 실패',
+  'reservations.toast.filesNotUploaded':
+    '예약은 저장되었지만 일부 파일이 업로드되지 않았습니다. 다시 저장하면 전송됩니다.',
   'reservations.newTitle': '새 예약',
   'reservations.bookingType': '예약 유형',
   'reservations.titleLabel': '제목',

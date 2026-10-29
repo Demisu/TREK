@@ -78,8 +78,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '"{name}" ve bağlı maliyetleri kalıcı olarak silinecek.',
   'reservations.toast.updated': 'Rezervasyon güncellendi',
   'reservations.toast.removed': 'Rezervasyon silindi',
-  'reservations.toast.fileUploaded': 'Dosya yüklendi',
-  'reservations.toast.uploadError': 'Yükleme başarısız oldu',
+  'reservations.toast.filesNotUploaded':
+    'Rezervasyon kaydedildi ancak bazı dosyalar yüklenemedi. Göndermek için yeniden kaydet.',
   'reservations.newTitle': 'Yeni Rezervasyon',
   'reservations.bookingType': 'Rezervasyon Türü',
   'reservations.titleLabel': 'Başlık',

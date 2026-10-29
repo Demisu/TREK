@@ -131,6 +131,15 @@
       ]
     },
     {
+      "feature": "Booking save follow-up: travellers and files before the editor closes",
+      "hooks": ["src/components/Planner/useBookingFollowUp.ts"],
+      "desktop": ["src/components/Planner/ReservationModal.tsx", "src/components/Planner/TransportModal.tsx"],
+      "mobile": [
+        "src/mobile/screens/trip/sheets/MReservationSheet.tsx",
+        "src/mobile/screens/trip/sheets/MTransportFormSheet.tsx"
+      ]
+    },
+    {
       "feature": "Bookings and transports lists",
       "hooks": ["src/components/Planner/bookings/bookingsModel.ts"],
       "desktop": [

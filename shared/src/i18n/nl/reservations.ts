@@ -78,8 +78,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '"{name}" en de gekoppelde kosten worden permanent verwijderd.',
   'reservations.toast.updated': 'Reservering bijgewerkt',
   'reservations.toast.removed': 'Reservering verwijderd',
-  'reservations.toast.fileUploaded': 'Bestand geüpload',
-  'reservations.toast.uploadError': 'Uploaden mislukt',
+  'reservations.toast.filesNotUploaded':
+    'De boeking is opgeslagen, maar sommige bestanden zijn niet geüpload. Sla opnieuw op om ze te versturen.',
   'reservations.newTitle': 'Nieuwe reservering',
   'reservations.bookingType': 'Boekingstype',
   'reservations.titleLabel': 'Titel',

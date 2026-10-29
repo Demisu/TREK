@@ -3,13 +3,14 @@ import type { BookingImportPreviewItem } from '@trek/shared'
 import { receiptToPrefill } from '../../components/Budget/CostsPanel.helpers'
 import type { ExpensePrefill } from '../../components/Budget/CostsPanel'
 import { parsedItemToDraft, isTransportItem, isUnplaceableItem, type BookingReviewDraft } from '../../components/Planner/parsedItemToDraft'
+import { retriedSave, type BookingSaveSteps } from '../../components/Planner/bookingFormModel'
 import { getImportFiles, deleteImportFiles } from '../../db/offlineDb'
 import { accommodationRepo } from '../../repo/accommodationRepo'
 import { findOnMap, stayQueries } from '../../repo/mapMatchRepo'
 import { useBackgroundTasksStore } from '../../store/backgroundTasksStore'
 import type { TripStoreState } from '../../store/tripStore'
 import { isEffectivelyOffline } from '../../sync/networkMode'
-import type { Accommodation, Place } from '../../types'
+import type { Accommodation, Place, Reservation } from '../../types'
 import type { Can, PlannerBase } from './plannerTypes'
 import type { PlannerDialogs } from './usePlannerDialogs'
 
@@ -57,7 +58,14 @@ export function useBookingEdits(options: BookingEditsOptions) {
   // The value comes off the persisted job (#2076).
   const importKindRef = useRef<'transports' | 'bookings'>('bookings')
 
-  const handleSaveReservation = async (data: Record<string, string | number | null> & { title: string }) => {
+  // A save is done once the editor's own part (travellers, files) is done too:
+  // only then does it say so and close. Until then the editor stays open, so a
+  // failed upload leaves the files to try again instead of a closed dialog and a
+  // booking that silently lacks them (#2883). Undefined means not done.
+  const handleSaveReservation = async (
+    data: Record<string, string | number | null> & { title: string },
+    { saved: earlier, afterSave }: BookingSaveSteps = {},
+  ): Promise<Reservation | undefined> => {
     try {
       // Imported hotel with a reviewed address but no existing place picked: match
       // an existing place by name, else geocode the address and create one, then link it.
@@ -81,55 +89,54 @@ export function useBookingEdits(options: BookingEditsOptions) {
         }
         delete acc.address
       }
+      let r: Reservation
       if (editingReservation) {
         // Don't force a day here. The old code pinned it to the (often empty)
         // selected day, which dropped the booking out of the Plan; preserving the
         // old day_id instead left it stale when the date changed. Omitting it lets
         // the server derive the day from the booking's date, or keep the current
         // one when there is no date.
-        const r = await tripActions.updateReservation(tripId, editingReservation.id, data)
-        toast.success(t('trip.toast.reservationUpdated'))
-        setShowReservationModal(false)
-        setEditingReservation(null)
-        if (data.type === 'hotel') {
-          accommodationRepo.list(tripId).then(d => setTripAccommodations(d.accommodations || [])).catch(() => {})
-        }
-        return r
+        r = await tripActions.updateReservation(tripId, editingReservation.id, data)
+      } else if (earlier) {
+        r = await tripActions.updateReservation(tripId, earlier.id, retriedSave(data, earlier))
       } else {
-        const r = await tripActions.addReservation(tripId, { ...data, day_id: selectedDayId || null })
-        toast.success(t('trip.toast.reservationAdded'))
-        setShowReservationModal(false)
+        r = await tripActions.addReservation(tripId, { ...data, day_id: selectedDayId || null })
         // An imported booking auto-creates a linked cost server-side; the saving client gets
         // no budget:created echo, so refresh the budget items here to surface it without a reload.
         if ((data as Record<string, unknown>).create_budget_entry) await tripActions.loadBudgetItems?.(tripId)
-        // Refresh accommodations if hotel was created
-        if (data.type === 'hotel') {
-          accommodationRepo.list(tripId).then(d => setTripAccommodations(d.accommodations || [])).catch(() => {})
-        }
-        return r
       }
+      if (data.type === 'hotel') {
+        accommodationRepo.list(tripId).then(d => setTripAccommodations(d.accommodations || [])).catch(() => {})
+      }
+      await afterSave?.(r)
+      toast.success(t(editingReservation ? 'trip.toast.reservationUpdated' : 'trip.toast.reservationAdded'))
+      setShowReservationModal(false)
+      if (editingReservation) setEditingReservation(null)
+      return r
     } catch (err: unknown) { toast.error(err instanceof Error ? err.message : t('common.unknownError')) }
   }
 
-  const handleSaveTransport = async (data: Record<string, any> & { title: string }) => {
+  const handleSaveTransport = async (
+    data: Record<string, any> & { title: string },
+    { saved: earlier, afterSave }: BookingSaveSteps = {},
+  ): Promise<Reservation | undefined> => {
     try {
+      let r: Reservation
       if (editingTransport) {
-        const r = await tripActions.updateReservation(tripId, editingTransport.id, data)
-        toast.success(t('trip.toast.reservationUpdated'))
-        setShowTransportModal(false)
-        setEditingTransport(null)
-        setTransportModalDayId(null)
-        return r
+        r = await tripActions.updateReservation(tripId, editingTransport.id, data)
+      } else if (earlier) {
+        r = await tripActions.updateReservation(tripId, earlier.id, retriedSave(data, earlier))
       } else {
-        const r = await tripActions.addReservation(tripId, data)
-        toast.success(t('trip.toast.reservationAdded'))
-        setShowTransportModal(false)
-        setEditingTransport(null)
-        setTransportModalDayId(null)
+        r = await tripActions.addReservation(tripId, data)
         // Surface the auto-created linked cost without a reload (no budget:created echo to us).
         if (data.create_budget_entry) await tripActions.loadBudgetItems?.(tripId)
-        return r
       }
+      await afterSave?.(r)
+      toast.success(t(editingTransport ? 'trip.toast.reservationUpdated' : 'trip.toast.reservationAdded'))
+      setShowTransportModal(false)
+      setEditingTransport(null)
+      setTransportModalDayId(null)
+      return r
     } catch (err: unknown) { toast.error(err instanceof Error ? err.message : t('common.unknownError')) }
   }
 

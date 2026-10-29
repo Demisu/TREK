@@ -77,8 +77,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '「{name}」と紐づいた費用は完全に削除されます。',
   'reservations.toast.updated': '予約を更新しました',
   'reservations.toast.removed': '予約を削除しました',
-  'reservations.toast.fileUploaded': 'ファイルをアップロードしました',
-  'reservations.toast.uploadError': 'アップロードに失敗しました',
+  'reservations.toast.filesNotUploaded':
+    '予約は保存されましたが、一部のファイルをアップロードできませんでした。もう一度保存すると送信されます。',
   'reservations.newTitle': '新しい予約',
   'reservations.bookingType': '予約タイプ',
   'reservations.titleLabel': 'タイトル',

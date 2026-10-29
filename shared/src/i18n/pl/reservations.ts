@@ -79,8 +79,8 @@ const reservations: TranslationStrings = {
     'Rezerwacja "{name}" zostanie trwale usunięta wraz z powiązanymi kosztami.',
   'reservations.toast.updated': 'Rezerwacja została zaktualizowana',
   'reservations.toast.removed': 'Rezerwacja została usunięta',
-  'reservations.toast.fileUploaded': 'Plik został przesłany',
-  'reservations.toast.uploadError': 'Nie udało się przesłać pliku',
+  'reservations.toast.filesNotUploaded':
+    'Rezerwacja została zapisana, ale niektóre pliki nie zostały przesłane. Zapisz ponownie, aby je wysłać.',
   'reservations.newTitle': 'Nowa rezerwacja',
   'reservations.bookingType': 'Rodzaj rezerwacji',
   'reservations.titleLabel': 'Tytuł',

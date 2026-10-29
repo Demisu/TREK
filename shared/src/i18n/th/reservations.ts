@@ -79,8 +79,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.deleteBodyWithExpense': '"{name}" และค่าใช้จ่ายที่เชื่อมโยงไว้จะถูกลบอย่างถาวร',
   'reservations.toast.updated': 'อัพเดตการจองแล้ว',
   'reservations.toast.removed': 'ลบการจองแล้ว',
-  'reservations.toast.fileUploaded': 'อัปโหลดไฟล์แล้ว',
-  'reservations.toast.uploadError': 'ล้มเหลวในการอัปโหลด',
+  'reservations.toast.filesNotUploaded':
+    'บันทึกการจองแล้ว แต่บางไฟล์อัปโหลดไม่สำเร็จ บันทึกอีกครั้งเพื่อส่งไฟล์เหล่านั้น',
   'reservations.newTitle': 'การจองใหม่',
   'reservations.bookingType': 'ประเภทการจอง',
   'reservations.titleLabel': 'ชื่อเรื่อง',
