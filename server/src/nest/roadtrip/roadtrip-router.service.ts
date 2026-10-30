@@ -173,17 +173,43 @@ async function refusalOf(response: Response): Promise<'no_way' | 'too_long' | nu
 
 /** The public Valhalla FOSSGIS runs, which TREK ships with. */
 const FOSSGIS_VALHALLA = 'https://valhalla1.openstreetmap.de';
+/** The public OSRM hosts FOSSGIS runs, one per profile, which TREK ships with. */
+const FOSSGIS_OSRM = 'https://routing.openstreetmap.de';
 /** Locations one request to FOSSGIS may carry; the eleventh is refused with error 150. */
 const FOSSGIS_MAX_LOCATIONS = 10;
+
+/** Whether a question goes to one of the public hosts, which allow about one request a second. */
+function isPublicHost(url: string): boolean {
+  return url.startsWith(`${FOSSGIS_VALHALLA}/`) || url.startsWith(`${FOSSGIS_OSRM}/`);
+}
+
+/**
+ * A piece of a day cut for the relay, twenty locations, that has to go to
+ * FOSSGIS instead, which takes ten: the day is cut again for it (`valhallaLegs`).
+ */
+class TooManyForFossgis extends Error {
+  constructor() {
+    super('The route carries more locations than FOSSGIS takes');
+    this.name = 'TooManyForFossgis';
+  }
+}
+
+/** The locations a route body carries, none for a question of another kind. */
+function locationCount(body: object): number {
+  const locations = (body as { locations?: unknown }).locations;
+  return Array.isArray(locations) ? locations.length : 0;
+}
 
 /**
  * What the relay says when it cannot answer for the TREK services right now:
  * no key, an allowance spent, a body it does not take, a path the host does
  * not know, a host that is down or resting. The question then goes to
- * FOSSGIS, as the planner in the browser sends it.
+ * FOSSGIS, as the planner in the browser sends it. A 504 is not among them:
+ * that one question took too long, FOSSGIS would take as long over it, and
+ * the relay answers the next one as before.
  */
 function relayCannotAnswer(status: number): boolean {
-  return [401, 403, 404, 405, 413, 429].includes(status) || status >= 500;
+  return [401, 403, 404, 405, 413, 429].includes(status) || (status >= 500 && status !== 504);
 }
 
 /** The relay's answer read as the queue reads a router's: the payload, a refusal, or a failure. */
@@ -342,7 +368,13 @@ export class RoadtripRouterService {
     return ['driving', 'walking', 'cycling', ...plugin];
   }
 
+  /**
+   * One question to a router. The public hosts are asked one after another
+   * through a queue that leaves 1.1 s between them, as they ask; an admin's
+   * own OSRM or Valhalla sets its own limits and is asked at once.
+   */
   private async request(url: string, body?: unknown, timeoutMs = 20000): Promise<unknown> {
+    if (!isPublicHost(url)) return this.fetchPayload(url, body, timeoutMs);
     const before = this.queue;
     let release!: () => void;
     this.queue = new Promise<void>((resolve) => {
@@ -353,34 +385,39 @@ export class RoadtripRouterService {
       const delay = this.nextRequest - Date.now();
       if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
       this.nextRequest = Date.now() + 1100;
-      const response = await safeFetchAdminConfigured(url, {
-        signal: AbortSignal.timeout(timeoutMs),
-        headers: { 'User-Agent': 'TREK Roadtrip', 'Content-Type': 'application/json', 'X-Client-Id': 'trek' },
-        ...(body ? { method: 'POST', body: JSON.stringify(body) } : {}),
-      });
-      if (!response.ok) {
-        // A 400 from Valhalla says why: a way that does not exist is no failure of the host.
-        if (response.status !== 400) discardBody(response);
-        else {
-          const why = await refusalOf(response);
-          if (why) throw new RouteRefusal(why, 'Routing provider returned 400');
-        }
-        throw new Error(`Routing provider returned ${response.status}`);
-      }
-      const payload = await readCappedJson<unknown>(response, 8 * 1024 * 1024);
-      if (payload === undefined) throw new Error('Routing response is invalid or too large');
-      return payload;
+      return await this.fetchPayload(url, body, timeoutMs);
     } finally {
       release();
     }
+  }
+
+  private async fetchPayload(url: string, body: unknown, timeoutMs: number): Promise<unknown> {
+    const response = await safeFetchAdminConfigured(url, {
+      signal: AbortSignal.timeout(timeoutMs),
+      headers: { 'User-Agent': 'TREK Roadtrip', 'Content-Type': 'application/json', 'X-Client-Id': 'trek' },
+      ...(body ? { method: 'POST', body: JSON.stringify(body) } : {}),
+    });
+    if (!response.ok) {
+      // A 400 from Valhalla says why: a way that does not exist is no failure of the host.
+      if (response.status !== 400) discardBody(response);
+      else {
+        const why = await refusalOf(response);
+        if (why) throw new RouteRefusal(why, 'Routing provider returned 400');
+      }
+      throw new Error(`Routing provider returned ${response.status}`);
+    }
+    const payload = await readCappedJson<unknown>(response, 8 * 1024 * 1024);
+    if (payload === undefined) throw new Error('Routing response is invalid or too large');
+    return payload;
   }
 
   /**
    * One question to a Valhalla. The TREK services' one is asked through the
    * relay, under the user's allowance there and with the installation key; a
    * relay that cannot answer hands the question to FOSSGIS through the paced
-   * queue, unless `publicFallback` is off. Every other Valhalla is asked
-   * through the queue directly.
+   * queue, unless `publicFallback` is off. A question the relay ran out of
+   * time on fails as it is, without FOSSGIS. Every other Valhalla is asked
+   * through `request` directly.
    */
   private async askValhalla(
     userId: number,
@@ -391,22 +428,24 @@ export class RoadtripRouterService {
   ): Promise<unknown> {
     if (!this.relay.serves(valhalla)) return this.request(`${valhalla}/${action}`, body, timeoutMs);
     const answer = await this.relay.ask(userId, action, body, timeoutMs).catch((err: unknown) => {
+      if (err instanceof DomainError && err.getStatus() === 504) throw new Error(err.message);
       if (err instanceof DomainError) return null;
       throw err;
     });
     if (answer && !relayCannotAnswer(answer.status)) return payloadOf(answer);
     if (!publicFallback) throw new Error('The TREK routing service cannot answer');
+    if (locationCount(body) > FOSSGIS_MAX_LOCATIONS) throw new TooManyForFossgis();
     return this.request(`${FOSSGIS_VALHALLA}/${action}`, body, timeoutMs);
   }
 
   /**
-   * Locations one route request carries: ten wherever it may end up at
-   * FOSSGIS, twenty at the TREK Valhalla asked alone and at an own one, as the
-   * planner splits a day (`locationsPerRequest`).
+   * Locations one route request carries: ten at FOSSGIS, twenty at the TREK
+   * Valhalla and at an own one, as the planner splits a day
+   * (`locationsPerRequest`). A piece cut for the relay that ends up at FOSSGIS
+   * has the day cut again (`valhallaLegs`).
    */
-  private locationsPerRequest(valhalla: string, publicFallback: boolean): number {
-    const mayReachPublic = valhalla === FOSSGIS_VALHALLA || (this.relay.serves(valhalla) && publicFallback);
-    return mayReachPublic ? FOSSGIS_MAX_LOCATIONS : VALHALLA_RELAY_MAX_LOCATIONS;
+  private locationsPerRequest(valhalla: string): number {
+    return valhalla === FOSSGIS_VALHALLA ? FOSSGIS_MAX_LOCATIONS : VALHALLA_RELAY_MAX_LOCATIONS;
   }
 
   async route(
@@ -612,9 +651,11 @@ export class RoadtripRouterService {
 
   /**
    * Valhalla's legs through the points, as many locations a request as the
-   * host takes (`locationsPerRequest`), one after another through the paced
-   * queue, each piece starting on the point the one before ended at. CW-12: a
-   * walk on foot binds no point to a ferry's edge (`offBoatLines`).
+   * host takes (`locationsPerRequest`), one after another, each piece starting
+   * on the point the one before ended at. Where the relay cannot answer a
+   * piece of twenty and FOSSGIS has to, the whole day is asked again in
+   * pieces of ten. CW-12: a walk on foot binds no point to a ferry's edge
+   * (`offBoatLines`).
    */
   private async valhallaLegs(
     userId: number,
@@ -622,10 +663,27 @@ export class RoadtripRouterService {
     points: Point[],
     costing: ValhallaCosting,
     options: Record<string, number | string>,
-    { offBoatLines = false, publicFallback = true }: { offBoatLines?: boolean; publicFallback?: boolean } = {},
+    ask: { offBoatLines?: boolean; publicFallback?: boolean } = {},
+  ): Promise<ValhallaLegs> {
+    const size = this.locationsPerRequest(valhalla);
+    try {
+      return await this.legsInPieces(userId, valhalla, points, costing, options, ask, size);
+    } catch (err) {
+      if (!(err instanceof TooManyForFossgis)) throw err;
+      return this.legsInPieces(userId, valhalla, points, costing, options, ask, FOSSGIS_MAX_LOCATIONS);
+    }
+  }
+
+  private async legsInPieces(
+    userId: number,
+    valhalla: string,
+    points: Point[],
+    costing: ValhallaCosting,
+    options: Record<string, number | string>,
+    { offBoatLines = false, publicFallback = true }: { offBoatLines?: boolean; publicFallback?: boolean },
+    size: number,
   ): Promise<ValhallaLegs> {
     const legs: ValhallaLegs = [];
-    const size = this.locationsPerRequest(valhalla, publicFallback);
     for (let start = 0; start < points.length - 1; start += size - 1) {
       const body = {
         locations: points.slice(start, start + size).map((p) => ({
@@ -637,6 +695,8 @@ export class RoadtripRouterService {
         costing,
         costing_options: { [costing]: options },
         directions_options: { units: 'kilometers' },
+        // The maneuvers, where a walk boards a ferry, without the narrative TREK never reads.
+        directions_type: 'maneuvers',
       };
       const payload = await this.askValhalla(userId, valhalla, 'route', body, { publicFallback });
       legs.push(...valhallaSchema.parse(payload).trip.legs);
@@ -767,6 +827,7 @@ export class RoadtripRouterService {
       costing: 'pedestrian',
       costing_options: { pedestrian: { ...costingOptions } },
       directions_options: { units: 'kilometers' },
+      directions_type: 'maneuvers',
       ...(count > 0 ? { alternates: count } : {}),
     });
     const parsed = alternatesSchema.parse(payload);

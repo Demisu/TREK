@@ -23,11 +23,16 @@ const QUESTIONS_PER_MINUTE = 60;
  */
 const INSTALLATION_QUESTIONS_PER_MINUTE = 100;
 const RATE_WINDOW_MS = 60_000;
-/** Short, because FOSSGIS still has to answer behind it while the planner waits. */
+/**
+ * Short, because FOSSGIS still has to answer behind it while the planner waits. A
+ * question that runs past it is answered 504 and leaves the host asked: a bike route
+ * of 300 km takes the TREK Valhalla about twelve seconds, and that says nothing about
+ * the next question.
+ */
 const TIMEOUT_MS = 10_000;
 /** Matching a long line takes Valhalla a while, on FOSSGIS as much as here. */
 const TRACE_TIMEOUT_MS = 30_000;
-/** How long every question goes to FOSSGIS after the TREK Valhalla failed one. */
+/** How long every question goes to FOSSGIS after the TREK Valhalla could not be reached or failed one. */
 const REST_MS = 60_000;
 /** The longest wait a Retry-After is followed for; the first question after it finds out whether the allowance is back. */
 const MAX_REST_MS = 60 * 60_000;
@@ -53,6 +58,8 @@ export interface ValhallaRelayAnswer {
  * A host that failed a question, or refused it for a spent allowance, is left
  * alone for a while: the relay then answers 503 at once and every caller asks
  * FOSSGIS, instead of each leg of a long day waiting out the deadline again.
+ * A question that only took too long is no such failure: it is answered 504,
+ * and the next one is asked as before.
  */
 @Injectable()
 export class RoutingRelayService {
@@ -130,11 +137,14 @@ export class RoutingRelayService {
         0,
         undefined,
         MAX_ANSWER_BYTES,
+        // One host asked many times in a row: its connection is kept rather than opened per question.
+        true,
       );
       this.identity.observe(url, response);
       const retryAfter = response.headers.get('retry-after');
       if (response.status === 429) this.rest(waitOf(retryAfter) ?? REST_MS);
-      else if (response.status >= 500) this.rest(REST_MS);
+      // A 504 of the host's own proxy is a slow question as much as the relay's deadline is.
+      else if (response.status >= 500 && response.status !== 504) this.rest(REST_MS);
       const { bytes, truncated } = await readCapped(response, MAX_ANSWER_BYTES);
       if (truncated) throw new Error('the answer is larger than the relay passes on');
       return {
@@ -144,9 +154,14 @@ export class RoutingRelayService {
         ...(retryAfter ? { retryAfter } : {}),
       };
     } catch (err) {
-      this.rest(REST_MS);
+      // A question that ran out its deadline is a slow question, not a host that is down:
+      // only a host that could not be reached, or sent more than is passed on, rests.
+      const timedOut = err instanceof DOMException && err.name === 'TimeoutError';
+      if (!timedOut) this.rest(REST_MS);
       logWarn(`[Routing relay] ${url.pathname}: ${err instanceof Error ? err.message : String(err)}`);
-      throw new DomainError(502, 'The TREK routing service did not answer');
+      throw timedOut
+        ? new DomainError(504, 'The TREK routing service took too long for this route')
+        : new DomainError(502, 'The TREK routing service did not answer');
     }
   }
 

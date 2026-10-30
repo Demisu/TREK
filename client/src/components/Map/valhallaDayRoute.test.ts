@@ -192,6 +192,23 @@ describe('a day where Valhalla routes the days', () => {
     expect([traffic.fossgis.length, traffic.osrm.length]).toEqual([0, 1]);
   });
 
+  it('VDAY-004c: a day the relay ran out of time on goes to OSRM alone, and the next day asks the relay again', async () => {
+    let slow = true;
+    const traffic = listen((body) =>
+      slow
+        ? HttpResponse.json({ error: 'The TREK routing service took too long for this route' }, { status: 504 })
+        : answered(body)
+    );
+    const fallen = await calculateRouteWithLegs(freshDay(3), { profile: 'cycling' });
+    expect([fallen.distance, fallen.engine]).toEqual([2000, 'osrm']);
+    expect([traffic.relay.length, traffic.fossgis.length, traffic.osrm.length]).toEqual([1, 0, 1]);
+
+    slow = false;
+    const next = await calculateRouteWithLegs(freshDay(3), { profile: 'cycling' });
+    expect([next.distance, next.engine]).toEqual([4000, 'valhalla']);
+    expect([traffic.relay.length, traffic.osrm.length]).toEqual([2, 1]);
+  });
+
   it('VDAY-004b: an own Valhalla that does not answer in time hands the day to OSRM without a second wait', async () => {
     choose({ valhalla_base_url: OWN_VALHALLA });
     const timeout = AbortSignal.timeout.bind(AbortSignal);

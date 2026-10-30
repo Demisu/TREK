@@ -70,7 +70,7 @@ const RELAY_MAX_WAIT_MS = 60 * 60_000
 
 /**
  * How long a route or a height question may take through the relay or at an own Valhalla.
- * The server gives the TREK Valhalla ten seconds; this leaves room for its 502 to arrive
+ * The server gives the TREK Valhalla ten seconds; this leaves room for its 504 to arrive
  * first. Where the relay itself hangs, FOSSGIS answers soon after; where an own Valhalla
  * does, OSRM routes the day, rather than the day waiting as long as the browser would.
  */
@@ -115,11 +115,11 @@ export type AvoidClass = RouteAvoidClass
 const MAX_LOCATIONS = 10
 
 /**
- * Pause between the pieces of a split day, in milliseconds.
+ * The pace of the public instance, in milliseconds between two questions.
  *
- * The public instance allows about one request a second per client, and a day long
- * enough to be split is exactly the case that would fire two back to back. Matches the
- * 1100 ms the road trip rail already leaves between its own days.
+ * It allows about one request a second per client, and a day long enough to be split is
+ * exactly the case that would fire two back to back; `valhallaTurn` holds every question
+ * to it there. Matches the 1100 ms the road trip rail already leaves between its own days.
  */
 const CHUNK_PAUSE_MS = 1100
 
@@ -307,9 +307,9 @@ export async function valhallaRouteAvoiding(
  * came back within two metres and under a second of the same day asked whole, because
  * the shared point is routed to and from identically.
  *
- * The pieces go out one after another with a pause, since a day long enough to need
- * splitting is exactly the one that would otherwise fire two requests inside a second
- * at a host that allows one.
+ * The pieces go out one after another. Those that reach the public instance wait their
+ * turn there (`valhallaTurn`), since a day long enough to need splitting is exactly the
+ * one that would otherwise fire two requests inside a second at a host that allows one.
  */
 export async function valhallaRun(
   waypoints: Waypoint[],
@@ -372,12 +372,12 @@ interface RunAsk {
 }
 
 /**
- * Locations one request carries: ten wherever it may end up at the public instance,
- * twenty at the TREK Valhalla asked alone and at an own one.
+ * Locations one request carries: ten at the public instance, twenty at the TREK
+ * Valhalla and at an own one. A day cut for the relay that the relay then cannot
+ * answer is cut again for FOSSGIS (`chainRun`).
  */
-function locationsPerRequest(base: string, publicFallback: boolean): number {
-  const mayReachPublic = base === FOSSGIS_VALHALLA || (base === TREK_VALHALLA && publicFallback)
-  return mayReachPublic ? MAX_LOCATIONS : VALHALLA_RELAY_MAX_LOCATIONS
+function locationsPerRequest(base: string): number {
+  return base === FOSSGIS_VALHALLA ? MAX_LOCATIONS : VALHALLA_RELAY_MAX_LOCATIONS
 }
 
 async function chainRun(
@@ -389,18 +389,38 @@ async function chainRun(
 ): Promise<ValhallaRun | ValhallaNoPath | null> {
   const base = valhallaBase()
   if (!mayAsk(base, ask.publicFallback) || waypoints.length < 2) return null
+  const size = locationsPerRequest(base)
+  const run = await chainRunSized(base, waypoints, size, profile, avoid, signal, ask)
+  // The relay fell over during a day cut for it. It rests now, so the base reads as FOSSGIS
+  // and the day is asked again there in pieces of ten.
+  const recut = run === null && base === TREK_VALHALLA && ask.publicFallback && waypoints.length > MAX_LOCATIONS
+  if (recut && Date.now() < relayRestingUntil && !signal?.aborted) {
+    return chainRun(waypoints, profile, avoid, signal, ask)
+  }
+  return run
+}
 
+async function chainRunSized(
+  base: string,
+  waypoints: Waypoint[],
+  size: number,
+  profile: 'driving' | 'walking' | 'cycling',
+  avoid: readonly AvoidClass[],
+  signal: AbortSignal | undefined,
+  ask: RunAsk,
+): Promise<ValhallaRun | ValhallaNoPath | null> {
   const legs: ValhallaLeg[] = []
-  const chunks = chunkWaypoints(waypoints, locationsPerRequest(base, ask.publicFallback))
-  for (const [index, chunk] of chunks.entries()) {
+  // No pause between the pieces: a question that reaches FOSSGIS waits its turn in
+  // valhallaTurn, and the relay and an own Valhalla are not paced.
+  for (const chunk of chunkWaypoints(waypoints, size)) {
     if (signal?.aborted) return null
-    if (index > 0) await pause(CHUNK_PAUSE_MS, signal)
     // Retried per piece rather than per day. The caller retries the whole task, so a
     // rate limit on the last piece of a split day would otherwise throw away the pieces
     // that already answered and ask for all of them again — three times over, against a
     // host that allows one request a second.
     const request = () => requestRun(base, chunk, profile, avoid, signal, ask)
-    const run = await askWithRetry(base, request, signal, ask.publicFallback)
+    // FOSSGIS stands in only for a piece of at most ten; a longer one is cut again instead.
+    const run = await askWithRetry(base, request, signal, ask.publicFallback && chunk.length <= MAX_LOCATIONS)
     // A day is one answer or none. Half a day of legs would be worse than no answer:
     // the schedule chains leg times blindly and cannot tell that it is missing some, so
     // it would print a complete, plausible, wrong timetable rather than a gap.
@@ -488,6 +508,9 @@ export function resetValhallaTurns(): void {
  * relay refusing the body.
  */
 async function relayCannotAnswer(response: Response): Promise<boolean> {
+  // 504: this one question took too long. The relay still answers the next one, and
+  // FOSSGIS would take as long over this one.
+  if (response.status === 504) return false
   if (response.status === 400) {
     // A body that is not JSON cannot be Valhalla's own refusal, so it reads as the relay's.
     const data: unknown = await response.clone().json().catch(() => ({}))
@@ -543,7 +566,7 @@ export async function valhallaPost(
     const relayed = await askRelay(action, body, signal)
     if (relayed) return relayed
   }
-  if (base === TREK_VALHALLA && !publicFallback) return new Response(null, { status: 503 })
+  if (base === TREK_VALHALLA && (!publicFallback || overPublicLimit(action, body))) return new Response(null, { status: 503 })
   const host = base === TREK_VALHALLA ? FOSSGIS_VALHALLA : base
   await valhallaTurn(host, signal)
   return fetch(`${host}/${action}`, {
@@ -555,6 +578,12 @@ export async function valhallaPost(
     // An own Valhalla routes every day, so one that hangs would hold each of them up.
     signal: host === FOSSGIS_VALHALLA ? signal : withDeadline(action, signal),
   })
+}
+
+/** Whether a route carries more locations than the public instance takes, so it cannot stand in for the relay. */
+function overPublicLimit(action: ValhallaRelayAction, body: object): boolean {
+  const locations = (body as { locations?: unknown }).locations
+  return action === 'route' && Array.isArray(locations) && locations.length > MAX_LOCATIONS
 }
 
 /**
@@ -575,7 +604,8 @@ export function valhallaSpacing(signal?: AbortSignal): Promise<void> {
  * on a second ask, and asking anyway is the request the memo exists to save. Nor, where
  * nothing may stand in for this engine, when the relay now rests or the host used up its
  * whole deadline: the second ask would not leave this tab or would most likely wait as
- * long again, and OSRM is waiting for the day.
+ * long again, and OSRM is waiting for the day. Nor when the relay ran out of time on
+ * it: the relay does not rest for that, so the second ask would wait at the same host.
  */
 async function askWithRetry<T>(
   base: string,
@@ -587,6 +617,8 @@ async function askWithRetry<T>(
   for (let attempt = 0; (!answer || tooSlow(answer)) && attempt < CHUNK_RETRIES && !signal?.aborted; attempt++) {
     if (notValhalla.has(base)) break
     if (!publicFallback && (tooSlow(answer) || (base === TREK_VALHALLA && Date.now() < relayRestingUntil))) break
+    // A question the relay ran out of time on would go to the same host again.
+    if (tooSlow(answer) && base === TREK_VALHALLA) break
     await pause(CHUNK_PAUSE_MS, signal)
     answer = await ask()
   }
@@ -618,6 +650,8 @@ function routeBody(
     costing,
     costing_options: { [costing]: options },
     directions_options: { units: 'kilometers' },
+    // The maneuvers, where the ferry spans come from, without the narrative nothing reads.
+    directions_type: 'maneuvers',
   }
 }
 
@@ -640,6 +674,8 @@ async function postRoute(
       // is the public instance's one-per-second.
       if (response.status === 404 || response.status === 405) notValhalla.add(base)
       if (response.status === 400 && (await refusesTheWay(response))) return NO_PATH
+      // The relay's word that this question ran out its deadline, read as one that timed out here.
+      if (response.status === 504) return TOO_SLOW
       return null
     }
     return await response.json()
@@ -727,7 +763,7 @@ export async function valhallaTraceAttributes(
   }
 }
 
-/** One request, at most ten locations. */
+/** One request, at most ten locations at the public instance and twenty elsewhere. */
 async function requestRun(
   base: string,
   waypoints: Waypoint[],

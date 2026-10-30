@@ -66,6 +66,8 @@ export const valhallaRouteRequestSchema = z
     costing: costingSchema,
     costing_options: costingOptionsSchema.optional(),
     directions_options: z.object({ units: z.enum(['kilometers', 'miles']).optional() }).optional(),
+    // The maneuvers without their narrative: TREK reads where a route boards a ferry, never the instructions.
+    directions_type: z.enum(['maneuvers']).optional(),
     alternates: z.number().int().min(0).max(VALHALLA_RELAY_MAX_ALTERNATES).optional(),
   })
   .refine(withinRelayBytes.check, withinRelayBytes.message);

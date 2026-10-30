@@ -81,9 +81,10 @@ describe('RoutingRelayService.ask', () => {
       contentType: 'application/json',
       body: Buffer.from('{"trip":{"legs":[]}}'),
     });
-    const [url, init, redirects] = vi.mocked(safeFetchAdminConfigured).mock.calls[0];
+    const [url, init, redirects, , , reuseConnections] = vi.mocked(safeFetchAdminConfigured).mock.calls[0];
     expect(url).toBe('https://valhalla.liketrek.com/route');
     expect(redirects).toBe(0);
+    expect(reuseConnections).toBe(true);
     expect(init?.signal).toBeInstanceOf(AbortSignal);
     expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer tk1.k.p.s');
     expect(JSON.parse(String(init?.body))).toEqual(ROUTE);
@@ -158,12 +159,10 @@ describe('RoutingRelayService.ask', () => {
     await expect(relay.ask(1, 'route', ROUTE)).rejects.toMatchObject({ status: 502 });
   });
 
-  it('RELAY-009: after a host that hung, the next question is answered 503 at once, and asked again after the rest', async () => {
+  it('RELAY-009: after a host that could not be reached, the next question is answered 503 at once, and asked again after the rest', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-10-29T10:00:00Z'));
-    vi.mocked(safeFetchAdminConfigured).mockRejectedValueOnce(
-      new DOMException('The operation was aborted due to timeout', 'TimeoutError'),
-    );
+    vi.mocked(safeFetchAdminConfigured).mockRejectedValueOnce(new TypeError('fetch failed'));
     await expect(relay.ask(1, 'height', { shape: [{ lat: 47, lon: 11 }] })).rejects.toMatchObject({ status: 502 });
 
     const resting = await relay.ask(1, 'height', { shape: [{ lat: 47.1, lon: 11 }] });
@@ -177,10 +176,25 @@ describe('RoutingRelayService.ask', () => {
   });
 
   it('RELAY-010: passes an error of the host on and rests after it', async () => {
-    vi.mocked(safeFetchAdminConfigured).mockResolvedValueOnce(upstream(504, '{"error":"gateway"}'));
-    expect((await relay.ask(1, 'route', ROUTE)).status).toBe(504);
+    vi.mocked(safeFetchAdminConfigured).mockResolvedValueOnce(upstream(502, '{"error":"gateway"}'));
+    expect((await relay.ask(1, 'route', ROUTE)).status).toBe(502);
     expect((await relay.ask(1, 'route', ROUTE)).status).toBe(503);
     expect(safeFetchAdminConfigured).toHaveBeenCalledTimes(1);
+  });
+
+  it('RELAY-016: answers 504 for a question that ran out its deadline, and asks the host the next one', async () => {
+    vi.mocked(safeFetchAdminConfigured).mockRejectedValueOnce(
+      new DOMException('The operation was aborted due to timeout', 'TimeoutError'),
+    );
+    await expect(relay.ask(1, 'route', ROUTE)).rejects.toMatchObject({
+      status: 504,
+      message: 'The TREK routing service took too long for this route',
+    });
+    vi.mocked(safeFetchAdminConfigured).mockResolvedValueOnce(upstream(504, '{"error":"gateway timeout"}'));
+    expect((await relay.ask(1, 'route', ROUTE)).status).toBe(504);
+    vi.mocked(safeFetchAdminConfigured).mockResolvedValueOnce(upstream(200, '{}'));
+    expect((await relay.ask(1, 'route', ROUTE)).status).toBe(200);
+    expect(safeFetchAdminConfigured).toHaveBeenCalledTimes(3);
   });
 
   it("RELAY-011: follows a spent allowance's Retry-After, at most an hour of it, and passes it on", async () => {

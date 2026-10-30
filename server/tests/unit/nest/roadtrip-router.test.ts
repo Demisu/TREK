@@ -747,6 +747,22 @@ describe('server Roadtrip router through the TREK services (routing relay)', () 
     });
   });
 
+  it('ROUTER-RELAY-007: a question the relay ran out of time on is not handed to FOSSGIS, and OSRM routes the day', async () => {
+    const slow = [
+      () => Promise.reject(new DomainError(504, 'The TREK routing service took too long for this route')),
+      () => Promise.resolve(answer(504, { error: 'gateway timeout' })),
+    ];
+    await oneByOne([...slow.entries()], async ([userId, timedOut]) => {
+      vi.mocked(safeFetchAdminConfigured).mockClear();
+      relay.ask.mockReset().mockImplementationOnce(timedOut);
+      const route = await settled(setup().router.route(userId, 1, 1, points.slice(0, 2), 'driving', ['toll']));
+      expect(route.avoidMissed).toEqual(['toll']);
+      const asked = vi.mocked(safeFetchAdminConfigured).mock.calls.map(([url]) => String(url));
+      expect(asked).toHaveLength(1);
+      expect(asked[0]).toContain('routing.openstreetmap.de/routed-car');
+    });
+  });
+
   it('ROUTER-RELAY-003: reads the TREK Valhalla saying no way joins the points as a refusal, and fails on any other error', async () => {
     const costingOptions = { max_hiking_difficulty: 3 };
     relay.ask.mockResolvedValueOnce(answer(400, { error_code: 442, error: 'No path could be found for input' }));
@@ -908,13 +924,22 @@ describe('server Roadtrip router: every day through Valhalla where it routes the
       );
     });
 
-    it('ROUTER-DAY-005: a day that avoids something keeps FOSSGIS behind the relay and its ten locations', async () => {
+    it('ROUTER-DAY-011: a day that avoids something asks the relay twenty locations at a time, with only the maneuvers', async () => {
+      const route = await settled(setup().router.route(4, 1, 1, day(12), 'driving', ['toll']));
+      expect(relayBodies().map((body) => body.locations.length)).toEqual([12]);
+      expect(relay.ask.mock.calls[0][2]).toMatchObject({ directions_type: 'maneuvers' });
+      expect(route.parts).toHaveLength(11);
+      expect(safeFetchAdminConfigured).not.toHaveBeenCalled();
+    });
+
+    it('ROUTER-DAY-005: a day that avoids something keeps FOSSGIS behind the relay, cut again in its ten locations', async () => {
       relay.ask.mockReset().mockResolvedValue(answer(503, { error: 'The TREK routing service is resting' }));
       vi.mocked(safeFetchAdminConfigured).mockImplementation(
         async (_url, init) => new Response(JSON.stringify(legsFor(bodyOf(init)))),
       );
       const route = await settled(setup().router.route(4, 1, 1, day(12), 'driving', ['toll']));
-      expect(relayBodies().map((body) => body.locations.length)).toEqual([10, 3]);
+      // Twelve for the relay, then the day cut again: FOSSGIS refuses an eleventh location.
+      expect(relayBodies().map((body) => body.locations.length)).toEqual([12, 10, 3]);
       expect(vi.mocked(safeFetchAdminConfigured).mock.calls.map(([url]) => url)).toEqual(
         Array(2).fill('https://valhalla1.openstreetmap.de/route'),
       );
@@ -984,6 +1009,42 @@ describe('server Roadtrip router: every day through Valhalla where it routes the
     expect(urls[0]).toBe('https://valhalla.internal/route');
     expect(urls[1]).toContain('routing.openstreetmap.de/routed-car');
     expect(relay.ask).not.toHaveBeenCalled();
+  });
+
+  it('ROUTER-DAY-012: paces the public hosts a request every 1.1 s, an own Valhalla and an own OSRM not at all', async () => {
+    const own = (url: unknown) => String(url).startsWith('https://valhalla.internal');
+    vi.mocked(safeFetchAdminConfigured).mockImplementation(async (url, init) =>
+      own(url) ? new Response(JSON.stringify(legsFor(bodyOf(init)))) : osrm(),
+    );
+    const ownValhalla = setup({ valhalla_base_url: 'https://valhalla.internal' }).router.route(
+      1,
+      1,
+      1,
+      day(21),
+      'cycling',
+      [],
+    );
+    const ownOsrm = setup({ routing_base_url: 'http://router.internal' }).router;
+    const twoDays = Promise.all([
+      ownOsrm.route(2, 1, 1, points, 'driving', []),
+      ownOsrm.route(2, 1, 2, points, 'driving', []),
+    ]);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(await ownValhalla).toMatchObject({ parts: expect.any(Array) });
+    expect(await twoDays).toHaveLength(2);
+    expect(safeFetchAdminConfigured).toHaveBeenCalledTimes(4);
+
+    vi.mocked(safeFetchAdminConfigured).mockClear();
+    const { router } = setup();
+    const publicDays = Promise.all([
+      router.route(3, 1, 1, points, 'driving', []),
+      router.route(3, 1, 2, points, 'driving', []),
+    ]);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(safeFetchAdminConfigured).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(200);
+    await publicDays;
+    expect(safeFetchAdminConfigured).toHaveBeenCalledTimes(2);
   });
 
   it('ROUTER-DAY-007: with FOSSGIS chosen, a day that avoids nothing stays with OSRM as before', async () => {

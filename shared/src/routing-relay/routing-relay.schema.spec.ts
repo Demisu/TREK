@@ -30,6 +30,9 @@ describe('valhallaRouteRequestSchema', () => {
   it('takes the route the planner asks for, its costing options included', () => {
     expect(valhallaRouteRequestSchema.parse(route)).toEqual(route);
     expect(valhallaRouteRequestSchema.parse({ ...route, alternates: 3 }).alternates).toBe(3);
+    expect(valhallaRouteRequestSchema.parse({ ...route, directions_type: 'maneuvers' }).directions_type).toBe(
+      'maneuvers',
+    );
     const bike = {
       ...route,
       costing: 'bicycle',
@@ -45,6 +48,8 @@ describe('valhallaRouteRequestSchema', () => {
     const many = Array.from({ length: VALHALLA_RELAY_MAX_LOCATIONS + 1 }, () => route.locations[0]);
     expect(valhallaRouteRequestSchema.safeParse({ ...route, locations: many }).success).toBe(false);
     expect(valhallaRouteRequestSchema.safeParse({ ...route, costing: 'truck' }).success).toBe(false);
+    // Only the maneuvers: `none` would drop the ferry boarding the planner reads off them.
+    expect(valhallaRouteRequestSchema.safeParse({ ...route, directions_type: 'none' }).success).toBe(false);
     const off = [{ lat: 91, lon: 0 }, route.locations[1]];
     expect(valhallaRouteRequestSchema.safeParse({ ...route, locations: off }).success).toBe(false);
   });
