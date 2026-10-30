@@ -20,4 +20,9 @@ describe('bundled airport dataset', () => {
       expect(findByIata(code), code).not.toBeNull();
     }
   });
+
+  it('AIRPORT-ASSET-003: carries the codes OurAirports gained since, Logroño among them (#2897)', () => {
+    expect(findByIata('RJL')).toMatchObject({ icao: 'LERJ', city: 'Logroño', country: 'ES', tz: 'Europe/Madrid' });
+    expect(findByIata('DXN')?.country).toBe('IN');
+  });
 });
