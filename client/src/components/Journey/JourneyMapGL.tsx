@@ -557,7 +557,10 @@ function JourneyMapGL(
       if (!photos?.length) return
       for (const cluster of clusterPhotos(photos, glWorldPx(map))) {
         const el = document.createElement('div')
-        el.style.cssText = 'position:relative;width:48px;height:48px;cursor:pointer'
+        // No inline `position` (#2910): the engine's marker class positions the element
+        // absolutely, and `position:relative` would drop it into the normal flow, where
+        // every thumbnail sits below the ones drawn before it.
+        el.style.cssText = 'width:48px;height:48px;cursor:pointer'
         el.innerHTML = photoMarkerHtml(cluster.members[0].thumbUrl, cluster.members.length)
         el.addEventListener('click', (ev) => {
           ev.stopPropagation()

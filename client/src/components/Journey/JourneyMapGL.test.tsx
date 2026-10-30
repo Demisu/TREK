@@ -1,4 +1,4 @@
-// FE-COMP-JMAPGL-001 to FE-COMP-JMAPGL-048, FE-COMP-JMAPGL-2453
+// FE-COMP-JMAPGL-001 to FE-COMP-JMAPGL-048, FE-COMP-JMAPGL-2453, FE-COMP-JMAPGL-2910
 
 type Spy = ReturnType<typeof vi.fn>
 
@@ -642,6 +642,15 @@ describe('JourneyMapGL', () => {
     thumbs[0].element.click()
     expect(onPhotoClick).toHaveBeenCalledWith(['a', 'b'])
     expect(gl.map.on).toHaveBeenCalledWith('moveend', expect.any(Function))
+  })
+
+  it('FE-COMP-JMAPGL-2910: no marker element sets its own position, so the engine keeps it absolute', () => {
+    withToken()
+    const photos = [{ id: 'a', lat: 45, lng: 5, thumbUrl: '/api/photos/1/thumbnail' }]
+    const marks = [{ kind: 'stay', key: 's1', lat: 46, lng: 6, color: '#14b8a6', stay: {} }]
+    render(<JourneyMapGL checkins={[]} entries={entries} photos={photos} marks={marks} />)
+    expect(gl.markers.some(m => m.element.innerHTML.includes('/api/photos/'))).toBe(true)
+    for (const marker of gl.markers) expect(marker.element.style.position).toBe('')
   })
 
   it('FE-COMP-JMAPGL-2889: panning keeps the photo and mark groups, only a zoom regroups them', () => {
