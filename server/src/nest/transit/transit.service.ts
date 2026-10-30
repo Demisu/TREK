@@ -223,7 +223,13 @@ export class TransitService {
     return { ...data, provider };
   }
 
-  /** Route search between two coordinates. Returns compact itineraries for the picker. */
+  /**
+   * Route search between two coordinates. Returns compact itineraries for the picker.
+   *
+   * @txIndependent the only writes are Google's daily call counter, one after each
+   * upstream request; each count stands on its own and cannot share a transaction
+   * with the HTTP call it records.
+   */
   async plan(
     q: PlanQuery,
     language?: string,
