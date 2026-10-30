@@ -470,7 +470,7 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     const photos = (current?.gallery ?? []).filter(p => wanted.has(String(p.id)))
     if (!photos.length) return
     setLightbox({
-      photos: photos.map(p => ({ id: p.id, src: photoUrl(p, 'original'), caption: p.caption, provider: p.provider, asset_id: p.asset_id, owner_id: p.owner_id, mediaType: p.media_type })),
+      photos: photos.map(p => ({ id: p.id, src: photoUrl(p, 'original'), thumbSrc: photoUrl(p, 'thumbnail'), caption: p.caption, provider: p.provider, asset_id: p.asset_id, owner_id: p.owner_id, mediaType: p.media_type })),
       index: 0,
     })
   }, [current?.gallery])

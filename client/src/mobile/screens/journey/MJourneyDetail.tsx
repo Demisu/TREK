@@ -258,6 +258,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
       photos: photos.map(p => ({
         id: p.id,
         src: photoUrl(p, 'original'),
+        thumbSrc: photoUrl(p, 'thumbnail'),
         caption: p.caption ?? null,
         provider: p.provider,
         asset_id: p.asset_id,
@@ -590,6 +591,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
           showWeather={current.show_weather !== 0}
           userId={useAuthStore.getState().user?.id || 0}
           trips={current.trips}
+          photoProviders={availableProviders}
           onMoveEarlier={
             canEditEntries && editingEntry.id !== 0 && editingEntry.type !== 'skeleton' && dayNeighbours(editingEntry).canMoveUp
               ? () => { void moveWithinDay(editingEntry, -1) }
