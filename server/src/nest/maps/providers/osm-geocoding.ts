@@ -9,7 +9,7 @@
  * the installation's geocoder these answer alone; Nominatim is OsmClient's
  * business, for installations without the TREK services.
  */
-import { findByIata, type Airport } from '../../airports/airports.data';
+import { airportByCode, type AirportByCode } from '../../airports/airports.contract';
 import { buildOsmDetails, haversineMetres, namesOverlap, toApiLang } from '../maps.helpers';
 import type { NominatimResult, NominatimReverse, OverpassElement } from './osm.client';
 import type { PhotonClient } from './photon.client';
@@ -100,9 +100,9 @@ export async function photonSuggest(
  * coordinate, where the aerodrome comes first. Lower case is left alone, so
  * "Ber" typed on the way to "Berlin" stays a search for Berlin.
  */
-function airportOfCode(query: string): Airport | null {
+function airportOfCode(query: string): AirportByCode | null {
   const code = query.trim();
-  return /^[A-Z]{3}$/.test(code) ? findByIata(code) : null;
+  return /^[A-Z]{3}$/.test(code) ? airportByCode(code) : null;
 }
 
 /**
@@ -111,7 +111,7 @@ function airportOfCode(query: string): Airport | null {
  * airport, which is how OpenStreetMap files Haneda (an island named "Tokyo
  * International Airport").
  */
-function airportLead(ranked: PhotonFeature[], airport: Airport): PhotonLead | null {
+function airportLead(ranked: PhotonFeature[], airport: AirportByCode): PhotonLead | null {
   const near = ranked
     .map((feature) => ({ feature, row: asSuggestion(feature) }))
     .filter(
