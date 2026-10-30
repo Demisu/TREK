@@ -216,7 +216,7 @@ services:
       - ./extractors:/usr/local/share/kitinerary/extractors:ro
 ```
 
-With the Helm chart, mount a ConfigMap there with `extraVolumes` and `extraVolumeMounts`. See the example in the chart's `values.yaml`.
+With the Helm chart, mount a ConfigMap there with `extraVolumes` and `extraVolumeMounts`. See [Install-Helm](Install-Helm#further-volumes).
 
 ### Review mark
 

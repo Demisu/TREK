@@ -231,6 +231,21 @@ extraEnvFrom:
       name: trek-smtp
 ```
 
+### Further volumes
+
+`extraVolumes` adds volumes to the pod, and `extraVolumeMounts` mounts them in the TREK container, next to `/app/data` and `/app/uploads`. Both go into the Deployment as written, and the chart does not create the objects they name. For example, to give the booking import your own KItinerary extractors from a ConfigMap (one `.json` and one `.js` key for each extractor, see [Reservations-and-Bookings](Reservations-and-Bookings#your-own-extractors)):
+
+```yaml
+extraVolumes:
+  - name: kitinerary-extractors
+    configMap:
+      name: trek-kitinerary-extractors
+extraVolumeMounts:
+  - name: kitinerary-extractors
+    mountPath: /usr/local/share/kitinerary/extractors
+    readOnly: true
+```
+
 ### Ingress
 
 ```yaml

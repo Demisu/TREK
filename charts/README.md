@@ -5,7 +5,7 @@ This is a minimal Helm chart for deploying the TREK app.
 ## Features
 - Deploys the TREK container
 - Exposes port 3000 via Service
-- Optional persistent storage for `/app/data` and `/app/uploads` and extra volumes support
+- Optional persistent storage for `/app/data` and `/app/uploads`, plus extra volumes and mounts
 - Configurable environment variables and secrets
 - Optional generic Ingress support
 - Configurable health checks (liveness/readiness probes) on `/api/health`
