@@ -28,9 +28,10 @@ import type { TransitProvider } from '@trek/shared';
  * the same compact shape. Transitous remains the default. Empty plans try the
  * other backend when available; Google fallback requires an admin-set key.
  *
- * Both responses name the backend that answered. The fallback is silent by
- * design, so without this an empty result is indistinguishable between "this
- * provider has no data here" and "the provider you picked never ran" — which is
+ * Both responses name the backend that answered. Both fallbacks (no Google key,
+ * and the empty-plan retry) are silent by design, so without this an empty
+ * result is indistinguishable between "this provider has no data here" and
+ * "the provider you picked never ran" — which is
  * exactly the guessing game a Paris search ran into when the Île-de-France feed
  * ended before the trip date.
  *

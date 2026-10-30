@@ -118,6 +118,8 @@ Which service answers public transit search. It saves as soon as you pick.
 
 With **Google** picked but no Google key configured, a warning says transit search is still using Transitous. When only your own personal Google key is set, a warning says that other members still fall back to Transitous until the key is saved here as the instance key. See [Transport-Flights-Trains-Cars](Transport-Flights-Trains-Cars).
 
+When the picked service finds no connection, the search asks the other one before it reports an empty result. From Google, that is Transitous. From **Transitous**, Google is asked only when an instance key (saved here or set through `PLACES_API_KEY`) is available and the **Daily limit for Google calls** is not reached; a member's personal key is never billed for it. Each such fallback counts as one billed Google search. An error from the picked service is shown as before and does not trigger the fallback.
+
 ### Place search provider
 
 TREK's own index and OpenStreetMap answer every search. This picks who else is asked when they find nothing:

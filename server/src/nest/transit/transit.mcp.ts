@@ -110,7 +110,7 @@ export class TransitMcp {
   @Tool({
     name: 'search_transit_routes',
     description:
-      'Search scheduled public-transit routes between two coordinates, via whichever backend the instance is configured for. Returns itineraries that can be passed unchanged to create_transit_journey, and `provider`, the backend that answered. `dropped` counts provider itineraries that failed validation and are therefore absent from the results — a non-zero value means the provider offered routes this tool could not represent.',
+      'Search scheduled public-transit routes between two coordinates, via the backend the instance is configured for, falling back to the other backend when it finds no route. Returns itineraries that can be passed unchanged to create_transit_journey, and `provider`, the backend that answered. `dropped` counts provider itineraries that failed validation and are therefore absent from the results — a non-zero value means the provider offered routes this tool could not represent.',
     inputSchema: {
       from: transitPlaceInput,
       to: transitPlaceInput,

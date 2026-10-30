@@ -128,7 +128,7 @@ Requires `reservations:write` scope.
 
 ### Automated public transit
 
-Transit search is powered by Transitous and uses the existing `geo:read` and `reservations:write` scopes.
+Transit search is powered by the configured transit provider (Transitous by default, or Google), falls back to the other one when the first finds no route, and uses the existing `geo:read` and `reservations:write` scopes.
 
 | Tool | Scope required | Description |
 |---|---|---|
