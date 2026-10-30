@@ -145,7 +145,8 @@ const recordView = (r: Record<string, unknown>): RowView => ({
  * Then Photon's lead (`pickLead`) goes first, and rows of its name inside it
  * go: "Berlin" no longer opens on a business filed as Berlin above the city.
  * Rows that read the same twice, two branches of a chain with the same town
- * below them, are one row: nobody can tell them apart in the list.
+ * below them, are one row: nobody can tell them apart in the list. A row
+ * without a line below its name is never folded that way.
  */
 export function mergeRanked<T>(
   first: T[],
@@ -163,12 +164,18 @@ export function mergeRanked<T>(
     return !first.some((i) => (id !== null && view(i).id === id) || samePlace(asPlace(i), asPlace(o)));
   });
   const merged = interleave(first, extra, Number.POSITIVE_INFINITY);
-  const top = lead && leadsHere(lead, bias) ? merged.find((row) => standsFor(view(row), lead)) : undefined;
+  // Photon's own row first; a row of its name inside it only where that row went as the same place.
+  const top =
+    lead && leadsHere(lead, bias)
+      ? (merged.find((row) => view(row).id === lead.placeId) ?? merged.find((row) => standsFor(view(row), lead)))
+      : undefined;
   const ordered = top && lead ? [top, ...merged.filter((row) => row !== top && !standsFor(view(row), lead))] : merged;
   const shown = new Set<string>();
   return ordered
     .filter((row) => {
       const v = view(row);
+      // Without a line below the name two rows of one name are told apart by nothing but where they are.
+      if (!v.line.trim()) return true;
       const reads = `${foldName(v.name)}\n${foldName(v.line)}`;
       if (shown.has(reads)) return false;
       shown.add(reads);

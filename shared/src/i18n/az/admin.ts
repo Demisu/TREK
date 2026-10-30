@@ -190,7 +190,7 @@ const admin: TranslationStrings = {
   'admin.trekApi.quota.used': 'İstifadə edilib',
   'admin.trekApi.quota.remaining': 'Qalıb',
   'admin.trekApi.quota.resets': 'Sıfırlanma vaxtı',
-  'admin.trekApi.quota.limit': 'Limit',
+  'admin.trekApi.quota.limit': 'Gündəlik limit',
   'admin.trekApi.quota.key': 'Açar',
   'admin.trekApi.quota.state.connected': 'Qoşulub',
   'admin.trekApi.quota.state.registering': 'Qurulur',

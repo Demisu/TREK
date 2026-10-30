@@ -1,5 +1,6 @@
 /**
- * /api/maps search and reverse e2e with Photon in front of Nominatim: the real
+ * /api/maps search and reverse e2e with Photon as the geocoder of an
+ * installation with a key, Nominatim of one without: the real
  * JwtAuthGuard, Zod pipe and response contracts over MapsModule on a migrated
  * temp database, the TREK Places index switched off so the OpenStreetMap half
  * answers alone.
@@ -127,12 +128,12 @@ describe('POST /api/maps/search', () => {
     expect(identity.observed).toEqual([{ host: 'photon.liketrek.com', status: 200 }]);
   });
 
-  it('MAPS-PHOTON-E2E-002: falls back to Nominatim when Photon refuses, and the answer reads the same', async () => {
+  it('MAPS-PHOTON-E2E-002: a Photon that refuses is an empty answer, Nominatim is not asked in its place', async () => {
     photonReply = () => photonAnswer([], 429);
     const res = await request(app.getHttpServer()).post('/api/maps/search').set(as(USER)).send({ query: 'Café' });
     expect(res.status).toBe(200);
-    expect(res.body.places[0]).toMatchObject({ osm_id: 'node:42', name: 'Café Nominatim', category: 'cafe' });
-    expect(hostsAsked()).toEqual(['photon.liketrek.com', 'nominatim.openstreetmap.org']);
+    expect(res.body.places).toEqual([]);
+    expect(hostsAsked()).toEqual(['photon.liketrek.com']);
   });
 
   it('MAPS-PHOTON-E2E-003: never asks Photon without a key', async () => {
@@ -164,14 +165,14 @@ describe('GET /api/maps/reverse', () => {
     expect(asked[0].pathname).toBe('/reverse');
   });
 
-  it('MAPS-PHOTON-E2E-006: asks Nominatim when Photon is down', async () => {
+  it('MAPS-PHOTON-E2E-006: a Photon that is down names nothing, Nominatim is not asked in its place', async () => {
     photonReply = () => photonAnswer([], 503);
     const res = await request(app.getHttpServer())
       .get('/api/maps/reverse')
       .set(as(USER))
       .query({ lat: '52.5163', lng: '13.3777' });
-    expect(res.body).toEqual({ name: 'Café Nominatim', address: NOMINATIM_HIT.display_name });
-    expect(hostsAsked()).toEqual(['photon.liketrek.com', 'nominatim.openstreetmap.org']);
+    expect(res.body).toEqual({ name: null, address: null });
+    expect(hostsAsked()).toEqual(['photon.liketrek.com']);
   });
 
   it('MAPS-PHOTON-E2E-007: answers 401 without a session and asks nobody', async () => {

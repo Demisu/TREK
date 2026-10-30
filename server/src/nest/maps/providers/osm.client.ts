@@ -205,7 +205,7 @@ const IDENTITY_TIMEOUT_MS = 2500;
 // asked for one ("Hauptbahnhof", "Tor station").
 const TRANSPORT_KEYS = new Set(['railway', 'public_transport', 'highway']);
 const TRANSPORT_WORDS =
-  /(station|bahnhof|hbf|bhf|halt|haltestelle|stop|street|straße|strasse|road|weg|gare|estación|stazione|駅)/iu;
+  /(?:^|[^\p{L}])(?:station|bahnhof|hbf|bhf|halt|haltestelle|stop|street|straße|strasse|road|weg|gare|estación|stazione)(?:$|[^\p{L}])|駅/iu;
 
 // How far a reverse lookup that found nothing next to the point looks again.
 const WIDE_REVERSE_KM = 50;
@@ -544,6 +544,11 @@ export class OsmClient {
    * next Nominatim slot each time, so somebody typing in the place search waits
    * behind the whole import.
    */
+  /** Whether Photon is this installation's geocoder, so a miss of it is not handed to Nominatim. */
+  photonIsGeocoder(): boolean {
+    return this.photon.inUse();
+  }
+
   async searchNominatim(
     query: string,
     lang?: string,
@@ -930,9 +935,10 @@ export class OsmClient {
     placeId: string,
     lang?: string,
   ): Promise<Record<string, unknown> | null> {
-    const at = element.center ?? (element.lat !== undefined && element.lon !== undefined ? element : null);
-    if (!at) return null;
-    const near = await this.photon.reverse(at.lat, at.lon, lang, undefined, { limit: 10, radius: 0.3 });
+    const lat = element.center?.lat ?? element.lat;
+    const lng = element.center?.lon ?? element.lon;
+    if (lat === undefined || lng === undefined) return null;
+    const near = await this.photon.reverse(lat, lng, lang, undefined, { limit: 10, radius: 0.3 });
     const self = near?.find((f) => asNominatimHit(f)?.osm_type === osmType && String(f.properties.osm_id) === osmId);
     const base = lang ? toApiLang(lang).split('-')[0] : '';
     const extra = self ? (asNominatimHit(self)?.extratags ?? {}) : {};
@@ -940,8 +946,8 @@ export class OsmClient {
       ...buildOsmDetails({ ...extra, ...(element.tags ?? {}) }, osmType, osmId),
       name: (base && element.tags?.[`name:${base}`]) || self?.properties.name || element.tags?.name || '',
       address: self ? photonDisplayName(self.properties) : near?.[0] ? photonDisplayName(near[0].properties) : '',
-      lat: at.lat,
-      lng: at.lon,
+      lat,
+      lng,
       osm_id: placeId,
     };
   }

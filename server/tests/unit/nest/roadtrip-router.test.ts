@@ -755,7 +755,8 @@ describe('server Roadtrip router through the TREK services (routing relay)', () 
     await oneByOne([...slow.entries()], async ([userId, timedOut]) => {
       vi.mocked(safeFetchAdminConfigured).mockClear();
       relay.ask.mockReset().mockImplementationOnce(timedOut);
-      const route = await settled(setup().router.route(userId, 1, 1, points.slice(0, 2), 'driving', ['toll']));
+      // All three points: the stubbed OSRM day has a leg for each pair of them.
+      const route = await settled(setup().router.route(userId, 1, 1, points, 'driving', ['toll']));
       expect(route.avoidMissed).toEqual(['toll']);
       const asked = vi.mocked(safeFetchAdminConfigured).mock.calls.map(([url]) => String(url));
       expect(asked).toHaveLength(1);

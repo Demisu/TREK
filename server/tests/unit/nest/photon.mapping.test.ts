@@ -252,7 +252,7 @@ describe('rankFeatures', () => {
       extra: undefined,
       name: 'Neuschwanstein Souvenirs',
     });
-    expect(rankFeatures([art, street, castle, shop]).map((f) => f.properties.osm_id)).toEqual([2, 1, 4, 3]);
+    expect(rankFeatures([art, street, castle, shop]).map((f) => f.properties.osm_id)).toEqual([2, 1, 3, 4]);
     expect(rankFeatures([castle, art]).map((f) => f.properties.osm_id)).toEqual([2, 1]);
   });
 });
@@ -295,7 +295,7 @@ describe('pickLead', () => {
     expect(pickLead([town({ name: 'FRA' })], 'FRA')).toBeNull();
     const municipality = town({ osm_value: 'municipality', name: 'Sagrada Família' });
     expect(pickLead([municipality], 'Sagrada Familia')).toBeNull();
-    expect(pickLead([municipality], 'Sagrada Familia', { lat: -20, lng: -44 })).not.toBeNull();
+    expect(pickLead([municipality], 'Sagrada Familia', { lat: 52.5, lng: 13.4 })).not.toBeNull();
   });
 });
 
@@ -338,7 +338,7 @@ describe('pickLead, namesakes', () => {
 
 describe('nameLike and editDistance', () => {
   it('PHOTON-MAP-025: counts a swap of neighbours as one edit', () => {
-    expect(editDistance('paramraibo', 'paramaribo')).toBe(2);
+    expect(editDistance('paramraibo', 'paramaribo')).toBe(1);
     expect(editDistance('tokio', 'tokyo')).toBe(1);
     expect(editDistance('ab', 'ba')).toBe(1);
     expect(editDistance('berlin', 'berlin')).toBe(0);

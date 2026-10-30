@@ -334,7 +334,7 @@ export function nameLike(query: string, name: string): boolean {
 
 /**
  * Edits between two strings, a swap of neighbours counting as one: the
- * optimal string alignment distance. "Paramraibo" is two from "Paramaribo".
+ * optimal string alignment distance. "Paramraibo" is one from "Paramaribo".
  */
 export function editDistance(a: string, b: string): number {
   if (Math.abs(a.length - b.length) > 2) return 3;

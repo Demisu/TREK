@@ -185,7 +185,7 @@ const admin: TranslationStrings = {
   'admin.trekApi.quota.used': 'Used',
   'admin.trekApi.quota.remaining': 'Remaining',
   'admin.trekApi.quota.resets': 'Resets at',
-  'admin.trekApi.quota.limit': 'Limit',
+  'admin.trekApi.quota.limit': 'Daily limit',
   'admin.trekApi.quota.key': 'Key',
   'admin.trekApi.quota.state.connected': 'Connected',
   'admin.trekApi.quota.state.registering': 'Setting up',

@@ -188,7 +188,7 @@ const admin: TranslationStrings = {
   'admin.trekApi.quota.used': 'Využité',
   'admin.trekApi.quota.remaining': 'Zostáva',
   'admin.trekApi.quota.resets': 'Obnoví sa o',
-  'admin.trekApi.quota.limit': 'Limit',
+  'admin.trekApi.quota.limit': 'Denný limit',
   'admin.trekApi.quota.key': 'Kľúč',
   'admin.trekApi.quota.state.connected': 'Pripojené',
   'admin.trekApi.quota.state.registering': 'Nastavuje sa',

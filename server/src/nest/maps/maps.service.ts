@@ -405,14 +405,13 @@ export class MapsService {
         }),
         this.osm
           .searchPhoton(query, lang, locationBias)
-          // Nominatim only for an installation Photon does not answer.
-          .then(
-            async (photon) =>
-              photon ?? {
-                records: await this.osm.searchNominatim(query, lang, 'interactive', locationBias),
-                lead: null,
-              },
-          )
+          // Nominatim only for an installation without Photon; where Photon is
+          // the geocoder its miss is an empty half, not a question for another.
+          .then(async (photon) => {
+            if (photon) return photon;
+            if (this.osm.photonIsGeocoder()) return { records: [] as Record<string, unknown>[], lead: null };
+            return { records: await this.osm.searchNominatim(query, lang, 'interactive', locationBias), lead: null };
+          })
           .catch((err: unknown) => {
             console.warn('OpenStreetMap search failed, index only:', (err as Error).message);
             return { records: [] as Record<string, unknown>[], lead: null };

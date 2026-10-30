@@ -85,8 +85,8 @@ describe('mergeSuggestions', () => {
   it('MAPS-SUGMERGE-005: opens on the lead and drops the rows of its name inside it', () => {
     const list = mergeSuggestions(berlinIndex, berlinPhoton, 8, { lead: berlin });
 
-    // The "Berlin" in Kleinmachnow lies outside the city, so it stays.
-    expect(list.map((s) => s.placeId)).toEqual(['relation:62422', 'node:484323', 'node:21302157', 'relation:170184']);
+    // The "Berlin" in Kleinmachnow lies inside the city's box, so it goes too.
+    expect(list.map((s) => s.placeId)).toEqual(['relation:62422', 'relation:170184', 'node:21302157']);
   });
 
   it('MAPS-SUGMERGE-006: a town leads only near where the traveller looks', () => {

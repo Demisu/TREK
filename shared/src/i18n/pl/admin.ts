@@ -133,7 +133,7 @@ const admin: TranslationStrings = {
   'admin.trekApi.quota.used': 'Wykorzystano',
   'admin.trekApi.quota.remaining': 'Pozostało',
   'admin.trekApi.quota.resets': 'Reset o',
-  'admin.trekApi.quota.limit': 'Limit',
+  'admin.trekApi.quota.limit': 'Limit dzienny',
   'admin.trekApi.quota.key': 'Klucz',
   'admin.trekApi.quota.state.connected': 'Połączono',
   'admin.trekApi.quota.state.registering': 'Konfigurowanie',

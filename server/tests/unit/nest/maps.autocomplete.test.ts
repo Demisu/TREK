@@ -238,7 +238,7 @@ describe('MapsService.autocompletePlaces', () => {
   });
 
   it('MAPS-AUTO-009: index and layer hits keep their own id form in one list', async () => {
-    mockSearch.mockResolvedValue([hit(), osmHit(), hit({ gers: 'def-456' })]);
+    mockSearch.mockResolvedValue([hit(), osmHit(), hit({ gers: 'def-456', name: 'Kirby Cafe Tenjin' })]);
 
     const { suggestions } = await make().autocompletePlaces(1, INPUT);
 

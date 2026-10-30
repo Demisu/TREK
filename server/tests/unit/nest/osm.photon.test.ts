@@ -213,7 +213,7 @@ describe('search', () => {
     (aerodrome.geometry as { coordinates: number[] }).coordinates = [-73.7781, 40.6413];
     photonReply = () => photonAnswer([aerodrome]);
     const fetchStub = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
-    const inner = fetchStub.getMockImplementation()!;
+    const inner = fetchStub.getMockImplementation() as (input: string | URL) => Promise<Response>;
     fetchStub.mockImplementation(async (input: string | URL) => {
       asked.push(new URL(String(input)).searchParams);
       return inner(input);
@@ -256,7 +256,7 @@ describe('reverse', () => {
     const asked: string[] = [];
     photonReply = () => photonAnswer([]);
     const fetchStub = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
-    const inner = fetchStub.getMockImplementation()!;
+    const inner = fetchStub.getMockImplementation() as (input: string | URL) => Promise<Response>;
     fetchStub.mockImplementation(async (input: string | URL) => {
       asked.push(new URL(String(input)).searchParams.get('radius') ?? '');
       return inner(input);

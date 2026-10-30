@@ -84,7 +84,7 @@ describe('what Photon is asked', () => {
       lang: 'pt',
       lat: '35.31',
       lon: '139.53',
-      zoom: '10',
+      zoom: '13',
     });
   });
 

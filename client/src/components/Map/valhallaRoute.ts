@@ -9,6 +9,7 @@ import {
 import { valhallaRelayRepo } from '../../repo/valhallaRelayRepo'
 import { useSettingsStore } from '../../store/settingsStore'
 import { decodePolyline } from './transitGeometry'
+import { ferrySpansOf, type ValhallaManeuver } from './valhallaFerries'
 import { haversineKm } from '../../utils/geo'
 import type { Waypoint, SnappedWaypoint, RouteAvoidClass } from '../../types'
 
@@ -390,7 +391,7 @@ async function chainRun(
   const base = valhallaBase()
   if (!mayAsk(base, ask.publicFallback) || waypoints.length < 2) return null
   const size = locationsPerRequest(base)
-  const run = await chainRunSized(base, waypoints, size, profile, avoid, signal, ask)
+  const run = await chainRunSized(base, waypoints, { size, profile, avoid, signal, ask })
   // The relay fell over during a day cut for it. It rests now, so the base reads as FOSSGIS
   // and the day is asked again there in pieces of ten.
   const recut = run === null && base === TREK_VALHALLA && ask.publicFallback && waypoints.length > MAX_LOCATIONS
@@ -400,14 +401,19 @@ async function chainRun(
   return run
 }
 
+/** How one day is asked: in pieces of `size`, for this profile and these avoidances. */
+interface SizedRun {
+  size: number
+  profile: 'driving' | 'walking' | 'cycling'
+  avoid: readonly AvoidClass[]
+  signal: AbortSignal | undefined
+  ask: RunAsk
+}
+
 async function chainRunSized(
   base: string,
   waypoints: Waypoint[],
-  size: number,
-  profile: 'driving' | 'walking' | 'cycling',
-  avoid: readonly AvoidClass[],
-  signal: AbortSignal | undefined,
-  ask: RunAsk,
+  { size, profile, avoid, signal, ask }: SizedRun,
 ): Promise<ValhallaRun | ValhallaNoPath | null> {
   const legs: ValhallaLeg[] = []
   // No pause between the pieces: a question that reaches FOSSGIS waits its turn in
@@ -926,14 +932,6 @@ export function runFrom(data: unknown): Omit<ValhallaRun, 'snapped'> | null {
 
 interface ValhallaSummary { [key: string]: number | boolean | undefined }
 
-interface ValhallaManeuver {
-  type?: number
-  ferry?: boolean
-  begin_shape_index?: number
-  end_shape_index?: number
-  time?: number
-  length?: number
-}
 
 function tripOf(data: unknown) {
   return (data as {
@@ -942,40 +940,6 @@ function tripOf(data: unknown) {
       summary?: ValhallaSummary
     }
   })?.trip
-}
-
-/** Valhalla's maneuver type for boarding a ferry; the maneuver also carries `ferry: true` for its crossing. */
-const FERRY_ENTER = 28
-
-/**
- * CW-12: the stretches of a leg the router takes by boat, read off its
- * maneuvers: a crossing is the maneuver that boards the ferry, from the point
- * it starts at to the one it ends at, with its own length and time. Measured
- * on Venice, the San Tomà to Ca' Rezzonico line came back as one maneuver of
- * type 28, ferry true, 1.236 km and 745 s over shape points 24 to 46, then the
- * walk off it. Crossings that touch are one. A leg the summary says has a
- * ferry but whose maneuvers do not say where is taken whole, without a time:
- * the crossing is somewhere on it, and none of it is counted as walked.
- */
-function ferrySpansOf(maneuvers: ValhallaManeuver[] | undefined, points: number): FerrySpan[] {
-  const spans: FerrySpan[] = []
-  for (const maneuver of maneuvers ?? []) {
-    if (maneuver.ferry !== true && maneuver.type !== FERRY_ENTER) continue
-    const from = Number(maneuver.begin_shape_index)
-    const to = Number(maneuver.end_shape_index)
-    if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to <= from || to >= points) continue
-    const metres = Number.isFinite(maneuver.length) ? Number(maneuver.length) * 1000 : 0
-    const seconds = Number.isFinite(maneuver.time) ? Number(maneuver.time) : null
-    const previous = spans[spans.length - 1]
-    if (previous && previous.to === from) {
-      previous.to = to
-      previous.metres += metres
-      previous.seconds = previous.seconds === null || seconds === null ? null : previous.seconds + seconds
-    } else {
-      spans.push({ from, to, metres, seconds })
-    }
-  }
-  return spans.length || points < 2 ? spans : [{ from: 0, to: points - 1, metres: 0, seconds: null }]
 }
 
 /** A summary and a shape as a leg, or null when the summary carries no numbers. */
