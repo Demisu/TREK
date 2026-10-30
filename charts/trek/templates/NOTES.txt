@@ -31,8 +31,8 @@
      The other values for that volume (size, storageClassName, annotations) are then ignored.
    - With `persistence.enabled=false` the volumes use an emptyDir — storage is ephemeral and is lost
      when the pod restarts. Use only for testing.
-
 {{- if .Values.httpRoute.enabled }}
+
 6. HTTPRoute:
    - The chart creates an HTTPRoute v1 to the existing TREK Service. The Gateway, GatewayClass,
      listeners, TLS certificates and allowedRoutes are managed by your cluster operator.
