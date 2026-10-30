@@ -169,7 +169,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Jalgsi',
   'admin.trekApi.routeAvoid': 'Väldi teemakse, kiirteid ja parvlaevu',
   'admin.trekApi.routeElevation': 'Kõrgusprofiil',
-  'admin.trekApi.routingNote': 'Marsruudid üle kogu planeedi, igal kuul OpenStreetMapi põhjal uuesti ehitatud, kõrgused maastikuplaatidest.',
+  'admin.trekApi.routingNote':
+    'Marsruudid üle kogu planeedi, igal kuul OpenStreetMapi põhjal uuesti ehitatud, kõrgused maastikuplaatidest.',
   'admin.trekApi.more': 'Mida see sisaldab',
   'admin.trekApi.fieldPhone': 'Telefon',
   'admin.trekApi.fieldStableId': 'Püsiv ID',

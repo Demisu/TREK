@@ -172,7 +172,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Piyada',
   'admin.trekApi.routeAvoid': 'Ödənişli yollardan, magistrallardan və bərələrdən çəkinin',
   'admin.trekApi.routeElevation': 'Yüksəklik profili',
-  'admin.trekApi.routingNote': 'Bütün planet üzrə marşrutlar, hər ay OpenStreetMap-dən yenidən qurulur, hündürlüklər relyef plitələrindən götürülür.',
+  'admin.trekApi.routingNote':
+    'Bütün planet üzrə marşrutlar, hər ay OpenStreetMap-dən yenidən qurulur, hündürlüklər relyef plitələrindən götürülür.',
   'admin.trekApi.more': 'Nələr daxildir',
   'admin.trekApi.fieldPhone': 'Telefon',
   'admin.trekApi.fieldStableId': 'Sabit ID',

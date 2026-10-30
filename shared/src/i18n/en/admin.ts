@@ -167,7 +167,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'On foot',
   'admin.trekApi.routeAvoid': 'Avoid tolls, motorways and ferries',
   'admin.trekApi.routeElevation': 'Elevation profile',
-  'admin.trekApi.routingNote': 'Routes across the whole planet, rebuilt every month from OpenStreetMap, with heights from terrain tiles.',
+  'admin.trekApi.routingNote':
+    'Routes across the whole planet, rebuilt every month from OpenStreetMap, with heights from terrain tiles.',
   'admin.trekApi.more': 'What is in it',
   'admin.trekApi.fieldPhone': 'Phone',
   'admin.trekApi.fieldStableId': 'Stable id',

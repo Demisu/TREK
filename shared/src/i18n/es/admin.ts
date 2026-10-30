@@ -117,7 +117,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'A pie',
   'admin.trekApi.routeAvoid': 'Evitar peajes, autopistas y ferris',
   'admin.trekApi.routeElevation': 'Perfil de elevación',
-  'admin.trekApi.routingNote': 'Rutas por todo el planeta, reconstruidas cada mes a partir de OpenStreetMap, con alturas de teselas de terreno.',
+  'admin.trekApi.routingNote':
+    'Rutas por todo el planeta, reconstruidas cada mes a partir de OpenStreetMap, con alturas de teselas de terreno.',
   'admin.trekApi.more': 'Qué contiene',
   'admin.trekApi.fieldPhone': 'Teléfono',
   'admin.trekApi.fieldStableId': 'Identificador estable',

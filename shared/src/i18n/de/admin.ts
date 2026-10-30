@@ -111,13 +111,15 @@ const admin: TranslationStrings = {
   'admin.trekApi.addrTowns': 'Orte und Regionen',
   'admin.trekApi.addrReverse': 'Adresse eines Punkts auf der Karte',
   'admin.trekApi.addrLanguages': '26 Sprachen',
-  'admin.trekApi.addressNote': 'Jede Adresse aus OpenStreetMap, schon beim Tippen und von einem Punkt auf der Karte aus.',
+  'admin.trekApi.addressNote':
+    'Jede Adresse aus OpenStreetMap, schon beim Tippen und von einem Punkt auf der Karte aus.',
   'admin.trekApi.routeCar': 'Mit dem Auto',
   'admin.trekApi.routeBike': 'Mit dem Fahrrad',
   'admin.trekApi.routeFoot': 'Zu Fuß',
   'admin.trekApi.routeAvoid': 'Mautstraßen, Autobahnen und Fähren meiden',
   'admin.trekApi.routeElevation': 'Höhenprofil',
-  'admin.trekApi.routingNote': 'Routen über den ganzen Planeten, jeden Monat neu aus OpenStreetMap berechnet, mit Höhen aus Geländekacheln.',
+  'admin.trekApi.routingNote':
+    'Routen über den ganzen Planeten, jeden Monat neu aus OpenStreetMap berechnet, mit Höhen aus Geländekacheln.',
   'admin.trekApi.more': 'Was drin ist',
   'admin.trekApi.fieldPhone': 'Telefon',
   'admin.trekApi.fieldStableId': 'Stabile Kennung',

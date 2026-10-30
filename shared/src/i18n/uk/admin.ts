@@ -125,7 +125,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Пішки',
   'admin.trekApi.routeAvoid': 'Уникати платних доріг, автомагістралей і поромів',
   'admin.trekApi.routeElevation': 'Профіль висот',
-  'admin.trekApi.routingNote': 'Маршрути по всій планеті, щомісяця заново збираються з OpenStreetMap, висоти беруться з тайлів рельєфу.',
+  'admin.trekApi.routingNote':
+    'Маршрути по всій планеті, щомісяця заново збираються з OpenStreetMap, висоти беруться з тайлів рельєфу.',
   'admin.trekApi.more': 'Що всередині',
   'admin.trekApi.fieldPhone': 'Телефон',
   'admin.trekApi.fieldStableId': 'Стала позначка',

@@ -116,7 +116,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'A piedi',
   'admin.trekApi.routeAvoid': 'Evita pedaggi, autostrade e traghetti',
   'admin.trekApi.routeElevation': 'Profilo altimetrico',
-  'admin.trekApi.routingNote': 'Percorsi su tutto il pianeta, ricostruiti ogni mese da OpenStreetMap, con le altitudini da tessere del terreno.',
+  'admin.trekApi.routingNote':
+    'Percorsi su tutto il pianeta, ricostruiti ogni mese da OpenStreetMap, con le altitudini da tessere del terreno.',
   'admin.trekApi.more': 'Che cosa contiene',
   'admin.trekApi.fieldPhone': 'Telefono',
   'admin.trekApi.fieldStableId': 'Identificativo stabile',

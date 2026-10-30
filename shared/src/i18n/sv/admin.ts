@@ -169,7 +169,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Till fots',
   'admin.trekApi.routeAvoid': 'Undvik vägtullar, motorvägar och färjor',
   'admin.trekApi.routeElevation': 'Höjdprofil',
-  'admin.trekApi.routingNote': 'Rutter över hela planeten, byggs om varje månad från OpenStreetMap, med höjder från terrängrutor.',
+  'admin.trekApi.routingNote':
+    'Rutter över hela planeten, byggs om varje månad från OpenStreetMap, med höjder från terrängrutor.',
   'admin.trekApi.more': 'Vad som ingår',
   'admin.trekApi.fieldPhone': 'Telefon',
   'admin.trekApi.fieldStableId': 'Stabilt id',

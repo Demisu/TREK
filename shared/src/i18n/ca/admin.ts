@@ -122,7 +122,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'A peu',
   'admin.trekApi.routeAvoid': 'Evita peatges, autopistes i transbordadors',
   'admin.trekApi.routeElevation': "Perfil d'elevació",
-  'admin.trekApi.routingNote': "Rutes arreu del planeta, reconstruïdes cada mes a partir d'OpenStreetMap, amb altituds de rajoles de terreny.",
+  'admin.trekApi.routingNote':
+    "Rutes arreu del planeta, reconstruïdes cada mes a partir d'OpenStreetMap, amb altituds de rajoles de terreny.",
   'admin.trekApi.more': 'Què hi ha a dins',
   'admin.trekApi.fieldPhone': 'Telèfon',
   'admin.trekApi.fieldStableId': 'Identificador estable',

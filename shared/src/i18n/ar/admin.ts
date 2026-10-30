@@ -159,7 +159,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'سيرًا على الأقدام',
   'admin.trekApi.routeAvoid': 'تجنّب الرسوم والطرق السريعة والعبّارات',
   'admin.trekApi.routeElevation': 'مخطط الارتفاع',
-  'admin.trekApi.routingNote': 'مسارات عبر الكوكب بأكمله، يُعاد بناؤها كل شهر من OpenStreetMap، مع الارتفاعات من بلاطات التضاريس.',
+  'admin.trekApi.routingNote':
+    'مسارات عبر الكوكب بأكمله، يُعاد بناؤها كل شهر من OpenStreetMap، مع الارتفاعات من بلاطات التضاريس.',
   'admin.trekApi.more': 'ماذا يحتوي',
   'admin.trekApi.fieldPhone': 'هاتف',
   'admin.trekApi.fieldStableId': 'معرّف ثابت',

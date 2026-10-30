@@ -172,7 +172,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Πεζή',
   'admin.trekApi.routeAvoid': 'Αποφυγή διοδίων, αυτοκινητοδρόμων και πορθμείων',
   'admin.trekApi.routeElevation': 'Προφίλ υψομέτρου',
-  'admin.trekApi.routingNote': 'Διαδρομές σε ολόκληρο τον πλανήτη, που ξαναχτίζονται κάθε μήνα από το OpenStreetMap, με υψόμετρα από πλακίδια εδάφους.',
+  'admin.trekApi.routingNote':
+    'Διαδρομές σε ολόκληρο τον πλανήτη, που ξαναχτίζονται κάθε μήνα από το OpenStreetMap, με υψόμετρα από πλακίδια εδάφους.',
   'admin.trekApi.more': 'Τι περιλαμβάνει',
   'admin.trekApi.fieldPhone': 'Τηλέφωνο',
   'admin.trekApi.fieldStableId': 'Σταθερό αναγνωριστικό',

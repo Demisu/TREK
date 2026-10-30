@@ -125,7 +125,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Пешком',
   'admin.trekApi.routeAvoid': 'Избегать платных дорог, автомагистралей и паромов',
   'admin.trekApi.routeElevation': 'Профиль высот',
-  'admin.trekApi.routingNote': 'Маршруты по всей планете, каждый месяц заново собираются из OpenStreetMap, высоты берутся из тайлов рельефа.',
+  'admin.trekApi.routingNote':
+    'Маршруты по всей планете, каждый месяц заново собираются из OpenStreetMap, высоты берутся из тайлов рельефа.',
   'admin.trekApi.more': 'Что внутри',
   'admin.trekApi.fieldPhone': 'Телефон',
   'admin.trekApi.fieldStableId': 'Постоянный идентификатор',

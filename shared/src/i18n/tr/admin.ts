@@ -169,7 +169,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Yürüyerek',
   'admin.trekApi.routeAvoid': 'Ücretli yollardan, otoyollardan ve feribotlardan kaçın',
   'admin.trekApi.routeElevation': 'Yükseklik profili',
-  'admin.trekApi.routingNote': "Tüm gezegen için rotalar, her ay OpenStreetMap'ten yeniden oluşturulur, yükseklikler arazi karolarından gelir.",
+  'admin.trekApi.routingNote':
+    "Tüm gezegen için rotalar, her ay OpenStreetMap'ten yeniden oluşturulur, yükseklikler arazi karolarından gelir.",
   'admin.trekApi.more': 'İçinde ne var',
   'admin.trekApi.fieldPhone': 'Telefon',
   'admin.trekApi.fieldStableId': 'Kalıcı kimlik',

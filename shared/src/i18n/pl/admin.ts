@@ -115,7 +115,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Pieszo',
   'admin.trekApi.routeAvoid': 'Unikaj płatnych dróg, autostrad i promów',
   'admin.trekApi.routeElevation': 'Profil wysokościowy',
-  'admin.trekApi.routingNote': 'Trasy na całej planecie, co miesiąc budowane od nowa z OpenStreetMap, z wysokościami z kafli terenu.',
+  'admin.trekApi.routingNote':
+    'Trasy na całej planecie, co miesiąc budowane od nowa z OpenStreetMap, z wysokościami z kafli terenu.',
   'admin.trekApi.more': 'Co w tym jest',
   'admin.trekApi.fieldPhone': 'Telefon',
   'admin.trekApi.fieldStableId': 'Stały identyfikator',

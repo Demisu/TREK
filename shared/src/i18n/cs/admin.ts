@@ -117,7 +117,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Pěšky',
   'admin.trekApi.routeAvoid': 'Vyhnout se mýtným úsekům, dálnicím a trajektům',
   'admin.trekApi.routeElevation': 'Výškový profil',
-  'admin.trekApi.routingNote': 'Trasy po celé planetě, každý měsíc znovu sestavené z OpenStreetMap, s výškami z terénních dlaždic.',
+  'admin.trekApi.routingNote':
+    'Trasy po celé planetě, každý měsíc znovu sestavené z OpenStreetMap, s výškami z terénních dlaždic.',
   'admin.trekApi.more': 'Co v tom je',
   'admin.trekApi.fieldPhone': 'Telefon',
   'admin.trekApi.fieldStableId': 'Stálý identifikátor',

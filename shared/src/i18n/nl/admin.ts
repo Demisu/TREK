@@ -117,7 +117,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Te voet',
   'admin.trekApi.routeAvoid': 'Tolwegen, snelwegen en veerboten vermijden',
   'admin.trekApi.routeElevation': 'Hoogteprofiel',
-  'admin.trekApi.routingNote': 'Routes over de hele planeet, elke maand opnieuw opgebouwd uit OpenStreetMap, met hoogtes uit terreintegels.',
+  'admin.trekApi.routingNote':
+    'Routes over de hele planeet, elke maand opnieuw opgebouwd uit OpenStreetMap, met hoogtes uit terreintegels.',
   'admin.trekApi.more': 'Wat erin zit',
   'admin.trekApi.fieldPhone': 'Telefoon',
   'admin.trekApi.fieldStableId': 'Stabiele id',

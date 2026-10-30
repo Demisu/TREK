@@ -116,7 +116,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Gyalog',
   'admin.trekApi.routeAvoid': 'Kerüld a fizetős utakat, autópályákat és kompokat',
   'admin.trekApi.routeElevation': 'Magassági profil',
-  'admin.trekApi.routingNote': 'Útvonalak az egész bolygón, havonta újraépítve az OpenStreetMapből, a magasságok domborzati csempékből származnak.',
+  'admin.trekApi.routingNote':
+    'Útvonalak az egész bolygón, havonta újraépítve az OpenStreetMapből, a magasságok domborzati csempékből származnak.',
   'admin.trekApi.more': 'Mi van benne',
   'admin.trekApi.fieldPhone': 'Telefon',
   'admin.trekApi.fieldStableId': 'Állandó azonosító',

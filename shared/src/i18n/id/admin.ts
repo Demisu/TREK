@@ -164,7 +164,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Jalan kaki',
   'admin.trekApi.routeAvoid': 'Hindari jalan tol, jalan raya, dan feri',
   'admin.trekApi.routeElevation': 'Profil elevasi',
-  'admin.trekApi.routingNote': 'Rute di seluruh planet, dibangun ulang setiap bulan dari OpenStreetMap, dengan ketinggian dari ubin medan.',
+  'admin.trekApi.routingNote':
+    'Rute di seluruh planet, dibangun ulang setiap bulan dari OpenStreetMap, dengan ketinggian dari ubin medan.',
   'admin.trekApi.more': 'Apa isinya',
   'admin.trekApi.fieldPhone': 'Telepon',
   'admin.trekApi.fieldStableId': 'Id tetap',

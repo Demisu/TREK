@@ -164,7 +164,8 @@ const admin: TranslationStrings = {
   'admin.trekApi.routeFoot': 'Đi bộ',
   'admin.trekApi.routeAvoid': 'Tránh đường thu phí, đường cao tốc và phà',
   'admin.trekApi.routeElevation': 'Biểu đồ độ cao',
-  'admin.trekApi.routingNote': 'Tuyến đường trên toàn hành tinh, dựng lại hằng tháng từ OpenStreetMap, với độ cao từ các ô địa hình.',
+  'admin.trekApi.routingNote':
+    'Tuyến đường trên toàn hành tinh, dựng lại hằng tháng từ OpenStreetMap, với độ cao từ các ô địa hình.',
   'admin.trekApi.more': 'Bên trong có gì',
   'admin.trekApi.fieldPhone': 'Điện thoại',
   'admin.trekApi.fieldStableId': 'Mã định danh ổn định',
