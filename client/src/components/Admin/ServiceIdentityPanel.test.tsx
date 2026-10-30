@@ -39,9 +39,13 @@ describe('ServiceIdentityPanel', () => {
     const bar = screen.getByRole('progressbar', { name: 'admin.trekApi.quota.service.places' });
     expect(bar).toHaveAttribute('aria-valuenow', '2500');
     expect(bar).toHaveAttribute('aria-valuemax', '10000');
-    expect(screen.getByText('2,500 / 10,000')).toBeInTheDocument();
+    // What is left is the figure of the tile; used and the limit sit beside it as badges.
     expect(screen.getByText('7,500')).toBeInTheDocument();
-    expect(screen.getByText('admin.trekApi.quota.resets')).toBeInTheDocument();
+    expect(screen.getByText('2,500')).toBeInTheDocument();
+    expect(screen.getByText('10,000')).toBeInTheDocument();
+    expect(screen.getByText('admin.trekApi.quota.limit')).toBeInTheDocument();
+    // The day starts again at the same time for every service, so it is said once, in the header.
+    expect(screen.getAllByText('admin.trekApi.quota.resets')).toHaveLength(1);
     expect(screen.queryByText(/admin\.trekApi\.quota\.hint\./)).toBeNull();
   });
 
@@ -63,7 +67,9 @@ describe('ServiceIdentityPanel', () => {
   it('FE-ADMIN-SVCID-004: a key from the environment is named, and only changed there', async () => {
     serve({ ...CONNECTED, keySource: 'env', tier: 'own' });
     render(<ServiceIdentityPanel />);
-    expect(await screen.findByText('admin.trekApi.quota.envKey')).toBeInTheDocument();
+    // A badge naming the variable; the sentence explaining it is its tooltip.
+    expect(await screen.findByText('TREK_SERVICES_KEY')).toBeInTheDocument();
+    expect(screen.getByText('admin.trekApi.quota.key')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'admin.trekApi.quota.regenerate' })).toBeNull();
   });
 
