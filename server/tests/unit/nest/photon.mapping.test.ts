@@ -1,8 +1,14 @@
 /**
- * PHOTON-MAP-001..016: Photon's answers read into the shape Nominatim gives,
- * the rows of the suggestion list, and the language Photon is asked in.
+ * PHOTON-MAP-001..029: Photon's answers read into the shape Nominatim gives,
+ * the rows of the suggestion list, the lead the list opens on, and the
+ * language Photon is asked in.
  */
 import {
+  asLead,
+  editDistance,
+  nameLike,
+  pickLead,
+  rankFeatures,
   asNominatimHit,
   asNominatimReverse,
   asSuggestion,
@@ -128,7 +134,7 @@ describe('asSuggestion', () => {
     expect(asSuggestion(feature())).toEqual({
       placeId: 'way:518071791',
       mainText: 'Brandenburger Tor',
-      secondaryText: 'Pariser Platz, Mitte, Berlin, 10117, Deutschland',
+      secondaryText: 'Pariser Platz, Mitte, Berlin, Deutschland',
       source: 'openstreetmap',
       lat: 52.5163,
       lng: 13.3777,
@@ -138,7 +144,7 @@ describe('asSuggestion', () => {
   it('PHOTON-MAP-015: keeps a name that holds a comma whole, and titles a house without one by its number', () => {
     const bar = asSuggestion(feature({ name: 'Bar, Café Einstein' }));
     expect(bar?.mainText).toBe('Bar, Café Einstein');
-    expect(bar?.secondaryText).toBe('Pariser Platz, Mitte, Berlin, 10117, Deutschland');
+    expect(bar?.secondaryText).toBe('Pariser Platz, Mitte, Berlin, Deutschland');
 
     const house = asSuggestion(
       feature({ name: undefined, housenumber: '77', street: 'Unter den Linden', postcode: undefined }),
@@ -153,5 +159,196 @@ describe('asSuggestion', () => {
       features: [{ geometry: { coordinates: [13.4, 52.5] }, properties: { osm_type: 'N', osm_id: 1 } }],
     });
     expect(asSuggestion(bare.features[0])).toBeNull();
+  });
+});
+
+describe('asSuggestion, the line below the name', () => {
+  it('PHOTON-MAP-017: leaves out postcode and county, and names the region only where there is no town', () => {
+    const village = asSuggestion(
+      feature({
+        osm_key: 'place',
+        osm_value: 'village',
+        name: 'Berlin',
+        street: undefined,
+        postcode: '457130',
+        district: undefined,
+        city: undefined,
+        county: 'Троицкий муниципальный округ',
+        state: 'Chelyabinsk Oblast',
+        country: 'Russia',
+      }),
+    );
+    expect(village?.secondaryText).toBe('Chelyabinsk Oblast, Russia');
+    expect(asSuggestion(feature({ county: 'Berlin', postcode: '10117' }))?.secondaryText).toBe(
+      'Pariser Platz, Mitte, Berlin, Deutschland',
+    );
+  });
+});
+
+describe('asLead', () => {
+  const city = (properties: Record<string, unknown> = {}) =>
+    feature({
+      osm_type: 'R',
+      osm_id: 62422,
+      osm_key: 'place',
+      osm_value: 'city',
+      type: 'city',
+      name: 'Berlin',
+      street: undefined,
+      postcode: undefined,
+      district: undefined,
+      city: undefined,
+      extent: [13.088345, 52.6755087, 13.7611609, 52.3382448],
+      ...properties,
+    });
+
+  it('PHOTON-MAP-018: reads a town as a lead from nearby, with its extent', () => {
+    expect(asLead(city())).toEqual({
+      placeId: 'relation:62422',
+      name: 'Berlin',
+      reach: 'nearby',
+      kind: 'city',
+      lat: 52.5163,
+      lng: 13.3777,
+      extent: [13.088345, 52.6755087, 13.7611609, 52.3382448],
+    });
+  });
+
+  it('PHOTON-MAP-019: reads a country or a region as a lead from everywhere, extent or none', () => {
+    expect(asLead(city({ osm_value: 'country', type: 'country', name: 'Mauritania' }))?.reach).toBe('everywhere');
+    // Tokyo is a province Photon files on its town layer.
+    expect(asLead(city({ osm_value: 'province', name: 'Tokyo' }))?.reach).toBe('everywhere');
+    expect(asLead(city({ extent: undefined }))?.extent).toBeNull();
+  });
+
+  it('PHOTON-MAP-020: has no lead for a sight, a street or a quarter', () => {
+    expect(asLead(feature())).toBeNull();
+    expect(asLead(city({ osm_key: 'highway', osm_value: 'primary', type: 'street' }))).toBeNull();
+    expect(asLead(city({ osm_value: 'suburb', type: 'district' }))).toBeNull();
+  });
+});
+
+describe('rankFeatures', () => {
+  it('PHOTON-MAP-021: puts a place with a Wikidata link before its unlinked namesakes, Photon order otherwise', () => {
+    const art = feature({
+      osm_id: 1,
+      osm_key: 'tourism',
+      osm_value: 'artwork',
+      extra: undefined,
+      name: 'Neuschwanstein',
+    });
+    const castle = feature({ osm_id: 2, osm_key: 'tourism', osm_value: 'attraction', name: 'Schloss Neuschwanstein' });
+    const street = feature({
+      osm_id: 3,
+      osm_key: 'highway',
+      osm_value: 'residential',
+      extra: undefined,
+      name: 'Neuschwansteinstraße',
+    });
+    const shop = feature({
+      osm_id: 4,
+      osm_key: 'shop',
+      osm_value: 'gift',
+      extra: undefined,
+      name: 'Neuschwanstein Souvenirs',
+    });
+    expect(rankFeatures([art, street, castle, shop]).map((f) => f.properties.osm_id)).toEqual([2, 1, 4, 3]);
+    expect(rankFeatures([castle, art]).map((f) => f.properties.osm_id)).toEqual([2, 1]);
+  });
+});
+
+describe('pickLead', () => {
+  const town = (properties: Record<string, unknown>) =>
+    feature({
+      osm_key: 'place',
+      osm_value: 'city',
+      type: 'city',
+      street: undefined,
+      district: undefined,
+      city: undefined,
+      ...properties,
+    });
+
+  it('PHOTON-MAP-022: a country or region first leads under any name, so an exonym keeps it', () => {
+    const lead = pickLead(
+      [town({ osm_type: 'R', osm_id: 192763, osm_value: 'country', type: 'country', name: 'Mauritania' })],
+      'Mauretanien',
+    );
+    expect(lead).toMatchObject({ placeId: 'relation:192763', reach: 'everywhere' });
+  });
+
+  it('PHOTON-MAP-023: anything else leads only when called what was typed, or a typo of it', () => {
+    const centrum = town({
+      osm_type: 'R',
+      osm_id: 1,
+      osm_key: 'boundary',
+      osm_value: 'administrative',
+      type: 'county',
+      name: 'Centrum',
+    });
+    const paramaribo = town({ osm_type: 'N', osm_id: 2, name: 'Paramaribo' });
+    expect(pickLead([centrum, paramaribo], 'Paramraibo')).toMatchObject({ placeId: 'node:2' });
+    expect(pickLead([centrum], 'Paramraibo')).toBeNull();
+  });
+
+  it('PHOTON-MAP-024: no lead for an airport code, nor for a municipality with nothing to say where the traveller is', () => {
+    expect(pickLead([town({ name: 'FRA' })], 'FRA')).toBeNull();
+    const municipality = town({ osm_value: 'municipality', name: 'Sagrada Família' });
+    expect(pickLead([municipality], 'Sagrada Familia')).toBeNull();
+    expect(pickLead([municipality], 'Sagrada Familia', { lat: -20, lng: -44 })).not.toBeNull();
+  });
+});
+
+describe('pickLead, namesakes', () => {
+  const place = (properties: Record<string, unknown>) =>
+    feature({ osm_key: 'place', street: undefined, district: undefined, city: undefined, ...properties });
+
+  it('PHOTON-MAP-027: a namesake ranked higher that may not lead leaves the list without a lead', () => {
+    const london = place({ osm_type: 'R', osm_id: 1, osm_value: 'town', type: 'district', name: 'Greenwich' });
+    const connecticut = place({ osm_type: 'R', osm_id: 2, osm_value: 'town', type: 'city', name: 'Greenwich' });
+    expect(pickLead([london, connecticut], 'Greenwich')).toBeNull();
+    expect(pickLead([connecticut, london], 'Greenwich')).toMatchObject({ placeId: 'relation:2' });
+  });
+
+  it('PHOTON-MAP-029: a street of the name ranked higher does not block, and an island leads', () => {
+    const street = place({
+      osm_type: 'W',
+      osm_id: 4,
+      osm_key: 'highway',
+      osm_value: 'primary',
+      type: 'street',
+      name: 'Spitzbergen',
+    });
+    const island = place({ osm_type: 'R', osm_id: 5, osm_value: 'island', type: 'other', name: 'Spitzbergen' });
+    expect(pickLead([street, island], 'Spitzbergen')).toMatchObject({ placeId: 'relation:5', kind: 'island' });
+  });
+
+  it('PHOTON-MAP-028: a town filed as an administrative boundary leads as a town', () => {
+    const merida = place({
+      osm_type: 'R',
+      osm_id: 3,
+      osm_key: 'boundary',
+      osm_value: 'administrative',
+      type: 'city',
+      name: 'Mérida',
+    });
+    expect(pickLead([merida], 'Mérida')).toMatchObject({ placeId: 'relation:3', kind: 'city' });
+  });
+});
+
+describe('nameLike and editDistance', () => {
+  it('PHOTON-MAP-025: counts a swap of neighbours as one edit', () => {
+    expect(editDistance('paramraibo', 'paramaribo')).toBe(2);
+    expect(editDistance('tokio', 'tokyo')).toBe(1);
+    expect(editDistance('ab', 'ba')).toBe(1);
+    expect(editDistance('berlin', 'berlin')).toBe(0);
+  });
+
+  it('PHOTON-MAP-026: takes the same name, its start, a word of it or a near typo, and nothing shorter than three letters', () => {
+    expect(nameLike('Berl', 'Berlin')).toBe(true);
+    expect(nameLike('Tor', 'Brandenburger Tor')).toBe(true);
+    expect(nameLike('Tokio', 'Tokyo')).toBe(true);
+    expect(nameLike('Mailand', 'Milan')).toBe(false);
+    expect(nameLike('Be', 'Berlin')).toBe(false);
   });
 });

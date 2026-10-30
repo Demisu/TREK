@@ -116,7 +116,7 @@ function settings(rows: Record<string, string>): AppSettingsRepository {
 function withPhoton(rows: Suggestion[] | null, settingRows: Record<string, string> = {}) {
   trekPlaces.on = true;
   const parts = buildMapsParts({} as PlacePhotoCacheService, settings(settingRows), noUsers, {} as never, {} as never);
-  const photon = vi.spyOn(parts.osm, 'autocompletePhoton').mockResolvedValue(rows);
+  const photon = vi.spyOn(parts.osm, 'suggestPhoton').mockResolvedValue(rows && { rows, lead: null });
   return { svc: parts.svc, photon };
 }
 
@@ -540,7 +540,8 @@ describe('MapsService.autocompletePlaces', () => {
     mockSearch.mockResolvedValue([]);
     const { svc, photon } = withPhoton(null);
     photon.mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve([photonRow()]), PHOTON_GRACE_MS + 100)),
+      () =>
+        new Promise((resolve) => setTimeout(() => resolve({ rows: [photonRow()], lead: null }), PHOTON_GRACE_MS + 100)),
     );
 
     const result = await svc.autocompletePlaces(1, INPUT);

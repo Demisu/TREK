@@ -13,6 +13,7 @@ import {
   indexSuggestions,
   mergeIndexPages,
   mergeSuggestions,
+  osmLayerRecord,
   PHOTON_GRACE_MS,
 } from './maps-index.helpers';
 import { NEARBY_DEFAULT_LIMIT, NEARBY_DEFAULT_RADIUS_M, nearbyCacheKey, nearestFirst } from './maps-nearby.helpers';
@@ -29,12 +30,11 @@ import type { PlacesProviderChoice } from './providers/places-provider';
 import { WikimediaClient, type BrandLogo } from './providers/wikimedia.client';
 import {
   trekPlacesSearch,
-  indexHitsOnly,
+  isOsmHit,
   trekPlacesArea,
   trekPlacesNearby,
   toPlaceRecord,
   type TrekHighlight,
-  type TrekPlace,
 } from './trek-places.client';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
@@ -304,7 +304,7 @@ export class MapsService {
    * a Nominatim call on the background lane, waiting out its throttle. The index
    * answers most of them without leaving our own infrastructure and without a
    * throttle at all; a street address it does not know still falls through to
-   * Nominatim, which is the source that resolves addresses.
+   * Photon, which resolves addresses (Nominatim without the TREK services).
    *
    * Never throws: an import that cannot place a hotel still imports the hotel.
    */
@@ -380,38 +380,47 @@ export class MapsService {
       !(await this.selector.googleOnly(keyed, opts.googleOnly))
     ) {
       // Both at once. The index is a dataset of businesses and is very good
-      // at those; OpenStreetMap is where the temples, bridges, riverside
-      // walks and viewpoints are, and a travel search asks for those
-      // constantly. Concurrently, so the pair costs the slower one rather
-      // than the sum. This is the explicit search, not the keystroke path
-      // Nominatim's policy rules out.
+      // at those; its OpenStreetMap layer and Photon are where the temples,
+      // bridges, riverside walks, viewpoints and towns are, and a travel search
+      // asks for those constantly. Concurrently, so the pair costs the slower
+      // one rather than the sum. The list is merged the way the suggestions
+      // are (`mergeRanked`), Photon's lead first, so the search and the
+      // suggestions agree on what a name means.
       //
       // Each side catches its own failure. A rejection reaching Promise.all
       // would throw away the answer the other side had already produced — and
       // the index refusing a query is ordinary traffic, not an outage: a common
       // single word without coordinates is turned down upstream as too
-      // expensive. That used to discard ten good OpenStreetMap results and ask
-      // Nominatim the same question a second time, behind its own 1.1 s
-      // process-wide throttle.
+      // expensive.
       const [found, osm] = await Promise.all([
         trekPlacesSearch(query, {
           lat: locationBias?.lat,
           lng: locationBias?.lng,
           limit: 10,
+          sources: 'index,osm',
           lang,
-        })
-          .then(indexHitsOnly)
-          .catch((err: unknown) => {
-            console.warn('TREK Places search failed, falling back:', (err as Error).message);
-            return [] as TrekPlace[];
-          }),
-        this.osm.searchNominatim(query, lang, 'interactive', locationBias).catch((err: unknown) => {
-          console.warn('OpenStreetMap search failed, index only:', (err as Error).message);
-          return [] as Record<string, unknown>[];
+        }).catch((err: unknown) => {
+          console.warn('TREK Places search failed, falling back:', (err as Error).message);
+          return [];
         }),
+        this.osm
+          .searchPhoton(query, lang, locationBias)
+          // Nominatim only for an installation Photon does not answer.
+          .then(
+            async (photon) =>
+              photon ?? {
+                records: await this.osm.searchNominatim(query, lang, 'interactive', locationBias),
+                lead: null,
+              },
+          )
+          .catch((err: unknown) => {
+            console.warn('OpenStreetMap search failed, index only:', (err as Error).message);
+            return { records: [] as Record<string, unknown>[], lead: null };
+          }),
       ]);
-      osmAnswer = osm;
-      const places = mergeSearchResults(found.map(toPlaceRecord), osm);
+      osmAnswer = osm.records;
+      const fromIndex = found.map((hit) => (isOsmHit(hit) ? osmLayerRecord(hit, lang) : toPlaceRecord(hit)));
+      const places = mergeSearchResults(fromIndex, osm.records, 10, { lead: osm.lead, bias: locationBias });
       if (places.length > 0) {
         // Names the sources that actually contributed, not the ones that were
         // asked. Either side can come back empty — the index turns down a common
@@ -420,7 +429,7 @@ export class MapsService {
         // scored against, so a list that is entirely OpenStreetMap must not be
         // recorded as though the index had a hand in it.
         const source =
-          found.length > 0 ? (osm.length > 0 ? 'trek-places+openstreetmap' : 'trek-places') : 'openstreetmap';
+          found.length > 0 ? (osm.records.length > 0 ? 'trek-places+openstreetmap' : 'trek-places') : 'openstreetmap';
         return { places, source };
       }
     }
@@ -565,7 +574,7 @@ export class MapsService {
       // answered it gets a moment more and is then dropped: a slow Photon must
       // not hold back what the index already has.
       const typing = new AbortController();
-      const asked = this.osm.autocompletePhoton(input, lang, boxCentre, typing.signal);
+      const asked = this.osm.suggestPhoton(input, lang, boxCentre, typing.signal);
       const found = await trekPlacesSearch(input, {
         lat: boxCentre?.lat,
         lng: boxCentre?.lng,
@@ -578,7 +587,10 @@ export class MapsService {
       });
       const photon = found.length > 0 ? await answerWithin(asked, PHOTON_GRACE_MS) : await asked;
       typing.abort();
-      const suggestions = mergeSuggestions(indexSuggestions(found, lang), photon ?? []);
+      const suggestions = mergeSuggestions(indexSuggestions(found, lang), photon?.rows ?? [], 8, {
+        lead: photon?.lead,
+        bias: boxCentre,
+      });
       if (suggestions.length > 0) {
         return { suggestions, source: found.length > 0 ? 'trek-places' : 'openstreetmap' };
       }

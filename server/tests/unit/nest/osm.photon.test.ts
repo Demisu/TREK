@@ -1,9 +1,9 @@
 /**
- * OSM-PHOTON-001..014: the OpenStreetMap search and reverse lookup ask Photon
- * first where the installation holds a key, answer in the shape Nominatim's
- * answers always had, and fall back to Nominatim whenever Photon gives none.
- * Lookups by id stay on Nominatim. The network is a stubbed global fetch
- * routed by host.
+ * OSM-PHOTON-001..020: the OpenStreetMap search and reverse lookup are Photon's
+ * where the installation holds a key, answer in the shape Nominatim's answers
+ * always had, and leave Nominatim to installations without the TREK services.
+ * A lookup by id is Overpass and Photon, Nominatim only where Overpass cannot
+ * place the element. The network is a stubbed global fetch routed by host.
  */
 import { deriveServices } from '../../../src/app-config/boot-derive';
 import { OsmClient } from '../../../src/nest/maps/providers/osm.client';
@@ -33,6 +33,7 @@ const NOMINATIM_REVERSE = {
 
 let identity: FakeServiceIdentity;
 let photonReply: () => Response;
+let overpassReply: () => Response;
 let osm: OsmClient;
 const hosts: string[] = [];
 
@@ -40,6 +41,20 @@ beforeEach(() => {
   identity = new FakeServiceIdentity();
   serviceIdentitySlot.install(identity);
   photonReply = () => photonAnswer([gateFeature()]);
+  overpassReply = () =>
+    new Response(
+      JSON.stringify({
+        elements: [
+          {
+            type: 'way',
+            id: 518071791,
+            center: { lat: 52.5163, lon: 13.3777 },
+            tags: { name: 'Brandenburger Tor', 'name:en': 'Brandenburg Gate', website: 'https://example.org' },
+          },
+        ],
+      }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
   hosts.length = 0;
   vi.stubEnv('NOMINATIM_URL', '');
   vi.stubGlobal(
@@ -48,6 +63,7 @@ beforeEach(() => {
       const url = new URL(String(input));
       hosts.push(url.hostname);
       if (url.hostname === 'photon.liketrek.com') return photonReply();
+      if (url.hostname === 'overpass-api.de') return overpassReply();
       const body = url.pathname.endsWith('/reverse') ? NOMINATIM_REVERSE : [NOMINATIM_GATE];
       return new Response(JSON.stringify(body), { status: 200, headers: { 'content-type': 'application/json' } });
     }),
@@ -82,10 +98,15 @@ describe('search', () => {
     });
   });
 
-  it('OSM-PHOTON-002: asks Nominatim when Photon fails, with the bias it would have had', async () => {
+  it('OSM-PHOTON-002: a Photon that fails is an empty answer where Photon is the geocoder; Nominatim only without the services', async () => {
     photonReply = () => photonAnswer([], 503);
+    expect(await osm.searchNominatim('Brandenburger Tor', 'de', 'interactive', { lat: 52.5, lng: 13.4 })).toEqual([]);
+    expect(hosts).toEqual(['photon.liketrek.com']);
+
+    hosts.length = 0;
+    identity.bearer = null;
     const places = await osm.searchNominatim('Brandenburger Tor', 'de', 'interactive', { lat: 52.5, lng: 13.4 });
-    expect(hosts).toEqual(['photon.liketrek.com', 'nominatim.openstreetmap.org']);
+    expect(hosts).toEqual(['nominatim.openstreetmap.org']);
     expect(places[0]).toMatchObject({ osm_id: 'way:518071791' });
   });
 
@@ -95,26 +116,20 @@ describe('search', () => {
     expect(places.map((p) => p.osm_id)).toEqual(['node:7']);
   });
 
-  it('OSM-PHOTON-010: asks Nominatim when Photon finds nothing usable, without holding it against Photon', async () => {
+  it('OSM-PHOTON-010: an empty answer from Photon is the answer; Nominatim is not asked beside it', async () => {
     photonReply = () => photonAnswer([]);
-    expect((await osm.searchNominatim('Brandenburger Tor', 'de'))[0]).toMatchObject({ osm_id: 'way:518071791' });
+    expect(await osm.searchNominatim('Brandenburger Tor', 'de')).toEqual([]);
     photonReply = () => photonAnswer([gateFeature({ osm_type: undefined })]);
-    expect((await osm.searchNominatim('Brandenburger Tor', 'de'))[0]).toMatchObject({ wikidata: 'Q82425' });
-    photonReply = () => photonAnswer([gateFeature()]);
-    await osm.searchNominatim('Brandenburger Tor', 'de');
-    expect(hosts).toEqual([
-      'photon.liketrek.com',
-      'nominatim.openstreetmap.org',
-      'photon.liketrek.com',
-      'nominatim.openstreetmap.org',
-      'photon.liketrek.com',
-    ]);
+    expect(await osm.searchNominatim('Brandenburger Tor', 'de')).toEqual([]);
+    expect(hosts).toEqual(['photon.liketrek.com', 'photon.liketrek.com']);
   });
 
-  it('OSM-PHOTON-011: a bulk import on the background lane asks Nominatim alone', async () => {
-    await osm.searchNominatim('Brandenburger Tor', 'de', 'background');
+  it('OSM-PHOTON-011: a bulk import on the background lane asks Photon too, for its search and its reverse lookup', async () => {
+    expect((await osm.searchNominatim('Brandenburger Tor', 'de', 'background'))[0]).toMatchObject({
+      osm_id: 'way:518071791',
+    });
     await osm.reverse('52.5', '13.4', 'de', { lane: 'background' });
-    expect(hosts).toEqual(['nominatim.openstreetmap.org', 'nominatim.openstreetmap.org']);
+    expect(hosts).toEqual(['photon.liketrek.com', 'photon.liketrek.com']);
   });
 
   it('OSM-PHOTON-012: carries the wiki tags of a Photon hit into the record', async () => {
@@ -145,12 +160,73 @@ describe('search', () => {
       {
         placeId: 'way:518071791',
         mainText: 'Brandenburger Tor',
-        secondaryText: 'Pariser Platz, Mitte, Berlin, 10117, Deutschland',
+        secondaryText: 'Pariser Platz, Mitte, Berlin, Deutschland',
         source: 'openstreetmap',
         lat: 52.5163,
         lng: 13.3777,
       },
     ]);
+  });
+
+  it("OSM-PHOTON-015: hands the suggestion list Photon's first hit as its lead where it names a town", async () => {
+    const town = gateFeature({
+      osm_type: 'R',
+      osm_id: 62422,
+      osm_key: 'place',
+      osm_value: 'city',
+      type: 'city',
+      name: 'Berlin',
+      extent: [13.088345, 52.6755087, 13.7611609, 52.3382448],
+    });
+    photonReply = () => photonAnswer([town, gateFeature()]);
+    const answer = await osm.suggestPhoton('Berl', 'de');
+    expect(answer?.rows.map((r) => r.placeId)).toEqual(['relation:62422', 'way:518071791']);
+    expect(answer?.lead).toMatchObject({ placeId: 'relation:62422', reach: 'nearby' });
+
+    // A sight with a Wikidata link leads too, when it is called what was typed.
+    photonReply = () => photonAnswer([gateFeature(), town]);
+    expect((await osm.suggestPhoton('Bran', 'de'))?.lead).toMatchObject({ placeId: 'way:518071791', kind: 'landmark' });
+    expect((await osm.suggestPhoton('Pariser', 'de'))?.lead).toBeNull();
+  });
+
+  it('OSM-PHOTON-016: the search hands its records ranked and its lead, and null where Photon does not answer', async () => {
+    const street = gateFeature({ osm_id: 1, osm_key: 'highway', osm_value: 'pedestrian', extra: undefined });
+    photonReply = () => photonAnswer([street, gateFeature()]);
+    const answer = await osm.searchPhoton('Brandenburger Tor', 'de');
+    // The street of the same name steps back behind the sight with a Wikidata link.
+    expect(answer?.records.map((r) => r.osm_id)).toEqual(['way:518071791', 'way:1']);
+    expect(answer?.lead).toMatchObject({ placeId: 'way:518071791' });
+
+    identity.bearer = null;
+    expect(await osm.searchPhoton('Brandenburger Tor', 'de')).toBeNull();
+  });
+
+  it('OSM-PHOTON-020: an airport code in capitals is asked as the airport at its place, and leads with the aerodrome', async () => {
+    const asked: URLSearchParams[] = [];
+    const aerodrome = gateFeature({
+      osm_type: 'W',
+      osm_id: 12345,
+      osm_key: 'aeroway',
+      osm_value: 'aerodrome',
+      name: 'John F. Kennedy International Airport',
+    });
+    (aerodrome.geometry as { coordinates: number[] }).coordinates = [-73.7781, 40.6413];
+    photonReply = () => photonAnswer([aerodrome]);
+    const fetchStub = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
+    const inner = fetchStub.getMockImplementation()!;
+    fetchStub.mockImplementation(async (input: string | URL) => {
+      asked.push(new URL(String(input)).searchParams);
+      return inner(input);
+    });
+
+    const answer = await osm.suggestPhoton('JFK', 'en');
+    expect(asked[0].get('q')).toBe('John F. Kennedy International Airport');
+    expect(asked[0].get('lat')).toBe('40.639447');
+    expect(answer?.lead).toMatchObject({ placeId: 'way:12345', reach: 'everywhere', kind: 'airport' });
+
+    // Lower case is a word being typed, not a code.
+    await osm.suggestPhoton('jfk', 'en');
+    expect(asked[1].get('q')).toBe('jfk');
   });
 
   it('OSM-PHOTON-014: answers null without Photon rather than asking Nominatim, whose policy rules out autocomplete', async () => {
@@ -176,30 +252,73 @@ describe('reverse', () => {
     expect((await osm.reverse('52.5163', '13.3777', 'de', { locality: true })).name).toBe('Berlin');
   });
 
-  it('OSM-PHOTON-007: asks Nominatim when Photon fails or finds nothing there', async () => {
-    photonReply = () => photonAnswer([], 429);
-    expect(await osm.reverse('52.5', '13.4', 'de')).toEqual({
-      name: 'Unter den Linden',
-      address: 'Unter den Linden 77, Mitte, Berlin, Deutschland',
-    });
+  it('OSM-PHOTON-007: asks again within 50 km when nothing is next to the point, and never Nominatim beside Photon', async () => {
+    const asked: string[] = [];
     photonReply = () => photonAnswer([]);
-    expect((await osm.reverse('52.5', '13.4', 'de')).name).toBe('Unter den Linden');
-    expect(hosts).toEqual([
-      'photon.liketrek.com',
-      'nominatim.openstreetmap.org',
-      'photon.liketrek.com',
-      'nominatim.openstreetmap.org',
-    ]);
+    const fetchStub = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
+    const inner = fetchStub.getMockImplementation()!;
+    fetchStub.mockImplementation(async (input: string | URL) => {
+      asked.push(new URL(String(input)).searchParams.get('radius') ?? '');
+      return inner(input);
+    });
+    expect(await osm.reverse('46.0', '104.0', 'de')).toEqual({ name: null, address: null });
+    expect(asked).toEqual(['', '50']);
+    photonReply = () => photonAnswer([], 429);
+    expect(await osm.reverse('52.5', '13.4', 'de')).toEqual({ name: null, address: null });
+    expect(hosts).not.toContain('nominatim.openstreetmap.org');
   });
 
-  it('OSM-PHOTON-008: the raw answer for a pasted link comes from Photon, else from Nominatim', async () => {
+  it('OSM-PHOTON-008: the raw answer for a pasted link comes from Photon; a miss is an empty answer, not Nominatim', async () => {
     expect((await osm.reverseRaw(52.5163, 13.3777)).address?.tourism).toBe('Brandenburger Tor');
     photonReply = () => photonAnswer([], 500);
-    expect(await osm.reverseRaw(52.5, 13.4)).toEqual(NOMINATIM_REVERSE);
+    expect(await osm.reverseRaw(52.5, 13.4)).toEqual({});
+    expect(hosts).not.toContain('nominatim.openstreetmap.org');
+  });
+
+  it("OSM-PHOTON-017: without the TREK services the reverse lookup is Nominatim's, as it always was", async () => {
+    identity.bearer = null;
+    expect((await osm.reverse('52.5', '13.4', 'de')).name).toBe('Unter den Linden');
+    expect(hosts).toEqual(['nominatim.openstreetmap.org']);
   });
 });
 
-it('OSM-PHOTON-009: a lookup by id stays on Nominatim', async () => {
-  await osm.lookupNominatim('way', '518071791', 'de');
-  expect(hosts).toEqual(['nominatim.openstreetmap.org']);
+it('OSM-PHOTON-009: a lookup by id is Overpass for the tags and the place, Photon for the name and address', async () => {
+  const details = await osm.elementDetails('way:518071791', 'en');
+  expect(details).toMatchObject({
+    name: 'Brandenburg Gate',
+    address: 'Brandenburger Tor, Pariser Platz, Mitte, Berlin, 10117, Deutschland',
+    lat: 52.5163,
+    lng: 13.3777,
+    osm_id: 'way:518071791',
+    website: 'https://example.org',
+  });
+  expect(hosts).toEqual(['overpass-api.de', 'photon.liketrek.com']);
+});
+
+it('OSM-PHOTON-018: Nominatim names the element only when Overpass cannot place it, or without the TREK services', async () => {
+  overpassReply = () => new Response('busy', { status: 504 });
+  await osm.elementDetails('way:518071791', 'de');
+  expect(hosts.filter((h) => h === 'nominatim.openstreetmap.org')).toHaveLength(1);
+  hosts.length = 0;
+  identity.bearer = null;
+  await osm.elementDetails('way:518071791', 'de');
+  expect(hosts).toContain('nominatim.openstreetmap.org');
+  expect(hosts).not.toContain('photon.liketrek.com');
+});
+
+it('OSM-PHOTON-019: the identity of a place comes from Photon inside the box, the sight before the station of its name', async () => {
+  const station = gateFeature({
+    osm_type: 'N',
+    osm_id: 3862767512,
+    osm_key: 'railway',
+    osm_value: 'station',
+    extra: { wikidata: 'Q477185' },
+  });
+  photonReply = () => photonAnswer([station, gateFeature()]);
+  const identityAnswer = await osm.resolveOsmIdentity('Brandenburger Tor', 52.5163, 13.3777, { lang: 'de' });
+  expect(identityAnswer).toMatchObject({
+    osmUrl: 'https://www.openstreetmap.org/way/518071791',
+    tags: { wikidata: 'Q82425' },
+  });
+  expect(hosts).toEqual(['photon.liketrek.com']);
 });

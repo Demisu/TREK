@@ -45,10 +45,13 @@ const SUGGEST_TIMEOUT_MS = 1500;
 const MAX_BYTES = 512_000;
 const SEARCH_LIMIT = 10;
 /**
- * How far the bias reaches. Nominatim is handed a box of a degree around the
- * point; zoom 10 is Photon's spelling of about that.
+ * How narrow the bias is. Asked from a city view ("Hauptbahnhof" from
+ * Hamburg, "Starbucks" from Tokyo), zoom 10 put the right place first 59 % of
+ * the time, 12 82 %, 13 91 % and 14 86 %. A wide decay lifts a namesake 50 km
+ * off above the real place; a narrow one leaves far places in Photon's own
+ * order of importance.
  */
-const BIAS_ZOOM = 10;
+const BIAS_ZOOM = 13;
 const MISSES_BEFORE_PAUSE = 4;
 const PAUSE_MS = 60_000;
 /** The longest Retry-After followed; the first question after it finds out whether the allowance is back. */
@@ -57,6 +60,9 @@ const MAX_PAUSE_MS = 60 * 60_000;
 interface PhotonSearchOptions {
   lang?: string;
   bias?: { lat: number; lng: number };
+  /** Only hits inside [west, south, east, north]. */
+  bbox?: [number, number, number, number];
+  limit?: number;
 }
 
 /** The misses in a row and the pause of one kind of question. */
@@ -90,13 +96,38 @@ export class PhotonClient {
 
   /**
    * What lies at a point, nearest first, or null when Nominatim has to answer.
-   * A caller's own deadline leaves Nominatim at least half of it.
+   * A caller's own deadline leaves Nominatim at least half of it. `radius` is
+   * Photon's search radius in km; its default finds nothing in open country,
+   * where Nominatim names the nearest object at any distance.
    */
-  reverse(lat: number, lng: number, lang?: string, timeoutMs?: number): Promise<PhotonFeature[] | null> {
+  reverse(
+    lat: number,
+    lng: number,
+    lang?: string,
+    timeoutMs?: number,
+    opts: { limit?: number; radius?: number } = {},
+  ): Promise<PhotonFeature[] | null> {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return Promise.resolve(null);
-    const params = new URLSearchParams({ lat: String(lat), lon: String(lng), limit: '1', lang: photonLang(lang) });
+    const params = new URLSearchParams({
+      lat: String(lat),
+      lon: String(lng),
+      limit: String(opts.limit ?? 1),
+      lang: photonLang(lang),
+    });
+    if (opts.radius) params.set('radius', String(opts.radius));
     const deadline = timeoutMs ? Math.min(TIMEOUT_MS, timeoutMs / 2) : TIMEOUT_MS;
     return this.ask('reverse', params, this.lookups, deadline);
+  }
+
+  /**
+   * Whether Photon is this installation's geocoder: the services are on, no
+   * operator's own Nominatim stands beside it, and there is a key to send. A
+   * question it then misses is a miss, not a reason to ask Nominatim.
+   */
+  inUse(): boolean {
+    if (this.config.mode === 'off' || readEnv().integrations.nominatimOwn) return false;
+    const url = new URL(this.config.photonUrl);
+    return !!serviceIdentitySlot.get().headersFor(url).Authorization;
   }
 
   private async ask(
@@ -167,7 +198,12 @@ export class PhotonClient {
 }
 
 function searchParams(query: string, opts: PhotonSearchOptions): URLSearchParams {
-  const params = new URLSearchParams({ q: query, limit: String(SEARCH_LIMIT), lang: photonLang(opts.lang) });
+  const params = new URLSearchParams({
+    q: query,
+    limit: String(opts.limit ?? SEARCH_LIMIT),
+    lang: photonLang(opts.lang),
+  });
+  if (opts.bbox) params.set('bbox', opts.bbox.join(','));
   if (opts.bias && Number.isFinite(opts.bias.lat) && Number.isFinite(opts.bias.lng)) {
     params.set('lat', String(opts.bias.lat));
     params.set('lon', String(opts.bias.lng));
