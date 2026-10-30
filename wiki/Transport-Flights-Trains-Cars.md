@@ -137,7 +137,7 @@ From the plan, **Edit** on a transport needs the right to edit days; on the Tran
 A transport with both ends set can be drawn as a line on the trip map:
 
 - **Flights**, **cruises** and **ferries** follow a great-circle curve, the way they actually travel across the globe.
-- **Cars**, **buses**, **taxis** and **bicycles** follow real roads, routed on demand through a public OSRM router (driving for car, bus and taxi, cycling for the bicycle). A straight line shows while the route loads, and stays when routing fails or the distance is over about 2000 km.
+- **Cars**, **buses**, **taxis** and **bicycles** follow real roads, routed on demand by the same router as a day's route (driving for car, bus and taxi, cycling for the bicycle): the Valhalla of the TREK services, or OSRM for a day it cannot answer and on an installation without them; see [Road-Trip](Road-Trip#routing-engines). A straight line shows while the route loads, and stays when routing fails or the distance is over about 2000 km.
 - **Trains** are drawn as a straight line through all their stations.
 - **Cable cars** are drawn as a straight line from the valley to the mountain station, the way the rope runs.
 - **Public transit** journeys follow their real rail and bus lines, each ride in its line's own colour and the walks between them as a dotted grey line. A journey the provider sent no shape for falls back to a straight line. A journey is also drawn whenever its day's **Route** is switched on, so it has no route button of its own in the day plan.

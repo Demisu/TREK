@@ -66,7 +66,7 @@ See the [[Development Environment|Development-environment]] page for the full se
 | Real-time | WebSocket (ws)                                                                            |
 | Database | SQLite with WAL mode                                                                      |
 | Auth | JWT (HS256), bcrypt, TOTP MFA, passkeys (WebAuthn), OIDC                                 |
-| Maps | Leaflet + react-leaflet (default, OpenFreeMap vector basemap via maplibre-gl-leaflet), MapLibre GL 5, Mapbox GL 3, OSRM, Nominatim |
+| Maps | Leaflet + react-leaflet (default, OpenFreeMap vector basemap via maplibre-gl-leaflet), MapLibre GL 5, Mapbox GL 3, Valhalla, OSRM, Photon, Nominatim |
 | i18n | 27 languages, EN canonical (locale directories live in shared/src/i18n/)                  |
 
 Documentation changes go to `wiki/`. The same pages ship inside the app: the in-app help reads them (served under `/api/help`) and links into them, and the MCP help tools search them, so a wiki edit reaches users with the next release as well as the GitHub wiki.

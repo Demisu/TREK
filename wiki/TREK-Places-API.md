@@ -1,10 +1,10 @@
 # TREK Places API
 
-The TREK Places API is TREK's own place index. It answers place search, the suggestions under the search box, the details of a place picked from it, the category buttons on the map and the geocoding behind imports, with no API key to enter and no account. Every installation gets a fair daily allowance, counted by the number of requests only. In the app it is called the **TREK API**, and a result that came from it carries a **TREK** mark.
+The TREK Places API is TREK's own place index. It answers place search, the suggestions under the search box, the details of a place picked from it, the category buttons on the map and the geocoding behind imports, with no API key to enter and no account. Two more services sit beside it under the same [installation key](#installation-key-and-daily-allowance): an [address search](#address-search) of OpenStreetMap (Photon, at `photon.liketrek.com`) and [routing](#routing) (Valhalla, at `valhalla.liketrek.com`). Every installation gets a fair daily allowance on each, counted by the number of requests only. In the app the three together are called the **TREK API**, and a result that came from the index carries a **TREK** mark.
 
 It does not replace OpenStreetMap. A search asks both and shows their results together, because each is good at what the other lacks: the index is strongest on businesses such as restaurants, shops and hotels, and OpenStreetMap is where the temples, bridges, viewpoints and stations are. How the two meet in the search box is described in [Places and Search](Places-and-Search).
 
-> **Admin:** there is nothing to set up. The index is on by default on every install and has no switch in the admin panel: whether searches leave the instance is a property of the deployment, so it is decided with environment variables (see [Switching it off](#switching-it-off) and [Running your own copy](#running-your-own-copy)), where a second admin cannot flip it from a browser. **Admin → Settings → API Keys** opens with its card, marked **Recommended default**, and **What is in it** on that card lists the fields and sources described below.
+> **Admin:** there is nothing to set up. The index is on by default on every install and has no switch in the admin panel: whether searches leave the instance is a property of the deployment, so it is decided with environment variables (see [Switching it off](#switching-it-off) and [Running your own copy](#running-your-own-copy)), where a second admin cannot flip it from a browser. **Admin → Settings → API Keys** opens with its card, marked **Recommended default**. It names the three services with a few facts about each and shows the allowance of each as tiles: what is left, what was used and the limit. **What is in it** lists one block per service: the fields of a place described below; for the address search streets and house numbers, towns and regions, the address of a point and 26 languages; for routing by car, by bike, on foot, avoiding tolls, motorways and ferries, and an elevation profile. The sources under it are Overture Maps Foundation, OpenStreetMap, Wikivoyage, Wikimedia and Mapzen Terrain Tiles, which the heights of routes come from.
 
 ## What it is
 
@@ -30,22 +30,22 @@ Names are the ones the index has, which are the names used on the spot. The inde
 
 | Where | What the TREK API does | When it has no answer or cannot be reached |
 |---|---|---|
-| Suggestions while typing | Answers on its own, from the index and its OpenStreetMap layer | Google or Amap when one holds the keyed slot, otherwise OpenStreetMap's search service (Nominatim) |
-| Full search (search button or **Enter**) | Asked together with OpenStreetMap; the two lists are interleaved, TREK first | OpenStreetMap's answer on its own; the keyed provider only when both are empty |
+| Suggestions while typing | Asked together with the [address search](#address-search), from the index and its OpenStreetMap layer; see [How the list is put together](Places-and-Search#how-the-list-is-put-together) | The address search's answer on its own; Google or Amap when both are empty and one holds the keyed slot, otherwise OpenStreetMap (the address search, or Nominatim on an installation without a key) |
+| Full search (search button or **Enter**) | Asked together with OpenStreetMap (the address search, or Nominatim without a key), merged the same way as the suggestions | OpenStreetMap's answer on its own; the keyed provider only when both are empty |
 | Opening a place picked from it | Address, contact details, opening hours and description | The place keeps what was saved with it |
 | Category buttons on the trip map | Places of that category around the map centre | The public Overpass mirrors of OpenStreetMap |
 | The [Road trip](Road-Trip#search-along-the-route) addon's search along the drive | Fuel, charging, rest areas, campsites and the other kinds it looks for | The public Overpass mirrors |
 | Tours: the trail grades, surfaces and kinds of way along a planned tour | The OpenStreetMap tags of the ways the tour runs on, from its ways layer | The public Overpass mirrors |
 | Tours: the signposted horse routes around the map view | The horse route relations in the view with their ways, from its routes layer | The public Overpass mirrors |
 | Tours: the ski piste router (**Ski & winter** tours) | The winter layer: which build it serves, the index of ski areas, and the graph of runs, lifts and trails of one area, which your server keeps and checks once a day | A ski area already kept on your server still plans; a leg that cannot be planned gets a red row, *The piste data cannot be reached right now.*, with **Draw straight** |
-| Booking imports, and stops given only by name in an imported Google Maps route | The coordinate of a venue, found by its name | OpenStreetMap's search service, which also resolves street addresses |
+| Booking imports, and stops given only by name in an imported Google Maps route | The coordinate of a venue, found by its name | The [address search](#address-search), which also resolves street addresses; Nominatim on an installation without a key |
 | Preparing a trip for offline use | Up to 3000 places around the trip, in one request | Nothing is cached, and offline search has nothing to answer from |
 | MCP: `search_place` and `search_pois` | The same as the full search and the category buttons | The same fallbacks |
 | Places near a point (**Places near this pin** in the place form, `POST /api/maps/nearby`, `search_nearby_places`) | Named places of any kind around the point, nearest first | Google Places when the index has nothing and a key exists, OpenStreetMap otherwise |
 
 Where Google holds the keyed slot (a Google key, with neither Amap nor OpenStreetMap picked as the places provider), two things skip the index and OpenStreetMap for a search: the **Search Google instead** line under a result list (`provider: 'google'` on `search_place`) sends that one search to Google Places alone, and the admin switch **Search with Google only** sends every search and every suggestion there, `search_place` and **Places near this pin** included; the category buttons and `search_pois` keep asking the index. See [Google and Amap](Places-and-Search#google-and-amap).
 
-Right-click reverse geocoding on the map does not use it: that is OpenStreetMap's (or Amap's inside mainland China, when Amap holds the keyed slot), through the [address search](#address-search) where the installation has a key.
+Right-click reverse geocoding on the map and the name of a pasted map link do not use the index: they ask the [address search](#address-search) where the installation has a key, Nominatim where it has none. Inside mainland China the right-click asks Amap when Amap holds the keyed slot.
 
 ### Why two sources
 
@@ -69,7 +69,7 @@ On its first search an installation registers itself with the service in the bac
 
 The key carries a random installation id and nothing else: no address, no host name, no user. It lets the service give each installation its own daily allowance instead of one pool per network, and it is sent only to the hosts in `TREK_SERVICES_HOSTS` (`places.liketrek.com`, `photon.liketrek.com` and `valhalla.liketrek.com` by default), never to a copy you run yourself or anywhere else.
 
-**Admin → Settings → API Keys** shows on the card how this installation stands: connected, setting up its key, on the shared pool, switched off or revoked, with today's use, what is left and when the count starts again. **New identity** drops the key and asks for a new one; use it after cloning an installation onto a second machine, or after the key was revoked. Requests are counted per installation and, independently, per network; the counters are deleted after two days. Search terms and coordinates are never logged.
+**Admin → Settings → API Keys** shows on the card how this installation stands: connected, setting up its key, on the shared pool, switched off or revoked, with today's use, what is left and the limit of each service, and when the count starts again. **New identity** drops the key and asks for a new one; use it after cloning an installation onto a second machine, or after the key was revoked. Requests are counted per installation and, independently, per network; the counters are deleted after two days. Search terms and coordinates are never logged.
 
 | Variable | What it does |
 |---|---|
@@ -81,11 +81,29 @@ An installation pointed at its own copy with `TREK_PLACES_URL`, or with `TREK_PL
 
 ## Address search
 
-Where the installation holds a key, the OpenStreetMap half of the search, the suggestions of an install without the index or a key, the right-click on the map and the name of a pasted map link ask the address search of the TREK services first: a [Photon](https://github.com/komoot/photon) instance at `photon.liketrek.com` with a planet-wide import of OpenStreetMap. Nominatim stays behind it. A refused key, a spent allowance, an error, no answer within 2.5 seconds, or nothing found all go to Nominatim, so the result reads the same either way. After four misses in a row TREK asks Nominatim alone for a minute; a spent allowance that says when it comes back is waited out instead, for an hour at most. Imports that look up many points in a row (the venues of a booking, the stops of a route link, the addresses of imported places) go to Nominatim alone and leave the allowance to the people searching.
+Where the installation holds a key, OpenStreetMap is asked through the address search of the TREK services: a [Photon](https://github.com/komoot/photon) instance at `photon.liketrek.com` with a planet-wide import of OpenStreetMap. It is then the installation's geocoder, and Nominatim is not asked beside it, nor when it finds nothing: an empty answer is the answer. It answers:
 
-It is asked in the language TREK is set to, without its region (`pt-BR` asks in Portuguese, `zh-TW` in Chinese), where the import holds names in that language: Arabic, Azerbaijani, Catalan, Chinese, Czech, Dutch, English, Estonian, French, German, Greek, Hungarian, Indonesian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Slovak, Spanish, Swedish, Thai, Turkish, Ukrainian and Vietnamese. Any other language gets the names used on the spot. Opening a place and matching a Google place to its OpenStreetMap record stay on Nominatim.
+- **Search and suggestions:** the OpenStreetMap half of the full search and of the suggestions while typing. How its hits are ranked and merged with the index is described in [How the list is put together](Places-and-Search#how-the-list-is-put-together).
+- **Imports:** the venues of a booking, the stops of a route link and the addresses of imported places, asked after the index.
+- **A point on the map:** the right-click on the map and the name of a pasted map link. When nothing lies next to the point, it is asked once more within 50 km; nothing there either leaves the name and address empty.
+- **Matching a Google place to its OpenStreetMap record**, for the record's Wikidata, Wikipedia and Commons tags: inside a box of about 2 km around the place, a place with a Wikidata link before an unlinked one, and a station or road of the same name after the place itself unless the name asked for one (*Hauptbahnhof*, *Tor station*).
+- **Opening an OpenStreetMap place:** Overpass gives the element's tags and where it lies, and the address search names it and writes its address. Nominatim is asked only when Overpass cannot place the element.
 
-It sends the words searched, the coordinate a search is ranked around, the point of a reverse lookup and that language, with the installation key and the `User-Agent` and nothing else. There is no shared pool: without a key, with `TREK_SERVICES=off`, or with `NOMINATIM_URL` set to a Nominatim of your own, TREK never asks it and searches the way it did before. `TREK_PHOTON_URL` points at another copy.
+Nominatim is not asked as a stand-in either. A search the address search does not answer at all (a refused key, a spent allowance, an error, or no answer within 2.5 seconds) has no OpenStreetMap half, and the index answers on its own. After four of those in a row TREK stops asking the address search for a minute; a spent allowance that says when it comes back is waited out instead, for an hour at most.
+
+It is asked in the language TREK is set to, without its region (`pt-BR` asks in Portuguese, `zh-TW` in Chinese), where the import holds names in that language: Arabic, Azerbaijani, Catalan, Chinese, Czech, Dutch, English, Estonian, French, German, Greek, Hungarian, Indonesian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Slovak, Spanish, Swedish, Thai, Turkish, Ukrainian and Vietnamese. Any other language gets the names used on the spot.
+
+It sends the words searched, the coordinate a search is ranked around, the point of a reverse lookup, the box around a place being matched and that language, with the installation key and the `User-Agent` and nothing else. There is no shared pool. Nominatim stays the geocoder of an installation without the TREK services (no key yet, or `TREK_SERVICES=off`) and of one with `NOMINATIM_URL` set to a Nominatim of its own: TREK then never asks the address search and geocodes the way it did before. `TREK_PHOTON_URL` points at another copy.
+
+## Routing
+
+The third service is a [Valhalla](https://github.com/valhalla/valhalla) at `valhalla.liketrek.com`, routing across the whole planet with elevation data. With **Routing service** on **Automatic** or **TREK services** it calculates the routes of the planner, the road trip and tours, by car, by bike and on foot, around toll roads, motorways and ferries where asked, and the heights of a line. The browser never asks it: a relay on your own server forwards each question with the installation key.
+
+A day goes to the relay with up to twenty stops a request, and the pieces of a longer day follow one another without a pause. A question that runs out its deadline, a very long bike route for example, is answered 504: that one day is drawn by OSRM, and the next question goes to the TREK Valhalla as before. Only a host that cannot be reached or answers with a server error makes TREK leave it alone, for 60 seconds on the server and 10 minutes in a browser tab. Isochrones are not offered.
+
+A routing request sends the coordinates of the stops in order, the travel mode and the road classes to avoid, with the installation key. Routes are asked for with their maneuvers only, without the written turn instructions. No user or trip goes along.
+
+Which engine answers what, what happens when the TREK Valhalla cannot answer, and how to use engines of your own is on [Admin-User-Defaults](Admin-User-Defaults#routing-service) and [Road-Trip](Road-Trip#routing-engines).
 
 ## What leaves your instance
 
@@ -99,6 +117,8 @@ Every request goes out from your TREK server, never from a browser, so the servi
 | The trip's area as a box | Preparing a trip for offline use |
 | The index id of one place | Opening a place picked from the index |
 | A venue name | Booking imports and route imports |
+| The words searched, the point of a reverse lookup, the box around a place being matched, and the language TREK is set to | The [address search](#address-search), once the installation has a key |
+| The coordinates of a day's stops in order, the travel mode and the road classes to avoid | [Routing](#routing) through the relay on your server |
 | The OpenStreetMap way ids a planned tour runs on | Tours trail grades, surfaces and kinds of way |
 | The map view as a box, grown to a 0.05 degree grid | Tours horse routes |
 | The id of a ski area | Tours ski piste router. No coordinate goes along: the service learns which area a planner loaded, never where anyone clicked. |
@@ -108,7 +128,7 @@ Every request goes out from your TREK server, never from a browser, so the servi
 
 The header carries an opaque token derived from your instance's own address, so the service can rate-limit each instance on its own instead of everyone behind one IP. Set `APP_URL` (or `ALLOWED_ORIGINS`): without either, the token is derived from the port alone, and two unconfigured installs on the same port share one rate-limit bucket.
 
-Who is searching never goes along. No user, account, session, cookie or trip id is sent, and neither is the language TREK is set to or the one picked under **Place names** (see [Language of place names](Places-and-Search#language-of-place-names)). The service's own front page states that queries are not logged, that requests are counted per rate-limit bucket and nothing else, and that the instance token is not stored.
+Who is searching never goes along. No user, account, session, cookie or trip id is sent, to the index, the address search or routing. The service's own front page states that queries are not logged, that requests are counted per rate-limit bucket and nothing else, and that the instance token is not stored.
 
 The requests use Node's default HTTP client, so an outbound proxy set with `HTTPS_PROXY` applies to them, and `NO_PROXY` can exempt the service's host. The official image already turns Node's environment proxy on; a source install needs `NODE_USE_ENV_PROXY=1` as well. See [Environment Variables](Environment-Variables#outbound-https-proxy).
 
@@ -152,8 +172,9 @@ The address is read from your own configuration and is not a URL a user can type
 | `TREK_PLACES_ENABLED` | Whether the index is asked at all |
 | `TREK_PLACES_URL` | Which copy of the index is asked |
 | `TREK_SERVICES`, `TREK_SERVICES_KEY`, `TREK_SERVICES_HOSTS` | The installation key, see [Installation key and daily allowance](#installation-key-and-daily-allowance) |
-| `NOMINATIM_URL` | The OpenStreetMap half of the full search, right-click reverse geocoding, OpenStreetMap place details and import geocoding. Set, it also keeps them off the [address search](#address-search) |
-| `TREK_PHOTON_URL` | Which copy of the [address search](#address-search) is asked |
+| `NOMINATIM_URL` | A Nominatim of your own. Set, it answers the OpenStreetMap half of the search, right-click reverse geocoding, OpenStreetMap place details and import geocoding, and the [address search](#address-search) is not asked at all. Unset, the public Nominatim answers them only on an installation without the TREK services, or a search the address search does not answer at all |
+| `TREK_PHOTON_URL` | Which copy of the [address search](#address-search) is asked; once the installation holds a key it is the geocoder for everything listed there |
+| `TREK_VALHALLA_URL` | Which copy of the [routing](#routing) service the relay asks |
 | `OVERPASS_URL`, `OVERPASS_TIMEOUT_MS` | The Overpass mirrors behind the category buttons, the Road trip search and the ways and horse routes of Tours when the index has no answer |
 
 Defaults and details for each are on [Environment Variables](Environment-Variables).
@@ -174,6 +195,7 @@ Nothing breaks. Every call has a short deadline, 3.5 seconds for a search, 10 se
 ## See also
 
 - [Places and Search](Places-and-Search): how the index, OpenStreetMap, Google and Amap meet in the search box
+- [Road-Trip](Road-Trip#routing-engines): the routing engines and how they share the work
 - [Offline Mode and PWA](Offline-Mode-and-PWA): keeping a trip on the device
 - [Environment Variables](Environment-Variables): every variable named on this page
 - [Plugin Cookbook](Plugin-Cookbook#answer-place-searches-from-your-own-index): adding a third index of your own to the search
