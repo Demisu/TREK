@@ -84,7 +84,7 @@ The **AI Parsing** tab starts with **Reads bookings with**, which shows the conn
 The form for an **Own connection** has these fields:
 
 - **Provider**: **Local (Ollama)**, **OpenAI** or **Anthropic**.
-- **Base URL**: empty means the provider's own address: `http://localhost:11434/v1` for a local Ollama server, `https://api.openai.com/v1` for OpenAI and `https://api.anthropic.com` for Anthropic. Any OpenAI-compatible endpoint goes here. For Anthropic it can name a gateway that speaks the Anthropic Messages API; give it without `/v1`, since TREK adds `/v1/messages`, and the gateway has to accept PDF document blocks and forced tool calls. Picking another provider empties the field, so an address meant for one never receives another provider's key.
+- **Base URL**: empty means the provider's own address: `http://localhost:11434/v1` for a local Ollama server, `https://api.openai.com/v1` for OpenAI and `https://api.anthropic.com` for Anthropic. Any OpenAI-compatible endpoint goes here. For Anthropic it can name a gateway that speaks the Anthropic Messages API; give it without `/v1`, since TREK adds `/v1/messages`, and the gateway has to accept PDF document blocks and tool calls. Picking another provider empties the field, so an address meant for one never receives another provider's key.
 - **API key**: optional for a local server (the field says *Often not needed*), required for the cloud providers. It is stored **encrypted** and shown masked (`••••••••`) once saved; leaving it unchanged keeps the stored key.
 - **Model**: the model id, for example `qwen3.5:4b`, `gpt-4o` or `claude-opus-4-8`.
 
