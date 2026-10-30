@@ -57,7 +57,7 @@ export function searchRecord(item: NominatimResult) {
   };
 }
 
-export function isHit(hit: NominatimResult | null): hit is NominatimResult {
+function isHit(hit: NominatimResult | null): hit is NominatimResult {
   return hit !== null;
 }
 

@@ -396,11 +396,6 @@ export async function trekPlacesSearch(
   return Array.isArray(body.results) ? body.results.map(withLocality) : [];
 }
 
-/** The index-only rows of a mixed result, for callers that need Overture fields. */
-export function indexHitsOnly(hits: TrekSearchHit[]): TrekPlace[] {
-  return hits.filter((h): h is TrekPlace => !isOsmHit(h));
-}
-
 /**
  * The planner's category pills, mapped onto Overture categories.
  *
