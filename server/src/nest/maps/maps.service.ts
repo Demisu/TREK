@@ -16,9 +16,10 @@ import {
   osmLayerRecord,
   PHOTON_GRACE_MS,
 } from './maps-index.helpers';
+import { mergeSearchResults } from './maps-merge.helpers';
 import { NEARBY_DEFAULT_LIMIT, NEARBY_DEFAULT_RADIUS_M, nearbyCacheKey, nearestFirst } from './maps-nearby.helpers';
 import { MapsUrlResolver, type ResolvedMapsUrl } from './maps-url.resolver';
-import { toApiLang, mergeSearchResults } from './maps.helpers';
+import { toApiLang } from './maps.helpers';
 import { PlaceDetailsResolver } from './place-details.resolver';
 import { PlacePhotoResolver } from './place-photo.resolver';
 import { PlacesProviderSelector, type KeyedProvider } from './places-provider.selector';

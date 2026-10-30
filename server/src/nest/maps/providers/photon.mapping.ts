@@ -8,7 +8,8 @@
  * the address as one comma-joined line. The OsmClient keeps one mapping from
  * Nominatim's shape to TREK's place record, and this file feeds it.
  */
-import { foldName, leadsHere, toApiLang } from '../maps.helpers';
+import { foldName, leadsHere } from '../maps-merge.helpers';
+import { toApiLang } from '../maps.helpers';
 import type { NominatimResult, NominatimReverse } from './osm.client';
 import type { MapsAutocompleteResult } from '@trek/shared';
 

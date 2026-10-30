@@ -17,14 +17,13 @@
  *
  * Search and reverse ask Photon first (PhotonClient) where the TREK services
  * hold a key and the operator runs no Nominatim of their own; its answers are
- * read into Nominatim's shape, so both come out of the same mapping. Lookups
- * by id and the identity match stay on Nominatim: they need its id lookup and
- * its extratags.
+ * read into Nominatim's shape, so both come out of the same mapping. Photon's
+ * half (osm-geocoding.ts) also matches identities and names an element
+ * Overpass placed; Nominatim answers installations without the services.
  *
  * Never imports MapsService: providers sit below the orchestrator
  * (lint:boundaries holds that).
  */
-import { findByIata, type Airport } from '../../airports/airports.data';
 import { logWarn } from '../../audit/audit-log.logger';
 import { nominatimFetch, type GeoLane } from '../../geo/nominatim.client';
 import { OVERPASS_ALONG_QUERY_TIMEOUT_S, aroundPath, overpassAlongQuery } from '../maps-along.helpers';
@@ -48,26 +47,19 @@ import {
 } from '../maps.helpers';
 import { overpassSelector, tagsMatchFilter } from '../osm-filter.helpers';
 import { OverpassBusy, hedged, lastAnsweredFirst, retryAfterMs, soonestRetryMs } from '../overpass-hedge.helpers';
-import { PhotonClient } from './photon.client';
 import {
-  asNominatimHit,
-  asNominatimReverse,
-  asSuggestion,
-  photonDisplayName,
-  pickLead,
-  rankFeatures,
-  type PhotonFeature,
-  type PhotonLead,
-} from './photon.mapping';
-import { readWikiIdentity } from './wiki-identity';
+  photonElementDetails,
+  photonIdentity,
+  photonReverse,
+  photonSearch,
+  photonSuggest,
+  searchRecord,
+  type IdentityMatch,
+} from './osm-geocoding';
+import { PhotonClient } from './photon.client';
 import { Injectable } from '@nestjs/common';
 import { normalizePlaceWebsite } from '@trek/shared';
 import type { LatLng } from '@trek/shared/roadtrip';
-
-function nominatimCategory(item: { class?: string; type?: string }): string | null {
-  if (!item.class || !item.type || item.type === 'yes') return null;
-  return item.class === 'shop' ? `shop_${item.type}` : item.type;
-}
 
 export interface NominatimResult {
   osm_type: string;
@@ -121,94 +113,11 @@ export interface NominatimReverse {
   address?: Record<string, string>;
 }
 
-/** A search row as TREK's place record. */
-function searchRecord(item: NominatimResult) {
-  // Number.isFinite, not `|| null`: a place on the equator or prime
-  // meridian has a legitimate 0 coordinate.
-  const lat = Number.parseFloat(item.lat);
-  const lng = Number.parseFloat(item.lon);
-  return {
-    google_place_id: null,
-    google_ftid: null,
-    osm_id: `${item.osm_type}:${item.osm_id}`,
-    name: item.name || item.display_name?.split(',')[0] || '',
-    address: item.display_name || '',
-    lat: Number.isFinite(lat) ? lat : null,
-    lng: Number.isFinite(lng) ? lng : null,
-    rating: null,
-    website: null,
-    phone: null,
-    // What the place is, so the add form can preselect a category (#2282). A shop's
-    // value is the ware ("bakery"), so the key goes first and says it is a shop.
-    category: nominatimCategory(item),
-    source: 'openstreetmap',
-    ...readWikiIdentity(item.extratags),
-  };
-}
-
-function isHit(hit: NominatimResult | null): hit is NominatimResult {
-  return hit !== null;
-}
-
-/**
- * The airport a code in capitals names ("JFK", "LHR"), from the bundled
- * dataset. Photon does not search codes: "JFK" answered with an expressway,
- * "FRA" with France. So the code is asked for as the airport's name at its
- * coordinate, where the aerodrome comes first. Lower case is left alone, so
- * "Ber" typed on the way to "Berlin" stays a search for Berlin.
- */
-function airportOfCode(query: string): Airport | null {
-  const code = query.trim();
-  return /^[A-Z]{3}$/.test(code) ? findByIata(code) : null;
-}
-
-/**
- * The aerodrome of a code's answer, within a few kilometres of the airport, as
- * a lead from everywhere; failing that a place there that calls itself an
- * airport, which is how OpenStreetMap files Haneda (an island named "Tokyo
- * International Airport").
- */
-function airportLead(ranked: PhotonFeature[], airport: Airport): PhotonLead | null {
-  const near = ranked
-    .map((feature) => ({ feature, row: asSuggestion(feature) }))
-    .filter(
-      (
-        c,
-      ): c is {
-        feature: PhotonFeature;
-        row: NonNullable<ReturnType<typeof asSuggestion>> & { lat: number; lng: number };
-      } =>
-        c.row?.lat !== undefined &&
-        c.row.lng !== undefined &&
-        haversineMetres(airport.lat, airport.lng, c.row.lat, c.row.lng) <= AIRPORT_MATCH_M,
-    );
-  const best =
-    near.find((c) => c.feature.properties.osm_value === 'aerodrome') ??
-    near.find((c) => c.feature.properties.osm_key === 'place' && AIRPORT_WORDS.test(c.row.mainText));
-  if (!best) return null;
-  const { placeId, mainText, lat, lng } = best.row;
-  return { placeId, name: mainText, reach: 'everywhere', kind: 'airport', lat, lng, extent: null };
-}
-
-const AIRPORT_WORDS = /airport|flughafen|aéroport|aeropuerto|aeroporto|luchthaven|lotnisko|空港|机场|공항/iu;
-
-/** How far an aerodrome may lie from the dataset's coordinate of its airport and still be it. */
-const AIRPORT_MATCH_M = 8000;
-
 // Tighter than the wiki calls, because this one sits at the FRONT of a chain:
 // identity, then sitelinks, then the extract. Nominatim answers a bounded
 // search in 0.2-0.7s in practice, so anything past a couple of seconds is a bad
 // day at the provider rather than a slow answer worth waiting for.
 const IDENTITY_TIMEOUT_MS = 2500;
-
-// A station or a road named after a place is not the place, unless the name
-// asked for one ("Hauptbahnhof", "Tor station").
-const TRANSPORT_KEYS = new Set(['railway', 'public_transport', 'highway']);
-const TRANSPORT_WORDS =
-  /(?:^|[^\p{L}])(?:station|bahnhof|hbf|bhf|halt|haltestelle|stop|street|straße|strasse|road|weg|gare|estación|stazione)(?:$|[^\p{L}])|駅/iu;
-
-// How far a reverse lookup that found nothing next to the point looks again.
-const WIDE_REVERSE_KM = 50;
 
 // The explicit search asks Nominatim alongside the index, and the pair costs
 // the slower one. The index gives up after 3.5 s and the browser after 8 s, so a
@@ -511,20 +420,14 @@ export class OsmClient {
 
   // ── Nominatim search ───────────────────────────────────────────────────────
 
-  /**
-   * Photon's search, its hits ranked (`rankFeatures`) and read as search
-   * records, with the lead the list opens on; or null where Photon is not in
-   * use or did not answer, and the caller is left to what it had before.
-   */
-  async searchPhoton(query: string, lang?: string, bias?: { lat: number; lng: number }) {
-    const airport = airportOfCode(query);
-    const found = await this.photon.search(airport?.name ?? query, { lang, bias: airport ?? bias });
-    if (!found) return null;
-    const ranked = rankFeatures(found);
-    return {
-      records: ranked.map(asNominatimHit).filter(isHit).map(searchRecord),
-      lead: airport ? airportLead(ranked, airport) : pickLead(ranked, query, bias),
-    };
+  /** Photon's search with its lead (`photonSearch`), or null where Photon is not in use or did not answer. */
+  searchPhoton(query: string, lang?: string, bias?: { lat: number; lng: number }) {
+    return photonSearch(this.photon, query, lang, bias);
+  }
+
+  /** Whether Photon is this installation's geocoder, so a miss of it is not handed to Nominatim. */
+  photonIsGeocoder(): boolean {
+    return this.photon.inUse();
   }
 
   /**
@@ -544,11 +447,6 @@ export class OsmClient {
    * next Nominatim slot each time, so somebody typing in the place search waits
    * behind the whole import.
    */
-  /** Whether Photon is this installation's geocoder, so a miss of it is not handed to Nominatim. */
-  photonIsGeocoder(): boolean {
-    return this.photon.inUse();
-  }
-
   async searchNominatim(
     query: string,
     lang?: string,
@@ -630,15 +528,8 @@ export class OsmClient {
   }
 
   /** The same suggestions with Photon's first hit read as a lead, for the list that merges them with the index. */
-  async suggestPhoton(input: string, lang?: string, bias?: { lat: number; lng: number }, signal?: AbortSignal) {
-    const airport = airportOfCode(input);
-    const found = await this.photon.suggest(airport?.name ?? input, { lang, bias: airport ?? bias, signal });
-    if (!found) return null;
-    const ranked = rankFeatures(found);
-    return {
-      rows: ranked.map(asSuggestion).filter((row) => row !== null),
-      lead: airport ? airportLead(ranked, airport) : pickLead(ranked, input, bias),
-    };
+  suggestPhoton(input: string, lang?: string, bias?: { lat: number; lng: number }, signal?: AbortSignal) {
+    return photonSuggest(this.photon, input, { lang, bias, signal });
   }
 
   /**
@@ -664,11 +555,11 @@ export class OsmClient {
     lat: number,
     lng: number,
     opts: { lang?: string; maxDistanceM?: number; signal?: AbortSignal } = {},
-  ): Promise<{ tags: Record<string, string>; osmUrl: string | null; matchedName: string } | null> {
+  ): Promise<IdentityMatch | null> {
     const query = (name || '').trim();
     if (!query || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
     const maxDistanceM = opts.maxDistanceM ?? 2000;
-    if (this.photon.inUse()) return this.photonIdentity(query, lat, lng, maxDistanceM, opts.lang);
+    if (this.photon.inUse()) return photonIdentity(this.photon, { query, lat, lng, maxDistanceM, lang: opts.lang });
 
     // ~2km box around the point, so Nominatim ranks locally instead of handing
     // back the most famous place on earth with this name.
@@ -727,43 +618,6 @@ export class OsmClient {
     }
   }
 
-  /**
-   * The identity from Photon, inside the same box and through the same two
-   * gates. Photon has no `importance`, so a Wikidata link stands in for it,
-   * and a station or a road named after the place steps back unless the name
-   * asked for one: the Brandenburg Gate before the station beside it.
-   * Measured on eight landmarks: seven right, against five in Photon's order.
-   */
-  private async photonIdentity(
-    query: string,
-    lat: number,
-    lng: number,
-    maxDistanceM: number,
-    lang?: string,
-  ): Promise<{ tags: Record<string, string>; osmUrl: string | null; matchedName: string } | null> {
-    const d = 0.02;
-    const found = await this.photon.search(query, { lang, bbox: [lng - d, lat - d, lng + d, lat + d], limit: 5 });
-    const transport = !TRANSPORT_WORDS.test(query);
-    const best = (found ?? [])
-      .map((feature) => ({ feature, hit: asNominatimHit(feature) }))
-      .filter((c): c is { feature: PhotonFeature; hit: NominatimResult } => c.hit !== null)
-      .map((c) => ({ ...c, metres: haversineMetres(lat, lng, Number(c.hit.lat), Number(c.hit.lon)) }))
-      .filter((c) => c.metres <= maxDistanceM && namesOverlap(query, c.hit.name || ''))
-      .map((c) => ({
-        ...c,
-        score:
-          (c.hit.extratags?.wikidata ? -2 : 0) +
-          (transport && TRANSPORT_KEYS.has(c.feature.properties.osm_key ?? '') ? 3 : 0),
-      }))
-      .sort((a, b) => a.score - b.score || a.metres - b.metres)[0];
-    if (!best) return null;
-    return {
-      tags: best.hit.extratags ?? {},
-      osmUrl: `https://www.openstreetmap.org/${best.hit.osm_type}/${best.hit.osm_id}`,
-      matchedName: best.hit.name || query,
-    };
-  }
-
   // ── Nominatim lookup (by OSM ID) ───────────────────────────────────────────
 
   async lookupNominatim(
@@ -816,7 +670,10 @@ export class OsmClient {
     opts?: { lane?: GeoLane; timeoutMs?: number; locality?: boolean },
   ): Promise<{ name: string | null; address: string | null }> {
     const data = this.photon.inUse()
-      ? await this.reversePhoton(lat, lng, lang, opts?.timeoutMs)
+      ? await photonReverse(this.photon, Number.parseFloat(lat), Number.parseFloat(lng), {
+          lang,
+          timeoutMs: opts?.timeoutMs,
+        })
       : await this.reverseNominatim(lat, lng, lang, opts);
     if (!data) return { name: null, address: null };
     const addr = data.address || {};
@@ -824,25 +681,6 @@ export class OsmClient {
       ? addr.city || addr.town || addr.village || addr.municipality || data.name || null
       : data.name || addr.tourism || addr.amenity || addr.shop || addr.building || addr.road || null;
     return { name, address: data.display_name || null };
-  }
-
-  /**
-   * Photon's nearest feature, or null where it has none. Photon looks within
-   * a small radius by default and finds nothing in open country or at sea,
-   * where Nominatim named the nearest object at any distance, so an empty
-   * answer is asked once more with a radius of 50 km.
-   */
-  private async reversePhoton(
-    lat: string,
-    lng: string,
-    lang?: string,
-    timeoutMs?: number,
-  ): Promise<NominatimReverse | null> {
-    const [y, x] = [Number.parseFloat(lat), Number.parseFloat(lng)];
-    const near = await this.photon.reverse(y, x, lang, timeoutMs);
-    const found =
-      near?.length === 0 ? await this.photon.reverse(y, x, lang, timeoutMs, { radius: WIDE_REVERSE_KM }) : near;
-    return found?.[0] ? asNominatimReverse(found[0]) : null;
   }
 
   private async reverseNominatim(
@@ -870,7 +708,7 @@ export class OsmClient {
    * coordinates are already known, so the caller still has something to return.
    */
   async reverseRaw(lat: number, lng: number): Promise<NominatimReverse> {
-    if (this.photon.inUse()) return (await this.reversePhoton(String(lat), String(lng))) ?? {};
+    if (this.photon.inUse()) return (await photonReverse(this.photon, lat, lng)) ?? {};
     const res = await nominatimFetch(
       'reverse',
       new URLSearchParams({ lat: String(lat), lon: String(lng), format: 'json', addressdetails: '1' }),
@@ -896,7 +734,7 @@ export class OsmClient {
     // names it; Nominatim is asked only when Overpass could not place it.
     const located = this.photon.inUse() ? await this.fetchOverpassDetails(osmType, osmId, true) : undefined;
     if (located) {
-      const answer = await this.photonElementDetails(located, osmType, osmId, placeId, lang);
+      const answer = await photonElementDetails(this.photon, located, { osmType, osmId, placeId, lang });
       if (answer) return answer;
     }
     // buildOsmDetails never yields name/address/coordinates — Nominatim is
@@ -918,36 +756,6 @@ export class OsmClient {
       address: nominatim?.address || '',
       lat: nominatim?.lat ?? null,
       lng: nominatim?.lng ?? null,
-      osm_id: placeId,
-    };
-  }
-
-  /**
-   * The details of an element without Nominatim: Overpass gave the tags and
-   * where the element is, Photon's reverse lookup at that point names it and
-   * writes its address, the element itself where Photon has it. Null when
-   * Overpass did not say where it is, so the caller can still try Nominatim.
-   */
-  private async photonElementDetails(
-    element: OverpassElement,
-    osmType: string,
-    osmId: string,
-    placeId: string,
-    lang?: string,
-  ): Promise<Record<string, unknown> | null> {
-    const lat = element.center?.lat ?? element.lat;
-    const lng = element.center?.lon ?? element.lon;
-    if (lat === undefined || lng === undefined) return null;
-    const near = await this.photon.reverse(lat, lng, lang, undefined, { limit: 10, radius: 0.3 });
-    const self = near?.find((f) => asNominatimHit(f)?.osm_type === osmType && String(f.properties.osm_id) === osmId);
-    const base = lang ? toApiLang(lang).split('-')[0] : '';
-    const extra = self ? (asNominatimHit(self)?.extratags ?? {}) : {};
-    return {
-      ...buildOsmDetails({ ...extra, ...(element.tags ?? {}) }, osmType, osmId),
-      name: (base && element.tags?.[`name:${base}`]) || self?.properties.name || element.tags?.name || '',
-      address: self ? photonDisplayName(self.properties) : near?.[0] ? photonDisplayName(near[0].properties) : '',
-      lat,
-      lng,
       osm_id: placeId,
     };
   }

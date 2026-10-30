@@ -7,7 +7,7 @@
  * Photon found.
  */
 import { mergeSuggestions } from '../../../src/nest/maps/maps-index.helpers';
-import { LEAD_TOWN_REACH_M } from '../../../src/nest/maps/maps.helpers';
+import { LEAD_TOWN_REACH_M } from '../../../src/nest/maps/maps-merge.helpers';
 import type { PhotonLead } from '../../../src/nest/maps/providers/photon.mapping';
 
 import { describe, it, expect } from 'vitest';

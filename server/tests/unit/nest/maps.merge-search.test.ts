@@ -8,7 +8,7 @@
  * ten plausible wrong answers look like an answer and the user never learns the
  * temple was one query away in OpenStreetMap.
  */
-import { mergeSearchResults } from '../../../src/nest/maps/maps.helpers';
+import { mergeSearchResults } from '../../../src/nest/maps/maps-merge.helpers';
 import type { PhotonLead } from '../../../src/nest/maps/providers/photon.mapping';
 
 import { describe, it, expect } from 'vitest';

@@ -5,7 +5,8 @@
  * the decision to make them is MapsService's.
  */
 import { getCountryFromCoords } from '../../utils/country-borders';
-import { buildOsmDetails, mergeRanked, parsePoiCategories, samePlace, toApiLang, type RowView } from './maps.helpers';
+import { mergeRanked, type RowView } from './maps-merge.helpers';
+import { buildOsmDetails, parsePoiCategories, samePlace, toApiLang } from './maps.helpers';
 import { POI_RESULT_CAP, type PoiSearchResult } from './providers/osm.client';
 import type { PhotonLead } from './providers/photon.mapping';
 import {
